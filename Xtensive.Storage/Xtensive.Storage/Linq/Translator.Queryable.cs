@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Linq
       if (isRoot)
         return VisitRootExists(source, le, false);
 
-      if (source.IsQuery() || source.IsLocalCollection())
+      if (source.IsQuery() || source.IsLocalCollection(context))
         return VisitExists(source, le, false);
 
       throw new NotSupportedException(Strings.ExContainsMethodIsOnlySupportedForRootExpressionsOrSubqueries);
@@ -295,7 +295,7 @@ namespace Xtensive.Storage.Linq
       if (isRoot)
         return VisitRootExists(source, predicate, true);
 
-      if (source.IsQuery())
+      if (source.IsQuery() || source.IsLocalCollection(context))
         return VisitExists(source, predicate, true);
 
       throw new NotSupportedException(Strings.ExAllMethodIsOnlySupportedForRootExpressionsOrSubqueries);
@@ -306,7 +306,7 @@ namespace Xtensive.Storage.Linq
       if (isRoot)
         return VisitRootExists(source, predicate, false);
 
-      if (source.IsQuery())
+      if (source.IsQuery() || source.IsLocalCollection(context))
         return VisitExists(source, predicate, false);
 
       throw new NotSupportedException(Strings.ExAnyMethodIsOnlySupportedForRootExpressionsOrSubqueries);
@@ -943,17 +943,10 @@ namespace Xtensive.Storage.Linq
       if (visitedExpression.IsProjection())
         return (ProjectionExpression) visitedExpression;
 
-      if (context.Evaluator.CanBeEvaluated(visitedExpression)
-        && visitedExpression.Type.IsOfGenericType(typeof (IEnumerable<>))) {
-        var itemType = visitedExpression
-          .Type
-          .GetGenericArguments()[0];
-        var method = VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType);
-        return (ProjectionExpression) method.Invoke(this, new[] {visitedExpression});
-      }
-
       throw new NotSupportedException(string.Format(Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
     }
+
+    
 
 // ReSharper disable UnusedMember.Local
     private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression expression) // ReSharper restore UnusedMember.Local

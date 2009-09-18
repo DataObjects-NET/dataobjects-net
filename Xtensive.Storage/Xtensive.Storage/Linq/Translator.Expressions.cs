@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
@@ -29,8 +30,8 @@ namespace Xtensive.Storage.Linq
   {
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
-      var expressionType = tb.Expression.Type;
-      var operandType = tb.TypeOperand;
+      Type expressionType = tb.Expression.Type;
+      Type operandType = tb.TypeOperand;
       if (operandType.IsAssignableFrom(expressionType))
         return Expression.Constant(true);
 
@@ -42,9 +43,9 @@ namespace Xtensive.Storage.Linq
       // Entity
       if (tb.Expression.GetMemberType()==MemberType.Entity
         && typeof (IEntity).IsAssignableFrom(operandType)) {
-        var typeInfo = context.Model.Types[operandType];
-        var typeIds = typeInfo.GetDescendants().AddOne(typeInfo).Select(ti => ti.TypeId);
-        var memberExpression = Expression.Property(tb.Expression, WellKnown.TypeIdFieldName);
+        TypeInfo typeInfo = context.Model.Types[operandType];
+        IEnumerable<int> typeIds = typeInfo.GetDescendants().AddOne(typeInfo).Select(ti => ti.TypeId);
+        MemberExpression memberExpression = Expression.Property(tb.Expression, WellKnown.TypeIdFieldName);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
           boolExpression = MakeBinaryExpression(boolExpression, memberExpression, Expression.Constant(typeId),
@@ -62,6 +63,16 @@ namespace Xtensive.Storage.Linq
         return null;
       if (e.IsProjection())
         return e;
+      if (e.IsLocalCollection(context)) {
+        Type itemType = e
+          .Type
+          .GetInterfaces()
+          .AddOne(e.Type)
+          .Single(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IEnumerable<>))
+          .GetGenericArguments()[0];
+        MethodInfo method = VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType);
+        return (ProjectionExpression) method.Invoke(this, new[] {e});
+      }
       if (context.Evaluator.CanBeEvaluated(e)) {
         if (typeof (IQueryable).IsAssignableFrom(e.Type))
           return base.Visit(e);
@@ -106,14 +117,14 @@ namespace Xtensive.Storage.Linq
         if (!state.BuildingProjection && le.Parameters.Count > 1)
           throw new InvalidOperationException(String.Format(Strings.ExLambdaXMustHaveOnlyOneParameter, le.ToString(true)));
 
-        var body = Visit(le.Body);
-        var parameter = le.Parameters[0];
-        var projection = context.Bindings[parameter];
+        Expression body = Visit(le.Body);
+        ParameterExpression parameter = le.Parameters[0];
+        ProjectionExpression projection = context.Bindings[parameter];
         body = body.IsProjection()
           ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
           : ProcessProjectionElement(body);
         if (state.CalculatedColumns.Count > 0) {
-          var dataSource = projection.ItemProjector.DataSource.Calculate(
+          RecordSet dataSource = projection.ItemProjector.DataSource.Calculate(
             !state.BuildingProjection,
             state.CalculatedColumns.ToArray());
           var itemProjector = new ItemProjectorExpression(body, dataSource, context);
@@ -134,9 +145,9 @@ namespace Xtensive.Storage.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
-      var left = Visit(binaryExpression.Left);
-      var right = Visit(binaryExpression.Right);
-      var resultBinaryExpression = Expression.MakeBinary(binaryExpression.NodeType,
+      Expression left = Visit(binaryExpression.Left);
+      Expression right = Visit(binaryExpression.Right);
+      BinaryExpression resultBinaryExpression = Expression.MakeBinary(binaryExpression.NodeType,
         left,
         right,
         binaryExpression.IsLiftedToNull,
@@ -166,7 +177,7 @@ namespace Xtensive.Storage.Linq
 
       if (!isInnerParameter && !isOuterParameter)
         throw new InvalidOperationException(Strings.ExLambdaParameterIsOutOfScope);
-      var itemProjector = context.Bindings[p].ItemProjector;
+      ItemProjectorExpression itemProjector = context.Bindings[p].ItemProjector;
       if (isOuterParameter)
         return context.GetBoundItemProjector(p, itemProjector).Item;
       return itemProjector.Item;
@@ -176,8 +187,8 @@ namespace Xtensive.Storage.Linq
     {
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
-          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
-          var rootPoint = lambda();
+          Func<IQueryable> lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
+          IQueryable rootPoint = lambda();
           if (rootPoint!=null)
             return base.Visit(rootPoint.Expression);
         }
@@ -185,8 +196,8 @@ namespace Xtensive.Storage.Linq
       }
       if (ma.Expression==null) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
-          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
-          var rootPoint = lambda();
+          Func<IQueryable> lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
+          IQueryable rootPoint = lambda();
           if (rootPoint!=null)
             return ConstructQueryable(rootPoint);
         }
@@ -194,8 +205,8 @@ namespace Xtensive.Storage.Linq
       else if (ma.Expression.NodeType==ExpressionType.Constant) {
         var rfi = ma.Member as FieldInfo;
         if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
-          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
-          var rootPoint = lambda();
+          Func<IQueryable> lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
+          IQueryable rootPoint = lambda();
           if (rootPoint!=null)
             return ConstructQueryable(rootPoint);
         }
@@ -208,7 +219,7 @@ namespace Xtensive.Storage.Linq
         state.BuildingProjection = false;
         source = Visit(ma.Expression);
       }
-      var result = GetMember(source, ma.Member);
+      Expression result = GetMember(source, ma.Member);
       return result ?? base.VisitMemberAccess(ma);
     }
 
@@ -224,20 +235,13 @@ namespace Xtensive.Storage.Linq
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
 
       // Process local collections
-      if (mc.Object!= null
-        && context.Evaluator.CanBeEvaluated(mc.Object)
-        && mc.Object.Type.IsOfGenericInterface(typeof(IEnumerable<>)))
-      {
+      if (mc.Object.IsLocalCollection(context)) {
         // IList.Contains
         // List.Contains
         // Array.Contains
-        var parameters = mc.Method.GetParameters();
-        if (mc.Method.Name == "Contains" && parameters.Length == 1)
-        {
-          var type = parameters[0].ParameterType;
-          var localCollectionExpression = (ProjectionExpression) VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(type).Invoke(this, new[]{mc.Object});
-          return VisitContains(localCollectionExpression, mc.Arguments[0], false);
-        }
+        ParameterInfo[] parameters = mc.Method.GetParameters();
+        if (mc.Method.Name=="Contains" && parameters.Length==1)
+          return VisitContains(mc.Object, mc.Arguments[0], false);
 
         // Enumerable.Contains
         // Enumerable.IndexOf
@@ -262,7 +266,7 @@ namespace Xtensive.Storage.Linq
       }
       var arguments = new List<Expression>();
       for (int i = 0; i < n.Arguments.Count; i++) {
-        var argument = n.Arguments[i];
+        Expression argument = n.Arguments[i];
         Expression body;
         using (state.CreateScope()) {
           state.CalculateExpressions = false;
@@ -273,7 +277,7 @@ namespace Xtensive.Storage.Linq
           : ProcessProjectionElement(body);
         arguments.Add(body);
       }
-      var constructorParameters = n.Constructor.GetParameters();
+      ParameterInfo[] constructorParameters = n.Constructor.GetParameters();
       for (int i = 0; i < arguments.Count; i++) {
         if (arguments[i].Type!=constructorParameters[i].ParameterType)
           arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
@@ -292,8 +296,8 @@ namespace Xtensive.Storage.Linq
           ? (Expression) binaryExpression
           : context.Evaluator.Evaluate(binaryExpression);
 
-      var left = binaryExpression.Left.StripCasts();
-      var right = binaryExpression.Right.StripCasts();
+      Expression left = binaryExpression.Left.StripCasts();
+      Expression right = binaryExpression.Right.StripCasts();
 
       IList<Expression> leftExpressions;
       IList<Expression> rightExpressions;
@@ -306,7 +310,7 @@ namespace Xtensive.Storage.Linq
         if (leftKeyExpression==null && rightKeyExpression==null)
           throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, binaryExpression));
         // Key split to it's fields.
-        var keyFields = (leftKeyExpression ?? rightKeyExpression)
+        IEnumerable<Type> keyFields = (leftKeyExpression ?? rightKeyExpression)
           .KeyFields
           .Select(fieldExpression => fieldExpression.Type);
         leftExpressions = GetKeyFields(left, keyFields);
@@ -314,13 +318,13 @@ namespace Xtensive.Storage.Linq
         break;
       case MemberType.Entity:
         // Entity split to key fields.
-        var leftEntityExpression = (Expression) (left as EntityExpression) ?? left as EntityFieldExpression;
-        var rightEntityExpression = (Expression) (right as EntityExpression) ?? right as EntityFieldExpression;
+        Expression leftEntityExpression = (Expression) (left as EntityExpression) ?? left as EntityFieldExpression;
+        Expression rightEntityExpression = (Expression) (right as EntityExpression) ?? right as EntityFieldExpression;
         if (leftEntityExpression==null && rightEntityExpression==null)
           throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotEntityExpressionEntityFieldExpression, binaryExpression));
 
 
-        var keyFieldTypes = context
+        IEnumerable<Type> keyFieldTypes = context
           .Model
           .Types[(leftEntityExpression ?? rightEntityExpression).Type]
           .Hierarchy
@@ -343,15 +347,15 @@ namespace Xtensive.Storage.Linq
         if (leftStructureExpression==null && rightStructureExpression==null)
           throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression, binaryExpression));
 
-        var structureExpression = (leftStructureExpression ?? rightStructureExpression);
+        StructureExpression structureExpression = (leftStructureExpression ?? rightStructureExpression);
         leftExpressions = GetStructureFields(left, structureExpression.Fields, structureExpression.Type);
         rightExpressions = GetStructureFields(right, structureExpression.Fields, structureExpression.Type);
         break;
       case MemberType.Array:
         // Special case. ArrayIndex expression. 
         if (binaryExpression.NodeType==ExpressionType.ArrayIndex) {
-          var arrayExpression = Visit(left);
-          var arrayIndex = Visit(right);
+          Expression arrayExpression = Visit(left);
+          Expression arrayIndex = Visit(right);
           return Expression.ArrayIndex(arrayExpression, arrayIndex);
         }
 
@@ -376,16 +380,16 @@ namespace Xtensive.Storage.Linq
 
       if (leftExpressions.Count!=rightExpressions.Count
         || leftExpressions.Count==0)
-        throw Exceptions.InternalError(Strings.ExMistmatchCountOfLeftAndRightExpressions, Log.Instance);
+        throw Exceptions.InternalError(Strings.ExMistmatchCountOfLeftAndRightExpressions, LogTemplate<Log>.Instance);
 
       // Combine new binary expression from subexpression pairs.
       Expression resultExpression = null;
       for (int i = 0; i < leftExpressions.Count; i++) {
         BinaryExpression pairExpression;
-        var leftItem = leftExpressions[i];
-        var rightItem = rightExpressions[i];
-        var leftIsNullable = leftItem.Type.IsNullable();
-        var rightIsNullable = rightItem.Type.IsNullable();
+        Expression leftItem = leftExpressions[i];
+        Expression rightItem = rightExpressions[i];
+        bool leftIsNullable = leftItem.Type.IsNullable();
+        bool rightIsNullable = rightItem.Type.IsNullable();
         leftItem = leftIsNullable
           ? leftItem
           : leftItem.LiftToNullable();
@@ -414,7 +418,7 @@ namespace Xtensive.Storage.Linq
         }
 
         // visit new expression recursively
-        var visitedResultExpression = VisitBinaryRecursive(pairExpression);
+        Expression visitedResultExpression = VisitBinaryRecursive(pairExpression);
 
         // Combine expression chain with AndAlso
         resultExpression = resultExpression==null
@@ -438,12 +442,12 @@ namespace Xtensive.Storage.Linq
           .Select(e => (Expression) e)
           .ToList();
 
-      var nullExpression = Expression.Constant(null, structureType);
-      var isNullExpression = Expression.Equal(expression, nullExpression);
+      ConstantExpression nullExpression = Expression.Constant(null, structureType);
+      BinaryExpression isNullExpression = Expression.Equal(expression, nullExpression);
 
       var result = new List<Expression>();
-      foreach (var fieldExpression in structureFieldTypes) {
-        var nullableType = fieldExpression.Type.ToNullable();
+      foreach (PersistentFieldExpression fieldExpression in structureFieldTypes) {
+        Type nullableType = fieldExpression.Type.ToNullable();
         var item = (Expression) Expression.Condition(
           isNullExpression,
           Expression.Constant(null, nullableType),
@@ -467,8 +471,8 @@ namespace Xtensive.Storage.Linq
       if (expression.IsNull())
         keyExpression = Expression.Constant(null, typeof (Key));
       else {
-        var nullEntityExpression = Expression.Constant(null, expression.Type);
-        var isNullExpression = Expression.Equal(expression, nullEntityExpression);
+        ConstantExpression nullEntityExpression = Expression.Constant(null, expression.Type);
+        BinaryExpression isNullExpression = Expression.Equal(expression, nullEntityExpression);
 
         keyExpression = Expression.Condition(
           isNullExpression,
@@ -491,13 +495,13 @@ namespace Xtensive.Storage.Linq
         return keyFieldTypes
           .Select(type => (Expression) Expression.Constant(null, type.ToNullable()))
           .ToList();
-      var nullExpression = Expression.Constant(null, expression.Type);
-      var isNullExpression = Expression.Equal(expression, nullExpression);
-      var keyTupleExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.KeyValue);
+      ConstantExpression nullExpression = Expression.Constant(null, expression.Type);
+      BinaryExpression isNullExpression = Expression.Equal(expression, nullExpression);
+      MemberExpression keyTupleExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.KeyValue);
 
       return keyFieldTypes
         .Select((type, index) => {
-          var nullableType = type.ToNullable();
+          Type nullableType = type.ToNullable();
           return (Expression) Expression.Condition(
             isNullExpression,
             Expression.Constant(null, nullableType),
@@ -508,21 +512,21 @@ namespace Xtensive.Storage.Linq
 
     private Expression ProcessProjectionElement(Expression body)
     {
-      var originalBodyType = body.Type;
-      var reduceCastBody = body.StripCasts();
+      Type originalBodyType = body.Type;
+      Expression reduceCastBody = body.StripCasts();
       if (state.CalculateExpressions
         && reduceCastBody.GetMemberType()==MemberType.Unknown
           && reduceCastBody.NodeType!=ExpressionType.ArrayIndex) {
         if (body.Type.IsEnum)
           body = Expression.Convert(body, Enum.GetUnderlyingType(body.Type));
-        var convertExpression = Expression.Convert(body, typeof (object));
+        UnaryExpression convertExpression = Expression.Convert(body, typeof (object));
 
-        var calculator = ExpressionMaterializer.MakeLambda(convertExpression, context);
+        LambdaExpression calculator = ExpressionMaterializer.MakeLambda(convertExpression, context);
         var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type,
           (Expression<Func<Tuple, object>>) calculator);
         state.CalculatedColumns.Add(ccd);
-        var parameter = state.Parameters[0];
-        var position = context.Bindings[parameter].ItemProjector.DataSource.Header.Length +
+        ParameterExpression parameter = state.Parameters[0];
+        int position = context.Bindings[parameter].ItemProjector.DataSource.Header.Length +
           state.CalculatedColumns.Count - 1;
         body = ColumnExpression.Create(originalBodyType, position);
       }
@@ -534,13 +538,13 @@ namespace Xtensive.Storage.Linq
       var constExpression = rootPoint.Expression as ConstantExpression;
       if (constExpression!=null && constExpression.Value==rootPoint) {
         // Special case. Constructing Queryable<T>.
-        var elementType = rootPoint.ElementType;
+        Type elementType = rootPoint.ElementType;
         TypeInfo type;
         if (!context.Model.Types.TryGetValue(elementType, out type))
           throw new NotSupportedException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
 
-        var index = type.Indexes.PrimaryIndex;
-        var entityExpression = EntityExpression.Create(type, 0);
+        IndexInfo index = type.Indexes.PrimaryIndex;
+        EntityExpression entityExpression = EntityExpression.Create(type, 0);
         var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
         return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
@@ -550,10 +554,10 @@ namespace Xtensive.Storage.Linq
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
       if (state.Parameters.Length==0)
-        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), Log.Instance);
+        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), LogTemplate<Log>.Instance);
 
       if (!resultType.IsOfGenericInterface(typeof (IEnumerable<>)))
-        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), Log.Instance);
+        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), LogTemplate<Log>.Instance);
 
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
       if (subQuery.Type!=resultType)
@@ -565,7 +569,7 @@ namespace Xtensive.Storage.Linq
     {
       if (expression.NodeType==ExpressionType.New) {
         var newExpression = ((NewExpression) expression);
-        var arguments = newExpression
+        IEnumerable<Expression> arguments = newExpression
           .Members
           .Select((methodInfo, index) => new {methodInfo.Name, Argument = newExpression.Arguments[index]})
           .OrderBy(a => a.Name)
@@ -586,7 +590,7 @@ namespace Xtensive.Storage.Linq
     {
       MarkerType markerType;
       expression = expression.StripCasts();
-      var isMarker = expression.TryGetMarker(out markerType);
+      bool isMarker = expression.TryGetMarker(out markerType);
       expression = expression.StripMarkers();
       expression = expression.StripCasts();
       if (expression.IsGroupingExpression() && member.Name=="Key")
@@ -595,12 +599,12 @@ namespace Xtensive.Storage.Linq
         var newExpression = (NewExpression) expression;
         if (member.MemberType==MemberTypes.Property)
           member = ((PropertyInfo) member).GetGetMethod();
-        var memberIndex = newExpression.Members.IndexOf(member);
+        int memberIndex = newExpression.Members.IndexOf(member);
         if (memberIndex < 0)
           throw new InvalidOperationException(
             string.Format(Strings.ExCouldNotGetMemberXFromExpression,
               member));
-        var argument = newExpression.Arguments[memberIndex];
+        Expression argument = newExpression.Arguments[memberIndex];
         return isMarker
           ? new MarkerExpression(argument, markerType)
           : argument;
@@ -650,7 +654,7 @@ namespace Xtensive.Storage.Linq
         throw new NotSupportedException(Strings.ExAsOperatorSupportsEntityOnly);
 
       // Expression is already of requested type.
-      var visitedSource = Visit(source);
+      Expression visitedSource = Visit(source);
       if (source.Type==targetType)
         return visitedSource;
 
@@ -660,28 +664,28 @@ namespace Xtensive.Storage.Linq
 
       // Cast to subclass.
       using (state.CreateScope()) {
-        var targetTypeInfo = context.Model.Types[targetType];
-        var parameter = state.Parameters[0];
+        TypeInfo targetTypeInfo = context.Model.Types[targetType];
+        ParameterExpression parameter = state.Parameters[0];
         var entityExpression = visitedSource.StripCasts() as IEntityExpression;
 
         if (entityExpression==null)
           throw new InvalidOperationException(Strings.ExAsOperatorSupportsEntityOnly);
 
         // Replace original recordset. New recordset is left join with old recordset
-        var originalResultExpression = context.Bindings[parameter];
-        var originalRecordset = originalResultExpression.ItemProjector.DataSource;
+        ProjectionExpression originalResultExpression = context.Bindings[parameter];
+        RecordSet originalRecordset = originalResultExpression.ItemProjector.DataSource;
         int offset = originalRecordset.Header.Columns.Count;
 
         // Join primary index of target type
-        var joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
-        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-        var keySegment = entityExpression.Key.Mapping.GetItems();
-        var keyPairs = keySegment
+        IndexInfo joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
+        RecordSet joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+        IEnumerable<int> keySegment = entityExpression.Key.Mapping.GetItems();
+        Pair<int>[] keyPairs = keySegment
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
 
         // Replace recordset.
-        var joinedRecordSet = originalRecordset.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
+        RecordSet joinedRecordSet = originalRecordset.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
         var itemProjectorExpression = new ItemProjectorExpression(originalResultExpression.ItemProjector.Item,
           joinedRecordSet,
           context);
@@ -689,27 +693,27 @@ namespace Xtensive.Storage.Linq
         context.Bindings.ReplaceBound(parameter, projectionExpression);
 
         // return new EntityExpression
-        var result = EntityExpression.Create(context.Model.Types[targetType], offset);
+        EntityExpression result = EntityExpression.Create(context.Model.Types[targetType], offset);
         return result;
       }
     }
 
     private void EnsureEntityFieldsAreJoined(EntityExpression entityExpression)
     {
-      var typeInfo = entityExpression.PersistentType;
+      TypeInfo typeInfo = entityExpression.PersistentType;
       if (
         typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
         return; // All fields are already 
-      var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-      var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-      var keySegment = entityExpression.Key.Mapping;
-      var keyPairs = keySegment.GetItems()
+      IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
+      RecordSet joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+      Segment<int> keySegment = entityExpression.Key.Mapping;
+      Pair<int>[] keyPairs = keySegment.GetItems()
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
         .ToArray();
-      var originalItemProjector = entityExpression.OuterParameter==null
+      ItemProjectorExpression originalItemProjector = entityExpression.OuterParameter==null
         ? context.Bindings[state.Parameters[0]].ItemProjector
         : context.Bindings[entityExpression.OuterParameter].ItemProjector;
-      var offset = originalItemProjector.DataSource.Header.Length;
+      int offset = originalItemProjector.DataSource.Header.Length;
       originalItemProjector.DataSource = originalItemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       EntityExpression.Fill(entityExpression, offset);
     }
@@ -718,17 +722,17 @@ namespace Xtensive.Storage.Linq
     {
       if (entityFieldExpression.Entity!=null)
         return;
-      var typeInfo = entityFieldExpression.PersistentType;
-      var joinedIndex = typeInfo.Indexes.PrimaryIndex;
-      var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-      var keySegment = entityFieldExpression.Mapping;
-      var keyPairs = keySegment.GetItems()
+      TypeInfo typeInfo = entityFieldExpression.PersistentType;
+      IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
+      RecordSet joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+      Segment<int> keySegment = entityFieldExpression.Mapping;
+      Pair<int>[] keyPairs = keySegment.GetItems()
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
         .ToArray();
-      var originalItemProjector = entityFieldExpression.OuterParameter==null
+      ItemProjectorExpression originalItemProjector = entityFieldExpression.OuterParameter==null
         ? context.Bindings[state.Parameters[0]].ItemProjector
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
-      var offset = originalItemProjector.DataSource.Header.Length;
+      int offset = originalItemProjector.DataSource.Header.Length;
       originalItemProjector.DataSource = originalItemProjector.DataSource.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
       entityFieldExpression.RegisterEntityExpression(offset);
     }
@@ -736,7 +740,7 @@ namespace Xtensive.Storage.Linq
     private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right,
       ExpressionType operationType, ExpressionType concatenationExpression)
     {
-      var newExpression = operationType==ExpressionType.Equal
+      BinaryExpression newExpression = operationType==ExpressionType.Equal
         ? Expression.Equal(left, right)
         : Expression.NotEqual(left, right);
 

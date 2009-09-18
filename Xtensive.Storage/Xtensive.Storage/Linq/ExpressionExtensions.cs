@@ -5,6 +5,7 @@
 // Created:    2008.12.02
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Linq;
@@ -49,14 +50,12 @@ namespace Xtensive.Storage.Linq
       return expression.Type.IsOfGenericInterface(typeof(IQueryable<>));
     }
 
-    public static bool IsLocalCollection(this Expression expression)
+    public static bool IsLocalCollection(this Expression expression, TranslatorContext context)
     {
-      var projectionExpression = expression as ProjectionExpression;
-      if (projectionExpression==null)
-        return false;
-      var nodeType = (ExtendedExpressionType)projectionExpression.ItemProjector.Item.NodeType;
-      return nodeType==ExtendedExpressionType.LocalCollection 
-        || nodeType==ExtendedExpressionType.LocalCollectionColumn;
+      return expression!=null
+        && expression.Type!=typeof(string)
+        && context.Evaluator.CanBeEvaluated(expression)
+          && expression.Type.IsOfGenericInterface(typeof (IEnumerable<>));
     }
 
     public static bool IsItemProjector(this Expression expression)

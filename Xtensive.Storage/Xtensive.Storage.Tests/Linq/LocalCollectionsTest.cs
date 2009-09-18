@@ -111,20 +111,20 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnyTest()
     {
-      var orders = Query<Order>.All.Select(order => order).Take(5).ToList();
-      var query = Query<Order>.All.Where(order => orders.Any(localOrder => localOrder.Freight==order.Freight));
+      var localOrderFreights = Query<Order>.All.Select(order => order.Freight).Take(5).ToList();
+      var query = Query<Order>.All.Where(order => localOrderFreights.Any(freight=>freight==order.Freight));
       QueryDumper.Dump(query);
-      var expectedQuery = Query<Order>.All.AsEnumerable().Where(order => orders.Any(localOrder => localOrder.Freight==order.Freight));
+      var expectedQuery = Query<Order>.All.AsEnumerable().Where(order => localOrderFreights.Any(freight => freight == order.Freight));
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }
 
     [Test]
     public void AllTest()
     {
-      var orders = Query<Order>.All.Select(order => order).Take(5).ToList();
-      var query = Query<Order>.All.Where(order => orders.All(localOrder => localOrder.Freight==order.Freight));
+      var localOrderFreights = Query<Order>.All.Select(order => order.Freight).Take(5).ToList();
+      var query = Query<Order>.All.Where(order => localOrderFreights.All(freight=>freight==order.Freight));
       QueryDumper.Dump(query);
-      var expectedQuery = Query<Order>.All.AsEnumerable().Where(order => orders.All(localOrder => localOrder.Freight==order.Freight));
+      var expectedQuery = Query<Order>.All.AsEnumerable().Where(order => localOrderFreights.All(freight => freight == order.Freight));
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }
 
@@ -214,10 +214,30 @@ namespace Xtensive.Storage.Tests.Linq
     public void SimpleIntersectTest()
     {
       var query = Query<Order>.All
+        .Select(o => o.Employee.BirthDate)
+        .Intersect(Query<Order>.All.ToList().Select(o => o.Employee.BirthDate));
+
+      var expected = Query<Order>.All
+        .AsEnumerable()
+        .Select(o => o.Employee.BirthDate)
+        .Intersect(Query<Order>.All.ToList().Select(o => o.Employee.BirthDate));
+
+      Assert.AreEqual(0, expected.Except(query).Count());
+    }
+
+    [Test]
+    public void SimpleIntersectEntityTest()
+    {
+      var query = Query<Order>.All
         .Select(o => o.Employee)
         .Intersect(Query<Order>.All.ToList().Select(o => o.Employee));
 
-      QueryDumper.Dump(query);
+      var expected = Query<Order>.All
+        .AsEnumerable()
+        .Select(o => o.Employee)
+        .Intersect(Query<Order>.All.ToList().Select(o => o.Employee));
+
+      Assert.AreEqual(0, expected.Except(query).Count());
     }
 
     [Test]
