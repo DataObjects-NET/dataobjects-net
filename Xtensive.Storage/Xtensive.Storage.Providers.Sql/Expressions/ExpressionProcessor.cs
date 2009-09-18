@@ -51,7 +51,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (executed)
         throw new InvalidOperationException();
       executed = true;
-      return Visit(lambda);
+      using (new ExpressionTranslationScope(driver)) {
+        return Visit(lambda);
+      }
     }
 
     protected override SqlExpression Visit(Expression e)
@@ -115,7 +117,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         case ExpressionType.ArrayLength:
           if (expression.Operand.Type != typeof(byte[]))
             throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, expression.Operand.Type));
-          return SqlDml.Cast(SqlDml.BinaryLength(operand), SqlType.Int32);
+          return SqlDml.Cast(SqlDml.BinaryLength(operand), driver.BuildValueType(typeof (int)));
         case ExpressionType.Negate:
         case ExpressionType.NegateChecked:
           return SqlDml.Negate(operand);

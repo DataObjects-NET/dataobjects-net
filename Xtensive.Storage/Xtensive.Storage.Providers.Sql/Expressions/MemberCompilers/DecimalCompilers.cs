@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(decimal))] SqlExpression d1,
       [Type(typeof(decimal))] SqlExpression d2)
     {
-      return SqlDml.Cast(SqlDml.Sign(d1 - d2), SqlType.Int32);
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Sign(d1 - d2));
     }
 
     [Compiler(typeof(decimal), "Divide", TargetKind.Static | TargetKind.Method)]
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     public static SqlExpression DecimalParse(
       [Type(typeof(string))] SqlExpression str)
     {
-      return SqlDml.Cast(str, SqlType.Decimal); // TODO: fix this
+      return ExpressionTranslationHelpers.ToDecimal(str);
     }
 
     [Compiler(typeof(decimal), "Remainder", TargetKind.Static | TargetKind.Method)]

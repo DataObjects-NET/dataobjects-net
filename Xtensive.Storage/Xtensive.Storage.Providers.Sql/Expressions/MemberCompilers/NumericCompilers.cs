@@ -14,74 +14,72 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
   [CompilerContainer(typeof(SqlExpression))]
   internal static class NumericCompilers
   {
-    private const SqlType StringType = SqlType.VarChar;
-
     #region ToString mappings
 
     [Compiler(typeof(byte), "ToString")]
     public static SqlExpression ByteToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     [Compiler(typeof(sbyte), "ToString")]
     public static SqlExpression SByteToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     [Compiler(typeof(short), "ToString")]
     public static SqlExpression ShortToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     [Compiler(typeof(ushort), "ToString")]
     public static SqlExpression UShortToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     [Compiler(typeof(int), "ToString")]
     public static SqlExpression IntToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     [Compiler(typeof(uint), "ToString")]
     public static SqlExpression UIntToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     [Compiler(typeof(long), "ToString")]
     public static SqlExpression LongToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     [Compiler(typeof(ulong), "ToString")]
     public static SqlExpression ULongToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     [Compiler(typeof(float), "ToString")]
     public static SqlExpression FloatToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     [Compiler(typeof(double), "ToString")]
     public static SqlExpression DoubleToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     [Compiler(typeof(decimal), "ToString")]
     public static SqlExpression DecimalToString(SqlExpression _this)
     {
-      return SqlDml.Cast(_this, StringType);
+      return ExpressionTranslationHelpers.ToChar(_this);
     }
 
     #endregion

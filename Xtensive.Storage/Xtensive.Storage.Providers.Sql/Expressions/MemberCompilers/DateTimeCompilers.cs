@@ -20,43 +20,43 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     [Compiler(typeof(DateTime), "Year", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeYear(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlDateTimePart.Year, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Year, _this));
     }
 
     [Compiler(typeof(DateTime), "Month", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeMonth(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlDateTimePart.Month, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Month, _this));
     }
 
     [Compiler(typeof(DateTime), "Day", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeDay(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlDateTimePart.Day, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Day, _this));
     }
 
     [Compiler(typeof(DateTime), "Hour", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeHour(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlDateTimePart.Hour, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Hour, _this));
     }
 
     [Compiler(typeof(DateTime), "Minute", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeMinute(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlDateTimePart.Minute, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Minute, _this));
     }
 
     [Compiler(typeof(DateTime), "Second", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeSecond(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlDateTimePart.Second, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Second, _this));
     }
 
     [Compiler(typeof(DateTime), "Millisecond", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeMillisecond(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlDateTimePart.Millisecond, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Millisecond, _this));
     }
 
     [Compiler(typeof(DateTime), "TimeOfDay", TargetKind.PropertyGet)]
@@ -74,13 +74,13 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     [Compiler(typeof(DateTime), "DayOfWeek", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeDayOfWeek(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlDateTimePart.DayOfWeek, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfWeek, _this));
     }
 
     [Compiler(typeof(DateTime), "DayOfYear", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeDayOfYear(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlDateTimePart.DayOfYear, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfYear, _this));
     }
 
     #endregion
@@ -268,11 +268,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       result.Else = 30;
 
       return result;
-    }
-
-    private static SqlExpression ToInt(SqlExpression target)
-    {
-      return SqlDml.Cast(target, SqlType.Int32);
     }
   }
 }

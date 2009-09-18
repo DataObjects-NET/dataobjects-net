@@ -122,31 +122,31 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     [Compiler(typeof(TimeSpan), "Milliseconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanMilliseconds(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlIntervalPart.Millisecond, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlIntervalPart.Millisecond, _this));
     }
 
     [Compiler(typeof(TimeSpan), "Seconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanSeconds(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlIntervalPart.Second, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlIntervalPart.Second, _this));
     }
 
     [Compiler(typeof(TimeSpan), "Minutes", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanMinutes(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlIntervalPart.Minute, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlIntervalPart.Minute, _this));
     }
 
     [Compiler(typeof(TimeSpan), "Hours", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanHours(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlIntervalPart.Hour, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlIntervalPart.Hour, _this));
     }
     
     [Compiler(typeof(TimeSpan), "Days", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanDays(SqlExpression _this)
     {
-      return ToInt(SqlDml.Extract(SqlIntervalPart.Day, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlIntervalPart.Day, _this));
     }
 
     #endregion
@@ -156,37 +156,37 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     [Compiler(typeof(TimeSpan), "Ticks", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTicks(SqlExpression _this)
     {
-      return ToLong(SqlDml.IntervalToMilliseconds(_this)) * TicksPerMillisecond;
+      return ExpressionTranslationHelpers.ToLong(SqlDml.IntervalToMilliseconds(_this)) * TicksPerMillisecond;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMilliseconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalMilliseconds(SqlExpression _this)
     {
-      return ToDouble(SqlDml.IntervalToMilliseconds(_this));
+      return ExpressionTranslationHelpers.ToDouble(SqlDml.IntervalToMilliseconds(_this));
     }
 
     [Compiler(typeof(TimeSpan), "TotalSeconds", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalSeconds(SqlExpression _this)
     {
-      return ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerSecond;
+      return ExpressionTranslationHelpers.ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerSecond;
     }
 
     [Compiler(typeof(TimeSpan), "TotalMinutes", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalMinutes(SqlExpression _this)
     {
-      return ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerMinute;
+      return ExpressionTranslationHelpers.ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerMinute;
     }
 
     [Compiler(typeof(TimeSpan), "TotalHours", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalHours(SqlExpression _this)
     {
-      return ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerHour;
+      return ExpressionTranslationHelpers.ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerHour;
     }
 
     [Compiler(typeof(TimeSpan), "TotalDays", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTotalDays(SqlExpression _this)
     {
-      return ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerDay;
+      return ExpressionTranslationHelpers.ToDouble(SqlDml.IntervalToMilliseconds(_this)) / MillisecondsPerDay;
     }
 
     #endregion
@@ -302,20 +302,5 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     }
 
     #endregion
-
-    private static SqlExpression ToInt(SqlExpression target)
-    {
-      return SqlDml.Cast(target, SqlType.Int32);
-    }
-
-    private static SqlExpression ToDouble(SqlExpression target)
-    {
-      return SqlDml.Cast(target, SqlType.Double);
-    }
-
-    private static SqlExpression ToLong(SqlExpression target)
-    {
-      return SqlDml.Cast(target, SqlType.Int64);
-    }
   }
 }

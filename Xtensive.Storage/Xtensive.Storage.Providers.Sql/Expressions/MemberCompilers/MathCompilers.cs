@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     public static SqlExpression GenericSign(SqlExpression target)
     {
-      return SqlDml.Cast(SqlDml.Sign(target), SqlType.Int32);
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Sign(target));
     }
 
     [Compiler(typeof(Math), "Sign", TargetKind.Static | TargetKind.Method)]
@@ -359,7 +359,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       [Type(typeof(int))] SqlExpression a,
       [Type(typeof(int))] SqlExpression b)
     {
-      return SqlDml.Cast(a, SqlType.Int64) * b;
+      return ExpressionTranslationHelpers.ToLong(a) * b;
     }
 
     [Compiler(typeof(Math), "Ceiling", TargetKind.Static | TargetKind.Method)]
