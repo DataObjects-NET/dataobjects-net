@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Manual.Structures
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("mssql2005://localhost/DO40-Tests");
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof (Range).Assembly, typeof (Range).Namespace);
       var domain = Domain.Build(config);

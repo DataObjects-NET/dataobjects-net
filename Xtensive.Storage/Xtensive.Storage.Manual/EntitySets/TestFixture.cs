@@ -204,7 +204,7 @@ namespace Xtensive.Storage.Manual.EntitySets
 
     private Domain BuildDomain()
     {
-      var config = new DomainConfiguration("mssql2005://localhost/DO40-Tests");
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
       return Domain.Build(config);

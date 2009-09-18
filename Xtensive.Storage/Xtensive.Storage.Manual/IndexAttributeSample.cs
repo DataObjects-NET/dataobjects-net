@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Manual
     [Test]
     public void Test()
     {
-      var config = new DomainConfiguration("mssql2005://localhost/DO40-Tests");
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Person));
       var domain = Domain.Build(config);
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Manual
           transactionScope.Complete();
         }
 
-        AssertEx.Throws<SqlException>(() => {
+        AssertEx.Throws<StorageException>(() => {
           using (var transactionScope = Transaction.Open()) {
             new Person {FirstName = "Alex", LastName = "Kofman", Age = 0};
             transactionScope.Complete();

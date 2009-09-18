@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Manual.Entities
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("mssql2005://localhost/DO40-Tests");
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Product));
 //      config.Types.Register(typeof(Document).Assembly, typeof(Document).Namespace);
