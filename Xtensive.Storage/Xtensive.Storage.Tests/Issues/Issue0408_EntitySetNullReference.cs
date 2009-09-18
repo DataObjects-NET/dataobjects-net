@@ -76,33 +76,18 @@ namespace Xtensive.Storage.Tests.Issues
       var sessionConfiguration = new SessionConfiguration {
         Options = SessionOptions.AutoTransactions
       };
-      using (var s = Session.Open(Domain, sessionConfiguration)) {
-          var document = new Document();
-          document.AddHistoryEntry("test", HistoryEntryVisibility.AdministratorUser);
-          document.AddHistoryEntry("test2", HistoryEntryVisibility.AdministratorUser);
-      }
-    }
-
-    [Test]
-    public void Main2Test()
-    {
+      Key key;
       using (var s = Session.Open(Domain)) {
-        Key key;
-        using (var t = Transaction.Open(s)) {
+        using (var t = Transaction.Open()) {
           var document = new Document();
           key = document.Key;
           t.Complete();
         }
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        GC.Collect();
-        using (var t = Transaction.Open(s))
-        {
-          Document document = Query<Document>.Single(key);
+      }
+      using (var s = Session.Open(Domain, sessionConfiguration)) {
+          var document = Query<Document>.Single(key);
           document.AddHistoryEntry("test", HistoryEntryVisibility.AdministratorUser);
           document.AddHistoryEntry("test2", HistoryEntryVisibility.AdministratorUser);
-          t.Complete();
-        }
       }
     }
   }
