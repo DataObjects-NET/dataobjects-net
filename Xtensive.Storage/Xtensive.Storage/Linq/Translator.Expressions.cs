@@ -224,11 +224,21 @@ namespace Xtensive.Storage.Linq
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
 
       // Process local collections
-      if (mc.Object!= null && mc.Object.Type.IsOfGenericInterface(typeof(IEnumerable<>)))
+      if (mc.Object!= null
+        && context.Evaluator.CanBeEvaluated(mc.Object)
+        && mc.Object.Type.IsOfGenericInterface(typeof(IEnumerable<>)))
       {
         // IList.Contains
         // List.Contains
         // Array.Contains
+        var parameters = mc.Method.GetParameters();
+        if (mc.Method.Name == "Contains" && parameters.Length == 1)
+        {
+          var type = parameters[0].ParameterType;
+          var localCollectionExpression = (ProjectionExpression) VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(type).Invoke(this, new[]{mc.Object});
+          return VisitContains(localCollectionExpression, mc.Arguments[0], false);
+        }
+
         // Enumerable.Contains
         // Enumerable.IndexOf
         // Enumerable.All

@@ -42,10 +42,42 @@ namespace Xtensive.Storage.Tests.Linq
     public void ListContainsTest()
     {
       var list = new List<string>(){"FISSA", "PARIS"};
-      var q = from c in Query<Customer>.All   
+      var query = from c in Query<Customer>.All   
            where !list.Contains(c.Id)   
            select c.Orders;    
-      QueryDumper.Dump(q);
+      var expected = from c in Query<Customer>.All.AsEnumerable()   
+           where !list.Contains(c.Id)   
+           select c.Orders;    
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public void ArrayContainsTest()
+    {
+      var list = new [] { "FISSA", "PARIS" };
+      var query = from c in Query<Customer>.All
+                  where !list.Contains(c.Id)
+                  select c.Orders;
+      var expected = from c in Query<Customer>.All.AsEnumerable()
+                     where !list.Contains(c.Id)
+                     select c.Orders;
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public void IListContainsTest()
+    {
+      var list = (IList<string>)new List<string> { "FISSA", "PARIS" };
+      var query = from c in Query<Customer>.All
+                  where !list.Contains(c.Id)
+                  select c.Orders;
+      var expected = from c in Query<Customer>.All.AsEnumerable()
+                     where !list.Contains(c.Id)
+                     select c.Orders;
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
     }
 
     [Test]

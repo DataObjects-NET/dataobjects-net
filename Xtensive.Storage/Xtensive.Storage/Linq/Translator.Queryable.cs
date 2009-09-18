@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Linq
       if (isRoot)
         return VisitRootExists(source, le, false);
 
-      if (source.IsQuery())
+      if (source.IsQuery() || source.IsLocalCollection())
         return VisitExists(source, le, false);
 
       throw new NotSupportedException(Strings.ExContainsMethodIsOnlySupportedForRootExpressionsOrSubqueries);
@@ -943,23 +943,23 @@ namespace Xtensive.Storage.Linq
       if (visitedExpression.IsProjection())
         return (ProjectionExpression) visitedExpression;
 
-      if (visitedExpression.NodeType==ExpressionType.Constant
+      if (context.Evaluator.CanBeEvaluated(visitedExpression)
         && visitedExpression.Type.IsOfGenericType(typeof (IEnumerable<>))) {
         var itemType = visitedExpression
           .Type
           .GetGenericArguments()[0];
         var method = VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType);
-        return (ProjectionExpression) method.Invoke(this, new[] {((ConstantExpression) visitedExpression).Value});
+        return (ProjectionExpression) method.Invoke(this, new[] {visitedExpression});
       }
 
       throw new NotSupportedException(string.Format(Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
     }
 
 // ReSharper disable UnusedMember.Local
-    private ProjectionExpression VisitLocalCollectionSequence<TItem>(IEnumerable<TItem> source) // ReSharper restore UnusedMember.Local
+    private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression expression) // ReSharper restore UnusedMember.Local
     {
+      var source = (IEnumerable<TItem>) context.Evaluator.Evaluate(expression).Value;
       var itemType = typeof (TItem);
-      // var scope = TemporaryDataScope.Global;
       var type = itemType.IsNullable() ? itemType.GetGenericArguments()[0] : itemType;
 
       if (type==typeof(Entity) || type.IsSubclassOf(typeof(Entity))) {
@@ -974,7 +974,8 @@ namespace Xtensive.Storage.Linq
         var rsHeader = new RecordSetHeader(TupleDescriptor.Create(new[] {type}), new[] {new SystemColumn(context.GetNextColumnAlias(), 0, type)});
         var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)));
         var recordset = new StoreProvider(rawProvider).Result;
-        var itemProjector = new ItemProjectorExpression(ColumnExpression.Create(itemType, 0), recordset, context);
+        var column = new LocalCollectionColumnExpression(itemType, new Segment<int>(0, 1), null, null, false);
+        var itemProjector = new ItemProjectorExpression(column, recordset, context);
         return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
       else {

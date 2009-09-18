@@ -49,6 +49,16 @@ namespace Xtensive.Storage.Linq
       return expression.Type.IsOfGenericInterface(typeof(IQueryable<>));
     }
 
+    public static bool IsLocalCollection(this Expression expression)
+    {
+      var projectionExpression = expression as ProjectionExpression;
+      if (projectionExpression==null)
+        return false;
+      var nodeType = (ExtendedExpressionType)projectionExpression.ItemProjector.Item.NodeType;
+      return nodeType==ExtendedExpressionType.LocalCollection 
+        || nodeType==ExtendedExpressionType.LocalCollectionColumn;
+    }
+
     public static bool IsItemProjector(this Expression expression)
     {
       expression = expression.StripMarkers();

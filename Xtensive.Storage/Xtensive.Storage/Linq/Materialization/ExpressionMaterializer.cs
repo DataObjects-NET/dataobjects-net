@@ -171,7 +171,8 @@ namespace Xtensive.Storage.Linq.Materialization
 
     protected override Expression VisitLocalCollectionColumnExpression(LocalCollectionColumnExpression expression)
     {
-      throw new NotImplementedException();
+      var tupleExpression = GetTupleExpression(expression);
+      return tupleExpression.MakeTupleAccess(expression.Type, expression.Mapping.Offset);
     }
 
     protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
