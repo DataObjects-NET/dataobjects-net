@@ -44,9 +44,9 @@ namespace Xtensive.Storage.Linq
         switch (methodKind) {
         case QueryableMethodKind.Cast:
           break;
-        case QueryableMethodKind.AsEnumerable:
-          break;
         case QueryableMethodKind.AsQueryable:
+          break;
+        case QueryableMethodKind.AsEnumerable:
           break;
         case QueryableMethodKind.ToArray:
           break;
@@ -961,6 +961,15 @@ namespace Xtensive.Storage.Linq
       var itemType = typeof (TItem);
       // var scope = TemporaryDataScope.Global;
       var type = itemType.IsNullable() ? itemType.GetGenericArguments()[0] : itemType;
+
+      if (type==typeof(Entity) || type.IsSubclassOf(typeof(Entity))) {
+        throw new NotImplementedException();
+      }
+
+      if (type==typeof(Structure) || type.IsSubclassOf(typeof(Structure))) {
+        throw new NotImplementedException();
+      }
+
       if (TypeIsStorageMappable(type)) {
         var rsHeader = new RecordSetHeader(TupleDescriptor.Create(new[] {type}), new[] {new SystemColumn(context.GetNextColumnAlias(), 0, type)});
         var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)));

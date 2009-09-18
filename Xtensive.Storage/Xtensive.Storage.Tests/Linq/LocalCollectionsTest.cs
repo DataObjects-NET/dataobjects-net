@@ -41,6 +41,16 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ListContainsTest()
     {
+      var list = new List<string>(){"FISSA", "PARIS"};
+      var q = from c in Query<Customer>.All   
+           where !list.Contains(c.Id)   
+           select c.Orders;    
+      QueryDumper.Dump(q);
+    }
+
+    [Test]
+    public void ListNewContainsTest()
+    {
       var q = from c in Query<Customer>.All   
            where !new List<string>(){"FISSA", "PARIS"}.Contains(c.Id)   
            select c.Orders;    

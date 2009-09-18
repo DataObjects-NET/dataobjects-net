@@ -223,6 +223,19 @@ namespace Xtensive.Storage.Linq
         else
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
 
+      // Process local collections
+      if (mc.Object.Type.IsOfGenericInterface(typeof(IEnumerable<>))) {
+        // IList.Contains
+        // List.Contains
+        // Array.Contains
+        // Enumerable.Contains
+        // Enumerable.IndexOf
+        // Enumerable.All
+        // Enumerable.Any
+        // Enumerable.Where 
+        // etc... All synonims to queryable methods
+      }
+
       return base.VisitMethodCall(mc);
     }
 
