@@ -224,7 +224,8 @@ namespace Xtensive.Storage.Linq
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
 
       // Process local collections
-      if (mc.Object.Type.IsOfGenericInterface(typeof(IEnumerable<>))) {
+      if (mc.Object!= null && mc.Object.Type.IsOfGenericInterface(typeof(IEnumerable<>)))
+      {
         // IList.Contains
         // List.Contains
         // Array.Contains
