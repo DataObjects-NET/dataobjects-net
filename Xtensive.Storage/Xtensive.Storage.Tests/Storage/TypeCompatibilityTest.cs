@@ -68,8 +68,9 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
     [Field]
     public bool FBool { get; set; }
 
-    [Field]
-    public char FChar { get; set; }
+//  Note: temporary disabled, do not remove ]:->
+//  [Field]
+//  public char FChar { get; set; }
 
     [Field]
     public byte FByte { get; set; }

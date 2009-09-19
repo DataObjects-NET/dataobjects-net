@@ -244,8 +244,7 @@ namespace Xtensive.Sql.SqlServer.v2005
         new ValueRange<DateTime>(new DateTime(1753, 1, 1), new DateTime(9999, 12,31)), "datetime");
 
       types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar");
-      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar,
-        common | index | DataTypeFeatures.ZeroLengthValueIsNull, 4000, "nvarchar");
+      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "nvarchar");
       types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "nvarchar(max)", "ntext");
 
       types.Binary = DataTypeInfo.Stream(SqlType.Binary, common | index, 4000, "binary");

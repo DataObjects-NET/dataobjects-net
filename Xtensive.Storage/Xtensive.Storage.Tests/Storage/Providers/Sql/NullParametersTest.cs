@@ -4,10 +4,12 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.25
 
-using System.Linq;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql
@@ -15,6 +17,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   public class NullParametersTest : AutoBuildTest
   {
     private DisposableSet disposableSet;
+    private bool emptyStringIsNull;
 
     protected override void CheckRequirements()
     {
@@ -30,6 +33,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 
       new X {FString = "Xtensive"};
       new X {FString = null};
+      new X {FString = string.Empty};
     }
     
     public override void TestFixtureTearDown()
@@ -39,11 +43,22 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     }
 
     [Test]
+    public void CompareWithEmptyStringParameterTest()
+    {
+      var value = string.Empty;
+      var result = Query<X>.All.Where(x => x.FString==value).ToList();
+      if (emptyStringIsNull)
+        CheckIsNull(result, 2);
+      else
+        CheckIsEmpty(result, 1);
+    }
+
+    [Test]
     public void CompareWithNullParameterTest()
     {
       string value = null;
       var result = Query<X>.All.Where(x => x.FString==value).ToList();
-      Assert.AreEqual(1, result.Count);
+      CheckIsNull(result, emptyStringIsNull ? 2 : 1);
     }
 
     [Test]
@@ -51,8 +66,8 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     {
       string value = null;
       var result = Query<X>.All.Select(x => new {x.Id, Value = value}).ToList();
-      foreach (var i in result)
-        Assert.IsNull(i.Value);
+      foreach (var item in result)
+        Assert.IsNull(item.Value);
     }
 
     protected override DomainConfiguration BuildConfiguration()
@@ -60,6 +75,27 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
       return config;
+    }
+
+    protected override Domain BuildDomain(DomainConfiguration configuration)
+    {
+      var result = base.BuildDomain(configuration);
+      emptyStringIsNull = result.StorageProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
+      return result;
+    }
+
+    private static void CheckIsNull(ICollection<X> items, int expectedCount)
+    {
+      Assert.AreEqual(expectedCount, items.Count);
+      foreach (var item in items)
+        Assert.IsNull(item.FString);
+    }
+
+    private static void CheckIsEmpty(ICollection<X> items, int expectedCount)
+    {
+      Assert.AreEqual(expectedCount, items.Count);
+      foreach (var item in items)
+        Assert.IsEmpty(item.FString);
     }
   }
 }

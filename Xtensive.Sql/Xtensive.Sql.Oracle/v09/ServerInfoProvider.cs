@@ -212,8 +212,10 @@ namespace Xtensive.Sql.Oracle.v09
       types.Interval = DataTypeInfo.Range(SqlType.Interval, common | index,
         ValueRange.TimeSpan, "interval day to second");
 
-      types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 2000, "nchar");
-      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 2000, "nvarchar2");
+      types.Char = DataTypeInfo.Stream(SqlType.Char,
+        common | index | DataTypeFeatures.ZeroLengthValueIsNull, 2000, "nchar");
+      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar,
+        common | index | DataTypeFeatures.ZeroLengthValueIsNull, 2000, "nvarchar2");
       types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "nclob");
       types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "blob");
       return types;

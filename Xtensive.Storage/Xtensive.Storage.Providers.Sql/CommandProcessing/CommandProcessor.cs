@@ -18,7 +18,8 @@ namespace Xtensive.Storage.Providers.Sql
   internal abstract class CommandProcessor : IDisposable
   {
     private const int LobBlockSize = ushort.MaxValue;
-    
+
+    private bool emptyStringIsNull;
     private DisposableSet disposables;
 
     protected const string DefaultParameterNamePrefix = "p";
@@ -131,18 +132,22 @@ namespace Xtensive.Storage.Providers.Sql
       using (task.ParameterContext.ActivateSafely()) {
         foreach (var binding in request.ParameterBindings) {
           object parameterValue = binding.ValueAccessor.Invoke();
+          // expanding true/false parameters to constants to help query optimizer with branching
           if (binding.BindingType==SqlQueryParameterBindingType.BooleanConstant) {
             if ((bool) parameterValue)
               variantKeys.Add(binding.ParameterReference.Parameter);
+            continue;
           }
-          else if (binding.BindingType==SqlQueryParameterBindingType.SmartNull && parameterValue==null) {
+          // replacing "x = @p" with "x is null" when @p = null (or empty string in case of Oracle)
+          if (binding.BindingType==SqlQueryParameterBindingType.SmartNull &&
+            (parameterValue==null || emptyStringIsNull && parameterValue.Equals(string.Empty))) {
             variantKeys.Add(binding.ParameterReference.Parameter);
+            continue;
           }
-          else {
-            string parameterName = parameterNamePrefix + parameterIndex++;
-            parameterNames.Add(binding.ParameterReference.Parameter, parameterName);
-            AddRegularParameter(parameterName, parameterValue, binding.TypeMapping);
-          }
+          // regular case -> just adding the parameter
+          string parameterName = parameterNamePrefix + parameterIndex++;
+          parameterNames.Add(binding.ParameterReference.Parameter, parameterName);
+          AddRegularParameter(parameterName, parameterValue, binding.TypeMapping);
         }
       }
       return compilationResult.GetCommandText(variantKeys, parameterNames);
@@ -248,6 +253,7 @@ namespace Xtensive.Storage.Providers.Sql
       driver = handler.Driver;
       queryTasks = new LinkedList<SqlQueryTask>();
       persistTasks = new LinkedList<SqlPersistTask>();
+      emptyStringIsNull = handler.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
     }
   }
 }
