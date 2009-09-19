@@ -81,26 +81,20 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override string Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
     {
-      switch (section)
-      {
-        case TableColumnSection.Type:
-          StringBuilder sb = new StringBuilder();
-          if (column.Domain == null)
-            sb.Append(Translate(column.DataType));
-          else
-            sb.Append(QuoteIdentifier(column.Domain.Schema.DbName, column.Domain.DbName));
-          if (column.Collation != null)
-            sb.Append(" COLLATE " + column.Collation.DbName);
-          return sb.ToString();
-        case TableColumnSection.GenerationExpressionEntry:
-          return "AS (";
-        case TableColumnSection.GeneratedEntry:
-        case TableColumnSection.GeneratedExit:
-        case TableColumnSection.SetIdentityInfoElement:
-        case TableColumnSection.Exit:
-          return String.Empty;
-        default:
-          return base.Translate(context, column, section);
+      switch (section) {
+      case TableColumnSection.Type:
+        return column.Domain==null
+          ? Translate(column.DataType)
+          : QuoteIdentifier(column.Domain.Schema.DbName, column.Domain.DbName);
+      case TableColumnSection.GenerationExpressionEntry:
+        return "AS (";
+      case TableColumnSection.GeneratedEntry:
+      case TableColumnSection.GeneratedExit:
+      case TableColumnSection.SetIdentityInfoElement:
+      case TableColumnSection.Exit:
+        return string.Empty;
+      default:
+        return base.Translate(context, column, section);
       }
     }
 
@@ -156,30 +150,24 @@ namespace Xtensive.Sql.SqlServer.v2005
 
     public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
     {
-      switch (section)
-      {
-        case CreateTableSection.Entry:
-          {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("CREATE ");
-            TemporaryTable tmpTable = node.Table as TemporaryTable;
-            if (tmpTable != null)
-            {
-              if (tmpTable.IsGlobal)
-                tmpTable.DbName = "##" + tmpTable.Name;
-              else
-                tmpTable.DbName = "#" + tmpTable.Name;
-            }
-            sb.Append("TABLE " + Translate(node.Table));
-            return sb.ToString();
-          }
-        case CreateTableSection.Exit:
-          {
-            string result = string.IsNullOrEmpty(node.Table.Filegroup)
-                              ? string.Empty
-                              : " ON " + QuoteIdentifier(node.Table.Filegroup);
-            return result;
-          }
+      switch (section) {
+      case CreateTableSection.Entry:
+        var builder = new StringBuilder();
+        builder.Append("CREATE ");
+        var temporaryTable = node.Table as TemporaryTable;
+        if (temporaryTable!=null) {
+          if (temporaryTable.IsGlobal)
+            temporaryTable.DbName = "##" + temporaryTable.Name;
+          else
+            temporaryTable.DbName = "#" + temporaryTable.Name;
+        }
+        builder.Append("TABLE " + Translate(node.Table));
+        return builder.ToString();
+      case CreateTableSection.Exit:
+        string result = string.IsNullOrEmpty(node.Table.Filegroup)
+          ? string.Empty
+          : " ON " + QuoteIdentifier(node.Table.Filegroup);
+        return result;
       }
       return base.Translate(context, node, section);
     }

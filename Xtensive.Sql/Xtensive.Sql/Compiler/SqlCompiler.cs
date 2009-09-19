@@ -1287,6 +1287,9 @@ namespace Xtensive.Sql.Compiler
           ArgumentValidator.EnsureArgumentNotNull(column.DataType, "DataType");
         context.Output.AppendText(translator.Translate(context, column, TableColumnSection.Type));
       }
+      if (column.Collation!=null) {
+        context.Output.AppendText(translator.Translate(context, column, TableColumnSection.Collate));
+      }
       if (!column.DefaultValue.IsNullReference()) {
         context.Output.AppendText(translator.Translate(context, column, TableColumnSection.DefaultValue));
         column.DefaultValue.AcceptVisitor(this);

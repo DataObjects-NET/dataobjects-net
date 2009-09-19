@@ -213,8 +213,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       case TableColumnSection.Exit:
       case TableColumnSection.SetIdentityInfoElement:
       case TableColumnSection.GenerationExpressionExit:
+      case TableColumnSection.Collate:
         return string.Empty;
-
       default:
         return base.Translate(context, column, section);
       }

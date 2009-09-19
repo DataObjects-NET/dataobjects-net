@@ -225,6 +225,7 @@ namespace Xtensive.Sql.Compiler
     GenerationExpressionEntry = 9,
     GenerationExpressionExit = 10,
     NotNull = 11,
+    Collate = 12,
   }
 
   public enum TrimSection
