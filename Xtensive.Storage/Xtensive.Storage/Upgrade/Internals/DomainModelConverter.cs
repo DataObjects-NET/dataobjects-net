@@ -218,6 +218,10 @@ namespace Xtensive.Storage.Upgrade
         return null;
       if (association.OwnerType.Indexes.PrimaryIndex==null)
         return null;
+//      if (association.OnTargetRemove.HasValue && association.OnTargetRemove.Value == OnRemoveAction.None)
+//        return null;
+      if (association.OnTargetRemove == OnRemoveAction.None)
+        return null;
 
       // AuxiliaryType == null
       if (association.AuxiliaryType==null) {

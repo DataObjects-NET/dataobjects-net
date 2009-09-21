@@ -37,5 +37,12 @@ namespace Xtensive.Storage
     /// or the whole item that is used in n-ry relations will be removed.
     /// </summary>
     Clear = 2,
+
+    /// <summary>
+    /// Indicates that no action will be executed to corresponding reference field 
+    /// of referencing object.
+    /// </summary>
+    /// <remarks>This option is prohibited for fields of <see cref="EntitySet{T}"/> type.</remarks>
+    None = 3,
   }
 }

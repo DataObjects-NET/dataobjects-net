@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Building
     public static void ValidateEntitySetField(TypeDef typeDef, FieldDef fieldDef)
     {
       // Restriction for EntitySet properties only
-      if (fieldDef.OnTargetRemove == OnRemoveAction.Cascade)
+      if (fieldDef.OnTargetRemove == OnRemoveAction.Cascade || fieldDef.OnTargetRemove == OnRemoveAction.None)
         throw new DomainBuilderException(String.Format(Strings.ExValueIsNotAcceptableForOnTargetRemoveProperty, typeDef.Name, fieldDef.Name, fieldDef.OnTargetRemove));
     }
 

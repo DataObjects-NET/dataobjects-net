@@ -48,7 +48,7 @@ namespace Xtensive.Storage
     /// </summary>
     public ReferentialIntegrityException(AssociationInfo association, Entity initiator, Entity referencingObject, Entity referencedObject)
       : base(string.Format(
-      Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, initiator.GetType().BaseType.GetFullName(), initiator.Key))
+      Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY, initiator.GetType().GetFullName(), initiator.Key))
     {
       Association = association;
       Initiator = initiator.Key;
