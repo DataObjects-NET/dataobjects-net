@@ -134,6 +134,7 @@ namespace Xtensive.Storage.Building
         context.ModelInspectionResult.Register(new CopyKeyFieldsAction(@interfaceDef, hierarchyDef.Root));
         context.ModelInspectionResult.Register(new ReorderFieldsAction(hierarchyDef, @interfaceDef));
         context.ModelInspectionResult.Register(new BuildImplementorListAction(@interfaceDef));
+        context.ModelInspectionResult.Register(new AddPrimaryIndexAction(@interfaceDef));
       }
     }
 
@@ -167,7 +168,7 @@ namespace Xtensive.Storage.Building
         InspectField(root, field, true);
       }
 
-      context.ModelInspectionResult.Actions.Enqueue(new AddPrimaryIndexAction(hierarchyDef));
+      context.ModelInspectionResult.Actions.Enqueue(new AddPrimaryIndexAction(root));
     }
 
     public static void Inspect(TypeDef typeDef)

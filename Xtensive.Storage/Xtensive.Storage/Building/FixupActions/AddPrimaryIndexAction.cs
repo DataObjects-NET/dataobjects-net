@@ -10,7 +10,7 @@ using Xtensive.Storage.Building.Definitions;
 namespace Xtensive.Storage.Building.FixupActions
 {
   [Serializable]
-  internal class AddPrimaryIndexAction : HierarchyAction
+  internal class AddPrimaryIndexAction : TypeAction
   {
     public override void Run()
     {
@@ -19,13 +19,13 @@ namespace Xtensive.Storage.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Add primary index to '{0}'", Hierarchy.Root.Name);
+      return string.Format("Add primary index to '{0}'", Type.Name);
     }
 
     // Constructors
 
-    public AddPrimaryIndexAction(HierarchyDef hierarchyDef)
-      : base(hierarchyDef)
+    public AddPrimaryIndexAction(TypeDef typeDef)
+      : base(typeDef)
     {
     }
   }

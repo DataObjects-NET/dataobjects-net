@@ -104,20 +104,30 @@ namespace Xtensive.Storage.Building
 
     public static void Process(AddPrimaryIndexAction action)
     {
-      var root = action.Hierarchy.Root;
+      var type = action.Type;
 
-      var primaryIndexes = root.Indexes.Where(i => i.IsPrimary).ToList();
+      var primaryIndexes = type.Indexes.Where(i => i.IsPrimary).ToList();
       if (primaryIndexes.Count > 0)
         foreach (var primaryIndex in primaryIndexes)
-          root.Indexes.Remove(primaryIndex);
+          type.Indexes.Remove(primaryIndex);
 
       var indexDef = new IndexDef {IsPrimary = true};
-      indexDef.Name = BuildingContext.Current.NameBuilder.BuildIndexName(root, indexDef);
+      indexDef.Name = BuildingContext.Current.NameBuilder.BuildIndexName(type, indexDef);
 
-      foreach (KeyField pair in action.Hierarchy.KeyFields)
+      TypeDef hierarchyRoot;
+      if (type.IsInterface) {
+        var implementor = type.Implementors.First();
+        hierarchyRoot = implementor;
+      }
+      else
+        hierarchyRoot = type;
+      
+      var hierarchyDef = BuildingContext.Current.ModelDef.FindHierarchy(hierarchyRoot);
+
+      foreach (KeyField pair in hierarchyDef.KeyFields)
         indexDef.KeyFields.Add(pair.Name, pair.Direction);
 
-      root.Indexes.Add(indexDef);
+      type.Indexes.Add(indexDef);
     }
 
     public static void Process(MarkFieldAsSystemAction action)
