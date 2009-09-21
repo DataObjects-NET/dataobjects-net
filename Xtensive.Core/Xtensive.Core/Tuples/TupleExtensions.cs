@@ -12,6 +12,7 @@ using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples.Transform;
 
+
 namespace Xtensive.Core.Tuples
 {
   /// <summary>
@@ -22,6 +23,15 @@ namespace Xtensive.Core.Tuples
     private static readonly InitializerHandler initializerHandler = new InitializerHandler();
     private static ThreadSafeList<ExecutionSequenceHandler<PartCopyData>[]> partCopyDelegates = 
       ThreadSafeList<ExecutionSequenceHandler<PartCopyData>[]>.Create(new object());
+    private static ThreadSafeList<ExecutionSequenceHandler<MapOneCopyData>[]> mapOneCopyDelegates =
+      ThreadSafeList<ExecutionSequenceHandler<MapOneCopyData>[]>.Create(new object());
+    private static ThreadSafeList<ExecutionSequenceHandler<MapCopyData>[]> mapCopyDelegates =
+      ThreadSafeList<ExecutionSequenceHandler<MapCopyData>[]>.Create(new object());
+    private static ThreadSafeList<ExecutionSequenceHandler<Map3CopyData>[]> map3CopyDelegates =
+      ThreadSafeList<ExecutionSequenceHandler<Map3CopyData>[]>.Create(new object());
+    private static ThreadSafeList<ExecutionSequenceHandler<MergeData>[]> mergeDelegates =
+      ThreadSafeList<ExecutionSequenceHandler<MergeData>[]>.Create(new object());
+
 
     #region Copy methods
 
@@ -38,49 +48,15 @@ namespace Xtensive.Core.Tuples
     /// <param name="length">The number of elements to copy.</param>
     public static void CopyTo(this Tuple source, Tuple target, int startIndex, int targetStartIndex, int length)
     {
-      // Generic version. Slower.
       var actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
-      DelegateHelper.ExecuteDelegates(GetPartCopyDelegates(source.Descriptor), 
+      var descriptor = target.Descriptor;
+      DelegateHelper.ExecuteDelegates(
+        partCopyDelegates.GetValue(
+          descriptor.Identifier, 
+          (_, _descriptor) => DelegateHelper.CreateDelegates<ExecutionSequenceHandler<PartCopyData>>(null, typeof(TupleExtensions), "PartCopyExecute", _descriptor), 
+          descriptor), 
         ref actionData, Direction.Positive);
-
-//      // A version with boxing. Works 6 times faster!
-//      for (int i = 0; i < length; i++) {
-//        int sourceIndex = startIndex + i;
-//        if (source.IsAvailable(sourceIndex))
-//          target.SetValue(targetStartIndex + i, source.GetValueOrDefault(sourceIndex));
-//      }
     }
-
-    private static ExecutionSequenceHandler<PartCopyData>[] GetPartCopyDelegates(TupleDescriptor descriptor)
-    {
-      return partCopyDelegates.GetValue(descriptor.Identifier, 
-        (_identifier, _descriptor) => 
-          DelegateHelper.CreateDelegates<ExecutionSequenceHandler<PartCopyData>>(
-            null, typeof(TupleExtensions), "PartCopyExecute", _descriptor), 
-        descriptor);
-    }
-
-// ReSharper disable UnusedMember.Local
-    private static bool PartCopyExecute<TFieldType>(ref PartCopyData actionData, int fieldIndex)
-    {
-      if (fieldIndex < actionData.SourceStartFieldIndex)
-        return false;
-      if (fieldIndex > actionData.SourceEndFieldIndex)
-        return true;
-
-      var source = actionData.Source;
-      var sourceFieldState = source.GetFieldState(fieldIndex);
-      if ((sourceFieldState & TupleFieldState.Available)!=0) {
-        var target = actionData.Target;
-        if ((sourceFieldState & TupleFieldState.Null)==0 || !source.Descriptor.IsValueType(fieldIndex))
-          target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff,
-            source.GetValueOrDefault<TFieldType>(fieldIndex));
-        else
-          target.SetValue(fieldIndex + actionData.ResultStartFieldIndexDiff, null);
-      }
-      return false;
-    }
-// ReSharper restore UnusedMember.Local
 
     /// <summary>
     /// Copies a range of elements from <paramref name="source"/> <see cref="Tuple"/> 
@@ -135,12 +111,14 @@ namespace Xtensive.Core.Tuples
     /// Negative value in this map means "skip this element".</param>
     public static void CopyTo(this Tuple source, Tuple target, int[] map)
     {
-      // A version with boxing. Works 6 times faster!
-      for (int i = 0; i < map.Length; i++) {
-        var sourceIndex = map[i];
-        if (sourceIndex >= 0 && source.IsAvailable(sourceIndex))
-          target.SetValue(i, source.GetValueOrDefault(sourceIndex));
-      }
+      var actionData = new MapOneCopyData(source, target, map);
+      var descriptor = target.Descriptor;
+      DelegateHelper.ExecuteDelegates(
+        mapOneCopyDelegates.GetValue(
+          descriptor.Identifier,
+          (_, _descriptor) => DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MapOneCopyData>>(null, typeof(TupleExtensions), "MapOneCopyExecute", _descriptor),
+          descriptor),
+        ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -154,15 +132,14 @@ namespace Xtensive.Core.Tuples
     /// Negative value in this map means "skip this element".</param>
     public static void CopyTo(this Tuple[] source, Tuple target, Pair<int, int>[] map)
     {
-      for (int i = 0; i < map.Length; i++) {
-        var mappedTo = map[i];
-        var sourceIndex = mappedTo.Second;
-        if (mappedTo.First >= 0 && sourceIndex >= 0) {
-          var sourceTuple = source[mappedTo.First];
-          if (sourceTuple.IsAvailable(sourceIndex))
-            target.SetValue(i, sourceTuple.GetValueOrDefault(sourceIndex));
-        }
-      }
+      var actionData = new MapCopyData(source, target, map);
+      var descriptor = target.Descriptor;
+      DelegateHelper.ExecuteDelegates(
+        mapCopyDelegates.GetValue(
+          descriptor.Identifier,
+          (_, _descriptor) => DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MapCopyData>>(null, typeof(TupleExtensions), "MapCopyExecute", _descriptor),
+          descriptor),
+        ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -176,15 +153,14 @@ namespace Xtensive.Core.Tuples
     /// Negative value in this map means "skip this element".</param>
     public static void CopyTo(this FixedList3<Tuple> source, Tuple target, Pair<int, int>[] map)
     {
-      for (int i = 0; i < map.Length; i++) {
-        var mappedTo = map[i];
-        var sourceIndex = mappedTo.Second;
-        if (mappedTo.First >= 0 && sourceIndex >= 0) {
-          var sourceTuple = source[mappedTo.First];
-          if (sourceTuple.IsAvailable(sourceIndex))
-            target.SetValue(i, sourceTuple.GetValueOrDefault(sourceIndex));
-        }
-      }
+      var actionData = new Map3CopyData(ref source, target, map);
+      var descriptor = target.Descriptor;
+      DelegateHelper.ExecuteDelegates(
+        map3CopyDelegates.GetValue(
+          descriptor.Identifier,
+          (_, _descriptor) => DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Map3CopyData>>(null, typeof(TupleExtensions), "Map3CopyExecute", _descriptor),
+          descriptor),
+        ref actionData, Direction.Positive);
     }
 
     #endregion
@@ -243,17 +219,17 @@ namespace Xtensive.Core.Tuples
       if (difference==null)
         return;
       if (origin.Descriptor!=difference.Descriptor)
-        throw new ArgumentException(
-          string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, origin.Descriptor),
-          "difference");
+        throw new ArgumentException(string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, origin.Descriptor), "difference");
       var endIndex = startIndex + length;
-      for (int i = startIndex; i < endIndex; i++) {
-        if (!difference.IsAvailable(i))
-          continue;
-        if (origin.IsAvailable(i) && behavior==MergeBehavior.PreferOrigin)
-          continue;
-        origin.SetValue(i, difference.GetValueOrDefault(i));
-      }
+
+      var actionData = new MergeData(origin, difference, startIndex, endIndex, behavior);
+      var descriptor = origin.Descriptor;
+      DelegateHelper.ExecuteDelegates(
+        mergeDelegates.GetValue(
+          descriptor.Identifier,
+          (_, _descriptor) => DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MergeData>>(null, typeof(TupleExtensions), "MergeExecute", _descriptor),
+          descriptor),
+        ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -423,19 +399,40 @@ namespace Xtensive.Core.Tuples
     {
       public Tuple Source;
       public Tuple Target;
-      public int SourceStartFieldIndex;
-      public int SourceEndFieldIndex;
-      public int ResultStartFieldIndexDiff;
+      public int TargetStartFieldIndex;
+      public int TargetEndFieldIndex;
+      public int SourceFieldIndexDiff;
 
-      public PartCopyData(Tuple source, Tuple target, int sourceStartFieldIndex, int resultStartFieldIndex, int count)
+      public PartCopyData(Tuple source, Tuple target, int startIndex, int targetStartIndex, int length)
       {
         Source = source;
         Target = target;
-        SourceStartFieldIndex = sourceStartFieldIndex;
-        SourceEndFieldIndex = sourceStartFieldIndex + count - 1;
-        ResultStartFieldIndexDiff = resultStartFieldIndex - sourceStartFieldIndex;
+        TargetStartFieldIndex = targetStartIndex;
+        TargetEndFieldIndex = targetStartIndex + length - 1;
+        SourceFieldIndexDiff = startIndex - targetStartIndex;
       }
     }
+
+    // ReSharper disable UnusedMember.Local
+    private static bool PartCopyExecute<TFieldType>(ref PartCopyData actionData, int fieldIndex)
+    {
+      if (fieldIndex < actionData.TargetStartFieldIndex)
+        return false;
+      if (fieldIndex > actionData.TargetEndFieldIndex)
+        return true;
+
+      var source = actionData.Source;
+      TupleFieldState fieldState;
+      var value = source.GetValue<TFieldType>(fieldIndex + actionData.SourceFieldIndexDiff, out fieldState);
+      if (fieldState.IsAvailable())
+        if (fieldState.IsAvailableAndNull())
+          actionData.Target.SetValue(fieldIndex, null);
+        else
+          actionData.Target.SetValue(fieldIndex, value);
+      return false;
+    }
+    // ReSharper restore UnusedMember.Local
+
 
     #endregion
 
@@ -455,22 +452,23 @@ namespace Xtensive.Core.Tuples
       }
     }
 
-    private class MapOneCopyHandler : ITupleActionHandler<MapOneCopyData>
+    // ReSharper disable UnusedMember.Local
+    private static bool MapOneCopyExecute<TFieldType>(ref MapOneCopyData actionData, int fieldIndex)
     {
-      public bool Execute<TFieldType>(ref MapOneCopyData actionData, int fieldIndex)
-      {
-        int sourceFieldIndex = actionData.Map[fieldIndex];
-        if (sourceFieldIndex < 0)
-          return false;
-        if (actionData.Source.IsAvailable(sourceFieldIndex)) {
-          if (actionData.Source.Descriptor[sourceFieldIndex].IsValueType && actionData.Source.IsNull(sourceFieldIndex))
-            actionData.Target.SetValue(fieldIndex, null);
-          else
-            actionData.Target.SetValue(fieldIndex, actionData.Source.GetValue<TFieldType>(sourceFieldIndex));
-        }
+      int sourceFieldIndex = actionData.Map[fieldIndex];
+      if (sourceFieldIndex < 0)
         return false;
-      }
+
+      TupleFieldState fieldState;
+      var value = actionData.Source.GetValue<TFieldType>(sourceFieldIndex, out fieldState);
+      if (fieldState.IsAvailable())
+        if (fieldState.IsAvailableAndNull())
+          actionData.Target.SetValue(fieldIndex, null);
+        else
+          actionData.Target.SetValue(fieldIndex, value);
+      return false;
     }
+    // ReSharper restore UnusedMember.Local
 
     #endregion
 
@@ -490,24 +488,24 @@ namespace Xtensive.Core.Tuples
       }
     }
 
-    private class MapCopyHandler : ITupleActionHandler<MapCopyData>
+    // ReSharper disable UnusedMember.Local
+    private static bool MapCopyExecute<TFieldType>(ref MapCopyData actionData, int fieldIndex)
     {
-      public bool Execute<TFieldType>(ref MapCopyData actionData, int fieldIndex)
-      {
-        Pair<int, int> mappedTo = actionData.Map[fieldIndex];
-        if (mappedTo.First < 0 | mappedTo.Second < 0)
-          return false;
-        Tuple sourceTuple = actionData.Source[mappedTo.First];
-        if (sourceTuple.IsAvailable(mappedTo.Second))
-        {
-          if (sourceTuple.Descriptor[mappedTo.Second].IsValueType && sourceTuple.IsNull(mappedTo.Second))
-            actionData.Target.SetValue(fieldIndex, null);
-          else
-            actionData.Target.SetValue(fieldIndex, sourceTuple.GetValue<TFieldType>(mappedTo.Second));
-        }
+      var mappedTo = actionData.Map[fieldIndex];
+      if (mappedTo.First < 0 | mappedTo.Second < 0)
         return false;
-      }
+
+      TupleFieldState fieldState;
+      var sourceTuple = actionData.Source[mappedTo.First];
+      var value = sourceTuple.GetValue<TFieldType>(mappedTo.Second, out fieldState);
+      if (fieldState.IsAvailable())
+        if (fieldState.IsAvailableAndNull())
+          actionData.Target.SetValue(fieldIndex, null);
+        else
+          actionData.Target.SetValue(fieldIndex, value);
+      return false;
     }
+    // ReSharper restore UnusedMember.Local
 
     #endregion
 
@@ -527,24 +525,72 @@ namespace Xtensive.Core.Tuples
       }
     }
 
-    private class Map3CopyHandler : ITupleActionHandler<Map3CopyData>
+    // ReSharper disable UnusedMember.Local
+    private static bool Map3CopyExecute<TFieldType>(ref Map3CopyData actionData, int fieldIndex)
     {
-      public bool Execute<TFieldType>(ref Map3CopyData actionData, int fieldIndex)
-      {
-        Pair<int, int> mappedTo = actionData.Map[fieldIndex];
-        if (mappedTo.First < 0 | mappedTo.Second < 0)
-          return false;
-        Tuple sourceTuple = actionData.Source[mappedTo.First];
-        if (sourceTuple.IsAvailable(mappedTo.Second))
-        {
-          if (sourceTuple.Descriptor[mappedTo.Second].IsValueType && sourceTuple.IsNull(mappedTo.Second))
-            actionData.Target.SetValue(fieldIndex, null);
-          else
-            actionData.Target.SetValue(fieldIndex, sourceTuple.GetValue<TFieldType>(mappedTo.Second));
-        }
+      Pair<int, int> mappedTo = actionData.Map[fieldIndex];
+      if (mappedTo.First < 0 | mappedTo.Second < 0)
         return false;
+
+      TupleFieldState fieldState;
+      Tuple sourceTuple = actionData.Source[mappedTo.First];
+      var value = sourceTuple.GetValue<TFieldType>(mappedTo.Second, out fieldState);
+      if (fieldState.IsAvailable())
+        if (fieldState.IsAvailableAndNull())
+          actionData.Target.SetValue(fieldIndex, null);
+        else
+          actionData.Target.SetValue(fieldIndex, value);
+      return false;
+    }
+    // ReSharper restore UnusedMember.Local
+
+    #endregion
+
+    #region Private: Merge: Data & Handler
+
+    private struct MergeData
+    {
+      public Tuple Origin;
+      public Tuple Difference;
+      public int StartIndex;
+      public int EndIndex;
+      public MergeBehavior Behavior;
+
+      public MergeData(Tuple origin, Tuple difference, int startIndex, int endIndex, MergeBehavior behavior)
+      {
+        Origin = origin;
+        Difference = difference;
+        StartIndex = startIndex;
+        EndIndex = endIndex;
+        Behavior = behavior;
       }
     }
+
+    // ReSharper disable UnusedMember.Local
+    private static bool MergeExecute<TFieldType>(ref MergeData actionData, int fieldIndex)
+    {
+      if (fieldIndex < actionData.StartIndex)
+        return false;
+      if (fieldIndex > actionData.EndIndex)
+        return true;
+
+      var origin = actionData.Origin;
+      var difference = actionData.Difference;
+      var behavior = actionData.Behavior;
+
+      TupleFieldState fieldState;
+      var value = difference.GetValue<TFieldType>(fieldIndex, out fieldState);
+      if (fieldState.IsAvailable()) {
+        if (behavior == MergeBehavior.PreferOrigin && origin.GetFieldState(fieldIndex).IsAvailable())
+          return false;
+        if (fieldState.IsAvailableAndNull())
+          origin.SetValue(fieldIndex, null);
+        else
+          origin.SetValue(fieldIndex, value);
+      }
+      return false;
+    }
+    // ReSharper restore UnusedMember.Local
 
     #endregion
 

@@ -132,7 +132,32 @@ namespace Xtensive.Core.Tests.DotNetFramework
       isRegularTestRunning = false;
       GVMethod1CallTest<int,int>(1);
       GVMethod1CallTest<string,string>(1);
-    }    
+    }
+
+    public virtual int? DefaultNullableMethod()
+    {
+      return null;
+    }
+
+    public virtual int? NullableMethod(int i)
+    {
+      var result = new int?(i);
+      return result;
+    }
+
+    [Test]
+    public void NullableResultMethodTest()
+    {
+      using (new Measurement("Default int?", IterationCount))
+        for (int i = 0; i < IterationCount; i++) {
+          var result = DefaultNullableMethod();
+        }
+
+      using (new Measurement("New instance int?", IterationCount))
+        for (int i = 0; i < IterationCount; i++) {
+          var result = NullableMethod(i);
+        }
+    }
 
     public void Test(double speedFactor)
     {

@@ -20,7 +20,7 @@ namespace Xtensive.Core.Tests.Serialization
       Assert.AreEqual(t, CloneBySerialization(t));
       
       t = Tuple.Create(t.Descriptor);
-      t[1] = true;
+      t.SetValue(1, true);
       Assert.AreEqual(t, CloneBySerialization(t));
     }
 

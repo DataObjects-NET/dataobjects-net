@@ -19,7 +19,7 @@ namespace Xtensive.Core.Testing
     private static readonly int commonProbability;
     private readonly IInstanceGeneratorProvider provider;
 
-    private struct TupleGeneratorData
+    internal struct TupleGeneratorData
     {
       public IInstanceGeneratorProvider Provider;
       public Tuple Tuple;

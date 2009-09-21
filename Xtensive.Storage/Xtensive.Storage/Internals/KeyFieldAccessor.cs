@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.21
 
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
@@ -19,11 +20,11 @@ namespace Xtensive.Storage.Internals
       EnsureGenericParameterIsValid(field);
       int fieldIndex = field.MappingInfo.Offset;
       var tuple = obj.Tuple;
-
-      if (!tuple.IsAvailable(fieldIndex))
+      TupleFieldState state;
+      var value = tuple.GetValue<string>(fieldIndex, out state);
+      if (!state.IsAvailable())
         return @default;
-      return (T) (object) Key.Parse(
-        tuple.GetValueOrDefault<string>(fieldIndex));
+      return (T) (object) Key.Parse(value);
     }
 
     /// <inheritdoc/>

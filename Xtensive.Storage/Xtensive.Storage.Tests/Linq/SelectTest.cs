@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -547,7 +548,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var category = Query<Category>.All.Where(c => c.Picture!=null).First();
       int columnIndex = Domain.Model.Types[typeof (Category)].Fields["Picture"].MappingInfo.Offset;
-      Assert.IsFalse(category.State.Tuple.IsAvailable(columnIndex));
+      Assert.IsFalse(category.State.Tuple.GetFieldState(columnIndex).IsAvailable());
     }
 
     [Test]

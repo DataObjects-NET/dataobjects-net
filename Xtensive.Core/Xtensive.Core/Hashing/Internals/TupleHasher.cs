@@ -145,8 +145,10 @@ namespace Xtensive.Core.Hashing
 
     private bool ExecuteSingle<TFieldType>(ref SingleHashData actionData, int fieldIndex)
     {
-      if (actionData.X.IsAvailable(fieldIndex) && actionData.X.HasValue(fieldIndex))
-        actionData.Result ^= Provider.GetHasher<TFieldType>().GetHash((TFieldType) actionData.X.GetValueOrDefault(fieldIndex));
+      TupleFieldState fieldState;
+      var value = actionData.X.GetValue<TFieldType>(fieldIndex, out fieldState);
+      if (fieldState.HasValue())
+        actionData.Result ^= Provider.GetHasher<TFieldType>().GetHash(value);
       else
         actionData.Result ^= BaseHasher.GetHash(null);
       return false;
@@ -154,13 +156,11 @@ namespace Xtensive.Core.Hashing
 
     private bool ExecuteArray<TFieldType>(ref ArrayHashData actionData, int fieldIndex)
     {
-      long[] hashes;
-      if (!actionData.X.IsAvailable(fieldIndex) || !actionData.X.HasValue(fieldIndex))
-        hashes = BaseHasher.GetHashes(null, actionData.HashCount);
-      else {
-        var value = (TFieldType) actionData.X.GetValueOrDefault(fieldIndex);
-        hashes = Provider.GetHasher<TFieldType>().GetHashes(value, actionData.HashCount);
-      }
+      TupleFieldState fieldState;
+      var value = actionData.X.GetValue<TFieldType>(fieldIndex, out fieldState);
+      var hashes = fieldState.HasValue() 
+        ? Provider.GetHasher<TFieldType>().GetHashes(value, actionData.HashCount) 
+        : BaseHasher.GetHashes(null, actionData.HashCount);
       for (int i = 0; i < actionData.HashCount; i++)
         actionData.Result[i] ^= hashes[i];
       return false;

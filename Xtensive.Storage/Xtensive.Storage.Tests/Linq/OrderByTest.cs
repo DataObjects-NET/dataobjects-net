@@ -235,9 +235,15 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void PredicateTest()
     {
-      IQueryable<int> result = Query<Order>.All.OrderBy(o => o.Freight > 0 && o.ShippedDate!=null).ThenBy(o => o.Id).Select(o => o.Id);
+      IQueryable<int> result = Query<Order>.All.OrderBy(o => o.Freight > 100).ThenBy(o => o.Id).Select(o => o.Id);
       List<int> list = result.ToList();
-      List<int> original = Query<Order>.All.ToList().OrderBy(o => o.Freight > 0 && o.ShippedDate!=null).ThenBy(o => o.Id).Select(o => o.Id).ToList();
+      var queryNullDate = Query<Order>.All.Where(o => o.ShippedDate == null).ToList();
+      var order = queryNullDate[0];
+      var dateTime = order.ShippedDate;
+      Assert.IsFalse(dateTime.HasValue);
+      var listNullDate = queryNullDate.Where(o => o.ShippedDate == null).ToList();
+      Assert.AreEqual(queryNullDate.Count, listNullDate.Count);
+      List<int> original = Query<Order>.All.ToList().OrderBy(o => o.Freight > 100).ThenBy(o => o.Id).Select(o => o.Id).ToList();
       Assert.IsTrue(list.SequenceEqual(original));
     }
 

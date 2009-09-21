@@ -251,7 +251,7 @@ namespace Xtensive.Storage
         return;
 
       var tuple = state.Tuple;
-      if (tuple.IsAvailable(field.MappingInfo.Offset))
+      if (tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable())
         return;
 
       Session.Handler.FetchField(Key, field, tuple.GetFieldStateMap(TupleFieldState.Available));

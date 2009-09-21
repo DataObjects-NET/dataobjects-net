@@ -313,7 +313,7 @@ namespace Xtensive.Storage.Tests.Rse
       Assert.AreEqual(5, authorRS.Header.Length);
       int rowNumber = 1;
       foreach (var tuple in authorRS) {
-        Assert.AreEqual(rowNumber++, tuple[authorRS.Header.Columns[rowNumberColumnName].Index]);
+        Assert.AreEqual(rowNumber++, tuple.GetValueOrDefault(authorRS.Header.Columns[rowNumberColumnName].Index));
       }
 
       // Two row numbers
@@ -324,8 +324,8 @@ namespace Xtensive.Storage.Tests.Rse
       Assert.AreEqual(6, authorRS2.Header.Length);
       int rowNumber2 = 1;
       foreach (var tuple in authorRS2) {
-        Assert.AreEqual(rowNumber2, tuple[authorRS2.Header.Columns[rowNumberColumnName].Index]);
-        Assert.AreEqual(rowNumber2++, tuple[authorRS2.Header.Columns[rowNumberColumnName2].Index]);
+        Assert.AreEqual(rowNumber2, tuple.GetValueOrDefault(authorRS2.Header.Columns[rowNumberColumnName].Index));
+        Assert.AreEqual(rowNumber2++, tuple.GetValueOrDefault(authorRS2.Header.Columns[rowNumberColumnName2].Index));
       }
 
       // Row numbers and Join
@@ -351,7 +351,7 @@ namespace Xtensive.Storage.Tests.Rse
       Assert.AreEqual(6, authorRS2.Header.Length);
       int categoryRowNumber = 1;
       foreach (var tuple in categoryRS) {
-        Assert.AreEqual(categoryRowNumber++, tuple[categoryRS.Header.Columns[categoryRowNumberColumnName].Index]);
+        Assert.AreEqual(categoryRowNumber++, tuple.GetValueOrDefault(categoryRS.Header.Columns[categoryRowNumberColumnName].Index));
       }
 
       const string joinRowNumberColumnName = "JoinRowNumber";
@@ -360,9 +360,9 @@ namespace Xtensive.Storage.Tests.Rse
 
       int joinRowNumber = 1;
       foreach (var tuple in joinRS) {
-        Assert.AreEqual(joinRowNumber++, tuple[joinRS.Header.Columns[joinRowNumberColumnName].Index]);
-        Assert.AreEqual((int) tuple[joinRS.Header.Columns["CategoryID"].Index] + 1, tuple[joinRS.Header.Columns[categoryRowNumberColumnName].Index]);
-        Assert.AreEqual((int) tuple[joinRS.Header.Columns["ID"].Index] + 1, tuple[joinRS.Header.Columns[rowNumberColumnName].Index]);
+        Assert.AreEqual(joinRowNumber++, tuple.GetValueOrDefault(joinRS.Header.Columns[joinRowNumberColumnName].Index));
+        Assert.AreEqual((int) tuple.GetValueOrDefault(joinRS.Header.Columns["CategoryID"].Index) + 1, tuple.GetValueOrDefault(joinRS.Header.Columns[categoryRowNumberColumnName].Index));
+        Assert.AreEqual((int) tuple.GetValueOrDefault(joinRS.Header.Columns["ID"].Index) + 1, tuple.GetValueOrDefault(joinRS.Header.Columns[rowNumberColumnName].Index));
         Log.Debug(tuple.ToString());
       }
     }

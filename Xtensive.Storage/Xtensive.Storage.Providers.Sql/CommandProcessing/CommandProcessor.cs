@@ -111,9 +111,7 @@ namespace Xtensive.Storage.Providers.Sql
       var parameterNames = new Dictionary<object, string>();
       
       foreach (var binding in request.ParameterBindings) {
-        object parameterValue = tuple.IsNull(binding.FieldIndex)
-          ? null
-          : tuple.GetValueOrDefault(binding.FieldIndex);
+        var parameterValue = tuple.GetValueOrDefault(binding.FieldIndex);
         string parameterName = parameterNamePrefix + parameterIndex++;
         parameterNames.Add(binding.ParameterReference.Parameter, parameterName);
         AddPersistParameter(parameterName, parameterValue, binding);

@@ -850,7 +850,7 @@ namespace Xtensive.Storage.Tests.Storage
             int rowNumber = 1;
             foreach (var tuple in rsRowNumber1)
             {
-              Assert.AreEqual(rowNumber++, tuple[rsRowNumber1.Header.Columns["RowNumber1"].Index]);
+              Assert.AreEqual(rowNumber++, tuple.GetValueOrDefault(rsRowNumber1.Header.Columns["RowNumber1"].Index));
             }
           }
           

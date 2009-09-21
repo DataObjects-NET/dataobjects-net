@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using FieldInfo=System.Reflection.FieldInfo;
@@ -31,11 +32,11 @@ namespace Xtensive.Core.Tuples.Internals
       BindingFlags.NonPublic | 
       BindingFlags.ExactBinding);
 
-    private readonly static MethodInfo getGetValueOrDefaultDelegate = typeof(Tuple).GetMethod(WellKnown.Tuple.GetGetValueOrDefaultDelegate,
+    private readonly static MethodInfo getGetValueDelegate = typeof(Tuple).GetMethod(WellKnown.Tuple.GetGetValueDelegate,
       BindingFlags.Instance |
       BindingFlags.NonPublic |
       BindingFlags.ExactBinding);
-    private readonly static MethodInfo getGetNullableValueOrDefaultDelegate = typeof(Tuple).GetMethod(WellKnown.Tuple.GetGetNullableValueOrDefaultDelegate,
+    private readonly static MethodInfo getGetNullableValueDelegate = typeof(Tuple).GetMethod(WellKnown.Tuple.GetGetNullableValueDelegate,
       BindingFlags.Instance |
       BindingFlags.NonPublic |
       BindingFlags.ExactBinding);
@@ -49,6 +50,7 @@ namespace Xtensive.Core.Tuples.Internals
       BindingFlags.ExactBinding);
 
     private readonly static MethodInfo getValueOrDefaultMethod;
+    private readonly static MethodInfo getValueMethod;
     private readonly static MethodInfo setValueMethod;
     private readonly static MethodInfo equalsMethod;
     private readonly static AssemblyBuilder assemblyBuilder;
@@ -76,19 +78,13 @@ namespace Xtensive.Core.Tuples.Internals
       this.tupleInfo = tupleInfo;
       Debug.Assert(tupleInfo.Descriptor.Count==tupleInfo.Fields.Count);
 
-      // "public sealed class GeneratedTuple[N]<TDescriptor>: GeneratedTuple"
       tupleType = moduleBuilder.DefineType(
         tupleInfo.Name,
         TypeAttributes.Public | TypeAttributes.Sealed,
         typeof (GeneratedTuple));
-//      GenericTypeParameterBuilder[] genericParameters = tupleType.DefineGenericParameters(new string[] {"TDescriptor"});
-//      tDescriptorParameter = genericParameters[0];
-      
-      // "where TDescriptor: GeneratedTupleDescriptor"
-//      tDescriptorParameter.SetBaseTypeConstraint(typeof(GeneratedTupleDescriptor));
 
       // "[Serializable]"
-      CustomAttributeBuilder serializableAttribute = new CustomAttributeBuilder(
+      var serializableAttribute = new CustomAttributeBuilder(
         typeof(SerializableAttribute).GetConstructor(ArrayUtils<Type>.EmptyArray),
         ArrayUtils<object>.EmptyArray);
       tupleType.SetCustomAttribute(serializableAttribute);
@@ -103,25 +99,25 @@ namespace Xtensive.Core.Tuples.Internals
       AddClone();
       AddEquals();
       AddGetHashCode();
-      AddGetValueOrDefaultMethod();
+      AddGetValueMethod();
       AddSetValueMethod();
-      AddStaticGetValueOrDefaultMethods();
+      AddStaticGetValueMethods();
       AddStaticSetValueMethods();
       AddStaticCtor();
       AddGetDelegateMethods();
 
       var tuple = (Tuple)Activator.CreateInstance(tupleType.CreateType());
       // For reverse-engineering of generated code only
-//      AppDomain.CurrentDomain.DomainUnload += 
-//        delegate(object sender, EventArgs eventArgs) {
-//          if (!assemblyIsSaved) {
-//            lock (assemblyBuilder) {
-//              if (!assemblyIsSaved)
-//                assemblyBuilder.Save(assemblyName.Name + ".dll");
-//              assemblyIsSaved = true;
-//            }
-//          }
-//        };
+      AppDomain.CurrentDomain.DomainUnload += 
+        delegate(object sender, EventArgs eventArgs) {
+          if (!assemblyIsSaved) {
+            lock (assemblyBuilder) {
+              if (!assemblyIsSaved)
+                assemblyBuilder.Save(assemblyName.Name + ".dll");
+              assemblyIsSaved = true;
+            }
+          }
+        };
       if (tuple==null)
         throw Exceptions.InternalError(string.Format(
           "Tuple generation has failed for tuple descriptor {0}.", tupleInfo.Descriptor), Log.Instance);
@@ -275,29 +271,37 @@ namespace Xtensive.Core.Tuples.Internals
       tupleType.DefineMethodOverride(equals, equalsMethod);
     }
 
-    private void AddGetValueOrDefaultMethod()
+    private void AddGetValueMethod()
     {
-      MethodBuilder getValueOrDefault = tupleType.DefineMethod(
-        WellKnown.Tuple.GetValueOrDefault,
-        MethodAttributes.Public | MethodAttributes.Virtual,
-        typeof(object),
-        new Type[]{typeof(int)});
+      var getValue = tupleType.DefineMethod(
+        WellKnown.Tuple.GetValue,
+        MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual);
 
-      ILGenerator il = getValueOrDefault.GetILGenerator();
+      var outCtor = typeof(OutAttribute).GetConstructor(
+         BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+         null,
+         ArrayUtils<Type>.EmptyArray,
+         null);
+
+      getValue.SetReturnType(typeof(object));
+      getValue.SetParameters(typeof(int), Type.GetType("Xtensive.Core.Tuples.TupleFieldState&"));
+      getValue.DefineParameter(1, ParameterAttributes.None, "fieldIndex");
+      getValue.DefineParameter(2, ParameterAttributes.Out, "fieldState")
+        .SetCustomAttribute(new CustomAttributeBuilder(outCtor, ArrayUtils<object>.EmptyArray));
+
+      ILGenerator il = getValue.GetILGenerator();
 
       Label argumentOutOfRangeException = il.DefineLabel();
-      Label returnNull = il.DefineLabel();
       il.Emit(OpCodes.Ldarg_1);
       Action<int, bool> getValueAction =
         delegate(int fieldIndex, bool isDefault) {
           if (!isDefault) {
-            TupleFieldInfo field = tupleInfo.Fields[fieldIndex];
+            var field = tupleInfo.Fields[fieldIndex];
+            il.Emit(OpCodes.Ldarg_2);
             InlineGetField(il, field.FlagsField);
-            il.Emit(OpCodes.Ldc_I4, (int)TupleFieldState.Available);
-            il.Emit(OpCodes.Xor);
-            il.Emit(OpCodes.Brtrue, returnNull);
+            il.Emit(OpCodes.Stind_I4);
             InlineGetField(il, field);
-            if (field.IsValueType)
+            if(field.IsValueType)
               il.Emit(OpCodes.Box, field.Type);
             il.Emit(OpCodes.Ret);
           }
@@ -309,11 +313,7 @@ namespace Xtensive.Core.Tuples.Internals
       il.Emit(OpCodes.Ldstr, "fieldIndex");
       il.Emit(OpCodes.Newobj, typeof(ArgumentOutOfRangeException).GetConstructor(new Type[] { typeof(string) }));
       il.Emit(OpCodes.Throw);
-      il.MarkLabel(returnNull);
-
-      il.Emit(OpCodes.Ldnull);
-      il.Emit(OpCodes.Ret);
-      tupleType.DefineMethodOverride(getValueOrDefault, getValueOrDefaultMethod);
+      tupleType.DefineMethodOverride(getValue, getValueMethod);
     }
 
     private void AddSetValueMethod()
@@ -330,28 +330,20 @@ namespace Xtensive.Core.Tuples.Internals
       Action<int, bool> setValueAction =
         delegate(int fieldIndex, bool isDefault) {
           if (!isDefault) {
-            Label setFlags = il.DefineLabel();
-            TupleFieldInfo field = tupleInfo.Fields[fieldIndex];
-            Label isNotNull = il.DefineLabel();
-            Label isNull = il.DefineLabel();
-            if (field.IsValueType) {
-              il.Emit(OpCodes.Ldarg_2);
-              il.Emit(OpCodes.Ldnull);
-              il.Emit(OpCodes.Ceq);
-              il.Emit(OpCodes.Brfalse, isNotNull);
-              il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.Available | TupleFieldState.Null));
-              il.Emit(OpCodes.Stloc_0);
+            var field = tupleInfo.Fields[fieldIndex];
+            var setFlags = il.DefineLabel();
+            var isNotNull = il.DefineLabel();
+            var isNull = il.DefineLabel();
+            il.Emit(OpCodes.Ldarg_2);
+            il.Emit(OpCodes.Ldnull);
+            il.Emit(OpCodes.Ceq);
+            il.Emit(OpCodes.Brfalse, isNotNull);
+            il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.Available | TupleFieldState.Null));
+            il.Emit(OpCodes.Stloc_0);
+            if (field.IsValueType) 
               il.Emit(OpCodes.Br, setFlags);
-            }
-            else {
-              il.Emit(OpCodes.Ldarg_2);
-              il.Emit(OpCodes.Ldnull);
-              il.Emit(OpCodes.Ceq);
-              il.Emit(OpCodes.Brfalse, isNotNull);
-              il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.Available | TupleFieldState.Null));
-              il.Emit(OpCodes.Stloc_0);
+            else
               il.Emit(OpCodes.Br, isNull);
-            }
             il.MarkLabel(isNotNull);
             il.Emit(OpCodes.Ldc_I4, (int)(TupleFieldState.Available));
             il.Emit(OpCodes.Stloc_0);
@@ -369,66 +361,84 @@ namespace Xtensive.Core.Tuples.Internals
       tupleType.DefineMethodOverride(setValue, setValueMethod);
     }
 
-    private void AddStaticGetValueOrDefaultMethods()
+    private void AddStaticGetValueMethods()
     {
+      var outCtor = typeof(OutAttribute).GetConstructor(
+        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+        null,
+        ArrayUtils<Type>.EmptyArray,
+        null);
       for (int i = 0; i < tupleInfo.Fields.Count; i++) {
         var field = tupleInfo.Fields[i];
         if (field.IsValueType) {
-          // Build GetValueOrDefaultX method
+          // Build GetValueX method
           var method = tupleType.DefineMethod(
-            string.Format(WellKnown.Tuple.GetValueOrDefaultX, i),
-            MethodAttributes.Private | MethodAttributes.Static,
-            field.Type,
-            new[] {typeof (Tuple)});
+            string.Format(WellKnown.Tuple.GetValueX, i),
+            MethodAttributes.Private | MethodAttributes.Static);
+
+          method.SetReturnType(field.Type);
+          method.SetParameters(typeof(Tuple), Type.GetType("Xtensive.Core.Tuples.TupleFieldState&"));
+          method.DefineParameter(1, ParameterAttributes.None, "tuple");
+          method.DefineParameter(2, ParameterAttributes.Out, "fieldState")
+            .SetCustomAttribute(new CustomAttributeBuilder(outCtor, ArrayUtils<object>.EmptyArray));
+
+
           var il = method.GetILGenerator();
-          var throwOnNull = il.DefineLabel();
+          il.Emit(OpCodes.Ldarg_1);
           InlineGetField(il, field.FlagsField);
-          il.Emit(OpCodes.Ldc_I4, (int) (TupleFieldState.Available | TupleFieldState.Null));
-          il.Emit(OpCodes.Ceq);
-          il.Emit(OpCodes.Brtrue, throwOnNull);
+          il.Emit(OpCodes.Stind_I4);
           InlineGetField(il, field);
           il.Emit(OpCodes.Ret);
-          il.MarkLabel(throwOnNull);
-          il.Emit(OpCodes.Ldstr, string.Format("Unable to cast null value to {0}; use {0}? instead.", field.Type));
-          il.Emit(OpCodes.Newobj, typeof (InvalidCastException).GetConstructor(new[] {typeof (string)}));
-          il.Emit(OpCodes.Throw);
           getValueMethods.Add(method);
         }
         else
           getValueMethods.Add(null);
 
-          // Build GetNullableValueOrDefaultX method
-        var nullable = field.Type.ToNullable();
+          // Build GetNullableValueX method
+        var nullableType = field.Type.ToNullable();
         var nullableMethod = tupleType.DefineMethod(
-          string.Format(WellKnown.Tuple.GetNullableValueOrDefaultX, i),
-          MethodAttributes.Private | MethodAttributes.Static,
-          field.IsValueType
-            ? nullable
-            : field.Type,
-          new[] { typeof(Tuple) });
-        var nil = nullableMethod.GetILGenerator();
+          string.Format(WellKnown.Tuple.GetNullableValueX, i),
+          MethodAttributes.Private | MethodAttributes.Static);
 
-        LocalBuilder nullLocal = null;
-        if (field.IsValueType)
-          nullLocal = nil.DeclareLocal(nullable);
-        var returnNull = nil.DefineLabel();
-        InlineGetField(nil, field.FlagsField);
-        nil.Emit(OpCodes.Ldc_I4, (int)TupleFieldState.Available);
-        nil.Emit(OpCodes.Xor);
-        nil.Emit(OpCodes.Brtrue, returnNull);
-        InlineGetField(nil, field);
-        if (field.IsValueType)
-          nil.Emit(OpCodes.Newobj, nullable.GetConstructor(new[] { field.Type }));
-        nil.Emit(OpCodes.Ret);
-        nil.MarkLabel(returnNull);
-        if (nullLocal != null) {
-          nil.Emit(OpCodes.Ldloca, nullLocal);
-          nil.Emit(OpCodes.Initobj, nullable);
+        nullableMethod.SetReturnType(field.IsValueType ? nullableType : field.Type);
+        nullableMethod.SetParameters(typeof(Tuple), Type.GetType("Xtensive.Core.Tuples.TupleFieldState&"));
+        nullableMethod.DefineParameter(1, ParameterAttributes.None, "tuple");
+        nullableMethod.DefineParameter(2, ParameterAttributes.Out, "fieldState")
+          .SetCustomAttribute(new CustomAttributeBuilder(outCtor, ArrayUtils<object>.EmptyArray));
+
+        var nil = nullableMethod.GetILGenerator();
+        if (field.IsValueType) {
+          var defaultNullable = nil.DefineLabel();
+          nil.DeclareLocal(typeof(TupleFieldState));
+          nil.DeclareLocal(nullableType);
+          nil.Emit(OpCodes.Ldarg_1);
+          InlineGetField(nil, field.FlagsField);
+          nil.Emit(OpCodes.Stloc_0);
           nil.Emit(OpCodes.Ldloc_0);
+          nil.Emit(OpCodes.Stind_I4);
+          nil.Emit(OpCodes.Ldloc_0);
+          nil.Emit(OpCodes.Ldc_I4_1);
+          nil.Emit(OpCodes.Xor);
+          nil.Emit(OpCodes.Brtrue, defaultNullable);
+          nil.Emit(OpCodes.Ldloca, 1);
+          InlineGetField(nil, field);
+          nil.Emit(OpCodes.Call, nullableType.GetConstructor(new[] { field.Type }));
+          nil.Emit(OpCodes.Ldloc_1);
+          nil.Emit(OpCodes.Ret);
+          nil.MarkLabel(defaultNullable);
+          nil.Emit(OpCodes.Ldloca, 1);
+          nil.Emit(OpCodes.Initobj, nullableType);
+          nil.Emit(OpCodes.Ldloc_1);
+          nil.Emit(OpCodes.Ret);
         }
-        else
-          nil.Emit(OpCodes.Ldnull);
-        nil.Emit(OpCodes.Ret);
+        else {
+          nil.Emit(OpCodes.Ldarg_1);
+          InlineGetField(nil, field.FlagsField);
+          nil.Emit(OpCodes.Stind_I4);
+          InlineGetField(nil, field);
+          nil.Emit(OpCodes.Ret);
+        }
+        
         getNullableValueMethods.Add(nullableMethod);
       }
     }
@@ -731,7 +741,7 @@ namespace Xtensive.Core.Tuples.Internals
       for (int i = 0; i < fieldCount; i++) {
         var method = getValueMethods[i];
         if (method != null) {
-          var delegateType = typeof(Func<,>).MakeGenericType(typeof(Tuple), method.ReturnType);
+          var delegateType = typeof(GetValueDelegate<>).MakeGenericType(method.ReturnType);
           var delegateCtor = delegateType.GetConstructor(
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, 
             null, 
@@ -754,7 +764,7 @@ namespace Xtensive.Core.Tuples.Internals
         var method = getNullableValueMethods[i];
         var field = tupleInfo.Fields[i];
         if (method != null) {
-          var delegateType = typeof(Func<,>).MakeGenericType(typeof(Tuple), field.IsValueType ? field.Type.ToNullable() : field.Type);
+          var delegateType = typeof(GetValueDelegate<>).MakeGenericType(field.IsValueType ? field.Type.ToNullable() : field.Type);
           var delegateCtor = delegateType.GetConstructor(
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, 
             null, 
@@ -822,7 +832,7 @@ namespace Xtensive.Core.Tuples.Internals
     private void AddGetDelegateMethods()
     {
       var getGetValue = tupleType.DefineMethod(
-        WellKnown.Tuple.GetGetValueOrDefaultDelegate,
+        WellKnown.Tuple.GetGetValueDelegate,
         MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.Final,
         typeof (Delegate),
         new[] {typeof (int)});
@@ -831,10 +841,10 @@ namespace Xtensive.Core.Tuples.Internals
       il.Emit(OpCodes.Ldarg_1);
       il.Emit(OpCodes.Ldelem_Ref);
       il.Emit(OpCodes.Ret);
-      tupleType.DefineMethodOverride(getGetValue, getGetValueOrDefaultDelegate);
+      tupleType.DefineMethodOverride(getGetValue, getGetValueDelegate);
 
       var getGetNullableValue = tupleType.DefineMethod(
-        WellKnown.Tuple.GetGetNullableValueOrDefaultDelegate,
+        WellKnown.Tuple.GetGetNullableValueDelegate,
         MethodAttributes.Family | MethodAttributes.Virtual | MethodAttributes.Final,
         typeof(Delegate),
         new[] { typeof(int) });
@@ -843,7 +853,7 @@ namespace Xtensive.Core.Tuples.Internals
       il.Emit(OpCodes.Ldarg_1);
       il.Emit(OpCodes.Ldelem_Ref);
       il.Emit(OpCodes.Ret);
-      tupleType.DefineMethodOverride(getGetNullableValue, getGetNullableValueOrDefaultDelegate);
+      tupleType.DefineMethodOverride(getGetNullableValue, getGetNullableValueDelegate);
 
       var getSetValue = tupleType.DefineMethod(
         WellKnown.Tuple.GetSetValueDelegate,
@@ -962,6 +972,10 @@ namespace Xtensive.Core.Tuples.Internals
           continue;
         if (info.Name==WellKnown.Tuple.GetValueOrDefault && !info.IsGenericMethodDefinition) {
           getValueOrDefaultMethod = info;
+          continue;
+        }
+        if (info.Name == WellKnown.Tuple.GetValue && !info.IsGenericMethodDefinition && info.IsAbstract) {
+          getValueMethod = info;
           continue;
         }
         if (info.Name==WellKnown.Tuple.SetValue && !info.IsGenericMethodDefinition) {

@@ -63,14 +63,18 @@ namespace Xtensive.Core.Tests.Performance
     {
       int fieldCount = t.Count;
       for (int i = 0; i < count; i++)
-        for (int j = 0; j < fieldCount; j++)
-          t.GetValueOrDefault(j);
+        for (int j = 0; j < fieldCount; j++) {
+          TupleFieldState state;
+          t.GetValue(j, out state);
+        }
     }
 
     private void GetValueTest(Tuple t, int count, int index)
     {
-      for (int i = 0; i < count; i++)
-        t.GetValueOrDefault(index);
+      for (int i = 0; i < count; i++) {
+        TupleFieldState state;
+        t.GetValue(index, out state);
+      }
     }
 
     private void ToFastReadOnlyTest(Tuple t, int count)

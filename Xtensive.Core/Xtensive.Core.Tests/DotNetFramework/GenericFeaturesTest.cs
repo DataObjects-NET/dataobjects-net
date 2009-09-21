@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Tests.DotNetFramework
@@ -13,6 +14,28 @@ namespace Xtensive.Core.Tests.DotNetFramework
   [TestFixture]
   public class GenericFeaturesTest
   {
+    private const int IterationCount = 10000000;
+
+    [Test]
+    public void EqualityPerformanceTest()
+    {
+      using(new Measurement("default(int) equals null", IterationCount))
+        DefaultEqualToNull<int>();
+
+      using (new Measurement("default(string) equals null", IterationCount))
+        DefaultEqualToNull<string>();
+
+      using (new Measurement("default(int?) equals null", IterationCount))
+        DefaultEqualToNull<int>();
+    }
+
+    private void DefaultEqualToNull<T>()
+    {
+      for (int i = 0; i < IterationCount; i++) {
+        var result = null == default(T);
+      }
+    }
+
     [Test]
     public void EqualToNullTest()
     {

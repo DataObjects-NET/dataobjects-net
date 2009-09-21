@@ -71,7 +71,7 @@ namespace Xtensive.Core.Tuples
     {
       if (difference==null)
         return false;
-      return difference.IsAvailable(fieldIndex);
+      return difference.GetFieldState(fieldIndex).IsAvailable();
     }
 
     /// <summary>
@@ -96,7 +96,9 @@ namespace Xtensive.Core.Tuples
     {
       if (difference==null)
         return origin;
-      return difference.IsAvailable(fieldIndex) ? difference : origin;
+      return difference.GetFieldState(fieldIndex).IsAvailable() 
+        ? difference 
+        : origin;
     }
 
     #region GetFieldState, GetValueOrDefault, SetValue methods
@@ -108,9 +110,9 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <inheritdoc/>
-    public override object GetValueOrDefault(int fieldIndex)
+    public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      return GetContainer(fieldIndex).GetValueOrDefault(fieldIndex);
+      return GetContainer(fieldIndex).GetValue(fieldIndex, out fieldState);
     }
 
     /// <inheritdoc />

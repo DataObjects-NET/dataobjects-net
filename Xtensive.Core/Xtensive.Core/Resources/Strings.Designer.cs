@@ -1304,6 +1304,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to cast null value to {0}; use {0}? instead..
+        /// </summary>
+        internal static string ExUnableToCastNullValueToXUseXInstead {
+            get {
+                return ResourceManager.GetString("ExUnableToCastNullValueToXUseXInstead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to create provider instance. Check if provider&apos;s class has static &quot;Instance&quot; property..
         /// </summary>
         internal static string ExUnableToCreateProviderInstance {

@@ -160,8 +160,9 @@ namespace Xtensive.Indexing
       if (implConfig.KeyExtractor == null)
         implConfig.KeyExtractor = delegate(TItem compositeItem)
         {
-          CutInTransform<int> keyTransform = new CutInTransform<int>(false, compositeConfig.KeyExtractor(compositeItem).Count, compositeConfig.KeyExtractor(compositeItem).Descriptor);
-          return (TKey) keyTransform.Apply(TupleTransformType.TransformedTuple, compositeConfig.KeyExtractor(compositeItem), (int) compositeItem[compositeConfig.KeyExtractor(compositeItem).Count]);
+          var key = compositeConfig.KeyExtractor(compositeItem);
+          var keyTransform = new CutInTransform<int>(false, key.Count, key.Descriptor);
+          return (TKey) keyTransform.Apply(TupleTransformType.TransformedTuple, key, compositeItem.GetValueOrDefault<int>(key.Count));
         };
       if (implConfig.KeyComparer == null)
         implConfig.KeyComparer = compositeConfig.KeyComparer.Provider.GetComparer<TKey>();

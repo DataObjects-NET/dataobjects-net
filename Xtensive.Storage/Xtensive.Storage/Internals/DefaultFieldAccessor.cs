@@ -24,11 +24,14 @@ namespace Xtensive.Storage.Internals
       EnsureGenericParameterIsValid(field);
       int fieldIndex = field.MappingInfo.Offset;
       var tuple = obj.Tuple;
+      var value = tuple.GetValueOrDefault<T>(fieldIndex);
+      return value;
 
-      if (isObject)
-        return (T) tuple.GetValueOrDefault(fieldIndex);
 
-      return tuple.GetValueOrDefault<T>(fieldIndex);
+//      if (isObject)
+//        return (T) tuple.GetValueOrDefault(fieldIndex);
+//
+//      return tuple.GetValueOrDefault<T>(fieldIndex);
     }
 
     /// <inheritdoc/>

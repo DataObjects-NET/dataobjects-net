@@ -11,19 +11,23 @@ namespace Xtensive.Storage.Internals
 {
   internal static class TupleExtensions
   {
-    public static bool ContainsEmptyValues(this ITuple target)
+    public static bool ContainsEmptyValues(this Tuple target)
     {
-      for (int i = 0; i < target.Count; i++)
-        if (!target.IsAvailable(i) || target.IsNull(i))
+      for (int i = 0; i < target.Count; i++) {
+        var state = target.GetFieldState(i);
+        if (!state.HasValue())
           return true;
+      }
       return false;
     }
 
-    public static bool ContainsEmptyValues( this ITuple target, Segment<int> segment)
+    public static bool ContainsEmptyValues( this Tuple target, Segment<int> segment)
     {
-      for (int i = segment.Offset; i < segment.EndOffset; i++)
-        if (!target.IsAvailable(i) || target.IsNull(i))
+      for (int i = segment.Offset; i < segment.EndOffset; i++) {
+        var state = target.GetFieldState(i);
+        if (!state.HasValue())
           return true;
+      }
       return false;
     }
   }

@@ -49,15 +49,45 @@ namespace Xtensive.Core.Comparison
         if (comparerInfo.First==0) // Direction check
           return 0;
 
-        var xValue = x.GetValueOrDefault(fieldIndex);
-        var yValue = y.GetValueOrDefault(fieldIndex);
-        if (xValue == null) {
-          if (yValue == null)
+        TupleFieldState xState;
+        TupleFieldState yState;
+        var xValue = x.GetValue(fieldIndex, out xState);
+        var yValue = y.GetValue(fieldIndex, out yState);
+        var stateIndex = (int) xState | ((int) yState << 2);
+        switch (stateIndex) {
+          case 0:
             continue;
-          return -comparerInfo.First * (fieldIndex + 1);
-        } 
-        if (yValue == null)
-          return comparerInfo.First * (fieldIndex + 1);
+          case 1:
+            return comparerInfo.First * (fieldIndex + 1);
+          case 2:
+            continue;
+          case 3:
+            continue;
+          case 4:
+            return -comparerInfo.First * (fieldIndex + 1);
+          case 5:
+            break;
+          case 6:
+            return -comparerInfo.First * (fieldIndex + 1);
+          case 7:
+            return -comparerInfo.First * (fieldIndex + 1);
+          case 8:
+            continue;
+          case 9:
+            return comparerInfo.First * (fieldIndex + 1);
+          case 10:
+            continue;
+          case 11:
+            continue;
+          case 12:
+            continue;
+          case 13:
+            return comparerInfo.First * (fieldIndex + 1);
+          case 14:
+            continue;
+          case 15:
+            continue;
+        }
 
         int valueComparison = comparerInfo.Second(xValue, yValue);
         if (valueComparison != 0)

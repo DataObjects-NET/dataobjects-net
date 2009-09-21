@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Serialization
         Tuple keyTuple = Tuple.Create(entityType.Hierarchy.KeyInfo.TupleDescriptor);
       foreach (FieldInfo keyField in keyFields.Keys) {
         if (keyField.IsTypeId)
-          keyTuple[keyField.MappingInfo.Offset] = entityType.TypeId;
+          keyTuple.SetValue(keyField.MappingInfo.Offset, entityType.TypeId);
         else {
           object value = info.GetValue(keyField.Name, keyField.ValueType);
           if (keyField.IsEntity) {
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Serialization
             referencedTuple.CopyTo(keyTuple, keyField.MappingInfo.Offset);
           }
           else
-            keyTuple[keyField.MappingInfo.Offset] = value;
+            keyTuple.SetValue(keyField.MappingInfo.Offset, value);
         }
       }
       return keyTuple;

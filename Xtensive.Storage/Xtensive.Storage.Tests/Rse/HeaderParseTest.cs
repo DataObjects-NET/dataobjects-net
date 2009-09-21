@@ -7,6 +7,7 @@
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -47,8 +48,8 @@ namespace Xtensive.Storage.Tests.Rse
           session.UpdateCacheFrom(rsMain);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
-          Assert.IsTrue(state.Tuple.IsAvailable(2));
-          Assert.IsTrue(state.Tuple.IsAvailable(3));
+          Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
+          Assert.IsTrue(state.Tuple.GetFieldState(3).IsAvailable());
           state.ResetState();
 
           // Select Id, TypeId, Title
@@ -56,8 +57,8 @@ namespace Xtensive.Storage.Tests.Rse
           session.UpdateCacheFrom(rsTitle);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
-          Assert.IsTrue(state.Tuple.IsAvailable(2));
-          Assert.IsFalse(state.Tuple.IsAvailable(3));
+          Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
+          Assert.IsFalse(state.Tuple.GetFieldState(3).IsAvailable());
           state.ResetState();
 
           // Select Id, TypeId, Text
@@ -65,8 +66,8 @@ namespace Xtensive.Storage.Tests.Rse
           session.UpdateCacheFrom(rsText);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
-          Assert.IsFalse(state.Tuple.IsAvailable(2));
-          Assert.IsTrue(state.Tuple.IsAvailable(3));
+          Assert.IsFalse(state.Tuple.GetFieldState(2).IsAvailable());
+          Assert.IsTrue(state.Tuple.GetFieldState(3).IsAvailable());
           state.ResetState();
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
@@ -74,8 +75,8 @@ namespace Xtensive.Storage.Tests.Rse
           session.UpdateCacheFrom(rsJoin);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
-          Assert.IsTrue(state.Tuple.IsAvailable(2));
-          Assert.IsTrue(state.Tuple.IsAvailable(3));
+          Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
+          Assert.IsTrue(state.Tuple.GetFieldState(3).IsAvailable());
           state.ResetState();
         }
       }

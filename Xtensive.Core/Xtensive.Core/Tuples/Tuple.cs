@@ -34,25 +34,16 @@ namespace Xtensive.Core.Tuples
       get { return Descriptor.Count; }
     }
 
-    /// <inheritdoc/>
-    public object this[int fieldIndex]
-    {
-      [DebuggerStepThrough]
-      get { return GetValue(fieldIndex); }
-      [DebuggerStepThrough]
-      set { SetValue(fieldIndex, value); }
-    }
-
     #region CreateNew, Clone methods
 
     /// <inheritdoc/>
-    ITuple ITupleFactory.CreateNew()
+    Tuple ITupleFactory.CreateNew()
     {
       return CreateNew();
     }
 
     /// <inheritdoc/>
-    ITuple ITuple.Clone()
+    Tuple ITuple.Clone()
     {
       return Clone();
     }
@@ -77,47 +68,31 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    #region IsXxx \ HasXxx methods
-
-    /// <inheritdoc/>
-    public bool IsAvailable(int fieldIndex)
-    {
-      return (GetFieldState(fieldIndex) & TupleFieldState.Available) != 0;
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">Field value is not available.</exception>
-    public bool IsNull(int fieldIndex)
-    {
-      var state = GetFieldState(fieldIndex);
-      if ((state & TupleFieldState.Available) == 0)
-        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
-      return (state & TupleFieldState.Null) > 0;
-    }
-
-    /// <inheritdoc/>
-    public bool HasValue(int fieldIndex)
-    {
-      return GetFieldState(fieldIndex) == TupleFieldState.Available;
-    }
-
-    #endregion
-
-    #region GetFieldState (abstract), GetValueOrDefault (asbtract), GetValue, SetValue methods
+    #region GetFieldState (abstract), GetValue(int, out TupleFieldState) (asbtract), GetValue(int), SetValue methods
 
     /// <inheritdoc />
     public abstract TupleFieldState GetFieldState(int fieldIndex);
 
     /// <inheritdoc/>
-    public abstract object GetValueOrDefault(int fieldIndex);
+    public abstract object GetValue(int fieldIndex, out TupleFieldState fieldState);
 
     /// <inheritdoc />
     /// <exception cref="InvalidOperationException">Field value is not available.</exception>
     public object GetValue(int fieldIndex)
     {
-      if (!IsAvailable(fieldIndex))
-        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
-      return GetValueOrDefault(fieldIndex);
+      TupleFieldState state;
+      var result = GetValue(fieldIndex, out state);
+      return state.IsNull() 
+        ? null 
+        : result;
+    }
+
+    /// <inheritdoc/>
+    public object GetValueOrDefault(int fieldIndex)
+    {
+      TupleFieldState state;
+      var value = GetValue(fieldIndex, out state);
+      return state.HasValue() ? value : null;
     }
 
     /// <inheritdoc />
@@ -125,27 +100,24 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    #region GetValueOrDefault<T>, GetValue<T>, SetValue<T> methods
+    #region GetValue<T>(int,out TupleFieldState), GetValue<T>, SetValue<T> methods
 
     /// <summary>
     /// Gets the value field value by its index, if it is available;
     /// otherwise returns <see langword="default(T)"/>.
     /// </summary>
     /// <param name="fieldIndex">Index of the field to get value of.</param>
-    /// <returns>Field value, if it is available;
-    /// otherwise, <see langword="default(T)"/>.</returns>
+    /// <param name="fieldState">Field state associated with the field.</param>
+    /// <returns>Field value, if it is available; otherwise, <see langword="default(T)"/>.</returns>
     /// <typeparam name="T">The type of value to get.</typeparam>
-    /// <exception cref="InvalidCastException">Value is available, but it can't be cast
-    /// to specified type. E.g. if value is <see langword="null"/>, field is struct, 
-    /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
-    public T GetValueOrDefault<T>(int fieldIndex)
+    public T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
       var getter = (null == default(T) // Is nullable value type or class
-        ? GetGetNullableValueOrDefaultDelegate(fieldIndex)
-        : GetGetValueOrDefaultDelegate(fieldIndex)) as Func<Tuple, T>;
+        ? GetGetNullableValueDelegate(fieldIndex)
+        : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
       if (getter != null)
-        return getter.Invoke(this);
-      return (T) GetValueOrDefault(fieldIndex);
+        return getter.Invoke(this, out fieldState);
+      return (T) GetValue(fieldIndex, out fieldState);
     }
 
     /// <summary>
@@ -155,7 +127,7 @@ namespace Xtensive.Core.Tuples
     /// <returns>Field value.</returns>
     /// <typeparam name="T">The type of value to get.</typeparam>
     /// <remarks>
-    /// If field value is not available (see <see cref="Tuple.IsAvailable"/>),
+    /// If field value is not available (see <see cref="TupleFieldState.Available"/>),
     /// an exception will be thrown.
     /// </remarks>
     /// <exception cref="InvalidOperationException">Field value is not available.</exception>
@@ -164,15 +136,66 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValue<T>(int fieldIndex)
     {
-      if (!IsAvailable(fieldIndex))
-        throw new InvalidOperationException(Strings.ExValueIsNotAvailable);
+      T result;
+      TupleFieldState state;
+      var isNullable = null == default(T); // Is nullable value type or class
+      if (isNullable) {
+        var getter = GetGetNullableValueDelegate(fieldIndex) as GetValueDelegate<T>;
+        if (getter != null)
+          result = getter.Invoke(this, out state);
+        else
+          result = (T)GetValue(fieldIndex, out state);
+        return state.IsNull() ? default(T) : result;
+      }
+      else {
+        var getter = GetGetValueDelegate(fieldIndex) as GetValueDelegate<T>;
+        if (getter != null)
+          result = getter.Invoke(this, out state);
+        else
+          result = (T)GetValue(fieldIndex, out state);
+        if (state.IsNull())
+          throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
+        return result;
+      }
+    }
 
-      var getter = (null == default(T) // Is nullable value type or class
-        ? GetGetNullableValueOrDefaultDelegate(fieldIndex)
-        : GetGetValueOrDefaultDelegate(fieldIndex)) as Func<Tuple, T>;
-      if (getter != null)
-        return getter.Invoke(this);
-      return (T) GetValueOrDefault(fieldIndex);
+    /// <summary>
+    /// Gets the value field value by its index.
+    /// </summary>
+    /// <param name="fieldIndex">Index of the field to get value of.</param>
+    /// <returns>Field value.</returns>
+    /// <typeparam name="T">The type of value to get.</typeparam>
+    /// <remarks>
+    /// If field value is not available (see <see cref="TupleFieldState.Available"/>),
+    /// an exception will be thrown.
+    /// </remarks>
+    /// <exception cref="InvalidCastException">Value is available, but it can't be cast
+    /// to specified type. E.g. if value is <see langword="null"/>, field is struct, 
+    /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
+    public T GetValueOrDefault<T>(int fieldIndex)
+    {
+      T result;
+      TupleFieldState state;
+      var isNullable = null == default(T); // Is nullable value type or class
+      if (isNullable) {
+        var getter = GetGetNullableValueDelegate(fieldIndex) as GetValueDelegate<T>;
+        if (getter != null)
+          return getter.Invoke(this, out state);
+        result = (T)GetValue(fieldIndex, out state);
+        return (state ^ TupleFieldState.Available) == TupleFieldState.Default 
+          ? result 
+          : default(T);
+      }
+      else {
+        var getter = GetGetValueDelegate(fieldIndex) as GetValueDelegate<T>;
+        if (getter != null)
+          result = getter.Invoke(this, out state);
+        else
+          result = (T)GetValue(fieldIndex, out state);
+        if ((state & TupleFieldState.Null) == TupleFieldState.Default) 
+          return result;
+        throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
+      }
     }
 
     /// <summary>
@@ -198,12 +221,12 @@ namespace Xtensive.Core.Tuples
 
     #region Get Delegate methods
 
-    protected virtual Delegate GetGetValueOrDefaultDelegate(int fieldIndex)
+    protected virtual Delegate GetGetValueDelegate(int fieldIndex)
     {
       return null;
     }
 
-    protected virtual Delegate GetGetNullableValueOrDefaultDelegate(int fieldIndex)
+    protected virtual Delegate GetGetNullableValueDelegate(int fieldIndex)
     {
       return null;
     }
@@ -262,7 +285,8 @@ namespace Xtensive.Core.Tuples
       var count = Count;
       int result = 0;
       for (int i = 0; i<count; i++) {
-        object valueOrDefault = GetValueOrDefault(i);
+        TupleFieldState state;
+        object valueOrDefault = GetValue(i, out state);
         result = HashCodeMultiplier * result ^ (valueOrDefault != null ? valueOrDefault.GetHashCode() : 0);
       }
       return result;
@@ -277,21 +301,22 @@ namespace Xtensive.Core.Tuples
     {
       var sb = new StringBuilder(16);
       for (int i = 0; i < Count; i++) {
+        TupleFieldState state;
+        var value = GetValue(i, out state);
         if (i > 0)
           sb.Append(", ");
-        if (!IsAvailable(i))
+        if (!state.IsAvailable())
           sb.Append(Strings.NotAvailable);
-        else if (IsNull(i))
+        else if (state.IsNull())
           sb.Append(Strings.Null);
         else if (Descriptor[i] == typeof(string)) {
-          var value = GetValue(i) as string;
-          if (string.IsNullOrEmpty(value))
+          if (string.IsNullOrEmpty(value as  string))
             sb.Append(Strings.EmptyString);
           else
             sb.Append(value);
         }
         else
-          sb.Append(GetValue(i));
+          sb.Append(value);
       }
       return string.Format(Strings.TupleFormat, sb);
     }

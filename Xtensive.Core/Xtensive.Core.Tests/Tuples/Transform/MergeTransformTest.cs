@@ -41,13 +41,13 @@ namespace Xtensive.Core.Tests.Tuples.Transform
       Assert.AreEqual(ct1, ct2);
 
       wt1.SetValue(2, 0);
-      Assert.AreEqual(t2[0], wt1[2]);
+      Assert.AreEqual(t2.GetValue(0), wt1.GetValue(2));
       Assert.AreEqual(wt1, wt2);
       Assert.AreNotEqual(wt2, ct1);
       Assert.AreEqual(ct1, ct2);
 
       ct1.SetValue(2, 0);
-      Assert.AreEqual(t2[0], ct1[2]);
+      Assert.AreEqual(t2.GetValue(0), ct1.GetValue(2));
       Assert.AreEqual(wt1, wt2);
       Assert.AreEqual(wt2, ct1);
       Assert.AreNotEqual(ct1, ct2);
@@ -63,7 +63,7 @@ namespace Xtensive.Core.Tests.Tuples.Transform
       Tuple ct3 = mt3.Apply(TupleTransformType.Tuple, t1, t1, t1);
       Log.Info("Copy:      {0}", ct3);
       t1.SetValue(0,0);
-      Assert.AreEqual(wt3[4], t1[0]);
+      Assert.AreEqual(wt3.GetValue(4), t1.GetValue(0));
       t1.SetValue(0,1);
 
       CombineTransform mt4 = new CombineTransform(false, t1.Descriptor, t1.Descriptor, t1.Descriptor, t1.Descriptor);
@@ -72,7 +72,7 @@ namespace Xtensive.Core.Tests.Tuples.Transform
       Tuple ct4 = mt4.Apply(TupleTransformType.Tuple, t1, t1, t1, t1);
       Log.Info("Copy:      {0}", ct4);
       t1.SetValue(0,0);
-      Assert.AreEqual(wt4[6], t1[0]);
+      Assert.AreEqual(wt4.GetValue(6), t1.GetValue(0));
       t1.SetValue(0,1);
     }
 

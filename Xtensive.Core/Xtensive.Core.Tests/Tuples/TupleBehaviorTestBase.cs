@@ -85,46 +85,41 @@ namespace Xtensive.Core.Tests.Tuples
       TupleDescriptor d = TupleDescriptor.Create(fields);
       TestTuple(CreateTestTuple(d));
       TestTuple(new DummyTuple(d));
-      // Creating ExampleTuple<[d.GetType()]>
-      Type exampleTupleGenericType = typeof (ExampleTuple<>);
-      Tuple exampleTuple = CreateTestTuple((Tuple)TypeHelper.Activate(
-        exampleTupleGenericType, 
-        new Type[] {d.GetType()}, 
-        ArrayUtils<object>.EmptyArray));
-      TestTuple(exampleTuple);
     }
 
     private static void TestTuple(Tuple tuple)
     {
-      Assert.IsFalse(tuple.IsAvailable(0));
+      Assert.IsFalse(tuple.GetFieldState(0).IsAvailable());
 
       try {
-        tuple.IsNull(0);
+        tuple.GetFieldState(0).IsNull();
         throw new AssertionException("Value is not available. No one knows if it is null or not.");
       } catch (InvalidOperationException) {
       }
 
       tuple.SetValue(0, 1);
-      Assert.IsTrue(tuple.IsAvailable(0));
-      Assert.IsFalse(tuple.IsNull(0));
-      Assert.IsTrue(tuple.HasValue(0));
+      Assert.IsTrue(tuple.GetFieldState(0).IsAvailable());
+      Assert.IsFalse(tuple.GetFieldState(0).IsNull());
+      Assert.IsTrue(tuple.GetFieldState(0).HasValue());
       Assert.AreEqual(1, tuple.GetValue(0));
       Assert.AreEqual(1, tuple.GetValue<int>(0));
       Assert.AreEqual(new int?(1), tuple.GetValue<int?>(0));
 
       tuple.SetValue(0, null);
-      Assert.IsTrue(tuple.IsAvailable(0));
-      Assert.IsTrue(tuple.IsNull(0));
-      Assert.IsFalse(tuple.HasValue(0));
+      Assert.IsTrue(tuple.GetFieldState(0).IsAvailable());
+      Assert.IsTrue(tuple.GetFieldState(0).IsNull());
+      Assert.IsFalse(tuple.GetFieldState(0).HasValue());
       Assert.AreEqual(null, tuple.GetValue(0));
       Assert.AreEqual(null, tuple.GetValue<int?>(0));
 
       tuple.SetValue<int?>(0, null);
-      Assert.IsTrue(tuple.IsAvailable(0));
-      Assert.IsTrue(tuple.IsNull(0));
-      Assert.IsFalse(tuple.HasValue(0));
+      Assert.IsTrue(tuple.GetFieldState(0).IsAvailable());
+      Assert.IsTrue(tuple.GetFieldState(0).IsNull());
+      Assert.IsFalse(tuple.GetFieldState(0).HasValue());
       Assert.AreEqual(null, tuple.GetValue(0));
       Assert.AreEqual(null, tuple.GetValue<int?>(0));
+      Assert.AreEqual(null, tuple.GetValueOrDefault(0));
+      Assert.AreEqual(null, tuple.GetValueOrDefault<int?>(0));
 
       try {
         tuple.GetValue(1);
@@ -133,7 +128,7 @@ namespace Xtensive.Core.Tests.Tuples
       }
 
       try {
-        tuple.GetValue<string>(1);
+        tuple.GetValue<string>(2);
         throw new AssertionException("Value should not be available.");
       } catch (InvalidOperationException) {
       }
@@ -192,9 +187,9 @@ namespace Xtensive.Core.Tests.Tuples
     protected void AssertAreSame(ITuple dummyTuple, ITuple tuple)
     {
       for (int i = 0; i < dummyTuple.Count; i++) {
-        bool available = dummyTuple.IsAvailable(i);
+        bool available = dummyTuple.GetFieldState(i).IsAvailable();
         try {
-          Assert.AreEqual(available, tuple.IsAvailable(i));
+          Assert.AreEqual(available, tuple.GetFieldState(i).IsAvailable());
         }
         catch (AssertionException)
         {
@@ -212,9 +207,9 @@ namespace Xtensive.Core.Tests.Tuples
     protected void AssertAreSame(ITuple source, ITuple target, int startIndex, int targetStartIndex, int count)
     {
       for (int i = 0; i < count; i++) {
-        bool available = source.IsAvailable(i + startIndex);
+        bool available = source.GetFieldState(i + startIndex).IsAvailable();
         try {
-          Assert.AreEqual(available, target.IsAvailable(i + targetStartIndex));
+          Assert.AreEqual(available, target.GetFieldState(i + targetStartIndex).IsAvailable());
           Assert.AreEqual(source.GetValue(i + startIndex), target.GetValue(i + targetStartIndex));
         }
         catch (AssertionException) {

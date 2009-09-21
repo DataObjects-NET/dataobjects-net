@@ -49,14 +49,14 @@ namespace Xtensive.Core.Reflection
       public const string DescriptorFieldName = "descriptor";
 
       /// <summary>
-      /// Returns "GetValueOrDefault{0}".
+      /// Returns "GetValue{0}".
       /// </summary>
-      public const string GetValueOrDefaultX = "GetValueOrDefault{0}";
+      public const string GetValueX = "GetValue{0}";
 
       /// <summary>
       /// Returns "GetNullableValueOrDefault{0}".
       /// </summary>
-      public const string GetNullableValueOrDefaultX = "GetNullableValueOrDefault{0}";
+      public const string GetNullableValueX = "GetNullableValue{0}";
 
       /// <summary>
       /// Returns "SetValue{0}".
@@ -89,14 +89,14 @@ namespace Xtensive.Core.Reflection
       public const string SetNullableValueDelegatesFieldName = "setNullableValueDelegates";
       
       /// <summary>
-      /// Returns "GetGetValueOrDefaultDelegate".
+      /// Returns "GetGetValueDelegate".
       /// </summary>
-      public const string GetGetValueOrDefaultDelegate = "GetGetValueOrDefaultDelegate";
+      public const string GetGetValueDelegate = "GetGetValueDelegate";
 
       /// <summary>
-      /// Returns "GetGetNullableValueOrDefaultDelegate".
+      /// Returns "GetGetNullableValueDelegate".
       /// </summary>
-      public const string GetGetNullableValueOrDefaultDelegate = "GetGetNullableValueOrDefaultDelegate";
+      public const string GetGetNullableValueDelegate = "GetGetNullableValueDelegate";
 
       /// <summary>
       /// Returns "GetSetValueDelegate".

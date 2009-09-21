@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Conversion;
 using Xtensive.Core.Threading;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Reflection;
 
@@ -28,13 +29,14 @@ namespace Xtensive.Storage.Internals
       int fieldIndex = field.MappingInfo.Offset;
       var tuple = obj.Tuple;
 
-      // Biconverter<object, T> converter = GetConverter(field.ValueType);
-      if (!tuple.IsAvailable(fieldIndex) || tuple.IsNull(fieldIndex))
+      TupleFieldState state;
+      var value = tuple.GetValue(fieldIndex, out state);
+      if (!state.HasValue())
         return (T)@default;
       if (type.IsEnum)
-        return (T)Enum.ToObject(type, tuple.GetValueOrDefault(fieldIndex));
+        return (T)Enum.ToObject(type, value);
       else
-        return (T)Enum.ToObject(Nullable.GetUnderlyingType(type), tuple.GetValueOrDefault(fieldIndex));
+        return (T)Enum.ToObject(Nullable.GetUnderlyingType(type), value);
     }
 
     /// <inheritdoc/>

@@ -7,7 +7,7 @@
 namespace Xtensive.Core.Tuples
 {
   /// <summary>
-  /// <see cref="ITuple"/> factory contract.
+  /// <see cref="Tuple"/> factory contract.
   /// </summary>
   public interface ITupleFactory
   {
@@ -15,6 +15,6 @@ namespace Xtensive.Core.Tuples
     /// Creates new instance of the tuple of the same type.
     /// </summary>
     /// <returns>A new instance of the tuple of the same type.</returns>
-    ITuple CreateNew();
+    Tuple CreateNew();
   }
 }

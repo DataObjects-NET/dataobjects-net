@@ -85,11 +85,12 @@ namespace Xtensive.Storage.Internals
         return type.TypeId;
       }
       exactType = true;
+      TupleFieldState state;
+      var value = tuple.GetValue<int>(typeIdIndex, out state);
       if (type.IsLeaf)
-        return tuple.HasValue(typeIdIndex) ? type.TypeId : TypeInfo.NoTypeId;
-      else
-        // Hack here: 0 (default) = TypeInfo.NoTypeId
-        return tuple.GetValueOrDefault<int>(typeIdIndex);
+        return state.HasValue() ? type.TypeId : TypeInfo.NoTypeId;
+      // Hack here: 0 (default) = TypeInfo.NoTypeId
+      return value;
     }
 
     internal RecordSetMapping GetMapping(RecordSetHeader header)

@@ -34,8 +34,9 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <inheritdoc/>
-    public override object GetValueOrDefault(int fieldIndex)
+    public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
+      fieldState = states[fieldIndex];
       return values[fieldIndex];
     }
 
@@ -72,8 +73,9 @@ namespace Xtensive.Core.Tuples
       values = new object[count];
       states = new TupleFieldState[count];
       for (int i = 0; i<count; i++) {
-        values[i] = source.GetValueOrDefault(i);
-        states[i] = source.GetFieldState(i);
+        TupleFieldState state;
+        values[i] = source.GetValue(i, out state);
+        states[i] = state;
       }
     }
   }

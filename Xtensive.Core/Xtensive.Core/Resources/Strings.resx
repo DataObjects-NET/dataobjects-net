@@ -657,4 +657,7 @@
   <data name="ExExceptionWasThrownDuringTaskExecution" xml:space="preserve">
     <value>The exception was thrown during the task's execution.</value>
   </data>
+  <data name="ExUnableToCastNullValueToXUseXInstead" xml:space="preserve">
+    <value>Unable to cast null value to {0}; use {0}? instead.</value>
+  </data>
 </root>

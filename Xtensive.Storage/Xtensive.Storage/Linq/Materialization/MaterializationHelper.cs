@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Linq.Materialization
       var result = true;
       for (int i = 0; i < columns.Length; i++) {
         var column = columns[i];
-        result &= tuple.IsNull(column);
+        result &= tuple.GetFieldState(column).IsNull();
       }
       return result;
     }

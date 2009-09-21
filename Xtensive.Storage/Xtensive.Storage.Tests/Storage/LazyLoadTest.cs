@@ -77,11 +77,11 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           Book b = Query<Book>.SingleOrDefault(key);
           Tuple tuple = b.Tuple;
-          
-          Assert.IsTrue(tuple.IsAvailable(2));
-          Assert.IsFalse(tuple.IsAvailable(3));          
+
+          Assert.IsTrue(tuple.GetFieldState(2).IsAvailable());
+          Assert.IsFalse(tuple.GetFieldState(3).IsAvailable());
           Assert.AreEqual(TITLE, b.Title);
-          Assert.IsFalse(tuple.IsAvailable(3));
+          Assert.IsFalse(tuple.GetFieldState(3).IsAvailable());
 
           // Fetching lazy load field
           Assert.AreEqual(TEXT, b.Text);

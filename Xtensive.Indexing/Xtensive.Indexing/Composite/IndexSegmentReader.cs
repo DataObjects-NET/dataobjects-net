@@ -59,7 +59,7 @@ namespace Xtensive.Indexing.Composite
     {
       // TODO: Optimize this
       while (reader.MoveNext()) {
-        if ((int) reader.Current[index.KeyExtractor(reader.Current).Count]!=index.SegmentNumber)
+        if (reader.Current.GetValueOrDefault<int>(index.KeyExtractor(reader.Current).Count)!=index.SegmentNumber)
           continue;
         return true;
       }

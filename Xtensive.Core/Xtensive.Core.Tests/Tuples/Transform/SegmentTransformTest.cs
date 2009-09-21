@@ -40,13 +40,13 @@ namespace Xtensive.Core.Tests.Tuples.Transform
       Assert.AreEqual(ct1, ct2);
 
       wt1.SetValue(1, 1);
-      Assert.AreEqual(t[2], wt1[1]);
+      Assert.AreEqual(t.GetValue(2), wt1.GetValue(1));
       Assert.AreEqual(wt1, wt2);
       Assert.AreNotEqual(wt2, ct1);
       Assert.AreEqual(ct1, ct2);
 
       ct1.SetValue(1, 1);
-      Assert.AreEqual(t[2], ct1[1]);
+      Assert.AreEqual(t.GetValue(2), ct1.GetValue(1));
       Assert.AreEqual(wt1, wt2);
       Assert.AreEqual(wt2, ct1);
       Assert.AreNotEqual(ct1, ct2);

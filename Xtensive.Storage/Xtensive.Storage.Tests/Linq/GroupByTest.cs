@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using Xtensive.Core.Testing;
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Tests.Linq
         .First()
         .Key;
       int columnIndex = Domain.Model.Types[typeof (Category)].Fields["CategoryName"].MappingInfo.Offset;
-      Assert.IsTrue(category.State.Tuple.IsAvailable(columnIndex));
+      Assert.IsTrue(category.State.Tuple.GetFieldState(columnIndex).IsAvailable());
     }
 
     [Test]

@@ -95,10 +95,10 @@ namespace Xtensive.Core.SizeCalculators
 
     private bool Execute<TFieldType>(ref TupleSizeCalculatorData actionData, int fieldIndex)
     {
-      ISizeCalculatorBase sizeCalculator = actionData.Calculators[fieldIndex];
+      var sizeCalculator = actionData.Calculators[fieldIndex];
       var calculator = sizeCalculator as ISizeCalculator<TFieldType>;
 
-      if (!actionData.Tuple.HasValue(fieldIndex)) {
+      if (!actionData.Tuple.GetFieldState(fieldIndex).HasValue()) {
         if (calculator==null) // Unknown means there is reference field
           actionData.Result += SizeCalculatorProvider.PointerFieldSize;
         else

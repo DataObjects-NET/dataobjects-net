@@ -86,9 +86,11 @@ namespace Xtensive.Core.Tests.Tuples
       using (new Measurement("Tuple.SetValue", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.SetValue(0, (object)i);
-      using (new Measurement("Tuple.GetValueOrDefault", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          tuple.GetValueOrDefault(0);
+      using (new Measurement("Tuple.GetValue(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue(0, out state);
+        }
 
       using (new Measurement("Tuple.SetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
@@ -96,12 +98,16 @@ namespace Xtensive.Core.Tests.Tuples
       using (new Measurement("Tuple.GetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValue<int>(0);
-      using (new Measurement("Tuple.GetValueOrDefault<T>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          tuple.GetValueOrDefault<int>(0);
-      using (new Measurement("Tuple.GetValueOrDefault<T?>", iterationCount))
-        for (int i = 0; i < iterationCount; i++)
-          tuple.GetValueOrDefault<int?>(0);
+      using (new Measurement("Tuple.GetValue<T>(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue<int>(0, out state);
+        }
+      using (new Measurement("Tuple.GetValue<T?>(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue<int?>(0, out state);
+        }
     }
 
     [Test]
@@ -113,27 +119,38 @@ namespace Xtensive.Core.Tests.Tuples
       Tuple tuple = Tuple.Create(descriptor);
       for (int i = 0; i < iterationCount; i++)
         tuple.SetValue(0, (object)i);
-      for (int i = 0; i < iterationCount; i++)
-        tuple.GetValueOrDefault(0);
+      for (int i = 0; i < iterationCount; i++) {
+        TupleFieldState state;
+        tuple.GetValue(0, out state);
+      }
 
       for (int i = 0; i < iterationCount; i++)
         tuple.SetValue(0, i);
       for (int i = 0; i < iterationCount; i++)
         tuple.GetValue<int>(0);
-      for (int i = 0; i < iterationCount; i++)
-        tuple.GetValueOrDefault<int>(0);
-      for (int i = 0; i < iterationCount; i++)
-        tuple.GetValueOrDefault<int?>(0);
+      for (int i = 0; i < iterationCount; i++) {
+        TupleFieldState state;
+        tuple.GetValue<int>(0, out state);
+      }
+      for (int i = 0; i < iterationCount; i++) {
+        TupleFieldState state;
+        tuple.GetValue<int?>(0, out state);
+      }
 
       using (new Measurement("Tuple.SetValue?", iterationCount))
         for (int i = 0; i < iterationCount; i++)
-          tuple.SetValue(0, new int?(i));
+          tuple.SetValue(0, null);
       using (new Measurement("Tuple.SetValue", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.SetValue(0, (object)i);
       using (new Measurement("Tuple.GetValue", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValue(0);
+      using (new Measurement("Tuple.GetValue(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue(0, out state);
+        }
       using (new Measurement("Tuple.GetValueOrDefault", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValueOrDefault(0);
@@ -144,6 +161,11 @@ namespace Xtensive.Core.Tests.Tuples
       using (new Measurement("Tuple.GetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValue<int>(0);
+      using (new Measurement("Tuple.GetValue<T>(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue<int>(0, out state);
+        }
       using (new Measurement("Tuple.GetValueOrDefault<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValueOrDefault<int>(0);
@@ -154,6 +176,11 @@ namespace Xtensive.Core.Tests.Tuples
       using (new Measurement("Tuple.GetValue<T?>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValue<int?>(0);
+      using (new Measurement("Tuple.GetValue<T?>(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue<int?>(0, out state);
+        }
       using (new Measurement("Tuple.GetValueOrDefault<T?>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValueOrDefault<int?>(0);

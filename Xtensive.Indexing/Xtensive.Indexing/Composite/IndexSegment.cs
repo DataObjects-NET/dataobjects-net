@@ -115,8 +115,8 @@ namespace Xtensive.Indexing.Composite
 
       SeekResult<TItem> result = compositeIndex.Implementation.Seek(compositeRay);
       if (result.ResultType!=SeekResultType.None) {
-        SeekResult<TItem> seekResult = new SeekResult<TItem>();
-        if ((int) result.Result[compositeRay.Point.Value.Count - 1]==segmentNumber) {
+        var seekResult = new SeekResult<TItem>();
+        if (result.Result.GetValueOrDefault<int>(compositeRay.Point.Value.Count - 1)==segmentNumber) {
           seekResult = new SeekResult<TItem>(result.ResultType, result.Result);
           CutOutTransform itemTransform = GetCutOutTransform(seekResult.Result.Descriptor, new Segment<int>(compositeRay.Point.Value.Count - 1, 1));
           Tuple resultTuple = itemTransform.Apply(TupleTransformType.TransformedTuple, seekResult.Result);

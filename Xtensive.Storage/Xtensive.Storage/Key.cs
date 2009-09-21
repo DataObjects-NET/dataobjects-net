@@ -472,14 +472,14 @@ namespace Xtensive.Storage
           if (key.Hierarchy==type.Hierarchy)
             typeIdIndex = -1; // Key must be fully copied in this case
           for (int keyIndex = 0; keyIndex < key.Value.Count; keyIndex++) {
-            tuple[tupleIndex++] = key.Value[keyIndex];
+            tuple.SetValue(tupleIndex++, key.Value.GetValueOrDefault(keyIndex));
             if (tupleIndex==typeIdIndex)
               tupleIndex++;
           }
           continue;
         }
         else {
-          tuple[tupleIndex++] = value;
+          tuple.SetValue(tupleIndex++, value);
           if (tupleIndex==typeIdIndex)
             tupleIndex++;
         }
@@ -508,7 +508,7 @@ namespace Xtensive.Storage
           throw new ArgumentException(Strings.ExWrongKeyStructure);
         if (exactType) {
           int typeIdColumnIndex = keyInfo.TypeIdColumnIndex;
-          if (typeIdColumnIndex >= 0 && !value.IsAvailable(typeIdColumnIndex))
+          if (typeIdColumnIndex >= 0 && !value.GetFieldState(typeIdColumnIndex).IsAvailable())
             // Ensures TypeId is filled in into Keys of newly created Entities
             value.SetValue(typeIdColumnIndex, type.TypeId);
         }

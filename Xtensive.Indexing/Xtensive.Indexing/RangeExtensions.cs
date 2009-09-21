@@ -450,7 +450,7 @@ namespace Xtensive.Indexing
           return false;
 
         var indexes = Enumerable.Range(0, x1.Count).ToList();
-        result = indexes.Select(i => x1.HasValue(i)).SequenceEqual(indexes.Select(i => y1.HasValue(i)));
+        result = indexes.Select(i => x1.GetFieldState(i).HasValue()).SequenceEqual(indexes.Select(i => y1.GetFieldState(i).HasValue()));
 
         return result;
       }

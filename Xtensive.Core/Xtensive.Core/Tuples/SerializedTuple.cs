@@ -105,10 +105,11 @@ namespace Xtensive.Core.Tuples
       var count = tuple.Count;
       var p = new Pair<Type[], object[]>(tuple.Descriptor.ToArray(), new object[count]);
       for (int i = 0; i < count; i++) {
-        if (tuple.IsAvailable(i))
-          p.Second[i] = tuple[i];
-        else
-          p.Second[i] = notAvailableInstance;
+        TupleFieldState state;
+        var fieldValue = tuple.GetValue(i, out state);
+        p.Second[i] = state.IsAvailable() 
+          ? fieldValue 
+          : notAvailableInstance;
       }
       info.AddValue("Value", p, typeof(object));
     }
@@ -130,7 +131,7 @@ namespace Xtensive.Core.Tuples
       for (int i = 0; i < count; i++) {
         if (p.Second[i].GetType()==typeof(NotAvailable))
           continue;
-        tuple[i] = p.Second[i];
+        tuple.SetValue(i, p.Second.GetValue(i));
       }
       value = tuple;
     }

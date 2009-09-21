@@ -14,8 +14,7 @@ using Xtensive.Core.Resources;
 namespace Xtensive.Core.Tuples
 {
   /// <summary>
-  /// Extension methods for <see cref="Tuple"/> type converting <see cref="Tuple"/>s to 
-  /// string representation and back.
+  /// Extension methods for <see cref="Tuple"/>.
   /// </summary>
   public static class TupleFormatExtensions
   {
@@ -132,12 +131,16 @@ namespace Xtensive.Core.Tuples
         try {
           var tuple = actionData.Source;
           var converter = AdvancedConverterProvider.Default.GetConverter<TFieldType, string>();
-          string parsedStr = !tuple.IsAvailable(fieldIndex) ? string.Empty : converter.Convert(tuple.GetValue<TFieldType>(fieldIndex));
+          TupleFieldState state;
+          var value = tuple.GetValue<TFieldType>(fieldIndex, out state);
+          string parsedStr = !state.IsAvailable() 
+            ? string.Empty 
+            : (state.IsNull() ? null : converter.Convert(value));
           var str = parsedStr ?? nullValue;
 
           actionData.Target.Append(" ");
 
-          if ((str.Equals(string.Empty) && tuple.IsAvailable(fieldIndex)) || str.Length > 50
+          if ((str.Equals(string.Empty) && state.IsAvailable()) || str.Length > 50
             || str.StartsWith(" ") || str.EndsWith(" ") || str.Contains("\"") || str.Contains(",")
               || (str.Equals(nullValue) && !(parsedStr==null))) {
             actionData.Target.Append("\"");

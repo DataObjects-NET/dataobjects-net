@@ -28,9 +28,9 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <inheritdoc/>
-    public override object GetValueOrDefault(int fieldIndex)
+    public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      return InnerTuple.GetValueOrDefault(fieldIndex);
+      return InnerTuple.GetValue(fieldIndex, out fieldState);
     }
 
     /// <inheritdoc/>

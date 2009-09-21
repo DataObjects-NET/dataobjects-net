@@ -255,7 +255,7 @@ namespace Xtensive.Storage
 
     internal protected bool IsFieldAvailable(FieldInfo field)
     {
-      return Tuple.IsAvailable(field.MappingInfo.Offset);
+      return Tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable();
     }
 
     #endregion

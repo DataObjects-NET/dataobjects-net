@@ -28,7 +28,7 @@ namespace Xtensive.Core.Tuples.Transform.Internals
       }
     }
 
-    #region GetFieldState, GetValueOrDefault, SetValue methods
+    #region GetFieldState, GetValue, SetValue methods
 
     /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
@@ -38,10 +38,10 @@ namespace Xtensive.Core.Tuples.Transform.Internals
     }
 
     /// <inheritdoc/>
-    public override object GetValueOrDefault(int fieldIndex)
+    public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       Pair<int, int> indexes = TypedTransform.map[fieldIndex];
-      return tuples[indexes.First].GetValueOrDefault(indexes.Second);
+      return tuples[indexes.First].GetValue(indexes.Second, out fieldState);
     }
 
     /// <inheritdoc/>
