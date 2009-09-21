@@ -268,7 +268,7 @@ namespace Xtensive.Storage.Linq
           .ToArray();
         recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       }
-      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset);
+      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
       var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
       return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
     }
@@ -956,7 +956,16 @@ namespace Xtensive.Storage.Linq
       var type = itemType.IsNullable() ? itemType.GetGenericArguments()[0] : itemType;
 
       if (type==typeof(Entity) || type.IsSubclassOf(typeof(Entity))) {
-        throw new NotImplementedException();
+        var typeInfo = context.Model.Types[type];
+        var keyInfo = typeInfo.Hierarchy.KeyInfo;
+        var keyTupleDescriptor = keyInfo.TupleDescriptor;
+        var columns = keyInfo.Columns.Select((columnInfo, i)=>new SystemColumn(context.GetNextColumnAlias(), i, columnInfo.ValueType)).Cast<Column>();
+        var rsHeader = new RecordSetHeader(keyTupleDescriptor, columns);
+        var rawProvider = new RawProvider(rsHeader, source.Select(e => ReferenceEquals(e, null) ? Tuple.Create(keyTupleDescriptor) : ((Entity)(object)e).Key.Value));
+        var recordset = new StoreProvider(rawProvider).Result;
+        var entityExpression = EntityExpression.Create(typeInfo, 0, true);
+        var itemProjector = new ItemProjectorExpression(entityExpression, recordset, context);
+        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
 
       if (type==typeof(Structure) || type.IsSubclassOf(typeof(Structure))) {
@@ -967,14 +976,13 @@ namespace Xtensive.Storage.Linq
         var rsHeader = new RecordSetHeader(TupleDescriptor.Create(new[] {type}), new[] {new SystemColumn(context.GetNextColumnAlias(), 0, type)});
         var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)));
         var recordset = new StoreProvider(rawProvider).Result;
-        var column = new LocalCollectionColumnExpression(itemType, new Segment<int>(0, 1), null, null, false);
+        var column = ColumnExpression.Create(itemType, 0);
         var itemProjector = new ItemProjectorExpression(column, recordset, context);
         return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
       else {
         ISet<Type> processedTypes = new SetSlim<Type>();
         var itemParameterExpression = Expression.Parameter(itemType, "item");
-        var numberParameterExpression = Expression.Parameter(itemType, "number");
         LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, 0, null);
 
         var tupleDescriptor = TupleDescriptor.Create(itemExpression.Columns.Select(columnExpression => columnExpression.Type));
@@ -1007,16 +1015,16 @@ namespace Xtensive.Storage.Linq
 
       if (!processedTypes.Add(type))
         throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
-      var fields = new List<IMappedExpression>();
+      var fields = new Dictionary<PropertyInfo, IMappedExpression>();
       foreach (PropertyInfo property in properties) {
         if (TypeIsStorageMappable(property.PropertyType)) {
-          var column = new LocalCollectionColumnExpression(property.PropertyType, new Segment<int>(columnIndex, 1), null, property, false);
-          fields.Add(column);
+          var column = ColumnExpression.Create(property.PropertyType, columnIndex);
+          fields.Add(property, column);
           columnIndex++;
         }
         else {
           var collectionExpression = BuildLocalCollectionExpression(property.PropertyType, new Set<Type>(processedTypes), columnIndex, property);
-          fields.Add(collectionExpression);
+          fields.Add(property, collectionExpression);
           columnIndex += collectionExpression.Fields.Count();
         }
       }

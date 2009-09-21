@@ -156,16 +156,10 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return subQueryExpression;
     }
 
-    protected override Expression VisitLocalCollectionColumnExpression(LocalCollectionColumnExpression expression)
-    {
-      AddColumns(expression, expression.Mapping.GetItems());
-      return expression;
-    }
-
     protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
     {
       foreach (var field in expression.Fields)
-        Visit((Expression) field);
+        Visit((Expression) field.Value);
       return expression;
     }
 

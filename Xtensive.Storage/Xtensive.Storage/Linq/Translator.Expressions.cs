@@ -544,7 +544,7 @@ namespace Xtensive.Storage.Linq
           throw new NotSupportedException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
 
         IndexInfo index = type.Indexes.PrimaryIndex;
-        EntityExpression entityExpression = EntityExpression.Create(type, 0);
+        EntityExpression entityExpression = EntityExpression.Create(type, 0, false);
         var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
         return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
@@ -693,7 +693,7 @@ namespace Xtensive.Storage.Linq
         context.Bindings.ReplaceBound(parameter, projectionExpression);
 
         // return new EntityExpression
-        EntityExpression result = EntityExpression.Create(context.Model.Types[targetType], offset);
+        EntityExpression result = EntityExpression.Create(context.Model.Types[targetType], offset, false);
         return result;
       }
     }

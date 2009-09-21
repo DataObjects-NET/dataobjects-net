@@ -23,19 +23,19 @@ namespace Xtensive.Storage.Linq.Expressions
       get { return default(Segment<int>); }
     }
 
-    public IEnumerable<IMappedExpression> Fields { get; set; }
+    public IDictionary<PropertyInfo, IMappedExpression> Fields { get; set; }
     public Expression MaterializationExpression { get; private set; }
     public PropertyInfo PropertyInfo { get; private set; }
 
-    public IEnumerable<LocalCollectionColumnExpression> Columns
+    public IEnumerable<ColumnExpression> Columns
     {
       get
       {
         return Fields
-          .SelectMany(field => field is LocalCollectionColumnExpression
-            ? EnumerableUtils.One(field)
-            : ((LocalCollectionExpression) field).Columns.Cast<IMappedExpression>())
-          .Cast<LocalCollectionColumnExpression>();
+          .SelectMany(field => field.Value is ColumnExpression
+            ? EnumerableUtils.One(field.Value)
+            : ((LocalCollectionExpression) field.Value).Columns.Cast<IMappedExpression>())
+          .Cast<ColumnExpression>();
       }
     }
 
@@ -49,9 +49,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
       var result = new LocalCollectionExpression(Type, OuterParameter, MaterializationExpression, PropertyInfo, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      result.Fields = Fields
-        .Select(f => f.Remap(offset, processedExpressions))
-        .Cast<IMappedExpression>();
+      result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.Remap(offset, processedExpressions));
       return result;
     }
 
@@ -65,9 +63,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
       var result = new LocalCollectionExpression(Type, OuterParameter, MaterializationExpression, PropertyInfo, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      result.Fields = Fields
-        .Select(f => Remap(map, processedExpressions))
-        .Cast<IMappedExpression>();
+      result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.Remap(map, processedExpressions));
       return result;
     }
 
@@ -79,9 +75,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
       var result = new LocalCollectionExpression(Type, OuterParameter, MaterializationExpression, PropertyInfo, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      result.Fields = Fields
-        .Select(f => f.BindParameter(parameter, processedExpressions))
-        .Cast<IMappedExpression>();
+      result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.BindParameter(parameter, processedExpressions));
       return result;
     }
 
@@ -93,9 +87,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
       var result = new LocalCollectionExpression(Type, OuterParameter, MaterializationExpression, PropertyInfo, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      result.Fields = Fields
-        .Select(f => f.RemoveOuterParameter(processedExpressions))
-        .Cast<IMappedExpression>();
+      result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.RemoveOuterParameter(processedExpressions));
       return result;
     }
 
@@ -108,7 +100,7 @@ namespace Xtensive.Storage.Linq.Expressions
       : base(ExtendedExpressionType.LocalCollection, type, parameterExpression, defaultIfEmpty)
     {
       MaterializationExpression = materializationExpression;
-      Fields = EnumerableUtils<IMappedExpression>.Empty;
+      Fields = new Dictionary<PropertyInfo, IMappedExpression>();
       PropertyInfo = propertyInfo;
     }
   }

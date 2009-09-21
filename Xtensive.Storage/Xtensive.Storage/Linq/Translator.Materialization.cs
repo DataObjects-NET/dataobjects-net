@@ -166,17 +166,16 @@ namespace Xtensive.Storage.Linq
     private void FillLocalCollectionField(object item, Tuple tuple, LocalCollectionExpression itemExpression)
     {
       foreach (var field in itemExpression.Fields) {
-        var column = field as LocalCollectionColumnExpression;
+        var column = field.Value as ColumnExpression;
         if (column!=null) {
-          var value = column.PropertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
+          var value = field.Key.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
           tuple.SetValue(column.Mapping.Offset, value);
         }
         else {
-          var localCollection = (LocalCollectionExpression)field;
+          var localCollection = (LocalCollectionExpression)field.Value;
           var value = localCollection.PropertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
-          if (value!=null) {
+          if (value!=null)
             FillLocalCollectionField(value, tuple, localCollection);
-          }
         }
       }
     }

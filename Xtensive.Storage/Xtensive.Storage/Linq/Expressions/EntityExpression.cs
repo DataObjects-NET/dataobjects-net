@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Linq.Expressions
         entityExpression.fields.Add(BuildNestedFieldExpression(nestedField, offset));
     }
 
-    public static EntityExpression Create(TypeInfo typeInfo, int offset)
+    public static EntityExpression Create(TypeInfo typeInfo, int offset, bool keyFieldsOnly)
     {
       if (!typeInfo.IsEntity && !typeInfo.IsInterface)
         throw new ArgumentException(string.Format(Resources.Strings.ExPersistentTypeXIsNotEntityOrPersistentInterface, typeInfo.Name), "typeInfo");
@@ -128,9 +128,13 @@ namespace Xtensive.Storage.Linq.Expressions
       var keyExpression = KeyExpression.Create(typeInfo, offset);
       fields.Add(keyExpression);
       var result = new EntityExpression(typeInfo, keyExpression, null, false);
-      foreach (var nestedField in typeInfo.Fields)
-        fields.Add(BuildNestedFieldExpression(nestedField, offset));
-      result.Fields = fields;
+      if (keyFieldsOnly)
+        result.Fields = new List<PersistentFieldExpression>();
+      else {
+        foreach (var nestedField in typeInfo.Fields)
+          fields.Add(BuildNestedFieldExpression(nestedField, offset));
+        result.Fields = fields;
+      }
       return result;
     }
 
