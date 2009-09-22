@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Merged
+namespace Xtensive.DataObjects.Net
 {
   /// <summary>
   /// Does nothing, but references types from all Storage assemblies.
@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Merged
   public sealed class Referencer
   {
     private Type[] types = new [] {
-      typeof (All.Referencer), // Referencing all storage assemblies
+      typeof (Storage.All.Referencer), // Referencing all storage assemblies
     };
 
 
