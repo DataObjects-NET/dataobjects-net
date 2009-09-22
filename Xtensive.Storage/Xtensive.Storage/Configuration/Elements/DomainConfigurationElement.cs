@@ -4,6 +4,7 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.11
 
+using System;
 using System.Configuration;
 using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
@@ -157,20 +158,20 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.UpgradeMode" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(UpgradeModeElementName, IsRequired = false, DefaultValue = DomainConfiguration.DefaultUpgradeMode)]
-    public DomainUpgradeMode UpgradeMode
+    [ConfigurationProperty(UpgradeModeElementName, IsRequired = false, DefaultValue = "Default")]
+    public string UpgradeMode
     {
-      get { return (DomainUpgradeMode)this[UpgradeModeElementName]; }
+      get { return (string)this[UpgradeModeElementName]; }
       set { this[UpgradeModeElementName] = value; }
     }
 
     /// <summary>
     /// <see cref="DomainConfiguration.ForeignKeyMode" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(ForeignKeyModeElementName, IsRequired = false, DefaultValue = DomainConfiguration.DefaultForeignKeyMode)]
-    public ForeignKeyMode ForeignKeyMode
+    [ConfigurationProperty(ForeignKeyModeElementName, IsRequired = false, DefaultValue = "Default")]
+    public string ForeignKeyMode
     {
-      get { return (ForeignKeyMode)this[ForeignKeyModeElementName]; }
+      get { return (string)this[ForeignKeyModeElementName]; }
       set { this[ForeignKeyModeElementName] = value; }
     }
 
@@ -229,18 +230,18 @@ namespace Xtensive.Storage.Configuration.Elements
     public DomainConfiguration ToNative()
     {
       var dc = new DomainConfiguration {
-        Name = Name, 
-        ConnectionInfo = new UrlInfo(ConnectionUrl), 
-        NamingConvention = NamingConvention.ToNative(), 
-        KeyCacheSize = KeyCacheSize, 
-        KeyGeneratorCacheSize = KeyGeneratorCacheSize, 
+        Name = Name,
+        ConnectionInfo = new UrlInfo(ConnectionUrl),
+        NamingConvention = NamingConvention.ToNative(),
+        KeyCacheSize = KeyCacheSize,
+        KeyGeneratorCacheSize = KeyGeneratorCacheSize,
         QueryCacheSize = QueryCacheSize,
-        SessionPoolSize = SessionPoolSize, 
-        RecordSetMappingCacheSize = RecordSetMappingCacheSize, 
-        AutoValidation = AutoValidation, 
-        InconsistentTransactions = InconsistentTransactions, 
-        UpgradeMode = UpgradeMode, 
-        ForeignKeyMode = ForeignKeyMode
+        SessionPoolSize = SessionPoolSize,
+        RecordSetMappingCacheSize = RecordSetMappingCacheSize,
+        AutoValidation = AutoValidation,
+        InconsistentTransactions = InconsistentTransactions,
+        UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
+        ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true)
       };
       foreach (var entry in Types)
         dc.Types.Register(entry.ToNative());

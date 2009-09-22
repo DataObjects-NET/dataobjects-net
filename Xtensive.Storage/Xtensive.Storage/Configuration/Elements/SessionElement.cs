@@ -4,6 +4,7 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.11
 
+using System;
 using System.Configuration;
 using System.Transactions;
 
@@ -72,30 +73,30 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.CacheType" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(CacheTypeElementName, IsRequired = false, DefaultValue = SessionConfiguration.DefaultCacheType, IsKey = false)]
-    public SessionCacheType CacheType
+    [ConfigurationProperty(CacheTypeElementName, IsRequired = false, DefaultValue = "Default", IsKey = false)]
+    public string CacheType
     {
-      get { return (SessionCacheType)this[CacheTypeElementName]; }
+      get { return (string)this[CacheTypeElementName]; }
       set { this[CacheTypeElementName] = value; }
     }
 
     /// <summary>
     /// <see cref="SessionConfiguration.Options" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(OptionsElementName, IsRequired = false, DefaultValue = SessionOptions.Default, IsKey = false)]
-    public SessionOptions Options
+    [ConfigurationProperty(OptionsElementName, IsRequired = false, DefaultValue = "Default", IsKey = false)]
+    public string Options
     {
-      get { return (SessionOptions) this[OptionsElementName]; }
+      get { return (string) this[OptionsElementName]; }
       set { this[OptionsElementName] = value; }
     }
 
     /// <summary>
     /// <see cref="SessionConfiguration.DefaultIsolationLevel" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(IsolationLevelElementName, IsRequired = false,DefaultValue = SessionConfiguration.DefaultIsolationLevelValue, IsKey = false)]
-    public IsolationLevel DefaultIsolationLevel
+    [ConfigurationProperty(IsolationLevelElementName, IsRequired = false, DefaultValue = "ReadCommitted", IsKey = false)]
+    public string DefaultIsolationLevel
     {
-      get { return (IsolationLevel)this[IsolationLevelElementName]; }
+      get { return (string)this[IsolationLevelElementName]; }
       set { this[IsolationLevelElementName] = value; }
     }
 
@@ -120,9 +121,9 @@ namespace Xtensive.Storage.Configuration.Elements
         UserName = UserName,
         Password = Password,
         CacheSize = CacheSize,
-        CacheType =  CacheType,
-        Options = Options,
-        DefaultIsolationLevel = DefaultIsolationLevel,
+        CacheType =  (SessionCacheType) Enum.Parse(typeof (SessionCacheType), CacheType, true),
+        Options = (SessionOptions) Enum.Parse(typeof (SessionOptions), Options, true),
+        DefaultIsolationLevel = (IsolationLevel) Enum.Parse(typeof (IsolationLevel), DefaultIsolationLevel, true),
         BatchSize = BatchSize
       };
       return result;

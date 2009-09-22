@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.08.07
 
+using System;
 using System.Configuration;
 
 namespace Xtensive.Storage.Configuration.Elements
@@ -21,30 +22,30 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="NamingConvention.LetterCasePolicy" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(LetterCasePolicyElementName, IsRequired = false, IsKey = false)]
-    public LetterCasePolicy LetterCasePolicy
+    [ConfigurationProperty(LetterCasePolicyElementName, IsRequired = false, IsKey = false, DefaultValue = "Default")]
+    public string LetterCasePolicy
     {
-      get { return (LetterCasePolicy) this[LetterCasePolicyElementName]; }
+      get { return (string) this[LetterCasePolicyElementName]; }
       set { this[LetterCasePolicyElementName] = value; }
     }
 
     /// <summary>
     /// <see cref="NamingConvention.NamespacePolicy" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(NamespacePolicyElementName, IsRequired = false, IsKey = false)]
-    public NamespacePolicy NamespacePolicy
+    [ConfigurationProperty(NamespacePolicyElementName, IsRequired = false, IsKey = false, DefaultValue = "Default")]
+    public string NamespacePolicy
     {
-      get { return (NamespacePolicy) this[NamespacePolicyElementName]; }
+      get { return (string) this[NamespacePolicyElementName]; }
       set { this[NamespacePolicyElementName] = value; }
     }
 
     /// <summary>
     /// <see cref="NamingConvention.NamingRules" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(NamingRulesElementName, IsRequired = false, IsKey = false)]
-    public NamingRules NamingRules
+    [ConfigurationProperty(NamingRulesElementName, IsRequired = false, IsKey = false, DefaultValue = "Default")]
+    public string NamingRules
     {
-      get { return (NamingRules) this[NamingRulesElementName]; }
+      get { return (string) this[NamingRulesElementName]; }
       set { this[NamingRulesElementName] = value; }
     }
 
@@ -66,9 +67,9 @@ namespace Xtensive.Storage.Configuration.Elements
     public NamingConvention ToNative()
     {
       var result = new NamingConvention{
-          LetterCasePolicy = LetterCasePolicy,
-          NamespacePolicy = NamespacePolicy,
-          NamingRules = NamingRules
+          LetterCasePolicy = (LetterCasePolicy) Enum.Parse(typeof(LetterCasePolicy), LetterCasePolicy, true),
+          NamespacePolicy = (NamespacePolicy) Enum.Parse(typeof(NamespacePolicy), NamespacePolicy, true),
+          NamingRules = (NamingRules) Enum.Parse(typeof(NamingRules), NamingRules, true)
         };
       foreach (var namespaceSynonym in NamespaceSynonyms)
         result.NamespaceSynonyms.Add(namespaceSynonym.Namespace, namespaceSynonym.Synonym);
