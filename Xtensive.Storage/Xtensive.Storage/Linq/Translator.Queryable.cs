@@ -850,8 +850,13 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitSetOperations(Expression outerSource, Expression innerSource, QueryableMethodKind methodKind)
     {
-      var outer = VisitSequence(outerSource);
-      var inner = VisitSequence(innerSource);
+      ProjectionExpression outer;
+      ProjectionExpression inner;
+      using (state.CreateScope()) {
+        state.JoinLocalCollectionEntity = true;
+        outer = VisitSequence(outerSource);
+        inner = VisitSequence(innerSource);
+      }
       var outerItemProjector = outer.ItemProjector.RemoveOwner();
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
       var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Default).ToList();
@@ -965,6 +970,8 @@ namespace Xtensive.Storage.Linq
         var recordset = new StoreProvider(rawProvider).Result;
         var entityExpression = EntityExpression.Create(typeInfo, 0, true);
         var itemProjector = new ItemProjectorExpression(entityExpression, recordset, context);
+        if (state.JoinLocalCollectionEntity) 
+          EnsureEntityFieldsAreJoined(entityExpression, itemProjector);
         return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
 

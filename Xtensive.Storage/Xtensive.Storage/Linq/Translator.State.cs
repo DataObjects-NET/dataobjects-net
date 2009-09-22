@@ -27,6 +27,13 @@ namespace Xtensive.Storage.Linq
       private bool buildingProjection;
       private bool calculateExpressions;
       private LambdaExpression currentLambda;
+      private bool joinLocalCollectionEntity;
+
+      public bool JoinLocalCollectionEntity
+      {
+        get { return joinLocalCollectionEntity; }
+        set { joinLocalCollectionEntity = value; }
+      }
 
       public List<CalculatedColumnDescriptor> CalculatedColumns
       {
@@ -103,6 +110,7 @@ namespace Xtensive.Storage.Linq
         calculateExpressions = currentState.calculateExpressions;
         buildingProjection = currentState.buildingProjection;
         currentLambda = currentState.currentLambda;
+        joinLocalCollectionEntity = currentState.joinLocalCollectionEntity;
       }
     }
   }

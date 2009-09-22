@@ -700,6 +700,14 @@ namespace Xtensive.Storage.Linq
 
     private void EnsureEntityFieldsAreJoined(EntityExpression entityExpression)
     {
+      ItemProjectorExpression itemProjector = entityExpression.OuterParameter==null
+        ? context.Bindings[state.Parameters[0]].ItemProjector
+        : context.Bindings[entityExpression.OuterParameter].ItemProjector;
+      EnsureEntityFieldsAreJoined(entityExpression, itemProjector);
+    }
+
+    private void EnsureEntityFieldsAreJoined(EntityExpression entityExpression, ItemProjectorExpression itemProjector)
+    {
       TypeInfo typeInfo = entityExpression.PersistentType;
       if (
         typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
@@ -710,11 +718,8 @@ namespace Xtensive.Storage.Linq
       Pair<int>[] keyPairs = keySegment.GetItems()
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
         .ToArray();
-      ItemProjectorExpression originalItemProjector = entityExpression.OuterParameter==null
-        ? context.Bindings[state.Parameters[0]].ItemProjector
-        : context.Bindings[entityExpression.OuterParameter].ItemProjector;
-      int offset = originalItemProjector.DataSource.Header.Length;
-      originalItemProjector.DataSource = originalItemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+      int offset = itemProjector.DataSource.Header.Length;
+      itemProjector.DataSource = itemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       EntityExpression.Fill(entityExpression, offset);
     }
 
