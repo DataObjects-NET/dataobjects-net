@@ -129,16 +129,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void IndexOfTest()
-    {
-      var localOrderFreights = Query<Order>.All.Select(order => order.Freight).Take(5).ToList();
-      var query = Query<Order>.All.Select(order => localOrderFreights.IndexOf(order.Freight));
-      QueryDumper.Dump(query);
-      var expectedQuery = Query<Order>.All.AsEnumerable().Select(order => localOrderFreights.IndexOf(order.Freight));
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
-    }
-
-    [Test]
     public void JoinEntityTest()
     {
       var localOrders = Query<Order>.All.Take(5).ToList();

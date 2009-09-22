@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Linq.Expressions
     public static StructureExpression CreateStructure(FieldInfo structureField, int offset)
     {
       if (!structureField.IsStructure)
-        throw new ArgumentException(string.Format(Resources.Strings.ExFieldIsNotStructure, structureField.Name));
+        throw new ArgumentException(string.Format(Strings.ExFieldIsNotStructure, structureField.Name));
       var persistentType = structureField.ReflectedType.Model.Types[structureField.ValueType];
       var mapping = new Segment<int>(offset, structureField.MappingInfo.Length);
       var result = new StructureExpression(persistentType, structureField, mapping, null, false);
