@@ -112,11 +112,11 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public static void Fill(EntityExpression entityExpression, int offset)
     {
-      entityExpression.fields.Clear();
+      using (new RemapScope()) {
+        entityExpression.Remap(offset, new Dictionary<Expression, Expression>());
+      }
       var typeInfo = entityExpression.PersistentType;
-      var keyExpression = KeyExpression.Create(typeInfo, offset);
-      entityExpression.fields.Add(keyExpression);
-      foreach (var nestedField in typeInfo.Fields)
+      foreach (var nestedField in typeInfo.Fields.Except(entityExpression.Fields.OfType<FieldExpression>().Select(field=>field.Field)))
         entityExpression.fields.Add(BuildNestedFieldExpression(nestedField, offset));
     }
 
@@ -128,13 +128,18 @@ namespace Xtensive.Storage.Linq.Expressions
       var keyExpression = KeyExpression.Create(typeInfo, offset);
       fields.Add(keyExpression);
       var result = new EntityExpression(typeInfo, keyExpression, null, false);
-      if (keyFieldsOnly)
-        result.Fields = new List<PersistentFieldExpression>();
-      else {
+      if (keyFieldsOnly) {
+        // Add key fields to field collection
+        var keyFieldClones = keyExpression
+          .KeyFields
+          .Select(kf=>FieldExpression.CreateField(kf.Field, kf.Mapping.Offset))
+          .Cast<PersistentFieldExpression>();
+        fields.AddRange(keyFieldClones);
+      }
+      else
         foreach (var nestedField in typeInfo.Fields)
           fields.Add(BuildNestedFieldExpression(nestedField, offset));
-        result.Fields = fields;
-      }
+      result.Fields = fields;
       return result;
     }
 
