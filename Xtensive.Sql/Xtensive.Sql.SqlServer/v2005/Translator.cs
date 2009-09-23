@@ -455,6 +455,11 @@ namespace Xtensive.Sql.SqlServer.v2005
       return items.ToCommaDelimitedString();
     }
 
+    public override string Translate(Collation collation)
+    {
+      return collation.DbName;
+    }
+
     // Constructors
 
     /// <summary>

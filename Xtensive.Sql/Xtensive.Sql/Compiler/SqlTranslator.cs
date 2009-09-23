@@ -1505,6 +1505,11 @@ namespace Xtensive.Sql.Compiler
         : QuoteIdentifier(node.DbName);
     }
 
+    public virtual string Translate(Collation collation)
+    {
+      return QuoteString(collation.DbName);
+    }
+
     public virtual string Translate(ReferentialAction action)
     {
       switch (action) {
