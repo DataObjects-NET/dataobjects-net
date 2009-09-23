@@ -441,7 +441,8 @@ namespace Xtensive.Storage.Providers.Sql
           TableColumn tableColumn = table.CreateColumn(column.Name, svt);
           tableColumn.IsNullable = true;
           // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
-          tableColumn.Collation = schema.Collations.FirstOrDefault();
+          if (column.Type == typeof(string))  
+            tableColumn.Collation = schema.Collations.FirstOrDefault();
         }
       }
       else

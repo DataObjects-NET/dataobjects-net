@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 using Xtensive.Core.Collections;
@@ -131,6 +132,19 @@ namespace Xtensive.Storage.Linq.Expressions
       : base(expressionType, field.Name, field.ValueType, mapping, field.UnderlyingProperty, parameterExpression, defaultIfEmpty)
     {
       Field = field;
+    }
+
+    protected FieldExpression(
+      ExtendedExpressionType expressionType, 
+      Segment<int> mapping, 
+      ParameterExpression parameterExpression, 
+      bool defaultIfEmpty,
+      string name,
+      Type type,
+      PropertyInfo property)
+      : base(expressionType, name, type, mapping, property, parameterExpression, defaultIfEmpty)
+    {
+      
     }
   }
 }

@@ -976,7 +976,18 @@ namespace Xtensive.Storage.Linq
       }
 
       if (type==typeof(Structure) || type.IsSubclassOf(typeof(Structure))) {
-        throw new NotImplementedException();
+        var typeInfo = context.Model.Types[type];
+        var tupleDescriptor = typeInfo.TupleDescriptor;
+        var columns = tupleDescriptor.Select((columnType, i)=>new SystemColumn(context.GetNextColumnAlias(), i, columnType)).Cast<Column>();
+        var rsHeader = new RecordSetHeader(tupleDescriptor, columns);
+        var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
+        var rawProvider = new RawProvider(rsHeader, source.Select(structure => ReferenceEquals(structure, null) ? typeInfo.TuplePrototype : ((Structure)(object)structure).Tuple.GetSegment(tupleSegment)));
+        var recordset = new StoreProvider(rawProvider).Result;
+        var structureExpression = StructureExpression.CreateStructure(typeInfo, tupleSegment);
+        var itemProjector = new ItemProjectorExpression(structureExpression, recordset, context);
+//        if (state.JoinLocalCollectionEntity) 
+//          EnsureEntityFieldsAreJoined(entityExpression, itemProjector);
+        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
 
       if (TypeIsStorageMappable(type)) {

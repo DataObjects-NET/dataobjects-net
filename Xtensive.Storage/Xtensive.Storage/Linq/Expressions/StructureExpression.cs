@@ -158,6 +158,17 @@ namespace Xtensive.Storage.Linq.Expressions
       return result;
     }
 
+    public static StructureExpression CreateStructure(TypeInfo typeInfo, Segment<int> mapping)
+    {
+      if (!typeInfo.IsStructure)
+        throw new ArgumentException(string.Format(Strings.ExTypeXIsNotStructure, typeInfo.Name));
+      var result = new StructureExpression(typeInfo, mapping);
+      result.Fields = typeInfo.Fields
+        .Select(f => BuildNestedFieldExpression(f, mapping.Offset))
+        .ToList();
+      return result;
+    }
+
 // ReSharper disable RedundantNameQualifier
     private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
     {
@@ -181,6 +192,14 @@ namespace Xtensive.Storage.Linq.Expressions
       ParameterExpression parameterExpression, 
       bool defaultIfEmpty)
       : base(ExtendedExpressionType.Structure, structureField, mapping, parameterExpression, defaultIfEmpty)
+    {
+      PersistentType = persistentType;
+    }
+
+    private StructureExpression(
+      TypeInfo persistentType, 
+      Segment<int> mapping)
+      : base(ExtendedExpressionType.Structure, mapping, null, false, null, persistentType.UnderlyingType, null)
     {
       PersistentType = persistentType;
     }

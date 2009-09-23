@@ -1970,6 +1970,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not structure..
+        /// </summary>
+        internal static string ExTypeXIsNotStructure {
+            get {
+                return ResourceManager.GetString("ExTypeXIsNotStructure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; is not supported..
         /// </summary>
         internal static string ExTypeXIsNotSupported {

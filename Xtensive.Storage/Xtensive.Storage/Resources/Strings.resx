@@ -1034,4 +1034,7 @@ Actions:
   <data name="ExCanNotCommitATransactionEntitiesValidationFailed" xml:space="preserve">
     <value>Can not commit a transaction. Entities validation failed.</value>
   </data>
+  <data name="ExTypeXIsNotStructure" xml:space="preserve">
+    <value>Type '{0}' is not structure.</value>
+  </data>
 </root>
