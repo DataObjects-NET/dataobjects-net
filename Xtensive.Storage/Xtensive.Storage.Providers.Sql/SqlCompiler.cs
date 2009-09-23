@@ -440,6 +440,8 @@ namespace Xtensive.Storage.Providers.Sql
             svt = Driver.BuildValueType(column.Type, null, null, null);
           TableColumn tableColumn = table.CreateColumn(column.Name, svt);
           tableColumn.IsNullable = true;
+          // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
+          tableColumn.Collation = schema.Collations.FirstOrDefault();
         }
       }
       else
