@@ -9,7 +9,8 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Tests.Model.InheritanceSchemaModel;  
+using Xtensive.Storage.Tests.Model.InheritanceSchemaModel;
+using System.Linq;
 
 namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
 {
@@ -89,12 +90,11 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
 
   [Index("Name")]
   [HierarchyRoot]
-  public class X : Entity
+  public class X : Entity, IHasName
   {
     [Field, Key]
     public long ID { get; private set; }
 
-    [Field(Length = 1000)]
     public string Name { get; set; }
   }
 
@@ -177,12 +177,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
     [Test]
     public virtual void MainTest()
     {
-//      Domain.Model.Dump();
+      Domain.Model.Dump();
 //      Domain.Model.Types.Dump();
 
       foreach (var type in Domain.Model.Types) {
         foreach (var indexInfo in type.Indexes) {
-          var keyComplexity = type.Hierarchy.KeyInfo.Columns.Count;
+          var keyComplexity = type.Columns.Count(c => c.IsPrimaryKey);
           if (indexInfo.IsPrimary)
             Assert.AreEqual(keyComplexity, indexInfo.KeyColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
               indexInfo.Name, type.Name);

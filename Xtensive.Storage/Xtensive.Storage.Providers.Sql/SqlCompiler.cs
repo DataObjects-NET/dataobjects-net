@@ -824,7 +824,10 @@ namespace Xtensive.Storage.Providers.Sql
       var typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
       var inQuery = SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
       var query = SqlDml.Select(baseQuery.From);
-      var atRootPolicy = index.ReflectedType.Hierarchy.Schema==InheritanceSchema.SingleTable;
+      var hierarchy = index.ReflectedType.Hierarchy;
+      var atRootPolicy = hierarchy != null 
+        ? hierarchy.Schema==InheritanceSchema.SingleTable
+        : false;
       Dictionary<FieldInfo, string> lookup;
       if (atRootPolicy) {
         var rootIndex = index.ReflectedType.GetRoot().AffectedIndexes.First(i => i.IsPrimary);

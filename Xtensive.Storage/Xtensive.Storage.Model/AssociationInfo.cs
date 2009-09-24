@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Model
         else
           UnderlyingIndex = Reversed.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
         if (foreignKeyExtractorTransform == null) {
-          var foreignKeySegment = new Segment<int>(OwnerType.Hierarchy.KeyInfo.Columns.Count, TargetType.Hierarchy.KeyInfo.Columns.Count);
+          var foreignKeySegment = new Segment<int>(OwnerType.Columns.Count(c => c.IsPrimaryKey), TargetType.Columns.Count(c => c.IsPrimaryKey));
           foreignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
         }
         break;

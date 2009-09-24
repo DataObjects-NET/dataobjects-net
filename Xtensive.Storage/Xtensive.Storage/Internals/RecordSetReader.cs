@@ -12,6 +12,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Internals
 {
@@ -56,7 +57,7 @@ namespace Xtensive.Storage.Internals
 
     private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, ColumnGroupMapping groupMapping)
     {
-      var rootType = groupMapping.Hierarchy.Root;
+      var rootType = groupMapping.Type;
       bool exactType;
       int typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex, out exactType);
       var typeMapping = typeId==TypeInfo.NoTypeId ? null : groupMapping.GetTypeMapping(typeId);
@@ -108,7 +109,7 @@ namespace Xtensive.Storage.Internals
         var model = Domain.Model;
         int typeIdColumnIndex = -1;
         var columnMapping = new Dictionary<ColumnInfo, MappedColumn>(group.Columns.Count);
-        var hierarchy = group.HierarchyInfoRef.Resolve(model);
+        var type = group.TypeInfoRef.Resolve(model);
 
         foreach (int columnIndex in group.Columns) {
           var column = (MappedColumn)header.Columns[columnIndex];
@@ -118,13 +119,16 @@ namespace Xtensive.Storage.Internals
             typeIdColumnIndex = column.Index;
         }
 
-        var typeMappings = new Dictionary<int, TypeMapping>(hierarchy.Types.Count + 1);
-        foreach (TypeInfo type in hierarchy.Types) {
+        var implementors = (type.IsInterface 
+          ? type.GetImplementors(true)
+          : type.GetDescendants(true)).AddOne(type).ToList();
+        var typeMappings = new IntDictionary<TypeMapping>(implementors.Count + 1);
+        foreach (TypeInfo childType in implementors) {
           // Building typeMap
-          var columnCount = type.Columns.Count;
+          var columnCount = childType.Columns.Count;
           var typeMap = new int[columnCount];
           for (int i = 0; i < columnCount; i++) {
-            var columnInfo = type.Columns[i];
+            var columnInfo = childType.Columns[i];
             MappedColumn column;
             if (columnMapping.TryGetValue(columnInfo, out column))
               typeMap[i] = column.Index;
@@ -133,7 +137,7 @@ namespace Xtensive.Storage.Internals
           }
   
           // Building keyMap
-          var columns = type.Hierarchy.KeyInfo.Columns;
+          var columns = childType.KeyInfo.Columns;
           columnCount = columns.Count;
           var keyMap = new int[columnCount];
           bool hasKey = false;
@@ -148,13 +152,13 @@ namespace Xtensive.Storage.Internals
               keyMap[i] = MapTransform.NoMapping;
           }
           if (hasKey) {
-            var typeMapping = new TypeMapping(type,
-              new MapTransform(true, type.Hierarchy.KeyInfo.TupleDescriptor, keyMap),
-              new MapTransform(true, type.TupleDescriptor, typeMap));
-            typeMappings.Add(type.TypeId, typeMapping);
+            var typeMapping = new TypeMapping(childType,
+              new MapTransform(true, childType.KeyInfo.TupleDescriptor, keyMap),
+              new MapTransform(true, childType.TupleDescriptor, typeMap));
+            typeMappings.Add(childType.TypeId, typeMapping);
           }
         }
-        var mapping =  new ColumnGroupMapping(hierarchy, typeIdColumnIndex, typeMappings);
+        var mapping =  new ColumnGroupMapping(type, typeIdColumnIndex, typeMappings);
         mappings.Add(mapping);
       }
       result = new RecordSetMapping(Domain, header, mappings);

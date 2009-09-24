@@ -962,7 +962,7 @@ namespace Xtensive.Storage.Linq
 
       if (type==typeof(Entity) || type.IsSubclassOf(typeof(Entity))) {
         var typeInfo = context.Model.Types[type];
-        var keyInfo = typeInfo.Hierarchy.KeyInfo;
+        var keyInfo = typeInfo.KeyInfo;
         var keyTupleDescriptor = keyInfo.TupleDescriptor;
         var columns = keyInfo.Columns.Select((columnInfo, i)=>new SystemColumn(context.GetNextColumnAlias(), i, columnInfo.ValueType)).Cast<Column>();
         var rsHeader = new RecordSetHeader(keyTupleDescriptor, columns);

@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Upgrade
       }
       foreach (var indexPair in indexPairs.Keys) {
         var referencedIndex = indexPair.First;
-        if (referencedIndex.ReflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+        if (referencedIndex.ReflectedType.Hierarchy == null || referencedIndex.ReflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
           continue;
         var referencingIndex = indexPair.Second;
         var referencingTable = StorageInfo.Tables[referencingIndex.ReflectedType.MappingName];
@@ -214,6 +214,10 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitAssociationInfo(AssociationInfo association)
     {
+      if (association.TargetType.Hierarchy == null)
+        return null;
+      if (association.OwnerType.Hierarchy == null)
+        return null;
       if (association.TargetType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
         return null;
       if (association.OwnerType.Indexes.PrimaryIndex==null)

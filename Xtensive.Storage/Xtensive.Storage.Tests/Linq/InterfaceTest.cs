@@ -11,10 +11,18 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
-  [Ignore("Not implemented")]
   [TestFixture, Category("Linq")]
   public sealed class InterfaceTest : NorthwindDOModelTest
   {
+    [Test]
+    public void QueryTest()
+    {
+      var result = Query<IHasFreight>.All;
+      var list = result.ToList();
+      Assert.AreEqual(830, list.Count);
+      Assert.IsTrue(list.All(i => i != null));
+    }
+
     [Test]
     public void QueryByInterfaceTest()
     {

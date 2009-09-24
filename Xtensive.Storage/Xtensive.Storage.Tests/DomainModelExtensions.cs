@@ -167,8 +167,9 @@ namespace Xtensive.Storage.Tests
         if (target.Hierarchy.Root!=target)
           WriteLine(indent, "Ancestor: " + target.GetAncestor().Name);
       }
-      else if (target.IsInterface)
-        WriteLine(indent, "Hierarchy: " + target.Hierarchy.Root.Name);
+      else if (target.IsInterface) {
+        WriteLine(indent, "Implementors: " + target.GetImplementors().Select(t => t.Name).ToCommaDelimitedString());
+      }
 
       target.DumpMappingName(indent);
       WriteLine(indent, "UnderlyingType: " + target.UnderlyingType.FullName);

@@ -4,20 +4,20 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.08
 
-using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
 using System.Linq;
 
 namespace Xtensive.Storage.Internals
 {
-  [DebuggerDisplay("Hierarchy = {Hierarchy.Name}, TypeIdColumnIndex = {TypeIdColumnIndex}")]
+  [DebuggerDisplay("Type = {Type.Name}, TypeIdColumnIndex = {TypeIdColumnIndex}")]
   internal sealed class ColumnGroupMapping
   {
     private readonly TypeMapping singleItem;
-    private readonly Dictionary<int, TypeMapping> items;
+    private readonly IntDictionary<TypeMapping> items;
 
-    public HierarchyInfo Hierarchy { get; private set; }
+    public TypeInfo Type { get; private set; }
 
     public int TypeIdColumnIndex { get; private set; }
 
@@ -38,13 +38,13 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public ColumnGroupMapping(HierarchyInfo hierarchy, int typeIdColumnIndex, Dictionary<int, TypeMapping> items)
+    public ColumnGroupMapping(TypeInfo type, int typeIdColumnIndex, IntDictionary<TypeMapping> items)
     {
       if (items.Count==1)
-        singleItem = items.Values.First();
+        singleItem = items.First().Value;
       else
         this.items = items;
-      Hierarchy = hierarchy;
+      Type = type;
       TypeIdColumnIndex = typeIdColumnIndex;
     }
   }

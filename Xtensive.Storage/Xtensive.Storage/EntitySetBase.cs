@@ -467,8 +467,8 @@ namespace Xtensive.Storage
     {
       var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
       var seekTransform = new CombineTransform(true,
-        field.Association.OwnerType.Hierarchy.KeyInfo.TupleDescriptor,
-        field.Association.TargetType.Hierarchy.KeyInfo.TupleDescriptor);
+        field.Association.OwnerType.KeyInfo.TupleDescriptor,
+        field.Association.TargetType.KeyInfo.TupleDescriptor);
       Func<Tuple, Entity> itemCtor = null;
       if (field.Association.AuxiliaryType!=null)
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,

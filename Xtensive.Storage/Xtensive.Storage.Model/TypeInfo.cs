@@ -54,6 +54,7 @@ namespace Xtensive.Storage.Model
     private int                                typeId = NoTypeId;
     private MapTransform                       primaryKeyInjector;
     private bool                               isLeaf;
+    private KeyInfo                            keyInfo;
 
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
@@ -213,15 +214,6 @@ namespace Xtensive.Storage.Model
       }
     }
 
-    private void SetTypeId(int value)
-    {
-      if (typeId != 0)
-        throw new InvalidOperationException(
-          string.Format(Strings.TypeIdForTypeXIsAlreadyAssigned, underlyingType.Name));
-      typeId = value;
-      BuildTuplePrototype();
-    }
-
     /// <summary>
     /// Gets the tuple descriptor.
     /// </summary>
@@ -231,6 +223,11 @@ namespace Xtensive.Storage.Model
     /// Gets the persistent type prototype.
     /// </summary>
     public Tuple TuplePrototype { get; private set; }
+
+    public KeyInfo KeyInfo
+    {
+      get { return IsLocked ? keyInfo : GetKeyInfo(); }
+    }
 
     /// <summary>
     /// Creates the tuple prototype with specified <paramref name="primaryKey"/>.
@@ -433,9 +430,28 @@ namespace Xtensive.Storage.Model
       fieldMap.Lock(true);
       fields.Lock(true);
       isLeaf = GetIsLeaf();
+      keyInfo = GetKeyInfo();
     }
 
     #region Private \ internal methods
+
+    private void SetTypeId(int value)
+    {
+      if (typeId != 0)
+        throw new InvalidOperationException(
+          string.Format(Strings.TypeIdForTypeXIsAlreadyAssigned, underlyingType.Name));
+      typeId = value;
+      BuildTuplePrototype();
+    }
+
+    private KeyInfo GetKeyInfo()
+    {
+      if (Hierarchy == null)
+        return IsInterface 
+          ? GetImplementors().First().Hierarchy.KeyInfo 
+          : null;
+      return Hierarchy.KeyInfo;
+    }
 
     private bool GetIsLeaf()
     {
@@ -469,7 +485,7 @@ namespace Xtensive.Storage.Model
 
         // Building primary key injector
         var fieldCount = TupleDescriptor.Count;
-        var keyFieldCount = Hierarchy.KeyInfo.TupleDescriptor.Count;
+        var keyFieldCount = KeyInfo.TupleDescriptor.Count;
         var keyFieldMap = new Pair<int, int>[fieldCount];
         for (i = 0; i < fieldCount; i++)
           keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);

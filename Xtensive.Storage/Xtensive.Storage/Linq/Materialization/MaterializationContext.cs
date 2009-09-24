@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Linq.Materialization
         return result;
 
       var type       = model.Types[typeId];
-      var keyInfo    = type.Hierarchy.KeyInfo;
+      var keyInfo    = type.KeyInfo;
       var descriptor = type.TupleDescriptor;
 
       int[] allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, columns);

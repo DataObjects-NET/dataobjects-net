@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Building.Builders
       var parent = type.GetAncestor();
       if (parent != null) {
         var parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
-        var primaryIndex = BuildInheritedIndex(type, parentPrimaryIndex);
+        var primaryIndex = BuildInheritedIndex(type, parentPrimaryIndex, false);
        
         // Registering built primary index
         type.Indexes.Add(primaryIndex);
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Building.Builders
           foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           if (parentIndex.DeclaringIndex == parentIndex)
             using (var scope = new LogCaptureScope(context.Log)) {
-              var index = BuildInheritedIndex(type, parentIndex);
+              var index = BuildInheritedIndex(type, parentIndex, false);
               //TODO: AK: discover this check
               if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
                 continue;
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildDeclaredIndex(TypeInfo type, IndexDef indexDescriptor)
     {
-      var indexInfo = BuildIndex(type, indexDescriptor); 
+      var indexInfo = BuildIndex(type, indexDescriptor, false); 
 
       type.Indexes.Add(indexInfo);
       BuildingContext.Current.Model.RealIndexes.Add(indexInfo);
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildHierarchyPrimaryIndex(TypeInfo type, IndexDef primaryIndexDefinition)
     {
-      var primaryIndex = BuildIndex(type.Hierarchy.Root, primaryIndexDefinition);
+      var primaryIndex = BuildIndex(type.Hierarchy.Root, primaryIndexDefinition, false);
 
       type.Indexes.Add(primaryIndex);
       BuildingContext.Current.Model.RealIndexes.Add(primaryIndex);

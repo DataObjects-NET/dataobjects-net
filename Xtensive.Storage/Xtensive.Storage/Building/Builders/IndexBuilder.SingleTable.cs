@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Building.Builders
       // Building primary index for root of the hierarchy
       if (primaryIndexDefinition != null)
         using (var scope = new LogCaptureScope(context.Log)) {
-          var primaryIndex = BuildIndex(root, primaryIndexDefinition);
+          var primaryIndex = BuildIndex(root, primaryIndexDefinition, false);
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             root.Indexes.Add(primaryIndex);
             context.Model.RealIndexes.Add(primaryIndex);
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Building.Builders
       // Building declared indexes
       foreach (var indexDescriptor in indexDefinitions)
         using (var scope = new LogCaptureScope(context.Log)) {
-          var indexInfo = BuildIndex(type, indexDescriptor); 
+          var indexInfo = BuildIndex(type, indexDescriptor, false); 
           if (!scope.IsCaptured(LogEventTypes.Error)) {
             root.Indexes.Add(indexInfo);
             context.Model.RealIndexes.Add(indexInfo);
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Building.Builders
           foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
             if (parentIndex.DeclaringIndex == parentIndex)
               using (var scope = new LogCaptureScope(context.Log)) {
-                var index = BuildInheritedIndex(type, parentIndex);
+                var index = BuildInheritedIndex(type, parentIndex, false);
                 // TODO: AK: discover this check
                 if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
                   continue;
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Building.Builders
         ancestors.Add(type);
         foreach (var ancestorIndex in root.Indexes) {
           var interfaces = type.GetInterfaces(true);
-          if ((ancestorIndex.DeclaringType.IsInterface && interfaces.Contains(ancestorIndex.DeclaringType)) || ancestors.Contains(ancestorIndex.DeclaringType)) {
+          if ((ancestorIndex.DeclaringType.IsInterface && ancestors.Contains(ancestorIndex.ReflectedType) && interfaces.Contains(ancestorIndex.DeclaringType)) || ancestors.Contains(ancestorIndex.DeclaringType)) {
             var virtualIndex = BuildVirtualIndex(type, IndexAttributes.Filtered, ancestorIndex);
             if (!type.Indexes.Contains(virtualIndex.Name))
               type.Indexes.Add(virtualIndex);

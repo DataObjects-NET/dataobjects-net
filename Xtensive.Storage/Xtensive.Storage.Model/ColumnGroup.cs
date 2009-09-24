@@ -13,17 +13,17 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Model
 {
   /// <summary>
-  /// Describes a group of columns that belongs to the specified <see cref="HierarchyInfoRef"/>.
+  /// Describes a group of columns that belongs to the specified <see cref="TypeInfoRef"/>.
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("Hierarchy = {HierarchyInfoRef}, Keys = {Keys}, Columns = {Columns}")]
+  [DebuggerDisplay("Type = {TypeInfoRef}, Keys = {Keys}, Columns = {Columns}")]
   public sealed class ColumnGroup
   {
     /// <summary>
-    /// Gets the <see cref="Model.HierarchyInfoRef"/> pointing to <see cref="HierarchyInfo"/>
+    /// Gets the <see cref="Model.TypeInfoRef"/> pointing to <see cref="TypeInfo"/>
     /// this column group belongs to.
     /// </summary>
-    public HierarchyInfoRef HierarchyInfoRef { get; private set; }
+    public TypeInfoRef TypeInfoRef { get; private set; }
 
     /// <summary>
     /// Gets the indexes of key columns.
@@ -41,23 +41,23 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="hierarchy">The hierarchy.</param>
+    /// <param name="type">The type.</param>
     /// <param name="keys">The keys.</param>
     /// <param name="columns">The columns.</param>
-    public ColumnGroup(HierarchyInfoRef hierarchy, IEnumerable<int> keys, IEnumerable<int> columns)
-      : this(hierarchy, new List<int>(keys), new List<int>(columns))
+    public ColumnGroup(TypeInfoRef type, IEnumerable<int> keys, IEnumerable<int> columns)
+      : this(type, new List<int>(keys), new List<int>(columns))
     {
     }
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="hierarchy">The hierarchy.</param>
+    /// <param name="type">The type.</param>
     /// <param name="keys">The keys.</param>
     /// <param name="columns">The columns.</param>
-    public ColumnGroup(HierarchyInfoRef hierarchy, IList<int> keys, IList<int> columns)
+    public ColumnGroup(TypeInfoRef type, IList<int> keys, IList<int> columns)
     {
-      HierarchyInfoRef = hierarchy;
+      TypeInfoRef = type;
       Keys = new ReadOnlyList<int>(keys);
       Columns = new ReadOnlyList<int>(columns);
     }

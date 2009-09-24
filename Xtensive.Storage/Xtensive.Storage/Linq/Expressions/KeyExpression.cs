@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public static KeyExpression Create(TypeInfo entityType, int offset)
     {
-      var mapping = new Segment<int>(offset, entityType.Hierarchy.KeyInfo.Length);
+      var mapping = new Segment<int>(offset, entityType.KeyInfo.Length);
       var fields = entityType.Columns
         .Where(c => c.IsPrimaryKey)
         .OrderBy(c => c.Field.MappingInfo.Offset)

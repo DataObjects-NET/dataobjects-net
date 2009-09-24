@@ -24,10 +24,9 @@ namespace Xtensive.Storage.Model
   {
     private IndexAttributes attributes;
     private ColumnGroup columnGroup;
-    private readonly DirectionCollection<ColumnInfo> keyColumns = new DirectionCollection<ColumnInfo>();
-    private readonly ColumnInfoCollection valueColumns = new ColumnInfoCollection();
-    private readonly ColumnInfoCollection includedColumns = new ColumnInfoCollection();
-    //TODO: Don't create instances for physical indexes
+    private DirectionCollection<ColumnInfo> keyColumns = new DirectionCollection<ColumnInfo>();
+    private ColumnInfoCollection valueColumns = new ColumnInfoCollection();
+    private ColumnInfoCollection includedColumns = new ColumnInfoCollection();
     private readonly CollectionBaseSlim<IndexInfo> underlyingIndexes = new CollectionBaseSlim<IndexInfo>();
     private readonly TypeInfo declaringType;
     private readonly TypeInfo reflectedType;
@@ -187,12 +186,18 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the attributes.
+    /// Gets or sets the attributes.
     /// </summary>
     public IndexAttributes Attributes
     {
       [DebuggerStepThrough]
       get { return attributes; }
+      [DebuggerStepThrough]
+      set
+      {
+        this.EnsureNotLocked();
+        attributes = value;
+      }
     }
 
     /// <summary>
@@ -260,6 +265,17 @@ namespace Xtensive.Storage.Model
       underlyingIndexes.Lock();
     }
 
+    public IndexInfo Clone()
+    {
+      var result = new IndexInfo(reflectedType, declaringIndex, attributes);
+      result.shortName = shortName;
+      result.Name = Name;
+      result.keyColumns = keyColumns;
+      result.valueColumns = valueColumns;
+      result.includedColumns = includedColumns;
+      return result;
+    }
+
     private void CreateTupleDescriptors()
     {
       tupleDescriptor = TupleDescriptor.Create(
@@ -286,17 +302,9 @@ namespace Xtensive.Storage.Model
     public IndexInfo(TypeInfo declaringType, IndexAttributes indexAttributes)
     {
       this.declaringType = declaringType;
+      attributes = indexAttributes;
       reflectedType = declaringType;
       declaringIndex = this;
-      if (declaringType.IsInterface && (reflectedType.Attributes & TypeAttributes.Materialized) == 0) {
-        if ((indexAttributes & IndexAttributes.Primary)==0 || declaringType.Hierarchy.Schema != InheritanceSchema.SingleTable)
-          attributes |= IndexAttributes.Virtual | IndexAttributes.Union;
-        else
-          attributes |= IndexAttributes.Virtual | IndexAttributes.Filtered;
-      }
-      else
-        attributes |= IndexAttributes.Real;
-      attributes |= indexAttributes;
     }
 
     /// <summary>
@@ -304,25 +312,15 @@ namespace Xtensive.Storage.Model
     /// </summary>
     /// <param name="reflectedType">Reflected type.</param>
     /// <param name="ancestorIndex">The ancestors index.</param>
-    /// <param name="isAbstract">If set to <see langword="true"/> then 
-    /// the flag <see cref="IndexAttributes.Abstract"/> will be added to 
-    /// the property <see cref="Attributes"/>.</param>
-    public  IndexInfo(TypeInfo reflectedType,  IndexInfo ancestorIndex, bool isAbstract)
+    /// <param name="indexAttributes"><see cref="IndexAttributes"/> attributes for this instance.</param>
+    public IndexInfo(TypeInfo reflectedType, IndexInfo ancestorIndex, IndexAttributes indexAttributes)
     {
       declaringType = ancestorIndex.DeclaringType;
       this.reflectedType = reflectedType;
-      if (reflectedType.IsInterface && (reflectedType.Attributes & TypeAttributes.Materialized) == 0)
-        attributes = (ancestorIndex.Attributes | IndexAttributes.Virtual | IndexAttributes.Union) &
-                     ~(IndexAttributes.Real | IndexAttributes.Join | IndexAttributes.Filtered);
-      else
-        attributes = (ancestorIndex.Attributes | IndexAttributes.Real) 
-          & ~(IndexAttributes.Join | IndexAttributes.Union | IndexAttributes.Filtered 
-          | IndexAttributes.Virtual | IndexAttributes.Abstract);
-      if (isAbstract)
-        attributes = attributes | IndexAttributes.Abstract;
+      attributes = indexAttributes;
       FillFactor = ancestorIndex.FillFactor;
-      shortName = ancestorIndex.ShortName;
       declaringIndex = ancestorIndex.DeclaringIndex;
+      shortName = ancestorIndex.ShortName;
     }
 
     /// <summary>
@@ -333,17 +331,17 @@ namespace Xtensive.Storage.Model
     /// <param name="baseIndex">Base index.</param>
     /// <param name="baseIndexes">The base indexes.</param>
     public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo baseIndex, params IndexInfo[] baseIndexes)
-      : this (baseIndex.DeclaringType, baseIndex, false)
     {
-      attributes = baseIndex.Attributes &
-                   ~(IndexAttributes.Abstract | IndexAttributes.Join 
-                   | IndexAttributes.Union | IndexAttributes.Filtered | IndexAttributes.Real) |
-                   indexAttributes | IndexAttributes.Virtual;
+      declaringType = baseIndex.DeclaringType;
+      this.reflectedType = reflectedType;
+      attributes = indexAttributes;
+      FillFactor = baseIndex.FillFactor;
+      declaringIndex = baseIndex.DeclaringIndex;
+      shortName = baseIndex.ShortName;
+      
       UnderlyingIndexes.Add(baseIndex);
       foreach (IndexInfo info in baseIndexes)
         UnderlyingIndexes.Add(info);
-      declaringIndex = baseIndex.DeclaringIndex;
-      this.reflectedType = reflectedType;
     }
   }
 }

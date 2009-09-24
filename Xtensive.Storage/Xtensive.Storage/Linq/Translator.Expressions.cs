@@ -327,7 +327,6 @@ namespace Xtensive.Storage.Linq
         IEnumerable<Type> keyFieldTypes = context
           .Model
           .Types[(leftEntityExpression ?? rightEntityExpression).Type]
-          .Hierarchy
           .KeyInfo
           .Fields
           .Select(keyInfo => keyInfo.Key.ValueType);

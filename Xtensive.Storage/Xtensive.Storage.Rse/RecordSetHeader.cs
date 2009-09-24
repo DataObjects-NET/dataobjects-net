@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Rse
       groups.AddRange(
         joined.ColumnGroups
           .Select(g => new ColumnGroup(
-            g.HierarchyInfoRef,
+            g.TypeInfoRef,
             g.Keys.Select(i => originalColumnsCount + i),
             g.Columns.Select(i => originalColumnsCount + i))));
       
@@ -171,7 +171,7 @@ namespace Xtensive.Storage.Rse
       var resultGroups = ColumnGroups
         .Where(g => g.Keys.All(k => columnsMap[k]>=0))
         .Select(g => new ColumnGroup(
-            g.HierarchyInfoRef,
+            g.TypeInfoRef,
             g.Keys.Select(k => columnsMap[k]), 
             g.Columns
               .Select(c => columnsMap[c])
