@@ -455,7 +455,7 @@ namespace Xtensive.Storage.Model
 
     private bool GetIsLeaf()
     {
-      return !GetDescendants().Any();
+      return IsEntity && !GetDescendants().Any();
     }
 
     private void CreateTupleDescriptor()
