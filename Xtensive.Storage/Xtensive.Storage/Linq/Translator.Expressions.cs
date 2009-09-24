@@ -63,16 +63,6 @@ namespace Xtensive.Storage.Linq
         return null;
       if (e.IsProjection())
         return e;
-      if (e.IsLocalCollection(context)) {
-        Type itemType = e
-          .Type
-          .GetInterfaces()
-          .AddOne(e.Type)
-          .Single(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IEnumerable<>))
-          .GetGenericArguments()[0];
-        MethodInfo method = VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType);
-        return (ProjectionExpression) method.Invoke(this, new[] {e});
-      }
       if (context.Evaluator.CanBeEvaluated(e)) {
         if (typeof (IQueryable).IsAssignableFrom(e.Type))
           return base.Visit(e);

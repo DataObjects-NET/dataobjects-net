@@ -137,6 +137,8 @@ namespace Xtensive.Storage.Linq.Expressions
 
     public override FieldExpression RemoveOwner()
     {
+      if (Owner==null)
+        return this;
       var result = new StructureExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
       result.fields = fields
         .Cast<FieldExpression>()

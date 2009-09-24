@@ -362,11 +362,16 @@ namespace Xtensive.Storage.Tests.Linq
         .Where(c => c.StreetAddress.Length > 0)
         .Union(customers.ToList().Select(c => c.Address))
         .Where(c => c.Region=="BC");
+      var expected = customers.AsEnumerable().Select(c => c.Address)
+        .Where(c => c.StreetAddress.Length > 0)
+        .Union(customers.ToList().Select(c => c.Address))
+        .Where(c => c.Region=="BC");
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
     }
 
     [Test]
-    public void IntersectWithoutOneOfSelect()
+    public void IntersectWithoutOneOfSelectTest()
     {
       EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       var actual = from c in Query<Customer>.All
@@ -382,5 +387,69 @@ namespace Xtensive.Storage.Tests.Linq
       select r;
       QueryDumper.Dump(actual);
     }
+
+    [Test]
+    public void AsEnumerableTest()
+    {
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
+      var result = Query<Customer>.All
+        .SelectMany(c => (c.Orders)
+        .Intersect(c.Orders.AsEnumerable()).Select(o => o.ShippedDate)
+        , (c, r) => new {c, r});
+      var expected = Query<Customer>.All.AsEnumerable()
+        .SelectMany(c => (c.Orders)
+        .Intersect(c.Orders.AsEnumerable()).Select(o => o.ShippedDate)
+        , (c, r) => new {c, r});
+       Assert.AreEqual(0, expected.Except(result).Count());
+      QueryDumper.Dump(result);
+   }
+
+    [Test]
+    public void ToDictionaryTest()
+    {
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
+      var result = Query<Customer>.All
+        .SelectMany(c => (c.Orders)
+        .Intersect(c.Orders.ToDictionary(x=>x).Select(o=>o.Value)).Select(o => o.ShippedDate)
+        , (c, r) => new {c, r});
+      var expected = Query<Customer>.All.AsEnumerable()
+        .SelectMany(c => (c.Orders)
+        .Intersect(c.Orders.ToDictionary(x=>x).Select(o=>o.Value)).Select(o => o.ShippedDate)
+        , (c, r) => new {c, r});
+       Assert.AreEqual(0, expected.Except(result).Count());
+      QueryDumper.Dump(result);
+   }
+
+    [Test]
+    public void ToListTest()
+    {
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
+      var result = Query<Customer>.All
+        .SelectMany(c => (c.Orders)
+        .Intersect(c.Orders.ToList()).Select(o => o.ShippedDate)
+        , (c, r) => new {c, r});
+      var expected = Query<Customer>.All.AsEnumerable()
+        .SelectMany(c => (c.Orders)
+        .Intersect(c.Orders.ToList()).Select(o => o.ShippedDate)
+        , (c, r) => new {c, r});
+       Assert.AreEqual(0, expected.Except(result).Count());
+      QueryDumper.Dump(result);
+   }
+
+    [Test]
+    public void ToArrayTest()
+    {
+      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
+      var result = Query<Customer>.All
+        .SelectMany(c => (c.Orders)
+        .Intersect(c.Orders.ToArray()).Select(o => o.ShippedDate)
+        , (c, r) => new {c, r});
+      var expected = Query<Customer>.All.AsEnumerable()
+        .SelectMany(c => (c.Orders)
+        .Intersect(c.Orders.ToArray()).Select(o => o.ShippedDate)
+        , (c, r) => new {c, r});
+       Assert.AreEqual(0, expected.Except(result).Count());
+      QueryDumper.Dump(result);
+   }
   }
 }

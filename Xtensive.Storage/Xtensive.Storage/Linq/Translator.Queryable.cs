@@ -932,7 +932,21 @@ namespace Xtensive.Storage.Linq
         }
       }
 
-      var visitedExpression = Visit(sequenceExpression);
+      Expression visitedExpression;
+
+      if (sequenceExpression.IsLocalCollection(context)) {
+        Type itemType = sequenceExpression
+          .Type
+          .GetInterfaces()
+          .AddOne(sequenceExpression.Type)
+          .Single(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IEnumerable<>))
+          .GetGenericArguments()[0];
+        MethodInfo method = VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType);
+        visitedExpression = (ProjectionExpression) method.Invoke(this, new[] {sequenceExpression});
+      }
+      else
+        visitedExpression = Visit(sequenceExpression);
+
       visitedExpression = visitedExpression.StripCasts();
 
       if (visitedExpression.IsGroupingExpression()
