@@ -9,10 +9,10 @@ using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
-namespace Xtensive.Storage.Tests.Linq
+namespace Xtensive.Storage.Tests.Linq.Interfaces
 {
   [TestFixture, Category("Linq")]
-  public sealed class InterfaceTest : NorthwindDOModelTest
+  public sealed class SimpleTest : NorthwindDOModelTest
   {
     [Test]
     public void QueryTest()

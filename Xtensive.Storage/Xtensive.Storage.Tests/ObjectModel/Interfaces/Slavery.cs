@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery
   public interface IMaster : IEntity
   {
     [Field, Association(PairTo = "Master")]
-    EntitySet<ISlave> Slaves { get; set; }
+    EntitySet<ISlave> Slaves { get; }
   }
 
   public interface ISlave<TMaster> : ISlave
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery
     where TSlave : ISlave
   {
     [Field, Association(PairTo = "Master")]
-    EntitySet<TSlave> Slaves { get; set; }
+    EntitySet<TSlave> Slaves { get; }
   }
 
   [HierarchyRoot]
@@ -41,8 +41,25 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery
     [Field,Key]
     public long Id { get; private set; }
 
-    IMaster ISlave.Master { get; set; }
-    public Master Master { get; set; }
+    IMaster ISlave.Master
+    {
+      get { return GetFieldValue<IMaster>("ISlave.Master"); }
+      set
+      {
+        Master = (Master) value;
+        SetFieldValue("ISlave.Master", value);
+      }
+    }
+
+    public Master Master
+    {
+      get { return (Master) ((ISlave)this).Master;}
+      set
+      {
+        SetFieldValue("ISlave.Master", (IMaster)value);
+        SetFieldValue("Master", value);
+      }
+    }
   }
 
   [HierarchyRoot]
@@ -51,7 +68,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery
     [Field, Key]
     public long Id { get; private set; }
 
-    EntitySet<ISlave> IMaster.Slaves { get; set; }
-    public EntitySet<Slave> Slaves { get; set; }
+    EntitySet<ISlave> IMaster.Slaves
+    {
+      get { return GetFieldValue<EntitySet<ISlave>>("IMaster.Slaves"); }
+    }
+
+    public EntitySet<Slave> Slaves { get; private set; }
   }
 }
