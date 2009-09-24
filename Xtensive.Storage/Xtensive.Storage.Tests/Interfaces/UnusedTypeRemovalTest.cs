@@ -4,7 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2009.09.14
 
+using System;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -46,13 +48,16 @@ namespace Xtensive.Storage.Tests.Interfaces
       return config;
     }
 
-    [Test]
-    public void MainTest()
+    protected override Domain BuildDomain(DomainConfiguration configuration)
     {
-      Assert.IsFalse(Domain.Model.Types.Contains(typeof(IFirst)));
-      Assert.IsFalse(Domain.Model.Types.Contains(typeof(ISecond)));
-      Assert.IsFalse(Domain.Model.Types.Contains(typeof(IThird)));
-      Assert.IsFalse(Domain.Model.Types.Contains(typeof(Third)));
+      try {
+        base.BuildDomain(configuration);
+        Assert.Fail();
+      }
+      catch (DomainBuilderException e) {
+        Console.WriteLine(e);
+      }
+      return null;
     }
   }
 }

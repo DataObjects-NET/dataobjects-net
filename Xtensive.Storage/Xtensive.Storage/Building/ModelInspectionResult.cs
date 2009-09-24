@@ -16,6 +16,8 @@ namespace Xtensive.Storage.Building
 
     public List<TypeDef> SingleHierarchyInterfaces { get; private set; }
 
+    public HashSet<TypeDef> RemovedTypes { get; private set; }
+
     public bool HasActions
     {
       get { return Actions.Count > 0; }
@@ -24,6 +26,9 @@ namespace Xtensive.Storage.Building
     public void Register(FixupAction action)
     {
       Actions.Enqueue(action);
+      var ra = action as RemoveTypeAction;
+      if (ra != null)
+        RemovedTypes.Add(ra.Type);
     }
 
 
@@ -33,6 +38,7 @@ namespace Xtensive.Storage.Building
     {
       Actions = new Queue<FixupAction>();
       SingleHierarchyInterfaces = new List<TypeDef>();
+      RemovedTypes = new HashSet<TypeDef>();
     }
   }
 }

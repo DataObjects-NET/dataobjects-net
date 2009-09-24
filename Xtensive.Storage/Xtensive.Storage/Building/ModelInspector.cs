@@ -44,13 +44,13 @@ namespace Xtensive.Storage.Building
     {
       var context = BuildingContext.Current;
 
-      foreach (var @interfaceDef in context.ModelDef.Types.Where(t => t.IsInterface)) {
+      foreach (var interfaceDef in context.ModelDef.Types.Where(t => t.IsInterface)) {
 
-        var interfaceNode = context.DependencyGraph.TryGetNode(@interfaceDef);
+        var interfaceNode = context.DependencyGraph.TryGetNode(interfaceDef);
 
         // Are there any dependencies at all?
         if (interfaceNode == null) {
-          context.ModelInspectionResult.Register(new RemoveTypeAction(@interfaceDef));
+          context.ModelInspectionResult.Register(new RemoveTypeAction(interfaceDef));
           continue;
         }
 
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Building
 
         // There is no implementors. If there are no references to the interface, it could be safely removed
         if (implementorEdges.Count == 0 && interfaceNode.IncomingEdges.Where(e => e.Kind == EdgeKind.Reference).Count() == 0) {
-          context.ModelInspectionResult.Register(new RemoveTypeAction(@interfaceDef));
+          context.ModelInspectionResult.Register(new RemoveTypeAction(interfaceDef));
           continue;
         }
 
@@ -68,13 +68,19 @@ namespace Xtensive.Storage.Building
         // There is only one implementor. Nothing else to do here
         if (implementorEdges.Count == 1) {
           hierarchyDef = context.ModelDef.FindHierarchy(implementorEdges[0].Tail.Value);
-          context.ModelInspectionResult.SingleHierarchyInterfaces.Add(@interfaceDef);
+          if (hierarchyDef == null)
+            throw new DomainBuilderException(string.Format("{0} implementors don't belong to any hierarchy.", interfaceDef.Name));
+          context.ModelInspectionResult.SingleHierarchyInterfaces.Add(interfaceDef);
         }
         else {
 
           // Cleaning implementation edges. We need only direct implementors of interface
           var directImplementorEdges = new HashSet<Edge<TypeDef>>();
           foreach (var implementorEdge in implementorEdges) {
+
+            if (context.ModelInspectionResult.RemovedTypes.Contains(implementorEdge.Tail.Value))
+              continue;
+
             var implementorType = implementorEdge.Tail.Value.UnderlyingType;
             // Checking for ancestor-descendant connection
             foreach (var directImplementorEdge in directImplementorEdges) {
@@ -114,9 +120,9 @@ namespace Xtensive.Storage.Building
           // TODO: what if hierarchies.Count == 0?
           var count = hierarchies.Count;
           if (count == 0)
-            throw new DomainBuilderException("Interface implementors don't belong to any hierarchy.");
+            throw new DomainBuilderException(string.Format("{0} implementors don't belong to any hierarchy.", interfaceDef.Name));
           else if (count == 1)
-            context.ModelInspectionResult.SingleHierarchyInterfaces.Add(@interfaceDef);
+            context.ModelInspectionResult.SingleHierarchyInterfaces.Add(interfaceDef);
           else {
             HierarchyDef master = null;
             foreach (var candidate in hierarchies) {
@@ -124,17 +130,17 @@ namespace Xtensive.Storage.Building
                 master = candidate;
                 continue;
               }
-              Validator.ValidateHierarchyEquality(@interfaceDef, master, candidate);
+              Validator.ValidateHierarchyEquality(interfaceDef, master, candidate);
             }
           }
 
           hierarchyDef = hierarchies.First();
         }
 
-        context.ModelInspectionResult.Register(new CopyKeyFieldsAction(@interfaceDef, hierarchyDef.Root));
-        context.ModelInspectionResult.Register(new ReorderFieldsAction(hierarchyDef, @interfaceDef));
-        context.ModelInspectionResult.Register(new BuildImplementorListAction(@interfaceDef));
-        context.ModelInspectionResult.Register(new AddPrimaryIndexAction(@interfaceDef));
+        context.ModelInspectionResult.Register(new CopyKeyFieldsAction(interfaceDef, hierarchyDef.Root));
+        context.ModelInspectionResult.Register(new ReorderFieldsAction(hierarchyDef, interfaceDef));
+        context.ModelInspectionResult.Register(new BuildImplementorListAction(interfaceDef));
+        context.ModelInspectionResult.Register(new AddPrimaryIndexAction(interfaceDef));
       }
     }
 
