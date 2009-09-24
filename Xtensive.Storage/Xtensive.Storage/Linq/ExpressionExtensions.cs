@@ -53,6 +53,9 @@ namespace Xtensive.Storage.Linq
     public static bool IsLocalCollection(this Expression expression, TranslatorContext context)
     {
       return expression!=null
+        && !expression.IsProjection()
+        && !expression.IsGroupingExpression()
+        && !expression.IsSubqueryExpression()
         && expression.Type!=typeof(string)
         && context.Evaluator.CanBeEvaluated(expression)
           && expression.Type.IsOfGenericInterface(typeof (IEnumerable<>));

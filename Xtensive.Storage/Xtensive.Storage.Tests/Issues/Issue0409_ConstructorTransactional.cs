@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0409_ConstructorTransactional_Model
 
 namespace Xtensive.Storage.Tests.Issues
 {
-  public class Issue0001_ConstructorTransactional : AutoBuildTest
+  public class Issue0409_ConstructorTransactional : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
