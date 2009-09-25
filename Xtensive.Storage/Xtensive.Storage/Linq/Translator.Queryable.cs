@@ -1039,30 +1039,36 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, int columnIndex, PropertyInfo parentProperty)
+    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, int columnIndex, MemberInfo parentMember)
     {
-      var properties = type
+      var members = type
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-        .Where(propertyInfo => propertyInfo.CanRead);
+        .Where(propertyInfo => propertyInfo.CanRead)
+        .Cast<MemberInfo>()
+        .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public));
 
       if (!processedTypes.Add(type))
         throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
-      var fields = new Dictionary<PropertyInfo, IMappedExpression>();
-      foreach (PropertyInfo property in properties) {
-        if (TypeIsStorageMappable(property.PropertyType)) {
-          var column = ColumnExpression.Create(property.PropertyType, columnIndex);
-          fields.Add(property, column);
+      var fields = new Dictionary<MemberInfo, IMappedExpression>();
+      foreach (MemberInfo memberInfo in members) {
+        var propertyInfo = memberInfo as PropertyInfo;
+        Type memberType = propertyInfo==null 
+          ? ((FieldInfo) memberInfo).FieldType 
+          : propertyInfo.PropertyType;
+        if (TypeIsStorageMappable(memberType)) {
+          var column = ColumnExpression.Create(memberType, columnIndex);
+          fields.Add(memberInfo, column);
           columnIndex++;
         }
         else {
-          var collectionExpression = BuildLocalCollectionExpression(property.PropertyType, new Set<Type>(processedTypes), columnIndex, property);
-          fields.Add(property, collectionExpression);
+          var collectionExpression = BuildLocalCollectionExpression(memberType, new Set<Type>(processedTypes), columnIndex, memberInfo);
+          fields.Add(memberInfo, collectionExpression);
           columnIndex += collectionExpression.Fields.Count();
         }
       }
       if (fields.Count==0)
-        throw new InvalidOperationException(String.Format("Type '{0}' does not public readable properties and cant be persisted to storage.", type.FullName));
-      var result = new LocalCollectionExpression(type, null, null, parentProperty, false);
+        throw new InvalidOperationException(String.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, type.FullName));
+      var result = new LocalCollectionExpression(type, null, null, parentMember, false);
       result.Fields = fields;
       return result;
     }

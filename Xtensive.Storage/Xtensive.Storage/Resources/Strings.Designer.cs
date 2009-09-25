@@ -1916,6 +1916,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; does not has any public readable properties or fields, so it can&apos;t be persisted to storage..
+        /// </summary>
+        internal static string ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage {
+            get {
+                return ResourceManager.GetString("ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; does not have a parameterless constructor..
         /// </summary>
         internal static string ExTypeXDoesNotHaveAParameterlessConstructor {
@@ -2084,6 +2093,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExUnableToHandleEntitySetExpressionWithoutSpecifiedOwner {
             get {
                 return ResourceManager.GetString("ExUnableToHandleEntitySetExpressionWithoutSpecifiedOwner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to materialize back local collection item..
+        /// </summary>
+        internal static string ExUnableToMaterializeBackLocalCollectionItem {
+            get {
+                return ResourceManager.GetString("ExUnableToMaterializeBackLocalCollectionItem", resourceCulture);
             }
         }
         

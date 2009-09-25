@@ -1037,4 +1037,10 @@ Actions:
   <data name="ExTypeXIsNotStructure" xml:space="preserve">
     <value>Type '{0}' is not structure.</value>
   </data>
+  <data name="ExUnableToMaterializeBackLocalCollectionItem" xml:space="preserve">
+    <value>Unable to materialize back local collection item.</value>
+  </data>
+  <data name="ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage" xml:space="preserve">
+    <value>Type '{0}' does not has any public readable properties or fields, so it can't be persisted to storage.</value>
+  </data>
 </root>

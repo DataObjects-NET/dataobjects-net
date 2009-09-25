@@ -110,9 +110,10 @@ namespace Xtensive.Storage.Linq
         Expression body = Visit(le.Body);
         ParameterExpression parameter = le.Parameters[0];
         ProjectionExpression projection = context.Bindings[parameter];
-        body = body.IsProjection()
-          ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
-          : ProcessProjectionElement(body);
+        if (body.NodeType!=ExpressionType.New && body.NodeType!=ExpressionType.MemberInit)
+          body = body.IsProjection()
+            ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
+            : ProcessProjectionElement(body);
         if (state.CalculatedColumns.Count > 0) {
           RecordSet dataSource = projection.ItemProjector.DataSource.Calculate(
             !state.BuildingProjection,
@@ -232,13 +233,6 @@ namespace Xtensive.Storage.Linq
         ParameterInfo[] parameters = mc.Method.GetParameters();
         if (mc.Method.Name=="Contains" && parameters.Length==1)
           return VisitContains(mc.Object, mc.Arguments[0], false);
-
-        // Enumerable.Contains
-        // Enumerable.IndexOf
-        // Enumerable.All
-        // Enumerable.Any
-        // Enumerable.Where 
-        // etc... All synonims to queryable methods
       }
 
       return base.VisitMethodCall(mc);
@@ -252,7 +246,6 @@ namespace Xtensive.Storage.Linq
             n.Type==typeof (TimeSpan) ||
               n.Type==typeof (DateTime))
           return base.VisitNew(n);
-        throw new NotSupportedException(String.Format(Strings.ExTypeXIsNotSupportedInNewExpression, n.Type));
       }
       var arguments = new List<Expression>();
       for (int i = 0; i < n.Arguments.Count; i++) {
@@ -272,7 +265,9 @@ namespace Xtensive.Storage.Linq
         if (arguments[i].Type!=constructorParameters[i].ParameterType)
           arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
       }
-      return Expression.New(n.Constructor, arguments, n.Members);
+      return n.Members == null 
+        ? Expression.New(n.Constructor, arguments) 
+        : Expression.New(n.Constructor, arguments, n.Members);
     }
 
     #region Private helper methods

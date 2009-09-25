@@ -24,6 +24,5 @@ namespace Xtensive.Storage.Linq.Expressions
     SubQuery,
     Marker,
     LocalCollection,
-    LocalCollectionColumn
   }
 }

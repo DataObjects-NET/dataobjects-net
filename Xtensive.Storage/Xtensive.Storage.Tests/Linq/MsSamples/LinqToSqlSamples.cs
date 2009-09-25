@@ -179,7 +179,6 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       QueryDumper.Dump(q);
     }
 
-    [ExpectedException(typeof (NotSupportedException))]
     [Category("SELECT/DISTINCT")]
     [Test(Description = "Select - Named Type")]
     [Description("This sample uses SELECT and a known type to return a sequence of employees' names.")]

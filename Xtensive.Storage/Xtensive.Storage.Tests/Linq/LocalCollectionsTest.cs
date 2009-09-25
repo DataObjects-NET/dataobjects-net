@@ -11,6 +11,7 @@ using System.Linq;
 using Xtensive.Storage.Tests.Linq.LocalCollectionsTest_Model;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Linq.LocalCollectionsTest_Model
 {
@@ -24,6 +25,17 @@ namespace Xtensive.Storage.Tests.Linq.LocalCollectionsTest_Model
     {
       Name = name;
     }
+  }
+
+  public class Poco<T>
+  {
+    public T Value { get; set; }
+  }
+  
+  public class Poco<T1, T2>
+  {
+    public T1 Value1 { get; set; }
+    public T2 Value2 { get; set; }
   }
 }
 
@@ -48,6 +60,55 @@ namespace Xtensive.Storage.Tests.Linq
       var expected = from c in Query<Customer>.All.AsEnumerable()   
            where !list.Contains(c.Id)   
            select c.Orders;    
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public void PairTest()
+    {
+      var pairs = Query<Customer>.All
+        .Select(customer => new Pair<string, int>(customer.Id, (int)customer.Orders.Count))
+        .ToList();
+      var query = Query<Customer>.All.Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => new {customer, pair.Second});
+      var expected = Query<Customer>.All.AsEnumerable().Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => new {customer, pair.Second});
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public void Pair2Test()
+    {
+      var pairs = Query<Customer>.All
+        .Select(customer => new Pair<string, int>(customer.Id, (int)customer.Orders.Count))
+        .ToList();
+      var query = Query<Customer>.All.Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => pair.Second);
+      var expected = Query<Customer>.All.AsEnumerable().Join(pairs, customer => customer.Id, pair => pair.First, (customer, pair) => pair.Second);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    [ExpectedException(typeof(NotSupportedException))]
+    public void Poco1Test()
+    {
+      var pocos = Query<Customer>.All
+        .Select(customer => new Poco<string>(){Value = customer.Id})
+        .ToList();
+      var query = Query<Customer>.All.Join(pocos, customer => customer.Id, poco => poco.Value, (customer, poco) => poco);
+      var expected = Query<Customer>.All.AsEnumerable().Join(pocos, customer => customer.Id, poco => poco.Value, (customer, poco) => poco);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public void Poco2Test()
+    {
+      var pocos = Query<Customer>.All
+        .Select(customer => new Poco<string, string>(){Value1 = customer.Id, Value2 = customer.Id})
+        .ToList();
+      var query = Query<Customer>.All.Join(pocos, customer => customer.Id, poco => poco.Value1, (customer, poco) => poco.Value1);
+      var expected = Query<Customer>.All.AsEnumerable().Join(pocos, customer => customer.Id, poco => poco.Value1, (customer, poco) => poco.Value1);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
     }

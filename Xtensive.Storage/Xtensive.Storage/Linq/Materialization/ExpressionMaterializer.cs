@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Linq.Materialization
       projection = new ProjectionExpression(
         subQueryExpression.ProjectionExpression.Type,
         itemProjector,
-        subQueryExpression.ProjectionExpression.TupleParameterBindings, 
+        subQueryExpression.ProjectionExpression.TupleParameterBindings,
         subQueryExpression.ProjectionExpression.ResultType);
 
       // 3. make translation 
@@ -171,7 +171,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
     protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
     {
-      throw new NotImplementedException();
+      throw new NotSupportedException(Resources.Strings.ExUnableToMaterializeBackLocalCollectionItem);
     }
 
     protected override Expression VisitStructureExpression(StructureExpression expression)
@@ -310,17 +310,34 @@ namespace Xtensive.Storage.Linq.Materialization
       return base.VisitUnary(u);
     }
 
+    protected override Expression VisitMemberAccess(MemberExpression m)
+    {
+      if (m.Expression!=null
+        && (ExtendedExpressionType) m.Expression.NodeType==ExtendedExpressionType.LocalCollection)
+        return Visit((Expression) ((LocalCollectionExpression) m.Expression).Fields[m.Member]);
+
+      Expression expression = Visit(m.Expression);
+      if (expression==m.Expression)
+        return m;
+
+      return Expression.MakeMemberAccess(expression, m.Member);
+    }
+
     #endregion
 
     #region Private Methods
 
-    private Expression MaterializeThroughOwner(Expression target, Expression tuple)
+    private
+      Expression MaterializeThroughOwner
+      (Expression target, Expression tuple)
     {
       return MaterializeThroughOwner(target, tuple, false);
     }
 
 
-    private Expression MaterializeThroughOwner(Expression target, Expression tuple, bool defaultIfEmpty)
+    private
+      Expression MaterializeThroughOwner
+      (Expression target, Expression tuple, bool defaultIfEmpty)
     {
       var field = target as FieldExpression;
       if (field!=null) {
@@ -338,7 +355,10 @@ namespace Xtensive.Storage.Linq.Materialization
       return CreateEntity((EntityExpression) target, tuple);
     }
 
-    private Expression GetTupleExpression(ParameterizedExpression expression)
+    private
+      Expression GetTupleExpression
+      (ParameterizedExpression
+        expression)
     {
       if (expression.OuterParameter==null)
         return tupleParameter;
@@ -361,14 +381,18 @@ namespace Xtensive.Storage.Linq.Materialization
     }
 
     // ReSharper disable UnusedMember.Local
-    private static Tuple BuildPersistentTuple(Tuple tuple, Tuple tuplePrototype, int[] mapping)
+    private static
+      Tuple BuildPersistentTuple
+      (Tuple tuple, Tuple tuplePrototype, int[] mapping)
     {
       var result = tuplePrototype.CreateNew();
       tuple.CopyTo(result, mapping);
       return result;
     }
 
-    private static Tuple GetTupleSegment(Tuple tuple, Segment<int> segment)
+    private static
+      Tuple GetTupleSegment
+      (Tuple tuple, Segment<int> segment)
     {
       return tuple.GetSegment(segment).ToRegular();
     }
@@ -379,7 +403,11 @@ namespace Xtensive.Storage.Linq.Materialization
 
     // Constructors
 
-    private ExpressionMaterializer(ParameterExpression tupleParameter, TranslatorContext context, ParameterExpression itemMaterializationContextParameter, IEnumerable<Parameter<Tuple>> tupleParameters)
+    private ExpressionMaterializer(ParameterExpression
+      tupleParameter,
+      TranslatorContext context,
+      ParameterExpression itemMaterializationContextParameter,
+      IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       this.itemMaterializationContextParameter = itemMaterializationContextParameter;
       this.tupleParameter = tupleParameter;
