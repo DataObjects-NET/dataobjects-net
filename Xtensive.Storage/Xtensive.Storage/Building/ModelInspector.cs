@@ -82,22 +82,28 @@ namespace Xtensive.Storage.Building
               continue;
 
             var implementorType = implementorEdge.Tail.Value.UnderlyingType;
-            // Checking for ancestor-descendant connection
-            foreach (var directImplementorEdge in directImplementorEdges) {
-              var directImplementorType = directImplementorEdge.Tail.Value.UnderlyingType;
-              // Implementor is a descendant of one of direct implementors
-              if (implementorType.IsSubclassOf(directImplementorType)) {
-                interfaceNode.IncomingEdges.Remove(implementorEdge);
-                implementorEdge.Tail.OutgoingEdges.Remove(implementorEdge);
-                goto Next;
-              }
-              // Implementor is an ancestor of one of direct implementors
-              if (directImplementorType.IsSubclassOf(implementorType)) {
-                directImplementorEdges.Remove(directImplementorEdge);
-                directImplementorEdges.Add(implementorEdge);
-                interfaceNode.IncomingEdges.Remove(directImplementorEdge);
-                directImplementorEdge.Tail.OutgoingEdges.Remove(directImplementorEdge);
-                goto Next;
+            var interfaceType = implementorEdge.Head.Value.UnderlyingType;
+            // if not explicit implementation
+            var interfaceMap = implementorType.GetInterfaceMap(interfaceType);
+            if (!interfaceMap.TargetMethods.Any(tm => tm.DeclaringType == implementorType)) {
+              // Checking for ancestor-descendant connection
+              foreach (var directImplementorEdge in directImplementorEdges) {
+                var directImplementorType = directImplementorEdge.Tail.Value.UnderlyingType;
+
+                // Implementor is a descendant of one of direct implementors
+                if (implementorType.IsSubclassOf(directImplementorType)) {
+                  interfaceNode.IncomingEdges.Remove(implementorEdge);
+                  implementorEdge.Tail.OutgoingEdges.Remove(implementorEdge);
+                  goto Next;
+                }
+                // Implementor is an ancestor of one of direct implementors
+                if (directImplementorType.IsSubclassOf(implementorType)) {
+                  directImplementorEdges.Remove(directImplementorEdge);
+                  directImplementorEdges.Add(implementorEdge);
+                  interfaceNode.IncomingEdges.Remove(directImplementorEdge);
+                  directImplementorEdge.Tail.OutgoingEdges.Remove(directImplementorEdge);
+                  goto Next;
+                }
               }
             }
             // None of direct implementors is in the same hierarchy as implementor
@@ -111,8 +117,10 @@ namespace Xtensive.Storage.Building
           foreach (var edge in directImplementorEdges) {
             var implementor = edge.Tail.Value;
             var hierarchy = context.ModelDef.FindHierarchy(implementor);
-            if (hierarchy!=null)
-              hierarchies.Add(hierarchy);
+            if (hierarchy != null) {
+              if (!hierarchies.Contains(hierarchy))
+                hierarchies.Add(hierarchy);
+            }
             else
               context.ModelInspectionResult.Register(new RemoveTypeAction(implementor));
           }
@@ -121,7 +129,7 @@ namespace Xtensive.Storage.Building
           var count = hierarchies.Count;
           if (count == 0)
             throw new DomainBuilderException(string.Format("{0} implementors don't belong to any hierarchy.", interfaceDef.Name));
-          else if (count == 1)
+          if (count == 1)
             context.ModelInspectionResult.SingleHierarchyInterfaces.Add(interfaceDef);
           else {
             HierarchyDef master = null;
@@ -137,8 +145,8 @@ namespace Xtensive.Storage.Building
           hierarchyDef = hierarchies.First();
         }
 
-        context.ModelInspectionResult.Register(new CopyKeyFieldsAction(interfaceDef, hierarchyDef.Root));
-        context.ModelInspectionResult.Register(new ReorderFieldsAction(hierarchyDef, interfaceDef));
+        context.ModelInspectionResult.Register(new CopyKeyFieldsAction(interfaceDef, hierarchyDef));
+        context.ModelInspectionResult.Register(new ReorderFieldsAction(interfaceDef, hierarchyDef));
         context.ModelInspectionResult.Register(new BuildImplementorListAction(interfaceDef));
         context.ModelInspectionResult.Register(new AddPrimaryIndexAction(interfaceDef));
       }

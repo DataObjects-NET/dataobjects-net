@@ -154,13 +154,23 @@ namespace Xtensive.Storage.Building
     {
       var target = action.Type;
       var source = action.Source;
-      foreach (var sourceFieldDef in source.Fields) {
-        if (target.Fields.Contains(sourceFieldDef.Name))
-          continue;
+
+      Action<FieldDef> createField = sourceFieldDef => {
+        if (target.Fields.Contains(sourceFieldDef.Name)) 
+          return;
         var fieldDef = target.DefineField(sourceFieldDef.Name, sourceFieldDef.ValueType);
         fieldDef.Attributes = sourceFieldDef.Attributes;
         if (!string.IsNullOrEmpty(sourceFieldDef.MappingName))
-          fieldDef.MappingName = sourceFieldDef.MappingName;
+         fieldDef.MappingName = sourceFieldDef.MappingName;
+      };
+
+      foreach (var keyField in source.KeyFields) {
+        var sourceFieldDef = source.Root.Fields[keyField.Name];
+        createField(sourceFieldDef);
+      }
+      // copy system fields
+      foreach (var sourceFieldDef in source.Root.Fields.Where(f => f.IsSystem)) {
+        createField(sourceFieldDef);
       }
     }
 

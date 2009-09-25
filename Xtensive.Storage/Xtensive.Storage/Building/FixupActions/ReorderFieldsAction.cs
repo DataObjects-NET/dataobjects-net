@@ -28,11 +28,11 @@ namespace Xtensive.Storage.Building.FixupActions
     // Constructors
 
     public ReorderFieldsAction(HierarchyDef hierarchy)
-      : this(hierarchy, hierarchy.Root)
+      : this(hierarchy.Root, hierarchy)
     {
     }
 
-    public ReorderFieldsAction(HierarchyDef hierarchy, TypeDef target)
+    public ReorderFieldsAction(TypeDef target, HierarchyDef hierarchy)
       : base(hierarchy)
     {
       Target = target;

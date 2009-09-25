@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -376,23 +377,25 @@ namespace Xtensive.Storage.Building.Builders
           }
         result.ValueColumns.AddRange(GetValueColumns(columnsToAdd));
       }
-      else if ((indexAttributes & IndexAttributes.Union) > 0)
-      {
-        var columns = new List<ColumnInfo>(baseIndex.ValueColumns);
-        var columnsToAdd = baseIndexes.SelectMany(i => i.ValueColumns).ToList();
-        foreach (var column in columnsToAdd)
-        {
-          bool exists = false;
-          foreach (var existingColumn in columns)
-            if (column.Field.Name == existingColumn.Field.Name && column.Field.DeclaringType == existingColumn.Field.DeclaringType)
-            {
-              exists = true;
-              break;
-            }
-          if (!exists)
-            columns.Add(column);
-        }
-        result.ValueColumns.AddRange(GetValueColumns(columns));
+      else if ((indexAttributes & IndexAttributes.Union) > 0) {
+//        var ancestors = reflectedType.GetAncestors().AddOne(reflectedType).ToHashSet();
+//        var columns = new List<ColumnInfo>(baseIndex.ValueColumns);
+//        var columnsToAdd = baseIndexes
+//          .SelectMany(i => i.ValueColumns)
+//          .Where(c => ancestors.Contains(c.Field.DeclaringType))
+//          .ToList();
+//        foreach (var column in columnsToAdd) {
+//          bool exists = false;
+//          foreach (var existingColumn in columns)
+//            if (column.Field.Name == existingColumn.Field.Name && column.Field.DeclaringType == existingColumn.Field.DeclaringType)
+//            {
+//              exists = true;
+//              break;
+//            }
+//          if (!exists)
+//            columns.Add(column);
+//        }
+        result.ValueColumns.AddRange(GetValueColumns(baseIndex.ValueColumns));
       }
 
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
@@ -413,7 +416,6 @@ namespace Xtensive.Storage.Building.Builders
     {
       var nameBuilder = BuildingContext.Current.NameBuilder;
       var valueColumns = new ColumnInfoCollection();
-      bool assignAliases = false;
       foreach (var column in columns)  {
         if (column.Field.IsInterfaceImplementation) {
           bool doNotAdd = false;
@@ -428,7 +430,7 @@ namespace Xtensive.Storage.Building.Builders
             continue;
         }
 
-        if (assignAliases || valueColumns.Contains(column.Name)) {
+        if (valueColumns.Contains(column.Name)) {
           if (column.IsSystem)
             continue;
           var clone = column.Clone();

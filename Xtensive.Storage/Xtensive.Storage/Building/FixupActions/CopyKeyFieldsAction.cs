@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Building.FixupActions
   [Serializable]
   internal class CopyKeyFieldsAction : TypeAction
   {
-    public TypeDef Source { get; private set; }
+    public HierarchyDef Source { get; private set; }
 
     public override void Run()
     {
@@ -22,13 +22,13 @@ namespace Xtensive.Storage.Building.FixupActions
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("Copy key fields from '{0}' type to '{1}' type.", Source.Name, Type.Name);
+      return string.Format("Copy key fields from '{0}' hierarchy root to '{1}' type.", Source.Name, Type.Name);
     }
 
 
     // Constructors
 
-    public CopyKeyFieldsAction(TypeDef target, TypeDef source)
+    public CopyKeyFieldsAction(TypeDef target, HierarchyDef source)
       : base(target)
     {
       Source = source;
