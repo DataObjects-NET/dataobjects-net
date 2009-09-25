@@ -4,30 +4,37 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.28
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
+using System;
+using Xtensive.Core.Disposing;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 
 namespace Xtensive.Storage.Tests.Storage
 {
   [TestFixture]
-  [Explicit("Requires PostgreSQL and MSSQL servers")]
-  public class AggregateTest : CrossStorageTest
+  public class AggregateTest : AutoBuildTest
   {
-    protected override DomainConfiguration BuildConfiguration(string provider)
+    private DisposableSet disposableSet;
+    private List<X> all;
+
+    protected override DomainConfiguration BuildConfiguration()
     {
-      var configuration = base.BuildConfiguration(provider);
+      var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
       return configuration;
     }
 
-    protected override void FillData(Domain domain)
+    public override void TestFixtureSetUp()
     {
+      base.TestFixtureSetUp();
+
+      disposableSet = new DisposableSet();
+      disposableSet.Add(Session.Open(Domain));
+      disposableSet.Add(Transaction.Open());
+
       for (int i = 0; i < 10; i++) {
         var x = new X();
         x.FByte = (byte) i;
@@ -41,115 +48,92 @@ namespace Xtensive.Storage.Tests.Storage
         x.FDecimal = i;
         x.FFloat = i;
         x.FDouble = i;
-        x.FDateTime = new DateTime(2009, 1, i+1);
+        x.FDateTime = new DateTime(2009, 1, i + 1);
         x.FTimeSpan = new TimeSpan(i, 0, 0, 0);
-        x.FString = i.ToString();
       }
+
+      all = Query<X>.All.ToList();
+    }
+
+    public override void TestFixtureTearDown()
+    {
+      disposableSet.DisposeSafely();
+      base.TestFixtureTearDown();
+    }
+    
+    [Test]
+    public void SumTest()
+    {
+      Assert.AreEqual(all.Sum(x => x.FByte), Query<X>.All.Sum(x => x.FByte));
+      Assert.AreEqual(all.Sum(x => x.FSByte), Query<X>.All.Sum(x => x.FSByte));
+
+      Assert.AreEqual(all.Sum(x => x.FShort), Query<X>.All.Sum(x => x.FShort));
+      Assert.AreEqual(all.Sum(x => x.FUShort), Query<X>.All.Sum(x => x.FUShort));
+
+      Assert.AreEqual(all.Sum(x => x.FInt), Query<X>.All.Sum(x => x.FInt));
+      Assert.AreEqual(all.Sum(x => x.FUInt), Query<X>.All.Sum(x => x.FUInt));
+
+      Assert.AreEqual(all.Sum(x => x.FLong), Query<X>.All.Sum(x => x.FLong));
+      Assert.AreEqual(all.Sum(x => x.FFloat), Query<X>.All.Sum(x => x.FFloat));
+      Assert.AreEqual(all.Sum(x => x.FDecimal), Query<X>.All.Sum(x => x.FDecimal));
+    }
+
+    [Test]
+    public void AverageTest()
+    {
+      Assert.AreEqual(all.Average(x => x.FByte), Query<X>.All.Average(x => x.FByte));
+      Assert.AreEqual(all.Average(x => x.FSByte), Query<X>.All.Average(x => x.FSByte));
+
+      Assert.AreEqual(all.Average(x => x.FShort), Query<X>.All.Average(x => x.FShort));
+      Assert.AreEqual(all.Average(x => x.FUShort), Query<X>.All.Average(x => x.FUShort));
+
+      Assert.AreEqual(all.Average(x => x.FInt), Query<X>.All.Average(x => x.FInt));
+      Assert.AreEqual(all.Average(x => x.FUInt), Query<X>.All.Average(x => x.FUInt));
+
+      Assert.AreEqual(all.Average(x => x.FLong), Query<X>.All.Average(x => x.FLong));
+      Assert.AreEqual(all.Average(x => x.FFloat), Query<X>.All.Average(x => x.FFloat));
+      Assert.AreEqual(all.Average(x => x.FDecimal), Query<X>.All.Average(x => x.FDecimal));
     }
 
     [Test]
     public void MinTest()
     {
-      RunTest(MinTest);
+      Assert.AreEqual(all.Min(x => x.FByte), Query<X>.All.Min(x => x.FByte));
+      Assert.AreEqual(all.Min(x => x.FSByte), Query<X>.All.Min(x => x.FSByte));
+
+      Assert.AreEqual(all.Min(x => x.FShort), Query<X>.All.Min(x => x.FShort));
+      Assert.AreEqual(all.Min(x => x.FUShort), Query<X>.All.Min(x => x.FUShort));
+
+      Assert.AreEqual(all.Min(x => x.FInt), Query<X>.All.Min(x => x.FInt));
+      Assert.AreEqual(all.Min(x => x.FUInt), Query<X>.All.Min(x => x.FUInt));
+
+      Assert.AreEqual(all.Min(x => x.FLong), Query<X>.All.Min(x => x.FLong));
+      Assert.AreEqual(all.Min(x => x.FFloat), Query<X>.All.Min(x => x.FFloat));
+      Assert.AreEqual(all.Min(x => x.FDecimal), Query<X>.All.Min(x => x.FDecimal));
+
+      Assert.AreEqual(all.Min(x => x.FDateTime), Query<X>.All.Min(x => x.FDateTime));
+      Assert.AreEqual(all.Min(x => x.FTimeSpan), Query<X>.All.Min(x => x.FTimeSpan));
+
     }
 
     [Test]
     public void MaxTest()
     {
-      RunTest(MaxTest);
+      Assert.AreEqual(all.Max(x => x.FByte), Query<X>.All.Max(x => x.FByte));
+      Assert.AreEqual(all.Max(x => x.FSByte), Query<X>.All.Max(x => x.FSByte));
+
+      Assert.AreEqual(all.Max(x => x.FShort), Query<X>.All.Max(x => x.FShort));
+      Assert.AreEqual(all.Max(x => x.FUShort), Query<X>.All.Max(x => x.FUShort));
+
+      Assert.AreEqual(all.Max(x => x.FInt), Query<X>.All.Max(x => x.FInt));
+      Assert.AreEqual(all.Max(x => x.FUInt), Query<X>.All.Max(x => x.FUInt));
+
+      Assert.AreEqual(all.Max(x => x.FLong), Query<X>.All.Max(x => x.FLong));
+      Assert.AreEqual(all.Max(x => x.FFloat), Query<X>.All.Max(x => x.FFloat));
+      Assert.AreEqual(all.Max(x => x.FDecimal), Query<X>.All.Max(x => x.FDecimal));
+
+      Assert.AreEqual(all.Max(x => x.FDateTime), Query<X>.All.Max(x => x.FDateTime));
+      Assert.AreEqual(all.Max(x => x.FTimeSpan), Query<X>.All.Max(x => x.FTimeSpan));
     }
-
-    [Test]
-    public void SumTest()
-    {
-      RunTest(SumTest);
-    }
-
-    [Test]
-    public void AvgTest()
-    {
-      RunTest(AvgTest);
-    }
-
-    #region Field names
-
-    private string[] allFields = new string[]
-      {
-        "FByte",
-        "FSByte",
-        "FShort",
-        "FUShort",
-        "FInt",
-        "FUInt",
-        "FLong",
-        "FULong",
-        "FDecimal",
-        "FFloat",
-        "FDouble",
-        "FDateTime",
-        "FTimeSpan",
-        "FString",
-      };
-
-    private string[] numericFields = new string[]
-      {
-        "FByte",
-        "FSByte",
-        "FShort",
-        "FUShort",
-        "FInt",
-        "FUInt",
-        "FLong",
-        "FULong",
-        "FDecimal",
-        "FFloat",
-        "FDouble",
-      };
-
-    #endregion
-
-    private RecordSet MinTest(Domain domain)
-    {
-      var descriptors = GetFields(domain, allFields)
-        .Select(f => new AggregateColumnDescriptor(f.First + "_Min", f.Second, AggregateType.Min));
-      return GetOriginRecordSet(domain).Aggregate(null, descriptors.ToArray());
-    }
-
-    private RecordSet MaxTest(Domain domain)
-    {
-      var descriptors = GetFields(domain, allFields)
-        .Select(f => new AggregateColumnDescriptor(f.First + "_Max", f.Second, AggregateType.Max));
-      return GetOriginRecordSet(domain).Aggregate(null, descriptors.ToArray());
-    }
-
-    private RecordSet SumTest(Domain domain)
-    {
-      var descriptors = GetFields(domain, numericFields)
-        .Select(f => new AggregateColumnDescriptor(f.First + "_Sum", f.Second, AggregateType.Sum));
-      return GetOriginRecordSet(domain).Aggregate(null, descriptors.ToArray());
-    }
-
-    private RecordSet AvgTest(Domain domain)
-    {
-      var descriptors = GetFields(domain, numericFields)
-        .Select(f => new AggregateColumnDescriptor(f.First + "_Avg", f.Second, AggregateType.Avg));
-      return GetOriginRecordSet(domain).Aggregate(null, descriptors.ToArray());
-    }
-
-    #region Helper methods
-
-    private static RecordSet GetOriginRecordSet(Domain domain)
-    {
-      return domain.Model.Types[typeof(X)].Indexes.PrimaryIndex.ToRecordSet();
-    }
-
-    private static Pair<string, int>[] GetFields(Domain domain, IEnumerable<string> fields)
-    {
-      var typeInfo = domain.Model.Types[typeof(X)];
-      var origin = typeInfo.Indexes.PrimaryIndex.ToRecordSet();
-      return fields.Select(f => new Pair<string, int>(f, origin.Header.IndexOf(typeInfo.Fields[f].Column.Name))).ToArray();
-    }
-
-    #endregion
   }
 }

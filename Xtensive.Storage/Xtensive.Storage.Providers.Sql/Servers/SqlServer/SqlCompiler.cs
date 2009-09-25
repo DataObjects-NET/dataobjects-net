@@ -31,16 +31,16 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
     {
       var aggregateType = aggregateColumn.Type;
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
-      if (aggregateColumn.AggregateType == AggregateType.Avg) {
+      if (aggregateColumn.AggregateType==AggregateType.Avg) {
         var originType = source.Origin.Header.Columns[aggregateColumn.SourceIndex].Type;
         // floats are promoted to doubles, but we need the same type
-        if (originType == aggregateType && originType != typeof (float))
+        if (originType==aggregateType && originType!=typeof (float))
           return result;
         var sqlType = Driver.BuildValueType(aggregateType, null, null, null);
         return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
       }
       // cast to decimal is dangerous, because 'decimal' defaults to integer type
-      if (aggregateColumn.AggregateType == AggregateType.Sum && aggregateType != typeof(decimal))
+      if (aggregateColumn.AggregateType==AggregateType.Sum && aggregateType!=typeof(decimal))
         return SqlDml.Cast(result, Driver.BuildValueType(aggregateType, null, null, null));
       return result;
     }

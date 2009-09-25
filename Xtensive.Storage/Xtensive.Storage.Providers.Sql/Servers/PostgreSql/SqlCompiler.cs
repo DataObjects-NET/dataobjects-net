@@ -21,10 +21,8 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
     protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
-      if (aggregateColumn.AggregateType == AggregateType.Sum || aggregateColumn.AggregateType == AggregateType.Avg) {
-        Type type = aggregateColumn.Type;
-        return SqlDml.Cast(result, Driver.BuildValueType(type, null, null, null));
-      }
+      if (aggregateColumn.AggregateType==AggregateType.Sum || aggregateColumn.AggregateType==AggregateType.Avg)
+        result = SqlDml.Cast(result, Driver.BuildValueType(aggregateColumn.Type, null, null, null));
       return result;
     }
 
