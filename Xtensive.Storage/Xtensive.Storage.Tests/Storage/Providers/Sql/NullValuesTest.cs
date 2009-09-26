@@ -14,9 +14,8 @@ using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 {
-  public class NullParametersTest : AutoBuildTest
+  public class NullValuesTest : AutoBuildTest
   {
-    private DisposableSet disposableSet;
     private bool emptyStringIsNull;
 
     protected override void CheckRequirements()
@@ -27,18 +26,12 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      emptyStringIsNull = ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
       CreateSessionAndTransaction();
-
+      emptyStringIsNull = ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
+      
       new X {FString = "Xtensive"};
       new X {FString = null};
       new X {FString = string.Empty};
-    }
-    
-    public override void TestFixtureTearDown()
-    {
-      disposableSet.DisposeSafely();
-      base.TestFixtureTearDown();
     }
 
     [Test]
@@ -51,9 +44,9 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       else
         CheckIsEmpty(result, 1);
     }
-
+    
     [Test]
-    public void CompareWithNullParameterTest()
+    public void CompareWithNullStringParameterTest()
     {
       string value = null;
       var result = Query<X>.All.Where(x => x.FString==value).ToList();
@@ -61,7 +54,25 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     }
 
     [Test]
-    public void SelectNullParameter()
+    public void CompareWithEmptyStringConstantTest()
+    {
+      // NOTE: string.Empty should not be used here, because it is translated via string parameter
+      var result = Query<X>.All.Where(x => x.FString=="").ToList();
+      if (emptyStringIsNull)
+        CheckIsNull(result, 2);
+      else
+        CheckIsEmpty(result, 1);
+    }
+
+    [Test]
+    public void CompareWithNullStringConstantTest()
+    {
+      var result = Query<X>.All.Where(x => x.FString==null).ToList();
+      CheckIsNull(result, emptyStringIsNull ? 2 : 1);
+    }
+
+    [Test]
+    public void SelectNullStringParameter()
     {
       string value = null;
       var result = Query<X>.All.Select(x => new {x.Id, Value = value}).ToList();

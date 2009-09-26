@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
@@ -23,7 +22,7 @@ using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {
-  internal class ExpressionProcessor : ExpressionVisitor<SqlExpression>
+  internal sealed partial class ExpressionProcessor : ExpressionVisitor<SqlExpression>
   {
     private static readonly SqlExpression SqlFalse = SqlDml.Literal(false);
     private static readonly SqlExpression SqlTrue = SqlDml.Literal(true);
@@ -42,6 +41,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly ICompiler compiler;
 
     private bool fixBooleanExpressions;
+    private bool emptyStringIsNull;
     private bool executed;
     
     public HashSet<SqlQueryParameterBinding> Bindings { get { return bindings; } }
@@ -145,8 +145,9 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
     protected override SqlExpression VisitBinary(BinaryExpression expression)
     {
+      // handle x.CompareTo(y) > 0 and similar comparisons
       SqlExpression result = TryTranslateCompareExpression(expression);
-      if (result != null)
+      if (!result.IsNullReference())
         return result;
 
       SqlExpression left;
@@ -174,74 +175,61 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       }
       
       // handle special cases
-      if (expression.NodeType == ExpressionType.Equal) {
-        result = TryTranslateEqualitySpecialCases(left, right);
-        if (!result.IsNullReference())
-          return result;
-        result = TryTranslateEqualitySpecialCases(right, left);
-        if (!result.IsNullReference())
-          return result;
-      }
+      result = TryTranslateBinaryExpressionSpecialCases(expression, left, right);
+      if (!result.IsNullReference())
+        return result;
 
-      if (expression.NodeType == ExpressionType.NotEqual) {
-        result = TryTranslateInequalitySpecialCases(left, right);
-        if (!result.IsNullReference())
-          return result;
-        result = TryTranslateInequalitySpecialCases(right, left);
-        if (!result.IsNullReference())
-          return result;
-      }
-
-      if (expression.Method != null)
+      // handle overloaded operators
+      if (expression.Method!=null)
         return CompileMember(expression.Method, null, left, right);
 
       switch (expression.NodeType) {
-        case ExpressionType.Add:
-        case ExpressionType.AddChecked:
-          return SqlDml.Add(left, right);
-        case ExpressionType.And:
-          return IsBooleanExpression(expression.Left)
-            ? SqlDml.And(left, right)
-            : SqlDml.BitAnd(left, right);
-        case ExpressionType.AndAlso:
-          return SqlDml.And(left, right);
-        case ExpressionType.Coalesce:
-          SqlExpression coalesce = SqlDml.Coalesce(left, right);
-          if (isBooleanFixRequired)
-            coalesce = booleanExpressionConverter.IntToBoolean(coalesce);
-          return coalesce;
-        case ExpressionType.Divide:
-          return SqlDml.Divide(left, right);
-        case ExpressionType.Equal:
-          return SqlDml.Equals(left, right);
-        case ExpressionType.ExclusiveOr:
-          return SqlDml.BitXor(left, right);
-        case ExpressionType.GreaterThan:
-          return SqlDml.GreaterThan(left, right);
-        case ExpressionType.GreaterThanOrEqual:
-          return SqlDml.GreaterThanOrEquals(left, right);
-        case ExpressionType.LessThan:
-          return SqlDml.LessThan(left, right);
-        case ExpressionType.LessThanOrEqual:
-          return SqlDml.LessThanOrEquals(left, right);
-        case ExpressionType.Modulo:
-          return SqlDml.Modulo(left, right);
-        case ExpressionType.Multiply:
-        case ExpressionType.MultiplyChecked:
-          return SqlDml.Multiply(left, right);
-        case ExpressionType.NotEqual:
-          return SqlDml.NotEquals(left, right);
-        case ExpressionType.Or:
-          return IsBooleanExpression(expression.Left)
-            ? SqlDml.Or(left, right)
-            : SqlDml.BitOr(left, right);
-        case ExpressionType.OrElse:
-          return SqlDml.Or(left, right);
-        case ExpressionType.Subtract:
-        case ExpressionType.SubtractChecked:
-          return SqlDml.Subtract(left, right);
-        default:
-          throw new ArgumentOutOfRangeException("expression");
+      case ExpressionType.Add:
+      case ExpressionType.AddChecked:
+        return SqlDml.Add(left, right);
+      case ExpressionType.And:
+        return IsBooleanExpression(expression.Left)
+          ? SqlDml.And(left, right)
+          : SqlDml.BitAnd(left, right);
+      case ExpressionType.AndAlso:
+        return SqlDml.And(left, right);
+      case ExpressionType.Coalesce:
+        SqlExpression coalesce = SqlDml.Coalesce(left, right);
+        if (isBooleanFixRequired)
+          coalesce = booleanExpressionConverter.IntToBoolean(coalesce);
+        return coalesce;
+      case ExpressionType.Divide:
+        return SqlDml.Divide(left, right);
+      case ExpressionType.Equal:
+        return SqlDml.Equals(left, right);
+      case ExpressionType.ExclusiveOr:
+        return SqlDml.BitXor(left, right);
+      case ExpressionType.GreaterThan:
+        return SqlDml.GreaterThan(left, right);
+      case ExpressionType.GreaterThanOrEqual:
+        return SqlDml.GreaterThanOrEquals(left, right);
+      case ExpressionType.LessThan:
+        return SqlDml.LessThan(left, right);
+      case ExpressionType.LessThanOrEqual:
+        return SqlDml.LessThanOrEquals(left, right);
+      case ExpressionType.Modulo:
+        return SqlDml.Modulo(left, right);
+      case ExpressionType.Multiply:
+      case ExpressionType.MultiplyChecked:
+        return SqlDml.Multiply(left, right);
+      case ExpressionType.NotEqual:
+        return SqlDml.NotEquals(left, right);
+      case ExpressionType.Or:
+        return IsBooleanExpression(expression.Left)
+          ? SqlDml.Or(left, right)
+          : SqlDml.BitOr(left, right);
+      case ExpressionType.OrElse:
+        return SqlDml.Or(left, right);
+      case ExpressionType.Subtract:
+      case ExpressionType.SubtractChecked:
+        return SqlDml.Subtract(left, right);
+      default:
+        throw new ArgumentOutOfRangeException("expression");
       }
     }
 
@@ -260,7 +248,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         c[check] = booleanExpressionConverter.BooleanToInt(ifTrue);
         c.Else = booleanExpressionConverter.BooleanToInt(ifFalse);
         return booleanExpressionConverter.IntToBoolean(c);
-      } else {
+      }
+      else {
         var c = SqlDml.Case();
         c[check] = ifTrue;
         c.Else = ifFalse;
@@ -367,158 +356,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       throw new NotSupportedException();
     }
-
-    #region Private methods
-
-    private SqlExpression TryTranslateCompareExpression(BinaryExpression expression)
-    {
-      bool isGoodExpression =
-        expression.Left.NodeType==ExpressionType.Call && expression.Right.NodeType==ExpressionType.Constant ||
-        expression.Right.NodeType==ExpressionType.Call && expression.Left.NodeType==ExpressionType.Constant;
-
-      if (!isGoodExpression)
-        return null;
-
-      MethodCallExpression callExpression;
-      ConstantExpression constantExpression;
-      bool swapped;
-
-      if (expression.Left.NodeType==ExpressionType.Call) {
-        callExpression = (MethodCallExpression) expression.Left;
-        constantExpression = (ConstantExpression) expression.Right;
-        swapped = false;
-      }
-      else {
-        callExpression = (MethodCallExpression) expression.Right;
-        constantExpression = (ConstantExpression) expression.Left;
-        swapped = true;
-      }
-
-      var method = (MethodInfo) callExpression.Method.GetInterfaceMember() ?? callExpression.Method;
-      var methodType = method.DeclaringType;
-
-      // There no methods in IComparable except CompareTo so checking only DeclatingType.
-      bool isCompareTo = methodType==typeof (IComparable)
-        || methodType.IsGenericType && methodType.GetGenericTypeDefinition()==typeof (IComparable<>);
-
-      bool isCompare = method.Name=="Compare" && method.GetParameters().Length==2 && method.IsStatic;
-
-      if (!isCompareTo && !isCompare)
-        return null;
-
-      if (constantExpression.Value==null)
-        return null;
-
-      if (!(constantExpression.Value is int))
-        return null;
-
-      int constant = (int) constantExpression.Value;
-
-      SqlExpression leftComparand = null;
-      SqlExpression rightComparand = null;
-
-      if (isCompareTo) {
-        leftComparand = Visit(callExpression.Object);
-        rightComparand = Visit(callExpression.Arguments[0]);
-      }
-
-      if (isCompare) {
-        leftComparand = Visit(callExpression.Arguments[0]);
-        rightComparand = Visit(callExpression.Arguments[1]);
-      }
-
-      if (swapped) {
-        var tmp = leftComparand;
-        leftComparand = rightComparand;
-        rightComparand = tmp;
-      }
-
-      if (constant > 0)
-        switch (expression.NodeType) {
-          case ExpressionType.Equal:
-          case ExpressionType.GreaterThan:
-          case ExpressionType.GreaterThanOrEqual:
-            return SqlDml.GreaterThan(leftComparand, rightComparand);
-          case ExpressionType.NotEqual:
-          case ExpressionType.LessThanOrEqual:
-          case ExpressionType.LessThan:
-            return SqlDml.LessThanOrEquals(leftComparand, rightComparand);
-          default:
-            return null;
-        }
-
-      if (constant < 0)
-        switch (expression.NodeType) {
-          case ExpressionType.NotEqual:
-          case ExpressionType.GreaterThan:
-          case ExpressionType.GreaterThanOrEqual:
-            return SqlDml.GreaterThanOrEquals(leftComparand, rightComparand);
-          case ExpressionType.Equal:
-          case ExpressionType.LessThanOrEqual:
-          case ExpressionType.LessThan:
-            return SqlDml.LessThan(leftComparand, rightComparand);
-          default:
-            return null;
-        }
-
-      switch (expression.NodeType) {
-        case ExpressionType.GreaterThan:
-          return SqlDml.GreaterThan(leftComparand, rightComparand);
-        case ExpressionType.GreaterThanOrEqual:
-          return SqlDml.GreaterThanOrEquals(leftComparand, rightComparand);
-        case ExpressionType.Equal:
-          return SqlDml.Equals(leftComparand, rightComparand);
-        case ExpressionType.NotEqual:
-          return SqlDml.NotEquals(leftComparand, rightComparand);
-        case ExpressionType.LessThanOrEqual:
-          return SqlDml.LessThanOrEquals(leftComparand, rightComparand);
-        case ExpressionType.LessThan:
-          return SqlDml.LessThan(leftComparand, rightComparand);
-        default:
-          return null;
-      }
-    }
-
-    private static SqlExpression TryTranslateEqualitySpecialCases(SqlExpression left, SqlExpression right)
-    {
-      if (right.NodeType == SqlNodeType.Null)
-        return SqlDml.IsNull(left);
-      if (right.NodeType == SqlNodeType.Parameter)
-        return SqlDml.Variant(SqlDml.Equals(left, right), SqlDml.IsNull(left), ((SqlParameterRef) right).Parameter);
-      return null;
-    }
-
-    private static SqlExpression TryTranslateInequalitySpecialCases(SqlExpression left, SqlExpression right)
-    {
-      if (right.NodeType == SqlNodeType.Null)
-        return SqlDml.IsNotNull(left);
-      if (right.NodeType == SqlNodeType.Parameter)
-        return SqlDml.Variant(SqlDml.NotEquals(left, right), SqlDml.IsNotNull(left), ((SqlParameterRef) right).Parameter);
-      return null;
-    }
-
-    private SqlExpression CompileMember(MemberInfo member, SqlExpression instance, params SqlExpression[] arguments)
-    {
-      var memberCompiler = memberCompilerProvider.GetCompiler(member);
-      if (memberCompiler == null)
-        throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
-      return memberCompiler.Invoke(instance, arguments);
-    }
-
-    private static bool IsCharToIntConvert(Expression e)
-    {
-      return e.NodeType==ExpressionType.Convert
-          && e.Type==typeof (int)
-          && ((UnaryExpression) e).Operand.Type==typeof (char);
-    }
-
-    private static bool IsBooleanExpression(Expression expression)
-    {
-      return expression.Type.StripNullable()==typeof (bool);
-    }
-
-    #endregion
-    
+   
     // Constructors
 
     public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params List<SqlExpression>[] sourceColumns)
@@ -536,9 +374,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers)
     {
       this.compiler = compiler;
-      fixBooleanExpressions = !handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions);
-      memberCompilerProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
-      driver = ((DomainHandler) handlers.DomainHandler).Driver;
+      var domainHandler = handlers.DomainHandler;
+      var providerInfo = domainHandler.ProviderInfo;
+      fixBooleanExpressions = !providerInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions);
+      emptyStringIsNull = providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
+      memberCompilerProvider = domainHandler.GetMemberCompilerProvider<SqlExpression>();
+      driver = ((DomainHandler) domainHandler).Driver;
       model = handlers.Domain.Model;
       lambda = le;
       bindings = new HashSet<SqlQueryParameterBinding>();
