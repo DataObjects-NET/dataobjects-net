@@ -4,14 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.31
 
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Core;
+using System;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
-using Xtensive.Core.Disposing;
-using Xtensive.Storage.Rse;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Tests
 {
@@ -19,22 +17,27 @@ namespace Xtensive.Storage.Tests
   public abstract class AutoBuildTest
   {
     private string protocolName;
-    protected StorageProtocol Protocol { get; private set; }
+    private StorageProtocol protocol;
+    private DisposableSet disposables;
 
+    protected ProviderInfo ProviderInfo { get; private set; }
     protected Domain Domain { get; private set; }
     
     [TestFixtureSetUp]
     public virtual void TestFixtureSetUp()
     {
-      DomainConfiguration config = BuildConfiguration();
+      var config = BuildConfiguration();
       SelectProtocol(config);
       CheckRequirements();
       Domain = BuildDomain(config);
+      if (Domain!=null)
+        ProviderInfo = Domain.StorageProviderInfo;
     }
 
     [TestFixtureTearDown]
     public virtual void TestFixtureTearDown()
     {
+      disposables.DisposeSafely();
       Domain.DisposeSafely();
     }
 
@@ -49,7 +52,7 @@ namespace Xtensive.Storage.Tests
 
     protected void EnsureProtocolIs(StorageProtocol allowedProtocols)
     {
-      if ((Protocol & allowedProtocols) == 0)
+      if ((protocol & allowedProtocols)==0)
         throw new IgnoreException(
           string.Format("This test is not suitable for '{0}' protocol", protocolName));
     }
@@ -57,6 +60,22 @@ namespace Xtensive.Storage.Tests
     protected void EnsureProtocolIsNot(StorageProtocol disallowedProtocols)
     {
       EnsureProtocolIs(~disallowedProtocols);
+    }
+
+    protected void CreateSessionAndTransaction()
+    {
+      try {
+        disposables = new DisposableSet();
+        var session = Session.Open(Domain);
+        disposables.Add(session);
+        var transaction = Transaction.Open(session);
+        disposables.Add(transaction);
+      }
+      catch {
+        disposables.DisposeSafely();
+        disposables = null;
+        throw;
+      }
     }
 
     protected virtual Domain BuildDomain(DomainConfiguration configuration)
@@ -76,16 +95,16 @@ namespace Xtensive.Storage.Tests
       protocolName = config.ConnectionInfo.Protocol;
       switch (protocolName) {
       case WellKnown.Protocol.Memory:
-        Protocol = StorageProtocol.Memory;
+        protocol = StorageProtocol.Memory;
         break;
       case WellKnown.Protocol.SqlServer:
-        Protocol = StorageProtocol.SqlServer;
+        protocol = StorageProtocol.SqlServer;
         break;
       case WellKnown.Protocol.PostgreSql:
-        Protocol = StorageProtocol.PostgreSql;
+        protocol = StorageProtocol.PostgreSql;
         break;
       case WellKnown.Protocol.Oracle:
-        Protocol = StorageProtocol.Oracle;
+        protocol = StorageProtocol.Oracle;
         break;
       default:
         throw new ArgumentOutOfRangeException();

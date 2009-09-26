@@ -17,7 +17,6 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class AggregateTest : AutoBuildTest
   {
-    private DisposableSet disposableSet;
     private List<X> all;
 
     protected override DomainConfiguration BuildConfiguration()
@@ -31,9 +30,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       base.TestFixtureSetUp();
 
-      disposableSet = new DisposableSet();
-      disposableSet.Add(Session.Open(Domain));
-      disposableSet.Add(Transaction.Open());
+      CreateSessionAndTransaction();
 
       for (int i = 0; i < 10; i++) {
         var x = new X();
@@ -53,12 +50,6 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       all = Query<X>.All.ToList();
-    }
-
-    public override void TestFixtureTearDown()
-    {
-      disposableSet.DisposeSafely();
-      base.TestFixtureTearDown();
     }
     
     [Test]

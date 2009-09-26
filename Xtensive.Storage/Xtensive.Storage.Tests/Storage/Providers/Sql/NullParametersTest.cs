@@ -27,9 +27,8 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      disposableSet = new DisposableSet();
-      disposableSet.Add(Session.Open(Domain));
-      disposableSet.Add(Transaction.Open());
+      emptyStringIsNull = ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
+      CreateSessionAndTransaction();
 
       new X {FString = "Xtensive"};
       new X {FString = null};
@@ -75,13 +74,6 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
       return config;
-    }
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      var result = base.BuildDomain(configuration);
-      emptyStringIsNull = result.StorageProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
-      return result;
     }
 
     private static void CheckIsNull(ICollection<X> items, int expectedCount)

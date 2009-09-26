@@ -29,9 +29,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      disposableSet = new DisposableSet();
-      disposableSet.Add(Session.Open(Domain));
-      disposableSet.Add(Transaction.Open());
+      CreateSessionAndTransaction();
 
       var testValues = new[] {
         1.3m, 1.5m, 1.6m,

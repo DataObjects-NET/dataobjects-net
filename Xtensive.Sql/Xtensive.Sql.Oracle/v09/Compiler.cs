@@ -21,6 +21,10 @@ namespace Xtensive.Sql.Oracle.v09
     public override void Visit(SqlFunctionCall node)
     {
       switch (node.FunctionType) {
+      case SqlFunctionType.PadLeft:
+      case SqlFunctionType.PadRight:
+        SqlHelper.GenericPad(node).AcceptVisitor(this);
+        return;
       case SqlFunctionType.DateTimeAddYears:
         DateTimeAddComponent(node.Arguments[0], node.Arguments[1], true).AcceptVisitor(this);
         return;
@@ -42,10 +46,20 @@ namespace Xtensive.Sql.Oracle.v09
       case SqlFunctionType.Position:
         SqlDml.FunctionCall("instr", node.Arguments[1], node.Arguments[0]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.CharLength:
+        SqlDml.Coalesce(SqlDml.FunctionCall("LENGTH", node.Arguments[0]), 0).AcceptVisitor(this);
+        return;
       default:
         base.Visit(node);
         return;
       }
+    }
+
+    public override void Visit(SqlTrim node)
+    {
+      if (node.TrimCharacters!=null && node.TrimCharacters.Length > 1)
+        throw new NotSupportedException("Oracle does not support trimming more that one character at once");
+      base.Visit(node);
     }
 
     public override void Visit(SqlExtract node)

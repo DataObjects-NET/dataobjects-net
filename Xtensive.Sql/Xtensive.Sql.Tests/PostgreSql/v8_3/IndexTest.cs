@@ -9,9 +9,8 @@ using NUnit.Framework;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.PostgreSql.v8_0
+namespace Xtensive.Sql.Tests.PostgreSql.v8_3
 {
-  [Serializable]
   public class IndexTest : Tests.IndexTest
   {
     protected override string Url

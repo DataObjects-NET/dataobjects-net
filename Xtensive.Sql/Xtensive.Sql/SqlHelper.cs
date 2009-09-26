@@ -167,6 +167,28 @@ namespace Xtensive.Sql
       return new Guid(value);
     }
 
+    public static SqlExpression GenericPad(SqlFunctionCall node)
+    {
+      string paddingFunction;
+      switch (node.FunctionType) {
+      case SqlFunctionType.PadLeft:
+        paddingFunction = "lpad";
+        break;
+      case SqlFunctionType.PadRight:
+        paddingFunction = "rpad";
+        break;
+      default:
+        throw new InvalidOperationException();
+      }
+      var operand = node.Arguments[0];
+      var result = SqlDml.Case();
+      result.Add(
+        SqlDml.CharLength(operand) < node.Arguments[1],
+        SqlDml.FunctionCall(paddingFunction, node.Arguments));
+      result.Else = operand;
+      return result;
+    }
+
     /// <summary>
     /// Reduces the isolation level to the most commonly supported ones.
     /// </summary>
