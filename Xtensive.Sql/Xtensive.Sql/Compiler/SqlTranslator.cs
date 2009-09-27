@@ -872,7 +872,7 @@ namespace Xtensive.Sql.Compiler
             case SqlFunctionType.User:
               return Translate(node.FunctionType);
           }
-          if (node.FunctionType == SqlFunctionType.Position && Driver.ServerInfo.StringIndexingBase > 0)
+          if (node.FunctionType==SqlFunctionType.Position && Driver.ServerInfo.StringIndexingBase > 0)
             return "(" + Translate(node.FunctionType) + "(";
           return (node.Arguments.Count == 0) ? Translate(node.FunctionType) + "()" : Translate(node.FunctionType) + "(";
         case FunctionCallSection.ArgumentEntry:
@@ -892,8 +892,8 @@ namespace Xtensive.Sql.Compiler
             return string.Empty;
           }
         case FunctionCallSection.ArgumentExit:
-          if (node.FunctionType == SqlFunctionType.Substring && position == 1)
-            return Driver.ServerInfo.StringIndexingBase > 0 ? "+ " + Driver.ServerInfo.StringIndexingBase : String.Empty;
+          if (node.FunctionType==SqlFunctionType.Substring && position == 1)
+            return Driver.ServerInfo.StringIndexingBase > 0 ? "+ " + Driver.ServerInfo.StringIndexingBase : string.Empty;
           break;
         case FunctionCallSection.ArgumentDelimiter:
           switch(node.FunctionType) {
@@ -904,7 +904,7 @@ namespace Xtensive.Sql.Compiler
               return ArgumentDelimiter;
           }
         case FunctionCallSection.Exit:
-          if (node.FunctionType == SqlFunctionType.Position && Driver.ServerInfo.StringIndexingBase > 0)
+          if (node.FunctionType==SqlFunctionType.Position && Driver.ServerInfo.StringIndexingBase > 0)
             return
               ") - " + Driver.ServerInfo.StringIndexingBase + ")";
           return (node.Arguments.Count != 0) ? ")" : string.Empty;

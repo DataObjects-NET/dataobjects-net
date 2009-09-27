@@ -46,7 +46,7 @@ namespace Xtensive.Sql.Oracle.v09
         SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.Position:
-        SqlDml.FunctionCall("instr", node.Arguments[1], node.Arguments[0]).AcceptVisitor(this);
+        Position(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
       case SqlFunctionType.CharLength:
         SqlDml.Coalesce(SqlDml.FunctionCall("LENGTH", node.Arguments[0]), 0).AcceptVisitor(this);
@@ -219,6 +219,11 @@ namespace Xtensive.Sql.Oracle.v09
     private static SqlExpression BitNot(SqlExpression operand)
     {
       return -1 - operand;
+    }
+
+    private static SqlExpression Position(SqlExpression substring, SqlExpression _string)
+    {
+      return SqlDml.FunctionCall("INSTR", _string, substring) - 1;
     }
 
     private static SqlExpression AnsiString(string value)
