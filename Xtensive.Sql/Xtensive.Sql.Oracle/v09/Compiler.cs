@@ -7,7 +7,9 @@
 using System;
 using Xtensive.Core.Collections;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
 using Xtensive.Sql.Oracle.Resources;
 using System.Linq;
 
@@ -55,10 +57,18 @@ namespace Xtensive.Sql.Oracle.v09
       }
     }
 
+    public override void Visit(SqlCreateTable node)
+    {
+      var table = node.Table as TemporaryTable;
+      if (table!=null && !table.IsGlobal)
+        throw new NotSupportedException(Strings.ExOracleDoesNotSupportLocalTemporaryTables);
+      base.Visit(node);
+    }
+
     public override void Visit(SqlTrim node)
     {
       if (node.TrimCharacters!=null && node.TrimCharacters.Length > 1)
-        throw new NotSupportedException("Oracle does not support trimming more that one character at once");
+        throw new NotSupportedException(Strings.ExOracleDoesNotSupportTrimmingMoreThatOneCharacterAtOnce);
       base.Visit(node);
     }
 
@@ -126,6 +136,39 @@ namespace Xtensive.Sql.Oracle.v09
       base.Visit(node);
     }
 
+    public override void Visit(SqlUnary node)
+    {
+      switch (node.NodeType) {
+      case SqlNodeType.BitNot:
+        BitNot(node.Operand).AcceptVisitor(this);
+        return;
+      default:
+        base.Visit(node);
+        return;
+      }
+    }
+
+    public override void Visit(SqlBinary node)
+    {
+      switch (node.NodeType) {
+      case SqlNodeType.Modulo:
+        SqlDml.FunctionCall("MOD", node.Left, node.Right).AcceptVisitor(this);
+        return;
+      case SqlNodeType.BitAnd:
+        BitAnd(node.Left, node.Right).AcceptVisitor(this);
+        return;
+      case SqlNodeType.BitOr:
+        BitOr(node.Left, node.Right).AcceptVisitor(this);
+        return;
+      case SqlNodeType.BitXor:
+        BitXor(node.Left, node.Right).AcceptVisitor(this);
+        return;
+      default:
+        base.Visit(node);
+        return;
+      }
+    }
+
     private static SqlExpression DateTimeAddComponent(SqlExpression dateTime, SqlExpression units, bool isYear)
     {
       return dateTime + SqlDml.FunctionCall(
@@ -156,6 +199,26 @@ namespace Xtensive.Sql.Oracle.v09
     private static SqlExpression DateTimeExtractDayOfYear(SqlExpression dateTime)
     {
       return SqlDml.FunctionCall("TO_NUMBER", SqlDml.FunctionCall("TO_CHAR", dateTime, AnsiString("DDD")));
+    }
+
+    private static SqlExpression BitAnd(SqlExpression left, SqlExpression right)
+    {
+      return SqlDml.FunctionCall("BITAND", left, right);
+    }
+
+    private static SqlExpression BitOr(SqlExpression left, SqlExpression right)
+    {
+      return left + right - BitAnd(left, right);
+    }
+
+    private static SqlExpression BitXor(SqlExpression left, SqlExpression right)
+    {
+      return BitOr(left, right) - BitAnd(left, right);
+    }
+
+    private static SqlExpression BitNot(SqlExpression operand)
+    {
+      return -1 - operand;
     }
 
     private static SqlExpression AnsiString(string value)

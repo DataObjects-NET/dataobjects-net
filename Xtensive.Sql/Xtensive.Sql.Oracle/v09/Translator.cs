@@ -87,13 +87,6 @@ namespace Xtensive.Sql.Oracle.v09
         return string.Empty;
       }
     }
-
-    public override string Translate(SqlCompilerContext context, SqlBinary node, NodeSection section)
-    {
-      if (node.NodeType==SqlNodeType.Modulo && section==NodeSection.Entry)
-        return "MOD(";
-      return base.Translate(context, node, section);
-    }
     
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
@@ -178,33 +171,33 @@ namespace Xtensive.Sql.Oracle.v09
       var builder = new StringBuilder();
       var index = node.Index;
       switch (section) {
-        case CreateIndexSection.Entry:
-          builder.Append("CREATE ");
-          if (index.IsUnique)
-            builder.Append("UNIQUE ");
-          else if (index.IsBitmap)
-            builder.Append("BITMAP ");
-          builder.Append("INDEX ");
-          builder.Append(Translate(index));
-          builder.Append(" ON ");
-          builder.Append(Translate(index.DataTable));
-          return builder.ToString();
-        case CreateIndexSection.Exit:
-          break;
-        case CreateIndexSection.ColumnsEnter:
-          return "(";
-        case CreateIndexSection.ColumnsExit:
-          return ")";
-        case CreateIndexSection.NonkeyColumnsEnter:
-          break;
-        case CreateIndexSection.NonkeyColumnsExit:
-          break;
-        case CreateIndexSection.StorageOptions:
-          break;
-        case CreateIndexSection.Where:
-          break;
-        default:
-          throw new ArgumentOutOfRangeException("section");
+      case CreateIndexSection.Entry:
+        builder.Append("CREATE ");
+        if (index.IsUnique)
+          builder.Append("UNIQUE ");
+        else if (index.IsBitmap)
+          builder.Append("BITMAP ");
+        builder.Append("INDEX ");
+        builder.Append(Translate(index));
+        builder.Append(" ON ");
+        builder.Append(Translate(index.DataTable));
+        return builder.ToString();
+      case CreateIndexSection.Exit:
+        break;
+      case CreateIndexSection.ColumnsEnter:
+        return "(";
+      case CreateIndexSection.ColumnsExit:
+        return ")";
+      case CreateIndexSection.NonkeyColumnsEnter:
+        break;
+      case CreateIndexSection.NonkeyColumnsExit:
+        break;
+      case CreateIndexSection.StorageOptions:
+        break;
+      case CreateIndexSection.Where:
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("section");
       }
       return string.Empty;
     }
@@ -218,7 +211,7 @@ namespace Xtensive.Sql.Oracle.v09
 
     public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
     {
-      if (node.FunctionType == SqlFunctionType.Log10 && section == FunctionCallSection.Exit) 
+      if (node.FunctionType==SqlFunctionType.Log10 && section==FunctionCallSection.Exit)
         return ", 10)";
       switch (section) {
       case FunctionCallSection.ArgumentEntry:
@@ -305,8 +298,6 @@ namespace Xtensive.Sql.Oracle.v09
     public override string Translate(SqlNodeType type)
     {
       switch (type) {
-      case SqlNodeType.Modulo:
-        return ",";
       case SqlNodeType.DateTimePlusInterval:
         return "+";
       case SqlNodeType.DateTimeMinusInterval:

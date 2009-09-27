@@ -88,6 +88,24 @@ namespace Xtensive.Sql.Oracle.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Oracle does not support local temporary tables.
+        /// </summary>
+        internal static string ExOracleDoesNotSupportLocalTemporaryTables {
+            get {
+                return ResourceManager.GetString("ExOracleDoesNotSupportLocalTemporaryTables", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Oracle does not support trimming more that one character at once.
+        /// </summary>
+        internal static string ExOracleDoesNotSupportTrimmingMoreThatOneCharacterAtOnce {
+            get {
+                return ResourceManager.GetString("ExOracleDoesNotSupportTrimmingMoreThatOneCharacterAtOnce", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Oracle does not support UPDATE FROM statements.
         /// </summary>
         internal static string ExOracleDoesNotSupportUpdateFromStatements {

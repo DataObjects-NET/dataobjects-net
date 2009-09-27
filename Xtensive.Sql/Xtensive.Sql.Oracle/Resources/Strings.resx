@@ -129,4 +129,10 @@
   <data name="ExAlterSequenceRestartWithIsNotSupported" xml:space="preserve">
     <value>ALTER SEQUENCE RESTART WITH is not supported</value>
   </data>
+  <data name="ExOracleDoesNotSupportLocalTemporaryTables" xml:space="preserve">
+    <value>Oracle does not support local temporary tables</value>
+  </data>
+  <data name="ExOracleDoesNotSupportTrimmingMoreThatOneCharacterAtOnce" xml:space="preserve">
+    <value>Oracle does not support trimming more that one character at once</value>
+  </data>
 </root>
