@@ -147,6 +147,16 @@ namespace Xtensive.Sql.Oracle
       return (ulong) reader.GetDecimal(index);
     }
 
+    public override object ReadDecimal(DbDataReader reader, int index)
+    {
+      var nativeReader = (OracleDataReader) reader;
+      var result = OracleDecimal.ConvertToPrecScale(
+        nativeReader.GetOracleDecimal(index),
+        MaxDecimalPrecision.Value,
+        MaxDecimalPrecision.Value / 2);
+      return result.Value;
+    }
+
     public override object ReadTimeSpan(DbDataReader reader, int index)
     {
       var nativeReader = (OracleDataReader) reader;
