@@ -372,8 +372,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
           return columns.Select(c => c.First).ToArray();
         }
         default: {
-          var unaryProvider = (UnaryProvider)provider;
-          mappings[unaryProvider] = Merge(mappings[unaryProvider], mappings[unaryProvider.Source]);
+          mappings[provider] = Merge(mappings[provider], mappings[provider.Sources[0]]);
           break;
         }
       }
