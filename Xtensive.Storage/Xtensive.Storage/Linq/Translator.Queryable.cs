@@ -999,8 +999,6 @@ namespace Xtensive.Storage.Linq
         var recordset = new StoreProvider(rawProvider).Result;
         var structureExpression = StructureExpression.CreateStructure(typeInfo, tupleSegment);
         var itemProjector = new ItemProjectorExpression(structureExpression, recordset, context);
-//        if (state.JoinLocalCollectionEntity) 
-//          EnsureEntityFieldsAreJoined(entityExpression, itemProjector);
         return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
 
@@ -1026,10 +1024,6 @@ namespace Xtensive.Storage.Linq
           FillLocalCollectionField(item, tuple, itemExpression);
           return tuple;
         };
-
-//        var tupleCreateExpression = Expression.Call(null, WellKnownMembers.TupleCreate, EnumerableUtils.One<Expression>(numberParameterExpression).Concat(tupleSetters).ToArray());
-//        var lambda = FastExpression.Lambda(tupleCreateExpression, itemParameterExpression, numberParameterExpression);
-//        var converter = (Func<TItem, int, Tuple>) lambda.Compile();
 
         var rsHeader = new RecordSetHeader(tupleDescriptor, tupleDescriptor.Select(x => new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
         var rawProvider = new RawProvider(rsHeader, source.Select(converter));
