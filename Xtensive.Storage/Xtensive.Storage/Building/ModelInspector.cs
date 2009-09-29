@@ -117,10 +117,8 @@ namespace Xtensive.Storage.Building
           foreach (var edge in directImplementorEdges) {
             var implementor = edge.Tail.Value;
             var hierarchy = context.ModelDef.FindHierarchy(implementor);
-            if (hierarchy != null) {
-              if (!hierarchies.Contains(hierarchy))
-                hierarchies.Add(hierarchy);
-            }
+            if (hierarchy!=null)
+              hierarchies.Add(hierarchy);
             else
               context.ModelInspectionResult.Register(new RemoveTypeAction(implementor));
           }

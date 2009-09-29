@@ -166,8 +166,8 @@ namespace Xtensive.Storage.Building.Builders
         if (!(multiplicity==Multiplicity.ZeroToMany || multiplicity==Multiplicity.ManyToMany))
           continue;
 
-        var masterType = association.TargetType;
-        var slaveType = association.OwnerType;
+        var masterType = association.OwnerType;
+        var slaveType = association.TargetType;
 
         var genericDefinitionType = typeof (EntitySetItem<,>);
         var genericInstanceType = genericDefinitionType.MakeGenericType(masterType.UnderlyingType, slaveType.UnderlyingType);
@@ -213,9 +213,8 @@ namespace Xtensive.Storage.Building.Builders
         context.ModelDef.Hierarchies.Add(hierarchy);
         context.ModelDef.Types.Add(underlyingTypeDef);
 
-        var typeInfo = TypeBuilder.BuildType(underlyingTypeDef);
-        TypeBuilder.BuildFields(underlyingTypeDef, typeInfo);
-        var auxiliaryType = context.Model.Types[underlyingType];
+        var auxiliaryType = TypeBuilder.BuildType(underlyingTypeDef);
+        TypeBuilder.BuildFields(underlyingTypeDef, auxiliaryType);
         association.AuxiliaryType = auxiliaryType;
         if (association.IsPaired)
           association.Reversed.AuxiliaryType = auxiliaryType;

@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Model
       columnsExtractor = ((fieldsToExtract, extractedColumns) => {
         foreach (var field in fieldsToExtract) {
           if (field.Column==null) {
-            if (field.IsEntity)
+            if (field.IsEntity || field.IsStructure)
               columnsExtractor(field.Fields, extractedColumns);
           }
           else
@@ -102,16 +102,18 @@ namespace Xtensive.Storage.Model
 
       var columns = new List<ColumnInfo>();
       columnsExtractor(fields, columns);
+      int columnNumber = columns.Count;
 
-      var result = this
+      var candidates = this
         .Where(i => i.KeyColumns
           .TakeWhile((_, index) => index < columns.Count)
           .Select((pair, index) => new {column = pair.Key, columnIndex = index})
           .All(p => p.column==columns[p.columnIndex]))
-        .OrderByDescending(i => i.IsVirtual)
-        .FirstOrDefault();
+        .OrderByDescending(i => i.IsVirtual).ToList();
 
-      return result;
+      var result = candidates.Where(c => c.KeyColumns.Count==columnNumber).FirstOrDefault();
+
+      return result ?? candidates.FirstOrDefault();
     }
 
     /// <summary>

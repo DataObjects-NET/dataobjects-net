@@ -20,8 +20,6 @@ namespace Xtensive.Storage.Linq
   internal static class QueryHelper
   {
     public const string QueryAllMethodName = "All";
-    public const string EntitySetItemMasterPropertyName = "Master";
-    public const string EntitySetItemSlavePropertyName  = "Slave";
 
     public static Expression CreateEntityQueryExpression(Type elementType)
     {
@@ -59,10 +57,10 @@ namespace Xtensive.Storage.Linq
       }
 
       var connectorType = field.Association.Master.AuxiliaryType.UnderlyingType;
-      string master = EntitySetItemMasterPropertyName;
-      string slave = EntitySetItemSlavePropertyName;
+      string master = WellKnown.MasterFieldName;
+      string slave = WellKnown.SlaveFieldName;
 
-      if (field.ReflectedType.UnderlyingType != field.Association.Master.TargetType.UnderlyingType) {
+      if (field.ReflectedType.UnderlyingType != field.Association.Master.OwnerType.UnderlyingType) {
         var s = master;
         master = slave;
         slave = s;

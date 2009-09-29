@@ -152,7 +152,7 @@ namespace Xtensive.Storage
         Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
 
       if (Field.Association.AuxiliaryType!=null && Field.Association.IsMaster)
-        GetEntitySetTypeState().ItemCtor.Invoke(item.Key.Value.Combine(Owner.Key.Value));
+        GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
 
       State.Add(item.Key);
       NotifyAdd(item);
@@ -179,7 +179,7 @@ namespace Xtensive.Storage
         Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
 
       if (Field.Association.AuxiliaryType!=null && Field.Association.IsMaster) {
-        var combinedKey = Key.Create(Field.Association.AuxiliaryType, item.Key.Value.Combine(Owner.Key.Value));
+        var combinedKey = Key.Create(Field.Association.AuxiliaryType, Owner.Key.Value.Combine(item.Key.Value));
         Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
         underlyingItem.Remove();
       }
