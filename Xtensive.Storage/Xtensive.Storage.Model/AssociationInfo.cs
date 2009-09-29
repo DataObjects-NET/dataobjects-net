@@ -198,9 +198,9 @@ namespace Xtensive.Storage.Model
       case Multiplicity.ZeroToMany:
       case Multiplicity.ManyToMany:
         if (IsMaster)
-          UnderlyingIndex = auxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
+          UnderlyingIndex = auxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
         else
-          UnderlyingIndex = Reversed.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
+          UnderlyingIndex = Reversed.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
         if (foreignKeyExtractorTransform == null) {
           var foreignKeySegment = new Segment<int>(OwnerType.Columns.Count(c => c.IsPrimaryKey), TargetType.Columns.Count(c => c.IsPrimaryKey));
           foreignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
