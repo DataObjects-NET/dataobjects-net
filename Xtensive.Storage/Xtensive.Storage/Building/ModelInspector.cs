@@ -259,8 +259,11 @@ namespace Xtensive.Storage.Building
       if (isKeyField && fieldDef.IsNullable)
         context.ModelInspectionResult.Register(new MarkFieldAsNotNullableAction(typeDef, fieldDef));
 
-      if (fieldDef.IsPrimitive)
+      if (fieldDef.IsPrimitive) {
+        if (fieldDef.ValueType==typeof (Key))
+          context.ModelInspectionResult.Register(new AddForeignKeyIndexAction(typeDef, fieldDef));
         return;
+      }
 
       if (fieldDef.IsStructure) {
         Validator.ValidateStructureField(typeDef, fieldDef);
@@ -268,12 +271,8 @@ namespace Xtensive.Storage.Building
         return;
       }
 
-      // Inspecting index to the reference field
-      if (fieldDef.IsEntity) {
-        var indexDef = typeDef.Indexes.Where(i => i.IsSecondary && i.KeyFields.Count==1 && i.KeyFields[0].Key==fieldDef.Name).FirstOrDefault();
-        if (indexDef==null)
-          context.ModelInspectionResult.Register(new AddSecondaryIndexAction(typeDef, fieldDef));
-      }
+      if (fieldDef.IsEntity)
+        context.ModelInspectionResult.Register(new AddForeignKeyIndexAction(typeDef, fieldDef));
       else
         Validator.ValidateEntitySetField(typeDef, fieldDef);
 

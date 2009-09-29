@@ -189,13 +189,8 @@ namespace Xtensive.Storage.Building.Builders
       if (fieldInfo.IsStructure)
         BuildNestedFields(context, fieldInfo, context.Model.Types[fieldInfo.ValueType].Fields);
 
-      if (fieldInfo.IsPrimitive) {
+      if (fieldInfo.IsPrimitive)
         fieldInfo.Column = BuildDeclaredColumn(context, fieldInfo);
-        if (fieldInfo.ValueType==typeof(Key)) {
-          var typeDef = context.ModelDef.Types[fieldInfo.DeclaringType.UnderlyingType];
-          typeDef.Indexes.Add(IndexBuilder.DefineForeignKey(typeDef, fieldDef));
-        }
-      }
       return fieldInfo;
     }
 

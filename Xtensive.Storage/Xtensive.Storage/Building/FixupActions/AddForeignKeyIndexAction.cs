@@ -10,7 +10,7 @@ using Xtensive.Storage.Building.Definitions;
 namespace Xtensive.Storage.Building.FixupActions
 {
   [Serializable]
-  internal class AddSecondaryIndexAction : FieldAction
+  internal class AddForeignKeyIndexAction : FieldAction
   {
     public override void Run()
     {
@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Building.FixupActions
 
     //  Constructors
 
-    public AddSecondaryIndexAction(TypeDef type, FieldDef field)
+    public AddForeignKeyIndexAction(TypeDef type, FieldDef field)
       : base(type, field)
     {
     }

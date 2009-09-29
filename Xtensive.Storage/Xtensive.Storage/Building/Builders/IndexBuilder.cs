@@ -11,20 +11,11 @@ using Xtensive.Core;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Building.Builders
 {
   internal static partial class IndexBuilder
   {
-    public static IndexDef DefineForeignKey(TypeDef type, FieldDef field)
-    {
-      var index = new IndexDef {IsSecondary = true};
-      index.KeyFields.Add(field.Name);
-      index.Name = BuildingContext.Current.NameBuilder.BuildIndexName(type, index);
-      return index;
-    }
-
     public static void BuildIndexes()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Indexes)) {

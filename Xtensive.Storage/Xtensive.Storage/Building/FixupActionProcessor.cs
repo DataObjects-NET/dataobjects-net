@@ -95,8 +95,11 @@ namespace Xtensive.Storage.Building
       }
     }
 
-    public static void Process(AddSecondaryIndexAction action)
+    public static void Process(AddForeignKeyIndexAction action)
     {
+      if (action.Type.Indexes.Where(i => i.IsSecondary && i.KeyFields.Count==1 && i.KeyFields[0].Key==action.Field.Name).Any())
+        return;
+
       var attribute = new IndexAttribute(action.Field.Name);
       var indexDef = ModelDefBuilder.DefineIndex(action.Type, attribute);
       action.Type.Indexes.Add(indexDef);
@@ -111,8 +114,8 @@ namespace Xtensive.Storage.Building
         foreach (var primaryIndex in primaryIndexes)
           type.Indexes.Remove(primaryIndex);
 
-      var indexDef = new IndexDef {IsPrimary = true};
-      indexDef.Name = BuildingContext.Current.NameBuilder.BuildIndexName(type, indexDef);
+      var generatedIndex = new IndexDef {IsPrimary = true};
+      generatedIndex.Name = BuildingContext.Current.NameBuilder.BuildIndexName(type, generatedIndex);
 
       TypeDef hierarchyRoot;
       if (type.IsInterface) {
@@ -121,13 +124,21 @@ namespace Xtensive.Storage.Building
       }
       else
         hierarchyRoot = type;
-      
+
       var hierarchyDef = BuildingContext.Current.ModelDef.FindHierarchy(hierarchyRoot);
 
       foreach (KeyField pair in hierarchyDef.KeyFields)
-        indexDef.KeyFields.Add(pair.Name, pair.Direction);
+        generatedIndex.KeyFields.Add(pair.Name, pair.Direction);
 
-      type.Indexes.Add(indexDef);
+      // Check if user added secondary index equal to auto-generated primary index
+      var userDefinedIndex = type.Indexes.Where(i => (i.KeyFields.Count==generatedIndex.KeyFields.Count) && i.KeyFields.SequenceEqual(generatedIndex.KeyFields)).FirstOrDefault();
+      if (userDefinedIndex != null) {
+        type.Indexes.Remove(userDefinedIndex);
+        generatedIndex.FillFactor = userDefinedIndex.FillFactor;
+        if (!string.IsNullOrEmpty(userDefinedIndex.MappingName))
+          generatedIndex.MappingName = userDefinedIndex.MappingName;
+      }
+      type.Indexes.Add(generatedIndex);
     }
 
     public static void Process(MarkFieldAsSystemAction action)
