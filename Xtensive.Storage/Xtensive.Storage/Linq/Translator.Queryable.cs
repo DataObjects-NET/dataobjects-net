@@ -1012,7 +1012,6 @@ namespace Xtensive.Storage.Linq
       }
       else {
         ISet<Type> processedTypes = new SetSlim<Type>();
-        var itemParameterExpression = Expression.Parameter(itemType, "item");
         LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, 0, null);
 
         var tupleDescriptor = TupleDescriptor.Create(itemExpression.Columns.Select(columnExpression => columnExpression.Type));
@@ -1035,14 +1034,15 @@ namespace Xtensive.Storage.Linq
 
     private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, int columnIndex, MemberInfo parentMember)
     {
+      if (!processedTypes.Add(type))
+        throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
+
+
       var members = type
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
         .Where(propertyInfo => propertyInfo.CanRead)
         .Cast<MemberInfo>()
         .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public));
-
-      if (!processedTypes.Add(type))
-        throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
       var fields = new Dictionary<MemberInfo, IMappedExpression>();
       foreach (MemberInfo memberInfo in members) {
         var propertyInfo = memberInfo as PropertyInfo;
