@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Linq.Expressions
         // Add key fields to field collection
         var keyFieldClones = keyExpression
           .KeyFields
-          .Select(kf=>FieldExpression.CreateField(kf.Field, kf.Mapping.Offset))
+          .Select(kf=>FieldExpression.CreateField(kf.Field, 0))
           .Cast<PersistentFieldExpression>();
         fields.AddRange(keyFieldClones);
       }
