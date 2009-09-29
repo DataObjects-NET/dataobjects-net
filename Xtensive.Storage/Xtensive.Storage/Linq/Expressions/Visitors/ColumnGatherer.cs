@@ -126,6 +126,15 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return c;
     }
 
+    protected override Expression VisitLocalCollectionStructureExpression(LocalCollectionStructureExpression expression)
+    {
+      AddColumns(expression,
+        expression.Fields
+          .Where(fieldExpression => fieldExpression.ExtendedType==ExtendedExpressionType.Field)
+          .Select(fieldExpression => fieldExpression.Mapping.Offset));
+      return expression;
+    }
+
     protected override Expression VisitGroupingExpression(GroupingExpression expression)
     {
       Visit(expression.KeyExpression);

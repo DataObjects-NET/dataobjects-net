@@ -208,6 +208,35 @@ namespace Xtensive.Storage.Linq.Materialization
       return MaterializeThroughOwner(expression, tupleExpression);
     }
 
+    protected override Expression VisitLocalCollectionStructureExpression(LocalCollectionStructureExpression expression)
+    {
+      var tupleExpression = GetTupleExpression(expression);
+
+      var typeInfo = expression.PersistentType;
+      var tuplePrototype = typeInfo.TuplePrototype;
+      var mappingInfo = expression.Fields
+        .OfType<FieldExpression>()
+        .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
+        .OrderBy(f => f.Field.MappingInfo.Offset)
+        .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .Distinct()
+        .ToArray();
+
+      int[] columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
+
+      var persistentTupleExpression = (Expression) Expression.Call(
+        BuildPersistentTupleMethodInfo,
+        tupleExpression,
+        Expression.Constant(tuplePrototype),
+        Expression.Constant(columnMap));
+      return Expression.Convert(
+        Expression.Call(
+          WellKnownMembers.CreateStructure,
+          Expression.Constant(expression.Type),
+          persistentTupleExpression),
+        expression.Type);
+    }
+
     protected override Expression VisitKeyExpression(KeyExpression expression)
     {
       // TODO: http://code.google.com/p/dataobjectsdotnet/issues/detail?id=336

@@ -1,8 +1,8 @@
 // Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alexis Kochetov
-// Created:    2009.05.05
+// Created by: Alexey Gamzov
+// Created:    2009.09.29
 
 using System;
 using System.Collections.Generic;
@@ -15,7 +15,7 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Linq.Expressions
 {
-  internal sealed class StructureExpression : FieldExpression,
+  internal sealed class LocalCollectionStructureExpression : PersistentFieldExpression,
     IPersistentExpression
   {
     private List<PersistentFieldExpression> fields;
@@ -43,19 +43,13 @@ namespace Xtensive.Storage.Linq.Expressions
         return value;
 
       var mapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
-      var result = new StructureExpression(PersistentType, Field, mapping, OuterParameter, DefaultIfEmpty);
+      var result = new LocalCollectionStructureExpression(PersistentType, mapping);
       processedExpressions.Add(this, result);
       var processedFields = Fields
         .Select(f => f.Remap(offset, processedExpressions))
         .Cast<PersistentFieldExpression>()
         .ToList();
-      if (Owner == null) {
-        result.fields = processedFields;
-        return result;
-      }
-
       result.Fields = processedFields;
-      Owner.Remap(offset, processedExpressions);
       return result;
     }
 
@@ -68,7 +62,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new StructureExpression(PersistentType, Field, default(Segment<int>), OuterParameter, DefaultIfEmpty);
+      var result = new LocalCollectionStructureExpression(PersistentType, default(Segment<int>));
       processedExpressions.Add(this, result);
       var processedFields = Fields
         .Select(f => f.Remap(map, processedExpressions))
@@ -82,12 +76,7 @@ namespace Xtensive.Storage.Linq.Expressions
       var length = processedFields.Select(f => f.Mapping.Offset).Distinct().Count();
       var offset = processedFields.Min(f => f.Mapping.Offset);
       result.Mapping = new Segment<int>(offset, length);
-      if (Owner == null) {
-        result.fields = processedFields;
-        return result;
-      }
-      result.Fields = processedFields;
-      Owner.Remap(map, processedExpressions);
+        result.Fields = processedFields;
       return result;
     }
 
@@ -97,19 +86,13 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new StructureExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
+      var result = new LocalCollectionStructureExpression(PersistentType, Mapping);
       processedExpressions.Add(this, result);
       var processedFields = Fields
         .Select(f => f.BindParameter(parameter, processedExpressions))
         .Cast<PersistentFieldExpression>()
         .ToList();
-      if (Owner == null) {
-        result.fields = processedFields;
-        return result;
-      }
-
       result.Fields = processedFields;
-      Owner.BindParameter(parameter, processedExpressions);
       return result;
     }
 
@@ -119,43 +102,23 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new StructureExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
+      var result = new LocalCollectionStructureExpression(PersistentType, Mapping);
       processedExpressions.Add(this, result);
       var processedFields = Fields
         .Select(f => f.RemoveOuterParameter(processedExpressions))
         .Cast<PersistentFieldExpression>()
         .ToList();
-      if (Owner == null) {
-        result.fields = processedFields;
-        return result;
-      }
-
       result.Fields = processedFields;
-      Owner.RemoveOuterParameter(processedExpressions);
       return result;
     }
 
-    public override FieldExpression RemoveOwner()
+    public static LocalCollectionStructureExpression CreateLocalCollectionStructure(TypeInfo typeInfo, Segment<int> mapping)
     {
-      if (Owner==null)
-        return this;
-      var result = new StructureExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
-      result.fields = fields
-        .Cast<FieldExpression>()
-        .Select(f => (PersistentFieldExpression)f.RemoveOwner())
-        .ToList();
-      return result;
-    }
-
-    public static StructureExpression CreateStructure(FieldInfo structureField, int offset)
-    {
-      if (!structureField.IsStructure)
-        throw new ArgumentException(string.Format(Strings.ExFieldIsNotStructure, structureField.Name));
-      var persistentType = structureField.ReflectedType.Model.Types[structureField.ValueType];
-      var mapping = new Segment<int>(offset, structureField.MappingInfo.Length);
-      var result = new StructureExpression(persistentType, structureField, mapping, null, false);
-      result.Fields = persistentType.Fields
-        .Select(f => BuildNestedFieldExpression(f, offset + structureField.MappingInfo.Offset))
+      if (!typeInfo.IsStructure)
+        throw new ArgumentException(string.Format(Strings.ExTypeXIsNotStructure, typeInfo.Name));
+      var result = new LocalCollectionStructureExpression(typeInfo, mapping);
+      result.Fields = typeInfo.Fields
+        .Select(f => BuildNestedFieldExpression(f, mapping.Offset))
         .ToList();
       return result;
     }
@@ -176,13 +139,10 @@ namespace Xtensive.Storage.Linq.Expressions
 
     // Constructors
 
-    private StructureExpression(
+    private LocalCollectionStructureExpression(
       TypeInfo persistentType, 
-      FieldInfo structureField, 
-      Segment<int> mapping, 
-      ParameterExpression parameterExpression, 
-      bool defaultIfEmpty)
-      : base(ExtendedExpressionType.Structure, structureField, mapping, parameterExpression, defaultIfEmpty)
+      Segment<int> mapping)
+      : base(ExtendedExpressionType.LocalCollectionStructure, null, persistentType.UnderlyingType, mapping, null, null, false)
     {
       PersistentType = persistentType;
     }

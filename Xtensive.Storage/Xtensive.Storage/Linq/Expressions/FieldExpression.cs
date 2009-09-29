@@ -133,18 +133,5 @@ namespace Xtensive.Storage.Linq.Expressions
     {
       Field = field;
     }
-
-    protected FieldExpression(
-      ExtendedExpressionType expressionType, 
-      Segment<int> mapping, 
-      ParameterExpression parameterExpression, 
-      bool defaultIfEmpty,
-      string name,
-      Type type,
-      PropertyInfo property)
-      : base(expressionType, name, type, mapping, property, parameterExpression, defaultIfEmpty)
-    {
-      
-    }
   }
 }

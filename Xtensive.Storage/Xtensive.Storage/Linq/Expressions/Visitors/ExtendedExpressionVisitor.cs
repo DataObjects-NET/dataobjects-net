@@ -44,9 +44,16 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         return VisitGroupingExpression((GroupingExpression) expression);
       case ExtendedExpressionType.LocalCollection:
         return VisitLocalCollectionExpression((LocalCollectionExpression) expression);
+      case ExtendedExpressionType.LocalCollectionStructure:
+        return VisitLocalCollectionStructureExpression((LocalCollectionStructureExpression) expression);
       default:
         return base.VisitUnknown(expression);
       }
+    }
+
+    protected virtual Expression VisitLocalCollectionStructureExpression(LocalCollectionStructureExpression expression)
+    {
+      return expression;
     }
 
     protected virtual Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
