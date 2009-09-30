@@ -106,6 +106,11 @@ namespace Xtensive.Storage.Building.Builders
       ProcessIsUnique(indexDef, attribute);
     }
 
+    public static void Process(FieldDef fieldDef, VersionAttribute attribute)
+    {
+      fieldDef.Attributes |= FieldAttributes.Version;
+    }
+
     public static void ProcessPairTo(FieldDef fieldDef, AssociationAttribute attribute)
     {
       fieldDef.PairTo = attribute.PairTo;

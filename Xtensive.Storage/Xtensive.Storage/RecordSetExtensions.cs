@@ -41,13 +41,13 @@ namespace Xtensive.Storage
     {
       var session = Session.Demand();
       var reader = session.Domain.RecordSetReader;
-      foreach (var record in reader.Read(source)) {
+      foreach (var record in reader.Read(source, source.Header)) {
         var key = record.GetKey(primaryKeyIndex);
         if (key == null)
           continue;
         var tuple = record.GetTuple(primaryKeyIndex);
         if (tuple!=null)
-          yield return session.UpdateEntityState(key, tuple).Entity;
+          yield return session.Handler.RegisterEntityState(key, tuple).Entity;
         else
           yield return Query.SingleOrDefault(session, key);
       }
@@ -55,12 +55,12 @@ namespace Xtensive.Storage
 
     public static IEnumerable<Record> Read(this RecordSet source)
     {
-      return Domain.Demand().RecordSetReader.Read(source);
+      return Domain.Demand().RecordSetReader.Read(source, source.Header);
     }
 
     public static Record ReadSingleRow(this RecordSet source)
     {
-      return Domain.Demand().RecordSetReader.ReadSingleRow(source, null);
+      return Domain.Demand().RecordSetReader.ReadSingleRow(source, source.Header, null);
     }
   }
 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Linq.Normalization;
 using Xtensive.Core.Parameters;
 using Xtensive.Storage.Model;
@@ -37,11 +38,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       var primaryProvider = provider.Source as IndexProvider;
       if (primaryProvider == null)
         return base.VisitFilter(provider);
-      var primaryIndex = primaryProvider.Index.Resolve(domainModel);
-      var indexes = GetIndexes(primaryIndex);
+      var index = primaryProvider.Index.Resolve(domainModel);
+      var indexes = index.IsPrimary ? GetIndexes(index) : new List<IndexInfo> {index};
       if (indexes.Count == 0)
         return base.VisitFilter(provider);
-      var extractionResult = ExtractRangeSets(provider.Predicate, primaryIndex, indexes);
+      var extractionResult = ExtractRangeSets(provider.Predicate, index, indexes);
       Dictionary<IndexInfo, RangeSetInfo> selectedIndexes;
       using (ParameterContext.ExpectedValues.Activate()) {
         selectedIndexes = indexSelector.Select(extractionResult);
@@ -51,7 +52,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 
     #region Private \ internal methods
     private Dictionary<Expression, List<RsExtractionResult>> ExtractRangeSets(Expression predicate,
-      IndexInfo primaryIndex, IEnumerable<IndexInfo> indexes)
+      IndexInfo index, IEnumerable<IndexInfo> indexes)
     {
       DisjunctiveNormalized normalized = null;
       try {
@@ -59,17 +60,17 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       }
       catch (InvalidOperationException){}
       if (normalized != null)
-        return rsExtractor.Extract(normalized, indexes, primaryIndex.GetRecordSetHeader());
-      return rsExtractor.Extract(predicate, indexes, primaryIndex.GetRecordSetHeader());
+        return rsExtractor.Extract(normalized, indexes, index.GetRecordSetHeader());
+      return rsExtractor.Extract(predicate, indexes, index.GetRecordSetHeader());
     }
 
-    private IList<IndexInfo> GetIndexes(IndexInfo primaryIndex)
+    private IList<IndexInfo> GetIndexes(IndexInfo index)
     {
       Pair<IndexInfo, IList<IndexInfo>> cachedPair;
-      if (indexesCache.TryGetItem(primaryIndex, true, out cachedPair))
+      if (indexesCache.TryGetItem(index, true, out cachedPair))
         return cachedPair.Second;
-      var result = primaryIndex.ReflectedType.Indexes.GetIndexesContainingAllData();
-      indexesCache.Add(new Pair<IndexInfo, IList<IndexInfo>>(primaryIndex, result));
+      var result = index.ReflectedType.Indexes.GetIndexesContainingAllData();
+      indexesCache.Add(new Pair<IndexInfo, IList<IndexInfo>>(index, result));
       return result;
     }
     #endregion

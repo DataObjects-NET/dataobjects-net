@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Model
 
       var columns = new List<ColumnInfo>();
       columnsExtractor(fields, columns);
-      int columnNumber = columns.Count;
+      var columnNumber = columns.Count;
 
       var candidates = this
         .Where(i => i.KeyColumns

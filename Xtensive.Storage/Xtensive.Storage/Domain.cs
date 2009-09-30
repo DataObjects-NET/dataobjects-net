@@ -37,6 +37,15 @@ namespace Xtensive.Storage
   {
     private ExtensionCollection extensions;
 
+    internal readonly ThreadSafeIntDictionary<GenericKeyTypeInfo> genericKeyTypes = 
+      ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
+
+    /*internal readonly ThreadSafeDictionary<Model.FieldInfo, EntitySetTypeState> entitySetTypeStateCache =
+      ThreadSafeDictionary<Model.FieldInfo, EntitySetTypeState>.Create(new object());*/
+
+    internal readonly ThreadSafeDictionary<object, object> cache =
+      ThreadSafeDictionary<object, object>.Create(new object());
+
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
     /// </summary>
@@ -150,12 +159,58 @@ namespace Xtensive.Storage
     /// </summary>
     public ModuleProvider Modules { get; private set; }
 
+    /// <summary>
+    /// Gets the cached item or generates it using specified <paramref name="generator"/> and 
+    /// adds it to the cache.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="generator">The item generator.</param>
+    /// <returns>Found or generated value.</returns>
+    internal object GetCachedItem(object key, Func<object, object> generator)
+    {
+      return cache.GetValue(key, generator);
+    }
+
+    /// <summary>
+    /// Gets the cached item or generates it using specified <paramref name="generator"/> and 
+    /// adds it to the cache.
+    /// </summary>
+    /// <typeparam name="T">The type of the <paramref name="argument"/> to pass 
+    /// to the <paramref name="generator"/>.</typeparam>
+    /// <param name="key">The key.</param>
+    /// <param name="generator">The argument to pass to the <paramref name="generator"/>.</param>
+    /// <param name="argument">The argument of the <see cref="generator"/>.</param>
+    /// <returns>Found or generated value.</returns>
+    internal object GetCachedItem<T>(object key, Func<object, T, object> generator, T argument)
+    {
+      return cache.GetValue(key, generator, argument);
+    }
+
+    /// <summary>
+    /// Gets the cached item or generates it using specified <paramref name="generator"/> and 
+    /// adds it to the cache.
+    /// </summary>
+    /// <typeparam name="T1">The type of the <paramref name="argument1"/> to pass 
+    /// to the <paramref name="generator"/>.</typeparam>
+    /// <typeparam name="T2">The type of the <paramref name="argument2"/> to pass 
+    /// to the <paramref name="generator"/>.</typeparam>
+    /// <param name="key">The key.</param>
+    /// <param name="generator">The argument to pass to the <paramref name="generator"/>.</param>
+    /// <param name="argument1">The first argument to pass to the <paramref name="generator"/>.</param>
+    /// <param name="argument2">The second argument to pass to the <paramref name="generator"/>.</param>
+    /// <returns>Found or generated value.</returns>
+    internal object GetCachedItem<T1, T2>(object key, Func<object, T1, T2, object> generator,
+      T1 argument1, T2 argument2)
+    {
+      return cache.GetValue(key, generator, argument1, argument2);
+    }
+
+    #region Private \ internal members
+
     internal DomainHandler Handler {
       [DebuggerStepThrough]
       get { return Handlers.DomainHandler; }
     }
-
-    #region Private \ internal members
 
     internal HandlerAccessor Handlers { get; private set; }
 
@@ -164,12 +219,6 @@ namespace Xtensive.Storage
     internal ICache<Key, Key> KeyCache { get; private set; }
 
     internal ICache<object, Pair<object, TranslatedQuery>> QueryCache { get; private set; }
-
-    internal readonly ThreadSafeIntDictionary<GenericKeyTypeInfo> genericKeyTypes = 
-      ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
-
-    internal readonly ThreadSafeDictionary<Model.FieldInfo, EntitySetTypeState> entitySetTypeStateCache =
-      ThreadSafeDictionary<Model.FieldInfo, EntitySetTypeState>.Create(new object());
 
     private void OnSessionOpen(Session session)
     {

@@ -61,8 +61,9 @@ namespace Xtensive.Storage.Tests.Rse
 
     private static Dictionary<IndexInfo, RangeSetInfo> CreateRangeSetsForSecondary(TypeInfo creatureType)
     {
-      var secondaryIndex0 = creatureType.Indexes.Skip(2).First();
-      var secondaryIndex1 = creatureType.Indexes.GetIndex("Name");
+      //var secondaryIndex0 = creatureType.Indexes.Skip(2).First();
+      var secondaryIndex0 = creatureType.Indexes.GetIndex("Name");
+      var secondaryIndex1 = creatureType.Indexes.GetIndex("Name", "AlsoKnownAs");
       return new Dictionary<IndexInfo, RangeSetInfo>
         {
           {

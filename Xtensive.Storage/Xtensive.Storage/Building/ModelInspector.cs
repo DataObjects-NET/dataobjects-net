@@ -235,6 +235,7 @@ namespace Xtensive.Storage.Building
         if (hierarchyDef==null)
           context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
         else {
+          Validator.ValidateType(typeDef, hierarchyDef);
           // We should skip key fields inspection as they have been already inspected
           foreach (var field in typeDef.Fields) {
             var _field = field;
@@ -253,12 +254,14 @@ namespace Xtensive.Storage.Building
 //      if (fieldDef.UnderlyingProperty != null &&
 //        fieldDef.UnderlyingProperty.DeclaringType.Assembly == Assembly.GetExecutingAssembly())
 //        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemAction(typeDef, fieldDef));
+      if (fieldDef.IsVersion)
+        Validator.ValidateVersionField(fieldDef, isKeyField);
 
       Validator.ValidateFieldType(typeDef, fieldDef.ValueType, isKeyField);
 
       if (isKeyField && fieldDef.IsNullable)
         context.ModelInspectionResult.Register(new MarkFieldAsNotNullableAction(typeDef, fieldDef));
-
+      
       if (fieldDef.IsPrimitive) {
         if (fieldDef.ValueType==typeof (Key))
           context.ModelInspectionResult.Register(new AddForeignKeyIndexAction(typeDef, fieldDef));

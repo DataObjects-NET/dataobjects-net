@@ -11,7 +11,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
@@ -21,9 +20,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Indexing;
 using Xtensive.Storage.Internals;
-using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
@@ -40,8 +37,11 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
+    private static readonly object entitySetCachingRegion = new object();
+
     internal static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyFieldName);
     internal static readonly Parameter<Entity> parameterOwner = new Parameter<Entity>("Owner");
+
     private readonly Entity owner;
     private bool isInitialized;
 
@@ -427,6 +427,27 @@ namespace Xtensive.Storage
 
     protected internal abstract IEnumerable<IEntity> Entities { get; }
 
+    internal EntitySetState UpdateState(IEnumerable<Key> items)
+    {
+      var state = new EntitySetState(1024);
+      state.Clear();
+      long count = 0;
+      foreach (var item in items) {
+        state.Register(item);
+        count++;
+      }
+      state.count = count;
+      State = state;
+      return State;
+    }
+
+    internal EntitySetState GetState()
+    {
+      if (IsStateLoaded)
+        return State;
+      return null;
+    }
+
     internal void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : IEntity
     {
@@ -460,11 +481,14 @@ namespace Xtensive.Storage
 
     internal EntitySetTypeState GetEntitySetTypeState()
     {
-      return Session.Domain.entitySetTypeStateCache.GetValue(Field, BuildEntitySetTypeState, this);
+      return (EntitySetTypeState) Session.Domain.GetCachedItem(
+        new Pair<object, FieldInfo>(entitySetCachingRegion, Field), BuildEntitySetTypeState, this);
     }
 
-    private static EntitySetTypeState BuildEntitySetTypeState(FieldInfo field, EntitySetBase entitySet)
+    private static EntitySetTypeState BuildEntitySetTypeState(object pair, object entitySetObj)
     {
+      var field = ((Pair<object, FieldInfo>) pair).Second;
+      var entitySet = (EntitySetBase) entitySetObj;
       var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
       var seekTransform = new CombineTransform(true,
         field.Association.OwnerType.KeyInfo.TupleDescriptor,

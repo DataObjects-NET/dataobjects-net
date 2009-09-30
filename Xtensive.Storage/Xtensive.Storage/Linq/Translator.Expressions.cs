@@ -220,8 +220,6 @@ namespace Xtensive.Storage.Linq
       if (mc.Method.DeclaringType==typeof (QueryableExtensions))
         if (mc.Method.Name==WellKnownMembers.QueryableJoinLeft.Name)
           return VisitJoinLeft(mc);
-        else if (mc.Method.Name=="In")
-          return VisitIn(mc);
         else if (mc.Method.Name==WellKnownMembers.QueryableLock.Name)
           return VisitLock(mc);
         else
@@ -238,11 +236,6 @@ namespace Xtensive.Storage.Linq
       }
 
       return base.VisitMethodCall(mc);
-    }
-
-    private Expression VisitIn(MethodCallExpression mc)
-    {
-      return VisitContains(mc.Arguments[1], mc.Arguments[0], false);
     }
 
     protected override Expression VisitNew(NewExpression n)

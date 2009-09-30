@@ -28,13 +28,15 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 
     protected override Provider VisitFilter(FilterProvider provider)
     {
-      var primaryIndexProvider = provider.Source as IndexProvider;
-      if (primaryIndexProvider != null && currentRangeSets.Count > 0) {
-        var primaryIndex = primaryIndexProvider.Index.Resolve(domainModel);
-        var result = InsertRangeSetForPrimaryIndex(primaryIndexProvider, primaryIndex);
-        var secondaryProvider = UniteSecondaryProviders(primaryIndex);
-        if (secondaryProvider != null)
-          result = JoinWithPrimaryIndex(secondaryProvider, result, primaryIndex);
+      var existingIndexProvider = provider.Source as IndexProvider;
+      if (existingIndexProvider != null && currentRangeSets.Count > 0) {
+        var existingIndex = existingIndexProvider.Index.Resolve(domainModel);
+        var result = InsertRangeSetForExistingIndex(existingIndexProvider, existingIndex);
+        if (existingIndex.IsPrimary) {
+          var secondaryProvider = UniteSecondaryProviders(existingIndex);
+          if (secondaryProvider!=null)
+            result = JoinWithPrimaryIndex(secondaryProvider, result, existingIndex);
+        }
         return new FilterProvider(result, provider.Predicate);
       }
       return base.VisitFilter(provider);
@@ -54,7 +56,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
     private CompilableProvider UniteSecondaryProviders(IndexInfo primaryIndex)
     {
       CompilableProvider result = null;
-      foreach (var pair in currentRangeSets.Where(p => p.Key.IsSecondary)) {
+      foreach (var pair in currentRangeSets.Where(p => p.Key.IsSecondary && p.Key != primaryIndex)) {
         var rangeSetProvider = new RangeSetProvider(IndexProvider.Get(pair.Key),
           pair.Value.GetSourceAsLambda());
         var primaryKeyColumnIndexes = GetIndexesOfPrimaryKeyFields(primaryIndex, pair.Key);
@@ -67,7 +69,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
       return result;
     }
 
-    private CompilableProvider InsertRangeSetForPrimaryIndex(CompilableProvider primaryProvider,
+    private CompilableProvider InsertRangeSetForExistingIndex(CompilableProvider primaryProvider,
       IndexInfo primaryIndex)
     {
       if (currentRangeSets.ContainsKey(primaryIndex)) {

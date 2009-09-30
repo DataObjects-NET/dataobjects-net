@@ -223,6 +223,20 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether property is part of version.
+    /// </summary>
+    public bool IsVersion
+    {
+      [DebuggerStepThrough]
+      get { return (Attributes & FieldAttributes.Version) != 0; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        Attributes = value ? Attributes | FieldAttributes.Version : Attributes & ~FieldAttributes.Version;
+      }
+    }
+
     #endregion
 
     /// <summary>

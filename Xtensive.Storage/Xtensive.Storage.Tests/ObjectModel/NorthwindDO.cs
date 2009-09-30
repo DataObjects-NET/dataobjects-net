@@ -378,7 +378,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field]
     public DateTime? ShippedDate { get; set; }
 
-    /*[Field]*/
     public decimal? Freight { get; set; }
 
     [Field(Length = 60)]

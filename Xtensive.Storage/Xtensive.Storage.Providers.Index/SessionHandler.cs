@@ -45,6 +45,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
     public override void CommitTransaction()
     {
+      base.CommitTransaction();
       lock (ConnectionSyncRoot) {
         if (StorageView==null)
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
@@ -58,6 +59,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <exception cref="InvalidOperationException">Transaction is not open.</exception>
     public override void RollbackTransaction()
     {
+      base.RollbackTransaction();
       lock (ConnectionSyncRoot) {
         if (StorageView==null)
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);

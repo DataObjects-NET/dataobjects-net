@@ -48,11 +48,13 @@ namespace Xtensive.Storage
     /// <returns>An object implementing <see cref="IDisposable"/> which 
     /// may be disposed to restore a previous state of the 
     /// <see cref="Session.Handler"/> property.</returns>
+    [Infrastructure]
     public IDisposable ChangeSessionHandler(SessionHandler newHandler)
     {
       var result = new Disposable<Session, SessionHandler>(Session, Session.Handler,
         (disposing, session, previousHandler) => session.Handler = previousHandler);
       Session.Handler = newHandler;
+      newHandler.Session = Session;
       return result;
     }
 

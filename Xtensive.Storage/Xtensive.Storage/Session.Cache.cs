@@ -78,7 +78,7 @@ namespace Xtensive.Storage
     internal void UpdateCacheFrom(RecordSet source)
     {
       var reader = Domain.RecordSetReader;
-      foreach (var record in reader.Read(source)) {
+      foreach (var record in reader.Read(source, source.Header)) {
         for (int i = 0; i < record.Count; i++) {
           var key = record.GetKey(i);
           if (key==null)

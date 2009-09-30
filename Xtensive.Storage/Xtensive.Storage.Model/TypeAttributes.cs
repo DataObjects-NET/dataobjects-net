@@ -18,6 +18,7 @@ namespace Xtensive.Storage.Model
     Abstract = 0x10,
     Materialized = 0x20,
     System = 0x40,
-    GenericTypeDefinition = 0x80
+    GenericTypeDefinition = 0x80,
+    AuxiliaryType = 0x100
   }
 }

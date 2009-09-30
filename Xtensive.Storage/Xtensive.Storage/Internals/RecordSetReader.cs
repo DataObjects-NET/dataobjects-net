@@ -20,23 +20,23 @@ namespace Xtensive.Storage.Internals
   {
     private readonly ICache<RecordSetHeader, RecordSetMapping> cache;
 
-    public Record ReadSingleRow(RecordSet source, Key key)
+    public Record ReadSingleRow(IEnumerable<Tuple> source, RecordSetHeader header, Key key)
     {
       var item = source.FirstOrDefault();
       if (item==null)
         return null;
 
       if (key != null && key.IsTypeCached) {
-        var typeMapping = GetMapping(source.Header).Mappings[0].GetTypeMapping(key.Type.TypeId);
+        var typeMapping = GetMapping(header).Mappings[0].GetTypeMapping(key.Type.TypeId);
         var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, item);
         return new Record(item, new Pair<Key, Tuple>(key, entityTuple));
       }
-      return ParseRow(item, GetMapping(source.Header));
+      return ParseRow(item, GetMapping(header));
     }
 
-    public IEnumerable<Record> Read(RecordSet source)
+    public IEnumerable<Record> Read(IEnumerable<Tuple> source, RecordSetHeader header)
     {
-      var mapping = GetMapping(source.Header);
+      var mapping = GetMapping(header);
       foreach (var item in source)
         yield return ParseRow(item, mapping);
     }

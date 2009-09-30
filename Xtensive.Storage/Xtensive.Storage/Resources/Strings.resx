@@ -1043,4 +1043,22 @@ Actions:
   <data name="ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage" xml:space="preserve">
     <value>Type '{0}' does not has any public readable properties or fields, so it can't be persisted to storage.</value>
   </data>
+  <data name="ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy" xml:space="preserve">
+    <value>The specified type's hierarchy is different from the key's hierarchy.</value>
+  </data>
+  <data name="ExFieldXIsNotDeclaredInTypeYOrInOneOfItsAncestors" xml:space="preserve">
+    <value>The field {0} is not declared in the type {1} or in one of its ancestors.</value>
+  </data>
+  <data name="ExIndexesOfColumnsToBeLoadedAreNotSpecified" xml:space="preserve">
+    <value>Indexes of columns to be loaded are not specified.</value>
+  </data>
+  <data name="ExReferencingEntityWithKeyXIsNotFound" xml:space="preserve">
+    <value>The referencing entity with key {0} is not found.</value>
+  </data>
+  <data name="ExReferencingEntityTupleIsNotLoaded" xml:space="preserve">
+    <value>The referencing entity's tuple is not loaded.</value>
+  </data>
+  <data name="ExForeignKeyValueHaveNotBeenLoaded" xml:space="preserve">
+    <value>The foreign key's value have not been loaded.</value>
+  </data>
 </root>

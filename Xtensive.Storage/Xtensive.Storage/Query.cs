@@ -14,6 +14,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions.Visitors;
@@ -27,6 +28,10 @@ namespace Xtensive.Storage
   /// </summary>
   public static class Query
   {
+    private static readonly object indexSeekCachingRegion = new object();
+    private static readonly object transformCachingRegion = new object();
+    private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
+
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
     /// in the current <see cref="Session"/>.

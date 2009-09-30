@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Linq.Materialization
       }
       if (exactType) {
         var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);
-        var entityState = session.UpdateEntityState(key, entityTuple);
+        var entityState = session.Handler.RegisterEntityState(key, entityTuple);
         result = entityState.Entity;
       }
       else {

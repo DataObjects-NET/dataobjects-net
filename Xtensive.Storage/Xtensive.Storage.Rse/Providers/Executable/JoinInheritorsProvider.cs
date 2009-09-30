@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     SeekResult<Tuple> IOrderedEnumerable<Tuple, Tuple>.Seek(Ray<Entire<Tuple>> ray)
     {
       SeekResult<Tuple> seek = rootEnumerable.Seek(ray);
-      if (seek.ResultType != SeekResultType.None) {
+      if (seek.ResultType == SeekResultType.Exact) {
         var resultTuples = new Tuple[1+inheritors.Length];
         resultTuples[0] = seek.Result;
         for (int i = 0; i < inheritors.Length; i++) {
@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     SeekResult<Tuple> IOrderedEnumerable<Tuple, Tuple>.Seek(Tuple key)
     {
       SeekResult<Tuple> seek = rootEnumerable.Seek(key);
-      if (seek.ResultType != SeekResultType.None) {
+      if (seek.ResultType == SeekResultType.Exact) {
         var resultTuples = new Tuple[1+inheritors.Length];
         resultTuples[0] = seek.Result;
         for (int i = 0; i < inheritors.Length; i++) {

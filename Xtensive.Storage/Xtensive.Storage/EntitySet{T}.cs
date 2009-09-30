@@ -240,26 +240,12 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected sealed override EntitySetState LoadState()
     {
-      var state = new EntitySetState(MaxCacheSize);
       if (Owner.State.PersistenceState!=PersistenceState.New) {
-        long stateCount = 0;
-        var cachedState = GetEntitySetTypeState();
-        using (new ParameterContext().Activate()) {
-          pKey.Value = Owner.Key.Value;
-          parameterOwner.Value = Owner;
-          var itemsQuery = (Func<IQueryable<TItem>>) cachedState.RestrictedItemsQuery;
-          var items = Query.Execute(itemsQuery, itemsQuery);
-          foreach (var item in items) {
-            stateCount++;
-            state.Register(item.Key);
-            if (stateCount==LoadStateCount)
-              break;
-          }
-          if (stateCount!=LoadStateCount)
-            state.count = stateCount;
-        }
+        Session.Handler.Prefetch(Owner.Key, Owner.Type, new PrefetchFieldDescriptor(Field, LoadStateCount));
+        Session.Handler.ExecutePrefetchTasks();
+        return State;
       }
-      return state;
+      return new EntitySetState(MaxCacheSize);
     }
 
     /// <inheritdoc/>
@@ -303,23 +289,10 @@ namespace Xtensive.Storage
 
     private IEnumerable<IEntity> GetRealEntities()
     {
-      var context = new ParameterContext();
-      using (context.Activate()) {
-        parameterOwner.Value = Owner;
-      }
-      var cachedState = GetEntitySetTypeState();
-      ParameterScope scope = null;
-      var itemsQuery = (Func<IQueryable<TItem>>) cachedState.ItemsQuery;
-      var batchedItems = Query.Execute(itemsQuery, itemsQuery)
-        .Batch(2).ApplyBeforeAndAfter(() => scope = context.Activate(), () => scope.DisposeSafely());
-      long itemsCount = 0;
-      foreach (var items in batchedItems)
-        foreach (var item in items) {
-          State.Register(item.Key);
-          itemsCount++;
-          yield return item;
-        }
-      State.count = itemsCount;
+      State = null;
+      Session.Handler.Prefetch(Owner.Key, Owner.Type, new PrefetchFieldDescriptor(Field));
+      Session.Handler.ExecutePrefetchTasks();
+      return GetCachedEntities();
     }
 
     private static IQueryable<TItem> GetItemsQuery(FieldInfo field)

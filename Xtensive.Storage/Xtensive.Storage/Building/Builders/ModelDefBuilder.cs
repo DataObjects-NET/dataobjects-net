@@ -184,15 +184,18 @@ namespace Xtensive.Storage.Building.Builders
       var fieldDef = new FieldDef(propertyInfo);
       fieldDef.Name = BuildingContext.Current.NameBuilder.BuildFieldName(fieldDef);
 
-      var fa = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll);
-      if (fa!=null) {
-        AttributeProcessor.Process(fieldDef, fa);
-        var aa = propertyInfo.GetAttribute<AssociationAttribute>(AttributeSearchOptions.InheritAll);
-        if (aa!=null)
-          AttributeProcessor.Process(fieldDef, aa);
-        var ma = propertyInfo.GetAttributes<FieldMappingAttribute>(AttributeSearchOptions.InheritAll);
-        foreach (var fieldMappingAttribute in ma)
+      var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll);
+      if (fieldAttribute!=null) {
+        AttributeProcessor.Process(fieldDef, fieldAttribute);
+        var associationAttribute = propertyInfo.GetAttribute<AssociationAttribute>(AttributeSearchOptions.InheritAll);
+        if (associationAttribute!=null)
+          AttributeProcessor.Process(fieldDef, associationAttribute);
+        var mappingAttributes = propertyInfo.GetAttributes<FieldMappingAttribute>(AttributeSearchOptions.InheritAll);
+        foreach (var fieldMappingAttribute in mappingAttributes)
           AttributeProcessor.Process(fieldDef, fieldMappingAttribute);
+        var versionAttribute = propertyInfo.GetAttribute<VersionAttribute>(AttributeSearchOptions.InheritAll);
+        if (versionAttribute!=null)
+          AttributeProcessor.Process(fieldDef, versionAttribute);
       }
 
       return fieldDef;

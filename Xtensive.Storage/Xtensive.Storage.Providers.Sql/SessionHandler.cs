@@ -63,6 +63,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void CommitTransaction()
     {
+      base.CommitTransaction();
       lock (ConnectionSyncRoot) {
         if (Transaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
@@ -76,6 +77,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void RollbackTransaction()
     {
+      base.RollbackTransaction();
       lock (ConnectionSyncRoot) {
         if (Transaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);

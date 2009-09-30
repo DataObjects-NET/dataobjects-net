@@ -44,11 +44,12 @@ namespace Xtensive.Storage.Model
     private readonly TypeIndexInfoCollection   indexes;
     private readonly NodeCollection<IndexInfo> affectedIndexes;
     private readonly DomainModel               model;
-    private readonly TypeAttributes            attributes;
+    private TypeAttributes                     attributes;
     private ReadOnlyList<TypeInfo>             ancestors;
     private ReadOnlyList<AssociationInfo>      targetAssociations;
     private ReadOnlyList<AssociationInfo>      ownerAssociations;
     private ReadOnlyList<AssociationInfo>      removalSequence;
+    private ReadOnlyList<FieldInfo>            versionFields;
     private Type                               underlyingType;
     private HierarchyInfo                      hierarchy;
     private int                                typeId = NoTypeId;
@@ -126,6 +127,21 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets or sets a value indicating whether this instance is auxiliary type.
+    /// </summary>
+    public bool IsAuxiliary
+    {
+      [DebuggerStepThrough]
+      get { return (attributes & TypeAttributes.AuxiliaryType) == TypeAttributes.AuxiliaryType; }
+      set {
+        this.EnsureNotLocked();
+        attributes = value
+          ? attributes | TypeAttributes.AuxiliaryType
+          : attributes & ~TypeAttributes.AuxiliaryType;
+      }
+    }
+
+    /// <summary>
     /// Gets the attributes.
     /// </summary>
     public TypeAttributes Attributes
@@ -133,8 +149,7 @@ namespace Xtensive.Storage.Model
       [DebuggerStepThrough]
       get { return attributes; }
     }
-
-
+    
     /// <summary>
     /// Gets the columns contained in this instance.
     /// </summary>
@@ -228,6 +243,11 @@ namespace Xtensive.Storage.Model
     {
       get { return IsLocked ? keyInfo : GetKeyInfo(); }
     }
+
+    /// <summary>
+    /// Gets the version tuple extractor.
+    /// </summary>
+    public MapTransform VersionExtractor { get; private set;}
 
     /// <summary>
     /// Creates the tuple prototype with specified <paramref name="primaryKey"/>.
@@ -363,6 +383,30 @@ namespace Xtensive.Storage.Model
       return removalSequence;
     }
 
+    /// <summary>
+    /// Gets the version field sequence.
+    /// </summary>
+    /// <returns></returns>
+    public IList<FieldInfo> GetVersionFields()
+    {
+      if (IsLocked)
+        return versionFields;
+
+      var list = Fields.Where(field => field.IsVersion).ToList();
+      if (list.Count > 0)
+        return list;
+
+      return Fields.Where(field => 
+        !field.IsPrimaryKey 
+        && !field.IsSystem 
+        && !field.IsTypeId 
+        && !field.IsLazyLoad
+        && !field.IsEntity
+        && !field.IsEntitySet
+        && !field.IsStructure)
+        .ToList();
+    }
+
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -370,6 +414,9 @@ namespace Xtensive.Storage.Model
       ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
       targetAssociations = new ReadOnlyList<AssociationInfo>(GetTargetAssociations());
       ownerAssociations = new ReadOnlyList<AssociationInfo>(GetOwnerAssociations());
+      versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
+      foreach (var field in versionFields)
+        field.IsVersion = true;
 
       int adapterIndex = 0;
       foreach (FieldInfo field in Fields)
@@ -389,6 +436,9 @@ namespace Xtensive.Storage.Model
 
       if (IsEntity || IsStructure)
         BuildTuplePrototype();
+      
+      if (IsEntity)
+        CreateVersionExtractor();
 
       // Selecting master parts from paired associations & single associations
       var associations = model.Associations.Find(this).Where(a => a.IsMaster).ToList();
@@ -492,6 +542,18 @@ namespace Xtensive.Storage.Model
         primaryKeyInjector = new MapTransform(false, TupleDescriptor, keyFieldMap);
       }
       TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
+    }
+
+    private void CreateVersionExtractor()
+    {
+      // Building version tuple extractor
+      var versionColumns = GetVersionFields().SelectMany(field => field.Columns);
+      var types = versionColumns.Select(columnInfo => columnInfo.ValueType);
+      var map = versionColumns
+        .Select(columnInfo => Columns.IndexOf(columnInfo))
+        .ToArray();
+      var versionTupleDescriptor = TupleDescriptor.Create(types.ToArray());
+      VersionExtractor = new MapTransform(false, versionTupleDescriptor, map);
     }
 
     #endregion

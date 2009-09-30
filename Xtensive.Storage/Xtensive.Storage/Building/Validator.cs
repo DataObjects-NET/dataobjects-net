@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Xtensive.Core.Reflection;
@@ -145,6 +146,38 @@ namespace Xtensive.Storage.Building
         return;
       }
       throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, fieldType.GetShortName()));
+    }
+
+    internal static void ValidateVersionField(FieldDef field, bool isKeyField)
+    {
+       if (isKeyField)
+          throw new DomainBuilderException(string.Format(
+            "Field '{0}' can't have Version attribute as it is included into primary key.", field.Name));
+        if (field.IsLazyLoad)
+          throw new DomainBuilderException(string.Format(
+            "Field '{0}' can't have Version attribute as it is marked as LazyLoad.", field.Name));
+        if (field.IsEntity)
+          throw new DomainBuilderException(string.Format(
+            "Field '{0}' can't have Version attribute as it type is Entity.", field.Name));
+        if (field.IsEntitySet)
+          throw new DomainBuilderException(string.Format(
+            "Field '{0}' can't have Version attribute as it type is EntitySet.", field.Name));
+        if (field.IsStructure)
+          throw new DomainBuilderException(string.Format(
+            "Field '{0}' can't have Version attribute as it type is Structure.", field.Name));
+        if (field.IsSystem)
+          throw new DomainBuilderException(string.Format(
+            "Field '{0}' can't have Version attribute as it is marked as System.", field.Name));
+        if (field.IsTypeId)
+          throw new DomainBuilderException(string.Format(
+            "Field '{0}' can't have Version attribute as it is TypeId field.", field.Name));
+    }
+
+    internal static void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
+    {
+      if (typeDef.Fields.Any(field => field.IsVersion) && hierarchyDef.Root!=typeDef)
+        throw new DomainBuilderException(string.Format(
+          "Type '{0}' can't contains Version fields as it's not a HierarchyRoot.", typeDef.Name));
     }
 
     public static void EnsureUnderlyingTypeIsAspected(TypeDef type)
