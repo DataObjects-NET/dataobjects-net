@@ -245,10 +245,7 @@ namespace Xtensive.Storage
     {
       if (SessionScope.CurrentSession==this)
         return null;
-      var result = new SessionScope(this);
-      if (sessionScope == null)
-        sessionScope = result;
-      return result;
+      return new SessionScope(this);
     }
 
     /// <inheritdoc/>
@@ -451,7 +448,7 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Session(Domain domain, SessionConfiguration configuration)
+    internal Session(Domain domain, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
       IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
@@ -482,6 +479,8 @@ namespace Xtensive.Storage
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       EntityEventBroker = new EntityEventBroker();
+      if (activate)
+        sessionScope = new SessionScope(this);
     }
 
     #region Dispose pattern

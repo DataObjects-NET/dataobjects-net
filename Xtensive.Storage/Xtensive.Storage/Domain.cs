@@ -195,9 +195,7 @@ namespace Xtensive.Storage
       if (IsDebugEventLoggingEnabled)
         Log.Debug("Opening session '{0}'", configuration);
 
-      var session = new Session(this, configuration);
-      if (activate)
-        session.Activate();
+      var session = new Session(this, configuration, activate);
       OnSessionOpen(session);
       return session;
     }
