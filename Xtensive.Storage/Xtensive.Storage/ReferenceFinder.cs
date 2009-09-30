@@ -114,9 +114,10 @@ namespace Xtensive.Storage
         case Multiplicity.ZeroToMany:
         case Multiplicity.ManyToMany:
           if (association.IsMaster)
-            index = association.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
+            index = association.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
           else
-            index = association.Master.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
+            index = association.Master.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
+
           keyTuple = target.Key.Value;
           recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
           foreach (var item in recordSet)
