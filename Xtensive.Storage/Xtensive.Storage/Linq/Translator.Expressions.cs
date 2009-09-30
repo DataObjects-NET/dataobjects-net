@@ -427,8 +427,8 @@ namespace Xtensive.Storage.Linq
       Type structureType)
     {
       expression = expression.StripCasts();
-      if (expression is StructureFieldExpression)
-        return ((StructureFieldExpression) expression)
+      if (expression is IPersistentExpression)
+        return ((IPersistentExpression) expression)
           .Fields
           .Select(e => (Expression) e)
           .ToList();
