@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Linq.Expressions
     Key,
     Column,
     Field,
-    Structure,
+    StructureField,
     Entity,
     EntityField,
     EntitySet,
@@ -24,6 +24,6 @@ namespace Xtensive.Storage.Linq.Expressions
     SubQuery,
     Marker,
     LocalCollection,
-    LocalCollectionStructure,
+    Structure,
   }
 }

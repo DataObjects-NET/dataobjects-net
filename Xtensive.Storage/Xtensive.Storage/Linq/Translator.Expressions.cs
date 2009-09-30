@@ -333,14 +333,14 @@ namespace Xtensive.Storage.Linq
         break;
       case MemberType.Structure:
         // Structure split to it's fields.
-        var leftStructureExpression = left as StructureExpression;
-        var rightStructureExpression = right as StructureExpression;
+        var leftStructureExpression = left as StructureFieldExpression;
+        var rightStructureExpression = right as StructureFieldExpression;
         if (leftStructureExpression==null && rightStructureExpression==null)
           throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression, binaryExpression));
 
-        StructureExpression structureExpression = (leftStructureExpression ?? rightStructureExpression);
-        leftExpressions = GetStructureFields(left, structureExpression.Fields, structureExpression.Type);
-        rightExpressions = GetStructureFields(right, structureExpression.Fields, structureExpression.Type);
+        StructureFieldExpression structureFieldExpression = (leftStructureExpression ?? rightStructureExpression);
+        leftExpressions = GetStructureFields(left, structureFieldExpression.Fields, structureFieldExpression.Type);
+        rightExpressions = GetStructureFields(right, structureFieldExpression.Fields, structureFieldExpression.Type);
         break;
       case MemberType.Array:
         // Special case. ArrayIndex expression. 
@@ -427,8 +427,8 @@ namespace Xtensive.Storage.Linq
       Type structureType)
     {
       expression = expression.StripCasts();
-      if (expression is StructureExpression)
-        return ((StructureExpression) expression)
+      if (expression is StructureFieldExpression)
+        return ((StructureFieldExpression) expression)
           .Fields
           .Select(e => (Expression) e)
           .ToList();
@@ -606,7 +606,7 @@ namespace Xtensive.Storage.Linq
       Expression result = null;
       Func<PersistentFieldExpression, bool> propertyFilter = f => f.Name==member.Name;
       switch (extendedExpression.ExtendedType) {
-      case ExtendedExpressionType.Structure:
+      case ExtendedExpressionType.StructureField:
         var persistentExpression = (IPersistentExpression) expression;
         result = persistentExpression.Fields.First(propertyFilter);
         break;

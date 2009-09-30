@@ -997,7 +997,7 @@ namespace Xtensive.Storage.Linq
         var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
         var rawProvider = new RawProvider(rsHeader, source.Select(structure => ReferenceEquals(structure, null) ? typeInfo.TuplePrototype : ((Structure)(object)structure).Tuple.GetSegment(tupleSegment)));
         var recordset = new StoreProvider(rawProvider).Result;
-        var structureExpression = LocalCollectionStructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
+        var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
         var itemProjector = new ItemProjectorExpression(structureExpression, recordset, context);
         return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }

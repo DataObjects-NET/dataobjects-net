@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return expression.RemoveOwner();
     }
 
-    protected override Expression VisitStructureExpression(StructureExpression expression)
+    protected override Expression VisitStructureExpression(StructureFieldExpression expression)
     {
       return expression.RemoveOwner();
     }

@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return f;
     }
 
-    protected override Expression VisitStructureExpression(StructureExpression s)
+    protected override Expression VisitStructureExpression(StructureFieldExpression s)
     {
       ProcessFieldOwner(s);
       AddColumns(s,
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return c;
     }
 
-    protected override Expression VisitLocalCollectionStructureExpression(LocalCollectionStructureExpression expression)
+    protected override Expression VisitLocalCollectionStructureExpression(StructureExpression expression)
     {
       AddColumns(expression,
         expression.Fields
@@ -177,10 +177,10 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       if (TreatEntityAsKey || fieldExpression.Owner==null)
         return;
       var entity = fieldExpression.Owner as EntityExpression;
-      var structure = fieldExpression.Owner as StructureExpression;
+      var structure = fieldExpression.Owner as StructureFieldExpression;
       while (entity==null && structure!=null) {
         entity = structure.Owner as EntityExpression;
-        structure = structure.Owner as StructureExpression;
+        structure = structure.Owner as StructureFieldExpression;
       }
       if (entity==null)
         throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToResolveOwnerOfFieldExpressionX, fieldExpression));

@@ -22,8 +22,8 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         return VisitProjectionExpression((ProjectionExpression) expression);
       case ExtendedExpressionType.Field:
         return VisitFieldExpression((FieldExpression) expression);
-      case ExtendedExpressionType.Structure:
-        return VisitStructureExpression((StructureExpression) expression);
+      case ExtendedExpressionType.StructureField:
+        return VisitStructureExpression((StructureFieldExpression) expression);
       case ExtendedExpressionType.Key:
         return VisitKeyExpression((KeyExpression) expression);
       case ExtendedExpressionType.Entity:
@@ -44,14 +44,14 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         return VisitGroupingExpression((GroupingExpression) expression);
       case ExtendedExpressionType.LocalCollection:
         return VisitLocalCollectionExpression((LocalCollectionExpression) expression);
-      case ExtendedExpressionType.LocalCollectionStructure:
-        return VisitLocalCollectionStructureExpression((LocalCollectionStructureExpression) expression);
+      case ExtendedExpressionType.Structure:
+        return VisitLocalCollectionStructureExpression((StructureExpression) expression);
       default:
         return base.VisitUnknown(expression);
       }
     }
 
-    protected virtual Expression VisitLocalCollectionStructureExpression(LocalCollectionStructureExpression expression)
+    protected virtual Expression VisitLocalCollectionStructureExpression(StructureExpression expression)
     {
       return expression;
     }
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return expression;
     }
 
-    protected virtual Expression VisitStructureExpression(StructureExpression expression)
+    protected virtual Expression VisitStructureExpression(StructureFieldExpression expression)
     {
       return expression;
     }

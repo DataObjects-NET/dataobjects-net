@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return expression.RemoveOwner();
     }
 
-    protected override Expression VisitStructureExpression(StructureExpression expression)
+    protected override Expression VisitStructureExpression(StructureFieldExpression expression)
     {
       var hasNoOwner = expression.Owner == null;
       if (hasNoOwner || expression.Mapping.Length <= 2) {
@@ -36,10 +36,10 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       }
 
       var entity = expression.Owner as EntityExpression;
-      var structure = expression.Owner as StructureExpression;
+      var structure = expression.Owner as StructureFieldExpression;
       while (entity == null && structure != null) {
         entity = structure.Owner as EntityExpression;
-        structure = structure.Owner as StructureExpression;
+        structure = structure.Owner as StructureFieldExpression;
       }
       if (entity == null)
         throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToResolveOwnerOfStructureExpressionX, expression));

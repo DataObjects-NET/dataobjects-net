@@ -164,7 +164,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (nestedField.IsPrimitive)
         return FieldExpression.CreateField(nestedField, offset);
       if (nestedField.IsStructure)
-        return StructureExpression.CreateStructure(nestedField, offset);
+        return StructureFieldExpression.CreateStructure(nestedField, offset);
       if (nestedField.IsEntity)
         return EntityFieldExpression.CreateEntityField(nestedField, offset);
       if (nestedField.IsEntitySet)
