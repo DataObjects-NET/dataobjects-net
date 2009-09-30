@@ -9,7 +9,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -29,8 +31,11 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.OrderDate);
+        var orderType = typeof (Order).GetTypeInfo();
+        var orderDateField = orderType.Fields["OrderDate"];
         foreach (var key in prefetcher)
-          Assert.IsNotNull(session.EntityStateCache[key, true]);
+          AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, field => field.IsPrimaryKey
+            || field.IsSystem || field.Equals(orderDateField));
       }
     }
 
@@ -39,12 +44,29 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var prefetcher = Query<Order>.All.Prefetch(o => o.OrderDetails);
+        var prefetcher = Query<Order>.All.Prefetch(o => o.ProcessingTime).Prefetch(o => o.OrderDetails);
         var orderDetailsField = typeof (Order).GetTypeInfo().Fields["OrderDetails"];
         foreach (var order in prefetcher) {
           EntitySetState entitySetState;
           Assert.IsTrue(session.Handler.TryGetEntitySetState(order.Key, orderDetailsField, out entitySetState));
-          Assert.IsFalse(entitySetState.IsFullyLoaded);
+          Assert.IsTrue(entitySetState.IsFullyLoaded);
+        }
+      }
+    }
+
+    private void AssertOnlySpecifiedColumnsAreLoaded(Key key, TypeInfo type, Session session,
+      Func<FieldInfo, bool> fieldSelector)
+    {
+      var tuple = session.EntityStateCache[key, true].Tuple;
+      Assert.IsNotNull(tuple);
+      foreach (var field in type.Fields) {
+        var isFieldSelected = fieldSelector.Invoke(field);
+        foreach (var column in field.Columns) {
+          var isAvailable = tuple.GetFieldState(type.Columns.IndexOf(column)).IsAvailable();
+          if (isFieldSelected)
+            Assert.IsTrue(isAvailable);
+          else
+            Assert.IsFalse(isAvailable);
         }
       }
     }

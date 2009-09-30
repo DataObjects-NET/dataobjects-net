@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Internals
 {
   [Serializable]
   public sealed class Prefetcher<TItem, TElement> : IEnumerable<TElement>
+    where TItem : Entity
   {
     private readonly Func<TElement, Key> keyExtractor;
     private readonly IEnumerable<TElement> source;
@@ -87,7 +88,7 @@ namespace Xtensive.Storage.Internals
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.source = source;
       this.keyExtractor = keyExtractor;
-      modelType = typeof (TElement).GetTypeInfo();
+      modelType = typeof (TItem).GetTypeInfo();
     }
   }
 }

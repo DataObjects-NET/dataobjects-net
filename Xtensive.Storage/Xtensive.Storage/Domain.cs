@@ -40,9 +40,6 @@ namespace Xtensive.Storage
     internal readonly ThreadSafeIntDictionary<GenericKeyTypeInfo> genericKeyTypes = 
       ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
 
-    /*internal readonly ThreadSafeDictionary<Model.FieldInfo, EntitySetTypeState> entitySetTypeStateCache =
-      ThreadSafeDictionary<Model.FieldInfo, EntitySetTypeState>.Create(new object());*/
-
     internal readonly ThreadSafeDictionary<object, object> cache =
       ThreadSafeDictionary<object, object>.Create(new object());
 

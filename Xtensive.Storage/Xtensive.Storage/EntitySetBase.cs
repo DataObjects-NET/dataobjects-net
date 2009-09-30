@@ -203,17 +203,6 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Gets a delegate which returns an <see cref="IQueryable{T}"/>
-    /// fetching items associated with this instance.
-    /// </summary>
-    /// <param name="field">The field containing <see cref="EntitySet{TItem}"/>.</param>
-    /// <returns>
-    /// The created delegate which returns an <see cref="IQueryable{T}"/>
-    /// fetching items associated with this instance.
-    /// </returns>
-    protected abstract Delegate GetItemsQueryDelegate(FieldInfo field);
-
-    /// <summary>
-    /// Gets a delegate which returns an <see cref="IQueryable{T}"/>
     /// returning count of items associated with this instance.
     /// </summary>
     /// <param name="field">The field containing <see cref="EntitySet{TItem}"/>.</param>
@@ -222,17 +211,6 @@ namespace Xtensive.Storage
     /// returning count of items associated with this instance.
     /// </returns>
     protected abstract Delegate GetItemCountQueryDelegate(FieldInfo field);
-
-    /// <summary>
-    /// Gets a delegate which returns an <see cref="IQueryable{T}"/>
-    /// fetching limited number of items associated with this instance.
-    /// </summary>
-    /// <param name="field">The field containing <see cref="EntitySet{TItem}"/>.</param>
-    /// <returns>
-    /// The created delegate which returns an <see cref="IQueryable{T}"/>
-    /// fetching limited number of items associated with this instance.
-    /// </returns>
-    protected abstract Delegate GetItemsLimitedQueryDelegate(FieldInfo field);
     
     #region NotifyXxx & GetSubscription members
 
@@ -498,9 +476,7 @@ namespace Xtensive.Storage
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
           field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName,
           ArrayUtils<Type>.EmptyArray);
-      return new EntitySetTypeState(seek, seekTransform, itemCtor,
-        entitySet.GetItemsQueryDelegate(field), entitySet.GetItemCountQueryDelegate(field),
-        entitySet.GetItemsLimitedQueryDelegate(field));
+      return new EntitySetTypeState(seek, seekTransform, itemCtor,entitySet.GetItemCountQueryDelegate(field));
     }
 
     private void LoadItemsCount()

@@ -73,12 +73,8 @@ namespace Xtensive.Storage
     private const int MaxCacheSize = 10240;
     private const int LoadStateCount = 32;
 
-    private static readonly MethodInfo getItemsQueryMethod = typeof(EntitySet<TItem>)
-      .GetMethod("GetItemsQuery", BindingFlags.Static | BindingFlags.NonPublic);
     private static readonly MethodInfo getItemCountQueryMethod = typeof(EntitySet<TItem>)
       .GetMethod("GetItemCountQuery", BindingFlags.Static | BindingFlags.NonPublic);
-    private static readonly MethodInfo getItemsLimitedQueryMethod = typeof(EntitySet<TItem>)
-      .GetMethod("GetItemsLimitedQuery", BindingFlags.Static | BindingFlags.NonPublic);
     
     private Expression expression;
     private bool isCountCalculated;
@@ -258,21 +254,9 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    protected sealed override Delegate GetItemsQueryDelegate(FieldInfo field)
-    {
-      return Delegate.CreateDelegate(typeof(Func<IQueryable<TItem>>), field, getItemsQueryMethod);
-    }
-
-    /// <inheritdoc/>
     protected sealed override Delegate GetItemCountQueryDelegate(FieldInfo field)
     {
       return Delegate.CreateDelegate(typeof(Func<int>), field, getItemCountQueryMethod);
-    }
-
-    /// <inheritdoc/>
-    protected sealed override Delegate GetItemsLimitedQueryDelegate(FieldInfo field)
-    {
-      return Delegate.CreateDelegate(typeof(Func<IQueryable<TItem>>), field, getItemsLimitedQueryMethod);
     }
 
     #endregion
@@ -306,11 +290,6 @@ namespace Xtensive.Storage
     private static int GetItemCountQuery(FieldInfo field)
     {
       return GetItemsQuery(field).Count();
-    }
-
-    private static IQueryable<TItem> GetItemsLimitedQuery(FieldInfo field)
-    {
-      return GetItemsQuery(field).Take(LoadStateCount);
     }
 
     #endregion

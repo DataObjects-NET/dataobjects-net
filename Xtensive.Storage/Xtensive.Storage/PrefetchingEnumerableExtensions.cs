@@ -15,21 +15,25 @@ namespace Xtensive.Storage
   {
     public static Prefetcher<TItem, TElement> Prefetch<TItem, TElement>(this IEnumerable<TElement> source,
       Func<TElement, Key> keyExtractor)
+      where TItem : Entity
     {
       return new Prefetcher<TItem, TElement>(source, keyExtractor);
-    }
-
-    public static void Prefetch<TItem, TElement, TResult>(this Prefetcher<TItem, TElement> prefetcher,
-      Expression<Func<TItem, TResult>> expression)
-    {
-      prefetcher.Prefetch(expression);
     }
 
     public static Prefetcher<TElement, TElement> Prefetch<TElement, TResult>(
       this IEnumerable<TElement> source, Expression<Func<TElement, TResult>> expression)
       where TElement : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key);
+      return new Prefetcher<TElement, TElement>(source, element => element.Key).Prefetch(expression);
+    }
+
+    public static Prefetcher<TElement, TElement> Prefetch<TElement, TResult>(
+      this IEnumerable<TElement> source, Expression<Func<TElement, TResult>> expression,
+      int entitySetItemCountLimit)
+      where TElement : Entity
+    {
+      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+        .Prefetch(expression, entitySetItemCountLimit);
     }
   }
 }

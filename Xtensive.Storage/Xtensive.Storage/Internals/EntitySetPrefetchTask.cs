@@ -109,9 +109,7 @@ namespace Xtensive.Storage.Internals
       var pair = (Pair<object, EntitySetPrefetchTask>) cachingKey;
       var associationIndex = pair.Second.ReferencingField.Association.UnderlyingIndex;
       var primaryTargetIndex = pair.Second.ReferencingField.Association.TargetType.Indexes.PrimaryIndex;
-      var foreignKeyColumns = GetKeyColumnIndexes(associationIndex);
-      var primaryKeyColumns = GetKeyColumnIndexes(primaryTargetIndex);
-      var joiningColumns = GetJoiningColumnIndexes(associationIndex, primaryKeyColumns);
+      var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex);
       var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
       if (pair.Second.ReferencingField.Association.AuxiliaryType == null)
         AddResultColumnIndexes(resultColumns, primaryTargetIndex, associationIndex.Columns.Count);
@@ -120,7 +118,7 @@ namespace Xtensive.Storage.Internals
         AddResultColumnIndexes(resultColumns, primaryTargetIndex, resultColumns.Count);
       }
       ParameterExpression tupleParameter;
-      var filterExpression = CreateFilterExpression(associationIndex, foreignKeyColumns, out tupleParameter);
+      var filterExpression = CreateFilterExpression(associationIndex, out tupleParameter);
       var result = associationIndex.ToRecordSet()
         .Filter(Expression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter))
         .Alias("a").Join(primaryTargetIndex.ToRecordSet(), joiningColumns);
@@ -139,28 +137,30 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    private static Pair<int>[] GetJoiningColumnIndexes(IndexInfo associationIndex, int[] primaryKeyColumns)
+    private static Pair<int>[] GetJoiningColumnIndexes(IndexInfo primaryIndex, IndexInfo associationIndex)
     {
-      var joiningColumns = new Pair<int>[primaryKeyColumns.Length];
+      var joiningColumns = new Pair<int>[primaryIndex.KeyColumns.Count];
+      var firstColumnIndex = primaryIndex.Columns.IndexOf(primaryIndex.KeyColumns[0].Key);
       for (int i = 0; i < joiningColumns.Length; i++)
         joiningColumns[i] =
           new Pair<int>(associationIndex.Columns.IndexOf(associationIndex.ValueColumns[i]),
-            primaryKeyColumns[i]);
+            firstColumnIndex + i);
       return joiningColumns;
     }
 
     private static Expression CreateFilterExpression(IndexInfo associationIndex,
-      int[] foreignKeyColumns, out ParameterExpression tupleParameter)
+      out ParameterExpression tupleParameter)
     {
       Expression filterExpression = null;
       tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
       var valueProperty = typeof (Parameter<Tuple>).GetProperty("Value", typeof (Tuple));
       var keyValue = Expression.Property(Expression.Constant(ownerParameter), valueProperty);
-      for (int i = 0; i < foreignKeyColumns.Length; i++) {
+      var firstKeyColumnIndex = associationIndex.Columns.IndexOf(associationIndex.KeyColumns[0].Key);
+      for (var i = 0; i < associationIndex.KeyColumns.Count; i++) {
         var getValueMethod = getValueMethodDefinition
-          .MakeGenericMethod(associationIndex.Columns[foreignKeyColumns[i]].ValueType);
+          .MakeGenericMethod(associationIndex.Columns[firstKeyColumnIndex + i].ValueType);
         var tupleParameterFieldAccess = Expression.Call(tupleParameter, getValueMethod,
-          Expression.Constant(foreignKeyColumns[i]));
+          Expression.Constant(firstKeyColumnIndex + i));
         var ownerKeyFieldAccess = Expression.Call(keyValue, getValueMethod,
           Expression.Constant(i));
         if (filterExpression == null)
@@ -170,15 +170,6 @@ namespace Xtensive.Storage.Internals
             Expression.Equal(tupleParameterFieldAccess, ownerKeyFieldAccess));
       }
       return filterExpression;
-    }
-
-    private static int[] GetKeyColumnIndexes(IndexInfo index)
-    {
-      var result = new int[index.KeyColumns.Count];
-      var firstColumnIndex = index.Columns.IndexOf(index.KeyColumns[0].Key);
-      for (int i = 0; i < result.Length; i++)
-        result[i] = firstColumnIndex + i;
-      return result;
     }
 
 
