@@ -67,6 +67,7 @@ namespace Xtensive.Storage.Tests.Issues
     {
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(typeof (HistoryEntry).Assembly, typeof (HistoryEntry).Namespace);
+      config.AutoValidation = false;
       return config;
     }
 
@@ -85,9 +86,27 @@ namespace Xtensive.Storage.Tests.Issues
         }
       }
       using (var s = Session.Open(Domain, sessionConfiguration)) {
-          var document = Query<Document>.Single(key);
-          document.AddHistoryEntry("test", HistoryEntryVisibility.AdministratorUser);
-          document.AddHistoryEntry("test2", HistoryEntryVisibility.AdministratorUser);
+        var document = Query<Document>.Single(key);
+        document.AddHistoryEntry("test", HistoryEntryVisibility.AdministratorUser);
+        document.AddHistoryEntry("test2", HistoryEntryVisibility.AdministratorUser);
+      }
+    }
+
+    [Test]
+    public void AmbientTransactionTest()
+    {
+      var sessionConfiguration = new SessionConfiguration {
+        Options = SessionOptions.AmbientTransactions
+      };
+      using (var s = Session.Open(Domain, sessionConfiguration)) {
+        for (int i = 0; i < 100; i++) {
+          var document = new Document();
+          s.Persist();
+          document.AddHistoryEntry("test_1_" + i, HistoryEntryVisibility.AdministratorUser);
+          s.Persist();
+          document.AddHistoryEntry("test_2_" + i, HistoryEntryVisibility.AdministratorUser);
+          s.CommitAmbientTransaction();
+        }
       }
     }
   }
