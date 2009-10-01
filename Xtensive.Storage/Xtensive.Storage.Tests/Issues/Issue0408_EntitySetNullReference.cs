@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Test.Pilot.Kernel.ProcessingWorkflowModel;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model;
 
 
 namespace Xtensive.Storage.Tests.Issues

@@ -5,9 +5,8 @@ using System.Text;
 using Xtensive.Storage;
 using Xtensive.Storage.Aspects;
 using System.Diagnostics;
-using Test;
 
-namespace Test.Pilot.Kernel.ProcessingWorkflowModel
+namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {
   public abstract class QueueProcessor : Processor
   {

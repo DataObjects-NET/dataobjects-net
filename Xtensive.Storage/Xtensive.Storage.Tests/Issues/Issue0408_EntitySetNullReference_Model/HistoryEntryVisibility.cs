@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Test.Pilot.Kernel.ProcessingWorkflowModel
+namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {
   /// <summary>
   /// Allows specifying who shall see a particular history entry.

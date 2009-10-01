@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xtensive.Storage;
-using Test;
 
-namespace Test.Pilot.Kernel.ProcessingWorkflowModel
+namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {
   public static class CreateObjects
   {
