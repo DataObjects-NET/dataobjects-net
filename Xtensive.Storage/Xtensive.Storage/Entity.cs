@@ -53,8 +53,8 @@ namespace Xtensive.Storage
   [SystemType]
   [DebuggerDisplay("{Key}")]
   public abstract class Entity : Persistent,
-    IEntity, 
-    ISerializable, 
+    IEntity,
+    ISerializable,
     IDeserializationCallback
   {
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
@@ -89,11 +89,13 @@ namespace Xtensive.Storage
     /// Gets a value indicating whether this entity is removed.
     /// </summary>
     /// <seealso cref="Remove"/>
-    public bool IsRemoved {
-      get {
+    public bool IsRemoved
+    {
+      get
+      {
         if (Session.IsPersisting)
           // Removed = "already removed from storage" here
-          return State.IsNotAvailable; 
+          return State.IsNotAvailable;
         else
           // Removed = "either already removed, or marked as removed" here
           return State.IsNotAvailableOrMarkedAsRemoved;
@@ -130,7 +132,7 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure] // Proxy
-    Key IIdentified<Key>.Identifier
+      Key IIdentified<Key>.Identifier
     {
       [DebuggerStepThrough]
       get { return Key; }
@@ -138,7 +140,7 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure] // Proxy
-    object IIdentified.Identifier
+      object IIdentified.Identifier
     {
       [DebuggerStepThrough]
       get { return Key; }
@@ -175,8 +177,8 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override event PropertyChangedEventHandler PropertyChanged
     {
-      add {Session.EntityEventBroker.AddSubscriber(Key, EntityEventBroker.PropertyChangedEventKey, value);}
-      remove {Session.EntityEventBroker.RemoveSubscriber(Key, EntityEventBroker.PropertyChangedEventKey, value);}
+      add { Session.EntityEventBroker.AddSubscriber(Key, EntityEventBroker.PropertyChangedEventKey, value); }
+      remove { Session.EntityEventBroker.RemoveSubscriber(Key, EntityEventBroker.PropertyChangedEventKey, value); }
     }
 
     /// <summary>
@@ -355,7 +357,7 @@ namespace Xtensive.Storage
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
         Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
-                                                  // to avoid post-first property set flush.
+        // to avoid post-first property set flush.
         State.PersistenceState = PersistenceState.Modified;
       }
 
@@ -374,18 +376,18 @@ namespace Xtensive.Storage
       if (!Session.EntityEventBroker.HasSubscribers)
         return;
       var subscriber = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
-      if (subscriber.Second != null)
-        ((PropertyChangedEventHandler)subscriber.Second).Invoke(this,
+      if (subscriber.Second!=null)
+        ((PropertyChangedEventHandler) subscriber.Second).Invoke(this,
           new PropertyChangedEventArgs(field.Name));
     }
 
     protected Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = Key;
-      return new Pair<Key, Delegate>(entityKey, 
+      return new Pair<Key, Delegate>(entityKey,
         Session.EntityEventBroker.GetSubscriber(entityKey, eventKey));
     }
-    
+
     #endregion
 
     #region Serialization-related methods

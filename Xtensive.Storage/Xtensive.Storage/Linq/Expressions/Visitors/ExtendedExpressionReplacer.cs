@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return expression;
     }
 
-    protected override Expression VisitStructureExpression(StructureFieldExpression expression)
+    protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
     {
       return expression;
     }

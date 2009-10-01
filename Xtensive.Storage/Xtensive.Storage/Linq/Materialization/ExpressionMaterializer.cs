@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Linq.Materialization
       throw new NotSupportedException(Resources.Strings.ExUnableToMaterializeBackLocalCollectionItem);
     }
 
-    protected override Expression VisitStructureExpression(StructureFieldExpression expression)
+    protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
 
@@ -208,7 +208,7 @@ namespace Xtensive.Storage.Linq.Materialization
       return MaterializeThroughOwner(expression, tupleExpression);
     }
 
-    protected override Expression VisitLocalCollectionStructureExpression(StructureExpression expression)
+    protected override Expression VisitStructureExpression(StructureExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
 

@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return expression.RemoveOwner();
     }
 
-    protected override Expression VisitStructureExpression(StructureFieldExpression expression)
+    protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
     {
       var hasNoOwner = expression.Owner == null;
       if (hasNoOwner || expression.Mapping.Length <= 2) {

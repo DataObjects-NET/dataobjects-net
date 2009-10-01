@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return f;
     }
 
-    protected override Expression VisitStructureExpression(StructureFieldExpression s)
+    protected override Expression VisitStructureFieldExpression(StructureFieldExpression s)
     {
       ProcessFieldOwner(s);
       AddColumns(s,
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return c;
     }
 
-    protected override Expression VisitLocalCollectionStructureExpression(StructureExpression expression)
+    protected override Expression VisitStructureExpression(StructureExpression expression)
     {
       AddColumns(expression,
         expression.Fields
