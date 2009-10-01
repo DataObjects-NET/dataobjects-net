@@ -29,8 +29,8 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override QueryProvider Provider { get { return ChainedHandler.Provider; } }
 
-    internal override bool IsPrefetchAutoExecutionOccured {
-      get { return ChainedHandler.IsPrefetchAutoExecutionOccured; }
+    internal override int PrefetchTaskExecutionCount {
+      get { return ChainedHandler.PrefetchTaskExecutionCount; }
     }
     
     /// <inheritdoc/>

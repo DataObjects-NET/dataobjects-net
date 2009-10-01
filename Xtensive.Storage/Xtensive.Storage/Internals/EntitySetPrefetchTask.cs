@@ -109,7 +109,8 @@ namespace Xtensive.Storage.Internals
       var pair = (Pair<object, EntitySetPrefetchTask>) cachingKey;
       var associationIndex = pair.Second.ReferencingField.Association.UnderlyingIndex;
       var primaryTargetIndex = pair.Second.ReferencingField.Association.TargetType.Indexes.PrimaryIndex;
-      var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex);
+      var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex,
+        pair.Second.ReferencingField.Association.AuxiliaryType != null);
       var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
       if (pair.Second.ReferencingField.Association.AuxiliaryType == null)
         AddResultColumnIndexes(resultColumns, primaryTargetIndex, associationIndex.Columns.Count);
@@ -137,14 +138,20 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    private static Pair<int>[] GetJoiningColumnIndexes(IndexInfo primaryIndex, IndexInfo associationIndex)
+    private static Pair<int>[] GetJoiningColumnIndexes(IndexInfo primaryIndex, IndexInfo associationIndex,
+      bool hasAuxType)
     {
       var joiningColumns = new Pair<int>[primaryIndex.KeyColumns.Count];
       var firstColumnIndex = primaryIndex.Columns.IndexOf(primaryIndex.KeyColumns[0].Key);
       for (int i = 0; i < joiningColumns.Length; i++)
-        joiningColumns[i] =
-          new Pair<int>(associationIndex.Columns.IndexOf(associationIndex.ValueColumns[i]),
-            firstColumnIndex + i);
+        if (hasAuxType)
+          joiningColumns[i] =
+            new Pair<int>(associationIndex.Columns.IndexOf(associationIndex.ValueColumns[i]),
+              firstColumnIndex + i);
+        else
+          joiningColumns[i] =
+            new Pair<int>(associationIndex.Columns.IndexOf(primaryIndex.KeyColumns[i].Key),
+              firstColumnIndex + i);
       return joiningColumns;
     }
 

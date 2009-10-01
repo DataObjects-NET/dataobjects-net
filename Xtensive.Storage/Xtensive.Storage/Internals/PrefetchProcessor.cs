@@ -24,16 +24,12 @@ namespace Xtensive.Storage.Internals
     
     public SessionHandler Owner { get; private set; }
 
-    public bool IsAutoExecutionOccured { get; private set; }
+    public int TaskExecutionCount { get; private set; }
 
     public void Prefetch(Key key, TypeInfo type, params PrefetchFieldDescriptor[] descriptors)
     {
-      if (taskContainers.Count >= MaxContainerCount) {
+      if (taskContainers.Count >= MaxContainerCount)
         ExecuteTasks();
-        IsAutoExecutionOccured = true;
-      }
-      else
-        IsAutoExecutionOccured = false;
 
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
@@ -102,6 +98,10 @@ namespace Xtensive.Storage.Internals
       }
       finally {
         Clear();
+        if (TaskExecutionCount < int.MaxValue)
+          TaskExecutionCount++;
+        else
+          TaskExecutionCount = int.MinValue;
       }
     }
 

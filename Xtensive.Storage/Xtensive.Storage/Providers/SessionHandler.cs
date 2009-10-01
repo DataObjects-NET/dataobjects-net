@@ -54,9 +54,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public virtual QueryProvider Provider {get { return QueryProvider.Instance; }}
 
-    internal virtual bool IsPrefetchAutoExecutionOccured {
-      get { return prefetchProcessor.IsAutoExecutionOccured; }
-    }
+    internal virtual int PrefetchTaskExecutionCount { get { return prefetchProcessor.TaskExecutionCount;} }
 
     /// <summary>
     /// Opens the transaction.
