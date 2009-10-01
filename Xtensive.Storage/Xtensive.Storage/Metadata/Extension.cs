@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Metadata
   /// </summary>
   [SystemType(3)]
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("Metadata.Extension")]
   public class Extension : MetadataBase
   {

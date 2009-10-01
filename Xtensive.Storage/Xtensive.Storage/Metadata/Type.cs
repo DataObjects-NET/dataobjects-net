@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Metadata
   /// </summary>
   [SystemType(1)]
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("Metadata.Type")]
   [Index("Name", Unique = true)]
   public class Type : MetadataBase

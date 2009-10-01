@@ -17,7 +17,7 @@ using Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel
 {
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class ABase: Entity
   {
@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel
     public B ManyToOne { get; set; }
   }
 
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class BBase:Entity
   {

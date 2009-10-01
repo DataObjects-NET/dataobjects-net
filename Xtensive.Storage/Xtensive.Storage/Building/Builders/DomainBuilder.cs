@@ -96,8 +96,11 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
         string protocol = BuildingContext.Current.Configuration.ConnectionInfo.Protocol;
+        var thisAssemblyNameObject = typeof(DomainBuilder).Assembly.GetName();
+        var thisAssemblyShortName  = thisAssemblyNameObject.Name;
+        var thisAssemblyName = thisAssemblyNameObject.FullName;
 
-        var thisAssemblyName = Assembly.GetExecutingAssembly().GetName();
+        // Getting provider assembly name
         string providerAssemblyShortName;
         switch (protocol) {
         case WellKnown.Protocol.Memory:
@@ -112,8 +115,14 @@ namespace Xtensive.Storage.Building.Builders
           throw new NotSupportedException(
             string.Format(Strings.ExProtocolXIsNotSupportedUseOneOfTheFollowingY, protocol, WellKnown.Protocol.All));
         }
-        var providerAssemblyFullName = thisAssemblyName.FullName.Replace(thisAssemblyName.Name, providerAssemblyShortName);
-        var providerAssembly = Assembly.Load(providerAssemblyFullName);
+        var providerAssemblyName = thisAssemblyName.Replace(thisAssemblyShortName , providerAssemblyShortName);
+
+        // Check for merged assembly
+        if (thisAssemblyShortName==WellKnown.MergedAssemblyName)
+          providerAssemblyName = thisAssemblyName;
+
+        // Creating the provider
+        var providerAssembly = Assembly.Load(providerAssemblyName);
         var handlerProviderType = providerAssembly.GetTypes()
           .Where(type => type.IsPublicNonAbstractInheritorOf(typeof (HandlerFactory)))
           .Where(type => type.IsDefined(typeof (ProviderAttribute), false))
@@ -123,6 +132,7 @@ namespace Xtensive.Storage.Building.Builders
         if (handlerProviderType==null)
           throw new DomainBuilderException(
             string.Format(Strings.ExStorageProviderNotFound, protocol));
+
         var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
         handlerFactory.Domain = BuildingContext.Current.Domain;
         handlerFactory.Initialize();

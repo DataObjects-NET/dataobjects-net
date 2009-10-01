@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   #region Boy, Girl
 
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class Boy : Entity
   {
     [Key, Field(Length = 20)]
@@ -200,7 +200,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   }
 
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class Girl : Entity
   {
     [Key, Field(Length = 20)]
@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   #region Crazy association nesting
   
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity1 : Entity
   {
     [Key, Field]
@@ -233,7 +233,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   }
 
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity2 : Entity
   {
     [Key(0), Field]
@@ -249,7 +249,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   }
 
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity3 : Entity
   {
     [Key(0), Field]
@@ -265,7 +265,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   }
 
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity4 : Entity
   {
     [Key(0), Field]
@@ -358,7 +358,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   #region Complex field copy
 
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class MyStructureOwner : Entity
   {
     [Key, Field]
@@ -374,7 +374,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   }
 
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class ReferencedEntity : Entity
   {
     [Key(0), Field]

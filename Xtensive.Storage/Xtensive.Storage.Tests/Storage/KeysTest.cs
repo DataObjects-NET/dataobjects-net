@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
   {
     #region Model
 
-    [KeyGenerator(null)]
+    [KeyGenerator(KeyGeneratorKind.None)]
     [HierarchyRoot]
     public abstract class Fruit : Entity
     {
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
         : base(tag) {}
     }
 
-    [KeyGenerator(null)]
+    [KeyGenerator(KeyGeneratorKind.None)]
     [HierarchyRoot]
     public class Test : Entity
     {

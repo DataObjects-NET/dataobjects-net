@@ -74,6 +74,7 @@ namespace Xtensive.Integrity.Atomicity
 
     #endregion
 
+
     // Constructors
 
     /// <summary>

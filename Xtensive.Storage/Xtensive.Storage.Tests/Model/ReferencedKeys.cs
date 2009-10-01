@@ -10,7 +10,7 @@ using Xtensive.Storage.Tests.Model.ReferencedKeysModel;
 
 namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
 {
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class Country : Entity
   {
@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
     }
   }
 
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class City : Entity
   {

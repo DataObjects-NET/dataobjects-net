@@ -43,6 +43,11 @@ namespace Xtensive.Storage
     public const string DomainModelExtensionName = "Xtensive.Storage.Model";
 
     /// <summary>
+    /// Name of the <see cref="Extension"/> that describes domain model.
+    /// </summary>
+    public const string MergedAssemblyName = "Xtensive.DataObjects.Net";
+
+    /// <summary>
     /// Name of column in key generator table.
     /// </summary>
     public const string GeneratorColumnName = "ID";

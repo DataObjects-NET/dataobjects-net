@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public EntitySet<Product> Products { get; private set; }
   }
 
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("Customers")]
   [HierarchyRoot]
   public class Customer : BusinessContact
@@ -322,7 +322,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public string FullName { get { return FirstName + " " + LastName; } }
   }
 
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("Territories")]
   [HierarchyRoot]
   public class Territory : Entity
@@ -396,7 +396,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("OrderDetails")]
   [HierarchyRoot]
   public class OrderDetails : Entity

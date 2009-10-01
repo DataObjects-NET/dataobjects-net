@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public EntitySet<Book> Books { get; private set; }
   }
 
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   [Index("Title:ASC")]
   public class Book : Entity
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     }*/
   }
 
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class BookReview : Entity
   {

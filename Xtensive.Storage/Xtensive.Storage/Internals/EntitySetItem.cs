@@ -8,7 +8,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Internals
 {
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public abstract class EntitySetItem<TMaster, TSlave> : Entity
     where TMaster : IEntity

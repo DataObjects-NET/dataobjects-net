@@ -13,6 +13,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration.Elements;
 using Xtensive.Storage.Configuration.Internals;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Configuration

@@ -27,6 +27,20 @@ namespace Xtensive.Storage
     public Type Type { get; private set; }
 
     /// <summary>
+    /// Gets the kind of key generator.
+    /// </summary>
+    public KeyGeneratorKind Kind {
+      get {
+        var type = Type;
+        if (type==null) 
+          return KeyGeneratorKind.None;
+        if (type==typeof(KeyGeneratorKind))
+          return KeyGeneratorKind.Default;
+        return KeyGeneratorKind.Custom;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the size of the key generator cache.
     /// </summary>
     public int CacheSize
@@ -54,6 +68,19 @@ namespace Xtensive.Storage
     public KeyGeneratorAttribute(Type type)
     {
       Type = type;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="keyGeneratorKind">Kind of the key generator.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><c>keyGeneratorKind</c> cannot be 
+    /// <see cref="KeyGeneratorKind.Custom"/> here.</exception>
+    public KeyGeneratorAttribute(KeyGeneratorKind keyGeneratorKind)
+      : this(keyGeneratorKind==KeyGeneratorKind.None ? null : typeof(KeyGenerator))
+    {
+      if (keyGeneratorKind==KeyGeneratorKind.Custom)
+        throw new ArgumentOutOfRangeException("keyGeneratorKind");
     }
   }
 }

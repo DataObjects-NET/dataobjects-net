@@ -680,7 +680,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="source">The source <see cref="SqlProvider">.</param>
     /// <param name="sourceColumns">The source columns.</param>
     /// <param name="aggregateColumn">The aggregate column.</param>
-    /// <returns></returns>
+    /// <returns>Aggregate processing result (expression).</returns>
     protected virtual SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       switch (aggregateColumn.AggregateType) {

@@ -23,6 +23,8 @@ namespace Xtensive.Core.Aspects.Helpers
   {
     private const string XtensiveCoreWeaver = 
       "Xtensive.Core.Weaver";
+    private const string XtensiveDataObjectsDotNet = 
+      "Xtensive.DataObjects.Net";
     private const string XtensiveCoreWeaverWeaverFactory = 
       "Xtensive.Core.Weaver.WeaverFactory";
     
@@ -177,8 +179,15 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="requirements">The requirements to modify.</param>
     public static void AddStandardRequirements(PostSharpRequirements requirements)
     {
-      if (!requirements.PlugIns.Contains(XtensiveCoreWeaver))
-        requirements.PlugIns.Add(XtensiveCoreWeaver);
+      if (typeof(AspectHelper).Assembly.GetName().Name==XtensiveDataObjectsDotNet) {
+        // That's necessary for ILMerged asssembly
+        if (!requirements.PlugIns.Contains(XtensiveDataObjectsDotNet))
+          requirements.PlugIns.Add(XtensiveDataObjectsDotNet);
+      }
+      else {
+        if (!requirements.PlugIns.Contains(XtensiveCoreWeaver))
+          requirements.PlugIns.Add(XtensiveCoreWeaver);
+      }
       if (!requirements.Tasks.Contains(XtensiveCoreWeaverWeaverFactory))
         requirements.Tasks.Add(XtensiveCoreWeaverWeaverFactory);
     }

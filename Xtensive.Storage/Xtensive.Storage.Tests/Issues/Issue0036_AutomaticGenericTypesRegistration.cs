@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
     public int Id { get; private set; }
   }
 
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class SyncInfo<TEntity> : Entity where TEntity : Entity
   {
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
     }
   }
 
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class SecurityInfo<TEntity> : Entity where TEntity : Entity, ISecurable
   {

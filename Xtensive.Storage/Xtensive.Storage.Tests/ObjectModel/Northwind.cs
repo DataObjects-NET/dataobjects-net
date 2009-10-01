@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
   [TableMapping("Customers")]
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class Customer : Entity
   {
     [Field(Length = 5), FieldMapping("CustomerId"), Key]
@@ -242,7 +242,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
   [TableMapping("Territories")]
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class Territory : Entity
   {
     [Field(Length = 20), FieldMapping("TerritoryId"), Key]
@@ -314,7 +314,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
   [TableMapping("OrderDetails")]
   [HierarchyRoot]
-  [KeyGenerator(null)]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class OrderDetails : Entity
   {
     [Field, Key(0)]

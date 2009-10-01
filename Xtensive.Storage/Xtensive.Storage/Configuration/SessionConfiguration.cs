@@ -9,6 +9,7 @@ using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage.Configuration
 {
