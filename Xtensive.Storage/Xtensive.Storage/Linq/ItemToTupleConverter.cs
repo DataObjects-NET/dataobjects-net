@@ -29,12 +29,12 @@ namespace Xtensive.Storage.Linq
 
     public Expression Expression { get; protected set; }
 
-    public static ItemToTupleConverter BuildConverter(Type type, object enumerable, int[] columnMap, DomainModel model)
+    public static ItemToTupleConverter BuildConverter(Type type, object enumerable, DomainModel model)
     {
       return (ItemToTupleConverter) typeof (ItemToTupleConverter<>)
         .MakeGenericType(type)
         .GetConstructors()[0]
-        .Invoke(new[]{enumerable, columnMap, model});
+        .Invoke(new[]{enumerable, model});
     }
   }
 }

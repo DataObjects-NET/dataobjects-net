@@ -940,7 +940,7 @@ namespace Xtensive.Storage.Linq
           .Single(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IEnumerable<>))
           .GetGenericArguments()[0];
 
-        var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, context.Evaluator.Evaluate(sequence).Value, null, context.Model);
+        var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, context.Evaluator.Evaluate(sequence).Value, context.Model);
         var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
         var rawProvider = new RawProvider(rsHeader, itemToTupleConverter);
         var recordset = new StoreProvider(rawProvider).Result;

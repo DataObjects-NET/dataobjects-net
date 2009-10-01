@@ -5,8 +5,8 @@
 // Created:    2009.10.01
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
@@ -14,19 +14,45 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
-using Xtensive.Storage.Resources;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Model;
-using System.Linq;
+using Xtensive.Storage.Resources;
+using FieldInfo=System.Reflection.FieldInfo;
 
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
   internal sealed class ItemToTupleConverter<TItem> : ItemToTupleConverter
   {
+    private readonly IEnumerable<Tuple> enumerable;
     private readonly DomainModel model;
-    private IEnumerable<Tuple> enumerable;
-    private readonly int[] columnMap;
+
+    public ItemToTupleConverter(IEnumerable<TItem> values, DomainModel model)
+    {
+      this.model = model;
+      Type itemType = typeof (TItem);
+      int index = 0;
+      ParameterExpression parameterExpression = Expression.Parameter(itemType, "item");
+      IEnumerable<Type> types = EnumerableUtils<Type>.Empty;
+      if (IsPersistableType(itemType)) {
+        Expression = (Expression) BuildField(itemType, ref index, ref types);
+        TupleDescriptor = TupleDescriptor.Create(types);
+      }
+      else {
+        ISet<Type> processedTypes = new Set<Type>();
+        LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, ref index, null, ref types);
+        TupleDescriptor = TupleDescriptor.Create(types);
+        Expression = itemExpression;
+      }
+      Func<TItem, int, Tuple> converter = delegate(TItem item, int number) {
+        RegularTuple tuple = Tuple.Create(TupleDescriptor);
+        if (ReferenceEquals(item, null))
+          return tuple;
+        int offset = 0;
+        FillLocalCollectionField(item, tuple, Expression);
+        return tuple;
+      };
+      enumerable = values.Select(converter);
+    }
 
     public override IEnumerator<Tuple> GetEnumerator()
     {
@@ -35,11 +61,11 @@ namespace Xtensive.Storage.Linq
 
     private bool IsPersistableType(Type type)
     {
-      if (type==typeof (Entity) 
-        || type.IsSubclassOf(typeof (Entity)) 
-        || type==typeof (Structure) 
-        || type.IsSubclassOf(typeof (Entity))) {
-        if (model.Types.Contains(type))
+      if (type==typeof (Entity)
+        || type.IsSubclassOf(typeof (Entity))
+          || type==typeof (Structure)
+            || type.IsSubclassOf(typeof (Entity))) {
+        if (!model.Types.Contains(type))
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
       }
@@ -59,29 +85,37 @@ namespace Xtensive.Storage.Linq
     }
 
 
-//
-//    private void FillLocalCollectionField(object item, Tuple tuple, LocalCollectionExpression itemExpression)
-//    {
-//      foreach (var field in itemExpression.Fields) {
-//        var column = field.Value as ColumnExpression;
-//        if (column!=null) {
-//          var propertyInfo = field.Key as PropertyInfo;
-//          object value = propertyInfo==null
-//            ? ((FieldInfo) field.Key).GetValue(item)
-//            : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
-//          tuple.SetValue(column.Mapping.Offset, value);
-//        }
-//        else {
-//          var localCollection = (LocalCollectionExpression) field.Value;
-//          var propertyInfo = localCollection.MemberInfo as PropertyInfo;
-//          object value = propertyInfo==null
-//            ? ((FieldInfo) localCollection.MemberInfo).GetValue(item)
-//            : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
-//          if (value!=null)
-//            FillLocalCollectionField(value, tuple, localCollection);
-//        }
-//      }
-//    }
+    private void FillLocalCollectionField(object item, Tuple tuple, Expression expression)
+    {
+      // LocalCollectionExpression
+      if (expression is LocalCollectionExpression) {
+        var itemExpression = (LocalCollectionExpression) expression;
+        foreach (var field in itemExpression.Fields) {
+          if (field.Value is LocalCollectionExpression) {
+            var localCollectionExpression = (LocalCollectionExpression) field.Value;
+            var localCollection = (LocalCollectionExpression) field.Value;
+            var propertyInfo = localCollection.MemberInfo as PropertyInfo;
+            object value = propertyInfo==null
+              ? ((FieldInfo) localCollection.MemberInfo).GetValue(item)
+              : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
+            if (value!=null)
+              FillLocalCollectionField(value, tuple, localCollection);
+          }
+          else if (field.Value is ColumnExpression) {
+            var column = (ColumnExpression) field.Value;
+            var propertyInfo = field.Key as PropertyInfo;
+            object value = propertyInfo==null
+              ? ((FieldInfo) field.Key).GetValue(item)
+              : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
+            tuple.SetValue(column.Mapping.Offset, value);
+          }
+          else {
+            throw new NotImplementedException();
+          }
+        }
+      }
+    }
+
 //
 //
 //    private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression expression)
@@ -167,98 +201,69 @@ namespace Xtensive.Storage.Linq
 //          return tuple;
 //        };
 //
-//    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, int columnIndex, MemberInfo parentMember)
-//    {
-//      if (!processedTypes.Add(type))
-//        throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
-//
-//
-//      var members = type
-//        .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-//        .Where(propertyInfo => propertyInfo.CanRead)
-//        .Cast<MemberInfo>()
-//        .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public));
-//      var fields = new Dictionary<MemberInfo, IMappedExpression>();
-//      foreach (MemberInfo memberInfo in members) {
-//        var propertyInfo = memberInfo as PropertyInfo;
-//        Type memberType = propertyInfo==null
-//          ? ((FieldInfo) memberInfo).FieldType
-//          : propertyInfo.PropertyType;
-//        if (TypeIsStorageMappable(memberType)) {
-//          var column = ColumnExpression.Create(memberType, columnIndex);
-//          fields.Add(memberInfo, column);
-//          columnIndex++;
-//        }
-//        else {
-//          var collectionExpression = BuildLocalCollectionExpression(memberType, new Set<Type>(processedTypes), columnIndex, memberInfo);
-//          fields.Add(memberInfo, collectionExpression);
-//          columnIndex += collectionExpression.Fields.Count();
-//        }
-//      }
-//      if (fields.Count==0)
-//        throw new InvalidOperationException(String.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, type.FullName));
-//      var result = new LocalCollectionExpression(type, null, null, parentMember, false);
-//      result.Fields = fields;
-//      return result;
-//    }
-//
-     
-
-    public ItemToTupleConverter(IEnumerable<TItem> values, int[] columnMap, DomainModel model)
+    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, ref IEnumerable<Type> types)
     {
-      this.model = model;
-      this.columnMap = columnMap;
-      var itemType = typeof(TItem);
-      int index = 0;
-      if (IsPersistableType(itemType)) {
-        IEnumerable<Type> types = EnumerableUtils<Type>.Empty;
-        Expression = BuildField(itemType, ref index, ref types);
-        TupleDescriptor = TupleDescriptor.Create(types);
+      if (!processedTypes.Add(type))
+        throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
+
+
+      IEnumerable<MemberInfo> members = type
+        .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+        .Where(propertyInfo => propertyInfo.CanRead)
+        .Cast<MemberInfo>()
+        .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public));
+      var fields = new Dictionary<MemberInfo, IMappedExpression>();
+      foreach (MemberInfo memberInfo in members) {
+        var propertyInfo = memberInfo as PropertyInfo;
+        Type memberType = propertyInfo==null
+          ? ((FieldInfo) memberInfo).FieldType
+          : propertyInfo.PropertyType;
+        if (IsPersistableType(memberType)) {
+          IMappedExpression expression = BuildField(memberType, ref columnIndex, ref types);
+          fields.Add(memberInfo, expression);
+        }
+        else {
+          LocalCollectionExpression collectionExpression = BuildLocalCollectionExpression(memberType, new Set<Type>(processedTypes), ref columnIndex, memberInfo, ref types);
+          fields.Add(memberInfo, collectionExpression);
+        }
       }
-      else {
-        
-      }
+      if (fields.Count==0)
+        throw new InvalidOperationException(String.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, type.FullName));
+      var result = new LocalCollectionExpression(type, parentMember);
+      result.Fields = fields;
+      return result;
     }
 
-    private Expression BuildField(Type type, ref int index, ref IEnumerable<Type> types)
+
+    private IMappedExpression BuildField(Type type, ref int index, ref IEnumerable<Type> types)
     {
       if (type.IsSubclassOf(typeof (Entity))) {
-        var typeInfo = model.Types[type];
-        var keyInfo = typeInfo.KeyInfo;
-        var keyTupleDescriptor = keyInfo.TupleDescriptor;
-        if (columnMap==null) {
-          var entityExpression = EntityExpression.Create(typeInfo, index, true);
-          index += keyTupleDescriptor.Count;
-          types = types.Concat(keyTupleDescriptor);
-          return entityExpression;
-        }
-        else {
-          // Remap?
-          throw new NotImplementedException();
-        }
-    }
+        TypeInfo typeInfo = model.Types[type];
+        KeyInfo keyInfo = typeInfo.KeyInfo;
+        TupleDescriptor keyTupleDescriptor = keyInfo.TupleDescriptor;
+        EntityExpression entityExpression = EntityExpression.Create(typeInfo, index, true);
+        index += keyTupleDescriptor.Count;
+        types = types.Concat(keyTupleDescriptor);
+        return entityExpression;
+      }
+
       if (type.IsSubclassOf(typeof (Structure))) {
-        var typeInfo = model.Types[type];
-        var tupleDescriptor = typeInfo.TupleDescriptor;
-        if (columnMap==null) {
-          var tupleSegment = new Segment<int>(index, tupleDescriptor.Count);
-          var structureExpression =  StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
-          index += tupleDescriptor.Count;
-          types = types.Concat(tupleDescriptor);
-        }
-        else {
-          // Remap?
-          throw new NotImplementedException();
-        }
+        TypeInfo typeInfo = model.Types[type];
+        TupleDescriptor tupleDescriptor = typeInfo.TupleDescriptor;
+        var tupleSegment = new Segment<int>(index, tupleDescriptor.Count);
+        StructureExpression structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
+        index += tupleDescriptor.Count;
+        types = types.Concat(tupleDescriptor);
       }
 
       if (TypeIsStorageMappable(type)) {
-        var columnExpression = ColumnExpression.Create(type, index);
+        ColumnExpression columnExpression = ColumnExpression.Create(type, index);
         types = types.AddOne(type);
         index++;
         return columnExpression;
       }
-      throw new NotImplementedException();
+
+      throw new NotSupportedException();
+    }
   }
-}
 }

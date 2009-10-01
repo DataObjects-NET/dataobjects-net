@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, OuterParameter, MaterializationExpression, MemberInfo, DefaultIfEmpty);
+      var result = new LocalCollectionExpression(Type, MemberInfo);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.Remap(offset, processedExpressions));
       return result;
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, OuterParameter, MaterializationExpression, MemberInfo, DefaultIfEmpty);
+      var result = new LocalCollectionExpression(Type, MemberInfo);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.Remap(map, processedExpressions));
       return result;
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, OuterParameter, MaterializationExpression, MemberInfo, DefaultIfEmpty);
+      var result = new LocalCollectionExpression(Type, MemberInfo);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.BindParameter(parameter, processedExpressions));
       return result;
@@ -85,21 +85,15 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, OuterParameter, MaterializationExpression, MemberInfo, DefaultIfEmpty);
+      var result = new LocalCollectionExpression(Type, MemberInfo);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.RemoveOuterParameter(processedExpressions));
       return result;
     }
 
-    public LocalCollectionExpression(
-      Type type,
-      ParameterExpression parameterExpression,
-      Expression materializationExpression,
-      MemberInfo memberInfo,
-      bool defaultIfEmpty)
-      : base(ExtendedExpressionType.LocalCollection, type, parameterExpression, defaultIfEmpty)
+    public LocalCollectionExpression(Type type, MemberInfo memberInfo)
+      : base(ExtendedExpressionType.LocalCollection, type, null, true)
     {
-      MaterializationExpression = materializationExpression;
       Fields = new Dictionary<MemberInfo, IMappedExpression>();
       MemberInfo = memberInfo;
     }

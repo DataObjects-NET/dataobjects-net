@@ -473,7 +473,7 @@ namespace Xtensive.Storage.Linq
       return GetKeyFields(keyExpression, keyFieldTypes);
     }
 
-    private static IList<Expression> GetKeyFields(Expression expression, IEnumerable<Type> keyFieldTypes)
+    public static IList<Expression> GetKeyFields(Expression expression, IEnumerable<Type> keyFieldTypes)
     {
       expression = expression.StripCasts();
       if (expression is KeyExpression)
