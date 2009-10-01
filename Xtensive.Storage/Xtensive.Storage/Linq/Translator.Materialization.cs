@@ -148,43 +148,6 @@ namespace Xtensive.Storage.Linq
     {
       TranslateMethodInfo = typeof (Translator)
         .GetMethod("Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TResult"}, new[] {typeof (ProjectionExpression), typeof (IEnumerable<Parameter<Tuple>>)});
-      VisitLocalCollectionSequenceMethodInfo = typeof (Translator)
-        .GetMethod("VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TItem"}, new[] {typeof (Expression)});
-    }
-
-    private bool TypeIsStorageMappable(Type type)
-    {
-      // TODO: AG: Take info from storage!
-      return type.IsPrimitive
-        || type==typeof (byte[])
-          || type==typeof (decimal)
-            || type==typeof (string)
-              || type==typeof (DateTime)
-                || type==typeof (TimeSpan)
-                  || (type.IsNullable() && TypeIsStorageMappable(type.GetGenericArguments()[0]));
-    }
-
-    private void FillLocalCollectionField(object item, Tuple tuple, LocalCollectionExpression itemExpression)
-    {
-      foreach (var field in itemExpression.Fields) {
-        var column = field.Value as ColumnExpression;
-        if (column!=null) {
-          var propertyInfo = field.Key as PropertyInfo;
-          object value = propertyInfo==null
-            ? ((FieldInfo) field.Key).GetValue(item)
-            : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
-          tuple.SetValue(column.Mapping.Offset, value);
-        }
-        else {
-          var localCollection = (LocalCollectionExpression) field.Value;
-          var propertyInfo = localCollection.MemberInfo as PropertyInfo;
-          object value = propertyInfo==null
-            ? ((FieldInfo) localCollection.MemberInfo).GetValue(item)
-            : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
-          if (value!=null)
-            FillLocalCollectionField(value, tuple, localCollection);
-        }
-      }
     }
   }
 }

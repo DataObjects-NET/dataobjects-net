@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -26,7 +27,6 @@ namespace Xtensive.Storage.Linq
   internal sealed partial class Translator : QueryableVisitor
   {
     private readonly TranslatorContext context;
-    public static readonly MethodInfo VisitLocalCollectionSequenceMethodInfo;
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
@@ -932,22 +932,23 @@ namespace Xtensive.Storage.Linq
         }
       }
 
-      Expression visitedExpression;
-
-      if (sequenceExpression.IsLocalCollection(context)) {
-        Type itemType = sequenceExpression
+      if (sequence.IsLocalCollection(context)) {
+        Type itemType = sequence
           .Type
           .GetInterfaces()
           .AddOne(sequenceExpression.Type)
           .Single(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IEnumerable<>))
           .GetGenericArguments()[0];
-        MethodInfo method = VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType);
-        visitedExpression = (ProjectionExpression) method.Invoke(this, new[] {sequenceExpression});
-      }
-      else
-        visitedExpression = Visit(sequenceExpression);
 
-      visitedExpression = visitedExpression.StripCasts();
+        var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, context.Evaluator.Evaluate(sequence).Value, null, context.Model);
+        var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
+        var rawProvider = new RawProvider(rsHeader, itemToTupleConverter);
+        var recordset = new StoreProvider(rawProvider).Result;
+        var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, context);
+        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      }
+      
+      Expression visitedExpression = Visit(sequenceExpression).StripCasts();
 
       if (visitedExpression.IsGroupingExpression()
         || visitedExpression.IsSubqueryExpression())
@@ -963,108 +964,6 @@ namespace Xtensive.Storage.Linq
         return (ProjectionExpression) visitedExpression;
 
       throw new NotSupportedException(string.Format(Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
-    }
-
-    
-
-// ReSharper disable UnusedMember.Local
-    private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression expression) // ReSharper restore UnusedMember.Local
-    {
-      var source = (IEnumerable<TItem>) context.Evaluator.Evaluate(expression).Value;
-      var itemType = typeof (TItem);
-      var type = itemType.IsNullable() ? itemType.GetGenericArguments()[0] : itemType;
-
-      if (type==typeof(Entity) || type.IsSubclassOf(typeof(Entity))) {
-        var typeInfo = context.Model.Types[type];
-        var keyInfo = typeInfo.KeyInfo;
-        var keyTupleDescriptor = keyInfo.TupleDescriptor;
-        var columns = keyInfo.Columns.Select((columnInfo, i)=>new SystemColumn(context.GetNextColumnAlias(), i, columnInfo.ValueType)).Cast<Column>();
-        var rsHeader = new RecordSetHeader(keyTupleDescriptor, columns);
-        var rawProvider = new RawProvider(rsHeader, source.Select(e => ReferenceEquals(e, null) ? Tuple.Create(keyTupleDescriptor) : ((Entity)(object)e).Key.Value));
-        var recordset = new StoreProvider(rawProvider).Result;
-        var entityExpression = EntityExpression.Create(typeInfo, 0, true);
-        var itemProjector = new ItemProjectorExpression(entityExpression, recordset, context);
-        if (state.JoinLocalCollectionEntity) 
-          EnsureEntityFieldsAreJoined(entityExpression, itemProjector);
-        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-      }
-
-      if (type==typeof(Structure) || type.IsSubclassOf(typeof(Structure))) {
-        var typeInfo = context.Model.Types[type];
-        var tupleDescriptor = typeInfo.TupleDescriptor;
-        var columns = tupleDescriptor.Select((columnType, i)=>new SystemColumn(context.GetNextColumnAlias(), i, columnType)).Cast<Column>();
-        var rsHeader = new RecordSetHeader(tupleDescriptor, columns);
-        var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
-        var rawProvider = new RawProvider(rsHeader, source.Select(structure => ReferenceEquals(structure, null) ? typeInfo.TuplePrototype : ((Structure)(object)structure).Tuple.GetSegment(tupleSegment)));
-        var recordset = new StoreProvider(rawProvider).Result;
-        var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
-        var itemProjector = new ItemProjectorExpression(structureExpression, recordset, context);
-        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-      }
-
-      if (TypeIsStorageMappable(type)) {
-        var rsHeader = new RecordSetHeader(TupleDescriptor.Create(new[] {type}), new[] {new SystemColumn(context.GetNextColumnAlias(), 0, type)});
-        var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)));
-        var recordset = new StoreProvider(rawProvider).Result;
-        var column = ColumnExpression.Create(itemType, 0);
-        var itemProjector = new ItemProjectorExpression(column, recordset, context);
-        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-      }
-      else {
-        ISet<Type> processedTypes = new SetSlim<Type>();
-        LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, 0, null);
-
-        var tupleDescriptor = TupleDescriptor.Create(itemExpression.Columns.Select(columnExpression => columnExpression.Type));
-
-        Func<TItem, int, Tuple> converter = delegate(TItem item, int number) {
-          var tuple = Tuple.Create(tupleDescriptor);
-          if (ReferenceEquals(item, null))
-            return tuple;
-          FillLocalCollectionField(item, tuple, itemExpression);
-          return tuple;
-        };
-
-        var rsHeader = new RecordSetHeader(tupleDescriptor, tupleDescriptor.Select(x => new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
-        var rawProvider = new RawProvider(rsHeader, source.Select(converter));
-        var recordset = new StoreProvider(rawProvider).Result;
-        var itemProjector = new ItemProjectorExpression(itemExpression, recordset, context);
-        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-      }
-    }
-
-    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, int columnIndex, MemberInfo parentMember)
-    {
-      if (!processedTypes.Add(type))
-        throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
-
-
-      var members = type
-        .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-        .Where(propertyInfo => propertyInfo.CanRead)
-        .Cast<MemberInfo>()
-        .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public));
-      var fields = new Dictionary<MemberInfo, IMappedExpression>();
-      foreach (MemberInfo memberInfo in members) {
-        var propertyInfo = memberInfo as PropertyInfo;
-        Type memberType = propertyInfo==null 
-          ? ((FieldInfo) memberInfo).FieldType 
-          : propertyInfo.PropertyType;
-        if (TypeIsStorageMappable(memberType)) {
-          var column = ColumnExpression.Create(memberType, columnIndex);
-          fields.Add(memberInfo, column);
-          columnIndex++;
-        }
-        else {
-          var collectionExpression = BuildLocalCollectionExpression(memberType, new Set<Type>(processedTypes), columnIndex, memberInfo);
-          fields.Add(memberInfo, collectionExpression);
-          columnIndex += collectionExpression.Fields.Count();
-        }
-      }
-      if (fields.Count==0)
-        throw new InvalidOperationException(String.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, type.FullName));
-      var result = new LocalCollectionExpression(type, null, null, parentMember, false);
-      result.Fields = fields;
-      return result;
     }
   }
 }
