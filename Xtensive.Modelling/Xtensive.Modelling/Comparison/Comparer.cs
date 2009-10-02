@@ -350,8 +350,12 @@ namespace Xtensive.Modelling.Comparison
         bool isNewDifference = TryRegisterDifference(source, target, difference);
         difference.ItemChanges.Clear();
 
-        var src = ((ICountable) source) ?? new ReadOnlyList<Node>(new Node[] {});
-        var tgt = ((ICountable) target) ?? new ReadOnlyList<Node>(new Node[] {});
+        // Inlining 2 below lines leads to error in PEVerify.exe!
+		// (well-known issue with null coalescing operator + cast)
+		var sourceAsCountable = (ICountable) source;
+        var targetAsCountable = (ICountable) target;
+        var src = sourceAsCountable ?? new ReadOnlyList<Node>(new Node[] {});
+        var tgt = targetAsCountable ?? new ReadOnlyList<Node>(new Node[] {});
 
         if (src.Count==0 && tgt.Count==0)
           return null;
