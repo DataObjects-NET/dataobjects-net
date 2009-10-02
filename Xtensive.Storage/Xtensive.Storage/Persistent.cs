@@ -242,8 +242,10 @@ namespace Xtensive.Storage
         }
       }
       else {
-        PrepareToSetField();
-        GetAccessor<T>(field).SetValue(this, field, value);
+        if (!Equals(value, oldValue)) {
+          PrepareToSetField();
+          GetAccessor<T>(field).SetValue(this, field, value);
+        }
       }
       NotifySetFieldValue(field, oldValue, value);
     }
