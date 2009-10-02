@@ -270,8 +270,8 @@ namespace Xtensive.Storage.Tests.Linq
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
           Poco2[] localItems = GetPocoCollection();
-          var join = Query<EntityB>.All.Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p});
-          var expected = Query<EntityB>.All.AsEnumerable().Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p});
+          var join = Query<EntityB>.All.Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A});
+          var expected = Query<EntityB>.All.AsEnumerable().Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A});
           Assert.AreEqual(0, expected.Except(join).Count());
         }
       }

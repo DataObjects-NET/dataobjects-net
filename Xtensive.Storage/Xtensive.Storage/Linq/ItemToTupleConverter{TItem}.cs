@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Linq
       if (type==typeof (Entity)
         || type.IsSubclassOf(typeof (Entity))
           || type==typeof (Structure)
-            || type.IsSubclassOf(typeof (Entity))) {
+            || type.IsSubclassOf(typeof (Structure))) {
         if (!model.Types.Contains(type))
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
@@ -87,33 +87,41 @@ namespace Xtensive.Storage.Linq
 
     private void FillLocalCollectionField(object item, Tuple tuple, Expression expression)
     {
+      if (item==null) 
+        return;
       // LocalCollectionExpression
       if (expression is LocalCollectionExpression) {
         var itemExpression = (LocalCollectionExpression) expression;
         foreach (var field in itemExpression.Fields) {
-          if (field.Value is LocalCollectionExpression) {
-            var localCollectionExpression = (LocalCollectionExpression) field.Value;
-            var localCollection = (LocalCollectionExpression) field.Value;
-            var propertyInfo = localCollection.MemberInfo as PropertyInfo;
-            object value = propertyInfo==null
-              ? ((FieldInfo) localCollection.MemberInfo).GetValue(item)
-              : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
-            if (value!=null)
-              FillLocalCollectionField(value, tuple, localCollection);
-          }
-          else if (field.Value is ColumnExpression) {
-            var column = (ColumnExpression) field.Value;
-            var propertyInfo = field.Key as PropertyInfo;
-            object value = propertyInfo==null
-              ? ((FieldInfo) field.Key).GetValue(item)
-              : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
-            tuple.SetValue(column.Mapping.Offset, value);
-          }
-          else {
-            throw new NotImplementedException();
-          }
+          var propertyInfo = field.Key as PropertyInfo;
+          object value = propertyInfo==null
+            ? ((FieldInfo) field.Key).GetValue(item)
+            : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
+          if (value!=null)
+            FillLocalCollectionField(value, tuple, (Expression)field.Value);
         }
       }
+      else if (expression is ColumnExpression) {
+        var columnExpression = (ColumnExpression) expression;
+        tuple.SetValue(columnExpression.Mapping.Offset, item);
+      }
+      else if (expression is StructureExpression) {
+        var structureExpression = (StructureExpression) expression;
+        var structure = (Structure) item;
+        var typeInfo = structureExpression.PersistentType;
+        var tupleDescriptor = typeInfo.TupleDescriptor;
+        var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
+        var structureTuple = structure.Tuple.GetSegment(tupleSegment);
+        structureTuple.CopyTo(tuple, structureExpression.Mapping.Offset);
+      }
+      else if (expression is EntityExpression) {
+        var entityExpression = (EntityExpression) expression;
+        var entity = (Entity) item;
+        var keyTuple = entity.Key.Value;
+        keyTuple.CopyTo(tuple, entityExpression.Key.Mapping.Offset);
+      }
+      else
+        throw new NotSupportedException();
     }
 
 //
@@ -254,6 +262,7 @@ namespace Xtensive.Storage.Linq
         StructureExpression structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
         index += tupleDescriptor.Count;
         types = types.Concat(tupleDescriptor);
+        return structureExpression;
       }
 
       if (TypeIsStorageMappable(type)) {

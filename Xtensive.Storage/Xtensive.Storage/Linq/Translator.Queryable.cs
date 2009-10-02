@@ -21,6 +21,7 @@ using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Linq.Expressions.Visitors;
 
 namespace Xtensive.Storage.Linq
 {
@@ -945,6 +946,8 @@ namespace Xtensive.Storage.Linq
         var rawProvider = new RawProvider(rsHeader, itemToTupleConverter);
         var recordset = new StoreProvider(rawProvider).Result;
         var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, context);
+        if (state.JoinLocalCollectionEntity)
+          itemProjector = EntityExpressionJoiner.JoinEntities(itemProjector);
         return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
       
