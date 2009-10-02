@@ -241,10 +241,16 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session session = Session.Open(Domain)) {
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
-          var localItems = Query<EntityB>.All.Select(b => b.AdditionalInfo).Take(count / 2).ToArray();
+          var structures = Query<EntityB>.All.Select(b => b.AdditionalInfo).Skip(83).Take(1);
+          var str = structures.Single();
+          var k = Query<EntityB>.All.Where(b => b.AdditionalInfo==str).ToArray();
+          var localItems = structures.ToArray();
           var join = Query<EntityB>.All.Select(b => b.AdditionalInfo).Join(localItems, b => b, l => l, (b, l) => new {b, l});
           var expected = Query<EntityB>.All.AsEnumerable().Select(b => b.AdditionalInfo).Join(localItems, b => b, l => l, (b, l) => new {b, l});
-          Assert.AreEqual(0, expected.Except(join).Count());
+          var except = expected.Except(join);
+          var joinArray = join.ToArray();
+          var expectedArray = expected.ToArray();
+          Assert.AreEqual(0, except.Count());
         }
       }
     }
