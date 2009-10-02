@@ -159,7 +159,7 @@ namespace Xtensive.Storage.Internals
     {
       var taskContainer = GetTaskContainer(key, type, exactType);
       foreach (var descriptor in descriptors) {
-        if (descriptor.Field.IsEntity && !type.IsAuxiliary)
+        if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary)
           taskContainer.RegisterReferencedEntityPrefetchTask(ownerEntityTuple, descriptor.Field);
         else if (descriptor.Field.IsEntitySet)
           taskContainer.RegisterEntitySetPrefetchTask(descriptor);

@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void PrefetchManyEntitySetTest()
+    public void PrefetchManyTest()
     {
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -80,6 +80,35 @@ namespace Xtensive.Storage.Tests.Storage
           var entitySetState = GetFullyLoadedEntitySet(session, territory.Key, employeesField);
           foreach (var employeeKey in entitySetState)
             GetFullyLoadedEntitySet(session, employeeKey, ordersField);
+        }
+      }
+    }
+
+    [Test]
+    public void PrefetchSingleTest()
+    {
+      List<Key> keys;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open())
+        keys = Query<Order>.All.Select(o => o.Key).ToList();
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var orderType = typeof (Order).GetTypeInfo();
+        var employeeType = typeof (Employee).GetTypeInfo();
+        var employeeField = typeof (Order).GetTypeInfo().Fields["Employee"];
+        var ordersField = typeof (Employee).GetTypeInfo().Fields["Orders"];
+        var prefetcher = keys.Prefetch<Order, Key>(key => key)
+          .PrefetchSingle(o => o.Employee, employee => employee,
+          employee => employee.Prefetch(e => e.Orders));
+        foreach (var orderKey in prefetcher) {
+          AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
+            field => PrefetchTask.IsFieldIntrinsicNonLazy(field)
+              || field.Equals(employeeField) || (field.Parent != null && field.Parent.Equals(employeeField)));
+          var state = session.EntityStateCache[orderKey, true];
+          AssertOnlySpecifiedColumnsAreLoaded(state.Entity.GetFieldValue<Employee>(employeeField).Key,
+            employeeType, session, field =>
+              PrefetchTask.IsFieldIntrinsicNonLazy(field) || field.Equals(ordersField));
         }
       }
     }
@@ -110,6 +139,55 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
+    [Test]
+    public void SimultaneouslyUsageOfMultipleEnumerators()
+    {
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var source = Query<Order>.All.ToList();
+        var prefetcher = source.Prefetch(o => o.OrderDetails);
+        using (var enumerator0 = prefetcher.GetEnumerator()) {
+          enumerator0.MoveNext();
+          enumerator0.MoveNext();
+          enumerator0.MoveNext();
+          Assert.IsTrue(source.SequenceEqual(prefetcher));
+          var index = 3;
+          while (enumerator0.MoveNext())
+            Assert.AreSame(source[index++], enumerator0.Current);
+          Assert.AreEqual(source.Count, index);
+        }
+      }
+    }
+
+    [Test]
+    public void FetchFieldsOfReferencedEntityTest()
+    {
+      List<Key> keys;
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open())
+        keys = Query<Order>.All.Select(o => o.Key).ToList();
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.Employee);
+        var orderType = typeof (Order).GetTypeInfo();
+        var employeeType = typeof (Employee).GetTypeInfo();
+        var employeeField = orderType.Fields["Employee"];
+        foreach (var key in prefetcher) {
+          AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, field => field.IsPrimaryKey
+            || field.IsSystem || field.Equals(employeeField)
+            || (field.Parent != null && field.Parent.Equals(employeeField)));
+          var referencingEntity = session.EntityStateCache[key, true].Entity;
+          var foreignKey = Key
+            .Create<Employee>(employeeField.Association.ExtractForeignKey(referencingEntity.Tuple));
+          var referencedEntityState = session.EntityStateCache[foreignKey, true];
+          Assert.IsNotNull(referencedEntityState);
+          AssertOnlySpecifiedColumnsAreLoaded(foreignKey, employeeType, session,
+            PrefetchTask.IsFieldIntrinsicNonLazy);
+        }
+      }
+    }
+    
     private static EntitySetState GetFullyLoadedEntitySet(Session session, Key key,
       FieldInfo employeesField)
     {

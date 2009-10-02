@@ -50,9 +50,7 @@ namespace Xtensive.Storage.Internals
 
     public static bool IsFieldIntrinsicNonLazy(FieldInfo field)
     {
-      return field.IsPrimaryKey || field.IsSystem
-        || (!field.IsEntitySet && field.Parent == null
-        || (field.Parent != null && field.Parent.IsStructure)) && !field.IsLazyLoad && !field.IsEntity;
+      return field.IsPrimaryKey || field.IsSystem || !field.IsLazyLoad && !field.IsEntitySet;
     }
 
     public static bool IsFieldAvailable(Tuple tuple, int fieldIndex)

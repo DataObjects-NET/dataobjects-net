@@ -16,6 +16,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
@@ -35,8 +36,6 @@ namespace Xtensive.Storage.Internals
       new Dictionary<FieldInfo, PrefetchFieldDescriptor>();
     private readonly List<Func<TElement, SessionHandler, IEnumerable>> prefetchManyDelegates =
       new List<Func<TElement, SessionHandler, IEnumerable>>();
-    private readonly Queue<TElement> processedElements = new Queue<TElement>();
-    private readonly List<TElement> waitingElements = new List<TElement>();
 
     /// <summary>
     /// Registers the prefetch of the field specified by <paramref name="expression"/>.
@@ -145,6 +144,8 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public IEnumerator<TElement> GetEnumerator()
     {
+      var processedElements = new Queue<TElement>();
+      var waitingElements = new List<TElement>();
       try {
         var cachedFieldDescriptors = fieldDescriptors.Select(pair => pair.Value).ToArray();
         var sessionHandler = Session.Demand().Handler;
@@ -152,7 +153,7 @@ namespace Xtensive.Storage.Internals
           var prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
           sessionHandler.Prefetch(keyExtractor.Invoke(element), modelType, cachedFieldDescriptors);
           if (prefetchTaskExecutionCount != sessionHandler.PrefetchTaskExecutionCount)
-            ProcessFetchedElements(element, sessionHandler);
+            ProcessFetchedElements(element, processedElements, waitingElements, sessionHandler);
           else
             waitingElements.Add(element);
           if (processedElements.Count > 0)
@@ -195,29 +196,32 @@ namespace Xtensive.Storage.Internals
       prefetchManyDelegates.Add(prefetchManyDelegate);
     }
 
-    private void Prefetch<TFieldValue>(Expression<Func<T, TFieldValue>> expression, int? entitySetItemCountLimit)
+    private void Prefetch<TFieldValue>(Expression<Func<T, TFieldValue>> expression,
+      int? entitySetItemCountLimit)
     {
       var body = expression.Body;
       if (body.NodeType != ExpressionType.MemberAccess)
-        throw new ArgumentException("The specified expression is not MemberExpression", "expression");
+        throw new ArgumentException(Strings.ExSpecifiedExpressionIsNotMemberExpression, "expression");
       var memberAccess = (MemberExpression) body;
       if (memberAccess.Expression != expression.Parameters[0])
-        throw new ArgumentException("The access to a type's member can not be extracted from the specified expression.", "expression");
+        throw new ArgumentException(Strings.ExAccessToTypeMemberCanNotBeExtractedFromSpecifiedExpression,
+          "expression");
       var property = memberAccess.Member as PropertyInfo;
       if (property == null)
-        throw new ArgumentException("The accessed type's member is not a property.", "expression");
+        throw new ArgumentException(Strings.ExAccessedMemberIsNotProperty, "expression");
       var modelField = modelType.Fields.Where(field => field.UnderlyingProperty.Equals(property))
         .SingleOrDefault();
       if (modelField == null)
-        throw new ArgumentException(String.Format("The specified property {0} is not persistent.",
+        throw new ArgumentException(String.Format(Strings.ExSpecifiedPropertyXIsNotPersistent,
           property.Name), "expression");
       if (fieldDescriptors.ContainsKey(modelField))
         throw new InvalidOperationException(String
-          .Format("The field {0} has been already registered for the prefetch.", modelField));
-      fieldDescriptors.Add(modelField, new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit));
+          .Format(Strings.ExFieldXHasBeenAlreadyRegisteredForPrefetch, modelField));
+      fieldDescriptors.Add(modelField, new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit, true));
     }
 
-    private void ProcessFetchedElements(TElement currentElement, SessionHandler sessionHandler)
+    private void ProcessFetchedElements(TElement currentElement, Queue<TElement> processedElements,
+      List<TElement> waitingElements,SessionHandler sessionHandler)
     {
       var prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
       if (prefetchManyDelegates.Count > 0)

@@ -160,6 +160,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The accessed member is not a property..
+        /// </summary>
+        internal static string ExAccessedMemberIsNotProperty {
+            get {
+                return ResourceManager.GetString("ExAccessedMemberIsNotProperty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The access to a type&apos;s member can not be extracted from the specified expression..
+        /// </summary>
+        internal static string ExAccessToTypeMemberCanNotBeExtractedFromSpecifiedExpression {
+            get {
+                return ResourceManager.GetString("ExAccessToTypeMemberCanNotBeExtractedFromSpecifiedExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Active serialization context is not found..
         /// </summary>
         internal static string ExActiveSerializationContextIsNotFound {
@@ -814,6 +832,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey {
             get {
                 return ResourceManager.GetString("ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field {0} has been already registered for prefetch..
+        /// </summary>
+        internal static string ExFieldXHasBeenAlreadyRegisteredForPrefetch {
+            get {
+                return ResourceManager.GetString("ExFieldXHasBeenAlreadyRegisteredForPrefetch", resourceCulture);
             }
         }
         
@@ -1759,6 +1786,24 @@ namespace Xtensive.Storage.Resources {
         internal static string ExSessionWithNameXAlreadyExists {
             get {
                 return ResourceManager.GetString("ExSessionWithNameXAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified expression is not MemberExpression.
+        /// </summary>
+        internal static string ExSpecifiedExpressionIsNotMemberExpression {
+            get {
+                return ResourceManager.GetString("ExSpecifiedExpressionIsNotMemberExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified property {0} is not persistent..
+        /// </summary>
+        internal static string ExSpecifiedPropertyXIsNotPersistent {
+            get {
+                return ResourceManager.GetString("ExSpecifiedPropertyXIsNotPersistent", resourceCulture);
             }
         }
         

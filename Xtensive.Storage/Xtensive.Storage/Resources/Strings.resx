@@ -1061,4 +1061,19 @@ Actions:
   <data name="ExForeignKeyValueHaveNotBeenLoaded" xml:space="preserve">
     <value>The foreign key's value have not been loaded.</value>
   </data>
+  <data name="ExSpecifiedExpressionIsNotMemberExpression" xml:space="preserve">
+    <value>The specified expression is not MemberExpression</value>
+  </data>
+  <data name="ExAccessToTypeMemberCanNotBeExtractedFromSpecifiedExpression" xml:space="preserve">
+    <value>The access to a type's member can not be extracted from the specified expression.</value>
+  </data>
+  <data name="ExAccessedMemberIsNotProperty" xml:space="preserve">
+    <value>The accessed member is not a property.</value>
+  </data>
+  <data name="ExSpecifiedPropertyXIsNotPersistent" xml:space="preserve">
+    <value>The specified property {0} is not persistent.</value>
+  </data>
+  <data name="ExFieldXHasBeenAlreadyRegisteredForPrefetch" xml:space="preserve">
+    <value>The field {0} has been already registered for prefetch.</value>
+  </data>
 </root>

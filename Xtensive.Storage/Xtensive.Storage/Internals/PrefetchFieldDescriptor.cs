@@ -23,7 +23,13 @@ namespace Xtensive.Storage.Internals
     public readonly FieldInfo Field;
 
     /// <summary>
-    /// The maximal count of items which will be loaded during prefetching of an <see cref="EntitySet{TItem}"/>.
+    /// If it is set to <see langword="true" /> then fields' values of 
+    /// an <see cref="Entity"/> referenced by <see cref="Field"/> will be fetched.
+    /// </summary>
+    public readonly bool FetchFieldsOfReferencedEntity;
+
+    /// <summary>
+    /// The maximal count of items which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.
     /// </summary>
     public readonly int? EntitySetItemCountLimit;
 
@@ -57,14 +63,19 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     /// <param name="field">The field which value will be fetched.</param>
     /// <param name="entitySetItemCountLimit">The maximal count of items 
-    /// which will be loaded during prefetching of an <see cref="EntitySet{TItem}"/>.</param>
-    public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit)
+    /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
+    /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true" /> 
+    /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/> 
+    /// will be fetched.</param>
+    public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit,
+      bool fetchFieldsOfReferencedEntity)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       if (entitySetItemCountLimit != null)
         ArgumentValidator.EnsureArgumentIsGreaterThan(entitySetItemCountLimit.Value, 0,
           "entitySetItemCountLimit");
       Field = field;
+      FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
       EntitySetItemCountLimit = entitySetItemCountLimit;
     }
 
@@ -72,9 +83,30 @@ namespace Xtensive.Storage.Internals
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="field">The field which value will be fetched.</param>
-    /// which will be loaded during prefetching of an <see cref="EntitySet{TItem}"/>.</param>
+    /// <param name="entitySetItemCountLimit">The maximal count of items 
+    /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
+    public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit) :
+      this(field, entitySetItemCountLimit, false)
+    {}
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="field">The field which value will be fetched.</param>
+    /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true" /> 
+    /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/> 
+    /// will be fetched.</param>
+    public PrefetchFieldDescriptor(FieldInfo field, bool fetchFieldsOfReferencedEntity) :
+      this(field, null, fetchFieldsOfReferencedEntity)
+    {}
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="field">The field which value will be fetched.</param>
+    /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
     public PrefetchFieldDescriptor(FieldInfo field)
-      : this(field, null)
+      : this(field, null, false)
     {}
   }
 }

@@ -290,12 +290,12 @@ namespace Xtensive.Storage.Tests.Storage
       using (Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
 
-        prefetchProcessor.Prefetch(orderKey0, orderType, new PrefetchFieldDescriptor(customerField));
-        prefetchProcessor.Prefetch(orderKey0, orderType, new PrefetchFieldDescriptor(employeeField));
+        prefetchProcessor.Prefetch(orderKey0, orderType, new PrefetchFieldDescriptor(customerField, true));
+        prefetchProcessor.Prefetch(orderKey0, orderType, new PrefetchFieldDescriptor(employeeField, true));
 
-        prefetchProcessor.Prefetch(orderKey1, orderType, new PrefetchFieldDescriptor(customerField));
+        prefetchProcessor.Prefetch(orderKey1, orderType, new PrefetchFieldDescriptor(customerField, true));
 
-        prefetchProcessor.Prefetch(orderKey2, orderType, new PrefetchFieldDescriptor(employeeField));
+        prefetchProcessor.Prefetch(orderKey2, orderType, new PrefetchFieldDescriptor(employeeField, true));
         prefetchProcessor.ExecuteTasks();
 
         AssertOnlySpecifiedColumnsAreLoaded(orderKey0, orderType, session, field =>
@@ -331,7 +331,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
-        prefetchProcessor.Prefetch(orderKey, orderType, new PrefetchFieldDescriptor(customerField));
+        prefetchProcessor.Prefetch(orderKey, orderType, new PrefetchFieldDescriptor(customerField, true));
         AssertEx.Throws<KeyNotFoundException>(prefetchProcessor.ExecuteTasks);
       }
     }
@@ -652,8 +652,8 @@ namespace Xtensive.Storage.Tests.Storage
         prefetchProcessor.Prefetch(order1Key, order1Key.Type, new PrefetchFieldDescriptor(orderIdField));
         prefetchProcessor.ExecuteTasks();
 
-        prefetchProcessor.Prefetch(order0Key, order0Key.Type, new PrefetchFieldDescriptor(employeeField));
-        prefetchProcessor.Prefetch(order1Key, order1Key.Type, new PrefetchFieldDescriptor(employeeField));
+        prefetchProcessor.Prefetch(order0Key, order0Key.Type, new PrefetchFieldDescriptor(employeeField, true));
+        prefetchProcessor.Prefetch(order1Key, order1Key.Type, new PrefetchFieldDescriptor(employeeField, true));
         var taskContainers = (SetSlim<PrefetchTaskContainer>) taskContainersField.GetValue(prefetchProcessor);
         Assert.AreEqual(2, taskContainers.Count);
         Func<Key, ReferencedEntityPrefetchTask> taskSelector = containerKey => taskContainers
@@ -691,7 +691,7 @@ namespace Xtensive.Storage.Tests.Storage
         orderQuery.ToEntities(0).Single();
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
 
-        prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(employeeField));
+        prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(employeeField, true));
         var taskContainers = (SetSlim<PrefetchTaskContainer>) taskContainersField.GetValue(prefetchProcessor);
         Assert.AreEqual(2, taskContainers.Count);
         foreach (var container in taskContainers)
@@ -727,7 +727,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
-        prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(employeeField));
+        prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(employeeField, true));
         var taskContainer = GetSingleTaskContainer(prefetchProcessor);
         Assert.AreEqual(1, taskContainer.ReferencedEntityPrefetchTasks.Count());
         var task = taskContainer.ReferencedEntityPrefetchTasks.Single();
@@ -753,7 +753,7 @@ namespace Xtensive.Storage.Tests.Storage
         var keyWithoutType = Key.Create(productKey.Hierarchy.Root, productKey.Value, false);
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
         prefetchProcessor.Prefetch(keyWithoutType, Domain.Model.Types[typeof (PersonalProduct)],
-          new PrefetchFieldDescriptor(Domain.Model.Types[typeof (PersonalProduct)].Fields["Employee"]));
+          new PrefetchFieldDescriptor(Domain.Model.Types[typeof (PersonalProduct)].Fields["Employee"], true));
         var taskContainers = (SetSlim<PrefetchTaskContainer>) taskContainersField.GetValue(prefetchProcessor);
         var task = taskContainers.Where(container => container.ReferencedEntityPrefetchTasks!=null)
           .Single().ReferencedEntityPrefetchTasks.Single();
