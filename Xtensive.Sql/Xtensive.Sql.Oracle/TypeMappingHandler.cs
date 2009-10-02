@@ -14,6 +14,11 @@ namespace Xtensive.Sql.Oracle
 {
   internal class TypeMappingHandler : ValueTypeMapping.TypeMappingHandler
   {
+    private const int BytePrecision = 3;
+    private const int ShortPrecision = 5;
+    private const int IntPrecision = 10;
+    private const int LongPrecision = 20;
+
     public override void SetBooleanParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
@@ -149,12 +154,7 @@ namespace Xtensive.Sql.Oracle
 
     public override object ReadDecimal(DbDataReader reader, int index)
     {
-      var nativeReader = (OracleDataReader) reader;
-      var result = OracleDecimal.ConvertToPrecScale(
-        nativeReader.GetOracleDecimal(index),
-        MaxDecimalPrecision.Value,
-        MaxDecimalPrecision.Value / 2);
-      return result.Value;
+      return ReadDecimalSafely(reader, index, MaxDecimalPrecision.Value, MaxDecimalPrecision.Value / 2);
     }
 
     public override object ReadTimeSpan(DbDataReader reader, int index)
@@ -168,6 +168,13 @@ namespace Xtensive.Sql.Oracle
       return SqlHelper.GuidFromString(reader.GetString(index));
     }
 
+    private static decimal ReadDecimalSafely(DbDataReader reader, int index, int newPrecision, int newScale)
+    {
+      var nativeReader = (OracleDataReader) reader;
+      var result = OracleDecimal.ConvertToPrecScale(nativeReader.GetOracleDecimal(index), newPrecision, newScale);
+      return result.Value;
+    }
+
     public override SqlValueType BuildBooleanSqlType(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, 1, 0);
@@ -175,42 +182,42 @@ namespace Xtensive.Sql.Oracle
 
     public override SqlValueType BuildByteSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Decimal, 3, 0);
+      return new SqlValueType(SqlType.Decimal, BytePrecision, 0);
     }
 
     public override SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Decimal, 3, 0);
+      return new SqlValueType(SqlType.Decimal, BytePrecision, 0);
     }
 
     public override SqlValueType BuildShortSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Decimal, 5, 0);
+      return new SqlValueType(SqlType.Decimal, ShortPrecision, 0);
     }
 
     public override SqlValueType BuildUShortSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Decimal, 5, 0);
+      return new SqlValueType(SqlType.Decimal, ShortPrecision, 0);
     }
 
     public override SqlValueType BuildIntSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Decimal, 10, 0);
+      return new SqlValueType(SqlType.Decimal, IntPrecision, 0);
     }
 
     public override SqlValueType BuildUIntSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Decimal, 10, 0);
+      return new SqlValueType(SqlType.Decimal, IntPrecision, 0);
     }
 
     public override SqlValueType BuildLongSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Decimal, 20, 0);
+      return new SqlValueType(SqlType.Decimal, LongPrecision, 0);
     }
 
     public override SqlValueType BuildULongSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Decimal, 20, 0);
+      return new SqlValueType(SqlType.Decimal, LongPrecision, 0);
     }
 
     public override SqlValueType BuildGuidSqlType(int? length, int? precision, int? scale)

@@ -243,6 +243,25 @@ namespace Xtensive.Sql.Oracle.v09
       return base.Translate(context, descriptor, section);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
+    {
+      switch (node.Type.Type) {
+      case SqlType.Char:
+      case SqlType.VarChar:
+      case SqlType.VarCharMax:
+        switch (section) {
+        case NodeSection.Entry:
+          return "TO_CHAR(";
+        case NodeSection.Exit:
+          return ")";
+        default:
+          throw new ArgumentOutOfRangeException("section");
+        }
+      default:
+        return base.Translate(context, node, section);
+      }
+    }
+
     public override string Translate(SqlValueType type)
     {
       // we need to explicitly specify maximum interval precision

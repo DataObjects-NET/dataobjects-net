@@ -11,6 +11,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Info;
 using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 using Xtensive.Storage.Providers.Sql;
+using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
 {
@@ -231,10 +232,10 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class TypeCompatibilityTest : AutoBuildTest
   {
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var config =  base.BuildConfiguration();
-      config.Types.Register(typeof(X).Assembly, typeof(X).Namespace);
+      config.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
       return config;
     }
 
@@ -248,20 +249,20 @@ namespace Xtensive.Storage.Tests.Storage
           key = x.Key;
           t.Complete();
         }
-        DomainHandler dh = Domain.Handlers.DomainHandler as DomainHandler;
-        DateTime dt = new DateTime();
-        if (dh != null) {
+        var domainHandler = Domain.Handlers.DomainHandler as DomainHandler;
+        var minValue = new DateTime();
+        if (domainHandler != null) {
           var field = typeof (Driver).GetField("underlyingDriver", BindingFlags.Instance | BindingFlags.NonPublic);
-          var sqlDriver = (SqlDriver) field.GetValue(dh.Driver);
-          DataTypeInfo dti = sqlDriver.ServerInfo.DataTypes.DateTime;
-          dt = ((ValueRange<DateTime>) dti.ValueRange).MinValue;
+          var sqlDriver = (SqlDriver) field.GetValue(domainHandler.Driver);
+          var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
+          minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
         }
         using (var t = Transaction.Open()) {
           X x = Query<X>.SingleOrDefault(key);
           Assert.AreEqual(false, x.FBool);
           Assert.AreEqual(0, x.FByte);
           Assert.AreEqual(null, x.FByteArray);
-          Assert.AreEqual(dt, x.FDateTime);
+          Assert.AreEqual(minValue, x.FDateTime);
           Assert.AreEqual(0, x.FDecimal);
           Assert.AreEqual(0, x.FDouble);
           Assert.AreEqual(EByte.Default, x.FEByte);
@@ -313,6 +314,16 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
       }
+    }
+
+    [Test]
+    public void ValidateTest()
+    {
+      var configuration = BuildConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Validate;
+      configuration.Types.Register(typeof (X));
+      var domain = Domain.Build(configuration);
+      domain.Dispose();
     }
   }
 }

@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Building.Definitions
       set
       {
         if (value.HasValue)
-          ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, 0, "Scale");
+          ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, -1, "Scale");
         scale = value;
       }
     }
