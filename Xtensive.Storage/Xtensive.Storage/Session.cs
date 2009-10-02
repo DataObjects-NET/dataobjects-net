@@ -61,7 +61,7 @@ namespace Xtensive.Storage
     private readonly bool persistRequiresTopologicalSort;
     private readonly List<QueryTask> queryTasks = new List<QueryTask>();
 
-    private ServiceProvider serviceProvider;
+    private SessionServiceLocator serviceLocator;
     private volatile bool isDisposed;
     private SessionScope sessionScope;
 
@@ -201,11 +201,11 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the session service provider.
     /// </summary>
-    public ServiceProvider Services {
+    public SessionServiceLocator Services {
       get {
-        if (serviceProvider==null)
-          serviceProvider = new ServiceProvider(this);
-        return serviceProvider;
+        if (serviceLocator==null)
+          serviceLocator = new SessionServiceLocator(this);
+        return serviceLocator;
       }
     }
 

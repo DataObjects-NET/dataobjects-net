@@ -6,7 +6,6 @@
 
 using System;
 using System.Configuration;
-using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 
 namespace Xtensive.Storage.Configuration.Elements
@@ -196,33 +195,6 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
-    /// Provides access to the type alias information in the section.
-    /// </summary>
-    [ConfigurationProperty(TypeAliasesElementName, IsRequired = false)]
-    [ConfigurationCollection(typeof(UnityTypeAliasCollection), AddItemName = "typeAlias")]
-    public UnityTypeAliasCollection TypeAliases
-    {
-      get { return (UnityTypeAliasCollection)base[TypeAliasesElementName]; }
-    }
-
-
-    /// <summary>
-    /// A <see cref="ConfigurationElement" /> that stores the configuration information
-    /// for a services provided by <see cref="Microsoft.Practices.Unity.IUnityContainer" />.
-    /// </summary>
-    [ConfigurationProperty(ServicesElementName)]
-    [ConfigurationCollection(typeof(UnityTypeElementCollection), AddItemName = "service")]
-    public UnityTypeElementCollection Services
-    {
-      get
-      {
-        var services = (UnityTypeElementCollection)base[ServicesElementName];
-        services.TypeResolver = new UnityTypeResolver(TypeAliases);
-        return services;
-      }
-    }
-
-    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -249,7 +221,6 @@ namespace Xtensive.Storage.Configuration.Elements
         dc.CompilerContainers.Register(entry.ToNative());
       foreach (var session in Sessions)
         dc.Sessions.Add(session.ToNative());
-      dc.Services = Services;      
       return dc;
     }
   }

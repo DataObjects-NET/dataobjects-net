@@ -6,7 +6,6 @@
 
 using System;
 using System.Configuration;
-using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
@@ -106,7 +105,6 @@ namespace Xtensive.Storage.Configuration
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
     private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
-    private UnityTypeElementCollection services;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -349,23 +347,12 @@ namespace Xtensive.Storage.Configuration
       types.Lock(true);
       sessions.Lock(true);
       compilerContainers.Lock(true);
-      if (services != null)
-        services.LockItem = true;
       base.Lock(recursive);
     }
 
     /// <inheritdoc/>
     public override void Validate()
     {
-    }
-
-    internal UnityTypeElementCollection Services
-    {
-      get { return services; }
-      set {
-        this.EnsureNotLocked();
-        services = value;
-      }
     }
 
     /// <inheritdoc/>
@@ -398,9 +385,6 @@ namespace Xtensive.Storage.Configuration
       compilerContainers = (TypeRegistry) configuration.CompilerContainers.Clone();
       upgradeMode = configuration.upgradeMode;
       foreignKeyMode = configuration.foreignKeyMode;
-      services = configuration.Services;
-      if (services!=null)
-        services.LockItem = configuration.IsLocked;
     }
 
     /// <summary>

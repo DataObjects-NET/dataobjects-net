@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
-using Microsoft.Practices.Unity.Configuration;
 using System;
 using System.Reflection;
 using System.Linq;
@@ -48,7 +47,6 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
         using (new BuildingScope(context)) {
           CreateDomain();
-          ConfigureServiceContainer();
           CreateHandlerFactory();
           CreateDomainHandler();
 
@@ -73,15 +71,6 @@ namespace Xtensive.Storage.Building.Builders
       return context.Domain;
     }
 
-    private static void ConfigureServiceContainer()
-    {
-      var context = BuildingContext.Current;
-      if (context.Configuration.Services==null)
-        return;
-      foreach (UnityTypeElement typeElement in context.Configuration.Services)
-        typeElement.Configure(BuildingContext.Current.Domain.ServiceContainer);
-    }
-    
     private static void CreateDomain()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {

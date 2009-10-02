@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.ConstrainedExecution;
-using Microsoft.Practices.Unity;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
@@ -129,11 +128,6 @@ namespace Xtensive.Storage
     /// Gets the domain-level temporary data.
     /// </summary>
     public GlobalTemporaryData TemporaryData { get; private set; }
-
-    /// <summary>
-    /// Gets the service container.
-    /// </summary>
-    public UnityContainer ServiceContainer { get; private set; }
 
     /// <summary>
     /// Indicates whether debug event logging is enabled.
@@ -291,8 +285,6 @@ namespace Xtensive.Storage
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(
         Configuration.QueryCacheSize, k => k.First);
       TemporaryData = new GlobalTemporaryData();
-      ServiceContainer = new UnityContainer();
-      ServiceContainer.AddExtension(new SingletonExtension());
       Modules = modules;
     }
 
