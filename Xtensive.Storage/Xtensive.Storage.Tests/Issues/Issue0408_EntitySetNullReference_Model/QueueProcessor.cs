@@ -21,16 +21,16 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
 
     public static IList<object> GetWork(string key, Domain domain)
     {
-//      using (Session.Open(domain))
-//      {
+      using (Session.Open(domain))
+      {
         QueueProcessor queueProcessor = null;
-//        using (TransactionScope transactionScope = Transaction.Open())
-//        {
+        using (TransactionScope transactionScope = Transaction.Open())
+        {
           queueProcessor = GetQueueProcessorByKey(key);
-//          transactionScope.Complete();
-//        }
-          return queueProcessor.GetWork();
-//      }
+          transactionScope.Complete();
+        }
+        return queueProcessor.GetWork();
+      }
     }
 
     public static void Execute(string key, object workUnit, Domain domain)
