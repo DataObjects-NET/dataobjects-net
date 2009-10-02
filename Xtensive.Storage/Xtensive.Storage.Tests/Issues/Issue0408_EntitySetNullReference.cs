@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Issues
       {
         DomainConfiguration domainConfig = new DomainConfiguration(connectionUrl);
         SessionConfiguration sessionConfig = new SessionConfiguration(WellKnown.Sessions.Default);
-        sessionConfig.Options |= SessionOptions.AutoTransactions;
+//        sessionConfig.Options |= SessionOptions.AutoTransactions;
         domainConfig.Sessions.Add(sessionConfig);
 
         domainConfig.NamingConvention.NamespacePolicy = NamespacePolicy.AsIs;
@@ -49,10 +49,15 @@ namespace Xtensive.Storage.Tests.Issues
 
       string key = CreateObjects.CreateTestEchoQueueProcessor(domain);
 
-      IList<object> workList = QueueProcessor.GetWork(key, domain);
-      foreach (object workUnit in workList)
-      {
-        QueueProcessor.Execute(key, workUnit, domain);
+      using (Session.Open(domain)) {
+        using (Transaction.Open()) {
+
+          IList<object> workList = QueueProcessor.GetWork(key, domain);
+          foreach (object workUnit in workList)
+          {
+            QueueProcessor.Execute(key, workUnit, domain);
+          }
+        }
       }
     }
   }
