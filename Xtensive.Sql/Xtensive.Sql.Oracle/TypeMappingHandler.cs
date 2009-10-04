@@ -14,6 +14,7 @@ namespace Xtensive.Sql.Oracle
 {
   internal class TypeMappingHandler : ValueTypeMapping.TypeMappingHandler
   {
+    private const int BooleanPrecision = 1;
     private const int BytePrecision = 3;
     private const int ShortPrecision = 5;
     private const int IntPrecision = 10;
@@ -109,47 +110,56 @@ namespace Xtensive.Sql.Oracle
 
     public override object ReadBoolean(DbDataReader reader, int index)
     {
-      return reader.GetDecimal(index)!=0.0m;
+      //return reader.GetDecimal(index)!=0.0m;
+      return Math.Abs(ReadDecimalSafely(reader, index, BooleanPrecision, 0)) > 0.3m;
     }
 
     public override object ReadByte(DbDataReader reader, int index)
     {
-      return (byte) reader.GetDecimal(index);
+      //return (byte) reader.GetDecimal(index);
+      return (byte) ReadDecimalSafely(reader, index, BytePrecision, 0);
     }
 
     public override object ReadSByte(DbDataReader reader, int index)
     {
-      return (sbyte) reader.GetDecimal(index);
+      //return (sbyte) reader.GetDecimal(index);
+      return (sbyte) ReadDecimalSafely(reader, index, BytePrecision, 0);
     }
 
     public override object ReadShort(DbDataReader reader, int index)
     {
-      return (short) reader.GetDecimal(index);
+      //return (short) reader.GetDecimal(index);
+      return (short) ReadDecimalSafely(reader, index, ShortPrecision, 0);
     }
 
     public override object ReadUShort(DbDataReader reader, int index)
     {
-      return (ushort) reader.GetDecimal(index);
+      //return (ushort) reader.GetDecimal(index);
+      return (ushort) ReadDecimalSafely(reader, index, ShortPrecision, 0);
     }
 
     public override object ReadInt(DbDataReader reader, int index)
     {
-      return (int) reader.GetDecimal(index);
+      //return (int) reader.GetDecimal(index);
+      return (int) ReadDecimalSafely(reader, index, IntPrecision, 0);
     }
 
     public override object ReadUInt(DbDataReader reader, int index)
     {
-      return (uint) reader.GetDecimal(index);
+      //return (uint) reader.GetDecimal(index);
+      return (uint) ReadDecimalSafely(reader, index, IntPrecision, 0);
     }
 
     public override object ReadLong(DbDataReader reader, int index)
     {
-      return (long) reader.GetDecimal(index);
+      //return (long) reader.GetDecimal(index);
+      return (long) ReadDecimalSafely(reader, index, LongPrecision, 0);
     }
 
     public override object ReadULong(DbDataReader reader, int index)
     {
-      return (ulong) reader.GetDecimal(index);
+      //return (ulong) reader.GetDecimal(index);
+      return (ulong) ReadDecimalSafely(reader, index, LongPrecision, 0);
     }
 
     public override object ReadDecimal(DbDataReader reader, int index)
@@ -177,7 +187,7 @@ namespace Xtensive.Sql.Oracle
 
     public override SqlValueType BuildBooleanSqlType(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Decimal, 1, 0);
+      return new SqlValueType(SqlType.Decimal, BooleanPrecision, 0);
     }
 
     public override SqlValueType BuildByteSqlType(int? length, int? precision, int? scale)

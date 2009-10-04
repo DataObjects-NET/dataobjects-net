@@ -150,6 +150,11 @@ namespace Xtensive.Sql.Tests
       Assert.AreEqual(expected, actual);
     }
 
+    protected virtual object ReadValue(TypeMapping mapping, DbDataReader reader, int index)
+    {
+      return mapping.ReadValue(reader, index);
+    }
+
     private void VerifyResults(DbCommand command)
     {
       using (command)
@@ -159,7 +164,7 @@ namespace Xtensive.Sql.Tests
           for (int columnIndex = 0; columnIndex < testValues.Length; columnIndex++) {
             var expectedValue = testValues[columnIndex][rowIndex];
             var actualValue = !reader.IsDBNull(columnIndex + 1)
-              ? typeMappings[columnIndex].ReadValue(reader, columnIndex + 1)
+              ? ReadValue(typeMappings[columnIndex], reader, columnIndex + 1)
               : null;
             CheckEquality(expectedValue, actualValue);
           }
