@@ -38,7 +38,7 @@ namespace Xtensive.Storage
   /// <see cref="Current">Session.Current</see> property or <see cref="Demand">Session.Demand()</see> method.
   /// </para>
   /// <para>
-  /// Session can be open and activated by <see cref="Domain.OpenSession()">Domain.OpenSession()</see> method. 
+  /// Session can be open and activated by <see cref="Open(Xtensive.Storage.Domain)">Domain.OpenSession()</see> method. 
   /// Existing session can be activated by <see cref="Activate"/> method.
   /// </para>
   /// </remarks>

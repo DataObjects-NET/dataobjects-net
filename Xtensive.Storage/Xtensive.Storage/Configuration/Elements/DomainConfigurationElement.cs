@@ -32,6 +32,7 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string CompilerContainersElementName = "compilerContainers";
     private const string TypeAliasesElementName = "typeAliases";
     private const string ServicesElementName = "services";
+    private const string ValidationModeElementName = "validationMode";
 
     /// <inheritdoc/>
     public override object Identifier
@@ -145,7 +146,7 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.InconsistentTransactions" copy="true"/>
+    /// <see cref="DomainConfiguration.continualValidation" copy="true"/>
     /// </summary>
     [ConfigurationProperty(InconsistentTransactionsElementName, IsRequired = false, DefaultValue = DomainConfiguration.DefaultInconsistentTransactions)]
     public bool InconsistentTransactions
@@ -175,6 +176,16 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.ValidationMode" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(ValidationModeElementName, IsRequired = false, DefaultValue = "Default")]
+    public string ValidationMode
+    {
+      get { return (string)this[ValidationModeElementName]; }
+      set { this[ValidationModeElementName] = value; }
+    }
+
+    /// <summary>
     /// <see cref="DomainConfiguration.Sessions" copy="true"/>
     /// </summary>
     [ConfigurationProperty(SessionsElementName, IsDefaultCollection = false)]
@@ -201,7 +212,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <returns>The result of conversion.</returns>
     public DomainConfiguration ToNative()
     {
-      var dc = new DomainConfiguration {
+      var config = new DomainConfiguration {
         Name = Name,
         ConnectionInfo = new UrlInfo(ConnectionUrl),
         NamingConvention = NamingConvention.ToNative(),
@@ -211,17 +222,17 @@ namespace Xtensive.Storage.Configuration.Elements
         SessionPoolSize = SessionPoolSize,
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,
         AutoValidation = AutoValidation,
-        InconsistentTransactions = InconsistentTransactions,
+        ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true)
       };
       foreach (var entry in Types)
-        dc.Types.Register(entry.ToNative());
+        config.Types.Register(entry.ToNative());
       foreach (var entry in CompilerContainers)
-        dc.CompilerContainers.Register(entry.ToNative());
+        config.CompilerContainers.Register(entry.ToNative());
       foreach (var session in Sessions)
-        dc.Sessions.Add(session.ToNative());
-      return dc;
+        config.Sessions.Add(session.ToNative());
+      return config;
     }
   }
 }

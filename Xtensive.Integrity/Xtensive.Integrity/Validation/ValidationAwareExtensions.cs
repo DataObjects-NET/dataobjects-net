@@ -27,18 +27,18 @@ namespace Xtensive.Integrity.Validation
     /// <param name="validator">The delegate to invoke for validation. 
     /// If <paramref name="validator"/> is <see langword="null"/>, 
     /// the whole object should be validated.</param>
-    /// <param name="mode">Validation mode to use.</param>
+    /// <param name="immediately"><see langword="true" /> if instance should be immediately validated.</param>
     /// <returns>
     /// <see langword="true"/> if validation was performed immediately; 
     /// <see langword="false"/> if it was enqueued.
     /// </returns>
-    public static bool Validate(this IValidationAware target, Action<IValidationAware> validator, ValidationMode mode)
+    public static bool Validate(this IValidationAware target, Action<IValidationAware> validator, bool immediately)
     {            
       ValidationContextBase context = target.Context;
 
-      bool immediate = mode==ValidationMode.Immediate || context==null || context.IsConsistent;
+      bool validateNow = immediately || context==null || context.IsConsistent;
 
-      if (immediate)
+      if (validateNow)
         if (validator==null)
           try {
             target.OnValidate();
@@ -51,7 +51,7 @@ namespace Xtensive.Integrity.Validation
       else
         context.EnqueueValidate(target, validator);
 
-      return immediate;
+      return validateNow;
     }
 
     /// <summary>
@@ -67,21 +67,21 @@ namespace Xtensive.Integrity.Validation
     /// </returns>
     public static bool Validate(this IValidationAware target, Action<IValidationAware> validator)
     {
-      return Validate(target, validator, ValidationMode.Default);
+      return Validate(target, validator, false);
     }
 
     /// <summary>
     /// Validates the specified <paramref name="target"/>, or enqueues it for delayed validation.
     /// </summary>
-    /// <param name="target">The object to validate.</param>        
-    /// <param name="mode">Validation mode to use.</param>
+    /// <param name="target">The object to validate.</param>
+    /// <param name="immediately"><see langword="true" /> if instance should be immediately validated.</param>
     /// <returns>
     /// <see langword="true"/> if validation was performed immediately; 
     /// <see langword="false"/> if it was enqueued.
     /// </returns>
-    public static bool Validate(this IValidationAware target, ValidationMode mode)
+    public static bool Validate(this IValidationAware target, bool immediately)
     {
-      return Validate(target, null, mode);
+      return Validate(target, null, immediately);
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ namespace Xtensive.Integrity.Validation
     /// </returns>
     public static bool Validate(this IValidationAware target)
     {
-      return Validate(target, null, ValidationMode.Default);
+      return Validate(target, null, false);
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ namespace Xtensive.Integrity.Validation
     public static string GetObjectError(this IValidationAware target)
     {
       try {
-        target.Validate(ValidationMode.Immediate);
+        target.Validate(true);
       }
       catch (AggregateException exception) {
         var errors = exception.GetFlatExceptions();

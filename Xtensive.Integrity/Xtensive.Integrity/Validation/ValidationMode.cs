@@ -12,21 +12,24 @@ namespace Xtensive.Integrity.Validation
   /// Possible validation modes.
   /// </summary>
   [Serializable]
-  public enum ValidationMode
+  public enum ConstrainMode
   {
     /// <summary>
-    /// The same as <see cref="ImmediateOrDelayed"/>.
+    /// The same as <see cref="OnValidate"/>.
     /// </summary>
-    Default = ImmediateOrDelayed,
+    Default = OnValidate,
 
     /// <summary>
-    /// Immediate or delayed (if validation context is in inconsistent state) valdation.
+    /// Property value will be checked on object validation.
     /// </summary>
-    ImmediateOrDelayed = 0,
+    /// <remarks>
+    /// Note that when inconsistent region is not open validation can be performed immediatly after setting property value.
+    /// </remarks>
+    OnValidate = 0,
 
     /// <summary>
-    /// Immediate valdation.
+    /// Validation is performed before property value is set.
     /// </summary>
-    Immediate = 1
+    OnSetValue = 1
   }
 }

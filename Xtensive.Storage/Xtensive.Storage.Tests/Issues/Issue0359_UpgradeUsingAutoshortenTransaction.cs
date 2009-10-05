@@ -30,23 +30,23 @@ namespace Xtensive.Storage.Tests.Issues
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      var dc = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
-      dc.AutoValidation = true;
-      dc.ForeignKeyMode = ForeignKeyMode.All;
-      dc.KeyGeneratorCacheSize = 32;
-      dc.SessionPoolSize = 5;
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      config.AutoValidation = true;
+      config.ForeignKeyMode = ForeignKeyMode.All;
+      config.KeyGeneratorCacheSize = 32;
+      config.SessionPoolSize = 5;
 
-      dc.UpgradeMode = DomainUpgradeMode.Recreate;
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
 
-      dc.Types.Register(typeof (Class1).Assembly, typeof (Class1).Namespace);
+      config.Types.Register(typeof (Class1).Assembly, typeof (Class1).Namespace);
 
       var sc = new SessionConfiguration("Default");
       sc.DefaultIsolationLevel = IsolationLevel.Serializable;
       sc.Options = SessionOptions.AutoShortenTransactions;
 
-      dc.Sessions.Add(sc);
+      config.Sessions.Add(sc);
 
-      return dc;
+      return config;
     }
   }
 }

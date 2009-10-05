@@ -11,6 +11,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
+using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers.Executable;
 
@@ -22,7 +23,7 @@ namespace Xtensive.Storage
   public sealed class Transaction : TransactionBase,
     IHasExtensions
   {
-    private IDisposable inconsistentRegion;
+    private InconsistentRegion inconsistentRegion;
     private ExtensionCollection extensions;
 
     /// <summary>
@@ -71,7 +72,7 @@ namespace Xtensive.Storage
     protected override void OnBegin()
     {
       ValidationContext.Reset();
-      if (Session.Domain.Configuration.InconsistentTransactions)
+      if (Session.Domain.Configuration.ValidationMode==ValidationMode.OnDemand)
         inconsistentRegion = ValidationContext.OpenInconsistentRegion();
       Session.BeginTransaction();
     }
@@ -84,10 +85,14 @@ namespace Xtensive.Storage
           throw new InvalidOperationException(Strings.ExCannotCommitATransactionValidationContextIsInInconsistentState);
 
         try {
-          inconsistentRegion.DisposeSafely();
-          ValidationContext.ValidateAll();
+          Validation.Enforce(Session);
+
+          if (inconsistentRegion!=null) {
+            inconsistentRegion.Complete();
+            inconsistentRegion.DisposeSafely();
+          }
         }
-        catch(AggregateException exception) {
+        catch (AggregateException exception) {
           throw new InvalidOperationException(Strings.ExCanNotCommitATransactionEntitiesValidationFailed, exception);
         }
       }

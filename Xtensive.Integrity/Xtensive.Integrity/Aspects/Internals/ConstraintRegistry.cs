@@ -33,8 +33,9 @@ namespace Xtensive.Integrity.Aspects
     internal static void RegisterConstraint(Type targetType, PropertyConstraintAspect constraint)
     {
       var entry = registry.GetValue(targetType, _targetType => new TypeEntry());
-      using (entry.Lock.WriteRegion())
+      using (entry.Lock.WriteRegion()) {
         entry.Constraints.Add(constraint);
+      }
     }
 
     /// <summary>
@@ -44,16 +45,24 @@ namespace Xtensive.Integrity.Aspects
     /// <returns>Enumerable of constraints.</returns>
     public static PropertyConstraintAspect[] GetConstraints(Type targetType)
     {
-      TypeEntry entry;
-      if (!registry.TryGetValue(targetType, out entry))      
-        return ArrayUtils<PropertyConstraintAspect>.EmptyArray;
-      entry.Lock.BeginRead();
-      try {
-        return entry.Constraints.ToArray();
+      var result = new List<PropertyConstraintAspect>();
+      var type = targetType;
+      while (type!=null) {
+        TypeEntry entry;
+        if (!registry.TryGetValue(type, out entry)) {
+          type = type.BaseType;
+          continue;
+        }
+        entry.Lock.BeginRead();
+        try {
+          result.AddRange(entry.Constraints);
+        }
+        finally {
+          entry.Lock.EndRead();
+        }
+        type = type.BaseType;
       }
-      finally {
-        entry.Lock.EndRead();
-      }
+      return result.ToArray();
     }
   }
 }

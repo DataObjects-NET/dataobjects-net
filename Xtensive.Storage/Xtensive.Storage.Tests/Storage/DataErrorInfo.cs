@@ -57,6 +57,9 @@ namespace Xtensive.Storage.Tests.Storage
 
             Assert.AreEqual(string.Empty, ((IDataErrorInfo) person)["Name"]);
             Assert.AreEqual(string.Empty, ((IDataErrorInfo) person)["Age"]);
+
+            person.Age = -1;
+            Assert.AreEqual("Age is negative.", ((IDataErrorInfo) person)["Age"]);
           }
 
           // Rollback

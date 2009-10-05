@@ -105,6 +105,7 @@ namespace Xtensive.Storage.Configuration
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
     private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
+    private ValidationMode validationMode;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -269,7 +270,7 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets the value indicating whether changed entities should be validated automatically.
+    /// Gets or sets the value indicating whether changed entities should be validated or registered for validation automatically.
     /// Default value is <see cref="DomainConfigurationElement.AutoValidation"/>.
     /// </summary>
     public bool AutoValidation
@@ -285,16 +286,29 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets or sets a value indicating whether inconsistent region should be automatically open within the transaction.
     /// I.e. all the entities changed within the transaction should be validated on transaction commit only.
-    /// It is recommended to keep this option switched off and define inconsistent regions manually.    
     /// Default value is <see cref="DefaultInconsistentTransactions"/>.
     /// </summary>
+    [Obsolete("Use ContinualValidation property instead.")]
     public bool InconsistentTransactions
     {
-      get { return inconsistentTransactions; }
+      get { return ValidationMode==ValidationMode.OnDemand; }
       set 
       {
         this.EnsureNotLocked();
-        inconsistentTransactions = value;
+        ValidationMode = value ? ValidationMode.OnDemand : ValidationMode.Continuous;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the validation mode, that is used for validating entities within transactions.
+    /// </summary>
+    public ValidationMode ValidationMode
+    {
+      get { return validationMode; }
+      set
+      {
+        this.EnsureNotLocked();
+        validationMode = value;
       }
     }
 
@@ -385,6 +399,7 @@ namespace Xtensive.Storage.Configuration
       compilerContainers = (TypeRegistry) configuration.CompilerContainers.Clone();
       upgradeMode = configuration.upgradeMode;
       foreignKeyMode = configuration.foreignKeyMode;
+      validationMode = configuration.validationMode;
     }
 
     /// <summary>

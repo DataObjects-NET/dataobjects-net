@@ -44,7 +44,7 @@ namespace Xtensive.Integrity.Aspects
     /// <summary>
     /// Gets or sets the <see cref="ValidationMode"/> to be used on setting property value.
     /// </summary>
-    public ValidationMode Mode { get; set; }
+    public ConstrainMode Mode { get; set; }
 
     /// <summary>
     /// Gets or sets the message of exception to show if property value is invalid.
@@ -101,7 +101,6 @@ namespace Xtensive.Integrity.Aspects
 
       return true;
     }
-
 
     /// <summary>
     /// Determines whether the specified <paramref name="valueType"/> 
@@ -222,11 +221,11 @@ namespace Xtensive.Integrity.Aspects
     internal void OnSetValue(IValidationAware target, object value)
     {
       var context = target.Context;
-      bool immediate = Mode==ValidationMode.Immediate || context==null || context.IsConsistent;
+      bool immediate = Mode==ConstrainMode.OnSetValue || context==null || context.IsConsistent;
       if (immediate)
         CheckValue(target, value);
       else
-        context.EnqueueValidate(target, Check);   
+        context.EnqueueValidate(target, Check);
     }
 
 // ReSharper disable UnusedPrivateMember
@@ -254,7 +253,7 @@ namespace Xtensive.Integrity.Aspects
     /// </summary>
     protected PropertyConstraintAspect()
     {
-      Mode = ValidationMode.Default;
+      Mode = ConstrainMode.Default;
     }
   }
 }

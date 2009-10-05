@@ -45,27 +45,46 @@ namespace Xtensive.Storage.Tests.Storage
     public void MainTest()
     {
       using (Session.Open(Domain)) {
-        var transactionScope = Transaction.Open();
+        using (var transactionScope = Transaction.Open()) {
 
-        Validatable first;
-        Validatable second;
+          Validatable first = null;
+          Validatable second;
 
-        AssertEx.Throws<AggregateException>(() => {
+          AssertEx.Throws<AggregateException>(() => {
+            using (var region = Xtensive.Storage.Validation.Disable()) {
+              first = new Validatable();
+              region.Complete();
+            }
+          });
+
           using (var region = Xtensive.Storage.Validation.Disable()) {
-            first = new Validatable();
+            first.IsValid = true;
             region.Complete();
           }
-        });
 
-        using (var region = Xtensive.Storage.Validation.Disable()) {
-          second = new Validatable {IsValid = true};
-          region.Complete();
+          transactionScope.Complete();
         }
+      }
+    }
+
+    [Test]
+    public void TransactionFailTest()
+    {
+      using (Session.Open(Domain)) {
+        var transactionScope = Transaction.Open();
+
+        try {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
+            var obj = new Validatable();
+          }
+        }
+        catch (Exception) { }
 
         transactionScope.Complete();
 
         AssertEx.Throws<InvalidOperationException>(transactionScope.Dispose);
       }
     }
+    
   }
 }

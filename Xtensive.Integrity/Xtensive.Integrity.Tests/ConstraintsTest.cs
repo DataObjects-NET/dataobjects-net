@@ -14,6 +14,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
+using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
 
@@ -94,7 +95,7 @@ namespace Xtensive.Integrity.Tests
     {
       [Trace]
       [NotNullOrEmptyConstraint]
-      [LengthConstraint(Max = 20, Mode = ValidationMode.Immediate)]
+      [LengthConstraint(Max = 20, Mode = ConstrainMode.OnSetValue)]
       public string Name { [LogMethodFastAspect] get; [LogMethodFastAspect] set;}
 
       [RangeConstraint(Min = 0, Message = "Incorrect age ({value}), age can not be less than {Min}.")]
@@ -113,9 +114,15 @@ namespace Xtensive.Integrity.Tests
       public double Height { get; set; }
     }
 
+    internal class AdvancedPerson : Person
+    {
+    }
+
     [Test]
     public void CustomErrorsTest()
     {
+      context = new ValidationContext();
+
       using (var region = context.OpenInconsistentRegion()) {
         Person person = new Person();
 
@@ -139,6 +146,7 @@ namespace Xtensive.Integrity.Tests
     [Test]
     public void PersonTest()
     {
+      context = new ValidationContext();
 
       try {
         using (var region = context.OpenInconsistentRegion()) {
@@ -211,6 +219,22 @@ namespace Xtensive.Integrity.Tests
 
         r.Complete();
       }
+    }
+
+    [Test]
+    public void InheritanceTest()
+    {
+      context = new ValidationContext();
+
+      var region = context.OpenInconsistentRegion();
+
+      var person = new Person();
+      AssertEx.Throws<AggregateException>(person.CheckConstraints);
+
+      var advancedPerson = new AdvancedPerson();
+      AssertEx.Throws<AggregateException>(advancedPerson.CheckConstraints);
+
+      region.Dispose();
     }
   }
 }
