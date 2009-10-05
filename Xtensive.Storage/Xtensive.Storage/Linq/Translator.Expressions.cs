@@ -430,6 +430,7 @@ namespace Xtensive.Storage.Linq
       if (expression is IPersistentExpression)
         return ((IPersistentExpression) expression)
           .Fields
+          .Where(field=>field.GetMemberType()==MemberType.Primitive)
           .Select(e => (Expression) e)
           .ToList();
 
