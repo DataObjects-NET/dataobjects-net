@@ -272,8 +272,8 @@ namespace Xtensive.Storage.Linq
         if (arguments[i].Type!=constructorParameters[i].ParameterType)
           arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
       }
-      return n.Members == null 
-        ? Expression.New(n.Constructor, arguments) 
+      return n.Members==null
+        ? Expression.New(n.Constructor, arguments)
         : Expression.New(n.Constructor, arguments, n.Members);
     }
 
@@ -421,9 +421,9 @@ namespace Xtensive.Storage.Linq
       return resultExpression;
     }
 
-    private static IList<Expression> GetStructureFields(
+    private IList<Expression> GetStructureFields(
       Expression expression,
-      IEnumerable<PersistentFieldExpression> structureFieldTypes,
+      IEnumerable<PersistentFieldExpression> structureFields,
       Type structureType)
     {
       expression = expression.StripCasts();
@@ -437,16 +437,38 @@ namespace Xtensive.Storage.Linq
       BinaryExpression isNullExpression = Expression.Equal(expression, nullExpression);
 
       var result = new List<Expression>();
-      foreach (PersistentFieldExpression fieldExpression in structureFieldTypes) {
-        Type nullableType = fieldExpression.Type.ToNullable();
-        var item = (Expression) Expression.Condition(
-          isNullExpression,
-          Expression.Constant(null, nullableType),
-          Expression.Convert(
-            Expression.MakeMemberAccess(Expression.Convert(expression, structureType),
-              fieldExpression.UnderlyingProperty),
-            nullableType));
-        result.Add(item);
+      foreach (PersistentFieldExpression fieldExpression in structureFields) {
+        switch (fieldExpression.GetMemberType()) {
+        case MemberType.Entity:
+          IEnumerable<Type> keyFieldTypes = context
+            .Model
+            .Types[fieldExpression.Type]
+            .KeyInfo
+            .Fields
+            .Select(keyInfo => keyInfo.Key.ValueType);
+          result.AddRange(GetEntityFields(fieldExpression, keyFieldTypes));
+          break;
+        case MemberType.Structure:
+          var structureFieldExpression = (StructureFieldExpression) fieldExpression;
+          result.AddRange(GetStructureFields(fieldExpression, structureFieldExpression.Fields, structureFieldExpression.Type));
+          break;
+        case MemberType.Primitive:
+          var declaringType = fieldExpression.UnderlyingProperty.DeclaringType;
+          if (!declaringType.IsSubclassOf(typeof (Entity)) && declaringType!=typeof(Entity)) {
+            Type nullableType = fieldExpression.Type.ToNullable();
+            var item = (Expression) Expression.Condition(
+              isNullExpression,
+              Expression.Constant(null, nullableType),
+              Expression.Convert(
+                Expression.MakeMemberAccess(Expression.Convert(expression, structureType),
+                  fieldExpression.UnderlyingProperty),
+                nullableType));
+            result.Add(item);
+          }
+          break;
+        default:
+          throw new NotSupportedException();
+        }
       }
       return result;
     }
