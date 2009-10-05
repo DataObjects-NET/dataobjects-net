@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Linq.Expressions
             .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
             .ToArray();
           var offset = dataSource.Header.Length;
-          dataSource = dataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+          dataSource = dataSource.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
           EntityExpression.Fill(entityExpression, offset);
           return entityExpression;
         }

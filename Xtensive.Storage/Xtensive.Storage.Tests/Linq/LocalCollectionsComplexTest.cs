@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Tests.Linq
 {
   public class LocalCollectionsComplexTest : AutoBuildTest
   {
-    private const int count = 1000;
+    private const int count = 10;
 
     protected override DomainConfiguration BuildConfiguration()
     {
