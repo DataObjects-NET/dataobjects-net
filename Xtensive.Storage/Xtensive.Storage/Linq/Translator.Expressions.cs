@@ -430,7 +430,7 @@ namespace Xtensive.Storage.Linq
       if (expression is IPersistentExpression)
         return ((IPersistentExpression) expression)
           .Fields
-          .Where(field=>field.GetMemberType()==MemberType.Primitive)
+          .Where(field => field.GetMemberType()==MemberType.Primitive)
           .Select(e => (Expression) e)
           .ToList();
 
@@ -630,9 +630,14 @@ namespace Xtensive.Storage.Linq
       Expression result = null;
       Func<PersistentFieldExpression, bool> propertyFilter = f => f.Name==member.Name;
       switch (extendedExpression.ExtendedType) {
+      case ExtendedExpressionType.Structure:
       case ExtendedExpressionType.StructureField:
         var persistentExpression = (IPersistentExpression) expression;
         result = persistentExpression.Fields.First(propertyFilter);
+        break;
+      case ExtendedExpressionType.LocalCollection:
+        var localCollectionExpression = (LocalCollectionExpression) expression;
+        result = (Expression)localCollectionExpression.Fields[member];
         break;
       case ExtendedExpressionType.Entity:
         var entityExpression = (EntityExpression) expression;

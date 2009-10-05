@@ -228,6 +228,7 @@ namespace Xtensive.Storage
     {
       NotifySettingFieldValue(field, value);
       var oldValue = GetFieldValue<T>(field);
+      var structure = value as Structure;
       var association = field.Association;
       if (association!=null && association.IsPaired) {
         Key currentKey = GetReferenceKey(field);
@@ -242,7 +243,7 @@ namespace Xtensive.Storage
         }
       }
       else {
-        if (!Equals(value, oldValue)) {
+        if (!Equals(value, oldValue) || field.IsStructure) {
           PrepareToSetField();
           GetAccessor<T>(field).SetValue(this, field, value);
         }

@@ -355,7 +355,7 @@ namespace Xtensive.Storage
 
     internal override sealed void NotifySetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
-      if (!Equals(oldValue, newValue)) 
+      if (!Equals(oldValue, newValue) || field.IsStructure) 
         if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
           Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
           // to avoid post-first property set flush.

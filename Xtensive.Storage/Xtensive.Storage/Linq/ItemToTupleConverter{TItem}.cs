@@ -26,34 +26,6 @@ namespace Xtensive.Storage.Linq
     private readonly IEnumerable<Tuple> enumerable;
     private readonly DomainModel model;
 
-    public ItemToTupleConverter(IEnumerable<TItem> values, DomainModel model)
-    {
-      this.model = model;
-      Type itemType = typeof (TItem);
-      int index = 0;
-      ParameterExpression parameterExpression = Expression.Parameter(itemType, "item");
-      IEnumerable<Type> types = EnumerableUtils<Type>.Empty;
-      if (IsPersistableType(itemType)) {
-        Expression = (Expression) BuildField(itemType, ref index, ref types);
-        TupleDescriptor = TupleDescriptor.Create(types);
-      }
-      else {
-        ISet<Type> processedTypes = new Set<Type>();
-        LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, ref index, null, ref types);
-        TupleDescriptor = TupleDescriptor.Create(types);
-        Expression = itemExpression;
-      }
-      Func<TItem, int, Tuple> converter = delegate(TItem item, int number) {
-        RegularTuple tuple = Tuple.Create(TupleDescriptor);
-        if (ReferenceEquals(item, null))
-          return tuple;
-        int offset = 0;
-        FillLocalCollectionField(item, tuple, Expression);
-        return tuple;
-      };
-      enumerable = values.Select(converter);
-    }
-
     public override IEnumerator<Tuple> GetEnumerator()
     {
       return enumerable.GetEnumerator();
@@ -87,7 +59,7 @@ namespace Xtensive.Storage.Linq
 
     private void FillLocalCollectionField(object item, Tuple tuple, Expression expression)
     {
-      if (item==null) 
+      if (item==null)
         return;
       // LocalCollectionExpression
       if (expression is LocalCollectionExpression) {
@@ -98,7 +70,7 @@ namespace Xtensive.Storage.Linq
             ? ((FieldInfo) field.Key).GetValue(item)
             : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
           if (value!=null)
-            FillLocalCollectionField(value, tuple, (Expression)field.Value);
+            FillLocalCollectionField(value, tuple, (Expression) field.Value);
         }
       }
       else if (expression is ColumnExpression) {
@@ -112,103 +84,18 @@ namespace Xtensive.Storage.Linq
         var tupleDescriptor = typeInfo.TupleDescriptor;
         var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
         var structureTuple = structure.Tuple.GetSegment(tupleSegment);
-        structureTuple.CopyTo(tuple, structureExpression.Mapping.Offset);
+        structureTuple.CopyTo(tuple, 0, structureExpression.Mapping.Offset, structureTuple.Count);
       }
       else if (expression is EntityExpression) {
         var entityExpression = (EntityExpression) expression;
         var entity = (Entity) item;
         var keyTuple = entity.Key.Value;
-        keyTuple.CopyTo(tuple, entityExpression.Key.Mapping.Offset);
+        keyTuple.CopyTo(tuple, 0, entityExpression.Key.Mapping.Offset, keyTuple.Count);
       }
       else
         throw new NotSupportedException();
     }
 
-//
-//
-//    private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression expression)
-//    {
-//      var source = (IEnumerable<TItem>) context.Evaluator.Evaluate(expression).Value;
-//      var itemType = typeof (TItem);
-//      var type = itemType.IsNullable() ? itemType.GetGenericArguments()[0] : itemType;
-//
-//      if (type==typeof (Entity) || type.IsSubclassOf(typeof (Entity))) {
-//        var typeInfo = context.Model.Types[type];
-//        var keyInfo = typeInfo.KeyInfo;
-//        var keyTupleDescriptor = keyInfo.TupleDescriptor;
-//        var columns = keyInfo.Columns.Select((columnInfo, i) => new SystemColumn(context.GetNextColumnAlias(), i, columnInfo.ValueType)).Cast<Column>();
-//        var rsHeader = new RecordSetHeader(keyTupleDescriptor, columns);
-//        var rawProvider = new RawProvider(rsHeader, source.Select(e => ReferenceEquals(e, null) ? Tuple.Create(keyTupleDescriptor) : ((Entity) (object) e).Key.Value));
-//        var recordset = new StoreProvider(rawProvider).Result;
-//        var entityExpression = EntityExpression.Create(typeInfo, 0, true);
-//        var itemProjector = new ItemProjectorExpression(entityExpression, recordset, context);
-//        if (state.JoinLocalCollectionEntity)
-//          EnsureEntityFieldsAreJoined(entityExpression, itemProjector);
-//        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-//      }
-//
-//      if (type==typeof (Structure) || type.IsSubclassOf(typeof (Structure))) {
-//        var typeInfo = context.Model.Types[type];
-//        var tupleDescriptor = typeInfo.TupleDescriptor;
-//        var columns = tupleDescriptor.Select((columnType, i) => new SystemColumn(context.GetNextColumnAlias(), i, columnType)).Cast<Column>();
-//        var rsHeader = new RecordSetHeader(tupleDescriptor, columns);
-//        var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
-//        var rawProvider = new RawProvider(rsHeader, source.Select(structure => ReferenceEquals(structure, null) ? typeInfo.TuplePrototype : ((Structure) (object) structure).Tuple.GetSegment(tupleSegment)));
-//        var recordset = new StoreProvider(rawProvider).Result;
-//        var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
-//        var itemProjector = new ItemProjectorExpression(structureExpression, recordset, context);
-//        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-//      }
-//
-//      if (TypeIsStorageMappable(type)) {
-//        var rsHeader = new RecordSetHeader(TupleDescriptor.Create(new[] {type}), new[] {new SystemColumn(context.GetNextColumnAlias(), 0, type)});
-//        var rawProvider = new RawProvider(rsHeader, source.Select(t => (Tuple) Tuple.Create(t)));
-//        var recordset = new StoreProvider(rawProvider).Result;
-//        var column = ColumnExpression.Create(itemType, 0);
-//        var itemProjector = new ItemProjectorExpression(column, recordset, context);
-//        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-//      }
-//      else {
-//        ISet<Type> processedTypes = new SetSlim<Type>();
-//        LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, 0, null);
-//
-//        var tupleDescriptor = TupleDescriptor.Create(itemExpression.Columns.Select(columnExpression => columnExpression.Type));
-//
-//        Func<TItem, int, Tuple> converter = delegate(TItem item, int number) {
-//          var tuple = Tuple.Create(tupleDescriptor);
-//          if (ReferenceEquals(item, null))
-//            return tuple;
-//          FillLocalCollectionField(item, tuple, itemExpression);
-//          return tuple;
-//        };
-//
-//        var rsHeader = new RecordSetHeader(tupleDescriptor, tupleDescriptor.Select(x => new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
-//        var rawProvider = new RawProvider(rsHeader, source.Select(converter));
-//        var recordset = new StoreProvider(rawProvider).Result;
-//        var itemProjector = new ItemProjectorExpression(itemExpression, recordset, context);
-//        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-//      }
-//    }
-//
-//
-//
-//        if (IsPersistableType(itemType)) {
-//          throw new NotImplementedException();
-//        }
-//        else {
-//          var localCollectionExpression = BuildLocalCollectionExpression(itemType, new Set<Type>(), 0, null);
-//          if (localCollectionExpression.Fields.Count==0)
-//            throw new InvalidOperationException(String.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, itemType.FullName));
-//        var tupleDescriptor = TupleDescriptor.Create(localCollectionExpression.Columns.Select(columnExpression => columnExpression.Type));
-//
-//        Func<TItem, int, Tuple> converter = delegate(TItem item, int number) {
-//          var tuple = Tuple.Create(tupleDescriptor);
-//          if (ReferenceEquals(item, null))
-//            return tuple;
-//          FillLocalCollectionField(item, tuple, itemExpression);
-//          return tuple;
-//        };
-//
     private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, ref IEnumerable<Type> types)
     {
       if (!processedTypes.Add(type))
@@ -273,6 +160,34 @@ namespace Xtensive.Storage.Linq
       }
 
       throw new NotSupportedException();
+    }
+
+    public ItemToTupleConverter(IEnumerable<TItem> values, DomainModel model)
+    {
+      this.model = model;
+      Type itemType = typeof (TItem);
+      int index = 0;
+      ParameterExpression parameterExpression = Expression.Parameter(itemType, "item");
+      IEnumerable<Type> types = EnumerableUtils<Type>.Empty;
+      if (IsPersistableType(itemType)) {
+        Expression = (Expression) BuildField(itemType, ref index, ref types);
+        TupleDescriptor = TupleDescriptor.Create(types);
+      }
+      else {
+        ISet<Type> processedTypes = new Set<Type>();
+        LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, ref index, null, ref types);
+        TupleDescriptor = TupleDescriptor.Create(types);
+        Expression = itemExpression;
+      }
+      Func<TItem, int, Tuple> converter = delegate(TItem item, int number) {
+        RegularTuple tuple = Tuple.Create(TupleDescriptor);
+        if (ReferenceEquals(item, null))
+          return tuple;
+        int offset = 0;
+        FillLocalCollectionField(item, tuple, Expression);
+        return tuple;
+      };
+      enumerable = values.Select(converter);
     }
   }
 }

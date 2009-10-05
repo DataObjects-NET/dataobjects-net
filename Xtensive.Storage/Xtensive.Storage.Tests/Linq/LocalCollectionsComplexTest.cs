@@ -115,15 +115,8 @@ namespace Xtensive.Storage.Tests.Linq
       base.TestFixtureSetUp();
       using (Session session = Session.Open(Domain)) {
         using (TransactionScope t = Transaction.Open()) {
-          IEnumerable<EntityA> entitiesA = Enumerable
-            .Range(0, count - 1)
-            .Select(i => new EntityA {
-              Age = new DateTime(i),
-              Name = "NameA_" + i
-            });
-
-          IEnumerable<EntityB> entitiesB = Enumerable
-            .Range(0, count - 1)
+          var entitiesB = Enumerable
+            .Range(0, count)
             .Select(i => new EntityB {
               Age = new DateTime(2000 + i, 2, 2),
               Name = "NameB_" + i,
@@ -277,8 +270,11 @@ namespace Xtensive.Storage.Tests.Linq
           session.Persist();
           Poco2[] localItems = GetPocoCollection();
           var join = Query<EntityB>.All.Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A});
+          var count = join.Count();
+          Assert.IsTrue(count>0);
           var expected = Query<EntityB>.All.AsEnumerable().Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A});
-          Assert.AreEqual(0, expected.Except(join).Count());
+          var except = expected.Except(join).ToArray();
+          Assert.AreEqual(0, except.Length);
         }
       }
     }
