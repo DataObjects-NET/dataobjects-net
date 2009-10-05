@@ -438,6 +438,18 @@ namespace Xtensive.Storage.Linq
 
       var result = new List<Expression>();
       foreach (PersistentFieldExpression fieldExpression in structureFields) {
+        if (!structureType.GetProperties(BindingFlags.Instance | BindingFlags.Public).Contains(fieldExpression.UnderlyingProperty))
+          continue;
+
+        Type nullableType = fieldExpression.Type.ToNullable();
+
+        var memberExpression = (Expression) Expression.Condition(
+          isNullExpression,
+          Expression.Constant(null, nullableType),
+          Expression.Convert(
+            Expression.MakeMemberAccess(Expression.Convert(expression, structureType), fieldExpression.UnderlyingProperty),
+            nullableType));
+
         switch (fieldExpression.GetMemberType()) {
         case MemberType.Entity:
           IEnumerable<Type> keyFieldTypes = context
@@ -446,25 +458,14 @@ namespace Xtensive.Storage.Linq
             .KeyInfo
             .Fields
             .Select(keyInfo => keyInfo.Key.ValueType);
-          result.AddRange(GetEntityFields(fieldExpression, keyFieldTypes));
+          result.AddRange(GetEntityFields(memberExpression, keyFieldTypes));
           break;
         case MemberType.Structure:
           var structureFieldExpression = (StructureFieldExpression) fieldExpression;
-          result.AddRange(GetStructureFields(fieldExpression, structureFieldExpression.Fields, structureFieldExpression.Type));
+          result.AddRange(GetStructureFields(memberExpression, structureFieldExpression.Fields, structureFieldExpression.Type));
           break;
         case MemberType.Primitive:
-          var declaringType = fieldExpression.UnderlyingProperty.DeclaringType;
-          if (!declaringType.IsSubclassOf(typeof (Entity)) && declaringType!=typeof(Entity)) {
-            Type nullableType = fieldExpression.Type.ToNullable();
-            var item = (Expression) Expression.Condition(
-              isNullExpression,
-              Expression.Constant(null, nullableType),
-              Expression.Convert(
-                Expression.MakeMemberAccess(Expression.Convert(expression, structureType),
-                  fieldExpression.UnderlyingProperty),
-                nullableType));
-            result.Add(item);
-          }
+          result.Add(memberExpression);
           break;
         default:
           throw new NotSupportedException();
