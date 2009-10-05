@@ -105,6 +105,72 @@ namespace Xtensive.Core.Tests.Tuples
       CheckComparisons(tuple1, tuple2, -1);
     }
 
+    [Test]
+    public void GuidTupleEqualsTest()
+    {
+      var guid1 = Guid.NewGuid();
+      var guid2 = Guid.NewGuid();
+      Assert.IsFalse(guid1.Equals(guid2));
+      var tuple1 = Tuple.Create(guid1);
+      var tuple2 = Tuple.Create(guid2);
+      Assert.IsFalse(tuple1.Equals(tuple2));
+    }
+
+    [Test]
+    public void DateTimeTupleEqualsTest()
+    {
+      var dateTime1 = DateTime.Now;
+      var dateTime2 = dateTime1.AddMinutes(1);
+      Assert.IsFalse(dateTime1.Equals(dateTime2));
+      var tuple1 = Tuple.Create(dateTime1);
+      var tuple2 = Tuple.Create(dateTime2);
+      Assert.IsFalse(tuple1.Equals(tuple2));
+    }
+
+    [Test]
+    public void TimeSpanTupleEqualsTest()
+    {
+      var timeSpan1 = TimeSpan.FromMinutes(10);
+      var timeSpan2 = TimeSpan.FromMinutes(15);
+      Assert.IsFalse(timeSpan1.Equals(timeSpan2));
+      var tuple1 = Tuple.Create(timeSpan1);
+      var tuple2 = Tuple.Create(timeSpan2);
+      Assert.IsFalse(tuple1.Equals(tuple2));
+    }
+
+    [Test]
+    public void IntTupleEqualsTest()
+    {
+      var int1 = 10;
+      var int2 = 15;
+      Assert.IsFalse(int1.Equals(int2));
+      var tuple1 = Tuple.Create(int1);
+      var tuple2 = Tuple.Create(int2);
+      Assert.IsFalse(tuple1.Equals(tuple2));
+    }
+
+    [Test]
+    public void CharTupleEqualsTest()
+    {
+      var char1 = 'a';
+      var char2 = 'b';
+      Assert.IsFalse(char1.Equals(char2));
+      var tuple1 = Tuple.Create(char1);
+      var tuple2 = Tuple.Create(char2);
+      Assert.IsFalse(tuple1.Equals(tuple2));
+    }
+
+    [Test]
+    public void StringTupleEqualsTest()
+    {
+      var string1 = "a";
+      var string2 = "b";
+      Assert.IsFalse(string1.Equals(string2));
+      var tuple1 = Tuple.Create(string1);
+      var tuple2 = Tuple.Create(string2);
+      Assert.IsFalse(tuple1.Equals(tuple2));
+    }
+
     private void CheckComparisons(Tuple x, Tuple y, int expectedResult)
     {
       expectedResult = Normalize(expectedResult);
