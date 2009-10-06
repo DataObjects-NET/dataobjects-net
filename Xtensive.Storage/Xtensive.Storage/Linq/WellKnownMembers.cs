@@ -41,6 +41,7 @@ namespace Xtensive.Storage.Linq
     public static readonly MethodInfo EnumerableDefaultIfEmpty;
 
     // Queryable
+    public static readonly MethodInfo QueryableAsQueryable;
     public static readonly MethodInfo QueryableDefaultIfEmpty;
     public static readonly MethodInfo QueryableTake;
     public static readonly MethodInfo QueryableCount;
@@ -136,9 +137,10 @@ namespace Xtensive.Storage.Linq
         .First(m => m.Name==Core.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
       EnumerableOfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Tuple));
       EnumerableDefaultIfEmpty = typeof (Enumerable).GetMethods().Where(m => m.Name=="DefaultIfEmpty").First();
-      ;
+      
 
       // Queryable
+      QueryableAsQueryable = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.AsQueryable, 1, 1);
       QueryableDefaultIfEmpty = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);
       QueryableCount = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Count, 1, 1);
       QueryableCountWithPredicate = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Count, 1, 2);

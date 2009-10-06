@@ -46,8 +46,15 @@ namespace Xtensive.Storage.Linq
     /// </summary>
     public RecordSet Compiled
     {
-      get { return (RecordSet) Session.Demand().Handler.Provider
-        .Translate<IEnumerable<T>>(expression).DataSource; }
+      get
+      {
+        return Session
+          .Demand()
+          .Handler
+          .Provider
+          .Translate<IEnumerable<T>>(expression)
+          .DataSource;
+      }
     }
 
     #region IEnumerable<...> members

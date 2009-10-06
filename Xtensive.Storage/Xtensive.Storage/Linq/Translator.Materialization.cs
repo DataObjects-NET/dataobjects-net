@@ -17,7 +17,9 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Materialization;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq

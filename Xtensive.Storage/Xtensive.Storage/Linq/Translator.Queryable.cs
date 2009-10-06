@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Linq
       using (state.CreateScope()) {
         switch (methodKind) {
         case QueryableMethodKind.Cast:
-          break;
+          return VisitAsQueryable(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
         case QueryableMethodKind.AsQueryable:
           break;
         case QueryableMethodKind.AsEnumerable:
@@ -222,6 +222,11 @@ namespace Xtensive.Storage.Linq
         }
       }
       throw new NotSupportedException(String.Format(Strings.ExLINQTranslatorDoesNotSupportMethodX, methodKind));
+    }
+
+    private Expression VisitAsQueryable(Type itemType, Expression source)
+    {
+      throw new NotImplementedException();
     }
 
     private Expression VisitJoinLeft(MethodCallExpression mc)
@@ -940,15 +945,8 @@ namespace Xtensive.Storage.Linq
           .AddOne(sequenceExpression.Type)
           .Single(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IEnumerable<>))
           .GetGenericArguments()[0];
-
-        var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, context.Evaluator.Evaluate(sequence).Value, context.Model);
-        var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(context.GetNextColumnAlias(), 0, x)).Cast<Column>());
-        var rawProvider = new RawProvider(rsHeader, itemToTupleConverter);
-        var recordset = new StoreProvider(rawProvider).Result;
-        var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, context);
-        if (state.JoinLocalCollectionEntity)
-          itemProjector = EntityExpressionJoiner.JoinEntities(itemProjector);
-        return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+        var value = context.Evaluator.Evaluate(sequence).Value;
+        return CreateLocalCollectionProjectionExpression(itemType, value, this);
       }
       
       Expression visitedExpression = Visit(sequenceExpression).StripCasts();

@@ -17,6 +17,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Materialization;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -783,6 +784,18 @@ namespace Xtensive.Storage.Linq
       default:
         throw new ArgumentOutOfRangeException("concatenationExpression");
       }
+    }
+
+    private static ProjectionExpression CreateLocalCollectionProjectionExpression(Type itemType, object value, Translator translator)
+    {
+      var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, value, translator.context.Model);
+      var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(translator.context.GetNextColumnAlias(), 0, x)).Cast<Column>());
+      var rawProvider = new RawProvider(rsHeader, itemToTupleConverter);
+      var recordset = new StoreProvider(rawProvider).Result;
+      var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
+      if (translator.state.JoinLocalCollectionEntity)
+        itemProjector = EntityExpressionJoiner.JoinEntities(itemProjector);
+      return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 
     #endregion

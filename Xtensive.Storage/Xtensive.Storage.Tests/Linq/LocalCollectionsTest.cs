@@ -422,7 +422,7 @@ namespace Xtensive.Storage.Tests.Linq
       var queryable = Query.Store(localItems);
       var result = queryable.GroupBy(keySelector => keySelector.Value2[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)});
       var expected = localItems.GroupBy(keySelector => keySelector.Value2[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)});
-      Assert.AreEqual(0, expected.Except(result));
+      Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
     }
 

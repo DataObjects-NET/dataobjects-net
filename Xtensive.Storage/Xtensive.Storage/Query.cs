@@ -241,12 +241,14 @@ namespace Xtensive.Storage
 
     public static IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
     {
-      throw new NotImplementedException();
+      var method = WellKnownMembers.QueryableAsQueryable.MakeGenericMethod(typeof (TElement));
+      var expression = Expression.Call(method, Expression.Constant(source));
+      return new Queryable<TElement>(expression);
     }
 
     public static IQueryable<TElement> Store<TElement>(params TElement[] source)
     {
-      throw new NotImplementedException();
+      return Store((IEnumerable<TElement>) source);
     }
 
     #region Private / internal methods

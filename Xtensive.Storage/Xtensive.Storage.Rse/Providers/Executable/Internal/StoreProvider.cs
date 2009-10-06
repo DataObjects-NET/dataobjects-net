@@ -61,14 +61,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
       foreach (var tuple in result)
         yield return tuple;
     }
-
-    protected internal override void OnAfterEnumerate(EnumerationContext context)
-    {
-//      if (Origin.Scope==TemporaryDataScope.Enumeration)
-//        GlobalTemporaryData.Current.Set(Name, null);
-      base.OnAfterEnumerate(context);
-    }
-
+   
 
     // Constructors
 
