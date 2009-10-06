@@ -14,7 +14,6 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
-using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
 
@@ -188,7 +187,7 @@ namespace Xtensive.Integrity.Tests
 
       context.Reset();
 
-      using (var r = context.OpenInconsistentRegion()) {
+      using (var region = context.OpenInconsistentRegion()) {
         Person person = new Person();
         
         AssertEx.Throws<ConstraintViolationException>(() =>
@@ -202,10 +201,10 @@ namespace Xtensive.Integrity.Tests
         person.Height = 1.67;
         person.Validate();
 
-        r.Complete();
+        region.Complete();
       }
 
-      using (var r = context.OpenInconsistentRegion()) {
+      using (var region = context.OpenInconsistentRegion()) {
         Person person = new Person();
 
         person.Name = "Mr. Unknown";
@@ -217,7 +216,7 @@ namespace Xtensive.Integrity.Tests
 
         person.Validate();
 
-        r.Complete();
+        region.Complete();
       }
     }
 
