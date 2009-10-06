@@ -239,6 +239,16 @@ namespace Xtensive.Storage
       return ExecuteFuture(query.Method, query);
     }
 
+    public static IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
+    {
+      throw new NotImplementedException();
+    }
+
+    public static IQueryable<TElement> Store<TElement>(params TElement[] source)
+    {
+      throw new NotImplementedException();
+    }
+
     #region Private / internal methods
 
     /// <summary>

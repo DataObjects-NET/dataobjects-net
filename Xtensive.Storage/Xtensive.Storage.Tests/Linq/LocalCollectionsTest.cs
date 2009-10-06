@@ -415,102 +415,61 @@ namespace Xtensive.Storage.Tests.Linq
       QueryDumper.Dump(result);
     }
 
-//    [Test]
-//    public void UnionStructureTest()
-//    {
-//      var customers = Query<Customer>.All;
-//      var result = customers.Select(c => c.Address)
-//        .Where(c => c.StreetAddress.Length > 0)
-//        .Union(customers.ToList().Select(c => c.Address))
-//        .Where(c => c.Region=="BC");
-//      var expected = customers.AsEnumerable().Select(c => c.Address)
-//        .Where(c => c.StreetAddress.Length > 0)
-//        .Union(customers.ToList().Select(c => c.Address))
-//        .Where(c => c.Region=="BC");
-//      Assert.AreEqual(0, expected.Except(result).Count());
-//      QueryDumper.Dump(result);
-//    }
-//
-//    [Test]
-//    public void IntersectWithoutOneOfSelectTest()
-//    {
-//      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
-//      var actual = from c in Query<Customer>.All
-//      from r in (c.Orders)
-//        .Intersect(c.Orders.ToList())
-//        .Select(o => o.ShippedDate)
-//      orderby r
-//      select r;
-//      var expected = from c in Query<Customer>.All.ToList()
-//      from r in (c.Orders)
-//        .Intersect(c.Orders).Select(o => o.ShippedDate)
-//      orderby r
-//      select r;
-//      QueryDumper.Dump(actual);
-//    }
-//
-//    [Test]
-//    public void AsEnumerableTest()
-//    {
-//      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
-//      var result = Query<Customer>.All
-//        .SelectMany(c => (c.Orders)
-//        .Intersect(c.Orders.AsEnumerable()).Select(o => o.ShippedDate)
-//        , (c, r) => new {c, r});
-//      var expected = Query<Customer>.All.AsEnumerable()
-//        .SelectMany(c => (c.Orders)
-//        .Intersect(c.Orders.AsEnumerable()).Select(o => o.ShippedDate)
-//        , (c, r) => new {c, r});
-//       Assert.AreEqual(0, expected.Except(result).Count());
-//      QueryDumper.Dump(result);
-//   }
-//
-//    [Test]
-//    public void ToDictionaryTest()
-//    {
-//      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
-//      var result = Query<Customer>.All
-//        .SelectMany(c => (c.Orders)
-//        .Intersect(c.Orders.ToDictionary(x=>x).Select(o=>o.Value)).Select(o => o.ShippedDate)
-//        , (c, r) => new {c, r});
-//      var expected = Query<Customer>.All.AsEnumerable()
-//        .SelectMany(c => (c.Orders)
-//        .Intersect(c.Orders.ToDictionary(x=>x).Select(o=>o.Value)).Select(o => o.ShippedDate)
-//        , (c, r) => new {c, r});
-//       Assert.AreEqual(0, expected.Except(result).Count());
-//      QueryDumper.Dump(result);
-//   }
-//
-//    [Test]
-//    public void ToListTest()
-//    {
-//      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
-//      var result = Query<Customer>.All
-//        .SelectMany(c => (c.Orders)
-//        .Intersect(c.Orders.ToList()).Select(o => o.ShippedDate)
-//        , (c, r) => new {c, r});
-//      var expected = Query<Customer>.All.AsEnumerable()
-//        .SelectMany(c => (c.Orders)
-//        .Intersect(c.Orders.ToList()).Select(o => o.ShippedDate)
-//        , (c, r) => new {c, r});
-//       Assert.AreEqual(0, expected.Except(result).Count());
-//      QueryDumper.Dump(result);
-//   }
-//
-//    [Test]
-//    public void ToArrayTest()
-//    {
-//      EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
-//      var result = Query<Customer>.All
-//        .SelectMany(c => (c.Orders)
-//        .Intersect(c.Orders.ToArray()).Select(o => o.ShippedDate)
-//        , (c, r) => new {c, r});
-//      var expected = Query<Customer>.All.AsEnumerable()
-//        .SelectMany(c => (c.Orders)
-//        .Intersect(c.Orders.ToArray()).Select(o => o.ShippedDate)
-//        , (c, r) => new {c, r});
-//       Assert.AreEqual(0, expected.Except(result).Count());
-//      QueryDumper.Dump(result);
-//   }
+    [Test]
+    public void GroupingTest()
+    {
+      var localItems = GetLocalItems(1000);
+      var queryable = Query.Store(localItems);
+      var result = queryable.GroupBy(keySelector => keySelector.Value2[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)});
+      var expected = localItems.GroupBy(keySelector => keySelector.Value2[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)});
+      Assert.AreEqual(0, expected.Except(result));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void SubqueryTest()
+    {
+      throw new NotImplementedException();
+      var customers = Query<Customer>.All;
+      var shipper = Query<Shipper>.All;
+      var result = customers.Select(c => new {c.CompanyName, c.ContactName, c.Address})
+        .Where(c => c.Address.StreetAddress.Length < 15)
+        .Select(c => new {Name = c.CompanyName, Address = c.Address.City})
+        .Take(10)
+        .Union(shipper.ToList().Select(s => new {Name = s.CompanyName, Address = s.Phone}))
+        .Where(c => c.Address.Length < 7);
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void AggregateTest()
+    {
+      var localItems = GetLocalItems(1000);
+      var queryable = Query.Store(localItems);
+      var result = queryable.Average(selector => selector.Value1);
+      var expected = localItems.Average(selector => selector.Value1);
+      Assert.AreEqual(result, expected);
+    }
+
+    [Test]
+    [Ignore("Very long")]
+    public void VeryLongTest()
+    {
+      var localItems = GetLocalItems(1000000);
+      var result = Query<Order>.All.Join(localItems, order=>order.Freight, localItem=>localItem.Value1, (order, item) => new {order.Employee, item.Value2});
+      QueryDumper.Dump(result);
+    }
+
+    private IEnumerable<Poco<decimal, string>> GetLocalItems(int count)
+    {
+      return Enumerable
+        .Range(0, count)
+        .Select(i => new Poco<decimal, string> {
+            Value1 = (decimal)i / 100, 
+            Value2 = Guid.NewGuid().ToString()
+          }
+        );
+    }
+
   }
 }

@@ -64,8 +64,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     protected internal override void OnAfterEnumerate(EnumerationContext context)
     {
-      if (Origin.Scope==TemporaryDataScope.Enumeration)
-        GlobalTemporaryData.Current.Set(Name, null);
+//      if (Origin.Scope==TemporaryDataScope.Enumeration)
+//        GlobalTemporaryData.Current.Set(Name, null);
       base.OnAfterEnumerate(context);
     }
 
