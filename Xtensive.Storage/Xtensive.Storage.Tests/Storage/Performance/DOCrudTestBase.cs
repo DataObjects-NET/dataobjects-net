@@ -88,6 +88,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       DeleteSimplestContainer();
 
       FetchTest(baseCount / 2);
+      PrefetchTest(baseCount / 2);
       QueryTest(baseCount / 5);
       SameQueryExpressionTest(baseCount / 5);
       CachedQueryTest(baseCount / 2);
@@ -136,6 +137,34 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         if (count<=instanceCount)
           Assert.AreEqual(0, sum);
       }
+    }
+
+    private void PrefetchTest(int count)
+    {
+      var d = Domain;
+      using (var ss = Session.Open(d)) {
+        var s = ss;
+        long sum = (long)count*(count-1)/2;
+        using (var ts = Transaction.Open()) {
+          TestHelper.CollectGarbage();
+          using (warmup ? null : new Measurement("Prefetch & GetField", count)) {
+            var keys = GetKeys(count).Prefetch<Simplest, Key>(key => key);
+            foreach (var key in keys) {
+              var o = Query<Simplest>.SingleOrDefault(key);
+              sum -= o.Id;
+            }
+            ts.Complete();
+          }
+        }
+        if (count<=instanceCount)
+          Assert.AreEqual(0, sum);
+      }
+    }
+
+    private IEnumerable<Key> GetKeys(int count)
+    {
+      for (int i = 0; i < count; i++)
+        yield return Key.Create<Simplest>((long) i % instanceCount);
     }
 
     private void MaterializeTest(int count)
