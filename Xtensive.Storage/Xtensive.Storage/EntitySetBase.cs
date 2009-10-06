@@ -405,7 +405,7 @@ namespace Xtensive.Storage
 
     protected internal abstract IEnumerable<IEntity> Entities { get; }
 
-    internal EntitySetState UpdateState(IEnumerable<Key> items)
+    internal EntitySetState UpdateState(IEnumerable<Key> items, bool isFullyLoaded)
     {
       var state = new EntitySetState(1024);
       state.Clear();
@@ -414,7 +414,8 @@ namespace Xtensive.Storage
         state.Register(item);
         count++;
       }
-      state.count = count;
+      if (isFullyLoaded)
+        state.count = count;
       State = state;
       return State;
     }

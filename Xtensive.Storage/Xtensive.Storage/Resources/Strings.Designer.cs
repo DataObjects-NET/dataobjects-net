@@ -836,15 +836,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The field {0} has been already registered for prefetch..
-        /// </summary>
-        internal static string ExFieldXHasBeenAlreadyRegisteredForPrefetch {
-            get {
-                return ResourceManager.GetString("ExFieldXHasBeenAlreadyRegisteredForPrefetch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Field &apos;{0}&apos; has &apos;{1}&apos; type but is marked as not nullable..
         /// </summary>
         internal static string ExFieldXHasYTypeButIsMarkedAsNotNullable {

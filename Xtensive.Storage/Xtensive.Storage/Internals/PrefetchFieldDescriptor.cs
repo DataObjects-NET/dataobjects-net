@@ -62,22 +62,10 @@ namespace Xtensive.Storage.Internals
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="field">The field which value will be fetched.</param>
-    /// <param name="entitySetItemCountLimit">The maximal count of items 
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
-    /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true" /> 
-    /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/> 
-    /// will be fetched.</param>
-    public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit,
-      bool fetchFieldsOfReferencedEntity)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
-      if (entitySetItemCountLimit != null)
-        ArgumentValidator.EnsureArgumentIsGreaterThan(entitySetItemCountLimit.Value, 0,
-          "entitySetItemCountLimit");
-      Field = field;
-      FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
-      EntitySetItemCountLimit = entitySetItemCountLimit;
-    }
+    public PrefetchFieldDescriptor(FieldInfo field)
+      : this(field, null, true)
+    {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -104,9 +92,21 @@ namespace Xtensive.Storage.Internals
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="field">The field which value will be fetched.</param>
+    /// <param name="entitySetItemCountLimit">The maximal count of items 
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
-    public PrefetchFieldDescriptor(FieldInfo field)
-      : this(field, null, false)
-    {}
+    /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true" /> 
+    /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/> 
+    /// will be fetched.</param>
+    public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit,
+      bool fetchFieldsOfReferencedEntity)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      if (entitySetItemCountLimit != null)
+        ArgumentValidator.EnsureArgumentIsGreaterThan(entitySetItemCountLimit.Value, 0,
+          "entitySetItemCountLimit");
+      Field = field;
+      FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
+      EntitySetItemCountLimit = entitySetItemCountLimit;
+    }
   }
 }

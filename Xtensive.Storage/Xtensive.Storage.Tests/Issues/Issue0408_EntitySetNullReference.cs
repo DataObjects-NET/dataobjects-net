@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void Main()
     {
-      string connectionUrl = @"sqlserver://localhost/DO40-tests";
+      string connectionUrl = @"sqlserver://localhost/DO40-Tests";
       Log.Info("ConnectionUrl: " + connectionUrl);
 
       // Initialize domain

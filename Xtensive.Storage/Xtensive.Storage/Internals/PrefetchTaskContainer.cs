@@ -6,10 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
@@ -62,6 +60,10 @@ namespace Xtensive.Storage.Internals
       }
       else {
         var referencedKeyTuple = referencingField.Association.ExtractForeignKey(ownerEntityTuple);
+        var referencedKeyTupleState = referencedKeyTuple.GetFieldStateMap(TupleFieldState.Null);
+        for (var i = 0; i < referencedKeyTupleState.Length; i++)
+          if (referencedKeyTupleState[i])
+            return;
         var referencedKey = Key.Create(referencingField.Association.TargetType,
           referencedKeyTuple, false);
         processor.PrefetchHierarchyRootColumns(referencedKey);
@@ -70,15 +72,13 @@ namespace Xtensive.Storage.Internals
 
     public void RegisterEntitySetPrefetchTask(PrefetchFieldDescriptor referencingFieldDescriptor)
     {
-      if (entitySetPrefetchTasks == null)
+      if (entitySetPrefetchTasks==null)
         entitySetPrefetchTasks = new Dictionary<FieldInfo, EntitySetPrefetchTask>();
-      if (entitySetPrefetchTasks.ContainsKey(referencingFieldDescriptor.Field))
-        return;
-      if (EntityPrefetchTask == null)
+      if (EntityPrefetchTask==null)
         AddEntityColumns(Key.Hierarchy.Root.Fields
-          .Where(PrefetchTask.IsFieldIntrinsicNonLazy).SelectMany(field => field.Columns));
-      entitySetPrefetchTasks.Add(referencingFieldDescriptor.Field,
-        new EntitySetPrefetchTask(Key, referencingFieldDescriptor, processor));
+          .Where(PrefetchTask.IsFieldToBeLoadedByDefault).SelectMany(field => field.Columns));
+      entitySetPrefetchTasks[referencingFieldDescriptor.Field] =
+        new EntitySetPrefetchTask(Key, referencingFieldDescriptor, processor);
     }
 
     public bool Equals(PrefetchTaskContainer other)
@@ -113,6 +113,8 @@ namespace Xtensive.Storage.Internals
       return cachedHashCode.Value;
     }
 
+    #region Private \ internal methods
+
     private IEnumerable<ColumnInfo> GetNotLoadedFieldColumns(Tuple tuple, FieldInfo field)
     {
       return field.Columns.Where(column => !IsColumnLoaded(tuple, column));
@@ -124,6 +126,8 @@ namespace Xtensive.Storage.Internals
       return tuple!=null
         && tuple.GetFieldState(columnIndex).IsAvailable();
     }
+
+    #endregion
 
 
     // Constructors

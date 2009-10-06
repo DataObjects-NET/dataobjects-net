@@ -152,8 +152,12 @@ namespace Xtensive.Storage.Internals
         foreach (var element in source) {
           var prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
           sessionHandler.Prefetch(keyExtractor.Invoke(element), modelType, cachedFieldDescriptors);
-          if (prefetchTaskExecutionCount != sessionHandler.PrefetchTaskExecutionCount)
-            ProcessFetchedElements(element, processedElements, waitingElements, sessionHandler);
+          if (prefetchTaskExecutionCount != sessionHandler.PrefetchTaskExecutionCount) {
+            prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
+            ProcessFetchedElements(processedElements, waitingElements, sessionHandler);
+            ProcessElement(element, processedElements, waitingElements, prefetchTaskExecutionCount,
+              sessionHandler);
+          }
           else
             waitingElements.Add(element);
           if (processedElements.Count > 0)
@@ -162,13 +166,26 @@ namespace Xtensive.Storage.Internals
         while (processedElements.Count > 0)
           yield return processedElements.Dequeue();
         sessionHandler.ExecutePrefetchTasks();
-        foreach (var element in waitingElements)
-          yield return element;
+        ProcessFetchedElements(processedElements, waitingElements, sessionHandler);
+        while (processedElements.Count > 0)
+          yield return processedElements.Dequeue();
       }
       finally {
         processedElements.Clear();
         waitingElements.Clear();
       }
+    }
+
+    private void ProcessElement(TElement element, Queue<TElement> processedElements,
+      List<TElement> waitingElements, int prefetchTaskExecutionCount, SessionHandler sessionHandler)
+    {
+      if (prefetchTaskExecutionCount!=sessionHandler.PrefetchTaskExecutionCount) {
+        if (prefetchManyDelegates.Count > 0)
+          ExecutePrefetchMany(element, sessionHandler);
+        processedElements.Enqueue(element);
+      }
+      else
+        waitingElements.Add(element);
     }
 
     /// <inheritdoc/>
@@ -214,29 +231,19 @@ namespace Xtensive.Storage.Internals
       if (modelField == null)
         throw new ArgumentException(String.Format(Strings.ExSpecifiedPropertyXIsNotPersistent,
           property.Name), "expression");
-      if (fieldDescriptors.ContainsKey(modelField))
-        throw new InvalidOperationException(String
-          .Format(Strings.ExFieldXHasBeenAlreadyRegisteredForPrefetch, modelField));
-      fieldDescriptors.Add(modelField, new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit, true));
+      fieldDescriptors[modelField] = new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit, true);
     }
 
-    private void ProcessFetchedElements(TElement currentElement, Queue<TElement> processedElements,
+    private void ProcessFetchedElements(Queue<TElement> processedElements,
       List<TElement> waitingElements,SessionHandler sessionHandler)
     {
       var prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
       if (prefetchManyDelegates.Count > 0)
         foreach (var waitingElement in waitingElements)
-          prefetchTaskExecutionCount = ExecutePrefetchMany(waitingElement, sessionHandler);
+          ExecutePrefetchMany(waitingElement, sessionHandler);
       foreach (var waitingElement in waitingElements)
         processedElements.Enqueue(waitingElement);
       waitingElements.Clear();
-      if (prefetchTaskExecutionCount != sessionHandler.PrefetchTaskExecutionCount) {
-        if (prefetchManyDelegates.Count > 0)
-          ExecutePrefetchMany(currentElement, sessionHandler);
-        processedElements.Enqueue(currentElement);
-      }
-      else
-        waitingElements.Add(currentElement);
     }
 
     private int ExecutePrefetchMany(TElement element, SessionHandler sessionHandler)
@@ -257,12 +264,23 @@ namespace Xtensive.Storage.Internals
     // Constructors
 
     internal Prefetcher(IEnumerable<TElement> source, Func<TElement, Key> keyExtractor)
+      : this(source, keyExtractor, false)
+    {}
+
+    internal Prefetcher(IEnumerable<TElement> source, Func<TElement, Key> keyExtractor,
+      bool addNonLazyLoadFields)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.source = source;
       this.keyExtractor = keyExtractor;
       modelType = typeof (T).GetTypeInfo();
+      if (addNonLazyLoadFields) {
+        var selectedFields = modelType.Fields
+          .Where(field => field.Parent==null && PrefetchTask.IsFieldToBeLoadedByDefault(field));
+        foreach (var selectedField in selectedFields)
+          fieldDescriptors[selectedField] = new PrefetchFieldDescriptor(selectedField, false);
+      }
     }
   }
 }

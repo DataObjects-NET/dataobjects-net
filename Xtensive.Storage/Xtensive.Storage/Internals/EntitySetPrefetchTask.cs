@@ -90,6 +90,8 @@ namespace Xtensive.Storage.Internals
       return cachedHashCode.Value;
     }
 
+    #region Private \ internal methods
+
     private QueryTask CreateQueryTask()
     {
       var parameterContext = new ParameterContext();
@@ -133,7 +135,7 @@ namespace Xtensive.Storage.Internals
     {
      for (int i = 0; i < index.Columns.Count; i++) {
         var column = index.Columns[i];
-        if (PrefetchTask.IsFieldIntrinsicNonLazy(column.Field))
+        if (PrefetchTask.IsFieldToBeLoadedByDefault(column.Field))
           indexes.Add(i + columnIndexOffset);
       }
     }
@@ -178,6 +180,8 @@ namespace Xtensive.Storage.Internals
       }
       return filterExpression;
     }
+
+    #endregion
 
 
     // Constructors

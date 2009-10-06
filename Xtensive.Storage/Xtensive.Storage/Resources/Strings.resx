@@ -1073,7 +1073,4 @@ Actions:
   <data name="ExSpecifiedPropertyXIsNotPersistent" xml:space="preserve">
     <value>The specified property {0} is not persistent.</value>
   </data>
-  <data name="ExFieldXHasBeenAlreadyRegisteredForPrefetch" xml:space="preserve">
-    <value>The field {0} has been already registered for prefetch.</value>
-  </data>
 </root>

@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Internals
 
     public abstract void RegisterQueryTask();
 
-    public static bool IsFieldIntrinsicNonLazy(FieldInfo field)
+    public static bool IsFieldToBeLoadedByDefault(FieldInfo field)
     {
       return field.IsPrimaryKey || field.IsSystem || !field.IsLazyLoad && !field.IsEntitySet;
     }

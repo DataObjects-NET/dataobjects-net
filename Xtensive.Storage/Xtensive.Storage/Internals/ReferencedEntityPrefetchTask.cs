@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Internals
       this.ownerKey = ownerKey;
       ReferencingField = referencingField;
       this.isOwnerTypeKnown = isOwnerTypeKnown;
-      var fieldsToBeLoaded = rootType.Fields.Where(IsFieldIntrinsicNonLazy);
+      var fieldsToBeLoaded = rootType.Fields.Where(IsFieldToBeLoadedByDefault);
       foreach (var field in fieldsToBeLoaded)
         AddColumns(field.Columns);
     }

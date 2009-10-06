@@ -152,9 +152,14 @@ namespace Xtensive.Storage.Providers
     /// <param name="key">The owner's key.</param>
     /// <param name="fieldInfo">The referencing field.</param>
     /// <param name="items">The items.</param>
-    /// <returns>The updated <see cref="EntitySetState"/>, or <see langword="null"/> 
-    /// if a state was not found.</returns>
-    protected EntitySetState UpdateEntitySetState(Key key, FieldInfo fieldInfo, IEnumerable<Key> items)
+    /// <param name="isFullyLoaded">if set to <see langword="true"/> then <paramref name="items"/> 
+    /// contains all elements of an <see cref="EntitySet{TItem}"/>.</param>
+    /// <returns>
+    /// The updated <see cref="EntitySetState"/>, or <see langword="null"/>
+    /// if a state was not found.
+    /// </returns>
+    protected EntitySetState UpdateEntitySetState(Key key, FieldInfo fieldInfo, IEnumerable<Key> items,
+      bool isFullyLoaded)
     {
       var entityState = Session.EntityStateCache[key, true];
       if (entityState==null)
@@ -163,7 +168,7 @@ namespace Xtensive.Storage.Providers
       if (entity==null)
         return null;
       var entitySet = Session.CoreServices.EntitySetAccessor.GetEntitySet(entity, fieldInfo);
-      return entitySet.UpdateState(items);
+      return entitySet.UpdateState(items, isFullyLoaded);
     }
 
     /// <summary>
@@ -175,8 +180,8 @@ namespace Xtensive.Storage.Providers
     {
       var type = key.IsTypeCached ? key.Type : key.Hierarchy.Root;
       prefetchProcessor.Prefetch(key, type, type.Fields
-        .Where(field => field.Parent == null && PrefetchTask.IsFieldIntrinsicNonLazy(field))
-        .Select(field => new PrefetchFieldDescriptor(field)).ToArray());
+        .Where(field => field.Parent == null && PrefetchTask.IsFieldToBeLoadedByDefault(field))
+        .Select(field => new PrefetchFieldDescriptor(field, false)).ToArray());
       prefetchProcessor.ExecuteTasks();
       EntityState result;
       return TryGetEntityState(key, out result) ? result : null;
@@ -190,7 +195,7 @@ namespace Xtensive.Storage.Providers
     protected internal virtual void FetchField(Key key, FieldInfo field)
     {
       var type = key.IsTypeCached ? key.Type : key.Hierarchy.Root;
-      prefetchProcessor.Prefetch(key, type, new PrefetchFieldDescriptor(field));
+      prefetchProcessor.Prefetch(key, type, new PrefetchFieldDescriptor(field, false));
       prefetchProcessor.ExecuteTasks();
     }
 
@@ -226,7 +231,7 @@ namespace Xtensive.Storage.Providers
         RegisterEntityState(pair.First, pair.Second);
         keyList.Add(pair.First);
       }
-      return UpdateEntitySetState(key, fieldInfo, keyList);
+      return UpdateEntitySetState(key, fieldInfo, keyList, isFullyLoaded);
     }
 
     internal virtual bool TryGetEntitySetState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)

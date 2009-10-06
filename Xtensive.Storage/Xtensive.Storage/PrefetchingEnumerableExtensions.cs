@@ -29,7 +29,7 @@ namespace Xtensive.Storage
       Func<TElement, Key> keyExtractor)
       where T : Entity
     {
-      return new Prefetcher<T, TElement>(source, keyExtractor);
+      return new Prefetcher<T, TElement>(source, keyExtractor, true);
     }
 
     /// <summary>

@@ -50,14 +50,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       CombinedTest(10, 10);
       warmup = false;
       InsertTest(BaseCount);
-      //FetchTest(BaseCount / 2);
+      FetchTest(BaseCount / 2);
       //MaterializeTest(BaseCount);
       //UpdateTest();
       RemoveTest();
-      CreateSimplestContainer(BaseCount);
+      /*CreateSimplestContainer(BaseCount);
       AccessToPairedEntitySetTest(collectionCount);
       AccessToNonPairedEntitySetTest(collectionCount);
-      DeleteSimplestContainer();
+      DeleteSimplestContainer();*/
     }
 
     [Test]

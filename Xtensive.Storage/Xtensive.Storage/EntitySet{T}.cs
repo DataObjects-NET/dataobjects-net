@@ -274,7 +274,7 @@ namespace Xtensive.Storage
     private IEnumerable<IEntity> GetRealEntities()
     {
       State = null;
-      Session.Handler.Prefetch(Owner.Key, Owner.Type, new PrefetchFieldDescriptor(Field));
+      Session.Handler.Prefetch(Owner.Key, Owner.Type, new PrefetchFieldDescriptor(Field, null));
       Session.Handler.ExecutePrefetchTasks();
       return GetCachedEntities();
     }

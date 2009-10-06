@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Internals
 {
   internal sealed class PrefetchProcessor
   {
-    private const int MaxContainerCount = 10;
+    private const int MaxContainerCount = 100;
 
     private readonly SetSlim<PrefetchTaskContainer> taskContainers = new SetSlim<PrefetchTaskContainer>();
     
@@ -137,10 +137,12 @@ namespace Xtensive.Storage.Internals
       var currentKey = key;
       if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out entityTuple))
         return;
-      var descriptors = key.Hierarchy.Root.Fields.Where(PrefetchTask.IsFieldIntrinsicNonLazy)
-        .Select(field => new PrefetchFieldDescriptor(field));
+      var descriptors = key.Hierarchy.Root.Fields.Where(PrefetchTask.IsFieldToBeLoadedByDefault)
+        .Select(field => new PrefetchFieldDescriptor(field, false));
       CreateTasks(currentKey, currentKey.Hierarchy.Root, descriptors, true, entityTuple);
     }
+
+    #region Private \ internal methods
 
     private static void EnsureAllFieldsBelongToSpecifiedType(PrefetchFieldDescriptor[] descriptors,
       TypeInfo type)
@@ -235,9 +237,11 @@ namespace Xtensive.Storage.Internals
             entities.Add(new Pair<Key, Tuple>(key, tuple));
         }
       }
-      Owner.RegisterEntitySetState(ownerKey, task.ReferencingField, entities.Count < task.ItemCountLimit,
-        entities, auxEntities);
+      Owner.RegisterEntitySetState(ownerKey, task.ReferencingField,
+        task.ItemCountLimit == null || entities.Count < task.ItemCountLimit, entities, auxEntities);
     }
+
+    #endregion
 
 
     // Constructors

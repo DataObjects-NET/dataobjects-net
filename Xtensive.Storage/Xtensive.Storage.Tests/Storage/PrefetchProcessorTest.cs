@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -17,7 +16,6 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.PrefetchProcessorTest.Model;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
@@ -267,9 +265,9 @@ namespace Xtensive.Storage.Tests.Storage
         PrefetchIntrinsicFields(prefetchProcessor, orderKey, typeof(Order));
         PrefetchIntrinsicFields(prefetchProcessor, productKey, typeof(Product));
         prefetchProcessor.ExecuteTasks();
-        AssertOnlySpecifiedColumnsAreLoaded(customerKey, customerType, session, IsFieldIntrinsicOrPrimaryKey);
-        AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session, IsFieldIntrinsicOrPrimaryKey);
-        AssertOnlySpecifiedColumnsAreLoaded(productKey, productType, session, IsFieldIntrinsicOrPrimaryKey);
+        AssertOnlySpecifiedColumnsAreLoaded(customerKey, customerType, session, IsFieldToBeLoadedByDefault);
+        AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session, IsFieldToBeLoadedByDefault);
+        AssertOnlySpecifiedColumnsAreLoaded(productKey, productType, session, IsFieldToBeLoadedByDefault);
       }
     }
 
@@ -339,10 +337,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void PrefetchEntityByKeyWithUnknownTypeTest()
     {
-      Key customerKey;
-      using (Session.Open(Domain))
-      using (var tx = Transaction.Open())
-        customerKey = Query<Customer>.All.OrderBy(c => c.Id).First().Key;
+      var customerKey = GetFirstKey<Customer>();
+
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
@@ -524,8 +520,10 @@ namespace Xtensive.Storage.Tests.Storage
         EntitySetState state;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(authorKey, booksField, out state));
         Assert.AreEqual(6, state.Count());
+        Assert.IsTrue(state.IsFullyLoaded);
         Assert.IsTrue(session.Handler.TryGetEntitySetState(orderKey, detailsField, out state));
         Assert.AreEqual(4, state.Count());
+        Assert.IsTrue(state.IsFullyLoaded);
       }
 
       using (var session = Session.Open(Domain))
@@ -539,8 +537,10 @@ namespace Xtensive.Storage.Tests.Storage
         EntitySetState state;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(authorKey, booksField, out state));
         Assert.AreEqual(itemCount, state.Count());
+        Assert.IsFalse(state.IsFullyLoaded);
         Assert.IsTrue(session.Handler.TryGetEntitySetState(orderKey, detailsField, out state));
         Assert.AreEqual(itemCount, state.Count());
+        Assert.IsFalse(state.IsFullyLoaded);
       }
     }
 
@@ -603,19 +603,15 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void EntityHaveBeenLoadedBeforeTaskActivationTest()
     {
-      Key customer0Key;
-      Key customer1Key;
-      using (Session.Open(Domain))
-      using (var tx = Transaction.Open())
-        customer0Key = Query<Customer>.All.OrderBy(c => c.Id).First().Key;
+      var customerKey = GetFirstKey<Customer>();
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
-        prefetchProcessor.Prefetch(customer0Key, customer0Key.Type, new PrefetchFieldDescriptor(cityField));
+        prefetchProcessor.Prefetch(customerKey, customerKey.Type, new PrefetchFieldDescriptor(cityField));
         prefetchProcessor.ExecuteTasks();
 
-        prefetchProcessor.Prefetch(customer0Key, customer0Key.Type, new PrefetchFieldDescriptor(personIdField),
+        prefetchProcessor.Prefetch(customerKey, customerKey.Type, new PrefetchFieldDescriptor(personIdField),
           new PrefetchFieldDescriptor(cityField));
         var taskContainer = GetSingleTaskContainer(prefetchProcessor);
         taskContainer.EntityPrefetchTask.RegisterQueryTask();
@@ -676,10 +672,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void PrefetchReferencedEntityByKnownForeignKeyTest()
     {
-      Key orderKey;
-      using (Session.Open(Domain))
-      using (var tx = Transaction.Open())
-        orderKey = Query<Order>.All.OrderBy(o => o.Id).First().Key;
+      var orderKey = GetFirstKey<Order>();
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -708,7 +701,7 @@ namespace Xtensive.Storage.Tests.Storage
             || field.Parent == employeeField);
         AssertOnlySpecifiedColumnsAreLoaded(employeeTask.Key, Domain.Model.Types[typeof (Employee)],
           session, field => field.DeclaringType == employeeTask.Key.Hierarchy.Root
-            && IsFieldIntrinsicOrPrimaryKey(field));
+            && IsFieldToBeLoadedByDefault(field));
       }
     }
 
@@ -738,15 +731,49 @@ namespace Xtensive.Storage.Tests.Storage
             || field.Parent == employeeField);
         Assert.IsNull(Query<Order>.Single(orderKey).Employee);
       }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetchProcessor = (PrefetchProcessor) prefetchProcessorField.GetValue(session.Handler);
+        session.Handler.FetchInstance(orderKey);
+        prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(employeeField, true));
+        var taskContainers = (SetSlim<PrefetchTaskContainer>) taskContainersField.GetValue(prefetchProcessor);
+        Assert.AreEqual(1, taskContainers.Count);
+        Assert.AreEqual(orderKey, taskContainers.Single().Key);
+      }
+    }
+
+    [Test]
+    public void PrefetchEmptyEntitySetTest()
+    {
+      Key orderKey;
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var order = Query<Order>.All.OrderBy(o => o.Id).First();
+        var newOrder = new Order {Employee = null, Customer = order.Customer};
+        orderKey = newOrder.Key;
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetchProcessor = (PrefetchProcessor) prefetchProcessorField.GetValue(session.Handler);
+        session.Handler.FetchInstance(orderKey);
+        prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(detailsField, null));
+        var taskContainers = (SetSlim<PrefetchTaskContainer>) taskContainersField.GetValue(prefetchProcessor);
+        Assert.AreEqual(1, taskContainers.Count);
+        prefetchProcessor.ExecuteTasks();
+        EntitySetState actualState;
+        session.Handler.TryGetEntitySetState(orderKey, detailsField, out actualState);
+        Assert.AreEqual(0, actualState.Count);
+        Assert.IsTrue(actualState.IsFullyLoaded);
+      }
     }
 
     [Test]
     public void PrefetchReferencedEntityWhenTypeSpecifiedForOwnerIsInvalidTest()
     {
-      Key productKey;
-      using (Session.Open(Domain))
-      using (var tx = Transaction.Open())
-        productKey = Query<Product>.All.OrderBy(o => o.Id).First().Key;
+      var productKey = GetFirstKey<Product>();
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -765,10 +792,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MergingOfRequestsInTaskContainer()
     {
-      Key orderKey;
-      using (Session.Open(Domain))
-      using (var tx = Transaction.Open())
-        orderKey = Query<Order>.All.OrderBy(o => o.Id).First().Key;
+      var orderKey = GetFirstKey<Order>();
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -838,10 +862,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DeletingOfTasksAtTransactionCommitOrRollback()
     {
-      Key orderKey;
-      using (Session.Open(Domain))
-      using (var tx = Transaction.Open())
-        orderKey = Query<Order>.All.OrderBy(o => o.Id).First().Key;
+      Key orderKey = GetFirstKey<Order>();
 
       using (var session = Session.Open(Domain)) {
         var prefetchProcessor = (PrefetchProcessor) prefetchProcessorField.GetValue(session.Handler);
@@ -866,7 +887,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void TasksAreExecutedAutomaticallyWhenTheirCountIsReachedLimitTest()
     {
-      const int entityCount = 11;
+      const int entityCount = 101;
       var keys = new List<Key>(entityCount);
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -890,6 +911,70 @@ namespace Xtensive.Storage.Tests.Storage
         for (var i = 0; i < entityCount - 1; i++)
           AssertOnlySpecifiedColumnsAreLoaded(keys[i], bookType, session,
             field => field.IsPrimaryKey || field.IsSystem);
+      }
+    }
+
+    [Test]
+    public void RepeatedRegistrationOfReferencingFieldTest()
+    {
+      var orderKey = GetFirstKey<Order>();
+
+      using (var session = Session.Open(Domain)) {
+        using (var tx = Transaction.Open()) {
+          var prefetchProcessor = new PrefetchProcessor(session.Handler);
+          prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(customerField));
+          prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(customerField, true));
+          prefetchProcessor.ExecuteTasks();
+          var orderState = session.EntityStateCache[orderKey, true];
+          var customerKey = Key.Create<Customer>(customerField.Association.ExtractForeignKey(orderState.Tuple),
+            true);
+          AssertOnlySpecifiedColumnsAreLoaded(customerKey, customerType, session,
+            PrefetchTask.IsFieldToBeLoadedByDefault);
+        }
+      }
+    }
+
+    [Test]
+    public void RepeatedRegistrationOfEntitySetFieldTest()
+    {
+      Key orderKey;
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open())
+        orderKey = Query<Order>.All.AsEnumerable().Where(o => o.Details.Count > 2).First().Key;
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetchProcessor = new PrefetchProcessor(session.Handler);
+        prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(detailsField, 1));
+        prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(detailsField, null));
+        prefetchProcessor.ExecuteTasks();
+        EntitySetState entitySetState;
+        Assert.IsTrue(session.Handler.TryGetEntitySetState(orderKey, detailsField, out entitySetState));
+        Assert.IsTrue(entitySetState.IsFullyLoaded);
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetchProcessor = new PrefetchProcessor(session.Handler);
+        prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(detailsField, 1));
+        prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(detailsField, 2));
+        prefetchProcessor.ExecuteTasks();
+        EntitySetState entitySetState;
+        Assert.IsTrue(session.Handler.TryGetEntitySetState(orderKey, detailsField, out entitySetState));
+        Assert.AreEqual(2, entitySetState.Count());
+        Assert.IsFalse(entitySetState.IsFullyLoaded);
+      }
+    }
+
+    [Test]
+    public void FetchInstanceTest()
+    {
+      var orderKey = GetFirstKey<Order>();
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var fetchedEntityState = session.Handler.FetchInstance(orderKey);
+        AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session, IsFieldToBeLoadedByDefault);
       }
     }
     
@@ -922,20 +1007,20 @@ namespace Xtensive.Storage.Tests.Storage
       var foreignKey = Key.Create(referencingField.Association.TargetType.Hierarchy.Root,
         foreignKeyValue, false);
       AssertOnlySpecifiedColumnsAreLoaded(foreignKey,
-        referencingField.Association.TargetType.Hierarchy.Root, session, IsFieldIntrinsicOrPrimaryKey);
+        referencingField.Association.TargetType.Hierarchy.Root, session, IsFieldToBeLoadedByDefault);
     }
       
     private void PrefetchIntrinsicFields(PrefetchProcessor prefetchProcessor, Key customerKey, Type type)
     {
       var typeInfo = Domain.Model.Types[type];
       prefetchProcessor.Prefetch(customerKey, typeInfo,
-        typeInfo.Fields.Where(PrefetchTask.IsFieldIntrinsicNonLazy)
+        typeInfo.Fields.Where(PrefetchTask.IsFieldToBeLoadedByDefault)
         .Select(field => new PrefetchFieldDescriptor(field)).ToArray());
     }
 
-    private static bool IsFieldIntrinsicOrPrimaryKey(FieldInfo field)
+    private static bool IsFieldToBeLoadedByDefault(FieldInfo field)
     {
-      return PrefetchTask.IsFieldIntrinsicNonLazy(field);
+      return field.IsPrimaryKey || field.IsSystem || !field.IsLazyLoad && !field.IsEntitySet;
     }
 
     private static void AssertEntityStateIsNotLoaded(Key key, Session session)
@@ -944,9 +1029,19 @@ namespace Xtensive.Storage.Tests.Storage
       Assert.IsNull(state);
     }
 
+    private Key GetFirstKey<T>()
+      where T : Entity
+    {
+      Key orderKey;
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open())
+        orderKey = Query<T>.All.OrderBy(o => o.Key).First().Key;
+      return orderKey;
+    }
+
     private void FillDataBase()
     {
-      using (var sesscionScope = Session.Open(Domain)) {
+      using (var sessionScope = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
 
           var customer1 = new Customer {Name = "Customer1", Age = 25, City = "A"};

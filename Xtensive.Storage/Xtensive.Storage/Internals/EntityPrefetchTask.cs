@@ -37,8 +37,8 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public EntityPrefetchTask(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor) :
-      base(key, type, exactType, processor)
+    public EntityPrefetchTask(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)
+      : base(key, type, exactType, processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
     }
