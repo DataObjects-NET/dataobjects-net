@@ -21,4 +21,10 @@ namespace Xtensive.Storage.Tests.ObjectModel.GenericModel
   {
     
   }
+
+  public class C<T> : A<T>
+    where T : A<T>
+  {
+    
+  }
 }
