@@ -10,16 +10,28 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
 {
+  [Index("Name", Unique = true)]
   public interface INamed : IEntity
   {
     [Field]
     string Name { get; set; }
   }
 
+  [Index("Tag")]
   public interface ITagged : IEntity
   {
     [Field]
     string Tag { get; set; }
+  }
+
+  [Index("First", "Second")]
+  public interface IComposite : IEntity
+  {
+    [Field]
+    string First { get; set; }
+
+    [Field]
+    string Second { get; set; }
   }
 
   [HierarchyRoot(InheritanceSchema.ClassTable)]
@@ -38,59 +50,80 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
 
   public class C : A, ITagged
   {
-    public string Tag { get; set; }
+    string ITagged.Tag { get; set; }
   }
 
-  public class D : C, INamed
+  public class D : B, INamed, IComposite
   {
     string INamed.Name { get; set; }
+    public string First { get; set; }
+    public string Second { get; set;}
+  }
+
+  public class E : D, IComposite
+  {
+    string IComposite.First { get; set; }
   }
 
   [HierarchyRoot(InheritanceSchema.ConcreteTable)]
-  public class E : Entity, INamed
+  public class F : Entity, INamed
   {
     [Field, Key]
     public long Id { get; private set; }
     public string Name { get; set; }
   }
 
-  public class F : E, INamed, ITagged
+  public class G : F, INamed, ITagged
   {
     string INamed.Name { get; set; }
     public string Tag { get; set; }
   }
 
-  public class G : E, ITagged
+  public class H : F, ITagged
   {
-    public string Tag { get; set; }
+    string ITagged.Tag { get; set; }
   }
 
-  public class H : G, INamed
+  public class I : G, INamed, IComposite
   {
     string INamed.Name { get; set; }
+    public string First { get; set; }
+    public string Second { get; set; }
+  }
+
+  public class J : I, IComposite
+  {
+    string IComposite.First { get; set; }
   }
 
   [HierarchyRoot(InheritanceSchema.SingleTable)]
-  public class I : Entity, INamed
+  public class K : Entity, INamed
   {
     [Field, Key]
     public long Id { get; private set; }
     public string Name { get; set; }
   }
 
-  public class J : I, INamed, ITagged
+  public class L : K, INamed, ITagged
   {
     string INamed.Name { get; set; }
     public string Tag { get; set; }
   }
 
-  public class K : I, ITagged
+  public class M : K, ITagged
   {
-    public string Tag { get; set; }
+    string ITagged.Tag { get; set; }
   }
 
-  public class L : K, INamed
+  public class N : L, INamed, IComposite
   {
     string INamed.Name { get; set; }
+    public string First { get; set; }
+    public string Second { get; set; }
+  }
+
+  public class O : N, IComposite
+  {
+    string IComposite.First { get; set; }
   }
 }
