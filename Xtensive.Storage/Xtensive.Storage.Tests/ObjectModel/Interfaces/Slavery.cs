@@ -25,14 +25,14 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery
     where TMaster : IMaster
   {
     [Field]
-    TMaster Master { get; set; }
+    TMaster XMaster { get; set; }
   }
 
   public interface IMaster<TSlave> : IMaster
     where TSlave : ISlave
   {
-    [Field, Association(PairTo = "Master")]
-    EntitySet<TSlave> Slaves { get; }
+    [Field, Association(PairTo = "XMaster")]
+    EntitySet<TSlave> XSlaves { get; }
   }
 
   [HierarchyRoot]
@@ -46,18 +46,17 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery
       get { return GetFieldValue<IMaster>("ISlave.Master"); }
       set
       {
-        Master = (Master) value;
-        SetFieldValue("ISlave.Master", value);
+        XMaster = (Master) value;
       }
     }
 
-    public Master Master
+    public Master XMaster
     {
       get { return (Master) ((ISlave)this).Master;}
       set
       {
         SetFieldValue("ISlave.Master", (IMaster)value);
-        SetFieldValue("Master", value);
+        SetFieldValue("TMaster", value);
       }
     }
   }
@@ -73,6 +72,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery
       get { return GetFieldValue<EntitySet<ISlave>>("IMaster.Slaves"); }
     }
 
-    public EntitySet<Slave> Slaves { get; private set; }
+    public EntitySet<Slave> XSlaves { get; private set; }
   }
 }
