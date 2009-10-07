@@ -203,6 +203,12 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether version already updated.
+    /// </summary>
+    [Infrastructure]
+    internal bool IsVersionUpdated { get; set; }
+
     /// <inheritdoc/>
     protected override Tuple LoadState()
     {

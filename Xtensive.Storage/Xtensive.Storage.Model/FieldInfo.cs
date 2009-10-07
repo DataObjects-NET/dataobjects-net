@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Model
     internal SegmentTransform             valueExtractorTransform;
     private int                           adapterIndex = -1;
     private ColumnInfoCollection          columns;
-
+    
     #region IsXxx properties
 
     /// <summary>

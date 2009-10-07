@@ -50,6 +50,7 @@ namespace Xtensive.Storage.Model
     private ReadOnlyList<AssociationInfo>      ownerAssociations;
     private ReadOnlyList<AssociationInfo>      removalSequence;
     private ReadOnlyList<FieldInfo>            versionFields;
+    private ReadOnlyList<Pair<ColumnInfo, int>> versionColumns;
     private Type                               underlyingType;
     private HierarchyInfo                      hierarchy;
     private int                                typeId = NoTypeId;
@@ -392,19 +393,41 @@ namespace Xtensive.Storage.Model
       if (IsLocked)
         return versionFields;
 
-      var list = Fields.Where(field => field.IsVersion).ToList();
-      if (list.Count > 0)
-        return list;
-
-      return Fields.Where(field => 
-        !field.IsPrimaryKey 
-        && !field.IsSystem 
-        && !field.IsTypeId 
-        && !field.IsLazyLoad
-        && !field.IsEntity
-        && !field.IsEntitySet
-        && !field.IsStructure)
+      var list = Fields.Where(field => field.IsVersion)
         .ToList();
+      return list.Count > 0 ? list : new List<FieldInfo>();
+    }
+
+    /// <summary>
+    /// Gets the version columns.
+    /// </summary>
+    /// <returns></returns>
+    public IList<Pair<ColumnInfo, int>> GetVersionColumns()
+    {
+      if (IsLocked)
+        return versionColumns;
+
+      var versionFields = GetVersionFields();
+      if (versionFields.Count > 0)
+        return
+          versionFields
+            .SelectMany(field => field.Columns)
+            .Select(column => new Pair<ColumnInfo, int>(column, Columns.IndexOf(column)))
+            .OrderBy(pair => pair.Second)
+            .ToList();
+
+      return
+        Fields.Where(field =>
+          !field.IsPrimaryKey
+            && !field.IsSystem
+            && !field.IsTypeId
+            && field.IsPrimitive
+            && !field.IsLazyLoad
+            && !field.ValueType.IsArray)
+          .SelectMany(field => field.Columns,
+            (field, column) => new Pair<ColumnInfo, int>(column, Columns.IndexOf(column)))
+          .OrderBy(pair => pair.Second)
+          .ToList();
     }
 
     /// <inheritdoc/>
@@ -414,10 +437,7 @@ namespace Xtensive.Storage.Model
       ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
       targetAssociations = new ReadOnlyList<AssociationInfo>(GetTargetAssociations());
       ownerAssociations = new ReadOnlyList<AssociationInfo>(GetOwnerAssociations());
-      versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
-      foreach (var field in versionFields)
-        field.IsVersion = true;
-
+      
       int adapterIndex = 0;
       foreach (FieldInfo field in Fields)
         if (field.IsStructure || field.IsEntitySet)
@@ -437,8 +457,11 @@ namespace Xtensive.Storage.Model
       if (IsEntity || IsStructure)
         BuildTuplePrototype();
       
-      if (IsEntity)
+      if (IsEntity) {
+        versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
+        versionColumns = new ReadOnlyList<Pair<ColumnInfo, int>>(GetVersionColumns());
         CreateVersionExtractor();
+      }
 
       // Selecting master parts from paired associations & single associations
       var associations = model.Associations.Find(this).Where(a => a.IsMaster).ToList();
@@ -547,13 +570,15 @@ namespace Xtensive.Storage.Model
     private void CreateVersionExtractor()
     {
       // Building version tuple extractor
-      var versionColumns = GetVersionFields().SelectMany(field => field.Columns);
-      var types = versionColumns.Select(columnInfo => columnInfo.ValueType);
-      var map = versionColumns
-        .Select(columnInfo => Columns.IndexOf(columnInfo))
-        .ToArray();
+      var versionColumns = GetVersionColumns();
+      if (versionColumns.Count==0) {
+        VersionExtractor = null;
+        return;
+      }
+      var types = versionColumns.Select(pair => pair.First.ValueType);
+      var map = versionColumns.Select(pair => pair.Second).ToArray();
       var versionTupleDescriptor = TupleDescriptor.Create(types.ToArray());
-      VersionExtractor = new MapTransform(false, versionTupleDescriptor, map);
+      VersionExtractor = new MapTransform(true, versionTupleDescriptor, map);
     }
 
     #endregion

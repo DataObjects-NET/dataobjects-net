@@ -1073,4 +1073,22 @@ Actions:
   <data name="ExSpecifiedPropertyXIsNotPersistent" xml:space="preserve">
     <value>The specified property {0} is not persistent.</value>
   </data>
+  <data name="ExPrimaryKeyFieldXCanTBeMarkedAsVersion" xml:space="preserve">
+    <value>Primary key field '{0}' can't be marked as Version.</value>
+  </data>
+  <data name="ExVersionFieldXCanTBeLazyLoadField" xml:space="preserve">
+    <value>Version field '{0}' can't be LazyLoad field.</value>
+  </data>
+  <data name="ExVersionFieldXCanTBeOfYType" xml:space="preserve">
+    <value>Version field '{0}' can't be of {1} type.</value>
+  </data>
+  <data name="ExVersionFieldXCanTBeSystemField" xml:space="preserve">
+    <value>Version field '{0}' can't be System field.</value>
+  </data>
+  <data name="VersionFieldXCanTBeTypeIdField" xml:space="preserve">
+    <value>Version field '{0}' can't be TypeId field.</value>
+  </data>
+  <data name="ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot" xml:space="preserve">
+    <value>Type '{0}' can't contains Version fields as it's not a HierarchyRoot.</value>
+  </data>
 </root>

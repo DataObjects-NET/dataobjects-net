@@ -5,9 +5,11 @@
 // Created:    2007.08.01
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
@@ -15,12 +17,15 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Integrity.Validation;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Serialization;
+using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage
 {
@@ -151,6 +156,27 @@ namespace Xtensive.Storage
     #region Public members
 
     /// <summary>
+    /// Gets the current version.
+    /// </summary>
+    /// <returns>Current version.</returns>
+    public VersionInfo GetVersion()
+    {
+      if (Type.VersionExtractor==null)
+        return new VersionInfo(); // returns empty VersionInfo
+      var tuple = State.Tuple;
+      var fieldsToLoad = Type.GetVersionColumns()
+        .Where(pair => !tuple.GetFieldState(pair.Second).IsAvailable())
+        .Select(pair => new PrefetchFieldDescriptor(pair.First.Field, false))
+        .ToArray();
+      if (fieldsToLoad.Length > 0) {
+        Session.Handler.Prefetch(Key, Type, fieldsToLoad);
+        Session.Handler.ExecutePrefetchTasks();
+      }
+      var versionTuple = Type.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
+      return new VersionInfo(versionTuple);
+    }
+    
+    /// <summary>
     /// Removes this entity.
     /// </summary>
     /// <exception cref="ReferentialIntegrityException">
@@ -231,6 +257,15 @@ namespace Xtensive.Storage
     {
     }
 
+    /// <summary>
+    /// Called when version is updated.
+    /// </summary>
+    protected virtual void UpdateVersion()
+    {
+      foreach (var field in Type.GetVersionFields())
+        this[field.Name] = IncrementalVersionGenerator.GetNext(this[field.Name]);
+    }
+
     #endregion
 
     #region Private \ internal methods
@@ -282,6 +317,23 @@ namespace Xtensive.Storage
       if (subscriptionInfo.Second!=null)
         ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
       OnRemove();
+    }
+
+    internal void OnFieldChanged()
+    {
+      if (Type.GetVersionFields().Count==0
+        || IsRemoved
+        || State.IsVersionUpdated)
+        return;
+
+      try {
+        State.IsVersionUpdated = true;
+        UpdateVersion();
+      }
+      catch {
+        State.IsVersionUpdated = false;
+        throw;
+      }
     }
 
     #endregion
@@ -361,7 +413,8 @@ namespace Xtensive.Storage
           // to avoid post-first property set flush.
           State.PersistenceState = PersistenceState.Modified;
         }
-
+      OnFieldChanged();
+      
       if (Session.IsSystemLogicOnly)
         return;
       var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);

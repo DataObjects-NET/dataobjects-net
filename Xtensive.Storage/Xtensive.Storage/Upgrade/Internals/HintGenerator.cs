@@ -463,7 +463,7 @@ namespace Xtensive.Storage.Upgrade
       var identityFieldsOfRemovedType = removedType.AllFields.Where(f => f.IsPrimaryKey).ToList();
       var identityFieldsOfUpdatedType = association.ConnectorType!=null
         ? association.ConnectorType.Fields
-          .Single(field => field.Name==(association.IsMaster ? WellKnown.MasterFieldName : WellKnown.SlaveFieldName))
+          .Single(field => field.Name==(association.IsMaster ? WellKnown.SlaveFieldName : WellKnown.MasterFieldName))
           .Fields
         : association.ReferencingField.Fields;
       var pairedIdentityFields = JoinFieldsByOriginalName(identityFieldsOfRemovedType, identityFieldsOfUpdatedType);

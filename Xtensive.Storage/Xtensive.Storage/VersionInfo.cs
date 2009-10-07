@@ -8,6 +8,8 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using StreamingContext=System.Runtime.Serialization.StreamingContext;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Storage
 {
@@ -15,16 +17,23 @@ namespace Xtensive.Storage
   /// Contains information about entity version.
   /// </summary>
   [DebuggerDisplay("{Value}")]
+  [Serializable]
   public struct VersionInfo : IEquatable<VersionInfo>
   {
+    private const string EmptyStringValue = "Void";
+    [NonSerialized]
     private int cachedHashCode;
+    [NonSerialized]
     private bool isHashCodeCalculated;
-    private readonly Tuple value;
+    [NonSerialized]
+    private Tuple value;
+
+    private object serializedValue;
 
     /// <summary>
     /// Gets a value indicating whether this instance is not contains version.
     /// </summary>
-    public bool IsEmpty
+    public bool IsVoid
     {
       [DebuggerStepThrough]
       get { return value==null; }
@@ -36,14 +45,14 @@ namespace Xtensive.Storage
       get { return value; }
     }
 
-    #region Equals, GetHashCode, ==, != 
+    #region Equals, GetHashCode, ==, !=, ToString
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public bool Equals(VersionInfo other)
     {
-      if (IsEmpty)
-        return other.IsEmpty;
+      if (IsVoid || other.IsVoid)
+        return true;
       return Value.Equals(other.Value);
     }
 
@@ -51,7 +60,7 @@ namespace Xtensive.Storage
     [DebuggerStepThrough]
     public override bool Equals(object obj)
     {
-      if (IsEmpty)
+      if (IsVoid)
         return false;
       if (ReferenceEquals(obj, null))
         return false;
@@ -66,25 +75,33 @@ namespace Xtensive.Storage
     [DebuggerStepThrough]
     public static bool operator ==(VersionInfo left, VersionInfo right)
     {
-      return Equals(left, right);
+      return left.Equals(right);
     }
 
     /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
     [DebuggerStepThrough]
     public static bool operator !=(VersionInfo left, VersionInfo right)
     {
-      return !Equals(left, right);
+      return !left.Equals(right);
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override int GetHashCode()
     {
-      if (!isHashCodeCalculated && !IsEmpty) {
-        cachedHashCode = Value.GetHashCode();
+      if (!isHashCodeCalculated) {
+        if (!IsVoid)
+          cachedHashCode = Value.GetHashCode();
         isHashCodeCalculated = true;
       }
       return cachedHashCode;
+    }
+
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    public override string ToString()
+    {
+      return value==null ? EmptyStringValue : value.ToString(true);
     }
 
     # endregion
@@ -101,6 +118,29 @@ namespace Xtensive.Storage
       value = version;
       isHashCodeCalculated = false;
       cachedHashCode = 0;
+      serializedValue = null;
+    }
+
+
+    // Serialization
+
+    [OnSerializing]
+    internal void OnSerializing(StreamingContext context)
+    {
+      serializedValue = new SerializedTuple(value);
+    }
+
+    [OnSerialized]
+    internal void OnSerialized(StreamingContext context)
+    {
+      serializedValue = null;
+    }
+
+    [OnDeserialized]
+    internal void OnDeserialized(StreamingContext context)
+    {
+      value = ((SerializedTuple) serializedValue).Value;
+      serializedValue = null;
     }
   }
 }

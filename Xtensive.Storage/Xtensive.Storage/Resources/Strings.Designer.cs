@@ -1637,6 +1637,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Primary key field &apos;{0}&apos; can&apos;t be marked as Version..
+        /// </summary>
+        internal static string ExPrimaryKeyFieldXCanTBeMarkedAsVersion {
+            get {
+                return ResourceManager.GetString("ExPrimaryKeyFieldXCanTBeMarkedAsVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Property &apos;{0}&apos; must be declared in type &apos;{1}&apos;..
         /// </summary>
         internal static string ExPropertyXMustBeDeclaredInTypeY {
@@ -1993,6 +2002,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExTypeWithTypeIdXIsNotFound {
             get {
                 return ResourceManager.GetString("ExTypeWithTypeIdXIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; can&apos;t contains Version fields as it&apos;s not a HierarchyRoot..
+        /// </summary>
+        internal static string ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot {
+            get {
+                return ResourceManager.GetString("ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot", resourceCulture);
             }
         }
         
@@ -2373,6 +2391,33 @@ namespace Xtensive.Storage.Resources {
         internal static string ExValueShouldBeXDescendant {
             get {
                 return ResourceManager.GetString("ExValueShouldBeXDescendant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version field &apos;{0}&apos; can&apos;t be LazyLoad field..
+        /// </summary>
+        internal static string ExVersionFieldXCanTBeLazyLoadField {
+            get {
+                return ResourceManager.GetString("ExVersionFieldXCanTBeLazyLoadField", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version field &apos;{0}&apos; can&apos;t be of {1} type..
+        /// </summary>
+        internal static string ExVersionFieldXCanTBeOfYType {
+            get {
+                return ResourceManager.GetString("ExVersionFieldXCanTBeOfYType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version field &apos;{0}&apos; can&apos;t be System field..
+        /// </summary>
+        internal static string ExVersionFieldXCanTBeSystemField {
+            get {
+                return ResourceManager.GetString("ExVersionFieldXCanTBeSystemField", resourceCulture);
             }
         }
         
@@ -2894,6 +2939,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ValueTypeMismatchForFieldX {
             get {
                 return ResourceManager.GetString("ValueTypeMismatchForFieldX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version field &apos;{0}&apos; can&apos;t be TypeId field..
+        /// </summary>
+        internal static string VersionFieldXCanTBeTypeIdField {
+            get {
+                return ResourceManager.GetString("VersionFieldXCanTBeTypeIdField", resourceCulture);
             }
         }
         

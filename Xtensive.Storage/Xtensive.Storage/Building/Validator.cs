@@ -122,6 +122,9 @@ namespace Xtensive.Storage.Building
         }
       }
 
+      if (fieldType.IsArray && isKeyField)
+        throw new DomainBuilderException(String.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
+
       if (fieldType.IsPrimitive || fieldType.IsEnum || ValidFieldTypes.Contains(fieldType))
         return;
 
@@ -150,34 +153,31 @@ namespace Xtensive.Storage.Building
 
     internal static void ValidateVersionField(FieldDef field, bool isKeyField)
     {
-       if (isKeyField)
-          throw new DomainBuilderException(string.Format(
-            "Field '{0}' can't have Version attribute as it is included into primary key.", field.Name));
-        if (field.IsLazyLoad)
-          throw new DomainBuilderException(string.Format(
-            "Field '{0}' can't have Version attribute as it is marked as LazyLoad.", field.Name));
-        if (field.IsEntity)
-          throw new DomainBuilderException(string.Format(
-            "Field '{0}' can't have Version attribute as it type is Entity.", field.Name));
-        if (field.IsEntitySet)
-          throw new DomainBuilderException(string.Format(
-            "Field '{0}' can't have Version attribute as it type is EntitySet.", field.Name));
-        if (field.IsStructure)
-          throw new DomainBuilderException(string.Format(
-            "Field '{0}' can't have Version attribute as it type is Structure.", field.Name));
-        if (field.IsSystem)
-          throw new DomainBuilderException(string.Format(
-            "Field '{0}' can't have Version attribute as it is marked as System.", field.Name));
-        if (field.IsTypeId)
-          throw new DomainBuilderException(string.Format(
-            "Field '{0}' can't have Version attribute as it is TypeId field.", field.Name));
+      if (isKeyField)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExPrimaryKeyFieldXCanTBeMarkedAsVersion, field.Name));
+      if (field.IsLazyLoad)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExVersionFieldXCanTBeLazyLoadField, field.Name));
+      if (field.IsEntitySet)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExVersionFieldXCanTBeOfYType, field.Name, field.ValueType.GetShortName()));
+      if (field.ValueType.IsArray)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExVersionFieldXCanTBeOfYType, field.Name, field.ValueType.GetShortName()));
+      if (field.IsSystem)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExVersionFieldXCanTBeSystemField, field.Name));
+      if (field.IsTypeId)
+        throw new DomainBuilderException(string.Format(
+          Strings.VersionFieldXCanTBeTypeIdField, field.Name));
     }
 
     internal static void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
       if (typeDef.Fields.Any(field => field.IsVersion) && hierarchyDef.Root!=typeDef)
         throw new DomainBuilderException(string.Format(
-          "Type '{0}' can't contains Version fields as it's not a HierarchyRoot.", typeDef.Name));
+          Strings.ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot, typeDef.Name));
     }
 
     public static void EnsureUnderlyingTypeIsAspected(TypeDef type)
