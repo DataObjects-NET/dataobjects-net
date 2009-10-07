@@ -17,22 +17,24 @@ namespace Xtensive.Integrity.Validation
   {
     private readonly ValidationContextBase context;
 
-    private static readonly InconsistentRegion nestedRegionInstance = new InconsistentRegion();
+    private static readonly InconsistentRegion hollowRegionInstance = new InconsistentRegion();
 
     /// <summary>
-    /// <see cref="InconsistentRegion"/> instance that is used for all <see cref="IsNested">nested</see> regions.
+    /// <see cref="InconsistentRegion"/> instance that is used for all <see cref="IsHollow">nested</see> regions.
     /// </summary>
-    public static InconsistentRegion NestedRegionInstance
+    public static InconsistentRegion HollowRegionInstance
     {
-      get { return nestedRegionInstance; }
+      get { return hollowRegionInstance; }
     }
 
     /// <summary>
-    /// Gets a value indicating whether this instance is nested, i.e. is included into another <see cref="InconsistentRegion"/>.
+    /// Gets a value indicating whether this instance is hollow region, 
+    /// i.e. is included into another <see cref="InconsistentRegion"/> 
+    /// and therefore does nothing on opening or disposing.
     /// </summary>
-    public bool IsNested
+    public bool IsHollow
     {
-      get { return this==NestedRegionInstance; }
+      get { return this==HollowRegionInstance; }
     }
 
     /// <summary>
@@ -53,7 +55,7 @@ namespace Xtensive.Integrity.Validation
     /// </remarks>
     public void Complete()
     {
-      if (!IsNested)
+      if (!IsHollow)
         IsCompleted = true;
     }
 
@@ -78,7 +80,7 @@ namespace Xtensive.Integrity.Validation
     /// <inheritdoc/>
     public void Dispose()
     {
-      if (!IsNested)
+      if (!IsHollow)
         context.LeaveInconsistentRegion(this);
     }
   }

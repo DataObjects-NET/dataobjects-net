@@ -40,7 +40,7 @@ namespace Xtensive.Integrity.Transactions
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="transaction">The transaction.</param>
+    /// <param name="transaction">The transaction this scope controls.</param>
     protected TransactionScope(TransactionBase transaction)
     {
       Transaction = transaction;
@@ -51,6 +51,8 @@ namespace Xtensive.Integrity.Transactions
     /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
     public void Dispose()
     {
+      if (Transaction==null)
+        return;
       if (IsCompleted)
         Transaction.Commit();
       else

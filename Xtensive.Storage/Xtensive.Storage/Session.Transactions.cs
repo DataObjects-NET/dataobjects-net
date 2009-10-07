@@ -48,7 +48,7 @@ namespace Xtensive.Storage
     internal TransactionScope OpenTransaction(IsolationLevel isolationLevel, bool autoTransaction)
     {
       if (Transaction != null)
-        return null;
+        return TransactionScope.HollowScopeInstance;
       if (autoTransaction && !Configuration.AllowsAutoTransactions)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
       var transaction = new Transaction(this, isolationLevel);
@@ -56,7 +56,7 @@ namespace Xtensive.Storage
       var transactionScope = (TransactionScope) transaction.Begin();
       if (transactionScope!=null && Configuration.UsesAmbientTransactions) {
         ambientTransactionScope = transactionScope;
-        return null;
+        return TransactionScope.HollowScopeInstance;
       }
       return transactionScope;
     }

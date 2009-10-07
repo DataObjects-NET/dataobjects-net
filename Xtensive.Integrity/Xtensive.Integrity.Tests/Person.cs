@@ -6,10 +6,8 @@
 
 using System;
 using System.Runtime.Serialization;
-using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
-using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Relations;
 using Xtensive.Integrity.Validation;
