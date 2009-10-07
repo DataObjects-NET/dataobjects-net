@@ -18,8 +18,7 @@ namespace Xtensive.Indexing.Implementation
   /// </summary>
   /// <typeparam name="TKey">Key type.</typeparam>
   /// <typeparam name="TItem">Value type.</typeparam>
-  public interface IIndexPageProvider<TKey, TItem> : IDisposable,
-    IIdentifierResolver<IPageRef, Page<TKey, TItem>>
+  public interface IIndexPageProvider<TKey, TItem> : IDisposable
   {
     /// <summary>
     /// Gets the <see cref="Index"/> this provider is bound to.
@@ -41,6 +40,13 @@ namespace Xtensive.Indexing.Implementation
     /// </summary>
     /// <param name="page">Page to generate the identifier for.</param>
     void AssignIdentifier(Page<TKey, TItem> page);
+
+    /// <summary>
+    /// Resolves identifier by providing its owner.
+    /// </summary>
+    /// <param name="identifier">Identifier to resolve.</param>
+    /// <returns>Identifier owner.</returns>
+    Page<TKey, TItem> Resolve(IPageRef identifier);
 
     #region Page caching methods: AddToCache, RemoveFromCache, GetFromCache
 

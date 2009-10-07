@@ -17,7 +17,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive.Core.IoC
 {
   /// <summary>
   /// Implements base functionality for associate provider.

@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Integrity.Atomicity
 {

@@ -7,6 +7,7 @@
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 using Xtensive.Integrity.Atomicity.Internals;
 
 namespace Xtensive.Integrity.Atomicity

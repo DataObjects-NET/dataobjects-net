@@ -5,6 +5,7 @@
 // Created:    2008.01.23
 
 using System;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Hashing

@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Parameters;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions;

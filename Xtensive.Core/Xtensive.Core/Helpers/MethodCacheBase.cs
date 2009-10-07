@@ -8,7 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core
+namespace Xtensive.Core.Helpers
 {
   /// <summary>
   /// Base class for any method caching class.

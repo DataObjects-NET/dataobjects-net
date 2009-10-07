@@ -16,8 +16,7 @@ namespace Xtensive.Indexing
   /// <typeparam name="TKey">The type of the index key.</typeparam>
   /// <typeparam name="TItem">The type of the item (should include both key and value).</typeparam>
   public interface IUniqueIndex<TKey, TItem> : 
-    IIndex<TKey, TItem>,
-    IIdentifierResolver<TKey, TItem>
+    IIndex<TKey, TItem>
   {
     /// <summary>
     /// Gets the item by its key.

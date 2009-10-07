@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Storage
 {

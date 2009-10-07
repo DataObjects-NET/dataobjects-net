@@ -8,8 +8,8 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Threading;
-using MethodInfo=System.Reflection.MethodInfo;
 
 namespace Xtensive.Core.Testing
 {

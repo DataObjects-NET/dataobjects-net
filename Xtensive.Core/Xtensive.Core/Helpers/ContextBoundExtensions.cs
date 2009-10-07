@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using System.Reflection;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Core.Helpers
 {

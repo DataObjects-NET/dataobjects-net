@@ -5,7 +5,7 @@
 // Created:    2008.03.24
 
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Serialization;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Core.Serialization
 {

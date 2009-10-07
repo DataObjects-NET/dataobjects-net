@@ -7,9 +7,8 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
 
-namespace Xtensive.Core
+namespace Xtensive.Core.IoC
 {
   /// <summary>
   /// Represent base scope type for resource consumption pattern implementation.

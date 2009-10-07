@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.IoC;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 

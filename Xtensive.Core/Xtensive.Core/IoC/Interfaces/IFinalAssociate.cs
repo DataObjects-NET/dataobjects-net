@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.05.14
 
-namespace Xtensive.Core
+namespace Xtensive.Core.IoC
 {
   /// <summary>
   /// Tagging interface marking final associates in the inheritance hierarchy.

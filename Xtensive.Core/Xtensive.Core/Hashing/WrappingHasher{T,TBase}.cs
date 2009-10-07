@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Hashing

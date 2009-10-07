@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.IoC;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Validation;

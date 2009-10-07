@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Validation;

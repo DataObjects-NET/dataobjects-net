@@ -5,11 +5,10 @@
 // Created:    2009.03.23
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Modelling
 {

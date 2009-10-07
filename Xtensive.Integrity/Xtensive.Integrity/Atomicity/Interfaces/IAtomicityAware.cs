@@ -5,6 +5,7 @@
 // Created:    2008.07.01
 
 using Xtensive.Core;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Integrity.Atomicity
 {

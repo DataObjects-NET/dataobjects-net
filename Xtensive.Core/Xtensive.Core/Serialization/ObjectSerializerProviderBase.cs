@@ -5,10 +5,10 @@
 // Created:    2008.01.17
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Serialization.Internals;
 using Xtensive.Core.Threading;
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 using Xtensive.Integrity.Atomicity.Internals;
 using Xtensive.Integrity.Aspects;
 

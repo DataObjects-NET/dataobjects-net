@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;

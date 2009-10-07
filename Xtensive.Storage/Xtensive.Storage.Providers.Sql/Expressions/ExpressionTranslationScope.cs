@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.09.18
 
-using Xtensive.Core;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Storage.Providers.Sql.Expressions
 {

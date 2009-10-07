@@ -5,9 +5,9 @@
 // Created:    2007.11.23
 
 using System.Diagnostics;
-using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Integrity.Atomicity
 {

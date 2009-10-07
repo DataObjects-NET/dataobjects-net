@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Core.Serialization.Binary
 {

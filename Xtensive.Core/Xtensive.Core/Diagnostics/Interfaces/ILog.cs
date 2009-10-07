@@ -5,6 +5,7 @@
 // Created:    2007.10.10
 
 using System;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Core.Diagnostics
 {

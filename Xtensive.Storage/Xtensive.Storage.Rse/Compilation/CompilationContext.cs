@@ -10,6 +10,7 @@ using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Resources;

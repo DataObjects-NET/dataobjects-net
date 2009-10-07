@@ -4,9 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.29
 
-using System;
-using System.Diagnostics;
-using Xtensive.Core;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Storage.Linq
 {

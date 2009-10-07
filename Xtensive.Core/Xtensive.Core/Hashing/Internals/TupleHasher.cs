@@ -5,6 +5,7 @@
 // Created:    2008.01.29
 
 using System;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;

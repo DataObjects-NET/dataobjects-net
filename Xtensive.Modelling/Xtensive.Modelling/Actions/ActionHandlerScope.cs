@@ -4,8 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2009.04.20
 
-using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Modelling.Actions
 {

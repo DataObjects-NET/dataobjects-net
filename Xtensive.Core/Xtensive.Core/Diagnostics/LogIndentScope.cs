@@ -7,6 +7,7 @@
 using log4net;
 using Xtensive.Core.Diagnostics.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Core.Diagnostics
 {
