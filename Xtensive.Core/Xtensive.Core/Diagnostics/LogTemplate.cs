@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Core.Diagnostics
 {
@@ -151,15 +152,25 @@ namespace Xtensive.Core.Diagnostics
     static LogTemplate()
     {
       Type t = typeof (T);
-      string logName = "Unnamed";
-      logName = (string)t.GetField("Name", 
+      string logName = (string)t.GetField("Name", 
         BindingFlags.Static | 
-        BindingFlags.Public)
+          BindingFlags.Public)
         .GetValue(null);
       string skipPrefix = "Xtensive.";
       if (logName.StartsWith(skipPrefix))
         logName = logName.Substring(skipPrefix.Length);
-      Instance = LogProvider.GetLog(logName);
+      try {
+        var lp = ServiceLocator.GetInstance<ILogProvider>();
+        Instance = lp.GetLog(logName);
+      }
+      // Logging is not configured, falling back to default loggers
+      catch (NullReferenceException) {
+#if DEBUG
+        Instance = DebugLog.Create(logName);
+#else
+        Instance = NullLog.Create(logName);
+#endif
+      }
       if (Log.IsLogged(LogEventTypes.Info))
         Log.Info("{0} log initialized.", Instance);
     }

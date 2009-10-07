@@ -1,12 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using log4net;
-using log4net.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.IoC;
-using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Diagnostics
 {

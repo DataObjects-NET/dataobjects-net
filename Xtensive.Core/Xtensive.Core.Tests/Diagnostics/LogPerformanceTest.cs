@@ -6,7 +6,7 @@
 
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Diagnostics.Helpers;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Core.Tests.Diagnostics
 {
@@ -18,10 +18,12 @@ namespace Xtensive.Core.Tests.Diagnostics
     [Test]
     public void NullLogTest()
     {
+      var lp = ServiceLocator.GetInstance<ILogProvider>();
+
       int count = BaseCount;
       if (DebugInfo.IsRunningOnBuildServer)
         count /= 100;
-      ILog log = LogProvider.NullLog;
+      ILog log = lp.NullLog;
       using (new Measurement("Null log test", count)) {
         for (int i = 0; i<count; i++)
           log.Info("{0}", i);
@@ -31,10 +33,11 @@ namespace Xtensive.Core.Tests.Diagnostics
     [Test]
     public void ConsoleLogTest()
     {
+      var lp = ServiceLocator.GetInstance<ILogProvider>();
       int count = BaseCount / 100;
       if (DebugInfo.IsRunningOnBuildServer)
         count /= 100;
-      ILog log = LogProvider.ConsoleLog;
+      ILog log = lp.ConsoleLog;
       using (new Measurement("Console log test", count)) {
         for (int i = 0; i<count; i++)
           log.Info("{0}", i);
@@ -44,13 +47,15 @@ namespace Xtensive.Core.Tests.Diagnostics
     [Test]
     public void LogCaptureAndIndentTest()
     {
+      var lp = ServiceLocator.GetInstance<ILogProvider>();
+      
       int count = BaseCount;
       if (DebugInfo.IsRunningOnBuildServer)
         count /= 100;
-      ILog log = LogProvider.NullLog;
+      ILog log = lp.NullLog;
       using (new Measurement("Log capture and indent test", count)) {
         using (new LogIndentScope())
-        using (new LogCaptureScope(LogProvider.NullLog)) {
+        using (new LogCaptureScope(lp.NullLog)) {
           for (int i = 0; i<count; i++)
             log.Info("{0}", i);
         }

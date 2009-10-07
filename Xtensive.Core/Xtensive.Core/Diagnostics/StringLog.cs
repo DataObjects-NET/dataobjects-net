@@ -5,9 +5,7 @@
 // Created:    2007.10.20
 
 using System.Diagnostics;
-using System.IO;
 using System.Text;
-using Xtensive.Core.Diagnostics.Helpers;
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
@@ -112,7 +110,7 @@ namespace Xtensive.Core.Diagnostics
     /// Creates a new <see cref="StringLog"/> object.
     /// </summary>
     /// <returns>Newly created <see cref="StringLog"/> object.</returns>
-    public static LogImplementation Create()
+    public static ILog Create()
     {
       return Create("Unnamed");
     }
@@ -122,7 +120,7 @@ namespace Xtensive.Core.Diagnostics
     /// </summary>
     /// <param name="name">Log name.</param>
     /// <returns>Newly created <see cref="StringLog"/> object.</returns>
-    public static LogImplementation Create(string name)
+    public static ILog Create(string name)
     {
       return new LogImplementation(new StringLog(name));
     }

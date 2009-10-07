@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2007.10.11
 
-using log4net;
-using Xtensive.Core.Diagnostics.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC;
 

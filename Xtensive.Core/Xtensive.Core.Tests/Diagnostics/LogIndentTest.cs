@@ -6,6 +6,7 @@
 
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Core.Tests.Diagnostics
 {
@@ -15,9 +16,11 @@ namespace Xtensive.Core.Tests.Diagnostics
     [Test]
     public void CombinedTest()
     {
+      var lp = ServiceLocator.GetInstance<ILogProvider>();
+
       Log.Info("Not indented");
       using (new LogIndentScope()) {
-        using (new LogCaptureScope(LogProvider.ConsoleLog)) {
+        using (new LogCaptureScope(lp.ConsoleLog)) {
           Log.Info("Indented (1)");
           using (new LogIndentScope()) {
             Log.Info("Indented (2)");

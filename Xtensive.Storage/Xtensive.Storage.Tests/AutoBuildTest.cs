@@ -4,9 +4,13 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.31
 
+using System.Configuration;
+using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity.Configuration;
 using NUnit.Framework;
 using System;
 using Xtensive.Core.Disposing;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
@@ -19,6 +23,7 @@ namespace Xtensive.Storage.Tests
     private string protocolName;
     private StorageProtocol protocol;
     private DisposableSet disposables;
+    private static UnityContainer container;
 
     protected ProviderInfo ProviderInfo { get; private set; }
     protected Domain Domain { get; private set; }
@@ -109,6 +114,15 @@ namespace Xtensive.Storage.Tests
       default:
         throw new ArgumentOutOfRangeException();
       }
+    }
+
+    static AutoBuildTest()
+    {
+      // Logging configuration
+      var section = (UnityConfigurationSection) ConfigurationManager.GetSection("Unity");
+      container = new UnityContainer();
+      section.Containers.Default.Configure(container);
+      ServiceLocator.SetLocatorProvider(() => new Microsoft.Practices.Unity.ServiceLocatorAdapter.UnityServiceLocator(container));
     }
   }
 }
