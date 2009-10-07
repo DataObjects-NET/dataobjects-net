@@ -44,9 +44,9 @@ namespace Xtensive.Storage.Linq
       using (state.CreateScope()) {
         switch (methodKind) {
         case QueryableMethodKind.Cast:
-          return VisitAsQueryable(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
-        case QueryableMethodKind.AsQueryable:
           break;
+        case QueryableMethodKind.AsQueryable:
+          return VisitAsQueryable(mc.Arguments[0]);
         case QueryableMethodKind.AsEnumerable:
           break;
         case QueryableMethodKind.ToArray:
@@ -224,9 +224,9 @@ namespace Xtensive.Storage.Linq
       throw new NotSupportedException(String.Format(Strings.ExLINQTranslatorDoesNotSupportMethodX, methodKind));
     }
 
-    private Expression VisitAsQueryable(Type itemType, Expression source)
+    private Expression VisitAsQueryable(Expression source)
     {
-      throw new NotImplementedException();
+      return VisitSequence(source);
     }
 
     private Expression VisitJoinLeft(MethodCallExpression mc)

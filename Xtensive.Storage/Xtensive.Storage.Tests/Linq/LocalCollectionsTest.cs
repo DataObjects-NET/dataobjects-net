@@ -30,12 +30,64 @@ namespace Xtensive.Storage.Tests.Linq.LocalCollectionsTest_Model
   public class Poco<T>
   {
     public T Value { get; set; }
+
+    public bool Equals(Poco<T> other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return Equals(other.Value, Value);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      if (obj.GetType()!=typeof (Poco<T>))
+        return false;
+      return Equals((Poco<T>) obj);
+    }
+
+    public override int GetHashCode()
+    {
+      return Value.GetHashCode();
+    }
   }
   
   public class Poco<T1, T2>
   {
     public T1 Value1 { get; set; }
     public T2 Value2 { get; set; }
+
+    public bool Equals(Poco<T1, T2> other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return Equals(other.Value1, Value1) && Equals(other.Value2, Value2);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      if (obj.GetType()!=typeof (Poco<T1, T2>))
+        return false;
+      return Equals((Poco<T1, T2>) obj);
+    }
+
+    public override int GetHashCode()
+    {
+      unchecked {
+        return (Value1.GetHashCode() * 397) ^ Value2.GetHashCode();
+      }
+    }
   }
 }
 
@@ -416,39 +468,93 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void GroupingTest()
+    public void Grouping1Test()
     {
       var localItems = GetLocalItems(1000);
       var queryable = Query.Store(localItems);
-      var result = queryable.GroupBy(keySelector => keySelector.Value2[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)});
-      var expected = localItems.GroupBy(keySelector => keySelector.Value2[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)});
-      Assert.AreEqual(0, expected.Except(result).Count());
+      var result = queryable.GroupBy(keySelector => keySelector.Value2.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
+      var expected = localItems.GroupBy(keySelector => keySelector.Value2.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
+      var expectedList = expected.ToList();
+      var resultList = result.ToList();
+      Assert.AreEqual(resultList.Count, expectedList.Count);
+      for (int i = 0; i < resultList.Count; i++) {
+        Assert.AreEqual(resultList[i].key, expectedList[i].key); 
+        Assert.AreEqual(0, expectedList[i].Value1.Except(resultList[i].Value1).Count()); 
+      }
       QueryDumper.Dump(result);
     }
 
     [Test]
-    public void SubqueryTest()
+    public void Grouping2Test()
     {
-      throw new NotImplementedException();
-      var customers = Query<Customer>.All;
-      var shipper = Query<Shipper>.All;
-      var result = customers.Select(c => new {c.CompanyName, c.ContactName, c.Address})
-        .Where(c => c.Address.StreetAddress.Length < 15)
-        .Select(c => new {Name = c.CompanyName, Address = c.Address.City})
-        .Take(10)
-        .Union(shipper.ToList().Select(s => new {Name = s.CompanyName, Address = s.Phone}))
-        .Where(c => c.Address.Length < 7);
+      var localItems = GetLocalItems(1000);
+      var queryable = Query.Store(localItems);
+      var result = queryable.GroupBy(keySelector => keySelector.Value2[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
+      var expected = localItems.GroupBy(keySelector => keySelector.Value2[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
+      var expectedList = expected.ToList();
+      var resultList = result.ToList();
+      Assert.AreEqual(resultList.Count, expectedList.Count);
+      for (int i = 0; i < resultList.Count; i++) {
+        Assert.AreEqual(resultList[i].key, expectedList[i].key); 
+        Assert.AreEqual(0, expectedList[i].Value1.Except(resultList[i].Value1).Count()); 
+      }
       QueryDumper.Dump(result);
     }
 
     [Test]
-    public void AggregateTest()
+    public void Subquery1Test()
+    {
+      var localItems = GetLocalItems(1000);
+      var queryable = Query.Store(localItems);
+      var result = queryable.Select(poco=> Query<Order>.All.Where(order=>order.Freight > poco.Value1)).AsEnumerable().Cast<IEnumerable<Order>>();
+      var expected = localItems.Select(poco=> Query<Order>.All.AsEnumerable().Where(order=>order.Freight > poco.Value1));
+      var expectedList = expected.ToList();
+      var resultList = result.ToList();
+      Assert.AreEqual(resultList.Count, expectedList.Count);
+      for (int i = 0; i < resultList.Count; i++) {
+        Assert.AreEqual(0, expectedList[i].Except(resultList[i]).Count()); 
+      }
+      QueryDumper.Dump(result);
+    }
+
+
+
+    [Test]
+    public void Subquery2Test()
+    {
+      var localItems = GetLocalItems(100);
+      var queryable = Query.Store(localItems);
+      var result = queryable.Select(poco=> queryable.Where(poco2=>poco2.Value1 > poco.Value1).Select(p=>p.Value2)).AsEnumerable().Cast<IEnumerable<string>>();
+      var expected = localItems.Select(poco=> localItems.Where(poco2=>poco2.Value1 > poco.Value1).Select(p=>p.Value2));
+      var expectedList = expected.ToList();
+      var resultList = result.ToList();
+      Assert.AreEqual(resultList.Count, expectedList.Count);
+      for (int i = 0; i < resultList.Count; i++) {
+        Assert.AreEqual(0, expectedList[i].Except(resultList[i]).Count()); 
+      }
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void Aggregate1Test()
     {
       var localItems = GetLocalItems(1000);
       var queryable = Query.Store(localItems);
       var result = queryable.Average(selector => selector.Value1);
       var expected = localItems.Average(selector => selector.Value1);
       Assert.AreEqual(result, expected);
+    }
+
+
+    [Test]
+    public void Aggregate2Test()
+    {
+      var localItems = GetLocalItems(1000);
+      var queryable = Query.Store(localItems);
+      var result = Query<Order>.All.Where(order => order.Freight > queryable.Max(poco=>poco.Value1));
+      var expected = Query<Order>.All.AsEnumerable().Where(order => order.Freight > localItems.Max(poco=>poco.Value1));
+      Assert.AreEqual(0, expected.Except(result).Count());
+      QueryDumper.Dump(result);
     }
 
     [Test]
@@ -468,7 +574,8 @@ namespace Xtensive.Storage.Tests.Linq
             Value1 = (decimal)i / 100, 
             Value2 = Guid.NewGuid().ToString()
           }
-        );
+        )
+        .ToList();
     }
 
   }
