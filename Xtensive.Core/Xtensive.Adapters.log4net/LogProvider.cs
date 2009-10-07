@@ -16,7 +16,7 @@ using ILog=Xtensive.Core.Diagnostics.ILog;
 namespace Xtensive.Adapters.log4net
 {
   /// <summary>
-  /// Provides (creates or resolves) <see cref="Core.Diagnostics.ILog"/> instances by their name.
+  /// Log provider implementation for log4net.
   /// </summary>
   public sealed class LogProvider: LogProviderBase
   {

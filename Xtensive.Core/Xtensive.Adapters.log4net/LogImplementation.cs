@@ -11,9 +11,13 @@ using Xtensive.Core.Diagnostics;
 
 namespace Xtensive.Adapters.log4net
 {
+  /// <summary>
+  /// Log implementation for log4net.
+  /// </summary>
   [Serializable]
   public sealed class LogImplementation : LogImplementationBase
   {
+    /// <inheritdoc/>
     protected override object GetFormattedMessage(string format, object[] args)
     {
       object stringFormat = new SystemStringFormat(CultureInfo.InvariantCulture, format, args);
@@ -21,6 +25,9 @@ namespace Xtensive.Adapters.log4net
         stringFormat = format;
       return stringFormat;
     }
+
+
+    // Constructors
 
     /// <inheritdoc/>
     public LogImplementation(IRealLog realLog)
