@@ -23,6 +23,15 @@ namespace Xtensive.Storage.Linq
     private readonly HashSet<Expression> candidates = new HashSet<Expression>();
     private bool couldBeEvaluated;
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public ExpressionEvaluator(Expression e)
+    {
+      couldBeEvaluated = true;
+      Visit(e);
+    }
+
 
     /// <summary>
     /// Determines whether specified <paramref name="e"/> can be evaluated.
@@ -42,22 +51,22 @@ namespace Xtensive.Storage.Linq
     /// <param name="e">The expression.</param>
     public ConstantExpression Evaluate(Expression e)
     {
-      if (e == null)
+      if (e==null)
         return null;
-      if (e.NodeType == ExpressionType.Constant)
+      if (e.NodeType==ExpressionType.Constant)
         return (ConstantExpression) e;
       Type type = e.Type;
       if (type.IsValueType)
-        e = Expression.Convert(e, typeof(object));
-      var lambda = Expression.Lambda<Func<object>>(e);
-      var func = lambda.CachingCompile();
+        e = Expression.Convert(e, typeof (object));
+      Expression<Func<object>> lambda = Expression.Lambda<Func<object>>(e);
+      Func<object> func = lambda.CachingCompile();
       return Expression.Constant(func(), type);
     }
 
     /// <inheritdoc/>
     protected override Expression Visit(Expression e)
     {
-      if (e != null) {
+      if (e!=null) {
         bool saved = couldBeEvaluated;
         couldBeEvaluated = true;
         base.Visit(e);
@@ -81,42 +90,38 @@ namespace Xtensive.Storage.Linq
 
     private static bool CanEvaluateExpression(Expression expression)
     {
-      if (expression.Type == typeof(ApplyParameter))
+      if (expression.Type==typeof (ApplyParameter))
         return false;
       var cex = expression as ConstantExpression;
-      if (cex != null) {
+      if (cex!=null) {
         var query = cex.Value as IQueryable;
         return query==null;
       }
-      if (expression.NodeType == ExpressionType.MemberAccess) {
-        var ma = (MemberExpression)expression;
-        if (ma.Expression == null)
+      if (expression.NodeType==ExpressionType.MemberAccess) {
+        var ma = (MemberExpression) expression;
+        if (ma.Expression==null)
           return !typeof (IQueryable).IsAssignableFrom(ma.Type);
-        if (ma.Expression.NodeType == ExpressionType.Constant) {
+        if (ma.Expression.NodeType==ExpressionType.Constant) {
           var rfi = ma.Member as FieldInfo;
-          if (rfi != null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType)))
-            return false;
+          if (rfi!=null
+            && rfi.FieldType.IsGenericType
+              && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))
+          {
+            var value = rfi.GetValue(((ConstantExpression) ma.Expression).Value);
+            return ((IQueryable) value).Provider.GetType()==typeof (QueryProvider);
+          }
         }
       }
       var mc = expression as MethodCallExpression;
-      if (mc != null && (mc.Method.DeclaringType == typeof(Enumerable) || mc.Method.DeclaringType == typeof(Queryable)))
+      if (mc!=null && (mc.Method.DeclaringType==typeof (Enumerable) || mc.Method.DeclaringType==typeof (Queryable)))
         return false;
-      if (expression.NodeType == ExpressionType.Convert && expression.Type == typeof(object))
+      if (expression.NodeType==ExpressionType.Convert && expression.Type==typeof (object))
         return true;
-      return expression.NodeType != ExpressionType.Parameter &&
-             expression.NodeType != ExpressionType.Lambda;
+      return expression.NodeType!=ExpressionType.Parameter &&
+        expression.NodeType!=ExpressionType.Lambda;
     }
 
 
     // Constructors
-    
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ExpressionEvaluator(Expression e)
-    {
-      couldBeEvaluated = true;
-      Visit(e);
-    }
   }
 }
