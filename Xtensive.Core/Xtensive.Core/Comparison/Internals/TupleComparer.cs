@@ -104,14 +104,32 @@ namespace Xtensive.Core.Comparison
 
     public override bool Equals(Tuple x, Tuple y)
     {
-      return Compare(x, y) == 0;
+      if (x == null)
+        return y == null;
+      if (y == null)
+        return false;
+      if (x.Descriptor != y.Descriptor)
+        return false;
+      for (int fieldIndex = 0; fieldIndex < x.Count; fieldIndex++) {
+        TupleFieldState xState;
+        TupleFieldState yState;
+        var xValue = x.GetValue(fieldIndex, out xState);
+        var yValue = y.GetValue(fieldIndex, out yState);
+        if (xState != yState)
+          return false;
+        if (xState != TupleFieldState.Available)
+          continue;
+        if (!Equals(xValue, yValue))
+          return false;
+      }
+      return true;
     }
 
     public override int GetHashCode(Tuple obj)
     {
-      if (ReferenceEquals(obj, null))
-        return nullHashCode;
-      return obj.GetHashCode();
+      return ReferenceEquals(obj, null) 
+        ? nullHashCode 
+        : obj.GetHashCode();
     }
 
     private Pair<int, Func<object, object, int>>[] GetComparersInfo(TupleDescriptor descriptor)

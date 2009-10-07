@@ -24,6 +24,31 @@ namespace Xtensive.Core.Tests.Tuples
     private readonly IEqualityComparer<Tuple> equalityComparer = EqualityComparer<Tuple>.Default;
     private readonly IComparer<Tuple> comparer = Comparer<Tuple>.Default;
 
+    bool ManualEquals(Tuple x, Tuple y)
+    {
+      if (y != null) {
+        TupleFieldState state;
+        TupleFieldState state2;
+        if (x == y)
+          return true;
+        if (x.Descriptor != y.Descriptor)
+          return false;
+        var flag = x.GetValue<int>(0, out state) == y.GetValue<int>(0, out state2);
+        if ((state == state2) && ((state != TupleFieldState.Available) || flag))
+          return true;
+      }
+      return false;
+    }
+
+    [Test]
+    public void EqualityTest()
+    {
+      var x = Tuple.Create(10);
+      var y = Tuple.Create(10);
+      Assert.IsTrue(ManualEquals(x,y));
+      Assert.AreEqual(x,y);
+    }
+
     [Test]
     public void EmptyTupleTest()
     {
@@ -113,7 +138,8 @@ namespace Xtensive.Core.Tests.Tuples
       Assert.IsFalse(guid1.Equals(guid2));
       var tuple1 = Tuple.Create(guid1);
       var tuple2 = Tuple.Create(guid2);
-      Assert.IsFalse(tuple1.Equals(tuple2));
+      var condition = tuple1.Equals(tuple2);
+      Assert.IsFalse(condition);
     }
 
     [Test]

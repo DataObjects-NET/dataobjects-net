@@ -50,7 +50,7 @@ namespace Xtensive.Core.Tests.Tuples
     public void CopyTest()
     {
       Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
-      int loopCount = 100;
+      int loopCount = 10;
       int offset = random.Next(fieldTypes.Length);
       Type[] sourceTypes;
 

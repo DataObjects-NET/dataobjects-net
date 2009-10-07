@@ -49,8 +49,8 @@ namespace Xtensive.Core.Tuples.Internals
       BindingFlags.NonPublic |
       BindingFlags.ExactBinding);
 
-    private readonly static MethodInfo getValueOrDefaultMethod;
     private readonly static MethodInfo getValueMethod;
+    private readonly static MethodInfo getValueGenericMethod;
     private readonly static MethodInfo setValueMethod;
     private readonly static MethodInfo equalsMethod;
     private readonly static AssemblyBuilder assemblyBuilder;
@@ -182,16 +182,14 @@ namespace Xtensive.Core.Tuples.Internals
          typeof(bool),
          new Type[]{typeof(Tuple)});
 
-      ILGenerator il = equals.GetILGenerator();
-      Label returnFalse = il.DefineLabel();
-      Label compareDescriptor = il.DefineLabel();
-      Label isSameType = il.DefineLabel();
-      Label compareDefault = il.DefineLabel();
-      var sameType = il.DeclareLocal(tupleType);
+      var il = equals.GetILGenerator();
+      var returnFalse = il.DefineLabel();
+      var returnFalseCleanup = il.DefineLabel();
+      var compareDescriptor = il.DefineLabel();
+      var isSameType = il.DefineLabel();
+      var compareDefault = il.DefineLabel();
       il.Emit(OpCodes.Ldarg_1);
-      il.Emit(OpCodes.Ldnull);
-      il.Emit(OpCodes.Ceq);
-      il.Emit(OpCodes.Brtrue, returnFalse);
+      il.Emit(OpCodes.Brfalse, returnFalse);
       il.Emit(OpCodes.Ldarg_0);
       il.Emit(OpCodes.Ldarg_1);
       il.Emit(OpCodes.Ceq);
@@ -204,67 +202,81 @@ namespace Xtensive.Core.Tuples.Internals
       il.Emit(OpCodes.Ldarg_1);
       il.Emit(OpCodes.Callvirt, getDescriptorMethod);
       il.Emit(OpCodes.Ceq);
-      il.Emit(OpCodes.Brtrue, isSameType);
+      il.Emit(OpCodes.Brtrue, compareDefault);
       il.Emit(OpCodes.Ldc_I4_0);
       il.Emit(OpCodes.Ret);
-      il.MarkLabel(isSameType);
-      il.Emit(OpCodes.Ldarg_1);
-      il.Emit(OpCodes.Isinst, tupleType);
-      il.Emit(OpCodes.Stloc, sameType);
-      il.Emit(OpCodes.Ldloc, sameType);
-      il.Emit(OpCodes.Ldnull);
-      il.Emit(OpCodes.Ceq);
-      il.Emit(OpCodes.Brtrue, compareDefault);
-      foreach (var fieldInfo in tupleInfo.ActualCompressingFields) {
-        il.Emit(OpCodes.Ldarg_0);
-        il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
-        il.Emit(OpCodes.Ldarg_1);
-        il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
-        il.Emit(OpCodes.Ceq);
-        il.Emit(OpCodes.Brfalse, returnFalse);
-      }
-      foreach (var fieldInfo in tupleInfo.ActualFields) {
-        if (fieldInfo.IsValueType) {
-          il.Emit(OpCodes.Ldarg_0);
-          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
-          il.Emit(OpCodes.Ldarg_1);
-          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
-          il.Emit(OpCodes.Ceq);
-          il.Emit(OpCodes.Brfalse, returnFalse);
-        }
-        else {
-          il.Emit(OpCodes.Ldarg_0);
-          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
-          il.Emit(OpCodes.Ldarg_1);
-          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
-          il.Emit(OpCodes.Call, staticEqualsMethod);
-          il.Emit(OpCodes.Brfalse, returnFalse);
-        }
-      }
-      il.Emit(OpCodes.Ldc_I4_1);
-      il.Emit(OpCodes.Ret);
       il.MarkLabel(compareDefault);
+      var xState = il.DeclareLocal(typeof (TupleFieldState));
+      var yState = il.DeclareLocal(typeof (TupleFieldState));
+      var result = il.DeclareLocal(typeof (bool));
+      var locals = new Dictionary<Type, LocalBuilder>();
       for (int fieldIndex = 0; fieldIndex < tupleInfo.Fields.Count; fieldIndex++) {
+        var skipAndCleanup = il.DefineLabel();
+        var endOfSection = il.DefineLabel();
+        var fieldType = tupleInfo.Fields[fieldIndex].Type;
+        
+        var useCeq = true; 
+        var useValueEquals = false;
+        var useBoxedEquals = false;
+
+        var compareEquals = fieldType.GetMethod(WellKnown.Object.Equals, new[] { fieldType });
+        if (compareEquals == null) {
+          useCeq = false;
+          useValueEquals = false;
+          if (fieldType.IsValueType)
+            useBoxedEquals = true;
+        }
+        else if (!fieldType.IsValueType)
+          useCeq = false;
+        else if (!fieldType.IsPrimitive) {
+          useCeq = false;
+          useValueEquals = true;
+        }
+
+//        useObjectEquals = true;
+//        var box = useObject && fieldType.IsValueType && !fieldType.IsPrimitive;
+//        var useCompareEquals = fieldType.IsValueType && !useObject;
         il.Emit(OpCodes.Ldarg_0);
         il.Emit(OpCodes.Ldc_I4, fieldIndex);
-        il.Emit(OpCodes.Callvirt, getFlagsMethod);
+        il.Emit(OpCodes.Ldloca, xState);
+        il.Emit(OpCodes.Call, getValueGenericMethod.MakeGenericMethod(fieldType));
+        if (useValueEquals) {
+          LocalBuilder local;
+          if (!locals.TryGetValue(fieldType, out local)) {
+            local = il.DeclareLocal(fieldType);
+            locals.Add(fieldType, local);
+          }
+          il.Emit(OpCodes.Stloc, local);
+          il.Emit(OpCodes.Ldloca, local);
+        }
+        if (useBoxedEquals)
+          il.Emit(OpCodes.Box);
         il.Emit(OpCodes.Ldarg_1);
         il.Emit(OpCodes.Ldc_I4, fieldIndex);
-        il.Emit(OpCodes.Callvirt, getFlagsMethod);
-        il.Emit(OpCodes.Ceq);
-        il.Emit(OpCodes.Brfalse, returnFalse);
-        il.Emit(OpCodes.Ldarg_0);
-        il.Emit(OpCodes.Ldc_I4, fieldIndex);
-        il.Emit(OpCodes.Callvirt, getValueOrDefaultMethod);
-        il.Emit(OpCodes.Ldarg_1);
-        il.Emit(OpCodes.Ldc_I4, fieldIndex);
-        il.Emit(OpCodes.Callvirt, getValueOrDefaultMethod);
-        il.Emit(OpCodes.Call, staticEqualsMethod);
-        il.Emit(OpCodes.Brfalse, returnFalse);
+        il.Emit(OpCodes.Ldloca, yState);
+        il.Emit(OpCodes.Call, getValueGenericMethod.MakeGenericMethod(fieldType));
+        if (useBoxedEquals)
+          il.Emit(OpCodes.Box);
+        else if (useCeq)
+          il.Emit(OpCodes.Ceq);
+        else if (useValueEquals)
+          il.Emit(OpCodes.Call, compareEquals);
+        else
+          il.Emit(OpCodes.Call, staticEqualsMethod);
+        il.Emit(OpCodes.Stloc, result);
+        il.Emit(OpCodes.Ldloc, xState);
+        il.Emit(OpCodes.Ldloc, yState);
+        il.Emit(OpCodes.Bne_Un, returnFalse);
+        il.Emit(OpCodes.Ldloc, xState);
         il.Emit(OpCodes.Ldc_I4_1);
-        il.Emit(OpCodes.Ret);
+        il.Emit(OpCodes.Bne_Un_S, endOfSection);
+        il.Emit(OpCodes.Ldloc, result);
+        il.Emit(OpCodes.Brfalse, returnFalse);
+        il.MarkLabel(endOfSection);
       }
 
+      il.Emit(OpCodes.Ldc_I4_1);
+      il.Emit(OpCodes.Ret);
       il.MarkLabel(returnFalse);
       il.Emit(OpCodes.Ldc_I4_0);
       il.Emit(OpCodes.Ret);
@@ -970,14 +982,15 @@ namespace Xtensive.Core.Tuples.Internals
       foreach (MethodInfo info in tupleType.GetMethods()) {
         if (!info.IsPublic)
           continue;
-        if (info.Name==WellKnown.Tuple.GetValueOrDefault && !info.IsGenericMethodDefinition) {
-          getValueOrDefaultMethod = info;
-          continue;
-        }
         if (info.Name == WellKnown.Tuple.GetValue && !info.IsGenericMethodDefinition && info.IsAbstract) {
           getValueMethod = info;
           continue;
         }
+        if (info.Name == WellKnown.Tuple.GetValue && info.IsGenericMethodDefinition && info.GetParameters().Length == 2) {
+          getValueGenericMethod = info;
+          continue;
+        }
+
         if (info.Name==WellKnown.Tuple.SetValue && !info.IsGenericMethodDefinition) {
           setValueMethod = info;
           continue;

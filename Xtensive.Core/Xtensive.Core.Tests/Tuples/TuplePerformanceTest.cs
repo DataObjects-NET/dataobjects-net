@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
+using Xtensive.Core.Comparison;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Diagnostics;
@@ -222,6 +223,34 @@ namespace Xtensive.Core.Tests.Tuples
         for (int i = 0; i < iterationCount; i++)
           tuple.CopyTo(copy);
       }
+    }
+
+    [Test]
+    [Explicit, Category("Performance")]
+    public void EqualsTest()
+    {
+      const int iterationCount = 10000000;
+      Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
+      var tuple = Tuple.Create(10, 20, 234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
+      var clone = tuple.Clone();
+      Assert.AreEqual(tuple.GetHashCode(), clone.GetHashCode());
+      var equals = AdvancedComparer<Tuple>.System.Equals;
+
+      // Warmup
+      for (int i = 0; i < iterationCount / 10; i++) {
+        tuple.Equals(clone);
+        equals(tuple, clone);
+      }
+
+      // Actual run
+      TestHelper.CollectGarbage(true);
+      // Log.Info("Get ready...");
+      using (new Measurement("Comparing using AdvancedComparer tuples", MeasurementOptions.Log, iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          equals(tuple, clone);
+      using (new Measurement("Comparing using Equals tuples", MeasurementOptions.Log, iterationCount)) 
+        for (int i = 0; i < iterationCount; i++)
+          tuple.Equals(clone);
     }
 
     [Test]

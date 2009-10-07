@@ -82,9 +82,7 @@ namespace Xtensive.Core.Tuples
     {
       TupleFieldState state;
       var result = GetValue(fieldIndex, out state);
-      return state.IsNull() 
-        ? null 
-        : result;
+      return state.IsNull() ? null : result;
     }
 
     /// <inheritdoc/>
@@ -117,7 +115,10 @@ namespace Xtensive.Core.Tuples
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
       if (getter != null)
         return getter.Invoke(this, out fieldState);
-      return (T) GetValue(fieldIndex, out fieldState);
+      var value = GetValue(fieldIndex, out fieldState);
+      return value == null 
+        ? default(T) 
+        : (T) value;
     }
 
     /// <summary>
@@ -151,8 +152,12 @@ namespace Xtensive.Core.Tuples
         var getter = GetGetValueDelegate(fieldIndex) as GetValueDelegate<T>;
         if (getter != null)
           result = getter.Invoke(this, out state);
-        else
-          result = (T)GetValue(fieldIndex, out state);
+        else {
+          var value = GetValue(fieldIndex, out state);
+          result = value == null 
+            ? default (T) 
+            : (T) value;
+        }
         if (state.IsNull())
           throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
         return result;

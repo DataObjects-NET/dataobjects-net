@@ -28,7 +28,6 @@ namespace Xtensive.Core.Tests.Tuples
         typeof (DateTime),
         typeof (decimal),
         typeof (float),
-        typeof (decimal)
       };
 
     private const int MaxFieldCount = 100;
@@ -43,7 +42,7 @@ namespace Xtensive.Core.Tests.Tuples
     public void Test()
     {
       IList<Type> types = new List<Type>();
-      for (int i = 0; i < 40; i++)
+      for (int i = 0; i < 4; i++)
         types.Add(typeof (short));
 
       TupleDescriptor descriptor = TupleDescriptor.Create(types);
