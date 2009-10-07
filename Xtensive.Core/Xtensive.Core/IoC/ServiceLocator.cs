@@ -26,7 +26,7 @@ namespace Xtensive.Core.IoC
       var implementation = Microsoft.Practices.ServiceLocation.ServiceLocator.Current;
 
       if (implementation == null)
-        throw new InvalidOperationException("Unable to get current service locator.");
+        throw new InvalidOperationException("Unable to get current service locator."); 
 
       return implementation;
     }
