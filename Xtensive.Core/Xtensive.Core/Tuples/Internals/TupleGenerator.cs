@@ -14,6 +14,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using FieldInfo=System.Reflection.FieldInfo;
 using MethodInfo=System.Reflection.MethodInfo;
+using System.Linq;
 
 namespace Xtensive.Core.Tuples.Internals
 {
@@ -148,6 +149,12 @@ namespace Xtensive.Core.Tuples.Internals
           InlineGetField(il, fieldInfo);
           il.Emit(OpCodes.Xor);
         }
+        else if (fieldInfo.Type.IsEnum) {
+          il.Emit(OpCodes.Ldarg_0);
+          il.Emit(OpCodes.Ldfld, fieldInfo.FieldBuilder);
+          il.Emit(OpCodes.Conv_I4);
+          il.Emit(OpCodes.Xor);
+        }
         else if (fieldInfo.IsValueType) {
           il.Emit(OpCodes.Ldarg_0);
           il.Emit(OpCodes.Ldflda, fieldInfo.FieldBuilder);
@@ -219,23 +226,27 @@ namespace Xtensive.Core.Tuples.Internals
         var useValueEquals = false;
         var useBoxedEquals = false;
 
-        var compareEquals = fieldType.GetMethod(WellKnown.Object.Equals, new[] { fieldType });
+        var compareEquals = (
+          from m in fieldType.GetMethods()
+          where m.Name == WellKnown.Object.Equals
+          let ps = m.GetParameters()
+          where ps.Length == 1 && ps[0].ParameterType == fieldType
+          select m).FirstOrDefault();
+
         if (compareEquals == null) {
-          useCeq = false;
-          useValueEquals = false;
-          if (fieldType.IsValueType)
-            useBoxedEquals = true;
+          if (!fieldType.IsEnum) {
+            useCeq = false;
+            useValueEquals = false;
+            if (fieldType.IsValueType)
+              useBoxedEquals = true;
+          }
         }
         else if (!fieldType.IsValueType)
           useCeq = false;
-        else if (!fieldType.IsPrimitive) {
+        else if (!fieldType.IsPrimitive && !fieldType.IsEnum) {
           useCeq = false;
           useValueEquals = true;
         }
-
-//        useObjectEquals = true;
-//        var box = useObject && fieldType.IsValueType && !fieldType.IsPrimitive;
-//        var useCompareEquals = fieldType.IsValueType && !useObject;
         il.Emit(OpCodes.Ldarg_0);
         il.Emit(OpCodes.Ldc_I4, fieldIndex);
         il.Emit(OpCodes.Ldloca, xState);

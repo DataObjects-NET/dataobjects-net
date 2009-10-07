@@ -5,6 +5,7 @@
 // Created:    2008.01.24
 
 using System;
+using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
@@ -26,6 +27,24 @@ namespace Xtensive.Core.Tests.Tuples
     public void Test()
     {
       base.Test();
+    }
+    
+    enum TestEnum : sbyte
+    {
+      One = 5,
+      Two
+    }
+
+    [Test]
+    public void EnumGetHashCodeTest()
+    {
+      var flag = BindingFlags.Instance;
+      var tuple = Tuple.Create(flag);
+      var clone = tuple.Clone();
+      Console.Out.WriteLine((int)flag);
+      Assert.AreEqual(tuple,clone);
+      var value = tuple.GetValue<BindingFlags>(0);
+      var hashCode = tuple.GetHashCode();
     }
 
     [Test]
