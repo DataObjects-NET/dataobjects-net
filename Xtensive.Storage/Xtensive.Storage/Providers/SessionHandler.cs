@@ -179,9 +179,7 @@ namespace Xtensive.Storage.Providers
     protected internal virtual EntityState FetchInstance(Key key)
     {
       var type = key.IsTypeCached ? key.Type : key.Hierarchy.Root;
-      prefetchProcessor.Prefetch(key, type, type.Fields
-        .Where(field => field.Parent == null && PrefetchTask.IsFieldToBeLoadedByDefault(field))
-        .Select(field => new PrefetchFieldDescriptor(field, false)).ToArray());
+      prefetchProcessor.Prefetch(key, type, PrefetchTask.CreateDescriptorsForFieldsLoadedByDefault(type));
       prefetchProcessor.ExecuteTasks();
       EntityState result;
       return TryGetEntityState(key, out result) ? result : null;

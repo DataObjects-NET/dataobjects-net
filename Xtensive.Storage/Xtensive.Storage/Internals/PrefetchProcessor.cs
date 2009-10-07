@@ -48,7 +48,8 @@ namespace Xtensive.Storage.Internals
       else {
         ArgumentValidator.EnsureArgumentNotNull(currentType, "type");
         EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
-        PrefetchHierarchyRootColumns(currentKey);
+        PrefetchByKeyWithNotCachedType(currentKey, currentKey.Hierarchy.Root,
+          PrefetchTask.CreateDescriptorsForFieldsLoadedByDefault(currentKey.Hierarchy.Root));
         var hierarchyRoot = currentKey.Hierarchy.Root;
         selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
       }
@@ -130,16 +131,16 @@ namespace Xtensive.Storage.Internals
       return true;
     }
 
-    public void PrefetchHierarchyRootColumns(Key key)
+    public void PrefetchByKeyWithNotCachedType(Key key, TypeInfo type, PrefetchFieldDescriptor[] descriptors)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       Tuple entityTuple;
       var currentKey = key;
       if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out entityTuple))
         return;
-      var descriptors = key.Hierarchy.Root.Fields.Where(PrefetchTask.IsFieldToBeLoadedByDefault)
-        .Select(field => new PrefetchFieldDescriptor(field, false));
-      CreateTasks(currentKey, currentKey.Hierarchy.Root, descriptors, true, entityTuple);
+      /*var descriptors = key.Hierarchy.Root.Fields.Where(PrefetchTask.IsFieldToBeLoadedByDefault)
+        .Select(field => new PrefetchFieldDescriptor(field, false));*/
+      CreateTasks(currentKey, type, descriptors, true, entityTuple);
     }
 
     #region Private \ internal methods

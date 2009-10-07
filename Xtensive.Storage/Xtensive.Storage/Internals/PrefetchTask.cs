@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
@@ -56,6 +57,12 @@ namespace Xtensive.Storage.Internals
     public static bool IsFieldAvailable(Tuple tuple, int fieldIndex)
     {
       return (tuple.GetFieldState(fieldIndex) & TupleFieldState.Available)==TupleFieldState.Available;
+    }
+
+    public static PrefetchFieldDescriptor[] CreateDescriptorsForFieldsLoadedByDefault(TypeInfo type)
+    {
+      return type.Fields.Where(field => field.Parent==null && IsFieldToBeLoadedByDefault(field))
+        .Select(field => new PrefetchFieldDescriptor(field, false)).ToArray();
     }
 
     public bool Equals(PrefetchTask other)

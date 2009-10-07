@@ -51,6 +51,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       warmup = false;
       InsertTest(BaseCount);
       FetchTest(BaseCount / 2);
+      PrefetchTest(BaseCount / 2);
       //MaterializeTest(BaseCount);
       //UpdateTest();
       RemoveTest();
