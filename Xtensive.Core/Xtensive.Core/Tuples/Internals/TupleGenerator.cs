@@ -958,6 +958,8 @@ namespace Xtensive.Core.Tuples.Internals
         il.Emit(OpCodes.And);
         il.Emit(OpCodes.Ldc_I4, field.BitShift);
         il.Emit(OpCodes.Shr);
+        il.Emit(OpCodes.Ldc_I4, field.ValueBitMask);
+        il.Emit(OpCodes.And);
       }
       else {
         il.Emit(OpCodes.Ldarg_0);
