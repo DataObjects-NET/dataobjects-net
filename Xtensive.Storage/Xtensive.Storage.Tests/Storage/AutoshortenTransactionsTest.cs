@@ -97,7 +97,6 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var sessionConfiguration = new SessionConfiguration {
         Options = SessionOptions.AutoShortenTransactions
-          | SessionOptions.AutoTransactions
       };
       short reorderLevel;
       Key productKey;

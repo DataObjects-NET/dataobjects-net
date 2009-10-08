@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Linq.Materialization
     {
       ParameterContext ctx;
       var session = Session.Demand();
-      using (session.OpenTransaction(true)) {
+      using (session.OpenTransaction()) {
         using (new ParameterContext().Activate()) {
           ctx = ParameterContext.Current;
           foreach (var tupleParameterBinding in tupleParameterBindings)

@@ -161,13 +161,6 @@ namespace Xtensive.Storage.Configuration
       get { return (options & SessionOptions.AmbientTransactions)==SessionOptions.AmbientTransactions; }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether session allows automatic transactions.
-    /// </summary>
-    public bool AllowsAutoTransactions {
-      get { return (options & SessionOptions.AutoTransactions)==SessionOptions.AutoTransactions; }
-    }
-
     /// <inheritdoc/>
     public override void Validate()
     {

@@ -159,35 +159,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Opens a new or already running transaction.
     /// </summary>
-    /// <param name="autoTransaction">if set to <see langword="true"/> auto transaction is demanded.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(bool autoTransaction)
-    {
-      return Session.Demand().OpenTransaction(autoTransaction);
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <param name="autoTransaction">if set to <see langword="true"/> auto transaction is demanded.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(IsolationLevel isolationLevel, bool autoTransaction)
-    {
-      return Session.Demand().OpenTransaction(isolationLevel, autoTransaction);
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
     /// <param name="session">The session.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
@@ -214,39 +185,6 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       return session.OpenTransaction(isolationLevel);
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="autoTransaction">if set to <see langword="true"/> auto transaction is demanded.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(Session session, bool autoTransaction)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(autoTransaction);
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <param name="autoTransaction">if set to <see langword="true"/> auto transaction is demanded.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(Session session, IsolationLevel isolationLevel, bool autoTransaction)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(isolationLevel, autoTransaction);
     }
 
     #endregion

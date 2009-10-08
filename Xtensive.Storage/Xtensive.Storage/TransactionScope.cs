@@ -40,6 +40,15 @@ namespace Xtensive.Storage
       get { return (Transaction) base.Transaction; }
     }
 
+    /// <summary>
+    /// Marks the scope as successfully completed 
+    /// (i.e. all operations within the scope are completed successfully).
+    /// </summary>
+    public void Complete()
+    {
+      IsCompleted = true;
+    }
+
     // Constructors
 
     private TransactionScope()

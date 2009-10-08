@@ -45,12 +45,15 @@ namespace Xtensive.Storage
     /// </summary>
     public event EventHandler<TransactionEventArgs> TransactionRollbacked;
 
-    internal TransactionScope OpenTransaction(IsolationLevel isolationLevel, bool autoTransaction)
+    internal TransactionScope OpenTransaction()
+    {
+      return OpenTransaction(Handler.DefaultIsolationLevel);
+    }
+
+    internal TransactionScope OpenTransaction(IsolationLevel isolationLevel)
     {
       if (Transaction != null)
         return TransactionScope.HollowScopeInstance;
-      if (autoTransaction && !Configuration.AllowsAutoTransactions)
-        throw new InvalidOperationException(Strings.ExTransactionRequired);
       var transaction = new Transaction(this, isolationLevel);
       Transaction = transaction;
       var transactionScope = (TransactionScope) transaction.Begin();
@@ -59,21 +62,6 @@ namespace Xtensive.Storage
         return TransactionScope.HollowScopeInstance;
       }
       return transactionScope;
-    }
-
-    internal TransactionScope OpenTransaction(IsolationLevel isolationLevel)
-    {
-      return OpenTransaction(isolationLevel, false);
-    }
-
-    internal TransactionScope OpenTransaction(bool autoTransaction)
-    {
-      return OpenTransaction(Handler.DefaultIsolationLevel, autoTransaction);
-    }
-
-    internal TransactionScope OpenTransaction()
-    {
-      return OpenTransaction(Handler.DefaultIsolationLevel, false);
     }
 
     /// <summary>

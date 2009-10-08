@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void DocumentCreatedInSeparateTransactionTest()
     {
       var sessionConfiguration = new SessionConfiguration {
-        Options = SessionOptions.AutoTransactions
+        Options = SessionOptions.None
       };
       Key key;
       using (var s = Session.Open(Domain)) {
@@ -56,10 +56,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void DocumentCreatedInAutoTransactionTest()
     {
-      var sessionConfiguration = new SessionConfiguration {
-        Options = SessionOptions.AutoTransactions
-      };
-      using (var s = Session.Open(Domain, sessionConfiguration)) {
+      using (var s = Session.Open(Domain)) {
           var document = new Document();
       }
     }
