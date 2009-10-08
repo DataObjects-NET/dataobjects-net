@@ -16,11 +16,10 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
-using Xtensive.Storage.Rse.Providers.Internals;
 
-namespace Xtensive.Storage.Rse.Providers.Internals
+namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
 {
-  internal sealed class JoinInheritorsReader : ProviderReader
+  internal sealed class JoinIndexReader : VirtualIndexReader
   {
     private readonly ExecutableProvider root;
     private readonly ExecutableProvider[] inheritors;
@@ -58,7 +57,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     public override IEnumerator<Tuple> GetEnumerator()
     {
-      return new JoinInheritorsReader(Provider, Range, root, inheritors, transform);
+      return new JoinIndexReader(Provider, Range, root, inheritors, transform);
     }
 
     #region Private \ internal methods
@@ -67,13 +66,13 @@ namespace Xtensive.Storage.Rse.Providers.Internals
     {
       if (enumerator!=null)
         enumerator.Dispose();
-      enumerator = InheritanceJoiner.Join(
+      enumerator = JoinAlgorithm.Join(
         reader,
         root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyExtractor,
         root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyComparer,
         transform,
         inheritors.Select((provider, i) => new Triplet<IEnumerator<Tuple>, Converter<Tuple, Tuple>, TupleDescriptor>(
-          rightReaders[i], provider.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyExtractor, provider.Header.TupleDescriptor)).ToList()
+                                             rightReaders[i], provider.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyExtractor, provider.Header.TupleDescriptor)).ToList()
         ).GetEnumerator();
     }
 
@@ -81,7 +80,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     // Constructors
 
-    public JoinInheritorsReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider root, ExecutableProvider[] inheritors, MapTransform transform)
+    public JoinIndexReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider root, ExecutableProvider[] inheritors, MapTransform transform)
       : base(provider, range)
     {
       this.root = root;

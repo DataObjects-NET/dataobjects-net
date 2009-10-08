@@ -11,12 +11,12 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
 
-namespace Xtensive.Storage.Rse.Providers.Internals
+namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
 {
   /// <summary>
   /// Base class for <see cref="RecordSet"/> <see cref="IIndexReader{TKey,TItem}"/>s.
   /// </summary>
-  internal abstract class ProviderReader: IIndexReader<Tuple, Tuple>
+  internal abstract class VirtualIndexReader: IIndexReader<Tuple, Tuple>
   {
     private readonly ExecutableProvider provider;
     private Range<Entire<Tuple>> range; // Non-readonly - to avoid stack growth
@@ -79,14 +79,14 @@ namespace Xtensive.Storage.Rse.Providers.Internals
     /// </summary>
     /// <param name="provider"><see cref="Provider"/> property value.</param>
     /// <param name="range">The <see cref="Range"/> property value.</param>
-    protected ProviderReader(ExecutableProvider provider, Range<Entire<Tuple>> range)
+    protected VirtualIndexReader(ExecutableProvider provider, Range<Entire<Tuple>> range)
     {
       this.provider = provider;
       this.range = range;
       var hasKeyComparers = provider.GetService<IHasKeyComparers<Tuple>>();
       direction = hasKeyComparers == null ? 
-        Direction.Positive : 
-        range.GetDirection(hasKeyComparers.EntireKeyComparer);
+                                            Direction.Positive : 
+                                                                 range.GetDirection(hasKeyComparers.EntireKeyComparer);
     }
 
     /// <summary>

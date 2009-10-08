@@ -132,4 +132,7 @@
   <data name="ExCanNotFindIndexXInStorage" xml:space="preserve">
     <value>Can not find index '{0}' in storage.</value>
   </data>
+  <data name="ExUnsupportedIndex" xml:space="preserve">
+    <value>Index '{0}' with attributes '{1}' is not supported.</value>
+  </data>
 </root>

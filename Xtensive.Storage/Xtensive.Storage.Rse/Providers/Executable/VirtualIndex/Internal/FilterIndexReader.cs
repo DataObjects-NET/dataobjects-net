@@ -11,18 +11,17 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 
-namespace Xtensive.Storage.Rse.Providers.Internals
+namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
 {
-  internal sealed class FilteringReader : ProviderReader
+  internal sealed class FilterIndexReader : VirtualIndexReader
   {
     private readonly ExecutableProvider toFilter;
     private readonly Func<Tuple, bool> predicate;
-    private readonly MapTransform transform;
     private readonly IIndexReader<Tuple, Tuple> reader;
 
     public override Tuple Current
     {
-      get { return transform.Apply(TupleTransformType.Auto, reader.Current); }
+      get { return reader.Current; }
     }
 
     public override bool MoveNext()
@@ -44,18 +43,17 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     public override IEnumerator<Tuple> GetEnumerator()
     {
-      return new FilteringReader(Provider, Range, toFilter, predicate, transform);
+      return new FilterIndexReader(Provider, Range, toFilter, predicate);
     }
 
 
     // Constructors
 
-    public FilteringReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider toFilter, Func<Tuple,bool> predicate, MapTransform transform)
+    public FilterIndexReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider toFilter, Func<Tuple,bool> predicate)
       : base(provider, range)
     {
       this.toFilter = toFilter;
       this.predicate = predicate;
-      this.transform = transform;
       var orderedEnumerable = toFilter.GetService<IOrderedEnumerable<Tuple, Tuple>>();
       reader = orderedEnumerable.CreateReader(range);
     }

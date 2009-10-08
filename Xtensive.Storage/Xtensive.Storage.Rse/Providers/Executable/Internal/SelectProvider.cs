@@ -5,6 +5,7 @@
 // Created:    2008.05.20
 
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 
@@ -17,10 +18,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
 
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var result = new List<Tuple>();
-      foreach (var tuple in Source.Enumerate(context))
-        result.Add(transform.Apply(TupleTransformType.Auto, tuple));
-      return result;
+      return Source.Enumerate(context).Select(t => transform.Apply(TupleTransformType.Auto, t));
     }
 
     protected override void Initialize()

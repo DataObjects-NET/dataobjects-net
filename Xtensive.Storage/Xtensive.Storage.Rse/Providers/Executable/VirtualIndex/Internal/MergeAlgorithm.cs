@@ -11,36 +11,33 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 
-namespace Xtensive.Storage.Rse.Providers.Internals
+namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
 {
-  internal static class InheritanceMerger
+  internal static class MergeAlgorithm
   {
     public static IEnumerable<Tuple> Merge(
       AdvancedComparer<Tuple> comparer,
-      List<Triplet<IEnumerable<Tuple>, Converter<Tuple, Tuple>, MapTransform>> enumerators)
+      List<Pair<IEnumerable<Tuple>, Converter<Tuple, Tuple>>> enumerators)
     {
       return Merge(comparer, 
-        enumerators.ConvertAll(input => new Triplet<IEnumerator<Tuple>, Converter<Tuple, Tuple>, MapTransform>(
-          input.First.GetEnumerator(), 
-          input.Second, 
-          input.Third))
+                   enumerators.ConvertAll(input => new Pair<IEnumerator<Tuple>, Converter<Tuple, Tuple>>(
+                     input.First.GetEnumerator(), 
+                     input.Second))
         );
     }
 
 
     public static IEnumerable<Tuple> Merge(
       AdvancedComparer<Tuple> comparer,
-      List<Triplet<IEnumerator<Tuple>, Converter<Tuple, Tuple>, MapTransform>> enumerators)
+      List<Pair<IEnumerator<Tuple>, Converter<Tuple, Tuple>>> enumerators)
     {
       var enums = new IEnumerator<Tuple>[enumerators.Count];
       var extractors = new Converter<Tuple, Tuple>[enumerators.Count];
-      var transforms = new MapTransform[enumerators.Count];
       var haveValues = new bool[enumerators.Count];
 
       for (int i = 0; i < enumerators.Count; i++) {
         enums[i] = enumerators[i].First;
         extractors[i] = enumerators[i].Second;
-        transforms[i] = enumerators[i].Third;
         haveValues[i] = enums[i].MoveNext();
       }
 
@@ -65,7 +62,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
             }
           }
         }
-        Tuple item = enums[lowestItemIndex].Current;
+        var item = enums[lowestItemIndex].Current;
         haveValues[lowestItemIndex] = enums[lowestItemIndex].MoveNext();
         if (!haveValues[lowestItemIndex]) {
           lowestKey = null;
@@ -74,7 +71,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
             willContinue |= haveValues[i];
         }
 
-        yield return transforms[lowestItemIndex].Apply(TupleTransformType.Auto, item);
+        yield return item;
       }
     }
   }

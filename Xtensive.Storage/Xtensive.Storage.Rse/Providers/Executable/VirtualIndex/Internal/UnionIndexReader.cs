@@ -15,13 +15,12 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 using Xtensive.Core.Helpers;
 
-namespace Xtensive.Storage.Rse.Providers.Internals
+namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
 {
-  internal sealed class MergeInheritorsReader : ProviderReader
+  internal sealed class UnionIndexReader : VirtualIndexReader
   {
     private readonly ExecutableProvider[] inheritors;
     private readonly IIndexReader<Tuple, Tuple>[] readers;
-    private readonly MapTransform[] transforms;
     private readonly IDisposable disposables;
     private IEnumerator<Tuple> enumerator;
 
@@ -51,7 +50,7 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     public override IEnumerator<Tuple> GetEnumerator()
     {
-      return new MergeInheritorsReader(Provider, Range, inheritors, transforms);
+      return new UnionIndexReader(Provider, Range, inheritors);
     }
 
     #region Private \ internal methods
@@ -60,10 +59,10 @@ namespace Xtensive.Storage.Rse.Providers.Internals
     {
       if (enumerator != null)
         enumerator.Dispose();
-      enumerator = InheritanceMerger.Merge(
+      enumerator = MergeAlgorithm.Merge(
         Provider.GetService<IOrderedEnumerable<Tuple, Tuple>>(true).KeyComparer,
-        inheritors.Select((provider, i) => new Triplet<IEnumerator<Tuple>, Converter<Tuple, Tuple>, MapTransform>(
-          readers[i], provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true).KeyExtractor, transforms[i])).ToList()
+        inheritors.Select((provider, i) => new Pair<IEnumerator<Tuple>, Converter<Tuple, Tuple>>(
+                                             readers[i], provider.GetService<IOrderedEnumerable<Tuple,Tuple>>(true).KeyExtractor)).ToList()
         ).GetEnumerator();
     }
 
@@ -72,11 +71,10 @@ namespace Xtensive.Storage.Rse.Providers.Internals
 
     // Constructors
 
-    public MergeInheritorsReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider[] inheritors, MapTransform[] transforms)
+    public UnionIndexReader(ExecutableProvider provider, Range<Entire<Tuple>> range, ExecutableProvider[] inheritors)
       : base(provider, range)
     {
       this.inheritors = inheritors;
-      this.transforms = transforms;
       readers = new IIndexReader<Tuple, Tuple>[inheritors.Length];
       for (int i = 0; i < inheritors.Length; i++)
         readers[i] = inheritors[i].GetService<IOrderedEnumerable<Tuple, Tuple>>(true).CreateReader(range);

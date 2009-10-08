@@ -17,15 +17,15 @@ using Xtensive.Indexing;
 using System.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Storage.Rse.Providers.Internals;
+using Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal;
 
-namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
+namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
 {
   /// <summary>
   /// General virtual <see cref="IndexAttributes.Join"/> index provider for all indexing storage handlers.
   /// </summary>
   [Serializable]
-  public sealed class JoinInheritorsProvider : ExecutableProvider<IndexProvider>,
+  public sealed class JoinIndexProvider : ExecutableProvider<IndexProvider>,
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 
     IIndexReader<Tuple, Tuple> IOrderedEnumerable<Tuple, Tuple>.CreateReader(Range<Entire<Tuple>> range)
     {
-      return new JoinInheritorsReader(this, range,  root, inheritors, mapTransform);
+      return new JoinIndexReader(this, range,  root, inheritors, mapTransform);
     }
 
     SeekResult<Tuple> IOrderedEnumerable<Tuple, Tuple>.Seek(Ray<Entire<Tuple>> ray)
@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 
     IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetItems(Range<Entire<Tuple>> range)
     {
-      return InheritanceJoiner.Join(
+      return Internal.JoinAlgorithm.Join(
         rootEnumerable.GetItems(range),
         rootEnumerable.KeyExtractor,
         rootEnumerable.KeyComparer, 
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
 
     IEnumerable<Tuple> IOrderedEnumerable<Tuple, Tuple>.GetItems(RangeSet<Entire<Tuple>> range)
     {
-      return InheritanceJoiner.Join(
+      return Internal.JoinAlgorithm.Join(
         rootEnumerable.GetItems(range),
         rootEnumerable.KeyExtractor,
         rootEnumerable.KeyComparer,
@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <inheritdoc/>
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      return InheritanceJoiner.Join(
+      return Internal.JoinAlgorithm.Join(
         root,
         rootEnumerable.KeyExtractor,
         rootEnumerable.KeyComparer,
@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Rse.Providers.InheritanceSupport
     /// <param name="includedColumnsCount">Count of included columns.</param>
     /// <param name="root">Root index provider.</param>
     /// <param name="inheritors">Inheritor index providers.</param>
-    public JoinInheritorsProvider(IndexProvider origin, int includedColumnsCount, ExecutableProvider root, ExecutableProvider[] inheritors)
+    public JoinIndexProvider(IndexProvider origin, int includedColumnsCount, ExecutableProvider root, ExecutableProvider[] inheritors)
       : base(origin, new[] {root}.Union(inheritors).ToArray())
     {
       AddService<IOrderedEnumerable<Tuple, Tuple>>();

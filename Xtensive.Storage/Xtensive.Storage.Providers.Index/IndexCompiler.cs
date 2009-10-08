@@ -7,14 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
-using Xtensive.Indexing;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Index.Resources;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
-using Xtensive.Storage.Rse.Providers.InheritanceSupport;
+using Xtensive.Storage.Rse.Providers.Executable.VirtualIndex;
 
 namespace Xtensive.Storage.Providers.Index
 {
@@ -42,57 +40,76 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     protected override ExecutableProvider VisitIndex(Rse.Providers.Compilable.IndexProvider provider)
     {
-      IndexInfo indexInfo = provider.Index.Resolve(Handlers.Domain.Model);
-      ExecutableProvider result = CompileInternal(provider, indexInfo);
+      var indexInfo = provider.Index.Resolve(Handlers.Domain.Model);
+      var result = BuildIndexProvider(provider, indexInfo);
       return result;
     }
 
-    private ExecutableProvider CompileInternal(Rse.Providers.Compilable.IndexProvider provider, IndexInfo indexInfo)
+    private ExecutableProvider BuildIndexProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
     {
-      var sessionHandler = (SessionHandler) Handlers.SessionHandler;
-      var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      ExecutableProvider result;
-      if (!indexInfo.IsVirtual)
-        result = new IndexProvider(provider, domainHandler.GetStorageIndexInfo(provider.Index), 
-          sessionHandler.StorageView.GetIndex);
-      else
+      if (index.IsVirtual)
       {
-        var firstUnderlyingIndex = indexInfo.UnderlyingIndexes.First();
-        if ((indexInfo.Attributes & IndexAttributes.Filtered) != 0)
-        {
-          ExecutableProvider source = CompileInternal(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
-          int columnIndex;
-          if (indexInfo.IsPrimary)
-          {
-            FieldInfo typeIdField = indexInfo.ReflectedType.Fields[WellKnown.TypeIdFieldName];
-            columnIndex = typeIdField.MappingInfo.Offset;
-          }
-          else
-            columnIndex = indexInfo.Columns.Select((c, i) => c.Field.Name == WellKnown.TypeIdFieldName ? i : 0).Sum();
-          List<int> typeIdList = indexInfo.ReflectedType.GetDescendants(true).Select(info => info.TypeId).ToList();
-          typeIdList.Add(indexInfo.ReflectedType.TypeId);
-          result = new FilterInheritorsProvider(provider, source, columnIndex, typeIdList.ToArray());
-        }
-        else if ((indexInfo.Attributes & IndexAttributes.Union) != 0)
-        {
-          ExecutableProvider[] sourceProviders = indexInfo.UnderlyingIndexes.Select(index => CompileInternal(Rse.Providers.Compilable.IndexProvider.Get(index), index)).ToArray();
-          if (sourceProviders.Length == 1)
-            result = sourceProviders[0];
-          else
-            result = new MergeInheritorsProvider(provider, sourceProviders);
-        }
-        else
-        {
-          var baseIndexes = new List<IndexInfo>(indexInfo.UnderlyingIndexes);
-          ExecutableProvider rootProvider = CompileInternal(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
-          var inheritorsProviders = new ExecutableProvider[baseIndexes.Count - 1];
-          for (int i = 1; i < baseIndexes.Count; i++)
-            inheritorsProviders[i - 1] = CompileInternal(Rse.Providers.Compilable.IndexProvider.Get(baseIndexes[i]), baseIndexes[i]);
-
-          result = new JoinInheritorsProvider(provider, baseIndexes[0].IncludedColumns.Count, rootProvider, inheritorsProviders);
-        }
+        if ((index.Attributes & IndexAttributes.Union) > 0)
+          return BuildUnionProvider(provider, index);
+        if ((index.Attributes & IndexAttributes.Join) > 0)
+          return BuildJoinProvider(provider, index);
+        if ((index.Attributes & IndexAttributes.Filtered) > 0)
+          return BuildFilterProvider(provider, index);
+        if ((index.Attributes & IndexAttributes.View) > 0)
+          return BuildViewProvider(provider, index);
+        throw new NotSupportedException(String.Format(Strings.ExUnsupportedIndex, index.Name, index.Attributes));
       }
-      return result;
+      return BuildIndexProviderInternal(provider);
+    }
+
+    private ExecutableProvider BuildUnionProvider(CompilableProvider provider, IndexInfo index)
+    {
+      var sourceProviders = index.UnderlyingIndexes.Select(i => BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(i), i)).ToArray();
+      return sourceProviders.Length == 1 
+        ? sourceProviders[0] 
+        : new UnionIndexProvider(provider, sourceProviders);
+    }
+
+    private ExecutableProvider BuildJoinProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
+    {
+      var firstUnderlyingIndex = index.UnderlyingIndexes.First();
+      var baseIndexes = new List<IndexInfo>(index.UnderlyingIndexes);
+      var rootProvider = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
+      var inheritorsProviders = new ExecutableProvider[baseIndexes.Count - 1];
+      for (int i = 1; i < baseIndexes.Count; i++)
+        inheritorsProviders[i - 1] = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(baseIndexes[i]), baseIndexes[i]);
+      return new JoinIndexProvider(provider, baseIndexes[0].IncludedColumns.Count, rootProvider, inheritorsProviders);
+    }
+
+    private ExecutableProvider BuildFilterProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
+    {
+      var firstUnderlyingIndex = index.UnderlyingIndexes.First();
+      var source = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
+      int columnIndex;
+      if (index.IsPrimary) {
+        FieldInfo typeIdField = index.ReflectedType.Fields[WellKnown.TypeIdFieldName];
+        columnIndex = typeIdField.MappingInfo.Offset;
+      }
+      else
+        columnIndex = index.Columns.Select((c, i) => c.Field.Name == WellKnown.TypeIdFieldName ? i : 0).Sum();
+      List<int> typeIdList = index.ReflectedType.GetDescendants(true).Select(info => info.TypeId).ToList();
+      typeIdList.Add(index.ReflectedType.TypeId);
+      return new FilterIndexProvider(provider, source, columnIndex, typeIdList.ToArray());
+    }
+
+    private ExecutableProvider BuildViewProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
+    {
+      var firstUnderlyingIndex = index.UnderlyingIndexes.First();
+      var source = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
+      var columnMap = index.SelectColumns.ToArray();
+      return new ViewIndexProvider(provider, source, columnMap);
+    }
+
+    private ExecutableProvider BuildIndexProviderInternal(Rse.Providers.Compilable.IndexProvider provider)
+    {
+      var sessionHandler = (SessionHandler)Handlers.SessionHandler;
+      var domainHandler = (DomainHandler)Handlers.DomainHandler;
+      return new IndexProvider(provider, domainHandler.GetStorageIndexInfo(provider.Index), sessionHandler.StorageView.GetIndex);
     }
 
 

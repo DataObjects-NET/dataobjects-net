@@ -11,15 +11,15 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 
-namespace Xtensive.Storage.Rse.Providers.Internals
+namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
 {
-  internal static class InheritanceJoiner
+  internal static class JoinAlgorithm
   {
     public static IEnumerable<Tuple> Join(IEnumerable<Tuple> left,
-      Converter<Tuple, Tuple> keyExtractorLeft,
-      AdvancedComparer<Tuple> comparer,
-      MapTransform transform,
-      List<Triplet<IEnumerable<Tuple>, Converter<Tuple, Tuple>, TupleDescriptor>> rightEnums)
+                                          Converter<Tuple, Tuple> keyExtractorLeft,
+                                          AdvancedComparer<Tuple> comparer,
+                                          MapTransform transform,
+                                          List<Triplet<IEnumerable<Tuple>, Converter<Tuple, Tuple>, TupleDescriptor>> rightEnums)
     {
       return Join(
         left.GetEnumerator(),
@@ -27,18 +27,18 @@ namespace Xtensive.Storage.Rse.Providers.Internals
         comparer, 
         transform, 
         rightEnums.ConvertAll(input => new Triplet<IEnumerator<Tuple>, Converter<Tuple, Tuple>, TupleDescriptor>(
-          input.First.GetEnumerator(), 
-          input.Second, 
-          input.Third
-          ))
+                                         input.First.GetEnumerator(), 
+                                         input.Second, 
+                                         input.Third
+                                         ))
         );
     }
 
     public static IEnumerable<Tuple> Join(IEnumerator<Tuple> left,
-      Converter<Tuple, Tuple> keyExtractorLeft,
-      AdvancedComparer<Tuple> comparer,
-      MapTransform transform,
-      List<Triplet<IEnumerator<Tuple>, Converter<Tuple, Tuple>, TupleDescriptor>> rightEnums)
+                                          Converter<Tuple, Tuple> keyExtractorLeft,
+                                          AdvancedComparer<Tuple> comparer,
+                                          MapTransform transform,
+                                          List<Triplet<IEnumerator<Tuple>, Converter<Tuple, Tuple>, TupleDescriptor>> rightEnums)
     {
       var rightEnumerators = new IEnumerator<Tuple>[rightEnums.Count];
       var rightKeyExtractors = new Converter<Tuple, Tuple>[rightEnums.Count];

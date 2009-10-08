@@ -104,5 +104,14 @@ namespace Xtensive.Storage.Providers.Index.Resources {
                 return ResourceManager.GetString("ExTransactionIsNotOpened", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Index &apos;{0}&apos; with attributes &apos;{1}&apos; is not supported..
+        /// </summary>
+        internal static string ExUnsupportedIndex {
+            get {
+                return ResourceManager.GetString("ExUnsupportedIndex", resourceCulture);
+            }
+        }
     }
 }
