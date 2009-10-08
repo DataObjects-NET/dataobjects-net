@@ -206,7 +206,8 @@ namespace Xtensive.Storage.Tests.Model
 
       Assert.IsFalse(version.IsVoid);
       var versionClone = (VersionInfo) LegacyBinarySerializer.Instance.Clone(version);
-      Assert.IsTrue(version==versionClone);
+      Assert.IsFalse(versionClone.IsVoid);
+      Assert.IsTrue(version.Equals(versionClone));
     }
   }
 }

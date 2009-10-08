@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Serialization.Binary;
 using Xtensive.Storage.Configuration;
 using System.Linq;
 
@@ -181,11 +182,29 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
     [Key, Field]
     public int Id { get; private set; }
 
-    [Field, Version]
-    public int VersionId1 { get; set; }
+    [Version, Field]
+    public sbyte VersionId1 { get; set; }
 
-    [Field, Version]
-    public long VersionId2 { get; set; }
+    [Version, Field]
+    public byte VersionId2 { get; set; }
+
+    [Version, Field]
+    public short VersionId3 { get; set; }
+
+    [Version, Field]
+    public ushort VersionId4 { get; set; }
+
+    [Version, Field]
+    public int VersionId5 { get; set; }
+
+    [Version, Field]
+    public uint VersionId6 { get; set; }
+
+    [Version, Field]
+    public long VersionId7 { get; set; }
+
+    [Version, Field]
+    public ulong VersionId8 { get; set; }
 
     [Field]
     public string Field { get; set; }
@@ -213,16 +232,12 @@ namespace Xtensive.Storage.Tests.Storage
     public void GenerateAutoVersionTest()
     {
       Key key;
-      int version1;
-      long version2;
       VersionInfo versionInfo;
 
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = new ItemWithAutoVersions();
           key = instance.Key;
-          version1 = instance.VersionId1;
-          version2 = instance.VersionId2;
           versionInfo = instance.GetVersion();
           transactionScope.Complete();
         }
@@ -240,8 +255,6 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = Query<ItemWithAutoVersions>.Single(key);
-          Assert.AreEqual(version1 + 1, instance.VersionId1);
-          Assert.AreEqual(version2 + 1, instance.VersionId2);
           Assert.IsFalse(versionInfo==instance.GetVersion());
           transactionScope.Complete();
         }
@@ -486,6 +499,24 @@ namespace Xtensive.Storage.Tests.Storage
           transactionScope.Complete();
         }
       }
+    }
+
+    [Test]
+    public void SerializeVersionInfoTest()
+    {
+      VersionInfo versionInfo;
+
+      using (var session = Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          var instance = new ItemWithAutoVersions();
+          versionInfo = instance.GetVersion();
+          transactionScope.Complete();
+        }
+      }
+      Assert.IsFalse(versionInfo.IsVoid);
+      var clone = (VersionInfo) LegacyBinarySerializer.Instance.Clone(versionInfo);
+      Assert.IsFalse(clone.IsVoid);
+      Assert.IsTrue(versionInfo==clone);
     }
   }
 }

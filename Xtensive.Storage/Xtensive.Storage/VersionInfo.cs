@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using StreamingContext=System.Runtime.Serialization.StreamingContext;
 using System.Runtime.Serialization;
 
 namespace Xtensive.Storage
@@ -36,16 +36,42 @@ namespace Xtensive.Storage
     public bool IsVoid
     {
       [DebuggerStepThrough]
-      get { return value==null; }
+      get { return Value==null; }
     }
 
     internal Tuple Value
     {
       [DebuggerStepThrough]
-      get { return value; }
+      get
+      {
+        if (serializedValue!=null && value==null)
+          Deserialize();
+        return value;
+      }
     }
 
-    #region Equals, GetHashCode, ==, !=, ToString
+    /// <summary>
+    /// Joins this version tuple with specified key value tuple and specified version tuple.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="versionInfo">The version info.</param>
+    /// <returns>New combined tuple.</returns>
+    internal VersionInfo Join(Key key, VersionInfo versionInfo)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+
+      Tuple resultVersion = Value;
+      if (resultVersion==null)
+        resultVersion = key.Value;
+      else
+        resultVersion = resultVersion.Combine(key.Value);
+      if (!versionInfo.IsVoid)
+        resultVersion = resultVersion.Combine(versionInfo.Value);
+
+      return new VersionInfo(resultVersion.ToRegular());
+    }
+
+    #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
@@ -64,9 +90,9 @@ namespace Xtensive.Storage
         return false;
       if (ReferenceEquals(obj, null))
         return false;
-      if (obj.GetType()!= typeof(VersionInfo))
+      if (obj.GetType()!= typeof (VersionInfo))
         return false;
-      if (obj.GetHashCode() != GetHashCode())
+      if (obj.GetHashCode()!=GetHashCode())
         return false;
       return Equals((VersionInfo) obj);
     }
@@ -97,14 +123,14 @@ namespace Xtensive.Storage
       return cachedHashCode;
     }
 
+    # endregion
+
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override string ToString()
     {
-      return value==null ? EmptyStringValue : value.ToString(true);
+      return Value==null ? EmptyStringValue : Value.ToString(true);
     }
-
-    # endregion
 
 
     // Constructors
@@ -116,8 +142,8 @@ namespace Xtensive.Storage
     public VersionInfo(Tuple version)
     {
       value = version;
-      isHashCodeCalculated = false;
       cachedHashCode = 0;
+      isHashCodeCalculated = version==null;
       serializedValue = null;
     }
 
@@ -127,7 +153,9 @@ namespace Xtensive.Storage
     [OnSerializing]
     internal void OnSerializing(StreamingContext context)
     {
-      serializedValue = new SerializedTuple(value);
+      if (Value==null)
+        return;
+      serializedValue = new SerializedTuple(Value);
     }
 
     [OnSerialized]
@@ -139,6 +167,13 @@ namespace Xtensive.Storage
     [OnDeserialized]
     internal void OnDeserialized(StreamingContext context)
     {
+      Deserialize();
+    }
+
+    private void Deserialize()
+    {
+      if (serializedValue==null)
+        return;
       value = ((SerializedTuple) serializedValue).Value;
       serializedValue = null;
     }

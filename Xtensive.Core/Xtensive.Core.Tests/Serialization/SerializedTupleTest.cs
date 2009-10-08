@@ -14,6 +14,16 @@ namespace Xtensive.Core.Tests.Serialization
   public class SerializedTupleTest
   {
     [Test]
+    public void BaseTest()
+    {
+      var tuple = Tuple.Create(1, false);
+      var serializedTuple = new SerializedTuple(tuple);
+      var clone = (SerializedTuple) LegacyBinarySerializer.Instance.Clone(serializedTuple);
+      Assert.IsFalse(clone.Value==null);
+      Assert.AreEqual(tuple, clone.Value);
+    }
+
+    [Test]
     public void CombinedTest()
     {
       var t = Tuple.Create(1, false);
@@ -21,6 +31,16 @@ namespace Xtensive.Core.Tests.Serialization
       
       t = Tuple.Create(t.Descriptor);
       t.SetValue(1, true);
+      Assert.AreEqual(t, CloneBySerialization(t));
+    }
+
+    [Test]
+    public void SerializationWithNullValuesTest()
+    {
+      var t = Tuple.Create(typeof (string), typeof (int));
+      t.SetValue(0, null);
+      t.SetValue(1, null);
+
       Assert.AreEqual(t, CloneBySerialization(t));
     }
 

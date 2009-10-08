@@ -161,6 +161,15 @@ namespace Xtensive.Storage
     /// <returns>Current version.</returns>
     public VersionInfo GetVersion()
     {
+      if (Type.HasVersionRoots) {
+        var version = new VersionInfo();
+        foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
+          if (root is IHasVersionRoots)
+            throw new InvalidOperationException(Strings.ExVersionRootObjectCantImplementIHasVersionRoots);
+          version = version.Join(root.Key, root.GetVersion());
+        }
+        return version;
+      }
       if (Type.VersionExtractor==null)
         return new VersionInfo(); // returns empty VersionInfo
       var tuple = State.Tuple;
@@ -319,16 +328,25 @@ namespace Xtensive.Storage
       OnRemove();
     }
 
-    internal void OnFieldChanged()
+    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
+    internal void UpdateVersionInternal()
     {
-      if (Type.GetVersionFields().Count==0
+      if ((!Type.HasVersionFields
+        && !Type.HasVersionRoots)
         || IsRemoved
         || State.IsVersionUpdated)
         return;
 
       try {
         State.IsVersionUpdated = true;
-        UpdateVersion();
+        if (!Type.HasVersionRoots)
+          UpdateVersion();
+        else
+          foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
+            if (root.Type.HasVersionRoots)
+              throw new NotSupportedException(Strings.ExVersionRootObjectCantImplementIHasVersionRoots);
+            root.UpdateVersionInternal();
+          }
       }
       catch {
         State.IsVersionUpdated = false;
@@ -413,7 +431,7 @@ namespace Xtensive.Storage
           // to avoid post-first property set flush.
           State.PersistenceState = PersistenceState.Modified;
         }
-      OnFieldChanged();
+      UpdateVersionInternal();
       
       if (Session.IsSystemLogicOnly)
         return;

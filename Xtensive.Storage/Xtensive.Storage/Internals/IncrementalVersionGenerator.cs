@@ -19,13 +19,13 @@ namespace Xtensive.Storage.Internals
       TypeCode code = Type.GetTypeCode(currentValue.GetType());
       switch (code) {
       case TypeCode.SByte:
-        return ((sbyte) currentValue) + 1;
+        return (sbyte) (((sbyte) currentValue) + 1);
       case TypeCode.Byte:
-        return ((byte) currentValue) + 1;
+        return (byte) (((byte) currentValue) + 1);
       case TypeCode.Int16:
-        return ((short) currentValue) + 1;
+        return (short) (((short) currentValue) + 1);
       case TypeCode.UInt16:
-        return ((ushort) currentValue) + 1;
+        return (ushort) (((ushort) currentValue) + 1);
       case TypeCode.Int32:
         return ((int) currentValue) + 1;
       case TypeCode.UInt32:

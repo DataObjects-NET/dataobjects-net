@@ -2422,6 +2422,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Version root object can&apos;t implement IHasVersionRoots..
+        /// </summary>
+        internal static string ExVersionRootObjectCantImplementIHasVersionRoots {
+            get {
+                return ResourceManager.GetString("ExVersionRootObjectCantImplementIHasVersionRoots", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to VisitKeyField is not supported by &apos;{0}&apos;..
         /// </summary>
         internal static string ExVisitKeyFieldIsNotSupportedByX {

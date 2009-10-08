@@ -31,7 +31,8 @@ namespace Xtensive.Storage.Building.Builders
       var typeInfo = new TypeInfo(context.Model, typeDef.Attributes) {
         UnderlyingType = typeDef.UnderlyingType,
         Name = typeDef.Name,
-        MappingName = typeDef.MappingName
+        MappingName = typeDef.MappingName,
+        HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type == typeof (IHasVersionRoots))
       };
       context.Model.Types.Add(typeInfo);
 

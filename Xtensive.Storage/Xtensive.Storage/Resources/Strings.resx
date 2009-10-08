@@ -1091,4 +1091,7 @@ Actions:
   <data name="ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot" xml:space="preserve">
     <value>Type '{0}' can't contains Version fields as it's not a HierarchyRoot.</value>
   </data>
+  <data name="ExVersionRootObjectCantImplementIHasVersionRoots" xml:space="preserve">
+    <value>Version root object can't implement IHasVersionRoots.</value>
+  </data>
 </root>

@@ -18,12 +18,12 @@ namespace Xtensive.Core.Tuples
   /// A helper struct allowing to serialize <see cref="Tuple"/> objects.
   /// </summary>
   [Serializable]
-  public struct SerializedTuple : ISerializable,
-    IDeserializationCallback,
-    IEquatable<SerializedTuple>
+  public struct SerializedTuple : IEquatable<SerializedTuple>
   {
     [Serializable] private sealed class NotAvailable { }
     private readonly static NotAvailable notAvailableInstance = new NotAvailable();
+    [NonSerialized]
+    private Tuple tuple;
 
     private object value;
 
@@ -32,7 +32,12 @@ namespace Xtensive.Core.Tuples
     /// </summary>
     public Tuple Value {
       [DebuggerStepThrough]
-      get { return value as Tuple; }
+      get
+      {
+        if (tuple==null && value!=null)
+          Deserialize();
+        return tuple;
+      }
     }
 
     #region Equals, GetHashCode, ==, !=
@@ -88,40 +93,47 @@ namespace Xtensive.Core.Tuples
     /// <param name="value">The <see cref="Value"/> property value.</param>
     public SerializedTuple(Tuple value)
     {
-      this.value = value;
+      tuple = value;
+      this.value = null;
     }
 
+
     // Serialization
-    
-    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
-    public void GetObjectData(SerializationInfo info, StreamingContext context)
+
+    [OnSerializing]
+    internal void OnSerializing(StreamingContext context)
     {
       var tuple = Value;
-      if (tuple==null) {
-        info.AddValue("Value", null, typeof(object));
+      if (tuple==null)
         return;
-      }
 
       var count = tuple.Count;
       var p = new Pair<Type[], object[]>(tuple.Descriptor.ToArray(), new object[count]);
       for (int i = 0; i < count; i++) {
         TupleFieldState state;
         var fieldValue = tuple.GetValue(i, out state);
-        p.Second[i] = state.IsAvailable() 
-          ? fieldValue 
+        p.Second[i] = state.IsAvailable()
+          ? state.IsNull()
+            ? null
+            : fieldValue
           : notAvailableInstance;
       }
-      info.AddValue("Value", p, typeof(object));
+      value = p;
     }
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
-    private SerializedTuple(SerializationInfo info, StreamingContext context)
+    [OnSerialized]
+    internal void OnSerialized(StreamingContext context)
     {
-      value = info.GetValue("Value", typeof(object));
+      value = null;
     }
 
-    /// <inheritdoc/>
-    public void OnDeserialization(object sender)
+    [OnDeserialized]
+    internal void OnDeserialized(StreamingContext context)
+    {
+      Deserialize();
+    }
+
+    private void Deserialize()
     {
       if (value==null || value.GetType()!=typeof(Pair<Type[], object[]>))
         return;
@@ -129,11 +141,16 @@ namespace Xtensive.Core.Tuples
       var tuple = Tuple.Create(p.First);
       var count = tuple.Count;
       for (int i = 0; i < count; i++) {
+        if (p.Second[i]==null) {
+          tuple.SetValue(i, null);
+          continue;
+        }
         if (p.Second[i].GetType()==typeof(NotAvailable))
           continue;
         tuple.SetValue(i, p.Second.GetValue(i));
       }
-      value = tuple;
+      this.tuple = tuple;
+      value = null;
     }
   }
 }

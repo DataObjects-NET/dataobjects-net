@@ -57,6 +57,7 @@ namespace Xtensive.Storage.Model
     private MapTransform                       primaryKeyInjector;
     private bool                               isLeaf;
     private KeyInfo                            keyInfo;
+    private bool                               hasVersionRoots;
 
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
@@ -251,6 +252,22 @@ namespace Xtensive.Storage.Model
     public MapTransform VersionExtractor { get; private set;}
 
     /// <summary>
+    /// Gets or sets a value indicating whether this instance has version roots.
+    /// </summary>
+    public bool HasVersionRoots{
+      [DebuggerStepThrough]
+      get { return hasVersionRoots; }
+      [DebuggerStepThrough]
+      set
+      {
+        this.EnsureNotLocked();
+        hasVersionRoots = value;
+      }
+    }
+
+    public bool HasVersionFields { get; private set; }
+
+    /// <summary>
     /// Creates the tuple prototype with specified <paramref name="primaryKey"/>.
     /// </summary>
     /// <param name="primaryKey">The primary key to use.</param>
@@ -393,8 +410,7 @@ namespace Xtensive.Storage.Model
       if (IsLocked)
         return versionFields;
 
-      var list = Fields.Where(field => field.IsVersion)
-        .ToList();
+      var list = Fields.Where(field => field.IsVersion).ToList();
       return list.Count > 0 ? list : new List<FieldInfo>();
     }
 
@@ -408,7 +424,7 @@ namespace Xtensive.Storage.Model
         return versionColumns;
 
       var versionFields = GetVersionFields();
-      if (versionFields.Count > 0)
+      if (versionFields.Count>0)
         return
           versionFields
             .SelectMany(field => field.Columns)
@@ -458,11 +474,18 @@ namespace Xtensive.Storage.Model
         BuildTuplePrototype();
       
       if (IsEntity) {
-        versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
-        versionColumns = new ReadOnlyList<Pair<ColumnInfo, int>>(GetVersionColumns());
-        CreateVersionExtractor();
+        if (!HasVersionRoots) {
+          versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
+          versionColumns = new ReadOnlyList<Pair<ColumnInfo, int>>(GetVersionColumns());
+          CreateVersionExtractor();
+        }
+        else {
+          versionFields = new ReadOnlyList<FieldInfo>(new List<FieldInfo>());
+          versionColumns = new ReadOnlyList<Pair<ColumnInfo, int>>(new List<Pair<ColumnInfo, int>>());
+        }
+        HasVersionFields = versionFields.Count > 0;
       }
-
+        
       // Selecting master parts from paired associations & single associations
       var associations = model.Associations.Find(this).Where(a => a.IsMaster).ToList();
 

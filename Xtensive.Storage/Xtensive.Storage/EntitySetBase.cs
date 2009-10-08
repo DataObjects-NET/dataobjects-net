@@ -155,7 +155,7 @@ namespace Xtensive.Storage
         GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
 
       State.Add(item.Key);
-      Owner.OnFieldChanged();
+      Owner.UpdateVersionInternal();
       NotifyAdd(item);
 
       return true;
@@ -186,7 +186,7 @@ namespace Xtensive.Storage
       }
 
       State.Remove(item.Key);
-      Owner.OnFieldChanged();
+      Owner.UpdateVersionInternal();
       NotifyRemove(item);
 
       return true;
