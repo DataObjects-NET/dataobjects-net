@@ -58,6 +58,8 @@ namespace Xtensive.Storage.Internals
 
     public void ExecuteTasks()
     {
+      if (taskContainers.Count == 0)
+        return;
       try {
         foreach (var taskContainer in taskContainers) {
           if (taskContainer.EntityPrefetchTask!=null)
@@ -138,8 +140,6 @@ namespace Xtensive.Storage.Internals
       var currentKey = key;
       if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out entityTuple))
         return;
-      /*var descriptors = key.Hierarchy.Root.Fields.Where(PrefetchTask.IsFieldToBeLoadedByDefault)
-        .Select(field => new PrefetchFieldDescriptor(field, false));*/
       CreateTasks(currentKey, type, descriptors, true, entityTuple);
     }
 
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Internals
       if (record==null) {
         bool isRemoved;
         var cachedEntityState = GetCachedEntityState(key, out isRemoved);
-        if (task.ExactType && !isRemoved && cachedEntityState != null && cachedEntityState.Type == type) {
+        if (task.ExactType && !isRemoved && (cachedEntityState == null || cachedEntityState.Type == type)) {
           // Ensures there will be "removed" EntityState associated with this key
           Owner.RegisterEntityState(task.Key, null);
         }

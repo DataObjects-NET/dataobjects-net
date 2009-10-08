@@ -15,7 +15,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Contains extension methods allowing prefetch fields of an <see cref="Entity"/>.
   /// </summary>
-  public static class PrefetchingEnumerableExtensions
+  public static class PrefetchEnumerableExtensions
   {
     /// <summary>
     /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified source.
@@ -29,7 +29,7 @@ namespace Xtensive.Storage
       Func<TElement, Key> keyExtractor)
       where T : Entity
     {
-      return new Prefetcher<T, TElement>(source, keyExtractor, true);
+      return new Prefetcher<T, TElement>(source, keyExtractor);
     }
 
     /// <summary>

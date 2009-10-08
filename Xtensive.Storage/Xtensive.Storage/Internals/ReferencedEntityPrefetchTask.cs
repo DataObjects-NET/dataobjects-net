@@ -37,8 +37,11 @@ namespace Xtensive.Storage.Internals
     {
       if (!IsActive) {
         EntityState ownerState;
-        if (!Processor.Owner.TryGetEntityState(ownerKey, out ownerState)
-          || ownerState.Tuple == null || ownerState.PersistenceState == PersistenceState.Removed)
+        var isStateCached = Processor.Owner.TryGetEntityState(ownerKey, out ownerState);
+        if (isStateCached
+          && (ownerState.Tuple == null || ownerState.PersistenceState == PersistenceState.Removed))
+          return;
+        if (!isStateCached)
           throw new KeyNotFoundException(
             String.Format(Strings.ExReferencingEntityWithKeyXIsNotFound, ownerKey));
         if (!ownerState.IsTupleLoaded)
