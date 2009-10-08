@@ -230,10 +230,6 @@ namespace Xtensive.Storage.Tests.Storage
           transactionScope.Complete();
         }
       }
-
-      var clone = (VersionInfo) LegacyBinarySerializer.Instance.Clone(itemVersion);
-      Assert.IsFalse(clone.IsVoid);
-      Assert.IsTrue(itemVersion==clone);
     }
 
     [Test]

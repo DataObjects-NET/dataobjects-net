@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Tests.Model
     }
     
     [Test]
-    public void VersionInfoSerializationTest()
+    public void SerializeVersionInfoTest()
     {
       var domain = BuildDomain("Xtensive.Storage.Tests.Model.VersionInfoTests.ValidModel");
       Key key;
