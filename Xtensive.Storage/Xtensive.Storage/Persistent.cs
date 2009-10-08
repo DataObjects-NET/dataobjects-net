@@ -288,7 +288,7 @@ namespace Xtensive.Storage
     /// </remarks>
     protected virtual void OnGetFieldValue(FieldInfo field, object value)
     {
-    }
+    } 
 
     /// <summary>
     /// Called before field value is about to be changed.

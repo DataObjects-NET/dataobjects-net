@@ -35,9 +35,11 @@ namespace Xtensive.Storage
     {
       if (IsPersisting)
         return;
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
-        IsPersisting = true;
-        try {
+      IsPersisting = true;
+      NotifyPersisting();
+
+      try {
+        using (CoreServices.OpenSystemLogicOnlyRegion()) {
           EnsureNotDisposed();
 
           if (EntityChangeRegistry.Count==0)
@@ -45,7 +47,6 @@ namespace Xtensive.Storage
 
           if (IsDebugEventLoggingEnabled)
             Log.Debug("Session '{0}'. Persisting...", this);
-          NotifyPersisting();
 
           try {
             Handler.Persist(EntityChangeRegistry, dirty);
@@ -61,13 +62,12 @@ namespace Xtensive.Storage
 
             if (IsDebugEventLoggingEnabled)
               Log.Debug("Session '{0}'. Persisted.", this);
-
-            NotifyPersist();
           }
         }
-        finally {
-          IsPersisting = false;
-        }
+        NotifyPersisted();
+      }
+      finally {
+        IsPersisting = false;
       }
     }
   }

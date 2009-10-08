@@ -196,14 +196,12 @@ namespace Xtensive.Storage
       EnsureNotRemoved();
       using (var region = Validation.Disable()) {
         NotifyRemoving();
-        Session.NotifyRemovingEntity(this);
 
         if (Session.IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
         Session.RemovalProcessor.Remove(this);
 
         NotifyRemove();
-        Session.NotifyRemoveEntity(this);
 
         region.Complete();
       }
@@ -311,6 +309,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
+      Session.NotifyEntityRemoving(this);
       var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntityEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key>) subscriptionInfo.Second)
@@ -322,6 +321,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
+      Session.NotifyEntityRemoved(this);
       var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntityEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
@@ -388,8 +388,11 @@ namespace Xtensive.Storage
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, fieldInfo);
       EnsureIsFetched(fieldInfo);
+
       if (Session.IsSystemLogicOnly)
         return;
+
+      Session.NotifyFieldValueReading(this, fieldInfo);
       var subscriptionInfo = GetSubscription(EntityEventBroker.GettingFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo>) subscriptionInfo.Second)
@@ -401,6 +404,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
+      Session.NotifyFieldValueRead(this, field, value);
       var subscriptionInfo = GetSubscription(EntityEventBroker.GetFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object>) subscriptionInfo.Second)
@@ -417,6 +421,7 @@ namespace Xtensive.Storage
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
       if (Session.IsSystemLogicOnly)
         return;
+      Session.NotifyFieldValueChanging(this, field, value);
       var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
@@ -435,6 +440,7 @@ namespace Xtensive.Storage
       
       if (Session.IsSystemLogicOnly)
         return;
+      Session.NotifyFieldValueChanged(this, field, oldValue, newValue);
       var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object, object>) subscriptionInfo.Second)
@@ -492,7 +498,7 @@ namespace Xtensive.Storage
       Key key = Key.Create(GetTypeInfo());
       State = Session.CreateEntityState(key);
       NotifyInitializing();
-      Session.NotifyCreateEntity(this);
+      Session.NotifyEntityCreated(this);
       this.Validate();
     }
 
@@ -503,7 +509,7 @@ namespace Xtensive.Storage
       Key key = Key.Create(GetTypeInfo(), keyTuple, true);
       State = Session.CreateEntityState(key);
       NotifyInitializing();
-      // TODO: Add Session.NotifyCreateEntity()?
+      // TODO: Add Session.NotifyEntityCreated()?
       this.Validate();
     }
 
@@ -530,7 +536,7 @@ namespace Xtensive.Storage
       Key key = Key.Create(GetTypeInfo(), true, values);
       State = Session.CreateEntityState(key);
       NotifyInitializing();
-      Session.NotifyCreateEntity(this);
+      Session.NotifyEntityCreated(this);
       this.Validate();
     }
 

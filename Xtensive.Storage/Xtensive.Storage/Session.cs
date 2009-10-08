@@ -162,42 +162,6 @@ namespace Xtensive.Storage
       }
     }
 
-    private void NotifyDisposing()
-    {
-      if (!IsSystemLogicOnly && OnDisposing!=null)
-        OnDisposing(this, EventArgs.Empty);
-    }
-
-    private void NotifyPersisting()
-    {
-      if (!IsSystemLogicOnly && OnPersisting!=null)
-        OnPersisting(this, EventArgs.Empty);
-    }
-
-    private void NotifyPersist()
-    {
-      if (!IsSystemLogicOnly && OnPersist!=null)
-        OnPersist(this, EventArgs.Empty);
-    }
-
-    internal void NotifyCreateEntity(Entity entity)
-    {
-      if (!IsSystemLogicOnly && OnCreateEntity!=null)
-        OnCreateEntity(this, new EntityEventArgs(entity));
-    }
-
-    internal void NotifyRemovingEntity(Entity entity)
-    {
-      if (!IsSystemLogicOnly && OnRemovingEntity!=null)
-        OnRemovingEntity(this, new EntityEventArgs(entity));
-    }
-
-    internal void NotifyRemoveEntity(Entity entity)
-    {
-      if (!IsSystemLogicOnly && OnRemoveEntity!=null)
-        OnRemoveEntity(this, new EntityEventArgs(entity));
-    }
-
     #endregion
 
     /// <summary>
