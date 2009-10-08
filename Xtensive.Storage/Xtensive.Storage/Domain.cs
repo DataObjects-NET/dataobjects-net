@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.ConstrainedExecution;
+using Microsoft.Practices.ServiceLocation;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
@@ -41,6 +42,8 @@ namespace Xtensive.Storage
 
     internal readonly ThreadSafeDictionary<object, object> cache =
       ThreadSafeDictionary<object, object>.Create(new object());
+
+    private DomainServiceLocator serviceLocator;
 
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
@@ -194,6 +197,17 @@ namespace Xtensive.Storage
       T1 argument1, T2 argument2)
     {
       return cache.GetValue(key, generator, argument1, argument2);
+    }
+
+    /// <summary>
+    /// Gets the domain service provider.
+    /// </summary>
+    public DomainServiceLocator Services {
+      get {
+        if (serviceLocator==null)
+          serviceLocator = new DomainServiceLocator();
+        return serviceLocator;
+      }
     }
 
     #region Private \ internal members

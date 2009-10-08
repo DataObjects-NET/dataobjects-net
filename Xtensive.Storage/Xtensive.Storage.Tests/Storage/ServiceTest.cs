@@ -48,9 +48,6 @@ namespace Xtensive.Storage.Tests.Storage
       // Building Unity container
       Container = BuildContainer();
 
-      // Setting container to ambient service locator
-      ServiceLocator.SetLocatorProvider(GetServiceLocator);
-
       base.TestFixtureSetUp();
     }
 
@@ -64,6 +61,9 @@ namespace Xtensive.Storage.Tests.Storage
     protected override Domain BuildDomain(Xtensive.Storage.Configuration.DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
+
+      // Setting container to ambient service locator
+      domain.Services.SetLocatorProvider(GetServiceLocator);
 
       // Singing up to SessionOpen event to set and configure SessionBound container
       domain.SessionOpen += domain_SessionOpen;

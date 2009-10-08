@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Practices.ServiceLocation;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;

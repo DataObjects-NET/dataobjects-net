@@ -1,21 +1,19 @@
 // Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alexey Kochetov
-// Created:    2008.11.15
+// Created by: Dmitri Maximov
+// Created:    2009.10.08
 
 using System;
 using System.Collections.Generic;
 using Microsoft.Practices.ServiceLocation;
-using Xtensive.Core.Aspects;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Provides access to services.
+  /// Provides access to domain-level services.
   /// </summary>
-  public sealed class SessionServiceLocator : SessionBound,
-    IServiceLocator
+  public sealed class DomainServiceLocator : IServiceLocator
   {
     private IServiceLocator locator;
 
@@ -23,78 +21,58 @@ namespace Xtensive.Storage
     /// Set the delegate that is used to retrieve the current container.
     /// </summary>
     /// <param name="newProvider">Delegate that, when called, will return
-    /// the current session container.</param>
-    [Infrastructure]
+    /// the current domain container.</param>
     public void SetLocatorProvider(ServiceLocatorProvider newProvider)
     {
       locator = newProvider();
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public TService GetInstance<TService>()
     {
-      using (Session.Activate())
-        return GetLocator().GetInstance<TService>();
+      return locator.GetInstance<TService>();
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public TService GetInstance<TService>(string name)
     {
-      using (Session.Activate())
-        return GetLocator().GetInstance<TService>(name);
+      return locator.GetInstance<TService>(name);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public object GetInstance(Type type)
     {
-      using (Session.Activate())
-        return GetLocator().GetInstance(type);
+      return locator.GetInstance(type);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public object GetInstance(Type type, string name)
     {
-      using (Session.Activate())
-        return GetLocator().GetInstance(type, name);
+      return locator.GetInstance(type, name);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public IEnumerable<TService> GetAllInstances<TService>()
     {
-      using (Session.Activate())
-        return GetLocator().GetAllInstances<TService>();
+      return locator.GetAllInstances<TService>();
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public IEnumerable<object> GetAllInstances(Type serviceType)
     {
-      using (Session.Activate())
-        return GetLocator().GetAllInstances(serviceType);
+      return locator.GetAllInstances(serviceType);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public object GetService(Type serviceType)
     {
       return GetInstance(serviceType, null);
     }
 
-    private IServiceLocator GetLocator()
-    {
-      return locator ?? Session.Domain.Services;
-    }
-
 
     // Constructors
 
-    internal SessionServiceLocator(Session session)
-      : base(session)
+    internal DomainServiceLocator()
     {
     }
   }

@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests
 
     static AutoBuildTest()
     {
-      // Logging configuration
+      // Global logging configuration
       var section = (UnityConfigurationSection) ConfigurationManager.GetSection("Unity");
       container = new UnityContainer();
       section.Containers.Default.Configure(container);
