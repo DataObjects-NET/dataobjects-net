@@ -361,6 +361,7 @@ namespace Xtensive.Storage
     internal override sealed void NotifyInitializing()
     {
       if (!Session.IsSystemLogicOnly) {
+        Session.NotifyEntityCreated(this);
         var subscriptionInfo = GetSubscription(EntityEventBroker.InitializingPersistentEventKey);
         if (subscriptionInfo.Second!=null)
           ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
@@ -498,7 +499,6 @@ namespace Xtensive.Storage
       Key key = Key.Create(GetTypeInfo());
       State = Session.CreateEntityState(key);
       NotifyInitializing();
-      Session.NotifyEntityCreated(this);
       this.Validate();
     }
 
@@ -536,7 +536,6 @@ namespace Xtensive.Storage
       Key key = Key.Create(GetTypeInfo(), true, values);
       State = Session.CreateEntityState(key);
       NotifyInitializing();
-      Session.NotifyEntityCreated(this);
       this.Validate();
     }
 

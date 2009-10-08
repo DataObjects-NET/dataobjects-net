@@ -34,22 +34,22 @@ namespace Xtensive.Storage
     /// <summary>
     /// Occurs when field value is about to be read.
     /// </summary>
-    public event EventHandler<FieldEventArgs> FieldValueReading;
+    public event EventHandler<FieldEventArgs> EntityFieldReading;
 
     /// <summary>
     /// Occurs when field value is about to be read.
     /// </summary>
-    public event EventHandler<FieldValueEventArgs> FieldValueRead;
+    public event EventHandler<FieldValueEventArgs> EntityFieldRead;
 
     /// <summary>
     /// Occurs when is field value is about to be changed.
     /// </summary>
-    public event EventHandler<FieldValueEventArgs> FieldValueChanging;
+    public event EventHandler<FieldValueEventArgs> EntityFieldChanging;
 
     /// <summary>
     /// Occurs when field value was changed.
     /// </summary>
-    public event EventHandler<ChangeFieldValueEventArgs> FieldValueChanged;
+    public event EventHandler<ChangeFieldValueEventArgs> EntityFieldChanged;
 
     /// <summary>
     /// Occurs when <see cref="Entity"/> is about to remove.
@@ -69,7 +69,7 @@ namespace Xtensive.Storage
 
     private void NotifyDisposing()
     {
-      if (!IsSystemLogicOnly && Disposing!=null)
+      if (Disposing!=null)
         Disposing(this, EventArgs.Empty);
     }
 
@@ -87,32 +87,32 @@ namespace Xtensive.Storage
 
     internal void NotifyEntityCreated(Entity entity)
     {
-      if (!IsSystemLogicOnly && EntityCreated!=null)
+      if (EntityCreated!=null)
         EntityCreated(this, new EntityEventArgs(entity));
     }
 
     internal void NotifyFieldValueReading(Entity entity, FieldInfo field)
     {
-      if (FieldValueReading!=null)
-        FieldValueReading(this, new FieldEventArgs(entity, field));
+      if (EntityFieldReading!=null)
+        EntityFieldReading(this, new FieldEventArgs(entity, field));
     }
 
     internal void NotifyFieldValueRead(Entity entity, FieldInfo field, object value)
     {
-      if (FieldValueRead!=null)
-        FieldValueRead(this, new FieldValueEventArgs(entity, field, value));
+      if (EntityFieldRead!=null)
+        EntityFieldRead(this, new FieldValueEventArgs(entity, field, value));
     }
 
     internal void NotifyFieldValueChanging(Entity entity, FieldInfo field, object value)
     {
-      if (FieldValueChanging!=null)
-        FieldValueChanging(this, new FieldValueEventArgs(entity, field, value));
+      if (EntityFieldChanging!=null)
+        EntityFieldChanging(this, new FieldValueEventArgs(entity, field, value));
     }
 
     internal void NotifyFieldValueChanged(Entity entity, FieldInfo field, object oldValue, object newValue)
     {
-      if (FieldValueChanged!=null)
-        FieldValueChanged(this, new ChangeFieldValueEventArgs(entity, field, oldValue, newValue));
+      if (EntityFieldChanged!=null)
+        EntityFieldChanged(this, new ChangeFieldValueEventArgs(entity, field, oldValue, newValue));
     }
 
     internal void NotifyEntityRemoving(Entity entity)
@@ -123,7 +123,7 @@ namespace Xtensive.Storage
 
     internal void NotifyEntityRemoved(Entity entity)
     {
-      if (!IsSystemLogicOnly && EntityRemoved!=null)
+      if (EntityRemoved!=null)
         EntityRemoved(this, new EntityEventArgs(entity));
     }
   }

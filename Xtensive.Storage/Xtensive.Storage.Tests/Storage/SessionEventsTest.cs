@@ -48,10 +48,10 @@ namespace Xtensive.Storage.Tests.Storage
     private EntityEventArgs entityRemoving;
     private EntityEventArgs entityRemoved;
 
-    private FieldEventArgs fieldValueReadingArgs;
-    private FieldValueEventArgs fieldValueReadArgs;
-    private FieldValueEventArgs fieldValueChangingArgs;
-    private ChangeFieldValueEventArgs fieldValueChangedArgs;
+    private FieldEventArgs entityFieldReadingArgs;
+    private FieldValueEventArgs entityFieldReadArgs;
+    private FieldValueEventArgs entityFieldChangingArgs;
+    private ChangeFieldValueEventArgs entityFieldChangedArgs;
 
 
 
@@ -75,10 +75,10 @@ namespace Xtensive.Storage.Tests.Storage
       entityRemoving = null;
       entityRemoved = null;
 
-      fieldValueReadingArgs = null;
-      fieldValueReadArgs = null;
-      fieldValueChangingArgs = null;
-      fieldValueChangedArgs = null;
+      entityFieldReadingArgs = null;
+      entityFieldReadArgs = null;
+      entityFieldChangingArgs = null;
+      entityFieldChangedArgs = null;
     }
 
     [Test]
@@ -105,10 +105,10 @@ namespace Xtensive.Storage.Tests.Storage
         session.EntityRemoving += (sender, e) => entityRemoving = e;
         session.EntityRemoved += (sender, e) => entityRemoved = e;
 
-        session.FieldValueReading += (sender, e) => fieldValueReadingArgs = e;
-        session.FieldValueRead += (sender, e) => fieldValueReadArgs = e;
-        session.FieldValueChanging += (sender, e) => fieldValueChangingArgs = e;
-        session.FieldValueChanged += (sender, e) => fieldValueChangedArgs = e;
+        session.EntityFieldReading += (sender, e) => entityFieldReadingArgs = e;
+        session.EntityFieldRead += (sender, e) => entityFieldReadArgs = e;
+        session.EntityFieldChanging += (sender, e) => entityFieldChangingArgs = e;
+        session.EntityFieldChanged += (sender, e) => entityFieldChangedArgs = e;
 
         CommitTransaction();
         RollbackTransaction();
@@ -191,27 +191,27 @@ namespace Xtensive.Storage.Tests.Storage
 
         entity.Value = 2;
 
-        Assert.IsNotNull(fieldValueChangingArgs);
-        Assert.AreEqual(entity, fieldValueChangingArgs.Entity);
-        Assert.AreEqual(2, fieldValueChangingArgs.Value);
+        Assert.IsNotNull(entityFieldChangingArgs);
+        Assert.AreEqual(entity, entityFieldChangingArgs.Entity);
+        Assert.AreEqual(2, entityFieldChangingArgs.Value);
 
-        Assert.IsNotNull(fieldValueChangedArgs);
-        Assert.AreEqual(entity, fieldValueChangedArgs.Entity);
-        Assert.AreEqual(0, fieldValueChangedArgs.OldValue);
-        Assert.AreEqual(2, fieldValueChangedArgs.NewValue);
+        Assert.IsNotNull(entityFieldChangedArgs);
+        Assert.AreEqual(entity, entityFieldChangedArgs.Entity);
+        Assert.AreEqual(0, entityFieldChangedArgs.OldValue);
+        Assert.AreEqual(2, entityFieldChangedArgs.NewValue);
 
         ClearEvents();
 
         int value = entity.Value;
 
-        Assert.IsNull(fieldValueChangingArgs);
-        Assert.IsNull(fieldValueChangedArgs);
+        Assert.IsNull(entityFieldChangingArgs);
+        Assert.IsNull(entityFieldChangedArgs);
 
-        Assert.IsNotNull(fieldValueReadingArgs);
-        Assert.AreEqual(entity, fieldValueReadingArgs.Entity);
-        Assert.IsNotNull(fieldValueReadArgs);
-        Assert.AreEqual(entity, fieldValueReadArgs.Entity);
-        Assert.AreEqual(2, fieldValueReadArgs.Value);
+        Assert.IsNotNull(entityFieldReadingArgs);
+        Assert.AreEqual(entity, entityFieldReadingArgs.Entity);
+        Assert.IsNotNull(entityFieldReadArgs);
+        Assert.AreEqual(entity, entityFieldReadArgs.Entity);
+        Assert.AreEqual(2, entityFieldReadArgs.Value);
 
         ClearEvents();
 
