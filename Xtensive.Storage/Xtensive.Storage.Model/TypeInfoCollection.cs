@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Model
 
       HashSet<TypeInfo> result;
       if (!interfaceTable.TryGetValue(item, out result))
-        return Enumerable.Empty<TypeInfo>();
+        result = new HashSet<TypeInfo>();
 
       if (!recursive || item.IsInterface)
         return result;

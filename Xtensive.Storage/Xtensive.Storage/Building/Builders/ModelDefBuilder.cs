@@ -5,6 +5,7 @@
 // Created:    2009.05.20
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
@@ -25,10 +26,17 @@ namespace Xtensive.Storage.Building.Builders
 
         using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
           var typeFilter = GetTypeFilter();
+          var genericTypes = new List<Type>();
           foreach (var type in context.Configuration.Types) {
-            if (typeFilter.Invoke(type))
+            if (!typeFilter.Invoke(type)) 
+              continue;
+            if (type.IsGenericType || type.IsGenericTypeDefinition)
+              genericTypes.Add(type);
+            else
               ProcessType(type);
           }
+          foreach (var type in genericTypes)
+            ProcessType(type);
         }
       }
     }

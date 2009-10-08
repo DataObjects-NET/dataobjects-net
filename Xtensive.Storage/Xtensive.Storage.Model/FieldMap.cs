@@ -7,6 +7,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Model
@@ -21,12 +23,14 @@ namespace Xtensive.Storage.Model
     public FieldInfo this[FieldInfo interfaceField]
     {
       get { return map[interfaceField]; }
-      set { Add(interfaceField, value); }
     }
 
     public IEnumerable<FieldInfo> GetImplementedInterfaceFields(FieldInfo typeField)
     {
-      return reversedMap[typeField];
+      IList<FieldInfo> value;
+      if (!reversedMap.TryGetValue(typeField, out value))
+        return Enumerable.Empty<FieldInfo>();
+      return value;
     }
 
     public int Count
@@ -49,6 +53,15 @@ namespace Xtensive.Storage.Model
       }
       else
         reversedMap.Add(typeField, new List<FieldInfo> {interfaceField});
+    }
+
+    public void Override(FieldInfo interfaceField, FieldInfo typeField)
+    {
+      this.EnsureNotLocked();
+      var oldTypeField = map[interfaceField];
+      map[interfaceField] = typeField;
+      reversedMap.Remove(oldTypeField);
+      reversedMap.Add(typeField, new List<FieldInfo> { interfaceField });
     }
 
     public FieldInfo TryGetValue(FieldInfo interfaceField)

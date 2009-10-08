@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -19,9 +20,9 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildIndexes()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Indexes)) {
-        BuildingContext context = BuildingContext.Current;
+        var context = BuildingContext.Current;
         CreateInterfaceIndexes();
-        foreach (HierarchyInfo hierarchy in context.Model.Hierarchies) {
+        foreach (var hierarchy in context.Model.Hierarchies) {
           switch (hierarchy.Schema) {
           case InheritanceSchema.Default:
             BuildClassTableIndexes(hierarchy.Root);
@@ -44,62 +45,96 @@ namespace Xtensive.Storage.Building.Builders
     private static void CreateInterfaceIndexes()
     {
       var context = BuildingContext.Current;
-      foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface)) {
-        var interfaceDef = context.ModelDef.Types[@interface.UnderlyingType];
+      var processedInterfaces = new HashSet<TypeInfo>();
+      foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface))
+        CreateInterfaceIndexes(@interface, processedInterfaces);
+    }
+
+    private static void CreateInterfaceIndexes(TypeInfo @interface, ICollection<TypeInfo> processedInterfaces)
+    {
+      if (processedInterfaces.Contains(@interface))
+        return;
+
+      var context = BuildingContext.Current;
+      var interfaceDef = context.ModelDef.Types[@interface.UnderlyingType];
         
-        // Build virtual declared interface index
-        foreach (var indexDescriptor in interfaceDef.Indexes.Where(i => !i.IsPrimary)) {
-          var index = BuildIndex(@interface, indexDescriptor, false);
+      // Build virtual declared interface index
+      foreach (var indexDescriptor in interfaceDef.Indexes.Where(i => !i.IsPrimary)) {
+        var index = BuildIndex(@interface, indexDescriptor, false);
+
+        @interface.Indexes.Add(index);
+        if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
+          BuildingContext.Current.Model.RealIndexes.Add(index);
+      }
+
+      var interfaces = @interface.GetInterfaces();
+      foreach (var typeInfo in interfaces)
+        CreateInterfaceIndexes(typeInfo, processedInterfaces);
+
+
+      // Build virtual inherited interface index
+      foreach (var parent in interfaces)
+        foreach (var parentIndex in parent.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
+          var index = BuildInheritedIndex(@interface, parentIndex, false);
 
           @interface.Indexes.Add(index);
           if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
             BuildingContext.Current.Model.RealIndexes.Add(index);
         }
-
-        // Build virtual inherited interface index
-        foreach (var parent in @interface.GetInterfaces())
-          foreach (var parentIndex in parent.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
-            var index = BuildInheritedIndex(@interface, parentIndex, false);
-
-            @interface.Indexes.Add(index);
-            if ((@interface.Attributes & TypeAttributes.Materialized) != 0)
-              BuildingContext.Current.Model.RealIndexes.Add(index);
-          }
-      }
+      processedInterfaces.Add(@interface);
     }
 
     private static void BuildInterfaceIndexes()
     {
       var context = BuildingContext.Current;
       foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface)) {
-        var implementors = new List<TypeInfo>(@interface.GetImplementors(false));
+        var implementors = @interface.GetImplementors(false).ToList();
 
+        // Building primary indexes
         if (implementors.Count==1)
           @interface.Indexes.Add(implementors[0].Indexes.PrimaryIndex);
         else {
           var interfaceDef = context.ModelDef.Types[@interface.UnderlyingType];
-          var indexDef = interfaceDef.Indexes.Where(i => i.IsPrimary).Single();
+          var indexDef = interfaceDef.Indexes.Single(i => i.IsPrimary);
           var index = BuildIndex(@interface, indexDef, false);
           var lookup = implementors.ToLookup(t => t.Hierarchy);
           var underlyingIndexes = new List<IndexInfo>();
           foreach (var hierarchy in lookup) {
             var underlyingIndex = BuildIndex(@interface, indexDef, false);
+            var hierarchyImplementors = hierarchy.ToHashSet();
             switch (hierarchy.Key.Schema) {
-              case InheritanceSchema.Default: {
-                var primaryIndexes = implementors.Select(t => t.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary)).ToList();
-                underlyingIndex.UnderlyingIndexes.AddRange(primaryIndexes);
+              case InheritanceSchema.ClassTable: {
+                foreach (var implementor in hierarchy) {
+                  var primaryIndex = implementor.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
+                  var filterByTypes = new List<TypeInfo>();
+                  if (!implementor.IsAbstract)
+                    filterByTypes.Add(implementor);
+                  filterByTypes.AddRange(GatherDescendants(implementor, hierarchyImplementors));
+                  var filterIndex = BuildFilterIndex(implementor, primaryIndex, filterByTypes);
+                  var indexView = BuildViewIndex(@interface, filterIndex);
+                  underlyingIndex.UnderlyingIndexes.Add(indexView);
+                }
                 break;
               }
               case InheritanceSchema.SingleTable: {
-                underlyingIndex.UnderlyingIndexes.Add(hierarchy.Key.Root.Indexes.PrimaryIndex);
-                underlyingIndex.Attributes = (underlyingIndex.Attributes & ~IndexAttributes.Union) | IndexAttributes.Filtered;
+                var primaryIndex = hierarchy.Key.Root.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
+                foreach (var implementor in hierarchy) {
+                  var typesToFilter = new List<TypeInfo>();
+                  if (!implementor.IsAbstract)
+                    typesToFilter.Add(implementor);
+                  typesToFilter.AddRange(GatherDescendants(implementor, hierarchyImplementors));
+                  var filterIndex = BuildFilterIndex(implementor, primaryIndex, typesToFilter);
+                  var indexView = BuildViewIndex(@interface, filterIndex);
+                  underlyingIndex.UnderlyingIndexes.Add(indexView);
+                }
                 break;
               }
               case InheritanceSchema.ConcreteTable: {
                 var grouping = hierarchy;
                 var primaryIndexes = @interface.GetImplementors(true)
                   .Where(t => t.Hierarchy == grouping.Key)
-                  .Select(t => t.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary));
+                  .Select(t => t.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary))
+                  .Select(i => BuildViewIndex(@interface, i));
                 underlyingIndex.UnderlyingIndexes.AddRange(primaryIndexes);
                 break;
               }
@@ -116,36 +151,43 @@ namespace Xtensive.Storage.Building.Builders
             BuildingContext.Current.Model.RealIndexes.Add(index);
         }
 
+        // Building secondary virtual indexes
         foreach (var index in @interface.Indexes.Where(i=>i.IsVirtual && !i.IsPrimary)) {
           var localIndex = index;
           var lookup = implementors.ToLookup(t => t.Hierarchy);
           var underlyingIndexes = new List<IndexInfo>();
           foreach (var hierarchy in lookup) {
+            var hierarchyImplementors = hierarchy.ToHashSet();
             switch (hierarchy.Key.Schema) {
-              case InheritanceSchema.Default: {
+              case InheritanceSchema.ClassTable: {
                 var underlyingIndex = index.Clone();
-                var indexes = implementors.SelectMany(t => t.Indexes.Where(i => i.DeclaringIndex==localIndex)).ToList();
+                var indexes = implementors.SelectMany(t => t.Indexes.Where(i => i.DeclaringIndex==localIndex.DeclaringIndex && !i.IsVirtual));
                 underlyingIndex.UnderlyingIndexes.AddRange(indexes);
                 underlyingIndexes.Add(underlyingIndex);
                 break;
               }
               case InheritanceSchema.SingleTable: {
-                var rootIndexes = hierarchy.Key.Root.Indexes.Where(i => i.DeclaringIndex==localIndex).ToList();
+                var rootIndexes = hierarchy.Key.Root.Indexes.Where(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual);
+                var underlyingIndex = index.Clone();
                 foreach (var rootIndex in rootIndexes) {
-                  var underlyingIndex = index.Clone();
-                  underlyingIndex.Attributes = (underlyingIndex.Attributes & ~IndexAttributes.Union) | IndexAttributes.Filtered;
+                  var typesToFilter = new List<TypeInfo>();
+                  var reflectedType = rootIndex.ReflectedType;
+                  if (!reflectedType.IsAbstract)
+                    typesToFilter.Add(reflectedType);
+                  typesToFilter.AddRange(GatherDescendants(reflectedType, hierarchyImplementors));
+                  var filterIndex = BuildFilterIndex(reflectedType, rootIndex, typesToFilter);
                   underlyingIndex.UnderlyingIndexes.Add(rootIndex);
-                  underlyingIndexes.Add(underlyingIndex);
                 }
+                underlyingIndexes.Add(underlyingIndex);
                 break;
               }
               case InheritanceSchema.ConcreteTable: {
                 var underlyingIndex = index.Clone();
                 var grouping = hierarchy;
-                var primaryIndexes = @interface.GetImplementors(true)
+                var indexes = @interface.GetImplementors(true)
                   .Where(t => t.Hierarchy == grouping.Key)
-                  .Select(t => t.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary));
-                underlyingIndex.UnderlyingIndexes.AddRange(primaryIndexes);
+                  .Select(t => t.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual));
+                underlyingIndex.UnderlyingIndexes.AddRange(indexes);
                 underlyingIndexes.Add(underlyingIndex);
                 break;
               }
@@ -154,6 +196,7 @@ namespace Xtensive.Storage.Building.Builders
           if (underlyingIndexes.Count == 1) {
             var firstUnderlyingIndex = underlyingIndexes.First();
             index.Attributes = firstUnderlyingIndex.Attributes;
+            index.FilterByTypes = firstUnderlyingIndex.FilterByTypes;
             index.UnderlyingIndexes.AddRange(firstUnderlyingIndex.UnderlyingIndexes);
           }
           else
@@ -164,7 +207,7 @@ namespace Xtensive.Storage.Building.Builders
 
     #endregion
 
-    #region Build IndexInfo methods
+    #region Build index methods
 
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     private static IndexInfo BuildIndex(TypeInfo typeInfo, IndexDef indexDef, bool buildAbstract)
@@ -179,8 +222,8 @@ namespace Xtensive.Storage.Building.Builders
         attributes |= IndexAttributes.Real;
 
       var result = new IndexInfo(typeInfo, attributes) {
-        FillFactor = indexDef.FillFactor, 
-        ShortName = indexDef.Name, 
+        FillFactor = indexDef.FillFactor,
+        ShortName = indexDef.Name,
         MappingName = indexDef.MappingName
       };
 
@@ -238,7 +281,7 @@ namespace Xtensive.Storage.Building.Builders
         var columns = new List<ColumnInfo>();
         columns.AddRange(result.IncludedColumns);
         columns.AddRange(types.SelectMany(t => t.Columns.Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None)));
-        result.ValueColumns.AddRange(GetValueColumns(columns));
+        result.ValueColumns.AddRange(GatherValueColumns(columns));
       }
       else {
         foreach (var column in typeInfo.Columns.Where(c => c.IsPrimaryKey)) {
@@ -268,7 +311,7 @@ namespace Xtensive.Storage.Building.Builders
       if (buildAbstract)
         attributes = attributes | IndexAttributes.Abstract;
 
-      var result = new IndexInfo(reflectedType, ancestorIndex, attributes);
+      var result = new IndexInfo(reflectedType, attributes, ancestorIndex);
       var useFieldMap = ancestorIndex.ReflectedType.IsInterface && !reflectedType.IsInterface;
 
       // Adding key columns
@@ -320,107 +363,246 @@ namespace Xtensive.Storage.Building.Builders
       return result;
     }
 
-    private static IndexInfo BuildVirtualIndex(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo baseIndex, params IndexInfo[] baseIndexes)
-    {
-      Log.Info(Strings.LogBuildingIndexX, baseIndex.Name);
-      var nameBuilder = BuildingContext.Current.NameBuilder;
-      var attributes = baseIndex.Attributes 
-        & ~(IndexAttributes.Abstract | IndexAttributes.Join | IndexAttributes.Union | IndexAttributes.Filtered | IndexAttributes.Real) 
-        | indexAttributes | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, baseIndex, baseIndexes);
+    #endregion
 
-      var allBaseIndexes = new List<IndexInfo> { baseIndex };
-      allBaseIndexes.AddRange(baseIndexes);
+    #region Build virtual index methods
+
+    private static IndexInfo BuildFilterIndex(TypeInfo reflectedType, IndexInfo indexToFilter, IEnumerable<TypeInfo> filterByTypes)
+    {
+      var nameBuilder = BuildingContext.Current.NameBuilder;
+      var attributes = indexToFilter.Attributes
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.FullText)
+        | IndexAttributes.Filtered | IndexAttributes.Virtual;
+      var result = new IndexInfo(reflectedType, attributes, indexToFilter, ArrayUtils<IndexInfo>.EmptyArray) {FilterByTypes = filterByTypes.ToList()};
 
       // Adding key columns
-      foreach (KeyValuePair<ColumnInfo, Direction> pair in baseIndex.KeyColumns) {
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in indexToFilter.KeyColumns) {
         var field = reflectedType.Fields[pair.Key.Field.Name];
         result.KeyColumns.Add(field.Column, pair.Value);
       }
 
-      var useFieldMap = baseIndex.ReflectedType.IsInterface && !reflectedType.IsInterface;
-
       // Adding included columns
-      foreach (var column in baseIndex.IncludedColumns) {
-        var field = useFieldMap ?
-          reflectedType.FieldMap[column.Field] :
-          reflectedType.Fields[column.Field.Name];
+      foreach (var column in indexToFilter.IncludedColumns) {
+        var field = reflectedType.Fields[column.Field.Name];
         result.IncludedColumns.Add(field.Column);
       }
 
       // Adding value columns
-      if ((indexAttributes & IndexAttributes.Join) > 0)
-        result.ValueColumns.AddRange(GetValueColumns(allBaseIndexes.SelectMany(i => i.ValueColumns)));
-      else if ((indexAttributes & IndexAttributes.Filtered) > 0) {
-        var types = reflectedType.GetAncestors().ToList();
-        types.Add(reflectedType);
-        types.AddRange(reflectedType.GetDescendants(true));
-        var columns = types.SelectMany(t => t.Columns.Find(ColumnAttributes.Declared)).ToList();
-        var columnsToAdd = new List<ColumnInfo>();
-        foreach (var indexColumn in baseIndex.ValueColumns)
-          for (int i = 0; i < columns.Count; i++) {
-            var column = columns[i];
-            if (column.Equals(indexColumn)) {
-              columnsToAdd.Add(column);
-              columns.RemoveAt(i);
-              break;
-            }
-          }
-        result.ValueColumns.AddRange(GetValueColumns(columnsToAdd));
-      }
-      else if ((indexAttributes & IndexAttributes.Union) > 0) {
-//        var ancestors = reflectedType.GetAncestors().AddOne(reflectedType).ToHashSet();
-//        var columns = new List<ColumnInfo>(baseIndex.ValueColumns);
-//        var columnsToAdd = baseIndexes
-//          .SelectMany(i => i.ValueColumns)
-//          .Where(c => ancestors.Contains(c.Field.DeclaringType))
-//          .ToList();
-//        foreach (var column in columnsToAdd) {
-//          bool exists = false;
-//          foreach (var existingColumn in columns)
-//            if (column.Field.Name == existingColumn.Field.Name && column.Field.DeclaringType == existingColumn.Field.DeclaringType)
-//            {
-//              exists = true;
-//              break;
-//            }
-//          if (!exists)
-//            columns.Add(column);
-//        }
-        result.ValueColumns.AddRange(GetValueColumns(baseIndex.ValueColumns));
-      }
+      result.ValueColumns.AddRange(indexToFilter.ValueColumns);
+
+//      var types = reflectedType.GetAncestors()
+//        .AddOne(reflectedType)
+//        .ToHashSet();
+//
+//      foreach (var column in indexToFilter.ValueColumns) {
+//        var field = column.Field;
+//        if (!types.Contains(field.ReflectedType)) 
+//          continue;
+//        if (field.IsExplicit && field.DeclaringType != reflectedType) 
+//          continue;
+//        result.ValueColumns.Add(column);
+//      }
 
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
 
-      foreach (var index in allBaseIndexes)
+      return result;
+    }
+
+    private static IndexInfo BuildJoinIndex(TypeInfo reflectedType, IEnumerable<IndexInfo> indexesToJoin)
+    {
+      var nameBuilder = BuildingContext.Current.NameBuilder;
+      var firstIndex = indexesToJoin.First();
+      var otherIndexes = indexesToJoin.Skip(1).ToArray();
+      var attributes = firstIndex.Attributes
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.FullText)
+        | IndexAttributes.Join | IndexAttributes.Virtual;
+      var result = new IndexInfo(reflectedType, attributes, firstIndex, otherIndexes);
+
+      // Adding key columns
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in firstIndex.KeyColumns) {
+        var field = reflectedType.Fields[pair.Key.Field.Name];
+        result.KeyColumns.Add(field.Column, pair.Value);
+      }
+
+      // Adding included columns
+      foreach (var column in firstIndex.IncludedColumns) {
+        var field = reflectedType.Fields[column.Field.Name];
+        result.IncludedColumns.Add(field.Column);
+      }
+
+      // Adding value columns
+      var types = reflectedType.GetAncestors()
+        .AddOne(reflectedType)
+        .ToHashSet();
+
+      var columnsToAdd = new List<ColumnInfo>();
+      foreach (var column in indexesToJoin.SelectMany(i => i.ValueColumns)) {
+        var field = column.Field;
+        if (!types.Contains(field.DeclaringType)) 
+          continue;
+        if (field.IsExplicit) {
+          var ancestor = reflectedType;
+          var skip = false;
+          while (ancestor != field.DeclaringType ) {
+            FieldInfo ancestorField;
+            if (ancestor.Fields.TryGetValue(field.Name, out ancestorField))
+              skip = ancestorField.IsDeclared;
+            if (skip)
+              break;
+            ancestor = ancestor.GetAncestor();
+          }
+          if (skip)
+            continue;
+        }
+        columnsToAdd.Add(column);
+      }
+
+      result.ValueColumns.AddRange(GatherValueColumns(columnsToAdd));
+
+      result.Name = nameBuilder.BuildIndexName(reflectedType, result);
+      result.Group = BuildColumnGroup(result);
+
+      foreach (var index in indexesToJoin)
         if ((index.Attributes & IndexAttributes.Abstract) == IndexAttributes.Abstract)
           result.UnderlyingIndexes.Remove(index);
 
       return result;
     }
 
+    private static IndexInfo BuildUnionIndex(TypeInfo reflectedType, IEnumerable<IndexInfo> indexesToUnion)
+    {
+      var nameBuilder = BuildingContext.Current.NameBuilder;
+      var firstIndex = indexesToUnion.First();
+      var otherIndexes = indexesToUnion.Skip(1).ToArray();
+      var attributes = firstIndex.Attributes
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.FullText)
+        | IndexAttributes.Union | IndexAttributes.Virtual;
+      var result = new IndexInfo(reflectedType, attributes, firstIndex, otherIndexes);
+
+      // Adding key columns
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in firstIndex.KeyColumns) {
+        var field = reflectedType.Fields[pair.Key.Field.Name];
+        result.KeyColumns.Add(field.Column, pair.Value);
+      }
+
+      // Adding included columns
+      foreach (var column in firstIndex.IncludedColumns) {
+        var field = reflectedType.Fields[column.Field.Name];
+        result.IncludedColumns.Add(field.Column);
+      }
+
+      // Adding value columns
+      result.ValueColumns.AddRange(firstIndex.ValueColumns);
+
+      result.Name = nameBuilder.BuildIndexName(reflectedType, result);
+      result.Group = BuildColumnGroup(result);
+
+      foreach (var index in indexesToUnion)
+        if ((index.Attributes & IndexAttributes.Abstract) == IndexAttributes.Abstract)
+          result.UnderlyingIndexes.Remove(index);
+
+      return result;
+    }
+
+    private static IndexInfo BuildViewIndex(TypeInfo reflectedType, IndexInfo indexToApplyView)
+    {
+      var nameBuilder = BuildingContext.Current.NameBuilder;
+      var attributes = indexToApplyView.Attributes
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.FullText)
+        | IndexAttributes.View | IndexAttributes.Virtual;
+      var result = new IndexInfo(reflectedType, attributes, indexToApplyView, ArrayUtils<IndexInfo>.EmptyArray);
+
+      // Adding key columns
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in indexToApplyView.KeyColumns) {
+        var field = reflectedType.Fields[pair.Key.Field.Name];
+        result.KeyColumns.Add(field.Column, pair.Value);
+      }
+
+      // Adding included columns
+      foreach (var column in indexToApplyView.IncludedColumns) {
+        var field = reflectedType.Fields[column.Field.Name];
+        result.IncludedColumns.Add(field.Column);
+      }
+
+      // Adding value columns
+      var types = reflectedType.IsInterface
+        ? indexToApplyView.ReflectedType.GetAncestors().AddOne(indexToApplyView.ReflectedType).ToHashSet()
+        : reflectedType.GetAncestors().AddOne(reflectedType).ToHashSet();
+
+      var indexReflectedType = indexToApplyView.ReflectedType;
+      var keyLength = indexToApplyView.KeyColumns.Count;
+      var columnMap = new List<int>(Enumerable.Range(0, keyLength));
+      for (int i = 0; i < indexToApplyView.ValueColumns.Count; i++) {
+        var column = indexToApplyView.ValueColumns[i];
+        var columnField = column.Field;
+        var declaringType = columnField.DeclaringType;
+        if (!types.Contains(declaringType)) 
+          continue;
+
+        if (reflectedType.IsInterface) {
+          if (!columnField.IsInterfaceImplementation)
+            continue;
+
+          var interfaceFields = indexReflectedType.FieldMap.GetImplementedInterfaceFields(columnField);
+          var field = interfaceFields.FirstOrDefault(f => f.DeclaringType == reflectedType);
+          if (field == null)
+            continue;
+          result.ValueColumns.Add(field.Column);
+        }
+        else {
+          if (columnField.IsExplicit) {
+            var ancestor = reflectedType;
+            var skip = false;
+            while (ancestor != columnField.DeclaringType ) {
+              FieldInfo ancestorField;
+              if (ancestor.Fields.TryGetValue(columnField.Name, out ancestorField))
+                skip = ancestorField.IsDeclared;
+              if (skip)
+                break;
+              ancestor = ancestor.GetAncestor();
+            }
+            if (skip)
+              continue;
+          }
+          var field = reflectedType.Fields[columnField.Name];
+          try {
+            result.ValueColumns.Add(field.Column);
+          }
+          catch (Exception e) {
+            throw;
+          }
+        }
+        columnMap.Add(keyLength + i);
+      }
+
+      result.SelectColumns = columnMap;
+      result.Name = nameBuilder.BuildIndexName(reflectedType, result);
+      result.Group = BuildColumnGroup(result);
+
+      return result;
+    }
+
+
     #endregion
 
     #region Helper methods
 
-    private static ColumnInfoCollection GetValueColumns(IEnumerable<ColumnInfo> columns)
+    private static IEnumerable<TypeInfo> GatherDescendants(TypeInfo type, ICollection<TypeInfo> hierarchyImplementors)
+    {
+      foreach (var descendant in type.GetDescendants()) {
+        if (hierarchyImplementors.Contains(descendant) || descendant.IsAbstract)
+          continue;
+        yield return descendant;
+        GatherDescendants(descendant, hierarchyImplementors);
+      }
+    }
+
+    private static IEnumerable<ColumnInfo> GatherValueColumns(IEnumerable<ColumnInfo> columns)
     {
       var nameBuilder = BuildingContext.Current.NameBuilder;
       var valueColumns = new ColumnInfoCollection();
       foreach (var column in columns)  {
-        if (column.Field.IsInterfaceImplementation) {
-          bool doNotAdd = false;
-          var implementedInterfaceFields = column.Field.ReflectedType.FieldMap.GetImplementedInterfaceFields(column.Field).ToList();
-          foreach (var field in implementedInterfaceFields) {
-            if (valueColumns.Contains(field.Column)) {
-              doNotAdd = true;
-              continue;
-            }
-          }
-          if (doNotAdd)
-            continue;
-        }
-
         if (valueColumns.Contains(column.Name)) {
           if (column.IsSystem)
             continue;
@@ -452,7 +634,7 @@ namespace Xtensive.Storage.Building.Builders
       return new ColumnGroup(reflectedType, keyColumns, columns);
     }
 
-    public static void BuildAffectedIndexes()
+    private static void BuildAffectedIndexes()
     {
       var context = BuildingContext.Current;
       foreach (var typeInfo in context.Model.Types) {
@@ -470,14 +652,11 @@ namespace Xtensive.Storage.Building.Builders
                     !type.AffectedIndexes.Contains(indexInfo)) {
                     type.AffectedIndexes.Add(indexInfo);
                     foreach (KeyValuePair<ColumnInfo, Direction> pair in indexInfo.KeyColumns) {
-                      if (!indexInfo.IsPrimary) {
-                        if (pair.Key.Indexes.Count == 0) {
-                          pair.Key.Indexes = new NodeCollection<IndexInfo>();
-                          pair.Key.Indexes.Add(indexInfo);
-                        }
-                        else if (!pair.Key.Indexes.Contains(indexInfo))
-                          pair.Key.Indexes.Add(indexInfo);
-                      }
+                      if (indexInfo.IsPrimary) continue;
+                      if (pair.Key.Indexes.Count == 0)
+                        pair.Key.Indexes = new NodeCollection<IndexInfo> {indexInfo};
+                      else if (!pair.Key.Indexes.Contains(indexInfo))
+                        pair.Key.Indexes.Add(indexInfo);
                     }
                   }
                 }
@@ -486,6 +665,11 @@ namespace Xtensive.Storage.Building.Builders
             };
 
           extractor(typeInfo.Indexes);
+          if (typeInfo.Hierarchy.Schema == InheritanceSchema.ClassTable) {
+            var rootIndex = typeInfo.Hierarchy.Root.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
+            if (!type.AffectedIndexes.Contains(rootIndex))
+              type.AffectedIndexes.Add(rootIndex);
+          }
         }
         else if ((typeInfo.Attributes & TypeAttributes.Materialized) != 0) {
           var primaryIndex = typeInfo.Indexes.PrimaryIndex;
@@ -495,10 +679,8 @@ namespace Xtensive.Storage.Building.Builders
               var descendantIndex = descendant.Indexes.Where(i => i.DeclaringIndex == indexInfo.DeclaringIndex).FirstOrDefault();
               if (descendantIndex != null)
                 foreach (KeyValuePair<ColumnInfo, Direction> pair in descendantIndex.KeyColumns) {
-                  if (pair.Key.Indexes.Count == 0) {
-                    pair.Key.Indexes = new NodeCollection<IndexInfo>();
-                    pair.Key.Indexes.Add(indexInfo);
-                  }
+                  if (pair.Key.Indexes.Count == 0)
+                    pair.Key.Indexes = new NodeCollection<IndexInfo> {indexInfo};
                   else
                     pair.Key.Indexes.Add(indexInfo);
                 }
@@ -513,16 +695,15 @@ namespace Xtensive.Storage.Building.Builders
       var context = BuildingContext.Current;
       var root = typeInfo.Hierarchy.Root;
 
-      if (root != typeInfo) {
-        var ancestorTypeInfo = context.Model.Types.FindAncestor(typeInfo);
-        if (ancestorTypeInfo != null)
-          do {
-            ancestorProcessor(ancestorTypeInfo);
-            if (ancestorTypeInfo == root)
-              break;
-            ancestorTypeInfo = context.Model.Types.FindAncestor(ancestorTypeInfo);
-          } while (ancestorTypeInfo != null);
-      }
+      if (root == typeInfo) return;
+      var ancestorTypeInfo = context.Model.Types.FindAncestor(typeInfo);
+      if (ancestorTypeInfo != null)
+        do {
+          ancestorProcessor(ancestorTypeInfo);
+          if (ancestorTypeInfo == root)
+            break;
+          ancestorTypeInfo = context.Model.Types.FindAncestor(ancestorTypeInfo);
+        } while (ancestorTypeInfo != null);
     }
 
     #endregion

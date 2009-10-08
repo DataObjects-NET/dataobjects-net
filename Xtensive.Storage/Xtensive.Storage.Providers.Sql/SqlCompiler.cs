@@ -720,6 +720,8 @@ namespace Xtensive.Storage.Providers.Sql
           return BuildJoinQuery(index);
         if ((index.Attributes & IndexAttributes.Filtered) > 0)
           return BuildFilteredQuery(index);
+        if ((index.Attributes & IndexAttributes.View) > 0)
+          return BuildViewQuery(index);
         throw new NotSupportedException(String.Format(Strings.ExUnsupportedIndex, index.Name, index.Attributes));
       }
       return BuildTableQuery(index);
@@ -757,23 +759,13 @@ namespace Xtensive.Storage.Providers.Sql
 
       var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var select in baseQueries) {
-        int i = 0;
-        foreach (var columnInfo in index.Columns) {
-          var column = select.Columns[columnInfo.Name];
-          if (column.IsNullReference()) {
-            var valueType = Driver.BuildValueType(columnInfo);
-            select.Columns.Insert(i, SqlDml.Cast(SqlDml.Null, valueType), columnInfo.Name);
-          }
-          i++;
-        }
-        if (result == null)
-          result = select;
-        else
-          result = result.Union(select);
+        result = result == null 
+          ? (ISqlQueryExpression) select 
+          : result.Union(select);
       }
 
       var unionRef = SqlDml.QueryRef(result);
-      SqlSelect query = SqlDml.Select(unionRef);
+      var query = SqlDml.Select(unionRef);
       query.Columns.AddRange(unionRef.Columns.Cast<SqlColumn>());
       return query;
     }
@@ -815,29 +807,24 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlSelect BuildFilteredQuery(IndexInfo index)
     {
-      var descendants = new List<TypeInfo> {index.ReflectedType};
-      descendants.AddRange(index.ReflectedType.GetDescendants(true));
-      var typeIds = descendants.Select(t => t.TypeId).ToArray();
-
+      var typeIds = index.FilterByTypes.Select(t => t.TypeId).ToArray();
       var underlyingIndex = index.UnderlyingIndexes[0];
       var baseQuery = BuildProviderQuery(underlyingIndex);
       var typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
       var inQuery = SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
       var query = SqlDml.Select(baseQuery.From);
-      var hierarchy = index.ReflectedType.Hierarchy;
-      var atRootPolicy = hierarchy != null 
-        ? hierarchy.Schema==InheritanceSchema.SingleTable
-        : false;
-      Dictionary<FieldInfo, string> lookup;
-      if (atRootPolicy) {
-        var rootIndex = index.ReflectedType.GetRoot().AffectedIndexes.First(i => i.IsPrimary);
-        lookup = rootIndex.Columns.ToDictionary(c => c.Field, c => c.Name);
-      }
-      else
-        lookup = underlyingIndex.Columns.ToDictionary(c => c.Field, c => c.Name);
-      query.Columns.AddRange(index.Columns.Select(c => baseQuery.Columns[lookup[c.Field]]));
+      query.Columns.AddRange(baseQuery.Columns);
       query.Where = inQuery;
+      return query;
+    }
 
+    private SqlSelect BuildViewQuery(IndexInfo index)
+    {
+      var underlyingIndex = index.UnderlyingIndexes[0];
+      var baseQuery = BuildProviderQuery(underlyingIndex);
+      var query = SqlDml.Select(baseQuery.From);
+      query.Where = baseQuery.Where;
+      query.Columns.AddRange(index.SelectColumns.Select(i => baseQuery.Columns[i]));
       return query;
     }
 

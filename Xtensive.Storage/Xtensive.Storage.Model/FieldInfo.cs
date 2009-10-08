@@ -525,7 +525,9 @@ namespace Xtensive.Storage.Model
           MappingInfo = new Segment<int>(reflectedType.Columns.IndexOf(column), 1);
         else {
           var primaryIndex = reflectedType.Indexes.PrimaryIndex;
-          var indexColumn = primaryIndex.Columns.Where(c => c.Name==column.Name).First();
+          var indexColumn = primaryIndex.Columns.Where(c => c.Name==column.Name).FirstOrDefault();
+          if (indexColumn == null)
+            throw new InvalidOperationException();
           MappingInfo = new Segment<int>(primaryIndex.Columns.IndexOf(indexColumn), 1);
         }
       }

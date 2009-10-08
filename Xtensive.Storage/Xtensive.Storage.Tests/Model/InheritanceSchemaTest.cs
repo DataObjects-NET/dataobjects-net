@@ -70,11 +70,11 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
 
   public class E : D
   {
-    public override string Tag
-    {
-      get { return base.Tag; }
-      set { base.Tag = value; }
-    }
+//    public override string Tag
+//    {
+//      get { return base.Tag; }
+//      set { base.Tag = value; }
+//    }
   }
 
   public class F : A, ICreature, IHasName2
@@ -88,7 +88,8 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public string Name { get; set; }
   }
 
-  [Index("Name")]
+  //  [Index("Name")]
+  // TODO: Alex Kochetov: Log error if duplicate index is specified.
   [HierarchyRoot]
   public class X : Entity, IHasName
   {
@@ -162,7 +163,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
     protected override DomainConfiguration BuildConfiguration()
     {
       var dc = base.BuildConfiguration();
-      dc.Types.Register(typeof (A).Assembly, typeof(A).Namespace);
+      dc.Types.Register(typeof(A).Assembly, typeof(A).Namespace);
       dc.UpgradeMode = DomainUpgradeMode.Recreate;
       return dc;
     }
@@ -178,10 +179,11 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
     public virtual void MainTest()
     {
       Domain.Model.Dump();
-//      Domain.Model.Types.Dump();
 
-      foreach (var type in Domain.Model.Types) {
-        foreach (var indexInfo in type.Indexes) {
+      foreach (var type in Domain.Model.Types)
+      {
+        foreach (var indexInfo in type.Indexes)
+        {
           var keyComplexity = type.Columns.Count(c => c.IsPrimaryKey);
           if (indexInfo.IsPrimary)
             Assert.AreEqual(keyComplexity, indexInfo.KeyColumns.Count, "Type: {0}; index: {1}", indexInfo.ReflectedType.Name,
@@ -199,59 +201,13 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
     protected override DomainConfiguration BuildConfiguration()
     {
       var dc = base.BuildConfiguration();
-      dc.NamingConvention.LetterCasePolicy = LetterCasePolicy.Uppercase;
-      dc.NamingConvention.NamingRules = NamingRules.UnderscoreDots | NamingRules.UnderscoreHyphens;
-      dc.NamingConvention.NamespacePolicy = NamespacePolicy.Hash;
-      dc.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage.Tests.Model.DefaultPlacement", "X");
+//      dc.NamingConvention.LetterCasePolicy = LetterCasePolicy.Uppercase;
+//      dc.NamingConvention.NamingRules = NamingRules.UnderscoreDots | NamingRules.UnderscoreHyphens;
+//      dc.NamingConvention.NamespacePolicy = NamespacePolicy.Hash;
+//      dc.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage.Tests.Model.DefaultPlacement", "X");
       ConcreteTableInheritanceBuilder.IsEnabled = false;
       SingleTableInheritanceBuilder.IsEnabled = false;
       return dc;
-    }
-
-    public override void MainTest()
-    {
-      base.MainTest();
-
-//      TypeInfo typeInfo = Domain.Model.Types[typeof (A)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(1, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.IsTrue((typeInfo.Indexes.PrimaryIndex.Attributes & IndexAttributes.Join) > 0);
-//      Assert.AreEqual(8, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-//
-//
-//      typeInfo = Domain.Model.Types[typeof (B)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(4, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.IsTrue((typeInfo.Indexes.PrimaryIndex.Attributes & IndexAttributes.Join) > 0);
-//      Assert.AreEqual(3, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-//
-//      typeInfo = Domain.Model.Types[typeof (C)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(3, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.IsTrue((typeInfo.Indexes.PrimaryIndex.Attributes & IndexAttributes.Join) > 0);
-//      Assert.AreEqual(4, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-//
-//      typeInfo = Domain.Model.Types[typeof (D)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(5, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.IsTrue((typeInfo.Indexes.PrimaryIndex.Attributes & IndexAttributes.Join) > 0);
-//      Assert.AreEqual(4, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-//
-//      typeInfo = Domain.Model.Types[typeof (IHasName)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(2, typeInfo.Indexes.Count);
     }
   }
 
@@ -264,44 +220,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       SingleTableInheritanceBuilder.IsEnabled = false;
       return configuration;
     }
-
-    public override void MainTest()
-    {
-      base.MainTest();
-//
-//      TypeInfo typeInfo = Domain.Model.Types[typeof (A)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(2, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.AreEqual(8, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-//
-//
-//      typeInfo = Domain.Model.Types[typeof (B)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(3, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsFalse(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.AreEqual(3, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-//
-//      typeInfo = Domain.Model.Types[typeof (C)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(4, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.AreEqual(4, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-//
-//      typeInfo = Domain.Model.Types[typeof (D)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(8, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.AreEqual(4, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-    }
   }
 
   public class SingleTableInheritanceTest : InheritanceSchemaTestBase
@@ -312,49 +230,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       ConcreteTableInheritanceBuilder.IsEnabled = false;
       SingleTableInheritanceBuilder.IsEnabled = true;
       return configuration;
-    }
-
-    public override void MainTest()
-    {
-      base.MainTest();
-
-//      TypeInfo typeInfo = Domain.Model.Types[typeof (A)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(9, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsFalse(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.AreEqual(8, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-//
-//      typeInfo = Domain.Model.Types[typeof (B)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(3, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.IsTrue((typeInfo.Indexes.PrimaryIndex.Attributes & IndexAttributes.Filtered) > 0);
-//      Assert.AreEqual(3, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-//      Assert.IsNotNull(typeInfo.Indexes.GetIndex("Name"));
-//      Assert.IsTrue(typeInfo.Indexes.GetIndex("Name").IsVirtual);
-//
-//
-//      typeInfo = Domain.Model.Types[typeof (C)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(2, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.IsTrue((typeInfo.Indexes.PrimaryIndex.Attributes & IndexAttributes.Filtered) > 0);
-//      Assert.AreEqual(4, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
-//
-//      typeInfo = Domain.Model.Types[typeof (D)];
-//      Assert.IsNotNull(typeInfo);
-//      Assert.AreEqual(3, typeInfo.Indexes.Count);
-//      Assert.IsTrue(typeInfo.AffectedIndexes.Count > 0);
-//      Assert.IsNotNull(typeInfo.Indexes.PrimaryIndex);
-//      Assert.IsTrue(typeInfo.Indexes.PrimaryIndex.IsVirtual);
-//      Assert.IsTrue((typeInfo.Indexes.PrimaryIndex.Attributes & IndexAttributes.Filtered) > 0);
-//      Assert.AreEqual(4, typeInfo.Indexes.PrimaryIndex.ValueColumns.Count);
     }
   }
 }

@@ -8,6 +8,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Model;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -24,62 +25,53 @@ namespace Xtensive.Storage.Building.Builders
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var root = type.Hierarchy.Root;
 
-      var primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
-      var indexDefinitions = typeDef.Indexes.Where(i => !i.IsPrimary).ToList();
-
-      // Building primary index for root of the hierarchy
-      if (primaryIndexDefinition != null)
-        using (var scope = new LogCaptureScope(context.Log)) {
-          var primaryIndex = BuildIndex(root, primaryIndexDefinition, false);
-          if (!scope.IsCaptured(LogEventTypes.Error)) {
-            root.Indexes.Add(primaryIndex);
-            context.Model.RealIndexes.Add(primaryIndex);
-          }
-        }
-
-      // Building declared indexes
-      foreach (var indexDescriptor in indexDefinitions)
-        using (var scope = new LogCaptureScope(context.Log)) {
-          var indexInfo = BuildIndex(type, indexDescriptor, false); 
-          if (!scope.IsCaptured(LogEventTypes.Error)) {
-            root.Indexes.Add(indexInfo);
-            context.Model.RealIndexes.Add(indexInfo);
-          }
-        }
+      // Building declared indexes both secondary and primary (for root of the hierarchy only)
+      foreach (var indexDescriptor in typeDef.Indexes) {
+        var declaredIndex = BuildIndex(type, indexDescriptor, false);
+        root.Indexes.Add(declaredIndex);
+        context.Model.RealIndexes.Add(declaredIndex);
+      }
 
       var parent = type.GetAncestor();
       // Building inherited from interfaces indexes
       foreach (var @interface in type.GetInterfaces(true)) {
         if ((parent == null) || !parent.GetInterfaces(true).Contains(@interface))
           foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
-            if (parentIndex.DeclaringIndex == parentIndex)
-              using (var scope = new LogCaptureScope(context.Log)) {
-                var index = BuildInheritedIndex(type, parentIndex, false);
-                // TODO: AK: discover this check
-                if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
-                  continue;
-                if (!scope.IsCaptured(LogEventTypes.Error)) {
-                  root.Indexes.Add(index);
-                  context.Model.RealIndexes.Add(index);
-                }
-              }
-        }
+            if (parentIndex.DeclaringIndex != parentIndex) 
+              continue;
+            var index = BuildInheritedIndex(type, parentIndex, false);
+            if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
+              continue;
+            root.Indexes.Add(index);
+            context.Model.RealIndexes.Add(index);
+          }
       }
 
       // Build indexes for descendants
       foreach (var descendant in type.GetDescendants())
         BuildSingleTableIndexes(descendant);
 
-      if (type != root) {
-        var ancestors = type.GetAncestors().ToList();
-        ancestors.Add(type);
-        foreach (var ancestorIndex in root.Indexes) {
-          var interfaces = type.GetInterfaces(true);
-          if ((ancestorIndex.DeclaringType.IsInterface && ancestors.Contains(ancestorIndex.ReflectedType) && interfaces.Contains(ancestorIndex.DeclaringType)) || ancestors.Contains(ancestorIndex.DeclaringType)) {
-            var virtualIndex = BuildVirtualIndex(type, IndexAttributes.Filtered, ancestorIndex);
-            if (!type.Indexes.Contains(virtualIndex.Name))
-              type.Indexes.Add(virtualIndex);
-          }
+      if (type == root) return;
+
+      var types = type.GetAncestors().AddOne(type).ToHashSet();
+      var filterByTypes = type.GetDescendants(true).AddOne(type).ToList();
+      var interfaces = type.GetInterfaces(true).ToHashSet();
+      
+      // Import inherited indexes
+      foreach (var ancestorIndex in root.Indexes) {
+        if (ancestorIndex.DeclaringType.IsInterface) {
+          if (!interfaces.Contains(ancestorIndex.DeclaringType))
+            continue;
+          if (!types.Contains(ancestorIndex.ReflectedType))
+            continue;
+          var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
+          var indexView = BuildViewIndex(type, filterIndex);
+          type.Indexes.Add(indexView);
+        }
+        else if (types.Contains(ancestorIndex.ReflectedType)) {
+          var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
+          var indexView = BuildViewIndex(type, filterIndex);
+          type.Indexes.Add(indexView);
         }
       }
     }

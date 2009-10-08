@@ -4,6 +4,8 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.06.17
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
@@ -24,55 +26,35 @@ namespace Xtensive.Storage.Building.Builders
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var root = type.Hierarchy.Root;
 
-      var primaryIndexDefinition = typeDef.Indexes.Where(i => i.IsPrimary).FirstOrDefault();
-      var indexDefinitions = typeDef.Indexes.Where(i => !i.IsPrimary).ToList();
+      // Building declared indexes both secondary and primary (for root of the hierarchy only)
+      foreach (var indexDescriptor in typeDef.Indexes) {
+        var declaredIndex = BuildIndex(type, indexDescriptor, type.UnderlyingType.IsAbstract); 
 
-      // Building primary index for root of the hierarchy
-      if (primaryIndexDefinition != null)
-        using (var scope = new LogCaptureScope(context.Log)) {
-          var primaryIndex = BuildIndex(root, primaryIndexDefinition, type.UnderlyingType.IsAbstract);
-          if (!scope.IsCaptured(LogEventTypes.Error)) {
-            type.Indexes.Add(primaryIndex);
-            context.Model.RealIndexes.Add(primaryIndex);
-          }
-        }
-
-      // Building declared indexes
-      foreach (var indexDescriptor in indexDefinitions)
-        using (var scope = new LogCaptureScope(context.Log)) {
-          var indexInfo = BuildIndex(type, indexDescriptor, type.UnderlyingType.IsAbstract); 
-          if (!scope.IsCaptured(LogEventTypes.Error)) {
-            type.Indexes.Add(indexInfo);
-            context.Model.RealIndexes.Add(indexInfo);
-          }
-        }
+        type.Indexes.Add(declaredIndex);
+        context.Model.RealIndexes.Add(declaredIndex);
+      }
 
       // Building primary index for non root entities
       var parent = type.GetAncestor();
       if (parent != null) {
         var parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
-        var primaryIndex = BuildInheritedIndex(type, parentPrimaryIndex, type.UnderlyingType.IsAbstract);
+        var inheritedIndex = BuildInheritedIndex(type, parentPrimaryIndex, type.UnderlyingType.IsAbstract);
        
         // Registering built primary index
-        type.Indexes.Add(primaryIndex);
-        context.Model.RealIndexes.Add(primaryIndex);
+        type.Indexes.Add(inheritedIndex);
+        context.Model.RealIndexes.Add(inheritedIndex);
       }
 
       // Building inherited from interfaces indexes
       foreach (var @interface in type.GetInterfaces(true)) {
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
-
-          if (parentIndex.DeclaringIndex == parentIndex)
-            using (var scope = new LogCaptureScope(context.Log)) {
-              var index = BuildInheritedIndex(type, parentIndex, type.UnderlyingType.IsAbstract);
-              // TODO: AK: discover this check
-              if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
-                continue;
-              if (!scope.IsCaptured(LogEventTypes.Error)) {
-                type.Indexes.Add(index);
-                context.Model.RealIndexes.Add(index);
-              }
-            }
+          if (parentIndex.DeclaringIndex != parentIndex) 
+            continue;
+          var index = BuildInheritedIndex(type, parentIndex, type.UnderlyingType.IsAbstract);
+          if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
+            continue;
+          type.Indexes.Add(index);
+          context.Model.RealIndexes.Add(index);
         }
       }
 
@@ -81,37 +63,39 @@ namespace Xtensive.Storage.Building.Builders
         BuildConcreteTableIndexes(descendant);
 
       // Import inherited indexes
-      if (type.IsEntity) {
-        var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
-        var ancestors = type.GetAncestors().ToList();
-        var descendants = type.GetDescendants(true).ToList();
+      var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
+      var ancestors = type.GetAncestors().ToList();
+      var descendants = type.GetDescendants(true).ToList();
 
-        // Build virtual primary index
-        if (descendants.Count > 0) {
-          var baseIndexes = descendants.SelectMany(t => t.Indexes.Where(i => i.IsPrimary && !i.IsVirtual)).ToList();
-          var virtualPrimaryIndex = BuildVirtualIndex(type, IndexAttributes.Union, primaryIndex, baseIndexes.ToArray());
-          type.Indexes.Add(virtualPrimaryIndex);
+      // Build virtual primary index
+      if (descendants.Count > 0) {
+        var indexesToUnion = new List<IndexInfo>(){primaryIndex};
+        foreach (var index in descendants.SelectMany(t => t.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Real))) {
+          var indexView = BuildViewIndex(type, index);
+          indexesToUnion.Add(indexView);
         }
-
-        // Build inherited secondary indexes
-        foreach (var ancestor in ancestors)
-          foreach (var ancestorSecondaryIndex in ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None)) {
-            if (ancestorSecondaryIndex.DeclaringIndex == ancestorSecondaryIndex) {
-              var secondaryIndex = BuildInheritedIndex(type, ancestorSecondaryIndex, type.UnderlyingType.IsAbstract);
-              type.Indexes.Add(secondaryIndex);
-              context.Model.RealIndexes.Add(secondaryIndex);
-            }
-          }
-
-        // Build virtual secondary indexes
-        if (descendants.Count > 0)
-          foreach (var index in type.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None)) {
-            var secondaryIndex = index;
-            var baseIndexes = descendants.SelectMany(t => t.Indexes.Where(i => !i.IsVirtual && i.DeclaringIndex == secondaryIndex.DeclaringIndex)).ToList();
-            var virtualSecondaryIndex = BuildVirtualIndex(type, IndexAttributes.Union, index, baseIndexes.ToArray());
-            type.Indexes.Add(virtualSecondaryIndex);
-          }
+        var virtualPrimaryIndex = BuildUnionIndex(type, indexesToUnion);
+        type.Indexes.Add(virtualPrimaryIndex);
       }
+
+      // Build inherited secondary indexes
+      foreach (var ancestorIndex in ancestors.SelectMany(ancestor => ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None))) {
+        if (ancestorIndex.DeclaringIndex != ancestorIndex) 
+          continue;
+        var secondaryIndex = BuildInheritedIndex(type, ancestorIndex, type.UnderlyingType.IsAbstract);
+        type.Indexes.Add(secondaryIndex);
+        context.Model.RealIndexes.Add(secondaryIndex);
+      }
+
+      // Build virtual secondary indexes
+      if (descendants.Count > 0)
+        foreach (var index in type.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None)) {
+          var indexesToUnion = new List<IndexInfo>() {index};
+          indexesToUnion.AddRange(
+            descendants.Select(t => t.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && !i.IsVirtual)));
+          var virtualSecondaryIndex = BuildUnionIndex(type, indexesToUnion);
+          type.Indexes.Add(virtualSecondaryIndex);
+        }
     }
   }
 }

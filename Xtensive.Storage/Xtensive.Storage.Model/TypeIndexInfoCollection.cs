@@ -43,9 +43,9 @@ namespace Xtensive.Storage.Model
 
     public IndexInfo FindFirst(IndexAttributes indexAttributes)
     {
-      ICountable<IndexInfo> result = Find(indexAttributes);
+      var result = Find(indexAttributes);
       if (result.Count!=0) {
-        IEnumerator<IndexInfo> enumerator = result.GetEnumerator();
+        var enumerator = result.GetEnumerator();
         enumerator.MoveNext();
         return enumerator.Current;
       }

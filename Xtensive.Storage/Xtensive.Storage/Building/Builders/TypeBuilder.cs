@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Building.Builders
         else {
           var root = context.Model.Types[hierarchyDef.Root.UnderlyingType];
           typeInfo.Hierarchy = root.Hierarchy;
-          foreach (var fieldInfo in root.Fields)
+          foreach (var fieldInfo in root.Fields.Where(f => f.IsPrimaryKey && f.Parent == null))
             BuildInheritedField(context, typeInfo, fieldInfo);
         }
       }
@@ -89,24 +89,39 @@ namespace Xtensive.Storage.Building.Builders
     {
       var context = BuildingContext.Current;
 
-      if (typeInfo.IsInterface)
-        foreach (var @interface in typeInfo.GetInterfaces())
-          ProcessAncestor(context, @interface, typeInfo);
+      if (typeInfo.IsInterface) {
+        var sourceFields = typeInfo.GetInterfaces()
+          .SelectMany(i => i.Fields)
+          .Where(f => !f.IsPrimaryKey && f.Parent == null);
+        foreach (var srcField in sourceFields) {
+          if (!typeInfo.Fields.Contains(srcField.Name))
+            BuildInheritedField(context, typeInfo, srcField);
+        }
+      }
       else {
-        var ancestor = context.Model.Types.FindAncestor(typeInfo);
-        if (ancestor!=null)
-          ProcessAncestor(context, ancestor, typeInfo);
+        var ancestor = typeInfo.GetAncestor();
+        if (ancestor != null) {
+          foreach (var srcField in ancestor.Fields.Where(f => !f.IsPrimaryKey && f.Parent == null)) {
+            FieldDef fieldDef;
+            if (typeDef.Fields.TryGetValue(srcField.Name, out fieldDef))
+              BuildDeclaredField(context, typeInfo, fieldDef);
+            else
+              BuildInheritedField(context, typeInfo, srcField);
+          }
+          foreach (var pair in ancestor.FieldMap)
+            typeInfo.FieldMap.Add(pair.Key, typeInfo.Fields[pair.Value.Name]);
+        }
       }
 
-      foreach (var srcField in typeDef.Fields) {
+      foreach (var fieldDef in typeDef.Fields) {
         FieldInfo field;
-        if (typeInfo.Fields.TryGetValue(srcField.Name, out field)) {
-          if (field.ValueType!=srcField.ValueType)
+        if (typeInfo.Fields.TryGetValue(fieldDef.Name, out field)) {
+          if (field.ValueType!=fieldDef.ValueType)
             throw new DomainBuilderException(
-              String.Format(Strings.ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor, srcField.Name, typeInfo.Name));
+              String.Format(Strings.ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor, fieldDef.Name, typeInfo.Name));
         }
         else
-          BuildDeclaredField(BuildingContext.Current, typeInfo, srcField);
+          BuildDeclaredField(context, typeInfo, fieldDef);
       }
       typeInfo.Columns.AddRange(typeInfo.Fields.Where(f => f.Column!=null).Select(f => f.Column));
 
@@ -116,17 +131,6 @@ namespace Xtensive.Storage.Building.Builders
     }
 
     #region Private members
-
-    private static void ProcessAncestor(BuildingContext context, TypeInfo ancestor, TypeInfo descendant)
-    {
-      foreach (var srcField in ancestor.Fields.Find(FieldAttributes.Explicit, MatchType.None).Where(f => f.Parent==null)) {
-        if (!descendant.Fields.Contains(srcField.Name))
-          BuildInheritedField(context, descendant, srcField);
-      }
-      foreach (var pair in ancestor.FieldMap)
-        if (!pair.Value.IsExplicit)
-          descendant.FieldMap.Add(pair.Key, descendant.Fields[pair.Value.Name]);
-    }
 
     private static void BuildFieldMap(BuildingContext context, TypeInfo @interface, TypeInfo implementor)
     {
@@ -145,6 +149,8 @@ namespace Xtensive.Storage.Building.Builders
 
         if (!implementor.FieldMap.ContainsKey(field))
           implementor.FieldMap.Add(field, implField);
+        else
+          implementor.FieldMap.Override(field, implField);
       }
     }
 

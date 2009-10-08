@@ -36,6 +36,8 @@ namespace Xtensive.Storage.Model
     private ReadOnlyList<ColumnInfo> columns;
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
+    private IEnumerable<TypeInfo> filterByTypes;
+    private IList<int> selectColumns;
 
     /// <summary>
     /// Gets or sets the column index map.
@@ -161,6 +163,32 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets the types for <see cref="IndexAttributes.Filtered"/> index.
+    /// </summary>
+    public IEnumerable<TypeInfo> FilterByTypes
+    {
+      get { return filterByTypes; }
+      set
+      {
+        this.EnsureNotLocked();
+        filterByTypes = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets the column indexes for <see cref="IndexAttributes.View"/> index.
+    /// </summary>
+    public IList<int> SelectColumns
+    {
+      get { return selectColumns; }
+      set
+      {
+        this.EnsureNotLocked();
+        selectColumns = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets a value indicating whether this instance is primary index.
     /// </summary>
     public bool IsPrimary
@@ -267,7 +295,7 @@ namespace Xtensive.Storage.Model
 
     public IndexInfo Clone()
     {
-      var result = new IndexInfo(reflectedType, declaringIndex, attributes);
+      var result = new IndexInfo(reflectedType, attributes, declaringIndex);
       result.shortName = shortName;
       result.Name = Name;
       result.keyColumns = keyColumns;
@@ -313,7 +341,7 @@ namespace Xtensive.Storage.Model
     /// <param name="reflectedType">Reflected type.</param>
     /// <param name="ancestorIndex">The ancestors index.</param>
     /// <param name="indexAttributes"><see cref="IndexAttributes"/> attributes for this instance.</param>
-    public IndexInfo(TypeInfo reflectedType, IndexInfo ancestorIndex, IndexAttributes indexAttributes)
+    public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo ancestorIndex)
     {
       declaringType = ancestorIndex.DeclaringType;
       this.reflectedType = reflectedType;

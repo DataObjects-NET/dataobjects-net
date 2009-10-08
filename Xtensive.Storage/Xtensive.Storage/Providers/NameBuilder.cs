@@ -310,17 +310,23 @@ namespace Xtensive.Storage.Providers
       if (!index.Name.IsNullOrEmpty())
         result = index.Name;
       else if (index.IsPrimary)
-        result = string.Concat("PK_", type.Name);
+        result = index.DeclaringType != type
+          ? string.Format("PK_{0}.{1}", type.Name, index.DeclaringType)
+          : string.Format("PK_{0}", type.Name);
       else if (!index.MappingName.IsNullOrEmpty())
-        result = string.Format("{0}.{1}", type.Name,index.MappingName);
+        result = index.DeclaringType != type
+          ? string.Format("{0}.{1}.{2}", type.Name, index.DeclaringType, index.MappingName)
+          : string.Format("{0}.{1}", type.Name, index.MappingName);
       else if (!index.ReflectedType.IsInterface && index.KeyColumns.Count == 0)
         return string.Empty;
       else {
         if (index.IsSecondary)
-          result = string.Format("{0}.{1}", type.Name, index.ShortName);
+          result = index.DeclaringType != type
+            ? string.Format("{0}.{1}.{2}", type.Name, index.DeclaringType, index.ShortName)
+            : string.Format("{0}.{1}", type.Name, index.ShortName);
         if (result.IsNullOrEmpty()) {
           Func<FieldInfo, FieldInfo> fieldSeeker = null;
-          fieldSeeker = (field => field.Parent==null ? field : fieldSeeker(field.Parent));
+          fieldSeeker = (field => field.Parent == null ? field : fieldSeeker(field.Parent));
           var fieldList = new List<FieldInfo>();
           foreach (ColumnInfo keyColumn in index.KeyColumns.Keys) {
             FieldInfo foundField = fieldSeeker(keyColumn.Field);
@@ -337,6 +343,8 @@ namespace Xtensive.Storage.Providers
           suffix = ".JOIN";
         else if ((index.Attributes & IndexAttributes.Union)!=IndexAttributes.None)
           suffix = ".UNION";
+        else if ((index.Attributes & IndexAttributes.View)!=IndexAttributes.None)
+          suffix = ".VIEW";
       }
       return ApplyNamingRules(string.Concat(result, suffix));
     }

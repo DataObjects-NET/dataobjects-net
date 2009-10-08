@@ -1,5 +1,5 @@
 // Copyright (C) 2009 Xtensive LLC.
-// All rights reserved.
+// All rights reserved_
 // For conditions of distribution and use, see license.
 // Created by: Alexis Kochetov
 // Created:    2009.09.24
@@ -44,25 +44,41 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
 
   public class B : A, INamed, ITagged
   {
-    string INamed.Name { get; set; }
+    string INamed.Name
+    {
+      get { return GetFieldValue<string>("INamed_Name"); } 
+      set { SetFieldValue("INamed_Name", value); }
+    }
     public string Tag { get; set; }
   }
 
   public class C : A, ITagged
   {
-    string ITagged.Tag { get; set; }
+    string ITagged.Tag
+    {
+      get { return GetFieldValue<string>("ITagged_Tag"); } 
+      set { SetFieldValue("ITagged_Tag", value); } 
+    }
   }
 
   public class D : B, INamed, IComposite
   {
-    string INamed.Name { get; set; }
+    string INamed.Name
+    {
+      get { return GetFieldValue<string>("INamed_Name"); }
+      set { SetFieldValue("INamed_Name", value); }
+    }
     public string First { get; set; }
     public string Second { get; set;}
   }
 
   public class E : D, IComposite
   {
-    string IComposite.First { get; set; }
+    string IComposite.First
+    {
+      get { return GetFieldValue<string>("IComposite_First"); }
+      set { SetFieldValue("IComposite_First", value); }
+    }
   }
 
   [HierarchyRoot(InheritanceSchema.ConcreteTable)]
@@ -73,27 +89,43 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Name { get; set; }
   }
 
-  public class G : F, INamed, ITagged
+  public class  G : F, INamed, ITagged
   {
-    string INamed.Name { get; set; }
+    string INamed.Name
+    {
+      get { return GetFieldValue<string>("INamed_Name"); }
+      set { SetFieldValue("INamed_Name", value); }
+    }
     public string Tag { get; set; }
   }
 
   public class H : F, ITagged
   {
-    string ITagged.Tag { get; set; }
+    string ITagged.Tag
+    {
+      get { return GetFieldValue<string>("ITagged_Tag"); }
+      set { SetFieldValue("ITagged_Tag", value); }
+    }
   }
 
   public class I : G, INamed, IComposite
   {
-    string INamed.Name { get; set; }
+    string INamed.Name
+    {
+      get { return GetFieldValue<string>("INamed_Name"); }
+      set { SetFieldValue("INamed_Name", value); }
+    }
     public string First { get; set; }
     public string Second { get; set; }
   }
 
   public class J : I, IComposite
   {
-    string IComposite.First { get; set; }
+    string IComposite.First
+    {
+      get { return GetFieldValue<string>("IComposite_First"); }
+      set { SetFieldValue("IComposite_First", value); }
+    }
   }
 
   [HierarchyRoot(InheritanceSchema.SingleTable)]
@@ -106,24 +138,40 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
 
   public class L : K, INamed, ITagged
   {
-    string INamed.Name { get; set; }
+    string INamed.Name
+    {
+      get { return GetFieldValue<string>("INamed_Name"); }
+      set { SetFieldValue("INamed_Name", value); }
+    }
     public string Tag { get; set; }
   }
 
   public class M : K, ITagged
   {
-    string ITagged.Tag { get; set; }
+    string ITagged.Tag
+    {
+      get { return GetFieldValue<string>("ITagged_Tag"); }
+      set { SetFieldValue("ITagged_Tag", value); }
+    }
   }
 
   public class N : L, INamed, IComposite
   {
-    string INamed.Name { get; set; }
+    string INamed.Name
+    {
+      get { return GetFieldValue<string>("INamed_Name"); }
+      set { SetFieldValue("INamed_Name", value); }
+    }
     public string First { get; set; }
     public string Second { get; set; }
   }
 
   public class O : N, IComposite
   {
-    string IComposite.First { get; set; }
+    string IComposite.First
+    {
+      get { return GetFieldValue<string>("IComposite_First"); }
+      set { SetFieldValue("IComposite_First", value); }
+    }
   }
 }
