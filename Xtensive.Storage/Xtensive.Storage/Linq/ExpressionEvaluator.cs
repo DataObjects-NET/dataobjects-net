@@ -23,15 +23,6 @@ namespace Xtensive.Storage.Linq
     private readonly HashSet<Expression> candidates = new HashSet<Expression>();
     private bool couldBeEvaluated;
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ExpressionEvaluator(Expression e)
-    {
-      couldBeEvaluated = true;
-      Visit(e);
-    }
-
 
     /// <summary>
     /// Determines whether specified <paramref name="e"/> can be evaluated.
@@ -58,8 +49,8 @@ namespace Xtensive.Storage.Linq
       Type type = e.Type;
       if (type.IsValueType)
         e = Expression.Convert(e, typeof (object));
-      Expression<Func<object>> lambda = Expression.Lambda<Func<object>>(e);
-      Func<object> func = lambda.CachingCompile();
+      var lambda = Expression.Lambda<Func<object>>(e);
+      var func = lambda.CachingCompile();
       return Expression.Constant(func(), type);
     }
 
@@ -103,13 +94,8 @@ namespace Xtensive.Storage.Linq
           return !typeof (IQueryable).IsAssignableFrom(ma.Type);
         if (ma.Expression.NodeType==ExpressionType.Constant) {
           var rfi = ma.Member as FieldInfo;
-          if (rfi!=null
-            && rfi.FieldType.IsGenericType
-              && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))
-          {
-            var value = rfi.GetValue(((ConstantExpression) ma.Expression).Value);
-            return ((IQueryable) value).Provider.GetType()==typeof (QueryProvider);
-          }
+          if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType)))
+            return false;
         }
       }
       var mc = expression as MethodCallExpression;
@@ -123,5 +109,14 @@ namespace Xtensive.Storage.Linq
 
 
     // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public ExpressionEvaluator(Expression e)
+    {
+      couldBeEvaluated = true;
+      Visit(e);
+    }
   }
 }
