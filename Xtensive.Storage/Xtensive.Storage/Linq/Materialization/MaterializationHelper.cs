@@ -15,7 +15,6 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Rse;
 using Xtensive.Core.Linq;
 using System.Linq;
 
@@ -23,6 +22,10 @@ namespace Xtensive.Storage.Linq.Materialization
 {
   internal static class MaterializationHelper
   {
+    public readonly static int BatchFastFirstCount = 2;
+    public readonly static int BatchMinSize = 32;
+    public readonly static int BatchMaxSize = 1024;
+
     public static readonly MethodInfo MaterializeMethodInfo;
     public static readonly MethodInfo GetDefaultMethodInfo;
     public static readonly MethodInfo CompileItemMaterializerMethodInfo;
@@ -65,6 +68,15 @@ namespace Xtensive.Storage.Linq.Materialization
       throw new InvalidOperationException(Strings.ExSequenceContainsNoElements);
     }
 
+    /// <summary>
+    /// Materializes the specified data source.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="dataSource">The data source.</param>
+    /// <param name="context">The context.</param>
+    /// <param name="itemMaterializer">The item materializer.</param>
+    /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
+    /// <returns></returns>
     public static IEnumerable<TResult> Materialize<TResult>(IEnumerable<Tuple> dataSource, MaterializationContext context, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
     {
       ParameterContext ctx;
@@ -76,8 +88,12 @@ namespace Xtensive.Storage.Linq.Materialization
             tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
         }
         ParameterScope scope = null;
-        var batched = dataSource.Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session))).Batch(2)
-          .ApplyBeforeAndAfter(() => scope = ctx.Activate(), () => scope.DisposeSafely());
+        var batched = dataSource.Select(
+          tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session)))
+          .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
+          .ApplyBeforeAndAfter(
+            () => scope = ctx.Activate(), 
+            () => scope.DisposeSafely());
         foreach (var batch in batched)
           foreach (var result in batch)
             yield return result;
