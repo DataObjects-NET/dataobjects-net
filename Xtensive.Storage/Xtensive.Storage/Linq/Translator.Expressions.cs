@@ -536,7 +536,8 @@ namespace Xtensive.Storage.Linq
       Expression reduceCastBody = body.StripCasts();
       if (state.CalculateExpressions
         && reduceCastBody.GetMemberType()==MemberType.Unknown
-          && reduceCastBody.NodeType!=ExpressionType.ArrayIndex) {
+          && reduceCastBody.NodeType!=ExpressionType.ArrayIndex
+          && reduceCastBody.NodeType!=ExpressionType.New) {
         if (body.Type.IsEnum)
           body = Expression.Convert(body, Enum.GetUnderlyingType(body.Type));
         UnaryExpression convertExpression = Expression.Convert(body, typeof (object));

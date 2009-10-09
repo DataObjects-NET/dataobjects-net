@@ -504,7 +504,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Subquery1Test()
     {
-      var localItems = GetLocalItems(1000);
+      var localItems = GetLocalItems(100);
       var queryable = Query.Store(localItems);
       var result = queryable.Select(poco=> Query<Order>.All.Where(order=>order.Freight > poco.Value1)).AsEnumerable().Cast<IEnumerable<Order>>();
       var expected = localItems.Select(poco=> Query<Order>.All.AsEnumerable().Where(order=>order.Freight > poco.Value1));
@@ -538,7 +538,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Aggregate1Test()
     {
-      var localItems = GetLocalItems(1000);
+      var localItems = GetLocalItems(100);
       var queryable = Query.Store(localItems);
       var result = queryable.Average(selector => selector.Value1);
       var expected = localItems.Average(selector => selector.Value1);
@@ -549,7 +549,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Aggregate2Test()
     {
-      var localItems = GetLocalItems(1000);
+      var localItems = GetLocalItems(100);
       var queryable = Query.Store(localItems);
       var result = Query<Order>.All.Where(order => order.Freight > queryable.Max(poco=>poco.Value1));
       var expected = Query<Order>.All.AsEnumerable().Where(order => order.Freight > localItems.Max(poco=>poco.Value1));

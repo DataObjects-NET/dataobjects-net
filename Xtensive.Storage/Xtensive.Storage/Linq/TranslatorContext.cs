@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Linq
     {
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
-      this.query = EntitySetAccessRewriter.Rewrite(EqualityRewriter.Rewrite(query));
+      this.query = EntitySetAccessRewriter.Rewrite(EqualityRewriter.Rewrite(ClosureAccessRewriter.Rewrite(query)));
       this.model = model;
       translator = new Translator(this);
       evaluator = new ExpressionEvaluator(this.query);

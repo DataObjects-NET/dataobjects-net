@@ -970,21 +970,6 @@ namespace Xtensive.Storage.Linq
         return CreateLocalCollectionProjectionExpression(itemType, value, this);
       }
 
-
-      var memberExpression = sequence as MemberExpression;
-      if (memberExpression != null 
-        && sequence.Type.IsOfGenericInterface(typeof(IQueryable<>)) 
-        && memberExpression.Expression !=null
-        && memberExpression.Expression.NodeType == ExpressionType.Constant
-        && memberExpression.Member != null 
-        && memberExpression.Member.ReflectedType.IsClosure()
-        && memberExpression.Member.MemberType == MemberTypes.Field) {
-        var constantValue = ((ConstantExpression) memberExpression.Expression).Value;
-        var fieldInfo = (FieldInfo) memberExpression.Member;
-        var queryable = (IQueryable)fieldInfo.GetValue(constantValue);
-        return VisitSequence(queryable.Expression);
-      }
-      
       Expression visitedExpression = Visit(sequenceExpression).StripCasts();
 
       if (visitedExpression.IsGroupingExpression()
