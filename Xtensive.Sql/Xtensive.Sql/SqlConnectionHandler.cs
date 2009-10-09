@@ -42,6 +42,12 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Creates the parameter.
+    /// </summary>
+    /// <returns>Created parameter.</returns>
+    public abstract DbParameter CreateParameter();
+
+    /// <summary>
     /// Begins the transaction with default isolation level.
     /// </summary>
     /// <param name="connection">The connection.</param>

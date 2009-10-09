@@ -7,27 +7,24 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   internal class BatchingCommandProcessor : CommandProcessor
   {
-    private readonly List<string> registeredCommands = new List<string>();
-    private readonly List<SqlQueryTask> registeredQueryTasks = new List<SqlQueryTask>();
-
     private int batchSize;
     
-    public override void ExecuteRequests(bool dirty)
+    public override void ExecuteRequests(bool allowPartialExecution)
     {
       while (persistTasks.Count >= batchSize) {
         ExecuteBatch(batchSize, 0, null);
       }
       
       if (queryTasks.Count==0) {
-        if (!dirty)
+        if (!allowPartialExecution)
           ExecuteBatch(persistTasks.Count, 0, null);
         return;
       }
@@ -41,7 +38,7 @@ namespace Xtensive.Storage.Providers.Sql
         ExecuteBatch(0, batchSize, null);
       }
 
-      if (!dirty)
+      if (!allowPartialExecution)
         ExecuteBatch(0, queryTasks.Count, null);
     }
 
@@ -69,84 +66,79 @@ namespace Xtensive.Storage.Providers.Sql
 
     private DbDataReader ExecuteBatch(int persistAmount, int queryAmount, SqlQueryRequest lastRequest)
     {
-      bool hasPersists = persistAmount > 0;
-      bool hasQueries = queryAmount > 0;
-      bool hasLastQuery = lastRequest!=null;
-      if (!hasPersists && !hasQueries && !hasLastQuery)
+      if (persistAmount==0 && queryAmount==0 && lastRequest==null)
         return null;
-      CreateCommand();
+      AllocateCommand();
       DbDataReader reader = null;
       try {
-        if (hasPersists)
-          RegisterPersists(persistAmount);
-        if (hasQueries)
-          RegisterQueries(queryAmount);
-        if (hasLastQuery)
-          registeredCommands.Add(CreateQueryCommandPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix));
-        command.CommandText = driver.BuildBatch(registeredCommands.ToArray());
-        if (!hasQueries && !hasLastQuery) {
-          driver.ExecuteNonQuery(command);
+        if (persistAmount > 0)
+          persistAmount = RegisterPersists(persistAmount);
+        List<SqlQueryTask> registeredTasks = null;
+        if (queryAmount > 0) {
+          registeredTasks = RegisterQueries(queryAmount);
+          queryAmount = registeredTasks.Count;
+        }
+        if (lastRequest!=null) {
+          var part = factory.CreateQueryCommandPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
+          activeCommand.AddPart(part);
+        }
+        if (queryAmount==0 && lastRequest==null) {
+          activeCommand.ExecuteNonQuery();
           return null;
         }
-        reader = driver.ExecuteReader(command);
-        int currentTaskNumber = 0;
-        while (currentTaskNumber < registeredQueryTasks.Count) {
-          var task = registeredQueryTasks[currentTaskNumber];
-          var descriptor = task.Request.TupleDescriptor;
-          var accessor = domainHandler.GetDataReaderAccessor(descriptor);
-          var output = task.Output;
-          while (driver.ReadRow(reader)) {
-            var tuple = Tuple.Create(descriptor);
-            accessor.Read(reader, tuple);
-            output.Add(tuple);
+        reader = activeCommand.ExecuteReader();
+        if (registeredTasks!=null) {
+          int currentTaskNumber = 0;
+          while (currentTaskNumber < registeredTasks.Count) {
+            var task = registeredTasks[currentTaskNumber];
+            var descriptor = task.Request.TupleDescriptor;
+            var accessor = domainHandler.GetDataReaderAccessor(descriptor);
+            var output = task.Output;
+            while (driver.ReadRow(reader)) {
+              var tuple = Tuple.Create(descriptor);
+              accessor.Read(reader, tuple);
+              output.Add(tuple);
+            }
+            reader.NextResult();
+            currentTaskNumber++;
           }
-          reader.NextResult();
-          currentTaskNumber++;
         }
-        return hasLastQuery ? reader : null;
+        return lastRequest!=null ? reader : null;
       }
       finally {
-        if (reader!=null && !hasLastQuery)
+        if (reader!=null && lastRequest==null)
           reader.Dispose();
         DisposeCommand();
       }
     }
 
-    private new void DisposeCommand()
+    private List<SqlQueryTask> RegisterQueries(int amount)
     {
-      base.DisposeCommand();
-      registeredCommands.Clear();
-      registeredQueryTasks.Clear();
-    }
-
-    private void RegisterQueries(int amount)
-    {
-      for (int i = 0; i < amount; i++) {
-        var task = queryTasks.First.Value;
-        registeredQueryTasks.Add(task);
-        registeredCommands.Add(CreateQueryCommandPart(task, GetParameterPrefix()));
-        queryTasks.RemoveFirst();
+      var queries = new List<SqlQueryTask>();
+      for (int i = 0; i < amount && queryTasks.Count > 0; i++) {
+        var task = queryTasks.Dequeue();
+        queries.Add(task);
+        activeCommand.AddPart(factory.CreateQueryCommandPart(task, activeCommand.GetParameterPrefix()));
       }
+      return queries;
     }
 
-    private void RegisterPersists(int amount)
+    private int RegisterPersists(int amount)
     {
+      int count = 0;
       for (int i = 0; i < amount; i++) {
-        var task = persistTasks.First.Value;
-        registeredCommands.Add(CreatePersistCommandPart(task, GetParameterPrefix()));
-        persistTasks.RemoveFirst();
+        var task = persistTasks.Dequeue();
+        activeCommand.AddPart(factory.CreatePersistCommandPart(task, activeCommand.GetParameterPrefix()));
+        count++;
       }
+      return count;
     }
 
-    private string GetParameterPrefix()
-    {
-      return string.Format("p{0}_", registeredCommands.Count);
-    }
     
     // Constructors
 
-    public BatchingCommandProcessor(DomainHandler domainHandler, int batchSize)
-      : base(domainHandler)
+    public BatchingCommandProcessor(DomainHandler domainHandler, SqlConnection connection,int batchSize)
+      : base(domainHandler, connection)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, "batchSize");
       this.batchSize = batchSize;

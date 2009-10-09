@@ -4,19 +4,15 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers;
-using Xtensive.Storage.Providers.Sql;
-using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 using Xtensive.Storage.Rse;
-using SqlSessionHandler = Xtensive.Storage.Providers.Sql.SessionHandler;
+using Xtensive.Storage.Tests.Storage.DbTypeSupportModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 {
@@ -28,7 +24,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     private List<QueryTask> tasks = new List<QueryTask>();
     private Session session;
 
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (X).Assembly, typeof (X).Namespace);

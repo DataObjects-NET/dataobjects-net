@@ -117,8 +117,8 @@ namespace Xtensive.Storage.Providers
     /// Executes the specified query tasks.
     /// </summary>
     /// <param name="queryTasks">The query tasks to execute.</param>
-    /// <param name="dirty">if set to <see langword="true"/> dirty execution is allowed.</param>
-    public virtual void Execute(IList<QueryTask> queryTasks, bool dirty)
+    /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
+    public virtual void Execute(IList<QueryTask> queryTasks, bool allowPartialExecution)
     {
       foreach (var task in queryTasks) {
         using (task.ParameterContext.ActivateSafely())

@@ -61,8 +61,7 @@ namespace Xtensive.Storage
 
     private readonly object _lock = new object();
     private readonly bool persistRequiresTopologicalSort;
-    private readonly List<QueryTask> queryTasks = new List<QueryTask>();
-
+    
     private SessionServiceLocator serviceLocator;
     private volatile bool isDisposed;
     private SessionScope sessionScope;
@@ -139,27 +138,6 @@ namespace Xtensive.Storage
     internal CompilationContext CompilationContext
     {
       get { return Handlers.DomainHandler.CompilationContext; }
-    }
-
-    internal void RegisterDelayedQuery(QueryTask task)
-    {
-      if (IsDelayedQueryRunning)
-        throw new InvalidOperationException();
-      queryTasks.Add(task);
-    }
-    
-    internal void ExecuteAllDelayedQueries(bool dirty)
-    {
-      if (IsDelayedQueryRunning || queryTasks.Count==0)
-        return;
-      try {
-        IsDelayedQueryRunning = true;
-        Handler.Execute(queryTasks, dirty);
-      }
-      finally {
-        queryTasks.Clear();
-        IsDelayedQueryRunning = false;
-      }
     }
 
     #endregion

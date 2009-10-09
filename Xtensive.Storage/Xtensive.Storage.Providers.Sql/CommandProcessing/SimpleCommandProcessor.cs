@@ -7,19 +7,15 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   internal class SimpleCommandProcessor : CommandProcessor
   {
-    public override void ExecuteRequests(bool dirty)
+    public override void ExecuteRequests(bool allowPartialExecution)
     {
-      foreach (var persistTask in persistTasks)
-        ExecutePersist(persistTask);
-      persistTasks.Clear();
-      foreach (var queryTask in queryTasks)
-        ReadTuples(ExecuteQuery(queryTask), queryTask.Request.TupleDescriptor, queryTask.Output);
-      queryTasks.Clear();
+      ExecuteAllTasks();
     }
 
     private void ReadTuples(DbDataReader reader, TupleDescriptor descriptor, List<Tuple> output)
@@ -33,14 +29,26 @@ namespace Xtensive.Storage.Providers.Sql
     
     public override IEnumerator<Tuple> ExecuteRequestsWithReader(SqlQueryRequest lastRequest)
     {
-      ExecuteRequests(false);
-      return RunTupleReader(ExecuteQuery(new SqlQueryTask(lastRequest)), lastRequest.TupleDescriptor);
+      ExecuteAllTasks();
+      return RunTupleReader(ExecuteQueryQuickly(new SqlQueryTask(lastRequest)), lastRequest.TupleDescriptor);
+    }
+
+    private void ExecuteAllTasks()
+    {
+      while (persistTasks.Count > 0) {
+        var task = persistTasks.Dequeue();
+        ExecutePersistQuickly(task);
+      }
+      while (queryTasks.Count > 0) {
+        var task = queryTasks.Dequeue();
+        ReadTuples(ExecuteQueryQuickly(task), task.Request.TupleDescriptor, task.Output);
+      }
     }
 
     // Constructors
 
-    public SimpleCommandProcessor(DomainHandler domainHandler)
-      : base(domainHandler)
+    public SimpleCommandProcessor(DomainHandler domainHandler, SqlConnection connection)
+      : base(domainHandler, connection)
     {
     }
   }

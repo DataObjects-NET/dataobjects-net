@@ -68,7 +68,15 @@ namespace Xtensive.Sql
       command.CommandText = commandText;
       return command;
     }
-    
+
+    /// <summary>
+    /// Creates the parameter.
+    /// </summary>
+    /// <returns>Created parameter.</returns>
+    public DbParameter CreateParameter()
+    {
+      return Driver.ConnectionHandler.CreateParameter();
+    }
 
     /// <summary>
     /// Creates the character large object bound to this connection.

@@ -4,7 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.11
 
+using System;
 using System.Data.Common;
+using VistaDB.Provider;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.VistaDb
@@ -14,6 +16,11 @@ namespace Xtensive.Sql.VistaDb
     public override DbConnection CreateConnection(UrlInfo url)
     {
       return ConnectionFactory.CreateConnection(url);
+    }
+
+    public override DbParameter CreateParameter()
+    {
+      return new VistaDBParameter();
     }
 
     // Constructors

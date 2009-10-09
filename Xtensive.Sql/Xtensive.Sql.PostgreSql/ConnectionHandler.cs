@@ -7,6 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using Npgsql;
 using Xtensive.Core;
 using Xtensive.Sql.PostgreSql.Resources;
 
@@ -17,6 +18,11 @@ namespace Xtensive.Sql.PostgreSql
     public override DbConnection CreateConnection(UrlInfo url)
     {
       return ConnectionFactory.CreateConnection(url);
+    }
+
+    public override DbParameter CreateParameter()
+    {
+      return new NpgsqlParameter();
     }
 
     public override DbTransaction BeginTransaction(DbConnection connection, IsolationLevel isolationLevel)

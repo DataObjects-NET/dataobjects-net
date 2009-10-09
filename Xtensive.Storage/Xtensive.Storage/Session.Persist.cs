@@ -31,7 +31,7 @@ namespace Xtensive.Storage
       Persist(false);
     }
 
-    internal void Persist(bool dirty)
+    internal void Persist(bool allowPartialExecution)
     {
       if (IsPersisting)
         return;
@@ -49,7 +49,7 @@ namespace Xtensive.Storage
             Log.Debug("Session '{0}'. Persisting...", this);
 
           try {
-            Handler.Persist(EntityChangeRegistry, dirty);
+            Handler.Persist(EntityChangeRegistry, allowPartialExecution);
           }
           finally {
             foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))

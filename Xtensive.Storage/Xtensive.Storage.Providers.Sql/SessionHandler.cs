@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the connection.
     /// </summary>
-    public SqlConnection Connection { // TODO: remove this property
+    public SqlConnection Connection { // TODO: make this protected
       get {
         lock (ConnectionSyncRoot) {
           EnsureConnectionIsOpen();
@@ -41,8 +41,45 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
-    public DbTransaction Transaction { get; private set; }
+    public DbTransaction Transaction { get; private set; } // TODO: make this protected too
     
+    internal virtual CommandProcessor CreateCommandProcessor()
+    {
+      int batchSize = Session.Configuration.BatchSize;
+      var result = Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.Batches) && batchSize > 1
+        ? new BatchingCommandProcessor(domainHandler, connection, batchSize)
+        : (CommandProcessor) new SimpleCommandProcessor(domainHandler, connection);
+      return result;
+    }
+
+    /// <inheritdoc/>
+    public override IEnumerator<Tuple> Execute(ExecutableProvider provider)
+    {
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        var enumerator = commandProcessor.ExecuteRequestsWithReader(((SqlProvider) provider).Request);
+        using (enumerator) {
+          while (enumerator.MoveNext())
+            yield return enumerator.Current;
+        }
+      }
+    }
+
+    public override void Execute(IList<QueryTask> queryTasks, bool allowPartialExecution)
+    {
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        foreach (var task in queryTasks) {
+          var request = ((SqlProvider) task.DataSource).Request;
+          task.Result = new List<Tuple>();
+          commandProcessor.RegisterTask(new SqlQueryTask(request, task.ParameterContext, task.Result));
+        }
+        commandProcessor.ExecuteRequests(allowPartialExecution);
+      }
+    }
+
     #region Transaction control methods
 
     /// <inheritdoc/>
@@ -56,7 +93,7 @@ namespace Xtensive.Storage.Providers.Sql
           IsAutoshortenTransactionActivated = true;
           return;
         }
-        BeginDbTransaction();
+        BeginNativeTransaction();
       }
     }
 
@@ -89,37 +126,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
-
-    /// <inheritdoc/>
-    public override IEnumerator<Tuple> Execute(ExecutableProvider provider)
-    {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        ActivateCommandProcessor();
-        var enumerator = commandProcessor.ExecuteRequestsWithReader(((SqlProvider) provider).Request);
-        using (enumerator) {
-          while (enumerator.MoveNext())
-            yield return enumerator.Current;
-        }
-      }
-    }
-
-    public override void Execute(IList<QueryTask> queryTasks, bool dirty)
-    {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        ActivateCommandProcessor();
-        foreach (var task in queryTasks) {
-          var request = ((SqlProvider) task.DataSource).Request;
-          task.Result = new List<Tuple>();
-          commandProcessor.RegisterTask(new SqlQueryTask(request, task.ParameterContext, task.Result));
-        }
-        commandProcessor.ExecuteRequests(dirty);
-      }
-    }
-
+    
     #region ExecuteStatement methods
 
     internal int ExecuteNonQueryStatement(ISqlCompileUnit statement)
@@ -177,8 +184,7 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        ActivateCommandProcessor();
-        commandProcessor.ExecutePersist(new SqlPersistTask(request, tuple));
+        commandProcessor.ExecutePersistQuickly(new SqlPersistTask(request, tuple));
       }
     }
 
@@ -192,8 +198,7 @@ namespace Xtensive.Storage.Providers.Sql
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        ActivateCommandProcessor();
-        return commandProcessor.ExecuteScalar(new SqlScalarTask(request));
+        return commandProcessor.ExecuteScalarQuickly(new SqlScalarTask(request));
       }
     }
 
@@ -204,7 +209,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Persist(IEnumerable<PersistAction> persistActions, bool dirty)
     {
-      ActivateCommandProcessor();
       foreach (var action in persistActions)
         commandProcessor.RegisterTask(CreatePersistTask(action));
       commandProcessor.ExecuteRequests(dirty);
@@ -263,21 +267,24 @@ namespace Xtensive.Storage.Providers.Sql
       if (connection==null)
         connection = driver.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo);
       driver.OpenConnection(connection);
+      commandProcessor = CreateCommandProcessor();
     }
     
     private void EnsureAutoShortenTransactionIsStarted()
     {
+      // TODO: remove autoshortened transactions logic from SQL session handler
       if (Transaction!=null)
         return;
       if (!IsAutoshortenTransactionsEnabled() || !IsAutoshortenTransactionActivated)
         throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
-      BeginDbTransaction();
+      BeginNativeTransaction();
     }
 
-    private void BeginDbTransaction()
+    private void BeginNativeTransaction()
     {
       Transaction = driver.BeginTransaction(
         connection, IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
+      commandProcessor.Transaction = Transaction;
     }
 
     private DbCommand CreateCommand(string commandText)
@@ -294,12 +301,6 @@ namespace Xtensive.Storage.Providers.Sql
       command.Transaction = Transaction;
       return command;
     }
-
-    private void ActivateCommandProcessor()
-    {
-      commandProcessor.Connection = Connection;
-      commandProcessor.Transaction = Transaction;
-    }
  
     #endregion
 
@@ -309,12 +310,6 @@ namespace Xtensive.Storage.Providers.Sql
       base.Initialize();
       domainHandler = (DomainHandler) Handlers.DomainHandler;
       driver = domainHandler.Driver;
-      
-      int batchSize = this.Session.Configuration.BatchSize;
-      commandProcessor =
-        Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.Batches) && batchSize > 1
-          ? new BatchingCommandProcessor(domainHandler, batchSize)
-          : (CommandProcessor) new SimpleCommandProcessor(domainHandler);
     }
 
     /// <inheritdoc/>

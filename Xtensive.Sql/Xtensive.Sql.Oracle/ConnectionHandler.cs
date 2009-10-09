@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.11
 
+using System;
 using System.Data.Common;
 using Oracle.DataAccess.Client;
 using Xtensive.Core;
@@ -15,6 +16,11 @@ namespace Xtensive.Sql.Oracle
     public override DbCommand CreateCommand(DbConnection connection)
     {
       return new OracleCommand {Connection = (OracleConnection) connection, BindByName = true};
+    }
+
+    public override DbParameter CreateParameter()
+    {
+      return new OracleParameter();
     }
 
     public override IBinaryLargeObject CreateBinaryLargeObject(DbConnection connection)
