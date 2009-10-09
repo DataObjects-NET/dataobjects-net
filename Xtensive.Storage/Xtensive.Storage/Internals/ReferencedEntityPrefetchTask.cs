@@ -46,6 +46,8 @@ namespace Xtensive.Storage.Internals
             String.Format(Strings.ExReferencingEntityWithKeyXIsNotFound, ownerKey));
         if (!ownerState.IsTupleLoaded)
           throw Exceptions.InternalError(Strings.ExReferencingEntityTupleIsNotLoaded, Log.Instance);
+        if (!isOwnerTypeKnown && !ownerState.Key.Type.Fields.Contains(ReferencingField))
+          return;
         var foreignKeyTuple = ReferencingField.Association.ExtractForeignKey(ownerState.Tuple);
         for (int i = 0; i < foreignKeyTuple.Count; i++) {
           if (!foreignKeyTuple.GetFieldState(i).IsAvailable())

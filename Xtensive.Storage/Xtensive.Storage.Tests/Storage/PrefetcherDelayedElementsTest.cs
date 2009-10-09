@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Tests.Storage
             return orders.Prefetch(o => o.Employee);
           });
         foreach (var key in prefetcher) {
-          var cachedKey = GetCachedKey(key);
+          var cachedKey = GetCachedKey(key, Domain);
           PrefetchProcessorTest.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.Type, session,
             PrefetchProcessorTest.IsFieldToBeLoadedByDefault);
           EntitySetState state;
@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var tx = Transaction.Open()) {
         var prefetcher = keys.Prefetch<Entity, Key>(key => key);
         foreach (var key in prefetcher) {
-          var cachedKey = GetCachedKey(key);
+          var cachedKey = GetCachedKey(key, Domain);
           PrefetchProcessorTest.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, customerType, session,
               PrefetchProcessorTest.IsFieldToBeLoadedByDefault);
         }
@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Tests.Storage
         var prefetchCount = session.Handler.PrefetchTaskExecutionCount;
         var prefetcher = keys.Prefetch<AdvancedPerson, Key>(key => key);
         foreach (var key in prefetcher) {
-          var cachedKey = GetCachedKey(key);
+          var cachedKey = GetCachedKey(key, Domain);
           PrefetchProcessorTest.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.Type, session,
               PrefetchProcessorTest.IsFieldToBeLoadedByDefault);
         }
@@ -162,11 +162,11 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    private Key GetCachedKey(Key key)
+    public static Key GetCachedKey(Key key, Domain domain)
     {
       Key result;
       Assert.IsFalse(key.IsTypeCached);
-      Assert.IsTrue(Domain.KeyCache.TryGetItem(key, true, out result));
+      Assert.IsTrue(domain.KeyCache.TryGetItem(key, true, out result));
       Assert.IsTrue(result.IsTypeCached);
       return result;
     }

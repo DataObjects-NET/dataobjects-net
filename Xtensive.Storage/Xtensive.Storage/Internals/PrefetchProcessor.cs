@@ -21,15 +21,18 @@ namespace Xtensive.Storage.Internals
     private const int MaxContainerCount = 100;
 
     private readonly SetSlim<PrefetchTaskContainer> taskContainers = new SetSlim<PrefetchTaskContainer>();
+    private StrongReferenceContainer referenceContainer;
     
     public SessionHandler Owner { get; private set; }
 
     public int TaskExecutionCount { get; private set; }
 
-    public void Prefetch(Key key, TypeInfo type, params PrefetchFieldDescriptor[] descriptors)
+    public StrongReferenceContainer Prefetch(Key key, TypeInfo type,
+      params PrefetchFieldDescriptor[] descriptors)
     {
+      StrongReferenceContainer prevContainer = null;
       if (taskContainers.Count >= MaxContainerCount)
-        ExecuteTasks();
+        prevContainer = ExecuteTasks();
 
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
@@ -38,9 +41,10 @@ namespace Xtensive.Storage.Internals
       Tuple ownerEntityTuple;
       var currentKey = key;
       if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out ownerEntityTuple))
-        return;
+        return null;
       IEnumerable<PrefetchFieldDescriptor> selectedFields = descriptors;
       var currentType = type;
+      StrongReferenceContainer hierarchyRootContainer = null;
       if (currentKey.IsTypeCached) {
         currentType = currentKey.Type;
         EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
@@ -54,12 +58,19 @@ namespace Xtensive.Storage.Internals
         selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
       }
       CreateTasks(currentKey, currentType, selectedFields, currentKey.IsTypeCached, ownerEntityTuple);
+      if (referenceContainer != null) {
+        referenceContainer.JoinIfPossible(prevContainer);
+        return referenceContainer;
+      }
+      return prevContainer;
     }
 
-    public void ExecuteTasks()
+    public StrongReferenceContainer ExecuteTasks()
     {
-      if (taskContainers.Count == 0)
-        return;
+      if (taskContainers.Count == 0) {
+        referenceContainer = null;
+        return null;
+      }
       try {
         foreach (var taskContainer in taskContainers) {
           if (taskContainer.EntityPrefetchTask!=null)
@@ -98,6 +109,7 @@ namespace Xtensive.Storage.Internals
                 UpdateCache(task, reader, task.Key, task.ReferencingField.Association.TargetType);
           }
         }
+        return referenceContainer;
       }
       finally {
         Clear();
@@ -110,6 +122,7 @@ namespace Xtensive.Storage.Internals
 
     public void Clear()
     {
+      referenceContainer = null;
       taskContainers.Clear();
     }
 
@@ -127,13 +140,15 @@ namespace Xtensive.Storage.Internals
       if (isRemoved)
         return false;
       if (entityState != null) {
+        SaveStrongReference(entityState);
         tuple = entityState.Tuple;
         key = entityState.Key;
       }
       return true;
     }
 
-    public void PrefetchByKeyWithNotCachedType(Key key, TypeInfo type, PrefetchFieldDescriptor[] descriptors)
+    public void PrefetchByKeyWithNotCachedType(Key key, TypeInfo type,
+      PrefetchFieldDescriptor[] descriptors)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       Tuple entityTuple;
@@ -141,6 +156,13 @@ namespace Xtensive.Storage.Internals
       if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out entityTuple))
         return;
       CreateTasks(currentKey, type, descriptors, true, entityTuple);
+    }
+
+    public void SaveStrongReference(EntityState reference)
+    {
+      if (referenceContainer == null)
+        referenceContainer = new StrongReferenceContainer(null);
+      referenceContainer.Join(new StrongReferenceContainer(reference));
     }
 
     #region Private \ internal methods
@@ -157,8 +179,8 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    private void CreateTasks(Key key, TypeInfo type, IEnumerable<PrefetchFieldDescriptor> descriptors,
-      bool exactType, Tuple ownerEntityTuple)
+    private void CreateTasks(Key key, TypeInfo type,
+      IEnumerable<PrefetchFieldDescriptor> descriptors, bool exactType, Tuple ownerEntityTuple)
     {
       var taskContainer = GetTaskContainer(key, type, exactType);
       foreach (var descriptor in descriptors) {
@@ -199,10 +221,9 @@ namespace Xtensive.Storage.Internals
       if (record==null) {
         bool isRemoved;
         var cachedEntityState = GetCachedEntityState(key, out isRemoved);
-        if (task.ExactType && !isRemoved && (cachedEntityState == null || cachedEntityState.Type == type)) {
+        if (task.ExactType && !isRemoved && (cachedEntityState == null || cachedEntityState.Type == type))
           // Ensures there will be "removed" EntityState associated with this key
-          Owner.RegisterEntityState(task.Key, null);
-        }
+          SaveStrongReference(Owner.RegisterEntityState(task.Key, null));
         else
           return;
       }
@@ -210,14 +231,14 @@ namespace Xtensive.Storage.Internals
         var fetchedKey = record.GetKey();
         var tuple = record.GetTuple();
         if (tuple!=null)
-          Owner.RegisterEntityState(fetchedKey, tuple);
+          SaveStrongReference(Owner.RegisterEntityState(fetchedKey, tuple));
       }
     }
 
     private void UpdateCache(Key ownerKey, EntitySetPrefetchTask task, RecordSetReader reader)
     {
       var records = reader.Read(task.Result, task.RecordSet.Header);
-      var entities = new List<Pair<Key, Tuple>>(task.Result.Count);
+      var entityKeys = new List<Key>(task.Result.Count);
       List<Pair<Key, Tuple>> auxEntities = null;
       if (task.ReferencingField.Association.AuxiliaryType != null)
         auxEntities = new List<Pair<Key, Tuple>>(task.Result.Count);
@@ -232,14 +253,18 @@ namespace Xtensive.Storage.Internals
           if (task.ReferencingField.Association.AuxiliaryType != null)
             if (i==0)
               auxEntities.Add(new Pair<Key, Tuple>(key, tuple));
-            else
-              entities.Add(new Pair<Key, Tuple>(key, tuple));
-          else
-            entities.Add(new Pair<Key, Tuple>(key, tuple));
+            else {
+              SaveStrongReference(Owner.RegisterEntityState(key, tuple));
+              entityKeys.Add(key);
+            }
+          else {
+            SaveStrongReference(Owner.RegisterEntityState(key, tuple));
+            entityKeys.Add(key);
+          }
         }
       }
       Owner.RegisterEntitySetState(ownerKey, task.ReferencingField,
-        task.ItemCountLimit == null || entities.Count < task.ItemCountLimit, entities, auxEntities);
+        task.ItemCountLimit == null || entityKeys.Count < task.ItemCountLimit, entityKeys, auxEntities);
     }
 
     #endregion

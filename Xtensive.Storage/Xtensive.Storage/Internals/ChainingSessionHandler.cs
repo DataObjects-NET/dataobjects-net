@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.07.06
 
-using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -76,15 +75,16 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void Prefetch(Key key, Model.TypeInfo type, params PrefetchFieldDescriptor[] descriptors)
+    public override StrongReferenceContainer Prefetch(Key key, Model.TypeInfo type,
+      params PrefetchFieldDescriptor[] descriptors)
     {
-      ChainedHandler.Prefetch(key, type, descriptors);
+      return ChainedHandler.Prefetch(key, type, descriptors);
     }
 
     /// <inheritdoc/>
-    public override void ExecutePrefetchTasks()
+    public override StrongReferenceContainer ExecutePrefetchTasks()
     {
-      ChainedHandler.ExecutePrefetchTasks();
+      return ChainedHandler.ExecutePrefetchTasks();
     }
     
     protected internal override EntityState FetchInstance(Key key)
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Internals
     }
 
     internal override EntitySetState RegisterEntitySetState(Key key, Model.FieldInfo fieldInfo,
-      bool isFullyLoaded, List<Pair<Key, Tuple>> entities, List<Pair<Key, Tuple>> auxEntities)
+      bool isFullyLoaded, List<Key> entities, List<Pair<Key, Tuple>> auxEntities)
     {
       return ChainedHandler.RegisterEntitySetState(key, fieldInfo, isFullyLoaded, entities, auxEntities);
     }

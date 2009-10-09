@@ -253,9 +253,9 @@ namespace Xtensive.Storage.Tests.Storage
       Key productKey;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        customerKey = Query<Customer>.All.OrderBy(c => c.Id).First().Key;
-        orderKey = Query<Order>.All.OrderBy(o => o.Id).First().Key;
-        productKey = Query<Product>.All.OrderBy(p => p.Id).First().Key;
+        customerKey = GetFirstKeyInCurrentSession<Customer>();
+        orderKey = GetFirstKeyInCurrentSession<Order>();
+        productKey = GetFirstKeyInCurrentSession<Product>();
       }
 
       using (var session = Session.Open(Domain))
@@ -1038,7 +1038,10 @@ namespace Xtensive.Storage.Tests.Storage
     public static void AssertOnlySpecifiedColumnsAreLoaded(Key key, TypeInfo type, Session session,
       Func<FieldInfo, bool> fieldSelector)
     {
-      var tuple = session.EntityStateCache[key, true].Tuple;
+      var state = session.EntityStateCache[key, true];
+      var realType = state.Key.Type;
+      Assert.IsTrue(realType.Equals(type) || realType.GetAncestors().Contains(type));
+      var tuple = state.Tuple;
       Assert.IsNotNull(tuple);
       foreach (var field in type.Fields) {
         var isFieldSelected = fieldSelector.Invoke(field);
@@ -1086,14 +1089,20 @@ namespace Xtensive.Storage.Tests.Storage
       Assert.IsNull(state);
     }
 
+    private Key GetFirstKeyInCurrentSession<T>()
+      where T : Entity
+    {
+      return Query<T>.All.OrderBy(o => o.Key).First().Key;
+    }
+
     private Key GetFirstKey<T>()
       where T : Entity
     {
-      Key orderKey;
+      Key result;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open())
-        orderKey = Query<T>.All.OrderBy(o => o.Key).First().Key;
-      return orderKey;
+        result = Query<T>.All.OrderBy(o => o.Key).First().Key;
+      return result;
     }
 
     private static bool IsFieldKeyOrSystem(FieldInfo field)

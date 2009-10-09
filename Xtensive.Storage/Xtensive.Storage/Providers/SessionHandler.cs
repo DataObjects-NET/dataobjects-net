@@ -133,17 +133,22 @@ namespace Xtensive.Storage.Providers
     /// <param name="key">The key.</param>
     /// <param name="type">The type of the <see cref="Entity"/>.</param>
     /// <param name="descriptors">The descriptors of fields which values will be loaded.</param>
-    public virtual void Prefetch(Key key, TypeInfo type, params PrefetchFieldDescriptor[] descriptors)
+    /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save 
+    /// a strong reference to a fetched <see cref="Entity"/>.</returns>
+    public virtual StrongReferenceContainer Prefetch(Key key, TypeInfo type,
+      params PrefetchFieldDescriptor[] descriptors)
     {
-      prefetchProcessor.Prefetch(key, type, descriptors);
+      return prefetchProcessor.Prefetch(key, type, descriptors);
     }
 
     /// <summary>
     /// Executes registered prefetch tasks.
     /// </summary>
-    public virtual void ExecutePrefetchTasks()
+    /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save 
+    /// a strong reference to a fetched <see cref="Entity"/>.</returns>
+    public virtual StrongReferenceContainer ExecutePrefetchTasks()
     {
-      prefetchProcessor.ExecuteTasks();
+      return prefetchProcessor.ExecuteTasks();
     }
 
     /// <summary>
@@ -220,16 +225,11 @@ namespace Xtensive.Storage.Providers
     }
 
     internal virtual EntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo, bool isFullyLoaded, 
-      List<Pair<Key, Tuple>> entities, List<Pair<Key, Tuple>> auxEntities)
+      List<Key> entityKeys, List<Pair<Key, Tuple>> auxEntities)
     {
       if (Session.EntityStateCache[key, false]==null)
         return null;
-      var keyList = new List<Key>();
-      foreach (var pair in entities) {
-        RegisterEntityState(pair.First, pair.Second);
-        keyList.Add(pair.First);
-      }
-      return UpdateEntitySetState(key, fieldInfo, keyList, isFullyLoaded);
+      return UpdateEntitySetState(key, fieldInfo, entityKeys, isFullyLoaded);
     }
 
     internal virtual bool TryGetEntitySetState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)

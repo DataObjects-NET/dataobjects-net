@@ -150,15 +150,16 @@ namespace Xtensive.Storage.Internals
     {
       var processedElements = new Queue<TElement>();
       var waitingElements = new Queue<TElement>();
+      var referenceContainer = new StrongReferenceContainer(null);
       var elementsHavingKeyWithUnknownType = new List<TElement>();
       try {
         var sessionHandler = Session.Demand().Handler;
         var prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
         foreach (var element in source) {
-          var elementKey = RegisterPrefetch(element, sessionHandler);
+          var elementKey = RegisterPrefetch(element, sessionHandler, ref referenceContainer);
           if (prefetchTaskExecutionCount != sessionHandler.PrefetchTaskExecutionCount) {
             ProcessFetchedElements(processedElements, waitingElements, elementsHavingKeyWithUnknownType,
-              sessionHandler, false);
+              sessionHandler, referenceContainer, false);
           }
           waitingElements.Enqueue(element);
           if (!elementKey.IsTypeCached)
@@ -169,9 +170,9 @@ namespace Xtensive.Storage.Internals
         }
         while (processedElements.Count > 0)
           yield return processedElements.Dequeue();
-        sessionHandler.ExecutePrefetchTasks();
+        referenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks());
         ProcessFetchedElements(processedElements, waitingElements, elementsHavingKeyWithUnknownType,
-          sessionHandler, true);
+          sessionHandler, referenceContainer, true);
         while (processedElements.Count > 0)
           yield return processedElements.Dequeue();
         while (waitingElements.Count > 0)
@@ -230,7 +231,7 @@ namespace Xtensive.Storage.Internals
     }
 
     private void FetchRemainingFieldsOfDelayedElements(ICollection<TElement> elementsHavingKeyWithUnknownType,
-      SessionHandler sessionHandler)
+      StrongReferenceContainer referenceContainer, SessionHandler sessionHandler)
     {
       foreach (var elementToBeFetched in elementsHavingKeyWithUnknownType) {
         var key = keyExtractor.Invoke(elementToBeFetched);
@@ -243,12 +244,13 @@ namespace Xtensive.Storage.Internals
                 && field.Parent==null && PrefetchTask.IsFieldToBeLoadedByDefault(field))
               .Select(field => new PrefetchFieldDescriptor(field, false)).ToArray());
         var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;
-        sessionHandler.Prefetch(cachedKey, cachedKey.Type, descriptorsArray);
+        referenceContainer.JoinIfPossible(sessionHandler.Prefetch(cachedKey, cachedKey.Type, descriptorsArray));
       }
       elementsHavingKeyWithUnknownType.Clear();
     }
 
-    private Key RegisterPrefetch(TElement element, SessionHandler sessionHandler)
+    private Key RegisterPrefetch(TElement element, SessionHandler sessionHandler,
+      ref StrongReferenceContainer strongReferenceContainer)
     {
       var key = keyExtractor.Invoke(element);
       TypeInfo type;
@@ -259,7 +261,8 @@ namespace Xtensive.Storage.Internals
       else
         type = modelType;
       var descriptorArray = GetUserDescriptorArray(type);
-      sessionHandler.Prefetch(keyExtractor.Invoke(element), type, descriptorArray);
+      strongReferenceContainer.JoinIfPossible(sessionHandler
+        .Prefetch(keyExtractor.Invoke(element), type, descriptorArray));
       return key;
     }
 
@@ -278,27 +281,20 @@ namespace Xtensive.Storage.Internals
     }
 
     private void ProcessFetchedElements(Queue<TElement> processedElements, Queue<TElement> waitingElements,
-      List<TElement> delayedElements, SessionHandler sessionHandler, bool forceTasksExecution)
+      List<TElement> delayedElements, SessionHandler sessionHandler,
+      StrongReferenceContainer referenceContainer, bool forceTasksExecution)
     {
-      while (waitingElements.Count > 1 || waitingElements.Count == 1 && forceTasksExecution ) {
+      while (waitingElements.Count > 1 || waitingElements.Count==1 && forceTasksExecution) {
         var waitingElement = waitingElements.Peek();
-        PrepareDelayedElementForPrefetchMany(waitingElement, delayedElements, sessionHandler);
-        if (waitingElements.Count == 1 && forceTasksExecution)
-          sessionHandler.ExecutePrefetchTasks();
+        if (delayedElements.Count > 0 && ReferenceEquals(waitingElement, delayedElements[0]))
+          FetchRemainingFieldsOfDelayedElements(delayedElements, referenceContainer, sessionHandler);
+        if (waitingElements.Count==1 && forceTasksExecution)
+          referenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks());
         if (prefetchManyDelegates.Count > 0) {
           var prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
           ExecutePrefetchMany(waitingElement, sessionHandler);
         }
         processedElements.Enqueue(waitingElements.Dequeue());
-      }
-    }
-
-    private void PrepareDelayedElementForPrefetchMany(TElement waitingElement,
-      List<TElement> elementsHavingKeyWithUnknownType, SessionHandler sessionHandler)
-    {
-      if (elementsHavingKeyWithUnknownType.Count > 0
-        && ReferenceEquals(waitingElement, elementsHavingKeyWithUnknownType[0])) {
-        FetchRemainingFieldsOfDelayedElements(elementsHavingKeyWithUnknownType, sessionHandler);
       }
     }
 

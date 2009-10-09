@@ -21,12 +21,21 @@ namespace Xtensive.Storage.Internals
     private readonly PrefetchProcessor processor;
     private readonly bool exactType;
     private int? cachedHashCode;
+    private bool isReferenceContainerCreated;
 
     public readonly Key Key;
     
     public readonly TypeInfo Type;
 
     public EntityPrefetchTask EntityPrefetchTask { get; private set; }
+
+    public bool ContainsTask {
+      get {
+        return EntityPrefetchTask!=null
+          || (referencedEntityPrefetchTasks!=null && referencedEntityPrefetchTasks.Count > 0)
+          || (entitySetPrefetchTasks!=null && entitySetPrefetchTasks.Count > 0);
+      }
+    }
 
     public IEnumerable<ReferencedEntityPrefetchTask> ReferencedEntityPrefetchTasks
     {
