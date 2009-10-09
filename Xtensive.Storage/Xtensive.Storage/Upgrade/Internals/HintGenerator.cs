@@ -42,6 +42,8 @@ namespace Xtensive.Storage.Upgrade
       var fieldRenames = proccessedHints.OfType<RenameFieldHint>().ToArray();
       var fieldCopyHints = proccessedHints.OfType<CopyFieldHint>().ToArray();
       var changeTypeHints = proccessedHints.OfType<ChangeFieldTypeHint>().ToArray();
+      var removeFieldHints = proccessedHints.OfType<RemoveFieldHint>().ToArray();
+      var removeTypeHints = proccessedHints.OfType<RemoveTypeHint>().ToArray();
 
       ValidateRenameTypeHints(typeRenames);
       BuildTypeMapping(typeRenames);
@@ -51,11 +53,15 @@ namespace Xtensive.Storage.Upgrade
       BuildConnectorTypeMapping();
 
       ValidateCopyFieldHints(fieldCopyHints);
+      ValidateRemoveFieldHints(removeFieldHints);
+      ValidateRemoveTypeHints(removeTypeHints);
       GenerateRenameTableHints();
       GenerateRenameColumnHints();
       GenerateCopyColumnHints(fieldCopyHints);
       GenerateClearDataHints();
       UpdateChangeFieldTypeHints(changeTypeHints);
+      UpdateRemoveFieldHints(removeFieldHints);
+      UpdateRemoveTypeHints(removeTypeHints);
       return resultHints;
     }
 
@@ -132,6 +138,30 @@ namespace Xtensive.Storage.Upgrade
           throw TypeIsNotFound(targetTypeName);
         if (!targetType.AllFields.Any(field => field.Name==hint.TargetField))
           throw FieldIsNotFound(targetTypeName, hint.TargetField);
+      }
+    }
+
+    private void ValidateRemoveFieldHints(IEnumerable<RemoveFieldHint> hints)
+    {
+      foreach (var hint in hints) {
+        // checking source type/field
+        var sourceTypeName = hint.Type;
+        var sourceType = storedModel.Types.SingleOrDefault(type => type.UnderlyingType==sourceTypeName);
+        if (sourceType==null)
+          throw TypeIsNotFound(sourceTypeName);
+        if (!sourceType.AllFields.Any(field => field.Name==hint.Field))
+          throw FieldIsNotFound(sourceTypeName, hint.Field);
+      }
+    }
+
+    private void ValidateRemoveTypeHints(IEnumerable<RemoveTypeHint> hints)
+    {
+      foreach (var hint in hints) {
+        // checking source type
+        var sourceTypeName = hint.Type;
+        var sourceType = storedModel.Types.SingleOrDefault(type => type.UnderlyingType==sourceTypeName);
+        if (sourceType==null)
+          throw TypeIsNotFound(sourceTypeName);
       }
     }
 
@@ -491,7 +521,79 @@ namespace Xtensive.Storage.Upgrade
         resultHints.Add(new DeleteDataHint(sourceTablePath, identities));
     }
 
-    private void UpdateChangeFieldTypeHints(ChangeFieldTypeHint[] changeFieldTypeHints)
+    private void UpdateRemoveFieldHints(IEnumerable<RemoveFieldHint> removeFieldHints)
+    {
+      removeFieldHints.Apply(UpdateRemoveFieldHint);
+    }
+
+    private void UpdateRemoveFieldHint(RemoveFieldHint hint)
+    {
+      var affectedColumns = new List<string>();
+      var typeName = hint.Type;
+      var storedType = storedModel.Types.SingleOrDefault(type => 
+        type.UnderlyingType==typeName);
+      if (storedType==null)
+        throw TypeIsNotFound(typeName);
+      var storedField = storedType.AllFields
+        .SingleOrDefault(field => field.Name==hint.Field);
+      if (storedField==null)
+        throw FieldIsNotFound(typeName, hint.Field);
+      var inheritanceSchema = storedType.Hierarchy.Schema;
+      
+      switch (inheritanceSchema) {
+      case InheritanceSchema.ClassTable:
+        affectedColumns.Add(GetColumnPath(storedField.DeclaringType.MappingName, storedField.MappingName));
+        break;
+      case InheritanceSchema.SingleTable:
+        affectedColumns.Add(GetColumnPath(storedType.Hierarchy.Root.MappingName, storedField.MappingName));
+        break;
+      case InheritanceSchema.ConcreteTable:
+        var typeToProcess = GetAffectedMappedTypes(storedType,
+          storedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
+        affectedColumns.AddRange(
+          typeToProcess.Select(type => GetColumnPath(type.MappingName, storedField.MappingName)));
+        break;
+      default:
+          throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
+      }
+      hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
+    }
+
+    private void UpdateRemoveTypeHints(IEnumerable<RemoveTypeHint> removeTypeHints)
+    {
+      removeTypeHints.Apply(UpdateRemoveTypeHint);
+    }
+
+    private void UpdateRemoveTypeHint(RemoveTypeHint hint)
+    {
+      var affectedTables = new List<string>();
+      var typeName = hint.Type;
+      var storedType = storedModel.Types.SingleOrDefault(type => 
+        type.UnderlyingType==typeName);
+      if (storedType==null)
+        throw TypeIsNotFound(typeName);
+      var inheritanceSchema = storedType.Hierarchy.Schema;
+      
+      switch (inheritanceSchema) {
+      case InheritanceSchema.ClassTable:
+        affectedTables.Add(GetTablePath(storedType.MappingName));
+        break;
+      case InheritanceSchema.SingleTable:
+        affectedTables.Add(GetTablePath(storedType.Hierarchy.Root.MappingName));
+        break;
+      case InheritanceSchema.ConcreteTable:
+        var typeToProcess = GetAffectedMappedTypes(storedType,
+          storedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
+        affectedTables.AddRange(
+          typeToProcess.Select(type => GetTablePath(type.MappingName)));
+        break;
+      default:
+          throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
+      }
+      hint.AffectedTables = new ReadOnlyList<string>(affectedTables);
+    }
+
+    private void UpdateChangeFieldTypeHints(IEnumerable<ChangeFieldTypeHint> changeFieldTypeHints)
     {
       changeFieldTypeHints.Apply(UpdateChangeFieldTypeHint);
     }
@@ -528,6 +630,8 @@ namespace Xtensive.Storage.Upgrade
       }
       hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
     }
+
+
 
     private IEnumerable<UpgradeHint> PreprocessGenericTypeHints(IEnumerable<UpgradeHint> hints)
     {
@@ -610,7 +714,7 @@ namespace Xtensive.Storage.Upgrade
         
     }
 
-    public bool EnsureTableExist(string tableName)
+    private bool EnsureTableExist(string tableName)
     {
       if (!extractedModel.Tables.Contains(tableName)) {
         Log.Warning(Strings.ExTableXIsNotFound);
@@ -619,7 +723,7 @@ namespace Xtensive.Storage.Upgrade
       return true;
     }
 
-    public bool EnsureFieldExist(string tableName, string fieldName)
+    private bool EnsureFieldExist(string tableName, string fieldName)
     {
       if (!EnsureTableExist(tableName))
         return false;

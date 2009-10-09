@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Ivan Galkin
-// Created:    2009.06.05
+// Created:    2009.10.09
 
 using System;
 using System.Collections.Generic;
@@ -13,34 +13,33 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Upgrade
 {
   /// <summary>
-  /// Change field type enforced (ignore type conversion verification) hint.
+  /// Remove field hint.
   /// </summary>
   [Serializable]
-  public sealed class ChangeFieldTypeHint : UpgradeHint
+  public class RemoveFieldHint : UpgradeHint
   {
-    private const string ToStringFormat = "Change type of field: {0}.{1}";
+    private const string ToStringFormat = "Remove field: {0}.{1}";
 
     /// <summary>
-    /// Gets the target type.
+    /// Gets the source type.
     /// </summary>
-    public Type Type { get; private set; }
+    public string Type { get; private set; }
 
     /// <summary>
-    /// Gets the target field name.
+    /// Gets the source field.
     /// </summary>
-    public string FieldName { get; private set; }
+    public string Field { get; private set; }
 
     /// <summary>
     /// Gets affected column paths.
     /// </summary>
     public ReadOnlyList<string> AffectedColumns { get; internal set; }
-    
+
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format(ToStringFormat, Type, FieldName);
+      return string.Format(ToStringFormat, Type, Field);
     }
-
 
     // Constructors
 
@@ -48,13 +47,13 @@ namespace Xtensive.Storage.Upgrade
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="type">Value for <see cref="Type"/>.</param>
-    /// <param name="fieldName">Value for <see cref="FieldName"/>.</param>
-    public ChangeFieldTypeHint(Type type, string fieldName)
+    /// <param name="field">Value for <see cref="Field"/>.</param>
+    public RemoveFieldHint(string type, string field)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, "sourceField");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(type, "sourceType");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(field, "sourceField");
       Type = type;
-      FieldName = fieldName;
+      Field = field;
       AffectedColumns = new ReadOnlyList<string>(new List<string>());
     }
   }

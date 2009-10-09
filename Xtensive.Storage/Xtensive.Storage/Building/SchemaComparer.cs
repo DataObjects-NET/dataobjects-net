@@ -43,12 +43,14 @@ namespace Xtensive.Storage.Building
         : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
       };
       var typeChanges = GetTypeChanges(difference as NodeDifference);
+      
       var status = GetComparisonStatus(actions);
       var typeChangedColumns = UpgradeContext.Demand().Hints
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
         .ToHashSet();
-      var canPerformSafely = CanPerformSafely(typeChanges, typeChangedColumns);
+      var canPerformSafely = 
+        CanPerformTypesSafely(typeChanges, typeChangedColumns);
 
       return new SchemaComparisonResult(status, hints, difference, actions, 
         typeChanges.Any(), canPerformSafely);
@@ -57,15 +59,28 @@ namespace Xtensive.Storage.Building
     private static SchemaComparisonStatus GetComparisonStatus(ActionSequence upgradeActions)
     {
       var actions = upgradeActions.Flatten();
-      
+      var removedColumns = 
+        UpgradeContext.Demand().Hints
+        .OfType<RemoveFieldHint>()
+        .SelectMany(hint => hint.AffectedColumns)
+        .ToHashSet();
+      var removedTables = 
+        UpgradeContext.Demand().Hints
+        .OfType<RemoveTypeHint>()
+        .SelectMany(hint => hint.AffectedTables)
+        .ToHashSet();
+
       var hasCreateActions = actions
         .OfType<CreateNodeAction>()
         .Any();
       var hasRemoveActions = actions
         .OfType<RemoveNodeAction>()
-        .Any(action => action.Difference.Source is TableInfo
-          || action.Difference.Source is ColumnInfo);
-
+        .Any(action => 
+          ((action.Difference.Source is TableInfo && !removedTables
+            .Contains(((NodeDifference) action.Difference).Source.Path))
+          || ((action.Difference.Source is ColumnInfo) && !removedColumns
+            .Contains(((NodeDifference) action.Difference).Source.Path))));
+      
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;
       if (hasCreateActions)
@@ -75,13 +90,21 @@ namespace Xtensive.Storage.Building
       return SchemaComparisonStatus.Equal;
     }
 
-    private static bool CanPerformSafely(IEnumerable<Triplet<string, TypeInfo, TypeInfo>> typeChanges, 
+    private static bool CanPerformTypesSafely(IEnumerable<Triplet<string, TypeInfo, TypeInfo>> typeChanges, 
       HashSet<string> typeChangedColumns)
     {
-      return
+      return 
         !typeChanges.Any(triplet =>
         !TypeConversionVerifier.CanConvertSafely(triplet.Second, triplet.Third)
         && !typeChangedColumns.Contains(triplet.First));
+    }
+
+    private static bool CanRemoveColumnsSafely(NodeDifference schemaDifference, HashSet<string> removedColumns)
+    {
+      var columnDiffs = GetColumnDifferences(schemaDifference).Where(diff => diff.IsRemoved);
+      if (columnDiffs.Count()==0)
+        return true;
+      return columnDiffs.Any(diff => !removedColumns.Contains(diff.Source.Path));
     }
 
     private static IEnumerable<Triplet<string, TypeInfo, TypeInfo>> GetTypeChanges(NodeDifference schemaDifference)
@@ -106,6 +129,9 @@ namespace Xtensive.Storage.Building
 
     private static IEnumerable<NodeDifference> GetColumnDifferences(NodeDifference schemaDifference)
     {
+      if (schemaDifference==null)
+        return Enumerable.Empty<NodeDifference>();
+
       Func<Difference, IEnumerable<Difference>> itemExtractor =
         diff => {
           if (diff is NodeDifference)
