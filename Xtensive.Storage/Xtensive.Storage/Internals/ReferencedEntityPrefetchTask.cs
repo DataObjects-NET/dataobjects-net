@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Internals
   {
     private QueryTask queryFetchingColumns;
     private readonly MapTransform referencedEntityKeyTransform;
-    private readonly TypeInfo rootType;
+    private readonly TypeInfo targetType;
     private readonly Key ownerKey;
     private readonly bool isOwnerTypeKnown;
 
@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Internals
           if ((foreignKeyTuple.GetFieldState(i) & TupleFieldState.Null)==TupleFieldState.Null)
             return;
         }
-        Key = Key.Create(rootType, foreignKeyTuple, false);
+        Key = Key.Create(targetType, foreignKeyTuple, TypeReferenceAccuracy.BaseType);
         if (!TryActivate())
           return;
         queryFetchingColumns = CreateQueryTask(Key);
@@ -75,11 +75,11 @@ namespace Xtensive.Storage.Internals
     {
       ArgumentValidator.EnsureArgumentNotNull(referencingField, "referencingField");
       ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
-      rootType = referencingField.Association.TargetType;
+      targetType = referencingField.Association.TargetType;
       this.ownerKey = ownerKey;
       ReferencingField = referencingField;
       this.isOwnerTypeKnown = isOwnerTypeKnown;
-      var fieldsToBeLoaded = rootType.Fields.Where(IsFieldToBeLoadedByDefault);
+      var fieldsToBeLoaded = targetType.Fields.Where(IsFieldToBeLoadedByDefault);
       foreach (var field in fieldsToBeLoaded)
         AddColumns(field.Columns);
     }

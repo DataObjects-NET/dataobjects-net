@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Internals
           if (referencedKeyTupleState[i])
             return;
         var referencedKey = Key.Create(referencingField.Association.TargetType,
-          referencedKeyTuple, false);
+          referencedKeyTuple, TypeReferenceAccuracy.BaseType);
         var targetType = referencingField.Association.TargetType;
         var fieldsToBeLoaded = PrefetchTask.CreateDescriptorsForFieldsLoadedByDefault(targetType);
         processor.PrefetchByKeyWithNotCachedType(referencedKey, targetType, fieldsToBeLoaded);
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Internals
       if (entitySetPrefetchTasks==null)
         entitySetPrefetchTasks = new Dictionary<FieldInfo, EntitySetPrefetchTask>();
       if (EntityPrefetchTask==null)
-        AddEntityColumns(Key.Hierarchy.Root.Fields
+        AddEntityColumns(Key.TypeRef.Type.Fields
           .Where(field => field.IsPrimaryKey || field.IsSystem).SelectMany(field => field.Columns));
       entitySetPrefetchTasks[referencingFieldDescriptor.Field] =
         new EntitySetPrefetchTask(Key, referencingFieldDescriptor, processor);

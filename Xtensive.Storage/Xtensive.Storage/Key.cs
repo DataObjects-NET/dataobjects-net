@@ -26,28 +26,16 @@ namespace Xtensive.Storage
   [Serializable]
   public class Key : IEquatable<Key>
   {
-    private readonly HierarchyInfo hierarchy;
     protected Tuple value;
 
     [NonSerialized]
-    private bool isHashCodeCalculated;
-
-    [NonSerialized]
-    private int hashCode;
+    private int? hashCode;
     
     [NonSerialized]
-    private TypeInfo type;
+    internal TypeReference TypeRef;
 
     [NonSerialized]
     private string cachedFormatResult;
-
-    /// <summary>
-    /// Gets the hierarchy identified entity belongs to.
-    /// </summary>
-    public HierarchyInfo Hierarchy
-    {
-      get { return hierarchy; }
-    }
 
     /// <summary>
     /// Gets the key value.
@@ -63,8 +51,8 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
     public TypeInfo Type {
       get {
-        if (type!=null)
-          return type;
+        if (TypeRef.Accuracy == TypeReferenceAccuracy.ExactType)
+          return TypeRef.Type;
 
         var session = Session.Current;
         if (session==null)
@@ -73,15 +61,18 @@ namespace Xtensive.Storage
         var domain = session.Domain;
         var keyCache = domain.KeyCache;
         Key cachedKey;
+
         lock (keyCache)
           keyCache.TryGetItem(this, true, out cachedKey);
         if (cachedKey!=null) {
-          type = cachedKey.type;
-          return type;
+          TypeRef = cachedKey.TypeRef;
+          return TypeRef.Type;
         }
-        if (Hierarchy.Types.Count==1) {
-          type = Hierarchy.Types[0];
-          return type;
+
+        var hierarchy = TypeRef.Type.Hierarchy;
+        if (hierarchy.Types.Count==1) {
+          TypeRef = new TypeReference(hierarchy.Types[0], TypeReferenceAccuracy.ExactType);
+          return TypeRef.Type;
         }
         if (session.IsDebugEventLoggingEnabled)
           Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.", session, this);
@@ -89,8 +80,8 @@ namespace Xtensive.Storage
         var entityState = session.Handler.FetchInstance(this);
         if (entityState==null)
           throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
-        type = entityState.Type;
-        return type;
+        TypeRef = new TypeReference(entityState.Type, TypeReferenceAccuracy.ExactType);
+        return TypeRef.Type;
 
       }
     }
@@ -98,17 +89,19 @@ namespace Xtensive.Storage
     /// <summary>
     /// Determines whether <see cref="Type"/> property has cached type value or not.
     /// </summary>
-    public bool IsTypeCached {
-      get { return type!=null ? true : false; }
+    public bool IsTypeCached
+    {
+      get { return TypeRef.Accuracy == TypeReferenceAccuracy.ExactType ? true : false; }
     }
 
-    private int HashCode {
-      get {
-        if (isHashCodeCalculated)
-          return hashCode;
+    private int HashCode
+    {
+      get
+      {
+        if (hashCode.HasValue)
+          return hashCode.Value;
         hashCode = CalculateHashCode();
-        isHashCodeCalculated = true;
-        return hashCode;
+        return hashCode.Value;
       }
     }
 
@@ -124,7 +117,7 @@ namespace Xtensive.Storage
         return true;
       if (HashCode!=other.HashCode)
         return false;
-      if (Hierarchy!=other.Hierarchy)
+      if (TypeRef.Type.KeyInfo!=other.TypeRef.Type.KeyInfo)
         return false;
       if (other.GetType().IsGenericType)
         return other.ValueEquals(this);
@@ -196,7 +189,7 @@ namespace Xtensive.Storage
     {
       if (cachedFormatResult==null) {
         var builder = new StringBuilder();
-        builder.Append(hierarchy.Root.TypeId);
+        builder.Append(TypeRef.Type.TypeId);
         builder.Append(":");
         builder.Append(Value.Format());
         cachedFormatResult = builder.ToString();
@@ -225,9 +218,9 @@ namespace Xtensive.Storage
 
       var domain = Domain.Demand();
       var type = domain.Model.Types[Int32.Parse(typeIdString)];
-      var keyTupleDescriptor = type.Hierarchy.KeyInfo.TupleDescriptor;
-      
-      return KeyFactory.Create(type, keyTupleDescriptor.Parse(valueString), null, false, false);
+      var keyTupleDescriptor = type.KeyInfo.TupleDescriptor;
+
+      return Create(type, keyTupleDescriptor.Parse(valueString));
     }
 
     #endregion
@@ -241,7 +234,7 @@ namespace Xtensive.Storage
           Value.ToRegular());
       else
         return string.Format(Strings.KeyFormatUnknownKeyType,
-          Hierarchy.Root.UnderlyingType.GetShortName(),
+          TypeRef.Type.UnderlyingType.GetShortName(),
           Value.ToRegular());
     }
 
@@ -251,7 +244,7 @@ namespace Xtensive.Storage
     /// <returns>Calculated hash code.</returns>
     protected virtual int CalculateHashCode()
     {
-      return value.GetHashCode() ^ hierarchy.GetHashCode();
+      return value.GetHashCode() ^ TypeRef.Type.KeyInfo.GetHashCode();
     }
 
     #region Create next key methods
@@ -308,13 +301,13 @@ namespace Xtensive.Storage
     public static Key Create<T>(Tuple value)
       where T : Entity  
     {
-      return Create<T>(value, false);
+      return Create<T>(value, TypeReferenceAccuracy.Hierarchy);
     }
 
-    internal static Key Create<T>(Tuple value, bool exactType)
+    internal static Key Create<T>(Tuple value, TypeReferenceAccuracy accuracy)
       where T : Entity
     {
-      return Create(typeof (T), value, exactType);
+      return Create(typeof (T), value, accuracy);
     }
 
     /// <summary>
@@ -326,12 +319,12 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Type type, Tuple value)
     {
-      return Create(type, value, false);
+      return Create(type, value, TypeReferenceAccuracy.Hierarchy);
     }
 
-    internal static Key Create(Type type, Tuple value, bool exactType)
+    internal static Key Create(Type type, Tuple value, TypeReferenceAccuracy accuracy)
     {
-      return Create(Domain.Demand().Model.Types[type], value, exactType);
+      return Create(Domain.Demand().Model.Types[type], value, accuracy);
     }
 
     /// <summary>
@@ -343,12 +336,12 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(TypeInfo type, Tuple value)
     {
-      return Create(type, value, false);
+      return Create(type, value, TypeReferenceAccuracy.Hierarchy);
     }
 
-    internal static Key Create(TypeInfo type, Tuple value, bool exactType)
+    internal static Key Create(TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy)
     {
-      return KeyFactory.Create(type, value, null, exactType, false);
+      return KeyFactory.Create(type, value, null, accuracy, false);
     }
 
     #endregion
@@ -366,15 +359,15 @@ namespace Xtensive.Storage
     /// A newly created or existing <see cref="Key"/> instance.
     /// </returns>
     public static Key Create<T>(params object[] values)
-      where T : Entity  
-    {
-      return Create<T>(false, values);
-    }
-
-    internal static Key Create<T>(bool exactType, params object[] values)
       where T : Entity
     {
-      return Create(typeof (T), exactType, values);
+      return Create<T>(TypeReferenceAccuracy.Hierarchy, values);
+    }
+
+    internal static Key Create<T>(TypeReferenceAccuracy accuracy, params object[] values)
+      where T : Entity
+    {
+      return Create(typeof (T), accuracy, values);
     }
 
     /// <summary>
@@ -386,12 +379,12 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Type type, params object[] values)
     {
-      return Create(type, false, values);
+      return Create(type, TypeReferenceAccuracy.Hierarchy, values);
     }
 
-    private static Key Create(Type type, bool exactType, params object[] values)
+    private static Key Create(Type type, TypeReferenceAccuracy accuracy, params object[] values)
     {
-      return Create(Domain.Demand().Model.Types[type], exactType, values);
+      return Create(Domain.Demand().Model.Types[type], accuracy, values);
     }
 
     /// <summary>
@@ -401,9 +394,9 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="values">Key values.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    public static Key Create(TypeInfo type, bool exactType, params object[] values)
+    public static Key Create(TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
-      return KeyFactory.Create(type, exactType, values);
+      return KeyFactory.Create(type, accuracy, values);
     }
 
     #endregion
@@ -411,10 +404,9 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Key(HierarchyInfo hierarchy, TypeInfo type, Tuple value)
+    internal Key(TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
     {
-      this.hierarchy = hierarchy;
-      this.type = type;
+      TypeRef = new TypeReference(type, accuracy);
       this.value = value;
     }
   }

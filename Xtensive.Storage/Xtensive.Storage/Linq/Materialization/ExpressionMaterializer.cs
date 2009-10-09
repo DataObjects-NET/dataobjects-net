@@ -247,8 +247,7 @@ namespace Xtensive.Storage.Linq.Materialization
       return Expression.Call(
         WellKnownMembers.KeyCreate,
         Expression.Constant(expression.EntityType),
-        tupleExpression,
-        Expression.Constant(false));
+        tupleExpression);
     }
 
     protected override Expression VisitEntityExpression(EntityExpression expression)

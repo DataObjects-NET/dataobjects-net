@@ -58,34 +58,40 @@ namespace Xtensive.Storage.Internals
     private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, ColumnGroupMapping groupMapping)
     {
       var rootType = groupMapping.Type;
-      bool exactType;
-      int typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex, out exactType);
+      TypeReferenceAccuracy accuracy;
+      int typeId = ExtractTypeId(rootType, tuple, groupMapping.TypeIdColumnIndex, out accuracy);
       var typeMapping = typeId==TypeInfo.NoTypeId ? null : groupMapping.GetTypeMapping(typeId);
       if (typeMapping==null)
         return new Pair<Key, Tuple>(null, null);
 
+      bool canCache = accuracy==TypeReferenceAccuracy.ExactType;
       Key key;
-      var entityType = exactType ? typeMapping.Type : rootType;
       if (typeMapping.KeyTransform.Descriptor.Count <= WellKnown.MaxGenericKeyLength)
-        key = KeyFactory.Create(entityType, tuple, typeMapping.KeyIndexes, exactType, exactType);
+        key = KeyFactory.Create(typeMapping.Type, tuple, typeMapping.KeyIndexes, accuracy, canCache);
       else {
         var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = KeyFactory.Create(entityType, keyTuple, null, exactType, exactType);
+        key = KeyFactory.Create(typeMapping.Type, keyTuple, null, accuracy, canCache);
       }
-      if (exactType) {
+      if (accuracy == TypeReferenceAccuracy.ExactType) {
         var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);
         return new Pair<Key, Tuple>(key, entityTuple);
       }
       return new Pair<Key, Tuple>(key, null);
     }
 
-    internal static int ExtractTypeId(TypeInfo type, Tuple tuple, int typeIdIndex, out bool exactType)
+    internal static int ExtractTypeId(TypeInfo type, Tuple tuple, int typeIdIndex, out TypeReferenceAccuracy accuracy)
     {
+      accuracy = TypeReferenceAccuracy.Hierarchy;
+      if (type.IsInterface)
+        accuracy = TypeReferenceAccuracy.BaseType;
+
       if (typeIdIndex < 0) {
-        exactType = type.IsLeaf;
+        if (type.IsLeaf)
+          accuracy = TypeReferenceAccuracy.ExactType;
         return type.TypeId;
       }
-      exactType = true;
+
+      accuracy = TypeReferenceAccuracy.ExactType;
       TupleFieldState state;
       var value = tuple.GetValue<int>(typeIdIndex, out state);
       if (type.IsLeaf)

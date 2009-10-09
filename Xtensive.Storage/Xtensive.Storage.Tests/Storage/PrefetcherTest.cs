@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Storage
           AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, fieldSelector);
           var orderState = session.EntityStateCache[key, true];
           var employeeKey = Key.Create<Employee>(employeeField.Association.ExtractForeignKey(orderState.Tuple),
-            true);
+            TypeReferenceAccuracy.ExactType);
           AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session, fieldSelector);
         }
       }

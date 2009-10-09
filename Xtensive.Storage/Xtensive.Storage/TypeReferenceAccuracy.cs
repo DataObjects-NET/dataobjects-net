@@ -12,17 +12,17 @@ namespace Xtensive.Storage
   public enum TypeReferenceAccuracy
   {
     /// <summary>
-    /// Referenced type could be any node from the specified type hierarchy.
+    /// Referenced type is limited to the entire hierarchy.
     /// </summary>
     Hierarchy = 0,
 
     /// <summary>
-    /// Referenced type could be any node from the specified hierarchy subtree (type and its ancestors).
+    /// Referenced type is limited to the hierarchy subtree (specified type and its ancestors).
     /// </summary>
     BaseType = 1,
 
     /// <summary>
-    /// Referenced type is known.
+    /// Referenced type is exactly known.
     /// </summary>
     ExactType = 2,
   }

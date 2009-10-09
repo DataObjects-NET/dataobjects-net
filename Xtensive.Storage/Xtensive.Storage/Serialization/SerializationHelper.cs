@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Serialization
       Tuple keyValue = generator!=null ? 
         generator.Next() : DeserializeKeyFields(entityType, info, context);
 
-      Key key = Key.Create(entityType, keyValue, true);
+      Key key = Key.Create(entityType, keyValue, TypeReferenceAccuracy.ExactType);
       entity.State = session.CreateEntityState(key);
       entity.NotifyInitializing();
     }

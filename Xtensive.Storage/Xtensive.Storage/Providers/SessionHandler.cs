@@ -183,7 +183,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>The key of fetched <see cref="EntityState"/>.</returns>
     protected internal virtual EntityState FetchInstance(Key key)
     {
-      var type = key.IsTypeCached ? key.Type : key.Hierarchy.Root;
+      var type = key.TypeRef.Type;
       prefetchProcessor.Prefetch(key, type, PrefetchTask.CreateDescriptorsForFieldsLoadedByDefault(type));
       prefetchProcessor.ExecuteTasks();
       EntityState result;
@@ -197,7 +197,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="field">The field to fetch.</param>
     protected internal virtual void FetchField(Key key, FieldInfo field)
     {
-      var type = key.IsTypeCached ? key.Type : key.Hierarchy.Root;
+      var type = key.TypeRef.Type;
       prefetchProcessor.Prefetch(key, type, new PrefetchFieldDescriptor(field, false));
       prefetchProcessor.ExecuteTasks();
     }

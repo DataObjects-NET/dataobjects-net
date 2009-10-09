@@ -191,18 +191,20 @@ namespace Xtensive.Storage
       if (tuple.ContainsEmptyValues(field.MappingInfo))
         return null;
 
-      int typeIdFieldIndex = type.Hierarchy.KeyInfo.TypeIdColumnIndex;
-      bool exactType = typeIdFieldIndex >= 0;
+      int typeIdFieldIndex = type.KeyInfo.TypeIdColumnIndex;
+      var accuracy = TypeReferenceAccuracy.BaseType;
+      if (typeIdFieldIndex >= 0)
+        accuracy = TypeReferenceAccuracy.ExactType;
       var keyValue = field.ExtractValue(tuple);
-      if (exactType) {
+      if (accuracy == TypeReferenceAccuracy.ExactType) {
         int typeId = keyValue.GetValueOrDefault<int>(typeIdFieldIndex);
         if (typeId!=TypeInfo.NoTypeId) // != default(int) != 0
           type = types[typeId];
         else
-          // This may happen if referense is null
-          exactType = false;
+          // This may happen if reference is null
+          accuracy = TypeReferenceAccuracy.BaseType;
       }
-      var key = KeyFactory.Create(type, keyValue, null, exactType, exactType);
+      var key = Key.Create(type, keyValue, accuracy);
       NotifyGetFieldValue(field, key);
       return key;
     }

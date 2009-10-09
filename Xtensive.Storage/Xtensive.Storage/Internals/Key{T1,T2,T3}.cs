@@ -50,20 +50,20 @@ namespace Xtensive.Storage.Internals
       var result = Tuple.HashCodeMultiplier * 0 ^ value1.GetHashCode();
       result = (Tuple.HashCodeMultiplier * result ^ value2.GetHashCode());
       result = (Tuple.HashCodeMultiplier * result ^ value3.GetHashCode());
-      return result ^ Hierarchy.GetHashCode();
+      return result ^ TypeRef.Type.KeyInfo.GetHashCode();
     }
 
-    public static Key Create(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple, int[] keyIndexes)
+    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
     {
-      return new Key<T1, T2, T3>(hierarchy, type, 
+      return new Key<T1, T2, T3>(type, accuracy,
         tuple.GetValueOrDefault<T1>(keyIndexes[0]),
         tuple.GetValueOrDefault<T2>(keyIndexes[1]),
         tuple.GetValueOrDefault<T3>(keyIndexes[2]));
     }
 
-    public static Key Create(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple)
+    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
     {
-      return new Key<T1, T2, T3>(hierarchy, type, 
+      return new Key<T1, T2, T3>(type, accuracy,
         tuple.GetValueOrDefault<T1>(0),
         tuple.GetValueOrDefault<T2>(1),
         tuple.GetValueOrDefault<T3>(2));
@@ -72,8 +72,8 @@ namespace Xtensive.Storage.Internals
     
     // Constructors
 
-    internal Key(HierarchyInfo hierarchy, TypeInfo type, T1 value1, T2 value2, T3 value3)
-      : base(hierarchy, type, null)
+    internal Key(TypeInfo type, TypeReferenceAccuracy accuracy, T1 value1, T2 value2, T3 value3)
+      : base(type, accuracy, null)
     {
       this.value1 = value1;
       this.value2 = value2;

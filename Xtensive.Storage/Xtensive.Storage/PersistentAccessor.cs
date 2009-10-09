@@ -57,7 +57,7 @@ namespace Xtensive.Storage
           throw new InvalidOperationException(
             string.Format(Strings.TypeXIsNotAnYDescendant, entityType, typeof (Entity)));
 
-        var key = Key.Create(entityType, tuple, true);
+        var key = Key.Create(entityType, tuple, TypeReferenceAccuracy.ExactType);
         var state = Session.CreateEntityState(key);
         return Activator.CreateEntity(entityType, state);
       }

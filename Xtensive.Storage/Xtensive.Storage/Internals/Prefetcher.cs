@@ -235,12 +235,12 @@ namespace Xtensive.Storage.Internals
     {
       foreach (var elementToBeFetched in elementsHavingKeyWithUnknownType) {
         var key = keyExtractor.Invoke(elementToBeFetched);
-        var hierarchyRoot = key.Hierarchy.Root;
+        var type = key.TypeRef.Type;
         var cachedKey = sessionHandler.Session.EntityStateCache[key, false].Key;
         var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
           .GetCachedItem(new Pair<object, TypeInfo>(descriptorArraysCachingRegion, cachedKey.Type),
             pair => ((Pair<object, TypeInfo>) pair).Second.Fields
-              .Where(field => field.DeclaringType!=hierarchyRoot
+              .Where(field => field.DeclaringType!=type
                 && field.Parent==null && PrefetchTask.IsFieldToBeLoadedByDefault(field))
               .Select(field => new PrefetchFieldDescriptor(field, false)).ToArray());
         var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;
@@ -257,7 +257,7 @@ namespace Xtensive.Storage.Internals
       if (key.IsTypeCached)
         type = key.Type;
       else if (modelType==null)
-        type = key.Hierarchy.Root;
+        type = key.TypeRef.Type;
       else
         type = modelType;
       var descriptorArray = GetUserDescriptorArray(type);

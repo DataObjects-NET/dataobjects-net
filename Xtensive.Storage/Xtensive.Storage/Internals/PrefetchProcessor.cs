@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Internals
 
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
-      if (type != null && type.Hierarchy != null && key.Hierarchy != type.Hierarchy)
+      if (type != null && type.Hierarchy != null && key.TypeRef.Type.Hierarchy != type.Hierarchy)
         throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
       Tuple ownerEntityTuple;
       var currentKey = key;
@@ -52,9 +52,9 @@ namespace Xtensive.Storage.Internals
       else {
         ArgumentValidator.EnsureArgumentNotNull(currentType, "type");
         EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
-        PrefetchByKeyWithNotCachedType(currentKey, currentKey.Hierarchy.Root,
-          PrefetchTask.CreateDescriptorsForFieldsLoadedByDefault(currentKey.Hierarchy.Root));
-        var hierarchyRoot = currentKey.Hierarchy.Root;
+        PrefetchByKeyWithNotCachedType(currentKey, currentKey.TypeRef.Type,
+          PrefetchTask.CreateDescriptorsForFieldsLoadedByDefault(currentKey.TypeRef.Type));
+        var hierarchyRoot = currentKey.TypeRef.Type;
         selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
       }
       CreateTasks(currentKey, currentType, selectedFields, currentKey.IsTypeCached, ownerEntityTuple);

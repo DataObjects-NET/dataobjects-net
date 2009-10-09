@@ -20,8 +20,19 @@ namespace Xtensive.Storage.Internals
   {
     private const string GenericKeyNameFormat = "{0}.{1}`{2}";
 
+    public static Key CreateNext(TypeInfo type)
+    {
+      var domain = Domain.Demand();
+      var keyGenerator = domain.KeyGenerators[type.Hierarchy.GeneratorInfo];
+      if (keyGenerator==null)
+        throw new InvalidOperationException(
+          String.Format(Strings.ExUnableToCreateKeyForXHierarchy, type.Hierarchy));
+      Tuple keyValue = keyGenerator.Next();
+      return Create(type, keyValue, null, TypeReferenceAccuracy.ExactType, false);
+    }
+
     /// <exception cref="ArgumentException">Wrong key structure for the specified <paramref name="type"/>.</exception>
-    internal static Key Create(TypeInfo type, Tuple value, int[] keyIndexes, bool exactType, bool canCache)
+    public static Key Create(TypeInfo type, Tuple value, int[] keyIndexes, TypeReferenceAccuracy accuracy, bool canCache)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
@@ -32,7 +43,7 @@ namespace Xtensive.Storage.Internals
       if (keyIndexes==null) {
         if (value.Descriptor!=keyInfo.TupleDescriptor)
           throw new ArgumentException(Strings.ExWrongKeyStructure);
-        if (exactType) {
+        if (accuracy == TypeReferenceAccuracy.ExactType) {
           int typeIdColumnIndex = keyInfo.TypeIdColumnIndex;
           if (typeIdColumnIndex >= 0 && !value.GetFieldState(typeIdColumnIndex).IsAvailable())
             // Ensures TypeId is filled in into Keys of newly created Entities
@@ -40,18 +51,18 @@ namespace Xtensive.Storage.Internals
         }
       }
       if (hierarchy.Root.IsLeaf) {
-        exactType = true;
+        accuracy = TypeReferenceAccuracy.ExactType;
         canCache = false; // No reason to cache
       }
 
       Key key;
       var isGenericKey = keyInfo.Length <= WellKnown.MaxGenericKeyLength;
       if (isGenericKey)
-        key = CreateGenericKey(domain, type.Hierarchy, exactType ? type : null, value, keyIndexes);
+        key = CreateGenericKey(domain, type, accuracy, value, keyIndexes);
       else {
         if (keyIndexes!=null)
           throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, LogTemplate<Log>.Instance);
-        key = new Key(type.Hierarchy, exactType ? type : null, value);
+        key = new Key(type, accuracy, value);
       }
       if (!canCache || domain==null)
         return key;
@@ -61,54 +72,14 @@ namespace Xtensive.Storage.Internals
         if (keyCache.TryGetItem(key, true, out foundKey))
           key = foundKey;
         else {
-          if (exactType)
+          if (accuracy == TypeReferenceAccuracy.ExactType)
             keyCache.Add(key);
         }
       }
       return key;
     }
 
-    private static Key CreateGenericKey(Domain domain, HierarchyInfo hierarchy, TypeInfo type,
-      Tuple tuple, int[] keyIndexes)
-    {
-      var keyTypeInfo = domain.genericKeyTypes.GetValue(
-        hierarchy.Root.TypeId, BuildGenericKeyTypeInfo, hierarchy);
-      if (keyIndexes==null)
-        return keyTypeInfo.DefaultConstructor(hierarchy, type, tuple);
-      return keyTypeInfo.KeyIndexBasedConstructor(hierarchy, type, tuple, keyIndexes);
-    }
-
-    private static GenericKeyTypeInfo BuildGenericKeyTypeInfo(int typeId, HierarchyInfo hierarchy)
-    {
-      var descriptor = hierarchy.KeyInfo.TupleDescriptor;
-      int length = descriptor.Count;
-      var type = typeof (Key).Assembly.GetType(
-        String.Format(GenericKeyNameFormat, typeof (Key<>).Namespace, typeof(Key).Name, length));
-      type = type.MakeGenericType(descriptor.ToArray());
-      return new GenericKeyTypeInfo(type,
-        DelegateHelper.CreateDelegate<Func<HierarchyInfo, TypeInfo, Tuple, Key>>(null,
-          type, "Create", ArrayUtils<Type>.EmptyArray),
-        DelegateHelper.CreateDelegate<Func<HierarchyInfo, TypeInfo, Tuple, int[], Key>>(null, type,
-          "Create", ArrayUtils<Type>.EmptyArray));
-    }
-
-    internal static Key CreateNext(TypeInfo type)
-    {
-      var domain = Domain.Demand();
-      Tuple keyValue = GenerateKeyValue(domain, type.Hierarchy);
-      return Create(type, keyValue, null, true, false);
-    }
-
-    private static Tuple GenerateKeyValue(Domain domain, HierarchyInfo hierarchy)
-    {
-      var keyGenerator = domain.KeyGenerators[hierarchy.GeneratorInfo];
-      if (keyGenerator==null)
-        throw new InvalidOperationException(
-          String.Format(Strings.ExUnableToCreateKeyForXHierarchy, hierarchy));
-      return keyGenerator.Next();
-    }
-
-    internal static Key Create(TypeInfo type, bool exactType, params object[] values)
+    public static Key Create(TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
       var keyInfo = type.Hierarchy.KeyInfo;
@@ -130,7 +101,7 @@ namespace Xtensive.Storage.Internals
           value = entity.Key;
         var key = value as Key;
         if (key!=null) {
-          if (key.Hierarchy==type.Hierarchy)
+          if (key.TypeRef.Type.Hierarchy==type.Hierarchy)
             typeIdIndex = -1; // Key must be fully copied in this case
           for (int keyIndex = 0; keyIndex < key.Value.Count; keyIndex++) {
             tuple.SetValue(tupleIndex++, key.Value.GetValueOrDefault(keyIndex));
@@ -149,7 +120,29 @@ namespace Xtensive.Storage.Internals
         throw new ArgumentException(String.Format(
           Strings.ExSpecifiedValuesArentEnoughToCreateKeyForTypeX, type.Name));
 
-      return Create(type, tuple, null, exactType, false);
+      return Create(type, tuple, null, accuracy, false);
+    }
+
+    private static Key CreateGenericKey(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy,
+      Tuple tuple, int[] keyIndexes)
+    {
+      var keyTypeInfo = domain.genericKeyTypes.GetValue(type.TypeId, BuildGenericKeyTypeInfo, type);
+      if (keyIndexes==null)
+        return keyTypeInfo.DefaultConstructor(type, tuple, accuracy);
+      return keyTypeInfo.KeyIndexBasedConstructor(type, tuple, accuracy, keyIndexes);
+    }
+
+    private static GenericKeyTypeInfo BuildGenericKeyTypeInfo(int typeId, TypeInfo typeInfo)
+    {
+      var descriptor = typeInfo.KeyInfo.TupleDescriptor;
+      int length = descriptor.Count;
+      var keyType = typeof (Key).Assembly.GetType(
+        String.Format(GenericKeyNameFormat, typeof (Key<>).Namespace, typeof(Key).Name, length));
+      keyType = keyType.MakeGenericType(descriptor.ToArray());
+      return new GenericKeyTypeInfo(keyType,
+        DelegateHelper.CreateDelegate<Func<TypeInfo, Tuple, TypeReferenceAccuracy, Key>>(null, keyType, "Create", ArrayUtils<Type>.EmptyArray),
+        DelegateHelper.CreateDelegate<Func<TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key>>(null, keyType,
+          "Create", ArrayUtils<Type>.EmptyArray));
     }
   }
 }

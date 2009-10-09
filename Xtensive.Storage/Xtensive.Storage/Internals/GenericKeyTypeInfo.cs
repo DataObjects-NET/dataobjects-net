@@ -14,14 +14,14 @@ namespace Xtensive.Storage.Internals
   internal sealed class GenericKeyTypeInfo
   {
     public readonly Type Type;
-    public readonly Func<HierarchyInfo, TypeInfo, Tuple, Key> DefaultConstructor;
-    public readonly Func<HierarchyInfo, TypeInfo, Tuple, int[], Key> KeyIndexBasedConstructor;
+    public readonly Func<TypeInfo, Tuple, TypeReferenceAccuracy, Key> DefaultConstructor;
+    public readonly Func<TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key> KeyIndexBasedConstructor;
 
 
     // Constructors
 
-    public GenericKeyTypeInfo(Type type, Func<HierarchyInfo, TypeInfo, Tuple, Key> defaultConstructor,
-      Func<HierarchyInfo, TypeInfo, Tuple, int[], Key> keyIndexBasedConstructor)
+    public GenericKeyTypeInfo(Type type, Func<TypeInfo, Tuple, TypeReferenceAccuracy, Key> defaultConstructor,
+      Func<TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key> keyIndexBasedConstructor)
     {
       Type = type;
       DefaultConstructor = defaultConstructor;

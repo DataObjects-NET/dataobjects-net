@@ -36,20 +36,21 @@ namespace Xtensive.Storage.Linq.Materialization
       if (result!=null)
         return result;
 
-      bool exactType;
-      int typeId = RecordSetReader.ExtractTypeId(type, tuple, typeIdIndex, out exactType);
+      TypeReferenceAccuracy accuracy;
+      int typeId = RecordSetReader.ExtractTypeId(type, tuple, typeIdIndex, out accuracy);
       if (typeId==TypeInfo.NoTypeId)
         return null;
 
+      bool canCache = accuracy==TypeReferenceAccuracy.ExactType;
       var materializationInfo = materializationContext.GetTypeMapping(entityIndex, type, typeId, entityColumns);
       Key key;
       if (materializationInfo.KeyIndexes.Length <= WellKnown.MaxGenericKeyLength)
-        key = KeyFactory.Create(materializationInfo.Type, tuple, materializationInfo.KeyIndexes, exactType, exactType);
+        key = KeyFactory.Create(materializationInfo.Type, tuple, materializationInfo.KeyIndexes, accuracy, canCache);
       else {
         var keyTuple = materializationInfo.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = KeyFactory.Create(materializationInfo.Type, keyTuple, null, exactType, exactType);
+        key = KeyFactory.Create(materializationInfo.Type, keyTuple, null, accuracy, canCache);
       }
-      if (exactType) {
+      if (accuracy==TypeReferenceAccuracy.ExactType) {
         var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);
         var entityState = session.Handler.RegisterEntityState(key, entityTuple);
         result = entityState.Entity;

@@ -39,24 +39,24 @@ namespace Xtensive.Storage.Internals
 
     protected override int CalculateHashCode()
     {
-      return (0 ^ value1.GetHashCode()) ^ Hierarchy.GetHashCode();
+      return (0 ^ value1.GetHashCode()) ^ TypeRef.Type.KeyInfo.GetHashCode();
     }
 
-    public static Key Create(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple, int[] keyIndexes)
+    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
     {
-      return new Key<T>(hierarchy, type, tuple.GetValueOrDefault<T>(keyIndexes[0]));
+      return new Key<T>(type, accuracy, tuple.GetValueOrDefault<T>(keyIndexes[0]));
     }
 
-    public static Key Create(HierarchyInfo hierarchy, TypeInfo type, Tuple tuple)
+    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
     {
-      return new Key<T>(hierarchy, type, tuple.GetValueOrDefault<T>(0));
+      return new Key<T>(type, accuracy, tuple.GetValueOrDefault<T>(0));
     }
 
     
     // Constructors
 
-    internal Key(HierarchyInfo hierarchy, TypeInfo type, T value)
-      : base(hierarchy, type, null)
+    internal Key(TypeInfo type, TypeReferenceAccuracy accuracy, T value)
+      : base(type, accuracy, null)
     {
       value1 = value;
     }
