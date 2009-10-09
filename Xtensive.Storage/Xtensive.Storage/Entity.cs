@@ -393,7 +393,7 @@ namespace Xtensive.Storage
       if (Session.IsSystemLogicOnly)
         return;
 
-      Session.NotifyFieldValueReading(this, fieldInfo);
+      Session.NotifyFieldValueGetting(this, fieldInfo);
       var subscriptionInfo = GetSubscription(EntityEventBroker.GettingFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo>) subscriptionInfo.Second)
@@ -405,7 +405,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyFieldValueRead(this, field, value);
+      Session.NotifyFieldValueGet(this, field, value);
       var subscriptionInfo = GetSubscription(EntityEventBroker.GetFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object>) subscriptionInfo.Second)
@@ -422,7 +422,7 @@ namespace Xtensive.Storage
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyFieldValueChanging(this, field, value);
+      Session.NotifyFieldValueSetting(this, field, value);
       var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
@@ -441,7 +441,7 @@ namespace Xtensive.Storage
       
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyFieldValueChanged(this, field, oldValue, newValue);
+      Session.NotifyEntityFieldValueSet(this, field, oldValue, newValue);
       var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object, object>) subscriptionInfo.Second)
@@ -533,7 +533,7 @@ namespace Xtensive.Storage
     protected Entity(params object[] values)
     {
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      Key key = KeyFactory.Create(GetTypeInfo(), true, values);
+      Key key = Key.Create(GetTypeInfo(), true, values);
       State = Session.CreateEntityState(key);
       NotifyInitializing();
       this.Validate();

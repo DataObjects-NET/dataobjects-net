@@ -34,22 +34,22 @@ namespace Xtensive.Storage
     /// <summary>
     /// Occurs when field value is about to be read.
     /// </summary>
-    public event EventHandler<FieldEventArgs> EntityFieldReading;
+    public event EventHandler<FieldEventArgs> EntityFieldValueGetting;
 
     /// <summary>
     /// Occurs when field value is about to be read.
     /// </summary>
-    public event EventHandler<FieldValueEventArgs> EntityFieldRead;
+    public event EventHandler<FieldValueEventArgs> EntityFieldValueGet;
 
     /// <summary>
     /// Occurs when is field value is about to be changed.
     /// </summary>
-    public event EventHandler<FieldValueEventArgs> EntityFieldChanging;
+    public event EventHandler<FieldValueEventArgs> EntityFieldValueSetting;
 
     /// <summary>
     /// Occurs when field value was changed.
     /// </summary>
-    public event EventHandler<ChangeFieldValueEventArgs> EntityFieldChanged;
+    public event EventHandler<ChangeFieldValueEventArgs> EntityFieldValueSet;
 
     /// <summary>
     /// Occurs when <see cref="Entity"/> is about to remove.
@@ -91,28 +91,28 @@ namespace Xtensive.Storage
         EntityCreated(this, new EntityEventArgs(entity));
     }
 
-    internal void NotifyFieldValueReading(Entity entity, FieldInfo field)
+    internal void NotifyFieldValueGetting(Entity entity, FieldInfo field)
     {
-      if (EntityFieldReading!=null)
-        EntityFieldReading(this, new FieldEventArgs(entity, field));
+      if (EntityFieldValueGetting!=null)
+        EntityFieldValueGetting(this, new FieldEventArgs(entity, field));
     }
 
-    internal void NotifyFieldValueRead(Entity entity, FieldInfo field, object value)
+    internal void NotifyFieldValueGet(Entity entity, FieldInfo field, object value)
     {
-      if (EntityFieldRead!=null)
-        EntityFieldRead(this, new FieldValueEventArgs(entity, field, value));
+      if (EntityFieldValueGet!=null)
+        EntityFieldValueGet(this, new FieldValueEventArgs(entity, field, value));
     }
 
-    internal void NotifyFieldValueChanging(Entity entity, FieldInfo field, object value)
+    internal void NotifyFieldValueSetting(Entity entity, FieldInfo field, object value)
     {
-      if (EntityFieldChanging!=null)
-        EntityFieldChanging(this, new FieldValueEventArgs(entity, field, value));
+      if (EntityFieldValueSetting!=null)
+        EntityFieldValueSetting(this, new FieldValueEventArgs(entity, field, value));
     }
 
-    internal void NotifyFieldValueChanged(Entity entity, FieldInfo field, object oldValue, object newValue)
+    internal void NotifyEntityFieldValueSet(Entity entity, FieldInfo field, object oldValue, object newValue)
     {
-      if (EntityFieldChanged!=null)
-        EntityFieldChanged(this, new ChangeFieldValueEventArgs(entity, field, oldValue, newValue));
+      if (EntityFieldValueSet!=null)
+        EntityFieldValueSet(this, new ChangeFieldValueEventArgs(entity, field, oldValue, newValue));
     }
 
     internal void NotifyEntityRemoving(Entity entity)

@@ -60,11 +60,6 @@ namespace Xtensive.Storage.Building
     public BuildingStage Stage { get; internal set; }
 
     /// <summary>
-    /// Gets the log used by this builder.
-    /// </summary>
-    public ILog Log { get; private set; }
-
-    /// <summary>
     /// Gets the configuration of the building <see cref="Storage.Domain"/>.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
@@ -118,7 +113,6 @@ namespace Xtensive.Storage.Building
     internal BuildingContext(DomainConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      Log = StringLog.Create("DomainBuilder");
       Configuration = configuration;
       PairedAssociations = new List<Pair<AssociationInfo, string>>();
       DiscardedAssociations = new HashSet<  AssociationInfo>();

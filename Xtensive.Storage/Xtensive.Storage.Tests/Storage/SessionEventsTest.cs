@@ -48,12 +48,10 @@ namespace Xtensive.Storage.Tests.Storage
     private EntityEventArgs entityRemoving;
     private EntityEventArgs entityRemoved;
 
-    private FieldEventArgs entityFieldReadingArgs;
-    private FieldValueEventArgs entityFieldReadArgs;
-    private FieldValueEventArgs entityFieldChangingArgs;
-    private ChangeFieldValueEventArgs entityFieldChangedArgs;
-
-
+    private FieldEventArgs entityFieldGettingArgs;
+    private FieldValueEventArgs entityFieldGetArgs;
+    private FieldValueEventArgs entityFieldSettingArgs;
+    private ChangeFieldValueEventArgs entityFieldSetArgs;
 
     private class TestException : Exception { } 
     
@@ -75,10 +73,10 @@ namespace Xtensive.Storage.Tests.Storage
       entityRemoving = null;
       entityRemoved = null;
 
-      entityFieldReadingArgs = null;
-      entityFieldReadArgs = null;
-      entityFieldChangingArgs = null;
-      entityFieldChangedArgs = null;
+      entityFieldGettingArgs = null;
+      entityFieldGetArgs = null;
+      entityFieldSettingArgs = null;
+      entityFieldSetArgs = null;
     }
 
     [Test]
@@ -105,10 +103,10 @@ namespace Xtensive.Storage.Tests.Storage
         session.EntityRemoving += (sender, e) => entityRemoving = e;
         session.EntityRemoved += (sender, e) => entityRemoved = e;
 
-        session.EntityFieldReading += (sender, e) => entityFieldReadingArgs = e;
-        session.EntityFieldRead += (sender, e) => entityFieldReadArgs = e;
-        session.EntityFieldChanging += (sender, e) => entityFieldChangingArgs = e;
-        session.EntityFieldChanged += (sender, e) => entityFieldChangedArgs = e;
+        session.EntityFieldValueGetting += (sender, e) => entityFieldGettingArgs = e;
+        session.EntityFieldValueGet += (sender, e) => entityFieldGetArgs = e;
+        session.EntityFieldValueSetting += (sender, e) => entityFieldSettingArgs = e;
+        session.EntityFieldValueSet += (sender, e) => entityFieldSetArgs = e;
 
         CommitTransaction();
         RollbackTransaction();
@@ -131,7 +129,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       transactionScope.Complete();
       AssertEx.Throws<TestException>(transactionScope.Dispose);
-    
+
       Assert.IsNotNull(transactionRollbackingArgs);
       Assert.IsNotNull(transactionRollbackedArgs);
       Assert.IsNotNull(transactionCommitingArgs);
@@ -191,27 +189,27 @@ namespace Xtensive.Storage.Tests.Storage
 
         entity.Value = 2;
 
-        Assert.IsNotNull(entityFieldChangingArgs);
-        Assert.AreEqual(entity, entityFieldChangingArgs.Entity);
-        Assert.AreEqual(2, entityFieldChangingArgs.Value);
+        Assert.IsNotNull(entityFieldSettingArgs);
+        Assert.AreEqual(entity, entityFieldSettingArgs.Entity);
+        Assert.AreEqual(2, entityFieldSettingArgs.Value);
 
-        Assert.IsNotNull(entityFieldChangedArgs);
-        Assert.AreEqual(entity, entityFieldChangedArgs.Entity);
-        Assert.AreEqual(0, entityFieldChangedArgs.OldValue);
-        Assert.AreEqual(2, entityFieldChangedArgs.NewValue);
+        Assert.IsNotNull(entityFieldSetArgs);
+        Assert.AreEqual(entity, entityFieldSetArgs.Entity);
+        Assert.AreEqual(0, entityFieldSetArgs.OldValue);
+        Assert.AreEqual(2, entityFieldSetArgs.NewValue);
 
         ClearEvents();
 
         int value = entity.Value;
 
-        Assert.IsNull(entityFieldChangingArgs);
-        Assert.IsNull(entityFieldChangedArgs);
+        Assert.IsNull(entityFieldSettingArgs);
+        Assert.IsNull(entityFieldSetArgs);
 
-        Assert.IsNotNull(entityFieldReadingArgs);
-        Assert.AreEqual(entity, entityFieldReadingArgs.Entity);
-        Assert.IsNotNull(entityFieldReadArgs);
-        Assert.AreEqual(entity, entityFieldReadArgs.Entity);
-        Assert.AreEqual(2, entityFieldReadArgs.Value);
+        Assert.IsNotNull(entityFieldGettingArgs);
+        Assert.AreEqual(entity, entityFieldGettingArgs.Entity);
+        Assert.IsNotNull(entityFieldGetArgs);
+        Assert.AreEqual(entity, entityFieldGetArgs.Entity);
+        Assert.AreEqual(2, entityFieldGetArgs.Value);
 
         ClearEvents();
 
