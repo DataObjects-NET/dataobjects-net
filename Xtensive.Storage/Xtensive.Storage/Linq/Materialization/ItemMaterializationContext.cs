@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Linq.Materialization
       if (typeId==TypeInfo.NoTypeId)
         return null;
 
-      var materializationInfo = materializationContext.GetTypeMapping(entityIndex, typeId, entityColumns);
+      var materializationInfo = materializationContext.GetTypeMapping(entityIndex, type, typeId, entityColumns);
       Key key;
       if (materializationInfo.KeyIndexes.Length <= WellKnown.MaxGenericKeyLength)
         key = KeyFactory.Create(materializationInfo.Type, tuple, materializationInfo.KeyIndexes, exactType, exactType);

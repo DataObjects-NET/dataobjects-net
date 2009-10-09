@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Linq.Materialization
     private readonly DomainModel model;
     public int EntitiesInRow;
 
-    public TypeMapping GetTypeMapping(int entityIndex, int typeId, Pair<int>[] columns)
+    public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, Pair<int>[] columns)
     {
       TypeMapping result;
       var cache = entityMappings[entityIndex];
@@ -46,7 +46,19 @@ namespace Xtensive.Storage.Linq.Materialization
       var keyInfo    = type.KeyInfo;
       var descriptor = type.TupleDescriptor;
 
-      int[] allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, columns);
+      var typeColumnMap = columns.ToArray();
+      if (approximateType.IsInterface)
+        // fixup target index
+        for (int i = 0; i < columns.Length; i++) {
+          var pair = typeColumnMap[i];
+          var approxTargetIndex = pair.First;
+          var interfaceField = approximateType.Columns[approxTargetIndex].Field;
+          var field = type.FieldMap[interfaceField];
+          var targetIndex = field.MappingInfo.Offset;
+          typeColumnMap[i] = new Pair<int>(targetIndex, pair.Second);
+        }
+
+      int[] allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
       int[] keyIndexes = Enumerable.Range(allIndexes[0], keyInfo.Length).ToArray();
 
       var transform    = new MapTransform(true, descriptor, allIndexes);

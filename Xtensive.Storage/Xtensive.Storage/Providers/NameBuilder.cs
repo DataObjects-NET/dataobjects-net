@@ -256,7 +256,7 @@ namespace Xtensive.Storage.Providers
     public virtual string BuildColumnName(ColumnInfo column)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
-      if (column.Name.StartsWith(column.Field.DeclaringType.Name))
+      if (column.Name.StartsWith(column.Field.DeclaringType.Name + "."))
         throw new InvalidOperationException();
       string result = string.Concat(column.Field.DeclaringType.Name, ".", column.Name);
       return ApplyNamingRules(result);

@@ -91,8 +91,11 @@ namespace Xtensive.Storage.Building.Builders
         var implementors = @interface.GetImplementors(false).ToList();
 
         // Building primary indexes
-        if (implementors.Count==1)
-          @interface.Indexes.Add(implementors[0].Indexes.PrimaryIndex);
+        if (implementors.Count==1) {
+          var primaryIndex = implementors[0].Indexes.PrimaryIndex;
+          var indexView = BuildViewIndex(@interface, primaryIndex);
+          @interface.Indexes.Add(indexView);
+        }
         else {
           var interfaceDef = context.ModelDef.Types[@interface.UnderlyingType];
           var indexDef = interfaceDef.Indexes.Single(i => i.IsPrimary);
@@ -591,7 +594,8 @@ namespace Xtensive.Storage.Building.Builders
         if (hierarchyImplementors.Contains(descendant) || descendant.IsAbstract)
           continue;
         yield return descendant;
-        GatherDescendants(descendant, hierarchyImplementors);
+        foreach (var typeInfo in GatherDescendants(descendant, hierarchyImplementors))
+          yield return typeInfo;
       }
     }
 

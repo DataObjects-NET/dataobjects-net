@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     }
 
     [Test]
-    public void INamedTest()
+    public void QueryNamedTest()
     {
       var index = Domain.Model.Types[typeof(INamed)].Indexes.PrimaryIndex;
       index.Dump();
@@ -112,16 +112,78 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
         Assert.Greater(result.Count, 0);
         foreach (var iNamed in result) {
           Assert.IsNotNull(iNamed);
-//          Assert.IsNotNull(iNamed.Name);
-          Console.Out.WriteLine(string.Format("Key: {0}; {1}", iNamed.Key, "iNamed.Name"));
+          Assert.IsNotNull(iNamed.Name);
+          Console.Out.WriteLine(string.Format("Key: {0}; {1}", iNamed.Key, iNamed.Name));
         }
         Assert.AreEqual(15 * EachCount, result.Count);
 
         var filtered = Query<INamed>.All.Where(i => i.Name == "Name: O'0" || i.Name == "Name: A0" || i.Name == "Name: C0").ToList();
         Assert.AreEqual(3, filtered.Count);
+
+        var startsWith = Query<INamed>.All.Where(i => i.Name.StartsWith("Name: J'") || i.Name.StartsWith("Name: L'") || i.Name.StartsWith("Name: C'")).ToList();
+        Assert.AreEqual(2 * EachCount, startsWith.Count);
+
         t.Complete();
       }
     }
+
+    [Test]
+    public void QueryTaggedTest()
+    {
+      var index = Domain.Model.Types[typeof(ITagged)].Indexes.PrimaryIndex;
+      index.Dump();
+
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var result = Query<ITagged>.All.ToList();
+        Assert.Greater(result.Count, 0);
+        foreach (var iTagged in result) {
+          Assert.IsNotNull(iTagged);
+          Assert.IsNotNull(iTagged.Tag);
+          Console.Out.WriteLine(string.Format("Key: {0}; {1}", iTagged.Key, iTagged.Tag));
+        }
+        Assert.AreEqual(12 * EachCount, result.Count);
+
+        var filtered = Query<ITagged>.All.Where(i => i.Tag == "Tag: C'0" || i.Tag == "Tag: D0" || i.Tag == "Tag: M'0").ToList();
+        Assert.AreEqual(3, filtered.Count);
+
+        var startsWith = Query<ITagged>.All.Where(i => i.Tag.StartsWith("Tag: H'") || i.Tag.StartsWith("Tag: C'") || i.Tag.StartsWith("Tag: J'")).ToList();
+        Assert.AreEqual(2 * EachCount, startsWith.Count);
+
+        t.Complete();
+      }
+    }
+
+
+    [Test]
+    public void QueryCompositeTest()
+    {
+      var index = Domain.Model.Types[typeof(IComposite)].Indexes.PrimaryIndex;
+      index.Dump();
+
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var result = Query<IComposite>.All.ToList();
+        Assert.Greater(result.Count, 0);
+        foreach (var iComposite in result) {
+          Assert.IsNotNull(iComposite);
+          Assert.IsNotNull(iComposite.First);
+          Assert.IsNotNull(iComposite.Second);
+          Console.Out.WriteLine(string.Format("Key: {0}; {1}; {2}", iComposite.Key, iComposite.First, iComposite.Second));
+        }
+        Assert.AreEqual(8 * EachCount, result.Count);
+
+//        var filtered = Query<IComposite>.All.Where(i => i.First == "Tag: O'0" || i.Tag == "Tag: A0" || i.Tag == "Tag: C0").ToList();
+//        Assert.AreEqual(3, filtered.Count);
+//
+//        var startsWith = Query<ITagged>.All.Where(i => i.Tag.StartsWith("Tag: J'") || i.Tag.StartsWith("Tag: L'") || i.Tag.StartsWith("Tag: C'")).ToList();
+//        Assert.AreEqual(2 * EachCount, startsWith.Count);
+
+        t.Complete();
+      }
+    }
+
+
 
   }
 }
