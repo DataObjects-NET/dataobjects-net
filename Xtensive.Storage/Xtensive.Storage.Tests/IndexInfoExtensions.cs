@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Tests
       WriteLine("Name: " + index.Name, indent);
       WriteLine("Attributes: " + index.Attributes, indent);
       WriteLine("ReflectedType: " + index.ReflectedType.Name, indent);
+      WriteLine("Columns: " + index.Columns.Select(p => p.Name).ToCommaDelimitedString(), indent);
       if (index.IsVirtual) {
         if ((index.Attributes & IndexAttributes.Filtered) == IndexAttributes.Filtered)
           WriteLine("FilterByTypes: " + index.FilterByTypes.ToCommaDelimitedString(), indent);
@@ -38,9 +39,6 @@ namespace Xtensive.Storage.Tests
         foreach (IndexInfo baseIndex in index.UnderlyingIndexes)
           Dump(baseIndex, indent + 1);
       }
-      WriteLine("KeyColumns: " + index.KeyColumns.Select(p => p.Key.Name).ToCommaDelimitedString(), indent);
-      WriteLine("IncludedColumns: " + index.IncludedColumns.Select(p => p.Name).ToCommaDelimitedString(), indent);
-      WriteLine("ValueColumns: " + index.ValueColumns.Select(p => p.Name).ToCommaDelimitedString(), indent);
     }
 
     private static void WriteLine(string text, int indent)

@@ -131,8 +131,10 @@ namespace Xtensive.Storage.Building.Builders
               }
               case InheritanceSchema.ConcreteTable: {
                 var grouping = hierarchy;
-                var primaryIndexes = @interface.GetImplementors(true)
+                var allImplementors = @interface.GetImplementors(true)
                   .Where(t => t.Hierarchy == grouping.Key)
+                  .ToList();
+                var primaryIndexes = allImplementors
                   .Select(t => t.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary))
                   .Select(i => BuildViewIndex(@interface, i));
                 underlyingIndex.UnderlyingIndexes.AddRange(primaryIndexes);
@@ -566,12 +568,7 @@ namespace Xtensive.Storage.Building.Builders
               continue;
           }
           var field = reflectedType.Fields[columnField.Name];
-          try {
             result.ValueColumns.Add(field.Column);
-          }
-          catch (Exception e) {
-            throw;
-          }
         }
         columnMap.Add(keyLength + i);
       }

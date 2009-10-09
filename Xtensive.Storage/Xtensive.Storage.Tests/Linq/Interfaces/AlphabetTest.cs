@@ -103,16 +103,17 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     [Test]
     public void INamedTest()
     {
+      var index = Domain.Model.Types[typeof(INamed)].Indexes.PrimaryIndex;
+      index.Dump();
+
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var result = Query<INamed>.All.ToList();
-        var index = Domain.Model.Types[typeof (INamed)].Indexes.PrimaryIndex;
-        index.Dump();
         Assert.Greater(result.Count, 0);
         foreach (var iNamed in result) {
           Assert.IsNotNull(iNamed);
 //          Assert.IsNotNull(iNamed.Name);
-          Console.Out.WriteLine(string.Format("Key: {0}; Name: {1}", iNamed.Key, iNamed.Name));
+          Console.Out.WriteLine(string.Format("Key: {0}; {1}", iNamed.Key, "iNamed.Name"));
         }
         Assert.AreEqual(15 * EachCount, result.Count);
 

@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Model
   public sealed class FieldMap: LockableBase, IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>
   {
     private readonly Dictionary<FieldInfo, FieldInfo> map = new Dictionary<FieldInfo, FieldInfo>();
-    private readonly Dictionary<FieldInfo, IList<FieldInfo>> reversedMap = new Dictionary<FieldInfo, IList<FieldInfo>>();
+    private readonly Dictionary<FieldInfo, HashSet<FieldInfo>> reversedMap = new Dictionary<FieldInfo, HashSet<FieldInfo>>();
     internal static FieldMap Empty;
 
     public FieldInfo this[FieldInfo interfaceField]
@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Model
 
     public IEnumerable<FieldInfo> GetImplementedInterfaceFields(FieldInfo typeField)
     {
-      IList<FieldInfo> value;
+      HashSet<FieldInfo> value;
       if (!reversedMap.TryGetValue(typeField, out value))
         return Enumerable.Empty<FieldInfo>();
       return value;
@@ -52,16 +52,17 @@ namespace Xtensive.Storage.Model
         interfaceFields.Add(interfaceField);
       }
       else
-        reversedMap.Add(typeField, new List<FieldInfo> {interfaceField});
+        reversedMap.Add(typeField, new HashSet<FieldInfo> {interfaceField});
     }
 
     public void Override(FieldInfo interfaceField, FieldInfo typeField)
     {
       this.EnsureNotLocked();
       var oldTypeField = map[interfaceField];
+      var interfaceFields = reversedMap[oldTypeField];
       map[interfaceField] = typeField;
       reversedMap.Remove(oldTypeField);
-      reversedMap.Add(typeField, new List<FieldInfo> { interfaceField });
+      reversedMap.Add(typeField, interfaceFields);
     }
 
     public FieldInfo TryGetValue(FieldInfo interfaceField)

@@ -230,12 +230,12 @@ namespace Xtensive.Storage.Model
       if (!implementorTable.TryGetValue(item, out result))
         result = new HashSet<TypeInfo>();
 
-      foreach (var item1 in result) {
-        yield return item1;
-        if (recursive)
-          foreach (var item2 in FindImplementors(item1, true))
-            yield return item2;
-      }
+      if (recursive)
+        foreach (var type in result.ToList())
+          if (!type.IsInterface)
+            foreach (var descendant in FindDescendants(type, true))
+              result.Add(descendant);
+      return result;
     }
 
     /// <summary>
