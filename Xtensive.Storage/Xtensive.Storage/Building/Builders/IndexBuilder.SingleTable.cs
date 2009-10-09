@@ -69,9 +69,15 @@ namespace Xtensive.Storage.Building.Builders
           type.Indexes.Add(indexView);
         }
         else if (types.Contains(ancestorIndex.ReflectedType)) {
-          var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
-          var indexView = BuildViewIndex(type, filterIndex);
-          type.Indexes.Add(indexView);
+          if (ancestorIndex.IsPrimary) {
+            var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
+            var indexView = BuildViewIndex(type, filterIndex);
+            type.Indexes.Add(indexView);
+          }
+          else {
+            var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
+            type.Indexes.Add(filterIndex);
+          }
         }
       }
     }

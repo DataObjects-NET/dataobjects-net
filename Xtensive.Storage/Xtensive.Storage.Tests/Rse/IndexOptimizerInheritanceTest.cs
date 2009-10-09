@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Rse
       Test<Product>(index => Assert.IsFalse(index.IsVirtual),
         index => Assert.IsFalse(index.IsVirtual));
       Test<ActiveProduct>(index => CheckVirtualIndex(index, IndexAttributes.Filtered),
-        index => CheckVirtualIndex(index, IndexAttributes.Filtered));
+        index => CheckVirtualIndex(index, IndexAttributes.View));
     }
 
     [Test]
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Tests.Rse
     private static void CheckVirtualIndex(IndexInfo index, IndexAttributes expectedIndexType)
     {
       Assert.IsTrue(index.IsVirtual);
-      Assert.AreEqual(expectedIndexType, expectedIndexType & index.Attributes);
+      Assert.AreEqual(expectedIndexType, index.Attributes & (IndexAttributes.View | IndexAttributes.Union | IndexAttributes.Join | IndexAttributes.Filtered));
     }
 
     private void CreateDomain()

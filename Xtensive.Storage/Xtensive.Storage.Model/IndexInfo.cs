@@ -255,7 +255,7 @@ namespace Xtensive.Storage.Model
         return;
       valueColumns.UpdateState(true);
       foreach (IndexInfo baseIndex in underlyingIndexes)
-        baseIndex.UpdateState();
+        baseIndex.UpdateState(true);
       CreateTupleDescriptors();
 
       if (!IsPrimary)
