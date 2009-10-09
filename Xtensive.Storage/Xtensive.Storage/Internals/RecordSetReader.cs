@@ -66,11 +66,11 @@ namespace Xtensive.Storage.Internals
 
       Key key;
       var entityType = exactType ? typeMapping.Type : rootType;
-      if (typeMapping.KeyTransform.Descriptor.Count <= Key.MaxGenericKeyLength)
-        key = Key.Create(Domain, entityType, tuple, typeMapping.KeyIndexes, exactType, exactType);
+      if (typeMapping.KeyTransform.Descriptor.Count <= WellKnown.MaxGenericKeyLength)
+        key = KeyFactory.Create(Domain, entityType, tuple, typeMapping.KeyIndexes, exactType, exactType);
       else {
         var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = Key.Create(Domain, entityType, keyTuple, null, exactType, exactType);
+        key = KeyFactory.Create(Domain, entityType, keyTuple, null, exactType, exactType);
       }
       if (exactType) {
         var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);

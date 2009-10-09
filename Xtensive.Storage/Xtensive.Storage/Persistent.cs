@@ -202,7 +202,7 @@ namespace Xtensive.Storage
           // This may happen if referense is null
           exactType = false;
       }
-      var key = Key.Create(Session.Domain, type, keyValue, null, exactType, exactType);
+      var key = KeyFactory.Create(Session.Domain, type, keyValue, null, exactType, exactType);
       NotifyGetFieldValue(field, key);
       return key;
     }

@@ -43,11 +43,11 @@ namespace Xtensive.Storage.Linq.Materialization
 
       var materializationInfo = materializationContext.GetTypeMapping(entityIndex, typeId, entityColumns);
       Key key;
-      if (materializationInfo.KeyIndexes.Length <= Key.MaxGenericKeyLength)
-        key = Key.Create(session.Domain, materializationInfo.Type, tuple, materializationInfo.KeyIndexes, exactType, exactType);
+      if (materializationInfo.KeyIndexes.Length <= WellKnown.MaxGenericKeyLength)
+        key = KeyFactory.Create(session.Domain, materializationInfo.Type, tuple, materializationInfo.KeyIndexes, exactType, exactType);
       else {
         var keyTuple = materializationInfo.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = Key.Create(session.Domain, materializationInfo.Type, keyTuple, null, exactType, exactType);
+        key = KeyFactory.Create(session.Domain, materializationInfo.Type, keyTuple, null, exactType, exactType);
       }
       if (exactType) {
         var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);

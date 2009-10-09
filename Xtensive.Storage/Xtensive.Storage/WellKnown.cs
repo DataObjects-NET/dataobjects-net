@@ -53,6 +53,16 @@ namespace Xtensive.Storage
     public const string GeneratorColumnName = "ID";
 
     /// <summary>
+    /// Max number of key fields.
+    /// </summary>
+    public const int MaxKeyFieldNumber = 4;
+
+    /// <summary>
+    /// Maximal supported length (count of values) of purely generic keys.
+    /// </summary>
+    public const int MaxGenericKeyLength = 4;
+
+    /// <summary>
     /// Well-known storage protocol names.
     /// </summary>
     public static class Protocol
@@ -79,11 +89,6 @@ namespace Xtensive.Storage
       /// </summary>
       public const string All = "'memory', 'sqlserver', 'postgresql', 'oracle'";
     }
-
-    /// <summary>
-    /// Max number of key fields.
-    /// </summary>
-    public const int MaxKeyFieldNumber = 4;
 
     /// <summary>
     /// Well-known session configuration names
