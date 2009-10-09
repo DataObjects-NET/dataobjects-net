@@ -19,6 +19,36 @@ namespace Xtensive.Storage.Linq
   /// </summary>
   public static class QueryableExtensions
   {
+    public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, Func<int> count)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(count, "count");
+
+      var errorMessage = Resources.Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType!=typeof (QueryProvider))
+        throw new NotSupportedException(String.Format(errorMessage, providerType));
+
+      var genericMethod = WellKnownMembers.QueryableExtensionTake.MakeGenericMethod(new[] {typeof (TSource)});
+      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, Expression.Constant(count)});
+      return source.Provider.CreateQuery<TSource>(expression);
+    }
+
+    public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, Func<int> count)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(count, "count");
+
+      var errorMessage = Resources.Strings.ExSkipDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType!=typeof (QueryProvider))
+        throw new NotSupportedException(String.Format(errorMessage, providerType));
+
+      var genericMethod = WellKnownMembers.QueryableExtensionSkip.MakeGenericMethod(new[] {typeof (TSource)});
+      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, Expression.Constant(count)});
+      return source.Provider.CreateQuery<TSource>(expression);
+    }
+
     public static IQueryable<TSource> Lock<TSource>(this IQueryable<TSource> source, LockMode lockMode, LockBehavior lockBehavior)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
@@ -29,7 +59,7 @@ namespace Xtensive.Storage.Linq
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
-      var genericMethod = WellKnownMembers.QueryableLock.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.QueryableExtensionLock.MakeGenericMethod(new[] {typeof (TSource)});
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, Expression.Constant(lockMode), Expression.Constant(lockBehavior)});
       return source.Provider.CreateQuery<TSource>(expression);
     }
@@ -94,7 +124,7 @@ namespace Xtensive.Storage.Linq
       if (outerProviderType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, outerProviderType));
 
-      var genericMethod = WellKnownMembers.QueryableJoinLeft.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
+      var genericMethod = WellKnownMembers.QueryableExtensionJoinLeft.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
       var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
       return outer.Provider.CreateQuery<TResult>(expression);
     }

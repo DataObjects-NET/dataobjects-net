@@ -1091,6 +1091,18 @@ Actions:
   <data name="ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot" xml:space="preserve">
     <value>Type '{0}' can't contains Version fields as it's not a HierarchyRoot.</value>
   </data>
+  <data name="ExTakeDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
+    <value>'Take' does not support query provider of type '{0}'.</value>
+  </data>
+  <data name="ExUnableToUseTakeIntInQueryExecuteUseTakeFuncIntInstead" xml:space="preserve">
+    <value>Unable to use Take(int) in Query.Execute. Use Take(Func&lt;int&gt;) instead.</value>
+  </data>
+  <data name="ExUnableToUseSkipIntInQueryExecuteUseSkipFuncIntInstead" xml:space="preserve">
+    <value>Unable to use Skip(int) in Query.Execute. Use Skip(Func&lt;int&gt;) instead.</value>
+  </data>
+  <data name="ExSkipDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
+    <value>'Skip' does not support query provider of type '{0}'.</value>
+  </data>
   <data name="ExVersionRootObjectCantImplementIHasVersionRoots" xml:space="preserve">
     <value>Version root object can't implement IHasVersionRoots.</value>
   </data>

@@ -55,6 +55,7 @@ namespace Xtensive.Storage.Linq
       return expression!=null
         && !expression.IsProjection()
         && !expression.IsGroupingExpression()
+        && !expression.IsEntitySet()
         && !expression.IsSubqueryExpression()
         && expression.Type!=typeof(string)
         && context.Evaluator.CanBeEvaluated(expression)

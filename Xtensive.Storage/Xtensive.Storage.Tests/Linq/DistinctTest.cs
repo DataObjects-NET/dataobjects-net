@@ -4,11 +4,14 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
+using System;
 using System.Linq;
+using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using System.Collections.Generic;
+using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Tests.Linq
 {
@@ -373,17 +376,63 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void ReuseTakeTest()
+    [ExpectedException(typeof (InvalidOperationException))]
+    public void ReuseTake1Test()
     {
-      var result1 = GetCustomers(1).Count();
+      var result1 = GetCustomersIncorrect(1).Count();
       Assert.AreEqual(1, result1);
-      var result2 = GetCustomers(2).Count();
+      var result2 = GetCustomersIncorrect(2).Count();
       Assert.AreEqual(2, result2);
     }
 
-    private IEnumerable<Customer> GetCustomers(int amount)
+    [Test]
+    public void ReuseTake2Test()
+    {
+      var result1 = GetCustomersCorrect(1).Count();
+      Assert.AreEqual(1, result1);
+      var result2 = GetCustomersCorrect(2).Count();
+      Assert.AreEqual(2, result2);
+    }
+
+    [Test]
+    [ExpectedException(typeof (InvalidOperationException))]
+    public void ReuseSkipTest()
+    {
+      var totalCount = Query<Customer>.All.Count();
+      var result1 = SkipCustomersIncorrect(1).Count();
+      Assert.AreEqual(totalCount - 1, result1);
+      var result2 = SkipCustomersIncorrect(2).Count();
+      Assert.AreEqual(totalCount - 2, result2);
+    }
+
+    [Test]
+    public void ReuseSkip2Test()
+    {
+      var totalCount = Query<Customer>.All.Count();
+      var result1 = SkipCustomersCorrect(1).Count();
+      Assert.AreEqual(totalCount - 1, result1);
+      var result2 = SkipCustomersCorrect(2).Count();
+      Assert.AreEqual(totalCount - 2, result2);
+    }
+
+    private IEnumerable<Customer> GetCustomersIncorrect(int amount)
     {
       return Query.Execute(() => Query<Customer>.All.Take(amount));
+    }
+
+    private IEnumerable<Customer> GetCustomersCorrect(int amount)
+    {
+      return Query.Execute(() => Query<Customer>.All.Take(delegate { return amount; }));
+    }
+
+    private IEnumerable<Customer> SkipCustomersIncorrect(int skip)
+    {
+      return Query.Execute(() => Query<Customer>.All.Skip(skip));
+    }
+
+    private IEnumerable<Customer> SkipCustomersCorrect(int skip)
+    {
+      return Query.Execute(() => Query<Customer>.All.Skip(delegate { return skip; }));
     }
   }
 }

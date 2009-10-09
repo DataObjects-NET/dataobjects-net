@@ -51,8 +51,10 @@ namespace Xtensive.Storage.Linq
     public static readonly MethodInfo QueryableContains;
 
     // Querable extensions
-    public static readonly MethodInfo QueryableJoinLeft;
-    public static readonly MethodInfo QueryableLock;
+    public static readonly MethodInfo QueryableExtensionJoinLeft;
+    public static readonly MethodInfo QueryableExtensionLock;
+    public static readonly MethodInfo QueryableExtensionTake;
+    public static readonly MethodInfo QueryableExtensionSkip;
 
 
     // IEntity
@@ -157,8 +159,10 @@ namespace Xtensive.Storage.Linq
       }).First();
 
       // Querable extensions
-      QueryableJoinLeft = GetQueryableExtensionsMethod("JoinLeft", 4, 5);
-      QueryableLock = GetQueryableExtensionsMethod("Lock", 1, 3);
+      QueryableExtensionJoinLeft = GetQueryableExtensionsMethod("JoinLeft", 4, 5);
+      QueryableExtensionLock = GetQueryableExtensionsMethod("Lock", 1, 3);
+      QueryableExtensionTake = GetQueryableExtensionsMethod("Take", 1, 2);
+      QueryableExtensionSkip = GetQueryableExtensionsMethod("Skip", 1, 2);
 
       // IEntity
       IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyFieldName);

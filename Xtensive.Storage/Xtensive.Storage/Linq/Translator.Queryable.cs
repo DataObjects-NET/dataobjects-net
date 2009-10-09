@@ -16,6 +16,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -370,18 +371,38 @@ namespace Xtensive.Storage.Linq
 
     private ProjectionExpression VisitTake(Expression source, Expression take)
     {
+      if (QueryCachingScope.Current!=null 
+        && take.NodeType == ExpressionType.Constant 
+        && take.Type==typeof(int))
+        throw new InvalidOperationException(Strings.ExUnableToUseTakeIntInQueryExecuteUseTakeFuncIntInstead);
       var projection = VisitSequence(source);
-      var parameter = context.ParameterExtractor.ExtractParameter<int>(take);
-      var rs = projection.ItemProjector.DataSource.Take(parameter.CachingCompile());
+      Func<int> compiledParameter;
+      if (take.Type==typeof (Func<int>) && take.NodeType==ExpressionType.Constant)
+        compiledParameter = (Func<int>) ((ConstantExpression)take).Value;
+      else {
+        Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(take);
+        compiledParameter = parameter.CachingCompile();
+      }
+      var rs = projection.ItemProjector.DataSource.Take(compiledParameter);
       var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rs, context);
       return new ProjectionExpression(projection.Type, itemProjector, projection.TupleParameterBindings);
     }
 
     private ProjectionExpression VisitSkip(Expression source, Expression skip)
     {
+      if (QueryCachingScope.Current!=null 
+        && skip.NodeType == ExpressionType.Constant
+         && skip.Type==typeof(int))
+        throw new InvalidOperationException(Strings.ExUnableToUseSkipIntInQueryExecuteUseSkipFuncIntInstead);
       var projection = VisitSequence(source);
-      var parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
-      var rs = projection.ItemProjector.DataSource.Skip(parameter.CachingCompile());
+      Func<int> compiledParameter;
+      if (skip.Type==typeof (Func<int>) && skip.NodeType==ExpressionType.Constant)
+        compiledParameter = (Func<int>) ((ConstantExpression)skip).Value;
+      else {
+        Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
+        compiledParameter = parameter.CachingCompile();
+      }
+      var rs = projection.ItemProjector.DataSource.Skip(compiledParameter);
       var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rs, context);
       return new ProjectionExpression(projection.Type, itemProjector, projection.TupleParameterBindings);
     }
@@ -947,6 +968,21 @@ namespace Xtensive.Storage.Linq
           .GetGenericArguments()[0];
         var value = context.Evaluator.Evaluate(sequence).Value;
         return CreateLocalCollectionProjectionExpression(itemType, value, this);
+      }
+
+
+      var memberExpression = sequence as MemberExpression;
+      if (memberExpression != null 
+        && sequence.Type.IsOfGenericInterface(typeof(IQueryable<>)) 
+        && memberExpression.Expression !=null
+        && memberExpression.Expression.NodeType == ExpressionType.Constant
+        && memberExpression.Member != null 
+        && memberExpression.Member.ReflectedType.IsClosure()
+        && memberExpression.Member.MemberType == MemberTypes.Field) {
+        var constantValue = ((ConstantExpression) memberExpression.Expression).Value;
+        var fieldInfo = (FieldInfo) memberExpression.Member;
+        var queryable = (IQueryable)fieldInfo.GetValue(constantValue);
+        return VisitSequence(queryable.Expression);
       }
       
       Expression visitedExpression = Visit(sequenceExpression).StripCasts();

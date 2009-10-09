@@ -219,12 +219,16 @@ namespace Xtensive.Storage.Linq
     {
       // Visit Queryable extensions.
       if (mc.Method.DeclaringType==typeof (QueryableExtensions))
-        if (mc.Method.Name==WellKnownMembers.QueryableJoinLeft.Name)
+        if (mc.Method.Name==WellKnownMembers.QueryableExtensionJoinLeft.Name)
           return VisitJoinLeft(mc);
         else if (mc.Method.Name=="In")
           return VisitIn(mc);
-        else if (mc.Method.Name==WellKnownMembers.QueryableLock.Name)
+        else if (mc.Method.Name==WellKnownMembers.QueryableExtensionLock.Name)
           return VisitLock(mc);
+        else if (mc.Method.Name==WellKnownMembers.QueryableExtensionTake.Name)
+          return VisitTake(mc.Arguments[0],mc.Arguments[1]);
+        else if (mc.Method.Name==WellKnownMembers.QueryableExtensionSkip.Name)
+          return VisitSkip(mc.Arguments[0],mc.Arguments[1]);
         else
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
 
