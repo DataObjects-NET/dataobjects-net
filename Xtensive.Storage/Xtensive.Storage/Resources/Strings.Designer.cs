@@ -2323,6 +2323,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to use IQueryable &apos;{0}&apos; in Query.Execute statement..
+        /// </summary>
+        internal static string ExUnableToUseIQueryableXInQueryExecuteStatement {
+            get {
+                return ResourceManager.GetString("ExUnableToUseIQueryableXInQueryExecuteStatement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to use Skip(int) in Query.Execute. Use Skip(Func&lt;int&gt;) instead..
         /// </summary>
         internal static string ExUnableToUseSkipIntInQueryExecuteUseSkipFuncIntInstead {

@@ -1106,4 +1106,7 @@ Actions:
   <data name="ExVersionRootObjectCantImplementIHasVersionRoots" xml:space="preserve">
     <value>Version root object can't implement IHasVersionRoots.</value>
   </data>
+  <data name="ExUnableToUseIQueryableXInQueryExecuteStatement" xml:space="preserve">
+    <value>Unable to use IQueryable '{0}' in Query.Execute statement.</value>
+  </data>
 </root>

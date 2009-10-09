@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {
@@ -37,6 +38,8 @@ namespace Xtensive.Storage.Linq.Rewriters
                 && memberExpression.Member.MemberType==MemberTypes.Field) {
         var fieldInfo = (FieldInfo) memberExpression.Member;
         if (!fieldInfo.FieldType.IsOfGenericType(typeof (EntitySet<>))) {
+          if (QueryCachingScope.Current!=null ) 
+            throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToUseIQueryableXInQueryExecuteStatement, fieldInfo.Name));
           var constantValue = ((ConstantExpression) memberExpression.Expression).Value;
           var queryable = (IQueryable) fieldInfo.GetValue(constantValue);
           return queryable.Expression;

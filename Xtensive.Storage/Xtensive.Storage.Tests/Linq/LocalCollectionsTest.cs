@@ -558,6 +558,16 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(InvalidOperationException))]
+    public void ClosureCacheTest()
+    {
+      var localItems = GetLocalItems(100);
+      var queryable = Query.Store(localItems);
+      var result = Query.Execute(()=>Query<Order>.All.Where(order => order.Freight > queryable.Max(poco=>poco.Value1)));
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     [Ignore("Very long")]
     public void VeryLongTest()
     {
