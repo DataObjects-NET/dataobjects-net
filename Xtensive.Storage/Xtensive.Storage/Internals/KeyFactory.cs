@@ -21,11 +21,12 @@ namespace Xtensive.Storage.Internals
     private const string GenericKeyNameFormat = "{0}.{1}`{2}";
 
     /// <exception cref="ArgumentException">Wrong key structure for the specified <paramref name="type"/>.</exception>
-    internal static Key Create(Domain domain, TypeInfo type, Tuple value, int[] keyIndexes, bool exactType, bool canCache)
+    internal static Key Create(TypeInfo type, Tuple value, int[] keyIndexes, bool exactType, bool canCache)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
+
+      var domain = Domain.Demand();
       var hierarchy = type.Hierarchy;
       var keyInfo = hierarchy.KeyInfo;
       if (keyIndexes==null) {
@@ -89,6 +90,66 @@ namespace Xtensive.Storage.Internals
           type, "Create", ArrayUtils<Type>.EmptyArray),
         DelegateHelper.CreateDelegate<Func<HierarchyInfo, TypeInfo, Tuple, int[], Key>>(null, type,
           "Create", ArrayUtils<Type>.EmptyArray));
+    }
+
+    internal static Key CreateNext(TypeInfo type)
+    {
+      var domain = Domain.Demand();
+      Tuple keyValue = GenerateKeyValue(domain, type.Hierarchy);
+      return Create(type, keyValue, null, true, false);
+    }
+
+    private static Tuple GenerateKeyValue(Domain domain, HierarchyInfo hierarchy)
+    {
+      var keyGenerator = domain.KeyGenerators[hierarchy.GeneratorInfo];
+      if (keyGenerator==null)
+        throw new InvalidOperationException(
+          String.Format(Strings.ExUnableToCreateKeyForXHierarchy, hierarchy));
+      return keyGenerator.Next();
+    }
+
+    internal static Key Create(TypeInfo type, bool exactType, params object[] values)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+      var keyInfo = type.Hierarchy.KeyInfo;
+      ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
+
+      var tuple = Tuple.Create(keyInfo.TupleDescriptor);
+      int typeIdIndex = keyInfo.TypeIdColumnIndex;
+      if (typeIdIndex>=0)
+        tuple.SetValue(typeIdIndex, type.TypeId);
+
+      int tupleIndex = 0;
+      if (tupleIndex==typeIdIndex)
+        tupleIndex++;
+      for (int valueIndex = 0; valueIndex < values.Length; valueIndex++) {
+        var value = values[valueIndex];
+        ArgumentValidator.EnsureArgumentNotNull(value, String.Format("values[{0}]", valueIndex));
+        var entity = value as Entity;
+        if (entity!=null)
+          value = entity.Key;
+        var key = value as Key;
+        if (key!=null) {
+          if (key.Hierarchy==type.Hierarchy)
+            typeIdIndex = -1; // Key must be fully copied in this case
+          for (int keyIndex = 0; keyIndex < key.Value.Count; keyIndex++) {
+            tuple.SetValue(tupleIndex++, key.Value.GetValueOrDefault(keyIndex));
+            if (tupleIndex==typeIdIndex)
+              tupleIndex++;
+          }
+          continue;
+        }
+        else {
+          tuple.SetValue(tupleIndex++, value);
+          if (tupleIndex==typeIdIndex)
+            tupleIndex++;
+        }
+      }
+      if (tupleIndex != tuple.Count)
+        throw new ArgumentException(String.Format(
+          Strings.ExSpecifiedValuesArentEnoughToCreateKeyForTypeX, type.Name));
+
+      return Create(type, tuple, null, exactType, false);
     }
   }
 }

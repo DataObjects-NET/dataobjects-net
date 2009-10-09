@@ -533,7 +533,7 @@ namespace Xtensive.Storage
     protected Entity(params object[] values)
     {
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      Key key = Key.Create(GetTypeInfo(), true, values);
+      Key key = KeyFactory.Create(GetTypeInfo(), true, values);
       State = Session.CreateEntityState(key);
       NotifyInitializing();
       this.Validate();

@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using System.Text;
-using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
@@ -228,7 +227,7 @@ namespace Xtensive.Storage
       var type = domain.Model.Types[Int32.Parse(typeIdString)];
       var keyTupleDescriptor = type.Hierarchy.KeyInfo.TupleDescriptor;
       
-      return KeyFactory.Create(domain, type, keyTupleDescriptor.Parse(valueString), null, false, false);
+      return KeyFactory.Create(type, keyTupleDescriptor.Parse(valueString), null, false, false);
     }
 
     #endregion
@@ -278,24 +277,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Type type)
     {
-      var domain = Domain.Demand();
-      var typeInfo = domain.Model.Types[type];
-      var keyGenerator = domain.KeyGenerators[typeInfo.Hierarchy.GeneratorInfo];
-      return KeyFactory.Create(domain, typeInfo, keyGenerator.Next(), null, true, false);
-    }
-
-    /// <summary>
-    /// Creates <see cref="Key"/> instance 
-    /// for the specified <see cref="HierarchyInfo"/>
-    /// with newly generated value.
-    /// </summary>
-    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    /// <param name="hierarchy">The hierarchy.</param>
-    public static Key Create(HierarchyInfo hierarchy)
-    {
-      var domain = Domain.Demand();
-      Tuple keyValue = GenerateKeyValue(domain, hierarchy);
-      return KeyFactory.Create(domain, hierarchy.Root, keyValue, null, false, false);
+      return Create(Domain.Demand().Model.Types[type]);
     }
 
     /// <summary>
@@ -306,18 +288,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(TypeInfo type)
     {
-      var domain = Domain.Demand();
-      Tuple keyValue = GenerateKeyValue(domain, type.Hierarchy);
-      return KeyFactory.Create(domain, type, keyValue, null, true, false);
-    }
-
-    private static Tuple GenerateKeyValue(Domain domain, HierarchyInfo hierarchy)
-    {
-      var keyGenerator = domain.KeyGenerators[hierarchy.GeneratorInfo];
-      if (keyGenerator==null)
-        throw new InvalidOperationException(
-          string.Format(Strings.ExUnableToCreateKeyForXHierarchy, hierarchy));
-      return keyGenerator.Next();
+      return KeyFactory.CreateNext(type);
     }
 
     #endregion
@@ -337,7 +308,7 @@ namespace Xtensive.Storage
     public static Key Create<T>(Tuple value)
       where T : Entity  
     {
-      return Create(typeof (T), value, false);
+      return Create<T>(value, false);
     }
 
     internal static Key Create<T>(Tuple value, bool exactType)
@@ -355,14 +326,12 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Type type, Tuple value)
     {
-      var domain = Domain.Demand();
-      return KeyFactory.Create(domain, domain.Model.Types[type], value, null, false, false);
+      return Create(type, value, false);
     }
 
     internal static Key Create(Type type, Tuple value, bool exactType)
     {
-      var domain = Domain.Demand();
-      return KeyFactory.Create(domain, domain.Model.Types[type], value, null, exactType, false);
+      return Create(Domain.Demand().Model.Types[type], value, exactType);
     }
 
     /// <summary>
@@ -374,12 +343,12 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(TypeInfo type, Tuple value)
     {
-      return KeyFactory.Create(Domain.Demand(), type, value, null, false, false);
+      return Create(type, value, false);
     }
 
     internal static Key Create(TypeInfo type, Tuple value, bool exactType)
     {
-      return KeyFactory.Create(Domain.Demand(), type, value, null, exactType, false);
+      return KeyFactory.Create(type, value, null, exactType, false);
     }
 
     #endregion
@@ -399,7 +368,7 @@ namespace Xtensive.Storage
     public static Key Create<T>(params object[] values)
       where T : Entity  
     {
-      return Create(typeof (T), false, values);
+      return Create<T>(false, values);
     }
 
     internal static Key Create<T>(bool exactType, params object[] values)
@@ -417,14 +386,12 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Type type, params object[] values)
     {
-      var domain = Domain.Demand();
-      return Create(domain.Model.Types[type], false, values);
+      return Create(type, false, values);
     }
 
-    internal static Key Create(Type type, bool exactType, params object[] values)
+    private static Key Create(Type type, bool exactType, params object[] values)
     {
-      var domain = Domain.Demand();
-      return Create(domain.Model.Types[type], exactType, values);
+      return Create(Domain.Demand().Model.Types[type], exactType, values);
     }
 
     /// <summary>
@@ -434,53 +401,9 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="values">Key values.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    public static Key Create(TypeInfo type, params object[] values)
+    public static Key Create(TypeInfo type, bool exactType, params object[] values)
     {
-      return Create(type, false, values);
-    }
-
-    internal static Key Create(TypeInfo type, bool exactType, params object[] values)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      var keyInfo = type.Hierarchy.KeyInfo;
-      ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
-
-      var tuple = Tuple.Create(keyInfo.TupleDescriptor);
-      int typeIdIndex = keyInfo.TypeIdColumnIndex;
-      if (typeIdIndex>=0)
-        tuple.SetValue(typeIdIndex, type.TypeId);
-
-      int tupleIndex = 0;
-      if (tupleIndex==typeIdIndex)
-        tupleIndex++;
-      for (int valueIndex = 0; valueIndex < values.Length; valueIndex++) {
-        var value = values[valueIndex];
-        ArgumentValidator.EnsureArgumentNotNull(value, string.Format("values[{0}]", valueIndex));
-        var entity = value as Entity;
-        if (entity!=null)
-          value = entity.Key;
-        var key = value as Key;
-        if (key!=null) {
-          if (key.Hierarchy==type.Hierarchy)
-            typeIdIndex = -1; // Key must be fully copied in this case
-          for (int keyIndex = 0; keyIndex < key.Value.Count; keyIndex++) {
-            tuple.SetValue(tupleIndex++, key.Value.GetValueOrDefault(keyIndex));
-            if (tupleIndex==typeIdIndex)
-              tupleIndex++;
-          }
-          continue;
-        }
-        else {
-          tuple.SetValue(tupleIndex++, value);
-          if (tupleIndex==typeIdIndex)
-            tupleIndex++;
-        }
-      }
-      if (tupleIndex != tuple.Count)
-        throw new ArgumentException(string.Format(
-          Strings.ExSpecifiedValuesArentEnoughToCreateKeyForTypeX, type.Name));
-
-      return KeyFactory.Create(Domain.Demand(), type, tuple, null, exactType, false);
+      return KeyFactory.Create(type, exactType, values);
     }
 
     #endregion
