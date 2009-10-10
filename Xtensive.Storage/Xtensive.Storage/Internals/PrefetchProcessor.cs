@@ -169,7 +169,7 @@ namespace Xtensive.Storage.Internals
 
     private static void EnsureKeyTypeCorrespondsToSpecifiedType(Key key, TypeInfo type)
     {
-      if (type == null)
+      if (type == null || key.TypeRef.Type == type)
         return;
       if (!key.TypeRef.Type.IsInterface && !type.IsInterface)
         if (key.TypeRef.Type.Hierarchy == type.Hierarchy)
@@ -179,6 +179,7 @@ namespace Xtensive.Storage.Internals
       if (type.GetInterfaces(true).Contains(key.TypeRef.Type)
         || key.TypeRef.Type.GetInterfaces(true).Contains(type))
           return;
+      throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
     }
 
     private static void EnsureAllFieldsBelongToSpecifiedType(PrefetchFieldDescriptor[] descriptors,
