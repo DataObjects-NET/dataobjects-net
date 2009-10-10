@@ -7,12 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Xtensive.Core;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
-using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -28,7 +25,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected Queue<SqlQueryTask> queryTasks = new Queue<SqlQueryTask>();
     protected Queue<SqlPersistTask> persistTasks = new Queue<SqlPersistTask>();
 
-    protected int spinCount;
+    protected int reenterCount;
     protected Command activeCommand;
     protected DbTransaction transaction;
 
@@ -36,7 +33,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       get { return transaction; }
       set {
-        if (spinCount > 0 && value!=transaction)
+        if (reenterCount > 0 && value!=transaction)
           throw new InvalidOperationException();
         transaction = value;
       }
@@ -48,7 +45,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       AllocateCommand();
       try {
-        activeCommand.AddPart(task.Request.Compile(domainHandler).GetCommandText());
+        var part = task.Request.Compile(domainHandler).GetCommandText();
+        activeCommand.AddPart(part);
         return activeCommand.ExecuteScalar();
       }
       finally {
@@ -60,7 +58,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       AllocateCommand();
       try {
-        activeCommand.AddPart(factory.CreatePersistCommandPart(task, DefaultParameterNamePrefix));
+        var part = factory.CreatePersistCommandPart(task, DefaultParameterNamePrefix);
+        activeCommand.AddPart(part);
         activeCommand.ExecuteNonQuery();
       }
       finally {
@@ -72,7 +71,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       AllocateCommand();
       try {
-        activeCommand.AddPart(factory.CreateQueryCommandPart(task, DefaultParameterNamePrefix));
+        var part = factory.CreateQueryCommandPart(task, DefaultParameterNamePrefix);
+        activeCommand.AddPart(part);
         return activeCommand.ExecuteReader();
       }
       finally {
@@ -95,6 +95,12 @@ namespace Xtensive.Storage.Providers.Sql
       persistTasks.Enqueue(task);
     }
     
+    public void ClearTasks()
+    {
+      queryTasks.Clear();
+      persistTasks.Clear();
+    }
+
     protected IEnumerator<Tuple> RunTupleReader(DbDataReader reader, TupleDescriptor descriptor)
     {
       var accessor = domainHandler.GetDataReaderAccessor(descriptor);
@@ -110,7 +116,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected void AllocateCommand()
     {
       if (activeCommand!=null)
-        spinCount++;
+        reenterCount++;
       else 
         activeCommand = CreateCommand();
     }
@@ -118,8 +124,8 @@ namespace Xtensive.Storage.Providers.Sql
     protected void DisposeCommand()
     {
       activeCommand.DisposeSafely();
-      if (spinCount > 0) {
-        spinCount--;
+      if (reenterCount > 0) {
+        reenterCount--;
         activeCommand = CreateCommand();
       }
       else

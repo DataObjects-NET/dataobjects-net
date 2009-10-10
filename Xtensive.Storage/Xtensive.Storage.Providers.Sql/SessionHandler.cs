@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Providers.Sql
         if (Transaction!=null)
           driver.CommitTransaction(Transaction);
         IsAutoshortenTransactionActivated = false;
-        Transaction = null;
+        EndNativeTransaction();
       }
     }
 
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Providers.Sql
         if (Transaction!=null)
           driver.RollbackTransaction(Transaction);
         IsAutoshortenTransactionActivated = false;
-        Transaction = null;
+        EndNativeTransaction();
       }
     }
 
@@ -285,6 +285,12 @@ namespace Xtensive.Storage.Providers.Sql
       Transaction = driver.BeginTransaction(
         connection, IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
       commandProcessor.Transaction = Transaction;
+    }
+
+    private void EndNativeTransaction()
+    {
+      commandProcessor.ClearTasks();
+      Transaction = null;
     }
 
     private DbCommand CreateCommand(string commandText)

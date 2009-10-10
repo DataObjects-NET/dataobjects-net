@@ -973,6 +973,8 @@ namespace Xtensive.Storage.Providers.Sql
     {
       return () => {
         var value = originalAccessor.Invoke();
+        // debug helper, don't remove :-)
+        // Console.WriteLine("Take/Skip count is " + value);
         if (value < 0)
           throw new InvalidOperationException();
         return value;

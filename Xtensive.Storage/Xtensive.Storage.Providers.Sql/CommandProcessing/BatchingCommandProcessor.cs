@@ -118,7 +118,8 @@ namespace Xtensive.Storage.Providers.Sql
       for (int i = 0; i < amount && queryTasks.Count > 0; i++) {
         var task = queryTasks.Dequeue();
         queries.Add(task);
-        activeCommand.AddPart(factory.CreateQueryCommandPart(task, activeCommand.GetParameterPrefix()));
+        var part = factory.CreateQueryCommandPart(task, activeCommand.GetParameterPrefix());
+        activeCommand.AddPart(part);
       }
       return queries;
     }
@@ -126,9 +127,10 @@ namespace Xtensive.Storage.Providers.Sql
     private int RegisterPersists(int amount)
     {
       int count = 0;
-      for (int i = 0; i < amount; i++) {
+      for (int i = 0; i < amount && persistTasks.Count > 0; i++) {
         var task = persistTasks.Dequeue();
-        activeCommand.AddPart(factory.CreatePersistCommandPart(task, activeCommand.GetParameterPrefix()));
+        var part = factory.CreatePersistCommandPart(task, activeCommand.GetParameterPrefix());
+        activeCommand.AddPart(part);
         count++;
       }
       return count;
