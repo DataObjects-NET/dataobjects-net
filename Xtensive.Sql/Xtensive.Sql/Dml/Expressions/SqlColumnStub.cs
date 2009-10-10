@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Sql.Dml
 {
   [Serializable]
-  public class ColumnStub : SqlColumn
+  public class SqlColumnStub : SqlColumn
   {
     public SqlColumn Column { get; set; }
 
@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      var clone = new ColumnStub(
+      var clone = new SqlColumnStub(
         SqlTable != null ? (SqlTable) SqlTable.Clone(context) : null, 
         Column);
 
@@ -31,13 +31,13 @@ namespace Xtensive.Sql.Dml
 
     // Constructors
 
-    internal ColumnStub(SqlColumn column)
+    internal SqlColumnStub(SqlColumn column)
       : base(column.Name ?? string.Empty)
     {
       Column = column;
     }
 
-    private ColumnStub(SqlTable sqlTable, SqlColumn column)
+    private SqlColumnStub(SqlTable sqlTable, SqlColumn column)
       : base(sqlTable, column.Name ?? string.Empty)
     {
       Column = column;

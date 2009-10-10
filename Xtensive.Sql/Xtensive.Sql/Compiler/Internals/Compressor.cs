@@ -160,7 +160,7 @@ namespace Xtensive.Sql.Compiler.Internals
     {
       AppendSpace();
       FlushBuffer();
-      AppendNode(new HoleNode(node.Prefix, node.Key));
+      AppendNode(new HoleNode(node.Id));
       CreateBuffer();
       ResetLast();
     }

@@ -1188,6 +1188,12 @@ namespace Xtensive.Sql
       return new SqlVariant(main, alternative, key);
     }
 
+    public static SqlHole Hole(object id)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(id, "id");
+      return new SqlHole(id);
+    }
+
     public static SqlContainer Container(object value)
     {
       return new SqlContainer(value);
@@ -1686,10 +1692,10 @@ namespace Xtensive.Sql
       return new SqlColumnRef(column, alias);
     }
 
-    public static ColumnStub ColumnStub(SqlColumn column)
+    public static SqlColumnStub ColumnStub(SqlColumn column)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
-      return new ColumnStub(column);
+      return new SqlColumnStub(column);
     }
 
     public static SqlTableRef TableRef(DataTable dataTable)

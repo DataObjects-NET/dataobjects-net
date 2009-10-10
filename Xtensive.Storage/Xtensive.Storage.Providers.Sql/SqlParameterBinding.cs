@@ -21,9 +21,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the parameter reference.
     /// </summary>
-    /// <value>The parameter reference.</value>
-    public SqlParameterRef ParameterReference { get; private set; }
-    
+    public SqlHole ParameterReference { get; private set; }
+
     // Constructors
 
     /// <summary>
@@ -32,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected SqlParameterBinding(TypeMapping typeMapping)
     {
       TypeMapping = typeMapping;
-      ParameterReference = SqlDml.ParameterRef(this);
+      ParameterReference = SqlDml.Hole(this);
     }
   }
 }

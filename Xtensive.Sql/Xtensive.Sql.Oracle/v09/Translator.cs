@@ -202,6 +202,11 @@ namespace Xtensive.Sql.Oracle.v09
       return string.Empty;
     }
 
+    public override string Translate(SqlCompilerContext context, SqlQueryStatement node, QueryStatementSection section)
+    {
+      throw new NotSupportedException();
+    }
+
     public virtual string Translate(Index node)
     {
       return node.DataTable.Schema!=null

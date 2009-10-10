@@ -921,14 +921,10 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlParameterRef node)
     {
-      if (options.DelayParameterNameAssignment)
-        context.Output.AppendHole(translator.ParameterPrefix, node.Parameter);
-      else {
-        var name = string.IsNullOrEmpty(node.Name)
-          ? context.ParameterNameProvider.GetName(node.Parameter)
-          : node.Name;
-        context.Output.AppendText(translator.ParameterPrefix + name);
-      }
+      var name = string.IsNullOrEmpty(node.Name)
+        ? context.ParameterNameProvider.GetName(node.Parameter)
+        : node.Name;
+      context.Output.AppendText(translator.ParameterPrefix + name);
     }
 
     public virtual void Visit(SqlQueryRef node)
@@ -1024,6 +1020,7 @@ namespace Xtensive.Sql.Compiler
         VisitSelectWhere(node);
         VisitSelectGroupBy(node);
         VisitSelectOrderBy(node);
+        VisitQueryLimitOffset(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
       }
@@ -1050,10 +1047,10 @@ namespace Xtensive.Sql.Compiler
         return;
       using (context.EnterCollectionScope()) {
         foreach (SqlColumn item in node.Columns) {
-          if (item is ColumnStub)
+          if (item is SqlColumnStub)
             continue;
           var cr = item as SqlColumnRef;
-          if (!cr.IsNullReference() && cr.SqlColumn is ColumnStub)
+          if (!cr.IsNullReference() && cr.SqlColumn is SqlColumnStub)
             continue;
             
           if (!context.IsEmpty)
@@ -1119,6 +1116,18 @@ namespace Xtensive.Sql.Compiler
             context.Output.AppendDelimiter(translator.ColumnDelimiter);
           item.AcceptVisitor(this);
         }
+      }
+    }
+
+    public virtual void VisitQueryLimitOffset(SqlQueryStatement node)
+    {
+      if (!node.Limit.IsNullReference()) {
+        context.Output.AppendText(translator.Translate(context, node, QueryStatementSection.Limit));
+        node.Limit.AcceptVisitor(this);
+      }
+      if (!node.Offset.IsNullReference()) {
+        context.Output.AppendText(translator.Translate(context, node, QueryStatementSection.Offset));
+        node.Offset.AcceptVisitor(this);
       }
     }
 
@@ -1225,6 +1234,11 @@ namespace Xtensive.Sql.Compiler
 
         context.Output.AppendText(translator.Translate(context, node, UpdateSection.Exit));
       }
+    }
+
+    public virtual void Visit(SqlHole node)
+    {
+      context.Output.AppendHole(node.Id);
     }
 
     public virtual void Visit(SqlUserColumn node)

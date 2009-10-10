@@ -14,20 +14,19 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public abstract class SqlQueryStatement: SqlStatement
   {
-    private int limit;
-    private int offset;
+    private SqlExpression limit;
+    private SqlExpression offset;
     private IList<SqlHint> hints;
 
     /// <summary>
     /// Gets or sets the limit.
     /// </summary>
-    /// <value>The limit.</value>
-    public int Limit
+    public SqlExpression Limit
     {
       get { return limit; }
       set {
-        if (value<0)
-          throw new ArgumentOutOfRangeException("value");
+        if (!value.IsNullReference())
+          SqlValidator.EnsureIsConstantExpression(value);
         limit = value;
       }
     }
@@ -35,13 +34,12 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets or sets the offset.
     /// </summary>
-    /// <value>The offset.</value>
-    public int Offset
+    public SqlExpression Offset
     {
       get { return offset; }
       set {
-        if (value<0)
-          throw new ArgumentOutOfRangeException("value");
+        if (!value.IsNullReference())
+          SqlValidator.EnsureIsConstantExpression(value);
         offset = value;
       }
     }

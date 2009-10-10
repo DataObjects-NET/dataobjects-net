@@ -259,6 +259,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only SqlLiteral and SqlNode can used in Limit/Offset.
+        /// </summary>
+        internal static string ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset {
+            get {
+                return ResourceManager.GetString("ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Operation &apos;{0}&apos; is not supported.
         /// </summary>
         internal static string ExOperationXIsNotSupported {

@@ -64,32 +64,32 @@ namespace Xtensive.Sql.Compiler
 
     /// <summary>
     /// Gets the textual representation of SQL DOM statement compilation.
-    /// All delayed parameter names are choosen according to a <paramref name="parameterNameMapping"/>.
+    /// All delayed parameter names are choosen according to a <paramref name="holesMapping"/>.
     /// </summary>
-    /// <param name="parameterNameMapping">A dictionary that assigns for each parameter.</param>
+    /// <param name="holesMapping">A dictionary that assigns value for each hole in query.</param>
     /// <returns>The SQL text command.</returns>
-    public string GetCommandText(IDictionary<object, string> parameterNameMapping)
+    public string GetCommandText(IDictionary<object, string> holesMapping)
     {
       if (resultText!=null)
         return resultText;
-      string result = PostCompiler.Compile(resultNode, null, parameterNameMapping, lastResultLength);
+      string result = PostCompiler.Compile(resultNode, null, holesMapping, lastResultLength);
       lastResultLength = result.Length;
       return result;
     }
 
     /// <summary>
     /// Gets the textual representation of SQL DOM statement compilation.
-    /// All delayed parameter names are choosen according to a <paramref name="parameterNameMapping"/>.
+    /// All delayed parameter names are choosen according to a <paramref name="holesMapping"/>.
     /// All variants are chosen according to a <paramref name="variantKeys"/>.
     /// </summary>
     /// <param name="variantKeys">Keys that determine which variants are to be used.</param>
-    /// <param name="parameterNameMapping">A dictionary that assigns for each parameter.</param>
+    /// <param name="holesMapping">A dictionary that assigns for each parameter.</param>
     /// <returns>The SQL text command.</returns>
-    public string GetCommandText(IEnumerable<object> variantKeys, IDictionary<object, string> parameterNameMapping)
+    public string GetCommandText(IEnumerable<object> variantKeys, IDictionary<object, string> holesMapping)
     {
       if (resultText!=null)
         return resultText;
-      string result = PostCompiler.Compile(resultNode, variantKeys, parameterNameMapping, lastResultLength);
+      string result = PostCompiler.Compile(resultNode, variantKeys, holesMapping, lastResultLength);
       lastResultLength = result.Length;
       return result;
     }

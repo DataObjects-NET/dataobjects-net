@@ -19,6 +19,22 @@ namespace Xtensive.Sql.SqlServer.v2005
     private static readonly int MillisecondsPerDay = (int) TimeSpan.FromDays(1).TotalMilliseconds;
     private static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
     
+    public override void Visit(SqlSelect node)
+    {
+      using (context.EnterScope(node)) {
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+        VisitQueryLimitOffset(node);
+        VisitSelectHints(node);
+        VisitSelectColumns(node);
+        VisitSelectFrom(node);
+        VisitSelectWhere(node);
+        VisitSelectGroupBy(node);
+        VisitSelectOrderBy(node);
+        VisitSelectLock(node);
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+      }
+    }
+
     public override void VisitSelectLock(SqlSelect node)
     {
       return;

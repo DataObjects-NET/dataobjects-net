@@ -26,5 +26,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// according to a value returned by <see cref="SqlQueryParameterBinding.ValueAccessor"/>.
     /// </summary>
     BooleanConstant,
+
+    /// <summary>
+    /// Indicates that parameter is a argument to paging operators
+    /// and should be inlined in query as constant value.
+    /// </summary>
+    LimitOffset,
   }
 }

@@ -31,8 +31,7 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlCompilationResult Compile(DomainHandler domainHandler)
     {
       return compilationResult.GetValue(
-        (driver, _this) => driver.Compile(_this.Statement, new SqlCompilerOptions {DelayParameterNameAssignment = true, ForcedAliasing = true}),
-        domainHandler.Driver, this);
+        (driver, _this) => driver.Compile(_this.Statement), domainHandler.Driver, this);
     }
 
 

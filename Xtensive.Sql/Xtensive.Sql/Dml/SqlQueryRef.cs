@@ -62,12 +62,12 @@ namespace Xtensive.Sql.Dml
         select.Columns.Clear();
         foreach (var originalColumn in selectColumns) {
           var column = originalColumn;
-          var stubColumn = column as ColumnStub;
+          var stubColumn = column as SqlColumnStub;
           if (!ReferenceEquals(null, stubColumn))
             column = stubColumn.Column;
           var columnRef = column as SqlColumnRef;
           if (!ReferenceEquals(null, columnRef)) {
-            stubColumn = columnRef.SqlColumn as ColumnStub;
+            stubColumn = columnRef.SqlColumn as SqlColumnStub;
             if (!ReferenceEquals(null, stubColumn))
               column = stubColumn.Column;
           }

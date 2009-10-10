@@ -8,18 +8,16 @@ namespace Xtensive.Sql.Compiler.Internals
 {
   internal class HoleNode : Node
   {
-    public readonly string Prefix;
-    public readonly object Key;
+    public readonly object Id;
 
     internal override void AcceptVisitor(NodeVisitor visitor)
     {
       visitor.Visit(this);
     }
 
-    public HoleNode(string prefix, object key)
+    public HoleNode(object id)
     {
-      Prefix = prefix;
-      Key = key;
+      Id = id;
     }
   }
 }

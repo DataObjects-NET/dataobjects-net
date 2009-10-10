@@ -30,9 +30,9 @@ namespace Xtensive.Sql.Compiler.Internals
       visitor.Visit(this);
     }
 
-    public void AppendHole(string prefix, object key)
+    public void AppendHole(object id)
     {
-      Add(new HoleNode(prefix, key));
+      Add(new HoleNode(id));
     }
 
     public void AppendText(string text)

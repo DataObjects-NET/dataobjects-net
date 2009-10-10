@@ -213,6 +213,9 @@ namespace Xtensive.Sql.SqlServer.v2005
       return base.Translate(context, node, section);
     }
 
+    /*
+    NOTE: Temporary disable, don't uncomment
+
     public override string Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
     {
       switch (section) {
@@ -230,6 +233,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       }
       return base.Translate(context, node, section);
     }
+    */
 
     public override string Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
     {
@@ -295,13 +299,6 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       switch (section) {
-      case SelectSection.Entry:
-        var result = new StringBuilder("SELECT ");
-        if (node.Distinct)
-          result.Append("DISTINCT ");
-        if (node.Limit > 0)
-          result.AppendFormat("TOP {0} ", node.Limit);
-        return result.ToString();
       case SelectSection.Exit:
         if (node.Hints.Count==0)
           return string.Empty;
@@ -386,7 +383,22 @@ namespace Xtensive.Sql.SqlServer.v2005
         throw new ArgumentOutOfRangeException();
       }
     }
-   
+
+    public override string Translate(SqlCompilerContext context, SqlQueryStatement node, QueryStatementSection section)
+    {
+      switch (section) {
+      case QueryStatementSection.Limit:
+        return "TOP";
+      case QueryStatementSection.Offset:
+        throw new NotSupportedException();
+      default:
+        throw new ArgumentOutOfRangeException("section");
+      }
+    }
+
+    /*
+    NOTE: Temporary disabled
+
     public override string Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
     {
       switch (section) {
@@ -395,6 +407,7 @@ namespace Xtensive.Sql.SqlServer.v2005
       }
       return base.Translate(context, node, section);
     }
+    */
 
     public override string Translate(SqlCompilerContext context, SqlDropSchema node)
     {

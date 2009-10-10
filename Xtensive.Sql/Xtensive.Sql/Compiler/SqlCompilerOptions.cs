@@ -25,14 +25,6 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     public string ParameterNamePrefix { get; set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether parameter name assignment is delayed.
-    /// </summary>
-    /// <value>
-    /// <see langword="true"/> if parameter name assignment is delayed; otherwise, <see langword="false"/>.
-    /// </value>
-    public bool DelayParameterNameAssignment { get; set; }
-
 
     // Constructors
 

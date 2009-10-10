@@ -5,6 +5,7 @@
 // Created:    2009.02.13
 
 using System.Collections.Generic;
+using Xtensive.Core.Collections;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;
@@ -19,12 +20,11 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       var compiledSource = Compile(provider.Source);
 
       var query = ExtractSqlSelect(provider, compiledSource);
-      var count = provider.Count();
-      if (query.Limit == 0 || query.Limit > count)
-        query.Limit = count;
+      var binding = CreateLimitOffsetParameterBinding(provider.Count);
+      query.Limit = binding.ParameterReference;
       if (!(provider.Source is TakeProvider) && !(provider.Source is SkipProvider))
         AddOrderByStatement(provider, query);
-      return new SqlProvider(provider, query, Handlers, compiledSource);
+      return new SqlProvider(provider, query, Handlers, EnumerableUtils.One(binding), compiledSource);
     }
 
     protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)

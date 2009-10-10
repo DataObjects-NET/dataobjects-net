@@ -365,22 +365,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       // DECLARE CURSOR already opens it
       return string.Empty;
     }
-
-    public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
-    {
-      if (section==SelectSection.Exit) {
-        if (node.Limit > 0 || node.Offset > 0) {
-          var sb = new StringBuilder();
-          if (node.Offset > 0)
-            sb.Append(" OFFSET " + node.Offset);
-          if (node.Limit > 0)
-            sb.Append(" LIMIT " + node.Limit);
-          return sb.ToString();
-        }
-        return string.Empty;
-      }
-      return base.Translate(context, node, section);
-    }
     
     public override string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
     {

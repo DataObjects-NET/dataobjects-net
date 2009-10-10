@@ -144,8 +144,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       if (right.NodeType==SqlNodeType.Null || emptyStringIsNull && IsEmptyStringLiteral(right))
         return SqlDml.IsNull(left);
-      if (right.NodeType==SqlNodeType.Parameter)
-        return SqlDml.Variant(SqlDml.Equals(left, right), SqlDml.IsNull(left), ((SqlParameterRef) right).Parameter);
+      if (right.NodeType==SqlNodeType.Hole)
+        return SqlDml.Variant(SqlDml.Equals(left, right), SqlDml.IsNull(left), ((SqlHole) right).Id);
       return null;
     }
 
@@ -153,8 +153,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     {
       if (right.NodeType==SqlNodeType.Null || emptyStringIsNull && IsEmptyStringLiteral(right))
         return SqlDml.IsNotNull(left);
-      if (right.NodeType==SqlNodeType.Parameter)
-        return SqlDml.Variant(SqlDml.NotEquals(left, right), SqlDml.IsNotNull(left), ((SqlParameterRef) right).Parameter);
+      if (right.NodeType==SqlNodeType.Hole)
+        return SqlDml.Variant(SqlDml.NotEquals(left, right), SqlDml.IsNotNull(left), ((SqlHole) right).Id);
       return null;
     }
 

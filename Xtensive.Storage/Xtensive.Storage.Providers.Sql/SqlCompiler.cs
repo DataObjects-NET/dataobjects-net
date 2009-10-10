@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private readonly BooleanExpressionConverter booleanExpressionConverter;
 
-    public readonly Dictionary<ColumnStub,SqlExpression> stubColumnMap;
+    public readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     
     /// <summary>
     /// Gets the value type mapper.
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Providers.Sql
         columnName = ProcessAliasedName(columnName);
         var column = columns[i];
         var columnRef = column as SqlColumnRef;
-        var columnStub = column as ColumnStub;
+        var columnStub = column as SqlColumnStub;
         if (!ReferenceEquals(null, columnRef))
           sqlSelect.Columns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
         else if (!ReferenceEquals(null, columnStub))
@@ -169,7 +169,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var sourceSelect = source.Request.SelectStatement;
       SqlSelect query;
-      if (sourceSelect.Limit != 0 || sourceSelect.Offset != 0) {
+      if (!sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference()) {
         var queryRef = SqlDml.QueryRef(sourceSelect);
         query = SqlDml.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
@@ -476,12 +476,11 @@ namespace Xtensive.Storage.Providers.Sql
       var compiledSource = Compile(provider.Source);
       
       var query = ExtractSqlSelect(provider, compiledSource);
-      var count = provider.Count();
-      if (query.Limit == 0 || query.Limit > count)
-        query.Limit = count;
+      var binding = CreateLimitOffsetParameterBinding(provider.Count);
+      query.Limit = binding.ParameterReference;
       if (!(provider.Source is TakeProvider) && !(provider.Source is SkipProvider))
         AddOrderByStatement(provider, query);
-      return new SqlProvider(provider, query, Handlers, compiledSource);
+      return new SqlProvider(provider, query, Handlers, EnumerableUtils.One(binding), compiledSource);
     }
 
     /// <inheritdoc/>
@@ -847,11 +846,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     public static bool IsColumnStub(SqlColumn column)
     {
-      if (column is ColumnStub)
+      if (column is SqlColumnStub)
         return true;
       var cRef = column as SqlColumnRef;
       if (!ReferenceEquals(null, cRef))
-        return cRef.SqlColumn is ColumnStub;
+        return cRef.SqlColumn is SqlColumnStub;
       return false;
     }
 
@@ -872,15 +871,15 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    public static ColumnStub ExtractColumnStub(SqlColumn column)
+    public static SqlColumnStub ExtractColumnStub(SqlColumn column)
     {
-      var columnStub = column as ColumnStub;
+      var columnStub = column as SqlColumnStub;
       if (!ReferenceEquals(null, columnStub))
         return columnStub;
       var columnRef = column as SqlColumnRef;
       if (!ReferenceEquals(null, columnRef))
-        return (ColumnStub)columnRef.SqlColumn;
-      return (ColumnStub) column;
+        return (SqlColumnStub) columnRef.SqlColumn;
+      return (SqlColumnStub) column;
     }
 
     public static SqlUserColumn ExtractUserColumn(SqlColumn column)
@@ -902,7 +901,7 @@ namespace Xtensive.Storage.Providers.Sql
         .Where(i => i >= 0)
         .ToList();
       var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
-      var pagingIsUsed = sourceSelect.Limit != 0 || sourceSelect.Offset != 0;
+      var pagingIsUsed = !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference();
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
       var distinctIsUsed = sourceSelect.Distinct;
       var filterIsUsed = !sourceSelect.Where.IsNullReference();
@@ -960,6 +959,24 @@ namespace Xtensive.Storage.Providers.Sql
         return query;
       }
       return sourceSelect.ShallowClone();
+    }
+
+    protected SqlQueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)
+    {
+      return new SqlQueryParameterBinding(
+        BuildLimitOffsetAccessor(accessor),
+        Driver.GetTypeMapping(typeof (int)),
+        SqlQueryParameterBindingType.LimitOffset);
+    }
+
+    private static Func<object> BuildLimitOffsetAccessor(Func<int> originalAccessor)
+    {
+      return () => {
+        var value = originalAccessor.Invoke();
+        if (value < 0)
+          throw new InvalidOperationException();
+        return value;
+      };
     }
 
     private Pair<SqlExpression, HashSet<SqlQueryParameterBinding>> ProcessExpression(LambdaExpression le, params List<SqlExpression>[] sourceColumns)
@@ -1103,7 +1120,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (!handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
 
-      stubColumnMap = new Dictionary<ColumnStub, SqlExpression>();
+      stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
     }
   }
 }

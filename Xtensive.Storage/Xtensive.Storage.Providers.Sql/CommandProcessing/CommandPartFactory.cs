@@ -16,6 +16,7 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private const int LobBlockSize = ushort.MaxValue;
     private readonly DomainHandler domainHandler;
+    private readonly Driver driver;
     private readonly SqlConnection connection;
     private bool emptyStringIsNull;
     
@@ -31,7 +32,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var binding in request.ParameterBindings) {
         var parameterValue = tuple.GetValueOrDefault(binding.FieldIndex);
         string parameterName = parameterNamePrefix + parameterIndex++;
-        parameterNames.Add(binding.ParameterReference.Parameter, parameterName);
+        parameterNames.Add(binding, driver.BuildParameterReference(parameterName));
         AddPersistParameter(result, parameterName, parameterValue, binding);
       }
       result.Query = compilationResult.GetCommandText(parameterNames);
@@ -50,21 +51,26 @@ namespace Xtensive.Storage.Providers.Sql
       using (task.ParameterContext.ActivateSafely()) {
         foreach (var binding in request.ParameterBindings) {
           object parameterValue = binding.ValueAccessor.Invoke();
+          // no parameters - just inlined constant
+          if (binding.BindingType==SqlQueryParameterBindingType.LimitOffset) {
+            parameterNames.Add(binding, parameterValue.ToString());
+            continue;
+          }
           // expanding true/false parameters to constants to help query optimizer with branching
           if (binding.BindingType==SqlQueryParameterBindingType.BooleanConstant) {
             if ((bool) parameterValue)
-              variantKeys.Add(binding.ParameterReference.Parameter);
+              variantKeys.Add(binding);
             continue;
           }
           // replacing "x = @p" with "x is null" when @p = null (or empty string in case of Oracle)
           if (binding.BindingType==SqlQueryParameterBindingType.SmartNull &&
             (parameterValue==null || emptyStringIsNull && parameterValue.Equals(string.Empty))) {
-            variantKeys.Add(binding.ParameterReference.Parameter);
+            variantKeys.Add(binding);
             continue;
           }
           // regular case -> just adding the parameter
           string parameterName = parameterNamePrefix + parameterIndex++;
-          parameterNames.Add(binding.ParameterReference.Parameter, parameterName);
+          parameterNames.Add(binding, driver.BuildParameterReference(parameterName));
           AddRegularParameter(result, parameterName, parameterValue, binding.TypeMapping);
         }
       }
@@ -146,6 +152,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       this.connection = connection;
       this.domainHandler = domainHandler;
+      driver = domainHandler.Driver;
       emptyStringIsNull = domainHandler.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
     }
   }

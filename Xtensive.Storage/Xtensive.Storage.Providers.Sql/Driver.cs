@@ -84,6 +84,11 @@ namespace Xtensive.Storage.Providers.Sql
       return translator.BuildBatch(statements);
     }
 
+    public string BuildParameterReference(string parameterName)
+    {
+      return translator.ParameterPrefix + parameterName;
+    }
+
     public Schema ExtractSchema(SqlConnection connection, DbTransaction transaction)
     {
       return underlyingDriver.ExtractDefaultSchema(connection, transaction);

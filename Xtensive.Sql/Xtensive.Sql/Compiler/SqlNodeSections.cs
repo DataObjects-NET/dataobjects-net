@@ -271,4 +271,10 @@ namespace Xtensive.Sql.Compiler
     Exit = 1,
     All = 2,
   }
+
+  public enum QueryStatementSection
+  {
+    Limit = 1,
+    Offset = 2,
+  }
 }

@@ -130,11 +130,11 @@ namespace Xtensive.Sql.Tests.SqlServer
     [Test]
     public void DelayedParameterNamesTest()
     {
-      var parameterKey = new object();
-      var select = SqlDml.Select(SqlDml.ParameterRef(parameterKey));
-      var result = sqlConnection.Driver.Compile(select, new SqlCompilerOptions {DelayParameterNameAssignment = true});
+      var holeId = new object();
+      var select = SqlDml.Select(SqlDml.Hole(holeId));
+      var result = sqlConnection.Driver.Compile(select);
       using (var command = sqlConnection.CreateCommand()) {
-        command.CommandText = result.GetCommandText(new Dictionary<object, string> {{parameterKey, "xxx"}});
+        command.CommandText = result.GetCommandText(new Dictionary<object, string> {{holeId, "@xxx"}});
         var parameter = command.CreateParameter();
         parameter.ParameterName = "xxx";
         parameter.DbType = DbType.Int32;
@@ -143,7 +143,7 @@ namespace Xtensive.Sql.Tests.SqlServer
         Assert.AreEqual((int) 'x', command.ExecuteScalar());
       }
       using (var command = sqlConnection.CreateCommand()) {
-        command.CommandText = result.GetCommandText(new Dictionary<object, string> {{parameterKey, "yyy"}});
+        command.CommandText = result.GetCommandText(new Dictionary<object, string> {{holeId, "@yyy"}});
         var parameter = command.CreateParameter();
         parameter.ParameterName = "yyy";
         parameter.DbType = DbType.Int32;

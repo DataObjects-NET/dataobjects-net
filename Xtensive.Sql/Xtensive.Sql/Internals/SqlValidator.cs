@@ -18,8 +18,8 @@ namespace Xtensive.Sql
     public static void EnsureAreSqlRowArguments(IEnumerable<SqlExpression> nodes)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodes, "expressions");
-      foreach (SqlExpression se in nodes)
-        ArgumentValidator.EnsureArgumentNotNull(se, "expression");
+      foreach (SqlExpression expression in nodes)
+        ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
     }
 
     public static void EnsureIsBooleanExpression(SqlExpression node)
@@ -60,6 +60,13 @@ namespace Xtensive.Sql
         throw new InvalidOperationException(string.Format(Strings.ExLiteralTypeXIsNotSupported, type));
     }
 
+    public static void EnsureIsConstantExpression(SqlExpression node)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+      if (!IsConstantExpression(node))
+        throw new InvalidOperationException(Strings.ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset);
+    }
+
     public static bool IsBooleanExpression(SqlExpression node)
     {
       if (node==null)
@@ -94,9 +101,10 @@ namespace Xtensive.Sql
         case SqlNodeType.SubSelect:
         case SqlNodeType.Unique:
         case SqlNodeType.Variable:
+        case SqlNodeType.Hole:
           return true;
         case SqlNodeType.Cast:
-        return ((SqlCast) node).Type.Type==SqlType.Boolean;
+          return ((SqlCast) node).Type.Type==SqlType.Boolean;
         case SqlNodeType.Literal:
           return (node is SqlLiteral<bool>);
         case SqlNodeType.Variant:
@@ -140,6 +148,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Variable:
         case SqlNodeType.Extract:
         case SqlNodeType.Round:
+        case SqlNodeType.Hole:
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant) node;
@@ -168,12 +177,27 @@ namespace Xtensive.Sql
         case SqlNodeType.SubSelect:
         case SqlNodeType.Trim:
         case SqlNodeType.Variable:
+        case SqlNodeType.Hole:
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant)node;
           return IsCharacterExpression(variant.Main) && IsCharacterExpression(variant.Alternative);
         default:
           return false;
+      }
+    }
+
+    public static bool IsConstantExpression(SqlExpression node)
+    {
+      switch (node.NodeType) {
+      case SqlNodeType.Literal:
+      case SqlNodeType.Hole:
+        return true;
+      case SqlNodeType.Variant:
+        var variant = (SqlVariant) node;
+        return IsConstantExpression(variant.Main) && IsConstantExpression(variant.Alternative);
+      default:
+        return false;
       }
     }
 

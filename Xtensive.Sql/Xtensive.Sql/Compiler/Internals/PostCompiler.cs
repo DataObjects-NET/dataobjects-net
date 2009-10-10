@@ -38,9 +38,8 @@ namespace Xtensive.Sql.Compiler.Internals
       if (holeNodeValues==null)
         throw new InvalidOperationException();
       string value;
-      if (!holeNodeValues.TryGetValue(node.Key, out value))
+      if (!holeNodeValues.TryGetValue(node.Id, out value))
         throw new InvalidOperationException();
-      result.Append(node.Prefix);
       result.Append(value);
     }
 

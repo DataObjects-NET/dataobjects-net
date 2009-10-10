@@ -12,6 +12,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using System.Collections.Generic;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -21,79 +22,87 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var isSourceTake = provider.Source is TakeProvider;
       var compiledSource = Compile(provider.Source);
-
-      SqlSelect source = compiledSource.Request.SelectStatement;
+      var bindings = new List<SqlQueryParameterBinding>();
+      var source = compiledSource.Request.SelectStatement;
       var sourceQuery = source.ShallowClone();
-      if (isSourceTake && compiledSource.Request.SelectStatement.Limit == 0) {
-        sourceQuery.Where = AddSkipPartToTakeWhereExpression(sourceQuery, null, provider, provider.Source);
-        return new SqlProvider(provider.Source, sourceQuery, Handlers,
+      if (isSourceTake && compiledSource.Request.SelectStatement.Limit.IsNullReference()) {
+        sourceQuery.Where = AddSkipPartToTakeWhereExpression(sourceQuery, null, provider, bindings);
+        return new SqlProvider(provider.Source, sourceQuery, Handlers, bindings,
           (ExecutableProvider[]) compiledSource.Sources);
       }
 
       var queryRef = SqlDml.QueryRef(sourceQuery);
       var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      query.Where = AddSkipPartToTakeWhereExpression(sourceQuery, queryRef, provider, provider.Source);
-      return new SqlProvider(provider, query, Handlers, compiledSource);
+      query.Where = AddSkipPartToTakeWhereExpression(sourceQuery, queryRef, provider, bindings);
+      return new SqlProvider(provider, query, Handlers, bindings, compiledSource);
     }
 
     protected override SqlProvider VisitTake(TakeProvider provider)
     {
       var isSourceSkip = provider.Source is SkipProvider;
       var compiledSource = Compile(provider.Source);
+      var bindings = new List<SqlQueryParameterBinding>();
 
-      SqlSelect source = compiledSource.Request.SelectStatement;
+      var source = compiledSource.Request.SelectStatement;
       var sourceQuery = source.ShallowClone();
-      if (isSourceSkip && compiledSource.Request.SelectStatement.Offset == 0) {
-        sourceQuery.Where = AddTakePartToSkipWhereExpression(sourceQuery, null, provider, provider.Source);
-        return new SqlProvider(provider.Source, sourceQuery, Handlers,
-          (ExecutableProvider[]) compiledSource.Sources);
+      if (isSourceSkip && compiledSource.Request.SelectStatement.Offset.IsNullReference()) {
+        sourceQuery.Where = AddTakePartToSkipWhereExpression(sourceQuery, null, provider, bindings);
+        return new SqlProvider(provider.Source, sourceQuery,
+          Handlers, bindings, (ExecutableProvider[]) compiledSource.Sources);
       }
 
       var queryRef = SqlDml.QueryRef(sourceQuery);
       var query = SqlDml.Select(queryRef);
+      
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      query.Where = AddTakePartToSkipWhereExpression(sourceQuery, queryRef, provider, provider.Source);
-      return new SqlProvider(provider, query, Handlers, compiledSource);
+      query.Where = AddTakePartToSkipWhereExpression(sourceQuery, queryRef, provider, bindings);
+      return new SqlProvider(provider, query, Handlers, bindings, compiledSource);
     }
 
-    private static SqlExpression AddTakePartToSkipWhereExpression(
-      SqlSelect sourceQuery, SqlTable sourceQueryRef, TakeProvider provider, CompilableProvider source)
+    private SqlExpression AddTakePartToSkipWhereExpression(
+      SqlSelect sourceQuery, SqlTable sourceQueryRef, TakeProvider provider,
+      List<SqlQueryParameterBinding> bindings)
     {
       SqlExpression result;
+      var takeParameterBinding = CreateLimitOffsetParameterBinding(provider.Count);
+      bindings.Add(takeParameterBinding);
       if (sourceQueryRef != null)
-        result = sourceQueryRef.Columns.Last() <= provider.Count();
+        result = sourceQueryRef.Columns.Last() <= takeParameterBinding.ParameterReference;
       else {
         SqlBinary skipPartOfWhere;
         SqlExpression prevPart;
-        var sourceAsSkip = (SkipProvider)source;
+        var sourceAsSkip = (SkipProvider) provider.Source;
+        var skipParameterBinding = CreateLimitOffsetParameterBinding(sourceAsSkip.Count);
+        bindings.Add(skipParameterBinding);
         GetWhereParts(sourceQuery, out skipPartOfWhere, out prevPart);
         var rowNumberColumn = (SqlColumn) skipPartOfWhere.Left;
         result = prevPart
-          && (rowNumberColumn <= sourceAsSkip.Count() + provider.Count());
+          && (rowNumberColumn <= skipParameterBinding.ParameterReference + takeParameterBinding.ParameterReference);
       }
       return result;
     }
 
-    private static SqlExpression AddSkipPartToTakeWhereExpression(
-      SqlSelect sourceQuery, SqlTable sourceQueryRef, SkipProvider provider, CompilableProvider source)
+    private SqlExpression AddSkipPartToTakeWhereExpression(
+      SqlSelect sourceQuery, SqlTable sourceQueryRef, SkipProvider provider,
+      List<SqlQueryParameterBinding> bindings)
     {
+      var skipParameterBinding = CreateLimitOffsetParameterBinding(provider.Count);
+      bindings.Add(skipParameterBinding);
       SqlExpression result;
       if (sourceQueryRef != null)
-        result = sourceQueryRef.Columns.Last() > provider.Count();
+        result = sourceQueryRef.Columns.Last() > skipParameterBinding.ParameterReference;
       else {
         SqlBinary skipPartOfWhere;
         SqlExpression prevPart;
         GetWhereParts(sourceQuery, out skipPartOfWhere, out prevPart);
         var rowNumberColumn = (SqlColumn) skipPartOfWhere.Left;
-        result = prevPart
-          && (rowNumberColumn > provider.Count());
+        result = prevPart && (rowNumberColumn > skipParameterBinding.ParameterReference);
       }
       return result;
     }
 
-    private static void GetWhereParts(SqlSelect sourceQuery, out SqlBinary currentPart,
-      out SqlExpression prevPart)
+    private void GetWhereParts(SqlSelect sourceQuery, out SqlBinary currentPart, out SqlExpression prevPart)
     {
       var whereAsBinary = sourceQuery.Where as SqlBinary;
       if (whereAsBinary!=null) {

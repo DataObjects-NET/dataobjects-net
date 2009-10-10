@@ -243,4 +243,7 @@
   <data name="ExLockXIsNotSupported" xml:space="preserve">
     <value>Lock '{0}' is not supported</value>
   </data>
+  <data name="ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset" xml:space="preserve">
+    <value>Only SqlLiteral and SqlNode can used in Limit/Offset</value>
+  </data>
 </root>
