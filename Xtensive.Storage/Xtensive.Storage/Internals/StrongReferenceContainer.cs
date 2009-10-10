@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Internals
 
     /// <summary>
     /// Joins this instance with <paramref name="other"/>, 
-    /// if <paramref name="other"/> is not <see langword="null" /> and is the root of other join chain.
+    /// if <paramref name="other"/> is not <see langword="null" /> and is the root of other containers' chain.
     /// </summary>
     /// <param name="other">The other container.</param>
     public void JoinIfPossible(StrongReferenceContainer other)

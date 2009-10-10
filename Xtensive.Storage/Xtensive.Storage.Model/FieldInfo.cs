@@ -551,10 +551,13 @@ namespace Xtensive.Storage.Model
         return false;
       if (ReferenceEquals(this, obj))
         return true;
+      FieldInfo mappedField;
       return 
-        obj.declaringType==declaringType && 
+        (obj.declaringType==declaringType && 
           obj.valueType==valueType && 
-            obj.Name==Name;
+            obj.Name==Name)
+        || (!declaringType.IsInterface && obj.declaringType.IsInterface
+          && declaringType.FieldMap.TryGetValue(obj, out mappedField) && ReferenceEquals(mappedField, this));
     }
 
     /// <inheritdoc/>

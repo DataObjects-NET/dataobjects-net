@@ -4,16 +4,14 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.07
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Tests.PrefetchProcessorTest.Model;
+using Xtensive.Storage.Tests.Storage.Prefetch.Model;
 
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Storage.Tests.Storage.Prefetch
 {
   [TestFixture]
   public sealed class PrefetcherDelayedElementsTest : AutoBuildTest
@@ -62,8 +60,8 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.IsFalse(key.IsTypeCached);
           Assert.IsTrue(Domain.KeyCache.TryGetItem(key, true, out cachedKey));
           Assert.IsTrue(cachedKey.IsTypeCached);
-          PrefetchProcessorTest.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.Type, session,
-            PrefetchProcessorTest.IsFieldToBeLoadedByDefault);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.Type, session,
+            PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
       }
     }
@@ -87,8 +85,8 @@ namespace Xtensive.Storage.Tests.Storage
         var prefetcher = keys.Prefetch<Customer, Key>(key => key)
           .PrefetchMany(c => c.Orders, orders => orders, orders => {
             var ordersSet = (EntitySet<Order>) orders;
-            PrefetchProcessorTest.AssertOnlySpecifiedColumnsAreLoaded(ordersSet.Owner.Key, customerType,
-              session, PrefetchProcessorTest.IsFieldToBeLoadedByDefault);
+            PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(ordersSet.Owner.Key, customerType,
+              session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
             EntitySetState state;
             session.Handler.TryGetEntitySetState(ordersSet.Owner.Key, ordersSet.Field, out state);
             Assert.IsTrue(state.IsFullyLoaded);
@@ -96,8 +94,8 @@ namespace Xtensive.Storage.Tests.Storage
           });
         foreach (var key in prefetcher) {
           var cachedKey = GetCachedKey(key, Domain);
-          PrefetchProcessorTest.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.Type, session,
-            PrefetchProcessorTest.IsFieldToBeLoadedByDefault);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.Type, session,
+            PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           EntitySetState state;
           session.Handler.TryGetEntitySetState(key, ordersField, out state);
           Assert.IsTrue(state.IsFullyLoaded);
@@ -105,11 +103,11 @@ namespace Xtensive.Storage.Tests.Storage
           foreach (var orderKey in state) {
             var orderState = session.EntityStateCache[orderKey, true];
             Assert.IsNotNull(orderState);
-            PrefetchProcessorTest.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
-              PrefetchProcessorTest.IsFieldToBeLoadedByDefault);
+            PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
+              PrefetchTestHelper.IsFieldToBeLoadedByDefault);
             var employeeKey = Key.Create<Person>(employeeField.Association.ExtractForeignKey(orderState.Tuple));
-            PrefetchProcessorTest.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session,
-              PrefetchProcessorTest.IsFieldToBeLoadedByDefault);
+            PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session,
+              PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           }
         }
       }
@@ -131,8 +129,8 @@ namespace Xtensive.Storage.Tests.Storage
         var prefetcher = keys.Prefetch<Entity, Key>(key => key);
         foreach (var key in prefetcher) {
           var cachedKey = GetCachedKey(key, Domain);
-          PrefetchProcessorTest.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, customerType, session,
-              PrefetchProcessorTest.IsFieldToBeLoadedByDefault);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, customerType, session,
+            PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
       }
     }
@@ -155,8 +153,8 @@ namespace Xtensive.Storage.Tests.Storage
         var prefetcher = keys.Prefetch<AdvancedPerson, Key>(key => key);
         foreach (var key in prefetcher) {
           var cachedKey = GetCachedKey(key, Domain);
-          PrefetchProcessorTest.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.Type, session,
-              PrefetchProcessorTest.IsFieldToBeLoadedByDefault);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.Type, session,
+            PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
         Assert.AreEqual(prefetchCount + 2, session.Handler.PrefetchTaskExecutionCount);
       }

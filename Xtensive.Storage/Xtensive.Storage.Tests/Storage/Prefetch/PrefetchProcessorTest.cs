@@ -11,192 +11,14 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
-using Xtensive.Storage.Tests.PrefetchProcessorTest.Model;
+using Xtensive.Storage.Tests.Storage.Prefetch.Model;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
-#region Model
-
-namespace Xtensive.Storage.Tests.PrefetchProcessorTest.Model
-{
-  [HierarchyRoot]
-  public class Simple : Entity
-  {
-    [Key, Field]
-    public int Id { get; private set;}
-
-    [Field, Version]
-    public int VersionId { get; set;}
-
-    [Field]
-    public string Value { get; set;}
-  }
-
-  [HierarchyRoot]
-  public abstract class Person : Entity
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    [Field(Length = 50)]
-    public string Name { get; set; }
-  }
-
-  public abstract class AdvancedPerson : Person
-  {
-    [Field]
-    public int Age { get; set; }
-  }
-
-  public class Customer : AdvancedPerson
-  {
-    [Field, Association(PairTo = "Customer", OnTargetRemove = OnRemoveAction.Clear)]
-    public EntitySet<Order> Orders { get; private set; }
-
-    [Field]
-    public string City { get; set; }
-  }
-
-  public class Supplier : AdvancedPerson
-  {
-    [Field, Association(PairTo = "Supplier")]
-    public EntitySet<Product> Products { get; private set;}
-  }
-
-  public class Employee : AdvancedPerson
-  {
-    [Field, Association(PairTo = "Employee", OnTargetRemove = OnRemoveAction.Clear)]
-    public EntitySet<Order> Orders { get; private set; }
-  }
-
-  [HierarchyRoot]
-  public class Order : Entity
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    [Field]
-    public int Number { get; set; }
-
-    [Field]
-    public Employee Employee { get; set; }
-
-    [Field]
-    public Customer Customer { get; set; }
-
-    [Field, Association(PairTo = "Order", OnOwnerRemove = OnRemoveAction.Clear)]
-    public EntitySet<OrderDetail> Details { get; private set; }
-  }
-
-  [HierarchyRoot]
-  public class OrderDetail : Entity
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    [Field]
-    public Order Order { get; set; }
-
-    [Field]
-    public Product Product { get; set; }
-
-    [Field]
-    public int Count { get; set; }
-  }
-
-  [HierarchyRoot]
-  public abstract class AbstractProduct : Entity
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    [Field]
-    public string Name { get; set; }
-  }
-
-  public class Product : AbstractProduct
-  {
-    [Field]
-    public Supplier Supplier { get; set; }
-  }
-
-  public interface IHasCategory : IEntity
-  {
-    [Field]
-    string Category { get; set; }
-  }
-
-  public class PersonalProduct : AbstractProduct
-  {
-    [Field]
-    public Employee Employee { get; set; }
-  }
-
-  [HierarchyRoot]
-  public class Book : Entity,
-    IHasCategory
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    [Field]
-    public EntitySet<Author> Authors { get; private set; }
-
-    public string Category { get; set; }
-
-    /*[Field]
-    public ITitle Title { get; set; }*/
-  }
-
-  [HierarchyRoot]
-  public class Author : Entity
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    [Field]
-    public string Name { get; set; }
-
-    [Field]
-    [Association(PairTo = "Authors", OnOwnerRemove = OnRemoveAction.Clear,
-      OnTargetRemove = OnRemoveAction.Clear)]
-    public EntitySet<Book> Books { get; private set; }
-  }
-
-  public interface ITitle : IEntity
-  {
-    [Field]
-    string Text { get; set; }
-  }
-
-  [HierarchyRoot]
-  public class Title : Entity,
-    ITitle
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    public string Text { get; set; }
-  }
-
-  [HierarchyRoot]
-  public class AnotherTitle : Entity,
-    ITitle
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    public string Text { get; set; }
-  }
-}
-
-#endregion
-
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Storage.Tests.Storage.Prefetch
 {
   [TestFixture]
   public sealed class PrefetchProcessorTest : AutoBuildTest
@@ -239,7 +61,7 @@ namespace Xtensive.Storage.Tests.Storage
       detailsField = orderType.Fields["Details"];
       booksField = Domain.Model.Types[typeof (Author)].Fields["Books"];
       taskContainersField = typeof (PrefetchProcessor).GetField("taskContainers",
-          BindingFlags.NonPublic | BindingFlags.Instance);
+        BindingFlags.NonPublic | BindingFlags.Instance);
       prefetchProcessorField = typeof (SessionHandler).GetField("prefetchProcessor",
         BindingFlags.NonPublic | BindingFlags.Instance);
       FillDataBase(Domain);
@@ -268,9 +90,12 @@ namespace Xtensive.Storage.Tests.Storage
         PrefetchIntrinsicFields(prefetchProcessor, orderKey, typeof(Order));
         PrefetchIntrinsicFields(prefetchProcessor, productKey, typeof(Product));
         prefetchProcessor.ExecuteTasks();
-        AssertOnlySpecifiedColumnsAreLoaded(customerKey, customerType, session, IsFieldToBeLoadedByDefault);
-        AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session, IsFieldToBeLoadedByDefault);
-        AssertOnlySpecifiedColumnsAreLoaded(productKey, productType, session, IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customerKey, customerType, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(productKey, productType, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       }
     }
 
@@ -299,15 +124,15 @@ namespace Xtensive.Storage.Tests.Storage
         prefetchProcessor.Prefetch(orderKey2, orderType, new PrefetchFieldDescriptor(employeeField, true));
         prefetchProcessor.ExecuteTasks();
 
-        AssertOnlySpecifiedColumnsAreLoaded(orderKey0, orderType, session, field =>
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey0, orderType, session, field =>
           field==customerField || field==employeeField || IsFieldKeyOrSystem(field)
-          || (field.Parent != null && (field.Parent==customerField || field.Parent==employeeField)));
-        AssertOnlySpecifiedColumnsAreLoaded(orderKey1, orderType, session, field =>
+            || (field.Parent != null && (field.Parent==customerField || field.Parent==employeeField)));
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey1, orderType, session, field =>
           field==customerField || IsFieldKeyOrSystem(field)
-          || (field.Parent != null && field.Parent==customerField));
-        AssertOnlySpecifiedColumnsAreLoaded(orderKey2, orderType, session, field =>
+            || (field.Parent != null && field.Parent==customerField));
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey2, orderType, session, field =>
           field==employeeField || IsFieldKeyOrSystem(field)
-          || (field.Parent != null && field.Parent==employeeField));
+            || (field.Parent != null && field.Parent==employeeField));
 
         AssertReferencedEntityIsLoaded(orderKey0, session, customerField);
         AssertReferencedEntityIsLoaded(orderKey0, session, employeeField);
@@ -362,7 +187,7 @@ namespace Xtensive.Storage.Tests.Storage
           prefetchProcessor.Prefetch(keyWithoutType, supplierType, new PrefetchFieldDescriptor(cityField)));
         prefetchProcessor.Prefetch(keyWithoutType, supplierType, new PrefetchFieldDescriptor(ageField));
         prefetchProcessor.ExecuteTasks();
-        AssertOnlySpecifiedColumnsAreLoaded(customerKey, customerType, session,
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customerKey, customerType, session,
           field => IsFieldKeyOrSystem(field)
             || field == cityField || field.DeclaringType == customerType.Hierarchy.Root);
       }
@@ -390,11 +215,11 @@ namespace Xtensive.Storage.Tests.Storage
 
         var orderDetailsType = typeof (OrderDetail).GetTypeInfo();
         Assert.AreEqual(prevEntityStateCount + orderDetailKeys.Length + 1, session.EntityStateCache.Count);
-        AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session, IsFieldKeyOrSystem);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session, IsFieldKeyOrSystem);
         Assert.IsTrue(session.EntityStateCache.ContainsKey(orderKey));
         foreach (var key in orderDetailKeys) {
           Assert.IsTrue(session.EntityStateCache.ContainsKey(key));
-          AssertOnlySpecifiedColumnsAreLoaded(key, orderDetailsType, session, IsFieldToBeLoadedByDefault);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, orderDetailsType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
       }
     }
@@ -479,10 +304,10 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.IsTrue(session.EntityStateCache.ContainsKey(author0Key));
         Assert.IsTrue(session.EntityStateCache.ContainsKey(author2Key));
         Assert.IsTrue(session.EntityStateCache.ContainsKey(author4Key));
-        AssertOnlySpecifiedColumnsAreLoaded(bookKey, bookType, session, IsFieldKeyOrSystem);
-        AssertOnlySpecifiedColumnsAreLoaded(author0Key, authorType, session, IsFieldToBeLoadedByDefault);
-        AssertOnlySpecifiedColumnsAreLoaded(author2Key, authorType, session, IsFieldToBeLoadedByDefault);
-        AssertOnlySpecifiedColumnsAreLoaded(author4Key, authorType, session, IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookKey, bookType, session, IsFieldKeyOrSystem);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(author0Key, authorType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(author2Key, authorType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(author4Key, authorType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       }
 
       using (var session = Session.Open(Domain))
@@ -497,10 +322,10 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.IsTrue(session.EntityStateCache.ContainsKey(book3Key));
         Assert.IsTrue(session.EntityStateCache.ContainsKey(book4Key));
         Assert.IsTrue(session.EntityStateCache.ContainsKey(book5Key));
-        AssertOnlySpecifiedColumnsAreLoaded(authorKey, authorType, session, IsFieldKeyOrSystem);
-        AssertOnlySpecifiedColumnsAreLoaded(book3Key, bookType, session, IsFieldToBeLoadedByDefault);
-        AssertOnlySpecifiedColumnsAreLoaded(book4Key, bookType, session, IsFieldToBeLoadedByDefault);
-        AssertOnlySpecifiedColumnsAreLoaded(book5Key, bookType, session, IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(authorKey, authorType, session, IsFieldKeyOrSystem);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(book3Key, bookType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(book4Key, bookType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(book5Key, bookType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       }
     }
 
@@ -688,10 +513,10 @@ namespace Xtensive.Storage.Tests.Storage
         prefetchProcessor.ExecuteTasks();
         Assert.IsFalse(task0.IsActive);
         Assert.IsTrue(task1.IsActive);
-        AssertOnlySpecifiedColumnsAreLoaded(employee0Key, employee0Key.Type, session,
-          IsFieldToBeLoadedByDefault);
-        AssertOnlySpecifiedColumnsAreLoaded(employee1Key, employee1Key.Type, session,
-          IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employee0Key, employee0Key.Type, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employee1Key, employee1Key.Type, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       }
     }
 
@@ -722,11 +547,11 @@ namespace Xtensive.Storage.Tests.Storage
         prefetchProcessor.ExecuteTasks();
         Assert.IsNull(orderTask.EntityPrefetchTask);
         Assert.IsTrue(employeeTask.EntityPrefetchTask.IsActive);
-        AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType,
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType,
           session, field => IsFieldKeyOrSystem(field) || field == employeeField
             || field.Parent == employeeField);
-        AssertOnlySpecifiedColumnsAreLoaded(employeeTask.Key, Domain.Model.Types[typeof (Employee)],
-          session, IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeTask.Key, Domain.Model.Types[typeof (Employee)],
+          session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       }
     }
 
@@ -751,7 +576,7 @@ namespace Xtensive.Storage.Tests.Storage
         var task = taskContainer.ReferencedEntityPrefetchTasks.Single();
         prefetchProcessor.ExecuteTasks();
         Assert.IsFalse(task.IsActive);
-        AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderKey.Type, session,
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderKey.Type, session,
           field => IsFieldKeyOrSystem(field) || field == employeeField
             || field.Parent == employeeField);
         Assert.IsNull(Query<Order>.Single(orderKey).Employee);
@@ -827,9 +652,9 @@ namespace Xtensive.Storage.Tests.Storage
         prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(employeeField));
         Assert.AreSame(originalTaskContainer, GetSingleTaskContainer(prefetchProcessor));
         prefetchProcessor.ExecuteTasks();
-        AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderKey.Type, session,
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderKey.Type, session,
           field => IsFieldKeyOrSystem(field) || field == customerField || field == employeeField
-          || (field.Parent != null && (field.Parent == customerField || field.Parent == employeeField)));
+            || (field.Parent != null && (field.Parent == customerField || field.Parent == employeeField)));
       }
     }
 
@@ -848,27 +673,27 @@ namespace Xtensive.Storage.Tests.Storage
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
         var iHasCategoryType = Domain.Model.Types[typeof (IHasCategory)];
+        var bookType = typeof (Book).GetTypeInfo();
         var categoryField = iHasCategoryType.Fields["Category"];
-        prefetchProcessor.Prefetch(bookKey, iHasCategoryType, new PrefetchFieldDescriptor(categoryField));
+        prefetchProcessor.Prefetch(bookKey, iHasCategoryType, new PrefetchFieldDescriptor(categoryField, false));
         prefetchProcessor.ExecuteTasks();
 
-        AssertOnlySpecifiedColumnsAreLoaded(bookKey, iHasCategoryType, session,
-          field => field.Equals(categoryField));
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookKey, bookType, session,
+          field => IsFieldKeyOrSystem(field) || field.Equals(categoryField));
       }
     }
 
     [Test]
     public void PrefetchFieldReferencingToInterfaceTest()
     {
-      throw new NotImplementedException();
       Key bookKey;
       Key titleKey;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var title = new Title {Text = "abc"};
         titleKey = title.Key;
-        /*var book = new Book {Category = "1", Title = title};
-        bookKey = book.Key;*/
+        var book = new Book {Category = "1", Title = title};
+        bookKey = book.Key;
         tx.Complete();
       }
 
@@ -876,10 +701,10 @@ namespace Xtensive.Storage.Tests.Storage
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
         var titleField = bookKey.Type.Fields["Title"];
-        prefetchProcessor.Prefetch(bookKey, bookKey.Type, new PrefetchFieldDescriptor(titleField));
+        prefetchProcessor.Prefetch(bookKey, bookKey.Type, new PrefetchFieldDescriptor(titleField, true));
         prefetchProcessor.ExecuteTasks();
 
-        AssertOnlySpecifiedColumnsAreLoaded(titleKey, titleKey.Type, session,
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(titleKey, titleKey.Type, session,
           field => true);
       }
     }
@@ -934,7 +759,7 @@ namespace Xtensive.Storage.Tests.Storage
         prefetchProcessor.Prefetch(keys[entityCount - 1], bookType, new PrefetchFieldDescriptor(idField));
         Assert.AreEqual(1, taskContainers.Count);
         for (var i = 0; i < entityCount - 1; i++)
-          AssertOnlySpecifiedColumnsAreLoaded(keys[i], bookType, session, IsFieldKeyOrSystem);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(keys[i], bookType, session, IsFieldKeyOrSystem);
       }
     }
 
@@ -952,7 +777,7 @@ namespace Xtensive.Storage.Tests.Storage
           var orderState = session.EntityStateCache[orderKey, true];
           var customerKey = Key.Create<Customer>(customerField.Association.ExtractForeignKey(orderState.Tuple),
             TypeReferenceAccuracy.ExactType);
-          AssertOnlySpecifiedColumnsAreLoaded(customerKey, customerType, session, IsFieldToBeLoadedByDefault);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customerKey, customerType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
       }
     }
@@ -997,7 +822,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var fetchedEntityState = session.Handler.FetchInstance(orderKey);
-        AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session, IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       }
     }
 
@@ -1035,44 +860,19 @@ namespace Xtensive.Storage.Tests.Storage
       var order3Detail2 = new OrderDetail {Order = order3, Product = product4, Count = 200};
     }
 
-    public static void AssertOnlySpecifiedColumnsAreLoaded(Key key, TypeInfo type, Session session,
-      Func<FieldInfo, bool> fieldSelector)
-    {
-      var state = session.EntityStateCache[key, true];
-      var realType = state.Key.Type;
-      Assert.IsTrue(realType.Equals(type) || realType.GetAncestors().Contains(type));
-      var tuple = state.Tuple;
-      Assert.IsNotNull(tuple);
-      foreach (var field in type.Fields) {
-        var isFieldSelected = fieldSelector.Invoke(field);
-        foreach (var column in field.Columns) {
-          var isAvailable = tuple.GetFieldState(type.Columns.IndexOf(column)).IsAvailable();
-          if (isFieldSelected)
-            Assert.IsTrue(isAvailable);
-          else
-            Assert.IsFalse(isAvailable);
-        }
-      }
-    }
-
-    public static bool IsFieldToBeLoadedByDefault(FieldInfo field)
-    {
-      return field.IsPrimaryKey || field.IsSystem || !field.IsLazyLoad && !field.IsEntitySet;
-    }
-    
     private PrefetchTaskContainer GetSingleTaskContainer(PrefetchProcessor prefetchProcessor)
     {
       return ((IEnumerable<PrefetchTaskContainer>) taskContainersField.GetValue(prefetchProcessor)).Single();
     }
 
-    private void AssertReferencedEntityIsLoaded(Key key, Session session, FieldInfo referencingField)
+    private static void AssertReferencedEntityIsLoaded(Key key, Session session, FieldInfo referencingField)
     {
       var tuple = session.EntityStateCache[key, true].Tuple;
       var foreignKeyValue = referencingField.Association.ExtractForeignKey(tuple);
       var foreignKey = Key.Create(referencingField.Association.TargetType.Hierarchy.Root,
         foreignKeyValue, TypeReferenceAccuracy.Hierarchy);
-      AssertOnlySpecifiedColumnsAreLoaded(foreignKey,
-        referencingField.Association.TargetType.Hierarchy.Root, session, IsFieldToBeLoadedByDefault);
+      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(foreignKey,
+        referencingField.Association.TargetType.Hierarchy.Root, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
     }
       
     private void PrefetchIntrinsicFields(PrefetchProcessor prefetchProcessor, Key customerKey, Type type)
@@ -1080,7 +880,7 @@ namespace Xtensive.Storage.Tests.Storage
       var typeInfo = Domain.Model.Types[type];
       prefetchProcessor.Prefetch(customerKey, typeInfo,
         typeInfo.Fields.Where(PrefetchTask.IsFieldToBeLoadedByDefault)
-        .Select(field => new PrefetchFieldDescriptor(field)).ToArray());
+          .Select(field => new PrefetchFieldDescriptor(field)).ToArray());
     }
 
     private static void AssertEntityStateIsNotLoaded(Key key, Session session)

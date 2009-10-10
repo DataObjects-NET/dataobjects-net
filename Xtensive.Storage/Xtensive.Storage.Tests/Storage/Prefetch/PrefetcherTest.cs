@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
@@ -17,7 +16,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Storage.Tests.Storage.Prefetch
 {
   [TestFixture]
   public sealed class PrefetcherTest : NorthwindDOModelTest
@@ -118,7 +117,7 @@ namespace Xtensive.Storage.Tests.Storage
         var ordersField = typeof (Employee).GetTypeInfo().Fields["Orders"];
         var prefetcher = keys.Prefetch<Order, Key>(key => key)
           .PrefetchSingle(o => o.Employee, employee => employee,
-          employee => employee.Prefetch(e => e.Orders));
+            employee => employee.Prefetch(e => e.Orders));
         foreach (var orderKey in prefetcher) {
           AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
             field => PrefetchTask.IsFieldToBeLoadedByDefault(field)

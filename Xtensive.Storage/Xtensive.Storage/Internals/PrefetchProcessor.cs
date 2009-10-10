@@ -36,8 +36,8 @@ namespace Xtensive.Storage.Internals
 
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
-      if (type != null && type.Hierarchy != null && key.TypeRef.Type.Hierarchy != type.Hierarchy)
-        throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
+      EnsureKeyTypeCorrespondsToSpecifiedType(key, type);
+
       Tuple ownerEntityTuple;
       var currentKey = key;
       if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out ownerEntityTuple))
@@ -166,6 +166,20 @@ namespace Xtensive.Storage.Internals
     }
 
     #region Private \ internal methods
+
+    private static void EnsureKeyTypeCorrespondsToSpecifiedType(Key key, TypeInfo type)
+    {
+      if (type == null)
+        return;
+      if (!key.TypeRef.Type.IsInterface && !type.IsInterface)
+        if (key.TypeRef.Type.Hierarchy == type.Hierarchy)
+          return;
+        else
+          throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
+      if (type.GetInterfaces(true).Contains(key.TypeRef.Type)
+        || key.TypeRef.Type.GetInterfaces(true).Contains(type))
+          return;
+    }
 
     private static void EnsureAllFieldsBelongToSpecifiedType(PrefetchFieldDescriptor[] descriptors,
       TypeInfo type)
