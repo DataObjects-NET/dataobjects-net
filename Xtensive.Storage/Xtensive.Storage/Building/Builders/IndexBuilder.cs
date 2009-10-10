@@ -108,13 +108,37 @@ namespace Xtensive.Storage.Building.Builders
             switch (hierarchy.Key.Schema) {
               case InheritanceSchema.ClassTable: {
                 foreach (var implementor in hierarchy) {
-                  var primaryIndex = implementor.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
+                  var interfaceFields = @interface.Fields.ToHashSet();
+                  var typeIndexes = new List<IndexInfo>();
+                  var type = implementor;
+                  while (interfaceFields.Count > 0) {
+                    var foundFields = new List<FieldInfo>();
+                    foreach (var field in interfaceFields) {
+                      FieldInfo typeField;
+                      if (type.FieldMap.TryGetValue(field, out typeField) && (typeField.IsDeclared || typeField.IsSystem || typeField.IsPrimaryKey))
+                        foundFields.Add(field);
+                    }
+                    if (foundFields.Count > 0) {
+                      var typeIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
+                      typeIndexes.Add(typeIndex);
+                      foreach (var foundField in foundFields)
+                        interfaceFields.Remove(foundField);
+                    }
+                    type = type.GetAncestor();
+                  }
                   var filterByTypes = new List<TypeInfo>();
                   if (!implementor.IsAbstract)
                     filterByTypes.Add(implementor);
                   filterByTypes.AddRange(GatherDescendants(implementor, hierarchyImplementors));
-                  var filterIndex = BuildFilterIndex(implementor, primaryIndex, filterByTypes);
-                  var indexView = BuildViewIndex(@interface, filterIndex);
+                  var indexesToJoin = new List<IndexInfo>();
+                  foreach (var typeIndex in typeIndexes) {
+                    var filterIndex = BuildFilterIndex(implementor, typeIndex, filterByTypes);
+                    indexesToJoin.Add(filterIndex);
+                  }
+                  var indexToApplyView = indexesToJoin.Count > 1 
+                    ? BuildJoinIndex(implementor, indexesToJoin) 
+                    : indexesToJoin[0];
+                  var indexView = BuildViewIndex(@interface, indexToApplyView);
                   underlyingIndex.UnderlyingIndexes.Add(indexView);
                 }
                 break;
@@ -537,7 +561,8 @@ namespace Xtensive.Storage.Building.Builders
 
       var indexReflectedType = indexToApplyView.ReflectedType;
       var keyLength = indexToApplyView.KeyColumns.Count;
-      var columnMap = new List<int>(Enumerable.Range(0, keyLength));
+      var columnMap = new List<int>();
+      var valueColumns = new List<ColumnInfo>(reflectedType.Columns.Count);
       for (int i = 0; i < indexToApplyView.ValueColumns.Count; i++) {
         var column = indexToApplyView.ValueColumns[i];
         var columnField = column.Field;
@@ -553,7 +578,7 @@ namespace Xtensive.Storage.Building.Builders
           var field = interfaceFields.FirstOrDefault(f => f.DeclaringType == reflectedType);
           if (field == null)
             continue;
-          result.ValueColumns.Add(field.Column);
+          valueColumns.Add(field.Column);
         }
         else {
           if (columnField.IsExplicit) {
@@ -571,11 +596,23 @@ namespace Xtensive.Storage.Building.Builders
               continue;
           }
           var field = reflectedType.Fields[columnField.Name];
-            result.ValueColumns.Add(field.Column);
+          valueColumns.Add(field.Column);
         }
         columnMap.Add(keyLength + i);
       }
+      var actualColumnMapping = valueColumns
+        .Zip(columnMap, (column, sourceIndex) => new {column, sourceIndex})
+        .OrderBy(p => reflectedType.Columns.IndexOf(p.column))
+        .ToList();
+      valueColumns.Clear();
+      columnMap.Clear();
+      columnMap.AddRange(Enumerable.Range(0, keyLength));
+      foreach (var columnMapping in actualColumnMapping) {
+        valueColumns.Add(columnMapping.column);
+        columnMap.Add(columnMapping.sourceIndex);
+      }
 
+      result.ValueColumns.AddRange(valueColumns);
       result.SelectColumns = columnMap;
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);

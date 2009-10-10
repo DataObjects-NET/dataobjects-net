@@ -65,11 +65,9 @@ namespace Xtensive.Storage.Model
       reversedMap.Add(typeField, interfaceFields);
     }
 
-    public FieldInfo TryGetValue(FieldInfo interfaceField)
+    public bool TryGetValue(FieldInfo interfaceField, out FieldInfo typeField)
     {
-      FieldInfo result;
-      map.TryGetValue(interfaceField, out result);
-      return result;
+      return map.TryGetValue(interfaceField, out typeField);
     }
 
     IEnumerator<KeyValuePair<FieldInfo, FieldInfo>> IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>.GetEnumerator()
