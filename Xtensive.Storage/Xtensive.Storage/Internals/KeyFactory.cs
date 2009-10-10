@@ -22,12 +22,15 @@ namespace Xtensive.Storage.Internals
 
     public static Key CreateNext(TypeInfo type)
     {
+      if (!type.IsEntity)
+        throw new InvalidOperationException(
+          string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, type));
       var domain = Domain.Demand();
-      var keyGenerator = domain.KeyGenerators[type.Hierarchy.GeneratorInfo];
+      var keyGenerator = domain.KeyGenerators[type.KeyInfo.GeneratorInfo];
       if (keyGenerator==null)
         throw new InvalidOperationException(
           String.Format(Strings.ExUnableToCreateKeyForXHierarchy, type.Hierarchy));
-      Tuple keyValue = keyGenerator.Next();
+      var keyValue = keyGenerator.Next();
       return Create(type, keyValue, null, TypeReferenceAccuracy.ExactType, false);
     }
 
@@ -39,7 +42,7 @@ namespace Xtensive.Storage.Internals
 
       var domain = Domain.Demand();
       var hierarchy = type.Hierarchy;
-      var keyInfo = hierarchy.KeyInfo;
+      var keyInfo = type.KeyInfo;
       if (keyIndexes==null) {
         if (value.Descriptor!=keyInfo.TupleDescriptor)
           throw new ArgumentException(Strings.ExWrongKeyStructure);
@@ -50,7 +53,7 @@ namespace Xtensive.Storage.Internals
             value.SetValue(typeIdColumnIndex, type.TypeId);
         }
       }
-      if (hierarchy.Root.IsLeaf) {
+      if (hierarchy != null && hierarchy.Root.IsLeaf) {
         accuracy = TypeReferenceAccuracy.ExactType;
         canCache = false; // No reason to cache
       }
@@ -82,7 +85,7 @@ namespace Xtensive.Storage.Internals
     public static Key Create(TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      var keyInfo = type.Hierarchy.KeyInfo;
+      var keyInfo = type.KeyInfo;
       ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
 
       var tuple = Tuple.Create(keyInfo.TupleDescriptor);
@@ -110,11 +113,9 @@ namespace Xtensive.Storage.Internals
           }
           continue;
         }
-        else {
-          tuple.SetValue(tupleIndex++, value);
-          if (tupleIndex==typeIdIndex)
-            tupleIndex++;
-        }
+        tuple.SetValue(tupleIndex++, value);
+        if (tupleIndex==typeIdIndex)
+          tupleIndex++;
       }
       if (tupleIndex != tuple.Count)
         throw new ArgumentException(String.Format(

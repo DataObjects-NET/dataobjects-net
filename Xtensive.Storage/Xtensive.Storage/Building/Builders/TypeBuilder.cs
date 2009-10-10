@@ -323,7 +323,8 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, keyInfo, gi) {
+      keyInfo.GeneratorInfo = gi;
+      var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, keyInfo) {
         Name = root.Name
       };
       context.Model.Hierarchies.Add(hierarchy);

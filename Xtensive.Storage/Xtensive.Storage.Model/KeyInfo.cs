@@ -11,6 +11,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model.Resources;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Model
 {
@@ -19,6 +20,7 @@ namespace Xtensive.Storage.Model
   {
     private int typeIdFieldIndex;
     private int typeIdColumnIndex;
+    private GeneratorInfo generatorInfo;
 
     /// <summary>
     /// Gets the fields that are included in the key.
@@ -63,6 +65,23 @@ namespace Xtensive.Storage.Model
     /// </summary>
     /// <value></value>
     public TupleDescriptor TupleDescriptor { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the generator info.
+    /// </summary>
+    /// <value>The generator info.</value>
+    public GeneratorInfo GeneratorInfo
+    {
+      get
+      {
+        return generatorInfo;
+      }
+      set
+      {
+        this.EnsureNotLocked();
+        generatorInfo = value;
+      }
+    }
 
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)

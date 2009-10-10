@@ -42,8 +42,8 @@ namespace Xtensive.Storage.Serialization
       Session session = Session.Demand();
       TypeInfo entityType = session.Domain.Model.Types[entity.GetType()];
       KeyGenerator generator = null;
-      if (entityType.Hierarchy.GeneratorInfo != null)
-        generator = session.Domain.KeyGenerators[entityType.Hierarchy.GeneratorInfo];
+      if (entityType.KeyInfo.GeneratorInfo != null)
+        generator = session.Domain.KeyGenerators[entityType.KeyInfo.GeneratorInfo];
       
       Tuple keyValue = generator!=null ? 
         generator.Next() : DeserializeKeyFields(entityType, info, context);

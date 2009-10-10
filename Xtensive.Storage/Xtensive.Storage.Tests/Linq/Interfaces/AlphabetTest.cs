@@ -5,6 +5,7 @@
 // Created:    2009.09.24
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet;
@@ -171,19 +172,56 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
           Assert.IsNotNull(iComposite.Second);
           Console.Out.WriteLine(string.Format("Key: {0}; {1}; {2}", iComposite.Key, iComposite.First, iComposite.Second));
         }
-        Assert.AreEqual(8 * EachCount, result.Count);
+        Assert.AreEqual(6 * EachCount, result.Count);
 
-//        var filtered = Query<IComposite>.All.Where(i => i.First == "Tag: O'0" || i.Tag == "Tag: A0" || i.Tag == "Tag: C0").ToList();
-//        Assert.AreEqual(3, filtered.Count);
-//
-//        var startsWith = Query<ITagged>.All.Where(i => i.Tag.StartsWith("Tag: J'") || i.Tag.StartsWith("Tag: L'") || i.Tag.StartsWith("Tag: C'")).ToList();
-//        Assert.AreEqual(2 * EachCount, startsWith.Count);
+        var filtered = Query<IComposite>.All.Where(i => i.First == "First: O'0" || i.Second == "Second: O0" || i.First == "First: E'0").ToList();
+        Assert.AreEqual(2, filtered.Count);
+
+        var startsWith = Query<IComposite>.All.Where(i => i.First.StartsWith("First: O'") || i.Second.StartsWith("Second: O") || i.First.StartsWith("First: E'")).ToList();
+        Assert.AreEqual(2 * EachCount, startsWith.Count);
 
         t.Complete();
       }
     }
 
+    [Test]
+    public void FetchTest()
+    {
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var named = Query<INamed>.Single(33L);
+        Assert.IsNotNull(named);
+        Assert.AreEqual("Name: D'2", named.Name);
+        named = Query<INamed>.Single(Key.Create<INamed>(51L));
+        Assert.IsNotNull(named);
+        Assert.AreEqual("Name: F0", named.Name);
+        t.Complete();
+      }
 
+      const int totalCount = EachCount * 15;
+      var names = new List<string>(totalCount);
 
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        for (long i = 1; i <= totalCount; i++) {
+          var key = Key.Create<INamed>(i);
+          var named = Query<INamed>.Single(key);
+          Assert.IsNotNull(named);
+          Assert.IsNotNull(named.Name);
+          names.Add(named.Name);
+        }
+        t.Complete();
+      }
+
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var namedQuery = Query<INamed>.All
+          .Select(i => i.Name)
+          .ToList();
+        Assert.AreEqual(totalCount, namedQuery.Count);
+        Assert.IsTrue(namedQuery.SequenceEqual(names));
+        t.Complete();
+      }
+    }
   }
 }

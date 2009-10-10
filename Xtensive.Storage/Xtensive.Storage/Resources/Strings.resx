@@ -619,21 +619,13 @@
     <value>Extracted schema is not equal to the target schema.</value>
   </data>
   <data name="SchemaComparisonResultFormat" xml:space="preserve">
-    <value>Status: {0}
-Hints:
-{1}
-Difference:
-{2}
-Actions:
-{3}</value>
+    <value>Status: {0}&#xD;&#xA;Hints:&#xD;&#xA;{1}&#xD;&#xA;Difference:&#xD;&#xA;{2}&#xD;&#xA;Actions:&#xD;&#xA;{3}</value>
   </data>
   <data name="LogComparisonResultX" xml:space="preserve">
-    <value>Comparison result:
-{0}</value>
+    <value>Comparison result:&#xD;&#xA;{0}</value>
   </data>
   <data name="LogClearingComparisonResultX" xml:space="preserve">
-    <value>Clearing comparison result:
-{0}</value>
+    <value>Clearing comparison result:&#xD;&#xA;{0}</value>
   </data>
   <data name="LogSynchronizingSchemaInXMode" xml:space="preserve">
     <value>Synchronizing schema in {0} mode</value>
@@ -1108,5 +1100,8 @@ Actions:
   </data>
   <data name="ExUnableToUseIQueryableXInQueryExecuteStatement" xml:space="preserve">
     <value>Unable to use IQueryable '{0}' in Query.Execute statement.</value>
+  </data>
+  <data name="ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity" xml:space="preserve">
+    <value>Could not construct new Key instance. Type '{0}' is not an entity.</value>
   </data>
 </root>

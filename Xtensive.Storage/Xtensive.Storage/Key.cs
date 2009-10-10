@@ -70,7 +70,7 @@ namespace Xtensive.Storage
         }
 
         var hierarchy = TypeRef.Type.Hierarchy;
-        if (hierarchy.Types.Count==1) {
+        if (hierarchy != null && hierarchy.Types.Count==1) {
           TypeRef = new TypeReference(hierarchy.Types[0], TypeReferenceAccuracy.ExactType);
           return TypeRef.Type;
         }
@@ -299,13 +299,13 @@ namespace Xtensive.Storage
     /// A newly created or existing <see cref="Key"/> instance.
     /// </returns>
     public static Key Create<T>(Tuple value)
-      where T : Entity  
+      where T : IEntity  
     {
-      return Create<T>(value, TypeReferenceAccuracy.Hierarchy);
+      return Create<T>(value, TypeReferenceAccuracy.BaseType);
     }
 
     internal static Key Create<T>(Tuple value, TypeReferenceAccuracy accuracy)
-      where T : Entity
+      where T : IEntity
     {
       return Create(typeof (T), value, accuracy);
     }
@@ -319,7 +319,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Type type, Tuple value)
     {
-      return Create(type, value, TypeReferenceAccuracy.Hierarchy);
+      return Create(type, value, TypeReferenceAccuracy.BaseType);
     }
 
     internal static Key Create(Type type, Tuple value, TypeReferenceAccuracy accuracy)
@@ -336,7 +336,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(TypeInfo type, Tuple value)
     {
-      return Create(type, value, TypeReferenceAccuracy.Hierarchy);
+      return Create(type, value, TypeReferenceAccuracy.BaseType);
     }
 
     internal static Key Create(TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy)
@@ -359,13 +359,13 @@ namespace Xtensive.Storage
     /// A newly created or existing <see cref="Key"/> instance.
     /// </returns>
     public static Key Create<T>(params object[] values)
-      where T : Entity
+      where T : IEntity
     {
-      return Create<T>(TypeReferenceAccuracy.Hierarchy, values);
+      return Create<T>(TypeReferenceAccuracy.BaseType, values);
     }
 
     internal static Key Create<T>(TypeReferenceAccuracy accuracy, params object[] values)
-      where T : Entity
+      where T : IEntity
     {
       return Create(typeof (T), accuracy, values);
     }
@@ -379,7 +379,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Type type, params object[] values)
     {
-      return Create(type, TypeReferenceAccuracy.Hierarchy, values);
+      return Create(type, TypeReferenceAccuracy.BaseType, values);
     }
 
     private static Key Create(Type type, TypeReferenceAccuracy accuracy, params object[] values)

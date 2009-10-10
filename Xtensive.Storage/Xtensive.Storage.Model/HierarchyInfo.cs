@@ -34,11 +34,6 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public KeyInfo KeyInfo { get; private set; }
 
-    /// <summary>
-    /// Gets or sets the <see cref="GeneratorInfo"/> property for this instance.
-    /// </summary>
-    public GeneratorInfo GeneratorInfo { get; private set; }
-
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -65,13 +60,11 @@ namespace Xtensive.Storage.Model
     /// <param name="root">The hierarchy root.</param>
     /// <param name="schema">The schema.</param>
     /// <param name="keyInfo">The key info.</param>
-    /// <param name="generatorInfo">The generator info.</param>
-    public HierarchyInfo(TypeInfo root, InheritanceSchema schema, KeyInfo keyInfo, GeneratorInfo generatorInfo)
+    public HierarchyInfo(TypeInfo root, InheritanceSchema schema, KeyInfo keyInfo)
     {
       Root = root;
       Schema = schema;
       KeyInfo = keyInfo;
-      GeneratorInfo = generatorInfo;
     }
   }
 }
