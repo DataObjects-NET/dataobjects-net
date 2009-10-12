@@ -16,6 +16,7 @@ namespace Xtensive.Core.Diagnostics
     public override void LogEvent(LogEventTypes eventType, object message, Exception exception, IRealLog sentTo, LogCaptureScope capturedBy)
     {
       Debug.WriteLine(string.Format("{0}: {1}", Log.Name, exception ?? message));
+      base.LogEvent(eventType, message, exception, sentTo, capturedBy);
     }
 
     /// <summary>
@@ -24,7 +25,7 @@ namespace Xtensive.Core.Diagnostics
     /// <returns>Newly created <see cref="StringLog"/> object.</returns>
     public static ILog Create()
     {
-      return Create("Debug");
+      return Create(LogProviderBase.Debug);
     }
 
     /// <summary>

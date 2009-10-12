@@ -21,8 +21,8 @@ namespace Xtensive.Core.Tests.Diagnostics
     {
       ILog log = StringLog.Create();
       using (new LogCaptureScope(log)) {
-        Log.Info("Logging {0}-1", Marker);
-        Log.Info("Logging {0}-2", Marker);
+        log.Info("Logging {0}-1", Marker);
+        log.Info("Logging {0}-2", Marker);
       }
       string loggedText = log.Text;
       Console.WriteLine(log.Text);

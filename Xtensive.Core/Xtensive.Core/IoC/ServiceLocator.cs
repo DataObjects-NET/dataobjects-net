@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Practices.ServiceLocation;
 
 namespace Xtensive.Core.IoC
@@ -16,19 +17,38 @@ namespace Xtensive.Core.IoC
   [Serializable]
   public static class ServiceLocator
   {
+    private static IServiceLocator defaultLocator;
+
     /// <summary>
     /// Gets the current <see cref="IServiceLocator"/> implementation.
     /// </summary>
     /// <returns>Current <see cref="IServiceLocator"/> implementation.</returns>
-    private static IServiceLocator GetImplementation()
+    private static IServiceLocator GlobalLocator
     {
-      // Note: Do not cache current locator instance. It can be changed anytime.
-      var implementation = Microsoft.Practices.ServiceLocation.ServiceLocator.Current;
+      get
+      {
+        // Note: Do not cache global locator instance. It can be changed anytime.
+        try {
+          return Microsoft.Practices.ServiceLocation.ServiceLocator.Current;
+        }
+        catch (NullReferenceException) {
+          return null;
+        }
+      }
+    }
 
-      if (implementation == null)
-        throw new InvalidOperationException("Unable to get current service locator."); 
+    private static IServiceLocator DefaultLocator
+    {
+      get
+      {
+        if (defaultLocator!=null)
+          return defaultLocator;
 
-      return implementation;
+        var container = new ServiceContainer();
+        container.Configure();
+        defaultLocator = new ServiceLocatorAdapter(container);
+        return defaultLocator;
+      }
     }
 
     /// <summary>
@@ -39,7 +59,7 @@ namespace Xtensive.Core.IoC
     /// <exception cref="ActivationException">if there is are errors resolving the service instance.</exception>
     public static IEnumerable<TService> GetAllInstances<TService>()
     {
-      return GetImplementation().GetAllInstances<TService>();
+      return GetAllInstances(typeof(TService)).Cast<TService>();
     }
 
     /// <summary>
@@ -50,7 +70,15 @@ namespace Xtensive.Core.IoC
     /// <exception cref="ActivationException">if there is are errors resolving the service instance.</exception>
     public static IEnumerable<object> GetAllInstances(Type serviceType)
     {
-      return GetImplementation().GetAllInstances(serviceType);
+      if (GlobalLocator == null)
+        return DefaultLocator.GetAllInstances(serviceType);
+
+      try {
+        return GlobalLocator.GetAllInstances(serviceType);
+      }
+      catch(ActivationException) {
+        return DefaultLocator.GetAllInstances(serviceType);
+      }
     }
 
     /// <summary>
@@ -61,7 +89,7 @@ namespace Xtensive.Core.IoC
     /// <exception cref="ActivationException">if there is are errors resolving the service instance.</exception>
     public static TService GetInstance<TService>()
     {
-      return GetImplementation().GetInstance<TService>();
+      return GetInstance<TService>(null);
     }
 
     /// <summary>
@@ -73,7 +101,7 @@ namespace Xtensive.Core.IoC
     /// <exception cref="ActivationException">if there is are errors resolving the service instance.</exception>
     public static TService GetInstance<TService>(string key)
     {
-      return GetImplementation().GetInstance<TService>(key);
+      return (TService) GetInstance(typeof(TService), key);
     }
 
     /// <summary>
@@ -84,7 +112,7 @@ namespace Xtensive.Core.IoC
     /// <exception cref="ActivationException">if there is are errors resolving the service instance.</exception>
     public static object GetInstance(Type serviceType)
     {
-      return GetImplementation().GetInstance(serviceType);
+      return GetInstance(serviceType, null);
     }
 
     /// <summary>
@@ -96,7 +124,15 @@ namespace Xtensive.Core.IoC
     /// <exception cref="ActivationException">if there is are errors resolving the service instance.</exception>
     public static object GetInstance(Type serviceType, string key)
     {
-      return GetImplementation().GetInstance(serviceType, key);
+      if (GlobalLocator == null)
+        return DefaultLocator.GetInstance(serviceType, key);
+
+      try {
+        return GlobalLocator.GetInstance(serviceType, key);
+      }
+      catch(ActivationException) {
+        return DefaultLocator.GetInstance(serviceType, key);
+      }
     }
 
     /// <summary>

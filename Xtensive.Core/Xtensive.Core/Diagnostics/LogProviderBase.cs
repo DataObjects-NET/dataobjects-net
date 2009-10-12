@@ -13,12 +13,16 @@ namespace Xtensive.Core.Diagnostics
     private readonly object syncRoot = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
     private readonly Dictionary<string, ILog> logs = new Dictionary<string, ILog>();
 
+    internal const string Console = "Console";
+    protected const string Null = "Null";
+    internal const string Debug = "Debug";
+
     /// <summary>
     /// Gets <see cref="ILog"/> object forwarding logging messages to console.
     /// </summary>
     public ILog ConsoleLog
     {
-      get { return GetLog("Console"); }
+      get { return GetLog(Console); }
     }
 
     /// <summary>
@@ -26,7 +30,7 @@ namespace Xtensive.Core.Diagnostics
     /// </summary>
     public ILog NullLog
     {
-      get { return GetLog("Null"); }
+      get { return GetLog(Null); }
     }
 
     /// <inheritdoc/>

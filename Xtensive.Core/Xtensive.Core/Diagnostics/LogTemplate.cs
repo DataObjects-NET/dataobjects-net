@@ -159,18 +159,10 @@ namespace Xtensive.Core.Diagnostics
       string skipPrefix = "Xtensive.";
       if (logName.StartsWith(skipPrefix))
         logName = logName.Substring(skipPrefix.Length);
-      try {
-        var lp = ServiceLocator.GetInstance<ILogProvider>();
-        Instance = lp.GetLog(logName);
-      }
-      // Logging is not configured, falling back to default loggers
-      catch (NullReferenceException) {
-#if DEBUG
-        Instance = DebugLog.Create(logName);
-#else
-        Instance = NullLog.Create(logName);
-#endif
-      }
+
+      var logProvider = ServiceLocator.GetInstance<ILogProvider>();
+      Instance = logProvider.GetLog(logName);
+
       if (Log.IsLogged(LogEventTypes.Info))
         Log.Info("{0} log initialized.", Instance);
     }
