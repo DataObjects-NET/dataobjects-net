@@ -580,7 +580,7 @@
     <value>Extracted schema is not compatible with the target schema.</value>
   </data>
   <data name="ExCannotUpgradeSchemaSafely" xml:space="preserve">
-    <value>Cannot upgrade schema safely.</value>
+    <value>Cannot upgrade schema safely{0}.</value>
   </data>
   <data name="ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported" xml:space="preserve">
     <value>Upgrade of assembly '{0}' from version '{1}' to '{2}' is not supported.</value>
@@ -619,13 +619,21 @@
     <value>Extracted schema is not equal to the target schema.</value>
   </data>
   <data name="SchemaComparisonResultFormat" xml:space="preserve">
-    <value>Status: {0}&#xD;&#xA;Hints:&#xD;&#xA;{1}&#xD;&#xA;Difference:&#xD;&#xA;{2}&#xD;&#xA;Actions:&#xD;&#xA;{3}</value>
+    <value>Status: {0}
+Hints:
+{1}
+Difference:
+{2}
+Actions:
+{3}</value>
   </data>
   <data name="LogComparisonResultX" xml:space="preserve">
-    <value>Comparison result:&#xD;&#xA;{0}</value>
+    <value>Comparison result:
+{0}</value>
   </data>
   <data name="LogClearingComparisonResultX" xml:space="preserve">
-    <value>Clearing comparison result:&#xD;&#xA;{0}</value>
+    <value>Clearing comparison result:
+{0}</value>
   </data>
   <data name="LogSynchronizingSchemaInXMode" xml:space="preserve">
     <value>Synchronizing schema in {0} mode</value>
@@ -796,10 +804,10 @@
     <value>Entity with Key = '{0}' does not exist.</value>
   </data>
   <data name="CanUpgradeTypeSafely" xml:space="preserve">
-    <value>Can upgrade types safely</value>
+    <value>Can upgrade safely</value>
   </data>
   <data name="CantUpgradeTypeSafely" xml:space="preserve">
-    <value>Can't upgrade types safely</value>
+    <value>Can't upgrade safely</value>
   </data>
   <data name="ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet" xml:space="preserve">
     <value>There is no current HttpRequest, or SessionManager is not bound to it yet.</value>
@@ -1103,5 +1111,14 @@
   </data>
   <data name="ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity" xml:space="preserve">
     <value>Could not construct new Key instance. Type '{0}' is not an entity.</value>
+  </data>
+  <data name="ExCantChangeTypeOfColumnX" xml:space="preserve">
+    <value> (can't change type of column '{0}')</value>
+  </data>
+  <data name="ExCantRemoveTableX" xml:space="preserve">
+    <value> (can't remove table '{0}')</value>
+  </data>
+  <data name="ExCantRemoveColumnX" xml:space="preserve">
+    <value> (can't remove column '{0}')</value>
   </data>
 </root>

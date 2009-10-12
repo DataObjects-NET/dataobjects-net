@@ -42,45 +42,110 @@ namespace Xtensive.Storage.Building
         ? EnumerableUtils<NodeAction>.Empty 
         : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
       };
-      var typeChanges = GetTypeChanges(difference as NodeDifference);
-      
       var status = GetComparisonStatus(actions);
-      var typeChangedColumns = UpgradeContext.Demand().Hints
+      var unsafeActions = GetUnsafeActions(actions);
+      var hasTypeChanges = GetTypeChangeActions(actions).Any();
+
+      return new SchemaComparisonResult(status, hints, difference, actions, hasTypeChanges, unsafeActions);
+    }
+
+    private static IList<NodeAction> GetUnsafeActions(ActionSequence upgradeActions)
+    {
+      var unsafeActions = new List<NodeAction>();
+      
+      // Unsafe type changes
+      var typeChangeAction = GetTypeChangeActions(upgradeActions);
+      var columnsWithHint = UpgradeContext.Demand().Hints
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
         .ToHashSet();
-      var canPerformSafely = 
-        CanPerformTypesSafely(typeChanges, typeChangedColumns);
+      typeChangeAction
+        .Where(action => !TypeConversionVerifier.CanConvertSafely(
+          action.Difference.Source as TypeInfo, action.Difference.Target as TypeInfo))
+        .Where(action1 => !columnsWithHint.Contains(action1.Path))
+        .Apply(unsafeActions.Add);
 
-      return new SchemaComparisonResult(status, hints, difference, actions, 
-        typeChanges.Any(), canPerformSafely);
+      // Unsafe column removes
+      var columnActions = GetColumnActions(upgradeActions).ToList();
+      columnsWithHint = UpgradeContext.Demand().Hints
+        .OfType<RemoveFieldHint>()
+        .SelectMany(hint => hint.AffectedColumns)
+        .ToHashSet();
+      columnActions
+        .OfType<RemoveNodeAction>()
+        .Where(action => !columnsWithHint.Contains(action.Path))
+        .Apply(unsafeActions.Add);
+      
+      // Unsafe type removes
+      var tableActions = GetTableActions(upgradeActions);
+      var tableWithHints = UpgradeContext.Demand().Hints
+        .OfType<RemoveTypeHint>()
+        .SelectMany(hint => hint.AffectedTables)
+        .ToHashSet();
+      tableActions
+        .OfType<RemoveNodeAction>()
+        .Where(action => !tableWithHints.Contains(action.Path))
+        .Apply(unsafeActions.Add);
+
+      return unsafeActions;
+    }
+
+    private static IEnumerable<PropertyChangeAction> GetTypeChangeActions(ActionSequence upgradeActions)
+    {
+      return upgradeActions
+        .Flatten()
+        .OfType<PropertyChangeAction>()
+        .Where(action =>
+          action.Properties.ContainsKey("Type")
+            && action.Difference.Parent.Source is ColumnInfo
+            && action.Difference.Parent.Target is ColumnInfo);
+    }
+
+    private static IEnumerable<NodeAction> GetColumnActions(ActionSequence upgradeActions)
+    {
+      Func<NodeAction, bool> isColumnAction = (action) => {
+        var diff = action.Difference as NodeDifference;
+        if (diff==null)
+          return false;
+        var item = diff.Source ?? diff.Target;
+        return item is ColumnInfo;
+      };
+
+      return upgradeActions
+        .Flatten()
+        .OfType<NodeAction>()
+        .Where(isColumnAction);
+    }
+
+    private static IEnumerable<NodeAction> GetTableActions(ActionSequence upgradeActions)
+    {
+      Func<NodeAction, bool> isTableAction = (action) => {
+        var diff = action.Difference as NodeDifference;
+        if (diff==null)
+          return false;
+        var item = diff.Source ?? diff.Target;
+        return item is TableInfo;
+      };
+
+      return upgradeActions
+        .Flatten()
+        .OfType<NodeAction>()
+        .Where(isTableAction);
     }
 
     private static SchemaComparisonStatus GetComparisonStatus(ActionSequence upgradeActions)
     {
-      var actions = upgradeActions.Flatten();
-      var removedColumns = 
-        UpgradeContext.Demand().Hints
-        .OfType<RemoveFieldHint>()
-        .SelectMany(hint => hint.AffectedColumns)
-        .ToHashSet();
-      var removedTables = 
-        UpgradeContext.Demand().Hints
-        .OfType<RemoveTypeHint>()
-        .SelectMany(hint => hint.AffectedTables)
-        .ToHashSet();
-
+      var actions = upgradeActions.Flatten().ToList();
+      
       var hasCreateActions = actions
         .OfType<CreateNodeAction>()
         .Any();
       var hasRemoveActions = actions
         .OfType<RemoveNodeAction>()
-        .Any(action => 
-          ((action.Difference.Source is TableInfo && !removedTables
-            .Contains(((NodeDifference) action.Difference).Source.Path))
-          || ((action.Difference.Source is ColumnInfo) && !removedColumns
-            .Contains(((NodeDifference) action.Difference).Source.Path))));
+        .Any(action => action.Difference.Source is TableInfo
+          || action.Difference.Source is ColumnInfo);
       
+
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;
       if (hasCreateActions)
@@ -89,60 +154,6 @@ namespace Xtensive.Storage.Building
         return SchemaComparisonStatus.TargetIsSubset;
       return SchemaComparisonStatus.Equal;
     }
-
-    private static bool CanPerformTypesSafely(IEnumerable<Triplet<string, TypeInfo, TypeInfo>> typeChanges, 
-      HashSet<string> typeChangedColumns)
-    {
-      return 
-        !typeChanges.Any(triplet =>
-        !TypeConversionVerifier.CanConvertSafely(triplet.Second, triplet.Third)
-        && !typeChangedColumns.Contains(triplet.First));
-    }
-
-    private static bool CanRemoveColumnsSafely(NodeDifference schemaDifference, HashSet<string> removedColumns)
-    {
-      var columnDiffs = GetColumnDifferences(schemaDifference).Where(diff => diff.IsRemoved);
-      if (columnDiffs.Count()==0)
-        return true;
-      return columnDiffs.Any(diff => !removedColumns.Contains(diff.Source.Path));
-    }
-
-    private static IEnumerable<Triplet<string, TypeInfo, TypeInfo>> GetTypeChanges(NodeDifference schemaDifference)
-    {
-      if (schemaDifference == null)
-        return Enumerable.Empty<Triplet<string, TypeInfo, TypeInfo>>();
-
-      return GetColumnDifferences(schemaDifference)
-        .Where(columnDifference =>
-          columnDifference.Source != null
-            && columnDifference.Target != null
-            && columnDifference.PropertyChanges.ContainsKey("Type"))
-        .Select(columnDifference =>
-        {
-          var typeChange = columnDifference.PropertyChanges["Type"];
-          return new Triplet<string, TypeInfo, TypeInfo>(
-            columnDifference.Target.Path,
-            typeChange.Source as TypeInfo,
-            typeChange.Target as TypeInfo);
-        });
-    }
-
-    private static IEnumerable<NodeDifference> GetColumnDifferences(NodeDifference schemaDifference)
-    {
-      if (schemaDifference==null)
-        return Enumerable.Empty<NodeDifference>();
-
-      Func<Difference, IEnumerable<Difference>> itemExtractor =
-        diff => {
-          if (diff is NodeDifference)
-            return ((NodeDifference) diff).PropertyChanges.Values;
-          else if (diff is NodeCollectionDifference)
-            return ((NodeCollectionDifference) diff).ItemChanges.Cast<Difference>();
-          else
-            return Enumerable.Empty<Difference>();
-        };
-      return schemaDifference.PropertyChanges.Values.Flatten(itemExtractor, diff => { }, true)
-        .OfType<NodeDifference>().Where(nodeDifference => (nodeDifference.Source ?? nodeDifference.Target) is ColumnInfo);
-    }
   }
 }
+  

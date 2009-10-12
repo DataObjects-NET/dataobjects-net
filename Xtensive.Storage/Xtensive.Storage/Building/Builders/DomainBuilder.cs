@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Configuration;
@@ -220,7 +221,7 @@ namespace Xtensive.Storage.Building.Builders
         if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
           var emptySchema = new StorageInfo();
           result = SchemaComparer.Compare(extractedSchema, emptySchema, null);
-          if (result.Status!=SchemaComparisonStatus.Equal) {
+          if (result.Status!=SchemaComparisonStatus.Equal || result.HasTypeChanges) {
             if (Log.IsLogged(LogEventTypes.Info))
               Log.Info(Strings.LogClearingComparisonResultX, result);
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, emptySchema);
@@ -244,8 +245,7 @@ namespace Xtensive.Storage.Building.Builders
           break;
         case SchemaUpgradeMode.ValidateCompatible:
           if (result.Status!=SchemaComparisonStatus.Equal &&
-            result.Status!=SchemaComparisonStatus.TargetIsSubset &&
-            !result.HasTypeChanges)
+            result.Status!=SchemaComparisonStatus.TargetIsSubset)
             throw new SchemaSynchronizationException(
               Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
           break;
@@ -254,16 +254,32 @@ namespace Xtensive.Storage.Building.Builders
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         case SchemaUpgradeMode.PerformSafely:
-          if ((result.Status!=SchemaComparisonStatus.Equal 
-            && result.Status!=SchemaComparisonStatus.TargetIsSuperset)
-            || (result.HasTypeChanges && !result.CanUpgradeTypesSafely))
-            throw new SchemaSynchronizationException(Strings.ExCannotUpgradeSchemaSafely);
-          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
-          break;
+          var firstUnsafeAction = result.UnsafeUpgradeActions.FirstOrDefault();
+          if (firstUnsafeAction!=null)
+            throw new SchemaSynchronizationException(
+              string.Format(Strings.ExCannotUpgradeSchemaSafely, GetErrorMessage(firstUnsafeAction)));
+            upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
+            break;
         default:
           throw new ArgumentOutOfRangeException("schemaUpgradeMode");
         }
       }
+    }
+
+    private static string GetErrorMessage(NodeAction unsafeAction)
+    {
+      var path = unsafeAction.Path;
+      if (unsafeAction is PropertyChangeAction) {
+        return string.Format(Strings.ExCantChangeTypeOfColumnX, path);
+      }
+      if (unsafeAction is RemoveNodeAction) {
+        var source = ((NodeDifference) unsafeAction.Difference).Source;
+        if (source is TableInfo)
+          return string.Format(Strings.ExCantRemoveTableX, path);
+        if (source is ColumnInfo)
+          return string.Format(Strings.ExCantRemoveColumnX, path);
+      }
+      return string.Empty;
     }
   }
 }

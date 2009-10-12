@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t upgrade types safely.
+        ///   Looks up a localized string similar to Can&apos;t upgrade safely.
         /// </summary>
         internal static string CantUpgradeTypeSafely {
             get {
@@ -115,7 +115,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can upgrade types safely.
+        ///   Looks up a localized string similar to Can upgrade safely.
         /// </summary>
         internal static string CanUpgradeTypeSafely {
             get {
@@ -395,7 +395,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot upgrade schema safely..
+        ///   Looks up a localized string similar to Cannot upgrade schema safely{0}..
         /// </summary>
         internal static string ExCannotUpgradeSchemaSafely {
             get {
@@ -418,6 +418,33 @@ namespace Xtensive.Storage.Resources {
         internal static string ExCantAccessMemberOfTypeEntitySet {
             get {
                 return ResourceManager.GetString("ExCantAccessMemberOfTypeEntitySet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  (can&apos;t change type of column &apos;{0}&apos;).
+        /// </summary>
+        internal static string ExCantChangeTypeOfColumnX {
+            get {
+                return ResourceManager.GetString("ExCantChangeTypeOfColumnX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  (can&apos;t remove column &apos;{0}&apos;).
+        /// </summary>
+        internal static string ExCantRemoveColumnX {
+            get {
+                return ResourceManager.GetString("ExCantRemoveColumnX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  (can&apos;t remove table &apos;{0}&apos;).
+        /// </summary>
+        internal static string ExCantRemoveTableX {
+            get {
+                return ResourceManager.GetString("ExCantRemoveTableX", resourceCulture);
             }
         }
         

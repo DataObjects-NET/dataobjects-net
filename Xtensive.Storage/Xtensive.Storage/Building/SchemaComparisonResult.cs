@@ -5,12 +5,15 @@
 // Created:    2009.05.01
 
 using System;
+using System.Collections.Generic;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Helpers;
+using System.Linq;
 
 namespace Xtensive.Storage.Building
 {
@@ -46,20 +49,17 @@ namespace Xtensive.Storage.Building
     public bool HasTypeChanges { get; private set; }
 
     /// <summary>
-    /// Gets a value indicating whether possible to upgrade data types safely.
+    /// Gets unsafe actions.
     /// </summary>
-    public bool CanUpgradeTypesSafely { get; private set; }
-
+    public ReadOnlyList<NodeAction> UnsafeUpgradeActions { get; private set;}
+    
     /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(Strings.SchemaComparisonResultFormat,
-        Status
-          + (HasTypeChanges
-            ? (CanUpgradeTypesSafely
-              ? ", " + Strings.CanUpgradeTypeSafely
-              : ", " + Strings.CantUpgradeTypeSafely)
-            : string.Empty),
+        Status + (UnsafeUpgradeActions.Any()
+          ? ", " + Strings.CantUpgradeTypeSafely
+          : ", " + Strings.CanUpgradeTypeSafely),
         Hints!=null ? Hints.ToString().Indent(2) : string.Empty,
         Difference!=null ? Difference.ToString().Indent(2) : string.Empty,
         UpgradeActions!=null ? UpgradeActions.ToString().Indent(2) : string.Empty);
@@ -77,16 +77,17 @@ namespace Xtensive.Storage.Building
     /// <param name="upgradeActions">The upgrade actions.</param>
     /// <param name="hasTypeChanges">if set to <see langword="true"/> extracted column type are 
     /// different with target column types.</param>
-    /// <param name="canUpgradeTypesSafely">if set to <see langword="true"/> all types changes are safely.</param>
-    public SchemaComparisonResult(SchemaComparisonStatus status, HintSet hints, 
-      Difference difference, ActionSequence upgradeActions, bool hasTypeChanges, bool canUpgradeTypesSafely)
+    public SchemaComparisonResult(SchemaComparisonStatus status, HintSet hints, Difference difference, 
+      ActionSequence upgradeActions, bool hasTypeChanges, IList<NodeAction> unsafeActions)
     {
       Difference = difference;
       UpgradeActions = upgradeActions;
-      CanUpgradeTypesSafely = canUpgradeTypesSafely;
       HasTypeChanges = hasTypeChanges;
       Status = status;
       Hints = hints;
+      UnsafeUpgradeActions = unsafeActions!=null 
+        ? new ReadOnlyList<NodeAction>(unsafeActions) 
+        : new ReadOnlyList<NodeAction>(new List<NodeAction>());
     }
   }
 }
