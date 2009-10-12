@@ -5,6 +5,7 @@
 // Created:    2009.10.12
 
 using System;
+using System.Diagnostics;
 
 namespace Xtensive.Core.Diagnostics
 {
