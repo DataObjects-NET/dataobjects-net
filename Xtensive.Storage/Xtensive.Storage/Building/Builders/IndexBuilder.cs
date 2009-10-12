@@ -419,19 +419,6 @@ namespace Xtensive.Storage.Building.Builders
       // Adding value columns
       result.ValueColumns.AddRange(indexToFilter.ValueColumns);
 
-//      var types = reflectedType.GetAncestors()
-//        .AddOne(reflectedType)
-//        .ToHashSet();
-//
-//      foreach (var column in indexToFilter.ValueColumns) {
-//        var field = column.Field;
-//        if (!types.Contains(field.ReflectedType)) 
-//          continue;
-//        if (field.IsExplicit && field.DeclaringType != reflectedType) 
-//          continue;
-//        result.ValueColumns.Add(column);
-//      }
-
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
 
@@ -657,18 +644,16 @@ namespace Xtensive.Storage.Building.Builders
     private static ColumnGroup BuildColumnGroup(IndexInfo index)
     {
       var reflectedType = index.ReflectedType;
-      List<int> keyColumns;
-      List<int> columns;
-      if (index.IsPrimary) {
-        keyColumns = new List<int>(index.KeyColumns.Select((_, i) => i));
-        columns = new List<int>(keyColumns);
-        columns.AddRange(index.ValueColumns.Select((_,i) => keyColumns.Count + i));
-      }
-      else {
-        keyColumns = new List<int>(index.ValueColumns.Take(reflectedType.Columns.Count(c => c.IsPrimaryKey)).Select((_, i) => index.KeyColumns.Count + i));
-        columns = new List<int>(index.KeyColumns.Select((_, i) => i));
-        columns.AddRange(index.ValueColumns.Select((_, i) => index.KeyColumns.Count + i));
-      }
+      var keyColumns = index.IsPrimary
+        ? Enumerable.Range(0, index.KeyColumns.Count).ToList()
+        : index.KeyColumns
+            .Select(pair => pair.Key)
+            .Concat(index.ValueColumns)
+            .Select((c, i) => new {c, i})
+            .Where(arg => arg.c.IsPrimaryKey)
+            .Select(arg => arg.i)
+            .ToList();
+      var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList();
       return new ColumnGroup(reflectedType, keyColumns, columns);
     }
 

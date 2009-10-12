@@ -115,55 +115,50 @@ namespace Xtensive.Storage.Internals
       foreach (var group in header.ColumnGroups) {
         var model = Domain.Model;
         int typeIdColumnIndex = -1;
-        var columnMapping = new Dictionary<ColumnInfo, MappedColumn>(group.Columns.Count);
         var type = group.TypeInfoRef.Resolve(model);
+        var columnMapping = new List<Pair<ColumnInfo, MappedColumn>>(group.Columns.Count);
+        var keyMapping = new List<Pair<ColumnInfo, MappedColumn>>(group.Keys.Count);
 
         foreach (int columnIndex in group.Columns) {
           var column = (MappedColumn)header.Columns[columnIndex];
-          ColumnInfo columnInfo = column.ColumnInfoRef.Resolve(model);
-          columnMapping[columnInfo] = column;
+          var columnInfo = column.ColumnInfoRef.Resolve(model);
+          columnMapping.Add(new Pair<ColumnInfo, MappedColumn>(columnInfo, column));
           if (columnInfo.Name == typeIdColumnName)
             typeIdColumnIndex = column.Index;
         }
 
+        foreach (int columnIndex in group.Keys) {
+          var column = (MappedColumn)header.Columns[columnIndex];
+          var columnInfo = column.ColumnInfoRef.Resolve(model);
+          keyMapping.Add(new Pair<ColumnInfo, MappedColumn>(columnInfo, column));
+        }
+
         var implementors = (type.IsInterface 
           ? type.GetImplementors(true)
-          : type.GetDescendants(true)).AddOne(type).ToList();
+          : type.GetDescendants(true).AddOne(type)).ToList();
         var typeMappings = new IntDictionary<TypeMapping>(implementors.Count + 1);
         foreach (TypeInfo childType in implementors) {
           // Building typeMap
-          var columnCount = childType.Columns.Count;
-          var typeMap = new int[columnCount];
-          for (int i = 0; i < columnCount; i++) {
-            var columnInfo = childType.Columns[i];
-            MappedColumn column;
-            if (columnMapping.TryGetValue(columnInfo, out column))
-              typeMap[i] = column.Index;
-            else
-              typeMap[i] = MapTransform.NoMapping;
+          var typeMap = Enumerable.Repeat(MapTransform.NoMapping, childType.Columns.Count).ToArray();
+          foreach (var pair in columnMapping) {
+            var childTypeField = type.IsInterface
+              ? childType.FieldMap[pair.First.Field]
+              : childType.Fields[pair.First.Field.Name];
+            typeMap[childTypeField.MappingInfo.Offset] = pair.Second.Index;
           }
-  
+
           // Building keyMap
-          var columns = childType.KeyInfo.Columns;
-          columnCount = columns.Count;
-          var keyMap = new int[columnCount];
-          bool hasKey = false;
-          for (int i = 0; i < columnCount; i++) {
-            var columnInfo = columns[i];
-            MappedColumn column;
-            if (columnMapping.TryGetValue(columnInfo, out column)) {
-              keyMap[i] = column.Index;
-              hasKey = true;
-            }
-            else
-              keyMap[i] = MapTransform.NoMapping;
+          var keyMap = Enumerable.Repeat(MapTransform.NoMapping, type.KeyInfo.Length).ToArray();
+          foreach (var pair in keyMapping) {
+            var childTypeField = type.IsInterface
+              ? childType.FieldMap[pair.First.Field]
+              : childType.Fields[pair.First.Field.Name];
+            keyMap[childTypeField.MappingInfo.Offset] = pair.Second.Index;
           }
-          if (hasKey) {
-            var typeMapping = new TypeMapping(childType,
-              new MapTransform(true, childType.KeyInfo.TupleDescriptor, keyMap),
-              new MapTransform(true, childType.TupleDescriptor, typeMap));
-            typeMappings.Add(childType.TypeId, typeMapping);
-          }
+          var typeMapping = new TypeMapping(childType,
+            new MapTransform(true, childType.KeyInfo.TupleDescriptor, keyMap),
+            new MapTransform(true, childType.TupleDescriptor, typeMap));
+          typeMappings.Add(childType.TypeId, typeMapping);
         }
         var mapping =  new ColumnGroupMapping(type, typeIdColumnIndex, typeMappings);
         mappings.Add(mapping);
