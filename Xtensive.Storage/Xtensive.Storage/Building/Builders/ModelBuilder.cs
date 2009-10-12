@@ -101,12 +101,6 @@ namespace Xtensive.Storage.Building.Builders
           var typeDef = node.Value;
           TypeBuilder.BuildType(typeDef);
         }
-        // Processing interfaces that has implementors from one hierarchy only
-        foreach (var @interfaceDef in context.ModelInspectionResult.SingleHierarchyInterfaces) {
-          var interfaceInfo = context.Model.Types[interfaceDef.UnderlyingType];
-          var implementor = interfaceInfo.GetImplementors().First();
-          interfaceInfo.Hierarchy = implementor.Hierarchy;
-        }
       }
       using (Log.InfoRegion(Strings.LogBuildingX, "Fields"))
         foreach (var node in nodes) {
