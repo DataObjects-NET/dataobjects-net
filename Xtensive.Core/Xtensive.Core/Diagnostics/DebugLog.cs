@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Diagnostics
@@ -13,9 +14,23 @@ namespace Xtensive.Core.Diagnostics
   [Serializable]
   public class DebugLog : RealLogImplementationBase
   {
+    private static readonly Stopwatch Clock;
+
     public override void LogEvent(LogEventTypes eventType, object message, Exception exception, IRealLog sentTo, LogCaptureScope capturedBy)
     {
-      Debug.WriteLine(string.Format("{0}: {1}", Log.Name, exception ?? message));
+      long elapsed;
+      lock (Clock) {
+        elapsed = Clock.ElapsedMilliseconds;
+      }
+      var thread = Thread.CurrentThread;
+      Debug.WriteLine(string.Format(
+        Resources.Strings.DebugLogFormat, 
+        elapsed,
+        thread.Name ?? thread.ManagedThreadId.ToString(),
+        eventType.ToShortString(),
+        Log.Name,
+        LogIndentScope.CurrentIndentString,
+        exception ?? message));
       base.LogEvent(eventType, message, exception, sentTo, capturedBy);
     }
 
@@ -48,6 +63,14 @@ namespace Xtensive.Core.Diagnostics
     public DebugLog(string name)
       : base(name)
     {
+    }
+
+    // Type initializer
+
+    static DebugLog()
+    {
+      Clock = new Stopwatch();
+      Clock.Start();
     }
   }
 }

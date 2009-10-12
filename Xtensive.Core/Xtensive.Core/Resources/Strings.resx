@@ -660,4 +660,7 @@
   <data name="ExUnableToCastNullValueToXUseXInstead" xml:space="preserve">
     <value>Unable to cast null value to {0}; use {0}? instead.</value>
   </data>
+  <data name="DebugLogFormat" xml:space="preserve">
+    <value>{0,6}/{1,-5} {2,5} {3,-24} {4}{5}</value>
+  </data>
 </root>
