@@ -43,8 +43,15 @@ namespace Xtensive.Storage.Internals
 
     public void AddColumns(IEnumerable<ColumnInfo> candidateColumns)
     {
-      foreach (var column in candidateColumns)
-        columns[Type.Indexes.PrimaryIndex.Columns.IndexOf(column)] = column;
+      var primaryIndex = Type.Indexes.PrimaryIndex;
+      foreach (var column in candidateColumns) {
+        if (Type.IsInterface == column.Field.DeclaringType.IsInterface)
+          columns[Type.Fields[column.Field.Name].MappingInfo.Offset] = column;
+        else if (column.Field.DeclaringType.IsInterface)
+          columns[Type.FieldMap[column.Field].MappingInfo.Offset] = column;
+        else
+          throw new InvalidOperationException();
+      }
     }
 
     public abstract void RegisterQueryTask();

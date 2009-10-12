@@ -661,11 +661,14 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     [Test]
     public void PrefetchFieldDeclaredInInterfaceTest()
     {
-      Key bookKey;
+      Key bookKey0;
+      Key bookKey1;
+      Key bookKey2;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var book = new Book {Category = "1"};
-        bookKey = book.Key;
+        bookKey0 = new Book {Category = "0"}.Key;
+        bookKey1 = new Book {Category = "1"}.Key;
+        bookKey2 = new Book {Category = "2"}.Key;
         tx.Complete();
       }
 
@@ -675,11 +678,23 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var iHasCategoryType = Domain.Model.Types[typeof (IHasCategory)];
         var bookType = typeof (Book).GetTypeInfo();
         var categoryField = iHasCategoryType.Fields["Category"];
-        prefetchProcessor.Prefetch(bookKey, iHasCategoryType, new PrefetchFieldDescriptor(categoryField, false));
+        var bookCategoryField = bookType.FieldMap[categoryField];
+        prefetchProcessor.Prefetch(bookKey0, iHasCategoryType,
+          new PrefetchFieldDescriptor(categoryField, false));
+        /*var interfaceKey = Key.Create(iHasCategoryType, bookKey1.Value, TypeReferenceAccuracy.BaseType);
+        prefetchProcessor.Prefetch(interfaceKey, iHasCategoryType,
+          new PrefetchFieldDescriptor(categoryField, false));*/
         prefetchProcessor.ExecuteTasks();
 
-        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookKey, bookType, session,
-          field => IsFieldKeyOrSystem(field) || field.Equals(categoryField));
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookKey0, bookType, session,
+          field => IsFieldKeyOrSystem(field) || field.Equals(bookCategoryField));
+        /*PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(interfaceKey, bookType, session,
+          field => IsFieldKeyOrSystem(field) || field.Equals(categoryField));*/
+
+        AssertEx.Throws<InvalidOperationException>(
+          () => prefetchProcessor.Prefetch(Key
+            .Create(iHasCategoryType, bookKey2.Value, TypeReferenceAccuracy.BaseType),
+          iHasCategoryType, new PrefetchFieldDescriptor(bookCategoryField, false)));
       }
     }
 
