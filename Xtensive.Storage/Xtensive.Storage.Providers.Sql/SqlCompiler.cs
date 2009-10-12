@@ -34,21 +34,13 @@ namespace Xtensive.Storage.Providers.Sql
 {
   /// <inheritdoc/>
   [Serializable]
-  public class SqlCompiler : Compiler<SqlProvider>,
-    IHasSyncRoot
+  public class SqlCompiler : Compiler<SqlProvider>
   {
     private const string TableNamePattern = "Tmp_{0}";
-    private ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
 
     private readonly BooleanExpressionConverter booleanExpressionConverter;
 
     public readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
-
-    /// <inheritdoc/>
-    public object SyncRoot
-    {
-      get { return rwLock; }
-    }
 
     /// <summary>
     /// Gets the value type mapper.
@@ -436,45 +428,45 @@ namespace Xtensive.Storage.Providers.Sql
     {
       ExecutableProvider ex = null;
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      Schema schema = domainHandler.Schema;
+      var catalog = new Catalog(domainHandler.Schema.Catalog.Name);
+      Schema schema = catalog.CreateSchema(domainHandler.Schema.Name);
       Table table;
       string tableName = string.Format(TableNamePattern, provider.Name);
-      SqlSelect query;
-      using (LockType.Exclusive.LockRegion(rwLock)) {
-        if (provider.Source!=null) {
-          ex = provider.Source as ExecutableProvider
-            ?? (provider.Source is RawProvider
-              ? (ExecutableProvider) (new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
-              : Compile((CompilableProvider) provider.Source));
-          table = provider.Scope==TemporaryDataScope.Global ? schema.CreateTable(tableName)
-            : schema.CreateTemporaryTable(tableName);
+      if (provider.Source!=null) {
+        ex = provider.Source as ExecutableProvider
+          ?? (provider.Source is RawProvider
+            ? (ExecutableProvider) (new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
+            : Compile((CompilableProvider) provider.Source));
+        table = provider.Scope==TemporaryDataScope.Global ? schema.CreateTable(tableName)
+          : schema.CreateTemporaryTable(tableName);
 
-          foreach (Column column in provider.Header.Columns) {
-            SqlValueType svt;
-            var mappedColumn = column as MappedColumn;
-            if (mappedColumn!=null) {
-              ColumnInfo ci = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
-              TypeMapping tm = Driver.GetTypeMapping(ci);
-              svt = Driver.BuildValueType(ci);
-            }
-            else
-              svt = Driver.BuildValueType(column.Type, null, null, null);
-            TableColumn tableColumn = table.CreateColumn(column.Name, svt);
-            tableColumn.IsNullable = true;
-            // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
-            if (column.Type==typeof (string))
-              tableColumn.Collation = schema.Collations.FirstOrDefault();
+        foreach (Column column in provider.Header.Columns) {
+          SqlValueType svt;
+          var mappedColumn = column as MappedColumn;
+          if (mappedColumn!=null) {
+            ColumnInfo ci = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
+            TypeMapping tm = Driver.GetTypeMapping(ci);
+            svt = Driver.BuildValueType(ci);
           }
+          else
+            svt = Driver.BuildValueType(column.Type, null, null, null);
+          TableColumn tableColumn = table.CreateColumn(column.Name, svt);
+          tableColumn.IsNullable = true;
+          // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
+          if (column.Type==typeof (string))
+            tableColumn.Collation = domainHandler.Schema.Collations.FirstOrDefault();
         }
-        else
-          table = schema.Tables[tableName];
-
-        SqlTableRef tr = SqlDml.TableRef(table);
-        query = SqlDml.Select(tr);
-        foreach (SqlTableColumn column in tr.Columns)
-          query.Columns.Add(column);
-        schema.Tables.Remove(table);
       }
+      else
+        table = schema.Tables[tableName];
+
+      SqlTableRef tr = SqlDml.TableRef(table);
+      SqlSelect query = SqlDml.Select(tr);
+      foreach (SqlTableColumn column in tr.Columns)
+        query.Columns.Add(column);
+      schema.Tables.Remove(table);
+
+      catalog.Schemas.Remove(schema);
 
       return new SqlStoreProvider(provider, query, Handlers, ex, table);
     }
