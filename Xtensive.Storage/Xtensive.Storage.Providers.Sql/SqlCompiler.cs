@@ -8,10 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Threading;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
@@ -32,23 +34,37 @@ namespace Xtensive.Storage.Providers.Sql
 {
   /// <inheritdoc/>
   [Serializable]
-  public class SqlCompiler : Compiler<SqlProvider>
+  public class SqlCompiler : Compiler<SqlProvider>,
+    IHasSyncRoot
   {
     private const string TableNamePattern = "Tmp_{0}";
+    private ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
 
     private readonly BooleanExpressionConverter booleanExpressionConverter;
 
     public readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
-    
+
+    /// <inheritdoc/>
+    public object SyncRoot
+    {
+      get { return rwLock; }
+    }
+
     /// <summary>
     /// Gets the value type mapper.
     /// </summary>
-    protected Driver Driver { get { return ((DomainHandler) Handlers.DomainHandler).Driver; } }
+    protected Driver Driver
+    {
+      get { return ((DomainHandler) Handlers.DomainHandler).Driver; }
+    }
 
     /// <summary>
     /// Gets the provider info.
     /// </summary>
-    protected ProviderInfo ProviderInfo { get { return Handlers.DomainHandler.ProviderInfo; } }
+    protected ProviderInfo ProviderInfo
+    {
+      get { return Handlers.DomainHandler.ProviderInfo; }
+    }
 
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.
@@ -75,7 +91,7 @@ namespace Xtensive.Storage.Providers.Sql
       var sqlSelect = ExtractSqlSelect(provider, source);
 
       var columns = ExtractColumnExpressions(sqlSelect, provider);
-      var columnNames = columns.Select((c, i) => 
+      var columnNames = columns.Select((c, i) =>
         i >= sqlSelect.Columns.Count
           ? sqlSelect.From.Columns[i].Name
           : sqlSelect.Columns[i].Name).ToList();
@@ -129,9 +145,9 @@ namespace Xtensive.Storage.Providers.Sql
     protected override SqlProvider VisitCalculate(CalculateProvider provider)
     {
       var source = Compile(provider.Source);
-      
+
       SqlSelect sqlSelect;
-      if (provider.Source.Header.Length == 0) {
+      if (provider.Source.Header.Length==0) {
         SqlSelect sourceSelect = source.Request.SelectStatement;
         sqlSelect = sourceSelect.ShallowClone();
         sqlSelect.Columns.Clear();
@@ -145,7 +161,7 @@ namespace Xtensive.Storage.Providers.Sql
         var result = ProcessExpression(column.Expression, sourceColumns);
         var predicate = result.First;
         var bindings = result.Second;
-        if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions) && (column.Type.StripNullable()==typeof(bool)))
+        if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions) && (column.Type.StripNullable()==typeof (bool)))
           predicate = booleanExpressionConverter.BooleanToInt(predicate);
         var columnName = ProcessAliasedName(column.Name);
         var columnRef = SqlDml.ColumnRef(SqlDml.Column(predicate), columnName);
@@ -212,7 +228,7 @@ namespace Xtensive.Storage.Providers.Sql
       var right = Compile(provider.Right);
 
       var leftShouldUseReference = ShouldUseQueryReference(provider, left);
-      var leftTable = leftShouldUseReference 
+      var leftTable = leftShouldUseReference
         ? left.PermanentReference
         : left.Request.SelectStatement.From;
       var leftColumns = leftShouldUseReference
@@ -233,11 +249,11 @@ namespace Xtensive.Storage.Providers.Sql
         ? rightTable.Columns.Cast<SqlExpression>().ToList()
         : ExtractColumnExpressions(right.Request.SelectStatement, provider.Right);
 
-      var joinType = provider.JoinType == JoinType.LeftOuter 
-        ? SqlJoinType.LeftOuterJoin 
+      var joinType = provider.JoinType==JoinType.LeftOuter
+        ? SqlJoinType.LeftOuterJoin
         : SqlJoinType.InnerJoin;
       var joinExpression = provider.EqualIndexes
-        .Select(pair => leftExpressions[pair.First] == rightExpressions[pair.Second])
+        .Select(pair => leftExpressions[pair.First]==rightExpressions[pair.Second])
         .Aggregate(null as SqlExpression, (expression, binary) => expression & binary);
 
       var joinedTable = SqlDml.Join(
@@ -286,14 +302,14 @@ namespace Xtensive.Storage.Providers.Sql
         : ExtractColumnExpressions(right.Request.SelectStatement, provider.Right);
 
 
-      var joinType = provider.JoinType == JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
+      var joinType = provider.JoinType==JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
 
       var result = ProcessExpression(provider.Predicate, leftExpressions, rightExpressions);
       var joinExpression = result.First;
       var bindings = result.Second;
 
       var joinedTable = SqlDml.Join(
-        joinType, 
+        joinType,
         leftTable,
         rightTable,
         leftColumns.ToList(),
@@ -326,7 +342,7 @@ namespace Xtensive.Storage.Providers.Sql
         int fieldIndex = i;
         var binding = new SqlQueryParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
         bindings.Add(binding);
-        query.Where &= query.Columns[keyColumns[i].Key] == binding.ParameterReference;
+        query.Where &= query.Columns[keyColumns[i].Key]==binding.ParameterReference;
       }
       return rangeProvider;
     }
@@ -341,7 +357,7 @@ namespace Xtensive.Storage.Providers.Sql
       var parameterBindings = new List<SqlQueryParameterBinding>();
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
-        pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName != typeIdColumnName;
+        pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
       var keyColumns = provider.Header.Order
         .Where(filterNonTypeId)
         .ToList();
@@ -354,7 +370,7 @@ namespace Xtensive.Storage.Providers.Sql
         int index = i;
         var binding = new SqlQueryParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
         parameterBindings.Add(binding);
-        query.Where &= sqlColumn == binding.ParameterReference;
+        query.Where &= sqlColumn==binding.ParameterReference;
       }
 
       return new SqlProvider(provider, query, Handlers, parameterBindings, compiledSource);
@@ -366,7 +382,7 @@ namespace Xtensive.Storage.Providers.Sql
       var compiledSource = Compile(provider.Source);
       SqlSelect query;
 
-      if (provider.ColumnIndexes.Length == 0) {
+      if (provider.ColumnIndexes.Length==0) {
         SqlSelect source = compiledSource.Request.SelectStatement;
         query = source.ShallowClone();
         query.Columns.Clear();
@@ -389,12 +405,12 @@ namespace Xtensive.Storage.Providers.Sql
 
       var query = ExtractSqlSelect(provider, compiledSource);
       var rootSelectProvider = RootProvider as SelectProvider;
-      var currentIsRoot = RootProvider == provider;
-      if (currentIsRoot || (rootSelectProvider != null && rootSelectProvider.Source == provider)) {
-        if (query.OrderBy.Count == 0) {
+      var currentIsRoot = RootProvider==provider;
+      if (currentIsRoot || (rootSelectProvider!=null && rootSelectProvider.Source==provider)) {
+        if (query.OrderBy.Count==0) {
           if (currentIsRoot) {
             foreach (KeyValuePair<int, Direction> pair in provider.Header.Order)
-              query.OrderBy.Add(query.Columns[pair.Key], pair.Value == Direction.Positive);
+              query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
           }
           else {
             var columnExpressions = ExtractColumnExpressions(query, provider);
@@ -402,13 +418,13 @@ namespace Xtensive.Storage.Providers.Sql
             if (shouldUseColumnPosition)
               foreach (KeyValuePair<int, Direction> pair in provider.Header.Order) {
                 if (pair.Key >= columnExpressions.Count)
-                  query.OrderBy.Add(pair.Key + 1, pair.Value == Direction.Positive);
+                  query.OrderBy.Add(pair.Key + 1, pair.Value==Direction.Positive);
                 else
-                  query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
+                  query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
               }
             else
               foreach (KeyValuePair<int, Direction> pair in provider.Header.Order)
-                query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
+                query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
           }
         }
       }
@@ -423,36 +439,42 @@ namespace Xtensive.Storage.Providers.Sql
       Schema schema = domainHandler.Schema;
       Table table;
       string tableName = string.Format(TableNamePattern, provider.Name);
-      if (provider.Source != null) {
-        ex = provider.Source as ExecutableProvider ?? (provider.Source is RawProvider ? (ExecutableProvider)(new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source)) : Compile((CompilableProvider) provider.Source));
-        table = provider.Scope == TemporaryDataScope.Global ? schema.CreateTable(tableName)
-          : schema.CreateTemporaryTable(tableName);
+      SqlSelect query;
+      using (LockType.Exclusive.LockRegion(rwLock)) {
+        if (provider.Source!=null) {
+          ex = provider.Source as ExecutableProvider
+            ?? (provider.Source is RawProvider
+              ? (ExecutableProvider) (new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
+              : Compile((CompilableProvider) provider.Source));
+          table = provider.Scope==TemporaryDataScope.Global ? schema.CreateTable(tableName)
+            : schema.CreateTemporaryTable(tableName);
 
-        foreach (Column column in provider.Header.Columns) {
-          SqlValueType svt;
-          var mappedColumn = column as MappedColumn;
-          if (mappedColumn != null) {
-            ColumnInfo ci = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
-            TypeMapping tm = Driver.GetTypeMapping(ci);
-            svt = Driver.BuildValueType(ci);
+          foreach (Column column in provider.Header.Columns) {
+            SqlValueType svt;
+            var mappedColumn = column as MappedColumn;
+            if (mappedColumn!=null) {
+              ColumnInfo ci = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
+              TypeMapping tm = Driver.GetTypeMapping(ci);
+              svt = Driver.BuildValueType(ci);
+            }
+            else
+              svt = Driver.BuildValueType(column.Type, null, null, null);
+            TableColumn tableColumn = table.CreateColumn(column.Name, svt);
+            tableColumn.IsNullable = true;
+            // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
+            if (column.Type==typeof (string))
+              tableColumn.Collation = schema.Collations.FirstOrDefault();
           }
-          else
-            svt = Driver.BuildValueType(column.Type, null, null, null);
-          TableColumn tableColumn = table.CreateColumn(column.Name, svt);
-          tableColumn.IsNullable = true;
-          // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
-          if (column.Type == typeof(string))  
-            tableColumn.Collation = schema.Collations.FirstOrDefault();
         }
-      }
-      else
-        table = schema.Tables[tableName];
+        else
+          table = schema.Tables[tableName];
 
-      SqlTableRef tr = SqlDml.TableRef(table);
-      SqlSelect query = SqlDml.Select(tr);
-      foreach (SqlTableColumn column in tr.Columns)
-        query.Columns.Add(column);
-      schema.Tables.Remove(table);
+        SqlTableRef tr = SqlDml.TableRef(table);
+        query = SqlDml.Select(tr);
+        foreach (SqlTableColumn column in tr.Columns)
+          query.Columns.Add(column);
+        schema.Tables.Remove(table);
+      }
 
       return new SqlStoreProvider(provider, query, Handlers, ex, table);
     }
@@ -474,7 +496,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override SqlProvider VisitTake(TakeProvider provider)
     {
       var compiledSource = Compile(provider.Source);
-      
+
       var query = ExtractSqlSelect(provider, compiledSource);
       var binding = CreateLimitOffsetParameterBinding(provider.Count);
       query.Limit = binding.ParameterReference;
@@ -488,24 +510,24 @@ namespace Xtensive.Storage.Providers.Sql
     {
       bool processViaCrossApply;
       switch (provider.SequenceType) {
-        case ApplySequenceType.All:
-          // apply is required
-          if (!ProviderInfo.Supports(ProviderFeatures.CrossApply))
-            throw new NotSupportedException();
-          processViaCrossApply = true;
-          break;
-        case ApplySequenceType.First:
-        case ApplySequenceType.FirstOrDefault:
-          // apply is prefered but is not required
-          processViaCrossApply = ProviderInfo.Supports(ProviderFeatures.CrossApply);
-          break;
-        case ApplySequenceType.Single:
-        case ApplySequenceType.SingleOrDefault:
-          // apply is not allowed
-          processViaCrossApply = false;
-          break;
-        default:
-          throw new ArgumentOutOfRangeException();
+      case ApplySequenceType.All:
+        // apply is required
+        if (!ProviderInfo.Supports(ProviderFeatures.CrossApply))
+          throw new NotSupportedException();
+        processViaCrossApply = true;
+        break;
+      case ApplySequenceType.First:
+      case ApplySequenceType.FirstOrDefault:
+        // apply is prefered but is not required
+        processViaCrossApply = ProviderInfo.Supports(ProviderFeatures.CrossApply);
+        break;
+      case ApplySequenceType.Single:
+      case ApplySequenceType.SingleOrDefault:
+        // apply is not allowed
+        processViaCrossApply = false;
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
       }
 
       var left = Compile(provider.Left);
@@ -524,9 +546,9 @@ namespace Xtensive.Storage.Providers.Sql
 
         var usedOuterColumns = new List<int>();
         var visitor = new ApplyParameterAccessVisitor(provider.ApplyParameter, (mc, index) => {
-           usedOuterColumns.Add(index);
-           return mc;
-          });
+          usedOuterColumns.Add(index);
+          return mc;
+        });
         var providerVisitor = new CompilableProviderVisitor((p, e) => visitor.Visit(e));
         providerVisitor.VisitCompilable(provider.Right);
         shouldUseQueryReference = usedOuterColumns.Any(calculatedColumnIndexes.Contains) || groupByIsUsed;
@@ -628,7 +650,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       return new SqlProvider(provider, query, Handlers, left, right);
     }
-    
+
     protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
     {
       if (provider.Header.Order.Count==0)
@@ -731,7 +753,7 @@ namespace Xtensive.Storage.Providers.Sql
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
       var table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
       var atRootPolicy = false;
-      if (table == null) {
+      if (table==null) {
         table = domainHandler.Schema.Tables[index.ReflectedType.GetRoot().MappingName];
         atRootPolicy = true;
       }
@@ -758,8 +780,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var select in baseQueries) {
-        result = result == null 
-          ? (ISqlQueryExpression) select 
+        result = result==null
+          ? (ISqlQueryExpression) select
           : result.Union(select);
       }
 
@@ -778,7 +800,7 @@ namespace Xtensive.Storage.Providers.Sql
       int nonValueColumnsCount = keyColumnCount + index.IncludedColumns.Count;
       var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
       foreach (var baseQuery in baseQueries) {
-        if (result == null) {
+        if (result==null) {
           result = SqlDml.QueryRef(baseQuery);
           rootTable = result;
           columns = rootTable.Columns.Cast<SqlColumn>();
@@ -831,7 +853,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var columnExpressions = ExtractColumnExpressions(query, provider);
       foreach (KeyValuePair<int, Direction> pair in provider.Source.ExpectedOrder)
-        query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
+        query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
     }
 
     public static bool IsCalculatedColumn(SqlColumn column)
@@ -857,7 +879,7 @@ namespace Xtensive.Storage.Providers.Sql
     public List<SqlExpression> ExtractColumnExpressions(SqlSelect query, CompilableProvider origin)
     {
       var result = new List<SqlExpression>(query.Columns.Count);
-      var shouldUseQueryColumns = origin.Type == ProviderType.Filter && query.Columns.Count < query.From.Columns.Count;
+      var shouldUseQueryColumns = origin.Type==ProviderType.Filter && query.Columns.Count < query.From.Columns.Count;
       if (query.Columns.Any(IsColumnStub) || query.GroupBy.Count > 0 || shouldUseQueryColumns) {
         foreach (var column in query.Columns) {
           var expression = IsColumnStub(column)
@@ -889,8 +911,8 @@ namespace Xtensive.Storage.Providers.Sql
         return userColumn;
       var columnRef = column as SqlColumnRef;
       if (!ReferenceEquals(null, columnRef))
-        return (SqlUserColumn)columnRef.SqlColumn;
-      return (SqlUserColumn)column;
+        return (SqlUserColumn) columnRef.SqlColumn;
+      return (SqlUserColumn) column;
     }
 
     protected static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
@@ -905,26 +927,26 @@ namespace Xtensive.Storage.Providers.Sql
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
       var distinctIsUsed = sourceSelect.Distinct;
       var filterIsUsed = !sourceSelect.Where.IsNullReference();
-      var columnCountIsNotSame = sourceSelect.From.Columns.Count != sourceSelect.Columns.Count;
-      
-      if (origin.Type == ProviderType.Filter) {
-        var filterProvider = (FilterProvider)origin;
+      var columnCountIsNotSame = sourceSelect.From.Columns.Count!=sourceSelect.Columns.Count;
+
+      if (origin.Type==ProviderType.Filter) {
+        var filterProvider = (FilterProvider) origin;
         var usedColumnIndexes = new TupleAccessGatherer().Gather(filterProvider.Predicate.Body);
         return pagingIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
       }
 
-      if (origin.Type == ProviderType.Select) {
-        var selectProvider = (SelectProvider)origin;
+      if (origin.Type==ProviderType.Select) {
+        var selectProvider = (SelectProvider) origin;
         return containsCalculatedColumns && !calculatedColumnIndexes.All(ci => selectProvider.ColumnIndexes.Contains(ci));
       }
 
-      if (origin.Type == ProviderType.RowNumber) {
+      if (origin.Type==ProviderType.RowNumber) {
         var usedColumnIndexes = origin.Header.Order.Select(o => o.Key);
         return pagingIsUsed || groupByIsUsed || distinctIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
       }
 
-      if (origin.Type == ProviderType.Calculate) {
-        var calculateProvider = (CalculateProvider)origin;
+      if (origin.Type==ProviderType.Calculate) {
+        var calculateProvider = (CalculateProvider) origin;
         var columnGatherer = new TupleAccessGatherer();
         var usedColumnIndexes = new List<int>();
         foreach (var column in calculateProvider.CalculatedColumns)
@@ -934,16 +956,16 @@ namespace Xtensive.Storage.Providers.Sql
         return usedColumnIndexes.Any(calculatedColumnIndexes.Contains) || columnCountIsNotSame;
       }
 
-      if (origin.Type == ProviderType.Take || origin.Type == ProviderType.Skip) {
+      if (origin.Type==ProviderType.Take || origin.Type==ProviderType.Skip) {
         var sortProvider = origin.Sources[0] as SortProvider;
-        var orderingOverCalculatedColumn = sortProvider != null && 
+        var orderingOverCalculatedColumn = sortProvider!=null &&
           sortProvider.ExpectedOrder
             .Select(order => order.Key)
             .Any(calculatedColumnIndexes.Contains);
         return distinctIsUsed || pagingIsUsed || groupByIsUsed || orderingOverCalculatedColumn;
       }
 
-      if (origin.Type == ProviderType.Apply || origin.Type == ProviderType.Join || origin.Type == ProviderType.PredicateJoin)
+      if (origin.Type==ProviderType.Apply || origin.Type==ProviderType.Join || origin.Type==ProviderType.PredicateJoin)
         return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
 
       return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
@@ -1011,7 +1033,7 @@ namespace Xtensive.Storage.Providers.Sql
           column = columnStub;
         }
         query.Columns.Add(column);
-      }  
+      }
       else {
         if (provider.CouldBeInlined) {
           for (int i = 0; i < rightQuery.Columns.Count; i++) {
@@ -1108,7 +1130,6 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
 
-    
     // Constructors
 
     /// <summary>
