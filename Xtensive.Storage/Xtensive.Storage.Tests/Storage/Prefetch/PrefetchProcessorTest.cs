@@ -689,7 +689,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookKey0, bookType, session,
           field => IsFieldKeyOrSystem(field) || field.Equals(bookCategoryField));
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(interfaceKey, bookType, session,
-          field => IsFieldKeyOrSystem(field) || field.Equals(categoryField));
+          field => IsFieldKeyOrSystem(field) || field.Equals(bookCategoryField));
 
         AssertEx.Throws<InvalidOperationException>(
           () => prefetchProcessor.Prefetch(Key
