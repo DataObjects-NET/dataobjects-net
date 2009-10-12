@@ -116,13 +116,16 @@ namespace Xtensive.Storage.Internals
         var model = Domain.Model;
         int typeIdColumnIndex = -1;
         var type = group.TypeInfoRef.Resolve(model);
-        var columnMapping = new List<Pair<ColumnInfo, MappedColumn>>(group.Columns.Count);
-        var keyMapping = new List<Pair<ColumnInfo, MappedColumn>>(group.Keys.Count);
+        var columnMapping = new List<Pair<FieldInfo, MappedColumn>>(group.Columns.Count);
+        var keyMapping = new List<Pair<FieldInfo, MappedColumn>>(group.Keys.Count);
 
         foreach (int columnIndex in group.Columns) {
           var column = (MappedColumn)header.Columns[columnIndex];
           var columnInfo = column.ColumnInfoRef.Resolve(model);
-          columnMapping.Add(new Pair<ColumnInfo, MappedColumn>(columnInfo, column));
+          var field = columnInfo.Field;
+          if (type.IsInterface && !field.IsDeclared)
+            field = field.DeclaringType.Fields[field.Name];
+          columnMapping.Add(new Pair<FieldInfo, MappedColumn>(field, column));
           if (columnInfo.Name == typeIdColumnName)
             typeIdColumnIndex = column.Index;
         }
@@ -130,13 +133,16 @@ namespace Xtensive.Storage.Internals
         foreach (int columnIndex in group.Keys) {
           var column = (MappedColumn)header.Columns[columnIndex];
           var columnInfo = column.ColumnInfoRef.Resolve(model);
-          keyMapping.Add(new Pair<ColumnInfo, MappedColumn>(columnInfo, column));
+          var field = columnInfo.Field;
+          if (type.IsInterface && !field.IsDeclared)
+            field = field.DeclaringType.Fields[field.Name];
+          keyMapping.Add(new Pair<FieldInfo, MappedColumn>(field, column));
         }
 
         var implementors = (type.IsInterface 
           ? type.GetImplementors(true)
           : type.GetDescendants(true)).ToList();
-        if (!type.IsAbstract)
+        if (!type.IsAbstract && !type.IsInterface)
           implementors.Add(type);
         var typeMappings = new IntDictionary<TypeMapping>(implementors.Count + 1);
         foreach (TypeInfo childType in implementors) {
@@ -144,8 +150,8 @@ namespace Xtensive.Storage.Internals
           var typeMap = Enumerable.Repeat(MapTransform.NoMapping, childType.Columns.Count).ToArray();
           foreach (var pair in columnMapping) {
             var childTypeField = type.IsInterface
-              ? childType.FieldMap[pair.First.Field]
-              : childType.Fields[pair.First.Field.Name];
+              ? childType.FieldMap[pair.First]
+              : childType.Fields[pair.First.Name];
             typeMap[childTypeField.MappingInfo.Offset] = pair.Second.Index;
           }
 
@@ -153,8 +159,8 @@ namespace Xtensive.Storage.Internals
           var keyMap = Enumerable.Repeat(MapTransform.NoMapping, type.KeyProviderInfo.Length).ToArray();
           foreach (var pair in keyMapping) {
             var childTypeField = type.IsInterface
-              ? childType.FieldMap[pair.First.Field]
-              : childType.Fields[pair.First.Field.Name];
+              ? childType.FieldMap[pair.First]
+              : childType.Fields[pair.First.Name];
             keyMap[childTypeField.MappingInfo.Offset] = pair.Second.Index;
           }
           var typeMapping = new TypeMapping(childType,

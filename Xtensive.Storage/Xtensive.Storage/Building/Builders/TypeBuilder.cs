@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildFieldMap(BuildingContext context, TypeInfo @interface, TypeInfo implementor)
     {
-      foreach (var field in @interface.Fields) {
+      foreach (var field in @interface.Fields.Where(f => f.IsDeclared)) {
         string explicitName = context.NameBuilder.BuildExplicitFieldName(field.DeclaringType, field.Name);
         FieldInfo implField;
         if (implementor.Fields.TryGetValue(explicitName, out implField))
