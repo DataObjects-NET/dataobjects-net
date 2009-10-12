@@ -86,7 +86,6 @@ namespace Xtensive.Storage.Building.Builders
         BuildTypes(typeSequence);
         BuildAssociations();
         BuildIndexes();
-        BuildHierarchyColumns();
         context.Model.UpdateState(true);
       }
     }
@@ -108,13 +107,6 @@ namespace Xtensive.Storage.Building.Builders
           var typeInfo = context.Model.Types[typeDef.UnderlyingType];
           TypeBuilder.BuildFields(typeDef, typeInfo);
         }
-    }
-
-    private static void BuildHierarchyColumns()
-    {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.HierarchyColumns))
-        foreach (var hierarchyInfo in BuildingContext.Current.Model.Hierarchies)
-          BuildHierarchyColumns(hierarchyInfo);
     }
 
     private static void BuildAssociations()
@@ -252,15 +244,5 @@ namespace Xtensive.Storage.Building.Builders
     }
 
     #endregion
-
-    public static void BuildHierarchyColumns(HierarchyInfo hierarchy)
-    {
-      var columnsCollection = hierarchy.Root.Indexes.PrimaryIndex.KeyColumns;
-
-      for (int i = 0; i < columnsCollection.Count; i++)
-        hierarchy.KeyInfo.Columns.Add(columnsCollection[i].Key);
-
-      hierarchy.KeyInfo.UpdateState();
-    }
   }
 }

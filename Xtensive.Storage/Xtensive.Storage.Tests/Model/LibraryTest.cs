@@ -135,8 +135,8 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       return result;
     }
 
-    public IsbnKeyGenerator(GeneratorInfo generatorInfo)
-      : base(generatorInfo)
+    public IsbnKeyGenerator(KeyProviderInfo keyProviderInfo)
+      : base(keyProviderInfo)
     {
     }
   }
@@ -504,7 +504,7 @@ namespace Xtensive.Storage.Tests.Model
       // KeyColumns
       Assert.IsNotNull(typeInfo.Columns["Passport.Number"]);
       Assert.AreEqual("Passport.Number", typeInfo.Columns["Passport.Number"].Name);
-      //      Assert.AreEqual(person.Fields["Passport"].Indexes[0], person.KeyInfo);
+      //      Assert.AreEqual(person.Fields["Passport"].Indexes[0], person.KeyProviderInfo);
       Assert.IsNotNull(typeInfo.Columns["Passport.Card.FirstName"]);
       Assert.AreEqual("Passport.Card.FirstName", typeInfo.Columns["Passport.Card.FirstName"].Name);
       Assert.AreEqual(64, typeInfo.Columns["Passport.Card.FirstName"].Length);
@@ -523,7 +523,7 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsNotNull(typeInfo.Indexes["PK_Person"]);
       Assert.IsTrue(typeInfo.Indexes["PK_Person"].IsPrimary);
       Assert.IsTrue(typeInfo.Indexes["PK_Person"].IsUnique);
-      Assert.AreEqual(typeInfo.Hierarchy.KeyInfo.Columns.Count, typeInfo.Indexes["PK_Person"].KeyColumns.Count);
+      Assert.AreEqual(typeInfo.Hierarchy.KeyProviderInfo.Length, typeInfo.Indexes["PK_Person"].KeyColumns.Count);
       Assert.AreEqual(typeInfo.Columns["PassportNumber"], typeInfo.Indexes["PK_Person"].KeyColumns[0].Key);
 
       #endregion
@@ -556,7 +556,7 @@ namespace Xtensive.Storage.Tests.Model
       // KeyColumns
       Assert.IsNotNull(typeInfo.Columns["PassportNumber"]);
       Assert.AreEqual("PassportNumber", typeInfo.Columns["PassportNumber"].Name);
-      //      Assert.AreEqual(person.Fields["Passport"].Indexes[0], person.KeyInfo);
+      //      Assert.AreEqual(person.Fields["Passport"].Indexes[0], person.KeyProviderInfo);
       Assert.IsNotNull(typeInfo.Columns["Passport.Card.FirstName"]);
       Assert.AreEqual("Passport.Card.FirstName", typeInfo.Columns["Passport.Card.FirstName"].Name);
       Assert.AreEqual(64, typeInfo.Columns["Passport.Card.FirstName"].Length);
@@ -600,7 +600,7 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsNotNull(typeInfo.Fields["Isbn"]);
       Assert.AreEqual(typeInfo.Fields["Isbn"].Name, "Isbn");
       Assert.AreEqual(typeInfo.Fields["Isbn"].Length, 32);
-      //      Assert.AreEqual(book.Fields["Isbn"].Indexes[0], book.KeyInfo);
+      //      Assert.AreEqual(book.Fields["Isbn"].Indexes[0], book.KeyProviderInfo);
 
       Assert.IsNotNull(typeInfo.Fields["Title"]);
       Assert.AreEqual(typeInfo.Fields["Title"].Name, "Title");
@@ -618,14 +618,14 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsNotNull(typeInfo.Indexes["PK_Book"]);
       Assert.IsTrue(typeInfo.Indexes["PK_Book"].IsPrimary);
       Assert.IsTrue(typeInfo.Indexes["PK_Book"].IsUnique);
-      Assert.AreEqual(typeInfo.Hierarchy.KeyInfo.Columns.Count, typeInfo.Indexes["PK_Book"].KeyColumns.Count);
+      Assert.AreEqual(typeInfo.Hierarchy.KeyProviderInfo.Length, typeInfo.Indexes["PK_Book"].KeyColumns.Count);
       Assert.AreEqual("Isbn", typeInfo.Indexes["PK_Book"].KeyColumns[0].Key.Name);
       Assert.AreEqual(Direction.Positive, typeInfo.Indexes["PK_Book"].KeyColumns[0].Value);
 
       Assert.IsNotNull(typeInfo.Indexes["Book.FK_Author"]);
       Assert.IsFalse(typeInfo.Indexes["Book.FK_Author"].IsPrimary);
       Assert.IsFalse(typeInfo.Indexes["Book.FK_Author"].IsUnique);
-      Assert.AreEqual(domain.Model.Types[typeof(Author)].Hierarchy.KeyInfo.Columns.Count, typeInfo.Indexes["Book.FK_Author"].KeyColumns.Count);
+      Assert.AreEqual(domain.Model.Types[typeof(Author)].Hierarchy.KeyProviderInfo.Length, typeInfo.Indexes["Book.FK_Author"].KeyColumns.Count);
       Assert.AreEqual("BookAuthor.PassportNumber", typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Key.Name);
       Assert.AreEqual(Direction.Positive, typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Value);
 
@@ -664,7 +664,7 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsNotNull(typeInfo.Indexes["PK_BookReview"]);
       Assert.IsTrue(typeInfo.Indexes["PK_BookReview"].IsPrimary);
       Assert.IsTrue(typeInfo.Indexes["PK_BookReview"].IsUnique);
-      Assert.AreEqual(typeInfo.Hierarchy.KeyInfo.Columns.Count, typeInfo.Indexes["PK_BookReview"].KeyColumns.Count);
+      Assert.AreEqual(typeInfo.Hierarchy.KeyProviderInfo.Length, typeInfo.Indexes["PK_BookReview"].KeyColumns.Count);
       Assert.AreEqual("Book.Isbn", typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Key.Name);
       Assert.AreEqual(Direction.Positive, typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Value);
 //      Assert.AreEqual("Reviewer.PassportNumber", typeInfo.Indexes["PK_BookReview"].KeyColumns[1].Key.Name);

@@ -143,8 +143,8 @@ namespace Xtensive.Storage.Tests
     {
       WriteLine(indent, "InheritanceSchema: " + target.Schema);
       WriteLine(indent, "KeyFields:");
-      foreach (KeyValuePair<FieldInfo, Direction> pair in target.KeyInfo.Fields) {
-        WriteLine(indent + 1, pair.Key.Name + "(" + pair.Key.ValueType + ") ");
+      foreach (var pair in target.Root.Fields.Where(f => f.IsPrimaryKey)) {
+        WriteLine(indent + 1, pair.Name + "(" + pair.ValueType + ") ");
       }
     }
 

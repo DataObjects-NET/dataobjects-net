@@ -26,12 +26,9 @@ namespace Xtensive.Storage.Model
       var domainModel = node as DomainModel;
       if (domainModel != null)
         return VisitDomainModel(domainModel);
-      var generator = node as GeneratorInfo;
-      if (generator != null)
-        return VisitGeneratorInfo(generator);
-      var key = node as KeyInfo;
-      if (key != null)
-        return VisitKeyInfo(key);
+      var keyProviderInfo = node as KeyProviderInfo;
+      if (keyProviderInfo != null)
+        return VisitKeyProviderInfo(keyProviderInfo);
       var keyField = node as KeyField;
       if (keyField != null)
         return VisitKeyField(keyField);
@@ -79,11 +76,11 @@ namespace Xtensive.Storage.Model
     protected abstract TResult VisitFieldInfo(FieldInfo field);
 
     /// <summary>
-    /// Visits a key.
+    /// Visits a keyProvider.
     /// </summary>
-    /// <param name="key">The key.</param>
+    /// <param name="keyProvider">The key.</param>
     /// <returns>Visit result.</returns>
-    protected abstract TResult VisitKeyInfo(KeyInfo key);
+    protected abstract TResult VisitKeyProviderInfo(KeyProviderInfo keyProvider);
 
     /// <summary>
     /// Visits an index.
@@ -112,13 +109,6 @@ namespace Xtensive.Storage.Model
     /// <param name="association">The association.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitAssociationInfo(AssociationInfo association);
-
-    /// <summary>
-    /// Visits a generator.
-    /// </summary>
-    /// <param name="generator">The generator.</param>
-    /// <returns>Visit result.</returns>
-    protected abstract TResult VisitGeneratorInfo(GeneratorInfo generator);
 
     /// <summary>
     /// Visits domain model.

@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Model
     private int                                typeId = NoTypeId;
     private MapTransform                       primaryKeyInjector;
     private bool                               isLeaf;
-    private KeyInfo                            keyInfo;
+    private KeyProviderInfo                            keyProviderInfo;
     private bool                               hasVersionRoots;
 
     /// <summary>
@@ -241,9 +241,9 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public Tuple TuplePrototype { get; private set; }
 
-    public KeyInfo KeyInfo
+    public KeyProviderInfo KeyProviderInfo
     {
-      get { return IsLocked ? keyInfo : GetKeyInfo(); }
+      get { return IsLocked ? keyProviderInfo : GetKeyInfo(); }
     }
 
     /// <summary>
@@ -526,7 +526,7 @@ namespace Xtensive.Storage.Model
       fieldMap.Lock(true);
       fields.Lock(true);
       isLeaf = GetIsLeaf();
-      keyInfo = GetKeyInfo();
+      keyProviderInfo = GetKeyInfo();
     }
 
     #region Private \ internal methods
@@ -540,13 +540,13 @@ namespace Xtensive.Storage.Model
       BuildTuplePrototype();
     }
 
-    private KeyInfo GetKeyInfo()
+    private KeyProviderInfo GetKeyInfo()
     {
       if (Hierarchy == null)
         return IsInterface 
-          ? GetImplementors().First().Hierarchy.KeyInfo 
+          ? GetImplementors().First().Hierarchy.KeyProviderInfo 
           : null;
-      return Hierarchy.KeyInfo;
+      return Hierarchy.KeyProviderInfo;
     }
 
     private bool GetIsLeaf()
@@ -581,7 +581,7 @@ namespace Xtensive.Storage.Model
 
         // Building primary key injector
         var fieldCount = TupleDescriptor.Count;
-        var keyFieldCount = KeyInfo.TupleDescriptor.Count;
+        var keyFieldCount = KeyProviderInfo.TupleDescriptor.Count;
         var keyFieldMap = new Pair<int, int>[fieldCount];
         for (i = 0; i < fieldCount; i++)
           keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);

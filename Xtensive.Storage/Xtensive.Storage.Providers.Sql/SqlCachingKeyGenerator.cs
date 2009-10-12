@@ -69,21 +69,21 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="generatorInfo">The <see cref="GeneratorInfo"/> instance that describes generator.</param>
+    /// <param name="keyProviderInfo">The <see cref="KeyProviderInfo"/> instance that describes generator.</param>
     /// <param name="sqlNext">The <see cref="ISqlCompileUnit"/> statement that will be used for fetching next portion of unique values from database.</param>
-    public SqlCachingKeyGenerator(GeneratorInfo generatorInfo, ISqlCompileUnit sqlNext)
-      : this(generatorInfo, sqlNext, null)
+    public SqlCachingKeyGenerator(KeyProviderInfo keyProviderInfo, ISqlCompileUnit sqlNext)
+      : this(keyProviderInfo, sqlNext, null)
     {
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="generatorInfo">The <see cref="GeneratorInfo"/> instance that describes generator.</param>
+    /// <param name="keyProviderInfo">The <see cref="KeyProviderInfo"/> instance that describes generator.</param>
     /// <param name="sqlNext">The <see cref="ISqlCompileUnit"/> statement that will be used for fetching next portion of unique values from database.</param>
     /// <param name="sqlInitialize">The <see cref="ISqlCompileUnit"/> statement that will be used for initializing sequence in database (if necessary).</param>
-    public SqlCachingKeyGenerator(GeneratorInfo generatorInfo, ISqlCompileUnit sqlNext, ISqlCompileUnit sqlInitialize)
-      : base(generatorInfo)
+    public SqlCachingKeyGenerator(KeyProviderInfo keyProviderInfo, ISqlCompileUnit sqlNext, ISqlCompileUnit sqlInitialize)
+      : base(keyProviderInfo)
     {
       this.sqlNext = sqlNext;
       this.sqlInitialize = sqlInitialize;

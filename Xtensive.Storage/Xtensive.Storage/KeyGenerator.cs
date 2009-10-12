@@ -17,9 +17,9 @@ namespace Xtensive.Storage
   public abstract class KeyGenerator
   {
     /// <summary>
-    /// Gets or sets the <see cref="GeneratorInfo"/> instance that describes <see cref="KeyGenerator"/> object.
+    /// Gets or sets the <see cref="KeyProviderInfo"/> instance that describes <see cref="KeyGenerator"/> object.
     /// </summary>
-    public GeneratorInfo GeneratorInfo { get; private set; }
+    public KeyProviderInfo KeyProviderInfo { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> providing other available handlers.
@@ -44,10 +44,10 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance that describes generator.</param>
-    protected KeyGenerator(GeneratorInfo generatorInfo)
+    /// <param name="keyProviderInfo">The <see cref="KeyProviderInfo"/> instance that describes generator.</param>
+    protected KeyGenerator(KeyProviderInfo keyProviderInfo)
     {
-      GeneratorInfo = generatorInfo;
+      KeyProviderInfo = keyProviderInfo;
     }
   }
 }

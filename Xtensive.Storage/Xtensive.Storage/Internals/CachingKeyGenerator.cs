@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override Tuple Next()
     {
-      Tuple result = Tuple.Create(GeneratorInfo.TupleDescriptor);
+      Tuple result = Tuple.Create(KeyProviderInfo.TupleDescriptor);
       LockType.Exclusive.Execute(_lock, () => {
         if (Cache.Count==0)
           CacheNext();
@@ -52,10 +52,10 @@ namespace Xtensive.Storage.Internals
     // Constructors
 
     /// <inheritdoc/>
-    protected CachingKeyGenerator(GeneratorInfo generatorInfo)
-      : base(generatorInfo)
+    protected CachingKeyGenerator(KeyProviderInfo keyProviderInfo)
+      : base(keyProviderInfo)
     {
-      CacheSize = GeneratorInfo.CacheSize;
+      CacheSize = KeyProviderInfo.CacheSize;
       Cache = new Queue<TFieldType>(CacheSize);
     }
   }

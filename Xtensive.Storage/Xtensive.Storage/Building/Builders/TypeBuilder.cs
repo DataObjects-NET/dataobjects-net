@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Internals;
@@ -289,42 +290,35 @@ namespace Xtensive.Storage.Building.Builders
 
     private static HierarchyInfo BuildHierarchy(BuildingContext context, TypeInfo root, HierarchyDef hierarchyDef)
     {
-      var keyInfo = new KeyInfo();
+      var keyColumns = root.Fields
+          .Where(f => f.IsPrimaryKey && f.Column != null)
+          .Select(f => f.Column)
+          .ToList();
+      var descriptor = TupleDescriptor.Create(keyColumns.Select(c => c.ValueType));
+      var keyProviderInfo = context.Model.KeyProviders
+        .SingleOrDefault(kp => 
+          kp.KeyGeneratorType != null && 
+          kp.KeyGeneratorType == hierarchyDef.KeyGenerator && 
+          kp.TupleDescriptor == descriptor);
+      if (keyProviderInfo == null) {
+        var typeIdColumnIndex = -1;
+        if (hierarchyDef.IncludeTypeId)
+          for (int i = 0; i < keyColumns.Count; i++)
+            if (keyColumns[i].Field.IsTypeId)
+              typeIdColumnIndex = i;
+        var keyGeneratorType = hierarchyDef.KeyGenerator;
+        var cacheSize = hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize > 0
+          ? hierarchyDef.KeyGeneratorCacheSize.Value
+          : context.Configuration.KeyGeneratorCacheSize;
 
-      foreach (var keyField in hierarchyDef.KeyFields) {
-        FieldInfo field;
-        if (!root.Fields.TryGetValue(keyField.Name, out field))
-          throw new DomainBuilderException(
-            String.Format(Strings.ExKeyFieldXWasNotFoundInTypeY, keyField.Name, root.Name));
-
-        keyInfo.Fields.Add(field, keyField.Direction);
+        keyProviderInfo = new KeyProviderInfo(descriptor, keyGeneratorType, typeIdColumnIndex, cacheSize);
+        keyProviderInfo.Name = root.Name;
+        if (keyProviderInfo.KeyGeneratorType==typeof (KeyGenerator))
+          keyProviderInfo.MappingName = context.NameBuilder.BuildGeneratorName(keyProviderInfo);
+        context.Model.KeyProviders.Add(keyProviderInfo);
       }
 
-      GeneratorInfo gi = null;
-      if (hierarchyDef.KeyGenerator != null) {
-        gi = context.Model.Generators.Find(
-          hierarchyDef.KeyGenerator, 
-          keyInfo.Fields.Select(c => c.Key.ValueType).ToArray());
-        if (gi==null) {
-          gi = new GeneratorInfo(hierarchyDef.KeyGenerator, keyInfo) {
-            Name = root.Name
-          };
-          if (gi.KeyGeneratorType==typeof (KeyGenerator))
-            gi.MappingName = context.NameBuilder.BuildGeneratorName(gi);
-          if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize > 0)
-            gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
-          else
-            gi.CacheSize = context.Configuration.KeyGeneratorCacheSize;
-          context.Model.Generators.Add(gi);
-        }
-        else {
-          if (hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize.Value < gi.CacheSize)
-            gi.CacheSize = hierarchyDef.KeyGeneratorCacheSize.Value;
-        }
-      }
-
-      keyInfo.GeneratorInfo = gi;
-      var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, keyInfo) {
+      var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, keyProviderInfo) {
         Name = root.Name
       };
       context.Model.Hierarchies.Add(hierarchy);

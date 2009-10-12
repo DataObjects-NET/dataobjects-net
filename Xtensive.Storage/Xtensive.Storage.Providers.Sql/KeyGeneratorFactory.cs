@@ -19,11 +19,11 @@ namespace Xtensive.Storage.Providers.Sql
   public class KeyGeneratorFactory : Providers.KeyGeneratorFactory
   {
     /// <inheritdoc/>
-    public override bool IsSchemaBoundGenerator(GeneratorInfo generatorInfo)
+    public override bool IsSchemaBoundGenerator(KeyProviderInfo keyProviderInfo)
     {
-      if (generatorInfo.KeyGeneratorType!=typeof (KeyGenerator))
+      if (keyProviderInfo.KeyGeneratorType!=typeof (KeyGenerator))
         return false;
-      var generatorTypeCode = Type.GetTypeCode(generatorInfo.TupleDescriptor[0]);
+      var generatorTypeCode = Type.GetTypeCode(keyProviderInfo.TupleDescriptor[0]);
       return generatorTypeCode==TypeCode.SByte
         || generatorTypeCode==TypeCode.Byte
         || generatorTypeCode==TypeCode.Int16
@@ -34,11 +34,11 @@ namespace Xtensive.Storage.Providers.Sql
         || generatorTypeCode==TypeCode.UInt64;
     }
 
-    protected override KeyGenerator CreateGenerator<TFieldType>(GeneratorInfo generatorInfo)
+    protected override KeyGenerator CreateGenerator<TFieldType>(KeyProviderInfo keyProviderInfo)
     {
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      var sqlNext = GetNextValueStatement(domainHandler.ProviderInfo, domainHandler.Schema, generatorInfo.MappingName);
-      return new SqlCachingKeyGenerator<TFieldType>(generatorInfo, sqlNext);
+      var sqlNext = GetNextValueStatement(domainHandler.ProviderInfo, domainHandler.Schema, keyProviderInfo.MappingName);
+      return new SqlCachingKeyGenerator<TFieldType>(keyProviderInfo, sqlNext);
     }
 
     internal static ISqlCompileUnit GetNextValueStatement(ProviderInfo providerInfo, Schema schema, string generatorMappingName)

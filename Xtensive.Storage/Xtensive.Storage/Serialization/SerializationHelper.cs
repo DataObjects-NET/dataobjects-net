@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Tuples;
+using System.Linq;
 
 namespace Xtensive.Storage.Serialization
 {
@@ -42,8 +43,8 @@ namespace Xtensive.Storage.Serialization
       Session session = Session.Demand();
       TypeInfo entityType = session.Domain.Model.Types[entity.GetType()];
       KeyGenerator generator = null;
-      if (entityType.KeyInfo.GeneratorInfo != null)
-        generator = session.Domain.KeyGenerators[entityType.KeyInfo.GeneratorInfo];
+      if (entityType.KeyProviderInfo.KeyGeneratorType != null)
+        generator = session.Domain.KeyGenerators[entityType.KeyProviderInfo];
       
       Tuple keyValue = generator!=null ? 
         generator.Next() : DeserializeKeyFields(entityType, info, context);
@@ -55,18 +56,17 @@ namespace Xtensive.Storage.Serialization
 
     public static Tuple DeserializeKeyFields(TypeInfo entityType, SerializationInfo info, StreamingContext context)
     {
-      var keyFields = entityType.Hierarchy.KeyInfo.Fields;
-        Tuple keyTuple = Tuple.Create(entityType.Hierarchy.KeyInfo.TupleDescriptor);
-      foreach (FieldInfo keyField in keyFields.Keys) {
+      var keyTuple = Tuple.Create(entityType.Hierarchy.KeyProviderInfo.TupleDescriptor);
+      foreach (FieldInfo keyField in entityType.Fields.Where(f => f.IsPrimaryKey && f.Parent == null)) {
         if (keyField.IsTypeId)
           keyTuple.SetValue(keyField.MappingInfo.Offset, entityType.TypeId);
         else {
-          object value = info.GetValue(keyField.Name, keyField.ValueType);
+          var value = info.GetValue(keyField.Name, keyField.ValueType);
           if (keyField.IsEntity) {
-            Entity referencedEntity = (Entity) value;
+            var referencedEntity = (Entity) value;
             if (!IsInitialized(referencedEntity))
               DeserializationContext.Demand().InitializeEntity(referencedEntity);
-            Tuple referencedTuple = referencedEntity.Key.Value;
+            var referencedTuple = referencedEntity.Key.Value;
             referencedTuple.CopyTo(keyTuple, keyField.MappingInfo.Offset);
           }
           else

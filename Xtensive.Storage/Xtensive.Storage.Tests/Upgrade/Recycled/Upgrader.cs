@@ -60,40 +60,37 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
 
     public override void OnUpgrade()
     {
+      var customerMap = new Dictionary<int, Customer>();
+      var employeeMap = new Dictionary<int, Employee>();
       var rcCustomers = Query<RcCustomer>.All;
       var rcEmployees = Query<RcEmployee>.All;
       var orders = Query<Order>.All;
-      var customers = Query<Customer>.All;
-      var employees = Query<Employee>.All;
-      
-      rcCustomers.Apply(rcCustomer =>
-        new Customer(rcCustomer.Id) {
-          Address = rcCustomer.Address,
-          Phone = rcCustomer.Phone,
-          Name = rcCustomer.Name
-        });
-      rcEmployees.Apply(rcEmployee =>
-        new Employee(rcEmployee.Id) {
+      foreach (var rcCustomer in rcCustomers) {
+        var customer = new Customer() {
+           Address = rcCustomer.Address,
+           Phone = rcCustomer.Phone,
+           Name = rcCustomer.Name
+         };
+        customerMap.Add(rcCustomer.Id, customer);
+      }
+      foreach (var rcEmployee in rcEmployees) {
+        var employee = new Employee() {
           CompanyName = rcEmployee.CompanyName,
           Name = rcEmployee.Name
-        });
+        };
+        employeeMap.Add(rcEmployee.Id, employee);
+      }
+
       var log = new List<string>();
       foreach (var order in orders) {
-        var newCustomer = customers.First(customer => customer.Id==order.RcCustomer.Id);
-        order.Customer = newCustomer;
-        var newEmployee = employees.First(employee => employee.Id==order.RcEmployee.Id);
-        order.Employee = newEmployee;
+        order.Customer = customerMap[order.RcCustomer.Id];
+        order.Employee = employeeMap[order.RcEmployee.Id];
         log.Add(order.ToString());
       }
       foreach (var order in orders)
         log.Add(order.ToString());
       Log.Info("Orders: {0}", Environment.NewLine + 
         string.Join(Environment.NewLine, log.ToArray()));
-
-      // orders.Apply(order => {
-      //   order.Customer = customers.First(customer => customer.Id==order.RcCustomer.Id);
-      //   order.Employee = employees.First(employee => employee.Id==order.RcEmployee.Id);
-      // });
     }
 
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)

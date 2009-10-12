@@ -360,13 +360,13 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Builds the name for the <see cref="generatorInfo"/> instance.
+    /// Builds the name for the <see cref="providerInfo"/> instance.
     /// </summary>
-    /// <param name="generatorInfo">The <see cref="generatorInfo"/> instance to build name for.</param>
-    public string BuildGeneratorName(GeneratorInfo generatorInfo)
+    /// <param name="providerInfo">The <see cref="providerInfo"/> instance to build name for.</param>
+    public string BuildGeneratorName(KeyProviderInfo providerInfo)
     {
-      return ApplyNamingRules(string.Format(GeneratorPattern, 
-        generatorInfo.KeyInfo.Fields.Select(f => f.Key.ValueType.GetShortName()).ToDelimitedString("-")));
+      return ApplyNamingRules(string.Format(GeneratorPattern,
+        providerInfo.TupleDescriptor.Select(t => t.GetShortName()).ToDelimitedString("-")));
     }
 
     /// <summary>

@@ -13,21 +13,22 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using DomainIndexInfo=Xtensive.Storage.Model.IndexInfo;
 using DomainTypeInfo = Xtensive.Storage.Model.TypeInfo;
 using AssociationInfo = Xtensive.Storage.Model.AssociationInfo;
-using GeneratorInfo = Xtensive.Storage.Model.GeneratorInfo;
+using ColumnInfo=Xtensive.Storage.Indexing.Model.ColumnInfo;
 using DomainModel = Xtensive.Storage.Model.DomainModel;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 using DomainColumnInfo = Xtensive.Storage.Model.ColumnInfo;
 using KeyField = Xtensive.Storage.Model.KeyField;
 using HierarchyInfo = Xtensive.Storage.Model.HierarchyInfo;
-using KeyInfo = Xtensive.Storage.Model.KeyInfo;
 using InheritanceSchema = Xtensive.Storage.Model.InheritanceSchema;
 using Node = Xtensive.Storage.Model.Node;
 using IndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
 using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
+using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -39,7 +40,7 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// Gets the persistent generator filter.
     /// </summary>
-    private Func<GeneratorInfo, bool> PersistentGeneratorFilter { get; set; }
+    private Func<KeyProviderInfo, bool> PersistentGeneratorFilter { get; set; }
 
     /// <summary>
     /// Gets the provider info.
@@ -127,7 +128,7 @@ namespace Xtensive.Storage.Upgrade
           Visit(association);
 
       // Build sequnces
-      var persistentGenerators = domainModel.Generators
+      var persistentGenerators = domainModel.KeyProviders
         .Where(g => PersistentGeneratorFilter.Invoke(g)).ToArray();
       foreach (var generator in persistentGenerators)
         Visit(generator);
@@ -273,6 +274,20 @@ namespace Xtensive.Storage.Upgrade
       return null;
     }
 
+    /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
+    protected override IPathNode VisitKeyProviderInfo(KeyProviderInfo keyProvider)
+    {
+      var sequence = new SequenceInfo(StorageInfo, keyProvider.MappingName)
+      {
+        StartValue = keyProvider.CacheSize,
+        Increment = keyProvider.CacheSize,
+        Type = TypeBuilder.Invoke(keyProvider.TupleDescriptor[0], null, null, null),
+        OriginalType = new TypeInfo(GetType(keyProvider.TupleDescriptor[0], false))
+      };
+      return sequence;
+    }
+
     /// <summary>
     /// Visits primary index.
     /// </summary>
@@ -301,18 +316,6 @@ namespace Xtensive.Storage.Upgrade
 
       CurrentTable = null;
       return primaryIndex;
-    }
-    
-    /// <inheritdoc/>
-    protected override IPathNode VisitGeneratorInfo(GeneratorInfo generator)
-    {
-      var sequence = new SequenceInfo(StorageInfo, generator.MappingName) {
-        StartValue = generator.CacheSize,
-        Increment = generator.CacheSize,
-        Type = TypeBuilder.Invoke(generator.TupleDescriptor[0], null, null, null),
-        OriginalType = new TypeInfo(GetType(generator.TupleDescriptor[0], false))
-      };
-      return sequence;
     }
 
     /// <summary>
@@ -462,7 +465,7 @@ namespace Xtensive.Storage.Upgrade
     /// <param name="typeBuilder">The type builder.</param>
     public DomainModelConverter(bool buildForeignKeys, Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator,
       bool buildHierarchyForeignKeys, Func<DomainTypeInfo, DomainTypeInfo, string> hierarchyForeignKeyNameGenerator,
-      Func<GeneratorInfo, bool> persistentGeneratorFilter, ProviderInfo providerInfo, 
+      Func<KeyProviderInfo, bool> persistentGeneratorFilter, ProviderInfo providerInfo, 
       Func<Type, int?, int?, int?, TypeInfo> typeBuilder)
     {
       if (buildForeignKeys)
@@ -494,13 +497,6 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitFieldInfo(FieldInfo field)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitKeyInfo(KeyInfo key)
     {
       throw new NotSupportedException();
     }

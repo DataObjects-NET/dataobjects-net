@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Internals
         throw new InvalidOperationException(
           string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, type));
       var domain = Domain.Demand();
-      var keyGenerator = domain.KeyGenerators[type.KeyInfo.GeneratorInfo];
+      var keyGenerator = domain.KeyGenerators[type.KeyProviderInfo];
       if (keyGenerator==null)
         throw new InvalidOperationException(
           String.Format(Strings.ExUnableToCreateKeyForXHierarchy, type.Hierarchy));
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Internals
 
       var domain = Domain.Demand();
       var hierarchy = type.Hierarchy;
-      var keyInfo = type.KeyInfo;
+      var keyInfo = type.KeyProviderInfo;
       if (keyIndexes==null) {
         if (value.Descriptor!=keyInfo.TupleDescriptor)
           throw new ArgumentException(Strings.ExWrongKeyStructure);
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Internals
     public static Key Create(TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      var keyInfo = type.KeyInfo;
+      var keyInfo = type.KeyProviderInfo;
       ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
 
       var tuple = Tuple.Create(keyInfo.TupleDescriptor);
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Internals
 
     private static GenericKeyTypeInfo BuildGenericKeyTypeInfo(int typeId, TypeInfo typeInfo)
     {
-      var descriptor = typeInfo.KeyInfo.TupleDescriptor;
+      var descriptor = typeInfo.KeyProviderInfo.TupleDescriptor;
       int length = descriptor.Count;
       var keyType = typeof (Key).Assembly.GetType(
         String.Format(GenericKeyNameFormat, typeof (Key<>).Namespace, typeof(Key).Name, length));

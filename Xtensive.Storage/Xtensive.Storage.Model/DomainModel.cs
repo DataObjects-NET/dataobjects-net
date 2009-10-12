@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets or sets the generators.
     /// </summary>
-    public GeneratorInfoCollection Generators { get; private set;}
+    public NodeCollection<KeyProviderInfo> KeyProviders { get; private set;}
  
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Model
       if (!recursive)
         return;
       Hierarchies.UpdateState(true);
-      Generators.UpdateState(true);
+      KeyProviders.UpdateState(true);
       Types.UpdateState(true);
       RealIndexes.UpdateState(true);
       Associations.UpdateState(true);
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Model
       if (!recursive)
         return;
       Hierarchies.Lock(true);
-      Generators.Lock(true);
+      KeyProviders.Lock(true);
       Types.Lock(true);
       RealIndexes.Lock(true);
       Associations.Lock(true);
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Model
       RealIndexes = new IndexInfoCollection();
       Hierarchies = new HierarchyInfoCollection();
       Associations = new AssociationInfoCollection();
-      Generators = new GeneratorInfoCollection();
+      KeyProviders = new NodeCollection<KeyProviderInfo>();
     }
   }
 }

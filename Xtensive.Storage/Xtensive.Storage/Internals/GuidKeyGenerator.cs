@@ -19,14 +19,14 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override Tuple Next()
     {
-      return Tuple.Create(GeneratorInfo.TupleDescriptor, Guid.NewGuid());
+      return Tuple.Create(KeyProviderInfo.TupleDescriptor, Guid.NewGuid());
     }
 
 
     // Constructors
 
-    public GuidKeyGenerator(GeneratorInfo generatorInfo)
-      : base(generatorInfo)
+    public GuidKeyGenerator(KeyProviderInfo keyProviderInfo)
+      : base(keyProviderInfo)
     {
     }
   }

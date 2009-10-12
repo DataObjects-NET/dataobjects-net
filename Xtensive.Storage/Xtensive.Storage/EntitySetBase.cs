@@ -472,8 +472,8 @@ namespace Xtensive.Storage
       var entitySet = (EntitySetBase) entitySetObj;
       var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
       var seekTransform = new CombineTransform(true,
-        field.Association.OwnerType.KeyInfo.TupleDescriptor,
-        field.Association.TargetType.KeyInfo.TupleDescriptor);
+        field.Association.OwnerType.KeyProviderInfo.TupleDescriptor,
+        field.Association.TargetType.KeyProviderInfo.TupleDescriptor);
       Func<Tuple, Entity> itemCtor = null;
       if (field.Association.AuxiliaryType!=null)
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,

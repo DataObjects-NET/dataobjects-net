@@ -117,7 +117,7 @@ namespace Xtensive.Storage
         return true;
       if (HashCode!=other.HashCode)
         return false;
-      if (TypeRef.Type.KeyInfo!=other.TypeRef.Type.KeyInfo)
+      if (TypeRef.Type.KeyProviderInfo!=other.TypeRef.Type.KeyProviderInfo)
         return false;
       if (other.GetType().IsGenericType)
         return other.ValueEquals(this);
@@ -218,7 +218,7 @@ namespace Xtensive.Storage
 
       var domain = Domain.Demand();
       var type = domain.Model.Types[Int32.Parse(typeIdString)];
-      var keyTupleDescriptor = type.KeyInfo.TupleDescriptor;
+      var keyTupleDescriptor = type.KeyProviderInfo.TupleDescriptor;
 
       return Create(type, keyTupleDescriptor.Parse(valueString));
     }
@@ -244,7 +244,7 @@ namespace Xtensive.Storage
     /// <returns>Calculated hash code.</returns>
     protected virtual int CalculateHashCode()
     {
-      return value.GetHashCode() ^ TypeRef.Type.KeyInfo.GetHashCode();
+      return value.GetHashCode() ^ TypeRef.Type.KeyProviderInfo.GetHashCode();
     }
 
     #region Create next key methods

@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Linq.Materialization
         return result;
 
       var type       = model.Types[typeId];
-      var keyInfo    = type.KeyInfo;
+      var keyInfo    = type.KeyProviderInfo;
       var descriptor = type.TupleDescriptor;
 
       var typeColumnMap = columns.ToArray();

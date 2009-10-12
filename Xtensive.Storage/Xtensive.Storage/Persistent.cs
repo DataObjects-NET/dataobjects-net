@@ -191,13 +191,13 @@ namespace Xtensive.Storage
       if (tuple.ContainsEmptyValues(field.MappingInfo))
         return null;
 
-      int typeIdFieldIndex = type.KeyInfo.TypeIdColumnIndex;
+      int typeIdColumnIndex = type.KeyProviderInfo.TypeIdColumnIndex;
       var accuracy = TypeReferenceAccuracy.BaseType;
-      if (typeIdFieldIndex >= 0)
+      if (typeIdColumnIndex >= 0)
         accuracy = TypeReferenceAccuracy.ExactType;
       var keyValue = field.ExtractValue(tuple);
       if (accuracy == TypeReferenceAccuracy.ExactType) {
-        int typeId = keyValue.GetValueOrDefault<int>(typeIdFieldIndex);
+        int typeId = keyValue.GetValueOrDefault<int>(typeIdColumnIndex);
         if (typeId!=TypeInfo.NoTypeId) // != default(int) != 0
           type = types[typeId];
         else

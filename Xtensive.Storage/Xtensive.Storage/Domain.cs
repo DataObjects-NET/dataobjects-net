@@ -219,7 +219,7 @@ namespace Xtensive.Storage
 
     internal HandlerAccessor Handlers { get; private set; }
 
-    internal Registry<GeneratorInfo, KeyGenerator> KeyGenerators { get; private set; }
+    internal Registry<KeyProviderInfo, KeyGenerator> KeyGenerators { get; private set; }
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
@@ -294,7 +294,7 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       RecordSetReader = new RecordSetReader(this);
-      KeyGenerators = new Registry<GeneratorInfo, KeyGenerator>();
+      KeyGenerators = new Registry<KeyProviderInfo, KeyGenerator>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(
         Configuration.QueryCacheSize, k => k.First);

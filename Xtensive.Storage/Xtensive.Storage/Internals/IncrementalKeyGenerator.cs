@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override Tuple Next()
     {
-      Tuple result = Tuple.Create(GeneratorInfo.TupleDescriptor);
+      Tuple result = Tuple.Create(KeyProviderInfo.TupleDescriptor);
       LockType.Exclusive.Execute(_lock, () => {
         current = Arithmetic.Add(current, Arithmetic.One);
         result.SetValue(0, current);
@@ -42,8 +42,8 @@ namespace Xtensive.Storage.Internals
     // Constructors
 
     /// <inheritdoc/>
-    public IncrementalKeyGenerator(GeneratorInfo generatorInfo)
-      : base(generatorInfo)
+    public IncrementalKeyGenerator(KeyProviderInfo keyProviderInfo)
+      : base(keyProviderInfo)
     {
       Arithmetic = Arithmetic<TFieldType>.Default;
     }

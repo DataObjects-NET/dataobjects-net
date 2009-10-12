@@ -80,14 +80,14 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
   {
     private int seed = 1;
 
-    public DualIntKeyGenerator(GeneratorInfo generatorInfo)
-      : base(generatorInfo)
+    public DualIntKeyGenerator(KeyProviderInfo keyProviderInfo)
+      : base(keyProviderInfo)
     {
     }
 
     public override Tuple Next()
     {
-      return Tuple.Create(GeneratorInfo.TupleDescriptor, seed++, seed++);
+      return Tuple.Create(KeyProviderInfo.TupleDescriptor, seed++, seed++);
     }
   }
 

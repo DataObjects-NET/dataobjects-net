@@ -30,15 +30,15 @@ namespace Xtensive.Storage.Model
     public ReadOnlyList<TypeInfo> Types { get; private set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="KeyInfo"/> property for this instance.
+    /// Gets or sets the <see cref="KeyProviderInfo"/> property for this instance.
     /// </summary>
-    public KeyInfo KeyInfo { get; private set; }
+    public KeyProviderInfo KeyProviderInfo { get; private set; }
 
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
-      KeyInfo.UpdateState(recursive);
+      KeyProviderInfo.UpdateState(recursive);
       var list = new List<TypeInfo> {Root};
       list.AddRange(Root.GetDescendants(true));
       Types = new ReadOnlyList<TypeInfo>(list);
@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Model
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      KeyInfo.Lock(recursive);
+      KeyProviderInfo.Lock(recursive);
     }
 
 
@@ -59,12 +59,12 @@ namespace Xtensive.Storage.Model
     /// </summary>
     /// <param name="root">The hierarchy root.</param>
     /// <param name="schema">The schema.</param>
-    /// <param name="keyInfo">The key info.</param>
-    public HierarchyInfo(TypeInfo root, InheritanceSchema schema, KeyInfo keyInfo)
+    /// <param name="keyProviderInfo">The key info.</param>
+    public HierarchyInfo(TypeInfo root, InheritanceSchema schema, KeyProviderInfo keyProviderInfo)
     {
       Root = root;
       Schema = schema;
-      KeyInfo = keyInfo;
+      KeyProviderInfo = keyProviderInfo;
     }
   }
 }

@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Internals
       result = (Tuple.HashCodeMultiplier * result ^ value2.GetHashCode());
       result = (Tuple.HashCodeMultiplier * result ^ value3.GetHashCode());
       result = (Tuple.HashCodeMultiplier * result ^ value4.GetHashCode());
-      return result ^ TypeRef.Type.KeyInfo.GetHashCode();
+      return result ^ TypeRef.Type.KeyProviderInfo.GetHashCode();
     }
 
     public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
