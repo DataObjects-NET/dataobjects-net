@@ -422,7 +422,7 @@ namespace Xtensive.Storage.Tests.Linq
 
     private IEnumerable<Customer> GetCustomersCorrect(int amount)
     {
-      return Query.Execute(() => Query<Customer>.All.Take(delegate { return amount; }));
+      return Query.Execute(() => Query<Customer>.All.Take(()=>amount));
     }
 
     private IEnumerable<Customer> SkipCustomersIncorrect(int skip)
@@ -432,7 +432,7 @@ namespace Xtensive.Storage.Tests.Linq
 
     private IEnumerable<Customer> SkipCustomersCorrect(int skip)
     {
-      return Query.Execute(() => Query<Customer>.All.Skip(delegate { return skip; }));
+      return Query.Execute(() => Query<Customer>.All.Skip(()=>skip));
     }
   }
 }

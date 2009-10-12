@@ -377,8 +377,18 @@ namespace Xtensive.Storage.Linq
         throw new InvalidOperationException(Strings.ExUnableToUseTakeIntInQueryExecuteUseTakeFuncIntInstead);
       var projection = VisitSequence(source);
       Func<int> compiledParameter;
-      if (take.Type==typeof (Func<int>) && take.NodeType==ExpressionType.Constant)
-        compiledParameter = (Func<int>) ((ConstantExpression)take).Value;
+      if (take.NodeType==ExpressionType.Quote)
+        take = take.StripQuotes();
+      if (take.Type==typeof (Func<int>)) {
+        if (QueryCachingScope.Current==null)
+          compiledParameter = ((Expression<Func<int>>) take).CachingCompile();
+        else {
+          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+          var queryParameter = QueryCachingScope.Current.QueryParameter;
+          var newTake = replacer.Replace(take);
+          compiledParameter = ((Expression<Func<int>>) newTake).CachingCompile();
+        }
+      }
       else {
         Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(take);
         compiledParameter = parameter.CachingCompile();
@@ -396,8 +406,18 @@ namespace Xtensive.Storage.Linq
         throw new InvalidOperationException(Strings.ExUnableToUseSkipIntInQueryExecuteUseSkipFuncIntInstead);
       var projection = VisitSequence(source);
       Func<int> compiledParameter;
-      if (skip.Type==typeof (Func<int>) && skip.NodeType==ExpressionType.Constant)
-        compiledParameter = (Func<int>) ((ConstantExpression)skip).Value;
+      if (skip.NodeType==ExpressionType.Quote)
+        skip = skip.StripQuotes();
+      if (skip.Type==typeof (Func<int>)) {
+        if (QueryCachingScope.Current==null)
+          compiledParameter = ((Expression<Func<int>>) skip).CachingCompile();
+        else {
+          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+          var queryParameter = QueryCachingScope.Current.QueryParameter;
+          var newTake = replacer.Replace(skip);
+          compiledParameter = ((Expression<Func<int>>) newTake).CachingCompile();
+        }
+      }
       else {
         Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
         compiledParameter = parameter.CachingCompile();

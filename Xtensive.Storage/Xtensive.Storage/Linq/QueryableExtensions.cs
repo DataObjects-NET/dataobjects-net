@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Linq
   /// </summary>
   public static class QueryableExtensions
   {
-    public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, Func<int> count)
+    public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(count, "count");
@@ -30,11 +30,11 @@ namespace Xtensive.Storage.Linq
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.QueryableExtensionTake.MakeGenericMethod(new[] {typeof (TSource)});
-      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, Expression.Constant(count)});
+      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, count});
       return source.Provider.CreateQuery<TSource>(expression);
     }
 
-    public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, Func<int> count)
+    public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(count, "count");
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Linq
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.QueryableExtensionSkip.MakeGenericMethod(new[] {typeof (TSource)});
-      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, Expression.Constant(count)});
+      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, count});
       return source.Provider.CreateQuery<TSource>(expression);
     }
 
