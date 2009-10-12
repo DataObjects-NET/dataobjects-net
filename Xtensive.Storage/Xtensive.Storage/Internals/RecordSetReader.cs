@@ -135,7 +135,9 @@ namespace Xtensive.Storage.Internals
 
         var implementors = (type.IsInterface 
           ? type.GetImplementors(true)
-          : type.GetDescendants(true).AddOne(type)).ToList();
+          : type.GetDescendants(true)).ToList();
+        if (!type.IsAbstract)
+          implementors.Add(type);
         var typeMappings = new IntDictionary<TypeMapping>(implementors.Count + 1);
         foreach (TypeInfo childType in implementors) {
           // Building typeMap

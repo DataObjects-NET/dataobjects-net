@@ -542,9 +542,12 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       // Adding value columns
-      var types = reflectedType.IsInterface
-        ? indexToApplyView.ReflectedType.GetAncestors().AddOne(indexToApplyView.ReflectedType).ToHashSet()
-        : reflectedType.GetAncestors().AddOne(reflectedType).ToHashSet();
+      var types = (reflectedType.IsInterface
+        ? indexToApplyView.ReflectedType.GetAncestors().AddOne(indexToApplyView.ReflectedType)
+        : reflectedType.GetAncestors().AddOne(reflectedType)).ToHashSet();
+      var interfaces = (reflectedType.IsInterface
+        ? reflectedType.GetInterfaces(true).AddOne(reflectedType)
+        : Enumerable.Empty<TypeInfo>()).ToHashSet();
 
       var indexReflectedType = indexToApplyView.ReflectedType;
       var keyLength = indexToApplyView.KeyColumns.Count;
@@ -562,9 +565,10 @@ namespace Xtensive.Storage.Building.Builders
             continue;
 
           var interfaceFields = indexReflectedType.FieldMap.GetImplementedInterfaceFields(columnField);
-          var field = interfaceFields.FirstOrDefault(f => f.DeclaringType == reflectedType);
-          if (field == null)
+          var interfaceField = interfaceFields.FirstOrDefault(f => interfaces.Contains(f.DeclaringType));
+          if (interfaceField == null)
             continue;
+          var field = reflectedType.Fields[interfaceField.Name];
           valueColumns.Add(field.Column);
         }
         else {
