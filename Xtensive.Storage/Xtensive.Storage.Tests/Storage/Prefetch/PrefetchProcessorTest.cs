@@ -681,15 +681,15 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var bookCategoryField = bookType.FieldMap[categoryField];
         prefetchProcessor.Prefetch(bookKey0, iHasCategoryType,
           new PrefetchFieldDescriptor(categoryField, false));
-        /*var interfaceKey = Key.Create(iHasCategoryType, bookKey1.Value, TypeReferenceAccuracy.BaseType);
+        var interfaceKey = Key.Create(iHasCategoryType, bookKey1.Value, TypeReferenceAccuracy.BaseType);
         prefetchProcessor.Prefetch(interfaceKey, iHasCategoryType,
-          new PrefetchFieldDescriptor(categoryField, false));*/
+          new PrefetchFieldDescriptor(categoryField, false));
         prefetchProcessor.ExecuteTasks();
 
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookKey0, bookType, session,
           field => IsFieldKeyOrSystem(field) || field.Equals(bookCategoryField));
-        /*PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(interfaceKey, bookType, session,
-          field => IsFieldKeyOrSystem(field) || field.Equals(categoryField));*/
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(interfaceKey, bookType, session,
+          field => IsFieldKeyOrSystem(field) || field.Equals(categoryField));
 
         AssertEx.Throws<InvalidOperationException>(
           () => prefetchProcessor.Prefetch(Key
@@ -719,6 +719,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         prefetchProcessor.Prefetch(bookKey, bookKey.Type, new PrefetchFieldDescriptor(titleField, true));
         prefetchProcessor.ExecuteTasks();
 
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookKey, bookKey.Type, session,
+          field => IsFieldKeyOrSystem(field) || field == titleField
+            || (field.Parent != null && field.Parent == titleField));
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(titleKey, titleKey.Type, session,
           field => true);
       }
