@@ -160,8 +160,7 @@ namespace Xtensive.Core.Diagnostics
       if (logName.StartsWith(skipPrefix))
         logName = logName.Substring(skipPrefix.Length);
 
-      var logProvider = ServiceLocator.GetInstance<ILogProvider>();
-      Instance = logProvider.GetLog(logName);
+      Instance = LogProvider.GetLog(logName);
 
       if (Log.IsLogged(LogEventTypes.Info))
         Log.Info("{0} log initialized.", Instance);

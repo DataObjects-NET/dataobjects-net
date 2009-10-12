@@ -1,3 +1,9 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Dmitri Maximov
+// Created:    2009.10.12
+
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -8,30 +14,10 @@ namespace Xtensive.Core.Diagnostics
   /// <summary>
   /// Base type for log providers.
   /// </summary>
-  public abstract class LogProviderBase : ISynchronizable, ILogProvider
+  public abstract class LogProviderImplementationBase : ISynchronizable, ILogProvider
   {
     private readonly object syncRoot = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
     private readonly Dictionary<string, ILog> logs = new Dictionary<string, ILog>();
-
-    internal const string Console = "Console";
-    protected const string Null = "Null";
-    internal const string Debug = "Debug";
-
-    /// <summary>
-    /// Gets <see cref="ILog"/> object forwarding logging messages to console.
-    /// </summary>
-    public ILog ConsoleLog
-    {
-      get { return GetLog(Console); }
-    }
-
-    /// <summary>
-    /// Gets <see cref="ILog"/> object forwarding logging messages to nothing.
-    /// </summary>
-    public ILog NullLog
-    {
-      get { return GetLog(Null); }
-    }
 
     /// <inheritdoc/>
     public bool IsSynchronized
@@ -69,9 +55,9 @@ namespace Xtensive.Core.Diagnostics
     /// </summary>
     /// <param name="key">The key.</param>
     /// <returns><see cref="ILog"/> instance.</returns>
-    protected virtual ILog CreateLog(string key)
+    private ILog CreateLog(string key)
     {
-      return GetLog(GetRealLog(key));
+      return GetLogImplementation(GetRealLog(key));
     }
 
     /// <summary>
@@ -79,7 +65,7 @@ namespace Xtensive.Core.Diagnostics
     /// </summary>
     /// <param name="realLog">The real log.</param>
     /// <returns></returns>
-    protected abstract ILog GetLog(IRealLog realLog);
+    protected abstract ILog GetLogImplementation(IRealLog realLog);
 
     /// <summary>
     /// Gets the <see cref="IRealLog"/> instance.

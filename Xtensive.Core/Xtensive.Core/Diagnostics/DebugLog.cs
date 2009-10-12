@@ -25,7 +25,7 @@ namespace Xtensive.Core.Diagnostics
     /// <returns>Newly created <see cref="StringLog"/> object.</returns>
     public static ILog Create()
     {
-      return Create(LogProviderBase.Debug);
+      return Create(LogProvider.Debug);
     }
 
     /// <summary>

@@ -19,8 +19,6 @@ namespace Xtensive.Core.Tests.Diagnostics
     [Test]
     public void LogSourcesTest()
     {
-      var lp = ServiceLocator.GetInstance<ILogProvider>();
-
       if (DebugInfo.IsRunningOnBuildServer)
         return; // Can't use Console.SetOut(...) there
       Log.Info("Starting...");
@@ -39,9 +37,9 @@ namespace Xtensive.Core.Tests.Diagnostics
        
         // Test 2
         output.Length = 0;
-        using (new LogCaptureScope(lp.ConsoleLog)) {
-          using (new LogCaptureScope(lp.NullLog)) {
-            using (new LogCaptureScope(lp.ConsoleLog)) {
+        using (new LogCaptureScope(LogProvider.ConsoleLog)) {
+          using (new LogCaptureScope(LogProvider.NullLog)) {
+            using (new LogCaptureScope(LogProvider.ConsoleLog)) {
               Log.Info("Writing to console: " + marker);
             }
           }
@@ -56,7 +54,7 @@ namespace Xtensive.Core.Tests.Diagnostics
        
         // Test 3
         output.Length = 0;
-        using (new LogCaptureScope(lp.NullLog)) {
+        using (new LogCaptureScope(LogProvider.NullLog)) {
           Log.Info("Writing to null: "+marker);
         }
         outputString = output.ToString();
@@ -67,7 +65,7 @@ namespace Xtensive.Core.Tests.Diagnostics
 
         // Test 4
         output.Length = 0;
-        using (new LogCaptureScope(lp.ConsoleLog)) {
+        using (new LogCaptureScope(LogProvider.ConsoleLog)) {
           Log.Info("Writing to console: "+marker);
         }
         outputString = output.ToString();

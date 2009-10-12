@@ -18,14 +18,14 @@ namespace Xtensive.Adapters.log4net
   /// <summary>
   /// Log provider implementation for log4net.
   /// </summary>
-  public sealed class LogProvider: LogProviderBase
+  public sealed class LogProviderImplementation: LogProviderImplementationBase
   {
     /// <summary>
     /// Gets the <see cref="Core.Diagnostics.ILog"/> instance.
     /// </summary>
     /// <param name="realLog">The real log.</param>
     /// <returns></returns>
-    protected override ILog GetLog(IRealLog realLog)
+    protected override ILog GetLogImplementation(IRealLog realLog)
     {
       return new LogImplementation(realLog);
     }
@@ -87,7 +87,7 @@ namespace Xtensive.Adapters.log4net
     
     // Type initializer
 
-    static LogProvider()
+    static LogProviderImplementation()
     {
       EnsureLoggingConfigured();
     }

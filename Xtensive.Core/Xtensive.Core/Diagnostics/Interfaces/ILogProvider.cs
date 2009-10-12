@@ -1,17 +1,13 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Dmitri Maximov
+// Created:    2009.10.12
+
 namespace Xtensive.Core.Diagnostics
 {
   public interface ILogProvider
   {
-    /// <summary>
-    /// Gets <see cref="ILog"/> object forwarding logging messages to console.
-    /// </summary>
-    ILog ConsoleLog { get; }
-
-    /// <summary>
-    /// Gets <see cref="ILog"/> object forwarding logging messages to nothing.
-    /// </summary>
-    ILog NullLog { get; }
-
     /// <summary>
     /// Gets the <see cref="ILog"/> object by its <paramref name="key"/>.
     /// </summary>

@@ -6,34 +6,72 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 
 namespace Xtensive.Core.Diagnostics
 {
   /// <summary>
-  /// Default <see cref="ILogProvider"/> implementation.
+  /// Provides (creates or resolves) <see cref="ILog"/> instances by their name.
   /// </summary>
+  /// <remarks>
+  /// <para id="About"><see cref="SingletonDocTemplate" copy="true" /></para>
+  /// </remarks>
   [Serializable]
-  public sealed class LogProvider : LogProviderBase
+  public static class LogProvider
   {
-    /// <inheritdoc/>
-    protected override ILog GetLog(IRealLog realLog)
+    private static readonly ILogProvider instance;
+    internal const string Console = "Console";
+    internal const string Null = "Null";
+    internal const string Debug = "Debug";
+
+    /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
+    public static ILogProvider Instance
     {
-      return new LogImplementation(realLog);
+      [DebuggerStepThrough]
+      get { return instance; }
     }
 
-    /// <inheritdoc/>
-    protected override IRealLog GetRealLog(string key)
+    /// <summary>
+    /// Gets the <see cref="ILog"/> object by its <paramref name="key"/>.
+    /// </summary>
+    /// <param name="key">The key to get the log for.</param>
+    /// <returns>The <see cref="ILog"/> object.</returns>
+    public static ILog GetLog(string key)
     {
-      if (key == Console)
-        return new ConsoleLog(key);
-      if (key == Null)
-        return new NullLog(key);
+      return Instance.GetLog(key);
+    }
 
-#if DEBUG
-      return new DebugLog(key);
-#else
-      return Debugger.IsAttached ? (IRealLog) new DebugLog(key) : new NullLog(key);
-#endif
+    /// <summary>
+    /// Gets <see cref="ILog"/> object forwarding logging messages to console.
+    /// </summary>
+    public static ILog ConsoleLog
+    {
+      get { return GetLog(Console); }
+    }
+
+    /// <summary>
+    /// Gets <see cref="ILog"/> object forwarding logging messages to nothing.
+    /// </summary>
+    public static ILog NullLog
+    {
+      get { return GetLog(Null); }
+    }
+
+    /// <summary>
+    /// Gets <see cref="ILog"/> object forwarding logging messages to nothing.
+    /// </summary>
+    public static ILog DebugLog
+    {
+      get { return GetLog(Debug); }
+    }
+
+
+    // Type initializer
+
+    static LogProvider()
+    {
+      instance = ServiceLocator.GetInstance<ILogProvider>();
     }
   }
 }

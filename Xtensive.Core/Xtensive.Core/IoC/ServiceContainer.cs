@@ -66,7 +66,7 @@ namespace Xtensive.Core.IoC
 
     private void ApplyDefaultConfiguration()
     {
-      RegisterType(typeof(ILogProvider), typeof(LogProvider), null, true);
+      RegisterType(typeof(ILogProvider), typeof(LogProviderImplementation), null, true);
     }
 
     internal void RegisterType(Type type, Type mapTo, string name, bool isSingleton)
