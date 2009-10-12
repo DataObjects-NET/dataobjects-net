@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.05
 
-using Xtensive.Core;
 using Xtensive.Core.IoC;
 
 namespace Xtensive.Integrity.Validation

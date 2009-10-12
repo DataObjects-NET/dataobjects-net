@@ -82,18 +82,18 @@ namespace Xtensive.Storage.Tests.Storage.TranscationsTest
     }
 
     [Test]
-    public void HollowScopesTest()
+    public void VoidScopesTest()
     {
       using (Session.Open(Domain)) {
 
         using (var scope = Transaction.Open()) {
           
-          Assert.IsFalse(scope.IsHollow);
+          Assert.IsFalse(scope.IsVoid);
           Assert.IsNotNull(scope.Transaction);
 
           using (var scope2 = Transaction.Open()) {
             
-            Assert.IsTrue(scope2.IsHollow);
+            Assert.IsTrue(scope2.IsVoid);
             Assert.IsNull(scope2.Transaction);
 
             using (var scope3 = Transaction.Open()) {

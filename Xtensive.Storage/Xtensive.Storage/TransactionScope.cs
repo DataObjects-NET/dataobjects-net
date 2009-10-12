@@ -12,24 +12,24 @@ namespace Xtensive.Storage
   /// </summary>
   public class TransactionScope : Integrity.Transactions.TransactionScope
   {
-    private static readonly TransactionScope hollowRegionInstance = new TransactionScope();
+    private static readonly TransactionScope voidRegionInstance = new TransactionScope();
 
     /// <summary>
-    /// <see cref="TransactionScope"/> instance that is used for all <see cref="IsHollow">nested</see> scopes.
+    /// <see cref="TransactionScope"/> instance that is used for all <see cref="IsVoid">nested</see> scopes.
     /// </summary>
-    public static TransactionScope HollowScopeInstance
+    public static TransactionScope VoidScopeInstance
     {
-      get { return hollowRegionInstance; }
+      get { return voidRegionInstance; }
     }
 
     /// <summary>
-    /// Gets a value indicating whether this scope is hollow,
+    /// Gets a value indicating whether this scope is void,
     /// i.e. is included into another <see cref="TransactionScope"/> 
     /// and therefore does nothing on opening and disposing.
     /// </summary>
-    public bool IsHollow
+    public bool IsVoid
     {
-      get { return this==HollowScopeInstance; }
+      get { return this==VoidScopeInstance; }
     }
 
     /// <summary>

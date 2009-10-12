@@ -45,7 +45,7 @@ namespace Xtensive.Integrity.Validation
     public InconsistentRegion OpenInconsistentRegion()
     {
       if (!IsConsistent)
-        return InconsistentRegion.HollowRegionInstance;
+        return InconsistentRegion.VoidRegionInstance;
       IsConsistent = false;
       return new InconsistentRegion(this);
     }

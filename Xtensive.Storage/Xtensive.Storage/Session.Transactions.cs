@@ -53,13 +53,13 @@ namespace Xtensive.Storage
     internal TransactionScope OpenTransaction(IsolationLevel isolationLevel)
     {
       if (Transaction != null)
-        return TransactionScope.HollowScopeInstance;
+        return TransactionScope.VoidScopeInstance;
       var transaction = new Transaction(this, isolationLevel);
       Transaction = transaction;
       var transactionScope = (TransactionScope) transaction.Begin();
       if (transactionScope!=null && Configuration.UsesAmbientTransactions) {
         ambientTransactionScope = transactionScope;
-        return TransactionScope.HollowScopeInstance;
+        return TransactionScope.VoidScopeInstance;
       }
       return transactionScope;
     }
