@@ -87,9 +87,9 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Determines whether <see cref="Type"/> property has cached type value or not.
+    /// Determines whether <see cref="Type"/> property has exact type value or not.
     /// </summary>
-    public bool IsTypeCached
+    public bool HasExactType
     {
       get { return TypeRef.Accuracy == TypeReferenceAccuracy.ExactType ? true : false; }
     }
@@ -228,7 +228,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override string ToString()
     {
-      if (IsTypeCached)
+      if (HasExactType)
         return string.Format(Strings.KeyFormat,
           Type.UnderlyingType.GetShortName(),
           Value.ToRegular());

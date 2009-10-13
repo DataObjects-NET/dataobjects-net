@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Internals
       IEnumerable<PrefetchFieldDescriptor> selectedFields = descriptors;
       var currentType = type;
       StrongReferenceContainer hierarchyRootContainer = null;
-      if (currentKey.IsTypeCached) {
+      if (currentKey.HasExactType) {
         currentType = currentKey.Type;
         EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
       }
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Internals
         var hierarchyRoot = currentKey.TypeRef.Type;
         selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
       }
-      CreateTasks(currentKey, currentType, selectedFields, currentKey.IsTypeCached, ownerEntityTuple);
+      CreateTasks(currentKey, currentType, selectedFields, currentKey.HasExactType, ownerEntityTuple);
       if (referenceContainer != null) {
         referenceContainer.JoinIfPossible(prevContainer);
         return referenceContainer;

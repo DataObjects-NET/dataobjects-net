@@ -162,7 +162,7 @@ namespace Xtensive.Storage.Internals
               sessionHandler, referenceContainer, false);
           }
           waitingElements.Enqueue(element);
-          if (!elementKey.IsTypeCached)
+          if (!elementKey.HasExactType)
             elementsHavingKeyWithUnknownType.Add(element);
           prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
           if (processedElements.Count > 0)
@@ -254,7 +254,7 @@ namespace Xtensive.Storage.Internals
     {
       var key = keyExtractor.Invoke(element);
       TypeInfo type;
-      if (key.IsTypeCached)
+      if (key.HasExactType)
         type = key.Type;
       else if (modelType==null)
         type = key.TypeRef.Type;

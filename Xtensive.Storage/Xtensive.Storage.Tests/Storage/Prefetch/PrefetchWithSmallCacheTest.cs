@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         keys = Query<Person>.All.Take(221).AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value))
           .ToList();
-        Assert.IsTrue(keys.All(key => !key.IsTypeCached));
+        Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
 
@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           session.Handler.TryGetEntitySetState(key, detailsField, out state);
           Assert.IsTrue(state.IsFullyLoaded);
           foreach (var detailKey in state) {
-            Assert.IsTrue(detailKey.IsTypeCached);
+            Assert.IsTrue(detailKey.HasExactType);
             var detailState = session.EntityStateCache[detailKey, false];
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(detailKey, detailKey.Type, session,
               PrefetchTestHelper.IsFieldToBeLoadedByDefault);

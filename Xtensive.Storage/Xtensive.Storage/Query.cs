@@ -273,7 +273,7 @@ namespace Xtensive.Storage
         if (state==null) {
           if (session.IsDebugEventLoggingEnabled)
             Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is {0}.", session, key,
-              key.IsTypeCached ? "known" : "unknown");
+              key.HasExactType ? "known" : "unknown");
             state = session.Handler.FetchInstance(key);
           hasBeenFetched = true;
         }

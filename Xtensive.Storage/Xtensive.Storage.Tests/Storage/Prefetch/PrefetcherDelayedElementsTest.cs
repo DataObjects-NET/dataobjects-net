@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         keys = Query<Person>.All.AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
-        Assert.IsTrue(keys.All(key => !key.IsTypeCached));
+        Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
 
@@ -57,9 +57,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetcher = keys.Prefetch<Person, Key>(key => key);
         foreach (var key in prefetcher) {
           Key cachedKey;
-          Assert.IsFalse(key.IsTypeCached);
+          Assert.IsFalse(key.HasExactType);
           Assert.IsTrue(Domain.KeyCache.TryGetItem(key, true, out cachedKey));
-          Assert.IsTrue(cachedKey.IsTypeCached);
+          Assert.IsTrue(cachedKey.HasExactType);
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, cachedKey.Type, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         keys = Query<Customer>.All.AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
-        Assert.IsTrue(keys.All(key => !key.IsTypeCached));
+        Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
 
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         keys = Query<Customer>.All.AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
-        Assert.IsTrue(keys.All(key => !key.IsTypeCached));
+        Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
 
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         keys = Query<Person>.All.Take(20).AsEnumerable()
           .Select(p => Key.Create<Person>(p.Key.Value)).ToList();
-        Assert.IsTrue(keys.All(key => !key.IsTypeCached));
+        Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
 
@@ -163,9 +163,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public static Key GetCachedKey(Key key, Domain domain)
     {
       Key result;
-      Assert.IsFalse(key.IsTypeCached);
+      Assert.IsFalse(key.HasExactType);
       Assert.IsTrue(domain.KeyCache.TryGetItem(key, true, out result));
-      Assert.IsTrue(result.IsTypeCached);
+      Assert.IsTrue(result.HasExactType);
       return result;
     }
   }

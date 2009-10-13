@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Internals
       if (item==null)
         return null;
 
-      if (key != null && key.IsTypeCached) {
+      if (key != null && key.HasExactType) {
         var typeMapping = GetMapping(header).Mappings[0].GetTypeMapping(key.Type.TypeId);
         var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, item);
         return new Record(item, new Pair<Key, Tuple>(key, entityTuple));

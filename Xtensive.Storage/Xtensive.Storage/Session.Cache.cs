@@ -37,7 +37,7 @@ namespace Xtensive.Storage
       // If type is unknown, we consider tuple is null, 
       // so its Entity is considered as non-existing
       Tuple tuple = null;
-      if (key.IsTypeCached)
+      if (key.HasExactType)
         // A tuple with all the fields set to default values rather then N/A
         tuple = key.Type.CreateEntityTuple(key.Value);
 
@@ -58,7 +58,7 @@ namespace Xtensive.Storage
     {
       var result = EntityStateCache[key, true];
       if (result == null) {
-        if (!key.IsTypeCached && tuple!=null)
+        if (!key.HasExactType && tuple!=null)
           throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType, Log.Instance);
         result = new EntityState(this, key, tuple) {
           PersistenceState = PersistenceState.Synchronized
