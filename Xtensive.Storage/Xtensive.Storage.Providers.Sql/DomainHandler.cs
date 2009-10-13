@@ -193,7 +193,8 @@ namespace Xtensive.Storage.Providers.Sql
         applyCorrector,
         skipTakeCorrector,
         new OrderingCorrector(ResolveOrderingDescriptor, false),
-//        new RedundantColumnOptimizer(),
+        // new StoreRedundantColumnOptimizer(),
+        // new IndexRedundantColumnOptimizer(),
         new OrderingCorrector(ResolveOrderingDescriptor, true));
     }
 

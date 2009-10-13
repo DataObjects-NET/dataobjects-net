@@ -65,7 +65,8 @@ namespace Xtensive.Storage.Providers.Index
         new ApplyProviderCorrector(false),
         new OrderingCorrector(DefaultCompilationContext.ResolveOrderingDescriptor, false),
         new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),
-        new RedundantColumnOptimizer(),
+//        new IndexRedundantColumnOptimizer(),
+ //       new StoreRedundantColumnOptimizer(),
         new OrderingCorrector(DefaultCompilationContext.ResolveOrderingDescriptor, true)
         );
     }
