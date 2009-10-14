@@ -19,24 +19,16 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
   internal sealed class IndexRedundantColumnRemover : RedundantColumnRemoverBase
   {
-    protected override Provider VisitIndex(IndexProvider provider)
-    {
-      return SubstituteSelect(provider);
-    }
 
-    protected override Provider VisitRangeSet(RangeSetProvider provider)
+    protected override Provider SubstituteSelect(CompilableProvider provider)
     {
-      return SubstituteSelect(provider);
-    }
-
-    protected override Provider VisitRange(RangeProvider provider)
-    {
-      return SubstituteSelect(provider);
-    }
-
-    protected override Provider VisitSeek(SeekProvider provider)
-    {
-      return SubstituteSelect(provider);
+      int columnsCount = provider.Header.Length;
+      List<int> value = mappings[provider];
+//      var value = Merge(mappings.Value[provider], provider.Header.Order.Select(o => o.Key));
+//     mappings[provider] = value;
+      if (columnsCount > value.Count)
+        return new SelectProvider(provider, value.ToArray());
+      return provider;
     }
 
     // Constructors

@@ -13,27 +13,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
   internal abstract class RedundantColumnRemoverBase : CompilableProviderVisitor
   {
-    private Dictionary<Provider, List<int>> mappings;
+    protected Dictionary<Provider, List<int>> mappings;
     private TupleAccessGatherer mappingsGatherer;
     private Dictionary<ApplyParameter, List<int>> outerColumnUsages;
     private CompilableProviderVisitor outerColumnUsageVisitor;
     private SelectProvider rootProvider;
 
-    public RedundantColumnRemoverBase(SelectProvider originalProvider)
-    {
-      rootProvider = originalProvider;
-
-      mappings = new Dictionary<Provider, List<int>>();
-      outerColumnUsages = new Dictionary<ApplyParameter, List<int>>();
-
-      mappingsGatherer = new TupleAccessGatherer((a, b) => { });
-
-      var outerMappingsGatherer = new TupleAccessGatherer(RegisterOuterMapping);
-      outerColumnUsageVisitor = new CompilableProviderVisitor((_, e) => {
-        outerMappingsGatherer.Gather(e);
-        return e;
-      });
-    }
+    protected abstract Provider SubstituteSelect(CompilableProvider provider);
 
     public CompilableProvider RemoveRedundantColumns()
     {
@@ -390,15 +376,24 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       }
     }
 
-    protected Provider SubstituteSelect(CompilableProvider provider)
+    protected override Provider VisitIndex(IndexProvider provider)
     {
-      int columnsCount = provider.Header.Length;
-      List<int> value = mappings[provider];
-//      var value = Merge(mappings.Value[provider], provider.Header.Order.Select(o => o.Key));
-//     mappings[provider] = value;
-      if (columnsCount > value.Count)
-        return new SelectProvider(provider, value.ToArray());
-      return provider;
+      return SubstituteSelect(provider);
+    }
+
+    protected override Provider VisitRangeSet(RangeSetProvider provider)
+    {
+      return SubstituteSelect(provider);
+    }
+
+    protected override Provider VisitRange(RangeProvider provider)
+    {
+      return SubstituteSelect(provider);
+    }
+
+    protected override Provider VisitSeek(SeekProvider provider)
+    {
+      return SubstituteSelect(provider);
     }
 
     private static List<int> Merge(IEnumerable<int> left, IEnumerable<int> right)
@@ -495,6 +490,22 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     private void RestoreMappings(Dictionary<Provider, List<int>> savedMappings)
     {
       mappings = savedMappings;
+    }
+
+    protected RedundantColumnRemoverBase(SelectProvider originalProvider)
+    {
+      rootProvider = originalProvider;
+
+      mappings = new Dictionary<Provider, List<int>>();
+      outerColumnUsages = new Dictionary<ApplyParameter, List<int>>();
+
+      mappingsGatherer = new TupleAccessGatherer((a, b) => { });
+
+      var outerMappingsGatherer = new TupleAccessGatherer(RegisterOuterMapping);
+      outerColumnUsageVisitor = new CompilableProviderVisitor((_, e) => {
+        outerMappingsGatherer.Gather(e);
+        return e;
+      });
     }
   }
 }

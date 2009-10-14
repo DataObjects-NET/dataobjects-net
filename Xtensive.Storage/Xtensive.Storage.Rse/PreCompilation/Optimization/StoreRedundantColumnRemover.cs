@@ -5,6 +5,9 @@
 // Created:    2009.10.12
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization
@@ -15,6 +18,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     protected override Xtensive.Storage.Rse.Providers.Provider VisitStore(StoreProvider provider)
     {
       return base.VisitStore(provider);
+    }
+
+    protected override Provider SubstituteSelect(CompilableProvider provider)
+    {
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
+      return provider;
     }
 
     public StoreRedundantColumnRemover(SelectProvider originalProvider)

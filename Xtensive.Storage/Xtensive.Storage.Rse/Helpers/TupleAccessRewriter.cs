@@ -68,12 +68,7 @@ namespace Xtensive.Storage.Rse.Helpers
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentNotNull(parameter, "parameter");
       tupleParameter = parameter;
-      try {
-        return Visit(expression);
-      }
-      finally {
-        tupleParameter = null;
-      }
+      return Visit(expression);
     }
     
     private static int DefaultResolveOuterColumn(ApplyParameter parameter, int columnIndex)
