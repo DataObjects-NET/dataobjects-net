@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
-using log4net.Util;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Diagnostics;
@@ -32,12 +31,13 @@ namespace Xtensive.Core.Aspects
     private const string ExitFormatError       = "Exit {0}, exception: {1}";
     private const string LogTypeName = "Log";
 
-    private Type logType;
-    private ILog log;
-    private TraceOptions options;
-    private LogEventTypes eventType = LogEventTypes.Info;
-    private string title;
-    private bool isStatic;
+    private Type                                logType;
+    private ILog                                log;
+    private Action<ILog, string, object[]>      logEvent;
+    private TraceOptions                        options;
+    private LogEventTypes                       eventType;
+    private string                              title;
+    private bool                                isStatic;
 
     int ILaosWeavableAspect.AspectPriority {
       [DebuggerStepThrough]
@@ -62,7 +62,37 @@ namespace Xtensive.Core.Aspects
       [DebuggerStepThrough]
       get { return eventType; }
       [DebuggerStepThrough]
-      set { eventType = value; }
+      set
+      {
+        if (eventType == value)
+          return;
+        eventType = value;
+        switch (eventType) {
+          case LogEventTypes.None:
+            logEvent = (target, format, args) => {};
+            break;
+          case LogEventTypes.Debug:
+            logEvent = (target, format, args) => log.Debug(format, args);
+            break;
+          case LogEventTypes.Info:
+            logEvent = (target, format, args) => log.Info(format, args);
+            break;
+          case LogEventTypes.Warning:
+            logEvent = (target, format, args) => log.Warning(format, args);
+            break;
+          case LogEventTypes.Error:
+            logEvent = (target, format, args) => log.Error(format, args);
+            break;
+          case LogEventTypes.FatalError:
+            logEvent = (target, format, args) => log.FatalError(format, args);
+            break;
+          case LogEventTypes.All:
+            logEvent = (target, format, args) => log.Info(format, args);
+            break;
+          default:
+            throw new ArgumentOutOfRangeException();
+        }
+      }
     }
 
     public Type LogType {
@@ -179,8 +209,7 @@ namespace Xtensive.Core.Aspects
           format = EnterFormat;
           args = new object[] {title};
         }
-        log.RealLog.LogEvent(eventType, 
-          new SystemStringFormat(CultureInfo.InvariantCulture, format, args), null, log.RealLog, null);
+        logEvent(log, format, args);
       }
       if ((options & TraceOptions.Indent)!=0)
         eventArgs.MethodExecutionTag = new LogIndentScope();
@@ -213,8 +242,7 @@ namespace Xtensive.Core.Aspects
             args = new object[] {title};
           }
         }
-        log.RealLog.LogEvent(eventType, 
-          new SystemStringFormat(CultureInfo.InvariantCulture, format, args), null, log.RealLog, null);
+        logEvent(log, format, args);
       }
     }
 
@@ -240,6 +268,7 @@ namespace Xtensive.Core.Aspects
     {
       this.title = methodName;
       this.options = options;
+      EventType = LogEventTypes.Info;
     }
   }
 }

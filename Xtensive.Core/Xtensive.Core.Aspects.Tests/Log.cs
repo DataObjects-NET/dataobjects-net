@@ -4,12 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.03
 
-using System.Configuration;
 using System.Reflection;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Configuration;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.IoC;
 
 namespace Xtensive.Core.Aspects.Tests
 {
@@ -23,11 +19,6 @@ namespace Xtensive.Core.Aspects.Tests
     
     static Log()
     {
-      var section = (UnityConfigurationSection) ConfigurationManager.GetSection("Unity");
-      var result = new UnityContainer();
-      section.Containers.Default.Configure(result);
-      ServiceLocator.SetLocatorProvider(() => new Microsoft.Practices.Unity.ServiceLocatorAdapter.UnityServiceLocator(result));
-
       string className = MethodInfo.GetCurrentMethod().DeclaringType.FullName;
       Name = className.Substring(0, className.LastIndexOf('.'));
     }
