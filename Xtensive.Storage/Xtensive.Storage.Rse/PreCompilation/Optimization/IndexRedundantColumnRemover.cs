@@ -473,16 +473,16 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     private Expression TranslateLambda(Provider originalProvider, LambdaExpression expression)
     {
-      var replacer = new TupleAccessRewriter(mappings[originalProvider], ResolveOuterMapping);
+      var replacer = new TupleAccessRewriter(mappings[originalProvider], ResolveOuterMapping, false);
       return replacer.Rewrite(expression, expression.Parameters[0]);
     }
 
     private Expression TranslateJoinPredicate(IList<int> leftMapping, 
       IList<int> rightMapping, Expression<Func<Tuple, Tuple, bool>>expression)
     {
-      var result = new TupleAccessRewriter(leftMapping, ResolveOuterMapping).Rewrite(expression,
+      var result = new TupleAccessRewriter(leftMapping, ResolveOuterMapping, false).Rewrite(expression,
         expression.Parameters[0]);
-      return new TupleAccessRewriter(rightMapping, ResolveOuterMapping).Rewrite(result,
+      return new TupleAccessRewriter(rightMapping, ResolveOuterMapping, false).Rewrite(result,
         expression.Parameters[1]);
     }
 

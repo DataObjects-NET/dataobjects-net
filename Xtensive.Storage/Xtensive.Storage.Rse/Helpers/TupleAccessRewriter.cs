@@ -19,8 +19,10 @@ namespace Xtensive.Storage.Rse.Helpers
   public class TupleAccessRewriter : ExpressionVisitor
   {
     private ParameterExpression tupleParameter;
+    private bool ignoreMissing;
     protected readonly Func<ApplyParameter, int, int> resolveOuterColumn;
     protected readonly IList<int> mappings;
+
 
     public IList<int> Mappings
     {
@@ -42,9 +44,9 @@ namespace Xtensive.Storage.Rse.Helpers
         int newIndex = outerParameter != null
           ? resolveOuterColumn(outerParameter, columnIndex)
           : mappings.IndexOf(columnIndex);
-        return newIndex==columnIndex 
-          ? mc
-          : Expression.Call(mc.Object, mc.Method, Expression.Constant(newIndex));
+        if ((newIndex < 0 && ignoreMissing) || newIndex == columnIndex)
+          return mc;
+        return Expression.Call(mc.Object, mc.Method, Expression.Constant(newIndex));
       }
       return base.VisitMethodCall(mc);
     }
@@ -91,19 +93,11 @@ namespace Xtensive.Storage.Rse.Helpers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="mappings">The mappings.</param>
-    public TupleAccessRewriter(IList<int> mappings)
-      : this(mappings, null)
-    {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
     /// <param name="resolveOuterColumn">A <see langword="delegate"/> invoked when outer column usage is to be rewritten.</param>
     /// <param name="mappings">The mappings.</param>
-    public TupleAccessRewriter(IList<int> mappings, Func<ApplyParameter, int, int> resolveOuterColumn)
+    public TupleAccessRewriter(IList<int> mappings, Func<ApplyParameter, int, int> resolveOuterColumn, bool ignoreMissing)
     {
+      this.ignoreMissing = ignoreMissing;
       this.mappings = mappings;
       this.resolveOuterColumn = resolveOuterColumn ?? DefaultResolveOuterColumn;
     }
