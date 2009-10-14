@@ -4,9 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.10
 
-using System;
-using System.Diagnostics;
-
 namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
 {
   [HierarchyRoot]
@@ -212,8 +209,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     string Url { get; set; }
 
     [Field]
-    /*[Association(PairTo = "Distributors", OnOwnerRemove = OnRemoveAction.Clear,
-      OnTargetRemove = OnRemoveAction.Clear)]*/
+    [Association(PairTo = "Distributors", OnOwnerRemove = OnRemoveAction.Clear,
+      OnTargetRemove = OnRemoveAction.Clear)]
     EntitySet<IPublisher> Suppliers { get; }
   }
 

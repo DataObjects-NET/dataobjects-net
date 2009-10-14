@@ -5,7 +5,6 @@
 // Created:    2009.09.24
 
 using System;
-using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery;

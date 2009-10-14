@@ -25,8 +25,8 @@ namespace Xtensive.Storage.Model
     private AssociationInfo             reversed;
     private TypeInfo                    auxiliaryType;
     private bool                        isMaster = true;
-    private OnRemoveAction?              onTargetRemove;
-    private OnRemoveAction?              onOwnerRemove;
+    private OnRemoveAction?             onTargetRemove;
+    private OnRemoveAction?             onOwnerRemove;
     private SegmentTransform            foreignKeyExtractorTransform;
 
     /// <summary>

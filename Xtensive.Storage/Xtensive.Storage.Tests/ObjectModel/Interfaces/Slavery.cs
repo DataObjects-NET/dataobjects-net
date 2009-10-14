@@ -41,24 +41,10 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery
     [Field,Key]
     public long Id { get; private set; }
 
-    IMaster ISlave.Master
-    {
-      get { return GetFieldValue<IMaster>("ISlave.Master"); }
-      set
-      {
-        XMaster = (Master) value;
-      }
-    }
+    public IMaster Master { get; set;}
 
-    public Master XMaster
-    {
-      get { return (Master) ((ISlave)this).Master;}
-      set
-      {
-        SetFieldValue("ISlave.Master", (IMaster)value);
-        SetFieldValue("TMaster", value);
-      }
-    }
+    public Master XMaster { get; set;}
+   
   }
 
   [HierarchyRoot]
@@ -67,10 +53,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Slavery
     [Field, Key]
     public long Id { get; private set; }
 
-    EntitySet<ISlave> IMaster.Slaves
-    {
-      get { return GetFieldValue<EntitySet<ISlave>>("IMaster.Slaves"); }
-    }
+    public EntitySet<ISlave> Slaves { get; private set;}
 
     public EntitySet<Slave> XSlaves { get; private set; }
   }

@@ -55,8 +55,8 @@ namespace Xtensive.Storage.Building.Builders
       FieldInfo pairedField = slave.OwnerField;
 
       AssociationInfo master = masterField.Association;
-      if (master.Reversed!=null && master.Reversed!=slave)
-        throw new InvalidOperationException(String.Format(Strings.ExMasterAssociationIsAlreadyPaired, master.Name, master.Reversed.Name));
+//      if (master.Reversed!=null && master.Reversed!=slave)
+//        throw new InvalidOperationException(String.Format(Strings.ExMasterAssociationIsAlreadyPaired, master.Name, master.Reversed.Name));
 
       slave.IsMaster = false;
       master.IsMaster = true;
