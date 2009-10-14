@@ -42,7 +42,9 @@ namespace Xtensive.Storage.Rse.Helpers
         int newIndex = outerParameter != null
           ? resolveOuterColumn(outerParameter, columnIndex)
           : mappings.IndexOf(columnIndex);
-        return Expression.Call(mc.Object, mc.Method, Expression.Constant(newIndex));
+        return newIndex==columnIndex 
+          ? mc
+          : Expression.Call(mc.Object, mc.Method, Expression.Constant(newIndex));
       }
       return base.VisitMethodCall(mc);
     }
