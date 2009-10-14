@@ -38,8 +38,8 @@ namespace Xtensive.Storage.Internals
       new Dictionary<FieldInfo, PrefetchFieldDescriptor>();
     private readonly List<Func<TElement, SessionHandler, IEnumerable>> prefetchManyDelegates =
       new List<Func<TElement, SessionHandler, IEnumerable>>();
-    private readonly Dictionary<TypeInfo, PrefetchFieldDescriptor[]> userDescriptorsCache =
-      new Dictionary<TypeInfo, PrefetchFieldDescriptor[]>();
+
+    private object blockingDelayedElement;
 
     /// <summary>
     /// Registers the prefetch of the field specified by <paramref name="expression"/>.
@@ -148,40 +148,8 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public IEnumerator<TElement> GetEnumerator()
     {
-      var processedElements = new Queue<TElement>();
-      var waitingElements = new Queue<TElement>();
-      var referenceContainer = new StrongReferenceContainer(null);
-      var elementsHavingKeyWithUnknownType = new List<TElement>();
-      try {
-        var sessionHandler = Session.Demand().Handler;
-        var prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
-        foreach (var element in source) {
-          var elementKey = RegisterPrefetch(element, sessionHandler, ref referenceContainer);
-          if (prefetchTaskExecutionCount != sessionHandler.PrefetchTaskExecutionCount) {
-            ProcessFetchedElements(processedElements, waitingElements, elementsHavingKeyWithUnknownType,
-              sessionHandler, referenceContainer, false);
-          }
-          waitingElements.Enqueue(element);
-          if (!elementKey.HasExactType)
-            elementsHavingKeyWithUnknownType.Add(element);
-          prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
-          if (processedElements.Count > 0)
-            yield return processedElements.Dequeue();
-        }
-        while (processedElements.Count > 0)
-          yield return processedElements.Dequeue();
-        referenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks());
-        ProcessFetchedElements(processedElements, waitingElements, elementsHavingKeyWithUnknownType,
-          sessionHandler, referenceContainer, true);
-        while (processedElements.Count > 0)
-          yield return processedElements.Dequeue();
-        while (waitingElements.Count > 0)
-          yield return waitingElements.Dequeue();
-      }
-      finally {
-        processedElements.Clear();
-        waitingElements.Clear();
-      }
+      return new PrefetcherEnumerator<TElement>(source, keyExtractor, modelType,
+        fieldDescriptors, prefetchManyDelegates);
     }
     
     /// <inheritdoc/>
@@ -228,84 +196,6 @@ namespace Xtensive.Storage.Internals
         throw new ArgumentException(String.Format(Strings.ExSpecifiedPropertyXIsNotPersistent,
           property.Name), "expression");
       fieldDescriptors[modelField] = new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit, true);
-    }
-
-    private void FetchRemainingFieldsOfDelayedElements(ICollection<TElement> elementsHavingKeyWithUnknownType,
-      StrongReferenceContainer referenceContainer, SessionHandler sessionHandler)
-    {
-      foreach (var elementToBeFetched in elementsHavingKeyWithUnknownType) {
-        var key = keyExtractor.Invoke(elementToBeFetched);
-        var type = key.TypeRef.Type;
-        var cachedKey = sessionHandler.Session.EntityStateCache[key, false].Key;
-        var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
-          .GetCachedItem(new Pair<object, TypeInfo>(descriptorArraysCachingRegion, cachedKey.Type),
-            pair => ((Pair<object, TypeInfo>) pair).Second.Fields
-              .Where(field => field.DeclaringType!=type
-                && field.Parent==null && PrefetchTask.IsFieldToBeLoadedByDefault(field))
-              .Select(field => new PrefetchFieldDescriptor(field, false)).ToArray());
-        var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;
-        referenceContainer.JoinIfPossible(sessionHandler.Prefetch(cachedKey, cachedKey.Type, descriptorsArray));
-      }
-      elementsHavingKeyWithUnknownType.Clear();
-    }
-
-    private Key RegisterPrefetch(TElement element, SessionHandler sessionHandler,
-      ref StrongReferenceContainer strongReferenceContainer)
-    {
-      var key = keyExtractor.Invoke(element);
-      TypeInfo type;
-      if (key.HasExactType)
-        type = key.Type;
-      else if (modelType==null)
-        type = key.TypeRef.Type;
-      else
-        type = modelType;
-      var descriptorArray = GetUserDescriptorArray(type);
-      strongReferenceContainer.JoinIfPossible(sessionHandler
-        .Prefetch(keyExtractor.Invoke(element), type, descriptorArray));
-      return key;
-    }
-
-    private PrefetchFieldDescriptor[] GetUserDescriptorArray(TypeInfo type)
-    {
-      PrefetchFieldDescriptor[] result;
-      if (!userDescriptorsCache.TryGetValue(type, out result)) {
-        result = type.Fields
-          .Where(field => field.Parent==null && PrefetchTask.IsFieldToBeLoadedByDefault(field)
-            && !fieldDescriptors.ContainsKey(field))
-          .Select(field => new PrefetchFieldDescriptor(field, false))
-          .Concat(fieldDescriptors.Values).ToArray();
-        userDescriptorsCache[type] = result;
-      }
-      return result;
-    }
-
-    private void ProcessFetchedElements(Queue<TElement> processedElements, Queue<TElement> waitingElements,
-      List<TElement> delayedElements, SessionHandler sessionHandler,
-      StrongReferenceContainer referenceContainer, bool forceTasksExecution)
-    {
-      while (waitingElements.Count > 1 || waitingElements.Count==1 && forceTasksExecution) {
-        var waitingElement = waitingElements.Peek();
-        if (delayedElements.Count > 0 && ReferenceEquals(waitingElement, delayedElements[0]))
-          FetchRemainingFieldsOfDelayedElements(delayedElements, referenceContainer, sessionHandler);
-        if (waitingElements.Count==1 && forceTasksExecution)
-          referenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks());
-        if (prefetchManyDelegates.Count > 0) {
-          var prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
-          ExecutePrefetchMany(waitingElement, sessionHandler);
-        }
-        processedElements.Enqueue(waitingElements.Dequeue());
-      }
-    }
-
-    private void ExecutePrefetchMany(TElement element, SessionHandler sessionHandler)
-    {
-      foreach (var prefetchManyDelegate in prefetchManyDelegates) {
-        var enumerator = prefetchManyDelegate.Invoke(element, sessionHandler).GetEnumerator();
-        using ((IDisposable) enumerator)
-          while (enumerator.MoveNext()) {
-          }
-      }
     }
 
     #endregion

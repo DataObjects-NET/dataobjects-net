@@ -86,13 +86,12 @@ namespace Xtensive.Storage.Tests.Rse
         var compiledProvider = CompilationContext.Current.Compile(result.Provider);
         Assert.Greater(compiledProvider.Count(), 0);
         var compiledSort = ((SortProvider) ((SelectProvider) compiledProvider.Origin).Source);
-        var selectAfterIndex = (SelectProvider) ((FilterProvider) compiledSort.Source).Source;
+        var extractedIndexProvider = (IndexProvider) ((FilterProvider) compiledSort.Source).Source;
         var expectedOrder = from pair in originalOrder
         select
           new KeyValuePair<int, Direction>(
-            selectAfterIndex.ColumnIndexes.IndexOf(pair.Key), pair.Value);
+            extractedIndexProvider.Index.Resolve(Domain.Model).Columns.IndexOf(pair.Key), pair.Value);
         Assert.IsTrue(expectedOrder.SequenceEqual(compiledSort.Order));
-        Assert.AreEqual(typeof (IndexProvider), selectAfterIndex.Source.GetType());
       }
     }
 

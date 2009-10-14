@@ -136,6 +136,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
 
     [Field]
     public ITitle Title { get; set; }
+
+    [Field]
+    public EntitySet<ITitle> TranslationTitles { get; private set; }
   }
 
   [HierarchyRoot]
@@ -177,5 +180,55 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public int Id { get; private set; }
 
     public string Text { get; set; }
+  }
+
+  public interface IPublisher : IEntity
+  {
+    [Field]
+    string Trademark { get; set; }
+
+    [Field]
+    EntitySet<IBookShop> Distributors { get; }
+  }
+
+  [HierarchyRoot]
+  public class Publisher : Entity,
+    IPublisher
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    public string Trademark { get; set; }
+
+    [Field]
+    public string Country { get; set; }
+
+    public EntitySet<IBookShop> Distributors { get; private set; }
+  }
+
+  public interface IBookShop : IEntity
+  {
+    [Field]
+    string Url { get; set; }
+
+    [Field]
+    /*[Association(PairTo = "Distributors", OnOwnerRemove = OnRemoveAction.Clear,
+      OnTargetRemove = OnRemoveAction.Clear)]*/
+    EntitySet<IPublisher> Suppliers { get; }
+  }
+
+  [HierarchyRoot]
+  public class BookShop : Entity,
+    IBookShop
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    public string Url { get; set; }
+
+    [Field]
+    public string Name { get; set; }
+
+    public EntitySet<IPublisher> Suppliers { get; private set; }
   }
 }

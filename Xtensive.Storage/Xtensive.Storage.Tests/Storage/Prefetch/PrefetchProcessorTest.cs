@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     private TypeInfo customerType;
     private TypeInfo orderType;
     private TypeInfo productType;
+    private TypeInfo bookType;
     private FieldInfo personIdField;
     private FieldInfo ageField;
     private FieldInfo cityField;
@@ -52,6 +53,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       customerType = Domain.Model.Types[typeof (Customer)];
       orderType = Domain.Model.Types[typeof (Order)];
       productType = Domain.Model.Types[typeof (Product)];
+      bookType = Domain.Model.Types[typeof (Book)];
       personIdField = Domain.Model.Types[typeof (Person)].Fields["Id"];
       orderIdField = Domain.Model.Types[typeof (Order)].Fields["Id"];
       cityField = customerType.Fields["City"];
@@ -227,7 +229,6 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     [Test]
     public void EntitySetManyToManyPrefetchTest()
     {
-      TypeInfo bookType;
       TypeInfo authorType;
       Key bookKey;
       Key authorKey;
@@ -239,7 +240,6 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key book5Key;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        bookType = typeof (Book).GetTypeInfo();
         authorType = typeof (Author).GetTypeInfo();
 
         var book0 = new Book();
@@ -676,7 +676,6 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
         var iHasCategoryType = Domain.Model.Types[typeof (IHasCategory)];
-        var bookType = typeof (Book).GetTypeInfo();
         var categoryField = iHasCategoryType.Fields["Category"];
         var bookCategoryField = bookType.FieldMap[categoryField];
         prefetchProcessor.Prefetch(bookKey0, iHasCategoryType,
@@ -728,6 +727,134 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
+    public void PrefetchOneToManyEntitySetContainingReferencesToInterfaceTest()
+    {
+      const int instanceCount = 40;
+      Key bookKey;
+      Key titleKey;
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        Action<Book, int> titlesGenerator = (b, seed) => {
+          for (int i = seed; i < seed + instanceCount; i++)
+            b.TranslationTitles.Add(new Title {Text = i.ToString()});
+        };
+        var book0 = new Book {Category = "0", Title = new Title {Text = "abc"}};
+        titlesGenerator.Invoke(book0, 0);
+        var book1 = new Book {Category = "1", Title = new Title {Text = "def"}};
+        titlesGenerator.Invoke(book1, 100);
+        bookKey = book1.Key;
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
+        var translationTitlesField = bookType.Fields["TranslationTitles"];
+        prefetchProcessor.Prefetch(bookKey, bookType, new PrefetchFieldDescriptor(translationTitlesField));
+        prefetchProcessor.ExecuteTasks();
+
+        EntitySetState setState;
+        Assert.IsTrue(session.Handler.TryGetEntitySetState(bookKey, translationTitlesField, out setState));
+        Assert.IsTrue(setState.IsFullyLoaded);
+        Assert.AreEqual(instanceCount, setState.count);
+        var iTitleType = typeof (ITitle).GetTypeInfo();
+        foreach (var key in setState)
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, iTitleType, session, field => true);
+      }
+    }
+
+    [Test]
+    public void PrefetchManyToManyEntitySetContainingReferencesToInterfaceTest()
+    {
+      Key publisherKey0;
+      Key publisherKey1;
+      Key publisherKey2;
+      Key publisherKey3;
+      Key publisherKey4;
+
+      Key bookShopKey0;
+      Key bookShopKey1;
+      Key bookShopKey2;
+      Key bookShopKey3;
+      Key bookShopKey4;
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var publisher0 = new Publisher {Country = "A"};
+        var publisher1 = new Publisher {Country = "A"};
+        var publisher2 = new Publisher {Country = "B"};
+        var publisher3 = new Publisher {Country = "B"};
+        var publisher4 = new Publisher {Country = "C"};
+
+        var bookShop0 = new BookShop {Url = "0"};
+        bookShopKey0 = bookShop0.Key;
+        var bookShop1 = new BookShop {Url = "0"};
+        bookShopKey1 = bookShop1.Key;
+        var bookShop2 = new BookShop {Url = "1"};
+        bookShopKey2 = bookShop2.Key;
+        var bookShop3 = new BookShop {Url = "1"};
+        bookShopKey3 = bookShop3.Key;
+        var bookShop4 = new BookShop {Url = "2"};
+
+        publisher0.Distributors.Add(bookShop0);
+        publisherKey0 = publisher0.Key;
+        publisher0.Distributors.Add(bookShop1);
+        publisher0.Distributors.Add(bookShop2);
+        publisher0.Distributors.Add(bookShop3);
+
+        publisher1.Distributors.Add(bookShop4);
+        publisher1.Distributors.Add(bookShop0);
+        publisher1.Distributors.Add(bookShop1);
+        publisher1.Distributors.Add(bookShop2);
+
+        publisher2.Distributors.Add(bookShop3);
+        publisher2.Distributors.Add(bookShop4);
+        publisher2.Distributors.Add(bookShop0);
+        publisher2.Distributors.Add(bookShop1);
+
+        publisher3.Distributors.Add(bookShop2);
+        publisher3.Distributors.Add(bookShop3);
+        publisher3.Distributors.Add(bookShop4);
+        publisher3.Distributors.Add(bookShop0);
+
+        publisher4.Distributors.Add(bookShop1);
+        publisher4.Distributors.Add(bookShop2);
+        publisher4.Distributors.Add(bookShop3);
+        publisher4.Distributors.Add(bookShop4);
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var publisherType = typeof (Publisher).GetTypeInfo();
+        var distributorsField = publisherType.Fields["Distributors"];
+        var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
+        prefetchProcessor.Prefetch(publisherKey0, publisherType,
+          new PrefetchFieldDescriptor(distributorsField));
+        prefetchProcessor.ExecuteTasks();
+
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(publisherKey0, publisherType, session,
+          IsFieldKeyOrSystem);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey0, bookShopKey0.Type, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey1, bookShopKey0.Type, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey2, bookShopKey0.Type, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey3, bookShopKey0.Type, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+
+        EntitySetState setState;
+        Assert.IsTrue(session.Handler.TryGetEntitySetState(publisherKey0, distributorsField, out setState));
+        Assert.IsTrue(setState.IsFullyLoaded);
+        Assert.AreEqual(4, setState.count);
+        Assert.AreEqual(bookShopKey0, setState.Take(1));
+        Assert.AreEqual(bookShopKey1, setState.Skip(1).Take(1));
+        Assert.AreEqual(bookShopKey2, setState.Skip(2).Take(1));
+        Assert.AreEqual(bookShopKey3, setState.Skip(2).Take(1));
+      }
+    }
+
+    [Test]
     public void DeletingOfTasksAtTransactionCommitOrRollbackTest()
     {
       Key orderKey = GetFirstKey<Order>();
@@ -768,7 +895,6 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(session.Handler);
         var taskContainers = (SetSlim<PrefetchTaskContainer>) taskContainersField.GetValue(prefetchProcessor);
-        var bookType = typeof (Book).GetTypeInfo();
         var idField = bookType.Fields["Id"];
         for (var i = 1; i < keys.Count; i++) {
           prefetchProcessor.Prefetch(keys[i - 1], bookType, new PrefetchFieldDescriptor(idField));
