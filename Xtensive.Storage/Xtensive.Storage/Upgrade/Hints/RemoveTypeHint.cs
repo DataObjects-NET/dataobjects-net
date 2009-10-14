@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Upgrade
   /// Remove type hint.
   /// </summary>
   [Serializable]
-  internal class RemoveTypeHint : UpgradeHint
+  public class RemoveTypeHint : UpgradeHint
   {
     private const string ToStringFormat = "Remove type: {0}";
 
@@ -35,6 +35,7 @@ namespace Xtensive.Storage.Upgrade
     {
       return string.Format(ToStringFormat, Type);
     }
+
 
     // Constructors
 

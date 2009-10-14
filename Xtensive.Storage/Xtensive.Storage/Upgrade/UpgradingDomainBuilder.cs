@@ -176,9 +176,13 @@ namespace Xtensive.Storage.Upgrade
       var oldModel = context.ExtractedDomainModel;
       if (oldModel != null) {
         var newModel = Domain.Demand().Model;
-        new HintGenerator(oldModel, newModel, extractedSchema)
-          .GenerateHints(context.Hints)
-          .Apply(context.SchemaHints.Add);
+        var hintGenerator = new HintGenerator(oldModel, newModel, extractedSchema);
+        var hints = hintGenerator.GenerateHints(context.Hints);
+        context.Hints.Clear();
+        foreach (var modelHint in hints.ModelHints)
+          context.Hints.Add(modelHint);
+        foreach (var schemaHint in hints.SchemaHints)
+          context.SchemaHints.Add(schemaHint);
       }
     }
 
@@ -201,7 +205,7 @@ namespace Xtensive.Storage.Upgrade
           (typeof (IUpgradeHandler)).IsAssignableFrom(type)
           && !type.IsAbstract
           && type.IsClass
-          && type!=typeof(UpgradeHandler)
+          && type!=typeof (UpgradeHandler)
         let handler = (IUpgradeHandler) type.Activate(null)
         where handler!=null && handler.IsEnabled
         group handler by assembly;
@@ -211,7 +215,7 @@ namespace Xtensive.Storage.Upgrade
         if (group.Count()>1)
           throw new DomainBuilderException(string.Format(
             Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY, 
-            typeof(IUpgradeHandler).GetShortName(), group.Key));
+            typeof (IUpgradeHandler).GetShortName(), group.Key));
         handlers.Add(group.Key, group.First());
       }
 

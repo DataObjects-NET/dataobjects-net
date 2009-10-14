@@ -83,8 +83,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0376.Model2
       var oldNamescpace = "Xtensive.Storage.Tests.Issues.Issue0376.Model1";
       hintSet.Add(new RenameTypeHint(oldNamescpace + ".Father", typeof (Father)));
       hintSet.Add(new RenameTypeHint(oldNamescpace + ".Son", typeof (Son)));
-      hintSet.Add(new CopyFieldHint(oldNamescpace + ".Son", "FirstName", typeof (Father)));
-      hintSet.Add(new RemoveFieldHint(oldNamescpace + ".Son", "FirstName"));
+
+      hintSet.Add(new MoveFieldHint(oldNamescpace + ".Son", "FirstName", typeof (Father)));
+//      hintSet.Add(new CopyFieldHint(oldNamescpace + ".Son", "FirstName", typeof (Father)));
+//      hintSet.Add(new RemoveFieldHint(oldNamescpace + ".Son", "FirstName"));
     }
   }
 }
@@ -130,6 +132,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0376.Model3
       var hintSet = UpgradeContext.Demand().Hints;
       var oldNamescpace = "Xtensive.Storage.Tests.Issues.Issue0376.Model2";
       hintSet.Add(new RenameTypeHint(oldNamescpace + ".Father", typeof (Father)));
+
       hintSet.Add(new RemoveTypeHint(oldNamescpace + ".Son"));
     }
   }
@@ -175,6 +178,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void BaseTest()
     {
+      // Test MoveFieldHint (RemoveFieldHint)
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Issues.Issue0376.Model2");
       config.UpgradeMode = DomainUpgradeMode.PerformSafely;
@@ -182,7 +186,6 @@ namespace Xtensive.Storage.Tests.Issues
       using (M2.Upgrader.Enable()) {
         domain = Domain.Build(config);
       }
-
       using (var session = Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
           var son = Query<M2.Son>.All.Single();
@@ -193,23 +196,19 @@ namespace Xtensive.Storage.Tests.Issues
         }
       }
       
-      // RemoveTypeHint is not implemented
-      /* 
+      // Test RemoveTypeHint
       config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Issues.Issue0376.Model3");
       config.UpgradeMode = DomainUpgradeMode.PerformSafely;
       using (M3.Upgrader.Enable()) {
         domain = Domain.Build(config);
       }
-
       using (var session = Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
           Assert.IsTrue(Query<M3.Father>.All.Count()==0);
           transactionScope.Complete();
         }
       }
-      */
     }
-
   }
 }

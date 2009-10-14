@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Upgrade
     private readonly StoredDomainModel storedModel;
     private readonly StoredDomainModel currentModel;
     private readonly StorageInfo extractedModel;
-
+    
     private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping
       = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
     private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> backwardTypeMapping
@@ -33,36 +33,46 @@ namespace Xtensive.Storage.Upgrade
       = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> backwardFieldMapping
       = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
-    private readonly List<Hint> resultHints = new List<Hint>();
+    
+    private readonly List<Hint> schemaHints = new List<Hint>();
 
-    public IEnumerable<Hint> GenerateHints(IEnumerable<UpgradeHint> upgradeHints)
+    public HintGenerationResult GenerateHints(IEnumerable<UpgradeHint> upgradeHints)
     {
-      var proccessedHints = PreprocessGenericTypeHints(upgradeHints);
+      var proccessedHints = TranslateGenericTypeHints(upgradeHints).ToList();
+      
       var typeRenames = proccessedHints.OfType<RenameTypeHint>().ToArray();
-      var fieldRenames = proccessedHints.OfType<RenameFieldHint>().ToArray();
-      var fieldCopyHints = proccessedHints.OfType<CopyFieldHint>().ToArray();
-      var changeTypeHints = proccessedHints.OfType<ChangeFieldTypeHint>().ToArray();
-      var removeFieldHints = proccessedHints.OfType<RemoveFieldHint>().ToArray();
-      var removeTypeHints = proccessedHints.OfType<RemoveTypeHint>().ToArray();
-
       ValidateRenameTypeHints(typeRenames);
       BuildTypeMapping(typeRenames);
-
+      
+      var fieldRenames = proccessedHints.OfType<RenameFieldHint>().ToArray();
       ValidateRenameFieldHints(fieldRenames);
       BuildFieldMapping(fieldRenames);
       BuildConnectorTypeMapping();
-
-      ValidateCopyFieldHints(fieldCopyHints);
-      ValidateRemoveFieldHints(removeFieldHints);
+      
+      var removeTypeHints = proccessedHints.OfType<RemoveTypeHint>().ToArray();
       ValidateRemoveTypeHints(removeTypeHints);
+      proccessedHints.AddRange(UpdateRemoveTypeHints(removeTypeHints));
+
+      var moveFieldHints = proccessedHints.OfType<MoveFieldHint>().ToArray();
+      proccessedHints.AddRange(TransalateMoveFieldHints(moveFieldHints));
+
+      var removeFieldHints = proccessedHints.OfType<RemoveFieldHint>().ToArray();
+      ValidateRemoveFieldHints(removeFieldHints);
+      UpdateRemoveFieldHints(removeFieldHints);
+
       GenerateRenameTableHints();
       GenerateRenameColumnHints();
+
+      var fieldCopyHints = proccessedHints.OfType<CopyFieldHint>().ToArray();
+      ValidateCopyFieldHints(fieldCopyHints);
       GenerateCopyColumnHints(fieldCopyHints);
+
       GenerateClearDataHints();
+
+      var changeTypeHints = proccessedHints.OfType<ChangeFieldTypeHint>().ToArray();
       UpdateChangeFieldTypeHints(changeTypeHints);
-      UpdateRemoveFieldHints(removeFieldHints);
-      UpdateRemoveTypeHints(removeTypeHints);
-      return resultHints;
+
+      return new HintGenerationResult(proccessedHints, schemaHints);
     }
 
     #region Validation
@@ -301,6 +311,200 @@ namespace Xtensive.Storage.Upgrade
 
     #endregion
 
+    # region Hint translation
+
+    private IEnumerable<UpgradeHint> TranslateGenericTypeHints(IEnumerable<UpgradeHint> hints)
+    {
+      var renameTypeHints = hints.OfType<RenameTypeHint>();
+      var renameGenericTypeHints = renameTypeHints.Where(hint => hint.NewType.IsGenericTypeDefinition);
+      var renameFieldHints = hints.OfType<RenameFieldHint>().Where(hint => hint.TargetType.IsGenericTypeDefinition);
+
+      // Build generic types mapping
+      var genericTypesMapping = new Dictionary<Pair<string, Type>, List<Pair<string, Type>>>();
+      var oldGenericTypes = GetGenericTypes(storedModel);
+      var newGenericTypes = GetGenericTypes(BuildingContext.Demand().Model);
+      foreach (var oldGenericDefName in oldGenericTypes.Keys) {
+        var newGenericDefType = GetNewType(oldGenericDefName, newGenericTypes.Keys, renameTypeHints);
+        if (newGenericDefType==null)
+          continue;
+        var genericArgumentsMapping = new List<Pair<string, Type>>();
+        foreach (var oldGenericArgumentName in oldGenericTypes[oldGenericDefName]) {
+          var newGenericArgumentType = GetNewType(oldGenericArgumentName, newGenericTypes[newGenericDefType], renameTypeHints);
+          if (newGenericArgumentType!=null)
+            genericArgumentsMapping.Add(new Pair<string, Type>(oldGenericArgumentName, newGenericArgumentType));
+        }
+        if (genericArgumentsMapping.Count > 0)
+          genericTypesMapping.Add(new Pair<string, Type>(oldGenericDefName, newGenericDefType), genericArgumentsMapping);
+      }
+
+      // Build rename generic type hints
+      var newRenameHints = new List<UpgradeHint>();
+      foreach (var genericTypePair in genericTypesMapping)
+        foreach (var genericArgumentPair in genericTypePair.Value) {
+          var oldTypeFullName = GetGenericTypeFullName(genericTypePair.Key.First, genericArgumentPair.First);
+          var newType = genericTypePair.Key.Second.MakeGenericType(genericArgumentPair.Second);
+          if (oldTypeFullName != newType.GetFullName())
+            newRenameHints.Add(new RenameTypeHint(oldTypeFullName, newType));
+        }
+      
+      // Build rename generic type field hints
+      foreach (var hint in renameFieldHints) {
+        var newGenericDefType = hint.TargetType;
+        var genericTypePair = genericTypesMapping.Keys.FirstOrDefault(pair => pair.Second==newGenericDefType);
+        var oldGenericTypeName = genericTypePair.First;
+        if (oldGenericTypeName==null)
+          continue;
+        var genericArgumentMapping = genericTypesMapping[genericTypePair];
+        foreach (var pair in genericArgumentMapping)
+          newRenameHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(pair.Second), 
+            hint.OldFieldName, hint.NewFieldName));
+      }
+
+      // Return new hint set
+      return hints
+        .Except(renameGenericTypeHints.Cast<UpgradeHint>())
+        .Except(renameFieldHints.Cast<UpgradeHint>())
+        .Concat(newRenameHints);
+    }
+
+    private IEnumerable<UpgradeHint> TransalateMoveFieldHints(IEnumerable<MoveFieldHint> moveFieldHints)
+    {
+      foreach (var hint in moveFieldHints) {
+        yield return new CopyFieldHint(hint.SourceType, hint.SourceField, hint.TargetType, hint.TargetField);
+        yield return new RemoveFieldHint(hint.SourceType, hint.SourceField);
+      }
+    }
+
+    private IEnumerable<UpgradeHint> UpdateRemoveTypeHints(IEnumerable<RemoveTypeHint> removeTypeHints)
+    {
+      var resultSet = new List<UpgradeHint>();
+      foreach (var removeTypeHint in removeTypeHints)
+        resultSet.AddRange(UpdateRemoveTypeHint(removeTypeHint));
+      return resultSet;
+    }
+
+    private void UpdateChangeFieldTypeHints(IEnumerable<ChangeFieldTypeHint> changeFieldTypeHints)
+    {
+      foreach (var hint in changeFieldTypeHints)
+        UpdateChangeFieldTypeHint(hint);
+    }
+
+    private void UpdateRemoveFieldHints(IEnumerable<RemoveFieldHint> removeFieldHints)
+    {
+      foreach (var hint in removeFieldHints)
+        UpdateRemoveFieldHint(hint);
+    }
+
+    private IEnumerable<UpgradeHint> UpdateRemoveTypeHint(RemoveTypeHint hint)
+    {
+      var affectedTables = new List<string>();
+      var typeName = hint.Type;
+      var storedType = storedModel.Types.SingleOrDefault(type =>
+        type.UnderlyingType==typeName);
+      if (storedType==null)
+        throw TypeIsNotFound(typeName);
+      var inheritanceSchema = storedType.Hierarchy.Schema;
+      var removeFieldHints = new List<UpgradeHint>();
+
+      switch (inheritanceSchema) {
+        case InheritanceSchema.ClassTable:
+          foreach (var fieldInfo in storedType.Fields.Where(field => field.Fields.Length==0))
+            removeFieldHints.Add(new RemoveFieldHint(storedType.UnderlyingType, fieldInfo.Name));
+          affectedTables.Add(GetTablePath(storedType.MappingName));
+          break;
+        case InheritanceSchema.SingleTable:
+          foreach (var fieldInfo in storedType.Fields.Where(field => field.Fields.Length==0))
+            removeFieldHints.Add(new RemoveFieldHint(storedType.UnderlyingType, fieldInfo.Name));
+          affectedTables.Add(GetTablePath(storedType.Hierarchy.Root.MappingName));
+          break;
+        case InheritanceSchema.ConcreteTable:
+          var typeToProcess = GetAffectedMappedTypes(storedType,
+            storedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
+          foreach (var typeInfo in typeToProcess) {
+            foreach (var fieldInfo in storedType.Fields.Where(field => field.Fields.Length==0))
+              removeFieldHints.Add(new RemoveFieldHint(typeInfo.UnderlyingType, fieldInfo.Name));
+          }
+          affectedTables.AddRange(
+            typeToProcess.Select(type => GetTablePath(type.MappingName)));
+          break;
+        default:
+          throw Exceptions.InternalError(String.Format(
+            Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
+      }
+      hint.AffectedTables = new ReadOnlyList<string>(affectedTables);
+      return removeFieldHints;
+    }
+
+    private void UpdateChangeFieldTypeHint(ChangeFieldTypeHint hint)
+    {
+      var affectedColumns = new List<string>();
+      var currentTypeName = hint.Type.GetFullName();
+      var currentType = currentModel.Types.SingleOrDefault(type => 
+        type.UnderlyingType==currentTypeName);
+      if (currentType==null)
+        throw TypeIsNotFound(currentTypeName);
+      var currentField = currentType.AllFields
+        .SingleOrDefault(field => field.Name==hint.FieldName);
+      if (currentField==null)
+        throw FieldIsNotFound(currentTypeName, hint.FieldName);
+      var inheritanceSchema = currentType.Hierarchy.Schema;
+      
+      switch (inheritanceSchema) {
+      case InheritanceSchema.ClassTable:
+        affectedColumns.Add(GetColumnPath(currentField.DeclaringType.MappingName, currentField.MappingName));
+        break;
+      case InheritanceSchema.SingleTable:
+        affectedColumns.Add(GetColumnPath(currentType.Hierarchy.Root.MappingName, currentField.MappingName));
+        break;
+      case InheritanceSchema.ConcreteTable:
+        var typeToProcess = GetAffectedMappedTypes(currentType,
+          currentType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
+        affectedColumns.AddRange(
+          typeToProcess.Select(type => GetColumnPath(type.MappingName, currentField.MappingName)));
+        break;
+      default:
+          throw Exceptions.InternalError(String.Format(
+            Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
+      }
+      hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
+    }
+
+    private void UpdateRemoveFieldHint(RemoveFieldHint hint)
+    {
+      var affectedColumns = new List<string>();
+      var typeName = hint.Type;
+      var storedType = storedModel.Types.SingleOrDefault(type => 
+        type.UnderlyingType==typeName);
+      if (storedType==null)
+        throw TypeIsNotFound(typeName);
+      var storedField = storedType.AllFields
+        .SingleOrDefault(field => field.Name==hint.Field);
+      if (storedField==null)
+        throw FieldIsNotFound(typeName, hint.Field);
+      var inheritanceSchema = storedType.Hierarchy.Schema;
+      
+      switch (inheritanceSchema) {
+      case InheritanceSchema.ClassTable:
+        affectedColumns.Add(GetColumnPath(storedField.DeclaringType.MappingName, storedField.MappingName));
+        break;
+      case InheritanceSchema.SingleTable:
+        affectedColumns.Add(GetColumnPath(storedType.Hierarchy.Root.MappingName, storedField.MappingName));
+        break;
+      case InheritanceSchema.ConcreteTable:
+        var typeToProcess = GetAffectedMappedTypes(storedType,
+          storedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
+        affectedColumns.AddRange(
+          typeToProcess.Select(type => GetColumnPath(type.MappingName, storedField.MappingName)));
+        break;
+      default:
+          throw Exceptions.InternalError(String.Format(
+            Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
+      }
+      hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
+    }
+    
+    # endregion
+    
     #region Hint generation
 
     private void GenerateRenameTableHints()
@@ -360,10 +564,10 @@ namespace Xtensive.Storage.Upgrade
     private void GenerateCopyColumnHints(IEnumerable<CopyFieldHint> hints)
     {
       foreach (var hint in hints)
-        TranslateCopyColumnHint(hint);
+        GenerateCopyColumnHint(hint);
     }
 
-    private void TranslateCopyColumnHint(CopyFieldHint hint)
+    private void GenerateCopyColumnHint(CopyFieldHint hint)
     {
       // searching for all required objects
       var targetTypeName = hint.TargetType.GetFullName();
@@ -411,18 +615,8 @@ namespace Xtensive.Storage.Upgrade
           copiedColumns.Add(new Pair<string>(
             GetColumnPath(sourceTable, columnPair.First),
             GetColumnPath(targetTable, columnPair.Second)));
-        resultHints.Add(new CopyDataHint(sourceTablePath, identities, copiedColumns));
+        schemaHints.Add(new CopyDataHint(sourceTablePath, identities, copiedColumns));
       }
-    }
-
-    private IEnumerable<StoredTypeInfo> GetAffectedMappedTypes(StoredTypeInfo type, bool includeInheritors)
-    {
-      var result = EnumerableUtils.One(type);
-      if (includeInheritors)
-        result = result.Concat(type.AllDescendants);
-      if (type.Hierarchy.Schema==InheritanceSchema.ConcreteTable)
-        result = result.Where(t => !t.IsAbstract);
-      return result;
     }
     
     private void GenerateClearDataHints()
@@ -460,7 +654,7 @@ namespace Xtensive.Storage.Upgrade
             removedType.TypeId.ToString(),
             true)
         };
-        resultHints.Add(new DeleteDataHint(sourceTablePath, identities));
+        schemaHints.Add(new DeleteDataHint(sourceTablePath, identities));
       }
     }
     
@@ -516,179 +710,11 @@ namespace Xtensive.Storage.Upgrade
         .ToList();
 
       if (association.ConnectorType==null)
-        resultHints.Add(new UpdateDataHint(sourceTablePath, identities, updatedColumns));
+        schemaHints.Add(new UpdateDataHint(sourceTablePath, identities, updatedColumns));
       else
-        resultHints.Add(new DeleteDataHint(sourceTablePath, identities));
+        schemaHints.Add(new DeleteDataHint(sourceTablePath, identities));
     }
-
-    private void UpdateRemoveFieldHints(IEnumerable<RemoveFieldHint> removeFieldHints)
-    {
-      removeFieldHints.Apply(UpdateRemoveFieldHint);
-    }
-
-    private void UpdateRemoveFieldHint(RemoveFieldHint hint)
-    {
-      var affectedColumns = new List<string>();
-      var typeName = hint.Type;
-      var storedType = storedModel.Types.SingleOrDefault(type => 
-        type.UnderlyingType==typeName);
-      if (storedType==null)
-        throw TypeIsNotFound(typeName);
-      var storedField = storedType.AllFields
-        .SingleOrDefault(field => field.Name==hint.Field);
-      if (storedField==null)
-        throw FieldIsNotFound(typeName, hint.Field);
-      var inheritanceSchema = storedType.Hierarchy.Schema;
-      
-      switch (inheritanceSchema) {
-      case InheritanceSchema.ClassTable:
-        affectedColumns.Add(GetColumnPath(storedField.DeclaringType.MappingName, storedField.MappingName));
-        break;
-      case InheritanceSchema.SingleTable:
-        affectedColumns.Add(GetColumnPath(storedType.Hierarchy.Root.MappingName, storedField.MappingName));
-        break;
-      case InheritanceSchema.ConcreteTable:
-        var typeToProcess = GetAffectedMappedTypes(storedType,
-          storedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
-        affectedColumns.AddRange(
-          typeToProcess.Select(type => GetColumnPath(type.MappingName, storedField.MappingName)));
-        break;
-      default:
-          throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
-      }
-      hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
-    }
-
-    private void UpdateRemoveTypeHints(IEnumerable<RemoveTypeHint> removeTypeHints)
-    {
-      removeTypeHints.Apply(UpdateRemoveTypeHint);
-    }
-
-    private void UpdateRemoveTypeHint(RemoveTypeHint hint)
-    {
-      var affectedTables = new List<string>();
-      var typeName = hint.Type;
-      var storedType = storedModel.Types.SingleOrDefault(type => 
-        type.UnderlyingType==typeName);
-      if (storedType==null)
-        throw TypeIsNotFound(typeName);
-      var inheritanceSchema = storedType.Hierarchy.Schema;
-      
-      switch (inheritanceSchema) {
-      case InheritanceSchema.ClassTable:
-        affectedTables.Add(GetTablePath(storedType.MappingName));
-        break;
-      case InheritanceSchema.SingleTable:
-        affectedTables.Add(GetTablePath(storedType.Hierarchy.Root.MappingName));
-        break;
-      case InheritanceSchema.ConcreteTable:
-        var typeToProcess = GetAffectedMappedTypes(storedType,
-          storedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
-        affectedTables.AddRange(
-          typeToProcess.Select(type => GetTablePath(type.MappingName)));
-        break;
-      default:
-          throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
-      }
-      hint.AffectedTables = new ReadOnlyList<string>(affectedTables);
-    }
-
-    private void UpdateChangeFieldTypeHints(IEnumerable<ChangeFieldTypeHint> changeFieldTypeHints)
-    {
-      changeFieldTypeHints.Apply(UpdateChangeFieldTypeHint);
-    }
-
-    private void UpdateChangeFieldTypeHint(ChangeFieldTypeHint hint)
-    {
-      var affectedColumns = new List<string>();
-      var currentTypeName = hint.Type.GetFullName();
-      var currentType = currentModel.Types.SingleOrDefault(type => 
-        type.UnderlyingType==currentTypeName);
-      if (currentType==null)
-        throw TypeIsNotFound(currentTypeName);
-      var currentField = currentType.AllFields
-        .SingleOrDefault(field => field.Name==hint.FieldName);
-      if (currentField==null)
-        throw FieldIsNotFound(currentTypeName, hint.FieldName);
-      var inheritanceSchema = currentType.Hierarchy.Schema;
-      
-      switch (inheritanceSchema) {
-      case InheritanceSchema.ClassTable:
-        affectedColumns.Add(GetColumnPath(currentField.DeclaringType.MappingName, currentField.MappingName));
-        break;
-      case InheritanceSchema.SingleTable:
-        affectedColumns.Add(GetColumnPath(currentType.Hierarchy.Root.MappingName, currentField.MappingName));
-        break;
-      case InheritanceSchema.ConcreteTable:
-        var typeToProcess = GetAffectedMappedTypes(currentType,
-          currentType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
-        affectedColumns.AddRange(
-          typeToProcess.Select(type => GetColumnPath(type.MappingName, currentField.MappingName)));
-        break;
-      default:
-          throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
-      }
-      hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
-    }
-
-
-
-    private IEnumerable<UpgradeHint> PreprocessGenericTypeHints(IEnumerable<UpgradeHint> hints)
-    {
-      var renameTypeHints = hints.OfType<RenameTypeHint>();
-      var renameGenericTypeHints = renameTypeHints.Where(hint => hint.NewType.IsGenericTypeDefinition);
-      var renameFieldHints = hints.OfType<RenameFieldHint>().Where(hint => hint.TargetType.IsGenericTypeDefinition);
-
-      // Build generic types mapping
-      var genericTypesMapping = new Dictionary<Pair<string, Type>, List<Pair<string, Type>>>();
-      var oldGenericTypes = GetGenericTypes(storedModel);
-      var newGenericTypes = GetGenericTypes(BuildingContext.Demand().Model);
-      foreach (var oldGenericDefName in oldGenericTypes.Keys) {
-        var newGenericDefType = GetNewType(oldGenericDefName, newGenericTypes.Keys, renameTypeHints);
-        if (newGenericDefType==null)
-          continue;
-        var genericArgumentsMapping = new List<Pair<string, Type>>();
-        foreach (var oldGenericArgumentName in oldGenericTypes[oldGenericDefName]) {
-          var newGenericArgumentType = GetNewType(oldGenericArgumentName, newGenericTypes[newGenericDefType], renameTypeHints);
-          if (newGenericArgumentType!=null)
-            genericArgumentsMapping.Add(new Pair<string, Type>(oldGenericArgumentName, newGenericArgumentType));
-        }
-        if (genericArgumentsMapping.Count > 0)
-          genericTypesMapping.Add(new Pair<string, Type>(oldGenericDefName, newGenericDefType), genericArgumentsMapping);
-      }
-
-      // Build rename generic type hints
-      var newRenameHints = new List<UpgradeHint>();
-      foreach (var genericTypePair in genericTypesMapping) {
-        foreach (var genericArgumentPair in genericTypePair.Value) {
-          var oldTypeFullName = GetGenericTypeFullName(genericTypePair.Key.First, genericArgumentPair.First);
-          var newType = genericTypePair.Key.Second.MakeGenericType(genericArgumentPair.Second);
-          if (oldTypeFullName != newType.GetFullName())
-            newRenameHints.Add(new RenameTypeHint(oldTypeFullName, newType));
-        }
-      }
-      
-      // Build rename generic type field hints
-      foreach (var hint in renameFieldHints) {
-        var newGenericDefType = hint.TargetType;
-        var genericTypePair = genericTypesMapping.Keys.FirstOrDefault(pair => pair.Second==newGenericDefType);
-        var oldGenericTypeName = genericTypePair.First;
-        if (oldGenericTypeName==null)
-          continue;
-        var genericArgumentMapping = genericTypesMapping[genericTypePair];
-        foreach (var pair in genericArgumentMapping) {
-          newRenameHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(pair.Second), 
-            hint.OldFieldName, hint.NewFieldName));
-        }
-      }
-
-      // Return new hint set
-      return hints
-        .Except(renameGenericTypeHints.Cast<UpgradeHint>())
-        .Except(renameFieldHints.Cast<UpgradeHint>())
-        .Concat(newRenameHints);
-    }
-
+    
     private bool IsRemoved(StoredTypeInfo type)
     {
       return !typeMapping.ContainsKey(type);
@@ -702,13 +728,13 @@ namespace Xtensive.Storage.Upgrade
     private void RegisterRenameTableHint(string oldTableName, string newTableName)
     {
       if (EnsureTableExist(oldTableName))
-        resultHints.Add(new RenameHint(GetTablePath(oldTableName), GetTablePath(newTableName)));
+        schemaHints.Add(new RenameHint(GetTablePath(oldTableName), GetTablePath(newTableName)));
     }
 
     private void RegisterRenameFieldHint(string oldTableName, string newTableName, string oldColumnName, string newColumnName)
     {
       if (EnsureTableExist(oldTableName) && EnsureFieldExist(oldTableName, oldColumnName))
-        resultHints.Add(new RenameHint(
+        schemaHints.Add(new RenameHint(
           GetColumnPath(oldTableName, oldColumnName),
           GetColumnPath(newTableName, newColumnName)));
         
@@ -736,17 +762,17 @@ namespace Xtensive.Storage.Upgrade
 
     #endregion
     
-    // Constructors
-
-    public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel, StorageInfo extractedModel)
-    {
-      this.extractedModel = extractedModel;
-      this.storedModel = storedModel;
-      this.currentModel = currentModel.ToStoredModel();
-      this.currentModel.UpdateReferences();
-    }
-    
     #region Static helpers
+
+    private static IEnumerable<StoredTypeInfo> GetAffectedMappedTypes(StoredTypeInfo type, bool includeInheritors)
+    {
+      var result = EnumerableUtils.One(type);
+      if (includeInheritors)
+        result = result.Concat(type.AllDescendants);
+      if (type.Hierarchy.Schema==InheritanceSchema.ConcreteTable)
+        result = result.Where(t => !t.IsAbstract);
+      return result;
+    }
 
     private static Type GetNewType(string oldTypeName, IEnumerable<Type> newTypes, IEnumerable<RenameTypeHint> hints)
     {
@@ -756,7 +782,7 @@ namespace Xtensive.Storage.Upgrade
         : newTypes.FirstOrDefault(type => type.GetFullName() == oldTypeName);
     }
 
-    public static Dictionary<string, List<string>> GetGenericTypes(StoredDomainModel model)
+    private static Dictionary<string, List<string>> GetGenericTypes(StoredDomainModel model)
     {
       var genericTypes = new Dictionary<string, List<string>>();
       foreach (var typeInfo in model.Types.Where(type => type.IsGeneric)) {
@@ -770,7 +796,7 @@ namespace Xtensive.Storage.Upgrade
       return genericTypes;
     }
 
-    public static Dictionary<Type, List<Type>> GetGenericTypes(DomainModel model)
+    private static Dictionary<Type, List<Type>> GetGenericTypes(DomainModel model)
     {
       var genericTypes = new Dictionary<Type, List<Type>>();
       foreach (var typeInfo in model.Types.Where(type => type.UnderlyingType.IsGenericType)) {
@@ -912,5 +938,16 @@ namespace Xtensive.Storage.Upgrade
     }
 
     #endregion
+    
+    
+    // Constructors
+
+    public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel, StorageInfo extractedModel)
+    {
+      this.extractedModel = extractedModel;
+      this.storedModel = storedModel;
+      this.currentModel = currentModel.ToStoredModel();
+      this.currentModel.UpdateReferences();
+    }
   }
 }
