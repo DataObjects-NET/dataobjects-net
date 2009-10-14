@@ -19,14 +19,8 @@ namespace Xtensive.Core.IoC
   {
     private static IServiceLocator defaultLocator;
 
-    /// <summary>
-    /// Gets the current <see cref="IServiceLocator"/> implementation.
-    /// </summary>
-    /// <returns>Current <see cref="IServiceLocator"/> implementation.</returns>
-    private static IServiceLocator GlobalLocator
-    {
-      get
-      {
+    private static IServiceLocator GlobalLocator {
+      get {
         // Note: Do not cache global locator instance. It can be changed anytime.
         try {
           return Microsoft.Practices.ServiceLocation.ServiceLocator.Current;
@@ -37,10 +31,8 @@ namespace Xtensive.Core.IoC
       }
     }
 
-    private static IServiceLocator DefaultLocator
-    {
-      get
-      {
+    private static IServiceLocator DefaultLocator {
+      get {
         if (defaultLocator!=null)
           return defaultLocator;
 

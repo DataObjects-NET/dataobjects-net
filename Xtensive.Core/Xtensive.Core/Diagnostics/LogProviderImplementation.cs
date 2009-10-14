@@ -32,7 +32,6 @@ namespace Xtensive.Core.Diagnostics
     /// <inheritdoc/>
     protected override IRealLog GetRealLog(string key)
     {
-      
       // Looking for configuration section
       var settings = (DiagnosticsSection) ConfigurationManager.GetSection(
         DiagnosticsSection.DefaultSectionName);
@@ -62,11 +61,14 @@ namespace Xtensive.Core.Diagnostics
       TextualLogImplementationBase log = null;
       switch (logSettings.Provider) {
       case LogProviderType.File:
+        var fileName = logSettings.FileName;
         try {
-          log = new FileLog(key, logSettings.FileName ?? Environment.GetCommandLineArgs()[0] + ".log");
+          log = new FileLog(key, fileName.IsNullOrEmpty() ? 
+            Environment.GetCommandLineArgs()[0] + ".log" : fileName);
         }
         catch {
-          log = new FileLog(key, logSettings.FileName ?? DefaultLogName);
+          log = new FileLog(key, fileName.IsNullOrEmpty() ? 
+            DefaultLogName : fileName);
         }
         break;
       case LogProviderType.Console:
@@ -82,6 +84,9 @@ namespace Xtensive.Core.Diagnostics
         return new NullLog(key);
       }
       log.LoggedEventTypes = logSettings.Events;
+      log.Format = logSettings.Format;
+      if (!logSettings.FormatString.IsNullOrEmpty())
+        log.FormatString = logSettings.FormatString;
       return log;
     }
 

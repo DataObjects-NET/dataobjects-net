@@ -18,7 +18,9 @@ namespace Xtensive.Core.Diagnostics.Configuration
     private const string NameElementName = "name";
     private const string EventsElementName = "events";
     private const string ProviderElementName = "provider";
+    private const string FormatElementName = "format";
     private const string FileNameElementName = "fileName";
+    private const string FormatStringElementName = "formatString";
 
     /// <summary>
     /// Gets or sets the name of the log.
@@ -46,6 +48,16 @@ namespace Xtensive.Core.Diagnostics.Configuration
     }
 
     /// <summary>
+    /// Gets or sets log format kind.
+    /// </summary>
+    [ConfigurationProperty(FormatElementName, DefaultValue = LogFormat.Default, IsRequired = false)]
+    public LogFormat Format
+    {
+      get { return (LogFormat) this[FormatElementName]; }
+      set { this[FormatElementName] = value; }
+    }
+
+    /// <summary>
     /// Gets or sets logged event types.
     /// </summary>
     [ConfigurationProperty(EventsElementName, DefaultValue = LogEventTypes.All, IsRequired = false)]
@@ -58,11 +70,21 @@ namespace Xtensive.Core.Diagnostics.Configuration
     /// <summary>
     /// Gets or sets the name of the log file, if underlying <see cref="Provider"/> requires this.
     /// </summary>
-    [ConfigurationProperty(FileNameElementName, DefaultValue = "Default.log", IsRequired = false)]
+    [ConfigurationProperty(FileNameElementName, DefaultValue = null, IsRequired = false)]
     public string FileName
     {
       get { return (string) this[FileNameElementName]; }
       set { this[FileNameElementName] = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the format string to use.
+    /// </summary>
+    [ConfigurationProperty(FormatStringElementName, DefaultValue = null, IsRequired = false)]
+    public string FormatString
+    {
+      get { return (string) this[FormatStringElementName]; }
+      set { this[FormatStringElementName] = value; }
     }
   }
 }

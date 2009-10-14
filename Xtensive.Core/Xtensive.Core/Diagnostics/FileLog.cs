@@ -17,14 +17,22 @@ namespace Xtensive.Core.Diagnostics
   /// </summary>
   public sealed class FileLog : TextualLogImplementationBase
   {
-    private static readonly Dictionary<string, TextWriter> writers;
+    private static readonly Dictionary<string, FileLog> logs = new Dictionary<string, FileLog>();
+    private readonly FileLog primaryLog;
+    private readonly Stream stream;
     private readonly TextWriter writer;
 
     /// <inheritdoc/>
     protected override void LogEventText(string text)
     {
-      writer.WriteLine(text);
-      writer.Flush();
+      if (primaryLog!=null) {
+        primaryLog.LogEventText(text);
+        return;
+      }
+      if (stream.CanWrite) {
+        writer.WriteLine(text);
+        writer.Flush();
+      }
     }
 
 
@@ -38,12 +46,12 @@ namespace Xtensive.Core.Diagnostics
     public FileLog(string name, string fileName)
       : base(name)
     {
-      lock (writers) {
-        if (writers.TryGetValue(fileName, out writer))
+      lock (logs) {
+        if (logs.TryGetValue(fileName, out primaryLog))
           return;
-        var stream = new FileStream(fileName, FileMode.Append, FileAccess.Write);
+        stream = new FileStream(fileName, FileMode.Append, FileAccess.Write);
         writer = TextWriter.Synchronized(new StreamWriter(stream, Encoding.UTF8));
-        writers.Add(fileName, writer);
+        logs.Add(fileName, this);
       }
     }
   }

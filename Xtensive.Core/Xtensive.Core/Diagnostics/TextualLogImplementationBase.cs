@@ -20,8 +20,8 @@ namespace Xtensive.Core.Diagnostics
     IHasSyncRoot
   {
     private readonly static DateTime zeroTime = HighResolutionTime.Now;
-    private LogFormat logFormat;
-    private string customFormat;
+    private LogFormat format;
+    private string formatString = Strings.SimpleLogFormat;
 
     /// <inheritdoc/>
     public override LogEventTypes LoggedEventTypes {
@@ -40,29 +40,31 @@ namespace Xtensive.Core.Diagnostics
     /// <summary>
     /// Gets the log format.
     /// </summary>
-    public LogFormat LogFormat {
+    public LogFormat Format {
       get {
         lock (this)
-          return logFormat;
+          return format;
       }
       set {
         lock (this)
-          logFormat = value;
+          format = value;
       }
     }
 
     /// <summary>
-    /// Gets or sets the custom format of logged messages.
+    /// Gets or sets the custom format string of logged messages.
     /// </summary>
-    public string CustomFormat {
+    public string FormatString {
       get {
         lock (this)
-          return customFormat;
+          return formatString;
       }
       set {
-        ArgumentValidator.EnsureArgumentNotNull(customFormat, "customFormat");
-        lock (this)
-          customFormat = value;
+        ArgumentValidator.EnsureArgumentNotNull(formatString, "formatString");
+        lock (this) {
+          format = LogFormat.Custom;
+          formatString = value;
+        }
       }
     }
 
@@ -103,11 +105,11 @@ namespace Xtensive.Core.Diagnostics
 
     private string GetLogFormat()
     {
-      switch (logFormat) {
+      switch (format) {
       case LogFormat.Simple:
         return Strings.SimpleLogFormat;
       case LogFormat.Custom:
-        return customFormat;
+        return formatString;
       default:
         return Strings.ComprehensiveLogFormat;
       }

@@ -12,7 +12,7 @@ namespace Xtensive.Core.Diagnostics.Configuration
   /// <summary>
   /// A root element of diagnostics configuration section within a configuration file.
   /// </summary>
-  public class ConfigurationSection : global::System.Configuration.ConfigurationSection
+  public class ConfigurationSection : System.Configuration.ConfigurationSection
   {
     /// <summary>
     /// Gets default section name for diagnostics configuration.
