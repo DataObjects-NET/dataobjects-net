@@ -48,9 +48,7 @@ namespace Xtensive.Integrity.Validation
     /// perform validation of region disposal. 
     /// </para>
     /// <para>
-    /// If this method isn't called before region disposal, 
-    /// validation context will receive <see cref="ValidationContextBase.IsValid"/>
-    /// status, and any further attempts to validate there will fail.
+    /// If this method isn't called before region disposal, validation will be performed on transaction commit.
     /// </para>
     /// </remarks>
     public void Complete()
