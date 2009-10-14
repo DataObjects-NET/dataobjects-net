@@ -109,18 +109,19 @@ namespace Xtensive.Storage.Providers.Sql
       if (!Log.IsLogged(LogEventTypes.Info))
         return;
 
-      var logBatch = new List<string> { Driver.BatchBegin };
-      logBatch.AddRange(translator.PreUpgradeCommands);
-      logBatch.AddRange(translator.UpgradeCommands);
-      logBatch.AddRange(translator.DataManipulateCommands);
-      logBatch.AddRange(translator.PostUpgradeCommands);
-      logBatch.Add(Driver.BatchEnd);
+      var batch = 
+        EnumerableUtils.One(Driver.BatchBegin)
+        .Concat(translator.PreUpgradeCommands)
+        .Concat(translator.UpgradeCommands)
+        .Concat(translator.DataManipulateCommands)
+        .Concat(translator.PostUpgradeCommands)
+        .Concat(EnumerableUtils.One(Driver.BatchEnd))
+        .ToArray();
 
       var session = SessionHandler!=null ? SessionHandler.Session : null;
-      Log.Info(Strings.LogSessionXSchemaUpgradeScriptYZ,
+      Log.Info(Strings.LogSessionXSchemaUpgradeScriptY,
         session.GetFullNameSafely(),
-        Environment.NewLine,
-        logBatch.ToDelimitedString(DomainHandler.Driver.BatchItemDelimiter).Trim());
+        Driver.BuildBatch(batch).Trim());
     }
   }
 }

@@ -340,7 +340,7 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Beginning transaction with {1} isolation level..
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Beginning transaction @ {1}..
         /// </summary>
         internal static string LogSessionXBeginningTransactionWithYIsolationLevel {
             get {
@@ -385,7 +385,8 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Query: {1}.
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. SQL batch: 
+        ///{1}.
         /// </summary>
         internal static string LogSessionXQueryY {
             get {
@@ -403,11 +404,12 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Schema upgrade script: {0}{1}.
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Schema upgrade script:
+        ///{1}.
         /// </summary>
-        internal static string LogSessionXSchemaUpgradeScriptYZ {
+        internal static string LogSessionXSchemaUpgradeScriptY {
             get {
-                return ResourceManager.GetString("LogSessionXSchemaUpgradeScriptYZ", resourceCulture);
+                return ResourceManager.GetString("LogSessionXSchemaUpgradeScriptY", resourceCulture);
             }
         }
     }

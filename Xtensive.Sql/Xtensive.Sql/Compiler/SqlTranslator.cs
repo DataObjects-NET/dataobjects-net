@@ -25,7 +25,8 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string BatchBegin { get { return string.Empty; } }
     public virtual string BatchEnd { get { return string.Empty; } }
-    public virtual string BatchItemDelimiter { get { return ";\r\n"; } }
+    public virtual string BatchItemDelimiter { get { return ";"; } }
+    public virtual string NewLine { get { return "\r\n"; } }
 
     public virtual string ArgumentDelimiter { get { return ","; } }
     public virtual string ColumnDelimiter { get { return ","; } }
@@ -1734,22 +1735,31 @@ namespace Xtensive.Sql.Compiler
       return SqlHelper.QuoteIdentifierWithBrackets(names);
     }
 
+    /// <summary>
+    /// Builds the batch from specified SQL statements.
+    /// </summary>
+    /// <param name="statements">The statements.</param>
+    /// <returns>String containing the whole batch.</returns>
     public virtual string BuildBatch(string[] statements)
     {
       if (statements.Length==0)
         return string.Empty;
       var expectedLength = BatchBegin.Length + BatchEnd.Length +
-        statements.Sum(statement => statement.Length + BatchItemDelimiter.Length);
+        statements.Sum(statement => statement.Length + BatchItemDelimiter.Length + NewLine.Length);
       var builder = new StringBuilder(expectedLength);
       builder.Append(BatchBegin);
       foreach (var statement in statements) {
         var actualStatement = statement
           .TryCutPrefix(BatchBegin)
           .TryCutSuffix(BatchEnd)
-          .TryCutSuffix(Environment.NewLine) // a hack
-          .TryCutSuffix(BatchItemDelimiter);
+          .TryCutSuffix(NewLine)
+          .TryCutSuffix(BatchItemDelimiter)
+          .Trim();
+        if (actualStatement.Length==0)
+          continue;
         builder.Append(actualStatement);
         builder.Append(BatchItemDelimiter);
+        builder.Append(NewLine);
       }
       builder.Append(BatchEnd);
       return builder.ToString();

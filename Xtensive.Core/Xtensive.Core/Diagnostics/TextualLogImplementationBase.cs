@@ -9,6 +9,7 @@ using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.Diagnostics
 {
@@ -53,6 +54,8 @@ namespace Xtensive.Core.Diagnostics
 
     /// <summary>
     /// Gets or sets the custom format string of logged messages.
+    /// Setting value of this property sets <see cref="Format"/>
+    /// to <see cref="LogFormat.Custom"/> as well.
     /// </summary>
     public string FormatString {
       get {
@@ -77,21 +80,34 @@ namespace Xtensive.Core.Diagnostics
     public sealed override void LogEvent(LogEventTypes eventType, object message, Exception exception, IRealLog sentTo, LogCaptureScope capturedBy)
     {
       double elapsed;
-      string format;
+      string currentFormat;
       lock (this) {
-        elapsed = (long) (HighResolutionTime.Now - zeroTime).TotalSeconds;
-        format = GetLogFormat();
+        elapsed = (HighResolutionTime.Now - zeroTime).TotalSeconds;
+        currentFormat = GetCurrentFormat();
       }
 
       var thread = Thread.CurrentThread;
-      string text = string.Format(
-        format, 
-        elapsed,
-        thread.Name ?? thread.ManagedThreadId.ToString(),
-        eventType.ToShortString(),
-        Log.Name,
-        LogIndentScope.CurrentIndentString,
-        exception ?? message);
+      string text;
+      if (currentFormat.EndsWith("{5}")) {
+        string prefix = string.Format(
+          currentFormat,
+          elapsed,
+          thread.Name ?? thread.ManagedThreadId.ToString(),
+          eventType.ToShortString(),
+          Log.Name,
+          LogIndentScope.CurrentIndentString,
+          string.Empty);
+        text = prefix + (exception ?? message).ToString().Indent(prefix.Length, false);
+      }
+      else 
+        text = string.Format(
+          currentFormat,
+          elapsed,
+          thread.Name ?? thread.ManagedThreadId.ToString(),
+          eventType.ToShortString(),
+          Log.Name,
+          LogIndentScope.CurrentIndentString,
+          (exception ?? message));
 
       LogEventText(text);
       base.LogEvent(eventType, message, exception, sentTo, capturedBy);
@@ -103,7 +119,7 @@ namespace Xtensive.Core.Diagnostics
     /// <param name="text">The text to log.</param>
     protected abstract void LogEventText(string text);
 
-    private string GetLogFormat()
+    private string GetCurrentFormat()
     {
       switch (format) {
       case LogFormat.Simple:

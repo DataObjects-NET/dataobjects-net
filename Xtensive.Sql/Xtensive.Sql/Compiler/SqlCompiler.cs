@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Compiler
       context = new SqlCompilerContext(options);
       unit.AcceptVisitor(this);
       return new SqlCompilationResult(
-        new Compressor().Compress(context.Output),
+        new Compressor(translator).Compress(context.Output),
         context.ParameterNameProvider.NameTable);
     }
 
@@ -51,7 +51,7 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, AlterDomainSection.Entry));
         if (node.Action is SqlAddConstraint) {
-          DomainConstraint constraint = ((SqlAddConstraint)node.Action).Constraint as DomainConstraint;
+          var constraint = (DomainConstraint) ((SqlAddConstraint)node.Action).Constraint;
           context.Output.AppendText(translator.Translate(context, node, AlterDomainSection.AddConstraint));
           context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
           context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Check));
@@ -59,12 +59,12 @@ namespace Xtensive.Sql.Compiler
           context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Exit));
         }
         else if (node.Action is SqlDropConstraint) {
-          SqlDropConstraint action = node.Action as SqlDropConstraint;
+          var action = node.Action as SqlDropConstraint;
           context.Output.AppendText(translator.Translate(context, node, AlterDomainSection.DropConstraint));
           context.Output.AppendText(translator.Translate(context, action.Constraint, ConstraintSection.Entry));
         }
         else if (node.Action is SqlSetDefault) {
-          SqlSetDefault action = node.Action as SqlSetDefault;
+          var action = node.Action as SqlSetDefault;
           context.Output.AppendText(translator.Translate(context, node, AlterDomainSection.SetDefault));
           action.DefaultValue.AcceptVisitor(this);
         }
@@ -89,31 +89,31 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, AlterTableSection.Entry));
         if (node.Action is SqlAddColumn) {
-          TableColumn column = ((SqlAddColumn) node.Action).Column;
+          var column = ((SqlAddColumn) node.Action).Column;
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.AddColumn));
           Visit(column);
         }
         else if (node.Action is SqlDropDefault) {
-          TableColumn column = ((SqlDropDefault) node.Action).Column;
+          var column = ((SqlDropDefault) node.Action).Column;
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.AlterColumn));
           context.Output.AppendText(translator.Translate(context, column, TableColumnSection.Entry));
           context.Output.AppendText(translator.Translate(context, column, TableColumnSection.DropDefault));
         }
         else if (node.Action is SqlSetDefault) {
-          SqlSetDefault action = node.Action as SqlSetDefault;
+          var action = node.Action as SqlSetDefault;
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.AlterColumn));
           context.Output.AppendText(translator.Translate(context, action.Column, TableColumnSection.Entry));
           context.Output.AppendText(translator.Translate(context, action.Column, TableColumnSection.SetDefault));
           action.DefaultValue.AcceptVisitor(this);
         }
         else if (node.Action is SqlDropColumn) {
-          SqlDropColumn action = node.Action as SqlDropColumn;
+          var action = node.Action as SqlDropColumn;
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropColumn));
           context.Output.AppendText(translator.Translate(context, action.Column, TableColumnSection.Entry));
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropBehavior));
         }
         else if (node.Action is SqlAlterIdentityInfo) {
-          SqlAlterIdentityInfo action = node.Action as SqlAlterIdentityInfo;
+          var action = node.Action as SqlAlterIdentityInfo;
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.AlterColumn));
           context.Output.AppendText(translator.Translate(context, action.Column, TableColumnSection.Entry));
           if ((action.InfoOption & SqlAlterIdentityInfoOptions.RestartWithOption)!=0)
@@ -138,19 +138,19 @@ namespace Xtensive.Sql.Compiler
           }
         }
         else if (node.Action is SqlAddConstraint) {
-          TableConstraint constraint = ((SqlAddConstraint) node.Action).Constraint as TableConstraint;
+          var constraint = ((SqlAddConstraint) node.Action).Constraint as TableConstraint;
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.AddConstraint));
           Visit(constraint);
         }
         else if (node.Action is SqlDropConstraint) {
-          SqlDropConstraint action = node.Action as SqlDropConstraint;
-          TableConstraint constraint = action.Constraint as TableConstraint;
+          var action = node.Action as SqlDropConstraint;
+          var constraint = action.Constraint as TableConstraint;
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropConstraint));
           context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropBehavior));
         }
         else if (node.Action is SqlRenameColumn) {
-          SqlRenameColumn action = node.Action as SqlRenameColumn;
+          var action = node.Action as SqlRenameColumn;
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.RenameColumn));
           context.Output.AppendText(translator.Translate(context, action.Column, TableColumnSection.Entry));
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.To));

@@ -6,9 +6,10 @@ using System.Text;
 
 namespace Xtensive.Sql.Compiler.Internals
 {
-  internal class Compressor : NodeVisitor
+  internal sealed class Compressor : NodeVisitor
   {
-    private char last = '\n';
+    private readonly char newLineEnd;
+    private char last;
     private byte indent;
     private StringBuilder buffer;
     private Node root;
@@ -71,12 +72,12 @@ namespace Xtensive.Sql.Compiler.Internals
     private void AppendLine(string text)
     {
       buffer.AppendLine(text);
-      last = '\n';
+      last = newLineEnd;
     }
 
     private void AppendSpace()
     {
-      if (!(last==' ' || last=='\n' || last=='(')) {
+      if (!(last==' ' || last==newLineEnd || last=='(')) {
         buffer.Append(' ');
         last = ' ';
       }
@@ -166,5 +167,11 @@ namespace Xtensive.Sql.Compiler.Internals
     }
 
     #endregion
+
+    public Compressor(SqlTranslator translator)
+    {
+      newLineEnd = translator.NewLine.Substring(translator.NewLine.Length - 1)[0];
+      last = newLineEnd;
+    }
   }
 }

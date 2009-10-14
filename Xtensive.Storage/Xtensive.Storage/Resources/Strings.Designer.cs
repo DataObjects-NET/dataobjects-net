@@ -2665,7 +2665,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Building declared field &apos;{0}.{1}&apos;..
+        ///   Looks up a localized string similar to Building declared field &apos;{0}.{1}&apos;.
         /// </summary>
         internal static string LogBuildingDeclaredFieldXY {
             get {
@@ -2674,7 +2674,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Building index &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Building index &apos;{0}&apos;.
         /// </summary>
         internal static string LogBuildingIndexX {
             get {
@@ -2683,7 +2683,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Building inherited field &apos;{0}.{1}&apos;..
+        ///   Looks up a localized string similar to Building inherited field &apos;{0}.{1}&apos;.
         /// </summary>
         internal static string LogBuildingInheritedFieldXY {
             get {
@@ -2692,7 +2692,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Building interface field &apos;{0}.{1}&apos;..
+        ///   Looks up a localized string similar to Building interface field &apos;{0}.{1}&apos;.
         /// </summary>
         internal static string LogBuildingInterfaceFieldXY {
             get {
@@ -2701,7 +2701,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Building {0}..
+        ///   Looks up a localized string similar to Building {0}.
         /// </summary>
         internal static string LogBuildingX {
             get {
@@ -2730,7 +2730,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Creating {0}..
+        ///   Looks up a localized string similar to Creating {0}.
         /// </summary>
         internal static string LogCreatingX {
             get {
@@ -2739,7 +2739,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Defining field &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Defining field &apos;{0}&apos;.
         /// </summary>
         internal static string LogDefiningFieldX {
             get {
@@ -2748,7 +2748,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Defining hierarchy for type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Defining hierarchy for type &apos;{0}&apos;.
         /// </summary>
         internal static string LogDefiningHierarchyForTypeX {
             get {
@@ -2757,7 +2757,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Defining indexes..
+        ///   Looks up a localized string similar to Defining indexes.
         /// </summary>
         internal static string LogDefiningIndexes {
             get {
@@ -2766,7 +2766,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Defining &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Defining &apos;{0}&apos;.
         /// </summary>
         internal static string LogDefiningX {
             get {
@@ -2802,7 +2802,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Executing action: &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Executing action: &apos;{0}&apos;.
         /// </summary>
         internal static string LogExecutingActionX {
             get {
@@ -2829,7 +2829,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field: &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Field: &apos;{0}&apos;.
         /// </summary>
         internal static string LogFieldX {
             get {
@@ -2838,7 +2838,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hierarchy: &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Hierarchy: &apos;{0}&apos;.
         /// </summary>
         internal static string LogHierarchyX {
             get {
@@ -2847,7 +2847,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Index: &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Index: &apos;{0}&apos;.
         /// </summary>
         internal static string LogIndexX {
             get {
@@ -2856,7 +2856,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Inspecting hierarchy &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Inspecting hierarchy &apos;{0}&apos;.
         /// </summary>
         internal static string LogInspectingHierarchyX {
             get {
@@ -2865,7 +2865,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Inspecting model definition..
+        ///   Looks up a localized string similar to Inspecting model definition.
         /// </summary>
         internal static string LogInspectingModelDefinition {
             get {
@@ -2874,7 +2874,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Inspecting type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Inspecting type &apos;{0}&apos;.
         /// </summary>
         internal static string LogInspectingTypeX {
             get {
@@ -2919,20 +2919,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Processing fixup actions..
+        ///   Looks up a localized string similar to Processing fixup actions.
         /// </summary>
         internal static string LogProcessingFixupActions {
             get {
                 return ResourceManager.GetString("LogProcessingFixupActions", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SessionBound method &apos;{0}&apos; of type &apos;{1}&apos;..
-        /// </summary>
-        internal static string LogSessionBoundMethodXOfTypeY {
-            get {
-                return ResourceManager.GetString("LogSessionBoundMethodXOfTypeY", resourceCulture);
             }
         }
         
@@ -3027,7 +3018,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Synchronizing schema in {0} mode..
+        ///   Looks up a localized string similar to Synchronizing schema in {0} mode.
         /// </summary>
         internal static string LogSynchronizingSchemaInXMode {
             get {
@@ -3041,15 +3032,6 @@ namespace Xtensive.Storage.Resources {
         internal static string LogTargetSchema {
             get {
                 return ResourceManager.GetString("LogTargetSchema", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Validating {0}..
-        /// </summary>
-        internal static string LogValidatingX {
-            get {
-                return ResourceManager.GetString("LogValidatingX", resourceCulture);
             }
         }
         

@@ -204,8 +204,9 @@
   <data name="ExRowNumberWindowFunctionIsNotSupportedOnThisVersionOfPostgreSql" xml:space="preserve">
     <value>ROW_NUMBER window function is not supported on this version of PostgreSQL</value>
   </data>
-  <data name="LogSessionXSchemaUpgradeScriptYZ" xml:space="preserve">
-    <value>Session '{0}'. Schema upgrade script: {0}{1}</value>
+  <data name="LogSessionXSchemaUpgradeScriptY" xml:space="preserve">
+    <value>Session '{0}'. Schema upgrade script:
+{1}</value>
   </data>
   <data name="ExParametersCountIsNotSameAsSourceColumnListsCount" xml:space="preserve">
     <value>Parameters count is not same as source column lists count.</value>
@@ -223,7 +224,7 @@
     <value>Session '{0}'. Closing connection '{1}'.</value>
   </data>
   <data name="LogSessionXBeginningTransactionWithYIsolationLevel" xml:space="preserve">
-    <value>Session '{0}'. Beginning transaction with {1} isolation level.</value>
+    <value>Session '{0}'. Beginning transaction @ {1}.</value>
   </data>
   <data name="LogSessionXCommitTransaction" xml:space="preserve">
     <value>Session '{0}'. Commit transaction.</value>
@@ -232,6 +233,7 @@
     <value>Session '{0}'. Rollback transaction.</value>
   </data>
   <data name="LogSessionXQueryY" xml:space="preserve">
-    <value>Session '{0}'. Query: {1}</value>
+    <value>Session '{0}'. SQL batch: 
+{1}</value>
   </data>
 </root>

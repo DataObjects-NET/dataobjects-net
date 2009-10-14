@@ -201,9 +201,6 @@
   <data name="ExTypeMustBeEntityDescendant" xml:space="preserve">
     <value>Invalid type specified.</value>
   </data>
-  <data name="LogSessionBoundMethodXOfTypeY" xml:space="preserve">
-    <value>SessionBound method '{0}' of type '{1}'.</value>
-  </data>
   <data name="ExInvalidSession" xml:space="preserve">
     <value>The Session of specified ISessionBound object is invalid.</value>
   </data>
@@ -358,19 +355,16 @@
     <value>Key can not be null.</value>
   </data>
   <data name="LogCreatingX" xml:space="preserve">
-    <value>Creating {0}.</value>
+    <value>Creating {0}</value>
   </data>
   <data name="LogBuildingX" xml:space="preserve">
-    <value>Building {0}.</value>
+    <value>Building {0}</value>
   </data>
   <data name="Model" xml:space="preserve">
     <value>Model</value>
   </data>
   <data name="Generators" xml:space="preserve">
     <value>Generators</value>
-  </data>
-  <data name="LogValidatingX" xml:space="preserve">
-    <value>Validating {0}.</value>
   </data>
   <data name="ActualModel" xml:space="preserve">
     <value>Actual Model</value>
@@ -385,7 +379,7 @@
     <value>Types</value>
   </data>
   <data name="LogDefiningX" xml:space="preserve">
-    <value>Defining '{0}'.</value>
+    <value>Defining '{0}'</value>
   </data>
   <data name="Associations" xml:space="preserve">
     <value>Associations</value>
@@ -636,7 +630,7 @@ Actions:
 {0}</value>
   </data>
   <data name="LogSynchronizingSchemaInXMode" xml:space="preserve">
-    <value>Synchronizing schema in {0} mode.</value>
+    <value>Synchronizing schema in {0} mode</value>
   </data>
   <data name="LogTargetSchema" xml:space="preserve">
     <value>Target schema:</value>
@@ -651,25 +645,25 @@ Actions:
     <value>Multiple hierarchy attributes are not allowed.</value>
   </data>
   <data name="LogDefiningHierarchyForTypeX" xml:space="preserve">
-    <value>Defining hierarchy for type '{0}'.</value>
+    <value>Defining hierarchy for type '{0}'</value>
   </data>
   <data name="LogDefiningFieldX" xml:space="preserve">
-    <value>Defining field '{0}'.</value>
+    <value>Defining field '{0}'</value>
   </data>
   <data name="LogBuildingDeclaredFieldXY" xml:space="preserve">
-    <value>Building declared field '{0}.{1}'.</value>
+    <value>Building declared field '{0}.{1}'</value>
   </data>
   <data name="LogBuildingInheritedFieldXY" xml:space="preserve">
-    <value>Building inherited field '{0}.{1}'.</value>
+    <value>Building inherited field '{0}.{1}'</value>
   </data>
   <data name="LogBuildingInterfaceFieldXY" xml:space="preserve">
-    <value>Building interface field '{0}.{1}'.</value>
+    <value>Building interface field '{0}.{1}'</value>
   </data>
   <data name="LogDefiningIndexes" xml:space="preserve">
-    <value>Defining indexes.</value>
+    <value>Defining indexes</value>
   </data>
   <data name="LogBuildingIndexX" xml:space="preserve">
-    <value>Building index '{0}'.</value>
+    <value>Building index '{0}'</value>
   </data>
   <data name="LogSkippingEntityXAsItDoesNotBelongToAnyHierarchyThusItCannotBePersistent" xml:space="preserve">
     <value>Skipping entity '{0}' as it does not belong to any hierarchy thus it cannot be persistent.</value>
@@ -1179,28 +1173,28 @@ Actions:
     <value>Session '{0}'. Persist completed.</value>
   </data>
   <data name="LogProcessingFixupActions" xml:space="preserve">
-    <value>Processing fixup actions.</value>
+    <value>Processing fixup actions</value>
   </data>
   <data name="LogExecutingActionX" xml:space="preserve">
-    <value>Executing action: '{0}'.</value>
+    <value>Executing action: '{0}'</value>
   </data>
   <data name="LogHierarchyX" xml:space="preserve">
-    <value>Hierarchy: '{0}'.</value>
+    <value>Hierarchy: '{0}'</value>
   </data>
   <data name="LogFieldX" xml:space="preserve">
-    <value>Field: '{0}'.</value>
+    <value>Field: '{0}'</value>
   </data>
   <data name="LogIndexX" xml:space="preserve">
-    <value>Index: '{0}'.</value>
+    <value>Index: '{0}'</value>
   </data>
   <data name="LogInspectingHierarchyX" xml:space="preserve">
-    <value>Inspecting hierarchy '{0}'.</value>
+    <value>Inspecting hierarchy '{0}'</value>
   </data>
   <data name="LogInspectingTypeX" xml:space="preserve">
-    <value>Inspecting type '{0}'.</value>
+    <value>Inspecting type '{0}'</value>
   </data>
   <data name="LogInspectingModelDefinition" xml:space="preserve">
-    <value>Inspecting model definition.</value>
+    <value>Inspecting model definition</value>
   </data>
   <data name="Null" xml:space="preserve">
     <value>null</value>

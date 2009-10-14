@@ -14,7 +14,6 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.ValueTypeMapping;
-using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -28,7 +27,6 @@ namespace Xtensive.Storage.Providers.Sql
     
     public string BatchBegin { get { return translator.BatchBegin; } }
     public string BatchEnd { get { return translator.BatchEnd; } }
-    public string BatchItemDelimiter { get { return translator.BatchItemDelimiter; } }
 
     public ProviderInfo BuildProviderInfo()
     {
