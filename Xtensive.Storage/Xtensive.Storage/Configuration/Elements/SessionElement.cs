@@ -7,6 +7,7 @@
 using System;
 using System.Configuration;
 using System.Transactions;
+using Xtensive.Core.Configuration;
 
 namespace Xtensive.Storage.Configuration.Elements
 {

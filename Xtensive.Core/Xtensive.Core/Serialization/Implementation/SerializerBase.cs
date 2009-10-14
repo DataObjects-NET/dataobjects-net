@@ -6,7 +6,7 @@
 
 using System;
 using System.IO;
-using Xtensive.Core.Helpers;
+using Xtensive.Core.Configuration;
 
 namespace Xtensive.Core.Serialization.Implementation
 {

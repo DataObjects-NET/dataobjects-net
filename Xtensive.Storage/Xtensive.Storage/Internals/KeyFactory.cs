@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Internals
         key = CreateGenericKey(domain, type, accuracy, value, keyIndexes);
       else {
         if (keyIndexes!=null)
-          throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, LogTemplate<Log>.Instance);
+          throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, Log.Instance);
         key = new Key(type, accuracy, value);
       }
       if (!canCache || domain==null)

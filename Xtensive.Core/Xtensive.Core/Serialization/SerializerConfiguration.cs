@@ -7,6 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
+using Xtensive.Core.Configuration;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Serialization.Implementation;
 

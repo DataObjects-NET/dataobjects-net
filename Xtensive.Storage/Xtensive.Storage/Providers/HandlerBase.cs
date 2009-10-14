@@ -14,6 +14,6 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> providing other available handlers.
     /// </summary>
-    protected internal HandlerAccessor Handlers { get; set; }
+    public HandlerAccessor Handlers { get; set; }
   }
 }

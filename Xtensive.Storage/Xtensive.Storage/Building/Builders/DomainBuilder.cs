@@ -270,14 +270,14 @@ namespace Xtensive.Storage.Building.Builders
     {
       var path = unsafeAction.Path;
       if (unsafeAction is PropertyChangeAction) {
-        return string.Format(Strings.ExCantChangeTypeOfColumnX, path);
+        return string.Format(Strings.CantChangeTypeOfColumnX, path);
       }
       if (unsafeAction is RemoveNodeAction) {
         var source = ((NodeDifference) unsafeAction.Difference).Source;
         if (source is TableInfo)
-          return string.Format(Strings.ExCantRemoveTableX, path);
+          return string.Format(Strings.CantRemoveTableX, path);
         if (source is ColumnInfo)
-          return string.Format(Strings.ExCantRemoveColumnX, path);
+          return string.Format(Strings.CantRemoveColumnX, path);
       }
       return string.Empty;
     }

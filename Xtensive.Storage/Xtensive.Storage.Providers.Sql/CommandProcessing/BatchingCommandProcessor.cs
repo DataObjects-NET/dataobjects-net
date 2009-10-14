@@ -92,9 +92,9 @@ namespace Xtensive.Storage.Providers.Sql
           while (currentTaskNumber < registeredTasks.Count) {
             var task = registeredTasks[currentTaskNumber];
             var descriptor = task.Request.TupleDescriptor;
-            var accessor = domainHandler.GetDataReaderAccessor(descriptor);
+            var accessor = DomainHandler.GetDataReaderAccessor(descriptor);
             var output = task.Output;
-            while (driver.ReadRow(reader)) {
+            while (Driver.ReadRow(reader)) {
               var tuple = Tuple.Create(descriptor);
               accessor.Read(reader, tuple);
               output.Add(tuple);
@@ -139,8 +139,8 @@ namespace Xtensive.Storage.Providers.Sql
     
     // Constructors
 
-    public BatchingCommandProcessor(DomainHandler domainHandler, SqlConnection connection,int batchSize)
-      : base(domainHandler, connection)
+    public BatchingCommandProcessor(SessionHandler sessionHandler, int batchSize)
+      : base(sessionHandler)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, "batchSize");
       this.batchSize = batchSize;

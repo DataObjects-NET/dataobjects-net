@@ -13,8 +13,8 @@ namespace Xtensive.Storage.Providers.Sql
 {
   internal sealed class Command : IDisposable
   {
+    private readonly CommandProcessor processor;
     private readonly DbCommand underlyingCommand;
-    private readonly Driver driver;
     private readonly List<string> queries = new List<string>();
     private DisposableSet disposables;
     
@@ -46,19 +46,19 @@ namespace Xtensive.Storage.Providers.Sql
     public object ExecuteScalar()
     {
       PrepareCommand();
-      return driver.ExecuteScalar(underlyingCommand);
+      return processor.Driver.ExecuteScalar(processor.SessionHandler.Session, underlyingCommand);
     }
 
     public void ExecuteNonQuery()
     {
       PrepareCommand();
-      driver.ExecuteNonQuery(underlyingCommand);
+      processor.Driver.ExecuteNonQuery(processor.SessionHandler.Session, underlyingCommand);
     }
 
     public DbDataReader ExecuteReader()
     {
       PrepareCommand();
-      return driver.ExecuteReader(underlyingCommand);
+      return processor.Driver.ExecuteReader(processor.SessionHandler.Session, underlyingCommand);
     }
 
     public void Dispose()
@@ -69,15 +69,15 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void PrepareCommand()
     {
-      underlyingCommand.CommandText = driver.BuildBatch(queries.ToArray());
+      underlyingCommand.CommandText = processor.Driver.BuildBatch(queries.ToArray());
     }
 
 
     // Constructors
 
-    public Command(Driver driver, DbCommand underlyingCommand)
+    public Command(CommandProcessor processor, DbCommand underlyingCommand)
     {
-      this.driver = driver;
+      this.processor = processor;
       this.underlyingCommand = underlyingCommand;
     }
   }

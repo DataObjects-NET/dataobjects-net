@@ -23,26 +23,22 @@ namespace Xtensive.Core.Diagnostics
     private LogEventTypes loggedEventTypes;
 
     /// <inheritdoc/>
-    public string Name
-    {
+    public string Name {
       get { return name; }
     }
 
     /// <inheritdoc/>
-    public string Text
-    {
+    public string Text {
       get { return realLog.Text; }
     }
 
     /// <inheritdoc/>
-    public IRealLog RealLog
-    {
+    public IRealLog RealLog {
       get { return realLog; }
     }
 
     /// <inheritdoc/>
-    public LogEventTypes LoggedEventTypes
-    {
+    public LogEventTypes LoggedEventTypes {
       get { return loggedEventTypes; }
     }
 

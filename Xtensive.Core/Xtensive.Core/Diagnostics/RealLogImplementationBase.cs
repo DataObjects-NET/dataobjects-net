@@ -20,22 +20,19 @@ namespace Xtensive.Core.Diagnostics
     protected LogEventTypes loggedEventTypes;
 
     /// <inheritdoc/>
-    public string Name
-    {
+    public string Name {
       get { return name; }
     }
 
     /// <inheritdoc/>
-    public virtual string Text
-    {
+    public virtual string Text {
       get { 
         throw new NotImplementedException();
       }
     }
 
     /// <inheritdoc/>
-    public ILog Log
-    {
+    public ILog Log {
       get { return log; }
       set {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
@@ -49,11 +46,9 @@ namespace Xtensive.Core.Diagnostics
     }
 
     /// <inheritdoc/>
-    public virtual LogEventTypes LoggedEventTypes
-    {
+    public virtual LogEventTypes LoggedEventTypes {
       get { return loggedEventTypes; }
-      set
-      {
+      set {
         throw Exceptions.AlreadyInitialized("LoggedEventTypes");
       }
     }

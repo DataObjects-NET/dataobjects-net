@@ -15,10 +15,13 @@ namespace Xtensive.Storage.Providers.Sql
 {
   partial class Driver
   {
-    public SqlConnection CreateConnection(UrlInfo urlInfo)
+    public SqlConnection CreateConnection(Session session, UrlInfo urlInfo)
     {
       try {
-        Log.Info(string.Format("Creating connection '{0}'.", urlInfo));
+        if (IsDebugLoggingEnabled) {
+          Log.Debug(Strings.LogSessionXCreatingConnectionY, 
+            session.GetFullNameSafely(), urlInfo);
+        }
         return underlyingDriver.CreateConnection(urlInfo);
       }
       catch (Exception exception) {
@@ -26,10 +29,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    public void OpenConnection(SqlConnection connection)
+    public void OpenConnection(Session session, SqlConnection connection)
     {
       try {
-        Log.Info(string.Format("Opening connection '{0}'.", connection.Url));
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXOpeningConnectionY, 
+            session.GetFullNameSafely(), connection.Url);
         connection.Open();
       }
       catch (Exception exception) {
@@ -37,10 +42,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    public void CloseConnection(SqlConnection connection)
+    public void CloseConnection(Session session, SqlConnection connection)
     {
       try {
-        Log.Info(string.Format("Closing connection '{0}'.", connection.Url));
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXClosingConnectionY, 
+            session.GetFullNameSafely(), connection.Url);
         if (connection.State==ConnectionState.Open)
           connection.Close();
         connection.Dispose();
@@ -50,10 +57,12 @@ namespace Xtensive.Storage.Providers.Sql
       }      
     }
 
-    public DbTransaction BeginTransaction(SqlConnection connection, IsolationLevel isolationLevel)
+    public DbTransaction BeginTransaction(Session session, SqlConnection connection, IsolationLevel isolationLevel)
     {
       try {
-        Log.Info(string.Format("Begin transaction. Isolation level: '{0}'.", isolationLevel));
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, 
+            session.GetFullNameSafely(), isolationLevel);
         return connection.BeginTransaction(isolationLevel);
       }
       catch (Exception exception) {
@@ -61,10 +70,12 @@ namespace Xtensive.Storage.Providers.Sql
       }      
     }
 
-    public void CommitTransaction(DbTransaction transaction)
+    public void CommitTransaction(Session session, DbTransaction transaction)
     {
       try {
-        Log.Info("Commit transaction.");
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXCommitTransaction, 
+            session.GetFullNameSafely());
         transaction.Commit();
         transaction.Dispose();
       }
@@ -73,10 +84,12 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    public void RollbackTransaction(DbTransaction transaction)
+    public void RollbackTransaction(Session session, DbTransaction transaction)
     {
       try {
-        Log.Info("Rollback transaction.");
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXRollbackTransaction, 
+            session.GetFullNameSafely());
         transaction.Rollback();
         transaction.Dispose();
       }
@@ -86,36 +99,42 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
  
-    public int ExecuteNonQuery(DbCommand command)
+    public int ExecuteNonQuery(Session session, DbCommand command)
     {
       try {
-        Log.Info(string.Format("Query: {0}", command.CommandText));
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXQueryY, 
+            session.GetFullNameSafely(), command.ToHumanReadableString());
         return command.ExecuteNonQuery();
       }
       catch (Exception exception) {
-        throw TranslateException(command.CommandText, exception);
+        throw TranslateException(command.ToHumanReadableString(), exception);
       }
     }
 
-    public object ExecuteScalar(DbCommand command)
+    public object ExecuteScalar(Session session, DbCommand command)
     {
       try {
-        Log.Info(string.Format("Query: {0}", command.CommandText));
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXQueryY, 
+            session.GetFullNameSafely(), command.ToHumanReadableString());
         return command.ExecuteScalar();
       }
       catch (Exception exception) {
-        throw TranslateException(command.CommandText, exception);
+        throw TranslateException(command.ToHumanReadableString(), exception);
       }
     }
 
-    public DbDataReader ExecuteReader(DbCommand command)
+    public DbDataReader ExecuteReader(Session session, DbCommand command)
     {
       try {
-        Log.Info(string.Format("Query: {0}", command.CommandText));
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXQueryY, 
+            session.GetFullNameSafely(), command.ToHumanReadableString());
         return command.ExecuteReader();
       }
       catch (Exception exception) {
-        throw TranslateException(command.CommandText, exception);
+        throw TranslateException(command.ToHumanReadableString(), exception);
       }
     }
     

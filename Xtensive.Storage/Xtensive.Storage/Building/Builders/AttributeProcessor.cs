@@ -176,7 +176,8 @@ namespace Xtensive.Storage.Building.Builders
     {
       fieldDef.IsLazyLoad = attribute.LazyLoad;
       if (!fieldDef.IsPrimitive && fieldDef.IsLazyLoad) {
-        Log.Warning(Strings.ExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
+        Log.Warning(
+          Strings.ExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
       }
     }
 

@@ -5,6 +5,7 @@
 // Created:    2007.08.10
 
 using System;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -31,7 +32,7 @@ namespace Xtensive.Storage
       Persist(false);
     }
 
-    internal void Persist(bool allowPartialExecution)
+    internal void Persist(bool allowPartial)
     {
       if (IsPersisting)
         return;
@@ -46,10 +47,12 @@ namespace Xtensive.Storage
             return;
 
           if (IsDebugEventLoggingEnabled)
-            Log.Debug("Session '{0}'. Persisting...", this);
+            Log.Debug(Strings.LogSessionXPersistingY, 
+              this, 
+              allowPartial ? Strings.Partial : Strings.Full);
 
           try {
-            Handler.Persist(EntityChangeRegistry, allowPartialExecution);
+            Handler.Persist(EntityChangeRegistry, allowPartial);
           }
           finally {
             foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
@@ -61,7 +64,7 @@ namespace Xtensive.Storage
             EntityChangeRegistry.Clear();
 
             if (IsDebugEventLoggingEnabled)
-              Log.Debug("Session '{0}'. Persisted.", this);
+              Log.Debug(Strings.LogSessionXPersistCompleted, this);
           }
         }
         NotifyPersisted();

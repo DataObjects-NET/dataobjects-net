@@ -106,11 +106,11 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0,6}/{1,-5} {2,5} {3,-24} {4}{5}.
+        ///   Looks up a localized string similar to {0,6:F2}s/T{1,-5} {2,5} {3,-24} {4}{5}.
         /// </summary>
-        internal static string DebugLogFormat {
+        internal static string ComprehensiveLogFormat {
             get {
-                return ResourceManager.GetString("DebugLogFormat", resourceCulture);
+                return ResourceManager.GetString("ComprehensiveLogFormat", resourceCulture);
             }
         }
         
@@ -1633,6 +1633,15 @@ namespace Xtensive.Core.Resources {
         internal static string SerializationDataFormat {
             get {
                 return ResourceManager.GetString("SerializationDataFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {3}: {5}.
+        /// </summary>
+        internal static string SimpleLogFormat {
+            get {
+                return ResourceManager.GetString("SimpleLogFormat", resourceCulture);
             }
         }
         

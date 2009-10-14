@@ -9,43 +9,25 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Diagnostics
 {
-  [Serializable]
-  public class ConsoleLog : RealLogImplementationBase
+  /// <summary>
+  /// Console log implementation.
+  /// </summary>
+  public sealed class ConsoleLog : TextualLogImplementationBase
   {
     /// <inheritdoc/>
-    public override void LogEvent(LogEventTypes eventType, object message, Exception exception, IRealLog sentTo, LogCaptureScope capturedBy)
+    protected override void LogEventText(string text)
     {
-      Console.WriteLine(string.Format("{0}: {1}", Log.Name, exception ?? message));
-      base.LogEvent(eventType, message, exception, sentTo, capturedBy);
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="StringLog"/> object.
-    /// </summary>
-    /// <returns>Newly created <see cref="StringLog"/> object.</returns>
-    public static ILog Create()
-    {
-      return Create(LogProvider.Console);
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="StringLog"/> object.
-    /// </summary>
-    /// <param name="name">Log name.</param>
-    /// <returns>Newly created <see cref="StringLog"/> object.</returns>
-    public static ILog Create(string name)
-    {
-      return new LogImplementation(new NullLog(name));
+      Console.Out.WriteLine(text);
     }
 
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">Log name.</param>
-    internal ConsoleLog(string name)
+    public ConsoleLog(string name)
       : base(name)
     {
     }

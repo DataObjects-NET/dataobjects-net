@@ -6,10 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Helpers
+namespace Xtensive.Core.Configuration
 {
   /// <summary>
   /// Base class for <see cref="IConfigurable{TConfiguration}"/> implementors.

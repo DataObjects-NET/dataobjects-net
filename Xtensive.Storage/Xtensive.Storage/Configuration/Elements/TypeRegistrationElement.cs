@@ -7,6 +7,7 @@
 using System.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Configuration;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Configuration.Elements

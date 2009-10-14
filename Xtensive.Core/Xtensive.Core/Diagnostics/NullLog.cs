@@ -9,29 +9,11 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Diagnostics
 {
-  [Serializable]
+  /// <summary>
+  /// Null log implementation. Does nothing.
+  /// </summary>
   public sealed class NullLog : RealLogImplementationBase
   {
-    /// <summary>
-    /// Creates a new <see cref="StringLog"/> object.
-    /// </summary>
-    /// <returns>Newly created <see cref="StringLog"/> object.</returns>
-    public static ILog Create()
-    {
-      return Create("Null");
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="StringLog"/> object.
-    /// </summary>
-    /// <param name="name">Log name.</param>
-    /// <returns>Newly created <see cref="StringLog"/> object.</returns>
-    public static ILog Create(string name)
-    {
-      return new LogImplementation(new NullLog(name));
-    }
-
-
     // Constructors
 
     /// <summary>

@@ -202,7 +202,7 @@
     <value>Invalid type specified.</value>
   </data>
   <data name="LogSessionBoundMethodXOfTypeY" xml:space="preserve">
-    <value>SessionBound method '{0}' of type '{1}'</value>
+    <value>SessionBound method '{0}' of type '{1}'.</value>
   </data>
   <data name="ExInvalidSession" xml:space="preserve">
     <value>The Session of specified ISessionBound object is invalid.</value>
@@ -358,10 +358,10 @@
     <value>Key can not be null.</value>
   </data>
   <data name="LogCreatingX" xml:space="preserve">
-    <value>Creating {0}</value>
+    <value>Creating {0}.</value>
   </data>
   <data name="LogBuildingX" xml:space="preserve">
-    <value>Building {0}</value>
+    <value>Building {0}.</value>
   </data>
   <data name="Model" xml:space="preserve">
     <value>Model</value>
@@ -370,7 +370,7 @@
     <value>Generators</value>
   </data>
   <data name="LogValidatingX" xml:space="preserve">
-    <value>Validating {0}</value>
+    <value>Validating {0}.</value>
   </data>
   <data name="ActualModel" xml:space="preserve">
     <value>Actual Model</value>
@@ -385,7 +385,7 @@
     <value>Types</value>
   </data>
   <data name="LogDefiningX" xml:space="preserve">
-    <value>Defining '{0}'</value>
+    <value>Defining '{0}'.</value>
   </data>
   <data name="Associations" xml:space="preserve">
     <value>Associations</value>
@@ -598,7 +598,7 @@
     <value>Type with name '{0}' is not found in metadata.</value>
   </data>
   <data name="LogMetadataTypeRenamedXToY" xml:space="preserve">
-    <value>Metadata.Type renamed: '{0}' to '{1}'</value>
+    <value>Metadata.Type renamed: '{0}' to '{1}'.</value>
   </data>
   <data name="MetadataAssemblyFormat" xml:space="preserve">
     <value>{0} (Version={1})</value>
@@ -607,10 +607,10 @@
     <value>{0} (Id={1})</value>
   </data>
   <data name="LogMetadataAssemblyCreatedX" xml:space="preserve">
-    <value>Metadata.Assembly created: '{0}'</value>
+    <value>Metadata.Assembly created: '{0}'.</value>
   </data>
   <data name="LogMetadataAssemblyUpdatedXFromVersionYToZ" xml:space="preserve">
-    <value>Metadata.Assembly updated: '{0}', from version '{1}' to '{2}'</value>
+    <value>Metadata.Assembly updated: '{0}', from version '{1}' to '{2}'.</value>
   </data>
   <data name="ExMoreThanOneEnabledXIsProvidedForAssemblyY" xml:space="preserve">
     <value>More than one enabled {0} is provided for assembly '{1}'.</value>
@@ -636,7 +636,7 @@ Actions:
 {0}</value>
   </data>
   <data name="LogSynchronizingSchemaInXMode" xml:space="preserve">
-    <value>Synchronizing schema in {0} mode</value>
+    <value>Synchronizing schema in {0} mode.</value>
   </data>
   <data name="LogTargetSchema" xml:space="preserve">
     <value>Target schema:</value>
@@ -651,25 +651,25 @@ Actions:
     <value>Multiple hierarchy attributes are not allowed.</value>
   </data>
   <data name="LogDefiningHierarchyForTypeX" xml:space="preserve">
-    <value>Defining hierarchy for type '{0}'</value>
+    <value>Defining hierarchy for type '{0}'.</value>
   </data>
   <data name="LogDefiningFieldX" xml:space="preserve">
-    <value>Defining field '{0}'</value>
+    <value>Defining field '{0}'.</value>
   </data>
   <data name="LogBuildingDeclaredFieldXY" xml:space="preserve">
-    <value>Building declared field '{0}.{1}'</value>
+    <value>Building declared field '{0}.{1}'.</value>
   </data>
   <data name="LogBuildingInheritedFieldXY" xml:space="preserve">
-    <value>Building inherited field '{0}.{1}'</value>
+    <value>Building inherited field '{0}.{1}'.</value>
   </data>
   <data name="LogBuildingInterfaceFieldXY" xml:space="preserve">
-    <value>Building interface field '{0}.{1}'</value>
+    <value>Building interface field '{0}.{1}'.</value>
   </data>
   <data name="LogDefiningIndexes" xml:space="preserve">
     <value>Defining indexes.</value>
   </data>
   <data name="LogBuildingIndexX" xml:space="preserve">
-    <value>Building index '{0}'</value>
+    <value>Building index '{0}'.</value>
   </data>
   <data name="LogSkippingEntityXAsItDoesNotBelongToAnyHierarchyThusItCannotBePersistent" xml:space="preserve">
     <value>Skipping entity '{0}' as it does not belong to any hierarchy thus it cannot be persistent.</value>
@@ -974,8 +974,8 @@ Actions:
   <data name="SubqueryXHeaderMustHaveOnlyOneColumn" xml:space="preserve">
     <value>Subquery '{0}' header must have only one column.</value>
   </data>
-  <data name="ExLINQTranslatorDoesNotSupportMethodX" xml:space="preserve">
-    <value>LINQ translator does not support method '{0}'</value>
+  <data name="ExLinqTranslatorDoesNotSupportMethodX" xml:space="preserve">
+    <value>LINQ translator does not support method '{0}'.</value>
   </data>
   <data name="ExContainsMethodIsOnlySupportedForRootExpressionsOrSubqueries" xml:space="preserve">
     <value>'Contains' method is only supported for root expressions or subqueries.</value>
@@ -1089,16 +1089,16 @@ Actions:
     <value>Version field '{0}' can't be TypeId field.</value>
   </data>
   <data name="ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot" xml:space="preserve">
-    <value>Type '{0}' can't contains Version fields as it's not a HierarchyRoot.</value>
+    <value>Type '{0}' can't contain Version fields, because it is not a hierarchy root type.</value>
   </data>
   <data name="ExTakeDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>'Take' does not support query provider of type '{0}'.</value>
   </data>
   <data name="ExUnableToUseTakeIntInQueryExecuteUseTakeFuncIntInstead" xml:space="preserve">
-    <value>Unable to use Take(int) in Query.Execute. Use Take(Func&lt;int&gt;) instead.</value>
+    <value>Usage of Take(int) in Query.Execute is wrong. Use Take(Func&lt;int&gt;) instead.</value>
   </data>
   <data name="ExUnableToUseSkipIntInQueryExecuteUseSkipFuncIntInstead" xml:space="preserve">
-    <value>Unable to use Skip(int) in Query.Execute. Use Skip(Func&lt;int&gt;) instead.</value>
+    <value>Usage of Skip(int) in Query.Execute is wrong. Use Skip(Func&lt;int&gt;) instead.</value>
   </data>
   <data name="ExSkipDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>'Skip' does not support query provider of type '{0}'.</value>
@@ -1112,13 +1112,97 @@ Actions:
   <data name="ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity" xml:space="preserve">
     <value>Could not construct new Key instance. Type '{0}' is not an entity.</value>
   </data>
-  <data name="ExCantChangeTypeOfColumnX" xml:space="preserve">
+  <data name="CantChangeTypeOfColumnX" xml:space="preserve">
     <value> (can't change type of column '{0}')</value>
   </data>
-  <data name="ExCantRemoveTableX" xml:space="preserve">
+  <data name="CantRemoveTableX" xml:space="preserve">
     <value> (can't remove table '{0}')</value>
   </data>
-  <data name="ExCantRemoveColumnX" xml:space="preserve">
+  <data name="CantRemoveColumnX" xml:space="preserve">
     <value> (can't remove column '{0}')</value>
+  </data>
+  <data name="LogSessionXDisposing" xml:space="preserve">
+    <value>Session '{0}'. Disposing.</value>
+  </data>
+  <data name="LogDomainIsDisposing" xml:space="preserve">
+    <value>Domain is disposing.</value>
+  </data>
+  <data name="LogDomainIsDisposingByAFinalizer" xml:space="preserve">
+    <value>Domain is disposing by a finalizer.</value>
+  </data>
+  <data name="LogOpeningSessionX" xml:space="preserve">
+    <value>Opening session '{0}'.</value>
+  </data>
+  <data name="LogSessionXRemovingKeyY" xml:space="preserve">
+    <value>Session '{0}'. Removing: Key = '{1}'.</value>
+  </data>
+  <data name="LogSessionXMaterializingYKeyZ" xml:space="preserve">
+    <value>Session '{0}'. Materializing {1}: Key = '{2}'.</value>
+  </data>
+  <data name="SessionXGettingValueKeyYFieldZ" xml:space="preserve">
+    <value>Session '{0}'. Getting value: Key = '{1}', Field = '{2}'.</value>
+  </data>
+  <data name="LogSessionXSettingValueKeyYFieldZ" xml:space="preserve">
+    <value>Session '{0}'. Setting value: Key = '{1}', Field = '{2}'.</value>
+  </data>
+  <data name="LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired" xml:space="preserve">
+    <value>Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.</value>
+  </data>
+  <data name="LogSessionXResolvingKeyYExactTypeIsZ" xml:space="preserve">
+    <value>Session '{0}'. Resolving key '{1}'. Exact type is {0}.</value>
+  </data>
+  <data name="Known" xml:space="preserve">
+    <value>known</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>unknown</value>
+  </data>
+  <data name="LogSessionXResolvingKeyYKeyIsAlreadyResolved" xml:space="preserve">
+    <value>Session '{0}'. Resolving key '{1}'. Key is already resolved.</value>
+  </data>
+  <data name="SessionXCachingY" xml:space="preserve">
+    <value>Session '{0}'. Caching: {1}.</value>
+  </data>
+  <data name="SessionXUpdatingCacheY" xml:space="preserve">
+    <value>Session '{0}'. Updating cache: {1}.</value>
+  </data>
+  <data name="LogSessionXPersistingY" xml:space="preserve">
+    <value>Session '{0}'. Persisting ({1})...</value>
+  </data>
+  <data name="Partial" xml:space="preserve">
+    <value>partial</value>
+  </data>
+  <data name="Full" xml:space="preserve">
+    <value>full</value>
+  </data>
+  <data name="LogSessionXPersistCompleted" xml:space="preserve">
+    <value>Session '{0}'. Persist completed.</value>
+  </data>
+  <data name="LogProcessingFixupActions" xml:space="preserve">
+    <value>Processing fixup actions.</value>
+  </data>
+  <data name="LogExecutingActionX" xml:space="preserve">
+    <value>Executing action: '{0}'.</value>
+  </data>
+  <data name="LogHierarchyX" xml:space="preserve">
+    <value>Hierarchy: '{0}'.</value>
+  </data>
+  <data name="LogFieldX" xml:space="preserve">
+    <value>Field: '{0}'.</value>
+  </data>
+  <data name="LogIndexX" xml:space="preserve">
+    <value>Index: '{0}'.</value>
+  </data>
+  <data name="LogInspectingHierarchyX" xml:space="preserve">
+    <value>Inspecting hierarchy '{0}'.</value>
+  </data>
+  <data name="LogInspectingTypeX" xml:space="preserve">
+    <value>Inspecting type '{0}'.</value>
+  </data>
+  <data name="LogInspectingModelDefinition" xml:space="preserve">
+    <value>Inspecting model definition.</value>
+  </data>
+  <data name="Null" xml:space="preserve">
+    <value>null</value>
   </data>
 </root>

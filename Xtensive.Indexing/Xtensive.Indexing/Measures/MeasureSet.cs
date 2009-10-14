@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
+using Xtensive.Core.Configuration;
 
 namespace Xtensive.Indexing.Measures
 {

@@ -5,6 +5,7 @@
 // Created:    2008.08.11
 
 using System.Configuration;
+using Xtensive.Core.Configuration;
 
 namespace Xtensive.Storage.Configuration.Elements
 {

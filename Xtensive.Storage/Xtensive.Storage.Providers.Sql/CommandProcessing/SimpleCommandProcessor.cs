@@ -45,10 +45,11 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+
     // Constructors
 
-    public SimpleCommandProcessor(DomainHandler domainHandler, SqlConnection connection)
-      : base(domainHandler, connection)
+    public SimpleCommandProcessor(SessionHandler sessionHandler)
+      : base(sessionHandler)
     {
     }
   }

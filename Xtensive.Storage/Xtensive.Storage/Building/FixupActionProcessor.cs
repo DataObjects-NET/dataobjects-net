@@ -12,6 +12,7 @@ using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Building.FixupActions;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building
 {
@@ -22,10 +23,10 @@ namespace Xtensive.Storage.Building
     {
       var context = BuildingContext.Current;
 
-      using (Log.InfoRegion("Processing fixup actions"))
+      using (Log.InfoRegion(Strings.LogProcessingFixupActions))
         while (context.ModelInspectionResult.Actions.Count > 0) {
           var action = context.ModelInspectionResult.Actions.Dequeue();
-          Log.Info(string.Format("Executing action: '{0}'", action));
+          Log.Info(string.Format(Strings.LogExecutingActionX, action));
           action.Run();
         }
     }
@@ -72,14 +73,16 @@ namespace Xtensive.Storage.Building
 
       // We can produce generic instance types with exactly 1 parameter, e.g. EntityWrapper<TEntity> where TEntity : Entity
       if (parameters.Length!=1)
-        throw new DomainBuilderException(string.Format(Resources.Strings.ExUnableToBuildGenericInstanceTypesForXTypeBecauseItContainsMoreThen1GenericParameter, action.Type.Name));
+        throw new DomainBuilderException(string.Format(
+          Strings.ExUnableToBuildGenericInstanceTypesForXTypeBecauseItContainsMoreThen1GenericParameter, action.Type.Name));
 
       var parameter = parameters[0];
 
       // Parameter must be constrained
       var constraints = parameter.GetGenericParameterConstraints();
       if (constraints.Length==0)
-        throw new DomainBuilderException(string.Format(Resources.Strings.ExUnableToBuildGenericInstanceTypesForXTypeBecauseParameterIsNotConstrained, action.Type.Name));
+        throw new DomainBuilderException(string.Format(
+          Strings.ExUnableToBuildGenericInstanceTypesForXTypeBecauseParameterIsNotConstrained, action.Type.Name));
 
       // Building instances for all hierarchies
       foreach (var hierarchy in hierarchies) {

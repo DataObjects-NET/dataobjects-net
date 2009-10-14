@@ -5,7 +5,12 @@
 // Created:    2009.10.12
 
 using System;
+using System.Configuration;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
+using Xtensive.Core.Diagnostics.Configuration;
+using Xtensive.Core.Helpers;
+using DiagnosticsSection=Xtensive.Core.Diagnostics.Configuration.ConfigurationSection;
 
 namespace Xtensive.Core.Diagnostics
 {
@@ -15,6 +20,9 @@ namespace Xtensive.Core.Diagnostics
   [Serializable]
   public sealed class LogProviderImplementation : LogProviderImplementationBase
   {
+    private const string DefaultLogName = "Default.log";
+    private const string KeyPrefixRegex = @"(.*)\.([^.])+";
+
     /// <inheritdoc/>
     protected override ILog GetLogImplementation(IRealLog realLog)
     {
@@ -24,16 +32,71 @@ namespace Xtensive.Core.Diagnostics
     /// <inheritdoc/>
     protected override IRealLog GetRealLog(string key)
     {
-      if (key == LogProvider.Console)
-        return new ConsoleLog(key);
-      if (key == LogProvider.Null)
-        return new NullLog(key);
+      
+      // Looking for configuration section
+      var settings = (DiagnosticsSection) ConfigurationManager.GetSection(
+        DiagnosticsSection.DefaultSectionName);
+      if (settings==null || settings.Logs==null)
+        return GetDefaultRealLog(key); // Nothing is found, fallback to default.
 
-#if DEBUG
-      return new DebugLog(key);
-#else
-      return Debugger.IsAttached ? (IRealLog) new DebugLog(key) : new NullLog(key);
-#endif
+      // Looking for log with specified name (key) there,
+      // or one of its its parents
+      var currentKey = key ?? string.Empty;
+      LogElement logSettings = null;
+      while (true) {
+        logSettings = settings.Logs[currentKey];
+        if (logSettings!=null)
+          break;
+        if (currentKey.IsNullOrEmpty())
+          break;
+        var nextKey = Regex.Replace(currentKey, KeyPrefixRegex, "${1}", RegexOptions.Multiline);
+        if (nextKey!=currentKey)
+          currentKey = nextKey;
+        else
+          currentKey = string.Empty;
+      }
+      if (logSettings==null)
+        return GetDefaultRealLog(key); // Nothing is found, fallback to default.
+
+      // Processing found settings
+      TextualLogImplementationBase log = null;
+      switch (logSettings.Provider) {
+      case LogProviderType.File:
+        try {
+          log = new FileLog(key, logSettings.FileName ?? Environment.GetCommandLineArgs()[0] + ".log");
+        }
+        catch {
+          log = new FileLog(key, logSettings.FileName ?? DefaultLogName);
+        }
+        break;
+      case LogProviderType.Console:
+        log = new ConsoleLog(key);
+        break;
+      case LogProviderType.Debug:
+        log = new DebugLog(key);
+        break;
+      case LogProviderType.Error:
+        log = new ErrorLog(key);
+        break;
+      default:
+        return new NullLog(key);
+      }
+      log.LoggedEventTypes = logSettings.Events;
+      return log;
+    }
+
+    private static IRealLog GetDefaultRealLog(string key)
+    {
+      if (key == LogProviderType.Console.ToString())
+        return new ConsoleLog(key);
+      if (key == LogProviderType.Null.ToString())
+        return new NullLog(key);
+      if (key == LogProviderType.Debug.ToString())
+        return new DebugLog(key);
+      if (Debugger.IsAttached)
+        return new DebugLog(key);
+      else 
+        return new NullLog(key);
     }
   }
 }

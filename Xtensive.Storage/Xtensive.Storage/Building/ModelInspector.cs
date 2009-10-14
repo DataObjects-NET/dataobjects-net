@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Building
   {
     public static void Run()
     {
-      using (Log.InfoRegion("Inspecting model definition")) {
+      using (Log.InfoRegion(Strings.LogInspectingModelDefinition)) {
         InspectHierarchies();
         InspectTypes();
         InspectInterfaces();
@@ -159,7 +159,7 @@ namespace Xtensive.Storage.Building
     {
       var context = BuildingContext.Current;
       var root = hierarchyDef.Root;
-      Log.Info("Inspecting hierarchy '{0}'", root.Name);
+      Log.Info(Strings.LogInspectingHierarchyX, root.Name);
       Validator.ValidateHierarchy(hierarchyDef);
 
       // Check the presence of TypeId field
@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Building
     public static void Inspect(TypeDef typeDef)
     {
       var context = BuildingContext.Current;
-      Log.Info("Inspecting type '{0}'", typeDef.Name);
+      Log.Info(Strings.LogInspectingTypeX, typeDef.Name);
 
       if (typeDef.IsInterface) {
         // Base interfaces

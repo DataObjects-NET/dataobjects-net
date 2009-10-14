@@ -6,7 +6,7 @@
 
 using System.Diagnostics;
 using Xtensive.Core.Comparison;
-using Xtensive.Core.Helpers;
+using Xtensive.Core.Configuration;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing.Optimization;
 

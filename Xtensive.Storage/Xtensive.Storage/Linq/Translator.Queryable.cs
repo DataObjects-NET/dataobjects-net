@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Linq
           throw new ArgumentOutOfRangeException("methodKind");
         }
       }
-      throw new NotSupportedException(String.Format(Strings.ExLINQTranslatorDoesNotSupportMethodX, methodKind));
+      throw new NotSupportedException(String.Format(Strings.ExLinqTranslatorDoesNotSupportMethodX, methodKind));
     }
 
     private Expression VisitAsQueryable(Expression source)

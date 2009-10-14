@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 
-namespace Xtensive.Storage.Configuration.Elements
+namespace Xtensive.Core.Configuration
 {
   /// <summary>
   /// A typed version of <see cref="ConfigurationElementCollection"/>.
@@ -27,6 +27,18 @@ namespace Xtensive.Storage.Configuration.Elements
     protected override object GetElementKey(ConfigurationElement element)
     {
       return ((ConfigurationCollectionElementBase) element).Identifier;
+    }
+
+    /// <summary>
+    /// Gets the element by specified identifier.
+    /// </summary>
+    public new T this[string identifier] {
+      get {
+        foreach (var element in this)
+          if (element.Identifier.Equals(identifier))
+            return element;
+        return null;
+      }
     }
 
     /// <summary>

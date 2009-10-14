@@ -5,9 +5,8 @@
 // Created:    2007.08.10
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.Practices.ServiceLocation;
+using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
@@ -49,15 +48,21 @@ namespace Xtensive.Storage
   /// </example>
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
-  [DebuggerDisplay("Name = {Name}")]
+  [DebuggerDisplay("FullName = {FullName}")]
   public sealed partial class Session : DomainBound,
+    IIdentified<long>,
     IContext<SessionScope>, 
     IDisposable,
     IHasExtensions
   {
+    private const string IdentifierFormat = "#{0}";
+    private const string FullNameFormat   = "{0}, #{1}";
+
+    private static Func<Session> resolver;
+    private static long lastUsedIdentifier;
+
     private const int EntityChangeRegistrySizeLimit = 250; // TODO: -> SessionConfiguration
     private ExtensionCollection extensions;
-    private static Func<Session> resolver;
 
     private readonly object _lock = new object();
     private readonly bool persistRequiresTopologicalSort;
@@ -76,6 +81,31 @@ namespace Xtensive.Storage
     /// (useful mainly for debugging purposes - e.g. it is used in logs).
     /// </summary>
     public string Name { get; private set; }
+
+    /// <summary>
+    /// Gets the identifier of the session.
+    /// Identifiers are unique in <see cref="AppDomain"/> scope.
+    /// </summary>
+    public long Identifier { get; private set; }
+
+    /// <inheritdoc/>
+    object IIdentified.Identifier {
+      get { return Identifier; }
+    }
+
+    /// <summary>
+    /// Gets the full name of the <see cref="Session"/>.
+    /// Full name includes both <see cref="Name"/> and <see cref="Identifier"/>.
+    /// </summary>
+    public string FullName {
+      get {
+        string name = Name;
+        if (name.IsNullOrEmpty())
+          return string.Format(IdentifierFormat, Identifier);
+        else
+          return string.Format(FullNameFormat, name, Identifier);
+      }
+    }
 
     /// <summary>
     /// Indicates whether debug event logging is enabled.
@@ -386,7 +416,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override string ToString()
     {
-      return Name;
+      return FullName;
     }
 
 
@@ -395,17 +425,22 @@ namespace Xtensive.Storage
     internal Session(Domain domain, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
-      IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      IsDebugEventLoggingEnabled = 
+        Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
+
       // Both Domain and Configuration are valid references here;
       // Configuration is already locked
       Configuration = configuration;
       Name = configuration.Name;
+      Identifier = Interlocked.Increment(ref lastUsedIdentifier);
+
       // Handlers
       Handlers = domain.Handlers;
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
       Handler.Session = this;
       Handler.DefaultIsolationLevel = configuration.DefaultIsolationLevel;
       Handler.Initialize();
+
       // Caches, registry
       switch (configuration.CacheType) {
       case SessionCacheType.Infinite:
@@ -455,7 +490,7 @@ namespace Xtensive.Storage
           return;
         try {
           if (IsDebugEventLoggingEnabled)
-            Log.Debug("Session '{0}'. Disposing.", this);
+            Log.Debug(Strings.LogSessionXDisposing, this);
           NotifyDisposing();
           Handler.DisposeSafely();
           sessionScope.DisposeSafely();

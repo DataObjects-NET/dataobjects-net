@@ -13,7 +13,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
-namespace Xtensive.Core.Helpers
+namespace Xtensive.Core.Configuration
 {
   /// <summary>
   /// Base class for a configuration described by a set of named configurations 

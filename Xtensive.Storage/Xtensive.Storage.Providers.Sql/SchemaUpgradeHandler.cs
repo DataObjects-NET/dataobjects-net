@@ -8,11 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Modelling.Actions;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Upgrade;
 using ModelTypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
 
@@ -43,7 +45,7 @@ namespace Xtensive.Storage.Providers.Sql
         enforceChangedColumns,
         SessionHandler.ExecuteScalarStatement);
 
-      WriteToLog(translator);
+      LogTranslatedStatements(translator);
 
       Execute(translator.PreUpgradeCommands);
       Execute(translator.UpgradeCommands);
@@ -75,7 +77,7 @@ namespace Xtensive.Storage.Providers.Sql
         var command = Connection.CreateCommand(commandText);
         command.Transaction = SessionHandler.Transaction;
         using (command) {
-          Driver.ExecuteNonQuery(command);
+          Driver.ExecuteNonQuery(null, command);
         }
       }
       else {
@@ -85,7 +87,7 @@ namespace Xtensive.Storage.Providers.Sql
           var command = Connection.CreateCommand(commandText);
           command.Transaction = SessionHandler.Transaction;
           using (command) {
-            Driver.ExecuteNonQuery(command);
+            Driver.ExecuteNonQuery(null, command);
           }
         }
       }
@@ -102,19 +104,23 @@ namespace Xtensive.Storage.Providers.Sql
       return schema;
     }
 
-    private void WriteToLog(SqlActionTranslator translator)
+    private void LogTranslatedStatements(SqlActionTranslator translator)
     {
-      var logDelimiter = DomainHandler.Driver.BatchItemDelimiter + Environment.NewLine;
-      var logBatch = new List<string>();
-      logBatch.Add(Driver.BatchBegin);
-      translator.PreUpgradeCommands.Apply(logBatch.Add);
-      translator.UpgradeCommands.Apply(logBatch.Add);
-      translator.DataManipulateCommands.Apply(logBatch.Add);
-      translator.PostUpgradeCommands.Apply(logBatch.Add);
+      if (!Log.IsLogged(LogEventTypes.Info))
+        return;
+
+      var logBatch = new List<string> { Driver.BatchBegin };
+      logBatch.AddRange(translator.PreUpgradeCommands);
+      logBatch.AddRange(translator.UpgradeCommands);
+      logBatch.AddRange(translator.DataManipulateCommands);
+      logBatch.AddRange(translator.PostUpgradeCommands);
       logBatch.Add(Driver.BatchEnd);
-      if (logBatch.Count > 2)
-        Storage.Log.Info("Upgrade DDL: {0}", 
-          Environment.NewLine + string.Join(logDelimiter, logBatch.ToArray()));
+
+      var session = SessionHandler!=null ? SessionHandler.Session : null;
+      Log.Info(Strings.LogSessionXSchemaUpgradeScriptYZ,
+        session.GetFullNameSafely(),
+        Environment.NewLine,
+        logBatch.ToDelimitedString(DomainHandler.Driver.BatchItemDelimiter).Trim());
     }
   }
 }

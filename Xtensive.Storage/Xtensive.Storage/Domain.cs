@@ -20,6 +20,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Upgrade;
 
@@ -247,7 +248,7 @@ namespace Xtensive.Storage
       configuration.Lock(true);
 
       if (IsDebugEventLoggingEnabled)
-        Log.Debug("Opening session '{0}'", configuration);
+        Log.Debug(Strings.LogOpeningSessionX, configuration);
 
       var session = new Session(this, configuration, activate);
       OnSessionOpen(session);
@@ -290,7 +291,8 @@ namespace Xtensive.Storage
 
     internal Domain(DomainConfiguration configuration, ModuleProvider modules)
     {
-      IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      IsDebugEventLoggingEnabled = 
+        Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       RecordSetReader = new RecordSetReader(this);
@@ -322,7 +324,9 @@ namespace Xtensive.Storage
             DisposingState = DisposingState.Disposing;
             try {
               if (IsDebugEventLoggingEnabled)
-                Log.Debug("Domain disposing {0}.", isDisposing ? "explicitly" : "by calling finalizer.");
+                Log.Debug(isDisposing ? 
+                  Strings.LogDomainIsDisposing : 
+                  Strings.LogDomainIsDisposingByAFinalizer);
               OnDisposing();
               KeyGenerators.DisposeSafely();
             }

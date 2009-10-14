@@ -15,57 +15,9 @@ namespace Xtensive.Core.Diagnostics
   /// <summary>
   /// Log writing all events to <see cref="StringBuilder"/> <see cref="Output"/>.
   /// </summary>
-  public class StringLog: RealLogImplementationBase,
-    IHasSyncRoot
+  public class StringLog: TextualLogImplementationBase
   {
     private readonly StringBuilder output  = new StringBuilder();
-    private DateTime zeroTime;
-    private string format = "{0,-8:F4} {1,-10} {2,-20} {3}\r\n";
-
-    /// <inheritdoc/>
-    public override LogEventTypes LoggedEventTypes {
-      get {
-        using (LockType.Exclusive.LockRegion(SyncRoot))
-          return loggedEventTypes;
-      }
-      set {
-        using (LockType.Exclusive.LockRegion(SyncRoot)) {
-          loggedEventTypes = value;
-          UpdateCachedProperties();
-        }
-      }
-    }
-    
-    /// <summary>
-    /// Gets or sets the format of logged messages.
-    /// </summary>
-    public string Format {
-      get {
-        using (LockType.Exclusive.LockRegion(SyncRoot))
-          return format;
-      }
-      set {
-        using (LockType.Exclusive.LockRegion(SyncRoot))
-          format = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the zero time.
-    /// </summary>
-    public DateTime ZeroTime
-    {
-      get
-      {
-        using (LockType.Exclusive.LockRegion(SyncRoot))
-          return zeroTime;
-      }
-      set
-      {
-        using (LockType.Exclusive.LockRegion(SyncRoot))
-          zeroTime = value;
-      }
-    }
 
     /// <summary>
     /// Gets output of this log (as <see cref="StringBuilder"/>).
@@ -81,48 +33,16 @@ namespace Xtensive.Core.Diagnostics
     /// </summary>
     public override string Text {
       get {
-        using (LockType.Exclusive.LockRegion(SyncRoot))
+        lock (this)
           return output.ToString();
       }
     }
 
     /// <inheritdoc/>
-    public override void LogEvent(LogEventTypes eventType, object message, Exception exception, IRealLog sentTo, LogCaptureScope capturedBy)
+    protected override void LogEventText(string text)
     {
-      using (LockType.Exclusive.LockRegion(SyncRoot)) {
-        TimeSpan time = HighResolutionTime.Now - zeroTime;
-        output.AppendFormat(format, time.TotalSeconds, eventType, sentTo.Name, message);
-        base.LogEvent(eventType, message, exception, sentTo, capturedBy);
-      }
-    }
-
-    /// <inheritdoc/>
-    public object SyncRoot
-    {
-      [DebuggerStepThrough]
-      get { return this; }
-    }
-
-    
-    // LogImplementation constructors
-
-    /// <summary>
-    /// Creates a new <see cref="StringLog"/> object.
-    /// </summary>
-    /// <returns>Newly created <see cref="StringLog"/> object.</returns>
-    public static ILog Create()
-    {
-      return Create("Unnamed");
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="StringLog"/> object.
-    /// </summary>
-    /// <param name="name">Log name.</param>
-    /// <returns>Newly created <see cref="StringLog"/> object.</returns>
-    public static ILog Create(string name)
-    {
-      return new LogImplementation(new StringLog(name));
+      lock (this)
+        output.AppendLine(text);
     }
 
 
@@ -132,11 +52,9 @@ namespace Xtensive.Core.Diagnostics
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="name">Log name.</param>
-    private StringLog(string name) 
+    public StringLog(string name) 
       : base(name)
     {
-      loggedEventTypes = LogEventTypes.All;
-      zeroTime = HighResolutionTime.Now;
     }
   }
 }

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
@@ -16,10 +17,6 @@ namespace Xtensive.Storage.Providers.Sql
   internal abstract class CommandProcessor : IDisposable
   {
     protected const string DefaultParameterNamePrefix = "p";
-
-    protected readonly DomainHandler domainHandler;
-    protected readonly Driver driver;
-    protected readonly SqlConnection connection;
     protected readonly CommandPartFactory factory;
     
     protected Queue<SqlQueryTask> queryTasks = new Queue<SqlQueryTask>();
@@ -29,8 +26,12 @@ namespace Xtensive.Storage.Providers.Sql
     protected Command activeCommand;
     protected DbTransaction transaction;
 
-    public DbTransaction Transaction
-    {
+    public SessionHandler SessionHandler { get; private set; }
+    public DomainHandler DomainHandler { get; private set; }
+    public Driver Driver { get; private set; }
+    public SqlConnection Connection { get; private set; }
+
+    public DbTransaction Transaction {
       get { return transaction; }
       set {
         if (reenterCount > 0 && value!=transaction)
@@ -45,7 +46,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       AllocateCommand();
       try {
-        var part = task.Request.Compile(domainHandler).GetCommandText();
+        var part = task.Request.Compile(DomainHandler).GetCommandText();
         activeCommand.AddPart(part);
         return activeCommand.ExecuteScalar();
       }
@@ -103,9 +104,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     protected IEnumerator<Tuple> RunTupleReader(DbDataReader reader, TupleDescriptor descriptor)
     {
-      var accessor = domainHandler.GetDataReaderAccessor(descriptor);
+      var accessor = DomainHandler.GetDataReaderAccessor(descriptor);
       using (reader) {
-        while (driver.ReadRow(reader)) {
+        while (Driver.ReadRow(reader)) {
           var tuple = Tuple.Create(descriptor);
           accessor.Read(reader, tuple);
           yield return tuple;
@@ -142,19 +143,22 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (transaction==null)
         throw new InvalidOperationException();
-      var nativeCommand = connection.CreateCommand();
+      var nativeCommand = Connection.CreateCommand();
       nativeCommand.Transaction = transaction;
-      return new Command(driver, nativeCommand);
+      return new Command(this, nativeCommand);
     }
+
     
     // Constructors
 
-    protected CommandProcessor(DomainHandler domainHandler, SqlConnection connection)
+    protected CommandProcessor(SessionHandler sessionHandler)
     {
-      this.domainHandler = domainHandler;
-      this.connection = connection;
-      driver = domainHandler.Driver;
-      factory = new CommandPartFactory(domainHandler, connection);
+      ArgumentValidator.EnsureArgumentNotNull(sessionHandler, "sessionHandler");
+      SessionHandler = sessionHandler;
+      DomainHandler = (DomainHandler) sessionHandler.Handlers.DomainHandler;
+      Driver = DomainHandler.Driver;
+      Connection = sessionHandler.Connection;
+      factory = new CommandPartFactory(DomainHandler, Connection);
     }
   }
 }

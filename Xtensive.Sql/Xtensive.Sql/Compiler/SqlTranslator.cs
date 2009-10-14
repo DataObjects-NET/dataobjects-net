@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string BatchBegin { get { return string.Empty; } }
     public virtual string BatchEnd { get { return string.Empty; } }
-    public virtual string BatchItemDelimiter { get { return ";"; } }
+    public virtual string BatchItemDelimiter { get { return ";\r\n"; } }
 
     public virtual string ArgumentDelimiter { get { return ","; } }
     public virtual string ColumnDelimiter { get { return ","; } }

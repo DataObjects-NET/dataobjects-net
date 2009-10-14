@@ -375,7 +375,7 @@ namespace Xtensive.Storage.Linq
 
       if (leftExpressions.Count!=rightExpressions.Count
         || leftExpressions.Count==0)
-        throw Exceptions.InternalError(Strings.ExMistmatchCountOfLeftAndRightExpressions, LogTemplate<Log>.Instance);
+        throw Exceptions.InternalError(Strings.ExMistmatchCountOfLeftAndRightExpressions, Log.Instance);
 
       // Combine new binary expression from subexpression pairs.
       Expression resultExpression = null;
@@ -573,10 +573,10 @@ namespace Xtensive.Storage.Linq
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
       if (state.Parameters.Length==0)
-        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), LogTemplate<Log>.Instance);
+        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), Log.Instance);
 
       if (!resultType.IsOfGenericInterface(typeof (IEnumerable<>)))
-        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), LogTemplate<Log>.Instance);
+        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), Log.Instance);
 
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
       if (subQuery.Type!=resultType)

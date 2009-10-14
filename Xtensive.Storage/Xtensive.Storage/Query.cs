@@ -272,14 +272,14 @@ namespace Xtensive.Storage
 
         if (state==null) {
           if (session.IsDebugEventLoggingEnabled)
-            Log.Debug("Session '{0}'. Resolving key '{1}'. Exact type is {0}.", session, key,
-              key.HasExactType ? "known" : "unknown");
+            Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key,
+              key.HasExactType ? Strings.Known : Strings.Unknown);
             state = session.Handler.FetchInstance(key);
           hasBeenFetched = true;
         }
 
         if (!hasBeenFetched && session.IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Resolving key '{1}'. Key is already resolved.", session, key);
+          Log.Debug(Strings.LogSessionXResolvingKeyYKeyIsAlreadyResolved, session, key);
 
         if (state==null || state.IsNotAvailableOrMarkedAsRemoved) 
           // No state or Tuple = no data in storage

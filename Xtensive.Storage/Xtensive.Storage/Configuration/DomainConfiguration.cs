@@ -8,11 +8,11 @@ using System;
 using System.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Configuration;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration.Elements;
 using Xtensive.Storage.Configuration.Internals;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Configuration
@@ -447,11 +447,11 @@ namespace Xtensive.Storage.Configuration
       if (section==null) 
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
-      foreach (DomainConfigurationElement domainElement in section.Domains)
-        if (domainElement.Name==name)
-          return domainElement.ToNative();
-      throw new InvalidOperationException(string.Format(
-        Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+      var domainElement = section.Domains[name];
+      if (domainElement==null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+      return domainElement.ToNative();
     }
 
 

@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Comparison;
+using Xtensive.Core.Configuration;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Indexing.Measures;

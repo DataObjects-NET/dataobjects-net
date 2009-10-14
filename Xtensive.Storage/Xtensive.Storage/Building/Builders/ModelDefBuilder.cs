@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Building.Builders
           ProcessIndexes(typeDef);
 
         if (hierarchyDef!=null) {
-          Log.Info("Hierarchy: '{0}'", typeDef.Name);
+          Log.Info(Strings.LogHierarchyX, typeDef.Name);
           modelDef.Hierarchies.Add(hierarchyDef);
         }
         modelDef.Types.Add(typeDef);
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Building.Builders
         // Declared & inherited fields must be processed for hierarchy root
         if (hierarchyDef != null) {
           typeDef.Fields.Add(field);
-          Log.Info("Field: '{0}'", field.Name);
+          Log.Info(Strings.LogFieldX, field.Name);
           var ka = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritAll);
           if (ka == null)
             continue;
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Building.Builders
         // Only declared properies must be processed in other cases
         else if (propertyInfo.DeclaringType==propertyInfo.ReflectedType) {
           typeDef.Fields.Add(field);
-          Log.Info("Field: '{0}'", field.Name);
+          Log.Info(Strings.LogFieldX, field.Name);
         }
       }
     }
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Building.Builders
             string.Format(Strings.ExIndexWithNameXIsAlreadyRegistered, index.Name));
 
         typeDef.Indexes.Add(index);
-        Log.Info("Index: '{0}'", index.Name);
+        Log.Info(Strings.LogIndexX, index.Name);
       }
     }
 

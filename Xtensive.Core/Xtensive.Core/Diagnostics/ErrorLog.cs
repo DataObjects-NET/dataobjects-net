@@ -5,32 +5,32 @@
 // Created:    2009.10.12
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Diagnostics
 {
   /// <summary>
-  /// Debug log implementation.
+  /// Error log implementation.
   /// </summary>
-  public sealed class DebugLog : TextualLogImplementationBase
+  public sealed class ErrorLog : TextualLogImplementationBase
   {
     /// <inheritdoc/>
     protected override void LogEventText(string text)
     {
-      Debug.WriteLine(text);
+      Console.Error.WriteLine(text);
     }
 
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">Log name.</param>
-    public DebugLog(string name)
+    public ErrorLog(string name)
       : base(name)
     {
+      LoggedEventTypes = LogEventTypes.Error | LogEventTypes.FatalError;
     }
   }
 }

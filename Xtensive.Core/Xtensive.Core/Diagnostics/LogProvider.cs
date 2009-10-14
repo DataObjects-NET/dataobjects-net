@@ -21,13 +21,9 @@ namespace Xtensive.Core.Diagnostics
   public static class LogProvider
   {
     private static readonly ILogProvider instance;
-    internal const string Console = "Console";
-    internal const string Null = "Null";
-    internal const string Debug = "Debug";
 
     /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
-    public static ILogProvider Instance
-    {
+    public static ILogProvider Instance {
       [DebuggerStepThrough]
       get { return instance; }
     }
@@ -43,27 +39,35 @@ namespace Xtensive.Core.Diagnostics
     }
 
     /// <summary>
-    /// Gets <see cref="ILog"/> object forwarding logging messages to console.
-    /// </summary>
-    public static ILog ConsoleLog
-    {
-      get { return GetLog(Console); }
-    }
-
-    /// <summary>
     /// Gets <see cref="ILog"/> object forwarding logging messages to nothing.
     /// </summary>
     public static ILog NullLog
     {
-      get { return GetLog(Null); }
+      get { return GetLog(LogProviderType.Null.ToString()); }
     }
 
     /// <summary>
-    /// Gets <see cref="ILog"/> object forwarding logging messages to nothing.
+    /// Gets <see cref="ILog"/> object forwarding logging messages to console.
+    /// </summary>
+    public static ILog ConsoleLog
+    {
+      get { return GetLog(LogProviderType.Console.ToString()); }
+    }
+
+    /// <summary>
+    /// Gets <see cref="ILog"/> object forwarding logging messages to debug output.
     /// </summary>
     public static ILog DebugLog
     {
-      get { return GetLog(Debug); }
+      get { return GetLog(LogProviderType.Debug.ToString()); }
+    }
+
+    /// <summary>
+    /// Gets <see cref="ILog"/> object forwarding logging messages to error output.
+    /// </summary>
+    public static ILog ErrorLog
+    {
+      get { return GetLog(LogProviderType.Error.ToString()); }
     }
 
 

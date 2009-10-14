@@ -91,7 +91,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Well-known session configuration names
+    /// Well-known session configuration names.
     /// </summary>
     public static class Sessions
     {

@@ -47,7 +47,7 @@ namespace Xtensive.Storage
       EntityStateCache.Add(result);
 
       if (IsDebugEventLoggingEnabled)
-        Log.Debug("Session '{0}'. Caching: {1}", this, result);
+        Log.Debug(Strings.SessionXCachingY, this, result);
       return result;
     }
 
@@ -65,12 +65,12 @@ namespace Xtensive.Storage
         };
         EntityStateCache.Add(result);
         if (IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Caching: {1}", this, result);
+          Log.Debug(Strings.SessionXCachingY, this, result);
       }
       else {
         result.Update(tuple);
         if (IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Updating cache: {1}", this, result);
+          Log.Debug(Strings.SessionXUpdatingCacheY, this, result);
       }
       return result;
     }

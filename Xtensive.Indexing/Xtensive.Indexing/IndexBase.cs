@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Comparison;
-using Xtensive.Core.Helpers;
+using Xtensive.Core.Configuration;
 using Xtensive.Indexing.Measures;
 
 namespace Xtensive.Indexing

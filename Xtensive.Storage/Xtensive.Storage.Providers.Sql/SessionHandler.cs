@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the connection.
     /// </summary>
-    public SqlConnection Connection { // TODO: make this protected
+    public SqlConnection Connection {
       get {
         lock (ConnectionSyncRoot) {
           EnsureConnectionIsOpen();
@@ -41,14 +41,14 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
-    public DbTransaction Transaction { get; private set; } // TODO: make this protected too
+    public DbTransaction Transaction { get; private set; }
     
     internal virtual CommandProcessor CreateCommandProcessor()
     {
       int batchSize = Session.Configuration.BatchSize;
       var result = Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.Batches) && batchSize > 1
-        ? new BatchingCommandProcessor(domainHandler, connection, batchSize)
-        : (CommandProcessor) new SimpleCommandProcessor(domainHandler, connection);
+        ? new BatchingCommandProcessor(this, batchSize)
+        : (CommandProcessor) new SimpleCommandProcessor(this);
       return result;
     }
 
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Providers.Sql
         if (Transaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
         if (Transaction!=null)
-          driver.CommitTransaction(Transaction);
+          driver.CommitTransaction(Session, Transaction);
         IsAutoshortenTransactionActivated = false;
         EndNativeTransaction();
       }
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Providers.Sql
         if (Transaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
         if (Transaction!=null)
-          driver.RollbackTransaction(Transaction);
+          driver.RollbackTransaction(Session, Transaction);
         IsAutoshortenTransactionActivated = false;
         EndNativeTransaction();
       }
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Providers.Sql
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
         using (var command = CreateCommand(statement))
-          return driver.ExecuteNonQuery(command);
+          return driver.ExecuteNonQuery(Session, command);
       }
     }
 
@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Providers.Sql
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
         using (var command = CreateCommand(statement))
-          return driver.ExecuteScalar(command);
+          return driver.ExecuteScalar(Session, command);
       }
     }
 
@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Providers.Sql
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
         using (var command = CreateCommand(commandText))
-          return driver.ExecuteNonQuery(command);
+          return driver.ExecuteNonQuery(Session, command);
       }
     }
 
@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Providers.Sql
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
         using (var command = CreateCommand(commandText))
-          return driver.ExecuteScalar(command);
+          return driver.ExecuteScalar(Session, command);
       }
     }
 
@@ -265,8 +265,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (connection!=null && connection.State==ConnectionState.Open)
         return;
       if (connection==null)
-        connection = driver.CreateConnection(Handlers.Domain.Configuration.ConnectionInfo);
-      driver.OpenConnection(connection);
+        connection = driver.CreateConnection(Session, Handlers.Domain.Configuration.ConnectionInfo);
+      driver.OpenConnection(Session, connection);
       commandProcessor = CreateCommandProcessor();
     }
     
@@ -282,8 +282,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void BeginNativeTransaction()
     {
-      Transaction = driver.BeginTransaction(
-        connection, IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
+      Transaction = driver.BeginTransaction(Session, connection, 
+        IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
       commandProcessor.Transaction = Transaction;
     }
 
@@ -322,7 +322,7 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Dispose()
     {
       if (connection!=null)
-        driver.CloseConnection(connection);
+        driver.CloseConnection(Session, connection);
     }
   }
 }

@@ -8,11 +8,13 @@ using System;
 using System.Data.Common;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.ValueTypeMapping;
+using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -22,6 +24,8 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
 
+    public bool IsDebugLoggingEnabled { get; private set; }
+    
     public string BatchBegin { get { return translator.BatchBegin; } }
     public string BatchEnd { get { return translator.BatchEnd; } }
     public string BatchItemDelimiter { get { return translator.BatchItemDelimiter; } }
@@ -104,10 +108,13 @@ namespace Xtensive.Storage.Providers.Sql
       return underlyingDriver.Compile(statement, options);
     }
     
+
     // Constructors
 
     public Driver(UrlInfo url)
     {
+      IsDebugLoggingEnabled = 
+        Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       underlyingDriver = SqlDriver.Create(url);
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;

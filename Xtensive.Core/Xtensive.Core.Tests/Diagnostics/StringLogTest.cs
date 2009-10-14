@@ -19,7 +19,7 @@ namespace Xtensive.Core.Tests.Diagnostics
     [Test]
     public void CombinedTest()
     {
-      ILog log = StringLog.Create();
+      ILog log = new LogImplementation(new StringLog("TestLog"));
       using (new LogCaptureScope(log)) {
         log.Info("Logging {0}-1", Marker);
         log.Info("Logging {0}-2", Marker);

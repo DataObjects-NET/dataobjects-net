@@ -5,7 +5,7 @@
 // Created:    2008.03.03
 
 using System;
-using Xtensive.Core.Helpers;
+using Xtensive.Core.Configuration;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Indexing.Composite

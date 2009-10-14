@@ -198,7 +198,7 @@ namespace Xtensive.Storage
         NotifyRemoving();
 
         if (Session.IsDebugEventLoggingEnabled)
-          Log.Debug("Session '{0}'. Removing: Key = '{1}'", Session, Key);
+          Log.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
         Session.RemovalProcessor.Remove(this);
 
         NotifyRemove();
@@ -368,7 +368,7 @@ namespace Xtensive.Storage
       }
       State.Entity = this;
       if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug("Session '{0}'. Materializing {1}: Key = '{2}'",
+        Log.Debug(Strings.LogSessionXMaterializingYKeyZ,
           Session, GetType().GetShortName(), State.Key);
     }
 
@@ -387,7 +387,7 @@ namespace Xtensive.Storage
     {
       EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug("Session '{0}'. Getting value: Key = '{1}', Field = '{2}'", Session, Key, fieldInfo);
+        Log.Debug(Strings.SessionXGettingValueKeyYFieldZ, Session, Key, fieldInfo);
       EnsureIsFetched(fieldInfo);
 
       if (Session.IsSystemLogicOnly)
@@ -417,7 +417,7 @@ namespace Xtensive.Storage
     {
       EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug("Session '{0}'. Setting value: Key = '{1}', Field = '{2}'", Session, Key, field);
+        Log.Debug(Strings.LogSessionXSettingValueKeyYFieldZ, Session, Key, field);
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
       if (Session.IsSystemLogicOnly)

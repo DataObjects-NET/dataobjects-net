@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       var parsedUrl = UrlInfo.Parse(Url);
       var driver = new Driver(parsedUrl);
       
-      using (var connection = driver.CreateConnection(parsedUrl)) {
+      using (var connection = driver.CreateConnection(null, parsedUrl)) {
         connection.Open();
         using (var transaction = connection.BeginTransaction()) {
           var translator = new SqlActionTranslator(actions,
@@ -219,7 +219,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       Schema schema;
       var parsedUrl = UrlInfo.Parse(Url);
       var driver = new Driver(parsedUrl);
-      using (var connection = driver.CreateConnection(parsedUrl)) {
+      using (var connection = driver.CreateConnection(null, parsedUrl)) {
         connection.Open();
         using (var t = connection.BeginTransaction())
           schema = driver.ExtractSchema(connection, t);

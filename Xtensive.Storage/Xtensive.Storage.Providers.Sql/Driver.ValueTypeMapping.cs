@@ -8,6 +8,7 @@ using System;
 using Xtensive.Sql;
 using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
 {
