@@ -10,11 +10,11 @@ namespace Xtensive.Core
 {
   // public delegate bool Predicate(); // Disabled, because leads to confusion with other Predicates
 
-  // public delegate bool Predicate<A>(A a); // Exists in System namespace
+  // public delegate bool Predicate<T>(T a); // Exists in System namespace
 
-  public delegate bool Predicate<A1, A2>(A1 a1, A2 a2);
+  public delegate bool Predicate<T1, T2>(T1 a1, T2 a2);
 
-  public delegate bool Predicate<A1, A2, A3>(A1 a1, A2 a2, A3 a3);
+  public delegate bool Predicate<T1, T2, T3>(T1 a1, T2 a2, T3 a3);
 
-  public delegate bool Predicate<A1, A2, A3, A4>(A1 a1, A2 a2, A3 a3, A4 a4);
+  public delegate bool Predicate<T1, T2, T3, T4>(T1 a1, T2 a2, T3 a3, T4 a4);
 }
