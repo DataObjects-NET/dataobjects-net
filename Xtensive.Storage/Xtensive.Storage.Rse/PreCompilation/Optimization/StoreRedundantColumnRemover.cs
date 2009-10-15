@@ -23,30 +23,15 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     private readonly Dictionary<ApplyParameter, List<int>> outerColumnUsages;
 
     private readonly CompilableProviderVisitor outerColumnUsageVisitor;
-    private readonly SelectProvider rootProvider;
+    private readonly CompilableProvider rootProvider;
 
     public CompilableProvider RemoveRedundantColumns()
     {
-      CompilableProvider originalProvider = rootProvider.Source;
-      List<int> originalMap = rootProvider.ColumnIndexes.ToList();
-
-      if (originalMap.Count == originalProvider.Header.Length)
-        return rootProvider;
-
-      CompilableProvider resultProvider;
-      List<int> resultMap;
-
-      mappings.Add(originalProvider, originalMap);
-      resultProvider = VisitCompilable(originalProvider);
-      resultMap = mappings[rootProvider.Source];
-
-      if (/*originalMap.Count < resultMap.Count ||*/ originalProvider != resultProvider)
-      {
-        int[] columnIndexes = originalMap.Select(i => resultMap.IndexOf(i)).ToArray();
-        return new SelectProvider(resultProvider, columnIndexes);
-      }
-
-      return rootProvider;
+      mappings.Add(rootProvider, Enumerable.Range(0, rootProvider.Header.Length).ToList());
+      var visitedProvider = VisitCompilable(rootProvider);
+      return visitedProvider!=rootProvider 
+        ? visitedProvider 
+        : rootProvider;
     }
 
     #region Visit methods
@@ -223,6 +208,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       throw new NotImplementedException();
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
       return new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.SequenceType, provider.ApplyType);
+    }
+
+    protected override Provider VisitStore(StoreProvider provider)
+    {
+      throw new NotImplementedException();
+      return base.VisitStore(provider);
     }
 
     protected override Provider VisitReindex(ReindexProvider provider)
@@ -560,7 +551,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     // Constructors
 
-    public StoreRedundantColumnRemover(SelectProvider originalProvider)
+    public StoreRedundantColumnRemover(CompilableProvider originalProvider)
     {
       rootProvider = originalProvider;
 

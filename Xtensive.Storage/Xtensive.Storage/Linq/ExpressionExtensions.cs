@@ -58,6 +58,7 @@ namespace Xtensive.Storage.Linq
         && !expression.IsEntitySet()
         && !expression.IsSubqueryExpression()
         && expression.Type!=typeof(string)
+        && !expression.Type.IsOfGenericInterface(typeof (IQueryable<>))
         && context.Evaluator.CanBeEvaluated(expression)
           && expression.Type.IsOfGenericInterface(typeof (IEnumerable<>));
     }

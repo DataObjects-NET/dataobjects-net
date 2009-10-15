@@ -94,18 +94,18 @@ namespace Xtensive.Storage.Tests.ObjectModel
 
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
-      try {
-        // throw new ApplicationException("Don't validate, just recreate ;)");
-        var validateConfig = configuration.Clone();
-        validateConfig.UpgradeMode = DomainUpgradeMode.Validate;
-        return Domain.Build(validateConfig);
-      } catch {
+//      try {
+//        // throw new ApplicationException("Don't validate, just recreate ;)");
+//        var validateConfig = configuration.Clone();
+//        validateConfig.UpgradeMode = DomainUpgradeMode.Validate;
+//        return Domain.Build(validateConfig);
+//      } catch {
         var recreateConfig = configuration.Clone();
         recreateConfig.UpgradeMode = DomainUpgradeMode.Recreate;
         Domain domain = base.BuildDomain(recreateConfig);
         DataBaseFiller.Fill(domain);
         return domain;
-      }
+//      }
     }
   }
 }

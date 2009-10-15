@@ -20,10 +20,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
-      var selectProvider = rootProvider as SelectProvider;
-      if (selectProvider != null)
-        return new StoreRedundantColumnRemover(selectProvider).RemoveRedundantColumns();
-      return rootProvider;
+      return new StoreRedundantColumnRemover(rootProvider).RemoveRedundantColumns();
     }
   }
 }
