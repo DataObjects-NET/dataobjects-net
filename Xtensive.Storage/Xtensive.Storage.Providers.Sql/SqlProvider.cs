@@ -18,6 +18,7 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public class SqlProvider : ExecutableProvider
   {
+    private const string ParameterNamePrefix = "@p";
     private const string ToStringFormat = "[Command: \"{0}\"]";
     protected readonly HandlerAccessor handlers;
     private SqlTable permanentReference;
@@ -72,8 +73,14 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected virtual void AppendCommandTo(SqlCompilationResult result, StringBuilder sb, int indent)
     {
+      var placeholderValues = Request.ParameterBindings
+        .Select((binding, number) => new {
+          binding.ParameterReference.Id,
+          Name = ParameterNamePrefix + number
+        })
+        .ToDictionary(item => item.Id, item => item.Name);
       sb.Append(new string(' ', indent))
-        .AppendFormat(ToStringFormat, result.GetCommandText())
+        .AppendFormat(ToStringFormat, result.GetCommandText(placeholderValues))
         .AppendLine();
     }
 

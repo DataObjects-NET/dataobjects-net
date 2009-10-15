@@ -26,16 +26,16 @@ namespace Xtensive.Storage.Providers.Sql
       var tuple = task.Tuple;
       int parameterIndex = 0;
       var compilationResult = request.Compile(domainHandler);
-      var parameterNames = new Dictionary<object, string>();
+      var placeholderValues = new Dictionary<object, string>();
       var result = new CommandPart();
       
       foreach (var binding in request.ParameterBindings) {
         var parameterValue = tuple.GetValueOrDefault(binding.FieldIndex);
         string parameterName = parameterNamePrefix + parameterIndex++;
-        parameterNames.Add(binding, driver.BuildParameterReference(parameterName));
+        placeholderValues.Add(binding, driver.BuildParameterReference(parameterName));
         AddPersistParameter(result, parameterName, parameterValue, binding);
       }
-      result.Query = compilationResult.GetCommandText(parameterNames);
+      result.Query = compilationResult.GetCommandText(placeholderValues);
       return result;
     }
 
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Providers.Sql
       var request = task.Request;
       int parameterIndex = 0;
       var compilationResult = request.Compile(domainHandler);
-      var parameterNames = new Dictionary<object, string>();
+      var placeholderValues = new Dictionary<object, string>();
       var variantKeys = new List<object>();
       var result = new CommandPart();
 
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Providers.Sql
           object parameterValue = binding.ValueAccessor.Invoke();
           // no parameters - just inlined constant
           if (binding.BindingType==SqlQueryParameterBindingType.LimitOffset) {
-            parameterNames.Add(binding, parameterValue.ToString());
+            placeholderValues.Add(binding, parameterValue.ToString());
             continue;
           }
           // expanding true/false parameters to constants to help query optimizer with branching
@@ -70,11 +70,11 @@ namespace Xtensive.Storage.Providers.Sql
           }
           // regular case -> just adding the parameter
           string parameterName = parameterNamePrefix + parameterIndex++;
-          parameterNames.Add(binding, driver.BuildParameterReference(parameterName));
+          placeholderValues.Add(binding, driver.BuildParameterReference(parameterName));
           AddRegularParameter(result, parameterName, parameterValue, binding.TypeMapping);
         }
       }
-      result.Query = compilationResult.GetCommandText(variantKeys, parameterNames);
+      result.Query = compilationResult.GetCommandText(variantKeys, placeholderValues);
       return result;
     }
 

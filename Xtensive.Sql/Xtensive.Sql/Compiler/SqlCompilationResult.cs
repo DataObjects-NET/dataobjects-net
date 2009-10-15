@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Sql.Compiler.Internals;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -64,32 +65,34 @@ namespace Xtensive.Sql.Compiler
 
     /// <summary>
     /// Gets the textual representation of SQL DOM statement compilation.
-    /// All delayed parameter names are choosen according to a <paramref name="holesMapping"/>.
+    /// All delayed parameter names are choosen according to a <paramref name="placeholderValues"/>.
     /// </summary>
-    /// <param name="holesMapping">A dictionary that assigns value for each hole in query.</param>
+    /// <param name="placeholderValues">A dictionary that assigns value
+    /// for each <see cref="SqlPlaceholder"/></param>
     /// <returns>The SQL text command.</returns>
-    public string GetCommandText(IDictionary<object, string> holesMapping)
+    public string GetCommandText(IDictionary<object, string> placeholderValues)
     {
       if (resultText!=null)
         return resultText;
-      string result = PostCompiler.Compile(resultNode, null, holesMapping, lastResultLength);
+      string result = PostCompiler.Compile(resultNode, null, placeholderValues, lastResultLength);
       lastResultLength = result.Length;
       return result;
     }
 
     /// <summary>
     /// Gets the textual representation of SQL DOM statement compilation.
-    /// All delayed parameter names are choosen according to a <paramref name="holesMapping"/>.
+    /// All delayed parameter names are choosen according to a <paramref name="placeholderValues"/>.
     /// All variants are chosen according to a <paramref name="variantKeys"/>.
     /// </summary>
     /// <param name="variantKeys">Keys that determine which variants are to be used.</param>
-    /// <param name="holesMapping">A dictionary that assigns for each parameter.</param>
+    /// <param name="placeholderValues">A dictionary that assigns values
+    /// for each <see cref="SqlPlaceholder"/>.</param>
     /// <returns>The SQL text command.</returns>
-    public string GetCommandText(IEnumerable<object> variantKeys, IDictionary<object, string> holesMapping)
+    public string GetCommandText(IEnumerable<object> variantKeys, IDictionary<object, string> placeholderValues)
     {
       if (resultText!=null)
         return resultText;
-      string result = PostCompiler.Compile(resultNode, variantKeys, holesMapping, lastResultLength);
+      string result = PostCompiler.Compile(resultNode, variantKeys, placeholderValues, lastResultLength);
       lastResultLength = result.Length;
       return result;
     }

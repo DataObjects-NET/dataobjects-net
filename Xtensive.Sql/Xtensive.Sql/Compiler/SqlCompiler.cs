@@ -1236,7 +1236,7 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void Visit(SqlHole node)
+    public virtual void Visit(SqlPlaceholder node)
     {
       context.Output.AppendHole(node.Id);
     }

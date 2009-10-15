@@ -131,7 +131,7 @@ namespace Xtensive.Sql.Tests.SqlServer
     public void DelayedParameterNamesTest()
     {
       var holeId = new object();
-      var select = SqlDml.Select(SqlDml.Hole(holeId));
+      var select = SqlDml.Select(SqlDml.Placeholder(holeId));
       var result = sqlConnection.Driver.Compile(select);
       using (var command = sqlConnection.CreateCommand()) {
         command.CommandText = result.GetCommandText(new Dictionary<object, string> {{holeId, "@xxx"}});

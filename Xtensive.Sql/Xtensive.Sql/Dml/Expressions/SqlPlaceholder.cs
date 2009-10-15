@@ -8,7 +8,7 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  public class SqlHole : SqlExpression
+  public class SqlPlaceholder : SqlExpression
   {
     public object Id { get; private set; }
 
@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Dml
     {
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
-      var clone = new SqlHole(Id);
+      var clone = new SqlPlaceholder(Id);
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -29,15 +29,15 @@ namespace Xtensive.Sql.Dml
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlHole>(expression, "expression");
-      var replacingExpression = (SqlHole) expression;
+      ArgumentValidator.EnsureArgumentIs<SqlPlaceholder>(expression, "expression");
+      var replacingExpression = (SqlPlaceholder) expression;
       Id = replacingExpression.Id;
     }
 
     // Constructors
 
-    internal SqlHole(object id)
-      : base(SqlNodeType.Hole)
+    internal SqlPlaceholder(object id)
+      : base(SqlNodeType.Placeholder)
     {
       Id = id;
     }

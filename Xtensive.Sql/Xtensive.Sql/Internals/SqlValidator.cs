@@ -60,10 +60,10 @@ namespace Xtensive.Sql
         throw new InvalidOperationException(string.Format(Strings.ExLiteralTypeXIsNotSupported, type));
     }
 
-    public static void EnsureIsConstantExpression(SqlExpression node)
+    public static void EnsureIsLiteralOrPlaceholder(SqlExpression node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
-      if (!IsConstantExpression(node))
+      if (!IsLiteralOrPlaceholder(node))
         throw new InvalidOperationException(Strings.ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset);
     }
 
@@ -101,7 +101,7 @@ namespace Xtensive.Sql
         case SqlNodeType.SubSelect:
         case SqlNodeType.Unique:
         case SqlNodeType.Variable:
-        case SqlNodeType.Hole:
+        case SqlNodeType.Placeholder:
           return true;
         case SqlNodeType.Cast:
           return ((SqlCast) node).Type.Type==SqlType.Boolean;
@@ -148,7 +148,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Variable:
         case SqlNodeType.Extract:
         case SqlNodeType.Round:
-        case SqlNodeType.Hole:
+        case SqlNodeType.Placeholder:
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant) node;
@@ -177,7 +177,7 @@ namespace Xtensive.Sql
         case SqlNodeType.SubSelect:
         case SqlNodeType.Trim:
         case SqlNodeType.Variable:
-        case SqlNodeType.Hole:
+        case SqlNodeType.Placeholder:
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant)node;
@@ -187,15 +187,15 @@ namespace Xtensive.Sql
       }
     }
 
-    public static bool IsConstantExpression(SqlExpression node)
+    public static bool IsLiteralOrPlaceholder(SqlExpression node)
     {
       switch (node.NodeType) {
       case SqlNodeType.Literal:
-      case SqlNodeType.Hole:
+      case SqlNodeType.Placeholder:
         return true;
       case SqlNodeType.Variant:
         var variant = (SqlVariant) node;
-        return IsConstantExpression(variant.Main) && IsConstantExpression(variant.Alternative);
+        return IsLiteralOrPlaceholder(variant.Main) && IsLiteralOrPlaceholder(variant.Alternative);
       default:
         return false;
       }

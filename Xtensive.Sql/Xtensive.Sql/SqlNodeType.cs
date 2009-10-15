@@ -67,7 +67,7 @@ namespace Xtensive.Sql
     IsNotNull,
     Join,
     Hint,
-    Hole,
+    Placeholder,
     LessThan,
     LessThanOrEquals,
     Like,

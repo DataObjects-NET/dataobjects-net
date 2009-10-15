@@ -43,12 +43,13 @@ namespace Xtensive.Sql.Compiler.Internals
       result.Append(value);
     }
 
-    public static string Compile(Node root, IEnumerable<object> activeVariantKeys, IDictionary<object, string> holeNodeValues, int estimatedResultLength)
+    public static string Compile(Node root, IEnumerable<object> activeVariantKeys, IDictionary<object, string> placeholderValues, int estimatedResultLength)
     {
       var compiler = new PostCompiler(estimatedResultLength) {
         activeVariantKeys = activeVariantKeys!=null
           ? activeVariantKeys.ToHashSet()
-          : null, holeNodeValues = holeNodeValues
+          : null,
+         holeNodeValues = placeholderValues
       };
       compiler.VisitNodeSequence(root);
       return compiler.result.ToString();

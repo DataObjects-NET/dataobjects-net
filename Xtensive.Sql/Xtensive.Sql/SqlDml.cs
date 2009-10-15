@@ -1188,10 +1188,10 @@ namespace Xtensive.Sql
       return new SqlVariant(main, alternative, key);
     }
 
-    public static SqlHole Hole(object id)
+    public static SqlPlaceholder Placeholder(object id)
     {
       ArgumentValidator.EnsureArgumentNotNull(id, "id");
-      return new SqlHole(id);
+      return new SqlPlaceholder(id);
     }
 
     public static SqlContainer Container(object value)
