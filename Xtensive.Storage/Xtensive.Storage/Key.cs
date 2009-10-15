@@ -205,7 +205,24 @@ namespace Xtensive.Storage
     /// <param name="source">The string to parse.</param>
     /// <returns><see cref="Key"/> instance corresponding to the specified
     /// <paramref name="source"/> string.</returns>
+    /// <remarks>This method requires open <see cref="Session"/>.</remarks>
     public static Key Parse(string source)
+    {
+      return Parse(source, Domain.Demand());
+    }
+
+    /// <summary>
+    /// Parses the specified <paramref name="source"/> string
+    /// produced by <see cref="Format"/> back to the <see cref="Key"/>
+    /// instance.
+    /// </summary>
+    /// <param name="source">The string to parse.</param>
+    /// <param name="domain">The domain.</param>
+    /// <returns>
+    /// <see cref="Key"/> instance corresponding to the specified
+    /// <paramref name="source"/> string.
+    /// </returns>
+    public static Key Parse(string source, Domain domain)
     {
       if (source==null)
         return null;
@@ -216,7 +233,6 @@ namespace Xtensive.Storage
       string typeIdString = source.Substring(0, separatorIndex);
       string valueString = source.Substring(separatorIndex+1);
 
-      var domain = Domain.Demand();
       var type = domain.Model.Types[Int32.Parse(typeIdString)];
       var keyTupleDescriptor = type.KeyProviderInfo.TupleDescriptor;
 

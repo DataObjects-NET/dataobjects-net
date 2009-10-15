@@ -19,6 +19,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="type">The type.</param>
     /// <returns><see cref="TypeInfo"/> instance.</returns>
+    /// <remarks>This method requires open <see cref="Session"/>.</remarks>
     public static TypeInfo GetTypeInfo(this Type type)
     {
       return GetTypeInfo(type, Domain.Demand());
