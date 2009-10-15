@@ -478,10 +478,11 @@ namespace Xtensive.Storage.Providers.Sql
 
       var queryRef = compiledSource.PermanentReference;
       var query = SqlDml.Select(queryRef);
+      var binding = CreateLimitOffsetParameterBinding(provider.Count);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
-      query.Offset = provider.Count();
+      query.Offset = binding.ParameterReference;
       AddOrderByStatement(provider, query);
-      return new SqlProvider(provider, query, Handlers, compiledSource);
+      return new SqlProvider(provider, query, Handlers, EnumerableUtils.One(binding), compiledSource);
     }
 
     /// <inheritdoc/>
