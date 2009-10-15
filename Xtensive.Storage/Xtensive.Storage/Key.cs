@@ -89,7 +89,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Determines whether <see cref="Type"/> property has exact type value or not.
     /// </summary>
-    public bool HasExactType
+    internal bool HasExactType
     {
       get { return TypeRef.Accuracy == TypeReferenceAccuracy.ExactType ? true : false; }
     }
