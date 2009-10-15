@@ -7,9 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -212,8 +215,31 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     protected override Provider VisitStore(StoreProvider provider)
     {
+      OnRecursionEntrance(provider);
+      CompilableProvider newSourceProvider = VisitCompilable((CompilableProvider)provider.Source);
+      OnRecursionExit(provider);
+      if (newSourceProvider==provider.Source) {
+        mappings[provider] = EnumerableUtils<int>.Empty.ToList();
+        return provider;
+      }
       throw new NotImplementedException();
+      mappings[provider] = mappings[provider.Source];
       return base.VisitStore(provider);
+    }
+
+    protected override Provider VisitRaw(RawProvider provider)
+    {
+      var mapping = mappings[provider];
+      if (mapping.SequenceEqual(Enumerable.Range(0, provider.Header.Length)))
+        return provider;
+      var mappingTransform = new MapTransform(true, provider.Header.TupleDescriptor, mapping.ToArray());
+      var enumerableOfTupleType = typeof(Enumerable).MakeGenericType(typeof(Tuple));
+      MethodInfo selectMethodInfo = enumerableOfTupleType.GetMethod("Select",  new[] {enumerableOfTupleType,typeof (Func<,>).MakeGenericType(typeof (Tuple), typeof (Tuple))});
+      Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
+      var newExpression = Expression.Call(provider.Source, selectMethodInfo, provider.Source, Expression.Constant(selector));
+      var x = Expression.Lambda(newExpression);
+      throw new NotImplementedException();
+//      return new RawProvider(provider.Header.Select(mapping), x);
     }
 
     protected override Provider VisitReindex(ReindexProvider provider)
