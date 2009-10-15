@@ -19,24 +19,22 @@ namespace Xtensive.Storage.Providers.Sql
     
     public override void ExecuteRequests(bool allowPartialExecution)
     {
-      while (persistTasks.Count >= batchSize) {
+      while (persistTasks.Count >= batchSize)
         ExecuteBatch(batchSize, 0, null);
-      }
-      
-      if (queryTasks.Count==0) {
-        if (!allowPartialExecution)
-          ExecuteBatch(persistTasks.Count, 0, null);
-        return;
-      }
 
       int persistAmount = persistTasks.Count;
       int queryAmount = Math.Min(queryTasks.Count, batchSize - persistAmount);
 
+      if (persistAmount + queryAmount < batchSize) {
+        if (!allowPartialExecution)
+          ExecuteBatch(persistAmount, queryAmount, null);
+        return;
+      }
+
       ExecuteBatch(persistAmount, queryAmount, null);
 
-      while (queryTasks.Count >= batchSize) {
+      while (queryTasks.Count >= batchSize)
         ExecuteBatch(0, batchSize, null);
-      }
 
       if (!allowPartialExecution)
         ExecuteBatch(0, queryTasks.Count, null);
@@ -44,22 +42,19 @@ namespace Xtensive.Storage.Providers.Sql
 
     public override IEnumerator<Tuple> ExecuteRequestsWithReader(SqlQueryRequest request)
     {
-      while (persistTasks.Count >= batchSize) {
+      while (persistTasks.Count >= batchSize)
         ExecuteBatch(batchSize, 0, null);
-      }
 
       int persistAmount = persistTasks.Count;
       int queryAmount = Math.Min(queryTasks.Count, batchSize - persistAmount);
 
-      if (persistAmount + queryAmount < batchSize) {
+      if (persistAmount + queryAmount < batchSize)
         return RunTupleReader(ExecuteBatch(persistAmount, queryAmount, request), request.TupleDescriptor);
-      }
 
       ExecuteBatch(persistAmount, queryAmount, null);
 
-      while (queryTasks.Count >= batchSize) {
+      while (queryTasks.Count >= batchSize)
         ExecuteBatch(0, batchSize, null);
-      }
 
       return RunTupleReader(ExecuteBatch(0, queryTasks.Count, request), request.TupleDescriptor);
     }
