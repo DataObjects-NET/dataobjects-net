@@ -214,11 +214,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       rightMapping = mappings[provider.Right];
       RestoreMappings(oldMappings);
 
-      if (newLeftProvider == provider.Left && newRightProvider == provider.Right)
+      if (newLeftProvider == provider.Left && newRightProvider == provider.Right) {
+        mappings[provider] = Enumerable.Empty<int>().ToList();
         return provider;
+      }
 
       // merge
-
+      throw new NotImplementedException();
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
       return new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.SequenceType, provider.ApplyType);
     }
@@ -502,7 +504,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     {
       int result = outerColumnUsages[parameter].IndexOf(value);
       if (result < 0)
-        throw new InvalidOperationException();
+        return value;
       return result;
     }
 
