@@ -7,9 +7,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
-using Xtensive.Storage.Model;
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -25,14 +25,11 @@ namespace Xtensive.Storage.Building.Builders
       var context = BuildingContext.Current;
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var ancestors = type.GetAncestors().ToList();
-      var interfaces = type.GetInterfaces(true);
-//      var declaredIndexes = ancestors.Concat(interfaces)
-//        .Select(t => context.ModelDef.Types[t.UnderlyingType])
-//        .SelectMany(t => t.Indexes.Where(i => i.IsSecondary));
+      var interfaces = type.GetInterfaces();
       
       // Building declared indexes both secondary and primary (for root of the hierarchy only)
       foreach (var indexDescriptor in typeDef.Indexes) {
-        var declaredIndex = BuildIndex(type, indexDescriptor, false); 
+        var declaredIndex = BuildIndex(type, indexDescriptor, false);
 
         type.Indexes.Add(declaredIndex);
         context.Model.RealIndexes.Add(declaredIndex);
@@ -44,23 +41,27 @@ namespace Xtensive.Storage.Building.Builders
         var parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
         var inheritedIndex = BuildInheritedIndex(type, parentPrimaryIndex, false);
        
-        // Registering built primary index
         type.Indexes.Add(inheritedIndex);
         context.Model.RealIndexes.Add(inheritedIndex);
       }
 
       // Building inherited from interfaces indexes
       foreach (var @interface in interfaces) {
-        if ((parent==null) || !parent.GetInterfaces(true).Contains(@interface))
-          foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
-            if (parentIndex.DeclaringIndex != parentIndex) 
-              continue;
-            var index = BuildInheritedIndex(type, parentIndex, false);
-            if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
-              continue;
+        foreach (var interfaceIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
+          if (interfaceIndex.DeclaringIndex != interfaceIndex &&
+              parent != null &&
+              parent.Indexes.Any(i => i.DeclaringIndex == interfaceIndex))
+            continue;
+          if (type.Indexes.Any(i => i.DeclaringIndex == interfaceIndex))
+            continue;
+          var index = BuildInheritedIndex(type, interfaceIndex, false);
+          if (IndexBuiltOverInheritedFields(index))
+            Log.Warning(string.Format(Strings.ExUnableToBuildIndexXBecauseItWasBuiltOverInheritedFields, index.Name));
+          else {
             type.Indexes.Add(index);
             context.Model.RealIndexes.Add(index);
           }
+        }
       }
 
       // Build indexes for descendants
@@ -93,6 +94,16 @@ namespace Xtensive.Storage.Building.Builders
         var virtualIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
         type.Indexes.Add(virtualIndex);
       }
+    }
+
+    static bool IndexBuiltOverInheritedFields(IndexInfo index)
+    {
+      if (index.IsVirtual)
+        return false;
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns)
+        if (pair.Key.Field.IsInherited && !pair.Key.Field.IsPrimaryKey)
+          return true;
+      return false;
     }
   }
 }

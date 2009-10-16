@@ -2214,6 +2214,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to build index {0} because it contains inherited fields..
+        /// </summary>
+        internal static string ExUnableToBuildIndexXBecauseItWasBuiltOverInheritedFields {
+            get {
+                return ResourceManager.GetString("ExUnableToBuildIndexXBecauseItWasBuiltOverInheritedFields", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to build subquery result for expression &apos;{0}&apos;. resultType is not IEnumerable&lt;&gt;..
         /// </summary>
         internal static string ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable {

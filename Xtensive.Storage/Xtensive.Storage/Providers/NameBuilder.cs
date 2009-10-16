@@ -305,36 +305,65 @@ namespace Xtensive.Storage.Providers
     public virtual string BuildIndexName(TypeInfo type, IndexInfo index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
+      if (!index.Name.IsNullOrEmpty())
+        return index.Name;
 
       string result = string.Empty;
-      if (!index.Name.IsNullOrEmpty())
-        result = index.Name;
-      else if (index.IsPrimary)
-        result = index.DeclaringType != type
-          ? string.Format("PK_{0}.{1}", type.Name, index.DeclaringType)
-          : string.Format("PK_{0}", type.Name);
-      else if (!index.MappingName.IsNullOrEmpty())
-        result = index.DeclaringType != type
-          ? string.Format("{0}.{1}.{2}", type.Name, index.DeclaringType, index.MappingName)
-          : string.Format("{0}.{1}", type.Name, index.MappingName);
-      else if (!index.ReflectedType.IsInterface && index.KeyColumns.Count == 0)
-        return string.Empty;
-      else {
-        if (index.IsSecondary)
-          result = index.DeclaringType != type
-            ? string.Format("{0}.{1}.{2}", type.Name, index.DeclaringType, index.ShortName)
-            : string.Format("{0}.{1}", type.Name, index.ShortName);
-        if (result.IsNullOrEmpty()) {
-          Func<FieldInfo, FieldInfo> fieldSeeker = null;
-          fieldSeeker = (field => field.Parent == null ? field : fieldSeeker(field.Parent));
-          var fieldList = new List<FieldInfo>();
-          foreach (ColumnInfo keyColumn in index.KeyColumns.Keys) {
-            FieldInfo foundField = fieldSeeker(keyColumn.Field);
-            fieldList.Add(foundField.IsEntity ? foundField : keyColumn.Field);
+      if (index.IsPrimary) {
+        if (index.IsVirtual) {
+          var originIndex = index;
+          while (true) {
+            var singleSourceIndex = (originIndex.Attributes & (IndexAttributes.Filtered | IndexAttributes.View)) != IndexAttributes.None;
+            if (singleSourceIndex) {
+              var sourceIndex = originIndex.UnderlyingIndexes[0];
+              if (sourceIndex.ReflectedType != originIndex.ReflectedType) {
+                originIndex = sourceIndex;
+                break;
+              }
+              originIndex = sourceIndex;
+            }
+            else {
+              originIndex = null;
+              break;
+            }
           }
-          result = string.Format("{1}.IX_{0}", string.Join("", fieldList.ConvertAll(f => f.Name).ToArray()), type.Name);
+          result = originIndex != null
+            ? string.Format("PK_{0}.{1}", type, originIndex.ReflectedType)
+            : string.Format("PK_{0}.{1}", type, index.DeclaringType);
+        }
+        else
+          result = index.DeclaringType != type
+            ? string.Format("PK_{0}.{1}", type, index.DeclaringType)
+            : string.Format("PK_{0}", type);
+      }
+      else {
+        if (!index.MappingName.IsNullOrEmpty()) {
+          result = index.DeclaringType != type
+            ? string.Format("{0}.{1}.{2}", type, index.DeclaringType, index.MappingName)
+            : string.Format("{0}.{1}", type, index.MappingName);
+        }
+        else {
+          var keyFields = new HashSet<FieldInfo>();
+          foreach (var keyColumn in index.KeyColumns.Keys) {
+            var field = keyColumn.Field;
+            while (field.Parent != null)
+              field = field.Parent;
+            keyFields.Add(field);
+          }
+          var indexNameSuffix = keyFields
+            .Select(f => f.Name)
+            .ToDelimitedString(String.Empty);
+          if (keyFields.Count == 1 && keyFields.Single().IsEntity)
+            result = index.DeclaringType != type
+              ? string.Format("{0}.{1}.FK_{2}", type, index.DeclaringType, indexNameSuffix)
+              : string.Format("{0}.FK_{1}", type, indexNameSuffix);
+          else
+            result = index.DeclaringType != type
+              ? string.Format("{0}.{1}.IX_{2}", type, index.DeclaringType, indexNameSuffix)
+              : string.Format("{0}.IX_{1}", type, indexNameSuffix);
         }
       }
+
       string suffix = string.Empty;
       if (index.IsVirtual) {
         if ((index.Attributes & IndexAttributes.Filtered)!=IndexAttributes.None)

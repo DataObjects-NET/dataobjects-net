@@ -100,8 +100,8 @@ namespace Xtensive.Storage.Providers.Index
     {
       foreach (var index in state.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
         var transform = ((DomainHandler) Handlers.DomainHandler).GetTransform(index, state.Type);
-        var transformed = transform.Apply(TupleTransformType.Tuple, state.Tuple).ToFastReadOnly();
-        yield return IndexUpdateCommand.Insert(index.MappingName, state.Key.Value, transformed);
+        var transformed = transform.Apply(TupleTransformType.Tuple, state.Tuple);
+        yield return IndexUpdateCommand.Insert(index.ReflectedType.MappingName, state.Key.Value, transformed);
       }
     }
 
@@ -109,15 +109,15 @@ namespace Xtensive.Storage.Providers.Index
     {
       foreach (var index in state.Type.AffectedIndexes.Where(i => i.IsPrimary)) {
         var transform = ((DomainHandler) Handlers.DomainHandler).GetTransform(index, state.Type);
-        var transformed = transform.Apply(TupleTransformType.Tuple, state.Tuple).ToFastReadOnly();
-        yield return IndexUpdateCommand.Update(index.MappingName, state.Key.Value, transformed);
+        var transformed = transform.Apply(TupleTransformType.Tuple, state.Tuple);
+        yield return IndexUpdateCommand.Update(index.ReflectedType.MappingName, state.Key.Value, transformed);
       }
     }
 
     private static IEnumerable<Command> CreateRemove(EntityState state)
     {
       foreach (var index in state.Type.AffectedIndexes.Where(i => i.IsPrimary))
-        yield return IndexUpdateCommand.Remove(index.MappingName, state.Key.Value);
+        yield return IndexUpdateCommand.Remove(index.ReflectedType.MappingName, state.Key.Value);
     }
 
     #endregion

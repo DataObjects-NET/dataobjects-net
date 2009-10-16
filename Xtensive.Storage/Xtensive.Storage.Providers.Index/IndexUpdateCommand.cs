@@ -20,17 +20,17 @@ namespace Xtensive.Storage.Providers.Index
     /// <summary>
     /// Creates update command.
     /// </summary>
-    /// <param name="indexName">Name of the primary index.</param>
+    /// <param name="tableName">Name of the table.</param>
     /// <param name="key">The key.</param>
     /// <param name="newValue">The new value.</param>
     /// <returns>Update command.</returns>
-    public static UpdateCommand Update(string indexName, Tuple key, Tuple newValue)
+    public static UpdateCommand Update(string tableName, Tuple key, Tuple newValue)
     {
       return new IndexUpdateCommand
         {
           Key = key,
           KeyMustExist = true,
-          TableName = indexName,
+          TableName = tableName,
           Value = newValue
         };
     }
@@ -38,17 +38,17 @@ namespace Xtensive.Storage.Providers.Index
     /// <summary>
     /// Creates insert command.
     /// </summary>
-    /// <param name="indexName">Name of the primary index.</param>
+    /// <param name="tableName">Name of the table.</param>
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
     /// <returns>Insert command.</returns>
-    public static UpdateCommand Insert(string indexName, Tuple key, Tuple value)
+    public static UpdateCommand Insert(string tableName, Tuple key, Tuple value)
     {
       return new IndexUpdateCommand
         {
           Key = key,
           KeyMustExist = false,
-          TableName = indexName,
+          TableName = tableName,
           Value = value
         };
     }
@@ -56,16 +56,16 @@ namespace Xtensive.Storage.Providers.Index
     /// <summary>
     /// Creates remove command.
     /// </summary>
-    /// <param name="indexName">Name of the primary index.</param>
+    /// <param name="tableName">Name of the table.</param>
     /// <param name="key">The key.</param>
     /// <returns>Remove command.</returns>
-    public static UpdateCommand Remove(string indexName, Tuple key)
+    public static UpdateCommand Remove(string tableName, Tuple key)
     {
       return new IndexUpdateCommand
         {
           Key = key,
           KeyMustExist = true,
-          TableName = indexName
+          TableName = tableName
         };
     }
 

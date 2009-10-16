@@ -89,62 +89,69 @@ namespace Xtensive.Storage.Providers.Index.Memory
         Remove(command.Key, command.TableName);
     }
 
-    private void Update(Tuple key, Tuple value, string primaryIndexName)
+    private void Update(Tuple key, Tuple value, string tableName)
     {
-      var oldValue = FindTuple(primaryIndexName, key);
-      var newValue = Tuple.Create(oldValue.Descriptor);
-      oldValue.CopyTo(newValue);
+      var table = Model.Tables[tableName];
+      var primaryIndex = GetIndex(table.PrimaryIndex);
+      var oldValue = FindTuple(tableName, key);
+      var newValue = oldValue.Clone();
       newValue.MergeWith(value, MergeBehavior.PreferDifference);
 
-      foreach (var indexInfo in GetAffectedIndexes(primaryIndexName)) {
-        var realIndex = GetIndex(indexInfo);
+      primaryIndex.RemoveKey(key);
+      primaryIndex.Add(newValue);
+
+      foreach (var indexInfo in table.SecondaryIndexes) {
         var transform = Storage.GetTransform(indexInfo);
-        var oldTransformed = transform.Apply(TupleTransformType.Tuple, oldValue).ToFastReadOnly();
+        var oldTransformed = transform.Apply(TupleTransformType.Tuple, value);
+        if (!oldTransformed.GetFieldState(0).IsAvailable())
+          continue;
         var newTransformed = transform.Apply(TupleTransformType.Tuple, newValue);
-        realIndex.Remove(oldTransformed);
-        realIndex.Add(newTransformed);
+        var secondaryIndex = GetIndex(indexInfo);
+        secondaryIndex.Remove(oldTransformed);
+        secondaryIndex.Add(newTransformed);
       }
     }
 
-    private void Insert(Tuple key, Tuple value, string primaryIndexName)
+    private void Insert(Tuple key, Tuple value, string tableName)
     {
-      foreach (var indexInfo in GetAffectedIndexes(primaryIndexName)) {
-        var realIndex = GetIndex(indexInfo);
+      var table = Model.Tables[tableName];
+      var primaryIndex = GetIndex(table.PrimaryIndex);
+      primaryIndex.Add(value);
+
+      foreach (var indexInfo in table.SecondaryIndexes) {
         var transform = Storage.GetTransform(indexInfo);
-        var transformedTuple = transform.Apply(TupleTransformType.Tuple, value).ToFastReadOnly();
-        realIndex.Add(transformedTuple);
+        var transformedTuple = transform.Apply(TupleTransformType.Tuple, value);
+        if (!transformedTuple.GetFieldState(0).IsAvailable()) 
+          continue;
+        var secondaryIndex = GetIndex(indexInfo);
+        secondaryIndex.Add(transformedTuple);
       }
     }
 
-    private void Remove(Tuple key, string primaryIndexName)
+    private void Remove(Tuple key, string tableName)
     {
-      var value = FindTuple(primaryIndexName, key);
-      foreach (var indexInfo in GetAffectedIndexes(primaryIndexName)) {
-        var realIndex = GetIndex(indexInfo);
+      var value = FindTuple(tableName, key);
+      var table = Model.Tables[tableName];
+      var primaryIndex = GetIndex(table.PrimaryIndex);
+      primaryIndex.RemoveKey(value);
+
+      foreach (var indexInfo in table.SecondaryIndexes) {
         var transform = Storage.GetTransform(indexInfo);
-        var transformedTuple = transform.Apply(TupleTransformType.Tuple, value).ToFastReadOnly();
-        realIndex.Remove(transformedTuple);
+        var transformedTuple = transform.Apply(TupleTransformType.Tuple, value);
+        var secondaryIndex = GetIndex(indexInfo);
+        secondaryIndex.Remove(transformedTuple);
       }
-    }
-
-    private IEnumerable<IndexInfo> GetAffectedIndexes(string primaryIndexName)
-    {
-      var table = Model.Tables.Single(tableInfo => tableInfo.PrimaryIndex.Name==primaryIndexName);
-      yield return table.PrimaryIndex;
-      foreach (var indexInfo in table.SecondaryIndexes)
-        yield return indexInfo;
     }
 
     /// <exception cref="InvalidOperationException">Instance with specific key is not found.</exception>
-    private Tuple FindTuple(string primaryIndexName, Tuple key)
+    private Tuple FindTuple(string tableName, Tuple key)
     {
-      var indexInfo = Model.Tables.Select(table => table.PrimaryIndex)
-        .Single(index => index.Name==primaryIndexName);
+      var indexInfo = Model.Tables[tableName].PrimaryIndex;
       var primaryIndex = GetIndex(indexInfo);
-      var seekResult = primaryIndex.Seek(new Ray<Entire<Tuple>>(new Entire<Tuple>(key)));
+      var seekResult = primaryIndex.Seek(key);
       if (seekResult.ResultType!=SeekResultType.Exact)
         throw new InvalidOperationException(
-          string.Format(Strings.ExInstanceXIsNotFound, primaryIndexName));
+          string.Format(Strings.ExInstanceXIsNotFound, tableName));
 
       return seekResult.Result;
     }

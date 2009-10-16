@@ -26,8 +26,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
 
     public override bool MoveNext()
     {
-      while (reader.MoveNext() && predicate(reader.Current))
-        return true;
+      while (reader.MoveNext())
+        if (predicate(reader.Current))
+          return true;
       return false;
     }
 

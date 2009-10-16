@@ -10,7 +10,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
 {
-  [Index("Name", Unique = true)]
+  [Index("Name")]
   public interface INamed : IEntity
   {
     [Field]
@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     string Tag { get; set; }
   }
 
-  [Index("First", "Second")]
+  [Index("First")]
   public interface IComposite : IEntity
   {
     [Field]

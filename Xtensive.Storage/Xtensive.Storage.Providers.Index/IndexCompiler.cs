@@ -92,9 +92,7 @@ namespace Xtensive.Storage.Providers.Index
       }
       else
         columnIndex = index.Columns.Select((c, i) => c.Field.Name == WellKnown.TypeIdFieldName ? i : 0).Sum();
-      List<int> typeIdList = index.ReflectedType.GetDescendants(true).Select(info => info.TypeId).ToList();
-      typeIdList.Add(index.ReflectedType.TypeId);
-      return new FilterIndexProvider(provider, source, columnIndex, typeIdList.ToArray());
+      return new FilterIndexProvider(provider, source, columnIndex, index.FilterByTypes.Select(t => t.TypeId).ToList());
     }
 
     private ExecutableProvider BuildViewProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)

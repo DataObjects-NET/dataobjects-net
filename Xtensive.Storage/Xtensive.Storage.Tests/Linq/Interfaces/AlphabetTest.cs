@@ -104,8 +104,10 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     [Test]
     public void QueryNamedTest()
     {
-      var index = Domain.Model.Types[typeof(INamed)].Indexes.PrimaryIndex;
-      index.Dump();
+      var primaryIndex = Domain.Model.Types[typeof(INamed)].Indexes.PrimaryIndex;
+      primaryIndex.Dump();
+      var secondaryIndex = Domain.Model.Types[typeof(INamed)].Indexes.GetIndex("Name");
+      secondaryIndex.Dump();
 
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {

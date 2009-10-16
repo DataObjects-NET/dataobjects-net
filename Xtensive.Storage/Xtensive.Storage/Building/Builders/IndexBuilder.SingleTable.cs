@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.06.17
 
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
@@ -34,17 +35,14 @@ namespace Xtensive.Storage.Building.Builders
 
       var parent = type.GetAncestor();
       // Building inherited from interfaces indexes
-      foreach (var @interface in type.GetInterfaces(true)) {
-        if ((parent == null) || !parent.GetInterfaces(true).Contains(@interface))
-          foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
-            if (parentIndex.DeclaringIndex != parentIndex) 
-              continue;
-            var index = BuildInheritedIndex(type, parentIndex, false);
-            if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
-              continue;
-            root.Indexes.Add(index);
-            context.Model.RealIndexes.Add(index);
-          }
+      foreach (var @interface in type.GetInterfaces()) {
+        foreach (var interfaceIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
+          if (root.Indexes.Any(i => i.DeclaringIndex == interfaceIndex.DeclaringIndex && i.ReflectedType == type))
+            continue;
+          var index = BuildInheritedIndex(type, interfaceIndex, false);
+          root.Indexes.Add(index);
+          context.Model.RealIndexes.Add(index);
+        }
       }
 
       // Build indexes for descendants
@@ -54,32 +52,69 @@ namespace Xtensive.Storage.Building.Builders
       if (type == root) return;
 
       var types = type.GetAncestors().AddOne(type).ToHashSet();
-      var filterByTypes = type.GetDescendants(true).AddOne(type).ToList();
-      var interfaces = type.GetInterfaces(true).ToHashSet();
+      var descendants = type.GetDescendants(true).ToList();
+      var primaryIndexFilterTypes = new List<TypeInfo>();
+      if (!type.IsAbstract)
+        primaryIndexFilterTypes.Add(type);
+      primaryIndexFilterTypes.AddRange(descendants);
       
       // Import inherited indexes
-      foreach (var ancestorIndex in root.Indexes) {
+      var ancestorIndexes = root.Indexes
+        .Where(i => types.Contains(i.ReflectedType))
+        .Reverse()
+        .ToList();
+      foreach (var ancestorIndex in ancestorIndexes) {
+        if (type.Indexes.Any(i => 
+            i.DeclaringIndex == ancestorIndex.DeclaringIndex &&
+            i.ReflectedType == type && 
+            i.IsVirtual))
+          continue;
         if (ancestorIndex.DeclaringType.IsInterface) {
-          if (!interfaces.Contains(ancestorIndex.DeclaringType))
-            continue;
-          if (!types.Contains(ancestorIndex.ReflectedType))
-            continue;
+          var filteredDescendants = descendants
+            .Where(t => !t.IsAbstract && !t.GetInterfaces().Contains(ancestorIndex.DeclaringType));
+          var filterByTypes = new List<TypeInfo>();
+          if (!type.IsAbstract)
+            filterByTypes.Add(type);
+          filterByTypes.AddRange(filterByTypes);
           var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
           var indexView = BuildViewIndex(type, filterIndex);
           type.Indexes.Add(indexView);
         }
-        else if (types.Contains(ancestorIndex.ReflectedType)) {
+        else {
           if (ancestorIndex.IsPrimary) {
-            var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
+            var filterIndex = BuildFilterIndex(type, ancestorIndex, primaryIndexFilterTypes);
             var indexView = BuildViewIndex(type, filterIndex);
             type.Indexes.Add(indexView);
           }
           else {
-            var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
+            var filterIndex = BuildFilterIndex(type, ancestorIndex, primaryIndexFilterTypes);
             type.Indexes.Add(filterIndex);
           }
         }
       }
+
+//      foreach (var ancestorIndex in root.Indexes) {
+//        if (ancestorIndex.DeclaringType.IsInterface) {
+//          if (!interfaces.Contains(ancestorIndex.DeclaringType))
+//            continue;
+//          if (!types.Contains(ancestorIndex.ReflectedType))
+//            continue;
+//          var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
+//          var indexView = BuildViewIndex(type, filterIndex);
+//          type.Indexes.Add(indexView);
+//        }
+//        else if (types.Contains(ancestorIndex.ReflectedType)) {
+//          if (ancestorIndex.IsPrimary) {
+//            var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
+//            var indexView = BuildViewIndex(type, filterIndex);
+//            type.Indexes.Add(indexView);
+//          }
+//          else {
+//            var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
+//            type.Indexes.Add(filterIndex);
+//          }
+//        }
+//      }
     }
   }
 }

@@ -55,8 +55,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
               lowestKey = key;
               lowestItemIndex = i;
             }
-            int result = comparer.Compare(key, lowestKey);
-            if (result < 0) {
+            int compare = comparer.Compare(key, lowestKey);
+            if (compare < 0) {
               lowestKey = key;
               lowestItemIndex = i;
             }
@@ -70,7 +70,6 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
           for (int i = 0; i < haveValues.Length; i++)
             willContinue |= haveValues[i];
         }
-
         yield return item;
       }
     }

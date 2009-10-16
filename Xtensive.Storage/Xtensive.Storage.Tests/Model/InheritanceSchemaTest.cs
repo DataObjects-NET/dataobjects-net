@@ -70,11 +70,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
 
   public class E : D
   {
-//    public override string Tag
-//    {
-//      get { return base.Tag; }
-//      set { base.Tag = value; }
-//    }
   }
 
   public class F : A, ICreature, IHasName2

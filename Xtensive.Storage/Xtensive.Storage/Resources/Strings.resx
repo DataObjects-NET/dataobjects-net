@@ -1115,6 +1115,9 @@ Actions:
   <data name="CantRemoveColumnX" xml:space="preserve">
     <value> (can't remove column '{0}')</value>
   </data>
+  <data name="ExUnableToBuildIndexXBecauseItWasBuiltOverInheritedFields" xml:space="preserve">
+    <value>Unable to build index {0} because it contains inherited fields.</value>
+  </data>
   <data name="LogSessionXDisposing" xml:space="preserve">
     <value>Session '{0}'. Disposing.</value>
   </data>

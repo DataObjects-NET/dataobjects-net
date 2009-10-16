@@ -181,23 +181,34 @@ namespace Xtensive.Storage.Building.Builders
         }
 
         // Building secondary virtual indexes
-        foreach (var index in @interface.Indexes.Where(i=>i.IsVirtual && !i.IsPrimary)) {
-          var localIndex = index;
+        foreach (var interfaceIndex in @interface.Indexes.Where(i=>i.IsVirtual && !i.IsPrimary)) {
+          var localIndex = interfaceIndex;
           var lookup = implementors.ToLookup(t => t.Hierarchy);
           var underlyingIndexes = new List<IndexInfo>();
           foreach (var hierarchy in lookup) {
+            var grouping = hierarchy;
+            var underlyingIndex = interfaceIndex.Clone();
             var hierarchyImplementors = hierarchy.ToHashSet();
             switch (hierarchy.Key.Schema) {
               case InheritanceSchema.ClassTable: {
-                var underlyingIndex = index.Clone();
-                var indexes = implementors.SelectMany(t => t.Indexes.Where(i => i.DeclaringIndex==localIndex.DeclaringIndex && !i.IsVirtual));
-                underlyingIndex.UnderlyingIndexes.AddRange(indexes);
+                foreach (var implementor in hierarchyImplementors) {
+                  var index = implementor.Indexes.SingleOrDefault(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual);
+                  if (index == null)
+                    throw new NotSupportedException(string.Format(Strings.ExUnableToBuildIndexXBecauseItWasBuiltOverInheritedFields, interfaceIndex.Name));
+                  var filterByTypes = new List<TypeInfo>();
+                  if (!implementor.IsAbstract)
+                    filterByTypes.Add(implementor);
+                  var subHierarchyNodeCount = implementor.GetDescendants(true).Count() + filterByTypes.Count;
+                  filterByTypes.AddRange(GatherDescendants(implementor, hierarchyImplementors));
+                  if (filterByTypes.Count != subHierarchyNodeCount)
+                    index = BuildFilterIndex(implementor, index, filterByTypes);
+                  underlyingIndex.UnderlyingIndexes.Add(index);
+                }
                 underlyingIndexes.Add(underlyingIndex);
                 break;
               }
               case InheritanceSchema.SingleTable: {
                 var rootIndexes = hierarchy.Key.Root.Indexes.Where(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual);
-                var underlyingIndex = index.Clone();
                 foreach (var rootIndex in rootIndexes) {
                   var typesToFilter = new List<TypeInfo>();
                   var reflectedType = rootIndex.ReflectedType;
@@ -211,8 +222,6 @@ namespace Xtensive.Storage.Building.Builders
                 break;
               }
               case InheritanceSchema.ConcreteTable: {
-                var underlyingIndex = index.Clone();
-                var grouping = hierarchy;
                 var indexes = @interface.GetImplementors(true)
                   .Where(t => t.Hierarchy == grouping.Key)
                   .Select(t => t.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual));
@@ -224,12 +233,12 @@ namespace Xtensive.Storage.Building.Builders
           }
           if (underlyingIndexes.Count == 1) {
             var firstUnderlyingIndex = underlyingIndexes.First();
-            index.Attributes = firstUnderlyingIndex.Attributes;
-            index.FilterByTypes = firstUnderlyingIndex.FilterByTypes;
-            index.UnderlyingIndexes.AddRange(firstUnderlyingIndex.UnderlyingIndexes);
+            interfaceIndex.Attributes = firstUnderlyingIndex.Attributes;
+            interfaceIndex.FilterByTypes = firstUnderlyingIndex.FilterByTypes;
+            interfaceIndex.UnderlyingIndexes.AddRange(firstUnderlyingIndex.UnderlyingIndexes);
           }
           else
-            index.UnderlyingIndexes.AddRange(underlyingIndexes);
+            interfaceIndex.UnderlyingIndexes.AddRange(underlyingIndexes);
         }
       }
     }
