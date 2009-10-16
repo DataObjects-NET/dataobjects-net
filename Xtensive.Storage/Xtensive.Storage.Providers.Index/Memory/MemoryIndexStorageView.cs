@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
 
       foreach (var indexInfo in table.SecondaryIndexes) {
         var transform = Storage.GetTransform(indexInfo);
-        var oldTransformed = transform.Apply(TupleTransformType.Tuple, value);
+        var oldTransformed = transform.Apply(TupleTransformType.Tuple, oldValue);
         if (!oldTransformed.GetFieldState(0).IsAvailable())
           continue;
         var newTransformed = transform.Apply(TupleTransformType.Tuple, newValue);
