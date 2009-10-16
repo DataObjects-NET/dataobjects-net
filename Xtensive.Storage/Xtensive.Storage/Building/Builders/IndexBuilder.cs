@@ -210,13 +210,16 @@ namespace Xtensive.Storage.Building.Builders
               case InheritanceSchema.SingleTable: {
                 var rootIndexes = hierarchy.Key.Root.Indexes.Where(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual);
                 foreach (var rootIndex in rootIndexes) {
-                  var typesToFilter = new List<TypeInfo>();
+                  var index = rootIndex;
+                  var filterByTypes = new List<TypeInfo>();
                   var reflectedType = rootIndex.ReflectedType;
                   if (!reflectedType.IsAbstract)
-                    typesToFilter.Add(reflectedType);
-                  typesToFilter.AddRange(GatherDescendants(reflectedType, hierarchyImplementors));
-                  var filterIndex = BuildFilterIndex(reflectedType, rootIndex, typesToFilter);
-                  underlyingIndex.UnderlyingIndexes.Add(rootIndex);
+                    filterByTypes.Add(reflectedType);
+                  var subHierarchyNodeCount = reflectedType.GetDescendants(true).Count() + filterByTypes.Count;
+                  filterByTypes.AddRange(GatherDescendants(reflectedType, hierarchyImplementors));
+                  if (filterByTypes.Count != subHierarchyNodeCount)
+                    index = BuildFilterIndex(reflectedType, index, filterByTypes);
+                  underlyingIndex.UnderlyingIndexes.Add(index);
                 }
                 underlyingIndexes.Add(underlyingIndex);
                 break;
