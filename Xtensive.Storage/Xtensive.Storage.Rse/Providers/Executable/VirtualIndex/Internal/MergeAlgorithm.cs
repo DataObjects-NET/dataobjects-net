@@ -45,9 +45,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal
       for (int i = 0; i < haveValues.Length; i++)
         willContinue |= haveValues[i];
 
-      Tuple lowestKey = null;
-      int lowestItemIndex = 0;
       while (willContinue) {
+        Tuple lowestKey = null;
+        int lowestItemIndex = 0;
         for (int i = 0; i < enums.Length; i++) {
           if (haveValues[i]) {
             Tuple key = extractors[i](enums[i].Current);

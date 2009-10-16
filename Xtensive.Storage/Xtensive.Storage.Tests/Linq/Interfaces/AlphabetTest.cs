@@ -187,6 +187,21 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     }
 
     [Test]
+    public void SecondaryIndexTest()
+    {
+      var secondaryIndex = Domain.Model.Types[typeof(INamed)].Indexes.GetIndex("Name");
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var secondarySet = secondaryIndex.ToRecordSet();
+        var expectedNamesList = Query<INamed>.All.Select(i => i.Name).ToList();
+        var actualNameList = secondarySet.Select(tuple => tuple.GetValue<string>(0)).ToList();
+        Assert.AreEqual(expectedNamesList.Count, actualNameList.Count);
+        Assert.IsTrue(actualNameList.SequenceEqual(expectedNamesList));
+        t.Complete();
+      }
+    }
+
+    [Test]
     public void FetchTest()
     {
       using (Session.Open(Domain))

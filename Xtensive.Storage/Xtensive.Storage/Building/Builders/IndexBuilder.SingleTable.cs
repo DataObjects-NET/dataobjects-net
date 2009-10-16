@@ -92,29 +92,6 @@ namespace Xtensive.Storage.Building.Builders
           }
         }
       }
-
-//      foreach (var ancestorIndex in root.Indexes) {
-//        if (ancestorIndex.DeclaringType.IsInterface) {
-//          if (!interfaces.Contains(ancestorIndex.DeclaringType))
-//            continue;
-//          if (!types.Contains(ancestorIndex.ReflectedType))
-//            continue;
-//          var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
-//          var indexView = BuildViewIndex(type, filterIndex);
-//          type.Indexes.Add(indexView);
-//        }
-//        else if (types.Contains(ancestorIndex.ReflectedType)) {
-//          if (ancestorIndex.IsPrimary) {
-//            var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
-//            var indexView = BuildViewIndex(type, filterIndex);
-//            type.Indexes.Add(indexView);
-//          }
-//          else {
-//            var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
-//            type.Indexes.Add(filterIndex);
-//          }
-//        }
-//      }
     }
   }
 }
