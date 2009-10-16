@@ -60,7 +60,8 @@ namespace Xtensive.Storage
   public abstract class Entity : Persistent,
     IEntity,
     ISerializable,
-    IDeserializationCallback
+    IDeserializationCallback,
+    IHasVersion<VersionInfo>
   {
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
 
@@ -78,7 +79,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Properties: Key, Type, Tuple, PersistenceState
+    #region Properties: Key, Type, Tuple, PersistenceState, Version
 
     /// <summary>
     /// Gets the <see cref="Key"/> that identifies this entity.
@@ -129,6 +130,22 @@ namespace Xtensive.Storage
     {
       [DebuggerStepThrough]
       get { return State.PersistenceState; }
+    }
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    object IHasVersion.Version
+    {
+      [DebuggerStepThrough]
+      get { return GetVersion(); }
+    }
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    VersionInfo IHasVersion<VersionInfo>.Version
+    {
+      [DebuggerStepThrough]
+      get { return GetVersion(); }
     }
 
     #endregion
@@ -560,5 +577,7 @@ namespace Xtensive.Storage
         DeserializationContext.Demand().SetEntityData(this, info, context);
       }
     }
+
+    
   }
 }
