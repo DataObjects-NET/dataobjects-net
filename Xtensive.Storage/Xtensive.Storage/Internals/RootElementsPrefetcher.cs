@@ -15,79 +15,29 @@ using Xtensive.Storage.Providers;
 namespace Xtensive.Storage.Internals
 {
   [Serializable]
-  internal sealed class PrefetcherEnumerator<T> : IEnumerator<T>
+  internal sealed class RootElementsPrefetcher<T> : IEnumerable<T>
   {
     private static readonly object descriptorArraysCachingRegion = new object();
 
     private readonly Func<T, Key> keyExtractor;
-    private readonly IEnumerator<T> source;
+    private readonly IEnumerable<T> source;
     private readonly TypeInfo modelType;
     private readonly Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors;
-    private readonly List<Func<T, SessionHandler, IEnumerable>> prefetchManyDelegates;
     private readonly Dictionary<TypeInfo, PrefetchFieldDescriptor[]> userDescriptorsCache =
       new Dictionary<TypeInfo, PrefetchFieldDescriptor[]>();
     private readonly Queue<T> processedElements = new Queue<T>();
     private readonly Queue<T> waitingElements = new Queue<T>();
-    private StrongReferenceContainer strongReferenceContainer;
+    private readonly StrongReferenceContainer strongReferenceContainer;
     private readonly Queue<T> delayedElements = new Queue<T>();
     private object blockingDelayedElement;
     private readonly SessionHandler sessionHandler;
     private int prefetchTaskExecutionCount;
-    private PrefetcherEnumeratorState state;
     private bool isDisposed;
 
-    public void Dispose()
+    public IEnumerator<T> GetEnumerator()
     {
-      if (isDisposed)
-        return;
-      isDisposed = true;
-      source.Dispose();
-    }
-
-    public bool MoveNext()
-    {
-      EnsureNotDisposed();
-      switch (state) {
-        case PrefetcherEnumeratorState.EnumerationOfSource:
-        if (EnumerateSource())
-          return true;
-        state = PrefetcherEnumeratorState.FlushingOfElementsProcessedDuringEnumeration;
-        goto case PrefetcherEnumeratorState.FlushingOfElementsProcessedDuringEnumeration;
-
-        case PrefetcherEnumeratorState.FlushingOfElementsProcessedDuringEnumeration:
-        if (FlushElementsProcessedDuringEnumeration())
-          return true;
-        state = PrefetcherEnumeratorState.FlushingOfElementsFromTail;
-        goto case PrefetcherEnumeratorState.FlushingOfElementsFromTail;
-
-        case PrefetcherEnumeratorState.FlushingOfElementsFromTail:
-        if (processedElements.Count > 0) {
-          Current = processedElements.Dequeue();
-          return true;
-        }
-        state = PrefetcherEnumeratorState.Finished;
-        return false;
-
-        default:
-        return false;
-      }
-    }
-
-    private bool FlushElementsProcessedDuringEnumeration()
-    {
-      if (processedElements.Count > 0) {
-        Current = processedElements.Dequeue();
-        return true;
-      }
-      strongReferenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks());
-      ProcessFetchedElements(true);
-      return false;
-    }
-
-    private bool EnumerateSource()
-    {
-      while (source.MoveNext()) {
-        var element = source.Current;
+      prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
+      foreach (var element in source) {
         var elementKey = RegisterPrefetch(element);
         if (prefetchTaskExecutionCount!=sessionHandler.PrefetchTaskExecutionCount) {
           blockingDelayedElement = null;
@@ -97,41 +47,36 @@ namespace Xtensive.Storage.Internals
         if (!elementKey.HasExactType)
           delayedElements.Enqueue(element);
         prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
-        if (processedElements.Count > 0) {
-          Current = processedElements.Dequeue();
-          return true;
-        }
+        if (processedElements.Count > 0)
+          yield return processedElements.Dequeue();
       }
-      return false;
+      while (processedElements.Count > 0)
+        yield return processedElements.Dequeue();
+      strongReferenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks());
+      ProcessFetchedElements(true);
+      while (processedElements.Count > 0)
+        yield return processedElements.Dequeue();
     }
 
-    public void Reset()
+    IEnumerator IEnumerable.GetEnumerator()
     {
-      processedElements.Clear();
-      waitingElements.Clear();
-      delayedElements.Clear();
-      blockingDelayedElement = null;
-      prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
-      strongReferenceContainer = new StrongReferenceContainer(null);
-      state = PrefetcherEnumeratorState.EnumerationOfSource;
+      return GetEnumerator();
     }
 
-    public T Current { get; private set; }
-
-    object IEnumerator.Current
-    {
-      get { return Current; }
-    }
-
-    private void EnsureNotDisposed()
-    {
-      if (isDisposed)
-        throw new ObjectDisposedException(GetType().Name);
-    }
+    #region Private \ internal methods
 
     private Key RegisterPrefetch(T element)
     {
       var key = keyExtractor.Invoke(element);
+      var type = SelectType(key);
+      var descriptorArray = GetUserDescriptorArray(type);
+      strongReferenceContainer.JoinIfPossible(sessionHandler
+        .Prefetch(keyExtractor.Invoke(element), type, descriptorArray));
+      return key;
+    }
+
+    private TypeInfo SelectType(Key key)
+    {
       TypeInfo type;
       if (key.HasExactType)
         type = key.Type;
@@ -139,10 +84,7 @@ namespace Xtensive.Storage.Internals
         type = key.TypeRef.Type;
       else
         type = modelType;
-      var descriptorArray = GetUserDescriptorArray(type);
-      strongReferenceContainer.JoinIfPossible(sessionHandler
-        .Prefetch(keyExtractor.Invoke(element), type, descriptorArray));
-      return key;
+      return type;
     }
 
     private PrefetchFieldDescriptor[] GetUserDescriptorArray(TypeInfo type)
@@ -166,13 +108,11 @@ namespace Xtensive.Storage.Internals
         if (blockingDelayedElement == null)
           blockingDelayedElement = elementToBeFetched;
         var key = keyExtractor.Invoke(elementToBeFetched);
-        var type = key.TypeRef.Type;
         var cachedKey = sessionHandler.Session.EntityStateCache[key, false].Key;
         var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
           .GetCachedItem(new Pair<object, TypeInfo>(descriptorArraysCachingRegion, cachedKey.Type),
             pair => ((Pair<object, TypeInfo>) pair).Second.Fields
-              .Where(field => field.DeclaringType!=type
-                && field.Parent==null && PrefetchTask.IsFieldToBeLoadedByDefault(field))
+              .Where(field => field.Parent==null && PrefetchTask.IsFieldToBeLoadedByDefault(field))
               .Select(field => new PrefetchFieldDescriptor(field, false)).ToArray());
         var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;
         strongReferenceContainer.JoinIfPossible(sessionHandler.Prefetch(cachedKey, cachedKey.Type,
@@ -197,8 +137,6 @@ namespace Xtensive.Storage.Internals
           ExecutePrefetchTasks();
         if (ReferenceEquals(waitingElement, blockingDelayedElement))
           return;
-        if (prefetchManyDelegates.Count > 0)
-          ExecutePrefetchMany(waitingElement);
         processedElements.Enqueue(waitingElements.Dequeue());
       }
     }
@@ -209,34 +147,24 @@ namespace Xtensive.Storage.Internals
       blockingDelayedElement = null;
     }
 
-    private void ExecutePrefetchMany(T element)
-    {
-      foreach (var prefetchManyDelegate in prefetchManyDelegates) {
-        var enumerator = prefetchManyDelegate.Invoke(element, sessionHandler).GetEnumerator();
-        using ((IDisposable) enumerator)
-          while (enumerator.MoveNext()) {
-          }
-      }
-    }
+    #endregion
 
 
     // Constructors
 
-    public PrefetcherEnumerator(IEnumerable<T> source, Func<T, Key> keyExtractor, TypeInfo modelType,
-      Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors,
-      List<Func<T, SessionHandler, IEnumerable>> prefetchManyDelegates)
+    public RootElementsPrefetcher(IEnumerable<T> source, Func<T, Key> keyExtractor, TypeInfo modelType,
+      Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors, SessionHandler sessionHandler)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       ArgumentValidator.EnsureArgumentNotNull(fieldDescriptors, "fieldDescriptors");
-      ArgumentValidator.EnsureArgumentNotNull(prefetchManyDelegates, "prefetchManyDelegates");
-      this.source = source.GetEnumerator();
+      ArgumentValidator.EnsureArgumentNotNull(sessionHandler, "sessionHandler");
+      this.source = source;
       this.keyExtractor = keyExtractor;
       this.modelType = modelType;
       this.fieldDescriptors = fieldDescriptors;
-      this.prefetchManyDelegates = prefetchManyDelegates;
-      sessionHandler = Session.Demand().Handler;
-      Reset();
+      this.sessionHandler = sessionHandler;
+      strongReferenceContainer = new StrongReferenceContainer(null);
     }
   }
 }

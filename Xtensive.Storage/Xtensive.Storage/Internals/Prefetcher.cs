@@ -36,8 +36,9 @@ namespace Xtensive.Storage.Internals
     private readonly TypeInfo modelType;
     private readonly Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors =
       new Dictionary<FieldInfo, PrefetchFieldDescriptor>();
-    private readonly List<Func<TElement, SessionHandler, IEnumerable>> prefetchManyDelegates =
-      new List<Func<TElement, SessionHandler, IEnumerable>>();
+    private readonly List<Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>>>
+      prefetchManyProcessorCreators =
+      new List<Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>>>();
 
     private object blockingDelayedElement;
 
@@ -134,24 +135,29 @@ namespace Xtensive.Storage.Internals
     {
       Prefetch(expression, null);
       var compiledPropertyGetter = expression.CachingCompile();
-      Func<TElement, SessionHandler, IEnumerable> prefetchManyDelegate =
-        (element, sessionHandler) => {
-          EntityState state;
-          sessionHandler.TryGetEntityState(keyExtractor.Invoke(element), out state);
-          return prefetchManyFunc.Invoke(EnumerableUtils.One(selector
-            .Invoke(compiledPropertyGetter.Invoke((T) state.Entity))));
+      Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>> prefetchManyDelegate =
+        (rootEnumerator, sessionHandler) => {
+          Func<TElement, SessionHandler, IEnumerable<TSelectorResult>> childElementSelector =
+            (element, sh) => SelectChildElements(element, compiledPropertyGetter,
+              fieldValue => EnumerableUtils.One(selector.Invoke(fieldValue)), sh);
+          return new PrefetchManyProcessor<TElement, TSelectorResult>(rootEnumerator, childElementSelector,
+            prefetchManyFunc, sessionHandler);
         };
-      prefetchManyDelegates.Add(prefetchManyDelegate);
+      prefetchManyProcessorCreators.Add(prefetchManyDelegate);
       return this;
     }
     
     /// <inheritdoc/>
     public IEnumerator<TElement> GetEnumerator()
     {
-      return new PrefetcherEnumerator<TElement>(source, keyExtractor, modelType,
-        fieldDescriptors, prefetchManyDelegates);
+      var sessionHandler = Session.Demand().Handler;
+      IEnumerable<TElement> result = new RootElementsPrefetcher<TElement>(source, keyExtractor, modelType,
+        fieldDescriptors, sessionHandler);
+      foreach (var prefetchManyDelegate in prefetchManyProcessorCreators)
+        result = prefetchManyDelegate.Invoke(result, sessionHandler);
+      return result.GetEnumerator();
     }
-    
+
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
@@ -167,14 +173,24 @@ namespace Xtensive.Storage.Internals
     {
       Prefetch(expression, entitySetItemCountLimit);
       var compiledPropertyGetter = expression.CachingCompile();
-      Func<TElement, SessionHandler, IEnumerable> prefetchManyDelegate =
-        (element, sessionHandler) => {
-          EntityState state;
-          sessionHandler.TryGetEntityState(keyExtractor.Invoke(element), out state);
-          return prefetchManyFunc.Invoke(selector
-            .Invoke(compiledPropertyGetter.Invoke((T) state.Entity)));
+      Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>> prefetchManyDelegate =
+        (rootEnumerator, sessionHandler) => {
+          Func<TElement, SessionHandler, IEnumerable<TSelectorResult>> childElementSelector =
+            (element, sh) => SelectChildElements(element, compiledPropertyGetter,
+              selector, sh);
+          return new PrefetchManyProcessor<TElement, TSelectorResult>(rootEnumerator, childElementSelector,
+            prefetchManyFunc, sessionHandler);
         };
-      prefetchManyDelegates.Add(prefetchManyDelegate);
+      prefetchManyProcessorCreators.Add(prefetchManyDelegate);
+    }
+
+    private IEnumerable<TSelectorResult> SelectChildElements<TFieldValue, TSelectorResult>(
+      TElement element, Func<T, TFieldValue> propertyGetter,
+      Func<TFieldValue, IEnumerable<TSelectorResult>> selector, SessionHandler sessionHandler)
+    {
+      EntityState state;
+      sessionHandler.TryGetEntityState(keyExtractor.Invoke(element), out state);
+      return selector.Invoke(propertyGetter.Invoke((T) state.Entity));
     }
 
     private void Prefetch<TFieldValue>(Expression<Func<T, TFieldValue>> expression,

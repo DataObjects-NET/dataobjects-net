@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -48,11 +47,11 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         Func<FieldInfo, bool> fieldSelector = field => field.IsPrimaryKey || field.IsSystem
           || !field.IsLazyLoad && !field.IsEntitySet;
         foreach (var key in prefetcher) {
-          AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, fieldSelector);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, fieldSelector);
           var orderState = session.EntityStateCache[key, true];
           var employeeKey = Key.Create<Employee>(employeeField.Association.ExtractForeignKey(orderState.Tuple),
             TypeReferenceAccuracy.ExactType);
-          AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session, fieldSelector);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session, fieldSelector);
         }
       }
     }
@@ -85,7 +84,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void PrefetchManyTest()
+    public void PrefetchManyNotFullBatchTest()
     {
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -98,6 +97,28 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           foreach (var employeeKey in entitySetState)
             GetFullyLoadedEntitySet(session, employeeKey, ordersField);
         }
+        Assert.AreEqual(2, session.Handler.PrefetchTaskExecutionCount);
+      }
+    }
+
+    [Test]
+    public void PrefetchManySeveralBatchesTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var detailsField = typeof (Order).GetTypeInfo().Fields["OrderDetails"];
+        var productField = typeof (OrderDetails).GetTypeInfo().Fields["Product"];
+        var prefetcher = Query<Order>.All.PrefetchMany(o => o.OrderDetails, details => details,
+          details => details.Prefetch(d => d.Product));
+        foreach (var order in prefetcher) {
+          var entitySetState = GetFullyLoadedEntitySet(session, order.Key, detailsField);
+          foreach (var detailKey in entitySetState) {
+            PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(detailKey, detailKey.Type, session,
+              PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+            PrefetchTestHelper.AssertReferencedEntityIsLoaded(detailKey, session, productField);
+          }
+        }
+        Assert.AreEqual(47, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
@@ -119,25 +140,39 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           .PrefetchSingle(o => o.Employee, employee => employee,
             employee => employee.Prefetch(e => e.Orders));
         foreach (var orderKey in prefetcher) {
-          AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
             field => PrefetchTask.IsFieldToBeLoadedByDefault(field)
               || field.Equals(employeeField) || (field.Parent != null && field.Parent.Equals(employeeField)));
           var state = session.EntityStateCache[orderKey, true];
-          AssertOnlySpecifiedColumnsAreLoaded(state.Entity.GetFieldValue<Employee>(employeeField).Key,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(state.Entity.GetFieldValue<Employee>(employeeField).Key,
             employeeType, session, field =>
               PrefetchTask.IsFieldToBeLoadedByDefault(field) || field.Equals(ordersField));
         }
+        //Assert.AreEqual(10, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
     [Test]
-    public void PreservingOrderInPrefetchManyTest()
+    public void PreservingOrderInPrefetchManyNotFullBatchTest()
     {
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var expected = Query<Territory>.All.ToList();
         var actual = expected.PrefetchMany(t => t.Employees, employees => employees,
           employees => employees.Prefetch(e => e.Orders)).ToList();
+        Assert.AreEqual(expected.Count, actual.Count);
+        Assert.IsTrue(expected.SequenceEqual(actual));
+      }
+    }
+
+    [Test]
+    public void PreserveOrderingInPrefetchManySeveralBatchesTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var expected = Query<Order>.All.ToList();
+        var actual = expected.PrefetchMany(o => o.OrderDetails, details => details,
+          details => details.Prefetch(d => d.Product)).ToList();
         Assert.AreEqual(expected.Count, actual.Count);
         Assert.IsTrue(expected.SequenceEqual(actual));
       }
@@ -194,23 +229,6 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Assert.IsTrue(session.Handler.TryGetEntitySetState(key, employeesField, out entitySetState));
       Assert.IsTrue(entitySetState.IsFullyLoaded);
       return entitySetState;
-    }
-
-    private void AssertOnlySpecifiedColumnsAreLoaded(Key key, TypeInfo type, Session session,
-      Func<FieldInfo, bool> fieldSelector)
-    {
-      var tuple = session.EntityStateCache[key, true].Tuple;
-      Assert.IsNotNull(tuple);
-      foreach (var field in type.Fields) {
-        var isFieldSelected = fieldSelector.Invoke(field);
-        foreach (var column in field.Columns) {
-          var isAvailable = tuple.GetFieldState(type.Columns.IndexOf(column)).IsAvailable();
-          if (isFieldSelected)
-            Assert.IsTrue(isAvailable);
-          else
-            Assert.IsFalse(isAvailable);
-        }
-      }
     }
   }
 }

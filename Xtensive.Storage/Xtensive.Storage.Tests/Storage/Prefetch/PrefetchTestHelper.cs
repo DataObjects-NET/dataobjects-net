@@ -41,5 +41,15 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       return field.IsPrimaryKey || field.IsSystem || !field.IsLazyLoad && !field.IsEntitySet;
     }
+
+    public static void AssertReferencedEntityIsLoaded(Key key, Session session, FieldInfo referencingField)
+    {
+      var tuple = session.EntityStateCache[key, true].Tuple;
+      var foreignKeyValue = referencingField.Association.ExtractForeignKey(tuple);
+      var foreignKey = Key.Create(referencingField.Association.TargetType.Hierarchy.Root,
+        foreignKeyValue, TypeReferenceAccuracy.Hierarchy);
+      AssertOnlySpecifiedColumnsAreLoaded(foreignKey, referencingField.Association.TargetType.Hierarchy.Root,
+        session, IsFieldToBeLoadedByDefault);
+    }
   }
 }

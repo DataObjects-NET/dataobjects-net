@@ -30,12 +30,15 @@ namespace Xtensive.Storage.Internals
     public StrongReferenceContainer Prefetch(Key key, TypeInfo type,
       params PrefetchFieldDescriptor[] descriptors)
     {
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
+      if (descriptors.Length == 0)
+        return null;
+
       StrongReferenceContainer prevContainer = null;
       if (taskContainers.Count >= MaxContainerCount)
         prevContainer = ExecuteTasks();
 
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
       EnsureKeyTypeCorrespondsToSpecifiedType(key, type);
 
       Tuple ownerEntityTuple;

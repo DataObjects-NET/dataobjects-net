@@ -136,12 +136,12 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           field==employeeField || IsFieldKeyOrSystem(field)
             || (field.Parent != null && field.Parent==employeeField));
 
-        AssertReferencedEntityIsLoaded(orderKey0, session, customerField);
-        AssertReferencedEntityIsLoaded(orderKey0, session, employeeField);
+        PrefetchTestHelper.AssertReferencedEntityIsLoaded(orderKey0, session, customerField);
+        PrefetchTestHelper.AssertReferencedEntityIsLoaded(orderKey0, session, employeeField);
 
-        AssertReferencedEntityIsLoaded(orderKey1, session, customerField);
+        PrefetchTestHelper.AssertReferencedEntityIsLoaded(orderKey1, session, customerField);
 
-        AssertReferencedEntityIsLoaded(orderKey2, session, employeeField);
+        PrefetchTestHelper.AssertReferencedEntityIsLoaded(orderKey2, session, employeeField);
       }
     }
 
@@ -1009,16 +1009,6 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       return ((IEnumerable<PrefetchTaskContainer>) taskContainersField.GetValue(prefetchProcessor)).Single();
     }
 
-    private static void AssertReferencedEntityIsLoaded(Key key, Session session, FieldInfo referencingField)
-    {
-      var tuple = session.EntityStateCache[key, true].Tuple;
-      var foreignKeyValue = referencingField.Association.ExtractForeignKey(tuple);
-      var foreignKey = Key.Create(referencingField.Association.TargetType.Hierarchy.Root,
-        foreignKeyValue, TypeReferenceAccuracy.Hierarchy);
-      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(foreignKey,
-        referencingField.Association.TargetType.Hierarchy.Root, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
-    }
-      
     private void PrefetchIntrinsicFields(PrefetchProcessor prefetchProcessor, Key customerKey, Type type)
     {
       var typeInfo = Domain.Model.Types[type];
