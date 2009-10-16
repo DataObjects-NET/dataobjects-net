@@ -120,12 +120,10 @@ namespace Xtensive.Core.Threading
     /// <returns>Found value, or <see langword="default(TItem)"/>.</returns>
     public TItem GetValue(int index)
     {
-      try {
-        return implementation[index];
-      }
-      catch (IndexOutOfRangeException) {
+      if (index<0 || index>=implementation.Length)
         return defaultItem;
-      }
+      else
+        return implementation[index];
     }
 
     /// <summary>
