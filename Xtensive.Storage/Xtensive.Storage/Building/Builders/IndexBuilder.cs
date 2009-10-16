@@ -215,10 +215,8 @@ namespace Xtensive.Storage.Building.Builders
                   var reflectedType = rootIndex.ReflectedType;
                   if (!reflectedType.IsAbstract)
                     filterByTypes.Add(reflectedType);
-                  var subHierarchyNodeCount = reflectedType.GetDescendants(true).Count() + filterByTypes.Count;
                   filterByTypes.AddRange(GatherDescendants(reflectedType, hierarchyImplementors));
-                  if (filterByTypes.Count != subHierarchyNodeCount)
-                    index = BuildFilterIndex(reflectedType, index, filterByTypes);
+                  index = BuildFilterIndex(reflectedType, index, filterByTypes);
                   underlyingIndex.UnderlyingIndexes.Add(index);
                 }
                 underlyingIndexes.Add(underlyingIndex);
