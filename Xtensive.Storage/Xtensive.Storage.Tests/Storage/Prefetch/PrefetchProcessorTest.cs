@@ -777,12 +777,22 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key bookShopKey2;
       Key bookShopKey3;
       Key bookShopKey4;
+
+      TypeInfo bookShopType;
+      TypeInfo publisherType;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
+        publisherType = typeof (Publisher).GetTypeInfo();
+        bookShopType = typeof (BookShop).GetTypeInfo();
+
         var publisher0 = new Publisher {Country = "A"};
+        publisherKey0 = publisher0.Key;
         var publisher1 = new Publisher {Country = "A"};
+        publisherKey1 = publisher1.Key;
         var publisher2 = new Publisher {Country = "B"};
+        publisherKey2 = publisher2.Key;
         var publisher3 = new Publisher {Country = "B"};
+        publisherKey3 = publisher3.Key;
         var publisher4 = new Publisher {Country = "C"};
 
         var bookShop0 = new BookShop {Url = "0"};
@@ -796,7 +806,6 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var bookShop4 = new BookShop {Url = "2"};
 
         publisher0.Distributors.Add(bookShop0);
-        publisherKey0 = publisher0.Key;
         publisher0.Distributors.Add(bookShop1);
         publisher0.Distributors.Add(bookShop2);
         publisher0.Distributors.Add(bookShop3);
@@ -825,32 +834,51 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var publisherType = typeof (Publisher).GetTypeInfo();
         var distributorsField = publisherType.Fields["Distributors"];
+        var urlField = bookShopType.Fields["Url"];
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
         prefetchProcessor.Prefetch(publisherKey0, publisherType,
           new PrefetchFieldDescriptor(distributorsField));
         prefetchProcessor.ExecuteTasks();
 
+        var iBookShopType = typeof (IBookShop).GetTypeInfo();
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(publisherKey0, publisherType, session,
           IsFieldKeyOrSystem);
-        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey0, bookShopKey0.Type, session,
-          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
-        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey1, bookShopKey0.Type, session,
-          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
-        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey2, bookShopKey0.Type, session,
-          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
-        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey3, bookShopKey0.Type, session,
-          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        var bookShopKeys = new[] {bookShopKey0, bookShopKey1, bookShopKey2, bookShopKey3};
+        foreach (var bookShopKey in bookShopKeys)
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey, bookShopKey.Type, session,
+          field => IsFieldKeyOrSystem(field) || field.Equals(urlField));
 
         EntitySetState setState;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(publisherKey0, distributorsField, out setState));
         Assert.IsTrue(setState.IsFullyLoaded);
         Assert.AreEqual(4, setState.count);
-        Assert.AreEqual(bookShopKey0, setState.Take(1));
-        Assert.AreEqual(bookShopKey1, setState.Skip(1).Take(1));
-        Assert.AreEqual(bookShopKey2, setState.Skip(2).Take(1));
-        Assert.AreEqual(bookShopKey3, setState.Skip(2).Take(1));
+        foreach (var bookShopKey in bookShopKeys)
+          Assert.IsTrue(setState.Contains(bookShopKey));
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var suppliersField = bookShopType.Fields["Suppliers"];
+        var trademarkField = publisherType.Fields["Trademark"];
+        var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
+        prefetchProcessor.Prefetch(bookShopKey0, bookShopType, new PrefetchFieldDescriptor(suppliersField));
+        prefetchProcessor.ExecuteTasks();
+
+        var iPublisherType = typeof (IBookShop).GetTypeInfo();
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey0, bookShopType, session,
+          IsFieldKeyOrSystem);
+        var publisherKeys = new[] {publisherKey0, publisherKey1, publisherKey2, publisherKey3};
+        foreach (var publisherKey in publisherKeys)
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(publisherKey, publisherKey.Type, session,
+          field => IsFieldKeyOrSystem(field) || field.Equals(trademarkField));
+
+        EntitySetState setState;
+        Assert.IsTrue(session.Handler.TryGetEntitySetState(bookShopKey0, suppliersField, out setState));
+        Assert.IsTrue(setState.IsFullyLoaded);
+        Assert.AreEqual(4, setState.count);
+        foreach (var publisherKey in publisherKeys)
+          Assert.IsTrue(setState.Contains(publisherKey));
       }
     }
 
