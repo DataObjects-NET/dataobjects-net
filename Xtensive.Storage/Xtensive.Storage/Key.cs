@@ -398,7 +398,7 @@ namespace Xtensive.Storage
       return Create(type, TypeReferenceAccuracy.BaseType, values);
     }
 
-    private static Key Create(Type type, TypeReferenceAccuracy accuracy, params object[] values)
+    internal static Key Create(Type type, TypeReferenceAccuracy accuracy, params object[] values)
     {
       return Create(Domain.Demand().Model.Types[type], accuracy, values);
     }
@@ -410,7 +410,12 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="values">Key values.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    internal static Key Create(TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
+    public static Key Create(TypeInfo type, params object[] values)
+    {
+      return Create(type, TypeReferenceAccuracy.BaseType, values);
+    }
+
+    internal static Key Create(TypeInfo type, TypeReferenceAccuracy accuracy, object[] values)
     {
       return KeyFactory.Create(type, accuracy, values);
     }
