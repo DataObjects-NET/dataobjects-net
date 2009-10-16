@@ -25,5 +25,6 @@ namespace Xtensive.Storage.Linq.Expressions
     Marker,
     LocalCollection,
     Structure,
+    Constructor,
   }
 }

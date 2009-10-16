@@ -226,9 +226,9 @@ namespace Xtensive.Storage.Linq
         else if (mc.Method.Name==WellKnownMembers.QueryableExtensionLock.Name)
           return VisitLock(mc);
         else if (mc.Method.Name==WellKnownMembers.QueryableExtensionTake.Name)
-          return VisitTake(mc.Arguments[0],mc.Arguments[1]);
+          return VisitTake(mc.Arguments[0], mc.Arguments[1]);
         else if (mc.Method.Name==WellKnownMembers.QueryableExtensionSkip.Name)
-          return VisitSkip(mc.Arguments[0],mc.Arguments[1]);
+          return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
         else
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
 
@@ -250,36 +250,46 @@ namespace Xtensive.Storage.Linq
       return VisitContains(mc.Arguments[1], mc.Arguments[0], false);
     }
 
-    protected override Expression VisitNew(NewExpression n)
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
+    protected override Expression VisitNew(NewExpression newExpression)
     {
-      if (n.Members==null) {
-        if (n.IsGroupingExpression() ||
-          n.IsSubqueryExpression() ||
-            n.Type==typeof (TimeSpan) ||
-              n.Type==typeof (DateTime))
-          return base.VisitNew(n);
+      if (newExpression.Members==null) {
+        if (newExpression.IsGroupingExpression() ||
+          newExpression.IsSubqueryExpression() ||
+            newExpression.Type==typeof (TimeSpan) ||
+              newExpression.Type==typeof (DateTime))
+          return base.VisitNew(newExpression);
       }
-      var arguments = new List<Expression>();
-      for (int i = 0; i < n.Arguments.Count; i++) {
-        Expression argument = n.Arguments[i];
-        Expression body;
-        using (state.CreateScope()) {
-          state.CalculateExpressions = false;
-          body = Visit(argument);
+      List<Expression> arguments = VisitNewExpressionArguments(newExpression);
+      if (newExpression.IsAnonymousConstructor()) {
+        return newExpression.Members==null
+          ? Expression.New(newExpression.Constructor, arguments)
+          : Expression.New(newExpression.Constructor, arguments, newExpression.Members);
+      }
+      var constructorParameters = newExpression.Constructor.GetParameters();
+      if (constructorParameters.Length!=arguments.Count)
+        throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, Log.Instance);
+      ISet<MemberInfo> duplicateMembers = new SetSlim<MemberInfo>();
+      var bindings = new Dictionary<MemberInfo, Expression>();
+      for (int i = 0; i < constructorParameters.Length; i++) {
+        int parameterIndex = i;
+        var members = newExpression
+          .Type
+          .GetMembers()
+          .Where(memberInfo => (memberInfo.MemberType==MemberTypes.Field || memberInfo.MemberType==MemberTypes.Property)
+            && String.Equals(memberInfo.Name, constructorParameters[parameterIndex].Name, StringComparison.InvariantCultureIgnoreCase))
+          .ToList();
+        if (members.Count()==1 && !duplicateMembers.Contains(members[0])) {
+          if (bindings.ContainsKey(members[0])) {
+            bindings.Remove(members[0]);
+            duplicateMembers.Add(members[0]);
+          }
+          else
+            bindings.Add(members[0], arguments[parameterIndex]);
         }
-        body = body.IsProjection()
-          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
-          : ProcessProjectionElement(body);
-        arguments.Add(body);
       }
-      ParameterInfo[] constructorParameters = n.Constructor.GetParameters();
-      for (int i = 0; i < arguments.Count; i++) {
-        if (arguments[i].Type!=constructorParameters[i].ParameterType)
-          arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
-      }
-      return n.Members==null
-        ? Expression.New(n.Constructor, arguments)
-        : Expression.New(n.Constructor, arguments, n.Members);
+
+      return new ConstructorExpression(newExpression.Type, bindings, newExpression.Constructor, arguments);
     }
 
     #region Private helper methods
@@ -535,7 +545,8 @@ namespace Xtensive.Storage.Linq
       if (state.CalculateExpressions
         && reduceCastBody.GetMemberType()==MemberType.Unknown
           && reduceCastBody.NodeType!=ExpressionType.ArrayIndex
-          && reduceCastBody.NodeType!=ExpressionType.New) {
+          && (ExtendedExpressionType)reduceCastBody.NodeType!=ExtendedExpressionType.Constructor
+            && reduceCastBody.NodeType!=ExpressionType.New) {
         if (body.Type.IsEnum)
           body = Expression.Convert(body, Enum.GetUnderlyingType(body.Type));
         UnaryExpression convertExpression = Expression.Convert(body, typeof (object));
@@ -605,6 +616,19 @@ namespace Xtensive.Storage.Linq
         .ToList();
     }
 
+    protected override Expression VisitMemberInit(MemberInitExpression mi)
+    {
+      var constructor = mi.NewExpression.Constructor;
+      var newExpression = mi.NewExpression;
+      var arguments = VisitNewExpressionArguments(newExpression);
+      var bindings = VisitBindingList(mi.Bindings).Cast<MemberAssignment>();
+      var constructorExpression = (ConstructorExpression) VisitNew(mi.NewExpression);
+      foreach (var binding in bindings)
+        constructorExpression.Bindings[binding.Member] = binding.Expression;
+      return constructorExpression;
+    }
+
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private Expression GetMember(Expression expression, MemberInfo member)
     {
       MarkerType markerType;
@@ -634,6 +658,10 @@ namespace Xtensive.Storage.Linq
       Expression result = null;
       Func<PersistentFieldExpression, bool> propertyFilter = f => f.Name==member.Name;
       switch (extendedExpression.ExtendedType) {
+      case ExtendedExpressionType.Constructor:
+        if (!((ConstructorExpression) extendedExpression).Bindings.TryGetValue(member, out result))
+          throw new InvalidOperationException(String.Format(Strings.ExMemberXOfTypeXIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer, member.Name, member.ReflectedType.Name));
+        break;
       case ExtendedExpressionType.Structure:
       case ExtendedExpressionType.StructureField:
         var persistentExpression = (IPersistentExpression) expression;
@@ -641,7 +669,7 @@ namespace Xtensive.Storage.Linq
         break;
       case ExtendedExpressionType.LocalCollection:
         var localCollectionExpression = (LocalCollectionExpression) expression;
-        result = (Expression)localCollectionExpression.Fields[member];
+        result = (Expression) localCollectionExpression.Fields[member];
         break;
       case ExtendedExpressionType.Entity:
         var entityExpression = (EntityExpression) expression;

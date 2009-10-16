@@ -172,6 +172,15 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return expression;
     }
 
+    protected override Expression VisitConstructorExpression(ConstructorExpression expression)
+    {
+      foreach (var binding in expression.Bindings)
+        Visit(binding.Value);
+      foreach (var argument in expression.ConstructorArguments)
+        Visit(argument);
+      return base.VisitConstructorExpression(expression);
+    }
+
     private void ProcessFieldOwner(FieldExpression fieldExpression)
     {
       if (TreatEntityAsKey || fieldExpression.Owner==null)

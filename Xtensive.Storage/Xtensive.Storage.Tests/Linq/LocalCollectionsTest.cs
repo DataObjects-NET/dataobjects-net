@@ -88,6 +88,17 @@ namespace Xtensive.Storage.Tests.Linq.LocalCollectionsTest_Model
         return (Value1.GetHashCode() * 397) ^ Value2.GetHashCode();
       }
     }
+
+    public Poco(T1 Value1, T2 Value2)
+    {
+      this.Value1 = Value1;
+      this.Value2 = Value2;
+    }
+
+    public Poco()
+    {
+      
+    }
   }
 }
 
@@ -161,6 +172,34 @@ namespace Xtensive.Storage.Tests.Linq
         .ToList();
       var query = Query<Customer>.All.Join(pocos, customer => customer.Id, poco => poco.Value1, (customer, poco) => poco.Value1);
       var expected = Query<Customer>.All.AsEnumerable().Join(pocos, customer => customer.Id, poco => poco.Value1, (customer, poco) => poco.Value1);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public void Poco3Test()
+    {
+      var query = Query<Customer>.All
+        .Select(customer => new Poco<string, string>{Value1 = customer.Id, Value2 = customer.Id})
+        .Select(poco=>new {poco.Value1, poco.Value2});
+      var expected =  Query<Customer>.All
+        .AsEnumerable()
+        .Select(customer => new Poco<string, string>{Value1 = customer.Id, Value2 = customer.Id})
+        .Select(poco=>new {poco.Value1, poco.Value2});
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public void Poco4Test()
+    {
+      var query = Query<Customer>.All
+        .Select(customer => new Poco<string, string>(customer.Id, customer.Id))
+        .Select(poco=>new {poco.Value1, poco.Value2});
+      var expected =  Query<Customer>.All
+        .AsEnumerable()
+        .Select(customer => new Poco<string, string>{Value1 = customer.Id, Value2 = customer.Id})
+        .Select(poco=>new {poco.Value1, poco.Value2});
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
     }

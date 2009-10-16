@@ -208,6 +208,11 @@ namespace Xtensive.Storage.Linq.Materialization
       return MaterializeThroughOwner(expression, tupleExpression);
     }
 
+    protected override Expression VisitConstructorExpression(ConstructorExpression expression)
+    {
+      return Expression.New(expression.Constructor, expression.ConstructorArguments.Select(e=>Visit(e)));
+    }
+
     protected override Expression VisitStructureExpression(StructureExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
