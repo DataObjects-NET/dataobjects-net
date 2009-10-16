@@ -49,13 +49,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       mappings[provider] = (List<int>)OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
-
-      throw new NotImplementedException();
-      // var sourceAsSelect = provider.Source as SelectProvider;
-      //      if (sourceAsSelect != null && sourceAsSelect.ColumnIndexes.SequenceEqual(childRemapping))
-//        return sourceAsSelect;
-//
-//      return new SelectProvider(source, childRemapping);
+      return new SelectProvider(source, mappings[provider].ToArray());
     }
 
     protected override Provider VisitIndex(IndexProvider provider)
@@ -222,9 +216,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         mappings[provider] = EnumerableUtils<int>.Empty.ToList();
         return provider;
       }
-      throw new NotImplementedException();
-      mappings[provider] = mappings[provider.Source];
-      return base.VisitStore(provider);
+      return new StoreProvider(newSourceProvider);
     }
 
     protected override Provider VisitRaw(RawProvider provider)
@@ -233,13 +225,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       if (mapping.SequenceEqual(Enumerable.Range(0, provider.Header.Length)))
         return provider;
       var mappingTransform = new MapTransform(true, provider.Header.TupleDescriptor, mapping.ToArray());
-      var enumerableOfTupleType = typeof(Enumerable).MakeGenericType(typeof(Tuple));
-      MethodInfo selectMethodInfo = enumerableOfTupleType.GetMethod("Select",  new[] {enumerableOfTupleType,typeof (Func<,>).MakeGenericType(typeof (Tuple), typeof (Tuple))});
-      Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
-      var newExpression = Expression.Call(provider.Source, selectMethodInfo, provider.Source, Expression.Constant(selector));
-      var x = Expression.Lambda(newExpression);
-      throw new NotImplementedException();
-//      return new RawProvider(provider.Header.Select(mapping), x);
+      var newExpression = RemapRawProviderSource(provider.Source, mappingTransform);
+      return new RawProvider(provider.Header.Select(mapping), newExpression);
     }
 
     protected override Provider VisitReindex(ReindexProvider provider)
@@ -482,6 +469,19 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         .Distinct()
         .OrderBy(i => i)
         .ToList();
+    }
+
+    private static Expression<Func<IEnumerable<Tuple>>> RemapRawProviderSource(Expression<Func<IEnumerable<Tuple>>> source, MapTransform mappingTransform)
+    {
+      var selectMethodInfo = typeof (Enumerable)
+        .GetMethods()
+        .Single(methodInfo => methodInfo.Name=="Select"
+          && methodInfo.GetParameters()[1].ParameterType.GetGenericTypeDefinition()==typeof (Func<,>))
+        .MakeGenericMethod(typeof (Tuple), typeof (Tuple));
+
+      Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
+      var newExpression = Expression.Call(selectMethodInfo, source.Body, Expression.Constant(selector));
+      return (Expression<Func<IEnumerable<Tuple>>>)Expression.Lambda(newExpression);
     }
 
     private static List<int> MergeMappings(Provider originalLeft, List<int> leftMap, List<int> rightMap)
