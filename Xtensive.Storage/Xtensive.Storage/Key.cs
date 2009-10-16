@@ -410,7 +410,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="values">Key values.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    public static Key Create(TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
+    internal static Key Create(TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
       return KeyFactory.Create(type, accuracy, values);
     }
