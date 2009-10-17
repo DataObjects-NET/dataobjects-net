@@ -1041,11 +1041,20 @@ namespace Xtensive.Storage.Providers.Sql
         else
           for (int i = 0; i < rightQuery.Columns.Count; i++) {
             var subquery = rightQuery.ShallowClone();
-            var columnRef = (SqlColumnRef) subquery.Columns[i];
-            var column = columnRef.SqlColumn;
-            subquery.Columns.Clear();
-            subquery.Columns.Add(column);
-            query.Columns.Add(subquery, columnRef.Name);
+            var column = subquery.Columns[i];
+            if (IsColumnStub(column)) {
+              var columnStub = ExtractColumnStub(column);
+              subquery.Columns.Clear();
+              subquery.Columns.Add(columnStub.Column);
+              query.Columns.Add(subquery, column.Name);
+            }
+            else {
+              var columnRef = (SqlColumnRef)column;
+              var sqlColumn = columnRef.SqlColumn;
+              subquery.Columns.Clear();
+              subquery.Columns.Add(sqlColumn);
+              query.Columns.Add(subquery, columnRef.Name);
+            }
           }
       }
       return query;
