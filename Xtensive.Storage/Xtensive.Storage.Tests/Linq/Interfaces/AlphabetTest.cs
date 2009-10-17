@@ -193,8 +193,8 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var secondarySet = secondaryIndex.ToRecordSet();
-        var expectedNamesList = Query<INamed>.All.Select(i => i.Name).ToList();
-        var actualNameList = secondarySet.Select(tuple => tuple.GetValue<string>(0)).ToList();
+        var expectedNamesList = Query<INamed>.All.Select(i => i.Name).OrderBy(i=>i).ToList();
+        var actualNameList = secondarySet.Select(tuple => tuple.GetValue<string>(0)).OrderBy(n => n).ToList();
         Assert.AreEqual(expectedNamesList.Count, actualNameList.Count);
         Assert.IsTrue(actualNameList.SequenceEqual(expectedNamesList));
         t.Complete();
@@ -234,6 +234,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
       using (var t = Transaction.Open()) {
         var namedQuery = Query<INamed>.All
           .Select(i => i.Name)
+          .OrderBy(i=>i)
           .ToList();
         Assert.AreEqual(totalCount, namedQuery.Count);
         Assert.IsTrue(namedQuery.SequenceEqual(names));
