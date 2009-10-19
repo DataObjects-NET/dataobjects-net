@@ -114,7 +114,7 @@ namespace Xtensive.Core.Tuples
         ? GetGetNullableValueDelegate(fieldIndex)
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
       if (getter != null)
-        return getter.Invoke(this, out fieldState);
+        return getter.Invoke(GetContainer(fieldIndex), out fieldState);
       var value = GetValue(fieldIndex, out fieldState);
       return value == null 
         ? default(T) 
@@ -143,7 +143,7 @@ namespace Xtensive.Core.Tuples
       if (isNullable) {
         var getter = GetGetNullableValueDelegate(fieldIndex) as GetValueDelegate<T>;
         if (getter != null)
-          result = getter.Invoke(this, out state);
+          result = getter.Invoke(GetContainer(fieldIndex), out state);
         else
           result = (T)GetValue(fieldIndex, out state);
         return state.IsNull() ? default(T) : result;
@@ -151,7 +151,7 @@ namespace Xtensive.Core.Tuples
       else {
         var getter = GetGetValueDelegate(fieldIndex) as GetValueDelegate<T>;
         if (getter != null)
-          result = getter.Invoke(this, out state);
+          result = getter.Invoke(GetContainer(fieldIndex), out state);
         else {
           var value = GetValue(fieldIndex, out state);
           result = value == null 
@@ -185,7 +185,7 @@ namespace Xtensive.Core.Tuples
       if (isNullable) {
         var getter = GetGetNullableValueDelegate(fieldIndex) as GetValueDelegate<T>;
         if (getter != null)
-          return getter.Invoke(this, out state);
+          return getter.Invoke(GetContainer(fieldIndex), out state);
         result = (T)GetValue(fieldIndex, out state);
         return (state ^ TupleFieldState.Available) == TupleFieldState.Default 
           ? result 
@@ -194,7 +194,7 @@ namespace Xtensive.Core.Tuples
       else {
         var getter = GetGetValueDelegate(fieldIndex) as GetValueDelegate<T>;
         if (getter != null)
-          result = getter.Invoke(this, out state);
+          result = getter.Invoke(GetContainer(fieldIndex), out state);
         else
           result = (T)GetValue(fieldIndex, out state);
         if ((state & TupleFieldState.Null) == TupleFieldState.Default) 
@@ -217,7 +217,7 @@ namespace Xtensive.Core.Tuples
         ? GetSetNullableValueDelegate(fieldIndex)
         : GetSetValueDelegate(fieldIndex)) as Action<Tuple, T>;
       if (setter != null)
-        setter.Invoke(this, fieldValue);
+        setter.Invoke(GetContainer(fieldIndex), fieldValue);
       else
         SetValue(fieldIndex, (object) fieldValue);
     }
@@ -226,22 +226,32 @@ namespace Xtensive.Core.Tuples
 
     #region Get Delegate methods
 
-    protected virtual Delegate GetGetValueDelegate(int fieldIndex)
+    /// <summary>
+    /// Gets the tuple containing actual value of the specified field.
+    /// </summary>
+    /// <param name="fieldIndex">Index of the field to get the value container for.</param>
+    /// <returns>Value container.</returns>
+    protected virtual Tuple GetContainer(int fieldIndex)
+    {
+      return this;
+    }
+
+    protected internal virtual Delegate GetGetValueDelegate(int fieldIndex)
     {
       return null;
     }
 
-    protected virtual Delegate GetGetNullableValueDelegate(int fieldIndex)
+    protected internal virtual Delegate GetGetNullableValueDelegate(int fieldIndex)
     {
       return null;
     }
 
-    protected virtual Delegate GetSetValueDelegate(int fieldIndex)
+    protected internal virtual Delegate GetSetValueDelegate(int fieldIndex)
     {
       return null;
     }
 
-    protected virtual Delegate GetSetNullableValueDelegate(int fieldIndex)
+    protected internal virtual Delegate GetSetNullableValueDelegate(int fieldIndex)
     {
       return null;
     }

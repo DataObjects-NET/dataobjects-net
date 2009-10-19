@@ -45,6 +45,35 @@ namespace Xtensive.Core.Tuples
       get { return InnerTuple.Descriptor; }
     }
 
+    #region Get Delegate methods
+
+    protected override Tuple GetContainer(int fieldIndex)
+    {
+      return InnerTuple;
+    }
+
+    protected internal sealed override Delegate GetGetValueDelegate(int fieldIndex)
+    {
+      return InnerTuple.GetGetValueDelegate(fieldIndex);
+    }
+
+    protected internal sealed override Delegate GetGetNullableValueDelegate(int fieldIndex)
+    {
+      return InnerTuple.GetGetNullableValueDelegate(fieldIndex);
+    }
+
+    protected internal sealed override Delegate GetSetValueDelegate(int fieldIndex)
+    {
+      return InnerTuple.GetSetValueDelegate(fieldIndex);
+    }
+
+    protected internal sealed override Delegate GetSetNullableValueDelegate(int fieldIndex)
+    {
+      return InnerTuple.GetSetNullableValueDelegate(fieldIndex);
+    }
+
+    #endregion
+
 
     // Constructors
 

@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Tuples
 {
@@ -19,6 +20,7 @@ namespace Xtensive.Core.Tuples
   [Serializable]
   public sealed class DifferentialTuple : Tuple
   {
+//    private static ThreadSafeList<Delegate[]> getGetValueDelegates = ThreadSafeList<Delegate[]>.Create(new object());
     private Tuple origin;
     private Tuple difference;
 
@@ -86,13 +88,8 @@ namespace Xtensive.Core.Tuples
       difference = null;
     }
 
-    /// <summary>
-    /// Gets the tuple (<see cref="Origin"/> or <see cref="Difference"/>) containing
-    /// actual value of the specified field.
-    /// </summary>
-    /// <param name="fieldIndex">Index of the field to get the value container for.</param>
-    /// <returns>Value container.</returns>
-    public Tuple GetContainer(int fieldIndex)
+    /// <inheritdoc/>
+    protected override Tuple GetContainer(int fieldIndex)
     {
       if (difference==null)
         return origin;
@@ -119,11 +116,42 @@ namespace Xtensive.Core.Tuples
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       if (difference==null)
-        difference = Create(origin.Descriptor);
+        difference = origin.CreateNew();
       difference.SetValue(fieldIndex, fieldValue);
     }
 
     #endregion
+
+    #region Get Delegate methods
+
+    protected internal override Delegate GetGetValueDelegate(int fieldIndex)
+    {
+      var container = GetContainer(fieldIndex);
+      return container.GetGetValueDelegate(fieldIndex);
+    }
+
+    protected internal override Delegate GetGetNullableValueDelegate(int fieldIndex)
+    {
+      var container = GetContainer(fieldIndex);
+      return container.GetGetNullableValueDelegate(fieldIndex);
+    }
+
+    protected internal override Delegate GetSetValueDelegate(int fieldIndex)
+    {
+      if (difference == null)
+        difference = origin.CreateNew();
+      return difference.GetSetValueDelegate(fieldIndex);
+    }
+
+    protected internal override Delegate GetSetNullableValueDelegate(int fieldIndex)
+    {
+      if (difference == null)
+        difference = origin.CreateNew();
+      return difference.GetSetNullableValueDelegate(fieldIndex);
+    }
+
+    #endregion
+
 
     #region CreateNew, Clone, Reset methods
 
@@ -148,6 +176,23 @@ namespace Xtensive.Core.Tuples
     }
 
     #endregion
+
+//    #region Private static methods
+//
+//    private static GetValueDelegate<TFieldType> GetGetValueDelegate<TFieldType>(int fieldIndex)
+//    {
+//      return (Tuple t, out TupleFieldState fs) => {
+//        var dTuple = (DifferentialTuple) t;
+//        var originDelegate = dTuple.origin.GetGetValueDelegate(fieldIndex) as GetValueDelegate<TFieldType>;
+//        if (originDelegate == null)
+//          return null;
+//
+//               fs = TupleFieldState.Available;
+//               return default(TFieldType);
+//             };
+//    }
+//
+//    #endregion
 
 
     // Constructors

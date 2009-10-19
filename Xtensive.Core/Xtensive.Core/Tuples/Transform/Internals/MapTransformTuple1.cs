@@ -60,6 +60,51 @@ namespace Xtensive.Core.Tuples.Transform.Internals
       return mappedIndex < 0 ? MapTransform.NoMapping :mappedIndex;
     }
 
+    #region Get Delegate methods
+
+    protected override Tuple GetContainer(int fieldIndex)
+    {
+      return tuple;
+    }
+
+    protected internal override Delegate GetGetValueDelegate(int fieldIndex)
+    {
+      int index = GetMappedFieldIndex(fieldIndex);
+      if (index == MapTransform.NoMapping)
+        return null;
+      return tuple.GetGetValueDelegate(index);
+    }
+
+    protected internal override Delegate GetGetNullableValueDelegate(int fieldIndex)
+    {
+      int index = GetMappedFieldIndex(fieldIndex);
+      if (index == MapTransform.NoMapping)
+        return null;
+      return tuple.GetGetNullableValueDelegate(index);
+    }
+
+    protected internal override Delegate GetSetValueDelegate(int fieldIndex)
+    {
+      if (Transform.IsReadOnly)
+        throw Exceptions.ObjectIsReadOnly(null);
+      int index = GetMappedFieldIndex(fieldIndex);
+      if (index == MapTransform.NoMapping)
+        return null;
+      return tuple.GetSetValueDelegate(index);
+    }
+
+    protected internal override Delegate GetSetNullableValueDelegate(int fieldIndex)
+    {
+      if (Transform.IsReadOnly)
+        throw Exceptions.ObjectIsReadOnly(null);
+      int index = GetMappedFieldIndex(fieldIndex);
+      if (index == MapTransform.NoMapping)
+        return null;
+      return tuple.GetSetNullableValueDelegate(index);
+    }
+
+    #endregion
+
 
     // Constructors
 

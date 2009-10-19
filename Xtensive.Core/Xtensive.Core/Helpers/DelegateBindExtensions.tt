@@ -71,6 +71,7 @@
         WriteLine(")");
         WriteLine("{");
         PushIndent("  ");
+        WriteLine("if (d == null) return null;");
         Write("return (");
         WriteParameters(bound+1, total);
         Write(") => ");

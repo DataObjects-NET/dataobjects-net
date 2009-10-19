@@ -42,6 +42,21 @@ namespace Xtensive.Core.Tuples.Transform.Internals
       throw Exceptions.ObjectIsReadOnly(null);
     }
 
+    protected override Tuple GetContainer(int fieldIndex)
+    {
+      return origin;
+    }
+
+    protected internal override Delegate GetGetValueDelegate(int fieldIndex)
+    {
+      return origin.GetGetValueDelegate(fieldIndex);
+    }
+
+    protected internal override Delegate GetGetNullableValueDelegate(int fieldIndex)
+    {
+      return origin.GetGetNullableValueDelegate(fieldIndex);
+    }
+
 
     // Constructors
 

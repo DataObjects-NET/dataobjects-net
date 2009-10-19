@@ -16,7 +16,7 @@ namespace Xtensive.Core.Tuples.Transform
   [Serializable]
   public abstract class WrappingTransformTupleBase: TransformedTuple
   {
-    private readonly Tuple origin;
+    protected readonly Tuple origin;
 
     /// <inheritdoc/>
     public override TupleDescriptor Descriptor
