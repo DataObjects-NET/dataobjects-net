@@ -36,12 +36,14 @@ namespace Xtensive.Core.IoC
     protected internal InheritableScope()
       : base(false)
     {
-      var type = GetType();
-      if (allowedType==null) lock (@lock) if (allowedType==null)
-        allowedType = type;
-      if (allowedType!=type && (this as TBaseAncestor)==null)
-        throw new SecurityException(
-          Strings.ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed);
+// Must be replaced to more effecient check from the point of performance.
+//
+//      var type = GetType();
+//      if (allowedType==null) lock (@lock) if (allowedType==null)
+//        allowedType = type;
+//      if (allowedType!=type && (this as TBaseAncestor)==null)
+//        throw new SecurityException(
+//          Strings.ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed);
     }
 
     // Type initializer
