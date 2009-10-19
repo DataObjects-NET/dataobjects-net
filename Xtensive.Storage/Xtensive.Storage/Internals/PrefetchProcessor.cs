@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Internals
 
     private readonly SetSlim<PrefetchTaskContainer> taskContainers = new SetSlim<PrefetchTaskContainer>();
     private StrongReferenceContainer referenceContainer;
+    private readonly HashSet<Key> registeredReferencedEntities = new HashSet<Key>();
     
     public SessionHandler Owner { get; private set; }
 
@@ -127,6 +128,7 @@ namespace Xtensive.Storage.Internals
     {
       referenceContainer = null;
       taskContainers.Clear();
+      registeredReferencedEntities.Clear();
     }
 
     public void ChangeOwner(SessionHandler newOwner)
@@ -166,6 +168,14 @@ namespace Xtensive.Storage.Internals
       if (referenceContainer == null)
         referenceContainer = new StrongReferenceContainer(null);
       referenceContainer.Join(new StrongReferenceContainer(reference));
+    }
+
+    public bool RegisterReferencedEntityKey(Key key)
+    {
+      if (registeredReferencedEntities.Contains(key))
+        return true;
+      registeredReferencedEntities.Add(key);
+      return false;
     }
 
     #region Private \ internal methods

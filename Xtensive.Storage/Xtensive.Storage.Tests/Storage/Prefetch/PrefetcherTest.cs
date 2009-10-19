@@ -139,7 +139,10 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetcher = keys.Prefetch<Order, Key>(key => key)
           .PrefetchSingle(o => o.Employee, employee => employee,
             employee => employee.Prefetch(e => e.Orders));
+        var count = 0;
         foreach (var orderKey in prefetcher) {
+          Assert.AreEqual(keys[count], orderKey);
+          count++;
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
             field => PrefetchTask.IsFieldToBeLoadedByDefault(field)
               || field.Equals(employeeField) || (field.Parent != null && field.Parent.Equals(employeeField)));
@@ -148,7 +151,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
             employeeType, session, field =>
               PrefetchTask.IsFieldToBeLoadedByDefault(field) || field.Equals(ordersField));
         }
-        //Assert.AreEqual(10, session.Handler.PrefetchTaskExecutionCount);
+        Assert.AreEqual(keys.Count, count);
+        Assert.GreaterOrEqual(11, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
@@ -179,7 +183,20 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void PreservingOrderInPrefetchSingleTest()
+    public void PreservingOrderInPrefetchSingleNotFullBatchTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var expected = Query<Order>.All.Take(53).ToList();
+        var actual = expected.PrefetchSingle(o => o.Employee, employee => employee,
+          employee => employee.Prefetch(e => e.Orders)).ToList();
+        Assert.AreEqual(expected.Count, actual.Count);
+        Assert.IsTrue(expected.SequenceEqual(actual));
+      }
+    }
+
+    [Test]
+    public void PreservingOrderInPrefetchSingleSeveralBatchesTest()
     {
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {

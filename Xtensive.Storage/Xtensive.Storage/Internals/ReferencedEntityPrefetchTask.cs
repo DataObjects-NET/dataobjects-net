@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Internals
             return;
         }
         Key = Key.Create(targetType, foreignKeyTuple, TypeReferenceAccuracy.BaseType);
-        if (!TryActivate())
+        if (Processor.RegisterReferencedEntityKey(Key) || !TryActivate())
           return;
         queryFetchingColumns = CreateQueryTask(Key);
       }
