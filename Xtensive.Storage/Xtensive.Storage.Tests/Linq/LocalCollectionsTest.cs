@@ -100,6 +100,55 @@ namespace Xtensive.Storage.Tests.Linq.LocalCollectionsTest_Model
       
     }
   }
+
+  public class Poco<T1, T2, T3>
+  {
+    public T1 Value1 { get; set; }
+    public T2 Value2 { get; set; }
+    public T3 Value3 { get; set; }
+
+    public Poco(T1 Value1, T2 Value2, T3 Value3)
+    {
+      this.Value1 = Value1;
+      this.Value2 = Value2;
+      this.Value3 = Value3;
+    }
+
+    public bool Equals(Poco<T1, T2, T3> other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return Equals(other.Value1, Value1) && Equals(other.Value2, Value2) && Equals(other.Value3, Value3);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      if (obj.GetType()!=typeof (Poco<T1, T2, T3>))
+        return false;
+      return Equals((Poco<T1, T2, T3>) obj);
+    }
+
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = Value1.GetHashCode();
+        result = (result * 397) ^ Value2.GetHashCode();
+        result = (result * 397) ^ Value3.GetHashCode();
+        return result;
+      }
+    }
+
+    public Poco()
+    {
+      
+    }
+  }
 }
 
 namespace Xtensive.Storage.Tests.Linq
@@ -511,8 +560,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var localItems = GetLocalItems(1000);
       var queryable = Query.Store(localItems);
-      var result = queryable.GroupBy(keySelector => keySelector.Value2.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
-      var expected = localItems.GroupBy(keySelector => keySelector.Value2.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
+      var result = queryable.GroupBy(keySelector => keySelector.Value3.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
+      var expected = localItems.GroupBy(keySelector => keySelector.Value3.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
       var expectedList = expected.ToList();
       var resultList = result.ToList();
       Assert.AreEqual(resultList.Count, expectedList.Count);
@@ -528,8 +577,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var localItems = GetLocalItems(1000);
       var queryable = Query.Store(localItems);
-      var result = queryable.GroupBy(keySelector => keySelector.Value2[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
-      var expected = localItems.GroupBy(keySelector => keySelector.Value2[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
+      var result = queryable.GroupBy(keySelector => keySelector.Value3[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
+      var expected = localItems.GroupBy(keySelector => keySelector.Value3[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
       var expectedList = expected.ToList();
       var resultList = result.ToList();
       Assert.AreEqual(resultList.Count, expectedList.Count);
@@ -563,8 +612,8 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var localItems = GetLocalItems(100);
       var queryable = Query.Store(localItems);
-      var result = queryable.Select(poco=> queryable.Where(poco2=>poco2.Value1 > poco.Value1).Select(p=>p.Value2)).AsEnumerable().Cast<IEnumerable<string>>();
-      var expected = localItems.Select(poco=> localItems.Where(poco2=>poco2.Value1 > poco.Value1).Select(p=>p.Value2));
+      var result = queryable.Select(poco=> queryable.Where(poco2=>poco2.Value2 > poco.Value2).Select(p=>p.Value3)).AsEnumerable().Cast<IEnumerable<string>>();
+      var expected = localItems.Select(poco=> localItems.Where(poco2=>poco2.Value2 > poco.Value2).Select(p=>p.Value3));
       var expectedList = expected.ToList();
       var resultList = result.ToList();
       Assert.AreEqual(resultList.Count, expectedList.Count);
@@ -615,13 +664,14 @@ namespace Xtensive.Storage.Tests.Linq
       QueryDumper.Dump(result);
     }
 
-    private IEnumerable<Poco<decimal, string>> GetLocalItems(int count)
+    private IEnumerable<Poco<int, decimal, string>> GetLocalItems(int count)
     {
       return Enumerable
         .Range(0, count)
-        .Select(i => new Poco<decimal, string> {
-            Value1 = (decimal)i / 100, 
-            Value2 = Guid.NewGuid().ToString()
+        .Select(i => new Poco<int, decimal, string> {
+            Value1 = i, 
+            Value2 = (decimal)i / 100, 
+            Value3 = Guid.NewGuid().ToString()
           }
         )
         .ToList();

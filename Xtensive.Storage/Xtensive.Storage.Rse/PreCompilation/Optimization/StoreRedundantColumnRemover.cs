@@ -7,10 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Rse.Helpers;
@@ -202,8 +200,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       }
 
       // merge
-      throw new NotImplementedException();
-      mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
+      mappings[provider] = Merge(leftMapping, rightMapping.Select(map=>map+provider.Left.Header.Length));
       return new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.SequenceType, provider.ApplyType);
     }
 

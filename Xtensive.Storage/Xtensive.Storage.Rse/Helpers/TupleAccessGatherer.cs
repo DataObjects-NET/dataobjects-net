@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Rse.Helpers
       if (IsTupleAccess(mc)) {
         var columnIndex = mc.GetTupleAccessArgument();
         var outerParameter = mc.GetApplyParameter();
-        if (outerParameter != null)
+        if (outerParameter!=null)
           registerOuterColumn(outerParameter, columnIndex);
         else
           mappings.Add(columnIndex);
@@ -50,14 +50,11 @@ namespace Xtensive.Storage.Rse.Helpers
     /// <returns>List containing all used columns (order and uniqueness are not guaranteed).</returns>
     public virtual List<int> Gather(Expression expression)
     {
-      try {
-        mappings = new List<int>();
-        Visit(expression);
-        return mappings;
-      }
-      finally {
-        mappings = null;
-      }
+      mappings = new List<int>();
+      Visit(expression);
+      var result = mappings;
+      mappings = null;
+      return result;
     }
 
     /// <summary>
@@ -71,21 +68,19 @@ namespace Xtensive.Storage.Rse.Helpers
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentNotNull(parameter, "parameter");
       tupleParameter = parameter;
-      try {
-        return Gather(expression);
-      }
-      finally {
-        tupleParameter = null;
-      }
+      var result = Gather(expression);
+      tupleParameter = null;
+      return result;
     }
 
     private static void DefaultRegisterOuterColumn(ApplyParameter parameter, int columnIndex)
-    {}
+    {
+    }
 
     private bool IsTupleAccess(Expression mc)
     {
-      if (tupleParameter == null)
-        return mc.AsTupleAccess() != null;
+      if (tupleParameter==null)
+        return mc.AsTupleAccess()!=null;
       return mc.AsTupleAccess(tupleParameter)!=null;
     }
 
