@@ -192,4 +192,7 @@
   <data name="ExValueIsAlreadyAssigned" xml:space="preserve">
     <value>Value is already assigned</value>
   </data>
+  <data name="ExOrderKeyNotFoundInMapping" xml:space="preserve">
+    <value>Order key not found in mapping.</value>
+  </data>
 </root>

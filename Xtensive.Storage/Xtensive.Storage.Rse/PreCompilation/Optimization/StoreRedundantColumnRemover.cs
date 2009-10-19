@@ -30,8 +30,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     {
       mappings.Add(rootProvider, Enumerable.Range(0, rootProvider.Header.Length).ToList());
       var visitedProvider = VisitCompilable(rootProvider);
-      return visitedProvider!=rootProvider 
-        ? visitedProvider 
+      return visitedProvider!=rootProvider
+        ? visitedProvider
         : rootProvider;
     }
 
@@ -44,10 +44,10 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       mappings[provider.Source] = remappedColumns;
       OnRecursionEntrance(provider);
       CompilableProvider source = VisitCompilable(provider.Source);
-      mappings[provider] = (List<int>)OnRecursionExit(provider);
-      if (source == provider.Source)
+      var indexColumns = (List<int>) OnRecursionExit(provider);
+      if (source==provider.Source)
         return provider;
-      return new SelectProvider(source, mappings[provider].ToArray());
+      return new SelectProvider(source, indexColumns.ToArray());
     }
 
     protected override Provider VisitIndex(IndexProvider provider)
@@ -79,9 +79,9 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       OnRecursionExit(provider);
 
       Expression predicate = TranslateLambda(provider, provider.Predicate);
-      if (newSourceProvider == provider.Source && predicate == provider.Predicate)
+      if (newSourceProvider==provider.Source && predicate==provider.Predicate)
         return provider;
-      return new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>)predicate);
+      return new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
     }
 
     protected override Provider VisitJoin(JoinProvider provider)
@@ -93,24 +93,17 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
       SplitMappings(provider, out leftMapping, out rightMapping);
 
-      foreach (var item in provider.EqualIndexes)
-      {
-        leftMapping.Add(item.First);
-        rightMapping.Add(item.Second);
-      }
+      leftMapping = Merge(leftMapping, provider.EqualIndexes.Select(p => p.First));
+      rightMapping = Merge(rightMapping, provider.EqualIndexes.Select(p => p.Second));
 
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
       VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
 
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
-//      mappings[provider] = Merge(leftMapping, rightMapping);
 
-      if (newLeftProvider == provider.Left && newRightProvider == provider.Right)
+      if (newLeftProvider==provider.Left && newRightProvider==provider.Right)
         return provider;
-
-      // merge
-
 
       var newIndexes = new List<Pair<int>>();
       foreach (var pair in provider.EqualIndexes) {
@@ -137,16 +130,13 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
       VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
-
-      // merge
-
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
       var predicate = TranslateJoinPredicate(leftMapping, rightMapping, provider.Predicate);
-      if (newLeftProvider == provider.Left && newRightProvider == provider.Right
-        && provider.Predicate == predicate)
+      if (newLeftProvider==provider.Left && newRightProvider==provider.Right
+        && provider.Predicate==predicate)
         return provider;
       return new PredicateJoinProvider(newLeftProvider, newRightProvider,
-        (Expression<Func<Tuple, Tuple, bool>>)predicate, provider.JoinType);
+        (Expression<Func<Tuple, Tuple, bool>>) predicate, provider.JoinType);
     }
 
     protected override Provider VisitSort(SortProvider provider)
@@ -173,7 +163,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
       leftMapping = Merge(leftMapping, currentOuterUsages);
 
-      if (leftMapping.Count == 0)
+      if (leftMapping.Count==0)
         leftMapping.Add(0);
 
       // visit
@@ -189,17 +179,17 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       rightMapping = mappings[provider.Right];
       RestoreMappings(oldMappings);
 
-      mappings[provider] = Merge(leftMapping, rightMapping.Select(map=>map+provider.Left.Header.Length));
+      mappings[provider] = Merge(leftMapping, rightMapping.Select(map => map + provider.Left.Header.Length));
 
-      return newLeftProvider==provider.Left && newRightProvider==provider.Right 
-        ? provider : 
-        new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.SequenceType, provider.ApplyType);
+      return newLeftProvider==provider.Left && newRightProvider==provider.Right
+        ? provider
+        : new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.SequenceType, provider.ApplyType);
     }
 
     protected override Provider VisitStore(StoreProvider provider)
     {
       OnRecursionEntrance(provider);
-      CompilableProvider newSourceProvider = VisitCompilable((CompilableProvider)provider.Source);
+      CompilableProvider newSourceProvider = VisitCompilable((CompilableProvider) provider.Source);
       OnRecursionExit(provider);
       if (newSourceProvider==provider.Source) {
         mappings[provider] = EnumerableUtils<int>.Empty.ToList();
@@ -259,7 +249,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         descriptors.Add(ccd);
       }
       mappings[provider] = currentMapping;
-      if (!translated && newSourceProvider == provider.Source)
+      if (!translated && newSourceProvider==provider.Source)
         return provider;
       return new CalculateProvider(newSourceProvider, descriptors.ToArray());
     }
@@ -274,7 +264,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       List<int> currentMapping = mappings[provider.Source];
       Column rowNumberColumn = provider.Header.Columns.Last();
       mappings[provider] = Merge(currentMapping, EnumerableUtils.One(rowNumberColumn.Index));
-      if (newSource == provider.Source)
+      if (newSource==provider.Source)
         return provider;
       return new RowNumberProvider(newSource, rowNumberColumn.Name);
     }
@@ -315,34 +305,33 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
       var expectedColumns = mappings[provider];
       mappings[provider] = Merge(leftMapping, rightMapping);
-      if (newLeftProvider == provider.Left && newRightProvider == provider.Right)
+      if (newLeftProvider==provider.Left && newRightProvider==provider.Right)
         return provider;
 
 
       newLeftProvider = BuildSetOperationSource(newLeftProvider, expectedColumns, leftMapping);
       newRightProvider = BuildSetOperationSource(newRightProvider, expectedColumns, rightMapping);
-      switch (provider.Type)
-      {
-        case ProviderType.Concat:
-          return new ConcatProvider(newLeftProvider, newRightProvider);
-        case ProviderType.Intersect:
-          return new IntersectProvider(newLeftProvider, newRightProvider);
-        case ProviderType.Except:
-          return new ExceptProvider(newLeftProvider, newRightProvider);
-        case ProviderType.Union:
-          return new UnionProvider(newLeftProvider, newRightProvider);
-        default:
-          throw new ArgumentOutOfRangeException();
+      switch (provider.Type) {
+      case ProviderType.Concat:
+        return new ConcatProvider(newLeftProvider, newRightProvider);
+      case ProviderType.Intersect:
+        return new IntersectProvider(newLeftProvider, newRightProvider);
+      case ProviderType.Except:
+        return new ExceptProvider(newLeftProvider, newRightProvider);
+      case ProviderType.Union:
+        return new UnionProvider(newLeftProvider, newRightProvider);
+      default:
+        throw new ArgumentOutOfRangeException();
       }
     }
 
     private static CompilableProvider BuildSetOperationSource(CompilableProvider provider, IEnumerable<int> expectedColumns, IList<int> returningColumns)
     {
-      if (provider.Type == ProviderType.Select)
+      if (provider.Type==ProviderType.Select)
         return provider;
       var columns = expectedColumns
-        .Select(originalIndex => new{OriginalIndex = originalIndex, NewIndex =  returningColumns.IndexOf(originalIndex)})
-        .Select(x=>x.NewIndex<0?x.OriginalIndex:x.NewIndex).ToArray();
+        .Select(originalIndex => new {OriginalIndex = originalIndex, NewIndex = returningColumns.IndexOf(originalIndex)})
+        .Select(x => x.NewIndex < 0 ? x.OriginalIndex : x.NewIndex).ToArray();
       return new SelectProvider(provider, columns);
     }
 
@@ -352,89 +341,81 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     protected override object OnRecursionExit(Provider provider)
     {
-      switch (provider.Type)
-      {
-        case ProviderType.Aggregate:
-          {
-            var aggregateProvider = (AggregateProvider)provider;
-            List<int> sourceMap = mappings[aggregateProvider.Source];
-            List<int> currentMap = mappings[aggregateProvider];
-            var columns = new List<AggregateColumnDescriptor>();
-            var groupIndexes = new List<int>();
-            for (int i = 0; i < aggregateProvider.AggregateColumns.Length; i++)
-            {
-              int columnIndex = i + aggregateProvider.GroupColumnIndexes.Length;
-              if (currentMap.BinarySearch(columnIndex) >= 0)
-              {
-                AggregateColumn column = aggregateProvider.AggregateColumns[i];
-                columns.Add(new AggregateColumnDescriptor(column.Name, sourceMap.IndexOf(column.SourceIndex), column.AggregateType));
-              }
-            }
-            foreach (int index in aggregateProvider.GroupColumnIndexes)
-              groupIndexes.Add(sourceMap.IndexOf(index));
-            mappings[aggregateProvider] = aggregateProvider.Header.Columns.Select(c => c.Index).ToList();
-            return new Pair<int[], AggregateColumnDescriptor[]>(groupIndexes.ToArray(), columns.ToArray());
+      switch (provider.Type) {
+      case ProviderType.Aggregate: {
+        var aggregateProvider = (AggregateProvider) provider;
+        List<int> sourceMap = mappings[aggregateProvider.Source];
+        List<int> currentMap = mappings[aggregateProvider];
+        var columns = new List<AggregateColumnDescriptor>();
+        var groupIndexes = new List<int>();
+        for (int i = 0; i < aggregateProvider.AggregateColumns.Length; i++) {
+          int columnIndex = i + aggregateProvider.GroupColumnIndexes.Length;
+          if (currentMap.BinarySearch(columnIndex) >= 0) {
+            AggregateColumn column = aggregateProvider.AggregateColumns[i];
+            columns.Add(new AggregateColumnDescriptor(column.Name, sourceMap.IndexOf(column.SourceIndex), column.AggregateType));
           }
-        case ProviderType.Sort:
-          {
-            var sortProvider = (SortProvider)provider;
-            List<int> sourceMap = mappings[sortProvider.Source];
-            var orders = new DirectionCollection<int>();
-            foreach (KeyValuePair<int, Direction> order in sortProvider.Order) {
-              var index = sourceMap.IndexOf(order.Key);
-              if (index < 0)
-                throw Exceptions.InternalError("Order key not found in mapping.", Log.Instance);
-              orders.Add(index, order.Value);
-            }
-            mappings[sortProvider] = sourceMap;
-            return orders;
-          }
-        case ProviderType.Select:
-          {
-            var selectProvider = (SelectProvider)provider;
-            List<int> sourceMap = mappings[selectProvider.Source];
-            List<Pair<int>> columns = selectProvider.ColumnIndexes
-              .Select((i, j) => new Pair<int>(sourceMap.IndexOf(i), j))
-              .Where(i => i.First >= 0)
-              .ToList();
-            mappings[selectProvider] = columns.Select(c => c.Second).ToList();
-            return columns.Select(c => c.First).ToList();
-          }
-        default:
-          {
-            mappings[provider] = mappings[provider.Sources[0]];
-            break;
-          }
+        }
+        foreach (int index in aggregateProvider.GroupColumnIndexes)
+          groupIndexes.Add(sourceMap.IndexOf(index));
+        mappings[aggregateProvider] = aggregateProvider.Header.Columns.Select(c => c.Index).ToList();
+        return new Pair<int[], AggregateColumnDescriptor[]>(groupIndexes.ToArray(), columns.ToArray());
+      }
+      case ProviderType.Sort: {
+        var sortProvider = (SortProvider) provider;
+        List<int> sourceMap = mappings[sortProvider.Source];
+        var orders = new DirectionCollection<int>();
+        foreach (KeyValuePair<int, Direction> order in sortProvider.Order) {
+          var index = sourceMap.IndexOf(order.Key);
+          if (index < 0)
+            throw Exceptions.InternalError(Resources.Strings.ExOrderKeyNotFoundInMapping, Log.Instance);
+          orders.Add(index, order.Value);
+        }
+        mappings[sortProvider] = sourceMap;
+        return orders;
+      }
+      case ProviderType.Select: {
+        var selectProvider = (SelectProvider) provider;
+        List<int> sourceMap = mappings[selectProvider.Source];
+        List<Pair<int>> columns = selectProvider.ColumnIndexes
+          .Select((i, j) => new Pair<int>(sourceMap.IndexOf(i), j))
+          .Where(i => i.First >= 0)
+          .ToList();
+        mappings[selectProvider] = columns.Select(c => c.Second).ToList();
+        return columns.Select(c => c.First).ToList();
+      }
+      default: {
+        mappings[provider] = mappings[provider.Sources[0]];
+        break;
+      }
       }
       return null;
     }
 
     protected override void OnRecursionEntrance(Provider provider)
     {
-      switch (provider.Type)
-      {
-        case ProviderType.Index:
-        case ProviderType.Filter:
-        case ProviderType.Sort:
-        case ProviderType.Reindex:
-        case ProviderType.Join:
-        case ProviderType.PredicateJoin:
-        case ProviderType.Aggregate:
-        case ProviderType.Calculate:
-        case ProviderType.Apply:
-        case ProviderType.Select:
-        case ProviderType.RowNumber:
-          break;
-        case ProviderType.Range:
-        case ProviderType.RangeSet:
-          mappings.Add(
-            provider.Sources[0],
-            Merge(mappings[provider], provider.Header.Order.Select(o => o.Key))
-            );
-          break;
-        default:
-          mappings.Add(provider.Sources[0], mappings[provider]);
-          break;
+      switch (provider.Type) {
+      case ProviderType.Index:
+      case ProviderType.Filter:
+      case ProviderType.Sort:
+      case ProviderType.Reindex:
+      case ProviderType.Join:
+      case ProviderType.PredicateJoin:
+      case ProviderType.Aggregate:
+      case ProviderType.Calculate:
+      case ProviderType.Apply:
+      case ProviderType.Select:
+      case ProviderType.RowNumber:
+        break;
+      case ProviderType.Range:
+      case ProviderType.RangeSet:
+        mappings.Add(
+          provider.Sources[0],
+          Merge(mappings[provider], provider.Header.Order.Select(o => o.Key))
+          );
+        break;
+      default:
+        mappings.Add(provider.Sources[0], mappings[provider]);
+        break;
       }
     }
 
@@ -444,12 +425,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     private Provider SubstituteSelect(CompilableProvider provider)
     {
-//      mappings[provider] = new List<int>();
       mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
-//      int columnsCount = provider.Header.Length;
-//      List<int> value = mappings[provider];
-//      if (columnsCount > value.Count)
-//        return new SelectProvider(provider, value.ToArray());
       return provider;
     }
 
@@ -472,7 +448,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
       Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
       var newExpression = Expression.Call(selectMethodInfo, source.Body, Expression.Constant(selector));
-      return (Expression<Func<IEnumerable<Tuple>>>)Expression.Lambda(newExpression);
+      return (Expression<Func<IEnumerable<Tuple>>>) Expression.Lambda(newExpression);
     }
 
     private static List<int> MergeMappings(Provider originalLeft, List<int> leftMap, List<int> rightMap)
@@ -491,8 +467,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       rightMapping = new List<int>();
       int leftCount = provider.Left.Header.Length;
       int index = 0;
-      while (index < binaryMapping.Count && binaryMapping[index] < leftCount)
-      {
+      while (index < binaryMapping.Count && binaryMapping[index] < leftCount) {
         leftMapping.Add(binaryMapping[index]);
         index++;
       }
@@ -554,7 +529,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     private Dictionary<Provider, List<int>> ReplaceMappings(Provider firstNewKey, List<int> firstNewValue)
     {
       var oldMappings = mappings;
-      mappings = new Dictionary<Provider, List<int>> { { firstNewKey, firstNewValue } };
+      mappings = new Dictionary<Provider, List<int>> {{firstNewKey, firstNewValue}};
       return oldMappings;
     }
 
@@ -564,7 +539,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     }
 
     #endregion
-
 
     // Constructors
 
@@ -578,8 +552,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       mappingsGatherer = new TupleAccessGatherer((a, b) => { });
 
       var outerMappingsGatherer = new TupleAccessGatherer(RegisterOuterMapping);
-      outerColumnUsageVisitor = new CompilableProviderVisitor((_, e) =>
-      {
+      outerColumnUsageVisitor = new CompilableProviderVisitor((_, e) => {
         outerMappingsGatherer.Gather(e);
         return e;
       });
