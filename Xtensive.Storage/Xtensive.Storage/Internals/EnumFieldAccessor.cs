@@ -18,7 +18,9 @@ namespace Xtensive.Storage.Internals
     public static readonly FieldAccessor<T> Instance = new EnumFieldAccessor<T>();
     private static readonly Type type = typeof(T);
     private static readonly object @default = 
-      type.IsNullable() ? null : Enum.GetValues(type).GetValue(0);
+      type.IsEnum 
+      ? (type.IsNullable() ? null : Enum.GetValues(type).GetValue(0))
+      : default(T);
     private static ThreadSafeDictionary<Type, Biconverter<T, object>> converters =
       ThreadSafeDictionary<Type, Biconverter<T, object>>.Create(new object());
 
