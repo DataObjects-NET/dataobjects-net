@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Aspects
       var explicitMethods = new HashSet<MethodBase>(); 
       var candidates = GetMethods(type).Cast<MethodBase>()
         .Concat(explicitMethods)
-        // .Concat(GetPublicConstructors(type))
+        .Concat(GetPublicConstructors(type))
         .ToHashSet();
 
       foreach (MethodBase method in candidates) {
@@ -136,6 +136,7 @@ namespace Xtensive.Storage.Aspects
     {
       ProvideConstructorAccessorAspect(type, collection);
       ProvideConstructorAspect(type, collection);
+      // Not necessary now:
       // new InitializableAttribute().ProvideAspects(type, collection);
     }
 

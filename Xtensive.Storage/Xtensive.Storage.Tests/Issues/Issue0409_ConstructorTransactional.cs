@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Issues
         }
       }
       using (var s = Session.Open(Domain, sessionConfiguration)) {
-          var document = Query<Document>.Single(key);
+        var document = Query<Document>.Single(key);
       }
     }
 
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void DocumentCreatedInAutoTransactionTest()
     {
       using (var s = Session.Open(Domain)) {
-          var document = new Document();
+        var document = new Document();
       }
     }
   }
