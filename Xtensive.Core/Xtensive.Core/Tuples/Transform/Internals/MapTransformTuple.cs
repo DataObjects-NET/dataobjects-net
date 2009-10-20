@@ -52,43 +52,13 @@ namespace Xtensive.Core.Tuples.Transform.Internals
 
     #endregion
 
-    #region Get Delegate methods
-
-    protected override Tuple GetContainer(int fieldIndex)
+    public override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      var indexes = TypedTransform.map[fieldIndex];
-      return tuples[indexes.First];
-    }
-
-    protected internal override Delegate GetGetValueDelegate(int fieldIndex)
-    {
-      var indexes = TypedTransform.map[fieldIndex];
-      return tuples[indexes.First].GetGetValueDelegate(indexes.Second);
-    }
-
-    protected internal override Delegate GetGetNullableValueDelegate(int fieldIndex)
-    {
-      var indexes = TypedTransform.map[fieldIndex];
-      return tuples[indexes.First].GetGetNullableValueDelegate(indexes.Second);
-    }
-
-    protected internal override Delegate GetSetValueDelegate(int fieldIndex)
-    {
-      if (Transform.IsReadOnly)
+      if (isWriting && Transform.IsReadOnly)
         throw Exceptions.ObjectIsReadOnly(null);
-      var indexes = TypedTransform.map[fieldIndex];
-      return tuples[indexes.First].GetSetValueDelegate(indexes.Second);
+      var map = TypedTransform.map[fieldIndex];
+      return tuples[map.First].GetMappedContainer(map.Second, isWriting);
     }
-
-    protected internal override Delegate GetSetNullableValueDelegate(int fieldIndex)
-    {
-      if (Transform.IsReadOnly)
-        throw Exceptions.ObjectIsReadOnly(null);
-      var indexes = TypedTransform.map[fieldIndex];
-      return tuples[indexes.First].GetSetNullableValueDelegate(indexes.Second);
-    }
-
-    #endregion
 
 
     // Constructors

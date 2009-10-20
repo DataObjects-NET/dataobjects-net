@@ -110,11 +110,21 @@ namespace Xtensive.Core.Tuples
     /// <typeparam name="T">The type of value to get.</typeparam>
     public T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
-      var getter = (null == default(T) // Is nullable value type or class
+      var isNullable = null == default(T); // Is nullable value type or class
+      var getter = (isNullable 
         ? GetGetNullableValueDelegate(fieldIndex)
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
       if (getter != null)
-        return getter.Invoke(GetContainer(fieldIndex), out fieldState);
+        return getter.Invoke(this, out fieldState);
+      var mappedContainer = GetMappedContainer(fieldIndex, false);
+      var tuple = mappedContainer.First;
+      if (tuple != null) {
+        getter = (isNullable
+          ? tuple.GetGetNullableValueDelegate(mappedContainer.Second)
+          : tuple.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>;
+        if (getter != null)
+          return getter.Invoke(tuple, out fieldState);
+      }
       var value = GetValue(fieldIndex, out fieldState);
       return value == null 
         ? default(T) 
@@ -143,20 +153,32 @@ namespace Xtensive.Core.Tuples
       if (isNullable) {
         var getter = GetGetNullableValueDelegate(fieldIndex) as GetValueDelegate<T>;
         if (getter != null)
-          result = getter.Invoke(GetContainer(fieldIndex), out state);
-        else
-          result = (T)GetValue(fieldIndex, out state);
+          result = getter.Invoke(this, out state);
+        else {
+          var mappedContainer = GetMappedContainer(fieldIndex, false);
+          var tuple = mappedContainer.First;
+          if (tuple != null && (getter = tuple.GetGetNullableValueDelegate(mappedContainer.Second) as GetValueDelegate<T>) != null)
+            result = getter.Invoke(tuple, out state);
+          else
+            result = (T) GetValue(fieldIndex, out state);
+        }
         return state.IsNull() ? default(T) : result;
       }
       else {
         var getter = GetGetValueDelegate(fieldIndex) as GetValueDelegate<T>;
         if (getter != null)
-          result = getter.Invoke(GetContainer(fieldIndex), out state);
+          result = getter.Invoke(this, out state);
         else {
-          var value = GetValue(fieldIndex, out state);
-          result = value == null 
-            ? default (T) 
-            : (T) value;
+          var mappedContainer = GetMappedContainer(fieldIndex, false);
+          var tuple = mappedContainer.First;
+          if (tuple != null && (getter = tuple.GetGetValueDelegate(mappedContainer.Second) as GetValueDelegate<T>) != null)
+            result = getter.Invoke(tuple, out state);
+          else {
+            var value = GetValue(fieldIndex, out state);
+            result = value == null
+              ? default(T)
+              : (T) value;
+          }
         }
         if (state.IsNull())
           throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
@@ -185,7 +207,11 @@ namespace Xtensive.Core.Tuples
       if (isNullable) {
         var getter = GetGetNullableValueDelegate(fieldIndex) as GetValueDelegate<T>;
         if (getter != null)
-          return getter.Invoke(GetContainer(fieldIndex), out state);
+          return getter.Invoke(this, out state);
+        var mappedContainer = GetMappedContainer(fieldIndex, false);
+        var tuple = mappedContainer.First;
+        if (tuple != null && (getter = tuple.GetGetNullableValueDelegate(mappedContainer.Second) as GetValueDelegate<T>) != null)
+          return getter.Invoke(tuple, out state);
         result = (T)GetValue(fieldIndex, out state);
         return (state ^ TupleFieldState.Available) == TupleFieldState.Default 
           ? result 
@@ -194,9 +220,15 @@ namespace Xtensive.Core.Tuples
       else {
         var getter = GetGetValueDelegate(fieldIndex) as GetValueDelegate<T>;
         if (getter != null)
-          result = getter.Invoke(GetContainer(fieldIndex), out state);
-        else
-          result = (T)GetValue(fieldIndex, out state);
+          result = getter.Invoke(this, out state);
+        else {
+          var mappedContainer = GetMappedContainer(fieldIndex, false);
+          var tuple = mappedContainer.First;
+          if (tuple != null && (getter = tuple.GetGetValueDelegate(mappedContainer.Second) as GetValueDelegate<T>) != null)
+            result = getter.Invoke(tuple, out state);
+          else
+            result = (T) GetValue(fieldIndex, out state);
+        }
         if ((state & TupleFieldState.Null) == TupleFieldState.Default) 
           return result;
         throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
@@ -213,13 +245,22 @@ namespace Xtensive.Core.Tuples
     /// are incompatible.</exception>
     public void SetValue<T>(int fieldIndex, T fieldValue)
     {
-      var setter = (null == default(T) // Is nullable value type or class
+      var isNullable = null == default(T); // Is nullable value type or class
+      var setter = (isNullable
         ? GetSetNullableValueDelegate(fieldIndex)
         : GetSetValueDelegate(fieldIndex)) as Action<Tuple, T>;
       if (setter != null)
-        setter.Invoke(GetContainer(fieldIndex), fieldValue);
-      else
-        SetValue(fieldIndex, (object) fieldValue);
+        setter.Invoke(this, fieldValue);
+      else {
+        var mappedContainer = GetMappedContainer(fieldIndex, true);
+        var tuple = mappedContainer.First;
+        if (tuple != null && (setter = (isNullable 
+          ? tuple.GetSetNullableValueDelegate(mappedContainer.Second) 
+          : tuple.GetSetValueDelegate(mappedContainer.Second)) as Action<Tuple,T>) != null)
+          setter.Invoke(tuple, fieldValue);
+        else
+          SetValue(fieldIndex, (object)fieldValue);
+      }
     }
 
     #endregion
@@ -230,28 +271,28 @@ namespace Xtensive.Core.Tuples
     /// Gets the tuple containing actual value of the specified field.
     /// </summary>
     /// <param name="fieldIndex">Index of the field to get the value container for.</param>
-    /// <returns>Value container.</returns>
-    protected virtual Tuple GetContainer(int fieldIndex)
+    /// <returns>Tuple container and remapped field index.</returns>
+    public virtual Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      return this;
+      return new Pair<Tuple, int>(this, fieldIndex);
     }
 
-    protected internal virtual Delegate GetGetValueDelegate(int fieldIndex)
-    {
-      return null;
-    }
-
-    protected internal virtual Delegate GetGetNullableValueDelegate(int fieldIndex)
+    protected virtual Delegate GetGetValueDelegate(int fieldIndex)
     {
       return null;
     }
 
-    protected internal virtual Delegate GetSetValueDelegate(int fieldIndex)
+    protected virtual Delegate GetGetNullableValueDelegate(int fieldIndex)
     {
       return null;
     }
 
-    protected internal virtual Delegate GetSetNullableValueDelegate(int fieldIndex)
+    protected virtual Delegate GetSetValueDelegate(int fieldIndex)
+    {
+      return null;
+    }
+
+    protected virtual Delegate GetSetNullableValueDelegate(int fieldIndex)
     {
       return null;
     }

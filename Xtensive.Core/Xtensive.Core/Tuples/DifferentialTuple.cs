@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Tuples
 {
@@ -20,7 +19,6 @@ namespace Xtensive.Core.Tuples
   [Serializable]
   public sealed class DifferentialTuple : Tuple
   {
-//    private static ThreadSafeList<Delegate[]> getGetValueDelegates = ThreadSafeList<Delegate[]>.Create(new object());
     private Tuple origin;
     private Tuple difference;
 
@@ -89,13 +87,19 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <inheritdoc/>
-    protected override Tuple GetContainer(int fieldIndex)
+    public override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      if (difference==null)
-        return origin;
-      return difference.GetFieldState(fieldIndex).IsAvailable() 
-        ? difference 
-        : origin;
+      Tuple tuple;
+      if (isWriting) {
+        if (difference == null)
+          difference = origin.CreateNew();
+        tuple = difference;
+      }
+      else
+        tuple = difference != null && difference.GetFieldState(fieldIndex).IsAvailable() 
+          ? difference 
+          : origin;
+      return tuple.GetMappedContainer(fieldIndex, isWriting);
     }
 
     #region GetFieldState, GetValueOrDefault, SetValue methods
@@ -103,62 +107,37 @@ namespace Xtensive.Core.Tuples
     /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      return GetContainer(fieldIndex).GetFieldState(fieldIndex);
+      var tuple = difference != null && difference.GetFieldState(fieldIndex).IsAvailable()
+        ? difference
+        : origin;
+      return tuple.GetFieldState(fieldIndex);
     }
 
     /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      return GetContainer(fieldIndex).GetValue(fieldIndex, out fieldState);
+      var tuple = difference != null && difference.GetFieldState(fieldIndex).IsAvailable()
+        ? difference
+        : origin;
+      return tuple.GetValue(fieldIndex, out fieldState);
     }
 
     /// <inheritdoc />
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (difference==null)
+      if (difference == null)
         difference = origin.CreateNew();
       difference.SetValue(fieldIndex, fieldValue);
     }
 
     #endregion
 
-    #region Get Delegate methods
-
-    protected internal override Delegate GetGetValueDelegate(int fieldIndex)
-    {
-      var container = GetContainer(fieldIndex);
-      return container.GetGetValueDelegate(fieldIndex);
-    }
-
-    protected internal override Delegate GetGetNullableValueDelegate(int fieldIndex)
-    {
-      var container = GetContainer(fieldIndex);
-      return container.GetGetNullableValueDelegate(fieldIndex);
-    }
-
-    protected internal override Delegate GetSetValueDelegate(int fieldIndex)
-    {
-      if (difference == null)
-        difference = origin.CreateNew();
-      return difference.GetSetValueDelegate(fieldIndex);
-    }
-
-    protected internal override Delegate GetSetNullableValueDelegate(int fieldIndex)
-    {
-      if (difference == null)
-        difference = origin.CreateNew();
-      return difference.GetSetNullableValueDelegate(fieldIndex);
-    }
-
-    #endregion
-
-
     #region CreateNew, Clone, Reset methods
 
     /// <inheritdoc/>
     public override Tuple CreateNew()
     {
-      return new DifferentialTuple(Create(origin.Descriptor));
+      return new DifferentialTuple(origin.CreateNew());
     }
 
     /// <inheritdoc/>
@@ -176,24 +155,7 @@ namespace Xtensive.Core.Tuples
     }
 
     #endregion
-
-//    #region Private static methods
-//
-//    private static GetValueDelegate<TFieldType> GetGetValueDelegate<TFieldType>(int fieldIndex)
-//    {
-//      return (Tuple t, out TupleFieldState fs) => {
-//        var dTuple = (DifferentialTuple) t;
-//        var originDelegate = dTuple.origin.GetGetValueDelegate(fieldIndex) as GetValueDelegate<TFieldType>;
-//        if (originDelegate == null)
-//          return null;
-//
-//               fs = TupleFieldState.Available;
-//               return default(TFieldType);
-//             };
-//    }
-//
-//    #endregion
-
+    
 
     // Constructors
 
