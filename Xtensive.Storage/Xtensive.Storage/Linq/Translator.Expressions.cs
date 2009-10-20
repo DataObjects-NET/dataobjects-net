@@ -229,6 +229,10 @@ namespace Xtensive.Storage.Linq
           return VisitTake(mc.Arguments[0], mc.Arguments[1]);
         else if (mc.Method.Name==WellKnownMembers.QueryableExtensionSkip.Name)
           return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
+        else if (mc.Method.Name==WellKnownMembers.QueryableExtensionElementAt.Name)
+          return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, false);
+        else if (mc.Method.Name==WellKnownMembers.QueryableExtensionElementAtOrDefault.Name)
+          return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
         else
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
 

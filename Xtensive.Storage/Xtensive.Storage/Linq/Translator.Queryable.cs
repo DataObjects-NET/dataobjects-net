@@ -57,9 +57,9 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.Aggregate:
           break;
         case QueryableMethodKind.ElementAt:
-          break;
+          return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, false);
         case QueryableMethodKind.ElementAtOrDefault:
-          break;
+          return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
         case QueryableMethodKind.Last:
           break;
         case QueryableMethodKind.LastOrDefault:
@@ -368,6 +368,56 @@ namespace Xtensive.Storage.Linq
 
       return new MarkerExpression(rightItemProjector.Item, markerType);
     }
+
+
+    private Expression VisitElementAt(Expression source, Expression index, bool isRoot, Type returnType, bool allowDefault)
+    {
+      if (QueryCachingScope.Current!=null 
+        && index.NodeType == ExpressionType.Constant 
+        && index.Type==typeof(int))
+        throw new InvalidOperationException(Strings.ExUnableToUseElementAtIntInQueryExecuteUseElementAtFuncIntInstead);
+      var projection = VisitSequence(source);
+      Func<int> compiledParameter;
+      if (index.NodeType==ExpressionType.Quote)
+        index = index.StripQuotes();
+      if (index.Type==typeof (Func<int>)) {
+          Expression<Func<int>> skipIndex;
+        if (QueryCachingScope.Current==null) {
+          compiledParameter = ((Expression<Func<int>>)index).CachingCompile();
+        }
+        else {
+          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+          var queryParameter = QueryCachingScope.Current.QueryParameter;
+          var newElementAt = replacer.Replace(index);
+          compiledParameter = ((Expression<Func<int>>)newElementAt).CachingCompile();
+        }
+      }
+      else {
+        Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(index);
+        compiledParameter = parameter.CachingCompile();
+      }
+      var rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(1);
+
+      var resultType = allowDefault ? ResultType.FirstOrDefault : ResultType.First;
+      if (isRoot) {
+        var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rs, context);
+        return new ProjectionExpression(returnType, itemProjector, projection.TupleParameterBindings, resultType);
+      }
+
+      var lambdaParameter = state.Parameters[0];
+      var oldResult = context.Bindings[lambdaParameter];
+      var applyParameter = context.GetApplyParameter(oldResult);
+
+      var leftDataSource = oldResult.ItemProjector.DataSource;
+      var columnIndex = leftDataSource.Header.Length;
+      var dataSource = leftDataSource.Apply(applyParameter, rs.Alias(context.GetNextAlias()), ApplySequenceType.All, JoinType.LeftOuter);
+      var rightItemProjector = projection.ItemProjector.Remap(dataSource, columnIndex);
+      var result = new ProjectionExpression(oldResult.Type, oldResult.ItemProjector.Remap(dataSource, 0), oldResult.TupleParameterBindings);
+      context.Bindings.ReplaceBound(lambdaParameter, result);
+
+      return new MarkerExpression(rightItemProjector.Item, MarkerType.None);
+    }
+
 
     private ProjectionExpression VisitTake(Expression source, Expression take)
     {

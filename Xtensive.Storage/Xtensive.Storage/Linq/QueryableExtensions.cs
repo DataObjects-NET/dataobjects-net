@@ -49,6 +49,36 @@ namespace Xtensive.Storage.Linq
       return source.Provider.CreateQuery<TSource>(expression);
     }
 
+    public static TSource ElementAt<TSource>(this IQueryable<TSource> source, Expression<Func<int>> index)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(index, "index");
+
+      var errorMessage = Resources.Strings.ExElementAtDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType!=typeof (QueryProvider))
+        throw new NotSupportedException(String.Format(errorMessage, providerType));
+
+      var genericMethod = WellKnownMembers.QueryableExtensionElementAt.MakeGenericMethod(new[] {typeof (TSource)});
+      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, index});
+      return source.Provider.Execute<TSource>(expression);
+    }
+
+    public static TSource ElementAtOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<int>> index)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(index, "index");
+
+      var errorMessage = Resources.Strings.ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType!=typeof (QueryProvider))
+        throw new NotSupportedException(String.Format(errorMessage, providerType));
+
+      var genericMethod = WellKnownMembers.QueryableExtensionElementAtOrDefault.MakeGenericMethod(new[] {typeof (TSource)});
+      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, index});
+      return source.Provider.Execute<TSource>(expression);
+    }
+
     public static IQueryable<TSource> Lock<TSource>(this IQueryable<TSource> source, LockMode lockMode, LockBehavior lockBehavior)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");

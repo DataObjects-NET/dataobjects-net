@@ -55,6 +55,8 @@ namespace Xtensive.Storage.Linq
     public static readonly MethodInfo QueryableExtensionLock;
     public static readonly MethodInfo QueryableExtensionTake;
     public static readonly MethodInfo QueryableExtensionSkip;
+    public static readonly MethodInfo QueryableExtensionElementAt;
+    public static readonly MethodInfo QueryableExtensionElementAtOrDefault;
 
 
     // IEntity
@@ -163,6 +165,8 @@ namespace Xtensive.Storage.Linq
       QueryableExtensionLock = GetQueryableExtensionsMethod("Lock", 1, 3);
       QueryableExtensionTake = GetQueryableExtensionsMethod("Take", 1, 2);
       QueryableExtensionSkip = GetQueryableExtensionsMethod("Skip", 1, 2);
+      QueryableExtensionElementAt = GetQueryableExtensionsMethod("ElementAt", 1, 2);
+      QueryableExtensionElementAtOrDefault = GetQueryableExtensionsMethod("ElementAtOrDefault", 1, 2);
 
       // IEntity
       IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyFieldName);

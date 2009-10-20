@@ -656,6 +656,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;ElementAt&apos; does not support query provider of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExElementAtDoesNotSupportQueryProviderOfTypeX {
+            get {
+                return ResourceManager.GetString("ExElementAtDoesNotSupportQueryProviderOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;ElementAtOrDefault&apos; does not support query provider of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX {
+            get {
+                return ResourceManager.GetString("ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Element with name &apos;{0}&apos; is contained in this instance already..
         /// </summary>
         internal static string ExElementWithNameContainedInThisInstanceAlready {
@@ -2383,6 +2401,15 @@ namespace Xtensive.Storage.Resources {
             get {
                 return ResourceManager.GetString("ExUnableToUseBaseImplementationOfVisitGenericExpressionWithoutSpecifyingGenericPr" +
                         "ocessorDelegate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Usage of ElementAt(int) or ElementAtOrDefault(int) in Query.Execute is wrong. Use ElementAt(Func&lt;int&gt;) or ElementAtOrDefault(Func&lt;int&gt;) instead..
+        /// </summary>
+        internal static string ExUnableToUseElementAtIntInQueryExecuteUseElementAtFuncIntInstead {
+            get {
+                return ResourceManager.GetString("ExUnableToUseElementAtIntInQueryExecuteUseElementAtFuncIntInstead", resourceCulture);
             }
         }
         
