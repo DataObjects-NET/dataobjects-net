@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Internals
       else {
         if (keyIndexes!=null)
           throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, Log.Instance);
-        key = new Key(type, accuracy, value);
+        key = new LongKey(type, accuracy, value);
       }
       if (!canCache || domain==null)
         return key;

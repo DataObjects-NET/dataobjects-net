@@ -20,12 +20,9 @@ namespace Xtensive.Storage.Internals
 
     private readonly T value1;
 
-    public override Tuple Value {
-      get {
-        if (value==null)
-          value = Tuple.Create(value1);
-        return value;
-      }
+    protected override Tuple GetValue()
+    {
+      return Tuple.Create(value1);
     }
 
     protected override bool ValueEquals(Key other)

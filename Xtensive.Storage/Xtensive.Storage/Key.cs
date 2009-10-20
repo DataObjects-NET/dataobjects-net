@@ -24,7 +24,7 @@ namespace Xtensive.Storage
   /// </remarks>
   /// <seealso cref="Entity.Key"/>
   [Serializable]
-  public class Key : IEquatable<Key>
+  public abstract class Key : IEquatable<Key>
   {
     protected Tuple value;
 
@@ -40,14 +40,17 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the key value.
     /// </summary>
-    public virtual Tuple Value {
-      get { return value; }
+    public Tuple Value {
+      get {
+        if (value == null)
+          value = GetValue();
+        return value;
+      }
     }
 
     /// <summary>
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
-    /// <exception cref="NotSupportedException">Type is already initialized.</exception>
     /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
     public TypeInfo Type {
       get {
@@ -87,22 +90,22 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Gets the value in form of <see cref="Tuple"/>.
+    /// </summary>
+    protected abstract Tuple GetValue();
+
+    /// <summary>
+    /// Calculates hash code.
+    /// </summary>
+    /// <returns>Calculated hash code.</returns>
+    protected abstract int CalculateHashCode();
+
+    /// <summary>
     /// Determines whether <see cref="Type"/> property has exact type value or not.
     /// </summary>
     internal bool HasExactType
     {
       get { return TypeRef.Accuracy == TypeReferenceAccuracy.ExactType ? true : false; }
-    }
-
-    private int HashCode
-    {
-      get
-      {
-        if (hashCode.HasValue)
-          return hashCode.Value;
-        hashCode = CalculateHashCode();
-        return hashCode.Value;
-      }
     }
 
     #region Equals, GetHashCode, ==, != 
@@ -115,7 +118,7 @@ namespace Xtensive.Storage
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      if (HashCode!=other.HashCode)
+      if (GetHashCode()!=other.GetHashCode())
         return false;
       if (TypeRef.Type.KeyProviderInfo!=other.TypeRef.Type.KeyProviderInfo)
         return false;
@@ -154,7 +157,11 @@ namespace Xtensive.Storage
     [DebuggerStepThrough]
     public override int GetHashCode()
     {
-      return HashCode;
+      if (hashCode.HasValue)
+        return hashCode.Value;
+
+      hashCode = CalculateHashCode();
+      return hashCode.Value;
     }
 
     /// <summary>
@@ -162,10 +169,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="other">The other key to compare.</param>
     /// <returns>Equality comparison result.</returns>
-    protected virtual bool ValueEquals(Key other)
-    {
-      return value.Equals(other.value);
-    }
+    protected abstract bool ValueEquals(Key other);
 
     #endregion
 
@@ -252,15 +256,6 @@ namespace Xtensive.Storage
         return string.Format(Strings.KeyFormatUnknownKeyType,
           TypeRef.Type.UnderlyingType.GetShortName(),
           Value.ToRegular());
-    }
-
-    /// <summary>
-    /// Calculates hash code.
-    /// </summary>
-    /// <returns>Calculated hash code.</returns>
-    protected virtual int CalculateHashCode()
-    {
-      return value.GetHashCode() ^ TypeRef.Type.KeyProviderInfo.GetHashCode();
     }
 
     #region Create next key methods
@@ -425,7 +420,7 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Key(TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
+    protected Key(TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
     {
       TypeRef = new TypeReference(type, accuracy);
       this.value = value;
