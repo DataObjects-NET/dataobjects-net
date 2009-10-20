@@ -75,8 +75,18 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var customers = Query<Customer>.All.OrderBy(customer=>customer.Id).ToList();
       Assert.IsTrue(customers.Count>0);
-      for (int i = 0; i < customers.Count; i++)
-        Assert.AreEqual(customers[i], ElementAtCorrect(i));
+      for (int i = -100; i < customers.Count + 100; i++)
+        if (i < 0) {
+          int index = i;
+          AssertEx.ThrowsArgumentOutOfRangeException(()=> ElementAtCorrect(index));
+        }
+        else if  (i >= customers.Count) {
+          int index = i;
+          AssertEx.ThrowsInvalidOperationException(()=> ElementAtCorrect(index));
+        }
+        else
+          Assert.AreEqual(customers[i], ElementAtCorrect(i));
+
     }
 
 
