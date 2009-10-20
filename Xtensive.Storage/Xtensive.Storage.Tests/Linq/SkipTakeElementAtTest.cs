@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Tests.Linq
       for (int i = -100; i < customers.Count + 100; i++)
         if (i < 0) {
           int index = i;
-          AssertEx.ThrowsArgumentOutOfRangeException(()=> ElementAtCorrect(index));
+          AssertEx.ThrowsInvalidOperationException(()=> ElementAtCorrect(index));
         }
         else if  (i >= customers.Count) {
           int index = i;

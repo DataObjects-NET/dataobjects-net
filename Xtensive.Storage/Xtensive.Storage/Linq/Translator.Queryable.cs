@@ -372,31 +372,46 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitElementAt(Expression source, Expression index, bool isRoot, Type returnType, bool allowDefault)
     {
-      if (QueryCachingScope.Current!=null 
-        && index.NodeType == ExpressionType.Constant 
-        && index.Type==typeof(int))
+      if (QueryCachingScope.Current!=null
+        && index.NodeType==ExpressionType.Constant
+          && index.Type==typeof (int))
         throw new InvalidOperationException(Strings.ExUnableToUseElementAtIntInQueryExecuteUseElementAtFuncIntInstead);
       var projection = VisitSequence(source);
       Func<int> compiledParameter;
       if (index.NodeType==ExpressionType.Quote)
         index = index.StripQuotes();
+      RecordSet rs;
       if (index.Type==typeof (Func<int>)) {
-          Expression<Func<int>> skipIndex;
+        Expression<Func<int>> skipIndex;
         if (QueryCachingScope.Current==null) {
-          compiledParameter = ((Expression<Func<int>>)index).CachingCompile();
+          skipIndex = (Expression<Func<int>>) index;
         }
         else {
           var replacer = QueryCachingScope.Current.QueryParameterReplacer;
           var queryParameter = QueryCachingScope.Current.QueryParameter;
-          var newElementAt = replacer.Replace(index);
-          compiledParameter = ((Expression<Func<int>>)newElementAt).CachingCompile();
+          skipIndex = (Expression<Func<int>>) replacer.Replace(index);
         }
+        compiledParameter = skipIndex.CachingCompile();
+        var skipComparison = Expression.LessThan(skipIndex.Body, Expression.Constant(0));
+        var condition = Expression.Condition(skipComparison, Expression.Constant(0), Expression.Constant(1));
+        var takeParameter = Expression.Lambda<Func<int>>(condition); 
+        rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(takeParameter.CachingCompile());
       }
       else {
-        Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(index);
-        compiledParameter = parameter.CachingCompile();
+        if ((int) ((ConstantExpression) index).Value < 0) {
+          if (allowDefault) {
+            rs = projection.ItemProjector.DataSource.Take(0);
+          }
+          else {
+            throw new ArgumentOutOfRangeException("index", index, Strings.ExElementAtIndexMustBeGreaterOrEqualToZero);
+          }
+        }
+        else {
+          Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(index);
+          compiledParameter = parameter.CachingCompile();
+          rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(1);
+        }
       }
-      var rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(1);
 
       var resultType = allowDefault ? ResultType.FirstOrDefault : ResultType.First;
       if (isRoot) {
@@ -421,9 +436,9 @@ namespace Xtensive.Storage.Linq
 
     private ProjectionExpression VisitTake(Expression source, Expression take)
     {
-      if (QueryCachingScope.Current!=null 
-        && take.NodeType == ExpressionType.Constant 
-        && take.Type==typeof(int))
+      if (QueryCachingScope.Current!=null
+        && take.NodeType==ExpressionType.Constant
+          && take.Type==typeof (int))
         throw new InvalidOperationException(Strings.ExUnableToUseTakeIntInQueryExecuteUseTakeFuncIntInstead);
       var projection = VisitSequence(source);
       Func<int> compiledParameter;
@@ -450,9 +465,9 @@ namespace Xtensive.Storage.Linq
 
     private ProjectionExpression VisitSkip(Expression source, Expression skip)
     {
-      if (QueryCachingScope.Current!=null 
-        && skip.NodeType == ExpressionType.Constant
-         && skip.Type==typeof(int))
+      if (QueryCachingScope.Current!=null
+        && skip.NodeType==ExpressionType.Constant
+          && skip.Type==typeof (int))
         throw new InvalidOperationException(Strings.ExUnableToUseSkipIntInQueryExecuteUseSkipFuncIntInstead);
       var projection = VisitSequence(source);
       Func<int> compiledParameter;

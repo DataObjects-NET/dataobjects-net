@@ -665,6 +665,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ElementAt index must be greater or equal to zero..
+        /// </summary>
+        internal static string ExElementAtIndexMustBeGreaterOrEqualToZero {
+            get {
+                return ResourceManager.GetString("ExElementAtIndexMustBeGreaterOrEqualToZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;ElementAtOrDefault&apos; does not support query provider of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX {

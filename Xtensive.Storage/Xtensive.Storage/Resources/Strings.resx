@@ -1217,4 +1217,7 @@ Actions:
   <data name="ExUnableToUseElementAtIntInQueryExecuteUseElementAtFuncIntInstead" xml:space="preserve">
     <value>Usage of ElementAt(int) or ElementAtOrDefault(int) in Query.Execute is wrong. Use ElementAt(Func&lt;int&gt;) or ElementAtOrDefault(Func&lt;int&gt;) instead.</value>
   </data>
+  <data name="ExElementAtIndexMustBeGreaterOrEqualToZero" xml:space="preserve">
+    <value>ElementAt index must be greater or equal to zero.</value>
+  </data>
 </root>
