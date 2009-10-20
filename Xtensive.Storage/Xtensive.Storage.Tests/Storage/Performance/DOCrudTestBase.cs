@@ -51,14 +51,14 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       warmup = false;
       InsertTest(BaseCount);
       FetchTest(BaseCount / 2);
-      PrefetchTest(BaseCount / 2);
-      //MaterializeTest(BaseCount);
-      //UpdateTest();
+//      PrefetchTest(BaseCount / 2);
+      MaterializeTest(BaseCount);
+//      UpdateTest();
       RemoveTest();
-      /*CreateSimplestContainer(BaseCount);
-      AccessToPairedEntitySetTest(collectionCount);
-      AccessToNonPairedEntitySetTest(collectionCount);
-      DeleteSimplestContainer();*/
+//      CreateSimplestContainer(BaseCount);
+//      AccessToPairedEntitySetTest(collectionCount);
+//      AccessToNonPairedEntitySetTest(collectionCount);
+//      DeleteSimplestContainer();
     }
 
     [Test]
