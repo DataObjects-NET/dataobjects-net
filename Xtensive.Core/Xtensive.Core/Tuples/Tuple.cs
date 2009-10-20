@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -209,6 +210,7 @@ namespace Xtensive.Core.Tuples
 
     #region Private internal Get/Set Value methods
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private T GetValueInternal<T>(bool isNullable, int fieldIndex, out TupleFieldState fieldState)
     {
       var mappedContainer = GetMappedContainer(fieldIndex, false);
@@ -225,6 +227,7 @@ namespace Xtensive.Core.Tuples
         : (T) value;
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private T GetValueInternal<T>(bool isNullable, int fieldIndex)
     {
       T result;
@@ -251,6 +254,7 @@ namespace Xtensive.Core.Tuples
       return result;
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private T GetValueOrDefaultInternal<T>(bool isNullable, int fieldIndex)
     {
       T result;
@@ -277,7 +281,8 @@ namespace Xtensive.Core.Tuples
         throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
       return result;
     }
-    
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private void SetValueInternal<T>(bool isNullable, int fieldIndex, T fieldValue)
     {
       Action<Tuple, T> setter;

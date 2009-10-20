@@ -9,7 +9,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Permissions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using FieldInfo=System.Reflection.FieldInfo;
@@ -981,13 +983,30 @@ namespace Xtensive.Core.Tuples.Internals
     }
 
     // Static constructor
-    
+
     static TupleGenerator()
     {
       assemblyBuilder =
         AppDomain.CurrentDomain.DefineDynamicAssembly(
           assemblyName,
           AssemblyBuilderAccess.RunAndSave);
+      // [CompilationRelaxations(CompilationRelaxations.NoStringInterning)]
+      var compilationRelaxation = new CustomAttributeBuilder(
+        typeof(CompilationRelaxationsAttribute).GetConstructor(new[]{typeof(CompilationRelaxations)}),
+        new object []{CompilationRelaxations.NoStringInterning});
+      // [SecurityPermission(SecurityAction.RequestMinimum, Execution = true, SkipVerification = true)]
+      var securityPermissionType = typeof(SecurityPermissionAttribute);
+      var flagsProperty = securityPermissionType.GetProperty("Flags");
+      var executionPermission = new CustomAttributeBuilder(
+        securityPermissionType.GetConstructor(new[]{typeof(SecurityAction)}),
+        new object []{SecurityAction.RequestMinimum},
+        new []{flagsProperty},
+        new object []{SecurityPermissionFlag.Execution | SecurityPermissionFlag.UnmanagedCode | SecurityPermissionFlag.SkipVerification }
+        );
+
+      assemblyBuilder.SetCustomAttribute(compilationRelaxation);
+      assemblyBuilder.SetCustomAttribute(executionPermission);
+
       moduleBuilder =
         assemblyBuilder.DefineDynamicModule(assemblyName.Name, assemblyName + ".dll", true);
 

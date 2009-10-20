@@ -267,6 +267,8 @@ namespace Xtensive.Core.Tests.Tuples
       using (new Measurement("DummyTuple memory usage", iterationCount))
         while (iteration++ <= iterationCount)
           tuplesList.Add(dummyTuple.CreateNew());
+      tuplesList.Clear();
+      TestHelper.CollectGarbage(true);
       iteration = 0;
       using (new Measurement("Tuple memory usage", iterationCount))
         while (iteration++ <= iterationCount)
