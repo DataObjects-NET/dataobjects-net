@@ -114,21 +114,9 @@ namespace Xtensive.Core.Tuples
       var getter = (isNullable 
         ? GetGetNullableValueDelegate(fieldIndex)
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
-      if (getter != null)
-        return getter.Invoke(this, out fieldState);
-      var mappedContainer = GetMappedContainer(fieldIndex, false);
-      var tuple = mappedContainer.First;
-      if (tuple != null) {
-        getter = (isNullable
-          ? tuple.GetGetNullableValueDelegate(mappedContainer.Second)
-          : tuple.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>;
-        if (getter != null)
-          return getter.Invoke(tuple, out fieldState);
-      }
-      var value = GetValue(fieldIndex, out fieldState);
-      return value == null 
-        ? default(T) 
-        : (T) value;
+      return getter != null 
+        ? getter.Invoke(this, out fieldState) 
+        : GetValueInternal<T>(isNullable, fieldIndex, out fieldState);
     }
 
     /// <summary>
@@ -147,43 +135,21 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValue<T>(int fieldIndex)
     {
-      T result;
-      TupleFieldState state;
+      TupleFieldState fieldState;
       var isNullable = null == default(T); // Is nullable value type or class
-      if (isNullable) {
-        var getter = GetGetNullableValueDelegate(fieldIndex) as GetValueDelegate<T>;
-        if (getter != null)
-          result = getter.Invoke(this, out state);
-        else {
-          var mappedContainer = GetMappedContainer(fieldIndex, false);
-          var tuple = mappedContainer.First;
-          if (tuple != null && (getter = tuple.GetGetNullableValueDelegate(mappedContainer.Second) as GetValueDelegate<T>) != null)
-            result = getter.Invoke(tuple, out state);
-          else
-            result = (T) GetValue(fieldIndex, out state);
-        }
-        return state.IsNull() ? default(T) : result;
-      }
-      else {
-        var getter = GetGetValueDelegate(fieldIndex) as GetValueDelegate<T>;
-        if (getter != null)
-          result = getter.Invoke(this, out state);
-        else {
-          var mappedContainer = GetMappedContainer(fieldIndex, false);
-          var tuple = mappedContainer.First;
-          if (tuple != null && (getter = tuple.GetGetValueDelegate(mappedContainer.Second) as GetValueDelegate<T>) != null)
-            result = getter.Invoke(tuple, out state);
-          else {
-            var value = GetValue(fieldIndex, out state);
-            result = value == null
-              ? default(T)
-              : (T) value;
-          }
-        }
-        if (state.IsNull())
+      var getter = (isNullable
+        ? GetGetNullableValueDelegate(fieldIndex)
+        : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
+      if (getter != null) {
+        var result = getter.Invoke(this, out fieldState);
+        if (fieldState.IsNull()) {
+          if (isNullable)
+            return default(T);
           throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
+        }
         return result;
       }
+      return GetValueInternal<T>(isNullable, fieldIndex);
     }
 
     /// <summary>
@@ -201,38 +167,22 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValueOrDefault<T>(int fieldIndex)
     {
-      T result;
-      TupleFieldState state;
+      TupleFieldState fieldState;
       var isNullable = null == default(T); // Is nullable value type or class
-      if (isNullable) {
-        var getter = GetGetNullableValueDelegate(fieldIndex) as GetValueDelegate<T>;
-        if (getter != null)
-          return getter.Invoke(this, out state);
-        var mappedContainer = GetMappedContainer(fieldIndex, false);
-        var tuple = mappedContainer.First;
-        if (tuple != null && (getter = tuple.GetGetNullableValueDelegate(mappedContainer.Second) as GetValueDelegate<T>) != null)
-          return getter.Invoke(tuple, out state);
-        result = (T)GetValue(fieldIndex, out state);
-        return (state ^ TupleFieldState.Available) == TupleFieldState.Default 
-          ? result 
-          : default(T);
-      }
-      else {
-        var getter = GetGetValueDelegate(fieldIndex) as GetValueDelegate<T>;
-        if (getter != null)
-          result = getter.Invoke(this, out state);
-        else {
-          var mappedContainer = GetMappedContainer(fieldIndex, false);
-          var tuple = mappedContainer.First;
-          if (tuple != null && (getter = tuple.GetGetValueDelegate(mappedContainer.Second) as GetValueDelegate<T>) != null)
-            result = getter.Invoke(tuple, out state);
-          else
-            result = (T) GetValue(fieldIndex, out state);
+      var getter = (isNullable
+        ? GetGetNullableValueDelegate(fieldIndex)
+        : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
+      if (getter != null) {
+        var result = getter.Invoke(this, out fieldState);
+        if (isNullable) {
+          if ((fieldState ^ TupleFieldState.Available) != TupleFieldState.Default)
+            return default(T);
         }
-        if ((state & TupleFieldState.Null) == TupleFieldState.Default) 
-          return result;
-        throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
+        else if ((fieldState & TupleFieldState.Null) != TupleFieldState.Default)
+          throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
+        return result;
       }
+      return GetValueOrDefaultInternal<T>(isNullable, fieldIndex);
     }
 
     /// <summary>
@@ -251,16 +201,94 @@ namespace Xtensive.Core.Tuples
         : GetSetValueDelegate(fieldIndex)) as Action<Tuple, T>;
       if (setter != null)
         setter.Invoke(this, fieldValue);
-      else {
-        var mappedContainer = GetMappedContainer(fieldIndex, true);
-        var tuple = mappedContainer.First;
-        if (tuple != null && (setter = (isNullable 
-          ? tuple.GetSetNullableValueDelegate(mappedContainer.Second) 
-          : tuple.GetSetValueDelegate(mappedContainer.Second)) as Action<Tuple,T>) != null)
-          setter.Invoke(tuple, fieldValue);
-        else
-          SetValue(fieldIndex, (object)fieldValue);
+      else
+        SetValueInternal(isNullable, fieldIndex, fieldValue);
+    }
+
+    #endregion
+
+    #region Private internal Get/Set Value methods
+
+    private T GetValueInternal<T>(bool isNullable, int fieldIndex, out TupleFieldState fieldState)
+    {
+      var mappedContainer = GetMappedContainer(fieldIndex, false);
+      if (mappedContainer.First != null) {
+        var getter = (isNullable
+          ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
+          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>;
+        if (getter != null)
+          return getter.Invoke(mappedContainer.First, out fieldState);
       }
+      var value = GetValue(fieldIndex, out fieldState);
+      return value == null 
+        ? default(T) 
+        : (T) value;
+    }
+
+    private T GetValueInternal<T>(bool isNullable, int fieldIndex)
+    {
+      T result;
+      TupleFieldState fieldState;
+      GetValueDelegate<T> getter;
+      var mappedContainer = GetMappedContainer(fieldIndex, false);
+      if (mappedContainer.First != null && 
+        (getter = (isNullable
+          ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
+          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>) != null) {
+        result = getter.Invoke(mappedContainer.First, out fieldState);
+      }
+      else {
+        var value = GetValue(fieldIndex, out fieldState);
+        result = value == null
+          ? default(T)
+          : (T) value;
+      }
+      if (fieldState.IsNull()) {
+        if (isNullable)
+          return default(T);
+        throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
+      }
+      return result;
+    }
+
+    private T GetValueOrDefaultInternal<T>(bool isNullable, int fieldIndex)
+    {
+      T result;
+      TupleFieldState fieldState;
+      GetValueDelegate<T> getter;
+      var mappedContainer = GetMappedContainer(fieldIndex, false);
+      if (mappedContainer.First != null && 
+        (getter = (isNullable
+          ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
+          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>) != null) {
+        result = getter.Invoke(mappedContainer.First, out fieldState);
+      }
+      else {
+        var value = GetValue(fieldIndex, out fieldState);
+        result = value == null
+          ? default(T)
+          : (T) value;
+      }
+      if (isNullable) {
+        if ((fieldState ^ TupleFieldState.Available) != TupleFieldState.Default)
+          return default(T);
+      }
+      else if ((fieldState & TupleFieldState.Null) != TupleFieldState.Default)
+        throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
+      return result;
+    }
+    
+    private void SetValueInternal<T>(bool isNullable, int fieldIndex, T fieldValue)
+    {
+      Action<Tuple, T> setter;
+      var mappedContainer = GetMappedContainer(fieldIndex, true);
+      if (mappedContainer.First != null &&
+          (setter = (isNullable
+             ? mappedContainer.First.GetSetNullableValueDelegate(mappedContainer.Second)
+             : mappedContainer.First.GetSetValueDelegate(mappedContainer.Second)) as Action<Tuple, T>) != null)
+        setter.Invoke(mappedContainer.First, fieldValue);
+      else
+        SetValue(fieldIndex, (object)fieldValue);
     }
 
     #endregion
@@ -416,8 +444,8 @@ namespace Xtensive.Core.Tuples
     public static RegularTuple Create<T>(T value)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-        typeof(T)
-      });
+                                                                  typeof(T)
+                                                                });
       return Create(descriptor, value);
     }
 
@@ -446,9 +474,9 @@ namespace Xtensive.Core.Tuples
     public static RegularTuple Create<T1,T2>(T1 value1, T2 value2)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-        typeof(T1),
-        typeof(T2)
-      });
+                                                                  typeof(T1),
+                                                                  typeof(T2)
+                                                                });
       return Create(descriptor, value1, value2);
     }
 
@@ -482,10 +510,10 @@ namespace Xtensive.Core.Tuples
     public static RegularTuple Create<T1,T2,T3>(T1 value1, T2 value2, T3 value3)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-        typeof(T1),
-        typeof(T2),
-        typeof(T3)
-      });
+                                                                  typeof(T1),
+                                                                  typeof(T2),
+                                                                  typeof(T3)
+                                                                });
       return Create(descriptor, value1, value2, value3);
     }
 
@@ -524,11 +552,11 @@ namespace Xtensive.Core.Tuples
     public static RegularTuple Create<T1,T2,T3,T4>(T1 value1, T2 value2, T3 value3, T4 value4)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-        typeof(T1),
-        typeof(T2),
-        typeof(T3),
-        typeof(T4)
-      });
+                                                                  typeof(T1),
+                                                                  typeof(T2),
+                                                                  typeof(T3),
+                                                                  typeof(T4)
+                                                                });
       return Create(descriptor, value1, value2, value3, value4);
     }
 
@@ -572,12 +600,12 @@ namespace Xtensive.Core.Tuples
     public static RegularTuple Create<T1,T2,T3,T4,T5>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-        typeof(T1),
-        typeof(T2),
-        typeof(T3),
-        typeof(T4),
-        typeof(T5)
-      });
+                                                                  typeof(T1),
+                                                                  typeof(T2),
+                                                                  typeof(T3),
+                                                                  typeof(T4),
+                                                                  typeof(T5)
+                                                                });
       return Create(descriptor, value1, value2, value3, value4, value5);
     }
 
@@ -626,13 +654,13 @@ namespace Xtensive.Core.Tuples
     public static RegularTuple Create<T1,T2,T3,T4,T5,T6>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, T6 value6)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-        typeof(T1),
-        typeof(T2),
-        typeof(T3),
-        typeof(T4),
-        typeof(T5),
-        typeof(T6)
-      });
+                                                                  typeof(T1),
+                                                                  typeof(T2),
+                                                                  typeof(T3),
+                                                                  typeof(T4),
+                                                                  typeof(T5),
+                                                                  typeof(T6)
+                                                                });
       return Create(descriptor, value1, value2, value3, value4, value5, value6);
     }
 
