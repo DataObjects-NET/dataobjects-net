@@ -511,7 +511,9 @@
     <value>Session is not open. Use Session.Open(...) to open it.</value>
   </data>
   <data name="ExPersistentAttributeIsNotSetOnTypeX" xml:space="preserve">
-    <value>Persistent attribute isn't applied. Add the following line to AssemblyInfo.cs for "{0}" assembly: [assembly: Persistent(AttributeTargetAssemblies = "{0}")].</value>
+    <value>Persistent attribute isn't applied, or assembly is not processed by PostSharp.
+Add &lt;usePostSharp&gt;true&lt;/usePostSharp&gt; and &lt;DontImportPostSharp&gt;true&lt;/DontImportPostSharp&gt; to .csproj / .vbproj for "{0}" assembly.
+Add the following line to AssemblyInfo.cs for "{0}" assembly: [assembly: Persistent(AttributeTargetAssemblies = "{0}")].</value>
   </data>
   <data name="ExActiveSerializationContextIsNotFound" xml:space="preserve">
     <value>Active serialization context is not found.</value>
