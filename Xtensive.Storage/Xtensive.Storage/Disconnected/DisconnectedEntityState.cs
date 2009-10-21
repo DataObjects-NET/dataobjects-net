@@ -33,6 +33,9 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     public Tuple DifferenceTuple { get; set; }
 
+    /// <summary>
+    /// Gets the type of the entity.
+    /// </summary>
     public TypeInfo Type { get { return Key.TypeRef.Type; } }
 
     /// <inheritdoc/>

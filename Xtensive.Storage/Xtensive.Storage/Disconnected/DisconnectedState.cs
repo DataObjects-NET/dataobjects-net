@@ -106,16 +106,16 @@ namespace Xtensive.Storage.Disconnected
       var itemsToSave = cache.ChangedEntityStates.ToList();
       if (itemsToSave.Count==0)
         return;
-      var tepmSession = Session;
+      var tempSession = Session;
       Detach();
       try {
-        using (var transactionScope = Transaction.Open(tepmSession)) {
-          CheckVersions(itemsToSave, tepmSession.Handler);
+        using (var transactionScope = Transaction.Open(tempSession)) {
+          CheckVersions(itemsToSave, tempSession.Handler);
           foreach (var cachedState in itemsToSave) {
             var tuple = cachedState.DifferenceTuple!=null
               ? new DifferentialTuple(cachedState.OriginalTuple, cachedState.DifferenceTuple)
               : cachedState.OriginalTuple;
-            var entityState = tepmSession.UpdateEntityState(cachedState.Key, tuple, true);
+            var entityState = tempSession.UpdateEntityState(cachedState.Key, tuple, true);
             entityState.PersistenceState = cachedState.PersistenceState;
           }
           transactionScope.Complete();
@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Disconnected
           entityState.PersistenceState = PersistenceState.Synchronized;
       }
       finally {
-        Attach(tepmSession);
+        Attach(tempSession);
       }
     }
 
