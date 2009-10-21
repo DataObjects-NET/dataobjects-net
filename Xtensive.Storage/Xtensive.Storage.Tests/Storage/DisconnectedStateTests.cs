@@ -187,6 +187,11 @@ namespace Xtensive.Storage.Tests.Storage
       return config;
     }
 
+    protected override void CheckRequirements()
+    {
+      EnsureProtocolIs(StorageProtocol.Sql);
+    }
+
     [Test]
     public void FetchFromCacheTest()
     {
