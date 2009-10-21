@@ -436,7 +436,7 @@ namespace Xtensive.Storage.Model
         Fields.Where(field =>
           !field.IsPrimaryKey
             && !field.IsSystem
-            && !field.IsTypeId
+            && !(field.IsTypeId && field.Parent==null)
             && field.IsPrimitive
             && !field.IsLazyLoad
             && !field.ValueType.IsArray)

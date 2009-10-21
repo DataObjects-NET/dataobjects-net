@@ -68,8 +68,9 @@ namespace Xtensive.Storage
     /// </returns>
     public static IEnumerable<ReferenceInfo> FindReferencesTo(Entity target)
     {
+      var handler = Session.Demand().Handler;
       foreach (var association in target.Type.GetTargetAssociations())
-        foreach (var item in GetReferencesTo(target, association))
+        foreach (var item in handler.GetReferencesTo(target, association))
           yield return item;
     }
 
@@ -84,66 +85,17 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Type doesn't participate in the specified association.</exception>
     public static IEnumerable<ReferenceInfo> FindReferencesTo(Entity target, AssociationInfo association)
     {
+      var handler = Session.Demand().Handler;
       if (!association.TargetType.UnderlyingType.IsAssignableFrom(target.Type.UnderlyingType))
         throw new InvalidOperationException(
           String.Format(Strings.TypeXDoesNotParticipateInTheSpecifiedAssociation, target.Type.Name));
-      return GetReferencesTo(target, association);
+      return handler.GetReferencesTo(target, association);
     }
 
-    internal static IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
+    public static IEnumerable<ReferenceInfo> GetReferencesFrom(Entity target, AssociationInfo association)
     {
-      IndexInfo index;
-      Tuple keyTuple;
-      RecordSet recordSet;
-
-      switch (association.Multiplicity) {
-        case Multiplicity.ZeroToOne:
-        case Multiplicity.ManyToOne:
-          index = association.OwnerType.Indexes.GetIndex(association.OwnerField.Name);
-          keyTuple = target.Key.Value;
-          recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
-          foreach (var item in recordSet.ToEntities(0))
-            yield return new ReferenceInfo(item, target, association);
-          break;
-        case Multiplicity.OneToOne:
-        case Multiplicity.OneToMany:
-          Key key = target.GetReferenceKey(association.Reversed.OwnerField);
-          if (key!=null)
-            yield return new ReferenceInfo(Query.SingleOrDefault(key), target, association);
-          break;
-        case Multiplicity.ZeroToMany:
-        case Multiplicity.ManyToMany:
-          if (association.IsMaster)
-            index = association.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
-          else
-            index = association.Master.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
-
-          keyTuple = target.Key.Value;
-          recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
-          foreach (var item in recordSet)
-            yield return new ReferenceInfo(Query.SingleOrDefault(Key.Create(association.OwnerType, association.ExtractForeignKey(item))), target, association);
-          break;
-      }
-    }
-
-    internal static IEnumerable<ReferenceInfo> GetReferencesFrom(Entity owner, AssociationInfo association)
-    {
-      switch (association.Multiplicity) {
-        case Multiplicity.ZeroToOne:
-        case Multiplicity.OneToOne:
-        case Multiplicity.ManyToOne:
-          var target = owner.GetFieldValue<Entity>(association.OwnerField);
-          if (target != null)
-            yield return new ReferenceInfo(owner, target, association);
-          break;
-        case Multiplicity.ZeroToMany:
-        case Multiplicity.OneToMany:
-        case Multiplicity.ManyToMany:
-          var targets = owner.GetFieldValue<EntitySetBase>(association.OwnerField);
-          foreach (var item in targets.Entities)
-            yield return new ReferenceInfo(owner, (Entity) item, association);
-          break;
-      }
+      var handler = Session.Demand().Handler;
+      return handler.GetReferencesFrom(target, association);
     }
   }
 }

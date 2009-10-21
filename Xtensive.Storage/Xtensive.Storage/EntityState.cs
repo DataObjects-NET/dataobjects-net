@@ -209,6 +209,12 @@ namespace Xtensive.Storage
     [Infrastructure]
     internal bool IsVersionUpdated { get; set; }
 
+    /// <summary>
+    /// Gets a value indicating whether this state is stale.
+    /// </summary>
+    [Infrastructure]
+    public bool IsStale { get; private set; }
+
     /// <inheritdoc/>
     protected override Tuple LoadState()
     {
@@ -267,6 +273,12 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       this.key = key;
       Tuple = data;
+    }
+
+    internal EntityState(Session session, Key key, Tuple data, bool isStale)
+      : this(session, key, data)
+    {
+      IsStale = isStale;
     }
   }
 }

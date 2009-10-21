@@ -241,7 +241,9 @@ namespace Xtensive.Storage
         Session.Handler.ExecutePrefetchTasks();
         return State;
       }
-      return new EntitySetState(MaxCacheSize);
+      var state = new EntitySetState(MaxCacheSize);
+      state.count = 0;
+      return state;
     }
 
     /// <inheritdoc/>

@@ -54,13 +54,13 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">
     /// Attempt to associate non-null <paramref name="tuple"/> with <paramref name="key"/> of unknown type.
     /// </exception>
-    internal EntityState UpdateEntityState(Key key, Tuple tuple)
+    internal EntityState UpdateEntityState(Key key, Tuple tuple, bool isStale)
     {
       var result = EntityStateCache[key, true];
       if (result == null) {
         if (!key.HasExactType && tuple!=null)
           throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType, Log.Instance);
-        result = new EntityState(this, key, tuple) {
+        result = new EntityState(this, key, tuple, isStale) {
           PersistenceState = PersistenceState.Synchronized
         };
         EntityStateCache.Add(result);
@@ -73,6 +73,11 @@ namespace Xtensive.Storage
           Log.Debug(Strings.SessionXUpdatingCacheY, this, result);
       }
       return result;
+    }
+
+    internal EntityState UpdateEntityState(Key key, Tuple tuple)
+    {
+      return UpdateEntityState(key, tuple, false);
     }
 
     internal void UpdateCacheFrom(RecordSet source)

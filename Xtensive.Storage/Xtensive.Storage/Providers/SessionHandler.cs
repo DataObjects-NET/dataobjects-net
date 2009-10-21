@@ -13,11 +13,13 @@ using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Providers
 {
@@ -102,6 +104,27 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public abstract void Dispose();
     
+    public Dictionary<Key, VersionInfo> GetActualVersions(IEnumerable<Key> keys)
+    {
+      var versions = new Dictionary<Key, VersionInfo>();
+      foreach (var key in keys) {
+        var type = key.TypeRef.Type;
+        if (type.VersionExtractor==null)
+          versions[key] = new VersionInfo();
+        else {
+          var tuple = type.Indexes.PrimaryIndex
+            .ToRecordSet()
+            .Seek(key.Value)
+            .FirstOrDefault();
+          if (tuple!=null) {
+            var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, tuple);
+            versions[key] = new VersionInfo(versionTuple);
+          }
+        }
+      }
+      return versions;
+    }
+      
     /// <summary>
     /// Executes the specified compiled RSE query.
     /// This method is used only for non-index storages.
@@ -250,6 +273,62 @@ namespace Xtensive.Storage.Providers
     internal void ChangeOwnerOfPrefetchProccessor(SessionHandler newOwner)
     {
       prefetchProcessor.ChangeOwner(newOwner);
+    }
+
+    protected internal virtual IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
+    {
+      IndexInfo index;
+      Tuple keyTuple;
+      RecordSet recordSet;
+
+      switch (association.Multiplicity) {
+        case Multiplicity.ZeroToOne:
+        case Multiplicity.ManyToOne:
+          index = association.OwnerType.Indexes.GetIndex(association.OwnerField.Name);
+          keyTuple = target.Key.Value;
+          recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
+          foreach (var item in recordSet.ToEntities(0))
+            yield return new ReferenceInfo(item, target, association);
+          break;
+        case Multiplicity.OneToOne:
+        case Multiplicity.OneToMany:
+          Key key = target.GetReferenceKey(association.Reversed.OwnerField);
+          if (key!=null)
+            yield return new ReferenceInfo(Query.SingleOrDefault(key), target, association);
+          break;
+        case Multiplicity.ZeroToMany:
+        case Multiplicity.ManyToMany:
+          if (association.IsMaster)
+            index = association.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
+          else
+            index = association.Master.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
+
+          keyTuple = target.Key.Value;
+          recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
+          foreach (var item in recordSet)
+            yield return new ReferenceInfo(Query.SingleOrDefault(Key.Create(association.OwnerType, association.ExtractForeignKey(item))), target, association);
+          break;
+      }
+    }
+
+    protected internal virtual IEnumerable<ReferenceInfo> GetReferencesFrom(Entity owner, AssociationInfo association)
+    {
+      switch (association.Multiplicity) {
+        case Multiplicity.ZeroToOne:
+        case Multiplicity.OneToOne:
+        case Multiplicity.ManyToOne:
+          var target = owner.GetFieldValue<Entity>(association.OwnerField);
+          if (target != null)
+            yield return new ReferenceInfo(owner, target, association);
+          break;
+        case Multiplicity.ZeroToMany:
+        case Multiplicity.OneToMany:
+        case Multiplicity.ManyToMany:
+          var targets = owner.GetFieldValue<EntitySetBase>(association.OwnerField);
+          foreach (var item in targets.Entities)
+            yield return new ReferenceInfo(owner, (Entity) item, association);
+          break;
+      }
     }
   }
 }
