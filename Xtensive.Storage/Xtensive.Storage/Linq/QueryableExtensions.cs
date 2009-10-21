@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Linq
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
-      var genericMethod = WellKnownMembers.QueryableExtensionTake.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionTake.MakeGenericMethod(new[] {typeof (TSource)});
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, count});
       return source.Provider.CreateQuery<TSource>(expression);
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Linq
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
-      var genericMethod = WellKnownMembers.QueryableExtensionSkip.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionSkip.MakeGenericMethod(new[] {typeof (TSource)});
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, count});
       return source.Provider.CreateQuery<TSource>(expression);
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Linq
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
-      var genericMethod = WellKnownMembers.QueryableExtensionElementAt.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionElementAt.MakeGenericMethod(new[] {typeof (TSource)});
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, index});
       return source.Provider.Execute<TSource>(expression);
     }
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Linq
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
-      var genericMethod = WellKnownMembers.QueryableExtensionElementAtOrDefault.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionElementAtOrDefault.MakeGenericMethod(new[] {typeof (TSource)});
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, index});
       return source.Provider.Execute<TSource>(expression);
     }
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Linq
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
-      var genericMethod = WellKnownMembers.QueryableExtensionLock.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionLock.MakeGenericMethod(new[] {typeof (TSource)});
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, Expression.Constant(lockMode), Expression.Constant(lockBehavior)});
       return source.Provider.CreateQuery<TSource>(expression);
     }
@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Linq
       if (outerProviderType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, outerProviderType));
 
-      var genericMethod = WellKnownMembers.QueryableExtensionJoinLeft.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionJoinLeft.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
       var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
       return outer.Provider.CreateQuery<TResult>(expression);
     }

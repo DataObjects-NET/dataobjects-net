@@ -241,7 +241,7 @@ namespace Xtensive.Storage
 
     public static IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
     {
-      var method = WellKnownMembers.QueryableAsQueryable.MakeGenericMethod(typeof (TElement));
+      var method = WellKnownMembers.Queryable.AsQueryable.MakeGenericMethod(typeof (TElement));
       var expression = Expression.Call(method, Expression.Constant(source));
       return new Queryable<TElement>(expression);
     }

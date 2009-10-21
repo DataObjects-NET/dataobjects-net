@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Linq.Rewriters
       if (!IsEntitySet(mc.Object))
         return base.VisitMethodCall(mc);
       if (mc.Method.Name == "Contains") {
-        var method = WellKnownMembers.QueryableContains
+        var method = WellKnownMembers.Queryable.Contains
           .MakeGenericMethod(mc.Object.Type.GetGenericArguments()[0]);
         return Expression.Call(method, Visit(mc.Object), Visit(mc.Arguments[0]));
       }
@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Linq.Rewriters
       if (!IsEntitySet(m.Expression))
         return base.VisitMemberAccess(m);
       if (m.Member.Name == "Count") {
-        var method = WellKnownMembers.QueryableLongCount
+        var method = WellKnownMembers.Queryable.LongCount
           .MakeGenericMethod(m.Expression.Type.GetGenericArguments()[0]);
         return Expression.Call(method, Visit(m.Expression));
       }

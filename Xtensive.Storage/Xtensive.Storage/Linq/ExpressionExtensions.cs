@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Linq
     {
       return Expression.Call(
         target,
-        WellKnownMembers.TupleGenericAccessor.MakeGenericMethod(accessorType),
+        WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(accessorType),
         Expression.Constant(index)
         );
     }

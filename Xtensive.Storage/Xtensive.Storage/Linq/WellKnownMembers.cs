@@ -11,7 +11,6 @@ using System.Reflection;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 
@@ -20,44 +19,130 @@ namespace Xtensive.Storage.Linq
   internal static class WellKnownMembers
   {
     // Tuple
-    public static readonly MethodInfo TupleGenericAccessor;
-    public static readonly MethodInfo TupleCreate;
-    public static readonly PropertyInfo TupleDescriptor;
+    public static class Tuple
+    {
+      public static readonly MethodInfo GenericAccessor;
+      public static readonly MethodInfo Create;
+      public static readonly PropertyInfo Descriptor;
 
-    // Key
-    public static readonly PropertyInfo KeyValue;
-    public static readonly MethodInfo KeyResolve;
-    public static readonly MethodInfo KeyResolveOfT;
-    public static readonly MethodInfo KeyCreate;
+      static Tuple()
+      {
+        // Tuple
+        GenericAccessor = typeof (Core.Tuples.Tuple)
+          .GetMethods()
+          .Where(mi => mi.Name==Core.Reflection.WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
+          .Single();
+        Create = typeof (Core.Tuples.Tuple)
+          .GetMethods()
+          .Where(mi => mi.Name==Core.Reflection.WellKnown.Tuple.Create
+            && !mi.IsGenericMethod
+              && mi.GetParameters().Count()==1
+                && mi.GetParameters()[0].ParameterType==typeof (TupleDescriptor))
+          .Single();
+        Descriptor = typeof (Core.Tuples.Tuple).GetProperty(Core.Reflection.WellKnown.Tuple.Descriptor);
+      }
+    }
 
-    // Key extensions
-    public static readonly MethodInfo KeyTryResolve;
-    public static readonly MethodInfo KeyTryResolveOfT;
+    public static class Key
+    {
+      // Key
+      public static readonly PropertyInfo Value;
+//    public static readonly MethodInfo Resolve;
+//    public static readonly MethodInfo ResolveOfT;
+      public static readonly MethodInfo Create;
 
-    // Enumerable
-    public static readonly MethodInfo EnumerableSelect;
-    public static readonly MethodInfo EnumerableFirst;
-    public static readonly Type EnumerableOfTuple;
-    public static readonly MethodInfo EnumerableDefaultIfEmpty;
+      // Key extensions
+//    public static readonly MethodInfo TryResolve;
+//    public static readonly MethodInfo TryResolveOfT;
 
-    // Queryable
-    public static readonly MethodInfo QueryableAsQueryable;
-    public static readonly MethodInfo QueryableDefaultIfEmpty;
-    public static readonly MethodInfo QueryableTake;
-    public static readonly MethodInfo QueryableCount;
-    public static readonly MethodInfo QueryableCountWithPredicate;
-    public static readonly MethodInfo QueryableLongCount;
-    public static readonly MethodInfo QueryableWhere;
-    public static readonly MethodInfo QueryableContains;
+      static Key()
+      {
+        // Key
+        Value = typeof (Storage.Key).GetProperty("Value");
+//      Resolve = typeof (Query).GetMethods()
+//        .Where(mi => mi.Name=="SingleOrDefault" && mi.IsGenericMethodDefinition==false && mi.GetParameters().Length==1)
+//        .Single();
+//      ResolveOfT = typeof (Query<>).GetMethod("SingleOrDefault", BindingFlags.Public | BindingFlags.Instance, new[] {"T"}, new object[0]);
+        Create = typeof (Storage.Key).GetMethod(
+          "Create",
+          BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
+          null,
+           new[] {typeof(Domain), typeof (TypeInfo), typeof(TypeReferenceAccuracy), typeof (Core.Tuples.Tuple)}, null);
 
-    // Querable extensions
-    public static readonly MethodInfo QueryableExtensionJoinLeft;
-    public static readonly MethodInfo QueryableExtensionLock;
-    public static readonly MethodInfo QueryableExtensionTake;
-    public static readonly MethodInfo QueryableExtensionSkip;
-    public static readonly MethodInfo QueryableExtensionElementAt;
-    public static readonly MethodInfo QueryableExtensionElementAtOrDefault;
+        // KeyExtensions
+//      TryResolve = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[0], new object[1]);
+//      TryResolveOfT = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[1], new object[1]);
+      }
+    }
 
+    public static class Enumerable
+    {
+      // Enumerable
+      public static readonly MethodInfo Select;
+      public static readonly MethodInfo First;
+      public static readonly Type OfTuple;
+      public static readonly MethodInfo DefaultIfEmpty;
+
+      static Enumerable()
+      {
+        // Enumerable
+        Select = typeof (System.Linq.Enumerable).GetMethods().Where(m => m.Name=="Select").First();
+        First = typeof (System.Linq.Enumerable)
+          .GetMethods(BindingFlags.Static | BindingFlags.Public)
+          .First(m => m.Name==Core.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
+        OfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Core.Tuples.Tuple));
+        DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().Where(m => m.Name=="DefaultIfEmpty").First();
+      }
+    }
+
+    public static class Queryable
+    {
+      // Queryable
+      public static readonly MethodInfo AsQueryable;
+      public static readonly MethodInfo DefaultIfEmpty;
+      public static readonly MethodInfo Take;
+      public static readonly MethodInfo Count;
+      public static readonly MethodInfo CountWithPredicate;
+      public static readonly MethodInfo LongCount;
+      public static readonly MethodInfo Where;
+      public static readonly MethodInfo Contains;
+
+      // Querable extensions
+      public static readonly MethodInfo ExtensionJoinLeft;
+      public static readonly MethodInfo ExtensionLock;
+      public static readonly MethodInfo ExtensionTake;
+      public static readonly MethodInfo ExtensionSkip;
+      public static readonly MethodInfo ExtensionElementAt;
+      public static readonly MethodInfo ExtensionElementAtOrDefault;
+
+      static Queryable()
+      {
+        // Queryable
+        AsQueryable = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.AsQueryable, 1, 1);
+        DefaultIfEmpty = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);
+        Count = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Count, 1, 1);
+        CountWithPredicate = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Count, 1, 2);
+        Take = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Take, 1, 2);
+        Contains = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Contains, 1, 2);
+        LongCount = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.LongCount, 1, 1);
+        Where = typeof (System.Linq.Queryable).GetMethods().Where(methodInfo => {
+          ParameterInfo[] parameterInfos = methodInfo.GetParameters();
+          return methodInfo.Name==Core.Reflection.WellKnown.Queryable.Where
+            && methodInfo.IsGenericMethod
+              && parameterInfos.Length==2
+                && parameterInfos[1].ParameterType.IsGenericType
+                  && parameterInfos[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2;
+        }).First();
+
+        // Querable extensions
+        ExtensionJoinLeft = GetQueryableExtensionsMethod("JoinLeft", 4, 5);
+        ExtensionLock = GetQueryableExtensionsMethod("Lock", 1, 3);
+        ExtensionTake = GetQueryableExtensionsMethod("Take", 1, 2);
+        ExtensionSkip = GetQueryableExtensionsMethod("Skip", 1, 2);
+        ExtensionElementAt = GetQueryableExtensionsMethod("ElementAt", 1, 2);
+        ExtensionElementAtOrDefault = GetQueryableExtensionsMethod("ElementAtOrDefault", 1, 2);
+      }
+    }
 
     // IEntity
     public static readonly PropertyInfo IEntityKey;
@@ -97,7 +182,7 @@ namespace Xtensive.Storage.Linq
 
     private static MethodInfo GetQueryableMethod(string name, int numberOfGenericArgument, int numberOfArguments)
     {
-      return GetMethod(typeof (Queryable), name, numberOfGenericArgument, numberOfArguments);
+      return GetMethod(typeof (System.Linq.Queryable), name, numberOfGenericArgument, numberOfArguments);
     }
 
     private static MethodInfo GetQueryableExtensionsMethod(string name, int numberOfGenericArgument, int numberOfArguments)
@@ -107,76 +192,14 @@ namespace Xtensive.Storage.Linq
 
     static WellKnownMembers()
     {
-      // Tuple
-      TupleGenericAccessor = typeof (Tuple)
-        .GetMethods()
-        .Where(mi => mi.Name==Core.Reflection.WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
-        .Single();
-      TupleCreate = typeof (Tuple)
-        .GetMethods()
-        .Where(mi => mi.Name == Core.Reflection.WellKnown.Tuple.Create
-          && !mi.IsGenericMethod
-            && mi.GetParameters().Count()==1
-              && mi.GetParameters()[0].ParameterType==typeof (TupleDescriptor))
-        .Single();
-      TupleDescriptor = typeof(Tuple).GetProperty(Core.Reflection.WellKnown.Tuple.Descriptor);
-
-      // Key
-      KeyValue = typeof (Key).GetProperty("Value");
-//      KeyResolve = typeof (Query).GetMethods()
-//        .Where(mi => mi.Name=="SingleOrDefault" && mi.IsGenericMethodDefinition==false && mi.GetParameters().Length==1)
-//        .Single();
-//      KeyResolveOfT = typeof (Query<>).GetMethod("SingleOrDefault", BindingFlags.Public | BindingFlags.Instance, new[] {"T"}, new object[0]);
-      KeyCreate = typeof (Key).GetMethod("Create", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null,
-        new[] {typeof(Domain), typeof (TypeInfo), typeof(TypeReferenceAccuracy), typeof (Tuple)}, null);
-
-      // KeyExtensions
-//      KeyTryResolve = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[0], new object[1]);
-//      KeyTryResolveOfT = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[1], new object[1]);
-
-      // Enumerable
-      EnumerableSelect = typeof (Enumerable).GetMethods().Where(m => m.Name=="Select").First();
-      EnumerableFirst = typeof (Enumerable)
-        .GetMethods(BindingFlags.Static | BindingFlags.Public)
-        .First(m => m.Name==Core.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
-      EnumerableOfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Tuple));
-      EnumerableDefaultIfEmpty = typeof (Enumerable).GetMethods().Where(m => m.Name=="DefaultIfEmpty").First();
-      
-
-      // Queryable
-      QueryableAsQueryable = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.AsQueryable, 1, 1);
-      QueryableDefaultIfEmpty = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);
-      QueryableCount = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Count, 1, 1);
-      QueryableCountWithPredicate = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Count, 1, 2);
-      QueryableTake = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Take, 1, 2);
-      QueryableContains = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.Contains, 1, 2);
-      QueryableLongCount = GetQueryableMethod(Core.Reflection.WellKnown.Queryable.LongCount, 1, 1);
-      QueryableWhere = typeof (Queryable).GetMethods().Where(methodInfo => {
-        ParameterInfo[] parameterInfos = methodInfo.GetParameters();
-        return methodInfo.Name==Core.Reflection.WellKnown.Queryable.Where
-          && methodInfo.IsGenericMethod
-            && parameterInfos.Length==2
-              && parameterInfos[1].ParameterType.IsGenericType
-                && parameterInfos[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2;
-      }).First();
-
-      // Querable extensions
-      QueryableExtensionJoinLeft = GetQueryableExtensionsMethod("JoinLeft", 4, 5);
-      QueryableExtensionLock = GetQueryableExtensionsMethod("Lock", 1, 3);
-      QueryableExtensionTake = GetQueryableExtensionsMethod("Take", 1, 2);
-      QueryableExtensionSkip = GetQueryableExtensionsMethod("Skip", 1, 2);
-      QueryableExtensionElementAt = GetQueryableExtensionsMethod("ElementAt", 1, 2);
-      QueryableExtensionElementAtOrDefault = GetQueryableExtensionsMethod("ElementAtOrDefault", 1, 2);
-
       // IEntity
       IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyFieldName);
-
 
       // ApplyParameter
       ApplyParameterValue = typeof (ApplyParameter).GetProperty("Value");
 
       // Parameter<Tuple>
-      ParameterOfTupleValue = typeof (Parameter<Tuple>).GetProperty("Value", typeof (Tuple));
+      ParameterOfTupleValue = typeof (Parameter<Core.Tuples.Tuple>).GetProperty("Value", typeof (Core.Tuples.Tuple));
 
       // Parameter
       ParameterValue = typeof (Parameter).GetProperty("Value");
@@ -194,8 +217,8 @@ namespace Xtensive.Storage.Linq
         .Single();
 
       // EntitySet
-      CreateEntitySet = typeof(Internals.Activator).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
-        .Where(methodInfo => methodInfo.Name == "CreateEntitySet" && methodInfo.GetParameters().Length == 2)
+      CreateEntitySet = typeof (Internals.Activator).GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+        .Where(methodInfo => methodInfo.Name=="CreateEntitySet" && methodInfo.GetParameters().Length==2)
         .Single();
     }
   }

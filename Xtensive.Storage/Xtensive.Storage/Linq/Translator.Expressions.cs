@@ -219,19 +219,19 @@ namespace Xtensive.Storage.Linq
     {
       // Visit Queryable extensions.
       if (mc.Method.DeclaringType==typeof (QueryableExtensions))
-        if (mc.Method.Name==WellKnownMembers.QueryableExtensionJoinLeft.Name)
+        if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionJoinLeft.Name)
           return VisitJoinLeft(mc);
         else if (mc.Method.Name=="In")
           return VisitIn(mc);
-        else if (mc.Method.Name==WellKnownMembers.QueryableExtensionLock.Name)
+        else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionLock.Name)
           return VisitLock(mc);
-        else if (mc.Method.Name==WellKnownMembers.QueryableExtensionTake.Name)
+        else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionTake.Name)
           return VisitTake(mc.Arguments[0], mc.Arguments[1]);
-        else if (mc.Method.Name==WellKnownMembers.QueryableExtensionSkip.Name)
+        else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionSkip.Name)
           return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
-        else if (mc.Method.Name==WellKnownMembers.QueryableExtensionElementAt.Name)
+        else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionElementAt.Name)
           return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, false);
-        else if (mc.Method.Name==WellKnownMembers.QueryableExtensionElementAtOrDefault.Name)
+        else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionElementAtOrDefault.Name)
           return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
         else
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
@@ -529,7 +529,7 @@ namespace Xtensive.Storage.Linq
           .ToList();
       ConstantExpression nullExpression = Expression.Constant(null, expression.Type);
       BinaryExpression isNullExpression = Expression.Equal(expression, nullExpression);
-      MemberExpression keyTupleExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.KeyValue);
+      MemberExpression keyTupleExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.Key.Value);
 
       return keyFieldTypes
         .Select((type, index) => {

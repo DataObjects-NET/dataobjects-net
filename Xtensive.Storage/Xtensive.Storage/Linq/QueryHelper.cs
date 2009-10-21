@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Linq
             WellKnown.KeyFieldName)
           );
         return Expression.Call(
-          WellKnownMembers.QueryableWhere.MakeGenericMethod(elementType),
+          WellKnownMembers.Queryable.Where.MakeGenericMethod(elementType),
           CreateEntityQueryExpression(elementType),
           FastExpression.Lambda(whereExpression, whereParameter)
           );
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Linq
         );
 
       var outerQuery = Expression.Call(
-        WellKnownMembers.QueryableWhere.MakeGenericMethod(connectorType),
+        WellKnownMembers.Queryable.Where.MakeGenericMethod(connectorType),
         CreateEntityQueryExpression(connectorType),
         FastExpression.Lambda(filterExpression, filterParameter)
         );

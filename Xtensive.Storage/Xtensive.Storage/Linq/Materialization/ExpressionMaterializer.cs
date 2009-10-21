@@ -250,7 +250,7 @@ namespace Xtensive.Storage.Linq.Materialization
         GetTupleExpression(expression),
         Expression.Constant(expression.Mapping));
       return Expression.Call(
-        WellKnownMembers.KeyCreate,
+        WellKnownMembers.Key.Create,
         Expression.Constant(Domain.Demand()),
         Expression.Constant(expression.EntityType),
         Expression.Constant(TypeReferenceAccuracy.BaseType),
