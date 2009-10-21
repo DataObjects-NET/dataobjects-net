@@ -4,14 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-using Xtensive.Storage.Disconnected.Log;
-
 namespace Xtensive.Storage.Disconnected.Interfaces
 {
-  public interface IOperation
+  public interface IOperationExecutionContext
   {
-    Key Key { get; }
-    void Prepare(PrefetchContext prefetchContext);
-    void Execute(IOperationExecutionContext executionContext);
+    
   }
 }

@@ -8,6 +8,7 @@ namespace Xtensive.Storage.Disconnected.Interfaces
 {
   public interface IOperationLog
   {
-    
+    void Register(IOperation ioperation);
+    void Apply();
   }
 }
