@@ -58,6 +58,21 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void SimpleIntContainsTest()
+    {
+      // casts decimal to int
+      var list = new List<int>{7, 22, 46};
+      var query = from order in Query<Order>.All   
+           where order.Id.In(list)   
+           select order;    
+      var expected = from order in Query<Order>.All.AsEnumerable()   
+           where order.Id.In(list)
+           select order;      
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
     public void IntAndDecimalContains2Test()
     {
       // casts decimal to int
