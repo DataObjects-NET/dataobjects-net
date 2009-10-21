@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
     }
 
-    [Test]
+    [Test, Category("Performance")]
     public void SimpleTest()
     {
       List<Key> keys;
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
     }
 
-    [Test]
+    [Test, Category("Performance")]
     public void PrefetchEntitySetTest()
     {
       List<Key> keys;
