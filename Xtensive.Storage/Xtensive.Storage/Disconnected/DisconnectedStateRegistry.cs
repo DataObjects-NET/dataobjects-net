@@ -422,7 +422,7 @@ namespace Xtensive.Storage.Disconnected
           // This may happen if referense is null
           exactType = false;
       }
-      var key = Key.Create(type, keyValue);
+      var key = Key.Create(Domain.Demand(), type, exactType ? TypeReferenceAccuracy.ExactType : TypeReferenceAccuracy.BaseType, keyValue);
       return key;
     }
 

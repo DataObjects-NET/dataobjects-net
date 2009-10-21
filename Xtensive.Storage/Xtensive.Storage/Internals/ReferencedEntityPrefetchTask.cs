@@ -58,7 +58,7 @@ namespace Xtensive.Storage.Internals
           if ((foreignKeyTuple.GetFieldState(i) & TupleFieldState.Null)==TupleFieldState.Null)
             return;
         }
-        Key = Key.Create(targetType, foreignKeyTuple, TypeReferenceAccuracy.BaseType);
+        Key = Key.Create(Domain.Demand(), targetType, TypeReferenceAccuracy.BaseType, foreignKeyTuple);
         if (Processor.RegisterReferencedEntityKey(Key) || !TryActivate())
           return;
         queryFetchingColumns = CreateQueryTask(Key);

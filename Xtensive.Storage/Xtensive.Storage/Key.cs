@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
@@ -212,7 +213,7 @@ namespace Xtensive.Storage
     /// <remarks>This method requires open <see cref="Session"/>.</remarks>
     public static Key Parse(string source)
     {
-      return Parse(source, Domain.Demand());
+      return Parse(Domain.Demand(), source);
     }
 
     /// <summary>
@@ -226,7 +227,7 @@ namespace Xtensive.Storage
     /// <see cref="Key"/> instance corresponding to the specified
     /// <paramref name="source"/> string.
     /// </returns>
-    public static Key Parse(string source, Domain domain)
+    public static Key Parse(Domain domain, string source)
     {
       if (source==null)
         return null;
@@ -240,7 +241,7 @@ namespace Xtensive.Storage
       var type = domain.Model.Types[Int32.Parse(typeIdString)];
       var keyTupleDescriptor = type.KeyProviderInfo.TupleDescriptor;
 
-      return Create(type, keyTupleDescriptor.Parse(valueString));
+      return Create(domain, type, TypeReferenceAccuracy.BaseType, keyTupleDescriptor.Parse(valueString));
     }
 
     #endregion
@@ -266,7 +267,8 @@ namespace Xtensive.Storage
     /// with newly generated value.
     /// </summary>
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    /// <returns>A newly created <see cref="Key"/> instance .</returns>
+    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
     public static Key Create<T>()
       where T : Entity
     {
@@ -278,21 +280,45 @@ namespace Xtensive.Storage
     /// for the specified <see cref="Entity"/> <paramref name="type"/>
     /// with newly generated value.
     /// </summary>
-    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    /// <returns>A newly created <see cref="Key"/> instance .</returns>
+    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
     public static Key Create(Type type)
     {
-      return Create(Domain.Demand().Model.Types[type]);
+      return Create(Domain.Demand(), type);
     }
 
     /// <summary>
-    /// Creates <see cref="Key"/> instance 
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
+    /// with newly generated value.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="domain">The domain.</param>
+    /// <returns>
+    /// A newly created <see cref="Key"/> instance .
+    /// </returns>
+    public static Key Create<T>(Domain domain)
+      where T : Entity
+    {
+      return Create(domain, typeof (T));
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
     /// for the specified <see cref="Entity"/> <paramref name="type"/>
     /// with newly generated value.
     /// </summary>
-    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    public static Key Create(TypeInfo type)
+    /// <param name="domain">The domain.</param>
+    /// <param name="type">The type.</param>
+    /// <returns>
+    /// A newly created <see cref="Key"/> instance .
+    /// </returns>
+    public static Key Create(Domain domain, Type type)
     {
-      return KeyFactory.CreateNext(type);
+      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+
+      return KeyFactory.CreateNext(domain, domain.Model.Types[type]);
     }
 
     #endregion
@@ -309,16 +335,11 @@ namespace Xtensive.Storage
     /// <returns>
     /// A newly created or existing <see cref="Key"/> instance.
     /// </returns>
+    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
     public static Key Create<T>(Tuple value)
       where T : IEntity  
     {
-      return Create<T>(value, TypeReferenceAccuracy.BaseType);
-    }
-
-    internal static Key Create<T>(Tuple value, TypeReferenceAccuracy accuracy)
-      where T : IEntity
-    {
-      return Create(typeof (T), value, accuracy);
+      return Create(typeof(T), value);
     }
 
     /// <summary>
@@ -328,14 +349,26 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="value">Key value.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
     public static Key Create(Type type, Tuple value)
     {
-      return Create(type, value, TypeReferenceAccuracy.BaseType);
+      return Create(Domain.Demand(), type, value);
     }
 
-    internal static Key Create(Type type, Tuple value, TypeReferenceAccuracy accuracy)
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
+    /// and with specified <paramref name="value"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="value">Key value.</param>
+    /// <returns>
+    /// A newly created or existing <see cref="Key"/> instance.
+    /// </returns>
+    public static Key Create<T>(Domain domain, Tuple value)
+      where T : IEntity  
     {
-      return Create(Domain.Demand().Model.Types[type], value, accuracy);
+      return Create(domain, typeof(T), value);
     }
 
     /// <summary>
@@ -345,14 +378,18 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="value">Key value.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    public static Key Create(TypeInfo type, Tuple value)
+    public static Key Create(Domain domain, Type type, Tuple value)
     {
-      return Create(type, value, TypeReferenceAccuracy.BaseType);
+      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+
+      return Create(domain, domain.Model.Types[type], TypeReferenceAccuracy.BaseType, value);
     }
 
-    internal static Key Create(TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy)
+    internal static Key Create(Domain domain, TypeInfo typeInfo, TypeReferenceAccuracy accuracy, Tuple value)
     {
-      return KeyFactory.Create(type, value, null, accuracy, false);
+      return KeyFactory.Create(domain, typeInfo, value, accuracy, false, null);
     }
 
     #endregion
@@ -369,16 +406,11 @@ namespace Xtensive.Storage
     /// <returns>
     /// A newly created or existing <see cref="Key"/> instance.
     /// </returns>
+    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
     public static Key Create<T>(params object[] values)
       where T : IEntity
     {
-      return Create<T>(TypeReferenceAccuracy.BaseType, values);
-    }
-
-    internal static Key Create<T>(TypeReferenceAccuracy accuracy, params object[] values)
-      where T : IEntity
-    {
-      return Create(typeof (T), accuracy, values);
+      return Create(typeof(T), values);
     }
 
     /// <summary>
@@ -388,14 +420,26 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="values">Key values.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
     public static Key Create(Type type, params object[] values)
     {
-      return Create(type, TypeReferenceAccuracy.BaseType, values);
+      return Create(Domain.Demand(), type, values);
     }
 
-    internal static Key Create(Type type, TypeReferenceAccuracy accuracy, params object[] values)
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
+    /// and with specified <paramref name="values"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="values">Key values.</param>
+    /// <returns>
+    /// A newly created or existing <see cref="Key"/> instance.
+    /// </returns>
+    public static Key Create<T>(Domain domain, params object[] values)
+      where T : IEntity
     {
-      return Create(Domain.Demand().Model.Types[type], accuracy, values);
+      return Create(domain, typeof(T), values);
     }
 
     /// <summary>
@@ -405,14 +449,18 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="values">Key values.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    public static Key Create(TypeInfo type, params object[] values)
+    public static Key Create(Domain domain, Type type, params object[] values)
     {
-      return Create(type, TypeReferenceAccuracy.BaseType, values);
+      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+
+      return Create(domain, domain.Model.Types[type], TypeReferenceAccuracy.BaseType, values);
     }
 
-    internal static Key Create(TypeInfo type, TypeReferenceAccuracy accuracy, object[] values)
+    internal static Key Create(Domain domain, TypeInfo typeInfo, TypeReferenceAccuracy accuracy, params object[] values)
     {
-      return KeyFactory.Create(type, accuracy, values);
+      return KeyFactory.Create(domain, typeInfo, accuracy, values);
     }
 
     #endregion

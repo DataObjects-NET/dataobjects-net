@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
@@ -20,27 +19,22 @@ namespace Xtensive.Storage.Internals
   {
     private const string GenericKeyNameFormat = "{0}.{1}`{2}";
 
-    public static Key CreateNext(TypeInfo type)
+    public static Key CreateNext(Domain domain, TypeInfo typeInfo)
     {
-      if (!type.IsEntity)
+      if (!typeInfo.IsEntity)
         throw new InvalidOperationException(
-          string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, type));
-      var domain = Domain.Demand();
-      var keyGenerator = domain.KeyGenerators[type.KeyProviderInfo];
+          string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
+
+      var keyGenerator = domain.KeyGenerators[typeInfo.KeyProviderInfo];
       if (keyGenerator==null)
         throw new InvalidOperationException(
-          String.Format(Strings.ExUnableToCreateKeyForXHierarchy, type.Hierarchy));
+          String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
       var keyValue = keyGenerator.Next();
-      return Create(type, keyValue, null, TypeReferenceAccuracy.ExactType, false);
+      return Create(Domain.Demand(), typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
     }
 
-    /// <exception cref="ArgumentException">Wrong key structure for the specified <paramref name="type"/>.</exception>
-    public static Key Create(TypeInfo type, Tuple value, int[] keyIndexes, TypeReferenceAccuracy accuracy, bool canCache)
+    public static Key Create(Domain domain, TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, int[] keyIndexes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
-
-      var domain = Domain.Demand();
       var hierarchy = type.Hierarchy;
       var keyInfo = type.KeyProviderInfo;
       if (keyIndexes==null) {
@@ -67,7 +61,7 @@ namespace Xtensive.Storage.Internals
           throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, Log.Instance);
         key = new LongKey(type, accuracy, value);
       }
-      if (!canCache || domain==null)
+      if (!canCache)
         return key;
       var keyCache = domain.KeyCache;
       lock (keyCache) {
@@ -82,9 +76,8 @@ namespace Xtensive.Storage.Internals
       return key;
     }
 
-    public static Key Create(TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
+    public static Key Create(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
-      ArgumentValidator.EnsureArgumentNotNull(values, "values");
       var keyInfo = type.KeyProviderInfo;
       ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
 
@@ -121,7 +114,7 @@ namespace Xtensive.Storage.Internals
         throw new ArgumentException(String.Format(
           Strings.ExSpecifiedValuesArentEnoughToCreateKeyForTypeX, type.Name));
 
-      return Create(type, tuple, null, accuracy, false);
+      return Create(domain, type, tuple, accuracy, false, null);
     }
 
     private static Key CreateGenericKey(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy,

@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Linq
 //        .Single();
 //      KeyResolveOfT = typeof (Query<>).GetMethod("SingleOrDefault", BindingFlags.Public | BindingFlags.Instance, new[] {"T"}, new object[0]);
       KeyCreate = typeof (Key).GetMethod("Create", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null,
-        new[] {typeof (TypeInfo), typeof (Tuple)}, null);
+        new[] {typeof(Domain), typeof (TypeInfo), typeof(TypeReferenceAccuracy), typeof (Tuple)}, null);
 
       // KeyExtensions
 //      KeyTryResolve = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[0], new object[1]);

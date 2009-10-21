@@ -67,10 +67,10 @@ namespace Xtensive.Storage.Internals
       bool canCache = accuracy==TypeReferenceAccuracy.ExactType;
       Key key;
       if (typeMapping.KeyTransform.Descriptor.Count <= WellKnown.MaxGenericKeyLength)
-        key = KeyFactory.Create(typeMapping.Type, tuple, typeMapping.KeyIndexes, accuracy, canCache);
+        key = KeyFactory.Create(Domain.Demand(), typeMapping.Type, tuple, accuracy, canCache, typeMapping.KeyIndexes);
       else {
         var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = KeyFactory.Create(typeMapping.Type, keyTuple, null, accuracy, canCache);
+        key = KeyFactory.Create(Domain.Demand(), typeMapping.Type, keyTuple, accuracy, canCache, null);
       }
       if (accuracy == TypeReferenceAccuracy.ExactType) {
         var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);

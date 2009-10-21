@@ -204,7 +204,7 @@ namespace Xtensive.Storage
           // This may happen if reference is null
           accuracy = TypeReferenceAccuracy.BaseType;
       }
-      var key = Key.Create(type, keyValue, accuracy);
+      var key = Key.Create(Session.Domain, type, accuracy, keyValue);
       NotifyGetFieldValue(field, key);
       return key;
     }

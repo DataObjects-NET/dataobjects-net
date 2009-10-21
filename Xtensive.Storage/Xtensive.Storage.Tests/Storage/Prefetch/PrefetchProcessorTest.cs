@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
         var supplierType = Domain.Model.Types[typeof (Supplier)];
-        var keyWithoutType = Key.Create(customerType.Hierarchy.Root, customerKey.Value, TypeReferenceAccuracy.Hierarchy);
+        var keyWithoutType = Key.Create(Domain, customerType.Hierarchy.Root, TypeReferenceAccuracy.BaseType, customerKey.Value);
         AssertEx.Throws<ArgumentNullException>(() =>
           prefetchProcessor.Prefetch(keyWithoutType, null, new PrefetchFieldDescriptor(ageField)));
         prefetchProcessor.Prefetch(keyWithoutType, customerType, new PrefetchFieldDescriptor(cityField));
@@ -441,7 +441,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         prefetchProcessor.ExecuteTasks();
         
         prefetchProcessor.Prefetch(order1Key, order1Key.Type, new PrefetchFieldDescriptor(detailsField));
-        var bookKey = Key.Create<Book>(TypeReferenceAccuracy.ExactType, 1);
+        var bookKey = Key.Create(Domain, typeof(Book).GetTypeInfo(Domain), TypeReferenceAccuracy.ExactType, 1);
         prefetchProcessor.Prefetch(bookKey, bookKey.Type,
           new PrefetchFieldDescriptor(bookKey.Type.Fields["Authors"]));
         taskContainer = ((IEnumerable<PrefetchTaskContainer>) taskContainersField.GetValue(prefetchProcessor))
@@ -627,7 +627,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var keyWithoutType = Key.Create(productKey.TypeRef.Type, productKey.Value, TypeReferenceAccuracy.Hierarchy);
+        var keyWithoutType = Key.Create(Domain, productKey.TypeRef.Type, TypeReferenceAccuracy.BaseType, productKey.Value);
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
         prefetchProcessor.Prefetch(keyWithoutType, Domain.Model.Types[typeof (PersonalProduct)],
           new PrefetchFieldDescriptor(Domain.Model.Types[typeof (PersonalProduct)].Fields["Employee"], true));
@@ -680,7 +680,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var bookCategoryField = bookType.FieldMap[categoryField];
         prefetchProcessor.Prefetch(bookKey0, iHasCategoryType,
           new PrefetchFieldDescriptor(categoryField, false));
-        var interfaceKey = Key.Create(iHasCategoryType, bookKey1.Value, TypeReferenceAccuracy.BaseType);
+        var interfaceKey = Key.Create(Domain, iHasCategoryType, TypeReferenceAccuracy.BaseType, bookKey1.Value);
         prefetchProcessor.Prefetch(interfaceKey, iHasCategoryType,
           new PrefetchFieldDescriptor(categoryField, false));
         prefetchProcessor.ExecuteTasks();
@@ -692,7 +692,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
         AssertEx.Throws<InvalidOperationException>(
           () => prefetchProcessor.Prefetch(Key
-            .Create(iHasCategoryType, bookKey2.Value, TypeReferenceAccuracy.BaseType),
+            .Create(Domain, iHasCategoryType, TypeReferenceAccuracy.BaseType, bookKey2.Value),
           iHasCategoryType, new PrefetchFieldDescriptor(bookCategoryField, false)));
       }
     }
@@ -947,8 +947,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(customerField, true));
           prefetchProcessor.ExecuteTasks();
           var orderState = session.EntityStateCache[orderKey, true];
-          var customerKey = Key.Create<Customer>(customerField.Association.ExtractForeignKey(orderState.Tuple),
-            TypeReferenceAccuracy.ExactType);
+          var customerKey = Key.Create(Domain, typeof(Customer).GetTypeInfo(Domain),
+            TypeReferenceAccuracy.ExactType, customerField.Association.ExtractForeignKey(orderState.Tuple));
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customerKey, customerType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
       }

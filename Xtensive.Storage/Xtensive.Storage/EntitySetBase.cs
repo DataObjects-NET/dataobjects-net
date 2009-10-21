@@ -180,7 +180,7 @@ namespace Xtensive.Storage
         Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
 
       if (Field.Association.AuxiliaryType!=null && Field.Association.IsMaster) {
-        var combinedKey = Key.Create(Field.Association.AuxiliaryType, Owner.Key.Value.Combine(item.Key.Value));
+        var combinedKey = Key.Create(Session.Domain, Field.Association.AuxiliaryType, TypeReferenceAccuracy.ExactType, Owner.Key.Value.Combine(item.Key.Value));
         Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
         underlyingItem.Remove();
       }

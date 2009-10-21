@@ -306,7 +306,7 @@ namespace Xtensive.Storage.Providers
           keyTuple = target.Key.Value;
           recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
           foreach (var item in recordSet)
-            yield return new ReferenceInfo(Query.SingleOrDefault(Key.Create(association.OwnerType, association.ExtractForeignKey(item))), target, association);
+            yield return new ReferenceInfo(Query.SingleOrDefault(Key.Create(Session.Domain, association.OwnerType, TypeReferenceAccuracy.BaseType, association.ExtractForeignKey(item))), target, association);
           break;
       }
     }

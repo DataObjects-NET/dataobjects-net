@@ -513,7 +513,7 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      Key key = Key.Create(GetTypeInfo());
+      var key = Key.Create(Session.Domain, GetType());
       State = Session.CreateEntityState(key);
       NotifyInitializing();
       this.Validate();
@@ -523,7 +523,7 @@ namespace Xtensive.Storage
     internal Entity(Tuple keyTuple)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
-      Key key = Key.Create(GetTypeInfo(), keyTuple, TypeReferenceAccuracy.ExactType);
+      Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
       State = Session.CreateEntityState(key);
       NotifyInitializing();
       // TODO: Add Session.NotifyEntityCreated()?
@@ -550,7 +550,7 @@ namespace Xtensive.Storage
     protected Entity(params object[] values)
     {
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      Key key = Key.Create(GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
+      Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
       State = Session.CreateEntityState(key);
       NotifyInitializing();
       this.Validate();

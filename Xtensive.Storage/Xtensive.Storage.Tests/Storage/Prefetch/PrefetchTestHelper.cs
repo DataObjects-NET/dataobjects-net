@@ -46,8 +46,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       var tuple = session.EntityStateCache[key, true].Tuple;
       var foreignKeyValue = referencingField.Association.ExtractForeignKey(tuple);
-      var foreignKey = Key.Create(referencingField.Association.TargetType.Hierarchy.Root,
-        foreignKeyValue, TypeReferenceAccuracy.Hierarchy);
+      var foreignKey = Key.Create(session.Domain, referencingField.Association.TargetType.Hierarchy.Root, TypeReferenceAccuracy.BaseType, foreignKeyValue);
       AssertOnlySpecifiedColumnsAreLoaded(foreignKey, referencingField.Association.TargetType.Hierarchy.Root,
         session, IsFieldToBeLoadedByDefault);
     }

@@ -73,8 +73,7 @@ namespace Xtensive.Storage.Internals
         for (var i = 0; i < referencedKeyTupleState.Length; i++)
           if (referencedKeyTupleState[i])
             return;
-        var referencedKey = Key.Create(referencingField.Association.TargetType,
-          referencedKeyTuple, TypeReferenceAccuracy.BaseType);
+        var referencedKey = Key.Create(Domain.Demand(), referencingField.Association.TargetType, TypeReferenceAccuracy.BaseType, referencedKeyTuple);
         var targetType = referencingField.Association.TargetType;
         var fieldsToBeLoaded = PrefetchTask.CreateDescriptorsForFieldsLoadedByDefault(targetType);
         processor.PrefetchByKeyWithNotCachedType(referencedKey, targetType, fieldsToBeLoaded);

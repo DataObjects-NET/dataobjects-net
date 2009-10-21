@@ -49,8 +49,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         foreach (var key in prefetcher) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, fieldSelector);
           var orderState = session.EntityStateCache[key, true];
-          var employeeKey = Key.Create<Employee>(employeeField.Association.ExtractForeignKey(orderState.Tuple),
-            TypeReferenceAccuracy.ExactType);
+          var employeeKey = Key.Create(Domain, typeof(Employee).GetTypeInfo(Domain),
+            TypeReferenceAccuracy.ExactType, employeeField.Association.ExtractForeignKey(orderState.Tuple));
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session, fieldSelector);
         }
       }
