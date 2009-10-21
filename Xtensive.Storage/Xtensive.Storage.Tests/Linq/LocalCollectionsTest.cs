@@ -558,7 +558,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Grouping1Test()
     {
-      var localItems = GetLocalItems(1000);
+      var localItems = GetLocalItems(10);
       var queryable = Query.Store(localItems);
       var result = queryable.GroupBy(keySelector => keySelector.Value3.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
       var expected = localItems.GroupBy(keySelector => keySelector.Value3.Substring(0, 1), (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
@@ -575,7 +575,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Grouping2Test()
     {
-      var localItems = GetLocalItems(1000);
+      var localItems = GetLocalItems(10);
       var queryable = Query.Store(localItems);
       var result = queryable.GroupBy(keySelector => keySelector.Value3[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
       var expected = localItems.GroupBy(keySelector => keySelector.Value3[0], (key, grouping)=>new {key, Value1 = grouping.Select(p=>p.Value1)}).OrderBy(grouping=>grouping.key);
@@ -592,7 +592,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Subquery1Test()
     {
-      var localItems = GetLocalItems(100);
+      var localItems = GetLocalItems(10);
       var queryable = Query.Store(localItems);
       var result = queryable.Select(poco=> Query<Order>.All.Where(order=>order.Freight > poco.Value1)).AsEnumerable().Cast<IEnumerable<Order>>();
       var expected = localItems.Select(poco=> Query<Order>.All.AsEnumerable().Where(order=>order.Freight > poco.Value1));
@@ -610,7 +610,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Subquery2Test()
     {
-      var localItems = GetLocalItems(100);
+      var localItems = GetLocalItems(10);
       var queryable = Query.Store(localItems);
       var result = queryable.Select(poco=> queryable.Where(poco2=>poco2.Value2 > poco.Value2).Select(p=>p.Value3)).AsEnumerable().Cast<IEnumerable<string>>();
       var expected = localItems.Select(poco=> localItems.Where(poco2=>poco2.Value2 > poco.Value2).Select(p=>p.Value3));
