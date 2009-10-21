@@ -193,7 +193,7 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void DistinctTest()
     {
-      const int authorCount = 1000;
+      const int authorCount = 10;
       Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string)});
       var authorColumns = new[] {
         new MappedColumn("ID", 0, typeof (int)),
@@ -223,8 +223,8 @@ namespace Xtensive.Storage.Tests.Rse
     [Test]
     public void SubqueryTest()
     {
-      const int authorCount = 1000;
-      const int booksPerAuthor = 20;
+      const int authorCount = 10;
+      const int booksPerAuthor = 5;
       Tuple authorTuple = Tuple.Create(new[] {typeof (int), typeof (string), typeof (string)});
       Tuple bookTuple = Tuple.Create(new[] {typeof (int), typeof (int), typeof (string)});
       var authorColumns = new[] {
