@@ -4,14 +4,13 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-using System.Collections.Generic;
+using Xtensive.Storage.Disconnected.Log;
 
 namespace Xtensive.Storage.Disconnected.Interfaces
 {
-  public interface IOperationLog : IEnumerable<IOperation>
+  public interface IEntityOperation : IOperation
   {
-    void Register(IOperation operation);
-    void Append(IEnumerable<IOperation> operations);
-    void Apply();
+    Key Key { get; }
+    EntityOperationType Type { get; }
   }
 }

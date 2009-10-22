@@ -10,7 +10,6 @@ namespace Xtensive.Storage.Disconnected.Interfaces
 {
   public interface IOperation
   {
-    Key Key { get; }
     void Prepare(PrefetchContext prefetchContext);
     void Execute(IOperationExecutionContext executionContext);
   }

@@ -14,13 +14,13 @@ namespace Xtensive.Storage.Disconnected.Log
     private readonly HashSet<Key> prefetchKeys;
     private readonly HashSet<Key> excludedKeys;
 
-    public void RegisterKey(Key key)
+    public void Register(Key key)
     {
       if (!excludedKeys.Contains(key))
         prefetchKeys.Add(key);
     }
 
-    public void RegisterNewInstance(Key key)
+    public void RegisterNew(Key key)
     {
       excludedKeys.Add(key);
     }
