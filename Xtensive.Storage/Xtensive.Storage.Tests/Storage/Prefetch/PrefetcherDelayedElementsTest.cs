@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var transactionScope = Transaction.Open()) {
         for (int i = 0; i < 111; i++)
-          PrefetchProcessorTest.FillDataBase(session);
+          PrefetchTestHelper.FillDataBase(session);
         orderType = typeof (Order).GetTypeInfo();
         customerType = typeof (Customer).GetTypeInfo();
         transactionScope.Complete();

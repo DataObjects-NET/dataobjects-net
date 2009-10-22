@@ -144,12 +144,12 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           Assert.AreEqual(keys[count], orderKey);
           count++;
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
-            field => PrefetchTask.IsFieldToBeLoadedByDefault(field)
+            field => PrefetchHelper.IsFieldToBeLoadedByDefault(field)
               || field.Equals(employeeField) || (field.Parent != null && field.Parent.Equals(employeeField)));
           var state = session.EntityStateCache[orderKey, true];
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(state.Entity.GetFieldValue<Employee>(employeeField).Key,
             employeeType, session, field =>
-              PrefetchTask.IsFieldToBeLoadedByDefault(field) || field.Equals(ordersField));
+              PrefetchHelper.IsFieldToBeLoadedByDefault(field) || field.Equals(ordersField));
         }
         Assert.AreEqual(keys.Count, count);
         Assert.GreaterOrEqual(11, session.Handler.PrefetchTaskExecutionCount);

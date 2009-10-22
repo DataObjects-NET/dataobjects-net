@@ -37,13 +37,11 @@ namespace Xtensive.Storage.Internals
 
     public readonly FieldInfo ReferencingField;
 
-    public List<Tuple> Result { get { return itemsQueryTask.Result; } }
-
     public RecordSet RecordSet { get; private set; }
 
     public int? ItemCountLimit { get; private set; }
 
-    public bool IsActive { get { return itemsQueryTask!=null; } }
+    /*public bool IsActive { get { return itemsQueryTask!=null; } }*/
 
     public void RegisterQueryTask()
     {
@@ -53,6 +51,41 @@ namespace Xtensive.Storage.Internals
         return;
       itemsQueryTask = CreateQueryTask();
       processor.Owner.Session.RegisterDelayedQuery(itemsQueryTask);
+    }
+
+    public void UpdateCache()
+    {
+      if (itemsQueryTask == null)
+        return;
+      var reader = processor.Owner.Session.Domain.RecordSetReader;
+      var records = reader.Read(itemsQueryTask.Result, RecordSet.Header);
+      var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
+      List<Pair<Key, Tuple>> auxEntities = null;
+      if (ReferencingField.Association.AuxiliaryType != null)
+        auxEntities = new List<Pair<Key, Tuple>>(itemsQueryTask.Result.Count);
+      foreach (var record in records) {
+        for (int i = 0; i < record.Count; i++) {
+          var key = record.GetKey(i);
+          if (key==null)
+            continue;
+          var tuple = record.GetTuple(i);
+          if (tuple==null)
+            continue;
+          if (ReferencingField.Association.AuxiliaryType != null)
+            if (i==0)
+              auxEntities.Add(new Pair<Key, Tuple>(key, tuple));
+            else {
+              processor.SaveStrongReference(processor.Owner.RegisterEntityState(key, tuple));
+              entityKeys.Add(key);
+            }
+          else {
+            processor.SaveStrongReference(processor.Owner.RegisterEntityState(key, tuple));
+            entityKeys.Add(key);
+          }
+        }
+      }
+      processor.Owner.RegisterEntitySetState(ownerKey, ReferencingField,
+        ItemCountLimit == null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
     }
 
     public bool Equals(EntitySetPrefetchTask other)
@@ -135,7 +168,7 @@ namespace Xtensive.Storage.Internals
     {
      for (int i = 0; i < index.Columns.Count; i++) {
         var column = index.Columns[i];
-        if (PrefetchTask.IsFieldToBeLoadedByDefault(column.Field))
+        if (PrefetchHelper.IsFieldToBeLoadedByDefault(column.Field))
           indexes.Add(i + columnIndexOffset);
       }
     }
@@ -186,7 +219,8 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public EntitySetPrefetchTask(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor, PrefetchProcessor processor)
+    public EntitySetPrefetchTask(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor,
+      PrefetchProcessor processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
       ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");

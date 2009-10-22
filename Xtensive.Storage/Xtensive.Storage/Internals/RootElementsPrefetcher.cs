@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Internals
       PrefetchFieldDescriptor[] result;
       if (!userDescriptorsCache.TryGetValue(type, out result)) {
         result = type.Fields
-          .Where(field => field.Parent==null && PrefetchTask.IsFieldToBeLoadedByDefault(field)
+          .Where(field => field.Parent==null && PrefetchHelper.IsFieldToBeLoadedByDefault(field)
             && !fieldDescriptors.ContainsKey(field))
           .Select(field => new PrefetchFieldDescriptor(field, false))
           .Concat(fieldDescriptors.Values).ToArray();
@@ -111,9 +111,8 @@ namespace Xtensive.Storage.Internals
         var cachedKey = sessionHandler.Session.EntityStateCache[key, false].Key;
         var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
           .GetCachedItem(new Pair<object, TypeInfo>(descriptorArraysCachingRegion, cachedKey.Type),
-            pair => ((Pair<object, TypeInfo>) pair).Second.Fields
-              .Where(field => field.Parent==null && PrefetchTask.IsFieldToBeLoadedByDefault(field))
-              .Select(field => new PrefetchFieldDescriptor(field, false)).ToArray());
+            pair => PrefetchHelper
+              .CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second));
         var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;
         strongReferenceContainer.JoinIfPossible(sessionHandler.Prefetch(cachedKey, cachedKey.Type,
           descriptorsArray));
