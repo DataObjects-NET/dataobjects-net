@@ -18,7 +18,7 @@ using Xtensive.Storage.Providers;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 using Xtensive.Storage.Resources;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   /// <summary>
   /// Manages of prefetch of <see cref="Entity"/>'s fields.
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Internals
       new Dictionary<FieldInfo, PrefetchFieldDescriptor>();
     private readonly List<Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>>>
       prefetchManyProcessorCreators =
-      new List<Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>>>();
+        new List<Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>>>();
 
     private object blockingDelayedElement;
 

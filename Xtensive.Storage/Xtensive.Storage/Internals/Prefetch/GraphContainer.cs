@@ -11,13 +11,13 @@ using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
-  internal sealed class GraphPrefetchContainer
+  internal sealed class GraphContainer
   {
-    private Dictionary<FieldInfo, ReferencedEntityPrefetchContainer> referencedEntityPrefetchContainers;
-    private Dictionary<FieldInfo, EntitySetPrefetchTask> entitySetPrefetchTasks;
+    private Dictionary<FieldInfo, ReferencedEntityContainer> referencedEntityContainers;
+    private Dictionary<FieldInfo, EntitySetTask> entitySetTasks;
     private readonly PrefetchProcessor processor;
     private readonly bool exactType;
     private int? cachedHashCode;
@@ -27,44 +27,44 @@ namespace Xtensive.Storage.Internals
     
     public readonly TypeInfo Type;
 
-    public RootEntityPrefetchContainer RootEntityPrefetchContainer { get; private set; }
+    public RootEntityContainer RootEntityContainer { get; private set; }
 
     public bool ContainsTask {
       get {
-        return RootEntityPrefetchContainer!=null
-          || (referencedEntityPrefetchContainers!=null && referencedEntityPrefetchContainers.Count > 0)
-          || (entitySetPrefetchTasks!=null && entitySetPrefetchTasks.Count > 0);
+        return RootEntityContainer!=null
+          || (referencedEntityContainers!=null && referencedEntityContainers.Count > 0)
+            || (entitySetTasks!=null && entitySetTasks.Count > 0);
       }
     }
 
-    public IEnumerable<ReferencedEntityPrefetchContainer> ReferencedEntityPrefetchContainers
+    public IEnumerable<ReferencedEntityContainer> ReferencedEntityContainers
     {
-      get { return referencedEntityPrefetchContainers!=null ? referencedEntityPrefetchContainers.Values : null; }
+      get { return referencedEntityContainers!=null ? referencedEntityContainers.Values : null; }
     }
 
-    public IEnumerable<EntitySetPrefetchTask> EntitySetPrefetchTasks
+    public IEnumerable<EntitySetTask> EntitySetTasks
     {
-      get { return entitySetPrefetchTasks!=null ? entitySetPrefetchTasks.Values : null; }
+      get { return entitySetTasks!=null ? entitySetTasks.Values : null; }
     }
 
     public void AddEntityColumns(IEnumerable<ColumnInfo> columns)
     {
-      if (RootEntityPrefetchContainer == null)
-        RootEntityPrefetchContainer = new RootEntityPrefetchContainer(Key, Type, exactType, processor);
-      RootEntityPrefetchContainer.AddColumns(columns);
+      if (RootEntityContainer == null)
+        RootEntityContainer = new RootEntityContainer(Key, Type, exactType, processor);
+      RootEntityContainer.AddColumns(columns);
     }
 
-    public void RegisterReferencedEntityPrefetchTask(Tuple ownerEntityTuple, FieldInfo referencingField)
+    public void RegisterReferencedEntityContainer(Tuple ownerEntityTuple, FieldInfo referencingField)
     {
-      if (referencedEntityPrefetchContainers != null
-        && referencedEntityPrefetchContainers.ContainsKey(referencingField))
+      if (referencedEntityContainers != null
+        && referencedEntityContainers.ContainsKey(referencingField))
         return;
       var notLoadedForeignKeyColumns = GetNotLoadedFieldColumns(ownerEntityTuple, referencingField);
       var areAllForeignKeyColumnsLoaded = notLoadedForeignKeyColumns.Count()==0;
       if (!areAllForeignKeyColumnsLoaded) {
-        if (referencedEntityPrefetchContainers == null)
-          referencedEntityPrefetchContainers = new Dictionary<FieldInfo, ReferencedEntityPrefetchContainer>();
-        referencedEntityPrefetchContainers.Add(referencingField, new ReferencedEntityPrefetchContainer(Key,
+        if (referencedEntityContainers == null)
+          referencedEntityContainers = new Dictionary<FieldInfo, ReferencedEntityContainer>();
+        referencedEntityContainers.Add(referencingField, new ReferencedEntityContainer(Key,
           referencingField, exactType, processor));
         AddEntityColumns(notLoadedForeignKeyColumns);
       }
@@ -82,18 +82,18 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    public void RegisterEntitySetPrefetchTask(PrefetchFieldDescriptor referencingFieldDescriptor)
+    public void RegisterEntitySetTask(PrefetchFieldDescriptor referencingFieldDescriptor)
     {
-      if (entitySetPrefetchTasks==null)
-        entitySetPrefetchTasks = new Dictionary<FieldInfo, EntitySetPrefetchTask>();
-      if (RootEntityPrefetchContainer==null)
+      if (entitySetTasks==null)
+        entitySetTasks = new Dictionary<FieldInfo, EntitySetTask>();
+      if (RootEntityContainer==null)
         AddEntityColumns(Key.TypeRef.Type.Fields
           .Where(field => field.IsPrimaryKey || field.IsSystem).SelectMany(field => field.Columns));
-      entitySetPrefetchTasks[referencingFieldDescriptor.Field] =
-        new EntitySetPrefetchTask(Key, referencingFieldDescriptor, processor);
+      entitySetTasks[referencingFieldDescriptor.Field] =
+        new EntitySetTask(Key, referencingFieldDescriptor, processor);
     }
 
-    public bool Equals(GraphPrefetchContainer other)
+    public bool Equals(GraphContainer other)
     {
       if (ReferenceEquals(null, other))
         return false;
@@ -111,9 +111,9 @@ namespace Xtensive.Storage.Internals
       if (ReferenceEquals(this, obj))
         return true;
       var otherType = obj.GetType();
-      if (otherType != (typeof (GraphPrefetchContainer)))
+      if (otherType != (typeof (GraphContainer)))
         return false;
-      return Equals((GraphPrefetchContainer) obj);
+      return Equals((GraphContainer) obj);
     }
 
     public override int GetHashCode()
@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public GraphPrefetchContainer(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)
+    public GraphContainer(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");

@@ -10,22 +10,22 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
   internal sealed class Fetcher
   {
-    private readonly Dictionary<TypeInfo, SetSlim<EntityGroupPrefetchTask>> tasks =
-      new Dictionary<TypeInfo, SetSlim<EntityGroupPrefetchTask>>();
+    private readonly Dictionary<TypeInfo, SetSlim<EntityGroupTask>> tasks =
+      new Dictionary<TypeInfo, SetSlim<EntityGroupTask>>();
 
     private readonly PrefetchProcessor processor;
 
-    public void ExecuteTasks(SetSlim<GraphPrefetchContainer> containers)
+    public void ExecuteTasks(SetSlim<GraphContainer> containers)
     {
       try {
         foreach (var container in containers)
-          if (container.RootEntityPrefetchContainer!=null)
-            AddTask(container.RootEntityPrefetchContainer);
+          if (container.RootEntityContainer!=null)
+            AddTask(container.RootEntityContainer);
         RegisterAllEntityGroupTasks();
         RegisterAllEntitySetTasks(containers);
 
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Internals
         tasks.Clear();
         
         foreach (var container in containers) {
-          var referencedEntityPrefetchContainers = container.ReferencedEntityPrefetchContainers;
+          var referencedEntityPrefetchContainers = container.ReferencedEntityContainers;
           if (referencedEntityPrefetchContainers!=null)
             foreach (var referencedEntityPrefetchContainer in referencedEntityPrefetchContainers)
               AddTask(referencedEntityPrefetchContainer);
@@ -51,10 +51,10 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    private static void UpdateCacheFromAllEntitySetTasks(IEnumerable<GraphPrefetchContainer> containers)
+    private static void UpdateCacheFromAllEntitySetTasks(IEnumerable<GraphContainer> containers)
     {
       foreach (var container in containers) {
-        var entitySetPrefetchTasks = container.EntitySetPrefetchTasks;
+        var entitySetPrefetchTasks = container.EntitySetTasks;
         if (entitySetPrefetchTasks!=null) {
           foreach (var entitySetPrefetchTask in entitySetPrefetchTasks)
             entitySetPrefetchTask.UpdateCache();
@@ -62,10 +62,10 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    private static void RegisterAllEntitySetTasks(IEnumerable<GraphPrefetchContainer> containers)
+    private static void RegisterAllEntitySetTasks(IEnumerable<GraphContainer> containers)
     {
       foreach (var container in containers) {
-        var entitySetPrefetchTasks = container.EntitySetPrefetchTasks;
+        var entitySetPrefetchTasks = container.EntitySetTasks;
         if (entitySetPrefetchTasks!=null) {
           foreach (var entitySetPrefetchTask in entitySetPrefetchTasks)
             entitySetPrefetchTask.RegisterQueryTask();
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    private void AddTask(EntityPrefetchContainer container)
+    private void AddTask(EntityContainer container)
     {
       var newTask = container.GetTask();
       if (newTask!=null) {
@@ -102,11 +102,11 @@ namespace Xtensive.Storage.Internals
       }
     }
 
-    private SetSlim<EntityGroupPrefetchTask> GetTasksForType(TypeInfo type)
+    private SetSlim<EntityGroupTask> GetTasksForType(TypeInfo type)
     {
-      SetSlim<EntityGroupPrefetchTask> tasksForType;
+      SetSlim<EntityGroupTask> tasksForType;
       if (!tasks.TryGetValue(type, out tasksForType)) {
-        tasksForType = new SetSlim<EntityGroupPrefetchTask>();
+        tasksForType = new SetSlim<EntityGroupTask>();
         tasks.Add(type, tasksForType);
       }
       return tasksForType;

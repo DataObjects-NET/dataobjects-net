@@ -7,7 +7,7 @@
 using System.Linq;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   internal static class PrefetchHelper
   {

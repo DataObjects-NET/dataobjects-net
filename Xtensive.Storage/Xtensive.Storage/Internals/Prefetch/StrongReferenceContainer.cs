@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   /// <summary>
   /// Saves a strong reference to an object.

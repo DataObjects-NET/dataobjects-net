@@ -12,10 +12,10 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
-  internal abstract class EntityPrefetchContainer
+  internal abstract class EntityContainer
   {
     private static readonly object indexSeekCachingRegion = new object();
     private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
@@ -30,11 +30,11 @@ namespace Xtensive.Storage.Internals
 
     public TypeInfo Type { get; protected set; }
 
-    public EntityGroupPrefetchTask Task { get; protected set; }
+    public EntityGroupTask Task { get; protected set; }
 
     protected List<int> ColumnIndexesToBeLoaded { get; set; }
 
-    public abstract EntityGroupPrefetchTask GetTask();
+    public abstract EntityGroupTask GetTask();
 
     public void AddColumns(IEnumerable<ColumnInfo> candidateColumns)
     {
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    protected EntityPrefetchContainer(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)
+    protected EntityContainer(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(processor, "processor");

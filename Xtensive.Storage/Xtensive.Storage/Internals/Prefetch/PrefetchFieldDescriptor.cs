@@ -9,7 +9,7 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   /// <summary>
   /// Descriptor of a field's fetching request.

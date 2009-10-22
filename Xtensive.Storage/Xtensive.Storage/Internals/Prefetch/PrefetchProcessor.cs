@@ -14,13 +14,13 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   internal sealed class PrefetchProcessor
   {
     private const int MaxContainerCount = 100;
 
-    private readonly SetSlim<GraphPrefetchContainer> taskContainers = new SetSlim<GraphPrefetchContainer>();
+    private readonly SetSlim<GraphContainer> graphContainers = new SetSlim<GraphContainer>();
     private StrongReferenceContainer referenceContainer;
     private readonly Fetcher fetcher;
     
@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Internals
         return null;
 
       StrongReferenceContainer prevContainer = null;
-      if (taskContainers.Count >= MaxContainerCount)
+      if (graphContainers.Count >= MaxContainerCount)
         prevContainer = ExecuteTasks();
 
       EnsureKeyTypeCorrespondsToSpecifiedType(key, type);
@@ -71,12 +71,12 @@ namespace Xtensive.Storage.Internals
 
     public StrongReferenceContainer ExecuteTasks()
     {
-      if (taskContainers.Count == 0) {
+      if (graphContainers.Count == 0) {
         referenceContainer = null;
         return null;
       }
       try {
-        fetcher.ExecuteTasks(taskContainers);
+        fetcher.ExecuteTasks(graphContainers);
         return referenceContainer;
       }
       finally {
@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Internals
     public void Clear()
     {
       referenceContainer = null;
-      taskContainers.Clear();
+      graphContainers.Clear();
     }
 
     public void ChangeOwner(SessionHandler newOwner)
@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Internals
           throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
       if (type.GetInterfaces(true).Contains(key.TypeRef.Type)
         || key.TypeRef.Type.GetInterfaces(true).Contains(type))
-          return;
+        return;
       throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
     }
 
@@ -179,20 +179,20 @@ namespace Xtensive.Storage.Internals
       var taskContainer = GetTaskContainer(key, type, exactType);
       foreach (var descriptor in descriptors) {
         if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary)
-          taskContainer.RegisterReferencedEntityPrefetchTask(ownerEntityTuple, descriptor.Field);
+          taskContainer.RegisterReferencedEntityContainer(ownerEntityTuple, descriptor.Field);
         else if (descriptor.Field.IsEntitySet)
-          taskContainer.RegisterEntitySetPrefetchTask(descriptor);
+          taskContainer.RegisterEntitySetTask(descriptor);
         else
           taskContainer.AddEntityColumns(descriptor.Field.Columns);
       }
     }
 
-    private GraphPrefetchContainer GetTaskContainer(Key key, TypeInfo type, bool exactType)
+    private GraphContainer GetTaskContainer(Key key, TypeInfo type, bool exactType)
     {
-      var newTaskContainer = new GraphPrefetchContainer(key, type, exactType, this);
-      var registeredTaskContainer = taskContainers[newTaskContainer];
+      var newTaskContainer = new GraphContainer(key, type, exactType, this);
+      var registeredTaskContainer = graphContainers[newTaskContainer];
       if (registeredTaskContainer == null) {
-        taskContainers.Add(newTaskContainer);
+        graphContainers.Add(newTaskContainer);
         return newTaskContainer;
       }
       return registeredTaskContainer;

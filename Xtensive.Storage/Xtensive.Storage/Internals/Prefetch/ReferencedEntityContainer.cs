@@ -13,18 +13,19 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
-  internal sealed class ReferencedEntityPrefetchContainer : EntityPrefetchContainer
+  internal sealed class ReferencedEntityContainer : EntityContainer
   {
+    private static readonly object defaultFieldsCachingRegion = new object();
     private readonly MapTransform referencedEntityKeyTransform;
     private readonly Key ownerKey;
     private readonly bool isOwnerTypeKnown;
 
     public readonly FieldInfo ReferencingField;
 
-    public override EntityGroupPrefetchTask GetTask()
+    public override EntityGroupTask GetTask()
     {
       if (Key!=null && Task==null)
         return null;
@@ -57,14 +58,14 @@ namespace Xtensive.Storage.Internals
       Key = Key.Create(Processor.Owner.Session.Domain, Type, TypeReferenceAccuracy.BaseType, foreignKeyTuple);
       if (!SelectColumnsToBeLoaded())
         return null;
-      Task = new EntityGroupPrefetchTask(Type, ColumnIndexesToBeLoaded.ToArray(), Processor);
+      Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Processor);
       return Task;
     }
 
 
     // Constructors
 
-    public ReferencedEntityPrefetchContainer(Key ownerKey, FieldInfo referencingField, bool isOwnerTypeKnown,
+    public ReferencedEntityContainer(Key ownerKey, FieldInfo referencingField, bool isOwnerTypeKnown,
       PrefetchProcessor processor)
       : base(null, referencingField.Association.TargetType, true, processor)
     {
@@ -73,8 +74,10 @@ namespace Xtensive.Storage.Internals
       this.ownerKey = ownerKey;
       ReferencingField = referencingField;
       this.isOwnerTypeKnown = isOwnerTypeKnown;
-      var fieldsToBeLoaded = Type.Fields.Where(field => field.Parent == null
-        && PrefetchHelper.IsFieldToBeLoadedByDefault(field));
+      var fieldsToBeLoaded = (IEnumerable<FieldInfo>) Processor.Owner.Session.Domain
+        .GetCachedItem(new Pair<object, TypeInfo>(defaultFieldsCachingRegion, Type),
+        pair => ((Pair<object, TypeInfo>) pair).Second.Fields
+          .Where(field => field.Parent == null && PrefetchHelper.IsFieldToBeLoadedByDefault(field)));
       foreach (var field in fieldsToBeLoaded)
         AddColumns(field.Columns);
     }

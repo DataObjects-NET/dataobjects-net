@@ -19,6 +19,7 @@ using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Rse;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;

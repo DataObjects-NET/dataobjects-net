@@ -16,6 +16,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers;

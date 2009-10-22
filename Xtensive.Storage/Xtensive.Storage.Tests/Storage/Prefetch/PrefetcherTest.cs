@@ -11,6 +11,7 @@ using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;

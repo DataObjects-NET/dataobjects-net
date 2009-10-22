@@ -20,6 +20,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;

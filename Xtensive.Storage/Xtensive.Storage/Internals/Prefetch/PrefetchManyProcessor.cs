@@ -7,11 +7,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Storage.Providers;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
   internal sealed class PrefetchManyProcessor<TElement, TSelectorResult> : IEnumerable<TElement>

@@ -12,13 +12,12 @@ using Xtensive.Core;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
-  internal sealed class RootElementsPrefetcher<T> : IEnumerable<T>
+  internal sealed class RootElementsPrefetcher<T> : RootElementsPrefetcher,
+    IEnumerable<T>
   {
-    private static readonly object descriptorArraysCachingRegion = new object();
-
     private readonly Func<T, Key> keyExtractor;
     private readonly IEnumerable<T> source;
     private readonly TypeInfo modelType;
@@ -110,7 +109,7 @@ namespace Xtensive.Storage.Internals
         var key = keyExtractor.Invoke(elementToBeFetched);
         var cachedKey = sessionHandler.Session.EntityStateCache[key, false].Key;
         var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
-          .GetCachedItem(new Pair<object, TypeInfo>(descriptorArraysCachingRegion, cachedKey.Type),
+          .GetCachedItem(new Pair<object, TypeInfo>(DescriptorArraysCachingRegion, cachedKey.Type),
             pair => PrefetchHelper
               .CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second));
         var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;

@@ -13,10 +13,10 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
-  internal sealed class EntityGroupPrefetchTask
+  internal sealed class EntityGroupTask
   {
     private static readonly object indexSeekCachingRegion = new object();
     private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Internals
       return queryTasks;
     }
 
-    public bool Equals(EntityGroupPrefetchTask other)
+    public bool Equals(EntityGroupTask other)
     {
       if (ReferenceEquals(null, other))
         return false;
@@ -88,9 +88,9 @@ namespace Xtensive.Storage.Internals
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      if (obj.GetType()!=typeof (EntityGroupPrefetchTask))
+      if (obj.GetType()!=typeof (EntityGroupTask))
         return false;
-      return Equals((EntityGroupPrefetchTask) obj);
+      return Equals((EntityGroupTask) obj);
     }
 
     public override int GetHashCode()
@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Internals
       using (parameterContext.Activate()) {
         seekParameter.Value = entityKey.Value;
         RecordSet = (RecordSet) processor.Owner.Session.Domain.GetCachedItem(
-          new Pair<object, EntityGroupPrefetchTask>(indexSeekCachingRegion, this), CreateIndexSeekRecordSet);
+          new Pair<object, EntityGroupTask>(indexSeekCachingRegion, this), CreateIndexSeekRecordSet);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);
         return new QueryTask(executableProvider, parameterContext);
       }
@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Internals
 
     private static RecordSet CreateIndexSeekRecordSet(object cachingKey)
     {
-      var pair = (Pair<object, EntityGroupPrefetchTask>) cachingKey;
+      var pair = (Pair<object, EntityGroupTask>) cachingKey;
       var selectedColumnIndexes = pair.Second.columnIndexes;
       return pair.Second.type.Indexes.PrimaryIndex.ToRecordSet().Seek(() => seekParameter.Value)
         .Select(selectedColumnIndexes);
@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public EntityGroupPrefetchTask(TypeInfo type, int[] columnIndexes, PrefetchProcessor processor)
+    public EntityGroupTask(TypeInfo type, int[] columnIndexes, PrefetchProcessor processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");

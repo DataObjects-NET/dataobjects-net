@@ -8,17 +8,17 @@ using System;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
-  internal sealed class RootEntityPrefetchContainer : EntityPrefetchContainer
+  internal sealed class RootEntityContainer : EntityContainer
   {
-    public override EntityGroupPrefetchTask GetTask()
+    public override EntityGroupTask GetTask()
     {
       if (Task == null) {
         if (!SelectColumnsToBeLoaded())
           return null;
-        Task = new EntityGroupPrefetchTask(Type, ColumnIndexesToBeLoaded.ToArray(), Processor);
+        Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Processor);
       }
       return Task;
     }
@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public RootEntityPrefetchContainer(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)
+    public RootEntityContainer(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)
       : base(key, type, exactType, processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");

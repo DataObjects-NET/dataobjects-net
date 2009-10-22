@@ -13,6 +13,7 @@ using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
@@ -36,7 +37,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     private FieldInfo orderIdField;
     private FieldInfo detailsField;
     private FieldInfo booksField;
-    private System.Reflection.FieldInfo taskContainersField;
+    private System.Reflection.FieldInfo graphContainersField;
     private System.Reflection.FieldInfo prefetchProcessorField;
     private System.Reflection.FieldInfo compilationContextCacheField;
 
@@ -64,7 +65,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       employeeField = orderType.Fields["Employee"];
       detailsField = orderType.Fields["Details"];
       booksField = Domain.Model.Types[typeof (Author)].Fields["Books"];
-      taskContainersField = typeof (PrefetchProcessor).GetField("taskContainers",
+      graphContainersField = typeof (PrefetchProcessor).GetField("graphContainers",
         BindingFlags.NonPublic | BindingFlags.Instance);
       prefetchProcessorField = typeof (SessionHandler).GetField("prefetchProcessor",
         BindingFlags.NonPublic | BindingFlags.Instance);
@@ -166,8 +167,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         prefetchProcessor.Prefetch(orderKey, orderType, new PrefetchFieldDescriptor(customerField, true));
         var taskContainer = GetSingleTaskContainer(prefetchProcessor);
         prefetchProcessor.ExecuteTasks();
-        var referncedEntityTask = taskContainer.ReferencedEntityPrefetchContainers.Single();
-        Assert.IsNotNull(taskContainer.RootEntityPrefetchContainer.Task);
+        var referncedEntityTask = taskContainer.ReferencedEntityContainers.Single();
+        Assert.IsNotNull(taskContainer.RootEntityContainer.Task);
         Assert.IsNull(referncedEntityTask.Task);
         var state = session.EntityStateCache[orderKey, true];
         Assert.IsNotNull(state);
@@ -415,8 +416,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         prefetchProcessor.Prefetch(customerKey, customerKey.Type, new PrefetchFieldDescriptor(personIdField),
           new PrefetchFieldDescriptor(cityField));
         var taskContainer = GetSingleTaskContainer(prefetchProcessor);
-        taskContainer.RootEntityPrefetchContainer.GetTask();
-        Assert.IsNull(taskContainer.RootEntityPrefetchContainer.Task);
+        taskContainer.RootEntityContainer.GetTask();
+        Assert.IsNull(taskContainer.RootEntityContainer.Task);
       }
     }
 
@@ -451,11 +452,11 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
         prefetchProcessor.Prefetch(order0Key, order0Key.Type, new PrefetchFieldDescriptor(employeeField, true));
         prefetchProcessor.Prefetch(order1Key, order1Key.Type, new PrefetchFieldDescriptor(employeeField, true));
-        var taskContainers = (SetSlim<GraphPrefetchContainer>) taskContainersField.GetValue(prefetchProcessor);
+        var taskContainers = (SetSlim<GraphContainer>) graphContainersField.GetValue(prefetchProcessor);
         Assert.AreEqual(2, taskContainers.Count);
-        Func<Key, ReferencedEntityPrefetchContainer> taskSelector = containerKey => taskContainers
+        Func<Key, ReferencedEntityContainer> taskSelector = containerKey => taskContainers
           .Where(container => container.Key==containerKey)
-          .SelectMany(container => container.ReferencedEntityPrefetchContainers).Single();
+          .SelectMany(container => container.ReferencedEntityContainers).Single();
         var task0 = taskSelector.Invoke(order0Key);
         var task1 = taskSelector.Invoke(order1Key);
         prefetchProcessor.ExecuteTasks();
@@ -484,17 +485,17 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
 
         prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(employeeField, true));
-        var taskContainers = (SetSlim<GraphPrefetchContainer>) taskContainersField.GetValue(prefetchProcessor);
+        var taskContainers = (SetSlim<GraphContainer>) graphContainersField.GetValue(prefetchProcessor);
         Assert.AreEqual(2, taskContainers.Count);
         foreach (var container in taskContainers)
-          Assert.IsNull(container.ReferencedEntityPrefetchContainers);
+          Assert.IsNull(container.ReferencedEntityContainers);
         var orderTask = taskContainers.Where(container => container.Key==orderKey).SingleOrDefault();
         var employeeTask = taskContainers.Where(container => container.Key!=orderKey).SingleOrDefault();
         Assert.IsNotNull(orderTask);
         Assert.IsNotNull(employeeTask);
         prefetchProcessor.ExecuteTasks();
-        Assert.IsNull(orderTask.RootEntityPrefetchContainer);
-        Assert.IsNotNull(employeeTask.RootEntityPrefetchContainer.Task);
+        Assert.IsNull(orderTask.RootEntityContainer);
+        Assert.IsNotNull(employeeTask.RootEntityContainer.Task);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType,
           session, field => IsFieldKeyOrSystem(field) || field == employeeField
             || field.Parent == employeeField);
@@ -520,8 +521,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
         prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(employeeField, true));
         var taskContainer = GetSingleTaskContainer(prefetchProcessor);
-        Assert.AreEqual(1, taskContainer.ReferencedEntityPrefetchContainers.Count());
-        var task = taskContainer.ReferencedEntityPrefetchContainers.Single();
+        Assert.AreEqual(1, taskContainer.ReferencedEntityContainers.Count());
+        var task = taskContainer.ReferencedEntityContainers.Single();
         prefetchProcessor.ExecuteTasks();
         Assert.IsNull(task.Task);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderKey.Type, session,
@@ -535,7 +536,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchProcessor = (PrefetchProcessor) prefetchProcessorField.GetValue(session.Handler);
         session.Handler.FetchInstance(orderKey);
         prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(employeeField, true));
-        var taskContainers = (SetSlim<GraphPrefetchContainer>) taskContainersField.GetValue(prefetchProcessor);
+        var taskContainers = (SetSlim<GraphContainer>) graphContainersField.GetValue(prefetchProcessor);
         Assert.AreEqual(1, taskContainers.Count);
         Assert.AreEqual(orderKey, taskContainers.Single().Key);
       }
@@ -558,7 +559,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchProcessor = (PrefetchProcessor) prefetchProcessorField.GetValue(session.Handler);
         session.Handler.FetchInstance(orderKey);
         prefetchProcessor.Prefetch(orderKey, orderKey.Type, new PrefetchFieldDescriptor(detailsField, null));
-        var taskContainers = (SetSlim<GraphPrefetchContainer>) taskContainersField.GetValue(prefetchProcessor);
+        var taskContainers = (SetSlim<GraphContainer>) graphContainersField.GetValue(prefetchProcessor);
         Assert.AreEqual(1, taskContainers.Count);
         prefetchProcessor.ExecuteTasks();
         EntitySetState actualState;
@@ -579,9 +580,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchProcessor = new PrefetchProcessor(Session.Demand().Handler);
         prefetchProcessor.Prefetch(keyWithoutType, Domain.Model.Types[typeof (PersonalProduct)],
           new PrefetchFieldDescriptor(Domain.Model.Types[typeof (PersonalProduct)].Fields["Employee"], true));
-        var taskContainers = (SetSlim<GraphPrefetchContainer>) taskContainersField.GetValue(prefetchProcessor);
-        var task = taskContainers.Where(container => container.ReferencedEntityPrefetchContainers!=null)
-          .Single().ReferencedEntityPrefetchContainers.Single();
+        var taskContainers = (SetSlim<GraphContainer>) graphContainersField.GetValue(prefetchProcessor);
+        var task = taskContainers.Where(container => container.ReferencedEntityContainers!=null)
+          .Single().ReferencedEntityContainers.Single();
         prefetchProcessor.ExecuteTasks();
         Assert.IsNull(task.Task);
       }
@@ -837,12 +838,12 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain)) {
         var prefetchProcessor = (PrefetchProcessor) prefetchProcessorField.GetValue(session.Handler);
-        SetSlim<GraphPrefetchContainer> taskContainers;
+        SetSlim<GraphContainer> taskContainers;
         using (var tx = Transaction.Open()) {
           prefetchProcessor.Prefetch(orderKey, orderKey.Type,
             new PrefetchFieldDescriptor(customerField));
           tx.Complete();
-          taskContainers = (SetSlim<GraphPrefetchContainer>) taskContainersField.GetValue(prefetchProcessor);
+          taskContainers = (SetSlim<GraphContainer>) graphContainersField.GetValue(prefetchProcessor);
           Assert.AreEqual(1, taskContainers.Count);
         }
         Assert.AreEqual(0, taskContainers.Count);
@@ -870,7 +871,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(session.Handler);
-        var taskContainers = (SetSlim<GraphPrefetchContainer>) taskContainersField.GetValue(prefetchProcessor);
+        var taskContainers = (SetSlim<GraphContainer>) graphContainersField.GetValue(prefetchProcessor);
         var idField = bookType.Fields["Id"];
         for (var i = 1; i < keys.Count; i++) {
           prefetchProcessor.Prefetch(keys[i - 1], bookType, new PrefetchFieldDescriptor(idField));
@@ -988,9 +989,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
     }
 
-    private GraphPrefetchContainer GetSingleTaskContainer(PrefetchProcessor prefetchProcessor)
+    private GraphContainer GetSingleTaskContainer(PrefetchProcessor prefetchProcessor)
     {
-      return ((IEnumerable<GraphPrefetchContainer>) taskContainersField.GetValue(prefetchProcessor)).Single();
+      return ((IEnumerable<GraphContainer>) graphContainersField.GetValue(prefetchProcessor)).Single();
     }
 
     private void PrefetchIntrinsicFields(PrefetchProcessor prefetchProcessor, Key customerKey, Type type)

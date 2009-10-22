@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse.Providers;

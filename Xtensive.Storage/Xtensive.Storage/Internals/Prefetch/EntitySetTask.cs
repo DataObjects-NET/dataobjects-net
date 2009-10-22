@@ -17,10 +17,10 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
-  internal sealed class EntitySetPrefetchTask
+  internal sealed class EntitySetTask
   {
     private static readonly object itemsQueryCachingRegion = new object();
     private static readonly Parameter<Tuple> ownerParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Internals
         ItemCountLimit == null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
     }
 
-    public bool Equals(EntitySetPrefetchTask other)
+    public bool Equals(EntitySetTask other)
     {
       if (ReferenceEquals(null, other))
         return false;
@@ -108,9 +108,9 @@ namespace Xtensive.Storage.Internals
       if (ReferenceEquals(this, obj))
         return true;
       var otherType = obj.GetType();
-      if (otherType != (typeof (EntitySetPrefetchTask)))
+      if (otherType != (typeof (EntitySetTask)))
         return false;
-      return Equals((EntitySetPrefetchTask) obj);
+      return Equals((EntitySetTask) obj);
     }
 
     public override int GetHashCode()
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Internals
         if (ItemCountLimit != null)
           itemCountLimitParameter.Value = ItemCountLimit.Value;
         RecordSet = (RecordSet) processor.Owner.Session.Domain.GetCachedItem(
-          new Pair<object, EntitySetPrefetchTask>(itemsQueryCachingRegion, this), CreateRecordSetLoadingItems);
+          new Pair<object, EntitySetTask>(itemsQueryCachingRegion, this), CreateRecordSetLoadingItems);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);
         return new QueryTask(executableProvider, parameterContext);
       }
@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Internals
 
     private static RecordSet CreateRecordSetLoadingItems(object cachingKey)
     {
-      var pair = (Pair<object, EntitySetPrefetchTask>) cachingKey;
+      var pair = (Pair<object, EntitySetTask>) cachingKey;
       var associationIndex = pair.Second.ReferencingField.Association.UnderlyingIndex;
       var primaryTargetIndex = pair.Second.ReferencingField.Association.TargetType.Indexes.PrimaryIndex;
       var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex,
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Internals
     private static void AddResultColumnIndexes(ICollection<int> indexes, IndexInfo index,
       int columnIndexOffset)
     {
-     for (int i = 0; i < index.Columns.Count; i++) {
+      for (int i = 0; i < index.Columns.Count; i++) {
         var column = index.Columns[i];
         if (PrefetchHelper.IsFieldToBeLoadedByDefault(column.Field))
           indexes.Add(i + columnIndexOffset);
@@ -219,7 +219,7 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public EntitySetPrefetchTask(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor,
+    public EntitySetTask(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor,
       PrefetchProcessor processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
