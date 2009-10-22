@@ -49,9 +49,9 @@ namespace Xtensive.Storage.Tests.Storage
     private EntityEventArgs entityRemoved;
 
     private FieldEventArgs entityFieldGettingArgs;
-    private FieldValueEventArgs entityFieldGetArgs;
+    private FieldValueEventArgs entityFieldArgs;
     private FieldValueEventArgs entityFieldSettingArgs;
-    private ChangeFieldValueEventArgs entityFieldSetArgs;
+    private FieldValueSetEventArgs entityFieldSetArgs;
 
     private class TestException : Exception { } 
     
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Tests.Storage
       entityRemoved = null;
 
       entityFieldGettingArgs = null;
-      entityFieldGetArgs = null;
+      entityFieldArgs = null;
       entityFieldSettingArgs = null;
       entityFieldSetArgs = null;
     }
@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Tests.Storage
         session.EntityRemoved += (sender, e) => entityRemoved = e;
 
         session.EntityFieldValueGetting += (sender, e) => entityFieldGettingArgs = e;
-        session.EntityFieldValueGet += (sender, e) => entityFieldGetArgs = e;
+        session.EntityFieldValueGet += (sender, e) => entityFieldArgs = e;
         session.EntityFieldValueSetting += (sender, e) => entityFieldSettingArgs = e;
         session.EntityFieldValueSet += (sender, e) => entityFieldSetArgs = e;
 
@@ -207,9 +207,9 @@ namespace Xtensive.Storage.Tests.Storage
 
         Assert.IsNotNull(entityFieldGettingArgs);
         Assert.AreEqual(entity, entityFieldGettingArgs.Entity);
-        Assert.IsNotNull(entityFieldGetArgs);
-        Assert.AreEqual(entity, entityFieldGetArgs.Entity);
-        Assert.AreEqual(2, entityFieldGetArgs.Value);
+        Assert.IsNotNull(entityFieldArgs);
+        Assert.AreEqual(entity, entityFieldArgs.Entity);
+        Assert.AreEqual(2, entityFieldArgs.Value);
 
         ClearEvents();
 

@@ -11,7 +11,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Field-related event arguments containing old and new field values.
   /// </summary>
-  public class ChangeFieldValueEventArgs : FieldEventArgs
+  public class FieldValueSetEventArgs : FieldEventArgs
   {
     /// <summary>
     /// Gets the old value.
@@ -27,7 +27,14 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    public ChangeFieldValueEventArgs(Entity entity, FieldInfo field, object oldValue, object newValue)
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="entity">The entity.</param>
+    /// <param name="field">The field.</param>
+    /// <param name="oldValue">The <see cref="OldValue"/> initial value.</param>
+    /// <param name="newValue">The <see cref="NewValue"/> initial value.</param>
+    public FieldValueSetEventArgs(Entity entity, FieldInfo field, object oldValue, object newValue)
       : base(entity, field)
     {
       OldValue = oldValue;

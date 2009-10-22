@@ -21,6 +21,12 @@ namespace Xtensive.Storage
 
     // Constructors
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="entity">The entity.</param>
+    /// <param name="field">The field.</param>
+    /// <param name="value">The <see cref="Value"/> property initial value.</param>
     public FieldValueEventArgs(Entity entity, FieldInfo field, object value)
       : base(entity, field)
     {

@@ -21,6 +21,12 @@ namespace Xtensive.Storage
 
     // Constructors
 
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    /// <param name="entity">The entity.</param>
+    /// <param name="field">The field.</param>
     public FieldEventArgs(Entity entity, FieldInfo field)
       : base(entity)
     {

@@ -37,9 +37,14 @@ namespace Xtensive.Storage
     public event EventHandler<FieldEventArgs> EntityFieldValueGetting;
 
     /// <summary>
-    /// Occurs when field value is about to be read.
+    /// Occurs when field value was read successfully.
     /// </summary>
     public event EventHandler<FieldValueEventArgs> EntityFieldValueGet;
+
+    /// <summary>
+    /// Occurs when field value reading is completed.
+    /// </summary>
+    public event EventHandler<FieldValueGetCompletedEventArgs> EntityFieldValueGetCompleted;
 
     /// <summary>
     /// Occurs when is field value is about to be changed.
@@ -47,9 +52,14 @@ namespace Xtensive.Storage
     public event EventHandler<FieldValueEventArgs> EntityFieldValueSetting;
 
     /// <summary>
-    /// Occurs when field value was changed.
+    /// Occurs when field value was changed successfully.
     /// </summary>
-    public event EventHandler<ChangeFieldValueEventArgs> EntityFieldValueSet;
+    public event EventHandler<FieldValueSetEventArgs> EntityFieldValueSet;
+
+    /// <summary>
+    /// Occurs when field value changing is completed.
+    /// </summary>
+    public event EventHandler<FieldValueSetCompletedEventArgs> EntityFieldValueSetCompleted;
 
     /// <summary>
     /// Occurs when <see cref="Entity"/> is about to remove.
@@ -60,6 +70,11 @@ namespace Xtensive.Storage
     /// Occurs when <see cref="Entity"/> removed.
     /// </summary>
     public event EventHandler<EntityEventArgs> EntityRemoved;
+
+    /// <summary>
+    /// Occurs when <see cref="Entity"/> removing is completed.
+    /// </summary>
+    public event EventHandler<EntityRemoveCompletedEventArgs> EntityRemoveCompleted;
 
 
     /// <summary>
@@ -112,7 +127,7 @@ namespace Xtensive.Storage
     internal void NotifyEntityFieldValueSet(Entity entity, FieldInfo field, object oldValue, object newValue)
     {
       if (EntityFieldValueSet!=null)
-        EntityFieldValueSet(this, new ChangeFieldValueEventArgs(entity, field, oldValue, newValue));
+        EntityFieldValueSet(this, new FieldValueSetEventArgs(entity, field, oldValue, newValue));
     }
 
     internal void NotifyEntityRemoving(Entity entity)
