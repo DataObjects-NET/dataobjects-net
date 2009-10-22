@@ -4,15 +4,13 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.22
 
-using System;
-using System.Diagnostics;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Disconnected
+namespace Xtensive.Storage.Disconnected.Log
 {
-  public interface IUpdateEntityOperation : IEntityOperation
+  public interface IEntitySetOperation : IEntityOperation
   {
+    Key TargetKey { get; }
     FieldInfo FieldInfo { get; }
-    object Value { get; }
   }
 }

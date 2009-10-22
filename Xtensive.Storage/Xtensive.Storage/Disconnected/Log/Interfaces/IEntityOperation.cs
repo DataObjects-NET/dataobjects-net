@@ -4,9 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-using Xtensive.Storage.Disconnected.Log;
-
-namespace Xtensive.Storage.Disconnected
+namespace Xtensive.Storage.Disconnected.Log
 {
   public interface IEntityOperation : IOperation
   {

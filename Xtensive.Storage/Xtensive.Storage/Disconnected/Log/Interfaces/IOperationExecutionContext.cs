@@ -4,7 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-namespace Xtensive.Storage.Disconnected
+namespace Xtensive.Storage.Disconnected.Log
 {
   public interface IOperationExecutionContext
   {

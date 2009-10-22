@@ -6,11 +6,11 @@
 
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Disconnected
+namespace Xtensive.Storage.Disconnected.Log
 {
-  public interface IEntitySetOperation : IEntityOperation
+  public interface IUpdateEntityOperation : IEntityOperation
   {
-    Key TargetKey { get; }
     FieldInfo FieldInfo { get; }
+    object Value { get; }
   }
 }
