@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-namespace Xtensive.Storage.Disconnected.Interfaces
+namespace Xtensive.Storage.Disconnected
 {
   public interface IOperationLog : IEnumerable<IOperation>
   {

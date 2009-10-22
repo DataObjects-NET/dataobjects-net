@@ -6,7 +6,7 @@
 
 using Xtensive.Storage.Disconnected.Log;
 
-namespace Xtensive.Storage.Disconnected.Interfaces
+namespace Xtensive.Storage.Disconnected
 {
   public interface IOperation
   {

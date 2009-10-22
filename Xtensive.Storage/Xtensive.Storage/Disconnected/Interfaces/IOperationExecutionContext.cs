@@ -4,7 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-namespace Xtensive.Storage.Disconnected.Interfaces
+namespace Xtensive.Storage.Disconnected
 {
   public interface IOperationExecutionContext
   {

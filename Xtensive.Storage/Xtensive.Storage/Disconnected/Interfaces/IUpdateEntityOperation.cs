@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Disconnected.Interfaces
+namespace Xtensive.Storage.Disconnected
 {
   public interface IUpdateEntityOperation : IEntityOperation
   {
