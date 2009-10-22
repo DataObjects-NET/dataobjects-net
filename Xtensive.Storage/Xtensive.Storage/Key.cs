@@ -24,18 +24,14 @@ namespace Xtensive.Storage
   /// Every entity is uniquely identified by its <see cref="Entity.Key"/>.
   /// </remarks>
   /// <seealso cref="Entity.Key"/>
-  [Serializable]
   public abstract class Key : IEquatable<Key>
   {
     protected Tuple value;
 
-    [NonSerialized]
     private int? hashCode;
     
-    [NonSerialized]
     internal TypeReference TypeRef;
 
-    [NonSerialized]
     private string cachedFormatResult;
 
     /// <summary>
