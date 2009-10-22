@@ -142,6 +142,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Filter tuple descriptor mistmatches with source mapping descriptor..
+        /// </summary>
+        internal static string ExFilterTupleDescriptorMistmatchesWithSourceMappingDescriptor {
+            get {
+                return ResourceManager.GetString("ExFilterTupleDescriptorMistmatchesWithSourceMappingDescriptor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid field name &apos;{0}&apos;..
         /// </summary>
         internal static string ExInvalidFieldNameX {

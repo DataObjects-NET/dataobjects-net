@@ -10,18 +10,19 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  public class InProvider: UnaryExecutableProvider<Compilable.InProvider>
+  public class InProvider : BinaryExecutableProvider<Compilable.InProvider>
   {
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var result = new List<Tuple>(1);
-      var source = Source.Enumerate(context);
-      result.Add(Tuple.Create(source.Any()));
-      return result;
+      var rightEnumerable = Right.Enumerate(context);
+      return Left
+        .Enumerate(context)
+        .Where(left => rightEnumerable.Contains(Origin.MapTransform.Apply(TupleTransformType.Auto, left)));
     }
 
     // Constructors
@@ -29,8 +30,9 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public InProvider(Compilable.InProvider origin, ExecutableProvider source)
-      : base(origin, source)
-    {}
+    public InProvider(Compilable.InProvider origin, ExecutableProvider source, ExecutableProvider filter)
+      : base(origin, source, filter)
+    {
+    }
   }
 }

@@ -6,11 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Resources;
 using System.Linq;
 
@@ -54,6 +51,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
         null);
     }
 
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private void EnsureUnionIsPossible()
     {
       var left = Left.Header.TupleDescriptor;

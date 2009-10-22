@@ -195,4 +195,7 @@
   <data name="ExOrderKeyNotFoundInMapping" xml:space="preserve">
     <value>Order key not found in mapping.</value>
   </data>
+  <data name="ExFilterTupleDescriptorMistmatchesWithSourceMappingDescriptor" xml:space="preserve">
+    <value>Filter tuple descriptor mistmatches with source mapping descriptor.</value>
+  </data>
 </root>

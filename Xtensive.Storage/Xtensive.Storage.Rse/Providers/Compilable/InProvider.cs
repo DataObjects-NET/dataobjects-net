@@ -5,20 +5,19 @@
 // Created:    2009.10.22
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
   /// <summary>
   /// Compilable provider that returns <see cref="bool"/> column. 
-  /// Column value is <see langword="true" /> if <see cref="UnaryProvider.Source"/> value equal to one of <see cref="TupleSource"/> values; otherwise <see langword="false" />.
+  /// Column value is <see langword="true" /> if source value equal to one of provided values; otherwise <see langword="false" />.
   /// </summary>
   [Serializable]
-  public class InProvider: UnaryProvider
+  public class InProvider: BinaryProvider
   {
     /// <summary>
     /// Gets the name of the column.
@@ -30,14 +29,15 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public int[] Mapping { get; private set; }
 
-    /// <summary>
-    /// Gets tuple source function.
-    /// </summary>
-    public Func<IEnumerable<Tuple>> TupleSource { get; private set; }
+    public MapTransform MapTransform{ get; private set;}
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
+      MapTransform = new MapTransform(true, Left.Header.TupleDescriptor, Mapping);
+      if (MapTransform.Descriptor!=Right.Header.TupleDescriptor) 
+        throw new InvalidOperationException(Resources.Strings.ExFilterTupleDescriptorMistmatchesWithSourceMappingDescriptor);
+
       return new RecordSetHeader(
         TupleDescriptor.Create(new[] { typeof(bool) }),
         new[] { new SystemColumn(ColumnName, 0, typeof(bool)) });
@@ -54,11 +54,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public InProvider(CompilableProvider source, string columnName, Func<IEnumerable<Tuple>> tupleSource, int[] mapping)
-      : base(ProviderType.In, source)
+    public InProvider(CompilableProvider source, CompilableProvider filter, string columnName, int[] mapping)
+      : base(ProviderType.In, source, filter)
     {
       ColumnName = columnName;
-      TupleSource = tupleSource;
       Mapping = mapping;
     }
   }
