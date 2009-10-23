@@ -254,6 +254,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
+      Session.NotifyEntitySetItemRemoving(this, item);
       var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntitySetItemEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, Field, item);
@@ -264,6 +265,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
+      Session.NotifyEntitySetItemRemoved(this, item);
       var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)

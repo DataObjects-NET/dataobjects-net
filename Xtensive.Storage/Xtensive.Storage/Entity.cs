@@ -339,7 +339,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyEntityRemoved(this);
+      Session.NotifyEntityRemove(this);
       var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntityEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);

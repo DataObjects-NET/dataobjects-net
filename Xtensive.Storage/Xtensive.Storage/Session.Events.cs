@@ -76,6 +76,36 @@ namespace Xtensive.Storage
     /// </summary>
     public event EventHandler<EntityRemoveCompletedEventArgs> EntityRemoveCompleted;
 
+    /// <summary>
+    /// Occurs when <see cref="EntitySetBase"/> item is about to remove.
+    /// </summary>
+    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemRemoving;
+
+    /// <summary>
+    /// Occurs when <see cref="EntitySetBase"/> item removed.
+    /// </summary>
+    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemRemoved;
+
+    /// <summary>
+    /// Occurs when <see cref="EntitySetBase"/> item removing is completed.
+    /// </summary>
+    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemRemoveCompleted;
+
+    /// <summary>
+    /// Occurs when <see cref="EntitySetBase"/> item is about to remove.
+    /// </summary>
+    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemAdding;
+
+    /// <summary>
+    /// Occurs when <see cref="EntitySetBase"/> item removed.
+    /// </summary>
+    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemAdd;
+
+    /// <summary>
+    /// Occurs when <see cref="EntitySetBase"/> item removing is completed.
+    /// </summary>
+    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemAddCompleted;
+
 
     /// <summary>
     /// The manager of <see cref="Entity"/>'s events.
@@ -136,10 +166,52 @@ namespace Xtensive.Storage
         EntityRemoving(this, new EntityEventArgs(entity));
     }
 
-    internal void NotifyEntityRemoved(Entity entity)
+    internal void NotifyEntityRemove(Entity entity)
     {
       if (EntityRemoved!=null)
         EntityRemoved(this, new EntityEventArgs(entity));
+    }
+
+    internal void NotifyEntityRemoveCompleted(Entity entity)
+    {
+      if (EntityRemoved != null)
+        EntityRemoved(this, new EntityEventArgs(entity));
+    }
+
+    internal void NotifyEntitySetItemRemoving(EntitySetBase entitySet, Entity entity)
+    {
+      if (EntityRemoving != null)
+        EntityRemoving(this, new EntityEventArgs(entity));
+    }
+
+    internal void NotifyEntitySetItemRemoved(EntitySetBase entitySet, Entity entity)
+    {
+      if (EntityRemoving != null)
+        EntityRemoving(this, new EntityEventArgs(entity));
+    }
+
+    internal void NotifyEntitySetItemRemoveCompleted(EntitySetBase entitySet, Entity entity)
+    {
+      if (EntityRemoving != null)
+        EntityRemoving(this, new EntityEventArgs(entity));
+    }
+
+    internal void NotifyEntitySetItemAdding(EntitySetBase entitySet, Entity entity)
+    {
+      if (EntityRemoving != null)
+        EntityRemoving(this, new EntityEventArgs(entity));
+    }
+
+    internal void NotifyEntitySetItemAdd(EntitySetBase entitySet, Entity entity)
+    {
+      if (EntityRemoving != null)
+        EntityRemoving(this, new EntityEventArgs(entity));
+    }
+
+    internal void NotifyEntitySetItemAddCompleted(EntitySetBase entitySet, Entity entity)
+    {
+      if (EntityRemoving != null)
+        EntityRemoving(this, new EntityEventArgs(entity));
     }
   }
 }

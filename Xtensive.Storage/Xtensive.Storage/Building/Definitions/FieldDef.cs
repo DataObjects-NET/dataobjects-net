@@ -248,7 +248,7 @@ namespace Xtensive.Storage.Building.Definitions
     {
       IsStructure = valueType.IsSubclassOf(typeof(Structure)) || valueType == typeof(Structure);
       IsEntity = valueType == typeof(Entity) || valueType.IsSubclassOf(typeof(Entity)) || typeof(IEntity).IsAssignableFrom(valueType);
-      if (valueType.IsClass && !IsStructure)
+      if (IsEntity)
         attributes |= FieldAttributes.Nullable;
       ValueType = valueType;
 
