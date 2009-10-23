@@ -224,7 +224,7 @@ namespace Xtensive.Storage.Building
     /// <exception cref="DomainBuilderException">Field cannot be nullable.</exception>
     internal static void EnsureIsNullable(Type valueType)
     {
-      if (!(valueType.IsSubclassOf(typeof (Entity)) || valueType==typeof (string) || valueType==typeof (byte[])))
+      if (!(typeof(IEntity).IsAssignableFrom(valueType) || valueType==typeof (string) || valueType==typeof (byte[])))
         throw new DomainBuilderException(String.Format(Strings.ExFieldOfTypeXCannotBeNullableForValueTypesConsiderUsingNullableT, valueType));
     }
 
