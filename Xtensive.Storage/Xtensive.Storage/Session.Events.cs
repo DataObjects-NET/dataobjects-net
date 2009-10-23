@@ -69,7 +69,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Occurs when <see cref="Entity"/> removed.
     /// </summary>
-    public event EventHandler<EntityEventArgs> EntityRemoved;
+    public event EventHandler<EntityEventArgs> EntityRemove;
 
     /// <summary>
     /// Occurs when <see cref="Entity"/> removing is completed.
@@ -79,32 +79,32 @@ namespace Xtensive.Storage
     /// <summary>
     /// Occurs when <see cref="EntitySetBase"/> item is about to remove.
     /// </summary>
-    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemRemoving;
+    public event EventHandler<EntitySetItemEventArgs> EntitySetItemRemoving;
 
     /// <summary>
     /// Occurs when <see cref="EntitySetBase"/> item removed.
     /// </summary>
-    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemRemoved;
+    public event EventHandler<EntitySetItemEventArgs> EntitySetItemRemoved;
 
     /// <summary>
     /// Occurs when <see cref="EntitySetBase"/> item removing is completed.
     /// </summary>
-    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemRemoveCompleted;
+    public event EventHandler<EntitySetItemActionCompletedEventArgs> EntitySetItemRemoveCompleted;
 
     /// <summary>
     /// Occurs when <see cref="EntitySetBase"/> item is about to remove.
     /// </summary>
-    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemAdding;
+    public event EventHandler<EntitySetItemEventArgs> EntitySetItemAdding;
 
     /// <summary>
     /// Occurs when <see cref="EntitySetBase"/> item removed.
     /// </summary>
-    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemAdd;
+    public event EventHandler<EntitySetItemEventArgs> EntitySetItemAdd;
 
     /// <summary>
     /// Occurs when <see cref="EntitySetBase"/> item removing is completed.
     /// </summary>
-    public event EventHandler<EntityRemoveCompletedEventArgs> EntitySetItemAddCompleted;
+    public event EventHandler<EntitySetItemActionCompletedEventArgs> EntitySetItemAddCompleted;
 
 
     /// <summary>
@@ -148,6 +148,12 @@ namespace Xtensive.Storage
         EntityFieldValueGet(this, new FieldValueEventArgs(entity, field, value));
     }
 
+    internal void NotifyFieldValueGetCompleted(Entity entity, FieldInfo field, object value, Exception exception)
+    {
+      if (EntityFieldValueGetCompleted != null)
+        EntityFieldValueGetCompleted(this, new FieldValueGetCompletedEventArgs(entity, field, value, exception));
+    }
+
     internal void NotifyFieldValueSetting(Entity entity, FieldInfo field, object value)
     {
       if (EntityFieldValueSetting!=null)
@@ -160,6 +166,12 @@ namespace Xtensive.Storage
         EntityFieldValueSet(this, new FieldValueSetEventArgs(entity, field, oldValue, newValue));
     }
 
+    internal void NotifyEntityFieldValueSetCompleted(Entity entity, FieldInfo field, object oldValue, object newValue, Exception exception)
+    {
+      if (EntityFieldValueSetCompleted != null)
+        EntityFieldValueSetCompleted(this, new FieldValueSetCompletedEventArgs(entity, field, oldValue, newValue, exception));
+    }
+
     internal void NotifyEntityRemoving(Entity entity)
     {
       if (EntityRemoving!=null)
@@ -168,50 +180,50 @@ namespace Xtensive.Storage
 
     internal void NotifyEntityRemove(Entity entity)
     {
-      if (EntityRemoved!=null)
-        EntityRemoved(this, new EntityEventArgs(entity));
+      if (EntityRemove!=null)
+        EntityRemove(this, new EntityEventArgs(entity));
     }
 
-    internal void NotifyEntityRemoveCompleted(Entity entity)
+    internal void NotifyEntityRemoveCompleted(Entity entity, Exception exception)
     {
-      if (EntityRemoved != null)
-        EntityRemoved(this, new EntityEventArgs(entity));
+      if (EntityRemoveCompleted != null)
+        EntityRemoveCompleted(this, new EntityRemoveCompletedEventArgs(entity, exception));
     }
 
     internal void NotifyEntitySetItemRemoving(EntitySetBase entitySet, Entity entity)
     {
-      if (EntityRemoving != null)
-        EntityRemoving(this, new EntityEventArgs(entity));
+      if (EntitySetItemRemoving != null)
+        EntitySetItemRemoving(this, new EntitySetItemEventArgs(entity, entitySet));
     }
 
     internal void NotifyEntitySetItemRemoved(EntitySetBase entitySet, Entity entity)
     {
-      if (EntityRemoving != null)
-        EntityRemoving(this, new EntityEventArgs(entity));
+      if (EntitySetItemRemoved != null)
+        EntitySetItemRemoved(this, new EntitySetItemEventArgs(entity, entitySet));
     }
 
-    internal void NotifyEntitySetItemRemoveCompleted(EntitySetBase entitySet, Entity entity)
+    internal void NotifyEntitySetItemRemoveCompleted(EntitySetBase entitySet, Entity entity, Exception exception)
     {
-      if (EntityRemoving != null)
-        EntityRemoving(this, new EntityEventArgs(entity));
+      if (EntitySetItemRemoveCompleted != null)
+        EntitySetItemRemoveCompleted(this, new EntitySetItemActionCompletedEventArgs(entity, entitySet, exception));
     }
 
     internal void NotifyEntitySetItemAdding(EntitySetBase entitySet, Entity entity)
     {
-      if (EntityRemoving != null)
-        EntityRemoving(this, new EntityEventArgs(entity));
+      if (EntitySetItemAdding != null)
+        EntitySetItemAdding(this, new EntitySetItemEventArgs(entity, entitySet));
     }
 
     internal void NotifyEntitySetItemAdd(EntitySetBase entitySet, Entity entity)
     {
-      if (EntityRemoving != null)
-        EntityRemoving(this, new EntityEventArgs(entity));
+      if (EntitySetItemAdd != null)
+        EntitySetItemAdd(this, new EntitySetItemEventArgs(entity, entitySet));
     }
 
-    internal void NotifyEntitySetItemAddCompleted(EntitySetBase entitySet, Entity entity)
+    internal void NotifyEntitySetItemAddCompleted(EntitySetBase entitySet, Entity entity, Exception exception)
     {
-      if (EntityRemoving != null)
-        EntityRemoving(this, new EntityEventArgs(entity));
+      if (EntitySetItemAddCompleted != null)
+        EntitySetItemAddCompleted(this, new EntitySetItemActionCompletedEventArgs(entity, entitySet, exception));
     }
   }
 }

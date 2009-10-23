@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Storage
 
         session.EntityCreated += (sender, e) => entityCreatedArgs = e;
         session.EntityRemoving += (sender, e) => entityRemoving = e;
-        session.EntityRemoved += (sender, e) => entityRemoved = e;
+        session.EntityRemove += (sender, e) => entityRemoved = e;
 
         session.EntityFieldValueGetting += (sender, e) => entityFieldGettingArgs = e;
         session.EntityFieldValueGet += (sender, e) => entityFieldArgs = e;
