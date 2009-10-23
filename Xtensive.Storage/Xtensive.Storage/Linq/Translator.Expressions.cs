@@ -825,7 +825,7 @@ namespace Xtensive.Storage.Linq
     {
       var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, value, translator.context.Model);
       var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(translator.context.GetNextColumnAlias(), 0, x)).Cast<Column>());
-      var rawProvider = new RawProvider(rsHeader, itemToTupleConverter);
+      var rawProvider = new RawProvider(rsHeader, itemToTupleConverter.GetEnumerable());
       var recordset = new StoreProvider(rawProvider).Result;
       var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
       if (translator.state.JoinLocalCollectionEntity)

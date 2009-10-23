@@ -94,10 +94,11 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitRaw(RawProvider provider)
     {
-      var source = translate(provider, provider.Source);
-      if (source == provider.Source)
-        return provider;
-      return new RawProvider(provider.Header, (Expression<Func<IEnumerable<Tuple>>>) source);
+      return provider;
+//      var source = translate(provider, provider.Source);
+//      if (source == provider.Source)
+//        return provider;
+//      return new RawProvider(provider.Header, (Expression<Func<IEnumerable<Tuple>>>) source);
     }
 
     /// <inheritdoc/>

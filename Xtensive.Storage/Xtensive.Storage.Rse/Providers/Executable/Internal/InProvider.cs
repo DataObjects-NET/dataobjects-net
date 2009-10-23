@@ -15,13 +15,14 @@ using Xtensive.Core.Tuples.Transform;
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
   [Serializable]
-  public class InProvider : BinaryExecutableProvider<Compilable.InProvider>
+  public class InProvider : UnaryExecutableProvider<Compilable.InProvider>
   {
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      var rightEnumerable = Right.Enumerate(context);
-      return Left
-        .Enumerate(context)
+      var rightEnumerable = Source.Enumerate(context);
+      return Origin
+        .Filter
+        .Invoke()
         .Where(left => rightEnumerable.Contains(Origin.MapTransform.Apply(TupleTransformType.Auto, left)));
     }
 
@@ -31,7 +32,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public InProvider(Compilable.InProvider origin, ExecutableProvider source, ExecutableProvider filter)
-      : base(origin, source, filter)
+      : base(origin, source)
     {
     }
   }

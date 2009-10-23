@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Linq
   internal sealed partial class Translator
   {
     public static readonly MethodInfo TranslateMethodInfo;
+    public static readonly MethodInfo VisitLocalCollectionSequenceMethodInfo;
 
     public TranslatedQuery<TResult> Translate<TResult>()
     {
@@ -150,6 +151,8 @@ namespace Xtensive.Storage.Linq
     {
       TranslateMethodInfo = typeof (Translator)
         .GetMethod("Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TResult"}, new[] {typeof (ProjectionExpression), typeof (IEnumerable<Parameter<Tuple>>)});
+      VisitLocalCollectionSequenceMethodInfo = typeof (Translator)
+        .GetMethod("VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TItem"}, new[] {typeof (Expression)});
     }
 
     private List<Expression> VisitNewExpressionArguments(NewExpression n)

@@ -394,7 +394,7 @@ namespace Xtensive.Storage.Linq
         compiledParameter = skipIndex.CachingCompile();
         var skipComparison = Expression.LessThan(skipIndex.Body, Expression.Constant(0));
         var condition = Expression.Condition(skipComparison, Expression.Constant(0), Expression.Constant(1));
-        var takeParameter = Expression.Lambda<Func<int>>(condition); 
+        var takeParameter = Expression.Lambda<Func<int>>(condition);
         rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(takeParameter.CachingCompile());
       }
       else {
@@ -1045,14 +1045,18 @@ namespace Xtensive.Storage.Linq
       }
 
       if (sequence.IsLocalCollection(context)) {
-        Type itemType = sequence
-          .Type
+        Type sequenceType = (sequence.Type.IsGenericType
+          && sequence.Type.GetGenericTypeDefinition()==typeof (Func<>))
+          ? sequence.Type.GetGenericArguments()[0]
+          : sequence.Type;
+
+        Type itemType = sequenceType
           .GetInterfaces()
           .AddOne(sequenceExpression.Type)
           .Single(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof (IEnumerable<>))
           .GetGenericArguments()[0];
-        var value = context.Evaluator.Evaluate(sequence).Value;
-        return CreateLocalCollectionProjectionExpression(itemType, value, this);
+
+        return (ProjectionExpression) VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType).Invoke(this, new object[] {sequence});
       }
 
       Expression visitedExpression = Visit(sequenceExpression).StripCasts();
@@ -1072,5 +1076,25 @@ namespace Xtensive.Storage.Linq
 
       throw new NotSupportedException(string.Format(Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
     }
+
+// ReSharper disable UnusedMember.Local
+    private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence)
+    {
+      Func<IEnumerable<TItem>> collectionGetter;
+      if (QueryCachingScope.Current!=null) {
+        var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+        var queryParameter = QueryCachingScope.Current.QueryParameter;
+        var replace = replacer.Replace(sequence);
+        Expression<Func<IEnumerable<TItem>>> parameter = context.ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(replace);
+        collectionGetter = parameter.CachingCompile();
+      }
+      else {
+        Expression<Func<IEnumerable<TItem>>> parameter = context.ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(sequence);
+        collectionGetter = parameter.CachingCompile();
+      }
+      return CreateLocalCollectionProjectionExpression(typeof (TItem), collectionGetter, this);
+    }
+
+// ReSharper restore UnusedMember.Local
   }
 }

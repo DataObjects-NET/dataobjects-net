@@ -16,14 +16,9 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  internal abstract class ItemToTupleConverter : IEnumerable<Tuple>
+  internal abstract class ItemToTupleConverter
   {
-    public abstract IEnumerator<Tuple> GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    public abstract Expression<Func<IEnumerable<Tuple>>> GetEnumerable();
 
     public TupleDescriptor TupleDescriptor { get; protected set; }
 

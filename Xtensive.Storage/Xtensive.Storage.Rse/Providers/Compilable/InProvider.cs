@@ -5,6 +5,8 @@
 // Created:    2009.10.22
 
 using System;
+using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -17,7 +19,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// Column value is <see langword="true" /> if source value equal to one of provided values; otherwise <see langword="false" />.
   /// </summary>
   [Serializable]
-  public class InProvider: BinaryProvider
+  public class InProvider: UnaryProvider
   {
     /// <summary>
     /// Gets the name of the column.
@@ -29,15 +31,16 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     public int[] Mapping { get; private set; }
 
+    /// <summary>
+    /// Gets filter function.
+    /// </summary>
+    public Func<IEnumerable<Tuple>> Filter { get; private set; }
+
     public MapTransform MapTransform{ get; private set;}
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      MapTransform = new MapTransform(true, Left.Header.TupleDescriptor, Mapping);
-      if (MapTransform.Descriptor!=Right.Header.TupleDescriptor) 
-        throw new InvalidOperationException(Resources.Strings.ExFilterTupleDescriptorMistmatchesWithSourceMappingDescriptor);
-
       return new RecordSetHeader(
         TupleDescriptor.Create(new[] { typeof(bool) }),
         new[] { new SystemColumn(ColumnName, 0, typeof(bool)) });
@@ -54,9 +57,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public InProvider(CompilableProvider source, CompilableProvider filter, string columnName, int[] mapping)
-      : base(ProviderType.In, source, filter)
+    public InProvider(CompilableProvider source, Func<IEnumerable<Tuple>> filter, string columnName, int[] mapping)
+      : base(ProviderType.In, source)
     {
+      ArgumentValidator.EnsureArgumentNotNull(filter, "filter");
+      Filter = filter;
       ColumnName = columnName;
       Mapping = mapping;
     }

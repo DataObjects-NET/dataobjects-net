@@ -176,6 +176,29 @@ namespace Xtensive.Storage.Tests.Linq
       QueryDumper.Dump(query);
     }
 
+
+    [Test]
+    public void ReuseContainsTest()
+    {
+      var list = new List<int> {7, 22};
+      var orders = GetOrders(list);
+      foreach (var order in orders)
+        Assert.IsTrue(list.Contains(order.Id));
+
+      list = new List<int> {46};
+      orders = GetOrders(list);
+      foreach (var order in orders)
+        Assert.IsTrue(list.Contains(order.Id));
+    }
+
+    private IEnumerable<Order> GetOrders(IEnumerable<int> ids)
+    {
+      return Query.Execute(() =>
+        from order in Query<Order>.All
+        where ids.Contains(order.Id)
+        select order);
+    }
+
     [Test]
     public void PairTest()
     {

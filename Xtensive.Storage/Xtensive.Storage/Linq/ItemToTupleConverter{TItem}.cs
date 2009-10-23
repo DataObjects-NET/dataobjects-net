@@ -5,6 +5,7 @@
 // Created:    2009.10.01
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -23,13 +24,18 @@ namespace Xtensive.Storage.Linq
   [Serializable]
   internal sealed class ItemToTupleConverter<TItem> : ItemToTupleConverter
   {
-    private readonly IEnumerable<Tuple> enumerable;
+    private readonly Func<IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
+    private Func<TItem, Tuple> converter;
 
-    public override IEnumerator<Tuple> GetEnumerator()
+    public override Expression<Func<IEnumerable<Tuple>>> GetEnumerable()
     {
-      return enumerable.GetEnumerator();
+      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method);
+      MethodInfo selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof (TItem), typeof (Tuple));
+      var select = Expression.Call(selectMethod, call, Expression.Constant(converter));
+      return Expression.Lambda<Func<IEnumerable<Tuple>>>(select);
     }
+    
 
     private bool IsPersistableType(Type type)
     {
@@ -162,9 +168,8 @@ namespace Xtensive.Storage.Linq
       throw new NotSupportedException();
     }
 
-    public ItemToTupleConverter(IEnumerable<TItem> values, DomainModel model)
+    private void BuildConverter()
     {
-      this.model = model;
       Type itemType = typeof (TItem);
       int index = 0;
       ParameterExpression parameterExpression = Expression.Parameter(itemType, "item");
@@ -179,7 +184,7 @@ namespace Xtensive.Storage.Linq
         TupleDescriptor = TupleDescriptor.Create(types);
         Expression = itemExpression;
       }
-      Func<TItem, int, Tuple> converter = delegate(TItem item, int number) {
+      Func<TItem, Tuple> converter = delegate(TItem item) {
         RegularTuple tuple = Tuple.Create(TupleDescriptor);
         if (ReferenceEquals(item, null))
           return tuple;
@@ -187,7 +192,14 @@ namespace Xtensive.Storage.Linq
         FillLocalCollectionField(item, tuple, Expression);
         return tuple;
       };
-      enumerable = values.Select(converter);
+      this.converter = converter;
+    }
+
+    public ItemToTupleConverter(Func<IEnumerable<TItem>> enumerableFunc, DomainModel model)
+    {
+      this.model = model;
+      this.enumerableFunc = enumerableFunc;
+      BuildConverter();
     }
   }
 }
