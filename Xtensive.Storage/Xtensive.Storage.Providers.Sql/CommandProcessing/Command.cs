@@ -69,7 +69,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void PrepareCommand()
     {
-      underlyingCommand.CommandText = processor.Driver.BuildBatch(queries.ToArray());
+      if (queries.Count==0)
+        throw new InvalidOperationException();
+      underlyingCommand.CommandText = queries.Count > 1
+        ? processor.Driver.BuildBatch(queries.ToArray())
+        : queries[0];
     }
 
 

@@ -43,12 +43,8 @@ namespace Xtensive.Storage.Providers.Sql
         break;
       }
 
-      var bindings = new List<SqlPersistParameterBinding>();
-      
-      foreach (var pair in context.ParameterBindings)
-        bindings.Add(pair.Value);
-
-      return new SqlPersistRequest(context.Batch, GetExpectedResult(context.Batch), bindings);
+      return new SqlPersistRequest(context.Batch, GetExpectedResult(context.Batch),
+        context.ParameterBindings.Values);
     }
 
     protected virtual int? GetExpectedResult(SqlBatch request)
@@ -104,7 +100,7 @@ namespace Xtensive.Storage.Providers.Sql
         }
 
         // There is nothing to update in this table, skipping it
-        if (query.Values.Count == 0)
+        if (query.Values.Count==0)
           continue;
         query.Where &= BuildWhereExpression(context, tableRef);
         context.Batch.Add(query);

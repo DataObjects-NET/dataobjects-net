@@ -27,8 +27,7 @@ namespace Xtensive.Storage.Providers.Sql
       var sourceQuery = source.ShallowClone();
       if (isSourceTake && compiledSource.Request.SelectStatement.Limit.IsNullReference()) {
         sourceQuery.Where = AddSkipPartToTakeWhereExpression(sourceQuery, null, provider, bindings);
-        return new SqlProvider(provider.Source, sourceQuery, Handlers, bindings,
-          (ExecutableProvider[]) compiledSource.Sources);
+        return new SqlProvider(provider.Source, sourceQuery, Handlers, bindings, compiledSource);
       }
 
       var queryRef = SqlDml.QueryRef(sourceQuery);
@@ -48,8 +47,7 @@ namespace Xtensive.Storage.Providers.Sql
       var sourceQuery = source.ShallowClone();
       if (isSourceSkip && compiledSource.Request.SelectStatement.Offset.IsNullReference()) {
         sourceQuery.Where = AddTakePartToSkipWhereExpression(sourceQuery, null, provider, bindings);
-        return new SqlProvider(provider.Source, sourceQuery,
-          Handlers, bindings, (ExecutableProvider[]) compiledSource.Sources);
+        return new SqlProvider(provider.Source, sourceQuery, Handlers, bindings, compiledSource);
       }
 
       var queryRef = SqlDml.QueryRef(sourceQuery);

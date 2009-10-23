@@ -244,7 +244,7 @@ namespace Xtensive.Sql.Tests
         Assert.AreNotEqual(a, aClone);
         Assert.AreEqual(a.NodeType, aClone.NodeType);
         Assert.AreEqual(a.Distinct, aClone.Distinct);
-        Assert.AreEqual(aClone.Expression.NodeType, SqlNodeType.Constant);
+        Assert.AreEqual(aClone.Expression.NodeType, SqlNodeType.Native);
       }
       Console.WriteLine();
       {

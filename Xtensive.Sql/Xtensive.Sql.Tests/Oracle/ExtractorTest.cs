@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Tests.Oracle
     [Test]
     public void BaseTest()
     {
-      var model = ExtractCatalog();
+      var schema = ExtractDefaultSchema();
     }
   }
 }

@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Dml
 
     // Constructor
 
-    internal SqlNative(string value) : base(SqlNodeType.Constant)
+    internal SqlNative(string value) : base(SqlNodeType.Native)
     {
       this.value = value;
     }

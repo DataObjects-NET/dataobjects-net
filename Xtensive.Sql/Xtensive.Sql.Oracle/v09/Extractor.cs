@@ -20,9 +20,12 @@ namespace Xtensive.Sql.Oracle.v09
   {
     private const int DefaultPrecision = 38;
     private const int DefaultScale = 0;
-    
-    private static SqlRow systemUsers = SqlDml.Row(
-      AnsiString("SYS"), AnsiString("SYSTEM"), AnsiString("SYSMAN"), AnsiString("DBSNMP"));
+
+    private const string SystemUserNames = "SYS;SYSTEM";
+//      "SYS;SYSTEM;DBSNMP;DMSYS;OUTLN;EXFSYS;MDSYS;ORDSYS;ORDPLUGINS;CTXSYS;DSSYS;PERFSTAT;" +
+//      "WKPROXY;WKSYS;WMSYS;XDB;ANONYMOUS;ODM;ODM_MTR;OLAPSYS;TRACESVR;TSMSYS;REPADMIN";
+
+    private static readonly SqlRow systemUsers;
 
     private static ThreadSafeCached<Schema> dataDictionaryCached = ThreadSafeCached<Schema>.Create(new object());
 
@@ -684,6 +687,11 @@ namespace Xtensive.Sql.Oracle.v09
     public Extractor(SqlDriver driver)
       : base(driver)
     {
+    }
+
+    static Extractor()
+    {
+      systemUsers = SqlDml.Row(SystemUserNames.Split(';').Select(user => AnsiString(user)).ToArray());
     }
   }
 }

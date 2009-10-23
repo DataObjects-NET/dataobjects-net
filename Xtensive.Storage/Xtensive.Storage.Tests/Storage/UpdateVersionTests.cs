@@ -20,10 +20,10 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
   [KeyGenerator(null)]
   public class Address : Entity
   {
-    [Key(0), Field]
+    [Key(0), Field(Length = 100)]
     public string City { get; private set; }
 
-    [Key(1), Field]
+    [Key(1), Field(Length = 100)]
     public string RegionCode { get; private set; }
 
     public Address(string city, string regionCode)

@@ -75,7 +75,7 @@ namespace Xtensive.Sql
         case SqlNodeType.And:
         case SqlNodeType.Between:
         case SqlNodeType.Case:
-        case SqlNodeType.Constant:
+        case SqlNodeType.Native:
         case SqlNodeType.Column:
         case SqlNodeType.ColumnRef:
         case SqlNodeType.Equals:
@@ -130,7 +130,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Cast:
         case SqlNodeType.Column:
         case SqlNodeType.Concat:
-        case SqlNodeType.Constant:
+        case SqlNodeType.Native:
         case SqlNodeType.Count:
         case SqlNodeType.Divide:
         case SqlNodeType.FunctionCall:
@@ -168,7 +168,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Cast:
         case SqlNodeType.Column:
         case SqlNodeType.Concat:
-        case SqlNodeType.Constant:
+        case SqlNodeType.Native:
         case SqlNodeType.RawConcat:
         case SqlNodeType.FunctionCall:
         case SqlNodeType.Literal:

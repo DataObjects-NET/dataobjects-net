@@ -64,12 +64,22 @@ namespace Xtensive.Sql.Tests
 
     protected Schema ExtractSchema(string schemaName)
     {
-      Schema model;
+      Schema schema;
       using (var transacation = Connection.BeginTransaction()) {
-        model = Driver.ExtractSchema(Connection, transacation, schemaName);
+        schema = Driver.ExtractSchema(Connection, transacation, schemaName);
         transacation.Commit();
       }
-      return model;
+      return schema;
+    }
+
+    protected Schema ExtractDefaultSchema()
+    {
+      Schema schema;
+      using (var transaction = Connection.BeginTransaction()) {
+        schema = Driver.ExtractDefaultSchema(Connection, transaction);
+        transaction.Commit();
+      }
+      return schema;
     }
 
     protected int ExecuteNonQuery(string commandText)
