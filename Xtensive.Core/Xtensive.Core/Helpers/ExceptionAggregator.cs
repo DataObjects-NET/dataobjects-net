@@ -322,7 +322,7 @@ namespace Xtensive.Core.Helpers
       if (exceptions!=null && exceptions.Count>0) {
         Exception exception = string.IsNullOrEmpty(exceptionMessage) ? 
           new AggregateException(exceptions) : 
-          new AggregateException(exceptionMessage, exceptions);        
+          new AggregateException(exceptionMessage, exceptions);
         exceptions = null;
         isDisposed = true;
         throw exception;

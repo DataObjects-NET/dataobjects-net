@@ -62,8 +62,6 @@ namespace Xtensive.Storage.Web
     private readonly object provideSessionLock = new object();
     private Session session;
     private IDisposable disposeOnEndRequest;
-    private bool hasErrors;
-
 
     /// <summary>
     /// Sets the domain builder delegate.
@@ -90,7 +88,7 @@ namespace Xtensive.Storage.Web
     }
 
     /// <summary>
-    /// Sets the session provider delegate.    
+    /// Sets the session provider delegate.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -119,7 +117,7 @@ namespace Xtensive.Storage.Web
     }
 
     /// <summary>
-    /// Gets the <see cref="SessionManager"/> instance 
+    /// Gets the <see cref="SessionManager"/> instance
     /// bound to the current <see cref="HttpRequest"/>.
     /// </summary>
     public static SessionManager Current {
@@ -161,24 +159,20 @@ namespace Xtensive.Storage.Web
     /// <summary>
     /// Gets a value indicating whether current <see cref="SessionManager"/> has session.
     /// </summary>
-    public static bool HasSession {
+    public bool HasSession {
       get
       {
-        var manager = Current;
-        return manager!=null && manager.session!=null;
+        return session!=null;
       }
     }
 
     /// <summary>
     /// Gets or sets the session for the current <see cref="HttpContext"/>.
     /// </summary>
-    public static Session Session {
+    public Session Session {
       get {
-        var module = Current;
-        if (module==null)
-          return null;
-        module.EnsureSessionIsProvided();
-        return module.session;
+        EnsureSessionIsProvided();
+        return session;
       }
     }
 
@@ -186,11 +180,7 @@ namespace Xtensive.Storage.Web
     /// Gets a value indicating whether an error has occurred 
     /// on execution of the current request and transaction should be rollbacked.
     /// </summary>
-    public static bool HasErrors
-    {
-      get { return Demand().hasErrors; }
-      set { Demand().hasErrors = value; }
-    }
+    public bool HasErrors { get; set; }
 
     #region Protected BeginRequest, Error, EndRequest & ProvideSession methods
 
@@ -237,10 +227,10 @@ namespace Xtensive.Storage.Web
     /// to invoke on request completion.</returns>
     protected virtual Pair<Session, IDisposable> ProvideSession()
     {
-      var session = Session.Open(Domain, false); // Open, but don't activate!
-      var transactionScope = Transaction.Open(session);
-      var toDispose = transactionScope.Join(session);
-      return new Pair<Session, IDisposable>(session, new Disposable(disposing => {
+      var newSession = Session.Open(Domain, false); // Open, but don't activate!
+      var transactionScope = Transaction.Open(newSession);
+      var toDispose = transactionScope.Join(newSession);
+      return new Pair<Session, IDisposable>(newSession, new Disposable(disposing => {
         try {
           if (!HasErrors)
             transactionScope.Complete();

@@ -39,26 +39,6 @@ namespace Xtensive.Integrity.Tests
     }
 
     [Test]
-    public void CustomErrorsTest()
-    {
-      using (var region = person1.Context.OpenInconsistentRegion()) {
-        person1.SetAll("26", 26);
-
-        Assert.AreEqual(
-          "Name==Age.ToString()",
-          person1.GetObjectError());
-
-        person1.SetAll("Alex", 26);
-
-        Assert.AreEqual(
-          string.Empty,
-          person1.GetObjectError());
-
-        region.Complete();
-      }
-    }
-
-    [Test]
     public void BaseContextTest()
     {
       Assert.AreEqual(session1, person1.Session);

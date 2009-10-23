@@ -474,7 +474,16 @@ namespace Xtensive.Storage
 
     string IDataErrorInfo.Error
     {
-      get { return this.GetObjectError(); }
+      get 
+      { 
+        try {
+          OnValidate();
+        }
+        catch(Exception error) {
+          return error.Message;
+        }
+        return null;
+      }
     }
 
     #endregion

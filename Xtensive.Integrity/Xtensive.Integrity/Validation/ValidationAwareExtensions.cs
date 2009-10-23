@@ -124,17 +124,5 @@ namespace Xtensive.Integrity.Validation
           }
       return string.Empty;
     }
-
-    public static string GetObjectError(this IValidationAware target)
-    {
-      try {
-        target.Validate(true);
-      }
-      catch (AggregateException exception) {
-        var errors = exception.GetFlatExceptions();
-        return errors[0].Message;
-      }
-      return string.Empty;
-    }
   }
 }
