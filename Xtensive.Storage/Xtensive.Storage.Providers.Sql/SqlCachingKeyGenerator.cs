@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Providers.Sql
         var sessionHandler = (SessionHandler) Handlers.SessionHandler;
         object value = sessionHandler.ExecuteScalarRequest(nextRequest);
         upperBound = (TFieldType) Convert.ChangeType(value, typeof (TFieldType));
-        t.Complete();
+        // rolling back transaction
       }
 
       TFieldType current = upperBound;
