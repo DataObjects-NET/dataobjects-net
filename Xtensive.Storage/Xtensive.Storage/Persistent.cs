@@ -159,11 +159,20 @@ namespace Xtensive.Storage
     [AspectBehavior]
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
-      NotifyGettingFieldValue(field);
-      T result = GetAccessor<T>(field).GetValue(this, field);
-      NotifyGetFieldValue(field, result);
-
-      return result;
+      T result = default(T);
+      try {
+        SystemBeforeGetValue(field);
+        result = GetAccessor<T>(field).GetValue(this, field);
+        SystemGetValue(field, result);
+        return result;
+      }
+      catch(Exception e) {
+        SystemGetValueCompleted(field, result, e);
+        throw;
+      }
+      finally {
+        SystemGetValueCompleted(field, result, null);
+      }
     }
 
     /// <summary>
@@ -180,33 +189,43 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Field is not a reference field.</exception>
     protected internal Key GetReferenceKey(FieldInfo field)
     {
-      if (!field.IsEntity)
-        throw new InvalidOperationException(
-          String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
+      Key key = null;
+      try {
+        SystemBeforeGetValue(field);
+        if (!field.IsEntity)
+          throw new InvalidOperationException(
+            String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
 
-      NotifyGettingFieldValue(field);
-      var types = Session.Domain.Model.Types;
-      var type = types[field.ValueType];
-      var tuple = Tuple;
-      if (tuple.ContainsEmptyValues(field.MappingInfo))
-        return null;
+        var types = Session.Domain.Model.Types;
+        var type = types[field.ValueType];
+        var tuple = Tuple;
+        if (tuple.ContainsEmptyValues(field.MappingInfo))
+          return null;
 
-      int typeIdColumnIndex = type.KeyProviderInfo.TypeIdColumnIndex;
-      var accuracy = TypeReferenceAccuracy.BaseType;
-      if (typeIdColumnIndex >= 0)
-        accuracy = TypeReferenceAccuracy.ExactType;
-      var keyValue = field.ExtractValue(tuple);
-      if (accuracy == TypeReferenceAccuracy.ExactType) {
-        int typeId = keyValue.GetValueOrDefault<int>(typeIdColumnIndex);
-        if (typeId!=TypeInfo.NoTypeId) // != default(int) != 0
-          type = types[typeId];
-        else
-          // This may happen if reference is null
-          accuracy = TypeReferenceAccuracy.BaseType;
+        int typeIdColumnIndex = type.KeyProviderInfo.TypeIdColumnIndex;
+        var accuracy = TypeReferenceAccuracy.BaseType;
+        if (typeIdColumnIndex >= 0)
+          accuracy = TypeReferenceAccuracy.ExactType;
+        var keyValue = field.ExtractValue(tuple);
+        if (accuracy == TypeReferenceAccuracy.ExactType) {
+          int typeId = keyValue.GetValueOrDefault<int>(typeIdColumnIndex);
+          if (typeId != TypeInfo.NoTypeId) // != default(int) != 0
+            type = types[typeId];
+          else
+            // This may happen if reference is null
+            accuracy = TypeReferenceAccuracy.BaseType;
+        }
+        key = Key.Create(Session.Domain, type, accuracy, keyValue);
+        SystemGetValue(field, key);
+        return key;
       }
-      var key = Key.Create(Session.Domain, type, accuracy, keyValue);
-      NotifyGetFieldValue(field, key);
-      return key;
+      catch(Exception e) {
+        SystemGetValueCompleted(field, key, e);
+        throw;
+      }
+      finally {
+        SystemGetValueCompleted(field, key, null);
+      }
     }
 
     /// <summary>
@@ -229,29 +248,39 @@ namespace Xtensive.Storage
     [AspectBehavior]
     protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
-      NotifySettingFieldValue(field, value);
-      var oldValue = GetFieldValue<T>(field);
-      var structure = value as Structure;
-      var association = field.Association;
-      if (association!=null && association.IsPaired) {
-        Key currentKey = GetReferenceKey(field);
-        Key newKey = null;
-        var newReference = (Entity) (object) value;
-        if (newReference!=null)
-          newKey = newReference.Key;
-        if (currentKey!=newKey) {
-          Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
-          PrepareToSetField();
-          GetAccessor<T>(field).SetValue(this, field, value);
+      T oldValue = default(T);
+      try {
+        SystemBeforeSetValue(field, value);
+        oldValue = GetFieldValue<T>(field);
+        var structure = value as Structure;
+        var association = field.Association;
+        if (association != null && association.IsPaired) {
+          Key currentKey = GetReferenceKey(field);
+          Key newKey = null;
+          var newReference = (Entity) (object) value;
+          if (newReference != null)
+            newKey = newReference.Key;
+          if (currentKey != newKey) {
+            Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
+            PrepareToSetField();
+            GetAccessor<T>(field).SetValue(this, field, value);
+          }
         }
-      }
-      else {
-        if (!Equals(value, oldValue) || field.IsStructure) {
-          PrepareToSetField();
-          GetAccessor<T>(field).SetValue(this, field, value);
+        else {
+          if (!Equals(value, oldValue) || field.IsStructure) {
+            PrepareToSetField();
+            GetAccessor<T>(field).SetValue(this, field, value);
+          }
         }
+        SystemSetValue(field, oldValue, value);
       }
-      NotifySetFieldValue(field, oldValue, value);
+      catch (Exception e) {
+        SystemSetValueCompleted(field, oldValue, value, e);
+        throw;
+      }
+      finally {
+        SystemSetValueCompleted(field, oldValue, value, null);
+      }
     }
 
     internal protected bool IsFieldAvailable(string name)
@@ -338,22 +367,33 @@ namespace Xtensive.Storage
 
     #region System-level event-like members
 
-    internal abstract void NotifyInitializing();
+    internal abstract void SystemBeforeInitialize();
 
-    internal abstract void NotifyInitialize();
+    internal abstract void SystemInitialize();
 
-    internal abstract void NotifyGettingFieldValue(FieldInfo field);
+    internal abstract void SystemBeforeGetValue(FieldInfo field);
 
-    internal abstract void NotifyGetFieldValue(FieldInfo field, object value);
+    internal abstract void SystemGetValue(FieldInfo field, object value);
 
-    internal abstract void NotifySettingFieldValue(FieldInfo field, object value);
+    internal abstract void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception);
 
-    internal virtual void NotifySetFieldValue(FieldInfo field, object oldValue, object newValue)
-    {
-      if (Session.Domain.Configuration.AutoValidation)
-        this.Validate();
-      NotifyPropertyChanged(field);
-    }
+    internal abstract void SystemBeforeSetValue(FieldInfo field, object value);
+
+    internal abstract void SystemSetValue(FieldInfo field, object oldValue, object newValue);
+
+    internal abstract void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception);
+//    OnSetValue
+//    {
+//      if (Session.Domain.Configuration.AutoValidation)
+//        this.Validate();
+//      NotifyPropertyChanged(field);
+//    }
+
+    
+
+//    [Infrastructure]
+//    protected internal abstract void NotifyPropertyChanged(FieldInfo field);
+    
 
     #endregion
 
@@ -460,7 +500,7 @@ namespace Xtensive.Storage
     {
       if (ctorType!=GetType())
         return;
-      NotifyInitialize();
+      SystemInitialize();
     }
 
     #endregion
@@ -487,9 +527,6 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
-    [Infrastructure]
-    protected internal abstract void NotifyPropertyChanged(FieldInfo field);
 
     internal Persistent()
     {

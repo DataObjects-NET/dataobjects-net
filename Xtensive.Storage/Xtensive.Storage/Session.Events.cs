@@ -160,13 +160,13 @@ namespace Xtensive.Storage
         EntityFieldValueSetting(this, new FieldValueEventArgs(entity, field, value));
     }
 
-    internal void NotifyEntityFieldValueSet(Entity entity, FieldInfo field, object oldValue, object newValue)
+    internal void NotifyFieldValueSet(Entity entity, FieldInfo field, object oldValue, object newValue)
     {
       if (EntityFieldValueSet!=null)
         EntityFieldValueSet(this, new FieldValueSetEventArgs(entity, field, oldValue, newValue));
     }
 
-    internal void NotifyEntityFieldValueSetCompleted(Entity entity, FieldInfo field, object oldValue, object newValue, Exception exception)
+    internal void NotifyFieldValueSetCompleted(Entity entity, FieldInfo field, object oldValue, object newValue, Exception exception)
     {
       if (EntityFieldValueSetCompleted != null)
         EntityFieldValueSetCompleted(this, new FieldValueSetCompletedEventArgs(entity, field, oldValue, newValue, exception));

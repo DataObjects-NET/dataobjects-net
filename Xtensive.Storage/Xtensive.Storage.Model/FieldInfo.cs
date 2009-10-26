@@ -348,6 +348,11 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets or sets the declaring field.
+    /// </summary>
+    public FieldInfo DeclaringField { get; private set; }
+
+    /// <summary>
     /// Gets or sets the parent field for nested fields.
     /// </summary>
     /// <remarks>
@@ -607,7 +612,8 @@ namespace Xtensive.Storage.Model
           length = length, 
           scale = scale,
           precision = precision,
-          association = association
+          association = association,
+          DeclaringField = DeclaringField
         };
       return clone;
     }
@@ -625,6 +631,7 @@ namespace Xtensive.Storage.Model
     public FieldInfo(TypeInfo type, FieldAttributes attributes) : this(type, type, attributes)
     {
       Attributes |= FieldAttributes.Declared;
+      DeclaringField = this;
     }
 
     private FieldInfo(TypeInfo declaringType, TypeInfo reflectedType, FieldAttributes attributes)

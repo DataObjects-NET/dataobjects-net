@@ -110,9 +110,9 @@ namespace Xtensive.Storage
       }
     }
 
-    #region NotifyXxx & GetSubscription members
+    #region System-level event-like members & GetSubscription members
 
-    internal override sealed void NotifyInitializing()
+    internal override sealed void SystemBeforeInitialize()
     {
       if (Session.IsSystemLogicOnly)
         return;
@@ -122,7 +122,7 @@ namespace Xtensive.Storage
           .Invoke(subscriptionInfo.First, Field);
     }
 
-    internal sealed override void NotifyInitialize()
+    internal sealed override void SystemInitialize()
     {
       if (!Session.IsSystemLogicOnly) {
         var subscriptionInfo = GetSubscription(EntityEventBroker.InitializePersistentEventKey);
@@ -135,7 +135,7 @@ namespace Xtensive.Storage
         this.Validate();
     }
 
-    internal override sealed void NotifyGettingFieldValue(FieldInfo fieldInfo)
+    internal override sealed void SystemBeforeGetValue(FieldInfo fieldInfo)
     {
       if (!Session.IsSystemLogicOnly) {
         var subscriptionInfo = GetSubscription(EntityEventBroker.GettingFieldEventKey);
@@ -144,65 +144,86 @@ namespace Xtensive.Storage
             .Invoke(subscriptionInfo.First, Field, fieldInfo);
         OnGettingFieldValue(fieldInfo);
       }
-      if (Owner!=null)
-        Owner.NotifyGettingFieldValue(Field);
-    }
-
-    internal override sealed void NotifyGetFieldValue(FieldInfo fieldInfo, object value)
-    {
-      if (Session.IsSystemLogicOnly)
+      if (Owner == null) 
         return;
-      var subscriptionInfo = GetSubscription(EntityEventBroker.GetFieldEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, FieldInfo, object>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field, fieldInfo, value);
-      OnGetFieldValue(Field, value);
+      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      Owner.SystemBeforeGetValue(ownerField);
     }
 
-    internal override sealed void NotifySettingFieldValue(FieldInfo fieldInfo, object value)
+    internal override sealed void SystemGetValue(FieldInfo fieldInfo, object value)
     {
-      if (Owner!=null)
-        Owner.NotifySettingFieldValue(Field, value);
-      if (Session.IsSystemLogicOnly)
+      if (!Session.IsSystemLogicOnly) {
+        var subscriptionInfo = GetSubscription(EntityEventBroker.GetFieldEventKey);
+        if (subscriptionInfo.Second != null)
+          ((Action<Key, FieldInfo, FieldInfo, object>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field, fieldInfo, value);
+        OnGetFieldValue(Field, value);
+      }
+      if (Owner == null)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, FieldInfo, object>) subscriptionInfo.Second)
-           .Invoke(subscriptionInfo.First, Field, fieldInfo, value);
-      OnSettingFieldValue(Field, value);
+      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      Owner.SystemGetValue(ownerField, value);
     }
 
-    internal override sealed void NotifySetFieldValue(FieldInfo fieldInfo, object oldValue, object newValue)
+    internal override void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception)
     {
-      if (Owner!=null)
-        Owner.NotifySetFieldValue(Field, oldValue, newValue);
-      if (Session.IsSystemLogicOnly)
+      if (Owner == null)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field, fieldInfo, oldValue, newValue);
-      OnSetFieldValue(Field, oldValue, newValue);
-      base.NotifySetFieldValue(fieldInfo, oldValue, newValue);
+      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      Owner.SystemGetValueCompleted(ownerField, value, exception);
     }
 
-    protected internal override void NotifyPropertyChanged(FieldInfo fieldInfo)
+    internal override sealed void SystemBeforeSetValue(FieldInfo fieldInfo, object value)
     {
-      if (!Session.EntityEventBroker.HasSubscribers)
+      if (!Session.IsSystemLogicOnly) {
+        var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldEventKey);
+        if (subscriptionInfo.Second != null)
+          ((Action<Key, FieldInfo, FieldInfo, object>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field, fieldInfo, value);
+        OnSettingFieldValue(Field, value);
+      }
+      if (Owner == null)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
-      if (subscriptionInfo.Second != null)
-        ((PropertyChangedEventHandler) subscriptionInfo.Second).Invoke(this, new PropertyChangedEventArgs(fieldInfo.Name));
+      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      Owner.SystemBeforeSetValue(ownerField, value);
     }
 
-    protected Pair<Key, Delegate> GetSubscription(object eventKey)
+    internal override sealed void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue)
+    {
+      if (!Session.IsSystemLogicOnly) {
+        if (Session.Domain.Configuration.AutoValidation)
+          this.Validate();
+        var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
+        if (subscriptionInfo.Second != null)
+          ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field, fieldInfo, oldValue, newValue);
+        var subscriber = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
+        if (subscriber.Second != null)
+          ((PropertyChangedEventHandler)subscriber.Second)
+            .Invoke(this, new PropertyChangedEventArgs(fieldInfo.Name));
+        OnSetFieldValue(Field, oldValue, newValue);
+      }
+      if (Owner == null)
+        return;
+      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      Owner.SystemSetValue(ownerField, oldValue, newValue);
+    }
+
+    internal override void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception)
+    {
+      if (Owner == null)
+        return;
+      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      Owner.SystemSetValueCompleted(ownerField, oldValue, newValue, exception);
+    }
+
+    private Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerEntityKey(Owner);
       if (entityKey!=null)
         return new Pair<Key, Delegate>(entityKey,
           Session.EntityEventBroker.GetSubscriber(entityKey, Field, eventKey));
-      else
-        return new Pair<Key, Delegate>(null, null);
+      return new Pair<Key, Delegate>(null, null);
     }
 
     #endregion
@@ -296,7 +317,7 @@ namespace Xtensive.Storage
       else
         tuple = field.ExtractValue(
           new ReferencedTuple(() => Owner.Tuple));
-      NotifyInitializing();
+      SystemBeforeInitialize();
     }
 
     /// <summary>

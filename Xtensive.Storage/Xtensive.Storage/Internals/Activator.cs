@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Internals
       var activator = entityActivators.GetValue(type,
         DelegateHelper.CreateConstructorDelegate<Func<EntityState, Entity>>);
       Entity result = activator(state);
-      result.NotifyInitialize();
+      result.SystemInitialize();
       return result;
     }
 
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Internals
       var activator = structureActivators.GetValue(type,
         DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo,Structure>>);
       Structure result = activator(owner, field);
-      result.NotifyInitialize();
+      result.SystemInitialize();
       return result;
     }
 

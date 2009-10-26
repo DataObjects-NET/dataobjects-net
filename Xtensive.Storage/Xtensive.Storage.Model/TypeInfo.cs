@@ -56,8 +56,9 @@ namespace Xtensive.Storage.Model
     private int                                typeId = NoTypeId;
     private MapTransform                       primaryKeyInjector;
     private bool                               isLeaf;
-    private KeyProviderInfo                            keyProviderInfo;
+    private KeyProviderInfo                    keyProviderInfo;
     private bool                               hasVersionRoots;
+    private Dictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
 
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
@@ -268,6 +269,18 @@ namespace Xtensive.Storage.Model
     public bool HasVersionFields { get; private set; }
 
     /// <summary>
+    /// Gets the structure field mapping.
+    /// </summary>
+    /// <value>The structure field mapping.</value>
+    public Dictionary<Pair<FieldInfo>, FieldInfo> StructureFieldMapping
+    {
+      get
+      {
+        return structureFieldMapping ?? BuildStructureFieldMapping();
+      }
+    }
+
+    /// <summary>
     /// Creates the tuple prototype with specified <paramref name="primaryKey"/>.
     /// </summary>
     /// <param name="primaryKey">The primary key to use.</param>
@@ -470,6 +483,8 @@ namespace Xtensive.Storage.Model
       columns.UpdateState(true);
       fields.UpdateState(true);
 
+      structureFieldMapping = BuildStructureFieldMapping();
+
       if (IsEntity || IsStructure)
         BuildTuplePrototype();
       
@@ -602,6 +617,18 @@ namespace Xtensive.Storage.Model
       var map = versionColumns.Select(pair => pair.Second).ToArray();
       var versionTupleDescriptor = TupleDescriptor.Create(types.ToArray());
       VersionExtractor = new MapTransform(true, versionTupleDescriptor, map);
+    }
+
+    private Dictionary<Pair<FieldInfo>, FieldInfo> BuildStructureFieldMapping()
+    {
+      var result = new Dictionary<Pair<FieldInfo>, FieldInfo>();
+      var structureFields = Fields.Where(f => f.IsStructure && f.Parent == null);
+      foreach (var structureField in structureFields) {
+        var structureTypeInfo = Model.Types[structureField.ValueType];
+        foreach (var pair in structureTypeInfo.Fields.Zip(structureField.Fields))
+          result.Add(new Pair<FieldInfo>(structureField, pair.First), pair.Second);
+      }
+      return result;
     }
 
     #endregion
