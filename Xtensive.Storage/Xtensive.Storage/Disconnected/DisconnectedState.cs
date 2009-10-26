@@ -14,6 +14,8 @@ using Xtensive.Storage.Internals;
 using System;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Disconnected.Log;
+using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage.Disconnected
 {
@@ -29,6 +31,7 @@ namespace Xtensive.Storage.Disconnected
     private DisconnectedSessionHandler handler;
     private Session session;
     private readonly Dictionary<Key, VersionInfo> versionCache;
+    private Logger logger;
 
     internal ModelHelper ModelHelper { get; private set; }
 
@@ -166,16 +169,20 @@ namespace Xtensive.Storage.Disconnected
     internal void OnTransactionStarted()
     {
       transactionalRegistry = new StateRegistry(registry);
+      logger = new Logger(Session, transactionalRegistry.Log);
     }
 
     internal void OnTransactionCommited()
     {
       transactionalRegistry.Commit();
       transactionalRegistry = null;
+      logger.DisposeSafely();
+      logger = null;
     }
 
     internal void OnTransactionRollbacked()
     {
+      logger.DisposeSafely();
       transactionalRegistry = null;
     }
 

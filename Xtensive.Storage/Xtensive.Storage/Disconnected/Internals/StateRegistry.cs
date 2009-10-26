@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Disconnected.Log;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -24,6 +25,8 @@ namespace Xtensive.Storage.Disconnected
     private readonly Dictionary<Key, DisconnectedEntityState> states;
 
     private ModelHelper ModelHelper { get { return disconnectedState.ModelHelper; } }
+
+    public OperationLog Log { get; private set; }
 
     public StateRegistry Origin { get; private set; }
 
@@ -150,6 +153,8 @@ namespace Xtensive.Storage.Disconnected
 
       foreach (var state in states)
         state.Value.Commit();
+      if (Origin.Log!=null)
+        Origin.Log.Append(Log);
     }
     
     private void InsertIntoEntitySet(Key ownerKey, FieldInfo field, Key itemKey)
@@ -197,6 +202,7 @@ namespace Xtensive.Storage.Disconnected
 
       states = new Dictionary<Key, DisconnectedEntityState>();
       this.disconnectedState = disconnectedState;
+      Log = new OperationLog();
     }
 
     /// <summary>
@@ -210,6 +216,7 @@ namespace Xtensive.Storage.Disconnected
       states = new Dictionary<Key, DisconnectedEntityState>();
       Origin = origin;
       disconnectedState = origin.disconnectedState;
+      Log = new OperationLog();
     }
   }
 }

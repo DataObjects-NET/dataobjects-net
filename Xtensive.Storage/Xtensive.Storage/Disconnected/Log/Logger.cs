@@ -22,12 +22,12 @@ namespace Xtensive.Storage.Disconnected.Log
 
     private void AttachEventHandlers()
     {
-      throw new NotImplementedException();
+      // throw new NotImplementedException();
     }
 
     private void DetachEventHandlers()
     {
-      throw new NotImplementedException();
+      // throw new NotImplementedException();
     }
 
 
