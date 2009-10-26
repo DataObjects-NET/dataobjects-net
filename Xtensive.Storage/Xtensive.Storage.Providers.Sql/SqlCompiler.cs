@@ -29,6 +29,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Sql.ValueTypeMapping;
 using ColumnInfo=Xtensive.Storage.Model.ColumnInfo;
 using IndexInfo=Xtensive.Storage.Model.IndexInfo;
+using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -872,7 +873,8 @@ namespace Xtensive.Storage.Providers.Sql
     public List<SqlExpression> ExtractColumnExpressions(SqlSelect query, CompilableProvider origin)
     {
       var result = new List<SqlExpression>(query.Columns.Count);
-      var shouldUseQueryColumns = origin.Type==ProviderType.Filter && query.Columns.Count < query.From.Columns.Count;
+      var shouldUseQueryColumns = origin.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Filter)  
+        && query.Columns.Count < query.From.Columns.Count;
       if (query.Columns.Any(IsColumnStub) || query.GroupBy.Count > 0 || shouldUseQueryColumns) {
         foreach (var column in query.Columns) {
           var expression = IsColumnStub(column)
