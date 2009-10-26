@@ -142,25 +142,41 @@ namespace Xtensive.Storage.Internals.Prefetch
     private static RecordSet CreateRecordSetLoadingItems(object cachingKey)
     {
       var pair = (Pair<object, EntitySetTask>) cachingKey;
-      var associationIndex = pair.Second.ReferencingField.Association.UnderlyingIndex;
       var primaryTargetIndex = pair.Second.ReferencingField.Association.TargetType.Indexes.PrimaryIndex;
-      var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex,
-        pair.Second.ReferencingField.Association.AuxiliaryType != null);
       var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
-      if (pair.Second.ReferencingField.Association.AuxiliaryType == null)
-        AddResultColumnIndexes(resultColumns, primaryTargetIndex, associationIndex.Columns.Count);
+      ParameterExpression tupleParameter;
+      RecordSet result;
+      if (pair.Second.ReferencingField.Association.AuxiliaryType == null) {
+        AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
+        var field = pair.Second.ReferencingField.Association.Reversed.OwnerField;
+        var keyColumnTypes = field.Columns.Select(column => column.ValueType).ToList();
+        var filterExpression = CreateFilterExpression(field.MappingInfo.Offset, keyColumnTypes, out tupleParameter);
+        result = primaryTargetIndex
+          .ToRecordSet()
+          .Filter(Expression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter));
+      }
       else {
+        var associationIndex = pair.Second.ReferencingField.Association.UnderlyingIndex;
+        var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex,
+        pair.Second.ReferencingField.Association.AuxiliaryType != null);
         AddResultColumnIndexes(resultColumns, associationIndex, 0);
         AddResultColumnIndexes(resultColumns, primaryTargetIndex, resultColumns.Count);
+        var firstKeyColumnIndex = associationIndex.Columns.IndexOf(associationIndex.KeyColumns[0].Key);
+        var keyColumnTypes = associationIndex
+          .Columns
+          .Skip(firstKeyColumnIndex)
+          .Take(associationIndex.KeyColumns.Count)
+          .Select(column => column.ValueType)
+          .ToList();
+        var filterExpression = CreateFilterExpression(firstKeyColumnIndex,keyColumnTypes, out tupleParameter);
+        result = associationIndex.ToRecordSet()
+          .Filter(Expression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter))
+          .Alias("a").Join(primaryTargetIndex.ToRecordSet(), joiningColumns);
       }
-      ParameterExpression tupleParameter;
-      var filterExpression = CreateFilterExpression(associationIndex, out tupleParameter);
-      var result = associationIndex.ToRecordSet()
-        .Filter(Expression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter))
-        .Alias("a").Join(primaryTargetIndex.ToRecordSet(), joiningColumns);
+      result = result.Select(resultColumns.ToArray());
       if (pair.Second.ItemCountLimit != null)
         result = result.Take(() => itemCountLimitParameter.Value);
-      return result.Select(resultColumns.ToArray());
+      return result;
     }
 
     private static void AddResultColumnIndexes(ICollection<int> indexes, IndexInfo index,
@@ -190,17 +206,15 @@ namespace Xtensive.Storage.Internals.Prefetch
       return joiningColumns;
     }
 
-    private static Expression CreateFilterExpression(IndexInfo associationIndex,
-      out ParameterExpression tupleParameter)
+    private static Expression CreateFilterExpression(int firstKeyColumnIndex, IList<Type> keyColumnTypes, out ParameterExpression tupleParameter)
     {
       Expression filterExpression = null;
       tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
       var valueProperty = typeof (Parameter<Tuple>).GetProperty("Value", typeof (Tuple));
       var keyValue = Expression.Property(Expression.Constant(ownerParameter), valueProperty);
-      var firstKeyColumnIndex = associationIndex.Columns.IndexOf(associationIndex.KeyColumns[0].Key);
-      for (var i = 0; i < associationIndex.KeyColumns.Count; i++) {
+      for (var i = 0; i < keyColumnTypes.Count; i++) {
         var getValueMethod = getValueMethodDefinition
-          .MakeGenericMethod(associationIndex.Columns[firstKeyColumnIndex + i].ValueType);
+          .MakeGenericMethod(keyColumnTypes[i]);
         var tupleParameterFieldAccess = Expression.Call(tupleParameter, getValueMethod,
           Expression.Constant(firstKeyColumnIndex + i));
         var ownerKeyFieldAccess = Expression.Call(keyValue, getValueMethod,
