@@ -1222,4 +1222,25 @@ Actions:
   <data name="ExElementAtIndexMustBeGreaterOrEqualToZero" xml:space="preserve">
     <value>ElementAt index must be greater or equal to zero.</value>
   </data>
+  <data name="ExConnectionIsRequired" xml:space="preserve">
+    <value>Connection is required.</value>
+  </data>
+  <data name="ExDisconnectedStateIsAlreadyAttachedToSession" xml:space="preserve">
+    <value>DisconnectedState is already attached to session.</value>
+  </data>
+  <data name="ExDisconnectedStateIsDetached" xml:space="preserve">
+    <value>DisconnectedState is detached.</value>
+  </data>
+  <data name="ExActiveTransactionIsPresent" xml:space="preserve">
+    <value>Active transaction is present.</value>
+  </data>
+  <data name="ExStateWithKeyXIsAlreadyExists" xml:space="preserve">
+    <value>State with key '{0}' is already exists.</value>
+  </data>
+  <data name="ExStateIsNotLoaded" xml:space="preserve">
+    <value>State is not loaded.</value>
+  </data>
+  <data name="ExStateIsRemoved" xml:space="preserve">
+    <value>State is removed.</value>
+  </data>
 </root>

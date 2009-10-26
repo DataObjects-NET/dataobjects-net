@@ -73,6 +73,12 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public EntitySet<Order> Orders { get; private set; }
   }
 
+  public class AdvancedCustomer : Customer
+  {
+    [Field]
+    public float Discount { get; set; }
+  }
+
   public class Supplier : Person
   {
     [Field, Association(PairTo = "Supplier")]
@@ -278,11 +284,6 @@ namespace Xtensive.Storage.Tests.Storage
           simple.Value = "new value";
           transactionScope.Complete();
         }
-        using (var transactionScope = Transaction.Open()) {
-          var simple = Query<Simple>.Single(key);
-          Assert.AreEqual("new value", simple.Value);
-          transactionScope.Complete();
-        }
       }
       // Look instance from cache
       using (var session = Session.Open(Domain)) {
@@ -390,8 +391,11 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ModifyDataTest()
     {
-      // Modify data
       var disconnectedState = new DisconnectedState();
+      Key order1Key;
+      Key newCustomerKey;
+
+      // Modify data
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
         using (var transactionScope = Transaction.Open()) {
@@ -404,10 +408,13 @@ namespace Xtensive.Storage.Tests.Storage
           });
           
           var newCustomer = new Customer {Name = "NewCustomer"};
+          newCustomerKey = newCustomer.Key;
           session.Persist();
           newCustomer.Remove();
-          
+          session.Persist(false);
+
           var order1 = orders.First(order => order.Number==1);
+          order1Key = order1.Key;
           Assert.AreEqual(2, order1.Details.Count);
           Product product3 = null;
           disconnectedState.Prefetch(() => product3 = Query<Product>.All.First(product => product.Name=="Product3"));
@@ -427,6 +434,7 @@ namespace Xtensive.Storage.Tests.Storage
         disconnectedState.Detach();
       }
 
+      /*
       // Save data to storage
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
@@ -435,16 +443,20 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Check saved data
-      using (var sessionScope = Session.Open(Domain)) {
+      */
+      
+      using (var session = Session.Open(Domain)) {
+        disconnectedState.Attach(session);
         using (var transactionScope = Transaction.Open()) {
-          var order1 = Query<Order>.All.First(order => order.Number==1);
-          var details = order1.Details;
+          Order order1 = Query<Order>.Single(order1Key);
+          var details = order1.Details.ToList();
           Assert.AreEqual(2, order1.Details.Count);
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
-          Assert.IsNull(Query<Customer>.All.FirstOrDefault(customer => customer.Name=="NewCustomer"));
+          AssertEx.Throws<ConnectionRequiredException>(() => Query<Customer>.Single(newCustomerKey));
           transactionScope.Complete();
         }
+        disconnectedState.Detach();
       }
     }
 
@@ -520,6 +532,7 @@ namespace Xtensive.Storage.Tests.Storage
         disconnectedState.Detach();
       }
 
+      /*
       // Save changes to storage
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
@@ -528,9 +541,11 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Check changes
-      using (var session = Session.Open(Domain)) {
-        using (var transactionScope = Transaction.Open()) {
+      */
 
+      using (var session = Session.Open(Domain)) {
+        disconnectedState.Attach(session);
+        using (var transactionScope = Transaction.Open()) {
           var newProduct1 = Query<Product>.SingleOrDefault(newProduct1Key);
           var newProduct2 = Query<Product>.SingleOrDefault(newProduct2Key);
           var product3 = Query<Product>.SingleOrDefault(product3Key);
@@ -546,6 +561,7 @@ namespace Xtensive.Storage.Tests.Storage
           
           transactionScope.Complete();
         }
+        disconnectedState.Detach();
       }
     }
     
@@ -595,7 +611,7 @@ namespace Xtensive.Storage.Tests.Storage
 
           var supplier1 = Query<Supplier>.Single(updatedSupplierKey);
           Assert.AreEqual("UpdatedSupplier1", supplier1.Name);
-          AssertEx.Throws<KeyNotFoundException>(() => Query<Simple>.Single(newSupplierKey));
+          AssertEx.Throws<ConnectionRequiredException>(() => Query<Supplier>.Single(newSupplierKey));
           
           transactionScope.Complete();
         }
@@ -822,12 +838,22 @@ namespace Xtensive.Storage.Tests.Storage
         disconnectedState.Attach(session);
         using (var transactionScope = Transaction.Open()) {
           var supplier = new Supplier();
-          var products = supplier.Products.Count;
-          Assert.AreEqual(0, products);
+          supplierKey = supplier.Key;
+          var productCount = supplier.Products.Count;
+          Assert.AreEqual(0, productCount);
 
           transactionScope.Complete();
         }
         disconnectedState.Detach();
+      }
+      using (var session = Session.Open(Domain)) {
+        disconnectedState.Attach(session);
+        using (var transactionScope = Transaction.Open()) {
+          var supplier = Query<Supplier>.Single(supplierKey);
+          var productCount = supplier.Products.Count;
+          Assert.AreEqual(0, productCount);
+          transactionScope.Complete();
+        }
       }
     }
 
@@ -1059,31 +1085,33 @@ namespace Xtensive.Storage.Tests.Storage
 
         disconnectedState.Detach();
       }
+    }
 
-      // With updated instance
+    [Test]
+    public void FetchInstanceWithExisitingKeyTest()
+    {
+      var ds = new DisconnectedState();
       using (var session = Session.Open(Domain)) {
-        disconnectedState.Attach(session);
-        Key customerKey = null;
+        ds.Attach(session);
         using (var transactionScope = Transaction.Open()) {
-          Order order1 = null;
-          disconnectedState.Prefetch(() => order1 = Query<Order>.All
-            .Where(order => order.Number==1)
-            .First());
-          var newCustomer = new Customer();
-          order1.Customer = newCustomer;
-          customerKey = newCustomer.Key;
+          ds.Prefetch(() => Query<Order>.All.ToList());
+          ds.Prefetch(() => Query<Order>.All.Prefetch(o => o.Customer).ToList());
           transactionScope.Complete();
         }
+        ds.Detach();
+      }
+      using (var session = Session.Open(Domain)) {
+        ds.Attach(session);
         using (var transactionScope = Transaction.Open()) {
-          var newCustomer = Query<Customer>.Single(customerKey);
-          AssertEx.Throws<ReferentialIntegrityException>(() => newCustomer.Remove());
+          List<Customer> customers;
+          ds.Prefetch(() => customers = Query<Customer>.All.Prefetch(c => c.Orders).ToList());
           transactionScope.Complete();
         }
-
-        disconnectedState.Detach();
+        ds.Detach();
       }
     }
-    
+
+
     private void FillDataBase()
     {
       using (var sesscionScope = Session.Open(Domain)) {

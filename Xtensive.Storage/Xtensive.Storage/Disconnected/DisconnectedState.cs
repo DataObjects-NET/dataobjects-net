@@ -2,35 +2,38 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Ivan Galkin
-// Created:    2009.09.01
+// Created:    2009.10.23
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Internals;
+using System;
 using Xtensive.Storage.Providers;
-using TupleExtensions=Xtensive.Storage.Internals.TupleExtensions;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Disconnected
 {
   /// <summary>
-  /// The disconnected state.
+  /// Disconnected state.
   /// </summary>
-  [Serializable]
   public sealed class DisconnectedState
   {
+    private StateRegistry transactionalRegistry;
+    private StateRegistry registry;
+    private readonly StateRegistry globalRegistry;
     private IDisposable disposable;
     private DisconnectedSessionHandler handler;
     private Session session;
-    private readonly Dictionary<Key, VersionInfo> versionCache = new Dictionary<Key, VersionInfo>();
-    private DisconnectedStateRegistry transactionalCache = new DisconnectedStateRegistry();
-    private readonly DisconnectedStateRegistry cache = new DisconnectedStateRegistry();
-    
+    private readonly Dictionary<Key, VersionInfo> versionCache;
+
+    internal ModelHelper ModelHelper { get; private set; }
+
+    # region Public API
+
     /// <summary>
     /// Gets the session this instance attached to.
     /// </summary>
@@ -49,9 +52,9 @@ namespace Xtensive.Storage.Disconnected
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       if (IsAttached)
-        throw new InvalidOperationException("DisconnectedState is already attached to session.");
+        throw new InvalidOperationException(Strings.ExDisconnectedStateIsAlreadyAttachedToSession);
       if (session.Transaction!=null)
-        throw new InvalidOperationException("Can't attach DisconnectedState to session with active transaction.");
+        throw new InvalidOperationException(Strings.ExActiveTransactionIsPresent);
 
       this.session = session;
       handler = new DisconnectedSessionHandler(Session.Handler, this);
@@ -64,9 +67,9 @@ namespace Xtensive.Storage.Disconnected
     public void Detach()
     {
       if (!IsAttached)
-        throw new InvalidOperationException("DisconnectedState is already detached.");
+        return;
       if (session.Transaction!=null)
-        throw new InvalidOperationException("Can't detach DisconnectedState from session with active transaction.");
+        throw new InvalidOperationException(Strings.ExActiveTransactionIsPresent);
 
       session = null;
       handler = null;
@@ -78,10 +81,11 @@ namespace Xtensive.Storage.Disconnected
     /// Prefetches instances to <see cref="DisconnectedState"/>.
     /// </summary>
     /// <param name="prefetcher">The prefetcher.</param>
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     public void Prefetch(Action prefetcher)
     {
       if (!IsAttached)
-        throw new InvalidOperationException("DisconnectedState is detached.");
+        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
 
       try {
         handler.BeginChainedTransaction();
@@ -100,10 +104,14 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     public void SaveChanges()
     {
+      throw new NotSupportedException();
+      /*
       if (!IsAttached)
-        throw new InvalidOperationException("DisconnectedState is detached.");
+        throw new InvalidOperationException(Strings.DisconnectedStateIsDetached);
       
-      var itemsToSave = cache.ChangedEntityStates.ToList();
+      var itemsToSave = cache.GetChanges()
+        .Where(item => item.State!=PersistenceState.Synchronized)
+        .ToList();
       if (itemsToSave.Count==0)
         return;
       var tempSession = Session;
@@ -112,20 +120,30 @@ namespace Xtensive.Storage.Disconnected
         using (var transactionScope = Transaction.Open(tempSession)) {
           CheckVersions(itemsToSave, tempSession.Handler);
           foreach (var cachedState in itemsToSave) {
-            var tuple = cachedState.DifferenceTuple!=null
-              ? new DifferentialTuple(cachedState.OriginalTuple, cachedState.DifferenceTuple)
-              : cachedState.OriginalTuple;
+            var tuple = cachedState.Actual!=null
+              ? new DifferentialTuple(cachedState.Actual, cachedState.Differences)
+              : cachedState.Actual;
             var entityState = tempSession.UpdateEntityState(cachedState.Key, tuple, true);
-            entityState.PersistenceState = cachedState.PersistenceState;
+            entityState.PersistenceState = cachedState.State;
           }
           transactionScope.Complete();
         }
+        // TODO: Complete (removes)
         foreach (var entityState in itemsToSave)
-          entityState.PersistenceState = PersistenceState.Synchronized;
+          entityState.State = PersistenceState.Synchronized;
       }
       finally {
         Attach(tempSession);
       }
+       */
+    }
+
+    /// <summary>
+    /// Clears all changes.
+    /// </summary>
+    public void ClearChanges()
+    {
+      registry = new StateRegistry(globalRegistry);
     }
 
     private void CheckVersions(IEnumerable<DisconnectedEntityState> items, SessionHandler handler)
@@ -140,122 +158,103 @@ namespace Xtensive.Storage.Disconnected
           || actualVersions[versionPair.Key] != versionPair.Value)
           throw new InvalidOperationException("Version conflict.");
     }
-    
 
-    internal DisconnectedEntityState GetEntityState(Key key)
-    {
-      // Try get from transactional cache
-      var cachedState = transactionalCache.GetEntityState(key);
-      if (cachedState!=null)
-        return cachedState;
-      
-      // Try get from cache
-      cachedState = cache.GetEntityState(key);
-      if (cachedState==null)
-        return null;
-      var entitySets = cache.GetEntitySetStates(cachedState.Key);
-      var references = cache.GetReferences(cachedState.Key);
-      cachedState = transactionalCache.AddEntityState(cachedState, entitySets, references);
-      return cachedState;
-    }
+    # endregion
     
-    internal DisconnectedEntitySetState GetEntitySetState(Key ownerKey, string fieldName)
+    # region Internal API
+
+    internal void OnTransactionStarted()
     {
-      // Try get from transactional cache
-      var cachedState = transactionalCache.GetEntitySetState(ownerKey, fieldName);
-      if (cachedState!=null)
-        return cachedState;
-      
-      // Try get from cache
-      cachedState = cache.GetEntitySetState(ownerKey, fieldName);
-      if (cachedState==null)
-        return null;
-      return transactionalCache.RegisterEntitySetState(cachedState);
+      transactionalRegistry = new StateRegistry(registry);
     }
 
-    internal IEnumerable<DisconnectedEntityState> GetReferenceTo(Key key, string fieldName)
+    internal void OnTransactionCommited()
     {
-      var states = new List<DisconnectedEntityState>();
-      var cachedRefs = transactionalCache.GetReferencesTo(key, fieldName);
-      if (cachedRefs!=null)
-        foreach (var targetKey in cachedRefs)
-          states.Add(GetEntityState(targetKey));
-      return states;
+      transactionalRegistry.Commit();
+      transactionalRegistry = null;
     }
 
-    
-    internal DisconnectedEntityState RegisterEntityState(Key key, Tuple tuple)
+    internal void OnTransactionRollbacked()
     {
+      transactionalRegistry = null;
+    }
+
+    internal DisconnectedEntityState GetState(Key key)
+    {
+      if (!IsAttached)
+        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
+
+      return transactionalRegistry.GetState(key);
+    }
+
+    internal DisconnectedEntityState RegisterState(Key key, Tuple tuple)
+    {
+      if (!IsAttached)
+        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
+
       // Store object version
       if (key.TypeRef.Type.VersionExtractor!=null && !versionCache.ContainsKey(key)) {
         var versionTuple = key.TypeRef.Type.VersionExtractor.Apply(TupleTransformType.Tuple, tuple);
         versionCache.Add(key, new VersionInfo(versionTuple));
       }
-      
-      var cachedState = cache.RegisterEntityState(key, tuple);
-      if (cachedState.PersistenceState == PersistenceState.Removed)
-        return cachedState;
-      cachedState = transactionalCache.RegisterEntityState(key, cachedState.OriginalTuple);
-      return cachedState;
+
+      globalRegistry.Register(key, tuple);
+      return GetState(key);
     }
 
-    internal DisconnectedEntitySetState RegisterEntitySetState(Key key, string fieldInfo, bool isFullyLoaded, 
+    internal DisconnectedEntitySetState RegisterSetState(Key key, FieldInfo fieldInfo, bool isFullyLoaded, 
       List<Key> entities, List<Pair<Key, Tuple>> auxEntities)
     {
+      if (!IsAttached)
+        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
+
       if (auxEntities!=null)
         foreach (var entity in auxEntities)
-          RegisterEntityState(entity.First, entity.Second);
+          RegisterState(entity.First, entity.Second);
 
-      cache.RegisterEntitySetState(key, fieldInfo, entities, isFullyLoaded);
-      return transactionalCache.RegisterEntitySetState(key, fieldInfo, entities, isFullyLoaded);
+      var state = registry.GetForUpdate(key);
+      var setState = state.GetEntitySetState(fieldInfo);
+      setState.IsFullyLoaded = isFullyLoaded;
+      foreach (var entity in entities)
+        if (!setState.Items.ContainsKey(entity))
+          setState.Items.Add(entity, entity);
+      return transactionalRegistry.GetState(key).GetEntitySetState(fieldInfo);
     }
-
 
     internal void Persist(EntityState entityState, PersistActionKind persistAction)
     {
+      if (!IsAttached)
+        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
+
       switch (persistAction) {
         case PersistActionKind.Insert:
-          transactionalCache.Insert(entityState.Key, entityState.Tuple.ToRegular());
+          transactionalRegistry.Insert(entityState.Key, entityState.Tuple.ToRegular());
           break;
         case PersistActionKind.Update:
-          transactionalCache.Update(entityState.Key, entityState.DifferentialTuple.Difference.ToRegular());
+          transactionalRegistry.Update(entityState.Key, entityState.DifferentialTuple.Difference.ToRegular());
           break;
         case PersistActionKind.Remove:
-          transactionalCache.Remove(entityState.Key);
+          transactionalRegistry.Remove(entityState.Key);
           break;
         default:
           throw new ArgumentOutOfRangeException("persistAction");
       }
     }
 
-    internal void BeginTransaction()
-    {
-      transactionalCache = new DisconnectedStateRegistry();
-    }
+    # endregion
 
-    internal void CommitTransaction()
-    {
-      foreach (var entityState in transactionalCache.ChangedEntityStates) {
-        switch (entityState.PersistenceState) {
-          case PersistenceState.New:
-            cache.Insert(entityState.Key, entityState.OriginalTuple.Clone());
-            break;
-          case PersistenceState.Modified:
-            cache.Update(entityState.Key, entityState.DifferenceTuple.Clone());
-            break;
-          case PersistenceState.Removed:
-            cache.Remove(entityState.Key);
-            break;
-          default:
-            throw new ArgumentOutOfRangeException("entityState.PersistenceState");
-        }
-      }
-      transactionalCache = null;
-    }
 
-    internal void RollbackTransaction()
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public DisconnectedState()
     {
-      transactionalCache = null;
+      ModelHelper = new ModelHelper();
+      globalRegistry = new StateRegistry(this);
+      registry = new StateRegistry(globalRegistry);
+      versionCache = new Dictionary<Key, VersionInfo>();
     }
   }
 }

@@ -276,6 +276,12 @@ namespace Xtensive.Storage.Providers
       prefetchProcessor.ChangeOwner(newOwner);
     }
 
+    /// <summary>
+    /// Gets the references to specified entity.
+    /// </summary>
+    /// <param name="target">The target.</param>
+    /// <param name="association">The association.</param>
+    /// <returns>References.</returns>
     protected internal virtual IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
     {
       IndexInfo index;
@@ -312,6 +318,12 @@ namespace Xtensive.Storage.Providers
       }
     }
 
+    /// <summary>
+    /// Gets the references from specified entity.
+    /// </summary>
+    /// <param name="owner">The owner.</param>
+    /// <param name="association">The association.</param>
+    /// <returns>References.</returns>
     protected internal virtual IEnumerable<ReferenceInfo> GetReferencesFrom(Entity owner, AssociationInfo association)
     {
       switch (association.Multiplicity) {
