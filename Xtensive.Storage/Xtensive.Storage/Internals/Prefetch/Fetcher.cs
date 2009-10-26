@@ -8,15 +8,14 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
   internal sealed class Fetcher
   {
-    private readonly Dictionary<TypeInfo, SetSlim<EntityGroupTask>> tasks =
-      new Dictionary<TypeInfo, SetSlim<EntityGroupTask>>();
+    private readonly SetSlim<EntityGroupTask> tasks = new SetSlim<EntityGroupTask>();
+    private readonly HashSet<Key> foundedKeys = new HashSet<Key>();
 
     private readonly PrefetchProcessor processor;
 
@@ -48,6 +47,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
       finally {
         tasks.Clear();
+        foundedKeys.Clear();
       }
     }
 
@@ -77,10 +77,9 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       var newTask = container.GetTask();
       if (newTask!=null) {
-        var tasksForType = GetTasksForType(container.Type);
-        var existingTask = tasksForType[newTask];
+        var existingTask = tasks[newTask];
         if (existingTask == null) {
-          tasksForType.Add(newTask);
+          tasks.Add(newTask);
           existingTask = newTask;
         }
         existingTask.AddKey(container.Key, container.ExactType);
@@ -89,27 +88,14 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private void UpdateCacheFromAllEntityGroupTasks()
     {
-      foreach (var tasksForTypePair in tasks)
-        foreach (var task in tasksForTypePair.Value)
-          task.UpdateCache();
+      foreach (var task in tasks)
+        task.UpdateCache(foundedKeys);
     }
 
     private void RegisterAllEntityGroupTasks()
     {
-      foreach (var tasksForTypePair in tasks) {
-        foreach (var task in tasksForTypePair.Value)
-          task.RegisterQueryTasks();
-      }
-    }
-
-    private SetSlim<EntityGroupTask> GetTasksForType(TypeInfo type)
-    {
-      SetSlim<EntityGroupTask> tasksForType;
-      if (!tasks.TryGetValue(type, out tasksForType)) {
-        tasksForType = new SetSlim<EntityGroupTask>();
-        tasks.Add(type, tasksForType);
-      }
-      return tasksForType;
+      foreach (var task in tasks)
+        task.RegisterQueryTasks();
     }
 
 

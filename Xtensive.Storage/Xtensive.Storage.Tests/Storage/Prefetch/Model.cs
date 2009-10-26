@@ -228,4 +228,17 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
 
     public EntitySet<IPublisher> Suppliers { get; private set; }
   }
+
+  [HierarchyRoot]
+  public class ReferenceToSelf : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public int AuxField { get; set; }
+
+    [Field]
+    public ReferenceToSelf Reference { get; set; }
+  }
 }

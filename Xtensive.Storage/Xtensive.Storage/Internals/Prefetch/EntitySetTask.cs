@@ -41,8 +41,6 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public int? ItemCountLimit { get; private set; }
 
-    /*public bool IsActive { get { return itemsQueryTask!=null; } }*/
-
     public void RegisterQueryTask()
     {
       EntitySetState state;
@@ -96,9 +94,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         return true;
       if (!ReferencingField.Equals(other.ReferencingField))
         return false;
-      return (ItemCountLimit == null && other.ItemCountLimit == null)
-        // TODO: This check should be removed (when the handling of TakeProvider in cached queries will be fixed)
-        || (ItemCountLimit == other.ItemCountLimit);
+      return (ItemCountLimit==null) == (other.ItemCountLimit==null);
     }
 
     public override bool Equals(object obj)
@@ -118,7 +114,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       if (cachedHashCode==null)
         unchecked {
           cachedHashCode = (ReferencingField.GetHashCode() * 397)
-            ^ (ItemCountLimit.HasValue ? ItemCountLimit.Value : 0);
+            ^ (ItemCountLimit.HasValue ? 1 : 0);
         }
       return cachedHashCode.Value;
     }

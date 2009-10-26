@@ -29,7 +29,6 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly int cachedHashCode;
     private readonly PrefetchProcessor processor;
     private List<QueryTask> queryTasks;
-    private HashSet<Key> foundedEntityKeys;
 
     public RecordSet RecordSet { get; private set; }
 
@@ -52,13 +51,13 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
     }
 
-    public void UpdateCache()
+    public void UpdateCache(HashSet<Key> foundedKeys)
     {
-      foundedEntityKeys = new HashSet<Key>();
+      foundedKeys.Clear();
       var reader = processor.Owner.Session.Domain.RecordSetReader;
       foreach (var queryTask in queryTasks)
-        PutLoadedStatesToCache(queryTask.Result, reader);
-      HandleMissedKeys();
+        PutLoadedStatesToCache(queryTask.Result, reader, foundedKeys);
+      HandleMissedKeys(foundedKeys);
     }
 
     public IEnumerable<QueryTask> GetResult()
@@ -118,7 +117,8 @@ namespace Xtensive.Storage.Internals.Prefetch
         .Select(selectedColumnIndexes);
     }
 
-    private void PutLoadedStatesToCache(IEnumerable<Tuple> queryResult, RecordSetReader reader)
+    private void PutLoadedStatesToCache(IEnumerable<Tuple> queryResult, RecordSetReader reader,
+      HashSet<Key> foundedKeys)
     {
       var records = reader.Read(queryResult, RecordSet.Header);
       foreach (var record in records) {
@@ -127,18 +127,18 @@ namespace Xtensive.Storage.Internals.Prefetch
           var tuple = record.GetTuple();
           if (tuple!=null) {
             processor.SaveStrongReference(processor.Owner.RegisterEntityState(fetchedKey, tuple));
-            foundedEntityKeys.Add(fetchedKey);
+            foundedKeys.Add(fetchedKey);
           }
         }
       }
     }
 
-    private void HandleMissedKeys()
+    private void HandleMissedKeys(HashSet<Key> foundedKeys)
     {
-      if (foundedEntityKeys.Count == keys.Count)
+      if (foundedKeys.Count == keys.Count)
         return;
       foreach (var pair in keys) {
-        if (!foundedEntityKeys.Contains(pair.Key))
+        if (!foundedKeys.Contains(pair.Key))
           MarkMissedEntityState(pair.Key, pair.Value);
       }
     }
