@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Disconnected.Log.Operations
 {
@@ -32,7 +33,7 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
 
     public EntityOperation(Key key, EntityOperationType type)
     {
-      if (type == EntityOperationType.Update)
+      if (type.In(EntityOperationType.AddItem, EntityOperationType.RemoveItem, EntityOperationType.Update))
         throw new InvalidOperationException();
       Key = key;
       Type = type;

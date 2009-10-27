@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Disconnected.Log
       log.AddRange(operations);
     }
 
-    public void Apply()
+    public void Apply(Session session)
     {
       throw new NotImplementedException();
     }

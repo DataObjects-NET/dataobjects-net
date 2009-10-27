@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Disconnected.Log.Operations
@@ -31,9 +32,9 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
     
     // Constructors
 
-    public EntitySetOperation(Key key, Key targetKey,  EntityOperationType type, FieldInfo fieldInfo)
+    public EntitySetOperation(Key key, Key targetKey, FieldInfo fieldInfo, EntityOperationType type)
     {
-      if (type == EntityOperationType.Update)
+      if (!type.In(EntityOperationType.AddItem, EntityOperationType.RemoveItem))
         throw new InvalidOperationException();
       Key = key;
       TargetKey = targetKey;

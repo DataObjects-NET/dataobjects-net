@@ -12,6 +12,6 @@ namespace Xtensive.Storage.Disconnected.Log
   {
     void Register(IOperation operation);
     void Append(IEnumerable<IOperation> operations);
-    void Apply();
+    void Apply(Session session);
   }
 }

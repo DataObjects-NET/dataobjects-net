@@ -10,6 +10,8 @@ namespace Xtensive.Storage.Disconnected.Log
   {
     Create,
     Update,
-    Remove
+    Remove,
+    AddItem,
+    RemoveItem
   }
 }
