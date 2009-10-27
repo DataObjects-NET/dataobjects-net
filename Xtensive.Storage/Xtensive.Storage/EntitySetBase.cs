@@ -146,19 +146,28 @@ namespace Xtensive.Storage
       if (Contains(item))
         return false;
 
-      NotifyAdding(item);
+      try {
+        SystemBeforeAdd(item);
 
-      if (Field.Association.IsPaired)
-        Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
+        if (Field.Association.IsPaired)
+          Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
 
-      if (Field.Association.AuxiliaryType!=null && Field.Association.IsMaster)
-        GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
+        if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster)
+          GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
 
-      State.Add(item.Key);
-      Owner.UpdateVersionInternal();
-      NotifyAdd(item);
+        State.Add(item.Key);
+        Owner.UpdateVersionInternal();
+        SystemAdd(item);
 
-      return true;
+        return true;
+      }
+      catch(Exception e) {
+        SystemAddCompleted(item, e);
+        throw;
+      }
+      finally {
+        SystemAddCompleted(item, null);
+      }
     }
 
     /// <summary>
@@ -174,22 +183,31 @@ namespace Xtensive.Storage
       if (!Contains(item))
         return false;
 
-      NotifyRemoving(item);
+      try {
+        SystemBeforeRemove(item);
 
-      if (Field.Association.IsPaired)
-        Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
+        if (Field.Association.IsPaired)
+          Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
 
-      if (Field.Association.AuxiliaryType!=null && Field.Association.IsMaster) {
-        var combinedKey = Key.Create(Session.Domain, Field.Association.AuxiliaryType, TypeReferenceAccuracy.ExactType, Owner.Key.Value.Combine(item.Key.Value));
-        Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
-        underlyingItem.Remove();
+        if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
+          var combinedKey = Key.Create(Session.Domain, Field.Association.AuxiliaryType, TypeReferenceAccuracy.ExactType,
+                                       Owner.Key.Value.Combine(item.Key.Value));
+          Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
+          underlyingItem.Remove();
+        }
+
+        State.Remove(item.Key);
+        Owner.UpdateVersionInternal();
+        SystemRemove(item);
+        return true;
       }
-
-      State.Remove(item.Key);
-      Owner.UpdateVersionInternal();
-      NotifyRemove(item);
-
-      return true;
+      catch(Exception e) {
+        SystemRemoveCompleted(item, e);
+        throw;
+      }
+      finally {
+        SystemRemoveCompleted(item, null);
+      }
     }
 
     /// <summary>
@@ -197,10 +215,10 @@ namespace Xtensive.Storage
     /// </summary>
     public void Clear()
     {
-      NotifyClearing();
+      SystemBeforeClear();
       foreach (var entity in Entities.ToList())
         Remove(entity);
-      NotifyClear();
+      SystemClear();
     }
 
     /// <summary>
@@ -213,10 +231,10 @@ namespace Xtensive.Storage
     /// returning count of items associated with this instance.
     /// </returns>
     protected abstract Delegate GetItemCountQueryDelegate(FieldInfo field);
-    
-    #region NotifyXxx & GetSubscription members
 
-    private void NotifyInitialize()
+    #region System-level event-like members & GetSubscription members
+
+    private void SystemInitialize()
     {
       if (Session.IsSystemLogicOnly)
         return;
@@ -227,10 +245,11 @@ namespace Xtensive.Storage
       OnInitialize();
     }
 
-    private void NotifyAdding(Entity item)
+    private void SystemBeforeAdd(Entity item)
     {
       if (Session.IsSystemLogicOnly)
         return;
+      Session.NotifyEntitySetItemAdding(this, item);
       var subscriptionInfo = GetSubscription(EntityEventBroker.AddingEntitySetItemEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
@@ -238,10 +257,11 @@ namespace Xtensive.Storage
       OnAdding(item);
     }
 
-    private void NotifyAdd(Entity item)
+    private void SystemAdd(Entity item)
     {
       if (Session.IsSystemLogicOnly)
         return;
+      Session.NotifyEntitySetItemAdd(this, item);
       var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
@@ -250,7 +270,14 @@ namespace Xtensive.Storage
       NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item);
     }
 
-    private void NotifyRemoving(Entity item)
+    private void SystemAddCompleted(Entity item, Exception exception)
+    {
+      if (Session.IsSystemLogicOnly)
+        return;
+      Session.NotifyEntitySetItemAddCompleted(this, item, exception);
+    }
+
+    private void SystemBeforeRemove(Entity item)
     {
       if (Session.IsSystemLogicOnly)
         return;
@@ -261,7 +288,7 @@ namespace Xtensive.Storage
       OnRemoving(item);
     }
 
-    private void NotifyRemove(Entity item)
+    private void SystemRemove(Entity item)
     {
       if (Session.IsSystemLogicOnly)
         return;
@@ -274,7 +301,14 @@ namespace Xtensive.Storage
       NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item);
     }
 
-    private void NotifyClearing()
+    private void SystemRemoveCompleted(Entity item, Exception exception)
+    {
+      if (Session.IsSystemLogicOnly)
+        return;
+      Session.NotifyEntitySetItemRemoveCompleted(this, item, exception);
+    }
+
+    private void SystemBeforeClear()
     {
       if (Session.IsSystemLogicOnly)
         return;
@@ -285,7 +319,7 @@ namespace Xtensive.Storage
       OnClearing();
     }
 
-    private void NotifyClear()
+    private void SystemClear()
     {
       if (Session.IsSystemLogicOnly)
         return;
@@ -297,7 +331,7 @@ namespace Xtensive.Storage
       NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
     }
 
-    protected void NotifyPropertyChanged(string name)
+    private void NotifyPropertyChanged(string name)
     {
       if (!Session.EntityEventBroker.HasSubscribers)
         return;
@@ -318,13 +352,12 @@ namespace Xtensive.Storage
       NotifyPropertyChanged("Count");
     }
 
-    protected Pair<Key, Delegate> GetSubscription(object eventKey)
+    private Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerKey(Owner);
       if (entityKey!=null)
         return new Pair<Key, Delegate>(entityKey,
           Session.EntityEventBroker.GetSubscriber(entityKey, Field, eventKey));
-      else
         return new Pair<Key, Delegate>(null, null);
     }
 
@@ -518,7 +551,7 @@ namespace Xtensive.Storage
     /// </summary>
     protected virtual void Initialize()
     {
-      NotifyInitialize();
+      SystemInitialize();
     }
 
 
