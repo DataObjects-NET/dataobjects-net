@@ -17,11 +17,11 @@ namespace Xtensive.Storage.Manual.Validation
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
-      config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
-
-      var domain = Domain.Build(config);
+      var domainConfiguration = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
+      domainConfiguration.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+      domainConfiguration.ValidationMode = ValidationMode.OnDemand;
+      var domain = Domain.Build(domainConfiguration);
       using (Session.Open(domain)) {
 
         try {

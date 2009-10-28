@@ -37,6 +37,14 @@ namespace Xtensive.Storage.Manual.Validation
     [EmailConstraint]
     public string Email { get; set;}
 
+    [PhoneNumberConstraint]
+    public string Phone { get; set;}
+
+    [Field]
+    [RangeConstraint(Min = 0.8, Max = 2.23,
+      Message = "Incorrect '{PropertyName}' value: {value}, it can not be less than {Min} and greater than {Max}.")]
+    public double Height { get; set;}
+
     protected override void OnValidate()
     {
       base.OnValidate();
