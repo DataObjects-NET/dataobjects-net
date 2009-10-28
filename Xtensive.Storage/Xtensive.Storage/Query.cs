@@ -282,21 +282,16 @@ namespace Xtensive.Storage
       using (var transactionScope = Transaction.Open(session)) {
         var cache = session.EntityStateCache;
         var state = cache[key, true];
-        bool hasBeenFetched = false;
 
         if (state==null) {
           if (session.IsDebugEventLoggingEnabled)
             Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key,
               key.HasExactType ? Strings.Known : Strings.Unknown);
             state = session.Handler.FetchInstance(key);
-          hasBeenFetched = true;
         }
 
-        if (!hasBeenFetched && session.IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXResolvingKeyYKeyIsAlreadyResolved, session, key);
-
-        if (state==null || state.IsNotAvailableOrMarkedAsRemoved) 
-          // No state or Tuple = no data in storage
+        if (state==null || state.IsNotAvailableOrMarkedAsRemoved || !key.TypeRef.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType)) 
+          // No state or Tuple = null or incorrect query type => no data in storage
           result = null;
         else
           result = state.Entity;

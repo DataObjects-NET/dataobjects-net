@@ -76,6 +76,11 @@ namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
   public sealed class Article : BlogPost
   {
   }
+
+  public sealed class Article2 : BlogPost
+  {
+    
+  }
 }
 
 namespace Xtensive.Storage.Tests.Issues
@@ -129,6 +134,21 @@ namespace Xtensive.Storage.Tests.Issues
           foreach (var category in result) {
             Assert.IsNotNull(category);
           }
+        }
+      }
+    }
+
+    [Test]
+    public void QuerySingleTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          Fill();
+          var a1 = Query<Article>.All.First();
+          var id = a1.Id;
+
+          var a2 = Query<Article2>.SingleOrDefault(id);
+          Assert.IsNull(a2);
         }
       }
     }
