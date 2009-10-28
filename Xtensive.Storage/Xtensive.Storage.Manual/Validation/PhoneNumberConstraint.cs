@@ -11,9 +11,12 @@ using Xtensive.Integrity.Aspects;
 
 namespace Xtensive.Storage.Manual.Validation
 {
+  [Serializable]
   public class PhoneNumberConstraint : PropertyConstraintAspect
   {
     private const string PhoneNumberPattern = "^[2-9]\\d{2}-\\d{3}-\\d{4}$";
+
+    [NonSerialized]
     private Regex phoneNumberRegex;
 
     public override bool IsSupported(Type valueType)
