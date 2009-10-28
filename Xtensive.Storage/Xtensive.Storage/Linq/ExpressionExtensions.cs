@@ -16,22 +16,6 @@ namespace Xtensive.Storage.Linq
 {
   internal static class ExpressionExtensions
   {
-    public static Expression MakeTupleAccess(this Expression target, Type accessorType, int index)
-    {
-      return Expression.Call(
-        target,
-        WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(accessorType),
-        Expression.Constant(index)
-        );
-    }
-
-    public static Expression MakeIsNullCondition(this Expression target, Expression ifNull, Expression ifNotNull)
-    {
-      return Expression.Condition(
-        Expression.Equal(target, Expression.Constant(null, target.Type)),
-        ifNull, ifNotNull
-        );
-    }
 
     public static bool IsAnonymousConstructor(this Expression expression)
     {

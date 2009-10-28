@@ -6,11 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -19,7 +21,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// Column value is <see langword="true" /> if source value equal to one of provided values; otherwise <see langword="false" />.
   /// </summary>
   [Serializable]
-  public class InProvider: UnaryProvider
+  public class IncludeProvider: UnaryProvider
   {
     /// <summary>
     /// Gets the name of the column.
@@ -34,16 +36,19 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Gets filter function.
     /// </summary>
-    public Func<IEnumerable<Tuple>> Filter { get; private set; }
+    public Expression<Func<IEnumerable<Tuple>>> Tuples { get; private set; }
 
-    public MapTransform MapTransform{ get; private set;}
+    public MapTransform FilterTransform{ get; private set;}
+    public CombineTransform CombineTransform{ get; private set;}
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      return new RecordSetHeader(
-        TupleDescriptor.Create(new[] { typeof(bool) }),
-        new[] { new SystemColumn(ColumnName, 0, typeof(bool)) });
+      var newHeader = Source.Header.Add(new SystemColumn(ColumnName, 0, typeof(bool)));
+      var types = Mapping.Select(m => newHeader.Columns[m].Type);
+      FilterTransform = new MapTransform(true, TupleDescriptor.Create(types), Mapping);
+      CombineTransform = new CombineTransform(true, Source.Header.TupleDescriptor, TupleDescriptor.Create(new []{typeof(bool)}));
+      return newHeader;
     }
 
     /// <inheritdoc/>
@@ -57,11 +62,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public InProvider(CompilableProvider source, Func<IEnumerable<Tuple>> filter, string columnName, int[] mapping)
-      : base(ProviderType.In, source)
+    public IncludeProvider(CompilableProvider source, Expression<Func<IEnumerable<Tuple>>> tuples, string columnName, int[] mapping)
+      : base(ProviderType.Include, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(filter, "filter");
-      Filter = filter;
+      ArgumentValidator.EnsureArgumentNotNull(tuples, "filter");
+      Tuples = tuples;
       ColumnName = columnName;
       Mapping = mapping;
     }

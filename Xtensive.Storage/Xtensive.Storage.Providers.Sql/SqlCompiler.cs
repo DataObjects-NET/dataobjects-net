@@ -30,6 +30,8 @@ using Xtensive.Sql.ValueTypeMapping;
 using ColumnInfo=Xtensive.Storage.Model.ColumnInfo;
 using IndexInfo=Xtensive.Storage.Model.IndexInfo;
 using Xtensive.Storage.Linq;
+using Xtensive.Core.Tuples;
+using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -687,6 +689,76 @@ namespace Xtensive.Storage.Providers.Sql
         break;
       }
       return new SqlProvider(provider, query, Handlers, source);
+    }
+
+    protected override SqlProvider VisitInclude(IncludeProvider provider)
+    {
+      var applyParameter = new ApplyParameter("applyParameter");
+      var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
+      var applyParameterValueProperty = typeof (ApplyParameter).GetProperty("Value");
+      Expression applyParameterValueExpression = Expression.Property(Expression.Constant(applyParameter), applyParameterValueProperty);
+
+      var rawProvider = new RawProvider(new RecordSetHeader(provider.FilterTransform.Descriptor, provider.FilterTransform.Descriptor.Select((type, index)=>(Column)new SystemColumn("column"+index,index,type))), provider.Tuples);
+      
+      var storeProvider = new StoreProvider(rawProvider);
+      
+      var body = Expression.Equal(tupleParameter.MakeTupleAccess(provider.FilterTransform.Descriptor[0], 0), applyParameterValueExpression.MakeTupleAccess(provider.FilterTransform.Descriptor[0], 0));
+      for (int i = 1; i < provider.FilterTransform.Descriptor.Count; i++)
+        body = Expression.AndAlso(body, Expression.Equal(tupleParameter.MakeTupleAccess(provider.FilterTransform.Descriptor[i], i), applyParameterValueExpression.MakeTupleAccess(provider.FilterTransform.Descriptor[i], i)));
+      var predicate = Expression.Lambda<Func<Tuple, bool>>(body, tupleParameter);
+
+      var filerProvider = new FilterProvider(storeProvider, predicate);
+
+      var existProvider = new ExistenceProvider(filerProvider, provider.ColumnName);
+
+      var applyProvider = new ApplyProvider(applyParameter, provider.Source, existProvider, false, ApplySequenceType.Single, JoinType.Default);
+
+      return VisitApply(applyProvider);
+
+//      var visitedApply = VisitApply(applyProvider);
+//
+//      return new SqlProvider(provider, visitedApply.Request.SelectStatement, Handlers, visitedApply);
+
+//      var source = Compile(provider.Source);
+//
+//      SqlSelect sqlSelect;
+//      if (provider.Source.Header.Length==0) {
+//        SqlSelect sourceSelect = source.Request.SelectStatement;
+//        sqlSelect = sourceSelect.ShallowClone();
+//        sqlSelect.Columns.Clear();
+//      }
+//      else
+//        sqlSelect = ExtractSqlSelect(provider, source);
+//
+//      var sourceColumns = ExtractColumnExpressions(sqlSelect, provider);
+//      var columnName = ProcessAliasedName(provider.ColumnName);
+//      // TODO: Rewrite
+//      var sqlArray = SqlDml.Array<Tuple>()
+//      var binding = new SqlQueryParameterBinding(provider.Tuples);
+//      var query = SqlDml.In(source, binding.ParameterReference);
+//      var columnRef = SqlDml.ColumnRef(SqlDml.Column(query), columnName);
+//      sqlSelect.Columns.Add(columnRef);
+//
+//      var allBindings = EnumerableUtils<SqlQueryParameterBinding>.Empty;
+//      foreach (var column in provider.CalculatedColumns) {
+//        Pair<SqlExpression, HashSet<SqlQueryParameterBinding>> result = ProcessExpression(column.Expression, sourceColumns);
+//        var predicate = result.First;
+//        var bindings = result.Second;
+//        if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions) && (column.Type.StripNullable()==typeof (bool)))
+//          predicate = booleanExpressionConverter.BooleanToInt(predicate);
+//        var columnName = ProcessAliasedName(column.Name);
+//        var columnRef = SqlDml.ColumnRef(SqlDml.Column(predicate), columnName);
+//        if (provider.CouldBeInlined) {
+//          var columnStub = SqlDml.ColumnStub(columnRef);
+//          stubColumnMap.Add(columnStub, predicate);
+//          sqlSelect.Columns.Add(columnStub);
+//        }
+//        else
+//          sqlSelect.Columns.Add(columnRef);
+//        allBindings = allBindings.Concat(bindings);
+//      }
+//
+//      return new SqlProvider(provider, sqlSelect, Handlers, allBindings, source);
     }
 
     /// <summary>

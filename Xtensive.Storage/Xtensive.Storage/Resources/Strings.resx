@@ -1212,6 +1212,9 @@
   <data name="ExElementAtIndexMustBeGreaterOrEqualToZero" xml:space="preserve">
     <value>ElementAt index must be greater or equal to zero.</value>
   </data>
+  <data name="ExLocalCollectionShouldNotBeQueryRoot" xml:space="preserve">
+    <value>Local collection should not be query root.</value>
+  </data>
   <data name="ExConnectionIsRequired" xml:space="preserve">
     <value>Connection is required.</value>
   </data>

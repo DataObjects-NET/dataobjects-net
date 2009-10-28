@@ -277,6 +277,11 @@ namespace Xtensive.Storage.Rse
       return new ExistenceProvider(recordSet.Provider, existenceColumnName).Result;
     }
 
+    public static RecordSet Include(this RecordSet recordSet, Expression<Func<IEnumerable<Tuple>>> filter, string inColumnName, int[] mapping)
+    {
+      return new IncludeProvider(recordSet.Provider, filter, inColumnName, mapping).Result;
+    }
+
     public static RecordSet Intersect(this RecordSet left, RecordSet right)
     {
       return new IntersectProvider(left.Provider, right.Provider).Result;

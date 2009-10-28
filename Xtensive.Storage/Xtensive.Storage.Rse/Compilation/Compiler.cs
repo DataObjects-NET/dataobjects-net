@@ -140,6 +140,9 @@ namespace Xtensive.Storage.Rse.Compilation
         case ProviderType.Lock:
           result = VisitLock((LockProvider) cp);
           break;
+        case ProviderType.Include:
+          result = VisitInclude((IncludeProvider) cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -311,6 +314,12 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">Lock provider.</param>
     protected abstract TResult VisitLock(LockProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="IncludeProvider"/>.
+    /// </summary>
+    /// <param name="provider">Include provider.</param>
+    protected abstract TResult VisitInclude(IncludeProvider provider);
 
 
     // Constructors

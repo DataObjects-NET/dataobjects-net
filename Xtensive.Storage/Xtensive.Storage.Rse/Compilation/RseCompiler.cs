@@ -258,6 +258,15 @@ namespace Xtensive.Storage.Rse.Compilation
         compiledSource);
     }
 
+    /// <inheritdoc/>
+    protected override ExecutableProvider VisitInclude(IncludeProvider provider)
+    {
+      var compiledSource = Compile(provider.Source);
+      return new Providers.Executable.IncludeProvider(
+        provider,
+        compiledSource);
+    }
+
     private static bool GroupIsOrdered(IEnumerable<bool> group)
     {
       foreach (var value in group)

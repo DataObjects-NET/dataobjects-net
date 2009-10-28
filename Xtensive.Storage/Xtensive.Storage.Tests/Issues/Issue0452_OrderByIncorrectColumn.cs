@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model;
 using Xtensive.Storage.Tests.Linq;
@@ -91,13 +92,27 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    public void MainTest()
+    public void TakeTest()
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Fill();
           var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Take(Count - 1);
           var expected = Query<Article>.All.AsEnumerable().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
+          Assert.IsTrue(expected.Count>0);
+          Assert.IsTrue(expected.SequenceEqual(result));
+        }
+      }
+    }
+
+    [Test]
+    public void SkipTakeTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          Fill();
+          var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10);
+          var expected = Query<Article>.All.AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
           Assert.IsTrue(expected.Count>0);
           Assert.IsTrue(expected.SequenceEqual(result));
         }
@@ -120,6 +135,7 @@ namespace Xtensive.Storage.Tests.Issues
 
     private void Fill()
     {
+        var random = RandomManager.CreateRandom();
       for (int i = 0; i < Count; i++) {
         var person = new Person();
         var category = new Category();
@@ -129,7 +145,7 @@ namespace Xtensive.Storage.Tests.Issues
           Category = category,
           CreatedBy = person,
           CreatedOn =  new DateTime(1 + Count + i, 1, 1),
-          PublishedOn = new DateTime(1 + i, 1, 1),
+          PublishedOn = new DateTime(random.Next(1,1000), 1, 1),
           SitePage = sitePage,
           Title = string.Format("Article_{0}", i),
           TeaserImage = image

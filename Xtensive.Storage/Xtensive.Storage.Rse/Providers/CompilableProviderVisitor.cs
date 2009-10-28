@@ -355,6 +355,16 @@ namespace Xtensive.Storage.Rse.Providers
         return provider;
       return new LockProvider(source, provider.LockMode, provider.LockBehavior);
     }
+
+    protected override Provider VisitInclude(IncludeProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+      if (source == provider.Source)
+        return provider;
+      return new IncludeProvider(source, provider.Tuples, provider.ColumnName, provider.Mapping);
+    }
     
     private static Expression DefaultExpressionTranslator(Provider p, Expression e)
     {

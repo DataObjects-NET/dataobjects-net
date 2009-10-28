@@ -7,17 +7,21 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core.Linq.SerializableExpressions;
 using Xtensive.Core.Linq.SerializableExpressions.Internals;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Core.Linq
 {
   /// <summary>
-  /// <see cref="Expression"/> realted extension methods.
+  /// <see cref="Expression"/> related extension methods.
   /// </summary>
   public static class ExpressionExtensions
   {
+    private static readonly MethodInfo TupleGenericAccessor;
+
     /// <summary>
     /// Formats the <paramref name="expression"/>.
     /// </summary>
@@ -38,7 +42,38 @@ namespace Xtensive.Core.Linq
       //      result = Regex.Replace(result, @"value\([^)]+DisplayClass[^)]+\)\.", "");
       //      return result;
     }
-    
+
+    ///<summary>
+    /// Makes <see cref="Tuple.GetValueOrDefault{T}<>"/> method call.
+    ///</summary>
+    ///<param name="target">Target expression.</param>
+    ///<param name="accessorType">Type of accessor.</param>
+    ///<param name="index">Tuple field index.</param>
+    ///<returns><see cref="MethodCallExpression"/></returns>
+    public static MethodCallExpression MakeTupleAccess(this Expression target, Type accessorType, int index)
+    {
+      return Expression.Call(
+        target,
+        TupleGenericAccessor.MakeGenericMethod(accessorType),
+        Expression.Constant(index)
+        );
+    }
+
+    /// <summary>
+    /// Makes <c>IsNull</c> condition expression.
+    /// </summary>
+    /// <param name="target">Target expression</param>
+    /// <param name="ifNull">Result expression if <paramref name="target"/> is null.</param>
+    /// <param name="ifNotNull">Result expression if <paramref name="target"/> is not null.</param>
+    /// <returns><see cref="ConditionalExpression"/></returns>
+    public static ConditionalExpression MakeIsNullCondition(this Expression target, Expression ifNull, Expression ifNotNull)
+    {
+      return Expression.Condition(
+        Expression.Equal(target, Expression.Constant(null, target.Type)),
+        ifNull, ifNotNull
+        );
+    }
+
     /// <summary>
     /// Strips <see cref="Expression.Quote"/> expressions.
     /// </summary>
@@ -119,6 +154,14 @@ namespace Xtensive.Core.Linq
     public static Expression ToExpression(this SerializableExpression expression)
     {
       return new SerializableExpressionToExpressionConverter(expression).Convert();
+    }
+
+    static ExpressionExtensions()
+    {
+      TupleGenericAccessor = typeof (Tuples.Tuple)
+          .GetMethods()
+          .Where(mi => mi.Name==WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
+          .Single();
     }
   }
 }
