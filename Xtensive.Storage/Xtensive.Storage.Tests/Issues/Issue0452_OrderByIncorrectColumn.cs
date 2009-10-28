@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Issues
 {
   public class Issue0452_OrderByIncorrectColumn : AutoBuildTest
   {
-    private const int Count = 1000;
+    private const int Count = 100;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -102,9 +102,14 @@ namespace Xtensive.Storage.Tests.Issues
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Fill();
-          var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Take(Count - 1);
+          var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
           var expected = Query<Article>.All.AsEnumerable().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
           Assert.IsTrue(expected.Count>0);
+          Assert.AreEqual(expected.Count, result.Count);
+          for (int i = 0; i < expected.Count; i++) {
+            bool areMatch = Equals(expected[i], result[i]);
+            Assert.IsTrue(areMatch);
+          }
           Assert.IsTrue(expected.SequenceEqual(result));
         }
       }
@@ -118,6 +123,20 @@ namespace Xtensive.Storage.Tests.Issues
           Fill();
           var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10);
           var expected = Query<Article>.All.AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
+          Assert.IsTrue(expected.Count>0);
+          Assert.IsTrue(expected.SequenceEqual(result));
+        }
+      }
+    }
+
+    [Test]
+    public void SkipTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          Fill();
+          var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Skip(5);
+          var expected = Query<Article>.All.AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
           Assert.IsTrue(expected.Count>0);
           Assert.IsTrue(expected.SequenceEqual(result));
         }
@@ -155,7 +174,6 @@ namespace Xtensive.Storage.Tests.Issues
 
     private void Fill()
     {
-        var random = RandomManager.CreateRandom();
       for (int i = 0; i < Count; i++) {
         var person = new Person();
         var category = new Category();
@@ -164,8 +182,8 @@ namespace Xtensive.Storage.Tests.Issues
         var article = new Article {
           Category = category,
           CreatedBy = person,
-          CreatedOn =  new DateTime(1 + Count + i, 1, 1),
-          PublishedOn = new DateTime(random.Next(1,1000), 1, 1),
+          CreatedOn =  new DateTime(1800 + i, 1, 1),
+          PublishedOn = new DateTime(1800 + (i % 2) * Count + i, 1, 1),
           SitePage = sitePage,
           Title = string.Format("Article_{0}", i),
           TeaserImage = image
