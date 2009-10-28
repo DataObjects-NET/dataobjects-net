@@ -6,6 +6,8 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Disconnected.Log.Operations
@@ -20,12 +22,23 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
 
     public void Prepare(PrefetchContext prefetchContext)
     {
-      throw new NotImplementedException();
+      prefetchContext.Register(Key);
     }
 
-    public void Execute(IOperationExecutionContext executionContext)
+    public void Execute(Session session)
     {
-      throw new NotImplementedException();
+      var entity = Query.Single(session, Key);
+      var setter = DelegateHelper.CreateDelegate<Action<Entity>>(
+        this, 
+        typeof (UpdateEntityOperation), 
+        "ExecuteSetValue", 
+        FieldInfo.ValueType);
+      setter.Invoke(entity);
+    }
+
+    private void ExecuteSetValue<T>(Entity entity)
+    {
+      entity.SetFieldValue(FieldInfo, (T)Value);
     }
 
     

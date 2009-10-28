@@ -107,38 +107,47 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     public void SaveChanges()
     {
-      throw new NotSupportedException();
-      /*
+//      throw new NotSupportedException();
       if (!IsAttached)
-        throw new InvalidOperationException(Strings.DisconnectedStateIsDetached);
-      
-      var itemsToSave = cache.GetChanges()
-        .Where(item => item.State!=PersistenceState.Synchronized)
-        .ToList();
-      if (itemsToSave.Count==0)
-        return;
+        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
       var tempSession = Session;
-      Detach();
       try {
+        Detach();
         using (var transactionScope = Transaction.Open(tempSession)) {
-          CheckVersions(itemsToSave, tempSession.Handler);
-          foreach (var cachedState in itemsToSave) {
-            var tuple = cachedState.Actual!=null
-              ? new DifferentialTuple(cachedState.Actual, cachedState.Differences)
-              : cachedState.Actual;
-            var entityState = tempSession.UpdateEntityState(cachedState.Key, tuple, true);
-            entityState.PersistenceState = cachedState.State;
-          }
+          registry.Log.Apply(tempSession);
           transactionScope.Complete();
         }
-        // TODO: Complete (removes)
-        foreach (var entityState in itemsToSave)
-          entityState.State = PersistenceState.Synchronized;
       }
       finally {
         Attach(tempSession);
       }
-       */
+
+//      var itemsToSave = cache.GetChanges()
+//        .Where(item => item.State!=PersistenceState.Synchronized)
+//        .ToList();
+//      if (itemsToSave.Count==0)
+//        return;
+//      var tempSession = Session;
+//      Detach();
+//      try {
+//        using (var transactionScope = Transaction.Open(tempSession)) {
+//          CheckVersions(itemsToSave, tempSession.Handler);
+//          foreach (var cachedState in itemsToSave) {
+//            var tuple = cachedState.Actual!=null
+//              ? new DifferentialTuple(cachedState.Actual, cachedState.Differences)
+//              : cachedState.Actual;
+//            var entityState = tempSession.UpdateEntityState(cachedState.Key, tuple, true);
+//            entityState.PersistenceState = cachedState.State;
+//          }
+//          transactionScope.Complete();
+//        }
+//        // TODO: Complete (removes)
+//        foreach (var entityState in itemsToSave)
+//          entityState.State = PersistenceState.Synchronized;
+//      }
+//      finally {
+//        Attach(tempSession);
+//      }
     }
 
     /// <summary>

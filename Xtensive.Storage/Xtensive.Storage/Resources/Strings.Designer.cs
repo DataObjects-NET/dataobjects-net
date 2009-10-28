@@ -1403,6 +1403,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Key {0} should have exact type..
+        /// </summary>
+        internal static string ExKeyXShouldHaveExactType {
+            get {
+                return ResourceManager.GetString("ExKeyXShouldHaveExactType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Key &apos;{0}&apos; was not found in storage..
         /// </summary>
         internal static string ExKeyXWasNotFoundInStorage {
@@ -1960,6 +1969,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExStateIsNotLoaded {
             get {
                 return ResourceManager.GetString("ExStateIsNotLoaded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to State is removed..
+        /// </summary>
+        internal static string ExStateIsRemoved {
+            get {
+                return ResourceManager.GetString("ExStateIsRemoved", resourceCulture);
             }
         }
         

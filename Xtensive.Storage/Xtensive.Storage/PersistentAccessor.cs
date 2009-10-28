@@ -57,9 +57,30 @@ namespace Xtensive.Storage
           throw new InvalidOperationException(
             string.Format(Strings.TypeXIsNotAnYDescendant, entityType, typeof (Entity)));
 
-        var key = Key.Create(Session.Domain, entityType, tuple, TypeReferenceAccuracy.ExactType);
+        var domain = Session.Domain;
+        var key = Key.Create(domain, domain.Model.Types[entityType], TypeReferenceAccuracy.ExactType, tuple);
         var state = Session.CreateEntityState(key);
         return Activator.CreateEntity(entityType, state);
+      }
+    }
+
+    /// <summary>
+    /// Creates new entity instance with the specified key. Key should have exact type.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>Created entity.</returns>
+    [Infrastructure]
+    public Entity CreateEntity(Key key)
+    {
+      using (CoreServices.OpenSystemLogicOnlyRegion())
+      {
+        ArgumentValidator.EnsureArgumentNotNull(key, "key");
+        if (key.TypeRef.Accuracy != TypeReferenceAccuracy.ExactType)
+          throw new InvalidOperationException(string.Format(Strings.ExKeyXShouldHaveExactType, key));
+        var entityType = key.TypeRef.Type;
+        var domain = Session.Domain;
+        var state = Session.CreateEntityState(key);
+        return Activator.CreateEntity(entityType.UnderlyingType, state);
       }
     }
 

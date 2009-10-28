@@ -20,12 +20,23 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
 
     public void Prepare(PrefetchContext prefetchContext)
     {
-      throw new NotImplementedException();
+      if (Type == EntityOperationType.Create)
+        prefetchContext.RegisterNew(Key);
+      else
+        prefetchContext.Register(Key);
     }
 
-    public void Execute(IOperationExecutionContext executionContext)
+    public void Execute(Session session)
     {
-      throw new NotImplementedException();
+      if (Type == EntityOperationType.Create) {
+        var entityType = Key.TypeRef.Type;
+        var domain = session.Domain;
+        session.CreateEntityState(Key);
+      }
+      else {
+        var entity = Query.Single(session, Key);
+        entity.Remove();
+      }
     }
 
 

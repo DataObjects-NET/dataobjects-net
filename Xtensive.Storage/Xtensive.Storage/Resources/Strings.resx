@@ -511,9 +511,7 @@
     <value>Session is not open. Use Session.Open(...) to open it.</value>
   </data>
   <data name="ExPersistentAttributeIsNotSetOnTypeX" xml:space="preserve">
-    <value>Persistent attribute isn't applied, or assembly is not processed by PostSharp.
-Add &lt;usePostSharp&gt;true&lt;/usePostSharp&gt; and &lt;DontImportPostSharp&gt;true&lt;/DontImportPostSharp&gt; to .csproj / .vbproj for "{0}" assembly.
-Add the following line to AssemblyInfo.cs for "{0}" assembly: [assembly: Persistent(AttributeTargetAssemblies = "{0}")].</value>
+    <value>Persistent attribute isn't applied, or assembly is not processed by PostSharp.&#xD;&#xA;Add &lt;usePostSharp&gt;true&lt;/usePostSharp&gt; and &lt;DontImportPostSharp&gt;true&lt;/DontImportPostSharp&gt; to .csproj / .vbproj for "{0}" assembly.&#xD;&#xA;Add the following line to AssemblyInfo.cs for "{0}" assembly: [assembly: Persistent(AttributeTargetAssemblies = "{0}")].</value>
   </data>
   <data name="ExActiveSerializationContextIsNotFound" xml:space="preserve">
     <value>Active serialization context is not found.</value>
@@ -615,21 +613,13 @@ Add the following line to AssemblyInfo.cs for "{0}" assembly: [assembly: Persist
     <value>Extracted schema is not equal to the target schema.</value>
   </data>
   <data name="SchemaComparisonResultFormat" xml:space="preserve">
-    <value>Status: {0}
-Hints:
-{1}
-Difference:
-{2}
-Actions:
-{3}</value>
+    <value>Status: {0}&#xD;&#xA;Hints:&#xD;&#xA;{1}&#xD;&#xA;Difference:&#xD;&#xA;{2}&#xD;&#xA;Actions:&#xD;&#xA;{3}</value>
   </data>
   <data name="LogComparisonResultX" xml:space="preserve">
-    <value>Comparison result:
-{0}</value>
+    <value>Comparison result:&#xD;&#xA;{0}</value>
   </data>
   <data name="LogClearingComparisonResultX" xml:space="preserve">
-    <value>Clearing comparison result:
-{0}</value>
+    <value>Clearing comparison result:&#xD;&#xA;{0}</value>
   </data>
   <data name="LogSynchronizingSchemaInXMode" xml:space="preserve">
     <value>Synchronizing schema in {0} mode</value>
@@ -1242,5 +1232,8 @@ Actions:
   </data>
   <data name="ExStateIsRemoved" xml:space="preserve">
     <value>State is removed.</value>
+  </data>
+  <data name="ExKeyXShouldHaveExactType" xml:space="preserve">
+    <value>Key {0} should have exact type.</value>
   </data>
 </root>

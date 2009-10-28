@@ -9,6 +9,6 @@ namespace Xtensive.Storage.Disconnected.Log
   public interface IOperation
   {
     void Prepare(PrefetchContext prefetchContext);
-    void Execute(IOperationExecutionContext executionContext);
+    void Execute(Session session);
   }
 }

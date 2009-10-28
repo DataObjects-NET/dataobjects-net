@@ -28,7 +28,15 @@ namespace Xtensive.Storage.Disconnected.Log
 
     public void Apply(Session session)
     {
-      throw new NotImplementedException();
+      var prefetchContext = new PrefetchContext();
+      foreach (var operation in log)
+        operation.Prepare(prefetchContext);
+      prefetchContext.Prefetch<Entity,Key>(key => key);
+
+      foreach (var operation in log)
+        operation.Execute(session);
+
+      log.Clear();
     }
 
     #region IEnumerable implementation

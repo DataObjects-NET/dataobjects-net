@@ -44,10 +44,7 @@ namespace Xtensive.Storage
     public static Entity Single(Key key)
     {
       var session = Session.Demand();
-      var result = SingleOrDefault(session, key);
-      if (result == null)
-        throw new KeyNotFoundException(string.Format(
-          Strings.EntityWithKeyXDoesNotExist, key));
+      var result = Single(session, key);
       return result;
     }
 
@@ -252,6 +249,23 @@ namespace Xtensive.Storage
     }
 
     #region Private / internal methods
+
+    /// <summary>
+    /// Resolves the specified <paramref name="key"/>.
+    /// </summary>
+    /// <param name="key">The key to resolve.</param>
+    /// <param name="session">The session to resolve the <paramref name="key"/> in.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> the specified <paramref name="key"/> identifies or <see langword="null" />.
+    /// </returns>
+    internal static Entity Single(Session session, Key key)
+    {
+      var result = SingleOrDefault(session, key);
+      if (result == null)
+        throw new KeyNotFoundException(string.Format(
+          Strings.EntityWithKeyXDoesNotExist, key));
+      return result;
+    }
 
     /// <summary>
     /// Resolves the specified <paramref name="key"/>.

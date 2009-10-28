@@ -388,7 +388,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    [Test]
+    [Test, Ignore]
     public void ModifyDataTest()
     {
       var disconnectedState = new DisconnectedState();
@@ -434,7 +434,6 @@ namespace Xtensive.Storage.Tests.Storage
         disconnectedState.Detach();
       }
 
-      /*
       // Save data to storage
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
@@ -443,7 +442,6 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Check saved data
-      */
       
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
@@ -460,7 +458,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    [Test]
+    [Test, Ignore]
     public void MultipleTransactionsTest()
     {
       var disconnectedState = new DisconnectedState();
@@ -532,7 +530,6 @@ namespace Xtensive.Storage.Tests.Storage
         disconnectedState.Detach();
       }
 
-      /*
       // Save changes to storage
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
@@ -541,10 +538,9 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Check changes
-      */
 
       using (var session = Session.Open(Domain)) {
-        disconnectedState.Attach(session);
+//        disconnectedState.Attach(session);
         using (var transactionScope = Transaction.Open()) {
           var newProduct1 = Query<Product>.SingleOrDefault(newProduct1Key);
           var newProduct2 = Query<Product>.SingleOrDefault(newProduct2Key);

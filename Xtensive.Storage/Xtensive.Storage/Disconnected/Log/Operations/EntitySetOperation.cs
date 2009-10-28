@@ -21,12 +21,19 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
 
     public void Prepare(PrefetchContext prefetchContext)
     {
-      throw new NotImplementedException();
+      prefetchContext.Register(Key);
+      prefetchContext.Register(TargetKey);
     }
 
-    public void Execute(IOperationExecutionContext executionContext)
+    public void Execute(Session session)
     {
-      throw new NotImplementedException();
+      var target = Query.Single(session, TargetKey);
+      var entity = Query.Single(session, Key);
+      var entitySet = target.GetFieldValue<EntitySetBase>(FieldInfo);
+      if (Type == EntityOperationType.AddItem)
+        entitySet.Add(entity);
+      else
+        entitySet.Remove(entity);
     }
 
     
