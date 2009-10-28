@@ -382,18 +382,19 @@ namespace Xtensive.Storage
     internal abstract void SystemSetValue(FieldInfo field, object oldValue, object newValue);
 
     internal abstract void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception);
-//    OnSetValue
-//    {
-//      if (Session.Domain.Configuration.AutoValidation)
-//        this.Validate();
-//      NotifyPropertyChanged(field);
-//    }
 
-    
+    protected internal void NotifyPropertyChanged(FieldInfo fieldInfo)
+    {
+      Func<FieldInfo, FieldInfo> rootFinder = null;
+      rootFinder = f => f.Parent == null ? f : rootFinder(f.Parent);
+      var rootField = rootFinder(fieldInfo);
+      var subscription = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
+      if (subscription.Second != null)
+        ((PropertyChangedEventHandler)subscription.Second)
+          .Invoke(this, new PropertyChangedEventArgs(rootField.Name));
+    }
 
-//    [Infrastructure]
-//    protected internal abstract void NotifyPropertyChanged(FieldInfo field);
-    
+    protected abstract Pair<Key, Delegate> GetSubscription(object eventKey);
 
     #endregion
 

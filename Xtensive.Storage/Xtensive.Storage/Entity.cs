@@ -499,10 +499,7 @@ namespace Xtensive.Storage
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object, object>) subscriptionInfo.Second)
           .Invoke(subscriptionInfo.First, field, oldValue, newValue);
-      var subscriber = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
-      if (subscriber.Second!=null)
-        ((PropertyChangedEventHandler) subscriber.Second)
-          .Invoke(this, new PropertyChangedEventArgs(field.Name));
+      NotifyPropertyChanged(field);
       OnSetFieldValue(field, oldValue, newValue);
     }
 
@@ -513,7 +510,7 @@ namespace Xtensive.Storage
       Session.NotifyFieldValueSetCompleted(this, fieldInfo, oldValue, newValue, exception);
     }
 
-    private Pair<Key, Delegate> GetSubscription(object eventKey)
+    protected override Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = Key;
       return new Pair<Key, Delegate>(entityKey,

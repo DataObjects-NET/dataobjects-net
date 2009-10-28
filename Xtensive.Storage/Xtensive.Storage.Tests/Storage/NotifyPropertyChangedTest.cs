@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Storage
           Reset();
           ray.Vertex.X = 5;
           Assert.IsFalse(isEntityPropertyEventRaised);
-//          Assert.IsTrue(isStructureEventRaised);
+          Assert.IsTrue(isStructureEventRaised);
           Assert.IsTrue(isStructurePropertyEventRaised);
 
           Reset();
