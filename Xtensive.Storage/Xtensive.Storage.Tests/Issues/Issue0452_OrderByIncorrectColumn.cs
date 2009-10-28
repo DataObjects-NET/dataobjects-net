@@ -104,6 +104,20 @@ namespace Xtensive.Storage.Tests.Issues
       }
     }
 
+    [Test]
+    public void SelectCategoryTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          Fill();
+          var result = Query<Article>.All.Select(p => p.Category);
+          foreach (var category in result) {
+            Console.Out.WriteLine(category);
+          }
+        }
+      }
+    }
+
     private void Fill()
     {
       for (int i = 0; i < Count; i++) {
