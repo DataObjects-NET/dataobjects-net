@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Tests.Issues
           Fill();
           var result = Query<Article>.All.Select(p => p.Category);
           foreach (var category in result) {
-            Console.Out.WriteLine(category);
+            Assert.IsNotNull(category);
           }
         }
       }
