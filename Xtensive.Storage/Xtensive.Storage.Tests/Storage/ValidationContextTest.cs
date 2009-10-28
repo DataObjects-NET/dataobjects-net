@@ -68,6 +68,24 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void ForceValidationTest()
+    {
+      using (Session.Open(Domain)) {
+        var transactionScope = Transaction.Open();
+
+        AssertEx.Throws<Exception>(() => {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
+            var obj = new Validatable {IsValid = false};
+            Xtensive.Storage.Validation.Enforce();
+            obj.IsValid = true;
+            region.Complete();
+          }
+        });
+
+      }
+    }
+
+    [Test]
     public void TransactionFailTest()
     {
       using (Session.Open(Domain)) {
