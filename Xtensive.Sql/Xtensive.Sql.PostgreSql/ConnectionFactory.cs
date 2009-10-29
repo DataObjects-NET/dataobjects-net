@@ -75,7 +75,7 @@ namespace Xtensive.Sql.PostgreSql
           throw IncorrectUrl("Pooling", mAllowedBoolStringsText);
         csBuilder.AppendFormat(";Pooling={0}", ToNpgsqlBooleanString(poolingParameter));
 
-        // reading pooling settings
+        // Reading pooling settings
 
         string minPoolSizeParameter;
         if (url.Params.TryGetValue("MinPoolSize", out minPoolSizeParameter)) {

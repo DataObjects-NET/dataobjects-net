@@ -6,6 +6,8 @@
 
 using System;
 using System.Configuration;
+using System.Web;
+using System.Web.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Configuration;
@@ -14,6 +16,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration.Elements;
 using Xtensive.Storage.Configuration.Internals;
 using Xtensive.Storage.Resources;
+using ConfigurationSection=Xtensive.Storage.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Storage.Configuration
 {
@@ -443,7 +446,15 @@ namespace Xtensive.Storage.Configuration
     /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
     public static DomainConfiguration Load(string sectionName, string name)
     {
-      var section = (Elements.ConfigurationSection)ConfigurationManager.GetSection(sectionName);
+      ConfigurationSection section;
+      if (HttpContext.Current!=null) {
+        // See http://code.google.com/p/dataobjectsdotnet/issues/detail?id=459
+        // (workaround for IIS 7 @ 64 bit Windows Server 2008)
+        var config = WebConfigurationManager.OpenWebConfiguration("~");
+        section = (ConfigurationSection) config.GetSection(sectionName);
+      }
+      else
+        section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
       if (section==null) 
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
