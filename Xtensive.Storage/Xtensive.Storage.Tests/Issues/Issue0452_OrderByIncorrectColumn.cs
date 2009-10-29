@@ -121,9 +121,14 @@ namespace Xtensive.Storage.Tests.Issues
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Fill();
-          var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10);
+          var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
           var expected = Query<Article>.All.AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
           Assert.IsTrue(expected.Count>0);
+          Assert.AreEqual(expected.Count, result.Count);
+          for (int i = 0; i < expected.Count; i++) {
+            bool areMatch = Equals(expected[i], result[i]);
+            Assert.IsTrue(areMatch);
+          }
           Assert.IsTrue(expected.SequenceEqual(result));
         }
       }
@@ -135,9 +140,14 @@ namespace Xtensive.Storage.Tests.Issues
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Fill();
-          var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Skip(5);
+          var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
           var expected = Query<Article>.All.AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
+          Assert.AreEqual(expected.Count, result.Count);
           Assert.IsTrue(expected.Count>0);
+          for (int i = 0; i < expected.Count; i++) {
+            bool areMatch = Equals(expected[i], result[i]);
+            Assert.IsTrue(areMatch);
+          }
           Assert.IsTrue(expected.SequenceEqual(result));
         }
       }

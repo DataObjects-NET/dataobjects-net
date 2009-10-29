@@ -656,8 +656,9 @@ namespace Xtensive.Storage.Providers.Sql
       var query = ExtractSqlSelect(provider, source);
       var rowNumber = SqlDml.RowNumber();
       query.Columns.Add(rowNumber, provider.Header.Columns.Last().Name);
+      var columns = ExtractColumnExpressions(query, provider);
       foreach (KeyValuePair<int, Direction> order in provider.Header.Order)
-        rowNumber.OrderBy.Add(query.From.Columns[order.Key], order.Value==Direction.Positive);
+        rowNumber.OrderBy.Add(columns[order.Key], order.Value==Direction.Positive);
       return new SqlProvider(provider, query, Handlers, source);
     }
 
@@ -945,7 +946,7 @@ namespace Xtensive.Storage.Providers.Sql
     public List<SqlExpression> ExtractColumnExpressions(SqlSelect query, CompilableProvider origin)
     {
       var result = new List<SqlExpression>(query.Columns.Count);
-      var shouldUseQueryColumns = origin.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Filter, ProviderType.Index)  
+      var shouldUseQueryColumns = origin.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Filter, ProviderType.Index, ProviderType.RowNumber)  
         && query.Columns.Count < query.From.Columns.Count;
       if (query.Columns.Any(IsColumnStub) || query.GroupBy.Count > 0 || shouldUseQueryColumns) {
         foreach (var column in query.Columns) {
