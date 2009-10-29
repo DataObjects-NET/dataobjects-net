@@ -96,12 +96,22 @@ namespace Xtensive.Storage.Tests.Issues
       return config;
     }
 
+
+    public override void TestFixtureSetUp()
+    {
+      base.TestFixtureSetUp();
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          Fill();
+        }
+      }
+    }
+
     [Test]
     public void TakeTest()
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Fill();
           var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
           var expected = Query<Article>.All.AsEnumerable().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
           Assert.IsTrue(expected.Count>0);
@@ -120,7 +130,6 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Fill();
           var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
           var expected = Query<Article>.All.AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
           Assert.IsTrue(expected.Count>0);
@@ -139,7 +148,6 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Fill();
           var result = Query<Article>.All.OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
           var expected = Query<Article>.All.AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
           Assert.AreEqual(expected.Count, result.Count);
@@ -172,7 +180,6 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Fill();
           var a1 = Query<Article>.All.First();
           var id = a1.Id;
 
