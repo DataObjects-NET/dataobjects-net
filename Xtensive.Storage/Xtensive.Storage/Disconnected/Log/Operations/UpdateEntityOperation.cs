@@ -19,26 +19,31 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
     public EntityOperationType Type { get; private set; }
     public FieldInfo FieldInfo { get; private set; }
     public object Value { get; private set; }
+    private readonly Key entityValueKey;
 
     public void Prepare(PrefetchContext prefetchContext)
     {
       prefetchContext.Register(Key);
+      prefetchContext.Register(entityValueKey);
     }
 
     public void Execute(Session session)
     {
       var entity = Query.Single(session, Key);
-      var setter = DelegateHelper.CreateDelegate<Action<Entity>>(
+      var setter = DelegateHelper.CreateDelegate<Action<Entity,object>>(
         this, 
         typeof (UpdateEntityOperation), 
         "ExecuteSetValue", 
         FieldInfo.ValueType);
-      setter.Invoke(entity);
+      var value = Value;
+      if (entityValueKey != null)
+        value = Query.Single(session, entityValueKey);
+      setter.Invoke(entity, value);
     }
 
-    private void ExecuteSetValue<T>(Entity entity)
+    private void ExecuteSetValue<T>(Entity entity, object value)
     {
-      entity.SetFieldValue(FieldInfo, (T)Value);
+      entity.SetFieldValue(FieldInfo, (T)value);
     }
 
     
@@ -50,6 +55,9 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
       Type = EntityOperationType.Update;
       FieldInfo = fieldInfo;
       Value = value;
+      var entityValue = Value as IEntity;
+      if (entityValue != null)
+        entityValueKey = entityValue.Key;
     }
   }
 }

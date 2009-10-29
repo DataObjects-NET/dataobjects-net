@@ -394,14 +394,14 @@ namespace Xtensive.Storage
       Session.NotifyEntityRemoveCompleted(this, exception);
     }
 
-    internal override sealed void SystemBeforeInitialize()
+    internal override sealed void SystemBeforeInitialize(bool materialize)
     {
       State.Entity = this;
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXMaterializingYKeyZ,
           Session, GetType().GetShortName(), State.Key);
 
-      if (Session.IsSystemLogicOnly) 
+      if (Session.IsSystemLogicOnly || materialize) 
         return;
 
       Session.NotifyEntityCreated(this);
@@ -548,7 +548,7 @@ namespace Xtensive.Storage
     {
       var key = Key.Create(Session.Domain, GetType());
       State = Session.CreateEntityState(key);
-      SystemBeforeInitialize();
+      SystemBeforeInitialize(false);
       this.Validate();
     }
 
@@ -558,7 +558,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
       Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
       State = Session.CreateEntityState(key);
-      SystemBeforeInitialize();
+      SystemBeforeInitialize(false);
       this.Validate();
     }
 
@@ -584,7 +584,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
       Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
       State = Session.CreateEntityState(key);
-      SystemBeforeInitialize();
+      SystemBeforeInitialize(false);
       this.Validate();
     }
 
@@ -595,7 +595,7 @@ namespace Xtensive.Storage
     protected Entity(EntityState state)
     {
       State = state;
-      SystemBeforeInitialize();
+      SystemBeforeInitialize(true);
     }
 
     /// <summary>

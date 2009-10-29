@@ -164,6 +164,16 @@ namespace Xtensive.Storage.Internals.Prefetch
       return GetEnumerator();
     }
 
+    /// <summary>
+    /// Executes prefetech tasks.
+    /// </summary>
+    public void Execute()
+    {
+      foreach (var element in this) {
+        // Doing nothing.
+      }
+    }
+
     #region Private \ internal methods
 
     private void PrefetchMany<TFieldValue, TSelectorResult>(

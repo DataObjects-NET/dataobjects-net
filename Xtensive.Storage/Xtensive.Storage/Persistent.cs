@@ -367,7 +367,7 @@ namespace Xtensive.Storage
 
     #region System-level event-like members
 
-    internal abstract void SystemBeforeInitialize();
+    internal abstract void SystemBeforeInitialize(bool materialize);
 
     internal abstract void SystemInitialize();
 

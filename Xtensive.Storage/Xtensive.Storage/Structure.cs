@@ -112,7 +112,7 @@ namespace Xtensive.Storage
 
     #region System-level event-like members & GetSubscription members
 
-    internal override sealed void SystemBeforeInitialize()
+    internal override sealed void SystemBeforeInitialize(bool materialize)
     {
       if (Session.IsSystemLogicOnly)
         return;
@@ -315,7 +315,7 @@ namespace Xtensive.Storage
       else
         tuple = field.ExtractValue(
           new ReferencedTuple(() => Owner.Tuple));
-      SystemBeforeInitialize();
+      SystemBeforeInitialize(false);
     }
 
     /// <summary>

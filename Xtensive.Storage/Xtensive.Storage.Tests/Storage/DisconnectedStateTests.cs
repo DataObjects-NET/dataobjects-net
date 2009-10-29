@@ -444,7 +444,6 @@ namespace Xtensive.Storage.Tests.Storage
       // Check saved data
       
       using (var session = Session.Open(Domain)) {
-        disconnectedState.Attach(session);
         using (var transactionScope = Transaction.Open()) {
           Order order1 = Query<Order>.Single(order1Key);
           var details = order1.Details.ToList();
@@ -454,7 +453,6 @@ namespace Xtensive.Storage.Tests.Storage
           AssertEx.Throws<ConnectionRequiredException>(() => Query<Customer>.Single(newCustomerKey));
           transactionScope.Complete();
         }
-        disconnectedState.Detach();
       }
     }
 

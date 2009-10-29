@@ -16,12 +16,16 @@ namespace Xtensive.Storage.Disconnected.Log
 
     public void Register(Key key)
     {
+      if (key == null)
+        return;
       if (!excludedKeys.Contains(key))
         prefetchKeys.Add(key);
     }
 
     public void RegisterNew(Key key)
     {
+      if (key == null)
+        return;
       excludedKeys.Add(key);
     }
 

@@ -31,7 +31,9 @@ namespace Xtensive.Storage.Disconnected.Log
       var prefetchContext = new PrefetchContext();
       foreach (var operation in log)
         operation.Prepare(prefetchContext);
-      prefetchContext.Prefetch<Entity,Key>(key => key);
+      prefetchContext
+        .Prefetch<Entity,Key>(key => key)
+        .Execute();
 
       foreach (var operation in log)
         operation.Execute(session);
