@@ -23,8 +23,13 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly SetSlim<GraphContainer> graphContainers = new SetSlim<GraphContainer>();
     private StrongReferenceContainer referenceContainer;
     private readonly Fetcher fetcher;
-    
-    public SessionHandler Owner { get; private set; }
+
+    public Session Session { get; private set; }
+
+    public SessionHandler Owner
+    {
+      get { return Session.Handler; }
+    }
 
     public int TaskExecutionCount { get; private set; }
 
@@ -94,12 +99,6 @@ namespace Xtensive.Storage.Internals.Prefetch
       graphContainers.Clear();
     }
 
-    public void ChangeOwner(SessionHandler newOwner)
-    {
-      Clear();
-      Owner = newOwner;
-    }
-    
     public bool TryGetTupleOfNonRemovedEntity(ref Key key, out Tuple tuple)
     {
       tuple = null;
@@ -203,10 +202,10 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     // Constructors
 
-    public PrefetchProcessor(SessionHandler sessionHandler)
+    public PrefetchProcessor(Session session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sessionHandler, "sessionHandler");
-      Owner = sessionHandler;
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      Session = session;
       fetcher = new Fetcher(this);
     }
   }

@@ -130,7 +130,6 @@ namespace Xtensive.Storage.Internals
     protected ChainingSessionHandler(SessionHandler chainedHandler)
     {
       ArgumentValidator.EnsureArgumentNotNull(chainedHandler, "chainedHandler");
-      chainedHandler.ChangeOwnerOfPrefetchProccessor(this);
       ChainedHandler = chainedHandler;
     }
 

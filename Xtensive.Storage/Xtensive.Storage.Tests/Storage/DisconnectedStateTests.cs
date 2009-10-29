@@ -388,7 +388,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    [Test, Ignore]
+    [Test]
     public void ModifyDataTest()
     {
       var disconnectedState = new DisconnectedState();
@@ -450,13 +450,13 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(2, order1.Details.Count);
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
-          AssertEx.Throws<ConnectionRequiredException>(() => Query<Customer>.Single(newCustomerKey));
+          AssertEx.Throws<KeyNotFoundException>(() => Query<Customer>.Single(newCustomerKey));
           transactionScope.Complete();
         }
       }
     }
 
-    [Test, Ignore]
+    [Test]
     public void MultipleTransactionsTest()
     {
       var disconnectedState = new DisconnectedState();
@@ -820,7 +820,7 @@ namespace Xtensive.Storage.Tests.Storage
           customer1.Name = "NewName2";
           transactionScope.Complete();
         }
-        AssertEx.Throws<InvalidOperationException>(() => disconnectedState.SaveChanges());
+        AssertEx.Throws<InvalidOperationException>(disconnectedState.SaveChanges);
         disconnectedState.Detach();
       }
     }

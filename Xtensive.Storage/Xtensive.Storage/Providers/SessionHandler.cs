@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public override void Initialize()
     {
-      prefetchProcessor = new PrefetchProcessor(this);
+      prefetchProcessor = new PrefetchProcessor(Session);
 
       PersistRequiresTopologicalSort =
         (Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0 &&
@@ -269,11 +269,6 @@ namespace Xtensive.Storage.Providers
       }
       entitySetState = null;
       return false;
-    }
-
-    internal void ChangeOwnerOfPrefetchProccessor(SessionHandler newOwner)
-    {
-      prefetchProcessor.ChangeOwner(newOwner);
     }
 
     /// <summary>
