@@ -103,6 +103,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Fill();
+          t.Complete();
         }
       }
     }
