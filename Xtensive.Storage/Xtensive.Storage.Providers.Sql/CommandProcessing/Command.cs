@@ -15,19 +15,17 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private readonly CommandProcessor processor;
     private readonly DbCommand underlyingCommand;
-    private readonly List<string> queries = new List<string>();
+    private readonly List<string> statements = new List<string>();
+    private readonly List<SqlQueryTask> queryTasks = new List<SqlQueryTask>();
+
     private DisposableSet disposables;
     
-    public int CommandCount { get { return queries.Count; } }
-
-    public void AddPart(string query)
-    {
-      queries.Add(query);
-    }
+    public List<string> Statements { get { return statements; } }
+    public List<SqlQueryTask> QueryTasks { get { return queryTasks; } }
 
     public void AddPart(CommandPart part)
     {
-      queries.Add(part.Query);
+      statements.Add(part.Query);
       foreach (var parameter in part.Parameters)
         underlyingCommand.Parameters.Add(parameter);
       if (part.Disposables.Count==0)
@@ -38,15 +36,10 @@ namespace Xtensive.Storage.Providers.Sql
         disposables.Add(disposable);
     }
 
-    public string GetParameterPrefix()
+    public void AddPart(CommandPart part, SqlQueryTask task)
     {
-      return string.Format("p{0}_", queries.Count);
-    }
-
-    public object ExecuteScalar()
-    {
-      PrepareCommand();
-      return processor.Driver.ExecuteScalar(processor.SessionHandler.Session, underlyingCommand);
+      AddPart(part);
+      QueryTasks.Add(task);
     }
 
     public void ExecuteNonQuery()
@@ -60,7 +53,7 @@ namespace Xtensive.Storage.Providers.Sql
       PrepareCommand();
       return processor.Driver.ExecuteReader(processor.SessionHandler.Session, underlyingCommand);
     }
-
+    
     public void Dispose()
     {
       underlyingCommand.DisposeSafely();
@@ -69,11 +62,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void PrepareCommand()
     {
-      if (queries.Count==0)
+      if (statements.Count==0)
         throw new InvalidOperationException();
-      underlyingCommand.CommandText = queries.Count > 1
-        ? processor.Driver.BuildBatch(queries.ToArray())
-        : queries[0];
+      underlyingCommand.CommandText = statements.Count > 1
+        ? processor.Driver.BuildBatch(statements.ToArray())
+        : statements[0];
     }
 
 

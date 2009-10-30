@@ -43,15 +43,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>    
     public DbTransaction Transaction { get; private set; }
     
-    internal virtual CommandProcessor CreateCommandProcessor()
-    {
-      int batchSize = Session.Configuration.BatchSize;
-      var result = Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.Batches) && batchSize > 1
-        ? new BatchingCommandProcessor(this, batchSize)
-        : (CommandProcessor) new SimpleCommandProcessor(this);
-      return result;
-    }
-
     /// <inheritdoc/>
     public override IEnumerator<Tuple> Execute(ExecutableProvider provider)
     {
@@ -171,47 +162,21 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
 
-    #region ExecuteRequest methods
-
-    /// <summary>
-    /// Executes the specified <see cref="SqlPersistRequest"/>.
-    /// </summary>
-    /// <param name="request">The request to execute.</param>
-    /// <param name="tuple">A state tuple.</param>
-    /// <returns>Number of modified rows.</returns>
-    public void ExecutePersistRequest(SqlPersistRequest request, Tuple tuple)
-    {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        commandProcessor.ExecutePersistQuickly(new SqlPersistTask(request, tuple));
-      }
-    }
-
-    /// <summary>
-    /// Executes the specified <see cref="SqlScalarRequest"/>.
-    /// </summary>
-    /// <param name="request">The request to execute.</param>
-    /// <returns>The first column of the first row of executed result set.</returns>
-    public object ExecuteScalarRequest(SqlScalarRequest request)
-    {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        return commandProcessor.ExecuteScalarQuickly(new SqlScalarTask(request));
-      }
-    }
-
-    #endregion
-
     #region Insert, Update, Delete
 
     /// <inheritdoc/>
-    public override void Persist(IEnumerable<PersistAction> persistActions, bool dirty)
+    public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
     {
       foreach (var action in persistActions)
         commandProcessor.RegisterTask(CreatePersistTask(action));
-      commandProcessor.ExecuteRequests(dirty);
+      commandProcessor.ExecuteRequests(allowPartialExecution);
+    }
+
+    internal void Persist(SqlPersistRequest request, IEnumerable<Tuple> tuples)
+    {
+      foreach (var tuple in tuples)
+        commandProcessor.RegisterTask(new SqlPersistTask(request, tuple));
+      commandProcessor.ExecuteRequests(false);
     }
 
     private SqlPersistTask CreatePersistTask(PersistAction action)
@@ -260,6 +225,15 @@ namespace Xtensive.Storage.Providers.Sql
     
     #region Private / internal members
     
+    private CommandProcessor CreateCommandProcessor()
+    {
+      int batchSize = Session.Configuration.BatchSize;
+      var result = Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.Batches) && batchSize > 1
+        ? new BatchingCommandProcessor(this, batchSize)
+        : (CommandProcessor) new SimpleCommandProcessor(this);
+      return result;
+    }
+
     private void EnsureConnectionIsOpen()
     {
       if (connection!=null && connection.State==ConnectionState.Open)

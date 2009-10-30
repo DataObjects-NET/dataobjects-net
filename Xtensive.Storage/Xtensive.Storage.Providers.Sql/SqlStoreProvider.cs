@@ -5,14 +5,13 @@
 // Created:    2008.09.05
 
 using System.Collections.Generic;
-using Xtensive.Core.Tuples;
+using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -38,13 +37,13 @@ namespace Xtensive.Storage.Providers.Sql
         return;
 
       var sessionHandler = (SessionHandler) handlers.SessionHandler;
-      SqlBatch batch = SqlDml.Batch();
+      var batch = SqlDml.Batch();
       batch.Add(SqlDdl.Create(Table));
       sessionHandler.ExecuteNonQueryStatement(batch);
       Schema.Tables.Add(Table);
 
-      SqlTableRef tableRef = SqlDml.TableRef(Table);
-      SqlInsert insert = SqlDml.Insert(tableRef);
+      var tableRef = SqlDml.TableRef(Table);
+      var insert = SqlDml.Insert(tableRef);
       var bindings = new List<SqlPersistParameterBinding>();
       int i = 0;
       foreach (SqlTableColumn column in tableRef.Columns) {
@@ -56,8 +55,7 @@ namespace Xtensive.Storage.Providers.Sql
         i++;
       }
       var persistRequest = new SqlPersistRequest(insert, null, bindings);
-      foreach (Tuple tuple in Source)
-        sessionHandler.ExecutePersistRequest(persistRequest, tuple);
+      sessionHandler.Persist(persistRequest, Source);
     }
 
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)

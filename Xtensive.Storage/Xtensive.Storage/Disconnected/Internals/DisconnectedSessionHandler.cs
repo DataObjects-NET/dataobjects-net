@@ -165,7 +165,7 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <inheritdoc/>
-    public override void Persist(EntityChangeRegistry registry, bool dirtyFlush)
+    public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {
       registry.GetItems(PersistenceState.New)
         .Apply(item => disconnectedState.Persist(item, PersistActionKind.Insert));
@@ -201,7 +201,7 @@ namespace Xtensive.Storage.Disconnected
         case Multiplicity.ZeroToOne:
         case Multiplicity.ZeroToMany:
         case Multiplicity.ManyToMany:
-          Session.Persist(false);
+          Session.Persist();
           var list = new List<ReferenceInfo>();
           var state = disconnectedState.GetState(target.Key);
           foreach (var reference in state.GetReferences(association.OwnerField)) {

@@ -16,11 +16,10 @@ namespace Xtensive.Storage.Providers.Sql
 {
   internal abstract class CommandProcessor : IDisposable
   {
-    protected const string DefaultParameterNamePrefix = "p";
+    protected const string DefaultParameterNamePrefix = "p0_";
     protected readonly CommandPartFactory factory;
     
-    protected Queue<SqlQueryTask> queryTasks = new Queue<SqlQueryTask>();
-    protected Queue<SqlPersistTask> persistTasks = new Queue<SqlPersistTask>();
+    protected Queue<SqlTask> tasks = new Queue<SqlTask>();
 
     protected int reenterCount;
     protected Command activeCommand;
@@ -40,66 +39,17 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    #region Low-level execute methods
-
-    public object ExecuteScalarQuickly(SqlScalarTask task)
-    {
-      AllocateCommand();
-      try {
-        var part = task.Request.Compile(DomainHandler).GetCommandText();
-        activeCommand.AddPart(part);
-        return activeCommand.ExecuteScalar();
-      }
-      finally {
-        DisposeCommand();
-      }
-    }
-    
-    public void ExecutePersistQuickly(SqlPersistTask task)
-    {
-      AllocateCommand();
-      try {
-        var part = factory.CreatePersistCommandPart(task, DefaultParameterNamePrefix);
-        activeCommand.AddPart(part);
-        activeCommand.ExecuteNonQuery();
-      }
-      finally {
-        DisposeCommand();
-      }
-    }
-
-    public DbDataReader ExecuteQueryQuickly(SqlQueryTask task)
-    {
-      AllocateCommand();
-      try {
-        var part = factory.CreateQueryCommandPart(task, DefaultParameterNamePrefix);
-        activeCommand.AddPart(part);
-        return activeCommand.ExecuteReader();
-      }
-      finally {
-        DisposeCommand();
-      }
-    }
-
-    #endregion
-
     public abstract void ExecuteRequests(bool allowPartialExecution);
     public abstract IEnumerator<Tuple> ExecuteRequestsWithReader(SqlQueryRequest request);
     
-    public void RegisterTask(SqlQueryTask task)
+    public void RegisterTask(SqlTask task)
     {
-      queryTasks.Enqueue(task);
-    }
-
-    public void RegisterTask(SqlPersistTask task)
-    {
-      persistTasks.Enqueue(task);
+      tasks.Enqueue(task);
     }
     
     public void ClearTasks()
     {
-      queryTasks.Clear();
-      persistTasks.Clear();
+      tasks.Clear();
     }
 
     protected IEnumerator<Tuple> RunTupleReader(DbDataReader reader, TupleDescriptor descriptor)
@@ -132,8 +82,7 @@ namespace Xtensive.Storage.Providers.Sql
       else
         activeCommand = null;
     }
-
-
+    
     public void Dispose()
     {
       DisposeCommand();

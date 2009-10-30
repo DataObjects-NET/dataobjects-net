@@ -4,12 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -17,85 +15,72 @@ namespace Xtensive.Storage.Providers.Sql
   {
     private int batchSize;
     
+    private string GetParameterPrefix()
+    {
+      return string.Format("p{0}_", activeCommand.Statements.Count + 1);
+    }
+
     public override void ExecuteRequests(bool allowPartialExecution)
     {
-      while (persistTasks.Count >= batchSize)
-        ExecuteBatch(batchSize, 0, null);
-
-      int persistAmount = persistTasks.Count;
-      int queryAmount = Math.Min(queryTasks.Count, batchSize - persistAmount);
-
-      if (persistAmount + queryAmount < batchSize) {
-        if (!allowPartialExecution)
-          ExecuteBatch(persistAmount, queryAmount, null);
-        return;
-      }
-
-      ExecuteBatch(persistAmount, queryAmount, null);
-
-      while (queryTasks.Count >= batchSize)
-        ExecuteBatch(0, batchSize, null);
+      while (tasks.Count >= batchSize)
+        ExecuteBatch(batchSize, null);
 
       if (!allowPartialExecution)
-        ExecuteBatch(0, queryTasks.Count, null);
+        ExecuteBatch(tasks.Count, null);
     }
 
     public override IEnumerator<Tuple> ExecuteRequestsWithReader(SqlQueryRequest request)
     {
-      while (persistTasks.Count >= batchSize)
-        ExecuteBatch(batchSize, 0, null);
+      while (tasks.Count >= batchSize)
+        ExecuteBatch(batchSize, null);
 
-      int persistAmount = persistTasks.Count;
-      int queryAmount = Math.Min(queryTasks.Count, batchSize - persistAmount);
-
-      if (persistAmount + queryAmount < batchSize)
-        return RunTupleReader(ExecuteBatch(persistAmount, queryAmount, request), request.TupleDescriptor);
-
-      ExecuteBatch(persistAmount, queryAmount, null);
-
-      while (queryTasks.Count >= batchSize)
-        ExecuteBatch(0, batchSize, null);
-
-      return RunTupleReader(ExecuteBatch(0, queryTasks.Count, request), request.TupleDescriptor);
+      return RunTupleReader(ExecuteBatch(tasks.Count, request), request.TupleDescriptor);
     }
 
-    private DbDataReader ExecuteBatch(int persistAmount, int queryAmount, SqlQueryRequest lastRequest)
+    private DbDataReader ExecuteBatch(int numberOfTasks, SqlQueryRequest lastRequest)
     {
-      if (persistAmount==0 && queryAmount==0 && lastRequest==null)
+      if (numberOfTasks==0 && lastRequest==null)
         return null;
       AllocateCommand();
       DbDataReader reader = null;
       try {
-        if (persistAmount > 0)
-          persistAmount = RegisterPersists(persistAmount);
-        List<SqlQueryTask> registeredTasks = null;
-        if (queryAmount > 0) {
-          registeredTasks = RegisterQueries(queryAmount);
-          queryAmount = registeredTasks.Count;
+        while (numberOfTasks > 0 && tasks.Count > 0) {
+          numberOfTasks--;
+          var task = tasks.Dequeue();
+          var persistTask = task as SqlPersistTask;
+          if (persistTask!=null) {
+            var part = factory.CreatePersistCommandPart(persistTask, GetParameterPrefix());
+            activeCommand.AddPart(part);
+          }
+          var queryTask = task as SqlQueryTask;
+          if (queryTask!=null) {
+            var part = factory.CreateQueryCommandPart(queryTask, GetParameterPrefix());
+            activeCommand.AddPart(part, queryTask);
+          }
         }
         if (lastRequest!=null) {
           var part = factory.CreateQueryCommandPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
           activeCommand.AddPart(part);
         }
-        if (queryAmount==0 && lastRequest==null) {
+        if (activeCommand.QueryTasks.Count==0 && lastRequest==null) {
           activeCommand.ExecuteNonQuery();
           return null;
         }
         reader = activeCommand.ExecuteReader();
-        if (registeredTasks!=null) {
-          int currentTaskNumber = 0;
-          while (currentTaskNumber < registeredTasks.Count) {
-            var task = registeredTasks[currentTaskNumber];
-            var descriptor = task.Request.TupleDescriptor;
+        if (activeCommand.QueryTasks.Count > 0) {
+          int currentQueryTask = 0;
+          while (currentQueryTask < activeCommand.QueryTasks.Count) {
+            var queryTask = activeCommand.QueryTasks[currentQueryTask];
+            var descriptor = queryTask.Request.TupleDescriptor;
             var accessor = DomainHandler.GetDataReaderAccessor(descriptor);
-            var output = task.Output;
+            var result = queryTask.Result;
             while (Driver.ReadRow(reader)) {
               var tuple = Tuple.Create(descriptor);
               accessor.Read(reader, tuple);
-              output.Add(tuple);
+              result.Add(tuple);
             }
             reader.NextResult();
-            currentTaskNumber++;
+            currentQueryTask++;
           }
         }
         return lastRequest!=null ? reader : null;
@@ -107,31 +92,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private List<SqlQueryTask> RegisterQueries(int amount)
-    {
-      var queries = new List<SqlQueryTask>();
-      for (int i = 0; i < amount && queryTasks.Count > 0; i++) {
-        var task = queryTasks.Dequeue();
-        queries.Add(task);
-        var part = factory.CreateQueryCommandPart(task, activeCommand.GetParameterPrefix());
-        activeCommand.AddPart(part);
-      }
-      return queries;
-    }
 
-    private int RegisterPersists(int amount)
-    {
-      int count = 0;
-      for (int i = 0; i < amount && persistTasks.Count > 0; i++) {
-        var task = persistTasks.Dequeue();
-        var part = factory.CreatePersistCommandPart(task, activeCommand.GetParameterPrefix());
-        activeCommand.AddPart(part);
-        count++;
-      }
-      return count;
-    }
-
-    
     // Constructors
 
     public BatchingCommandProcessor(SessionHandler sessionHandler, int batchSize)

@@ -22,18 +22,18 @@ namespace Xtensive.Storage.Providers
     /// Persists changed entities.
     /// </summary>
     /// <param name="registry">The registry.</param>
-    /// <param name="dirtyFlush">if set to <see langword="true"/> dirty flush is allowed.</param>
-    public virtual void Persist(EntityChangeRegistry registry, bool dirtyFlush)
+    /// <param name="allowPartialExecution">if set to <see langword="true"/> dirty flush is allowed.</param>
+    public virtual void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {
-      Persist(GetPersistSequence(registry), dirtyFlush);
+      Persist(GetPersistSequence(registry), allowPartialExecution);
     }
 
     /// <summary>
     /// Persists changed entities.
     /// </summary>
     /// <param name="persistActions">The entity states and the corresponding actions.</param>
-    /// <param name="dirty">if set to <see langword="true"/> dirty flush is allowed.</param>
-    public abstract void Persist(IEnumerable<PersistAction> persistActions, bool dirty);
+    /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
+    public abstract void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution);
 
     private IEnumerable<PersistAction> GetPersistSequence(EntityChangeRegistry registry)
     {

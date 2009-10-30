@@ -8,7 +8,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal struct SqlPersistTask
+  internal sealed class SqlPersistTask : SqlTask
   {
     public SqlPersistRequest Request;
     public Tuple Tuple;

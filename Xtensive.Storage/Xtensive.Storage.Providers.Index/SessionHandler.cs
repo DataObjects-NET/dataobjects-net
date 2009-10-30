@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    public override void Persist(IEnumerable<PersistAction> persistActions, bool dirty)
+    public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
     {
       lock (ConnectionSyncRoot) {
         var batched = persistActions.SelectMany(statePair => CreateCommandBatch(statePair)).Batch(0, 256, 256);

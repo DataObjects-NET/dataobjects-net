@@ -101,12 +101,6 @@ namespace Xtensive.Storage.Providers.Sql
       return underlyingDriver.Compile(statement);
     }
 
-    public SqlCompilationResult Compile(ISqlCompileUnit statement, SqlCompilerOptions options)
-    {
-      return underlyingDriver.Compile(statement, options);
-    }
-    
-
     // Constructors
 
     public Driver(UrlInfo url)

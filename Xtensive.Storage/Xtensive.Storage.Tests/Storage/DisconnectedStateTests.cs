@@ -411,7 +411,7 @@ namespace Xtensive.Storage.Tests.Storage
           newCustomerKey = newCustomer.Key;
           session.Persist();
           newCustomer.Remove();
-          session.Persist(false);
+          session.Persist();
 
           var order1 = orders.First(order => order.Number==1);
           order1Key = order1.Key;

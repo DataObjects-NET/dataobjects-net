@@ -20,9 +20,9 @@ namespace Xtensive.Storage.Providers.Sql
   /// <typeparam name="TFieldType">The type of the field.</typeparam>
   public class SqlCachingKeyGenerator<TFieldType> : CachingKeyGenerator<TFieldType>
   {
-    private SqlScalarRequest nextRequest;
-    private readonly ISqlCompileUnit sqlNext;
-    private readonly ISqlCompileUnit sqlInitialize;
+    private string nextRequest;
+    private ISqlCompileUnit sqlNext;
+    private ISqlCompileUnit sqlInitialize;
 
     /// <inheritdoc/>
     protected override void CacheNext()
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Providers.Sql
       using (Session.Open(domainHandler.Domain, SessionType.KeyGenerator))
       using (var t = Transaction.Open()) {
         var sessionHandler = (SessionHandler) Handlers.SessionHandler;
-        object value = sessionHandler.ExecuteScalarRequest(nextRequest);
+        object value = sessionHandler.ExecuteScalarStatement(nextRequest);
         upperBound = (TFieldType) Convert.ChangeType(value, typeof (TFieldType));
         // rolling back transaction
       }
@@ -57,11 +57,16 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       base.Initialize();
-      nextRequest = new SqlScalarRequest(sqlNext);
+      
       if (sqlInitialize!=null) {
         var sessionHandler = (SessionHandler) Handlers.SessionHandler;
         sessionHandler.ExecuteNonQueryStatement(sqlInitialize);
+        sqlInitialize = null;
       }
+
+      var domainHandler = (DomainHandler) Handlers.DomainHandler;
+      nextRequest = domainHandler.Driver.Compile(sqlNext).GetCommandText();
+      sqlNext = null;
     }
     
     // Constructors

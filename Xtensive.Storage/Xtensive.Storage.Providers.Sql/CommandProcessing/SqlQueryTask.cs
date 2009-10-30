@@ -10,11 +10,11 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal struct SqlQueryTask
+  internal sealed class SqlQueryTask : SqlTask
   {
     public SqlQueryRequest Request;
     public ParameterContext ParameterContext;
-    public List<Tuple> Output;
+    public List<Tuple> Result;
     
     // Constructors
 
@@ -22,14 +22,14 @@ namespace Xtensive.Storage.Providers.Sql
     {
       Request = request;
       ParameterContext = null;
-      Output = null;
+      Result = null;
     }
 
     public SqlQueryTask(SqlQueryRequest request, ParameterContext parameterContext, List<Tuple> output)
     {
       Request = request;
       ParameterContext = parameterContext;
-      Output = output;
+      Result = output;
     }
   }
 }

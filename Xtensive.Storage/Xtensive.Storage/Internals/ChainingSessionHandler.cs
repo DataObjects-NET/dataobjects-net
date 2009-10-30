@@ -64,15 +64,15 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void Persist(EntityChangeRegistry registry, bool dirtyFlush)
+    public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {
-      ChainedHandler.Persist(registry, dirtyFlush);
+      ChainedHandler.Persist(registry, allowPartialExecution);
     }
 
     /// <inheritdoc/>
-    public override void Persist(IEnumerable<PersistAction> persistActions, bool dirty)
+    public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
     {
-      ChainedHandler.Persist(persistActions, dirty);
+      ChainedHandler.Persist(persistActions, allowPartialExecution);
     }
 
     /// <inheritdoc/>
