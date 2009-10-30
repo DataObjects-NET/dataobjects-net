@@ -54,29 +54,33 @@ namespace Xtensive.Storage.Internals.Prefetch
       RootEntityContainer.AddColumns(columns);
     }
 
-    public void RegisterReferencedEntityContainer(Tuple ownerEntityTuple, FieldInfo referencingField)
+    public void RegisterReferencedEntityContainer(Tuple ownerEntityTuple,
+      PrefetchFieldDescriptor referencingFieldDescriptor)
     {
       if (referencedEntityContainers != null
-        && referencedEntityContainers.ContainsKey(referencingField))
+        && referencedEntityContainers.ContainsKey(referencingFieldDescriptor.Field))
         return;
-      var notLoadedForeignKeyColumns = GetNotLoadedFieldColumns(ownerEntityTuple, referencingField);
+      var notLoadedForeignKeyColumns = GetNotLoadedFieldColumns(ownerEntityTuple,
+        referencingFieldDescriptor.Field);
       var areAllForeignKeyColumnsLoaded = notLoadedForeignKeyColumns.Count()==0;
       if (!areAllForeignKeyColumnsLoaded) {
         if (referencedEntityContainers == null)
           referencedEntityContainers = new Dictionary<FieldInfo, ReferencedEntityContainer>();
-        referencedEntityContainers.Add(referencingField, new ReferencedEntityContainer(Key,
-          referencingField, exactType, processor));
+        referencedEntityContainers.Add(referencingFieldDescriptor.Field, new ReferencedEntityContainer(Key,
+          referencingFieldDescriptor, exactType, processor));
         AddEntityColumns(notLoadedForeignKeyColumns);
       }
       else {
-        var referencedKeyTuple = referencingField.Association.ExtractForeignKey(ownerEntityTuple);
+        var referencedKeyTuple = referencingFieldDescriptor.Field.Association
+          .ExtractForeignKey(ownerEntityTuple);
         var referencedKeyTupleState = referencedKeyTuple.GetFieldStateMap(TupleFieldState.Null);
         for (var i = 0; i < referencedKeyTupleState.Length; i++)
           if (referencedKeyTupleState[i])
             return;
-        var referencedKey = Key.Create(processor.Owner.Session.Domain, referencingField.Association.TargetType,
+        var referencedKey = Key.Create(processor.Owner.Session.Domain,
+          referencingFieldDescriptor.Field.Association.TargetType,
           TypeReferenceAccuracy.BaseType, referencedKeyTuple);
-        var targetType = referencingField.Association.TargetType;
+        var targetType = referencingFieldDescriptor.Field.Association.TargetType;
         var fieldsToBeLoaded = PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(targetType);
         processor.PrefetchByKeyWithNotCachedType(referencedKey, targetType, fieldsToBeLoaded);
       }

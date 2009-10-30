@@ -25,10 +25,16 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly Dictionary<TypeInfo, PrefetchFieldDescriptor[]> userDescriptorsCache =
       new Dictionary<TypeInfo, PrefetchFieldDescriptor[]>();
     private readonly Queue<T> processedElements = new Queue<T>();
-    private readonly Queue<T> waitingElements = new Queue<T>();
+    private readonly Queue<Pair<Key, T>> waitingElements = new Queue<Pair<Key, T>>();
     private readonly StrongReferenceContainer strongReferenceContainer;
-    private readonly Queue<T> delayedElements = new Queue<T>();
-    private object blockingDelayedElement;
+    private readonly Queue<Triplet<Key, T, TypeInfo>> delayedElements = new Queue<Triplet<Key, T, TypeInfo>>();
+    private Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeys;
+    private readonly Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeysFirst =
+      new Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>>();
+    private readonly Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>> referencedDelayedElementKeysSecond =
+      new Dictionary<Key, LinkedList<Pair<Key, TypeInfo>>>();
+
+    private Key blockingDelayedElement;
     private readonly SessionHandler sessionHandler;
     private int prefetchTaskExecutionCount;
     private bool isDisposed;
@@ -37,14 +43,16 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
       foreach (var element in source) {
-        var elementKey = RegisterPrefetch(element);
+        var elementKey = keyExtractor.Invoke(element);
+        var type = RegisterPrefetch(element, elementKey);
         if (prefetchTaskExecutionCount!=sessionHandler.PrefetchTaskExecutionCount) {
           blockingDelayedElement = null;
           ProcessFetchedElements(false);
         }
-        waitingElements.Enqueue(element);
+        var pair = new Pair<Key, T>(elementKey, element);
+        waitingElements.Enqueue(pair);
         if (!elementKey.HasExactType)
-          delayedElements.Enqueue(element);
+          delayedElements.Enqueue(new Triplet<Key, T, TypeInfo>(elementKey, element, type));
         prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
         if (processedElements.Count > 0)
           yield return processedElements.Dequeue();
@@ -64,14 +72,13 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     #region Private \ internal methods
 
-    private Key RegisterPrefetch(T element)
+    private TypeInfo RegisterPrefetch(T element, Key key)
     {
-      var key = keyExtractor.Invoke(element);
       var type = SelectType(key);
       var descriptorArray = GetUserDescriptorArray(type);
       strongReferenceContainer.JoinIfPossible(sessionHandler
         .Prefetch(keyExtractor.Invoke(element), type, descriptorArray));
-      return key;
+      return type;
     }
 
     private TypeInfo SelectType(Key key)
@@ -105,37 +112,86 @@ namespace Xtensive.Storage.Internals.Prefetch
       while (delayedElements.Count > 0) {
         var elementToBeFetched = delayedElements.Dequeue();
         if (blockingDelayedElement == null)
-          blockingDelayedElement = elementToBeFetched;
-        var key = keyExtractor.Invoke(elementToBeFetched);
-        var cachedKey = sessionHandler.Session.EntityStateCache[key, false].Key;
-        var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
+          blockingDelayedElement = elementToBeFetched.First;
+        //var key = keyExtractor.Invoke(elementToBeFetched);
+        //var cachedKey = sessionHandler.Session.EntityStateCache[elementToBeFetched.First, false].Key;
+        var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;
+        LinkedList<Pair<Key, TypeInfo>> referencedKeys;
+        if (referencedDelayedElementKeys.TryGetValue(elementToBeFetched.First, out referencedKeys)) {
+          RegisterPrefetchOfDelayedReferencedElements(referencedKeys);
+          referencedDelayedElementKeys.Remove(elementToBeFetched.First);
+        }
+        RegisterPrefetchOfDefaultFields(elementToBeFetched.First, elementToBeFetched.Third);
+        /*var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
           .GetCachedItem(new Pair<object, TypeInfo>(DescriptorArraysCachingRegion, cachedKey.Type),
             pair => PrefetchHelper
               .CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second));
-        var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;
         strongReferenceContainer.JoinIfPossible(sessionHandler.Prefetch(cachedKey, cachedKey.Type,
-          descriptorsArray));
+          descriptorsArray));*/
         if (prefetchTaskCount != sessionHandler.PrefetchTaskExecutionCount)
-          blockingDelayedElement = elementToBeFetched;
+          blockingDelayedElement = elementToBeFetched.First;
       }
+    }
+
+    private void RegisterPrefetchOfDelayedReferencedElements(LinkedList<Pair<Key, TypeInfo>> referencedKeys)
+    {
+      foreach (var referencedKeyPair in referencedKeys)
+        RegisterPrefetchOfDefaultFields(referencedKeyPair.First, referencedKeyPair.Second);
+    }
+
+    private void FetchRemainingFieldsOfReferencedElements()
+    {
+      if (referencedDelayedElementKeys.Count == 0)
+        return;
+      var currentCollection = referencedDelayedElementKeys;
+      referencedDelayedElementKeys = referencedDelayedElementKeys == referencedDelayedElementKeysFirst
+        ? referencedDelayedElementKeysSecond
+        : referencedDelayedElementKeysFirst;
+      foreach (var pair in currentCollection) {
+        if (blockingDelayedElement==null)
+          blockingDelayedElement = pair.Key;
+        var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;
+        RegisterPrefetchOfDelayedReferencedElements(pair.Value);
+        if (prefetchTaskCount!=sessionHandler.PrefetchTaskExecutionCount)
+          blockingDelayedElement = pair.Key;
+      }
+      currentCollection.Clear();
+    }
+
+    private void RegisterPrefetchOfDefaultFields(Key key, TypeInfo queriedType)
+    {
+      var keyWithType = key;
+      if (!key.HasExactType)
+          keyWithType = sessionHandler.Session.EntityStateCache[keyWithType, false].Key;
+      if (keyWithType.Type == queriedType)
+        return;
+      var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
+        .GetCachedItem(new Pair<object, TypeInfo>(DescriptorArraysCachingRegion, keyWithType.Type),
+          pair => PrefetchHelper
+            .CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second));
+      strongReferenceContainer.JoinIfPossible(sessionHandler.Prefetch(keyWithType, keyWithType.Type,
+        descriptorsArray));
     }
 
     private void ProcessFetchedElements(bool forceTasksExecution)
     {
       while (waitingElements.Count > 0) {
         var waitingElement = waitingElements.Peek();
-        if (ReferenceEquals(waitingElement, blockingDelayedElement))
+        if (waitingElement.First.Equals(blockingDelayedElement))
           if (forceTasksExecution)
             ExecutePrefetchTasks();
           else
             return;
-        if (delayedElements.Count > 0 && ReferenceEquals(waitingElement, delayedElements.Peek()))
+        if (delayedElements.Count > 0 && waitingElement.First.Equals(delayedElements.Peek().First))
           FetchRemainingFieldsOfDelayedElements();
+        else if (referencedDelayedElementKeys.Count > 0
+          && referencedDelayedElementKeys.ContainsKey(waitingElement.First))
+          FetchRemainingFieldsOfReferencedElements();
         if (forceTasksExecution)
           ExecutePrefetchTasks();
-        if (ReferenceEquals(waitingElement, blockingDelayedElement))
+        if (waitingElement.First.Equals(blockingDelayedElement))
           return;
-        processedElements.Enqueue(waitingElements.Dequeue());
+        processedElements.Enqueue(waitingElements.Dequeue().Second);
       }
     }
 
@@ -143,6 +199,26 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       strongReferenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks());
       blockingDelayedElement = null;
+    }
+
+    private void HandleReferencedKeyExtraction(Key ownerKey, FieldInfo referencingField, Key referencedKey)
+    {
+      if (referencedKey != null) {
+        var type = referencingField.IsEntitySet
+          ? sessionHandler.Session.Domain.Model.Types[referencingField.ItemType]
+          : referencingField.Association.TargetType;
+        GetReferencedKeysList(ownerKey).AddLast(new Pair<Key, TypeInfo>(referencedKey, type));
+      }
+    }
+
+    private LinkedList<Pair<Key, TypeInfo>> GetReferencedKeysList(Key ownerKey)
+    {
+      LinkedList<Pair<Key, TypeInfo>> result;
+      if (!referencedDelayedElementKeys.TryGetValue(ownerKey, out result)) {
+        result = new LinkedList<Pair<Key, TypeInfo>>();
+        referencedDelayedElementKeys.Add(ownerKey, result);
+      }
+      return result;
     }
 
     #endregion
@@ -160,9 +236,14 @@ namespace Xtensive.Storage.Internals.Prefetch
       this.source = source;
       this.keyExtractor = keyExtractor;
       this.modelType = modelType;
-      this.fieldDescriptors = fieldDescriptors;
+      this.fieldDescriptors = new Dictionary<FieldInfo, PrefetchFieldDescriptor>(fieldDescriptors.Count);
+      foreach (var pair in fieldDescriptors)
+        this.fieldDescriptors[pair.Key] = new PrefetchFieldDescriptor(pair.Value.Field,
+          pair.Value.EntitySetItemCountLimit, pair.Value.FetchFieldsOfReferencedEntity,
+          HandleReferencedKeyExtraction);
       this.sessionHandler = sessionHandler;
       strongReferenceContainer = new StrongReferenceContainer(null);
+      referencedDelayedElementKeys = referencedDelayedElementKeysFirst;
     }
   }
 }

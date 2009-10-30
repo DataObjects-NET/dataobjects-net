@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Internals.Prefetch
   /// <typeparam name="TElement">The type of the element.</typeparam>
   [Serializable]
   public sealed class Prefetcher<T, TElement> : IEnumerable<TElement>
-    where T : Entity
+    where T : IEntity
   {
     private static readonly object descriptorArraysCachingRegion = new object();
 
@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     public Prefetcher<T, TElement> PrefetchSingle<TFieldValue, TSelectorResult>(
       Expression<Func<T, TFieldValue>> expression, Func<TFieldValue,TSelectorResult> selector,
       Func<IEnumerable<TSelectorResult>,IEnumerable<TSelectorResult>> prefetchManyFunc)
-      where TSelectorResult : Entity
+      where TSelectorResult : IEntity
     {
       Prefetch(expression, null);
       var compiledPropertyGetter = expression.CachingCompile();
@@ -200,7 +200,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       EntityState state;
       sessionHandler.TryGetEntityState(keyExtractor.Invoke(element), out state);
-      return selector.Invoke(propertyGetter.Invoke((T) state.Entity));
+      return selector.Invoke(propertyGetter.Invoke((T) (object) state.Entity));
     }
 
     private void Prefetch<TFieldValue>(Expression<Func<T, TFieldValue>> expression,
@@ -216,12 +216,14 @@ namespace Xtensive.Storage.Internals.Prefetch
       var property = memberAccess.Member as PropertyInfo;
       if (property == null)
         throw new ArgumentException(Strings.ExAccessedMemberIsNotProperty, "expression");
-      var modelField = modelType.Fields.Where(field => field.UnderlyingProperty.Equals(property))
+      var modelField = modelType.Fields
+        .Where(field => field.UnderlyingProperty != null && field.UnderlyingProperty.Equals(property))
         .SingleOrDefault();
       if (modelField == null)
         throw new ArgumentException(String.Format(Strings.ExSpecifiedPropertyXIsNotPersistent,
           property.Name), "expression");
-      fieldDescriptors[modelField] = new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit, true);
+      fieldDescriptors[modelField] = new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit,
+        true, null);
     }
 
     #endregion

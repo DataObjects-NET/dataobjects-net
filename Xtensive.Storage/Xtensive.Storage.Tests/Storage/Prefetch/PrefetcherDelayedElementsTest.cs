@@ -4,9 +4,11 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.07
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Storage.Prefetch.Model;
@@ -193,6 +195,108 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
     }
 
+    [Test]
+    public void FullLoadingOfReferencedEntityTest()
+    {
+      var keys = new List<Key>();
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        for (int i = 0; i < 151; i++) {
+          var title = new Title {Text = "abc", Language = "En"};
+          keys.Add(new Book {Category = (i % 10).ToString(), Title = title}.Key);
+          keys.Add(new Book {Category = (i % 10).ToString()}.Key);
+        }
+        tx.Complete();
+      }
+
+      TestFullLoadingOfReferencedEntities(keys);
+      TestFullLoadingOfReferencedEntities(keys
+        .Select(key => Key.Create(Domain, typeof (IHasCategory), key.Value)));
+    }
+
+    [Test]
+    public void FullLoadingOfEntitySetItemsOneToManyTest()
+    {
+      var keys = new List<Key>();
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        Action<Book, int> titlesGenerator = (b, count) => {
+          for (var i = 0; i < count; i++)
+            b.TranslationTitles.Add(new Title {Text = i.ToString()});
+        };
+        for (var i = 0; i < 155; i++) {
+          var book = new Book {
+            Category = (i % 10).ToString(), Title = new Title {Text = "abc", Language = "En"}
+          };
+          titlesGenerator.Invoke(book, i % 20);
+          keys.Add(book.Key);
+        }
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetcher = keys.Prefetch<Book, Key>(key => key).Prefetch(b => b.TranslationTitles);
+        var bookType = typeof (Book).GetTypeInfo();
+        var translationTitlesField = bookType.Fields["TranslationTitles"];
+        var titleType = typeof (Title).GetTypeInfo();
+        var isOneItemPresentAtLeast = false;
+        foreach (var key in prefetcher)
+          AssertEntitySetItemsAreFullyLoaded(key, bookType, translationTitlesField,
+            session, ref isOneItemPresentAtLeast);
+        Assert.IsTrue(isOneItemPresentAtLeast);
+      }
+    }
+
+    [Test]
+    public void FullLoadingOfEntitySetItemsManyToManyTest()
+    {
+      var publisherKeys = new List<Key>();
+      var bookShopKeys = new List<Key>();
+      TypeInfo publisherType;
+      TypeInfo bookShopType;
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        publisherType = typeof (Publisher).GetTypeInfo();
+        bookShopType = typeof (BookShop).GetTypeInfo();
+        Action<Publisher, int> titlesGenerator = (p, count) => {
+          for (var i = 0; i < count; i++) {
+            var bookShop = new BookShop {Url = "http://" + i.ToString(), Name = i.ToString()};
+            bookShopKeys.Add(bookShop.Key);
+            p.Distributors.Add(bookShop);
+          }
+        };
+        for (var i = 0; i < 155; i++) {
+          var publisher = new Publisher {Country = "C"};
+          titlesGenerator.Invoke(publisher, i % 20);
+          publisherKeys.Add(publisher.Key);
+        }
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetcher = publisherKeys.Prefetch<Publisher, Key>(key => key).Prefetch(p => p.Distributors);
+        var distributorsField = publisherType.Fields["Distributors"];
+        var isOneItemPresentAtLeast = false;
+        foreach (var key in prefetcher)
+          AssertEntitySetItemsAreFullyLoaded(key, publisherType, distributorsField,
+            session, ref isOneItemPresentAtLeast);
+        Assert.IsTrue(isOneItemPresentAtLeast);
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetcher = bookShopKeys.Prefetch<BookShop, Key>(key => key).Prefetch(b => b.Suppliers);
+        var suppliersField = bookShopType.Fields["Suppliers"];
+        var isOneItemPresentAtLeast = false;
+        foreach (var key in prefetcher)
+          AssertEntitySetItemsAreFullyLoaded(key, bookShopType, suppliersField,
+            session, ref isOneItemPresentAtLeast);
+        Assert.IsTrue(isOneItemPresentAtLeast);
+      }
+    }
+
     public static Key GetCachedKey(Key key, Domain domain)
     {
       Key result;
@@ -213,6 +317,43 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         Assert.Greater(keys.Count, 0);
       }
       return keys;
+    }
+
+    private void TestFullLoadingOfReferencedEntities(IEnumerable<Key> keys)
+    {
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetcher = keys.Prefetch<Book, Key>(key => key).Prefetch(b => b.Title);
+        var bookType = typeof (Book).GetTypeInfo();
+        var titleField = bookType.Fields["Title"];
+        var titleType = typeof (Title).GetTypeInfo();
+        foreach (var key in prefetcher) {
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, bookType, session,
+            PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+          var ownerState = session.EntityStateCache[key, true];
+          var titleKeyValue = titleField.Association.ExtractForeignKey(ownerState.Tuple);
+          if ((titleKeyValue.GetFieldState(0) & TupleFieldState.Null) == TupleFieldState.Null)
+            continue;
+          var titleKey = Key.Create(Domain, typeof (Title), titleKeyValue);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(titleKey, titleType, session,
+            PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        }
+      }
+    }
+
+    private static void AssertEntitySetItemsAreFullyLoaded(Key ownerKey, TypeInfo ownerType,
+      FieldInfo referencingField, Session session, ref bool isOneItemPresentAtLeast)
+    {
+      PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(ownerKey, ownerType, session,
+        PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+      EntitySetState setState;
+      session.Handler.TryGetEntitySetState(ownerKey, referencingField, out setState);
+      Assert.IsTrue(setState.IsFullyLoaded);
+      foreach (var itemKey in setState) {
+        isOneItemPresentAtLeast = true;
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(itemKey, itemKey.Type, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+      }
     }
   }
 }

@@ -17,6 +17,8 @@ namespace Xtensive.Storage.Internals.Prefetch
   [Serializable]
   public struct PrefetchFieldDescriptor
   {
+    private readonly Action<Key, FieldInfo, Key> keyExtractionSubscriber;
+
     /// <summary>
     /// The field which value will be fetched.
     /// </summary>
@@ -55,6 +57,12 @@ namespace Xtensive.Storage.Internals.Prefetch
       return Field.GetHashCode();
     }
 
+    internal void NotifySubscriber(Key ownerKey, Key referencedKey)
+    {
+      if (keyExtractionSubscriber != null)
+        keyExtractionSubscriber.Invoke(ownerKey, Field, referencedKey);
+    }
+
 
     // Constructors
 
@@ -64,7 +72,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <param name="field">The field which value will be fetched.</param>
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
     public PrefetchFieldDescriptor(FieldInfo field)
-      : this(field, null, true)
+      : this(field, null, true, null)
     {}
 
     /// <summary>
@@ -74,7 +82,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <param name="entitySetItemCountLimit">The maximal count of items 
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
     public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit) :
-      this(field, entitySetItemCountLimit, false)
+      this(field, entitySetItemCountLimit, false, null)
     {}
 
     /// <summary>
@@ -85,20 +93,23 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/> 
     /// will be fetched.</param>
     public PrefetchFieldDescriptor(FieldInfo field, bool fetchFieldsOfReferencedEntity) :
-      this(field, null, fetchFieldsOfReferencedEntity)
+      this(field, null, fetchFieldsOfReferencedEntity, null)
     {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="field">The field which value will be fetched.</param>
-    /// <param name="entitySetItemCountLimit">The maximal count of items 
+    /// <param name="entitySetItemCountLimit">The maximal count of items
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
-    /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true" /> 
-    /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/> 
+    /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true"/>
+    /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/>
     /// will be fetched.</param>
+    /// <param name="keyExtractionSubscriber">The delegate which will be invoked 
+    /// when a key of a referenced entity has been extracted and this entity 
+    /// has not been found in the cache.</param>
     public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit,
-      bool fetchFieldsOfReferencedEntity)
+      bool fetchFieldsOfReferencedEntity, Action<Key, FieldInfo, Key> keyExtractionSubscriber)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       if (entitySetItemCountLimit != null)
@@ -107,6 +118,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       Field = field;
       FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
       EntitySetItemCountLimit = entitySetItemCountLimit;
+      this.keyExtractionSubscriber = keyExtractionSubscriber;
     }
   }
 }

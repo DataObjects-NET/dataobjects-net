@@ -34,8 +34,9 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly PrefetchProcessor processor;
     private QueryTask itemsQueryTask;
     private int? cachedHashCode;
+    private readonly PrefetchFieldDescriptor referencingFieldDescriptor;
 
-    public readonly FieldInfo ReferencingField;
+    public FieldInfo ReferencingField {get { return referencingFieldDescriptor.Field; } }
 
     public RecordSet RecordSet { get; private set; }
 
@@ -75,10 +76,12 @@ namespace Xtensive.Storage.Internals.Prefetch
             else {
               processor.SaveStrongReference(processor.Owner.RegisterEntityState(key, tuple));
               entityKeys.Add(key);
+              referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
             }
           else {
             processor.SaveStrongReference(processor.Owner.RegisterEntityState(key, tuple));
             entityKeys.Add(key);
+            referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
           }
         }
       }
@@ -237,7 +240,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
 
       this.ownerKey = ownerKey;
-      ReferencingField = referencingFieldDescriptor.Field;
+      this.referencingFieldDescriptor = referencingFieldDescriptor;
       ItemCountLimit = referencingFieldDescriptor.EntitySetItemCountLimit;
       this.processor = processor;
     }

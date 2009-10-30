@@ -5,7 +5,6 @@
 // Created:    2009.09.07
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
@@ -15,7 +14,6 @@ using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Storage.Prefetch.Model;
-using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Tests.Storage.Prefetch
 {
@@ -111,9 +109,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           TypeReferenceAccuracy.BaseType, customerKey.Value);
         AssertEx.Throws<ArgumentNullException>(() =>
           prefetchProcessor.Prefetch(keyWithoutType, null, new PrefetchFieldDescriptor(AgeField)));
-        prefetchProcessor.Prefetch(keyWithoutType, CustomerType, new PrefetchFieldDescriptor(CityField));
         AssertEx.Throws<InvalidOperationException>(() =>
           prefetchProcessor.Prefetch(keyWithoutType, supplierType, new PrefetchFieldDescriptor(CityField)));
+        prefetchProcessor.Prefetch(keyWithoutType, CustomerType, new PrefetchFieldDescriptor(CityField));
         prefetchProcessor.Prefetch(keyWithoutType, supplierType, new PrefetchFieldDescriptor(AgeField));
         prefetchProcessor.ExecuteTasks();
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customerKey, CustomerType, session,
@@ -147,7 +145,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         Assert.IsTrue(session.EntityStateCache.ContainsKey(orderKey));
         foreach (var key in orderDetailKeys) {
           Assert.IsTrue(session.EntityStateCache.ContainsKey(key));
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, orderDetailsType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, orderDetailsType, session,
+            PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
       }
     }
@@ -359,21 +358,21 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchProcessor = new PrefetchProcessor(Session.Demand());
 
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true));
-        var taskContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchProcessor);
-        Assert.AreEqual(2, taskContainers.Count);
-        foreach (var container in taskContainers)
+        var graphContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchProcessor);
+        Assert.AreEqual(2, graphContainers.Count);
+        foreach (var container in graphContainers)
           Assert.IsNull(container.ReferencedEntityContainers);
-        var orderTask = taskContainers.Where(container => container.Key==orderKey).SingleOrDefault();
-        var employeeTask = taskContainers.Where(container => container.Key!=orderKey).SingleOrDefault();
-        Assert.IsNotNull(orderTask);
-        Assert.IsNotNull(employeeTask);
+        var orderContainer = graphContainers.Where(container => container.Key==orderKey).SingleOrDefault();
+        var employeeContainer = graphContainers.Where(container => container.Key!=orderKey).SingleOrDefault();
+        Assert.IsNotNull(orderContainer);
+        Assert.IsNotNull(employeeContainer);
         prefetchProcessor.ExecuteTasks();
-        Assert.IsNull(orderTask.RootEntityContainer);
-        Assert.IsNotNull(employeeTask.RootEntityContainer.Task);
+        Assert.IsNull(orderContainer.RootEntityContainer);
+        Assert.IsNotNull(employeeContainer.RootEntityContainer.Task);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, OrderType,
           session, field => IsFieldKeyOrSystem(field) || field == EmployeeField
             || field.Parent == EmployeeField);
-        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeTask.Key, Domain.Model.Types[typeof (Employee)],
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeContainer.Key, Domain.Model.Types[typeof (Employee)],
           session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       }
     }
@@ -394,11 +393,11 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand());
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true));
-        var taskContainer = GetSingleTaskContainer(prefetchProcessor);
-        Assert.AreEqual(1, taskContainer.ReferencedEntityContainers.Count());
-        var task = taskContainer.ReferencedEntityContainers.Single();
+        var graphContainer = GetSingleGraphContainer(prefetchProcessor);
+        Assert.AreEqual(1, graphContainer.ReferencedEntityContainers.Count());
+        var referencedEntityContainer = graphContainer.ReferencedEntityContainers.Single();
         prefetchProcessor.ExecuteTasks();
-        Assert.IsNull(task.Task);
+        Assert.IsNull(referencedEntityContainer.Task);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderKey.Type, session,
           field => IsFieldKeyOrSystem(field) || field == EmployeeField
             || field.Parent == EmployeeField);
@@ -425,9 +424,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand());
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
-        var originalTaskContainer = GetSingleTaskContainer(prefetchProcessor);
+        var originalGraphContainer = GetSingleGraphContainer(prefetchProcessor);
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField));
-        Assert.AreSame(originalTaskContainer, GetSingleTaskContainer(prefetchProcessor));
+        Assert.AreSame(originalGraphContainer, GetSingleGraphContainer(prefetchProcessor));
         prefetchProcessor.ExecuteTasks();
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderKey.Type, session,
           field => IsFieldKeyOrSystem(field) || field == CustomerField || field == EmployeeField
@@ -491,6 +490,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = new PrefetchProcessor(Session.Demand());
         var titleField = bookKey.Type.Fields["Title"];
+        var titleType = typeof (Title);
+        var textField = titleType.GetTypeInfo().Fields["Text"];
+        var bookField = titleType.GetTypeInfo().Fields["Book"];
         prefetchProcessor.Prefetch(bookKey, null, new PrefetchFieldDescriptor(titleField, true));
         prefetchProcessor.ExecuteTasks();
 
@@ -498,7 +500,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           field => IsFieldKeyOrSystem(field) || field == titleField
             || (field.Parent != null && field.Parent == titleField));
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(titleKey, titleKey.Type, session,
-          field => true);
+          field => IsFieldKeyOrSystem(field) || field == textField || field == bookField
+            || field.Parent == bookField);
       }
     }
 

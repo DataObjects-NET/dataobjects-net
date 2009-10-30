@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
@@ -18,8 +20,10 @@ namespace Xtensive.Storage.Internals.Prefetch
   [Serializable]
   internal sealed class EntityGroupTask
   {
-    private static readonly object indexSeekCachingRegion = new object();
+    private static readonly object recordSetCachingRegion = new object();
     private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
+    private static readonly Parameter<IEnumerable<Tuple>> includeParameter =
+      new Parameter<IEnumerable<Tuple>>("Keys");
     private static readonly IEqualityComparer<HashSet<int>> columnIndexesComparer =
       HashSet<int>.CreateSetComparer();
 
@@ -29,6 +33,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly int cachedHashCode;
     private readonly PrefetchProcessor processor;
     private List<QueryTask> queryTasks;
+    //private QueryTask queryTask;
 
     public RecordSet RecordSet { get; private set; }
 
@@ -43,6 +48,8 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public void RegisterQueryTasks()
     {
+      /*queryTask = CreateQueryTask();
+      processor.Owner.Session.RegisterDelayedQuery(queryTask);*/
       queryTasks = new List<QueryTask>(keys.Count);
       foreach (var pair in keys) {
         var queryTask = CreateQueryTask(pair.Key);
@@ -56,13 +63,9 @@ namespace Xtensive.Storage.Internals.Prefetch
       foundedKeys.Clear();
       var reader = processor.Owner.Session.Domain.RecordSetReader;
       foreach (var queryTask in queryTasks)
-        PutLoadedStatesToCache(queryTask.Result, reader, foundedKeys);
+        PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
+      //PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
       HandleMissedKeys(foundedKeys);
-    }
-
-    public IEnumerable<QueryTask> GetResult()
-    {
-      return queryTasks;
     }
 
     public bool Equals(EntityGroupTask other)
@@ -97,27 +100,34 @@ namespace Xtensive.Storage.Internals.Prefetch
       return cachedHashCode;
     }
 
-    private QueryTask CreateQueryTask(Key entityKey)
+    private QueryTask CreateQueryTask(Key key)
     {
       var parameterContext = new ParameterContext();
       using (parameterContext.Activate()) {
-        seekParameter.Value = entityKey.Value;
+        seekParameter.Value = key.Value;
+        //includeParameter.Value = keys.Select(pair => pair.Key.Value).ToList();
         RecordSet = (RecordSet) processor.Owner.Session.Domain.GetCachedItem(
-          new Pair<object, EntityGroupTask>(indexSeekCachingRegion, this), CreateIndexSeekRecordSet);
+          new Pair<object, EntityGroupTask>(recordSetCachingRegion, this), CreateRecordSet);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);
         return new QueryTask(executableProvider, parameterContext);
       }
     }
 
-    private static RecordSet CreateIndexSeekRecordSet(object cachingKey)
+    private static RecordSet CreateRecordSet(object cachingKey)
     {
       var pair = (Pair<object, EntityGroupTask>) cachingKey;
       var selectedColumnIndexes = pair.Second.columnIndexes;
       return pair.Second.type.Indexes.PrimaryIndex.ToRecordSet().Seek(() => seekParameter.Value)
         .Select(selectedColumnIndexes);
+      /*var keyColumnIndexes = EnumerableUtils.Unfold(0, i => i + 1)
+        .Take(pair.Second.type.Indexes.PrimaryIndex.KeyColumns.Count).ToArray();
+      var columnCollectionLenght = pair.Second.type.Indexes.PrimaryIndex.Columns.Count;
+      return pair.Second.type.Indexes.PrimaryIndex.ToRecordSet().Include(() => includeParameter.Value,
+        String.Format("includeColumnName-{0}", Guid.NewGuid()), keyColumnIndexes)
+        .Filter(t => t.GetValue<bool>(columnCollectionLenght)).Select(selectedColumnIndexes);*/
     }
 
-    private void PutLoadedStatesToCache(IEnumerable<Tuple> queryResult, RecordSetReader reader,
+    private void PutLoadedStatesInCache(IEnumerable<Tuple> queryResult, RecordSetReader reader,
       HashSet<Key> foundedKeys)
     {
       var records = reader.Read(queryResult, RecordSet.Header);

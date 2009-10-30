@@ -135,6 +135,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public ITitle Title { get; set; }
 
     [Field]
+    [Association(PairTo = "Book", OnOwnerRemove = OnRemoveAction.Clear,
+      OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<ITitle> TranslationTitles { get; private set; }
   }
 
@@ -157,6 +159,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
   {
     [Field]
     string Text { get; set; }
+
+    [Field]
+    Book Book { get; set; }
   }
 
   [HierarchyRoot]
@@ -167,6 +172,11 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public int Id { get; private set; }
 
     public string Text { get; set; }
+
+    public Book Book { get; set; }
+
+    [Field]
+    public string Language { get; set; }
   }
 
   [HierarchyRoot]
@@ -177,6 +187,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public int Id { get; private set; }
 
     public string Text { get; set; }
+
+    public Book Book { get; set; }
   }
 
   public interface IPublisher : IEntity

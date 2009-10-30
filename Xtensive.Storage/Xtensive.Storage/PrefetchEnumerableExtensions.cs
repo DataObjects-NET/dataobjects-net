@@ -27,7 +27,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
     public static Prefetcher<T, TElement> Prefetch<T, TElement>(this IEnumerable<TElement> source,
       Func<TElement, Key> keyExtractor)
-      where T : Entity
+      where T : IEntity
     {
       return new Prefetcher<T, TElement>(source, keyExtractor);
     }

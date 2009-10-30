@@ -22,8 +22,9 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly MapTransform referencedEntityKeyTransform;
     private readonly Key ownerKey;
     private readonly bool isOwnerTypeKnown;
+    private readonly PrefetchFieldDescriptor referencingFieldDescriptor;
 
-    public readonly FieldInfo ReferencingField;
+    public FieldInfo ReferencingField {get { return referencingFieldDescriptor.Field; } }
 
     public override EntityGroupTask GetTask()
     {
@@ -56,6 +57,7 @@ namespace Xtensive.Storage.Internals.Prefetch
           return null;
       }
       Key = Key.Create(Processor.Owner.Session.Domain, Type, TypeReferenceAccuracy.BaseType, foreignKeyTuple);
+      referencingFieldDescriptor.NotifySubscriber(ownerKey, Key);
       if (!SelectColumnsToBeLoaded())
         return null;
       Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Processor);
@@ -65,14 +67,14 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     // Constructors
 
-    public ReferencedEntityContainer(Key ownerKey, FieldInfo referencingField, bool isOwnerTypeKnown,
-      PrefetchProcessor processor)
-      : base(null, referencingField.Association.TargetType, true, processor)
+    public ReferencedEntityContainer(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor,
+      bool isOwnerTypeKnown, PrefetchProcessor processor)
+      : base(null, referencingFieldDescriptor.Field.Association.TargetType, true, processor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(referencingField, "referencingField");
+      ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");
       ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
       this.ownerKey = ownerKey;
-      ReferencingField = referencingField;
+      this.referencingFieldDescriptor = referencingFieldDescriptor;
       this.isOwnerTypeKnown = isOwnerTypeKnown;
       var fieldsToBeLoaded = (IEnumerable<FieldInfo>) Processor.Owner.Session.Domain
         .GetCachedItem(new Pair<object, TypeInfo>(defaultFieldsCachingRegion, Type),

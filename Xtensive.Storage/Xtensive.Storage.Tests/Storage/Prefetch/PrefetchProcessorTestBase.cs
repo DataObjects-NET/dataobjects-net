@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Assert.AreEqual(isFullyLoaded, state.IsFullyLoaded);
     }
 
-    internal GraphContainer GetSingleTaskContainer(PrefetchProcessor prefetchProcessor)
+    internal GraphContainer GetSingleGraphContainer(PrefetchProcessor prefetchProcessor)
     {
       return ((IEnumerable<GraphContainer>) GraphContainersField.GetValue(prefetchProcessor)).Single();
     }
