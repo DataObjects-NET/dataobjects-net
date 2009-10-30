@@ -260,8 +260,8 @@ namespace Xtensive.Storage
     [Infrastructure]
     public override string ToString()
     {
-      return string.Format(Strings.EntityStateFormat, 
-        Key, IsTupleLoaded ? Tuple.ToString() : Strings.NA, PersistenceState);
+      var tuple = IsTupleLoaded ? (Tuple==null ? Strings.Null : Tuple.ToString()) : Strings.NA;
+      return string.Format(Strings.EntityStateFormat, Key, tuple, PersistenceState);
     }
 
 
