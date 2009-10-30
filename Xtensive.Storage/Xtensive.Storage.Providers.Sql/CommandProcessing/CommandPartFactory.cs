@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly DomainHandler domainHandler;
     private readonly Driver driver;
     private readonly SqlConnection connection;
-    private bool emptyStringIsNull;
+    private readonly bool emptyStringIsNull;
     
     public CommandPart CreatePersistCommandPart(SqlPersistTask task, string parameterNamePrefix)
     {

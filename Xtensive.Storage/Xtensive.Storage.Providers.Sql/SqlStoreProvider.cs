@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (Source==null)
         return;
 
-      SessionHandler sessionHandler = (SessionHandler) handlers.SessionHandler;
+      var sessionHandler = (SessionHandler) handlers.SessionHandler;
       SqlBatch batch = SqlDml.Batch();
       batch.Add(SqlDdl.Create(Table));
       sessionHandler.ExecuteNonQueryStatement(batch);
