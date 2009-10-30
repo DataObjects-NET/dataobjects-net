@@ -31,10 +31,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the permanent reference (<see cref="SqlQueryRef"/>) for <see cref="SqlSelect"/> associated with this provider.
     /// </summary>
-    public SqlTable PermanentReference
-    {
-      get
-      {
+    public SqlTable PermanentReference {
+      get {
         if (ReferenceEquals(null, permanentReference))
           permanentReference = SqlDml.QueryRef(Request.SelectStatement);
         return permanentReference;
@@ -44,7 +42,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
-      var enumerator = handlers.SessionHandler.Execute(this);
+      var executor = handlers.SessionHandler.GetService<IQueryExecutor>();
+      var enumerator = executor.ExecuteTupleReader(Request);
       using (enumerator) {
         while (enumerator.MoveNext()) {
           yield return enumerator.Current;
@@ -86,8 +85,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
     
-    // Constructors
 
+    // Constructors
+    
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect statement,
       HandlerAccessor handlers,
       params ExecutableProvider[] sources)
-      : this(origin, statement, handlers, null, sources)
+      : this(origin, statement, handlers, null, null, sources)
     {
     }
 
@@ -118,16 +118,44 @@ namespace Xtensive.Storage.Providers.Sql
       HandlerAccessor handlers,
       IEnumerable<SqlQueryParameterBinding> extraBindings,
       params ExecutableProvider[] sources)
+      : this(origin, statement, handlers, extraBindings, null, sources)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="origin">The origin.</param>
+    /// <param name="statement">The statement.</param>
+    /// <param name="handlers">The handlers.</param>
+    /// <param name="extraBindings">The extra bindings.</param>
+    /// <param name="allowBatching">The allow batching.</param>
+    /// <param name="sources">The sources.</param>
+    public SqlProvider(
+      CompilableProvider origin,
+      SqlSelect statement,
+      HandlerAccessor handlers,
+      IEnumerable<SqlQueryParameterBinding> extraBindings,
+      bool? allowBatching,
+      params ExecutableProvider[] sources)
       : base(origin, sources)
     {
       this.handlers = handlers;
-      var parameterBindings = sources.OfType<SqlProvider>().SelectMany(p => p.Request.ParameterBindings);
-      if (extraBindings != null)
+      var sqlSources = sources.OfType<SqlProvider>();
+
+      var parameterBindings = sqlSources.SelectMany(p => p.Request.ParameterBindings);
+      if (extraBindings!=null)
         parameterBindings = parameterBindings.Concat(extraBindings);
+
+      if (allowBatching==null)
+        allowBatching = sqlSources
+          .Aggregate(true, (current, provider) => current && provider.Request.AllowBatching);
       var tupleDescriptor = origin.Header.TupleDescriptor;
+
       if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
-      Request = new SqlQueryRequest(statement, tupleDescriptor, parameterBindings);
+
+      Request = new SqlQueryRequest(statement, tupleDescriptor, parameterBindings, allowBatching.Value);
     }
 
     /// <summary>
@@ -135,14 +163,12 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="permanentReference">The permanent reference.</param>
-    public SqlProvider(
-      SqlProvider provider,
-      SqlTable permanentReference)
+    public SqlProvider(SqlProvider provider, SqlTable permanentReference)
       : base(provider.Origin, provider.Sources.Cast<ExecutableProvider>().ToArray())
     {
+      this.permanentReference = permanentReference;
       handlers = provider.handlers;
       Request = provider.Request;
-      this.permanentReference = permanentReference;
     }
   }
 }

@@ -36,10 +36,10 @@ namespace Xtensive.Storage.Providers.Sql
       if (Source==null)
         return;
 
-      var sessionHandler = (SessionHandler) handlers.SessionHandler;
+      var executor = handlers.SessionHandler.GetService<IQueryExecutor>();
       var batch = SqlDml.Batch();
       batch.Add(SqlDdl.Create(Table));
-      sessionHandler.ExecuteNonQueryStatement(batch);
+      executor.ExecuteNonQuery(batch);
       Schema.Tables.Add(Table);
 
       var tableRef = SqlDml.TableRef(Table);
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Providers.Sql
         i++;
       }
       var persistRequest = new SqlPersistRequest(insert, null, bindings);
-      sessionHandler.Persist(persistRequest, Source);
+      executor.Store(persistRequest, Source);
     }
 
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlBatch batch = SqlDml.Batch();
       batch.Add(SqlDdl.Drop(Table));
-      ((SessionHandler) handlers.SessionHandler).ExecuteNonQueryStatement(batch);
+      handlers.SessionHandler.GetService<IQueryExecutor>().ExecuteNonQuery(batch);
       Schema.Tables.Remove(Table);
     }
 
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Providers.Sql
     // Constructors
 
     public SqlStoreProvider(StoreProvider origin, SqlSelect request, HandlerAccessor handlers, ExecutableProvider source, Table table)
-      : base(origin, request, handlers, source)
+      : base(origin, request, handlers, null, false, source)
     {
       AddService<IHasNamedResult>();
       Origin = origin;

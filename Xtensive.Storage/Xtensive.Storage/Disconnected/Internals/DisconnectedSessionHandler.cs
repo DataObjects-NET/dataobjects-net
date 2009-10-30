@@ -176,21 +176,19 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <inheritdoc/>
-    public override void Execute(IList<QueryTask> queryTasks, bool dirty)
+    public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool dirty)
     {
       if (!isChainedTransactionStarted)
         throw new ConnectionRequiredException();
 
-      base.Execute(queryTasks, dirty);
+      base.ExecuteQueryTasks(queryTasks, dirty);
     }
 
-    /// <inheritdoc/>
-    public override IEnumerator<Tuple> Execute(Rse.Providers.ExecutableProvider provider)
+    public override void OnEnumerationContextCreated()
     {
       if (!isChainedTransactionStarted)
         throw new ConnectionRequiredException();
-
-      return base.Execute(provider);
+ 	    base.OnEnumerationContextCreated();
     }
 
     /// <inheritdoc/>

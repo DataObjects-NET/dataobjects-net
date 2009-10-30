@@ -12,6 +12,7 @@ using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Configuration;
@@ -19,7 +20,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Providers
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Providers
   /// Base <see cref="Session"/> handler class.
   /// </summary>
   public abstract partial class SessionHandler : InitializableHandlerBase,
-    IDisposable
+    IDisposable, IHasServices
   {
     private PrefetchProcessor prefetchProcessor;
 
@@ -125,16 +126,12 @@ namespace Xtensive.Storage.Providers
       }
       return versions;
     }
-      
+
     /// <summary>
-    /// Executes the specified compiled RSE query.
-    /// This method is used only for non-index storages.
+    /// Called when enumeration context is created, i.e. just befor query execution.
     /// </summary>
-    /// <param name="provider">The provider to execute.</param>
-    /// <returns>Result of query execution.</returns>
-    public virtual IEnumerator<Tuple> Execute(ExecutableProvider provider)
+    public virtual void OnEnumerationContextCreated()
     {
-      throw new NotSupportedException();
     }
 
     /// <summary>
@@ -142,11 +139,11 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="queryTasks">The query tasks to execute.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
-    public virtual void Execute(IList<QueryTask> queryTasks, bool allowPartialExecution)
+    public virtual void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
     {
       foreach (var task in queryTasks) {
-        using (task.ParameterContext.ActivateSafely())
         using (EnumerationScope.Open())
+        using (task.ParameterContext.ActivateSafely())
           task.Result = task.DataSource.ToList();
       }
     }
@@ -338,5 +335,19 @@ namespace Xtensive.Storage.Providers
           break;
       }
     }
+
+    #region IHasServices members
+
+    public virtual T GetService<T>()
+      where T : class
+    {
+      var result = this as T;
+      if (result==null)
+        throw new InvalidOperationException(
+          string.Format(Strings.ExServiceXIsNotSupported, typeof (T).GetFullName()));
+      return result;
+    }
+
+    #endregion
   }
 }

@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
         sourceSchema, targetSchema, DomainHandler.ProviderInfo, Driver,
         Handlers.NameBuilder.TypeIdColumnName,
         enforceChangedColumns,
-        SessionHandler.ExecuteScalarStatement);
+        SessionHandler.ExecuteScalar);
 
       LogTranslatedStatements(translator);
 

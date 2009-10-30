@@ -39,8 +39,13 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    public abstract void ExecuteRequests(bool allowPartialExecution);
     public abstract IEnumerator<Tuple> ExecuteRequestsWithReader(SqlQueryRequest request);
+    public abstract void ExecuteRequests(bool allowPartialExecution);
+    
+    public void ExecuteRequests()
+    {
+      ExecuteRequests(false);
+    }
     
     public void RegisterTask(SqlTask task)
     {

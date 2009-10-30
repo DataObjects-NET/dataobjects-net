@@ -37,8 +37,8 @@ namespace Xtensive.Storage.Providers.Sql
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
       using (Session.Open(domainHandler.Domain, SessionType.KeyGenerator))
       using (var t = Transaction.Open()) {
-        var sessionHandler = (SessionHandler) Handlers.SessionHandler;
-        object value = sessionHandler.ExecuteScalarStatement(nextRequest);
+        var executor = Handlers.SessionHandler.GetService<IQueryExecutor>();
+        object value = executor.ExecuteScalar(nextRequest);
         upperBound = (TFieldType) Convert.ChangeType(value, typeof (TFieldType));
         // rolling back transaction
       }
@@ -59,8 +59,8 @@ namespace Xtensive.Storage.Providers.Sql
       base.Initialize();
       
       if (sqlInitialize!=null) {
-        var sessionHandler = (SessionHandler) Handlers.SessionHandler;
-        sessionHandler.ExecuteNonQueryStatement(sqlInitialize);
+        var sessionHandler = Handlers.SessionHandler.GetService<IQueryExecutor>();
+        sessionHandler.ExecuteNonQuery(sqlInitialize);
         sqlInitialize = null;
       }
 

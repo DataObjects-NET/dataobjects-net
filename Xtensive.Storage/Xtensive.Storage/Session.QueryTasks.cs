@@ -28,7 +28,7 @@ namespace Xtensive.Storage
         return;
       try {
         IsDelayedQueryRunning = true;
-        Handler.Execute(queryTasks, allowPartialExecution);
+        Handler.ExecuteQueryTasks(queryTasks, allowPartialExecution);
       }
       finally {
         queryTasks.Clear();

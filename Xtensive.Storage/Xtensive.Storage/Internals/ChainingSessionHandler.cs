@@ -52,15 +52,9 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void Execute(IList<QueryTask> queryTasks, bool allowPartialExecution)
+    public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
     {
-      ChainedHandler.Execute(queryTasks, allowPartialExecution);
-    }
-
-    /// <inheritdoc/>
-    public override IEnumerator<Tuple> Execute(ExecutableProvider provider)
-    {
-      return ChainedHandler.Execute(provider);
+      ChainedHandler.ExecuteQueryTasks(queryTasks, allowPartialExecution);
     }
 
     /// <inheritdoc/>
@@ -118,6 +112,16 @@ namespace Xtensive.Storage.Internals
     internal override bool TryGetEntityState(Key key, out EntityState entityState)
     {
       return ChainedHandler.TryGetEntityState(key, out entityState);
+    }
+
+    public override T GetService<T>()
+    {
+      return ChainedHandler.GetService<T>();
+    }
+
+    public override void OnEnumerationContextCreated()
+    {
+      ChainedHandler.OnEnumerationContextCreated();
     }
 
 

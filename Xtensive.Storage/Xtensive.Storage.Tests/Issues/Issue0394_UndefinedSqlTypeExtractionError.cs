@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Issues
           var createTableCommandText = "CREATE TABLE " + 
             domainHandler.Schema.Name + ".[TestTable] ([TestColumn] [money])";
           var sessionHandler = (SessionHandler) session.Handler;
-          sessionHandler.ExecuteNonQueryStatement(createTableCommandText);
+          sessionHandler.ExecuteNonQuery(createTableCommandText);
           transactionScope.Complete();
         }
       }

@@ -8,18 +8,20 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers.Sql.Resources;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
   /// <see cref="Session"/>-level handler for SQL storages.
   /// </summary>
-  public class SessionHandler : Providers.SessionHandler
+  public class SessionHandler : Providers.SessionHandler,
+    IQueryExecutor
   {
     private Driver driver;
     private DomainHandler domainHandler;
@@ -42,33 +44,33 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the active transaction.
     /// </summary>    
     public DbTransaction Transaction { get; private set; }
-    
-    /// <inheritdoc/>
-    public override IEnumerator<Tuple> Execute(ExecutableProvider provider)
+
+    public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
         EnsureAutoShortenTransactionIsStarted();
-        var enumerator = commandProcessor.ExecuteRequestsWithReader(((SqlProvider) provider).Request);
-        using (enumerator) {
-          while (enumerator.MoveNext())
-            yield return enumerator.Current;
+        var nonBatchedTasks = new List<QueryTask>();
+        foreach (var task in queryTasks) {
+          var sqlProvider = task.DataSource as SqlProvider;
+          if (sqlProvider!=null && sqlProvider.Request.AllowBatching)
+            RegisterQueryTask(task, sqlProvider.Request);
+          else
+            nonBatchedTasks.Add(task);
         }
+        if (nonBatchedTasks.Count > 0) {
+          commandProcessor.ExecuteRequests();
+          base.ExecuteQueryTasks(nonBatchedTasks, allowPartialExecution);
+        }
+        else
+          commandProcessor.ExecuteRequests(allowPartialExecution);
       }
     }
 
-    public override void Execute(IList<QueryTask> queryTasks, bool allowPartialExecution)
+    private void RegisterQueryTask(QueryTask task, SqlQueryRequest request)
     {
-      lock (ConnectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        foreach (var task in queryTasks) {
-          var request = ((SqlProvider) task.DataSource).Request;
-          task.Result = new List<Tuple>();
-          commandProcessor.RegisterTask(new SqlQueryTask(request, task.ParameterContext, task.Result));
-        }
-        commandProcessor.ExecuteRequests(allowPartialExecution);
-      }
+      task.Result = new List<Tuple>();
+      commandProcessor.RegisterTask(new SqlQueryTask(request, task.ParameterContext, task.Result));
     }
 
     #region Transaction control methods
@@ -118,9 +120,24 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
     
-    #region ExecuteStatement methods
+    #region IQueryExecutor members
 
-    internal int ExecuteNonQueryStatement(ISqlCompileUnit statement)
+    /// <inheritdoc/>
+    public IEnumerator<Tuple> ExecuteTupleReader(SqlQueryRequest request)
+    {
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        var enumerator = commandProcessor.ExecuteRequestsWithReader(request);
+        using (enumerator) {
+          while (enumerator.MoveNext())
+            yield return enumerator.Current;
+        }
+      }
+    }
+
+    /// <inheritdoc/>
+    public int ExecuteNonQuery(ISqlCompileUnit statement)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
@@ -130,7 +147,8 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    internal object ExecuteScalarStatement(ISqlCompileUnit statement)
+    /// <inheritdoc/>
+    public object ExecuteScalar(ISqlCompileUnit statement)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
@@ -140,7 +158,8 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    internal int ExecuteNonQueryStatement(string commandText)
+    /// <inheritdoc/>
+    public int ExecuteNonQuery(string commandText)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
@@ -150,7 +169,8 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    internal object ExecuteScalarStatement(string commandText)
+    /// <inheritdoc/>
+    public object ExecuteScalar(string commandText)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
@@ -158,6 +178,13 @@ namespace Xtensive.Storage.Providers.Sql
         using (var command = CreateCommand(commandText))
           return driver.ExecuteScalar(Session, command);
       }
+    }
+    
+    public void Store(SqlPersistRequest request, IEnumerable<Tuple> tuples)
+    {
+      foreach (var tuple in tuples)
+        commandProcessor.RegisterTask(new SqlPersistTask(request, tuple));
+      commandProcessor.ExecuteRequests();
     }
 
     #endregion
@@ -170,13 +197,6 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var action in persistActions)
         commandProcessor.RegisterTask(CreatePersistTask(action));
       commandProcessor.ExecuteRequests(allowPartialExecution);
-    }
-
-    internal void Persist(SqlPersistRequest request, IEnumerable<Tuple> tuples)
-    {
-      foreach (var tuple in tuples)
-        commandProcessor.RegisterTask(new SqlPersistTask(request, tuple));
-      commandProcessor.ExecuteRequests(false);
     }
 
     private SqlPersistTask CreatePersistTask(PersistAction action)

@@ -54,6 +54,7 @@ namespace Xtensive.Storage.Providers
       var session = Session.Demand();
       session.Persist(true);
       session.ExecuteAllDelayedQueries(true);
+      session.Handler.OnEnumerationContextCreated();
     }
   }
 }
