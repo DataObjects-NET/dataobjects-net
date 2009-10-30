@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Tests
     public void SqlExpressionCloneTest()
     {
       SqlExpression e = SqlDml.Literal(1);
-      SqlExpression eClone = (SqlExpression)e.Clone();
+      SqlExpression eClone = (SqlExpression) e.Clone();
       Assert.AreNotEqual(e, eClone);
       Assert.AreEqual(e.NodeType, eClone.NodeType);
     }
@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Tests
     public void SqlLiteralCloneTest()
     {
       SqlLiteral<int> l = SqlDml.Literal(1);
-      SqlLiteral<int> lClone = (SqlLiteral<int>)l.Clone();
+      SqlLiteral<int> lClone = (SqlLiteral<int>) l.Clone();
       Assert.AreNotEqual(l, lClone);
       Assert.AreEqual(l.Value, lClone.Value);
       Assert.AreEqual(l.NodeType, lClone.NodeType);
@@ -50,7 +50,7 @@ namespace Xtensive.Sql.Tests
     public void SqlArrayCloneTest()
     {
       SqlArray<int> a = SqlDml.Array(new int[]{1, 2, 4});
-      SqlArray<int> aClone = (SqlArray<int>)a.Clone();
+      SqlArray<int> aClone = (SqlArray<int>) a.Clone();
       
       Assert.AreNotEqual(a, aClone);
       Assert.IsTrue(a.Values != aClone.Values);
@@ -537,7 +537,6 @@ namespace Xtensive.Sql.Tests
     {
       SqlTableRef t = SqlDml.TableRef(table1);
       SqlDelete d = SqlDml.Delete(t);
-      d.Limit = 5;
       d.Where = t[0] < 6;
       d.Hints.Add(SqlDml.FastFirstRowsHint(10));
       SqlDelete dClone = (SqlDelete) d.Clone();
@@ -545,7 +544,6 @@ namespace Xtensive.Sql.Tests
       Assert.AreNotEqual(d, dClone);
       Assert.AreNotEqual(d.From, dClone.From);
       Assert.AreEqual(d.NodeType, dClone.NodeType);
-      Assert.AreEqual(d.Limit, dClone.Limit);
       Assert.AreEqual(d.Hints.Count, dClone.Hints.Count);
       if (!d.Where.IsNullReference()) {
         Assert.AreNotEqual(d.Where, dClone.Where);
@@ -594,7 +592,6 @@ namespace Xtensive.Sql.Tests
     {
       SqlTableRef t = SqlDml.TableRef(table1);
       SqlInsert i = SqlDml.Insert(t);
-      i.Limit = 5;
       i.Values[t[0]] = 1;
       i.Values[t[1]] = "Anonym";
       i.Hints.Add(SqlDml.FastFirstRowsHint(10));
@@ -603,7 +600,6 @@ namespace Xtensive.Sql.Tests
       Assert.AreNotEqual(i, iClone);
       Assert.AreNotEqual(i.Into, iClone.Into);
       Assert.AreEqual(i.NodeType, iClone.NodeType);
-      Assert.AreEqual(i.Limit, iClone.Limit);
       Assert.AreEqual(i.Values.Count, iClone.Values.Count);
       foreach (KeyValuePair<SqlColumn, SqlExpression> p in i.Values) {
         Assert.IsFalse(iClone.Values.ContainsKey(p.Key));
@@ -617,7 +613,6 @@ namespace Xtensive.Sql.Tests
     {
       SqlTableRef t = SqlDml.TableRef(table1);
       SqlUpdate u = SqlDml.Update(t);
-      u.Limit = 5;
       u.Values[t[0]] = 1;
       u.Values[t[1]] = "Anonym";
       u.Where = t.Columns["ID"] == 1;
@@ -627,7 +622,6 @@ namespace Xtensive.Sql.Tests
       Assert.AreNotEqual(u, uClone);
       Assert.AreNotEqual(u.Update, uClone.Update);
       Assert.AreEqual(u.NodeType, uClone.NodeType);
-      Assert.AreEqual(u.Limit, uClone.Limit);
       Assert.AreEqual(u.Values.Count, uClone.Values.Count);
       foreach (KeyValuePair<ISqlLValue, SqlExpression> p in u.Values) {
         Assert.IsFalse(uClone.Values.ContainsKey(p.Key));

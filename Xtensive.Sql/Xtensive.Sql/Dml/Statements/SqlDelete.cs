@@ -48,7 +48,6 @@ namespace Xtensive.Sql.Dml
       SqlDelete clone = new SqlDelete();
       if (From!=null)
         clone.From = (SqlTableRef)From.Clone(context);
-      clone.Limit = Limit;
       if (!where.IsNullReference())
         clone.Where = (SqlExpression) where.Clone(context);
 

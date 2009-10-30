@@ -213,28 +213,6 @@ namespace Xtensive.Sql.SqlServer.v2005
       return base.Translate(context, node, section);
     }
 
-    /*
-    NOTE: Temporary disable, don't uncomment
-
-    public override string Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
-    {
-      switch (section) {
-      case DeleteSection.Entry:
-        return (node.Limit > 0) ? "DELETE TOP " + node.Limit + " FROM" : base.Translate(context, node, section);
-      }
-      return base.Translate(context, node, section);
-    }
-
-    public override string Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
-    {
-      switch (section) {
-      case InsertSection.Entry:
-        return (node.Limit > 0) ? "INSERT TOP " + node.Limit + " INTO" : base.Translate(context, node, section);
-      }
-      return base.Translate(context, node, section);
-    }
-    */
-
     public override string Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
     {
       switch (section) {
@@ -299,6 +277,10 @@ namespace Xtensive.Sql.SqlServer.v2005
     public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       switch (section) {
+      case SelectSection.Limit:
+        return "TOP";
+      case SelectSection.Offset:
+        throw new NotSupportedException();
       case SelectSection.Exit:
         if (node.Hints.Count==0)
           return string.Empty;
@@ -383,31 +365,6 @@ namespace Xtensive.Sql.SqlServer.v2005
         throw new ArgumentOutOfRangeException();
       }
     }
-
-    public override string Translate(SqlCompilerContext context, SqlQueryStatement node, QueryStatementSection section)
-    {
-      switch (section) {
-      case QueryStatementSection.Limit:
-        return "TOP";
-      case QueryStatementSection.Offset:
-        throw new NotSupportedException();
-      default:
-        throw new ArgumentOutOfRangeException("section");
-      }
-    }
-
-    /*
-    NOTE: Temporary disabled
-
-    public override string Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
-    {
-      switch (section) {
-      case UpdateSection.Entry:
-        return (node.Limit > 0) ? "UPDATE TOP (" + node.Limit + ")" : base.Translate(context, node, section);
-      }
-      return base.Translate(context, node, section);
-    }
-    */
 
     public override string Translate(SqlCompilerContext context, SqlDropSchema node)
     {

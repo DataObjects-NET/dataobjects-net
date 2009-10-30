@@ -12,37 +12,9 @@ namespace Xtensive.Sql.Dml
   /// Base class for DML statements.
   /// </summary>
   [Serializable]
-  public abstract class SqlQueryStatement: SqlStatement
+  public abstract class SqlQueryStatement : SqlStatement
   {
-    private SqlExpression limit;
-    private SqlExpression offset;
     private IList<SqlHint> hints;
-
-    /// <summary>
-    /// Gets or sets the limit.
-    /// </summary>
-    public SqlExpression Limit
-    {
-      get { return limit; }
-      set {
-        if (!value.IsNullReference())
-          SqlValidator.EnsureIsLiteralOrPlaceholder(value);
-        limit = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the offset.
-    /// </summary>
-    public SqlExpression Offset
-    {
-      get { return offset; }
-      set {
-        if (!value.IsNullReference())
-          SqlValidator.EnsureIsLiteralOrPlaceholder(value);
-        offset = value;
-      }
-    }
 
     /// <summary>
     /// Gets the collection of join hints.

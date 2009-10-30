@@ -1039,18 +1039,6 @@ namespace Xtensive.Sql.Compiler
       return string.Empty;
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlQueryStatement node, QueryStatementSection section)
-    {
-      switch (section) {
-      case QueryStatementSection.Limit:
-        return "LIMIT";
-      case QueryStatementSection.Offset:
-        return "OFFSET";
-      default:
-        throw new ArgumentOutOfRangeException("section");
-      }
-    }
-
     public virtual string Translate(SqlCompilerContext context, SqlNative node)
     {
       return node.Value;
@@ -1150,6 +1138,10 @@ namespace Xtensive.Sql.Compiler
         return "HAVING";
       case SelectSection.OrderBy:
         return "ORDER BY";
+      case SelectSection.Limit:
+        return "LIMIT";
+      case SelectSection.Offset:
+        return "OFFSET";
       }
       return string.Empty;
     }

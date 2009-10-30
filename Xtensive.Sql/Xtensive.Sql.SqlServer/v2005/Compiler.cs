@@ -23,7 +23,7 @@ namespace Xtensive.Sql.SqlServer.v2005
     {
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
-        VisitQueryLimitOffset(node);
+        VisitSelectLimitOffset(node);
         VisitSelectHints(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);

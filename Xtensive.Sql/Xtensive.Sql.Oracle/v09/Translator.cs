@@ -58,6 +58,9 @@ namespace Xtensive.Sql.Oracle.v09
         return "/*+";
       case SelectSection.HintsExit:
         return "*/";
+      case SelectSection.Limit:
+      case SelectSection.Offset:
+        throw new NotSupportedException();
       default:
         return base.Translate(context, node, section);
       }
@@ -200,11 +203,6 @@ namespace Xtensive.Sql.Oracle.v09
         throw new ArgumentOutOfRangeException("section");
       }
       return string.Empty;
-    }
-
-    public override string Translate(SqlCompilerContext context, SqlQueryStatement node, QueryStatementSection section)
-    {
-      throw new NotSupportedException();
     }
 
     public virtual string Translate(Index node)

@@ -2744,13 +2744,12 @@ namespace Xtensive.Sql.Tests.VistaDb
     [Ignore("VistaDB not supproted UPDATE TOP.")]
     public void Test133()
     {
-      string nativeSql = "UPDATE TOP (10) Sales_Store "
-        +"SET SalesPersonID = 276 "
-          +"WHERE SalesPersonID = 275;";
+      string nativeSql = "UPDATE Sales_Store "
+        + "SET SalesPersonID = 276 "
+        + "WHERE SalesPersonID = 275;";
 
       SqlTableRef store = SqlDml.TableRef(Catalog.Schemas["dbo"].Tables["Sales_Store"]);
       SqlUpdate update = SqlDml.Update(store);
-      update.Limit = 10;
       update.Values[store["SalesPersonID"]] = 276;
       update.Where = store["SalesPersonID"]==275;
 

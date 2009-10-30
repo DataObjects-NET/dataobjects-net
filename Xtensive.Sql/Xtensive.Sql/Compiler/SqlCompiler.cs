@@ -1020,7 +1020,7 @@ namespace Xtensive.Sql.Compiler
         VisitSelectWhere(node);
         VisitSelectGroupBy(node);
         VisitSelectOrderBy(node);
-        VisitQueryLimitOffset(node);
+        VisitSelectLimitOffset(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
       }
@@ -1119,14 +1119,14 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void VisitQueryLimitOffset(SqlQueryStatement node)
+    public virtual void VisitSelectLimitOffset(SqlSelect node)
     {
       if (!node.Limit.IsNullReference()) {
-        context.Output.AppendText(translator.Translate(context, node, QueryStatementSection.Limit));
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
         node.Limit.AcceptVisitor(this);
       }
       if (!node.Offset.IsNullReference()) {
-        context.Output.AppendText(translator.Translate(context, node, QueryStatementSection.Offset));
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.Offset));
         node.Offset.AcceptVisitor(this);
       }
     }

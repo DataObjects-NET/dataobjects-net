@@ -25,6 +25,8 @@ namespace Xtensive.Sql.Dml
     private SqlExpression having;
     private SqlOrderCollection orderBy;
     private SqlExpression where;
+    private SqlExpression limit;
+    private SqlExpression offset;
 
     /// <summary>
     /// Gets the collection of columns to select.
@@ -140,6 +142,32 @@ namespace Xtensive.Sql.Dml
     {
       get { return _lock; }
       set { _lock = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the limit.
+    /// </summary>
+    public SqlExpression Limit
+    {
+      get { return limit; }
+      set {
+        if (!value.IsNullReference())
+          SqlValidator.EnsureIsLiteralOrPlaceholder(value);
+        limit = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the offset.
+    /// </summary>
+    public SqlExpression Offset
+    {
+      get { return offset; }
+      set {
+        if (!value.IsNullReference())
+          SqlValidator.EnsureIsLiteralOrPlaceholder(value);
+        offset = value;
+      }
     }
 
     internal override object Clone(SqlNodeCloneContext context)

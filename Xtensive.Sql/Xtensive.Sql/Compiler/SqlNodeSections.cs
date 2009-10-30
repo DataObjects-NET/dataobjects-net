@@ -202,6 +202,8 @@ namespace Xtensive.Sql.Compiler
     OrderBy = 7,
     HintsEntry = 8,
     HintsExit = 9,
+    Limit = 10,
+    Offset = 11,
   }
 
   public enum TableSection
@@ -270,11 +272,5 @@ namespace Xtensive.Sql.Compiler
     Entry = 0,
     Exit = 1,
     All = 2,
-  }
-
-  public enum QueryStatementSection
-  {
-    Limit = 1,
-    Offset = 2,
   }
 }

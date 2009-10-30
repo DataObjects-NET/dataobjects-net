@@ -65,7 +65,6 @@ namespace Xtensive.Sql.Dml
       var clone = new SqlUpdate();
       if (update!=null)
         clone.Update = (SqlTableRef)Update.Clone(context);
-      clone.Limit = Limit;
       if (from!=null)
         clone.From = (SqlQueryRef)from.Clone(context);
       foreach (KeyValuePair<ISqlLValue, SqlExpression> p in values)
