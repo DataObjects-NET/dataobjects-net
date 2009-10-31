@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (right.NodeType==SqlNodeType.Null || emptyStringIsNull && IsEmptyStringLiteral(right))
         return SqlDml.IsNull(left);
       if (right.NodeType==SqlNodeType.Placeholder)
-        return SqlDml.Variant(SqlDml.Equals(left, right), SqlDml.IsNull(left), ((SqlPlaceholder) right).Id);
+        return SqlDml.Variant(((SqlPlaceholder) right).Id, SqlDml.Equals(left, right), SqlDml.IsNull(left));
       return null;
     }
 
@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (right.NodeType==SqlNodeType.Null || emptyStringIsNull && IsEmptyStringLiteral(right))
         return SqlDml.IsNotNull(left);
       if (right.NodeType==SqlNodeType.Placeholder)
-        return SqlDml.Variant(SqlDml.NotEquals(left, right), SqlDml.IsNotNull(left), ((SqlPlaceholder) right).Id);
+        return SqlDml.Variant(((SqlPlaceholder) right).Id, SqlDml.NotEquals(left, right), SqlDml.IsNotNull(left));
       return null;
     }
 

@@ -60,10 +60,10 @@ namespace Xtensive.Sql
         throw new InvalidOperationException(string.Format(Strings.ExLiteralTypeXIsNotSupported, type));
     }
 
-    public static void EnsureIsLiteralOrPlaceholder(SqlExpression node)
+    public static void EnsureIsLimitOffsetArgument(SqlExpression node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
-      if (!IsLiteralOrPlaceholder(node))
+      if (!IsLimitOffsetArgument(node))
         throw new InvalidOperationException(Strings.ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset);
     }
 
@@ -187,7 +187,7 @@ namespace Xtensive.Sql
       }
     }
 
-    public static bool IsLiteralOrPlaceholder(SqlExpression node)
+    public static bool IsLimitOffsetArgument(SqlExpression node)
     {
       switch (node.NodeType) {
       case SqlNodeType.Literal:
@@ -195,7 +195,7 @@ namespace Xtensive.Sql
         return true;
       case SqlNodeType.Variant:
         var variant = (SqlVariant) node;
-        return IsLiteralOrPlaceholder(variant.Main) && IsLiteralOrPlaceholder(variant.Alternative);
+        return IsLimitOffsetArgument(variant.Main) && IsLimitOffsetArgument(variant.Alternative);
       default:
         return false;
       }

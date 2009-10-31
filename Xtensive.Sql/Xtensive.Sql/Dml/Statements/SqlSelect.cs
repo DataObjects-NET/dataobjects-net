@@ -152,7 +152,7 @@ namespace Xtensive.Sql.Dml
       get { return limit; }
       set {
         if (!value.IsNullReference())
-          SqlValidator.EnsureIsLiteralOrPlaceholder(value);
+          SqlValidator.EnsureIsLimitOffsetArgument(value);
         limit = value;
       }
     }
@@ -165,7 +165,7 @@ namespace Xtensive.Sql.Dml
       get { return offset; }
       set {
         if (!value.IsNullReference())
-          SqlValidator.EnsureIsLiteralOrPlaceholder(value);
+          SqlValidator.EnsureIsLimitOffsetArgument(value);
         offset = value;
       }
     }

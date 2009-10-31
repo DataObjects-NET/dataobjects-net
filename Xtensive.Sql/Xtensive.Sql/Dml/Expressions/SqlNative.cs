@@ -10,22 +10,17 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlNative : SqlExpression, IConvertible
   {
-    private string value;
-
     /// <summary>
     /// Gets the value.
     /// </summary>
-    public string Value
-    {
-      get { return value; }
-    }
+    public string Value { get; private set; }
 
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlNative>(expression, "expression");
-      SqlNative replacingExpression = expression as SqlNative;
-      value = replacingExpression.Value;
+      var replacingExpression = (SqlNative) expression;
+      Value = replacingExpression.Value;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -33,23 +28,16 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      SqlNative clone = new SqlNative(value);
+      var clone = new SqlNative(Value);
       context.NodeMapping[this] = clone;
       return clone;
-    }
-
-    // Constructor
-
-    internal SqlNative(string value) : base(SqlNodeType.Native)
-    {
-      this.value = value;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);
     }
-
+    
     #region IConvertible Members
 
     ///<summary>
@@ -62,7 +50,7 @@ namespace Xtensive.Sql.Dml
     ///<filterpriority>2</filterpriority>
     TypeCode IConvertible.GetTypeCode()
     {
-      return value.GetTypeCode();
+      return Value.GetTypeCode();
     }
 
     ///<summary>
@@ -76,7 +64,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     bool IConvertible.ToBoolean(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToBoolean(provider);
+      return ((IConvertible) Value).ToBoolean(provider);
     }
 
     ///<summary>
@@ -90,7 +78,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     char IConvertible.ToChar(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToChar(provider);
+      return ((IConvertible) Value).ToChar(provider);
     }
 
     ///<summary>
@@ -104,7 +92,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     sbyte IConvertible.ToSByte(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToSByte(provider);
+      return ((IConvertible) Value).ToSByte(provider);
     }
 
     ///<summary>
@@ -118,7 +106,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     byte IConvertible.ToByte(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToByte(provider);
+      return ((IConvertible) Value).ToByte(provider);
     }
 
     ///<summary>
@@ -132,7 +120,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     short IConvertible.ToInt16(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToInt16(provider);
+      return ((IConvertible) Value).ToInt16(provider);
     }
 
     ///<summary>
@@ -146,7 +134,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     ushort IConvertible.ToUInt16(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToUInt16(provider);
+      return ((IConvertible) Value).ToUInt16(provider);
     }
 
     ///<summary>
@@ -160,7 +148,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     int IConvertible.ToInt32(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToInt32(provider);
+      return ((IConvertible) Value).ToInt32(provider);
     }
 
     ///<summary>
@@ -174,7 +162,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     uint IConvertible.ToUInt32(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToUInt32(provider);
+      return ((IConvertible) Value).ToUInt32(provider);
     }
 
     ///<summary>
@@ -188,7 +176,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     long IConvertible.ToInt64(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToInt64(provider);
+      return ((IConvertible) Value).ToInt64(provider);
     }
 
     ///<summary>
@@ -202,7 +190,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     ulong IConvertible.ToUInt64(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToUInt64(provider);
+      return ((IConvertible) Value).ToUInt64(provider);
     }
 
     ///<summary>
@@ -216,7 +204,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     float IConvertible.ToSingle(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToSingle(provider);
+      return ((IConvertible) Value).ToSingle(provider);
     }
 
     ///<summary>
@@ -230,7 +218,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     double IConvertible.ToDouble(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToDouble(provider);
+      return ((IConvertible) Value).ToDouble(provider);
     }
 
     ///<summary>
@@ -244,7 +232,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     decimal IConvertible.ToDecimal(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToDecimal(provider);
+      return ((IConvertible) Value).ToDecimal(provider);
     }
 
     ///<summary>
@@ -258,7 +246,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     DateTime IConvertible.ToDateTime(IFormatProvider provider)
     {
-      return ((IConvertible)value).ToDateTime(provider);
+      return ((IConvertible) Value).ToDateTime(provider);
     }
 
     ///<summary>
@@ -272,7 +260,7 @@ namespace Xtensive.Sql.Dml
     ///<param name="provider">An <see cref="T:System.IFormatProvider"></see> interface implementation that supplies culture-specific formatting information. </param><filterpriority>2</filterpriority>
     string IConvertible.ToString(IFormatProvider provider)
     {
-      return value.ToString(provider);
+      return Value.ToString(provider);
     }
 
     ///<summary>
@@ -287,9 +275,17 @@ namespace Xtensive.Sql.Dml
     ///<param name="conversionType">The <see cref="T:System.Type"></see> to which the value of this instance is converted. </param><filterpriority>2</filterpriority>
     object IConvertible.ToType(Type conversionType, IFormatProvider provider)
     {
-      return ((IConvertible)value).ToType(conversionType, provider);
+      return ((IConvertible) Value).ToType(conversionType, provider);
     }
 
     #endregion
+
+
+    // Constructors
+
+    internal SqlNative(string value) : base(SqlNodeType.Native)
+    {
+      Value = value;
+    }
   }
 }

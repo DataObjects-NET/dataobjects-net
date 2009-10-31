@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       bindings.Add(binding);
       SqlExpression result;
       if (optimizeBooleanParameter) {
-        result = SqlDml.Variant(SqlFalse, SqlTrue, binding);
+        result = SqlDml.Variant(binding, SqlFalse, SqlTrue);
         if (fixBooleanExpressions)
           result = booleanExpressionConverter.IntToBoolean(result);
       }

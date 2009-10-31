@@ -10,23 +10,19 @@ namespace Xtensive.Sql.Dml
 {
   public class SqlVariant : SqlExpression
   {
-    private SqlExpression main;
-    private SqlExpression alternative;
-    private object key;
-
-    public SqlExpression Main { get { return main; } }
-    public SqlExpression Alternative { get { return alternative; } }
-    public object Key { get { return key; } }
-
+    public object Key { get; private set; }
+    public SqlExpression Main { get; private set; }
+    public SqlExpression Alternative { get; private set; }
+    
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlVariant>(expression, "expression");
 
       var replacingExpression = (SqlVariant) expression;
-      main = replacingExpression.main;
-      alternative = replacingExpression.alternative;
-      key = replacingExpression.key;
+      Main = replacingExpression.Main;
+      Alternative = replacingExpression.Alternative;
+      Key = replacingExpression.Key;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -34,7 +30,7 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      var clone = new SqlVariant((SqlExpression) main.Clone(context), (SqlExpression) alternative.Clone(context), key);
+      var clone = new SqlVariant(Key, (SqlExpression) Main.Clone(context), (SqlExpression) Alternative.Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -44,12 +40,12 @@ namespace Xtensive.Sql.Dml
       visitor.Visit(this);
     }
 
-    internal SqlVariant(SqlExpression main, SqlExpression alternative, object key)
+    internal SqlVariant(object key, SqlExpression main, SqlExpression alternative)
       : base(SqlNodeType.Variant)
     {
-      this.main = main;
-      this.alternative = alternative;
-      this.key = key;
+      Main = main;
+      Alternative = alternative;
+      Key = key;
     }
   }
 }

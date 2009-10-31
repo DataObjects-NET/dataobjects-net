@@ -350,7 +350,7 @@ namespace Xtensive.Sql.Compiler
       context.Output.AppendText(translator.Translate(context, node));
     }
 
-    public void Visit(SqlCommand node)
+    public virtual void Visit(SqlCommand node)
     {
       context.Output.AppendText(translator.Translate(context, node));
     }

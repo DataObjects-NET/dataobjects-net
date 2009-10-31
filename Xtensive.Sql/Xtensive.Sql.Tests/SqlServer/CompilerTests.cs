@@ -111,7 +111,7 @@ namespace Xtensive.Sql.Tests.SqlServer
       var key = new object();
       var select = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]));
       select.Limit = 1;
-      select.Columns.Add(SqlDml.Variant(1, 2, key), "value");
+      select.Columns.Add(SqlDml.Variant(key, 1, 2), "value");
       var result = sqlConnection.Driver.Compile(select);
       using (var command = sqlConnection.CreateCommand()) {
         command.CommandText = result.GetCommandText();

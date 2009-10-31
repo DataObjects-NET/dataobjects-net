@@ -17,11 +17,11 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      Collection<SqlExpression> expressionsClone = new Collection<SqlExpression>();
-      foreach (SqlExpression e in expressions)
-        expressionsClone.Add((SqlExpression)e.Clone(context));
+      var expressionsClone = new Collection<SqlExpression>();
+      foreach (var e in expressions)
+        expressionsClone.Add((SqlExpression) e.Clone(context));
 
-      SqlRow clone = new SqlRow(expressionsClone);
+      var clone = new SqlRow(expressionsClone);
       return clone;
     }
 
@@ -30,21 +30,24 @@ namespace Xtensive.Sql.Dml
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentIs<SqlRow>(expression, "expression");
-      SqlRow replacingExpression = expression as SqlRow;
+      var replacingExpression = (SqlRow) expression;
       expressions.Clear();
       foreach (SqlExpression e in replacingExpression)
         expressions.Add(e);
     }
 
+    public override void AcceptVisitor(ISqlVisitor visitor)
+    {
+      visitor.Visit(this);
+    }
+
+
+    // Constructors
+
     internal SqlRow(IList<SqlExpression> expressions)
       : base(SqlNodeType.Row, expressions)
     {
       this.expressions = expressions;
-    }
-
-    public override void AcceptVisitor(ISqlVisitor visitor)
-    {
-      visitor.Visit(this);
     }
   }
 }
