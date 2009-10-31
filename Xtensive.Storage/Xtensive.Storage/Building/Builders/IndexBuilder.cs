@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Building.Builders
               case InheritanceSchema.ClassTable: {
                 foreach (var implementor in hierarchy) {
                   var interfaceFields = @interface.Fields.ToHashSet();
-                  var typeIndexes = new List<IndexInfo>();
+                  var typeIndexes = new Queue<IndexInfo>();
                   var type = implementor;
                   while (interfaceFields.Count > 0) {
                     var foundFields = new List<FieldInfo>();
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Building.Builders
                     }
                     if (foundFields.Count > 0) {
                       var typeIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
-                      typeIndexes.Add(typeIndex);
+                      typeIndexes.Enqueue(typeIndex);
                       foreach (var foundField in foundFields)
                         interfaceFields.Remove(foundField);
                     }
@@ -131,10 +131,10 @@ namespace Xtensive.Storage.Building.Builders
                     filterByTypes.Add(implementor);
                   filterByTypes.AddRange(GatherDescendants(implementor, hierarchyImplementors));
                   var indexesToJoin = new List<IndexInfo>();
-                  foreach (var typeIndex in typeIndexes) {
-                    var filterIndex = BuildFilterIndex(implementor, typeIndex, filterByTypes);
-                    indexesToJoin.Add(filterIndex);
-                  }
+                  var firstIndex = typeIndexes.Dequeue();
+                  var filterIndex = BuildFilterIndex(implementor, firstIndex, filterByTypes);
+                  indexesToJoin.Add(filterIndex);
+                  indexesToJoin.AddRange(typeIndexes);
                   var indexToApplyView = indexesToJoin.Count > 1 
                     ? BuildJoinIndex(implementor, indexesToJoin) 
                     : indexesToJoin[0];
@@ -458,40 +458,65 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       // Adding value columns
+      var typeOrder = reflectedType.GetAncestors()
+        .AddOne(reflectedType)
+        .Select((t, i) => new {Type = t, Index = i})
+        .ToDictionary(a => a.Type, a => a.Index);
       var types = reflectedType.GetAncestors()
         .AddOne(reflectedType)
         .ToHashSet();
 
-      var columnsToAdd = new List<ColumnInfo>();
-      foreach (var column in indexesToJoin.SelectMany(i => i.ValueColumns)) {
-        var field = column.Field;
-        if (!types.Contains(field.DeclaringType)) 
-          continue;
-        if (field.IsExplicit) {
-          var ancestor = reflectedType;
-          var skip = false;
-          while (ancestor != field.DeclaringType ) {
-            FieldInfo ancestorField;
-            if (ancestor.Fields.TryGetValue(field.Name, out ancestorField))
-              skip = ancestorField.IsDeclared;
-            if (skip)
-              break;
-            ancestor = ancestor.GetAncestor();
-          }
-          if (skip)
+      var valueColumnMap = new List<List<int>>();
+      foreach (var index in indexesToJoin) {
+        var columnMap = new List<int>();
+        int columnIndex = -1;
+        foreach (var column in index.ValueColumns) {
+          columnIndex++;
+          if (columnIndex < result.IncludedColumns.Count)
             continue;
+          var field = column.Field;
+          if (!types.Contains(field.DeclaringType))
+            continue;
+          if (field.IsExplicit) {
+            var ancestor = reflectedType;
+            var skip = false;
+            while (ancestor != field.DeclaringType) {
+              FieldInfo ancestorField;
+              if (ancestor.Fields.TryGetValue(field.Name, out ancestorField))
+                skip = ancestorField.IsDeclared;
+              if (skip)
+                break;
+              ancestor = ancestor.GetAncestor();
+            }
+            if (skip)
+              continue;
+          }
+          columnMap.Add(columnIndex);
         }
-        columnsToAdd.Add(column);
+        valueColumnMap.Add(columnMap);
+      }
+      var orderedIndexes = indexesToJoin
+        .Select((index, i) => new {index, columns = valueColumnMap[i], i})
+        .OrderBy(a => typeOrder[a.index.ValueColumns.First().Field.ReflectedType])
+        .ToList();
+
+      var columnsToAdd = new List<ColumnInfo>();
+      var valueColumnMapping = new List<Pair<int, List<int>>>();
+      for (var i = 0; i < orderedIndexes.Count; i++) {
+        var item = orderedIndexes[i];
+        if (valueColumnMapping.Count == 0)
+          item.columns.InsertRange(0, Enumerable.Range(0, result.IncludedColumns.Count));
+        foreach (var columnIndex in item.columns) {
+          var column = item.index.ValueColumns[columnIndex];
+          columnsToAdd.Add(column);
+        }
+        valueColumnMapping.Add(new Pair<int, List<int>>(item.i, item.columns));
       }
 
+      result.ValueColumnsMap = valueColumnMapping;
       result.ValueColumns.AddRange(GatherValueColumns(columnsToAdd));
-
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
-
-      foreach (var index in indexesToJoin)
-        if ((index.Attributes & IndexAttributes.Abstract) == IndexAttributes.Abstract)
-          result.UnderlyingIndexes.Remove(index);
 
       return result;
     }

@@ -74,15 +74,23 @@ namespace Xtensive.Storage.Building.Builders
 
       // Build virtual primary index
       if (ancestors.Count > 0) {
-        var baseIndexes = new List<IndexInfo>();
+        var baseIndexes = new Stack<IndexInfo>();
         foreach (var ancestor in ancestors.Where(t => t.Fields.Any(f => !f.IsPrimaryKey && !f.IsTypeId && f.IsDeclared))) {
           var ancestorIndex = ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Real, MatchType.Full).First();
-          var baseIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
-          baseIndexes.Add(baseIndex);
+          if (ancestorIndex.ValueColumns.Count > 0)
+            baseIndexes.Push(ancestorIndex);
         }
         if (baseIndexes.Count > 0) {
-          baseIndexes.Add(primaryIndex);
-          var virtualPrimaryIndex = BuildJoinIndex(type, baseIndexes);
+          if (primaryIndex.ValueColumns.Count > 0 && type.Fields.Any(f => !f.IsPrimaryKey && !f.IsTypeId && f.IsDeclared))
+            baseIndexes.Push(primaryIndex);
+          else {
+            var ancestorIndex = baseIndexes.Pop();
+            var filteredIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
+            baseIndexes.Push(filteredIndex);
+          }
+          var virtualPrimaryIndex = baseIndexes.Count == 1 
+            ? baseIndexes.Pop()
+            : BuildJoinIndex(type, baseIndexes);
           type.Indexes.Add(virtualPrimaryIndex);
         }
       }

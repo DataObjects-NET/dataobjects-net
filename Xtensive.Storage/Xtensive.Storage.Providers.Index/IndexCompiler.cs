@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Providers.Index
       var inheritorsProviders = new ExecutableProvider[baseIndexes.Count - 1];
       for (int i = 1; i < baseIndexes.Count; i++)
         inheritorsProviders[i - 1] = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(baseIndexes[i]), baseIndexes[i]);
-      return new JoinIndexProvider(provider, baseIndexes[0].IncludedColumns.Count, rootProvider, inheritorsProviders);
+      return new JoinIndexProvider(provider, baseIndexes[0].KeyColumns.Count, index.ValueColumnsMap, rootProvider, inheritorsProviders);
     }
 
     private ExecutableProvider BuildFilterProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)

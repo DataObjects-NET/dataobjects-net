@@ -139,8 +139,16 @@ namespace Xtensive.Storage.Upgrade
       // Build hierarchy foreign keys
       var indexPairs = new Dictionary<Pair<DomainIndexInfo>, object>();
       foreach (var type in domainModel.Types.Entities) {
+        if (type.Hierarchy == null || type.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+          continue;
         if (type.Indexes.PrimaryIndex.IsVirtual) {
-          var realPrimaryIndexes = type.Indexes.RealPrimaryIndexes;
+          var typeOrder = type.GetAncestors()
+            .AddOne(type)
+            .Select((t, i) => new { Type = t, Index = i })
+            .ToDictionary(a => a.Type, a => a.Index);
+          var realPrimaryIndexes = type.Indexes.RealPrimaryIndexes
+            .OrderBy(index => typeOrder[index.ReflectedType])
+            .ToList();
           for (var i = 0; i < realPrimaryIndexes.Count - 1; i++) {
             if (realPrimaryIndexes[i]!=realPrimaryIndexes[i + 1]) {
               var pair = new Pair<DomainIndexInfo>(realPrimaryIndexes[i], realPrimaryIndexes[i + 1]);
@@ -151,8 +159,6 @@ namespace Xtensive.Storage.Upgrade
       }
       foreach (var indexPair in indexPairs.Keys) {
         var referencedIndex = indexPair.First;
-        if (referencedIndex.ReflectedType.Hierarchy == null || referencedIndex.ReflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
-          continue;
         var referencingIndex = indexPair.Second;
         var referencingTable = StorageInfo.Tables[referencingIndex.ReflectedType.MappingName];
         var referencedTable = StorageInfo.Tables[referencedIndex.ReflectedType.MappingName];

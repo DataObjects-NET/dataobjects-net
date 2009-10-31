@@ -198,4 +198,7 @@
   <data name="ExFilterTupleDescriptorMistmatchesWithSourceMappingDescriptor" xml:space="preserve">
     <value>Filter tuple descriptor mistmatches with source mapping descriptor.</value>
   </data>
+  <data name="ExUnableToInitializeJoinIndexProviderColumnsCountMismatch" xml:space="preserve">
+    <value>Unable to initialize JoinIndexProvider. Columns count mismatch.</value>
+  </data>
 </root>

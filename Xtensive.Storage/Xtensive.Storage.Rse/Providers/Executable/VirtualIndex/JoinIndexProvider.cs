@@ -6,18 +6,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
-using System.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Providers.Executable.VirtualIndex.Internal;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
 {
@@ -29,7 +30,8 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     IOrderedEnumerable<Tuple,Tuple>,
     ICountable
   {
-    private readonly int includedColumnsCount;
+    private readonly int keyColumnsCount;
+    private readonly List<Pair<int, List<int>>> valueColumnsMap;
     private readonly ExecutableProvider root;
     private readonly IOrderedEnumerable<Tuple, Tuple> rootEnumerable;
     private readonly ExecutableProvider[] inheritors;
@@ -164,11 +166,15 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     {
       base.Initialize();
       var map = new List<Pair<int, int>>();
-      for (int i = 0; i < root.Header.Length; i++)
-        map.Add(new Pair<int, int>(0, i));
-      for (int i = 0; i < inheritors.Length; i++)
-        for (int j = inheritors[i].Header.Order.Count + includedColumnsCount; j < inheritors[i].Header.Length; j++)
-          map.Add(new Pair<int, int>(i + 1, j));
+
+      foreach (var pair in valueColumnsMap) {
+        if (map.Count == 0)
+          map.AddRange(Enumerable.Range(0, keyColumnsCount).Select(i => new Pair<int, int>(pair.First, i)));
+        foreach (var columnIndex in pair.Second)
+          map.Add(new Pair<int, int>(pair.First, columnIndex + keyColumnsCount));
+      }
+      if (Header.Length != map.Count)
+        throw new InvalidOperationException(Strings.ExUnableToInitializeJoinIndexProviderColumnsCountMismatch);
       mapTransform = new MapTransform(true, Header.TupleDescriptor, map.ToArray());
     }
 
@@ -179,16 +185,17 @@ namespace Xtensive.Storage.Rse.Providers.Executable.VirtualIndex
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="origin">The <see cref="ExecutableProvider{TOrigin}.Origin"/> property value.</param>
-    /// <param name="includedColumnsCount">Count of included columns.</param>
+    /// <param name="keyColumnsCount">Count of key columns.</param>
     /// <param name="root">Root index provider.</param>
     /// <param name="inheritors">Inheritor index providers.</param>
-    public JoinIndexProvider(IndexProvider origin, int includedColumnsCount, ExecutableProvider root, ExecutableProvider[] inheritors)
+    public JoinIndexProvider(IndexProvider origin, int keyColumnsCount, List<Pair<int, List<int>>> valueColumnsMap, ExecutableProvider root, ExecutableProvider[] inheritors)
       : base(origin, new[] {root}.Union(inheritors).ToArray())
     {
       AddService<IOrderedEnumerable<Tuple, Tuple>>();
       AddService<ICountable>();
 
-      this.includedColumnsCount = includedColumnsCount;
+      this.valueColumnsMap = valueColumnsMap;
+      this.keyColumnsCount = keyColumnsCount;
       this.root = root;
       rootEnumerable = root.GetService<IOrderedEnumerable<Tuple, Tuple>>(true);
       this.inheritors = inheritors;      

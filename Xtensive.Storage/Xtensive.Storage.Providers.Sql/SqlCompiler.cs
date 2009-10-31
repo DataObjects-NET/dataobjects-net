@@ -862,32 +862,44 @@ namespace Xtensive.Storage.Providers.Sql
     {
       SqlTable result = null;
       SqlTable rootTable = null;
-      IEnumerable<SqlColumn> columns = null;
       int keyColumnCount = index.KeyColumns.Count;
-      int nonValueColumnsCount = keyColumnCount + index.IncludedColumns.Count;
-      var baseQueries = index.UnderlyingIndexes.Select(i => BuildProviderQuery(i)).ToList();
-      foreach (var baseQuery in baseQueries) {
-        if (result==null) {
+      var baseQueries = index.UnderlyingIndexes
+        .Select(i => BuildProviderQuery(i))
+        .ToList();
+      var queryRefs = new List<SqlTable>();
+      for (int j = 0; j < baseQueries.Count; j++) {
+        var baseQuery = baseQueries[j];
+        if (result == null) {
           result = SqlDml.QueryRef(baseQuery);
           rootTable = result;
-          columns = rootTable.Columns.Cast<SqlColumn>();
+          queryRefs.Add(result);
         }
         else {
           var queryRef = SqlDml.QueryRef(baseQuery);
+          queryRefs.Add(queryRef);
           SqlExpression joinExpression = null;
           for (int i = 0; i < keyColumnCount; i++) {
-            var binary = (queryRef.Columns[i]==rootTable.Columns[i]);
+            var binary = (queryRef.Columns[i] == rootTable.Columns[i]);
             if (joinExpression.IsNullReference())
               joinExpression = binary;
             else
               joinExpression &= binary;
           }
-          result = result.LeftOuterJoin(queryRef, joinExpression);
-          columns = columns.Concat(queryRef.Columns.Skip(nonValueColumnsCount).Cast<SqlColumn>());
+          result = result.InnerJoin(queryRef, joinExpression);
         }
       }
+      var columns = new List<SqlColumn>();
+      foreach (var map in index.ValueColumnsMap) {
+        var queryRef = queryRefs[map.First];
+        if (columns.Count == 0)
+          columns.AddRange(Enumerable.Range(0, keyColumnCount)
+            .Select(i => queryRef.Columns[i])
+            .Cast<SqlColumn>());
+        foreach (var columnIndex in map.Second)
+          columns.Add(queryRef.Columns[columnIndex + keyColumnCount]);
+      }
 
-      SqlSelect query = SqlDml.Select(result);
+      var query = SqlDml.Select(result);
       query.Columns.AddRange(columns);
 
       return query;

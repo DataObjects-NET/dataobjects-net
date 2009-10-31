@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using System.Linq;
 using Xtensive.Core.Helpers;
@@ -38,6 +39,7 @@ namespace Xtensive.Storage.Model
     private TupleDescriptor keyTupleDescriptor;
     private IEnumerable<TypeInfo> filterByTypes;
     private IList<int> selectColumns;
+    private List<Pair<int, List<int>>> valueColumnsMap;
 
     /// <summary>
     /// Gets or sets the column index map.
@@ -185,6 +187,16 @@ namespace Xtensive.Storage.Model
       {
         this.EnsureNotLocked();
         selectColumns = value;
+      }
+    }
+
+    public List<Pair<int, List<int>>> ValueColumnsMap
+    {
+      get { return valueColumnsMap; }
+      set
+      {
+        this.EnsureNotLocked();
+        valueColumnsMap = value;
       }
     }
 
