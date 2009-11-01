@@ -1,0 +1,47 @@
+// Copyright (C) 2007 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Dmitri Maximov
+// Created:    2007.09.04
+
+using System;
+
+namespace Xtensive.Storage.Configuration
+{
+  /// <summary>
+  /// Enumerates all possible namespace treatment options in naming policy.
+  /// </summary>
+  [Serializable]
+  public enum NamespacePolicy
+  {
+    /// <summary>
+    /// The same as <see cref="Omit"/>.
+    /// </summary>
+    Default = 0,
+
+    /// <summary>
+    /// Name of the type and namespace synonym will be used to derive 
+    /// the name of the table or view.
+    /// </summary>
+    UseNamespaceSynonym = 1,
+
+    /// <summary>
+    /// Name of the type and namespace name will be used to derive 
+    /// the name of the table or view.
+    /// </summary>
+    UseNamespace = 2,
+
+    /// <summary>
+    /// Name of the type and namespace hashes will be used to derive 
+    /// the name of the table or view. Driver decides on the type of hashing
+    /// algorythm to use.
+    /// </summary>
+    UseHash = 3,
+
+    /// <summary>
+    /// Only name of the type will be used to derive the name of
+    /// the table or view.
+    /// </summary>
+    Omit = Default,
+  }
+}

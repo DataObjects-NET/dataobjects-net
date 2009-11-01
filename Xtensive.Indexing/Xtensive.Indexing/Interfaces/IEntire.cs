@@ -1,0 +1,40 @@
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Dmitri Maximov
+// Created:    2008.02.04
+
+using System;
+using Xtensive.Core.Tuples;
+
+namespace Xtensive.Indexing
+{
+  /// <summary>
+  /// Base interface for any "Entire" type.
+  /// </summary>
+  /// <typeparam name="T">The type wrapped by entire.</typeparam>
+  public interface IEntire<T>
+    : ITuple,
+      IComparable<T>,
+      IEquatable<T>,
+      IComparable<IEntire<T>>,
+      IEquatable<IEntire<T>>
+  {
+    /// <summary>
+    /// Gets the underlying value of the entire.
+    /// </summary>
+    T Value { get; }
+
+    /// <summary>
+    /// Gets the types of each nested value of the entire.
+    /// </summary>
+    EntireValueType[] ValueTypes { get; }
+
+    /// <summary>
+    /// Gets the type of the field value.
+    /// </summary>
+    /// <param name="fieldIndex">Index of the field.</param>
+    /// <returns><see cref="EntireValueType"/> for the specified <paramref name="fieldIndex"/>.</returns>
+    EntireValueType GetValueType(int fieldIndex);
+  }
+}

@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ExCouldNotLoadTypesFromAssembly" xml:space="preserve">
+    <value>Could not load types from assembly {0}.</value>
+  </data>
+  <data name="ExThereAreNoSuitableTypes" xml:space="preserve">
+    <value>There are no suitable types in "{0}".</value>
+  </data>
+  <data name="ExElementWithNameContainedInThisInstanceAlready" xml:space="preserve">
+    <value>Element with name '{0}' is contained in this instance already.</value>
+  </data>
+  <data name="ExServiceWithNameAlreadyExistsInStorageInfoServicesCollection" xml:space="preserve">
+    <value>Service with name '{0}' already exists in StorageInfo.Services collection.</value>
+  </data>
+  <data name="ExFieldWithNameAlreadyExistsInEntityFieldsCollection" xml:space="preserve">
+    <value>Field with name '{0}' already exists in Entity.Fields collection.</value>
+  </data>
+  <data name="ExIndexWithNameAlreadyExistsInEntityInfoIndexesCollection" xml:space="preserve">
+    <value>Index with name '{0}' already exists in EntityInfo.Indexes collection.</value>
+  </data>
+  <data name="ExUnsupportedType" xml:space="preserve">
+    <value>Unsupported type: {0}.</value>
+  </data>
+  <data name="ExElementWithTypeIsContainedInThisInstanceAlready" xml:space="preserve">
+    <value>Element with type {0} is contained in this instance already.</value>
+  </data>
+  <data name="ExComparerForTypeIsNotAvailable" xml:space="preserve">
+    <value>Comparer for type '{0}' is not available.</value>
+  </data>
+  <data name="ExTypeCantBeNull" xml:space="preserve">
+    <value>Type cannot be null</value>
+  </data>
+  <data name="ExIndexAlreadyContainsField" xml:space="preserve">
+    <value>Index already contains field '{0}'.</value>
+  </data>
+  <data name="ExIndexFieldValidationError" xml:space="preserve">
+    <value>Index field '{0}' is incorrect.</value>
+  </data>
+  <data name="ExTransactionRequired" xml:space="preserve">
+    <value>Unable to process operation without transaction. Please create TransactionScope before.</value>
+  </data>
+  <data name="ExTypeNotFoundInModel" xml:space="preserve">
+    <value>Type {0} not found in model.</value>
+  </data>
+  <data name="ExOutOfTransactionScope" xml:space="preserve">
+    <value>Object outside of initial transaction scope.</value>
+  </data>
+  <data name="ExUnableToModifyDeletedObject" xml:space="preserve">
+    <value>Unable to modify deleted object.</value>
+  </data>
+  <data name="ExSessionBoundObjectOutOfSessionScope" xml:space="preserve">
+    <value>Session bound object out of session scope.</value>
+  </data>
+  <data name="ExFieldNotFoundInModel" xml:space="preserve">
+    <value>Field {0} not found in model.</value>
+  </data>
+  <data name="ExResultTypeIncorrect" xml:space="preserve">
+    <value>Type {0} is not dervied from {1}.</value>
+  </data>
+  <data name="ExUnableToModifyKeyColumn" xml:space="preserve">
+    <value>Unable to modify key column.</value>
+  </data>
+  <data name="ExStorageProviderNotFound" xml:space="preserve">
+    <value>Handler provider not found for "{0}" connection type. Search folder "{1}".</value>
+  </data>
+  <data name="ExInvalidKeyParams" xml:space="preserve">
+    <value>Unable to create key. Key params do not correspond to key structure.</value>
+  </data>
+  <data name="ExTypeInfoHierarchyMistmatch" xml:space="preserve">
+    <value>TypeInfo hierarchy does not correspond to provided hierarchy.</value>
+  </data>
+  <data name="ExPrimaryKeyFieldCantBeChanged" xml:space="preserve">
+    <value>Field {0} is a part of Primary Key. It can't be changed.</value>
+  </data>
+  <data name="ExEntityRemoved" xml:space="preserve">
+    <value>Unable to modify removed entity.</value>
+  </data>
+  <data name="AspectExMultipleAttributesOfTypeXAreNotAllowedHere" xml:space="preserve">
+    <value>{0}: multiple attributes of type '{1}' are not allowed here.</value>
+  </data>
+  <data name="ExColumnLength" xml:space="preserve">
+    <value>Value length {0} greater than column Length {1}. </value>
+  </data>
+  <data name="ExColumnNotNullable" xml:space="preserve">
+    <value>Unable to assign null to not-nullable column.</value>
+  </data>
+  <data name="ExTypeMustBeEntityDescendant" xml:space="preserve">
+    <value>Invalid type specified.</value>
+  </data>
+  <data name="LogSessionBoundMethodXOfTypeY" xml:space="preserve">
+    <value>SessionBound method '{0} 'of type '{1}'</value>
+  </data>
+  <data name="InvalidSession" xml:space="preserve">
+    <value>The Session of specified ISessionBound object is invalid.</value>
+  </data>
+  <data name="ValueCanNotBeNull" xml:space="preserve">
+    <value>Value can not be null.</value>
+  </data>
+  <data name="ExEntityIsRemoved" xml:space="preserve">
+    <value>Entity is removed.</value>
+  </data>
+  <data name="ValueLengthCanNotExceedX" xml:space="preserve">
+    <value>Value can not exceed {0}.</value>
+  </data>
+  <data name="ValueShouldMatchRegexPatternX" xml:space="preserve">
+    <value>Value should match regex pattern '{0}'</value>
+  </data>
+  <data name="InvalidFieldValueConstraintXIsViolated" xml:space="preserve">
+    <value>Invalid field value, constraint {0} is violated.</value>
+  </data>
+  <data name="ValueCanNotBeLessThenX" xml:space="preserve">
+    <value>Value can not be less then {0}.</value>
+  </data>
+  <data name="LogBuildingHandlerProvider" xml:space="preserve">
+    <value>Building handler provider.</value>
+  </data>
+  <data name="LogBuildingValueConverters" xml:space="preserve">
+    <value>Building value converters.</value>
+  </data>
+  <data name="LogBuildingKeyProviders" xml:space="preserve">
+    <value>Building key providers.</value>
+  </data>
+  <data name="LogValidatingConfiguration" xml:space="preserve">
+    <value>Validating configuration.</value>
+  </data>
+  <data name="ExErrorsDuringStorageBuild" xml:space="preserve">
+    <value>Some errors have been occurred during storage build. See error log for details.</value>
+  </data>
+  <data name="ExConstraintViolation" xml:space="preserve">
+    <value>Constraint violation: constraint {0} on field '{1}.{2}' of object '{3}' failed on value {4}.</value>
+  </data>
+  <data name="ValueCanNotBeRemovedEntity" xml:space="preserve">
+    <value>Value can not be an entity that is already removed.</value>
+  </data>
+  <data name="TypeXWasNotRegisteredForActivation" xml:space="preserve">
+    <value>Type '{0}' was not registered for activation</value>
+  </data>
+</root>

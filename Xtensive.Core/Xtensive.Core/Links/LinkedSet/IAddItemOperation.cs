@@ -1,0 +1,16 @@
+// Copyright (C) 2007 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alex Ilyin
+// Created:    2007.06.04
+
+using Xtensive.Core.Links.LinkedSet.Operations;
+
+namespace Xtensive.Core.Links.LinkedSet
+{
+  internal interface IAddItemOperation
+  {
+    void Execute(ILinkOwner operationOwner, object linkedObject,
+      AddItemExecuteOption addItemExecuteOption);
+  }
+}

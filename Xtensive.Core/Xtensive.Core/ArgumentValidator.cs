@@ -1,0 +1,141 @@
+// Copyright (C) 2007 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alex Yakunin
+// Created:    2007.10.01
+
+using System;
+using System.Collections.Generic;
+using Xtensive.Core.Comparison;
+using Xtensive.Core.Resources;
+using System.Collections;
+
+namespace Xtensive.Core
+{
+  /// <summary>
+  /// Helper class validation most common error conditions.
+  /// </summary>
+  public static class ArgumentValidator
+  {
+    /// <summary>
+    /// Ensures argument (<paramref name="value"/>) is not
+    /// <see langoword="null"/>.
+    /// </summary>
+    /// <param name="value">Value to compare with <see langword="null"/>.</param>
+    /// <param name="parameterName">Name of the method parameter.</param>
+    public static void EnsureArgumentNotNull(object value, string parameterName)
+    {
+      if (value==null) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw new ArgumentNullException(parameterName);
+      }
+    }
+    
+    /// <summary>
+    /// Ensures argument (<paramref name="value"/>) is not
+    /// <see langoword="null"/>.
+    /// </summary>
+    /// <param name="value">Value to compare with <see langword="null"/>.</param>
+    /// <param name="parameterName">Name of the method parameter.</param>
+    /// <typeparam name="T">The type of default value.</typeparam>
+    public static void EnsureArgumentIsNotDefault<T>(T value, string parameterName)
+    {
+      if (default(T)==null) {
+        if (value==null) {
+          EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+          throw Exceptions.InvalidArgument(value, "parameterName");
+        }
+      }
+      else if (AdvancedComparerStruct<T>.System.Equals(value, default(T))) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw Exceptions.InvalidArgument(value, "parameterName");
+      }
+    }
+
+    /// <summary>
+    /// Ensures argument (<paramref name="value"/>) is not
+    /// <see langoword="null"/> or <see cref="string.Empty"/> string.
+    /// </summary>
+    /// <param name="value">Value to check.</param>
+    /// <param name="parameterName">Name of the method parameter.</param>
+    public static void EnsureArgumentNotNullOrEmpty(string value, string parameterName)
+    {
+      if (value == null) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw new ArgumentNullException(parameterName);
+      }
+      if (value.Length == 0) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
+      }
+    }
+
+    /// <summary>
+    /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/> 
+    /// and of <typeparamref name="T"/> type.
+    /// </summary>
+    /// <param name="value">Value to compare check.</param>
+    /// <param name="parameterName">Name of the method parameter.</param>
+    /// <typeparam name="T">The expected type of value.</typeparam>
+    public static void EnsureArgumentIs<T>(object value, string parameterName)
+    {
+      EnsureArgumentNotNull(value, parameterName);
+      if (!(value is T)) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw new ArgumentException(String.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
+      }
+    }
+
+    /// <summary>
+    /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/> 
+    /// and of <paramref name="type"/> type.
+    /// </summary>
+    /// <param name="value">Value to compare check.</param>
+    /// <param name="type">The expected type of value.</param>
+    /// <param name="parameterName">Name of the method parameter.</param>
+    public static void EnsureArgumentIs(object value, Type type, string parameterName)
+    {
+      EnsureArgumentNotNull(value, parameterName);
+      if (!type.IsAssignableFrom(value.GetType())) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw new ArgumentException(String.Format(Strings.ExInvalidArgumentType, type), parameterName);
+      }
+    }
+    
+    /// <summary>
+    /// Ensures argument (<paramref name="value"/>) is either <see langword="null"/>,
+    /// or of <typeparamref name="T"/> type.
+    /// </summary>
+    /// <param name="value">Value to compare check.</param>
+    /// <param name="parameterName">Name of the method parameter.</param>
+    /// <typeparam name="T">The expected type of value.</typeparam>
+    public static void EnsureArgumentIsNullOr<T>(object value, string parameterName)
+    {
+      if (value==null)
+        return;
+      if (!(value is T)) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw new ArgumentException(String.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
+      }
+    }
+
+    /// <summary>
+    /// Ensures argument (<paramref name="value"/>) is either <see langword="null"/>,
+    /// or of <typeparamref name="T"/> type.
+    /// </summary>
+    /// <param name="value">Value to compare check.</param>
+    /// <param name="lowerBoundary">Lower range boundary (inclusively).</param>
+    /// <param name="upperBoundary">Upper range boundary (inclusively).</param>
+    /// <param name="parameterName">Name of the method parameter.</param>
+    /// <typeparam name="T">The type of value.</typeparam>
+    public static void EnsureArgumentIsInRange<T>(T value, T lowerBoundary, T upperBoundary, string parameterName)
+      where T: struct, IComparable<T>
+    {
+      if (value.CompareTo(lowerBoundary)<0 || value.CompareTo(upperBoundary)>0) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw new ArgumentOutOfRangeException(parameterName, value,
+          String.Format(Strings.ExArgumentShouldBeInRange, lowerBoundary, upperBoundary));
+      }
+    }
+  }
+}

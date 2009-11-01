@@ -1,0 +1,51 @@
+// Copyright (C) 2007 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alex Yakunin
+// Created:    2007.06.13
+
+using System;
+using Xtensive.Core.Internals.DocTemplates;
+
+namespace Xtensive.Core.Collections
+{
+  /// <summary>
+  /// Event arguments for <see cref="IExpiringItemCollection{T}.ItemExpires"/> event.
+  /// </summary>
+  /// <typeparam name="TItem">The type of collection item.</typeparam>
+  public class ItemExpiresEventArgs<TItem> : EventArgs
+  {
+    private readonly TItem item;
+    private bool cancel;
+
+    /// <summary>
+    /// <see langword="True"/>, if item must be kept in collection; 
+    /// otherwise, <see langword="false"/>.
+    /// </summary>
+    public bool Cancel
+    {
+      get { return cancel; }
+      set { cancel = value; }
+    }
+
+    ///<summary>
+    /// Gets the expiring item.
+    ///</summary>
+    public TItem Item
+    {
+      get { return item; }
+    }
+
+    
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="item">The expiring item.</param>
+    public ItemExpiresEventArgs(TItem item)
+    {
+      this.item = item;
+    }
+  }
+}

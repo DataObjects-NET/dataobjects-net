@@ -1,0 +1,18 @@
+// Copyright (C) 2007 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+
+namespace Xtensive.Sql.Dom.Database
+{
+  /// <summary>
+  /// Defines an object that supports partitioning.
+  /// </summary>
+  public interface IPartitionable
+  {
+    /// <summary>
+    /// Gets or sets the partition descriptor.
+    /// </summary>
+    /// <value>The partition descriptor.</value>
+    PartitionDescriptor PartitionDescriptor { get; set; }
+  }
+}

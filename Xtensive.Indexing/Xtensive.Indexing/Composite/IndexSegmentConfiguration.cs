@@ -1,0 +1,113 @@
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Dmitri Maximov
+// Created:    2008.03.03
+
+using System;
+using System.Collections.Generic;
+using Xtensive.Core;
+using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
+
+namespace Xtensive.Indexing.Composite
+{
+  /// <summary>
+  /// The configuration of index segment.
+  /// </summary>
+  /// <typeparam name="TKey">The type of the key.</typeparam>
+  /// <typeparam name="TItem">The type of the indexed item.</typeparam>
+  /// <seealso cref="IndexConfigurationBase{TKey,TITem}"/>
+  /// <seealso cref="CompositeIndex{TKey,TItem}"/>
+  [Serializable]
+  public class IndexSegmentConfiguration<TKey, TItem> : IndexConfigurationBase<TKey, TItem> where TKey : Tuple where TItem : Tuple
+  {
+    private string segmentName;
+    private int segmentNumber;
+    private Dictionary<string, string> measureMapping = new Dictionary<string, string>();
+
+    /// <summary>
+    /// Gets or sets the name of the segment.
+    /// </summary>
+    /// <value>The name of the segment.</value>
+    public string SegmentName
+    {
+      get { return segmentName; }
+      set
+      {
+        this.EnsureNotLocked();
+        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        segmentName = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets the segment number.
+    /// </summary>
+    /// <value>The segment number.</value>
+    public int SegmentNumber
+    {
+      get { return segmentNumber; }
+      set
+      {
+        this.EnsureNotLocked();
+        segmentNumber = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets the measure mapping.
+    /// </summary>
+    /// <value>The measure mapping.</value>
+    public Dictionary<string, string> MeasureMapping
+    {
+      get { return measureMapping; }
+    }
+
+    /// <inheritdoc/>
+    public override void Validate()
+    {
+      base.Validate();
+      if (String.IsNullOrEmpty(segmentName))
+        throw Exceptions.NotInitialized("SegmentName");
+    }
+
+    #region Clone implementation
+
+    /// <inheritdoc/>
+    protected override ConfigurationBase CreateClone()
+    {
+      return new IndexSegmentConfiguration<TKey, TItem>();
+    }
+
+    /// <inheritdoc/>
+    protected override void Clone(ConfigurationBase source)
+    {
+      base.Clone(source);
+      IndexSegmentConfiguration<TKey, TItem> indexConfiguration = (IndexSegmentConfiguration<TKey, TItem>)source;
+      segmentName = indexConfiguration.SegmentName;
+    }
+
+    #endregion
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="segmentName">The name of the segment.</param>
+    public IndexSegmentConfiguration(string segmentName)
+    {
+      this.segmentName = segmentName;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public IndexSegmentConfiguration()
+    {
+    }
+  }
+}

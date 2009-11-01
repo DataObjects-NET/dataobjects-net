@@ -1,0 +1,33 @@
+// Copyright (C) 2007 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+
+using System;
+using Xtensive.Core;
+
+namespace Xtensive.Sql.Dom.Dml
+{
+  [Serializable]
+  public class SqlNull : SqlExpression
+  {
+    public override void ReplaceWith(SqlExpression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentValidator.EnsureArgumentIs<SqlNull>(expression, "expression");
+    }
+    
+    internal override object Clone(SqlNodeCloneContext context)
+    {
+      return this;
+    }
+    
+    internal SqlNull() : base(SqlNodeType.Null)
+    {
+    }
+
+    public override void AcceptVisitor(ISqlVisitor visitor)
+    {
+      visitor.Visit(this);
+    }
+  }
+}

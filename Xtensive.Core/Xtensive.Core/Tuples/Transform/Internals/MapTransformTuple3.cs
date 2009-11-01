@@ -1,0 +1,102 @@
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alex Yakunin
+// Created:    2008.06.04
+
+using System;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
+
+namespace Xtensive.Core.Tuples.Transform.Internals
+{
+  /// <summary>
+  /// A <see cref="MapTransform"/> result tuple mapping up to 3 source tuples to a single one (this).
+  /// </summary>
+  [Serializable]
+  public sealed class MapTransformTuple3 : TransformedTuple<MapTransform>
+  {
+    private FixedList3<Tuple> tuples;
+
+    /// <inheritdoc/>
+    public override object[] Arguments {
+      get {
+        Tuple[] copy = new Tuple[tuples.Count];
+        for (int i = 0; i < tuples.Count; i++)
+          copy[i] = tuples[i];
+        return copy;
+      }
+    }
+
+    #region GetFieldState, GetValueOrDefault, SetValue methods
+
+    /// <inheritdoc/>
+    public override TupleFieldState GetFieldState(int fieldIndex)
+    {
+      Pair<int, int> indexes = TypedTransform.map[fieldIndex];
+      return tuples[indexes.First].GetFieldState(indexes.Second);
+    }
+
+    /// <inheritdoc/>
+    public override object GetValueOrDefault(int fieldIndex)
+    {
+      Pair<int, int> indexes = TypedTransform.map[fieldIndex];
+      return tuples[indexes.First].GetValueOrDefault(indexes.Second);
+    }
+
+    /// <inheritdoc/>
+    public override T GetValueOrDefault<T>(int fieldIndex)
+    {
+      Pair<int, int> indexes = TypedTransform.map[fieldIndex];
+      return tuples[indexes.First].GetValueOrDefault<T>(indexes.Second);
+    }
+
+    /// <inheritdoc/>
+    public override void SetValue<T>(int fieldIndex, T fieldValue)
+    {
+      if (Transform.IsReadOnly)
+        throw Exceptions.ObjectIsReadOnly(null);
+      Pair<int, int> indexes = TypedTransform.map[fieldIndex];
+      tuples[indexes.First].SetValue(indexes.Second, fieldValue);
+    }
+
+    /// <inheritdoc/>
+    public override void SetValue(int fieldIndex, object fieldValue)
+    {
+      if (Transform.IsReadOnly)
+        throw Exceptions.ObjectIsReadOnly(null);
+      Pair<int, int> indexes = TypedTransform.map[fieldIndex];
+      tuples[indexes.First].SetValue(indexes.Second, fieldValue);
+    }
+
+    #endregion
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="transform">The transform.</param>
+    /// <param name="source1">First source tuple.</param>
+    /// <param name="source2">2nd source tuple.</param>
+    public MapTransformTuple3(MapTransform transform, Tuple source1, Tuple source2)
+      : base(transform)
+    {
+      tuples = new FixedList3<Tuple>(source1, source2);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="transform">The transform.</param>
+    /// <param name="source1">First source tuple.</param>
+    /// <param name="source2">2nd source tuple.</param>
+    /// <param name="source3">3rd source tuple.</param>
+    public MapTransformTuple3(MapTransform transform, Tuple source1, Tuple source2, Tuple source3)
+      : base(transform)
+    {
+      tuples = new FixedList3<Tuple>(source1, source2, source3);
+    }
+  }
+}

@@ -1,0 +1,76 @@
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Gamzov
+// Created:    2008.01.17
+
+using System;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
+using MethodInfo=System.Reflection.MethodInfo;
+
+namespace Xtensive.Core.Testing
+{
+  /// <summary>
+  /// Default <see cref="IInstanceGenerator{T}"/> provider. 
+  /// Provides default instance generator for the specified type.
+  /// </summary>
+  /// <remarks>
+  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
+  /// </remarks>
+  [Serializable]
+  public class InstanceGeneratorProvider : AssociateProvider, IInstanceGeneratorProvider
+  {
+    private static readonly InstanceGeneratorProvider @default = new InstanceGeneratorProvider();
+    private readonly object _lock = new object();
+    private ThreadSafeDictionary<Type, IInstanceGeneratorBase> cache = ThreadSafeDictionary<Type, IInstanceGeneratorBase>.Create();
+
+    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    public static InstanceGeneratorProvider Default
+    {
+      get { return @default; }
+    }
+
+    #region IInstanceGeneratorProvider members
+
+    /// <inheritdoc/>
+    public virtual IInstanceGenerator<T> GetInstanceGenerator<T>()
+    {
+      return GetAssociate<T, IInstanceGenerator<T>, IInstanceGenerator<T>>();
+    }
+
+    /// <inheritdoc/>
+    public IInstanceGeneratorBase GetInstanceGenerator(Type type)
+    {
+      IInstanceGeneratorBase result = cache.GetValue(type);
+      if (result!=null)
+        return result;
+      lock (_lock) {
+        result = cache.GetValue(type);
+        if (result!=null)
+          return result;
+        MethodInfo getInstanceGeneratorMethod =
+          GetType()
+            .GetMethod("GetInstanceGenerator", ArrayUtils<Type>.EmptyArray)
+              .GetGenericMethodDefinition()
+                .MakeGenericMethod(new Type[] {type});
+        result = (IInstanceGeneratorBase)getInstanceGeneratorMethod.Invoke(this, null);
+        cache.SetValue(type, result);
+        return result;
+      }
+    }
+
+    #endregion
+
+
+    // Constructors
+
+    
+    protected InstanceGeneratorProvider()
+    {
+      TypeSuffixes = new string[] {"InstanceGenerator"};
+      Type t = typeof (InstanceGeneratorProvider);
+      AddHighPriorityLocation(t.Assembly, t.Namespace);
+    }
+  }
+}

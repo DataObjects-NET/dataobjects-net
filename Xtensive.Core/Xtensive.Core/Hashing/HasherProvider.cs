@@ -1,0 +1,166 @@
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Aleksey Gamzov
+// Created:    2008.01.14
+
+using System;
+using System.Reflection;
+using System.Text;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
+using Xtensive.Core.Resources;
+
+//using Xtensive.Core.SizeCalculators;
+
+namespace Xtensive.Core.Hashing
+{
+  /// <summary>
+  /// Default <see cref="IHasher{T}"/> provider. 
+  /// Provides default hasher for the specified type.
+  /// </summary>
+  /// <remarks>
+  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
+  /// </remarks>
+  [Serializable]
+  public class HasherProvider : AssociateProvider,
+    IHasherProvider
+  {
+    private static readonly HasherProvider @default = new HasherProvider();
+    private readonly object syncRoot = new object();
+    private ThreadSafeDictionary<Type, IHasherBase> cache = ThreadSafeDictionary<Type, IHasherBase>.Create();
+    private IHasherBase objectHasher;
+
+    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    public static IHasherProvider Default
+    {
+      get { return @default; }
+    }
+
+    #region IHasherProvider members
+
+    /// <summary>
+    /// Gets <see cref="IHasher{T}"/> for the specified type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">Type to get the hasher for.</typeparam>
+    /// <returns><see cref="IHasher{T}"/> for the specified type <typeparamref name="T"/>.</returns>
+    public virtual Hasher<T> GetHasher<T>()
+    {
+      return GetAssociate<T, IHasher<T>, Hasher<T>>();
+    }
+
+    /// <inheritdoc/>
+    public IHasherBase GetHasherByInstance(object value)
+    {
+      if (value == null) {
+        if (objectHasher == null) lock (syncRoot) if (objectHasher == null) 
+          objectHasher = GetHasher<object>().Implementation;
+        return objectHasher;
+      }
+      Type type = value.GetType();
+      return GetHasherByType(type);
+    }
+
+    /// <inheritdoc/>
+    public IHasherBase GetHasherByType(Type type)
+    {
+      IHasherBase result = cache.GetValue(type);
+      if (result != null)
+        return result;
+      lock (syncRoot) {
+        result = cache.GetValue(type);
+        if (result != null)
+          return result;
+        System.Reflection.MethodInfo innerGetHasherByTypeMethod =
+          GetType()
+            .GetMethod("InnerGetHasherBase", BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
+            .GetGenericMethodDefinition()
+            .MakeGenericMethod(new[] { type });
+        result = innerGetHasherByTypeMethod.Invoke(this, null) as IHasherBase;
+        cache.SetValue(type, result);
+        return result;
+      }
+    }
+
+    #endregion
+
+    #region Protected method overrides
+
+    // ReSharper disable UnusedPrivateMember
+    private IHasherBase InnerGetHasherBase<T>()
+    {
+      return GetAssociate<T, IHasher<T>, Hasher<T>>().Implementation;
+    }
+    // ReSharper restore UnusedPrivateMember
+
+    /// <inheritdoc/>
+    protected override TAssociate CreateAssociate<TKey, TAssociate>(out Type foundFor)
+    {
+      TAssociate associate = base.CreateAssociate<TKey, TAssociate>(out foundFor);
+      if (associate!=null)
+        return associate;
+      // Ok, null, but probably just because type cast has failed;
+      // let's try to wrap it. TKey is type for which we're getting
+      // the hasher.
+      IHasherBase hasher = base.CreateAssociate<TKey, IHasherBase>(out foundFor);
+      if (foundFor==null) {
+        var stringBuilder = new StringBuilder();
+        for (int i = 0; i < TypeSuffixes.Length; i++) {
+          if (i!=0) {
+            stringBuilder.Append(" \\ ");
+          }
+          stringBuilder.Append(TypeSuffixes[i]);
+        }
+        Log.Warning(Strings.LogCantFindAssociateFor,
+          stringBuilder,
+          typeof (TAssociate).GetShortName(),
+          typeof (TKey).GetShortName());
+        return null;
+      }
+      if (foundFor==typeof (TKey))
+        return (TAssociate) hasher;
+      Type baseHasherWrapperType = typeof (BaseHasherWrapper<,>);
+      associate =
+        baseHasherWrapperType.Activate(new[] {typeof (TKey), foundFor}, ConstructorParams) as
+          TAssociate;
+      if (associate!=null) {
+        Log.Warning(Strings.LogGenericAssociateIsUsedFor,
+          baseHasherWrapperType.GetShortName(),
+          typeof (TKey).GetShortName(),
+          foundFor.GetShortName(),
+          typeof (TKey).GetShortName());
+        return associate;
+      }
+      Log.Warning(Strings.LogGenericAssociateCreationHasFailedFor,
+        baseHasherWrapperType.GetShortName(),
+        typeof (TKey).GetShortName(),
+        foundFor.GetShortName(),
+        typeof (TKey).GetShortName());
+      return null;
+    }
+
+    /// <inheritdoc/>
+    protected override TResult ConvertAssociate<TKey, TAssociate, TResult>(TAssociate associate)
+    {
+      if (ReferenceEquals(associate, null))
+        return default(TResult);
+      return (TResult) (object) new Hasher<TKey>((IHasher<TKey>) associate);
+    }
+
+    #endregion
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// </summary>
+    protected HasherProvider()
+    {
+      TypeSuffixes = new[] {"Hasher"};
+      Type t = typeof (HasherProvider);
+      AddHighPriorityLocation(t.Assembly, t.Namespace);
+    }
+  }
+}
