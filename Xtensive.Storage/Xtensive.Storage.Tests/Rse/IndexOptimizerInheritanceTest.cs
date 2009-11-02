@@ -117,8 +117,8 @@ namespace Xtensive.Storage.Tests.Rse
       var expected = Query<T>.All.ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
       var query = Query<T>.All.Where(predicate).OrderBy(o => o.Id);
       var actual = query.ToList();
-      primaryIndexValidator(Domain.Model.Types[typeof (T)].Indexes.GetIndexesContainingAllData()
-        .Single(index => index.IsPrimary));
+      var primaryIndex = Domain.Model.Types[typeof (T)].Indexes.PrimaryIndex;
+      primaryIndexValidator(primaryIndex);
       var unitPriceIndex = Domain.Model.Types[typeof(T)].Indexes.GetIndex("UnitPrice");
       secondaryIndexValidator(unitPriceIndex);
       var productNameIndex = Domain.Model.Types[typeof(T)].Indexes.GetIndex("ProductName");
