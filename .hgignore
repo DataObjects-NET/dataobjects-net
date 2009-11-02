@@ -1,0 +1,23 @@
+syntax: glob
+
+*.suo
+*.user
+*.csproj.user
+*.sln.cache
+*.cache
+*.exe
+*.dll
+*.obj
+*.pdb
+*.HxS
+*.chm
+*.xml
+*.resharper
+*.resharperoptions 
+H2Reg_Log.txt
+
+bin\*
+Bin\*
+obj\*
+ProxyAssemblyCache\*
+Common\Xtensive.MSBuildTasks\Xtensive.MSBuildTasks.*
