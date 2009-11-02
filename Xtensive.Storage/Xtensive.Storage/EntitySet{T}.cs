@@ -268,9 +268,13 @@ namespace Xtensive.Storage
 
     private IEnumerable<IEntity> GetCachedEntities()
     {
+      Entity entity;
       foreach (Key key in State) {
         ValidateVersion(State.Version);
-        yield return Query.SingleOrDefault(Session, key);
+        using (Session.Activate()) {
+          entity = Query.SingleOrDefault(Session, key);
+        }
+        yield return entity;
       }
     }
 
