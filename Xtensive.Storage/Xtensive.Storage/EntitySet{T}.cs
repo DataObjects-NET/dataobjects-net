@@ -270,7 +270,7 @@ namespace Xtensive.Storage
     {
       foreach (Key key in State) {
         ValidateVersion(State.Version);
-        yield return Query.SingleOrDefault(Session, key); ;
+        yield return Query.SingleOrDefault(Session, key);
       }
     }
 
