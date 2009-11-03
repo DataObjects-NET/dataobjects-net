@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  public class RemapContext
+  internal class RemapContext
   {
     public ParameterExpression SubqueryParameterExpression { get; set; }
   }

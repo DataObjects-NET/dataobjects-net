@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Linq
   /// An implementation of <see cref="IQueryable{T}"/>.
   /// </summary>
   /// <typeparam name="T">The type of the content item of the data source.</typeparam>
-  public sealed class Queryable<T> : IOrderedQueryable<T>
+  internal sealed class Queryable<T> : IOrderedQueryable<T>
   {
     private readonly Expression expression;
 

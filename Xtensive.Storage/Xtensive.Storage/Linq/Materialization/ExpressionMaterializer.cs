@@ -210,7 +210,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
     protected override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
-      return Expression.New(expression.Constructor, expression.ConstructorArguments.Select(e=>Visit(e)));
+      return Expression.New(expression.Constructor, expression.ConstructorArguments.Select(e => Visit(e)));
     }
 
     protected override Expression VisitStructureExpression(StructureExpression expression)
@@ -370,8 +370,7 @@ namespace Xtensive.Storage.Linq.Materialization
     }
 
 
-    private
-      Expression MaterializeThroughOwner
+    private Expression MaterializeThroughOwner
       (Expression target, Expression tuple, bool defaultIfEmpty)
     {
       var field = target as FieldExpression;
@@ -390,8 +389,7 @@ namespace Xtensive.Storage.Linq.Materialization
       return CreateEntity((EntityExpression) target, tuple);
     }
 
-    private
-      Expression GetTupleExpression
+    private Expression GetTupleExpression
       (ParameterizedExpression
         expression)
     {
