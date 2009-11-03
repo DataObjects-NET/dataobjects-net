@@ -23,8 +23,14 @@ namespace Xtensive.Storage.Manual.LazyLoading
     [Field]
     public DateTime BirthDay { get; set; }
 
-    [Field(LazyLoad = true, Length = 10000)]
+    [Field(LazyLoad = true, Length = 65536)]
     public byte[] Photo { get; set; }
+
+    [Field(LazyLoad = true, Length = 8192)]
+    public byte[] Avatar { get; set; }
+
+    [Field(LazyLoad = true)]
+    public Address Address { get; set; }
 
     [Field]
     public Person Manager { get; private set; }
@@ -32,6 +38,24 @@ namespace Xtensive.Storage.Manual.LazyLoading
     [Field]
     [Association(PairTo = "Manager")]
     public EntitySet<Person> Employees { get; private set; }
+  }
+
+  public class Address : Structure
+  {
+    [Field(Length = 60)]
+    public string Street { get; set; }
+
+    [Field(Length = 15)]
+    public string City { get; set; }
+
+    [Field(Length = 15)]
+    public string Region { get; set; }
+
+    [Field(Length = 10)]
+    public string PostalCode { get; set; }
+
+    [Field(Length = 15)]
+    public string Country { get; set; }
   }
 
   [TestFixture]
