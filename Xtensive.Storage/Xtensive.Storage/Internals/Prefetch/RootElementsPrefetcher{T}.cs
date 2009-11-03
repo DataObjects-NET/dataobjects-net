@@ -113,8 +113,6 @@ namespace Xtensive.Storage.Internals.Prefetch
         var elementToBeFetched = delayedElements.Dequeue();
         if (blockingDelayedElement == null)
           blockingDelayedElement = elementToBeFetched.First;
-        //var key = keyExtractor.Invoke(elementToBeFetched);
-        //var cachedKey = sessionHandler.Session.EntityStateCache[elementToBeFetched.First, false].Key;
         var prefetchTaskCount = sessionHandler.PrefetchTaskExecutionCount;
         LinkedList<Pair<Key, TypeInfo>> referencedKeys;
         if (referencedDelayedElementKeys.TryGetValue(elementToBeFetched.First, out referencedKeys)) {
@@ -122,12 +120,6 @@ namespace Xtensive.Storage.Internals.Prefetch
           referencedDelayedElementKeys.Remove(elementToBeFetched.First);
         }
         RegisterPrefetchOfDefaultFields(elementToBeFetched.First, elementToBeFetched.Third);
-        /*var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
-          .GetCachedItem(new Pair<object, TypeInfo>(DescriptorArraysCachingRegion, cachedKey.Type),
-            pair => PrefetchHelper
-              .CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second));
-        strongReferenceContainer.JoinIfPossible(sessionHandler.Prefetch(cachedKey, cachedKey.Type,
-          descriptorsArray));*/
         if (prefetchTaskCount != sessionHandler.PrefetchTaskExecutionCount)
           blockingDelayedElement = elementToBeFetched.First;
       }
@@ -203,12 +195,10 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private void HandleReferencedKeyExtraction(Key ownerKey, FieldInfo referencingField, Key referencedKey)
     {
-      if (referencedKey != null) {
-        var type = referencingField.IsEntitySet
-          ? sessionHandler.Session.Domain.Model.Types[referencingField.ItemType]
-          : referencingField.Association.TargetType;
-        GetReferencedKeysList(ownerKey).AddLast(new Pair<Key, TypeInfo>(referencedKey, type));
-      }
+      var type = referencingField.IsEntitySet
+        ? sessionHandler.Session.Domain.Model.Types[referencingField.ItemType]
+        : referencingField.Association.TargetType;
+      GetReferencedKeysList(ownerKey).AddLast(new Pair<Key, TypeInfo>(referencedKey, type));
     }
 
     private LinkedList<Pair<Key, TypeInfo>> GetReferencedKeysList(Key ownerKey)
@@ -237,6 +227,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       this.keyExtractor = keyExtractor;
       this.modelType = modelType;
       this.fieldDescriptors = new Dictionary<FieldInfo, PrefetchFieldDescriptor>(fieldDescriptors.Count);
+      //Action<Key, FieldInfo, Key> keyExtractionSubscriber = HandleReferencedKeyExtraction;
       foreach (var pair in fieldDescriptors)
         this.fieldDescriptors[pair.Key] = new PrefetchFieldDescriptor(pair.Value.Field,
           pair.Value.EntitySetItemCountLimit, pair.Value.FetchFieldsOfReferencedEntity,

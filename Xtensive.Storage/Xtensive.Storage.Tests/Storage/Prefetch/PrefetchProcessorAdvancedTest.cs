@@ -12,6 +12,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Providers;
@@ -29,15 +30,13 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key orderKey;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var order = Query<Order>.All.OrderBy(c => c.Id).First();
-        orderKey = order.Key;
-        order.Remove();
-        tx.Complete();
+        var customer = new Customer {Age = 25, City = "A", Name = "test"};
+        orderKey = new Order {Number = 999, Customer = customer}.Key;
       }
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(Session.Demand());
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField, true));
         var graphContainer = GetSingleGraphContainer(prefetchProcessor);
         prefetchProcessor.ExecuteTasks();
@@ -58,7 +57,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(Session.Demand());
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(customerKey, null, new PrefetchFieldDescriptor(CityField));
         prefetchProcessor.ExecuteTasks();
 
@@ -71,7 +70,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void ReferencedEntityHaveBeenLoadedBeforeTaskActivationTest()
+    public void ReferencedEntityHasBeenFullyLoadedBeforeTaskActivationTest()
     {
       Key order0Key;
       Key employee0Key;
@@ -89,7 +88,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(Session.Demand());
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         var employeeNameField = Domain.Model.Types[typeof (Person)].Fields["Name"];
         var employeeAgeField = employee1Key.Type.Fields["Age"];
         prefetchProcessor.Prefetch(employee0Key, null,
@@ -118,6 +117,49 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
     }
 
+    [Test]
+    public void BaseClassFieldsHaveBeenLoadedBeforeActivationOfReferencedEntityTaskTest()
+    {
+      Key titleKey;
+      Key bookKey;
+      CreateBookAndTitle(out titleKey, out bookKey);
+
+      using (var session = Session.Open(Domain))
+      using (Transaction.Open()) {
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
+        prefetchProcessor.Prefetch(titleKey, null, new PrefetchFieldDescriptor(TextField, false),
+          new PrefetchFieldDescriptor(TitleBookField, false));
+        prefetchProcessor.ExecuteTasks();
+
+        prefetchProcessor.Prefetch(bookKey, null, new PrefetchFieldDescriptor(BookTitleField));
+        prefetchProcessor.ExecuteTasks();
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(titleKey, titleKey.Type, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+      }
+    }
+
+    [Test]
+    public void BaseClassFieldsHaveBeenLoadedBeforeActivationOfReferencedEntityTaskWhenItsOwnerIsLoadedTest()
+    {
+      Key titleKey;
+      Key bookKey;
+      CreateBookAndTitle(out titleKey, out bookKey);
+
+      using (var session = Session.Open(Domain))
+      using (Transaction.Open()) {
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
+        prefetchProcessor.Prefetch(bookKey, null, new PrefetchFieldDescriptor(BookTitleField, false));
+        prefetchProcessor.Prefetch(titleKey, null, new PrefetchFieldDescriptor(TextField, false),
+          new PrefetchFieldDescriptor(TitleBookField, false));
+        prefetchProcessor.ExecuteTasks();
+
+        prefetchProcessor.Prefetch(bookKey, null, new PrefetchFieldDescriptor(BookTitleField));
+        prefetchProcessor.ExecuteTasks();
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(titleKey, titleKey.Type, session,
+          PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+      }
+    }
+    
     [Test]
     public void PrefetchEmptyEntitySetTest()
     {
@@ -153,7 +195,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var keyWithoutType = Key.Create(Domain, productKey.TypeRef.Type, TypeReferenceAccuracy.BaseType, productKey.Value);
-        var prefetchProcessor = new PrefetchProcessor(Session.Demand());
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(keyWithoutType, Domain.Model.Types[typeof (PersonalProduct)],
           new PrefetchFieldDescriptor(Domain.Model.Types[typeof (PersonalProduct)].Fields["Employee"], true));
         var graphContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchProcessor);
@@ -203,7 +245,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(session);
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         var graphContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchProcessor);
         var idField = BookType.Fields["Id"];
         for (var i = 1; i < keys.Count; i++) {
@@ -225,7 +267,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain)) {
         using (var tx = Transaction.Open()) {
-          var prefetchProcessor = new PrefetchProcessor(session);
+          var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
           prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
           prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField, true));
           prefetchProcessor.ExecuteTasks();
@@ -255,7 +297,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(session);
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 1));
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, null));
         prefetchProcessor.ExecuteTasks();
@@ -266,7 +308,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(session);
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 1));
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 2));
         prefetchProcessor.ExecuteTasks();
@@ -303,7 +345,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(Session.Demand());
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(customer0Key, null, new PrefetchFieldDescriptor(CityField));
         prefetchProcessor.ExecuteTasks();
         var cache = (IEnumerable) CompilationContextCacheField.GetValue(CompilationContext.Current);
@@ -343,7 +385,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(Session.Demand());
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(order0Key, null, new PrefetchFieldDescriptor(DetailsField, 3));
         prefetchProcessor.ExecuteTasks();
         var cache = (IEnumerable) CompilationContextCacheField.GetValue(CompilationContext.Current);
@@ -358,7 +400,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(Session.Demand());
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(order0Key, null, new PrefetchFieldDescriptor(DetailsField));
         prefetchProcessor.ExecuteTasks();
         var cache = (IEnumerable) CompilationContextCacheField.GetValue(CompilationContext.Current);
@@ -378,15 +420,13 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key orderKey;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var order = Query<Order>.All.OrderBy(c => c.Id).First();
-        orderKey = order.Key;
-        order.Remove();
-        tx.Complete();
+        var customer = new Customer {Age = 25, City = "A", Name = "test"};
+        orderKey = new Order {Number = 999, Customer = customer}.Key;
       }
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(Session.Demand());
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         var numberField = typeof (Order).GetTypeInfo().Fields["Number"];
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(numberField));
         prefetchProcessor.ExecuteTasks();
@@ -411,13 +451,71 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var prefetchProcessor = new PrefetchProcessor(Session.Demand());
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         var referenceField = typeof (ReferenceToSelf).GetTypeInfo().Fields["Reference"];
         prefetchProcessor.Prefetch(key, null, new PrefetchFieldDescriptor(referenceField, true));
         prefetchProcessor.ExecuteTasks();
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session,
           PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         PrefetchTestHelper.AssertReferencedEntityIsLoaded(key, session, referenceField);
+      }
+    }
+
+    [Test]
+    public void FetchEntitySetWhenItsOwnerHasAlreadyBeenFetchedInAnotherTransactionTest()
+    {
+      var orderKey = GetFirstKey<Order>();
+      using (var session = Session.Open(Domain)) {
+        using (Transaction.Open())
+          Query<Order>.Single(orderKey);
+
+        using (Transaction.Open()) {
+          session.Handler.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
+          session.Handler.ExecutePrefetchTasks();
+
+          EntitySetState setState;
+          session.Handler.TryGetEntitySetState(orderKey, DetailsField, out setState);
+          Assert.IsTrue(setState.IsFullyLoaded);
+          Assert.Less(0, setState.Count);
+        }
+      }
+    }
+
+    [Test]
+    public void FetchEntitySetInNestedSessionWhenItsOwnerHasAlreadyBeenFetchedInAnotherSessionTest()
+    {
+      var orderKey = GetFirstKey<Order>();
+      using (var session = Session.Open(Domain))
+      using (Transaction.Open()) {
+        var order = Query<Order>.Single(orderKey);
+        using (var nestedSession = Session.Open(Domain)) {
+          using (Transaction.Open()) {
+            var count = 0;
+            foreach (var orderDetail in order.Details) {
+              Assert.AreSame(nestedSession, Session.Current);
+              Assert.AreSame(session, orderDetail.Session);
+              Assert.AreSame(session, orderDetail.Order.Session);
+              Assert.AreSame(order, orderDetail.Order);
+              count++;
+            }
+            Assert.AreSame(session, order.Details.Session);
+            Assert.AreSame(session, order.Session);
+            Assert.AreEqual(4, count);
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void FetchEntitySetWhenThereIsNotActiveTransactionTest()
+    {
+      var orderKey = GetFirstKey<Order>();
+      using (var session = Session.Open(Domain)) {
+        using (Transaction.Open())
+          Query<Order>.Single(orderKey);
+
+        session.Handler.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
+        AssertEx.Throws<InvalidOperationException>(() => session.Handler.ExecutePrefetchTasks());
       }
     }
 
@@ -447,7 +545,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var keyField = cacheEntryType.GetField("Key");
         var cache = (IEnumerable) CompilationContextCacheField.GetValue(CompilationContext.Current);
         var originalCachedItems = cache.Cast<object>().ToList();
-        var prefetchProcessor = new PrefetchProcessor(Session.Demand());
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(customer0Key, null, new PrefetchFieldDescriptor(AgeField));
         prefetchProcessor.Prefetch(customer1Key, null, new PrefetchFieldDescriptor(AgeField));
         prefetchProcessor.ExecuteTasks();
@@ -519,6 +617,18 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       return (IncludeProvider) ((FilterProvider) ((SelectProvider) keyField
         .GetValue(cacheEntry)).Source).Source;
+    }
+
+    private void CreateBookAndTitle(out Key titleKey, out Key bookKey)
+    {
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var title = new Title {Text = "abc", Language = "En"};
+        titleKey = title.Key;
+        var book = new Book {Category = "1", Title = title};
+        bookKey = book.Key;
+        tx.Complete();
+      }
     }
   }
 }

@@ -18,10 +18,11 @@ namespace Xtensive.Storage.Internals.Prefetch
   {
     private Dictionary<FieldInfo, ReferencedEntityContainer> referencedEntityContainers;
     private Dictionary<FieldInfo, EntitySetTask> entitySetTasks;
-    private readonly PrefetchProcessor processor;
     private readonly bool exactType;
     private int? cachedHashCode;
     private bool isReferenceContainerCreated;
+
+    internal readonly PrefetchProcessor processor;
 
     public readonly Key Key;
     
@@ -63,27 +64,10 @@ namespace Xtensive.Storage.Internals.Prefetch
       var notLoadedForeignKeyColumns = GetNotLoadedFieldColumns(ownerEntityTuple,
         referencingFieldDescriptor.Field);
       var areAllForeignKeyColumnsLoaded = notLoadedForeignKeyColumns.Count()==0;
-      if (!areAllForeignKeyColumnsLoaded) {
-        if (referencedEntityContainers == null)
-          referencedEntityContainers = new Dictionary<FieldInfo, ReferencedEntityContainer>();
-        referencedEntityContainers.Add(referencingFieldDescriptor.Field, new ReferencedEntityContainer(Key,
-          referencingFieldDescriptor, exactType, processor));
-        AddEntityColumns(notLoadedForeignKeyColumns);
-      }
-      else {
-        var referencedKeyTuple = referencingFieldDescriptor.Field.Association
-          .ExtractForeignKey(ownerEntityTuple);
-        var referencedKeyTupleState = referencedKeyTuple.GetFieldStateMap(TupleFieldState.Null);
-        for (var i = 0; i < referencedKeyTupleState.Length; i++)
-          if (referencedKeyTupleState[i])
-            return;
-        var referencedKey = Key.Create(processor.Owner.Session.Domain,
-          referencingFieldDescriptor.Field.Association.TargetType,
-          TypeReferenceAccuracy.BaseType, referencedKeyTuple);
-        var targetType = referencingFieldDescriptor.Field.Association.TargetType;
-        var fieldsToBeLoaded = PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(targetType);
-        processor.PrefetchByKeyWithNotCachedType(referencedKey, targetType, fieldsToBeLoaded);
-      }
+      if (!areAllForeignKeyColumnsLoaded)
+        RegisterFetchByUnknownForeignKey(referencingFieldDescriptor, notLoadedForeignKeyColumns);
+      else
+        RegisterFetchByKnownForeignKey(referencingFieldDescriptor, ownerEntityTuple);
     }
 
     public void RegisterEntitySetTask(PrefetchFieldDescriptor referencingFieldDescriptor)
@@ -96,7 +80,17 @@ namespace Xtensive.Storage.Internals.Prefetch
       entitySetTasks[referencingFieldDescriptor.Field] =
         new EntitySetTask(Key, referencingFieldDescriptor, processor);
     }
-
+    
+    public void NotifyAboutExtractionOfKeysWithUnknownType()
+    {
+      if (RootEntityContainer != null)
+        RootEntityContainer.NotifyOwnerAboutKeyWithUnknownType();
+      if (referencedEntityContainers == null)
+        return;
+      foreach (var pair in referencedEntityContainers)
+        pair.Value.NotifyOwnerAboutKeyWithUnknownType();
+    }
+    
     public bool Equals(GraphContainer other)
     {
       if (ReferenceEquals(null, other))
@@ -141,6 +135,49 @@ namespace Xtensive.Storage.Internals.Prefetch
       var columnIndex = Type.Indexes.PrimaryIndex.Columns.IndexOf(column);
       return tuple!=null
         && tuple.GetFieldState(columnIndex).IsAvailable();
+    }
+
+    private void RegisterFetchByKnownForeignKey(PrefetchFieldDescriptor referencingFieldDescriptor,
+      Tuple ownerEntityTuple)
+    {
+      var referencedKeyTuple = referencingFieldDescriptor.Field.Association
+        .ExtractForeignKey(ownerEntityTuple);
+      var referencedKeyTupleState = referencedKeyTuple.GetFieldStateMap(TupleFieldState.Null);
+      for (var i = 0; i < referencedKeyTupleState.Length; i++)
+        if (referencedKeyTupleState[i])
+          return;
+      var referencedKey = Key.Create(processor.Owner.Session.Domain,
+        referencingFieldDescriptor.Field.Association.TargetType, TypeReferenceAccuracy.BaseType,
+        referencedKeyTuple);
+      var targetType = referencingFieldDescriptor.Field.Association.TargetType;
+      var needToNotifyOwner = false;
+      if (!referencedKey.TypeRef.Type.IsLeaf) {
+        needToNotifyOwner = true;
+        var cachedKey = referencedKey;
+        Tuple entityTuple;
+        if (!processor.TryGetTupleOfNonRemovedEntity(ref cachedKey, out entityTuple))
+          return;
+        if (cachedKey.HasExactType
+          && referencingFieldDescriptor.Field.Association.TargetType!=cachedKey.Type) {
+          targetType = cachedKey.Type;
+          needToNotifyOwner = false;
+        }
+      }
+      var fieldsToBeLoaded = PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(targetType);
+      var graphContainer = processor.SetUpContainers(referencedKey, targetType, fieldsToBeLoaded,
+        true, null);
+      if (needToNotifyOwner)
+        graphContainer.RootEntityContainer.SetParametersOfReference(referencingFieldDescriptor, referencedKey);
+    }
+
+    private void RegisterFetchByUnknownForeignKey(PrefetchFieldDescriptor referencingFieldDescriptor,
+      IEnumerable<ColumnInfo> notLoadedForeignKeyColumns)
+    {
+      if (referencedEntityContainers == null)
+        referencedEntityContainers = new Dictionary<FieldInfo, ReferencedEntityContainer>();
+      referencedEntityContainers.Add(referencingFieldDescriptor.Field, new ReferencedEntityContainer(Key,
+        referencingFieldDescriptor, exactType, processor));
+      AddEntityColumns(notLoadedForeignKeyColumns);
     }
 
     #endregion

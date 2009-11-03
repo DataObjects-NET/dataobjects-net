@@ -212,6 +212,13 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       TestFullLoadingOfReferencedEntities(keys);
       TestFullLoadingOfReferencedEntities(keys
         .Select(key => Key.Create(Domain, typeof (IHasCategory), key.Value)));
+      var hasExactType = true;
+      TestFullLoadingOfReferencedEntities(keys
+        .Select(key => {
+          var result = hasExactType ? key : Key.Create(Domain, typeof (IHasCategory), key.Value);
+          hasExactType = !hasExactType;
+          return result;
+        }));
     }
 
     [Test]

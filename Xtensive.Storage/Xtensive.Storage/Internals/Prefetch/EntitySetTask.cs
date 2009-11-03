@@ -54,13 +54,13 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public void UpdateCache()
     {
-      if (itemsQueryTask == null)
+      if (itemsQueryTask==null)
         return;
       var reader = processor.Owner.Session.Domain.RecordSetReader;
       var records = reader.Read(itemsQueryTask.Result, RecordSet.Header);
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
       List<Pair<Key, Tuple>> auxEntities = null;
-      if (ReferencingField.Association.AuxiliaryType != null)
+      if (ReferencingField.Association.AuxiliaryType!=null)
         auxEntities = new List<Pair<Key, Tuple>>(itemsQueryTask.Result.Count);
       foreach (var record in records) {
         for (int i = 0; i < record.Count; i++) {
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Internals.Prefetch
           var tuple = record.GetTuple(i);
           if (tuple==null)
             continue;
-          if (ReferencingField.Association.AuxiliaryType != null)
+          if (ReferencingField.Association.AuxiliaryType!=null)
             if (i==0)
               auxEntities.Add(new Pair<Key, Tuple>(key, tuple));
             else {
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         }
       }
       processor.Owner.RegisterEntitySetState(ownerKey, ReferencingField,
-        ItemCountLimit == null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
+        ItemCountLimit==null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
     }
 
     public bool Equals(EntitySetTask other)

@@ -23,6 +23,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly Key ownerKey;
     private readonly bool isOwnerTypeKnown;
     private readonly PrefetchFieldDescriptor referencingFieldDescriptor;
+    private bool needToNotifyOwner;
 
     public FieldInfo ReferencingField {get { return referencingFieldDescriptor.Field; } }
 
@@ -46,22 +47,63 @@ namespace Xtensive.Storage.Internals.Prefetch
         throw Exceptions.InternalError(Strings.ExReferencingEntityTupleIsNotLoaded, Log.Instance);
       if (!isOwnerTypeKnown && !ownerState.Key.Type.Fields.Contains(ReferencingField))
         return null;
-      var foreignKeyTuple = ReferencingField.Association.ExtractForeignKey(ownerState.Tuple);
-      for (int i = 0; i < foreignKeyTuple.Count; i++) {
-        if (!foreignKeyTuple.GetFieldState(i).IsAvailable())
+      var foreignKeyTuple = ExtractForeignKeyTuple(ownerState);
+      if (foreignKeyTuple == null)
+        return null;
+      Key = Key.Create(Processor.Owner.Session.Domain, Type, TypeReferenceAccuracy.BaseType, foreignKeyTuple);
+      return CreateTask();
+    }
+
+    public void NotifyOwnerAboutKeyWithUnknownType()
+    {
+      if (needToNotifyOwner && Task != null)
+        referencingFieldDescriptor.NotifySubscriber(ownerKey, Key);
+    }
+
+    private Tuple ExtractForeignKeyTuple(EntityState ownerState)
+    {
+      var result = ReferencingField.Association.ExtractForeignKey(ownerState.Tuple);
+      var tupleState = result.GetFieldStateMap(TupleFieldState.Null);
+      for (int i = 0; i < result.Count; i++) {
+        if (!result.GetFieldState(i).IsAvailable())
           if (isOwnerTypeKnown)
             throw Exceptions.InternalError(Strings.ExForeignKeyValueHaveNotBeenLoaded, Log.Instance);
           else
             return null;
-        if ((foreignKeyTuple.GetFieldState(i) & TupleFieldState.Null)==TupleFieldState.Null)
+        if (tupleState[i])
           return null;
       }
-      Key = Key.Create(Processor.Owner.Session.Domain, Type, TypeReferenceAccuracy.BaseType, foreignKeyTuple);
-      referencingFieldDescriptor.NotifySubscriber(ownerKey, Key);
+      return result;
+    }
+
+    private EntityGroupTask CreateTask()
+    {
+      if (!Key.TypeRef.Type.IsLeaf) {
+        needToNotifyOwner = true;
+        var cachedKey = Key;
+        Tuple tuple;
+        if (!Processor.TryGetTupleOfNonRemovedEntity(ref cachedKey, out tuple))
+          return null;
+        if (cachedKey.HasExactType && ReferencingField.Association.TargetType!=cachedKey.Type) {
+          Type = cachedKey.Type;
+          FillColumnCollection();
+          needToNotifyOwner = false;
+        }
+      }
       if (!SelectColumnsToBeLoaded())
         return null;
       Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Processor);
       return Task;
+    }
+
+    private void FillColumnCollection()
+    {
+      var fieldsToBeLoaded = (IEnumerable<FieldInfo>) Processor.Owner.Session.Domain
+        .GetCachedItem(new Pair<object, TypeInfo>(defaultFieldsCachingRegion, Type),
+          pair => ((Pair<object, TypeInfo>) pair).Second.Fields
+            .Where(field => field.Parent == null && PrefetchHelper.IsFieldToBeLoadedByDefault(field)));
+      foreach (var field in fieldsToBeLoaded)
+        AddColumns(field.Columns);
     }
 
 
@@ -76,12 +118,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       this.ownerKey = ownerKey;
       this.referencingFieldDescriptor = referencingFieldDescriptor;
       this.isOwnerTypeKnown = isOwnerTypeKnown;
-      var fieldsToBeLoaded = (IEnumerable<FieldInfo>) Processor.Owner.Session.Domain
-        .GetCachedItem(new Pair<object, TypeInfo>(defaultFieldsCachingRegion, Type),
-        pair => ((Pair<object, TypeInfo>) pair).Second.Fields
-          .Where(field => field.Parent == null && PrefetchHelper.IsFieldToBeLoadedByDefault(field)));
-      foreach (var field in fieldsToBeLoaded)
-        AddColumns(field.Columns);
+      FillColumnCollection();
     }
   }
 }

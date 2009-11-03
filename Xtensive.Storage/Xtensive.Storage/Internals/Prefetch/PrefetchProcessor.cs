@@ -61,12 +61,13 @@ namespace Xtensive.Storage.Internals.Prefetch
         else {
           ArgumentValidator.EnsureArgumentNotNull(currentType, "type");
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
-          PrefetchByKeyWithNotCachedType(currentKey, currentKey.TypeRef.Type,
-            PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(currentKey.TypeRef.Type));
+          SetUpContainers(currentKey, currentKey.TypeRef.Type,
+            PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(currentKey.TypeRef.Type),
+            true, ownerEntityTuple);
           var hierarchyRoot = currentKey.TypeRef.Type;
           selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
         }
-        CreateTasks(currentKey, currentType, selectedFields, currentKey.HasExactType, ownerEntityTuple);
+        SetUpContainers(currentKey, currentType, selectedFields, currentKey.HasExactType, ownerEntityTuple);
         if (referenceContainer!=null) {
           referenceContainer.JoinIfPossible(prevContainer);
           return referenceContainer;
@@ -88,6 +89,8 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
       try {
         fetcher.ExecuteTasks(graphContainers);
+        foreach (var graphContainer in graphContainers)
+          graphContainer.NotifyAboutExtractionOfKeysWithUnknownType();
         return referenceContainer;
       }
       finally {
@@ -120,15 +123,19 @@ namespace Xtensive.Storage.Internals.Prefetch
       return true;
     }
 
-    public void PrefetchByKeyWithNotCachedType(Key key, TypeInfo type,
-      PrefetchFieldDescriptor[] descriptors)
+    public GraphContainer SetUpContainers(Key key, TypeInfo type,
+      IEnumerable<PrefetchFieldDescriptor> descriptors, bool exactType, Tuple entityTuple)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      Tuple entityTuple;
-      var currentKey = key;
-      if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out entityTuple))
-        return;
-      CreateTasks(currentKey, type, descriptors, true, entityTuple);
+      var result = GetGraphContainer(key, type, exactType);
+      foreach (var descriptor in descriptors) {
+        if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary)
+          result.RegisterReferencedEntityContainer(entityTuple, descriptor);
+        else if (descriptor.Field.IsEntitySet)
+          result.RegisterEntitySetTask(descriptor);
+        else
+          result.AddEntityColumns(descriptor.Field.Columns);
+      }
+      return result;
     }
 
     public void SaveStrongReference(EntityState reference)
@@ -178,21 +185,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
     }
 
-    private void CreateTasks(Key key, TypeInfo type,
-      IEnumerable<PrefetchFieldDescriptor> descriptors, bool exactType, Tuple ownerEntityTuple)
-    {
-      var taskContainer = GetTaskContainer(key, type, exactType);
-      foreach (var descriptor in descriptors) {
-        if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary)
-          taskContainer.RegisterReferencedEntityContainer(ownerEntityTuple, descriptor);
-        else if (descriptor.Field.IsEntitySet)
-          taskContainer.RegisterEntitySetTask(descriptor);
-        else
-          taskContainer.AddEntityColumns(descriptor.Field.Columns);
-      }
-    }
-
-    private GraphContainer GetTaskContainer(Key key, TypeInfo type, bool exactType)
+    private GraphContainer GetGraphContainer(Key key, TypeInfo type, bool exactType)
     {
       var newTaskContainer = new GraphContainer(key, type, exactType, this);
       var registeredTaskContainer = graphContainers[newTaskContainer];

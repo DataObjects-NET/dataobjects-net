@@ -13,6 +13,9 @@ namespace Xtensive.Storage.Internals.Prefetch
   [Serializable]
   internal sealed class RootEntityContainer : EntityContainer
   {
+    private PrefetchFieldDescriptor referencingFieldDescriptor;
+    private Key ownerKey;
+
     public override EntityGroupTask GetTask()
     {
       if (Task == null) {
@@ -23,7 +26,19 @@ namespace Xtensive.Storage.Internals.Prefetch
       return Task;
     }
 
+    public void SetParametersOfReference(PrefetchFieldDescriptor referencingField, Key key)
+    {
+      referencingFieldDescriptor = referencingField;
+      ownerKey = key;
+    }
 
+    public void NotifyOwnerAboutKeyWithUnknownType()
+    {
+      if (Task != null && ownerKey != null)
+        referencingFieldDescriptor.NotifySubscriber(ownerKey, Key);
+    }
+    
+    
     // Constructors
 
     public RootEntityContainer(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)

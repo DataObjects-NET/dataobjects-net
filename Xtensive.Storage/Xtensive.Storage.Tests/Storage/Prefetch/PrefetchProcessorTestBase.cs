@@ -23,6 +23,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     protected TypeInfo OrderType;
     protected TypeInfo ProductType;
     protected TypeInfo BookType;
+    protected TypeInfo TitleType;
     protected FieldInfo PersonIdField;
     protected FieldInfo AgeField;
     protected FieldInfo CityField;
@@ -31,6 +32,10 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     protected FieldInfo OrderIdField;
     protected FieldInfo DetailsField;
     protected FieldInfo BooksField;
+    protected FieldInfo BookTitleField;
+    protected FieldInfo TitleBookField;
+    protected FieldInfo LanguageField;
+    protected FieldInfo TextField;
     protected System.Reflection.FieldInfo GraphContainersField;
     protected System.Reflection.FieldInfo PrefetchProcessorField;
     protected System.Reflection.FieldInfo CompilationContextCacheField;
@@ -51,6 +56,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       OrderType = Domain.Model.Types[typeof (Order)];
       ProductType = Domain.Model.Types[typeof (Product)];
       BookType = Domain.Model.Types[typeof (Book)];
+      TitleType = Domain.Model.Types[typeof (Title)];
       PersonIdField = Domain.Model.Types[typeof (Person)].Fields["Id"];
       OrderIdField = Domain.Model.Types[typeof (Order)].Fields["Id"];
       CityField = CustomerType.Fields["City"];
@@ -59,6 +65,10 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       EmployeeField = OrderType.Fields["Employee"];
       DetailsField = OrderType.Fields["Details"];
       BooksField = Domain.Model.Types[typeof (Author)].Fields["Books"];
+      BookTitleField = BookType.Fields["Title"];
+      TitleBookField = TitleType.Fields["Book"];
+      LanguageField = TitleType.Fields["Language"];
+      TextField = TitleType.Fields["Text"];
       GraphContainersField = typeof (PrefetchProcessor).GetField("graphContainers",
         BindingFlags.NonPublic | BindingFlags.Instance);
       PrefetchProcessorField = typeof (SessionHandler).GetField("prefetchProcessor",
