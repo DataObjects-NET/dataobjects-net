@@ -30,7 +30,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly Driver driver;
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
-    private readonly DomainModel model;
     private readonly List<SqlExpression>[] sourceColumns;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
@@ -380,7 +379,6 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       emptyStringIsNull = providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
       memberCompilerProvider = domainHandler.GetMemberCompilerProvider<SqlExpression>();
       driver = ((DomainHandler) domainHandler).Driver;
-      model = handlers.Domain.Model;
       lambda = le;
       bindings = new HashSet<SqlQueryParameterBinding>();
       activeParameters = new List<ParameterExpression>();
