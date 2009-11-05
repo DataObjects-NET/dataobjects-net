@@ -5,6 +5,7 @@
 // Created:    2009.11.02
 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using System.Diagnostics;
 using Xtensive.Storage.Configuration;
@@ -71,8 +72,15 @@ namespace Xtensive.Storage.Manual.LazyLoading
 
       using (Session.Open(Domain.Current))
       using (var t = Transaction.Open()) {
-        var person = new Person();
-//        person.Prefet
+        var persons = Query<Person>.All
+          .Prefetch(p => p.Avatar)
+          .Prefetch(p => p.Photo)
+          .Prefetch(p => p.Employees);
+        foreach (var person in persons) {
+          // some code here...
+        }
+
+        
         t.Complete();
       }
     }
