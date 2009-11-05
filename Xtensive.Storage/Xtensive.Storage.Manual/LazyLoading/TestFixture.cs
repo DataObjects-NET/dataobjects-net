@@ -68,6 +68,13 @@ namespace Xtensive.Storage.Manual.LazyLoading
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Person));
       Domain.Build(config);
+
+      using (Session.Open(Domain.Current))
+      using (var t = Transaction.Open()) {
+        var person = new Person();
+//        person.Prefet
+        t.Complete();
+      }
     }
   }
 }
