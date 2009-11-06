@@ -62,15 +62,15 @@ namespace Xtensive.Storage.Providers.Sql
     }
     
     /// <inheritdoc/>
-    protected override void AppendDescriptionTo(StringBuilder sb, int indent)
+    protected override void AppendDescriptionTo(StringBuilder builder, int indent)
     {
-      AppendOriginTo(sb, indent);
+      AppendOriginTo(builder, indent);
       var result = Request.Compile((DomainHandler) handlers.DomainHandler);
-      AppendCommandTo(result, sb, indent);
+      AppendCommandTo(result, builder, indent);
     }
 
     /// <inheritdoc/>
-    protected virtual void AppendCommandTo(SqlCompilationResult result, StringBuilder sb, int indent)
+    protected virtual void AppendCommandTo(SqlCompilationResult result, StringBuilder builder, int indent)
     {
       var placeholderValues = Request.ParameterBindings
         .Select((binding, number) => new {
@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Providers.Sql
           Name = ParameterNamePrefix + number
         })
         .ToDictionary(item => item.Id, item => item.Name);
-      sb.Append(new string(' ', indent))
+      builder.Append(new string(' ', indent))
         .AppendFormat(ToStringFormat, result.GetCommandText(placeholderValues))
         .AppendLine();
     }

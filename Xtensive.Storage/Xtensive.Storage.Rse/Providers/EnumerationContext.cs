@@ -21,6 +21,7 @@ namespace Xtensive.Storage.Rse.Providers
   [Serializable]
   public abstract class EnumerationContext: Context<EnumerationScope>
   {
+    private const string DefaultName = "Default";
     private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
 
     /// <summary>
@@ -44,17 +45,17 @@ namespace Xtensive.Storage.Rse.Providers
     /// Factory method. Creates new <see cref="EnumerationContext"/>.
     /// </summary>
     public abstract EnumerationContext CreateNew();
-
+    
     /// <summary>
     /// Caches the value in the current <see cref="EnumerationContext"/>.
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <param name="key">The cache key.</param>
     /// <param name="value">The value to cache.</param>
-    public void SetValue<T>(string key, T value)
+    public void SetValue<T>(object key, T value)
       where T: class
     {
-      SetValue(new Pair<object, string>(null, key), value);
+      SetValue(key, DefaultName, value);
     }
 
     /// <summary>
@@ -64,23 +65,23 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="key">The cache key.</param>
     /// <returns>Cached value with the specified key;
     /// <see langword="null"/>, if no cached value is found, or it is already expired.</returns>
-    public T GetValue<T>(string key)
+    public T GetValue<T>(object key)
       where T: class
     {
-      return GetValue<T>(new Pair<object, string>(null, key));
+      return GetValue<T>(key, DefaultName);
     }
 
-    internal void SetValue<T>(Pair<object, string> key, T value)
+    internal void SetValue<T>(object key, string name, T value)
       where T: class
     {
-      cache[key] = value;
+      cache[new Pair<object, string>(key, name)] = value;
     }
 
-    internal T GetValue<T>(Pair<object, string> key)
+    internal T GetValue<T>(object key, string name)
       where T: class
     {
       object result;
-      if (cache.TryGetValue(key, out result))
+      if (cache.TryGetValue(new Pair<object, string>(key, name), out result))
         return result as T;
       return null;
     }

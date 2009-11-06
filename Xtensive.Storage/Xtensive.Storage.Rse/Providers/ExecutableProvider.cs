@@ -7,15 +7,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Core.Disposing;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Helpers;
 using Xtensive.Storage.Rse.Compilation;
-using IEnumerable=System.Collections.IEnumerable;
+using IEnumerable = System.Collections.IEnumerable;
 
 namespace Xtensive.Storage.Rse.Providers
 {
@@ -30,7 +28,7 @@ namespace Xtensive.Storage.Rse.Providers
     ICachingProvider
   {
     protected const string ToString_Origin = "[Origin: {0}]";
-    private const string CachedResultKey = "Results";
+    private const string CachedResultName = "Results";
 
     private readonly HashSet<Type> supportedServices = new HashSet<Type>();
 
@@ -170,31 +168,31 @@ namespace Xtensive.Storage.Rse.Providers
     private static IEnumerable<Tuple> GetCachedResult(EnumerationContext context, ICachingProvider provider)
     {
       context.EnsureIsActive();
-      return context.GetValue<IEnumerable<Tuple>>(new Pair<object, string>(provider, CachedResultKey));
+      return context.GetValue<IEnumerable<Tuple>>(provider, CachedResultName);
     }
 
     private static void SetCachedResult(EnumerationContext context, ICachingProvider provider, IEnumerable<Tuple> value) 
     {
       context.EnsureIsActive();
-      context.SetValue(new Pair<object, string>(provider, CachedResultKey), value);
+      context.SetValue(provider, CachedResultName, value);
     }
 
     #endregion
 
     #region Caching related methods
 
-    protected T GetCachedValue<T>(EnumerationContext context, string key)
+    protected T GetCachedValue<T>(EnumerationContext context, string name)
       where T : class
     {
       context.EnsureIsActive();
-      return context.GetValue<T>(new Pair<object, string>(this, key));
+      return context.GetValue<T>(this, name);
     }
 
-    protected void SetCachedValue<T>(EnumerationContext context, string key, T value)
+    protected void SetCachedValue<T>(EnumerationContext context, string name, T value)
       where T : class
     {
       context.EnsureIsActive();
-      context.SetValue(new Pair<object, string>(this, key), value);
+      context.SetValue(this, name, value);
     }
 
     #endregion
@@ -226,11 +224,11 @@ namespace Xtensive.Storage.Rse.Providers
 
     #region ToString related methods
 
-    protected override void AppendDescriptionTo(StringBuilder sb, int indent)
+    protected override void AppendDescriptionTo(StringBuilder builder, int indent)
     {
       // Could append Origin to desctiprion part of ToString(),
       // But here it does nothing.
-      // AppendOriginTo(sb, indent);
+      // AppendOriginTo(builder, indent);
     }
 
     protected virtual void AppendOriginTo(StringBuilder sb, int indent)

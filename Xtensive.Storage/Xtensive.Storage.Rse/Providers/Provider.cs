@@ -132,9 +132,9 @@ namespace Xtensive.Storage.Rse.Providers
     /// <summary>
     /// Appends the provider's description to the specified <see cref="StringBuilder"/>.
     /// </summary>
-    /// <param name="sb">The <see cref="StringBuilder"/> to use.</param>
+    /// <param name="builder">The <see cref="StringBuilder"/> to use.</param>
     /// <param name="indent">The indent.</param>
-    protected virtual void AppendDescriptionTo(StringBuilder sb, int indent)
+    protected virtual void AppendDescriptionTo(StringBuilder builder, int indent)
     {
     }
 
