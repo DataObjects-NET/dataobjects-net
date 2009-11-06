@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Compiler
 
     public SqlTableNameProvider TableNameProvider { get; private set; }
 
-    public SqlParameterNameProvider ParameterNameProvider { get; set; }
+    public SqlParameterNameProvider ParameterNameProvider { get; private set; }
 
     public NodeContainer Output { get; private set; }
 

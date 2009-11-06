@@ -81,5 +81,10 @@ namespace Xtensive.Sql.Info
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>
     Paging = Limit | Offset,
+
+    /// <summary>
+    /// Indicates that RDBMS supports multicolumn IN operator.
+    /// </summary>
+    MulticolumnIn = 0x1000,
   }
 }
