@@ -102,6 +102,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Unique:
         case SqlNodeType.Variable:
         case SqlNodeType.Placeholder:
+        case SqlNodeType.DynamicFilter:
           return true;
         case SqlNodeType.Cast:
           return ((SqlCast) node).Type.Type==SqlType.Boolean;

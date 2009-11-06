@@ -327,7 +327,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       var originalRange = provider.CompiledRange.Invoke();
       SqlSelect source = compiledSource.Request.SelectStatement;
-      var query = (SqlSelect) source.ShallowClone();
+      var query = source.ShallowClone();
       var keyColumns = provider.Header.Order.ToList();
       var rangeProvider = new SqlRangeProvider(provider, query, Handlers, compiledSource);
       var bindings = (HashSet<SqlQueryParameterBinding>) rangeProvider.Request.ParameterBindings;
@@ -348,7 +348,7 @@ namespace Xtensive.Storage.Providers.Sql
       var compiledSource = Compile(provider.Source);
 
       SqlSelect source = compiledSource.Request.SelectStatement;
-      var query = (SqlSelect) source.ShallowClone();
+      var query = source.ShallowClone();
       var parameterBindings = new List<SqlQueryParameterBinding>();
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =

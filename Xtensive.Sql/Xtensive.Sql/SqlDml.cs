@@ -1194,6 +1194,12 @@ namespace Xtensive.Sql
       return new SqlPlaceholder(id);
     }
 
+    public static SqlDynamicFilter DynamicFilter(object id)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(id, "id");
+      return new SqlDynamicFilter(id);
+    }
+
     public static SqlContainer Container(object value)
     {
       return new SqlContainer(value);

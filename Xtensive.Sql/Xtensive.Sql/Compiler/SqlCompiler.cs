@@ -742,6 +742,11 @@ namespace Xtensive.Sql.Compiler
       // nothing
     }
 
+    public virtual void Visit(SqlDynamicFilter node)
+    {
+      throw new NotSupportedException();
+    }
+
     public virtual void Visit(SqlFetch node)
     {
       using (context.EnterScope(node)) {

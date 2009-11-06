@@ -48,6 +48,7 @@ namespace Xtensive.Sql
     Delete,
     Divide,
     Drop,
+    DynamicFilter,
     RawConcat,
     Equals,
     Except,
