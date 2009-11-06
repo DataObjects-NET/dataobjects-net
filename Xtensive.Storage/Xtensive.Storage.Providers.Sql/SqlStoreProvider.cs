@@ -18,61 +18,13 @@ namespace Xtensive.Storage.Providers.Sql
   internal sealed class SqlStoreProvider : SqlProvider,
     IHasNamedResult
   {
-    public new StoreProvider Origin { get; private set; }
+    private const string TableIsCreatedName = "TableIsCreated";
 
-    public ExecutableProvider Source { get; private set; }
+    private readonly Table table;
+    private SqlPersistRequest persistRequest;
 
-    public Schema Schema { get; private set; }
-
-    public Table Table { get; private set; }
-
-    protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
-    {
-      base.OnBeforeEnumerate(context);
-
-      // Table already was created and added to schema
-      if (Table.Schema!=null)
-        return;
-      if (Source==null)
-        return;
-
-      var executor = handlers.SessionHandler.GetService<IQueryExecutor>();
-      var batch = SqlDml.Batch();
-      batch.Add(SqlDdl.Create(Table));
-      executor.ExecuteNonQuery(batch);
-      Schema.Tables.Add(Table);
-
-      var tableRef = SqlDml.TableRef(Table);
-      var insert = SqlDml.Insert(tableRef);
-      var bindings = new List<SqlPersistParameterBinding>();
-      int i = 0;
-      foreach (SqlTableColumn column in tableRef.Columns) {
-        int fieldIndex = i;
-        TypeMapping typeMapping = ((DomainHandler) handlers.DomainHandler).Driver.GetTypeMapping(Header.Columns[i].Type);
-        var binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
-        insert.Values[column] = binding.ParameterReference;
-        bindings.Add(binding);
-        i++;
-      }
-      var persistRequest = new SqlPersistRequest(insert, null, bindings);
-      executor.Store(persistRequest, Source);
-    }
-
-    protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
-    {
-      base.OnAfterEnumerate(context);
-
-      // Table already was deleted and removed from schema
-      if (Table.Schema==null)
-        return;
-      if (Scope==TemporaryDataScope.Global)
-        return;
-
-      SqlBatch batch = SqlDml.Batch();
-      batch.Add(SqlDdl.Drop(Table));
-      handlers.SessionHandler.GetService<IQueryExecutor>().ExecuteNonQuery(batch);
-      Schema.Tables.Remove(Table);
-    }
+    public new StoreProvider Origin { get { return (StoreProvider) base.Origin; } }
+    public ExecutableProvider Source { get { return (ExecutableProvider) Sources[0]; } }
 
     /// <inheritdoc/>
     public TemporaryDataScope Scope { get { return Origin.Scope; } }
@@ -80,16 +32,51 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public string Name { get { return Origin.Name; } }
     
+    protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
+    {
+      base.OnBeforeEnumerate(context);
+
+      var executor = handlers.SessionHandler.GetService<IQueryExecutor>();
+      executor.ExecuteNonQuery(SqlDdl.Create(table));
+      context.SetValue(this, TableIsCreatedName, true);
+      executor.Store(persistRequest, Source);
+    }
+
+    protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
+    {
+      base.OnAfterEnumerate(context);
+
+      var tableIsCreated = context.GetValue<bool?>(this, TableIsCreatedName) ?? false;
+      if (tableIsCreated)
+        handlers.SessionHandler.GetService<IQueryExecutor>().ExecuteNonQuery(SqlDdl.Drop(table));
+    }
+
+    protected override void Initialize()
+    {
+      base.Initialize();
+
+      var tableRef = SqlDml.TableRef(table);
+      var insert = SqlDml.Insert(tableRef);
+      var bindings = new List<SqlPersistParameterBinding>();
+      var driver = ((DomainHandler) handlers.DomainHandler).Driver;
+      int fieldIndex = 0;
+      foreach (SqlTableColumn column in tableRef.Columns) {
+        TypeMapping typeMapping = driver.GetTypeMapping(Header.Columns[fieldIndex].Type);
+        var binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
+        insert.Values[column] = binding.ParameterReference;
+        bindings.Add(binding);
+        fieldIndex++;
+      }
+      persistRequest = new SqlPersistRequest(insert, null, bindings);
+    }
+
     // Constructors
 
     public SqlStoreProvider(StoreProvider origin, SqlSelect request, HandlerAccessor handlers, ExecutableProvider source, Table table)
-      : base(origin, request, handlers, null, false, source)
+     : base(origin, request, handlers, null, false, source)
     {
       AddService<IHasNamedResult>();
-      Origin = origin;
-      Source = source;
-      Schema = ((DomainHandler) handlers.DomainHandler).Schema;
-      Table = table;
+      this.table = table;
     }
   }
 }

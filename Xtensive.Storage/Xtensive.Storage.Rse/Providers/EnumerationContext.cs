@@ -25,6 +25,13 @@ namespace Xtensive.Storage.Rse.Providers
     private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
 
     /// <summary>
+    /// Gets the current <see cref="EnumerationContext"/>.
+    /// </summary>
+    public static EnumerationContext Current {
+      get { return EnumerationScope.CurrentContext; }
+    }
+    
+    /// <summary>
     /// Gets or sets the global temporary data.
     /// </summary>
     public abstract GlobalTemporaryData GlobalTemporaryData { get; }
@@ -33,13 +40,6 @@ namespace Xtensive.Storage.Rse.Providers
     /// Gets or sets the transaction temporary data.
     /// </summary>
     public abstract TransactionTemporaryData TransactionTemporaryData { get; }
-
-    /// <summary>
-    /// Gets the current <see cref="EnumerationContext"/>.
-    /// </summary>
-    public static EnumerationContext Current {
-      get { return EnumerationScope.CurrentContext; }
-    }
 
     /// <summary>
     /// Factory method. Creates new <see cref="EnumerationContext"/>.
@@ -53,7 +53,6 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="key">The cache key.</param>
     /// <param name="value">The value to cache.</param>
     public void SetValue<T>(object key, T value)
-      where T: class
     {
       SetValue(key, DefaultName, value);
     }
@@ -66,24 +65,37 @@ namespace Xtensive.Storage.Rse.Providers
     /// <returns>Cached value with the specified key;
     /// <see langword="null"/>, if no cached value is found, or it is already expired.</returns>
     public T GetValue<T>(object key)
-      where T: class
     {
       return GetValue<T>(key, DefaultName);
     }
 
-    internal void SetValue<T>(object key, string name, T value)
-      where T: class
+    /// <summary>
+    /// Caches the value in the current <see cref="EnumerationContext"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <param name="key">The cache key.</param>
+    /// <param name="name">The cache name.</param>
+    /// <param name="value">The value to cache.</param>
+    public void SetValue<T>(object key, string name, T value)
     {
       cache[new Pair<object, string>(key, name)] = value;
     }
 
-    internal T GetValue<T>(object key, string name)
-      where T: class
+    /// <summary>
+    /// Gets the cached value from the current <see cref="EnumerationContext"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the value.</typeparam>
+    /// <param name="key">The cache key.</param>
+    /// <param name="name">The cache name.</param>
+    /// <returns>
+    /// Cached value with the specified key;
+    /// <see langword="null"/>, if no cached value is found, or it is already expired.
+    /// </returns>
+    public T GetValue<T>(object key, string name)
     {
       object result;
-      if (cache.TryGetValue(new Pair<object, string>(key, name), out result))
-        return result as T;
-      return null;
+      cache.TryGetValue(new Pair<object, string>(key, name), out result);
+      return (T) result;
     }
 
     #region IContext<...> methods

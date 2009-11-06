@@ -236,4 +236,7 @@
     <value>Session '{0}'. SQL batch: 
 {1}</value>
   </data>
+  <data name="ExXIsNotSupported" xml:space="preserve">
+    <value>'{0}' is not supported</value>
+  </data>
 </root>

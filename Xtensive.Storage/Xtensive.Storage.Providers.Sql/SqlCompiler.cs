@@ -429,31 +429,34 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override SqlProvider VisitStore(StoreProvider provider)
     {
-      ExecutableProvider ex = null;
+      ExecutableProvider source = null;
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
       var catalog = new Catalog(domainHandler.Schema.Catalog.Name);
       Schema schema = catalog.CreateSchema(domainHandler.Schema.Name);
       Table table;
       string tableName = string.Format(TableNamePattern, provider.Name);
       if (provider.Source!=null) {
-        ex = provider.Source as ExecutableProvider
+        source = provider.Source as ExecutableProvider
           ?? (provider.Source is RawProvider
             ? (ExecutableProvider) (new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
             : Compile((CompilableProvider) provider.Source));
-        table = provider.Scope==TemporaryDataScope.Global ? schema.CreateTable(tableName)
-          : schema.CreateTemporaryTable(tableName);
+
+        if (provider.Scope!=TemporaryDataScope.Enumeration)
+          throw new NotSupportedException(string.Format(Strings.ExXIsNotSupported, provider.Scope));
+
+        table = schema.CreateTemporaryTable(tableName);
 
         foreach (Column column in provider.Header.Columns) {
-          SqlValueType svt;
+          SqlValueType valueType;
           var mappedColumn = column as MappedColumn;
           if (mappedColumn!=null) {
-            ColumnInfo ci = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
-            TypeMapping tm = Driver.GetTypeMapping(ci);
-            svt = Driver.BuildValueType(ci);
+            ColumnInfo columnInfo = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
+            TypeMapping mapping = Driver.GetTypeMapping(columnInfo);
+            valueType = Driver.BuildValueType(columnInfo);
           }
           else
-            svt = Driver.BuildValueType(column.Type, null, null, null);
-          TableColumn tableColumn = table.CreateColumn(column.Name, svt);
+            valueType = Driver.BuildValueType(column.Type, null, null, null);
+          TableColumn tableColumn = table.CreateColumn(column.Name, valueType);
           tableColumn.IsNullable = true;
           // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
           if (column.Type==typeof (string))
@@ -467,11 +470,8 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query = SqlDml.Select(tr);
       foreach (SqlTableColumn column in tr.Columns)
         query.Columns.Add(column);
-      schema.Tables.Remove(table);
-
-      catalog.Schemas.Remove(schema);
-
-      return new SqlStoreProvider(provider, query, Handlers, ex, table);
+      
+      return new SqlStoreProvider(provider, query, Handlers, source, table);
     }
 
     /// <inheritdoc/>
