@@ -26,6 +26,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
   {
     [Field, Key]
     public Guid Id { get; private set; }
+    [Field]
+    public string Url { get; set; }
   }
 
   [HierarchyRoot]
@@ -179,14 +181,24 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void QuerySingleTest()
     {
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
-          var a1 = Query<Article>.All.First();
-          var id = a1.Id;
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var a1 = Query<Article>.All.First();
+        var id = a1.Id;
 
-          var a2 = Query<Article2>.SingleOrDefault(id);
-          Assert.IsNull(a2);
-        }
+        var a2 = Query<Article2>.SingleOrDefault(id);
+        Assert.IsNull(a2);
+      }
+    }
+
+    [Test]
+    public void QuerySingleOrDefaultTest()
+    {
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var url = "http://localhost/page_1.htm";
+        var result = Query<BlogPost>.All.Where(p => p.SitePage.Url == url).SingleOrDefault();
+        Assert.IsNotNull(result);
       }
     }
 
@@ -195,7 +207,9 @@ namespace Xtensive.Storage.Tests.Issues
       for (int i = 0; i < Count; i++) {
         var person = new Person();
         var category = new Category();
-        var sitePage = new SitePage();
+        var sitePage = new SitePage() {
+          Url = string.Format("http://localhost/page_{0}.htm", i)
+        };
         var image = new Image();
         var article = new Article {
           Category = category,

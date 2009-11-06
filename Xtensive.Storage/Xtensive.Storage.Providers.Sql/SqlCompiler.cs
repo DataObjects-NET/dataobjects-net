@@ -965,6 +965,9 @@ namespace Xtensive.Storage.Providers.Sql
           var expression = IsColumnStub(column)
             ? stubColumnMap[ExtractColumnStub(column)]
             : column;
+          var columnRef = expression as SqlColumnRef;
+          if (!columnRef.IsNullReference())
+            expression = columnRef.SqlColumn;
           result.Add(expression);
         }
       }
