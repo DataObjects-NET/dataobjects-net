@@ -65,12 +65,26 @@ namespace Xtensive.Storage.Manual.LazyLoading
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("memory://localhost/DO40-Tests");
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof(Person));
-      Domain.Build(config);
+      config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
+      var domain = Domain.Build(config);
 
-      using (Session.Open(Domain.Current))
+      using (Session.Open(domain))
+      using (var t = Transaction.Open()) {
+        var employee = new Person();
+        employee.Name = "Employee";
+        employee.Avatar = new byte[] {0,1,2};
+        employee.Photo = new byte[] {0,1,2};
+        var manager = new Person();
+        manager.Name = "Manager";
+        manager.Avatar = new byte[] {0,1,2};
+        manager.Photo = new byte[] {0,1,2};
+        manager.Employees.Add(employee);
+        t.Complete();
+      }
+  
+      using (Session.Open(domain))
       using (var t = Transaction.Open()) {
         var persons = Query<Person>.All
           .Prefetch(p => p.Avatar)
@@ -79,8 +93,6 @@ namespace Xtensive.Storage.Manual.LazyLoading
         foreach (var person in persons) {
           // some code here...
         }
-
-        
         t.Complete();
       }
     }
