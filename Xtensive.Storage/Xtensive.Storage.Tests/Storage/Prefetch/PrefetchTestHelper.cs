@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.Storage.Prefetch.Model;
@@ -15,6 +16,11 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 {
   public static class PrefetchTestHelper
   {
+    public static void AssertOnlyDefaultColumnsAreLoaded(Key key, TypeInfo type, Session session)
+    {
+      AssertOnlySpecifiedColumnsAreLoaded(key, type, session, IsFieldToBeLoadedByDefault);
+    }
+
     public static void AssertOnlySpecifiedColumnsAreLoaded(Key key, TypeInfo type, Session session,
       Func<FieldInfo, bool> fieldSelector)
     {
@@ -46,9 +52,19 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       var tuple = session.EntityStateCache[key, true].Tuple;
       var foreignKeyValue = referencingField.Association.ExtractForeignKey(tuple);
-      var foreignKey = Key.Create(session.Domain, referencingField.Association.TargetType.Hierarchy.Root, TypeReferenceAccuracy.BaseType, foreignKeyValue);
-      AssertOnlySpecifiedColumnsAreLoaded(foreignKey, referencingField.Association.TargetType.Hierarchy.Root,
+      var foreignKey = Key.Create(session.Domain, referencingField.Association.TargetType,
+        TypeReferenceAccuracy.BaseType, foreignKeyValue);
+      AssertOnlySpecifiedColumnsAreLoaded(foreignKey, referencingField.Association.TargetType,
         session, IsFieldToBeLoadedByDefault);
+    }
+
+    public static void AssertEntitySetIsFullyLoaded(Key ownerKey, FieldInfo referencingField,
+      int expectedCount, Session session)
+    {
+      EntitySetState setState;
+      session.Handler.TryGetEntitySetState(ownerKey, referencingField, out setState);
+      Assert.IsTrue(setState.IsFullyLoaded);
+      Assert.AreEqual(expectedCount, setState.Count);
     }
 
     public static void FillDataBase(Domain domain)

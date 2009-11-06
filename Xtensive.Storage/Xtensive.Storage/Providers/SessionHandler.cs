@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Providers
       bool isFullyLoaded)
     {
       var entityState = Session.EntityStateCache[key, true];
-      if (entityState==null || !entityState.IsTupleLoaded)
+      if (entityState==null)
         return null;
       var entity = entityState.Entity;
       if (entity==null)
@@ -256,7 +256,7 @@ namespace Xtensive.Storage.Providers
     internal virtual bool TryGetEntitySetState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
     {
       var entityState = Session.EntityStateCache[key, false];
-      if (entityState!=null && entityState.IsTupleLoaded) {
+      if (entityState!=null) {
         var entity = entityState.Entity;
         if (entity!=null) {
           var entitySet = Session.CoreServices.EntitySetAccessor.GetEntitySet(entity, fieldInfo);

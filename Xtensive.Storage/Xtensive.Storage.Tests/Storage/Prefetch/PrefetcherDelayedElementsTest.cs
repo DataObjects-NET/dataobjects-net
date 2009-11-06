@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void FullLoadingOfEntitySetItemsOneToManyTest()
+    public void FullLoadingOfEntitySetItemsWithoutAuxTypeTest()
     {
       var keys = new List<Key>();
       using (Session.Open(Domain))
@@ -256,7 +256,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void FullLoadingOfEntitySetItemsManyToManyTest()
+    public void FullLoadingOfEntitySetItemsWithAuxTypeTest()
     {
       var publisherKeys = new List<Key>();
       var bookShopKeys = new List<Key>();
@@ -301,6 +301,33 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           AssertEntitySetItemsAreFullyLoaded(key, bookShopType, suppliersField,
             session, ref isOneItemPresentAtLeast);
         Assert.IsTrue(isOneItemPresentAtLeast);
+      }
+    }
+
+    [Test]
+    public void ReferenceToSelfPrefetchTest()
+    {
+      TypeInfo referenceToSelfType;
+      var keys = new List<Key>();
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        referenceToSelfType = typeof (ReferenceToSelf).GetTypeInfo();
+        var reference = new ReferenceToSelf {AuxField = 3};
+        keys.Add(reference.Key);
+        reference.Reference = reference;
+        reference = new ReferenceToSelf {AuxField = 5};
+        keys.Add(Key.Create(Domain, typeof (IReferenceToSelf), reference.Key.Value));
+        reference.Reference = reference;
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetcher = keys.Prefetch<IReferenceToSelf, Key>(key => key).Prefetch(r => r.Reference);
+        foreach (var key in prefetcher) {
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, referenceToSelfType, session,
+            PrefetchTestHelper.IsFieldToBeLoadedByDefault);
+        }
       }
     }
 

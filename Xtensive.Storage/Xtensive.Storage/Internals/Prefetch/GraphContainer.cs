@@ -70,7 +70,8 @@ namespace Xtensive.Storage.Internals.Prefetch
         RegisterFetchByKnownForeignKey(referencingFieldDescriptor, ownerEntityTuple);
     }
 
-    public void RegisterEntitySetTask(PrefetchFieldDescriptor referencingFieldDescriptor)
+    public void RegisterEntitySetTask(Tuple ownerEntityTuple,
+      PrefetchFieldDescriptor referencingFieldDescriptor)
     {
       if (entitySetTasks==null)
         entitySetTasks = new Dictionary<FieldInfo, EntitySetTask>();
@@ -78,7 +79,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         AddEntityColumns(Key.TypeRef.Type.Fields
           .Where(field => field.IsPrimaryKey || field.IsSystem).SelectMany(field => field.Columns));
       entitySetTasks[referencingFieldDescriptor.Field] =
-        new EntitySetTask(Key, referencingFieldDescriptor, processor);
+        new EntitySetTask(Key, referencingFieldDescriptor, ownerEntityTuple != null, processor);
     }
     
     public void NotifyAboutExtractionOfKeysWithUnknownType()
@@ -150,19 +151,18 @@ namespace Xtensive.Storage.Internals.Prefetch
         referencingFieldDescriptor.Field.Association.TargetType, TypeReferenceAccuracy.BaseType,
         referencedKeyTuple);
       var targetType = referencingFieldDescriptor.Field.Association.TargetType;
-      var needToNotifyOwner = false;
-      if (!referencedKey.TypeRef.Type.IsLeaf) {
-        needToNotifyOwner = true;
-        var cachedKey = referencedKey;
-        Tuple entityTuple;
-        if (!processor.TryGetTupleOfNonRemovedEntity(ref cachedKey, out entityTuple))
-          return;
-        if (cachedKey.HasExactType
-          && referencingFieldDescriptor.Field.Association.TargetType!=cachedKey.Type) {
-          targetType = cachedKey.Type;
+      var needToNotifyOwner = true;
+      TypeInfo exactReferencedType;
+      var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(referencedKey, processor,
+        out exactReferencedType);
+      if (hasExactTypeBeenGotten!=null) {
+        if (hasExactTypeBeenGotten.Value) {
+          targetType = exactReferencedType;
           needToNotifyOwner = false;
         }
       }
+      else
+        return;
       var fieldsToBeLoaded = PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(targetType);
       var graphContainer = processor.SetUpContainers(referencedKey, targetType, fieldsToBeLoaded,
         true, null);

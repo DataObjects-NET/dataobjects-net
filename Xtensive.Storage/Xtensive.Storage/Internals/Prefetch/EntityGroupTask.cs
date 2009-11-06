@@ -157,7 +157,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       bool isRemoved;
       var cachedEntityState = processor.GetCachedEntityState(key, out isRemoved);
-      if (exactType && !isRemoved && (cachedEntityState==null || cachedEntityState.Type==type))
+      if (exactType && !isRemoved
+        && (cachedEntityState==null || cachedEntityState.Key.HasExactType && cachedEntityState.Key.Type==type))
         // Ensures there will be "removed" EntityState associated with this key
         processor.SaveStrongReference(processor.Owner.RegisterEntityState(key, null));
     }

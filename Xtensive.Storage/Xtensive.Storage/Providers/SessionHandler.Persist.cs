@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Providers
         entityState.PersistenceState = PersistenceState.Synchronized;
         entityState.Entity.PrepareToSetField();
         foreach (var restoreData in restoreGroup)
-          Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
+          Persistent.GetAccessor<IEntity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
         yield return new PersistAction(entityState, PersistActionKind.Update);
       }
     }

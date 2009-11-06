@@ -78,18 +78,19 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private EntityGroupTask CreateTask()
     {
-      if (!Key.TypeRef.Type.IsLeaf) {
-        needToNotifyOwner = true;
-        var cachedKey = Key;
-        Tuple tuple;
-        if (!Processor.TryGetTupleOfNonRemovedEntity(ref cachedKey, out tuple))
-          return null;
-        if (cachedKey.HasExactType && ReferencingField.Association.TargetType!=cachedKey.Type) {
-          Type = cachedKey.Type;
+      TypeInfo exactReferencedType;
+      var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(Key, Processor, out exactReferencedType);
+      if (hasExactTypeBeenGotten!=null) {
+        if (hasExactTypeBeenGotten.Value) {
+          Type = exactReferencedType;
           FillColumnCollection();
           needToNotifyOwner = false;
         }
+        else
+          needToNotifyOwner = true;
       }
+      else
+        return null;
       if (!SelectColumnsToBeLoaded())
         return null;
       Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Processor);

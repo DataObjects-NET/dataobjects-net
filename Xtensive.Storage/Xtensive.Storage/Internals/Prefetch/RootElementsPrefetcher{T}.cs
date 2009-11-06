@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       var keyWithType = key;
       if (!key.HasExactType)
           keyWithType = sessionHandler.Session.EntityStateCache[keyWithType, false].Key;
-      if (keyWithType.Type == queriedType)
+      if (!keyWithType.HasExactType || keyWithType.Type == queriedType)
         return;
       var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
         .GetCachedItem(new Pair<object, TypeInfo>(DescriptorArraysCachingRegion, keyWithType.Type),

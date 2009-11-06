@@ -194,7 +194,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var keyWithoutType = Key.Create(Domain, productKey.TypeRef.Type, TypeReferenceAccuracy.BaseType, productKey.Value);
+        var keyWithoutType = Key.Create(Domain, typeof (PersonalProduct), productKey.Value);
         var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(keyWithoutType, Domain.Model.Types[typeof (PersonalProduct)],
           new PrefetchFieldDescriptor(Domain.Model.Types[typeof (PersonalProduct)].Fields["Employee"], true));
@@ -473,16 +473,18 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           session.Handler.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
           session.Handler.ExecutePrefetchTasks();
 
-          EntitySetState setState;
+          PrefetchTestHelper.AssertEntitySetIsFullyLoaded(orderKey, DetailsField, 4, session);
+
+          /*EntitySetState setState;
           session.Handler.TryGetEntitySetState(orderKey, DetailsField, out setState);
           Assert.IsTrue(setState.IsFullyLoaded);
-          Assert.Less(0, setState.Count);
+          Assert.Less(0, setState.Count);*/
         }
       }
     }
 
     [Test]
-    public void FetchEntitySetInNestedSessionWhenItsOwnerHasAlreadyBeenFetchedInAnotherSessionTest()
+    public void EntitySetInNestedSessionWhenItsOwnerHasAlreadyBeenFetchedInAnotherSessionPrefetchTest()
     {
       var orderKey = GetFirstKey<Order>();
       using (var session = Session.Open(Domain))
@@ -507,7 +509,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void FetchEntitySetWhenThereIsNotActiveTransactionTest()
+    public void EntitySetWhenThereIsNotActiveTransactionPrefetchTest()
     {
       var orderKey = GetFirstKey<Order>();
       using (var session = Session.Open(Domain)) {
@@ -516,6 +518,82 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
         session.Handler.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
         AssertEx.Throws<InvalidOperationException>(() => session.Handler.ExecutePrefetchTasks());
+      }
+    }
+
+    [Test]
+    public void EntitySetWhichOwnerHasAlreadyBeenFetchedInAnotherTransactionPrefetchTest()
+    {
+      var orderKey = GetFirstKey<Order>();
+      using (var session = Session.Open(Domain)) {
+        using (Transaction.Open())
+          Query<Order>.Single(orderKey);
+
+        using (Transaction.Open()) {
+          session.Handler.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
+          session.Handler.ExecutePrefetchTasks();
+          PrefetchTestHelper.AssertEntitySetIsFullyLoaded(orderKey, DetailsField, 4, session);
+        }
+      }
+    }
+
+    [Test]
+    public void ReferencedEntityWhenThereIsNotActiveTransactionPrefetchTest()
+    {
+      var orderKey = GetFirstKey<Order>();
+      using (var session = Session.Open(Domain)) {
+        using (Transaction.Open())
+          Query<Order>.Single(orderKey);
+
+        session.Handler.Prefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
+        AssertEx.Throws<InvalidOperationException>(() => session.Handler.ExecutePrefetchTasks());
+      }
+    }
+
+    [Test]
+    public void ReferencedEntityWhichOwnerHasAlreadyBeenFetchedInAnotherTransactionPrefetchTest()
+    {
+      var orderKey = GetFirstKey<Order>();
+      using (var session = Session.Open(Domain)) {
+        using (Transaction.Open())
+          Query<Order>.Single(orderKey);
+
+        using (Transaction.Open()) {
+          session.Handler.Prefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
+          session.Handler.ExecutePrefetchTasks();
+          PrefetchTestHelper.AssertReferencedEntityIsLoaded(orderKey, session, CustomerField);
+        }
+      }
+    }
+
+    [Test]
+    public void NotificationAboutKeyWhenItsEntityHasBeenLoadedInAnotherTransactionTest()
+    {
+      Key book0Key;
+      Key title0Key;
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var title0 = new Title {Text = "text0", Language = "En"};
+        title0Key = title0.Key;
+        book0Key = new Book {Category = "a", Title = title0}.Key;
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain)) {
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
+        using (var tx = Transaction.Open()) {
+          prefetchProcessor.Prefetch(title0Key, null, new PrefetchFieldDescriptor(title0Key.Type.Fields["Id"]));
+          prefetchProcessor.ExecuteTasks();
+        }
+        using (var tx = Transaction.Open()) {
+          var hasSubscriberBeenNotified = false;
+          prefetchProcessor.Prefetch(book0Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true,
+            (ownerKey, field, key) => hasSubscriberBeenNotified = true));
+          prefetchProcessor.ExecuteTasks();
+
+          Assert.IsTrue(hasSubscriberBeenNotified);
+          PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(title0Key, ITitleType, session);
+        }
       }
     }
 

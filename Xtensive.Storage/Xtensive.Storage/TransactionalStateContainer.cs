@@ -59,6 +59,8 @@ namespace Xtensive.Storage
     protected void BindStateTransaction()
     {
       var currentTransaction = Session.Transaction;
+      if (currentTransaction == null)
+        throw new InvalidOperationException(Strings.ExTransactionRequired);
       if (stateTransaction!=null && stateTransaction!=currentTransaction)
         throw new InvalidOperationException(Strings.ExStateTransactionIsDifferent);
       stateTransaction = currentTransaction;

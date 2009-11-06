@@ -5,6 +5,7 @@
 // Created:    2009.09.07
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
@@ -121,7 +122,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void EntitySetOneToManyPrefetchTest()
+    public void EntitySetWithoutAuxTypePrefetchTest()
     {
       Key orderKey;
       Key[] orderDetailKeys;
@@ -152,7 +153,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void EntitySetManyToManyPrefetchTest()
+    public void EntitySetWithAuxTypePrefetchTest()
     {
       TypeInfo authorType;
       Key bookKey;
@@ -258,7 +259,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void EntitySetLimitedPrefetchingTest()
+    public void EntitySetLimitedPrefetchTest()
     {
       Key order0Key;
       Key author0Key;
@@ -564,50 +565,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         publisherType = typeof (Publisher).GetTypeInfo();
         bookShopType = typeof (BookShop).GetTypeInfo();
 
-        var publisher0 = new Publisher {Country = "A"};
-        publisherKey0 = publisher0.Key;
-        var publisher1 = new Publisher {Country = "A"};
-        publisherKey1 = publisher1.Key;
-        var publisher2 = new Publisher {Country = "B"};
-        publisherKey2 = publisher2.Key;
-        var publisher3 = new Publisher {Country = "B"};
-        publisherKey3 = publisher3.Key;
-        var publisher4 = new Publisher {Country = "C"};
-
-        var bookShop0 = new BookShop {Url = "0"};
-        bookShopKey0 = bookShop0.Key;
-        var bookShop1 = new BookShop {Url = "0"};
-        bookShopKey1 = bookShop1.Key;
-        var bookShop2 = new BookShop {Url = "1"};
-        bookShopKey2 = bookShop2.Key;
-        var bookShop3 = new BookShop {Url = "1"};
-        bookShopKey3 = bookShop3.Key;
-        var bookShop4 = new BookShop {Url = "2"};
-
-        publisher0.Distributors.Add(bookShop0);
-        publisher0.Distributors.Add(bookShop1);
-        publisher0.Distributors.Add(bookShop2);
-        publisher0.Distributors.Add(bookShop3);
-
-        publisher1.Distributors.Add(bookShop4);
-        publisher1.Distributors.Add(bookShop0);
-        publisher1.Distributors.Add(bookShop1);
-        publisher1.Distributors.Add(bookShop2);
-
-        publisher2.Distributors.Add(bookShop3);
-        publisher2.Distributors.Add(bookShop4);
-        publisher2.Distributors.Add(bookShop0);
-        publisher2.Distributors.Add(bookShop1);
-
-        publisher3.Distributors.Add(bookShop2);
-        publisher3.Distributors.Add(bookShop3);
-        publisher3.Distributors.Add(bookShop4);
-        publisher3.Distributors.Add(bookShop0);
-
-        publisher4.Distributors.Add(bookShop1);
-        publisher4.Distributors.Add(bookShop2);
-        publisher4.Distributors.Add(bookShop3);
-        publisher4.Distributors.Add(bookShop4);
+        CreatePublishersAndBookShops(out publisherKey0, out bookShopKey0, out bookShopKey1, out bookShopKey2,
+          out bookShopKey3, out publisherKey1, out publisherKey2, out publisherKey3);
         tx.Complete();
       }
 
@@ -660,6 +619,129 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
     }
 
+    [Test]
+    public void PrefetchEntitySetWhichOwnerHasBeenRemoved()
+    {
+      var orderKey = GetFirstKey<Order>();
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        Query<Order>.Single(orderKey).Remove();
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
+        prefetchProcessor.ExecuteTasks();
+
+        EntitySetState setState;
+        Assert.IsFalse(session.Handler.TryGetEntitySetState(orderKey, DetailsField, out setState));
+      }
+    }
+
+    [Test]
+    public void NotificationAboutForeignKeyExtractionTest()
+    {
+      Key book0Key;
+      Key book1Key;
+      Key orderKey;
+      Key title0Key;
+      Key title1Key;
+      Key customerKey;
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var title0 = new Title {Text = "text0", Language = "En"};
+        title0Key = title0.Key;
+        book0Key = new Book {Category = "a", Title = title0}.Key;
+        var title1 = new Title {Text = "text1", Language = "En"};
+        title1Key = title1.Key;
+        book1Key = new Book {Category = "b", Title = title1}.Key;
+        var order = Query<Order>.All.OrderBy(o => o.Key).First();
+        orderKey = order.Key;
+        customerKey = order.Customer.Key;
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
+        prefetchProcessor.Prefetch(title0Key, null, new PrefetchFieldDescriptor(title0Key.Type.Fields["Id"]));
+        prefetchProcessor.ExecuteTasks();
+        prefetchProcessor.Prefetch(book0Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true,
+          (ownerKey, field, key) => Assert.Fail()));
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField, null, true,
+          (ownerKey, field, key) => Assert.Fail()));
+        var haveSubscriberBeenNotified = false;
+        prefetchProcessor.Prefetch(book1Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true,
+          (ownerKey, field, key) => {
+            Assert.AreEqual(book1Key, ownerKey);
+            Assert.AreEqual(BookTitleField, field);
+            Assert.AreEqual(title1Key, key);
+            haveSubscriberBeenNotified = true;
+          }));
+        prefetchProcessor.ExecuteTasks();
+        Assert.IsTrue(haveSubscriberBeenNotified);
+        PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(title0Key, TitleType, session);
+        PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(customerKey, CustomerType, session);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(title1Key, TitleType, session,
+          field => IsFieldKeyOrSystem(field) || ITitleType.Fields.Contains(field.Name));
+      }
+    }
+
+    [Test]
+    public void NotificationAboutExtractionOfEntitySetElementKeyTest()
+    {
+      Key publisherKey;
+      Key orderKey;
+      List<Key> bookShopKeys;
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        if (Query<Publisher>.All.Count() < 3) {
+          Key stub;
+          CreatePublishersAndBookShops(out stub, out stub, out stub, out stub, out stub, out stub,
+            out stub, out stub);
+        }
+        var publisher = Query<Publisher>.All.Where(p => p.Distributors.Count > 3).First();
+        publisherKey = publisher.Key;
+        bookShopKeys = publisher.Distributors.Select(d => d.Key).ToList();
+        var order = Query<Order>.All.Where(o => o.Details.Count==4).First();
+        orderKey = order.Key;
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var distributorsField = typeof (Publisher).GetTypeInfo().Fields["Distributors"];
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
+        var notificationCount = 0;
+        prefetchProcessor.Prefetch(publisherKey, null, new PrefetchFieldDescriptor(distributorsField, null,
+          false, (ownerKey, field, key) => {
+            Assert.AreEqual(publisherKey, ownerKey);
+            Assert.AreEqual(distributorsField, field);
+            bookShopKeys.Contains(key);
+            notificationCount++;
+          }));
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, null, false,
+          (ownerKey, field, key) => Assert.Fail()));
+        prefetchProcessor.ExecuteTasks();
+        
+        Assert.AreEqual(bookShopKeys.Count, notificationCount);
+        EntitySetState setState;
+        session.Handler.TryGetEntitySetState(publisherKey, distributorsField, out setState);
+        var bookShopType = typeof (BookShop).GetTypeInfo(Domain);
+        var iBookShopType = typeof (IBookShop).GetTypeInfo(Domain);
+        Assert.AreEqual(bookShopKeys.Count, setState.Count);
+        var actualCount = 0;
+        foreach (var key in setState) {
+          actualCount++;
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, bookShopType, session,
+            field => IsFieldKeyOrSystem(field) || iBookShopType.Fields.Contains(field.Name));
+        }
+        Assert.AreEqual(bookShopKeys.Count, actualCount);
+      }
+    }
+
     private void PrefetchIntrinsicFields(PrefetchProcessor prefetchProcessor, Key key, Type type)
     {
       var typeInfo = Domain.Model.Types[type];
@@ -678,6 +760,56 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       where T : Entity
     {
       return Query<T>.All.OrderBy(o => o.Key).First().Key;
+    }
+
+    private static void CreatePublishersAndBookShops(out Key publisherKey0, out Key bookShopKey0,
+      out Key bookShopKey1, out Key bookShopKey2, out Key bookShopKey3, out Key publisherKey1,
+      out Key publisherKey2, out Key publisherKey3)
+    {
+      var publisher0 = new Publisher {Country = "A"};
+      publisherKey0 = publisher0.Key;
+      var publisher1 = new Publisher {Country = "A"};
+      publisherKey1 = publisher1.Key;
+      var publisher2 = new Publisher {Country = "B"};
+      publisherKey2 = publisher2.Key;
+      var publisher3 = new Publisher {Country = "B"};
+      publisherKey3 = publisher3.Key;
+      var publisher4 = new Publisher {Country = "C"};
+
+      var bookShop0 = new BookShop {Url = "0"};
+      bookShopKey0 = bookShop0.Key;
+      var bookShop1 = new BookShop {Url = "0"};
+      bookShopKey1 = bookShop1.Key;
+      var bookShop2 = new BookShop {Url = "1"};
+      bookShopKey2 = bookShop2.Key;
+      var bookShop3 = new BookShop {Url = "1"};
+      bookShopKey3 = bookShop3.Key;
+      var bookShop4 = new BookShop {Url = "2"};
+
+      publisher0.Distributors.Add(bookShop0);
+      publisher0.Distributors.Add(bookShop1);
+      publisher0.Distributors.Add(bookShop2);
+      publisher0.Distributors.Add(bookShop3);
+
+      publisher1.Distributors.Add(bookShop4);
+      publisher1.Distributors.Add(bookShop0);
+      publisher1.Distributors.Add(bookShop1);
+      publisher1.Distributors.Add(bookShop2);
+
+      publisher2.Distributors.Add(bookShop3);
+      publisher2.Distributors.Add(bookShop4);
+      publisher2.Distributors.Add(bookShop0);
+      publisher2.Distributors.Add(bookShop1);
+
+      publisher3.Distributors.Add(bookShop2);
+      publisher3.Distributors.Add(bookShop3);
+      publisher3.Distributors.Add(bookShop4);
+      publisher3.Distributors.Add(bookShop0);
+
+      publisher4.Distributors.Add(bookShop1);
+      publisher4.Distributors.Add(bookShop2);
+      publisher4.Distributors.Add(bookShop3);
+      publisher4.Distributors.Add(bookShop4);
     }
   }
 }

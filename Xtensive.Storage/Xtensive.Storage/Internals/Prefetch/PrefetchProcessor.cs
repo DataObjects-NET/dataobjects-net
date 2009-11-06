@@ -54,8 +54,10 @@ namespace Xtensive.Storage.Internals.Prefetch
         IEnumerable<PrefetchFieldDescriptor> selectedFields = descriptors;
         var currentType = type;
         StrongReferenceContainer hierarchyRootContainer = null;
-        if (currentKey.HasExactType) {
-          currentType = currentKey.Type;
+        var isKeyTypeExact = currentKey.HasExactType || currentKey.TypeRef.Type.IsLeaf
+          || currentKey.TypeRef.Type==type;
+        if (isKeyTypeExact) {
+          currentType = currentKey.TypeRef.Type;
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
         }
         else {
@@ -67,7 +69,7 @@ namespace Xtensive.Storage.Internals.Prefetch
           var hierarchyRoot = currentKey.TypeRef.Type;
           selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
         }
-        SetUpContainers(currentKey, currentType, selectedFields, currentKey.HasExactType, ownerEntityTuple);
+        SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerEntityTuple);
         if (referenceContainer!=null) {
           referenceContainer.JoinIfPossible(prevContainer);
           return referenceContainer;
@@ -131,7 +133,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary)
           result.RegisterReferencedEntityContainer(entityTuple, descriptor);
         else if (descriptor.Field.IsEntitySet)
-          result.RegisterEntitySetTask(descriptor);
+          result.RegisterEntitySetTask(entityTuple, descriptor);
         else
           result.AddEntityColumns(descriptor.Field.Columns);
       }

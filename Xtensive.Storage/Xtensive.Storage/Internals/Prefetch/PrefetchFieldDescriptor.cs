@@ -106,8 +106,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/>
     /// will be fetched.</param>
     /// <param name="keyExtractionSubscriber">The delegate which will be invoked 
-    /// when a key of a referenced entity has been extracted and this entity 
-    /// has not been found in the cache.</param>
+    /// if a key of a referenced entity has been extracted and 
+    /// its exact type can't be get or inferred.</param>
     public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit,
       bool fetchFieldsOfReferencedEntity, Action<Key, FieldInfo, Key> keyExtractionSubscriber)
     {

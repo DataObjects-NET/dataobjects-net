@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
             PrefetchTestHelper.AssertReferencedEntityIsLoaded(detailKey, session, productField);
           }
         }
-        Assert.AreEqual(46, session.Handler.PrefetchTaskExecutionCount);
+        Assert.AreEqual(47, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
