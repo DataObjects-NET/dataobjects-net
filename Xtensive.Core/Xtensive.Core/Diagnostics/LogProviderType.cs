@@ -7,7 +7,7 @@
 namespace Xtensive.Core.Diagnostics
 {
   /// <summary>
-  /// ENumerates supported log providers.
+  /// Enumerates supported log providers.
   /// </summary>
   public enum LogProviderType
   {
