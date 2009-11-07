@@ -11,6 +11,9 @@ using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
+  /// <summary>
+  /// A service, that provides SQL query execution functionality.
+  /// </summary>
   public interface IQueryExecutor
   {
     /// <summary>

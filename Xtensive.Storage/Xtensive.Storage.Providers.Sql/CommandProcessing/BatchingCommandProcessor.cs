@@ -11,9 +11,9 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal class BatchingCommandProcessor : CommandProcessor
+  internal sealed class BatchingCommandProcessor : CommandProcessor
   {
-    private int batchSize;
+    private readonly int batchSize;
     
     private string GetParameterPrefix()
     {
@@ -27,6 +27,18 @@ namespace Xtensive.Storage.Providers.Sql
 
       if (!allowPartialExecution)
         ExecuteBatch(tasks.Count, null);
+    }
+
+    public override void ProcessTask(SqlQueryTask task)
+    {
+      var part = factory.CreateQueryCommandPart(task, GetParameterPrefix());
+      activeCommand.AddPart(part, task);
+    }
+
+    public override void ProcessTask(SqlPersistTask task)
+    {
+      var part = factory.CreatePersistCommandPart(task, GetParameterPrefix());
+      activeCommand.AddPart(part);
     }
 
     public override IEnumerator<Tuple> ExecuteRequestsWithReader(SqlQueryRequest request)
@@ -47,16 +59,7 @@ namespace Xtensive.Storage.Providers.Sql
         while (numberOfTasks > 0 && tasks.Count > 0) {
           numberOfTasks--;
           var task = tasks.Dequeue();
-          var persistTask = task as SqlPersistTask;
-          if (persistTask!=null) {
-            var part = factory.CreatePersistCommandPart(persistTask, GetParameterPrefix());
-            activeCommand.AddPart(part);
-          }
-          var queryTask = task as SqlQueryTask;
-          if (queryTask!=null) {
-            var part = factory.CreateQueryCommandPart(queryTask, GetParameterPrefix());
-            activeCommand.AddPart(part, queryTask);
-          }
+          task.Process(this);
         }
         if (lastRequest!=null) {
           var part = factory.CreateQueryCommandPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);

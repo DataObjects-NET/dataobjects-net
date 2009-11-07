@@ -8,5 +8,6 @@ namespace Xtensive.Storage.Providers.Sql
 {
   internal abstract class SqlTask
   {
+    public abstract void Process(CommandProcessor processor);
   }
 }

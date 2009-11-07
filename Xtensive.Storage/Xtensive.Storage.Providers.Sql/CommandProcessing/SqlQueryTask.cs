@@ -15,7 +15,13 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlQueryRequest Request;
     public ParameterContext ParameterContext;
     public List<Tuple> Result;
-    
+   
+    public override void Process(CommandProcessor processor)
+    {
+      processor.ProcessTask(this);
+    }
+
+ 
     // Constructors
 
     public SqlQueryTask(SqlQueryRequest request)

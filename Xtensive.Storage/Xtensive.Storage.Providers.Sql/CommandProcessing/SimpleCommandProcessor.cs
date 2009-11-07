@@ -10,7 +10,7 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal class SimpleCommandProcessor : CommandProcessor
+  internal sealed class SimpleCommandProcessor : CommandProcessor
   {
     public override void ExecuteRequests(bool allowPartialExecution)
     {
@@ -23,18 +23,23 @@ namespace Xtensive.Storage.Providers.Sql
       return RunTupleReader(ExecuteQuery(new SqlQueryTask(lastRequest)), lastRequest.TupleDescriptor);
     }
 
+    public override void ProcessTask(SqlQueryTask task)
+    {
+      ReadTuples(ExecuteQuery(task), task.Request.TupleDescriptor, task.Result);
+    }
+
+    public override void ProcessTask(SqlPersistTask task)
+    {
+      ExecutePersist(task);
+    }
+
     #region Private / internal methods
 
     private void ExecuteAllTasks()
     {
       while (tasks.Count > 0) {
         var task = tasks.Dequeue();
-        var queryTask = task as SqlQueryTask;
-        if (queryTask!=null)
-          ReadTuples(ExecuteQuery(queryTask), queryTask.Request.TupleDescriptor, queryTask.Result);
-        var persistTask = task as SqlPersistTask;
-        if (persistTask!=null)
-          ExecutePersist(persistTask);
+        task.Process(this);
       }
     }
 

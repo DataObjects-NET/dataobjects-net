@@ -13,6 +13,12 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlPersistRequest Request;
     public Tuple Tuple;
 
+    public override void Process(CommandProcessor processor)
+    {
+      processor.ProcessTask(this);
+    }
+
+
     // Constructors
 
     public SqlPersistTask(SqlPersistRequest request, Tuple tuple)
