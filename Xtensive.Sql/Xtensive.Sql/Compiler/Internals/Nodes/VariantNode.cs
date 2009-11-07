@@ -4,11 +4,11 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.23
 
-namespace Xtensive.Sql.Compiler.Internals
+namespace Xtensive.Sql.Compiler
 {
   internal class VariantNode : Node
   {
-    public readonly object Key;
+    public readonly object Id;
 
     public Node Main;
     public Node Alternative;
@@ -20,9 +20,9 @@ namespace Xtensive.Sql.Compiler.Internals
 
     // Constructor
 
-    public VariantNode(object key)
+    public VariantNode(object id)
     {
-      Key = key;
+      Id = id;
     }
   }
 }

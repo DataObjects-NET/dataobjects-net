@@ -1180,12 +1180,12 @@ namespace Xtensive.Sql
       return new SqlStatementBlock();
     }
 
-    public static SqlVariant Variant(object key, SqlExpression main, SqlExpression alternative)
+    public static SqlVariant Variant(object id, SqlExpression main, SqlExpression alternative)
     {
+      ArgumentValidator.EnsureArgumentNotNull(id, "id");
       ArgumentValidator.EnsureArgumentNotNull(main, "main");
       ArgumentValidator.EnsureArgumentNotNull(alternative, "alternative");
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      return new SqlVariant(key, main, alternative);
+      return new SqlVariant(id, main, alternative);
     }
 
     public static SqlPlaceholder Placeholder(object id)

@@ -10,7 +10,7 @@ namespace Xtensive.Sql.Dml
 {
   public class SqlVariant : SqlExpression
   {
-    public object Key { get; private set; }
+    public object Id { get; private set; }
     public SqlExpression Main { get; private set; }
     public SqlExpression Alternative { get; private set; }
     
@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Dml
       var replacingExpression = (SqlVariant) expression;
       Main = replacingExpression.Main;
       Alternative = replacingExpression.Alternative;
-      Key = replacingExpression.Key;
+      Id = replacingExpression.Id;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -30,7 +30,7 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      var clone = new SqlVariant(Key, (SqlExpression) Main.Clone(context), (SqlExpression) Alternative.Clone(context));
+      var clone = new SqlVariant(Id, (SqlExpression) Main.Clone(context), (SqlExpression) Alternative.Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -40,12 +40,12 @@ namespace Xtensive.Sql.Dml
       visitor.Visit(this);
     }
 
-    internal SqlVariant(object key, SqlExpression main, SqlExpression alternative)
+    internal SqlVariant(object id, SqlExpression main, SqlExpression alternative)
       : base(SqlNodeType.Variant)
     {
       Main = main;
       Alternative = alternative;
-      Key = key;
+      Id = id;
     }
   }
 }

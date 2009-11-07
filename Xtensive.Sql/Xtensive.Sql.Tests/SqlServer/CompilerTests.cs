@@ -1,9 +1,10 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
+using System;
 using System.Data;
 using System.Data.Common;
-using NUnit.Framework;
-using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Exceptions;
@@ -15,7 +16,6 @@ namespace Xtensive.Sql.Tests.SqlServer
     private SqlConnection sqlConnection;
     private DbCommand sqlCommand;
     private SqlDriver sqlDriver;
-
 
     [TestFixtureSetUp]
     public override void SetUp()
@@ -108,10 +108,10 @@ namespace Xtensive.Sql.Tests.SqlServer
     [Test]
     public void VariantTest()
     {
-      var key = new object();
+      var variantId = new object();
       var select = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]));
       select.Limit = 1;
-      select.Columns.Add(SqlDml.Variant(key, 1, 2), "value");
+      select.Columns.Add(SqlDml.Variant(variantId, 1, 2), "value");
       var result = sqlConnection.Driver.Compile(select);
       using (var command = sqlConnection.CreateCommand()) {
         command.CommandText = result.GetCommandText();
@@ -119,7 +119,8 @@ namespace Xtensive.Sql.Tests.SqlServer
           Assert.IsTrue(reader.Read());
           Assert.AreEqual(1, reader.GetInt32(0));
         }
-        command.CommandText = result.GetCommandText(EnumerableUtils.One(key));
+        var configuration = new SqlPostCompilerConfiguration {AlternativeBranches = {variantId}};
+        command.CommandText = result.GetCommandText(configuration);
         using (var reader = command.ExecuteReader()) {
           Assert.IsTrue(reader.Read());
           Assert.AreEqual(2, reader.GetInt32(0));
@@ -128,13 +129,14 @@ namespace Xtensive.Sql.Tests.SqlServer
     }
 
     [Test]
-    public void DelayedParameterNamesTest()
+    public void PlaceholderTest()
     {
-      var holeId = new object();
-      var select = SqlDml.Select(SqlDml.Placeholder(holeId));
+      var placeholderId = new object();
+      var select = SqlDml.Select(SqlDml.Placeholder(placeholderId));
       var result = sqlConnection.Driver.Compile(select);
       using (var command = sqlConnection.CreateCommand()) {
-        command.CommandText = result.GetCommandText(new Dictionary<object, string> {{holeId, "@xxx"}});
+        var configuration = new SqlPostCompilerConfiguration {PlaceholderValues = {{placeholderId, "@xxx"}}};
+        command.CommandText = result.GetCommandText(configuration);
         var parameter = command.CreateParameter();
         parameter.ParameterName = "xxx";
         parameter.DbType = DbType.Int32;
@@ -143,13 +145,55 @@ namespace Xtensive.Sql.Tests.SqlServer
         Assert.AreEqual((int) 'x', command.ExecuteScalar());
       }
       using (var command = sqlConnection.CreateCommand()) {
-        command.CommandText = result.GetCommandText(new Dictionary<object, string> {{holeId, "@yyy"}});
+        var configuration = new SqlPostCompilerConfiguration {PlaceholderValues = {{placeholderId, "@yyy"}}};
+        command.CommandText = result.GetCommandText(configuration);
         var parameter = command.CreateParameter();
         parameter.ParameterName = "yyy";
         parameter.DbType = DbType.Int32;
         parameter.Value = (int) 'y';
         command.Parameters.Add(parameter);
         Assert.AreEqual((int) 'y', command.ExecuteScalar());
+      }
+    }
+
+    [Test]
+    public void SingleColumnDynamicFilterTest()
+    {
+      var dynamicFilterId = new object();
+      var tableRef = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select = SqlDml.Select(tableRef);
+      select.Columns.Add(SqlDml.Count());
+      var filter = SqlDml.DynamicFilter(dynamicFilterId);
+      select.Where = filter;
+      filter.Expressions.Add(tableRef["LastName"]);
+      var result = sqlConnection.Driver.Compile(select);
+      using (var command = sqlConnection.CreateCommand()) {
+        var values = new List<string[]> {new[] {"'Achong'"}, new[] {"'Abel'"}};
+        var configuration = new SqlPostCompilerConfiguration {DynamicFilterValues = {{dynamicFilterId, values}}};
+        command.CommandText = result.GetCommandText(configuration);
+        int count = Convert.ToInt32(command.ExecuteScalar());
+        Assert.AreEqual(2, count);
+      }
+    }
+    
+    [Test]
+    public void MultiColumnDynamicFilterTest()
+    {
+      var dynamicFilterId = new object();
+      var tableRef = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select = SqlDml.Select(tableRef);
+      select.Columns.Add(SqlDml.Count());
+      var filter = SqlDml.DynamicFilter(dynamicFilterId);
+      select.Where = filter;
+      filter.Expressions.Add(tableRef["FirstName"]);
+      filter.Expressions.Add(tableRef["LastName"]);
+      var result = sqlConnection.Driver.Compile(select);
+      using (var command = sqlConnection.CreateCommand()) {
+        var values = new List<string[]> {new[] {"'Gustavo'", "'Achong'"}, new[] {"'Catherine'", "'Abel'"}};
+        var configuration = new SqlPostCompilerConfiguration {DynamicFilterValues = {{dynamicFilterId, values}}};
+        command.CommandText = result.GetCommandText(configuration);
+        int count = Convert.ToInt32(command.ExecuteScalar());
+        Assert.AreEqual(2, count);
       }
     }
   }

@@ -14,7 +14,6 @@ namespace Xtensive.Sql.Dml
   /// An attempt to its translation leads to an error.
   /// This class can be used to store temporary values inside <see cref="SqlExpression"/>.
   /// </summary>
-  [Serializable]
   public class SqlContainer : SqlExpression
   {
     /// <summary>

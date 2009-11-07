@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-namespace Xtensive.Sql.Compiler.Internals
+namespace Xtensive.Sql.Compiler
 {
   internal enum ContextType
   {

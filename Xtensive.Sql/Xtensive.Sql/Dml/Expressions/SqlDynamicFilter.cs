@@ -20,8 +20,10 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
       var clone = new SqlDynamicFilter(Id);
-      foreach (var column in Expressions)
-        clone.Expressions.Add((SqlExpression) column.Clone(context));
+      foreach (var expression in Expressions) {
+        clone.Expressions.Add((SqlExpression) expression.Clone(context));
+      }
+
       context.NodeMapping[this] = clone;
       return clone;
     }

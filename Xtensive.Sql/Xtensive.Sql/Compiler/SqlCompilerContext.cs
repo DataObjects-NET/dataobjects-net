@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Sql.Compiler.Internals;
 using Xtensive.Sql.Exceptions;
 using Xtensive.Sql.Resources;
 
@@ -20,7 +19,7 @@ namespace Xtensive.Sql.Compiler
 
     public SqlParameterNameProvider ParameterNameProvider { get; private set; }
 
-    public NodeContainer Output { get; private set; }
+    public ContainerNode Output { get; private set; }
 
     public SqlCompilerNamingOptions NamingOptions { get; private set; }
 
@@ -38,7 +37,7 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerNamingScope EnterScope(SqlCompilerNamingOptions options)
     {
-      if (NamingOptions == options)
+      if (NamingOptions==options)
         return null;
 
       var scope = new SqlCompilerNamingScope(this, NamingOptions);
@@ -67,29 +66,51 @@ namespace Xtensive.Sql.Compiler
       return OpenScope(ContextType.Collection);
     }
 
-    public SqlCompilerOutputScope EnterMainVariantScope(SqlNode node, object key)
+    public SqlCompilerOutputScope EnterMainVariantScope(object id)
     {
-      var variant = new VariantNode(key) {Main = new NodeContainer(), Alternative = new NodeContainer()};
+      var variant = new VariantNode(id) {
+        Main = new ContainerNode(),
+        Alternative = new ContainerNode()
+      };
       Output.Add(variant);
-      return OpenScope(ContextType.Collection, (NodeContainer) variant.Main);
+      return OpenScope(ContextType.Collection, (ContainerNode) variant.Main);
     }
 
-    public SqlCompilerOutputScope EnterAlternativeVariantScope(SqlNode node, object key)
+    public SqlCompilerOutputScope EnterAlternativeVariantScope(object id)
     {
       var variant = (VariantNode) Output.Current;
-      if (variant.Key != key)
+      if (variant.Id != id)
         throw new InvalidOperationException();
-      return OpenScope(ContextType.Collection, (NodeContainer) variant.Alternative);
+      return OpenScope(ContextType.Collection, (ContainerNode) variant.Alternative);
+    }
+
+    public SqlCompilerOutputScope EnterCycleBodyScope(object id, string delimiter)
+    {
+      var cycle = new CycleNode(id) {
+        Body = new ContainerNode(),
+        EmptyCase = new ContainerNode(),
+        Delimiter = delimiter
+      };
+      Output.Add(cycle);
+      return OpenScope(ContextType.Collection, (ContainerNode) cycle.Body);
+    }
+
+    public SqlCompilerOutputScope EnterCycleEmptyCaseScope(object id)
+    {
+      var cycle = (CycleNode) Output.Current;
+      if (cycle.Id != id)
+        throw new InvalidOperationException();
+      return OpenScope(ContextType.Collection, (ContainerNode) cycle.EmptyCase);
     }
 
     private SqlCompilerOutputScope OpenScope(ContextType type)
     {
-      var container = new NodeContainer();
+      var container = new ContainerNode();
       Output.Add(container);
       return OpenScope(type, container);
     }
 
-    private SqlCompilerOutputScope OpenScope(ContextType type, NodeContainer container)
+    private SqlCompilerOutputScope OpenScope(ContextType type, ContainerNode container)
     {
       traversalPath = null;
       var scope = new SqlCompilerOutputScope(this, Output, type);
@@ -107,21 +128,20 @@ namespace Xtensive.Sql.Compiler
 
     #endregion
 
-
-
+    
     // Constructor
 
-    internal SqlCompilerContext(SqlCompilerOptions options)
+    internal SqlCompilerContext(SqlCompilerConfiguration configuration)
     {
       NamingOptions = SqlCompilerNamingOptions.TableQualifiedColumns;
-      if (options.ForcedAliasing)
+      if (configuration.ForcedAliasing)
         NamingOptions |= SqlCompilerNamingOptions.TableAliasing;
 
       TableNameProvider = new SqlTableNameProvider(this);
-      ParameterNameProvider = new SqlParameterNameProvider(options);
+      ParameterNameProvider = new SqlParameterNameProvider(configuration);
       traversalStack = new Stack<SqlNode>();
       traversalTable = new HashSet<SqlNode>();
-      Output = new NodeContainer();
+      Output = new ContainerNode();
     }
   }
 }

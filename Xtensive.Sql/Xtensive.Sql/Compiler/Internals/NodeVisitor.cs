@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Sql.Compiler.Internals
+namespace Xtensive.Sql.Compiler
 {
   internal class NodeVisitor
   {
@@ -15,12 +15,12 @@ namespace Xtensive.Sql.Compiler.Internals
       throw new InvalidOperationException();
     }
 
-    public virtual void Visit(NodeContainer node)
+    public virtual void Visit(ContainerNode node)
     {
       throw new InvalidOperationException();
     }
 
-    public virtual void Visit(NodeDelimiter node)
+    public virtual void Visit(DelimiterNode node)
     {
       throw new InvalidOperationException();
     }
@@ -30,12 +30,22 @@ namespace Xtensive.Sql.Compiler.Internals
       throw new InvalidOperationException();
     }
 
-    public virtual void Visit(HoleNode node)
+    public virtual void Visit(PlaceholderNode node)
     {
       throw new InvalidOperationException();
     }
 
-    protected virtual void VisitNodeSequence(Node node)
+    public virtual void Visit(CycleNode node)
+    {
+      throw new InvalidOperationException();
+    }
+
+    public virtual void Visit(CycleItemNode node)
+    {
+      throw new InvalidOperationException();
+    }
+
+    protected void VisitNodeSequence(Node node)
     {
       while (node != null) {
         node.AcceptVisitor(this);

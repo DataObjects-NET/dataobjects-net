@@ -23,14 +23,21 @@ namespace Xtensive.Sql.Compiler
     public NumberFormatInfo FloatNumberFormat { get; private set; }
     public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
+    public virtual string NewLine { get { return "\r\n"; } }
+
+    public virtual string OpeningParenthesis { get { return "("; } }
+    public virtual string ClosingParenthesis { get { return ")"; } }
+
     public virtual string BatchBegin { get { return string.Empty; } }
     public virtual string BatchEnd { get { return string.Empty; } }
     public virtual string BatchItemDelimiter { get { return ";"; } }
-    public virtual string NewLine { get { return "\r\n"; } }
+    
+    public virtual string RowBegin { get { return "("; } }
+    public virtual string RowEnd { get { return ")"; } }
+    public virtual string RowItemDelimiter { get { return ","; } }
 
     public virtual string ArgumentDelimiter { get { return ","; } }
     public virtual string ColumnDelimiter { get { return ","; } }
-    public virtual string RowItemDelimiter { get { return ","; } }
     public virtual string WhenDelimiter { get { return string.Empty; } }
     public virtual string DdlStatementDelimiter { get { return string.Empty; } }
     public virtual string HintDelimiter { get { return string.Empty; } }
@@ -303,9 +310,9 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
       case NodeSection.Entry:
-         return (node.NodeType==SqlNodeType.RawConcat) ? string.Empty : "(";
+         return (node.NodeType==SqlNodeType.RawConcat) ? string.Empty : OpeningParenthesis;
       case NodeSection.Exit:
-         return (node.NodeType == SqlNodeType.RawConcat) ? string.Empty : ")";
+         return (node.NodeType == SqlNodeType.RawConcat) ? string.Empty : ClosingParenthesis;
       }
       return string.Empty;
     }

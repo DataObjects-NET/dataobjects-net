@@ -9,8 +9,9 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Sql.Compiler
 {
   /// <summary>
+  /// A various options for <see cref="SqlCompiler"/>.
   /// </summary>
-  public sealed class SqlCompilerOptions
+  public sealed class SqlCompilerConfiguration
   {
     /// <summary>
     /// Gets or sets a value indicating whether full automatic aliasing is enforced.
@@ -31,7 +32,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public SqlCompilerOptions()
+    public SqlCompilerConfiguration()
     {
       ForcedAliasing = true;
     }

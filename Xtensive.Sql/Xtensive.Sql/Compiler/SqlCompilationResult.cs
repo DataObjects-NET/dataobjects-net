@@ -2,9 +2,9 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System;
 using System.Collections.Generic;
-using Xtensive.Sql.Compiler.Internals;
-using Xtensive.Sql.Dml;
+using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -32,7 +32,10 @@ namespace Xtensive.Sql.Compiler
     /// <returns>Assigned name.</returns>
     public string GetParameterName(object parameter)
     {
-      return parameterNames[parameter];
+      string result;
+      if (parameterNames==null || !parameterNames.TryGetValue(parameter, out result))
+        throw new InvalidOperationException(string.Format(Strings.ExNameForParameterXIsNotFound, parameter));
+      return result;
     }
 
     /// <summary>
@@ -43,56 +46,22 @@ namespace Xtensive.Sql.Compiler
     {
       if (resultText!=null)
         return resultText;
-      string result = PostCompiler.Compile(resultNode, null, null, lastResultLength);
+      string result = PostCompiler.Process(resultNode, new SqlPostCompilerConfiguration(), lastResultLength);
       lastResultLength = result.Length;
       return result;
     }
 
     /// <summary>
     /// Gets the textual representation of SQL DOM statement compilation.
-    /// All variants are chosen according to a <paramref name="variantKeys"/>.
+    /// Query is postprocessed using the specified <paramref name="configuration"/>.
     /// </summary>
-    /// <param name="variantKeys">Keys that determine which variants are to be used.</param>
-    /// <returns>he SQL text command.</returns>
-    public string GetCommandText(IEnumerable<object> variantKeys)
-    {
-      if (resultText!=null)
-        return resultText;
-      string result = PostCompiler.Compile(resultNode, variantKeys, null, lastResultLength);
-      lastResultLength = result.Length;
-      return result;
-    }
-
-    /// <summary>
-    /// Gets the textual representation of SQL DOM statement compilation.
-    /// All delayed parameter names are choosen according to a <paramref name="placeholderValues"/>.
-    /// </summary>
-    /// <param name="placeholderValues">A dictionary that assigns value
-    /// for each <see cref="SqlPlaceholder"/></param>
+    /// <param name="configuration">The postcompiler configuration.</param>
     /// <returns>The SQL text command.</returns>
-    public string GetCommandText(IDictionary<object, string> placeholderValues)
+    public string GetCommandText(SqlPostCompilerConfiguration configuration)
     {
       if (resultText!=null)
         return resultText;
-      string result = PostCompiler.Compile(resultNode, null, placeholderValues, lastResultLength);
-      lastResultLength = result.Length;
-      return result;
-    }
-
-    /// <summary>
-    /// Gets the textual representation of SQL DOM statement compilation.
-    /// All delayed parameter names are choosen according to a <paramref name="placeholderValues"/>.
-    /// All variants are chosen according to a <paramref name="variantKeys"/>.
-    /// </summary>
-    /// <param name="variantKeys">Keys that determine which variants are to be used.</param>
-    /// <param name="placeholderValues">A dictionary that assigns values
-    /// for each <see cref="SqlPlaceholder"/>.</param>
-    /// <returns>The SQL text command.</returns>
-    public string GetCommandText(IEnumerable<object> variantKeys, IDictionary<object, string> placeholderValues)
-    {
-      if (resultText!=null)
-        return resultText;
-      string result = PostCompiler.Compile(resultNode, variantKeys, placeholderValues, lastResultLength);
+      string result = PostCompiler.Process(resultNode, configuration, lastResultLength);
       lastResultLength = result.Length;
       return result;
     }
@@ -111,7 +80,7 @@ namespace Xtensive.Sql.Compiler
         resultText = textNode.Text;
       else
         resultNode = result;
-      this.parameterNames = parameterNames;
+      this.parameterNames = parameterNames.Count > 0 ? parameterNames : null;
     }
   }
 }

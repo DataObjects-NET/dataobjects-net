@@ -72,14 +72,15 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected virtual void AppendCommandTo(SqlCompilationResult result, StringBuilder builder, int indent)
     {
-      var placeholderValues = Request.ParameterBindings
-        .Select((binding, number) => new {
-          binding.ParameterReference.Id,
-          Name = ParameterNamePrefix + number
-        })
-        .ToDictionary(item => item.Id, item => item.Name);
+      var configuration = new SqlPostCompilerConfiguration();
+      int i = 0;
+      foreach (var item in Request.ParameterBindings) {
+        configuration.PlaceholderValues.Add(item, ParameterNamePrefix + i);
+        i++;
+      }
+
       builder.Append(new string(' ', indent))
-        .AppendFormat(ToStringFormat, result.GetCommandText(placeholderValues))
+        .AppendFormat(ToStringFormat, result.GetCommandText(configuration))
         .AppendLine();
     }
 

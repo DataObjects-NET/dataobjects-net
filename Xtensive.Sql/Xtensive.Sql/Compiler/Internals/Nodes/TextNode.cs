@@ -4,7 +4,7 @@
 
 using System.Diagnostics;
 
-namespace Xtensive.Sql.Compiler.Internals
+namespace Xtensive.Sql.Compiler
 {
   [DebuggerDisplay("Text = {Text}")]
   internal class TextNode : Node

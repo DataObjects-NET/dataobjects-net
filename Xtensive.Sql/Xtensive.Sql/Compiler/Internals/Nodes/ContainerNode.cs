@@ -2,11 +2,9 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System.Diagnostics;
-
-namespace Xtensive.Sql.Compiler.Internals
+namespace Xtensive.Sql.Compiler
 {
-  public class NodeContainer : Node
+  public class ContainerNode : Node
   {
     private Node current;
 
@@ -30,9 +28,14 @@ namespace Xtensive.Sql.Compiler.Internals
       visitor.Visit(this);
     }
 
-    public void AppendHole(object id)
+    public void AppendPlaceholder(object id)
     {
-      Add(new HoleNode(id));
+      Add(new PlaceholderNode(id));
+    }
+
+    public void AppendCycleItem(int index)
+    {
+      Add(new CycleItemNode(index));
     }
 
     public void AppendText(string text)
@@ -44,23 +47,23 @@ namespace Xtensive.Sql.Compiler.Internals
 
     public void AppendDelimiter(string text)
     {
-      Add(new NodeDelimiter(SqlDelimiterType.Row, text));
+      Add(new DelimiterNode(SqlDelimiterType.Row, text));
     }
 
     public void AppendDelimiter(string text, SqlDelimiterType type)
     {
-      Add(new NodeDelimiter(type, text));
+      Add(new DelimiterNode(type, text));
     }
 
 
     // Constructors
 
-    public NodeContainer(bool requireIndent)
+    public ContainerNode(bool requireIndent)
     {
       RequireIndent = requireIndent;
     }
 
-    public NodeContainer()
+    public ContainerNode()
     {
       RequireIndent = false;
     }

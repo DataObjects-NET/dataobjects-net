@@ -196,6 +196,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Items for cycle &apos;{0}&apos; are not specified..
+        /// </summary>
+        internal static string ExItemsForCycleXAreNotSpecified {
+            get {
+                return ResourceManager.GetString("ExItemsForCycleXAreNotSpecified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Join expression should be null for SqlJoinType.CrossApply &amp; SqlJoinType.LeftOuterApply..
         /// </summary>
         internal static string ExJoinExpressionShouldBeNullForCrossApplyAndLeftOuterApply {
@@ -246,6 +255,15 @@ namespace Xtensive.Sql.Resources {
         internal static string ExMultipleRenameHintsFoundForTypeXxx {
             get {
                 return ResourceManager.GetString("ExMultipleRenameHintsFoundForTypeXxx", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name for parameter &apos;{0}&apos; is not found&apos;.
+        /// </summary>
+        internal static string ExNameForParameterXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExNameForParameterXIsNotFound", resourceCulture);
             }
         }
         
@@ -435,6 +453,15 @@ namespace Xtensive.Sql.Resources {
         internal static string ExUnboundColumn {
             get {
                 return ResourceManager.GetString("ExUnboundColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value for placeholder &apos;{0}&apos; is not set..
+        /// </summary>
+        internal static string ExValueForPlaceholderXIsNotSet {
+            get {
+                return ResourceManager.GetString("ExValueForPlaceholderXIsNotSet", resourceCulture);
             }
         }
         

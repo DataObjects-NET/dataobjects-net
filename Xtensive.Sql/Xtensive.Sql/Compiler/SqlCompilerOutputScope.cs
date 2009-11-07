@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using Xtensive.Sql.Compiler.Internals;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -13,7 +12,7 @@ namespace Xtensive.Sql.Compiler
 
     internal ContextType Type { get; private set; }
 
-    internal NodeContainer ParentContainer { get; private set; }
+    internal ContainerNode ParentContainer { get; private set; }
 
     /// <inheritdoc/>
     public void Dispose()
@@ -21,7 +20,7 @@ namespace Xtensive.Sql.Compiler
       context.CloseScope(this);
     }
 
-    internal SqlCompilerOutputScope(SqlCompilerContext context, NodeContainer parentContainer, ContextType type)
+    internal SqlCompilerOutputScope(SqlCompilerContext context, ContainerNode parentContainer, ContextType type)
     {
       this.context = context;
       Type = type;

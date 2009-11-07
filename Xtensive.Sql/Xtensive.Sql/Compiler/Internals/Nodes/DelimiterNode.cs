@@ -4,10 +4,10 @@
 
 using System.Diagnostics;
 
-namespace Xtensive.Sql.Compiler.Internals
+namespace Xtensive.Sql.Compiler
 {
   [DebuggerDisplay("Text = {Text}")]
-  internal class NodeDelimiter : Node
+  internal class DelimiterNode : Node
   {
     public readonly SqlDelimiterType Type;
     public readonly string Text;
@@ -19,7 +19,7 @@ namespace Xtensive.Sql.Compiler.Internals
 
     // Constructor
 
-    public NodeDelimiter(SqlDelimiterType type, string text)
+    public DelimiterNode(SqlDelimiterType type, string text)
     {
       Type = type;
       Text = text;

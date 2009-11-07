@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.Compiler.Internals;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
@@ -23,17 +22,17 @@ namespace Xtensive.Sql.Compiler
     protected readonly SqlTranslator translator;
     protected readonly SqlDriver driver;
     
-    protected SqlCompilerOptions options;
+    protected SqlCompilerConfiguration configuration;
     protected SqlCompilerContext context;
 
-    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerOptions compilerOptions)
+    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
-      options = compilerOptions;
-      context = new SqlCompilerContext(options);
+      configuration = compilerConfiguration;
+      context = new SqlCompilerContext(configuration);
       unit.AcceptVisitor(this);
       return new SqlCompilationResult(
-        new Compressor(translator).Compress(context.Output),
+        Compressor.Process(translator, context.Output),
         context.ParameterNameProvider.NameTable);
     }
 
@@ -744,7 +743,20 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlDynamicFilter node)
     {
-      throw new NotSupportedException();
+      switch (node.Expressions.Count) {
+      case 0:
+        SqlDml.Literal(true).AcceptVisitor(this);
+        break;
+      case 1:
+        TranslateDynamicFilterViaInOperator(node);
+        break;
+      default:
+        if (driver.ServerInfo.Query.Features.Supports(QueryFeatures.MulticolumnIn))
+          TranslateDynamicFilterViaInOperator(node);
+        else
+          TranslateDynamicFilterViaMultipleComparisons(node);
+        break;
+      }
     }
 
     public virtual void Visit(SqlFetch node)
@@ -1243,7 +1255,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlPlaceholder node)
     {
-      context.Output.AppendHole(node.Id);
+      context.Output.AppendPlaceholder(node.Id);
     }
 
     public virtual void Visit(SqlUserColumn node)
@@ -1280,10 +1292,10 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlVariant node)
     {
-      using (context.EnterMainVariantScope(node.Main, node.Key))
+      using (context.EnterMainVariantScope(node.Id))
         node.Main.AcceptVisitor(this);
 
-      using (context.EnterAlternativeVariantScope(node.Alternative, node.Key))
+      using (context.EnterAlternativeVariantScope(node.Id))
         node.Alternative.AcceptVisitor(this);
     }
 
@@ -1397,6 +1409,57 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    private void TranslateDynamicFilterViaInOperator(SqlDynamicFilter node)
+    {
+      int numberOfExpressions = node.Expressions.Count;
+      bool isMulticolumn = numberOfExpressions > 1;
+      string delimiter = translator.RowItemDelimiter + " ";
+      SqlExpression filteredExpression = isMulticolumn ? SqlDml.Row(node.Expressions) : node.Expressions[0];
+      filteredExpression.AcceptVisitor(this);
+      context.Output.AppendText(translator.Translate(SqlNodeType.In));
+      context.Output.AppendText(translator.RowBegin);
+      using (context.EnterCycleBodyScope(node.Id, delimiter)) {
+        if (isMulticolumn) {
+          context.Output.AppendText(translator.RowBegin);
+          for (int i = 0; i < numberOfExpressions - 1; i++) {
+            context.Output.AppendCycleItem(i);
+            if (i!=numberOfExpressions - 1)
+              context.Output.AppendDelimiter(translator.RowItemDelimiter);
+          }
+          context.Output.AppendText(translator.RowEnd);
+        }
+        else
+          context.Output.AppendCycleItem(0);
+      }
+      using (context.EnterCycleEmptyCaseScope(node.Id)) {
+        SqlExpression nullExpression = isMulticolumn
+          ? SqlDml.Row(Enumerable.Repeat(SqlDml.Null, numberOfExpressions).ToArray())
+          : (SqlExpression) SqlDml.Null;
+        nullExpression.AcceptVisitor(this);
+      }
+      context.Output.AppendText(translator.RowEnd);
+    }
+
+    private void TranslateDynamicFilterViaMultipleComparisons(SqlDynamicFilter node)
+    {
+      int numberOfExpressions = node.Expressions.Count;
+      string delimiter = " " + translator.Translate(SqlNodeType.Or) + " ";
+      using (context.EnterCycleBodyScope(node.Id, delimiter)) {
+        context.Output.AppendText(translator.OpeningParenthesis);
+        for (int i = 0; i < numberOfExpressions; i++) {
+          node.Expressions[i].AcceptVisitor(this);
+          context.Output.AppendText(translator.Translate(SqlNodeType.Equals));
+          context.Output.AppendCycleItem(i);
+          if (i!=numberOfExpressions - 1)
+            context.Output.AppendText(translator.Translate(SqlNodeType.And));
+        }
+        context.Output.AppendText(translator.ClosingParenthesis);
+      }
+      using (context.EnterCycleEmptyCaseScope(node.Id)) {
+        SqlDml.Literal(false).AcceptVisitor(this);
+      }
+    }
+
     private static IEnumerable<SqlStatement> FlattenBatch(SqlBatch batch)
     {
       foreach (SqlStatement statement in batch) {
@@ -1418,7 +1481,7 @@ namespace Xtensive.Sql.Compiler
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="driver">The driver.</param>
-    protected internal SqlCompiler(SqlDriver driver)
+    protected SqlCompiler(SqlDriver driver)
     {
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
       translator = driver.Translator;

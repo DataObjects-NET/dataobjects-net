@@ -246,4 +246,13 @@
   <data name="ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset" xml:space="preserve">
     <value>Only SqlLiteral and SqlNode can used in Limit/Offset</value>
   </data>
+  <data name="ExNameForParameterXIsNotFound" xml:space="preserve">
+    <value>Name for parameter '{0}' is not found'</value>
+  </data>
+  <data name="ExValueForPlaceholderXIsNotSet" xml:space="preserve">
+    <value>Value for placeholder '{0}' is not set.</value>
+  </data>
+  <data name="ExItemsForCycleXAreNotSpecified" xml:space="preserve">
+    <value>Items for cycle '{0}' are not specified.</value>
+  </data>
 </root>

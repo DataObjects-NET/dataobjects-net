@@ -37,12 +37,12 @@ namespace Xtensive.Sql.Compiler
     // Constructor
 
     /// <inheritdoc/>
-    public SqlParameterNameProvider(SqlCompilerOptions options)
+    public SqlParameterNameProvider(SqlCompilerConfiguration configuration)
     {
       NameTable = new Dictionary<object, string>();
-      prefix = string.IsNullOrEmpty(options.ParameterNamePrefix)
+      prefix = string.IsNullOrEmpty(configuration.ParameterNamePrefix)
         ? DefaultPrefix
-        : options.ParameterNamePrefix;
+        : configuration.ParameterNamePrefix;
     }
   }
 }

@@ -6,19 +6,30 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
-using Xtensive.Core.Collections;
+using Xtensive.Sql.Resources;
 
-namespace Xtensive.Sql.Compiler.Internals
+namespace Xtensive.Sql.Compiler
 {
   internal class PostCompiler : NodeVisitor
   {
     private const int MinimalResultCapacity = 64;
     private const int ResultCapacityMargin = 16;
-    private readonly StringBuilder result;
 
-    private HashSet<object> activeVariantKeys;
-    private IDictionary<object, string> holeNodeValues;
+    private readonly StringBuilder result;
+    private readonly SqlPostCompilerConfiguration configuration;
+
+    private string[] currentCycleItem;
+
+    public static string Process(Node root, SqlPostCompilerConfiguration configuration, int estimatedResultLength)
+    {
+      var compiler = new PostCompiler(configuration, estimatedResultLength);
+      compiler.VisitNodeSequence(root);
+      return compiler.result.ToString();
+    }
+    
+    #region NodeVisitor members
 
     public override void Visit(TextNode node)
     {
@@ -27,41 +38,53 @@ namespace Xtensive.Sql.Compiler.Internals
 
     public override void Visit(VariantNode node)
     {
-      if (activeVariantKeys!=null && activeVariantKeys.Contains(node.Key))
+      if (configuration.AlternativeBranches.Contains(node.Id))
         VisitNodeSequence(node.Alternative);
       else
         VisitNodeSequence(node.Main);
     }
 
-    public override void Visit(HoleNode node)
+    public override void Visit(PlaceholderNode node)
     {
-      if (holeNodeValues==null)
-        throw new InvalidOperationException();
       string value;
-      if (!holeNodeValues.TryGetValue(node.Id, out value))
-        throw new InvalidOperationException();
+      if (!configuration.PlaceholderValues.TryGetValue(node.Id, out value))
+        throw new InvalidOperationException(string.Format(Strings.ExValueForPlaceholderXIsNotSet, node.Id));
       result.Append(value);
     }
 
-    public static string Compile(Node root, IEnumerable<object> activeVariantKeys, IDictionary<object, string> placeholderValues, int estimatedResultLength)
+    public override void Visit(CycleItemNode node)
     {
-      var compiler = new PostCompiler(estimatedResultLength) {
-        activeVariantKeys = activeVariantKeys!=null
-          ? activeVariantKeys.ToHashSet()
-          : null,
-         holeNodeValues = placeholderValues
-      };
-      compiler.VisitNodeSequence(root);
-      return compiler.result.ToString();
+      result.Append(currentCycleItem[node.Index]);
     }
 
+    public override void Visit(CycleNode node)
+    {
+      List<string[]> items;
+      if (!configuration.DynamicFilterValues.TryGetValue(node.Id, out items))
+        throw new InvalidOperationException(string.Format(Strings.ExItemsForCycleXAreNotSpecified, node.Id));
+      if (items==null || items.Count==0) {
+        VisitNodeSequence(node.EmptyCase);
+        return;
+      }
+      for (int i = 0; i < items.Count - 1; i++) {
+        currentCycleItem = items[i];
+        VisitNodeSequence(node.Body);
+        result.Append(node.Delimiter);
+      }
+      currentCycleItem = items[items.Count - 1];
+      VisitNodeSequence(node.Body);
+    }
 
-    // Constructor
+    #endregion
 
-    private PostCompiler(int estimatedResultLength)
+
+    // Constructors
+
+    private PostCompiler(SqlPostCompilerConfiguration configuration, int estimatedResultLength)
     {
       int capacity = estimatedResultLength + ResultCapacityMargin;
       result = new StringBuilder(capacity < MinimalResultCapacity ? MinimalResultCapacity : capacity);
+      this.configuration = configuration;
     }
   }
 }

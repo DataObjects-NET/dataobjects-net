@@ -4,7 +4,7 @@
 
 using System.Text;
 
-namespace Xtensive.Sql.Compiler.Internals
+namespace Xtensive.Sql.Compiler
 {
   internal sealed class Compressor : NodeVisitor
   {
@@ -15,15 +15,16 @@ namespace Xtensive.Sql.Compiler.Internals
     private Node root;
     private Node current;
 
-    public Node Compress(NodeContainer node)
+    public static Node Process(SqlTranslator translator, ContainerNode node)
     {
-      CreateBuffer();
-      VisitNodeSequence(node);
-      FlushBuffer();
-      return root;
+      var compressor = new Compressor(translator);
+      compressor.CreateBuffer();
+      compressor.VisitNodeSequence(node);
+      compressor.FlushBuffer();
+      return compressor.root;
     }
 
-    #region Private/internal methods
+    #region Private / internal methods
 
     private void CreateBuffer()
     {
@@ -91,7 +92,7 @@ namespace Xtensive.Sql.Compiler.Internals
       }
     }
 
-    private Node VisitVariantNode(Node node)
+    private Node VisitBranch(Node node)
     {
       var originalCurrent = current;
       var originalRoot = root;
@@ -110,6 +111,18 @@ namespace Xtensive.Sql.Compiler.Internals
       }
     }
 
+    private void BeginNonTextNode()
+    {
+      AppendSpace();
+      FlushBuffer(); 
+    }
+
+    private void EndNonTextNode()
+    {
+      CreateBuffer();
+      ResetLast(); 
+    }
+
     #endregion
 
     #region NodeVisitor Members
@@ -120,7 +133,7 @@ namespace Xtensive.Sql.Compiler.Internals
       Append(node.Text);
     }
 
-    public override void Visit(NodeContainer node)
+    public override void Visit(ContainerNode node)
     {
       if (node.RequireIndent) {
         indent++;
@@ -132,7 +145,7 @@ namespace Xtensive.Sql.Compiler.Internals
         indent--;
     }
 
-    public override void Visit(NodeDelimiter node)
+    public override void Visit(DelimiterNode node)
     {
       switch (node.Type) {
       case SqlDelimiterType.Column:
@@ -147,30 +160,47 @@ namespace Xtensive.Sql.Compiler.Internals
 
     public override void Visit(VariantNode node)
     {
-      AppendSpace();
-      FlushBuffer();
-      var variant = new VariantNode(node.Key);
-      variant.Main = VisitVariantNode(node.Main);
-      variant.Alternative = VisitVariantNode(node.Alternative);
+      BeginNonTextNode();
+      var variant = new VariantNode(node.Id);
+      variant.Main = VisitBranch(node.Main);
+      variant.Alternative = VisitBranch(node.Alternative);
       AppendNode(variant);
-      CreateBuffer();
-      ResetLast();
+      EndNonTextNode();
     }
 
-    public override void Visit(HoleNode node)
+    public override void Visit(PlaceholderNode node)
     {
-      AppendSpace();
-      FlushBuffer();
-      AppendNode(new HoleNode(node.Id));
-      CreateBuffer();
-      ResetLast();
+      BeginNonTextNode();
+      AppendNode(new PlaceholderNode(node.Id));
+      EndNonTextNode();
+    }
+
+    public override void Visit(CycleItemNode node)
+    {
+      BeginNonTextNode();
+      AppendNode(new CycleItemNode(node.Index));
+      EndNonTextNode();
+    }
+
+    public override void Visit(CycleNode node)
+    {
+      BeginNonTextNode();
+      var cycle = new CycleNode(node.Id);
+      cycle.Body = VisitBranch(node.Body);
+      cycle.EmptyCase = VisitBranch(node.EmptyCase);
+      cycle.Delimiter = node.Delimiter;
+      AppendNode(cycle);
+      EndNonTextNode();
     }
 
     #endregion
 
-    public Compressor(SqlTranslator translator)
+
+    // Constructors
+
+    private Compressor(SqlTranslator translator)
     {
-      newLineEnd = translator.NewLine.Substring(translator.NewLine.Length - 1)[0];
+      newLineEnd = translator.NewLine[translator.NewLine.Length - 1];
       last = newLineEnd;
     }
   }

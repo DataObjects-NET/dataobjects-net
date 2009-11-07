@@ -5,9 +5,9 @@
 // Created:    2009.10.09
 
 using System;
-using System.Collections.Generic;
 using Xtensive.Core.Parameters;
 using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
 using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -26,16 +26,16 @@ namespace Xtensive.Storage.Providers.Sql
       var tuple = task.Tuple;
       int parameterIndex = 0;
       var compilationResult = request.Compile(domainHandler);
-      var placeholderValues = new Dictionary<object, string>();
+      var configuration = new SqlPostCompilerConfiguration();
       var result = new CommandPart();
       
       foreach (var binding in request.ParameterBindings) {
         var parameterValue = tuple.GetValueOrDefault(binding.FieldIndex);
         string parameterName = parameterNamePrefix + parameterIndex++;
-        placeholderValues.Add(binding, driver.BuildParameterReference(parameterName));
+        configuration.PlaceholderValues.Add(binding, driver.BuildParameterReference(parameterName));
         AddPersistParameter(result, parameterName, parameterValue, binding);
       }
-      result.Query = compilationResult.GetCommandText(placeholderValues);
+      result.Query = compilationResult.GetCommandText(configuration);
       return result;
     }
 
@@ -44,8 +44,7 @@ namespace Xtensive.Storage.Providers.Sql
       var request = task.Request;
       int parameterIndex = 0;
       var compilationResult = request.Compile(domainHandler);
-      var placeholderValues = new Dictionary<object, string>();
-      var variantKeys = new List<object>();
+      var configuration = new SqlPostCompilerConfiguration();
       var result = new CommandPart();
 
       using (task.ParameterContext.ActivateSafely()) {
@@ -53,28 +52,28 @@ namespace Xtensive.Storage.Providers.Sql
           object parameterValue = binding.ValueAccessor.Invoke();
           // no parameters - just inlined constant
           if (binding.BindingType==SqlQueryParameterBindingType.LimitOffset) {
-            placeholderValues.Add(binding, parameterValue.ToString());
+            configuration.PlaceholderValues.Add(binding, parameterValue.ToString());
             continue;
           }
           // expanding true/false parameters to constants to help query optimizer with branching
           if (binding.BindingType==SqlQueryParameterBindingType.BooleanConstant) {
             if ((bool) parameterValue)
-              variantKeys.Add(binding);
+              configuration.AlternativeBranches.Add(binding);
             continue;
           }
           // replacing "x = @p" with "x is null" when @p = null (or empty string in case of Oracle)
           if (binding.BindingType==SqlQueryParameterBindingType.SmartNull &&
             (parameterValue==null || emptyStringIsNull && parameterValue.Equals(string.Empty))) {
-            variantKeys.Add(binding);
+            configuration.AlternativeBranches.Add(binding);
             continue;
           }
           // regular case -> just adding the parameter
           string parameterName = parameterNamePrefix + parameterIndex++;
-          placeholderValues.Add(binding, driver.BuildParameterReference(parameterName));
+          configuration.PlaceholderValues.Add(binding, driver.BuildParameterReference(parameterName));
           AddRegularParameter(result, parameterName, parameterValue, binding.TypeMapping);
         }
       }
-      result.Query = compilationResult.GetCommandText(variantKeys, placeholderValues);
+      result.Query = compilationResult.GetCommandText(configuration);
       return result;
     }
 
