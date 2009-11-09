@@ -4,9 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
-namespace Xtensive.Sql.SqlServer.v2008
+namespace Xtensive.Sql.SqlServer.v10
 {
-  internal class Compiler : v2005.Compiler
+  internal class Compiler : v09.Compiler
   {
     // Constructors
 

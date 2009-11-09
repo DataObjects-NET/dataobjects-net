@@ -288,5 +288,10 @@ namespace Xtensive.Sql.VistaDb.v3
     {
       return 1;
     }
+
+    public override bool GetMultipleActiveResultSets()
+    {
+      return false;
+    }
   }
 }

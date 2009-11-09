@@ -4,9 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
-namespace Xtensive.Sql.SqlServer.v2008
+namespace Xtensive.Sql.SqlServer.v10
 {
-  internal class Translator : v2005.Translator
+  internal class Translator : v09.Translator
   {
     // Constructors
 

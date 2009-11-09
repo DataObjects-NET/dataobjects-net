@@ -2,8 +2,6 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using Xtensive.Sql.Info;
-
 namespace Xtensive.Sql.Info
 {
   /// <summary>
@@ -135,5 +133,10 @@ namespace Xtensive.Sql.Info
     /// Gets the string indexing base.
     /// </summary>
     public abstract int GetStringIndexingBase();
+
+    /// <summary>
+    /// Gets whether the multiple active result sets are supported.
+    /// </summary>
+    public abstract bool GetMultipleActiveResultSets();
   }
 }

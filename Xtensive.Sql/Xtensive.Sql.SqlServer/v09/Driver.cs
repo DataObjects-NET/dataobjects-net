@@ -1,14 +1,12 @@
-// Copyright (C) 2009 Xtensive LLC.
+// Copyright (C) 2007 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Denis Krjuchkov
-// Created:    2009.07.07
 
 using System;
 using Xtensive.Sql.Compiler;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
-namespace Xtensive.Sql.SqlServer.v2008
+namespace Xtensive.Sql.SqlServer.v09
 {
   internal class Driver : SqlServer.Driver
   {

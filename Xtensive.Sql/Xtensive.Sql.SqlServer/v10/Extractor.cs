@@ -4,9 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
-namespace Xtensive.Sql.SqlServer.v2008
+namespace Xtensive.Sql.SqlServer.v10
 {
-  internal class Extractor : v2005.Extractor
+  internal class Extractor : v09.Extractor
   {
 
     protected override string GetIndexQuery()

@@ -9,7 +9,7 @@ using Xtensive.Core;
 using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
-namespace Xtensive.Sql.SqlServer.v2005
+namespace Xtensive.Sql.SqlServer.v09
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
@@ -292,6 +292,14 @@ namespace Xtensive.Sql.SqlServer.v2005
     {
       return 1;
     }
+
+    public override bool GetMultipleActiveResultSets()
+    {
+      return true;
+    }
+
+
+    // Constructors
 
     public ServerInfoProvider(SqlServerConnection connection, Version version)
     {

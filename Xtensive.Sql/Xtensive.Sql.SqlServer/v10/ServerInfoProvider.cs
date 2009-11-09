@@ -8,9 +8,9 @@ using System;
 using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
-namespace Xtensive.Sql.SqlServer.v2008
+namespace Xtensive.Sql.SqlServer.v10
 {
-  internal class ServerInfoProvider : v2005.ServerInfoProvider
+  internal class ServerInfoProvider : v09.ServerInfoProvider
   {
     public override IndexInfo GetIndexInfo()
     {

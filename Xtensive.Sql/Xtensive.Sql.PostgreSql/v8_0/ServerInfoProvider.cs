@@ -292,6 +292,12 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return 1;
     }
 
+    public override bool GetMultipleActiveResultSets()
+    {
+      return true;
+    }
+
+
     // Constructors
 
     public ServerInfoProvider(NpgsqlConnection connection)

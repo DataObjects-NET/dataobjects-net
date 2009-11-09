@@ -15,7 +15,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.SqlServer.Resources;
 
-namespace Xtensive.Sql.SqlServer.v2005
+namespace Xtensive.Sql.SqlServer.v09
 {
   internal class Translator : SqlTranslator
   {

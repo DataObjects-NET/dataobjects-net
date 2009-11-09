@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.SqlServer.v2005
+namespace Xtensive.Sql.SqlServer.v09
 {
   [Serializable]
   internal class DataTableProxy
