@@ -792,6 +792,7 @@ namespace Xtensive.Storage.Providers.Sql
           idColumn,
           sequenceInfo.Current ?? sequenceInfo.StartValue,
           sequenceInfo.Increment);
+      sequenceTable.CreatePrimaryKey(string.Format("PK_{0}", sequenceInfo.Name), idColumn);
       RegisterCommand(SqlDdl.Create(sequenceTable));
     }
 

@@ -6,6 +6,7 @@
 //
 
 using System;
+using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 
@@ -17,11 +18,14 @@ namespace Xtensive.Storage.Tests
     private const string ForeignKeysModeKey =      "X_FOREIGN_KEYS";
     private const string TypeIdKey =               "X_TYPE_ID";
     private const string InheritanceSchemaKey =    "X_INHERITANCE_SCHEMA";
+    private const string ConnectionUrlKey =    "X_CONNECTION_URL";
 
     public static DomainConfiguration Create()
     {
       // Default values
       var storageType = "memory";
+      string login = null;
+      string password = null;
       var foreignKeyMode = ForeignKeyMode.Default;
       var typeIdBehavior = TypeIdBehavior.Default;
       var inheritanceSchema = InheritanceSchema.Default;
@@ -66,6 +70,13 @@ namespace Xtensive.Storage.Tests
 //      config = Create("pgsql", InheritanceSchema.SingleTable);
 //      config = Create("pgsql", InheritanceSchema.ConcreteTable);
 //      config = Create("pgsql", InheritanceSchema.Default, TypeIdBehavior.Include);
+
+
+      
+      value = GetEnvironmentVariable(ConnectionUrlKey);
+      if (value!=null)
+        config.ConnectionInfo = UrlInfo.Parse(value);
+
       return config;
     }
 
@@ -77,7 +88,8 @@ namespace Xtensive.Storage.Tests
       IncludeTypeIdModifier.IsEnabled = false;
       ExcludeTypeIdModifier.IsEnabled = false;
       TypeIdModifier.IsEnabled = false;
-      return DomainConfiguration.Load(protocol);
+      var domainConfiguration = DomainConfiguration.Load(protocol);
+      return domainConfiguration;
     }
 
     public static DomainConfiguration Create(string protocol, InheritanceSchema schema)
