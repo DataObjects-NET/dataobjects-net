@@ -67,6 +67,8 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.Limit;
       if (queryFeatures.Supports(QueryFeatures.Offset))
         f |= ProviderFeatures.Offset;
+      if (si.MultipleActiveResultSets)
+        f |= ProviderFeatures.MultipleActiveResultSets;
 
       var dataTypes = si.DataTypes;
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;

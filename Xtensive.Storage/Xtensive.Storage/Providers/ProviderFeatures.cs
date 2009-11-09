@@ -31,5 +31,6 @@ namespace Xtensive.Storage.Providers
     Limit = 0x20000,
     Offset = 0x40000,
     Paging = Limit | Offset,
+    MultipleActiveResultSets = 0x80000,
   }
 }

@@ -28,6 +28,16 @@ namespace Xtensive.Storage.Tests.Issues.Issue0262_Model
 
     [Field]
     public int Two { get; set; }
+
+    public Pair(int one, int two)
+    {
+      One = one;
+      Two = two;
+    }
+
+    public Pair()
+    {
+    }
   }
 
   public class Triple : Pair
@@ -49,7 +59,7 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    public void MainTest()
+    public void SetTest()
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
@@ -62,6 +72,40 @@ namespace Xtensive.Storage.Tests.Issues
             
           }
           
+          // Rollback
+        }
+      }
+    }
+
+    [Test]
+    public void CastTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          
+          var container = new Container();
+          try {
+            container.Value = (Pair)new Triple();
+            Assert.Fail();
+          } catch (InvalidOperationException) {
+            
+          }
+          
+          // Rollback
+        }
+      }
+    }
+
+    [Test]
+    public void ValidTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          
+          var container = new Container();
+          var triple = new Triple();
+          container.Value = new Pair(triple.One, triple.Two);
+
           // Rollback
         }
       }
