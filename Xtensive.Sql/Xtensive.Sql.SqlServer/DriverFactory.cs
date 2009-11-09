@@ -22,15 +22,26 @@ namespace Xtensive.Sql.SqlServer
       using (var connection = ConnectionFactory.CreateConnection(url)) {
         connection.Open();
         var version = new Version(connection.ServerVersion);
-        if (version.Major < 9)
-          throw new NotSupportedException(Strings.ExMicrosoftSqlServerBelow2005IsNotSupported);
-        SqlDriver result;
-        if (version.Major==9)
-          result = new v09.Driver(connection, version);
-        else
-          result = new v10.Driver(connection, version);
+        SqlDriver driver;
+        switch (version.Major) {
+          case 9:
+            driver = new v09.Driver(connection, version);
+            break;
+          case 10:
+            using (var command = connection.CreateCommand()) {
+              command.CommandText = "SELECT @@VERSION";
+              string result = command.ExecuteScalar() as string;
+              if (result!=null && result.Contains("Azure"))
+                driver = new Azure.Driver(connection, version);
+              else
+                driver = new v10.Driver(connection, version);
+            }
+            break;
+          default:
+            throw new NotSupportedException(Strings.ExMicrosoftSqlServerBelow2005IsNotSupported);
+        }
         connection.Close();
-        return result;
+        return driver;
       }
     }
   }

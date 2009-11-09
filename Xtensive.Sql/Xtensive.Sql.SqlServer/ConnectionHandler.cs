@@ -15,7 +15,7 @@ namespace Xtensive.Sql.SqlServer
   {
     public override DbConnection CreateConnection(UrlInfo url)
     {
-      return ConnectionFactory.CreateConnection(url);
+      return ConnectionFactory.CreateConnection(Driver, url);
     }
 
     public override DbParameter CreateParameter()

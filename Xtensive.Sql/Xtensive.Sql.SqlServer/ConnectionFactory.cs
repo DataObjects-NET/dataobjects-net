@@ -12,18 +12,25 @@ namespace Xtensive.Sql.SqlServer
   {
     public static SqlServerConnection CreateConnection(UrlInfo url)
     {
-      var connectionString = BuildConnectionString(url);
-      return new SqlServerConnection(connectionString);
+      var builder = GetBuilder(url);
+      return new SqlServerConnection(builder.ToString());
     }
 
-    private static string BuildConnectionString(UrlInfo url)
+    public static SqlServerConnection CreateConnection(SqlDriver driver, UrlInfo url)
+    {
+      var builder = GetBuilder(url);
+      builder.MultipleActiveResultSets = driver.ServerInfo.MultipleActiveResultSets;
+      return new SqlServerConnection(builder.ToString());
+    }
+
+    private static SqlConnectionStringBuilder GetBuilder(UrlInfo url)
     {
       SqlHelper.ValidateConnectionUrl(url);
 
       var builder = new SqlConnectionStringBuilder();
 
       builder.InitialCatalog = url.Resource ?? string.Empty;
-      builder.MultipleActiveResultSets = true;
+
       if (url.Port==0)
         builder.DataSource = url.Host;
       else
@@ -40,7 +47,7 @@ namespace Xtensive.Sql.SqlServer
       foreach (var param in url.Params)
         builder[param.Key] = param.Value;
 
-      return builder.ToString();
+      return builder;
     }
   }
 }

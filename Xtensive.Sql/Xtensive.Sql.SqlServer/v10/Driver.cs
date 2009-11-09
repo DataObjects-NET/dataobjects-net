@@ -33,5 +33,9 @@ namespace Xtensive.Sql.SqlServer.v10
       : base(new ServerInfoProvider(connection, version))
     {
     }
+
+    protected Driver(ServerInfoProvider serverInfoProvider)
+      : base(serverInfoProvider)
+    {}
   }
 }
