@@ -61,23 +61,33 @@ namespace Xtensive.Storage.Manual
       domainConfiguration.ValidationMode = ValidationMode.OnDemand;
       var domain = Domain.Build(domainConfiguration);
 
-      var personId = 1;
+      int personId;
+      using (Session.Open(domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          personId = new Person().Id;
+          transactionScope.Complete();
+        }
+      }
 
       using (var session = Session.Open(domain)) {
+        using (var transactionScope = Transaction.Open()) {
 
-        var newPerson = new Person();
-        var fetchedPerson = Query<Person>.Single(personId);
+          var newPerson = new Person();
+          var fetchedPerson = Query<Person>.Single(personId);
 
-        Console.WriteLine("Our session is current: {0}", Session.Current==session);
-        Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);
-        Console.WriteLine("Fetched entity is bound to our session: {0}", fetchedPerson.Session==session);
+          Console.WriteLine("Our session is current: {0}", Session.Current==session);
+          Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);
+          Console.WriteLine("Fetched entity is bound to our session: {0}", fetchedPerson.Session==session);
+
+          transactionScope.Complete();
+        }
       }
     }
 
     [Test]
     public void SessionConfigurationTest()
     {
-//      var domainConfig = DomainConfiguration.Load("TestDomain");
+      var domainConfig = DomainConfiguration.Load("TestDomain");
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       domainConfig.Types.Register(typeof (Person));
       domainConfig.ValidationMode = ValidationMode.OnDemand;
@@ -90,8 +100,6 @@ namespace Xtensive.Storage.Manual
         Options = SessionOptions.AutoShortenTransactions
       };
 
-
-      var domainConfig = DomainConfiguration.Load("TestDomain");
       var sessionConfigTwo = domainConfig.Sessions["TestSession"];
 
       Assert.AreEqual(sessionConfigTwo.BatchSize, sessionCongfigOne.BatchSize);
@@ -99,14 +107,9 @@ namespace Xtensive.Storage.Manual
       Assert.AreEqual(sessionConfigTwo.CacheSize, sessionCongfigOne.CacheSize);
       Assert.AreEqual(sessionConfigTwo.Options, sessionCongfigOne.Options);
 
-//      using (var session = Session.Open(domain, sessionConfigTwo)) {
-//        var newPerson = new Person();
-//        var fetchedPerson = Query<Person>.Single(1);
-//
-//        Console.WriteLine("Our session is current: {0}", Session.Current==session);
-//        Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);
-//        Console.WriteLine("Fetched entity is bound to our session: {0}", fetchedPerson.Session==session);
-//      }
+      using (Session.Open(domain, sessionConfigTwo)) {
+        // ...
+      }
     }
 
     #region Session sample
