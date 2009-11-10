@@ -34,17 +34,16 @@ namespace Xtensive.Storage.Tests.Issues
       config.AutoValidation = true;
       config.ForeignKeyMode = ForeignKeyMode.All;
       config.KeyGeneratorCacheSize = 32;
-      config.SessionPoolSize = 5;
 
       config.UpgradeMode = DomainUpgradeMode.Recreate;
 
       config.Types.Register(typeof (Class1).Assembly, typeof (Class1).Namespace);
 
-      var sc = new SessionConfiguration("Default");
-      sc.DefaultIsolationLevel = IsolationLevel.Serializable;
-      sc.Options = SessionOptions.AutoShortenTransactions;
-
-      config.Sessions.Add(sc);
+      var sessionConfig = new SessionConfiguration("Default") {
+        DefaultIsolationLevel = IsolationLevel.Serializable, 
+        Options = SessionOptions.AutoShortenTransactions
+      };
+      config.Sessions.Add(sessionConfig);
 
       return config;
     }

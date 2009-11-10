@@ -100,7 +100,6 @@ namespace Xtensive.Storage.Configuration
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
     private int queryCacheSize = DefaultQueryCacheSize;
-    private int sessionPoolSize = DefaultSessionPoolSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
     private bool inconsistentTransactions;
@@ -243,21 +242,6 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets the size of the session pool.
-    /// Default value is <see cref="DefaultSessionPoolSize"/>.
-    /// </summary>
-    public int SessionPoolSize
-    {
-      get { return sessionPoolSize; }
-      set
-      {
-        this.EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
-        sessionPoolSize = value;
-      }
-    }
-
-    /// <summary>
     /// Gets or sets the size of the record set mapping cache.
     /// Default value is <see cref="DefaultRecordSetMappingCacheSize"/>.
     /// </summary>
@@ -283,22 +267,6 @@ namespace Xtensive.Storage.Configuration
       {
         this.EnsureNotLocked();
         autoValidation = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether inconsistent region should be automatically open within the transaction.
-    /// I.e. all the entities changed within the transaction should be validated on transaction commit only.
-    /// Default value is <see cref="DefaultInconsistentTransactions"/>.
-    /// </summary>
-    [Obsolete("Use ContinualValidation property instead.")]
-    public bool InconsistentTransactions
-    {
-      get { return ValidationMode==ValidationMode.OnDemand; }
-      set 
-      {
-        this.EnsureNotLocked();
-        ValidationMode = value ? ValidationMode.OnDemand : ValidationMode.Continuous;
       }
     }
 
@@ -396,7 +364,6 @@ namespace Xtensive.Storage.Configuration
       keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       queryCacheSize = configuration.QueryCacheSize;
-      sessionPoolSize = configuration.SessionPoolSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
       compilerContainers = (TypeRegistry) configuration.CompilerContainers.Clone();

@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Web
     }
 
     /// <summary>
-    /// Gets a value indicating whether an error has occurred 
+    /// Gets or sets value indicating whether an error has occurred 
     /// on execution of the current request and transaction should be rollbacked.
     /// </summary>
     public bool HasErrors { get; set; }

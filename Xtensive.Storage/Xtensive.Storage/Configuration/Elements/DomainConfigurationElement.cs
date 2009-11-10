@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string SessionPoolSizeElementName = "sessionPoolSize";
     private const string RecordSetMappingCacheSizeElementName = "recordSetMappingCacheSizeSize";
     private const string AutoValidationElementName = "autoValidation";
-    private const string InconsistentTransactionsElementName = "inconsistentTransactions";
+  
     private const string SessionsElementName = "sessions";
     private const string CompilerContainersElementName = "compilerContainers";
     private const string TypeAliasesElementName = "typeAliases";
@@ -147,16 +147,6 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.continualValidation" copy="true"/>
-    /// </summary>
-    [ConfigurationProperty(InconsistentTransactionsElementName, IsRequired = false, DefaultValue = DomainConfiguration.DefaultInconsistentTransactions)]
-    public bool InconsistentTransactions
-    {
-      get { return (bool) this[InconsistentTransactionsElementName]; }
-      set { this[InconsistentTransactionsElementName] = value; }
-    }
-
-    /// <summary>
     /// <see cref="DomainConfiguration.UpgradeMode" copy="true"/>
     /// </summary>
     [ConfigurationProperty(UpgradeModeElementName, IsRequired = false, DefaultValue = "Default")]
@@ -220,7 +210,6 @@ namespace Xtensive.Storage.Configuration.Elements
         KeyCacheSize = KeyCacheSize,
         KeyGeneratorCacheSize = KeyGeneratorCacheSize,
         QueryCacheSize = QueryCacheSize,
-        SessionPoolSize = SessionPoolSize,
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,
         AutoValidation = AutoValidation,
         ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),

@@ -4,10 +4,14 @@
 // Created by: Alex Kofman
 // Created:    2009.06.17
 
+using System;
+using System.Transactions;
+using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual
 {
+  [TestFixture]
   public class DomainAndSessionSample
   {
     #region Connection URL examples
@@ -20,12 +24,11 @@ namespace Xtensive.Storage.Manual
     public class Person : Entity
     {
       [Field, Key]
-      public int Id { get; set; }
+      public int Id { get; private set; }
 
       [Field]
       public string Name { get; set; }
     }
-
 
     #region Domain sample
     public void Main()
@@ -50,6 +53,62 @@ namespace Xtensive.Storage.Manual
     }
     #endregion
 
+    public void CurrentSessionTest()
+    {
+      var domainConfiguration = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
+      domainConfiguration.Types.Register(typeof (Person));
+      domainConfiguration.ValidationMode = ValidationMode.OnDemand;
+      var domain = Domain.Build(domainConfiguration);
+
+      var personId = 1;
+
+      using (var session = Session.Open(domain)) {
+
+        var newPerson = new Person();
+        var fetchedPerson = Query<Person>.Single(personId);
+
+        Console.WriteLine("Our session is current: {0}", Session.Current==session);
+        Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);
+        Console.WriteLine("Fetched entity is bound to our session: {0}", fetchedPerson.Session==session);
+      }
+    }
+
+    [Test]
+    public void SessionConfigurationTest()
+    {
+//      var domainConfig = DomainConfiguration.Load("TestDomain");
+      domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
+      domainConfig.Types.Register(typeof (Person));
+      domainConfig.ValidationMode = ValidationMode.OnDemand;
+      var domain = Domain.Build(domainConfig);
+
+      var sessionCongfigOne = new SessionConfiguration {
+        BatchSize = 25,
+        DefaultIsolationLevel = IsolationLevel.ReadCommitted,
+        CacheSize = 1000,
+        Options = SessionOptions.AutoShortenTransactions
+      };
+
+
+      var domainConfig = DomainConfiguration.Load("TestDomain");
+      var sessionConfigTwo = domainConfig.Sessions["TestSession"];
+
+      Assert.AreEqual(sessionConfigTwo.BatchSize, sessionCongfigOne.BatchSize);
+      Assert.AreEqual(sessionConfigTwo.DefaultIsolationLevel, sessionCongfigOne.DefaultIsolationLevel);
+      Assert.AreEqual(sessionConfigTwo.CacheSize, sessionCongfigOne.CacheSize);
+      Assert.AreEqual(sessionConfigTwo.Options, sessionCongfigOne.Options);
+
+//      using (var session = Session.Open(domain, sessionConfigTwo)) {
+//        var newPerson = new Person();
+//        var fetchedPerson = Query<Person>.Single(1);
+//
+//        Console.WriteLine("Our session is current: {0}", Session.Current==session);
+//        Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);
+//        Console.WriteLine("Fetched entity is bound to our session: {0}", fetchedPerson.Session==session);
+//      }
+    }
+
     #region Session sample
     public void SessionSample(Domain domain)
     {
@@ -64,5 +123,6 @@ namespace Xtensive.Storage.Manual
       }
     }
     #endregion
+
   }
 }
