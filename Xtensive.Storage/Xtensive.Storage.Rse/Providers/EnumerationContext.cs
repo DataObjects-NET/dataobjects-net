@@ -24,6 +24,8 @@ namespace Xtensive.Storage.Rse.Providers
     private const string DefaultName = "Default";
     private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
 
+    public abstract bool MultipleActiveResultSetSupported { get; }
+
     /// <summary>
     /// Gets the current <see cref="EnumerationContext"/>.
     /// </summary>

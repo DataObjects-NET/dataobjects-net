@@ -17,6 +17,11 @@ namespace Xtensive.Storage.Rse.Compilation
   {
     private static readonly GlobalTemporaryData globalTemporaryData = new GlobalTemporaryData();
 
+    public override bool MultipleActiveResultSetSupported
+    {
+      get { return true; }
+    }
+
     /// <inheritdoc/>
     public override GlobalTemporaryData GlobalTemporaryData {
       get {

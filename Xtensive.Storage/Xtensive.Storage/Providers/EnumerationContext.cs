@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.30
 
+using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers.Executable;
 
@@ -15,17 +16,28 @@ namespace Xtensive.Storage.Providers
   /// </summary>
   public sealed class EnumerationContext : Rse.Providers.EnumerationContext
   {
+    private readonly bool multipleActiveResultSetSupported;
+
+    public override bool MultipleActiveResultSetSupported
+    {
+      get { return multipleActiveResultSetSupported; }
+    }
+
     /// <inheritdoc/>
-    public override GlobalTemporaryData GlobalTemporaryData {
-      get {
+    public override GlobalTemporaryData GlobalTemporaryData
+    {
+      get
+      {
         var domain = Domain.Current;
         return domain!=null ? domain.TemporaryData : null;
       }
     }
 
     /// <inheritdoc/>
-    public override TransactionTemporaryData TransactionTemporaryData {
-      get {
+    public override TransactionTemporaryData TransactionTemporaryData
+    {
+      get
+      {
         var transaction = Transaction.Current;
         return transaction!=null ? transaction.TemporaryData : null;
       }
@@ -55,6 +67,7 @@ namespace Xtensive.Storage.Providers
       session.Persist(true);
       session.ExecuteAllDelayedQueries(true);
       session.Handler.OnEnumerationContextCreated();
+      multipleActiveResultSetSupported = session.Domain.StorageProviderInfo.Supports(ProviderFeatures.MultipleActiveResultSets);
     }
   }
 }

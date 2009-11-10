@@ -14,6 +14,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using System.Linq;
 
 namespace Xtensive.Storage.Rse
 {
@@ -64,6 +65,12 @@ namespace Xtensive.Storage.Rse
         if (compilationContext==null)
           throw new InvalidOperationException();
         compiled = compilationContext.Compile(Provider);
+        if (!ctx.MultipleActiveResultSetSupported) {
+          // If MARS not supported, enumerate all data into memory first.
+          foreach (var tuple in compiled.ToList())
+            yield return tuple;
+          yield break;
+        }
       }
       EnumerationScope currentScope = null;
       var batched = compiled.Batch(2).ApplyBeforeAndAfter(
