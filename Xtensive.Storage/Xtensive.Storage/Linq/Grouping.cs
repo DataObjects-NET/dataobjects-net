@@ -9,6 +9,7 @@ using System.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Linq.Materialization;
 
 namespace Xtensive.Storage.Linq
 {
@@ -19,8 +20,8 @@ namespace Xtensive.Storage.Linq
   {
     public TKey Key { get; private set; }
 
-    public Grouping(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple, TKey key)
-      : base(projectionExpression, translatedQuery, parameter, tuple)
+    public Grouping(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple, TKey key, ItemMaterializationContext context)
+      : base(projectionExpression, translatedQuery, parameter, tuple, context)
     {
       Key = key;
     }

@@ -12,13 +12,16 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Linq.Materialization;
 
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  internal class SubQuery<TElement> : IOrderedQueryable<TElement>, 
+  internal class SubQuery<TElement> : FutureBase<IEnumerable<TElement>>,
+    IOrderedQueryable<TElement>, 
     IOrderedEnumerable<TElement>
   {
     private readonly ProjectionExpression projectionExpression;
@@ -31,7 +34,8 @@ namespace Xtensive.Storage.Linq
 
     public IEnumerator<TElement> GetEnumerator()
     {
-      return translatedQuery.Execute().GetEnumerator();
+      return Materialize().GetEnumerator();
+//      return translatedQuery.Execute().GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -57,7 +61,8 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple)
+    public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple, ItemMaterializationContext context)
+      : base((TranslatedQuery<IEnumerable<TElement>>)translatedQuery, new ParameterContext())
     {
       this.projectionExpression = new ProjectionExpression(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.TupleParameterBindings, projectionExpression.ResultType);
       var query = ((TranslatedQuery<IEnumerable<TElement>>) translatedQuery);
@@ -69,7 +74,16 @@ namespace Xtensive.Storage.Linq
         var value = tupleParameter.Value;
         this.translatedQuery.TupleParameterBindings[tupleParameter] = value;
         this.projectionExpression.TupleParameterBindings[tupleParameter] = value;
+        tupleParameterBindings[tupleParameter] = value;
       }
+
+      using (Task.ParameterContext.ActivateSafely()) {
+        foreach (var tupleParameter in query.TupleParameters)
+          tupleParameter.Value = tupleParameter.Value;
+        foreach (var tupleParameterBinding in this.translatedQuery.TupleParameterBindings)
+          tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
+      }
+      context.Session.RegisterDelayedQuery(Task);
     }
   }
 }

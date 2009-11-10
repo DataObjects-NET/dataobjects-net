@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Internals
   public abstract class FutureBase<TResult>
   {
     private readonly Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, TResult> materializer;
-    private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
+    protected readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
 
     private readonly Transaction transaction;
 

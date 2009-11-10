@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Linq.Materialization
     public static MethodInfo GetEntityMethodInfo      { get; private set; }
     public static MethodInfo MaterializeMethodInfo    { get; private set; }
 
-    private readonly Session session;
+    public readonly Session Session;
     private readonly Entity[] entities;
     private readonly MaterializationContext materializationContext;
 
@@ -52,11 +52,11 @@ namespace Xtensive.Storage.Linq.Materialization
       }
       if (accuracy==TypeReferenceAccuracy.ExactType) {
         var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);
-        var entityState = session.Handler.RegisterEntityState(key, entityTuple);
+        var entityState = Session.Handler.RegisterEntityState(key, entityTuple);
         result = entityState.Entity;
       }
       else {
-        result = Query.SingleOrDefault(session, key);
+        result = Query.SingleOrDefault(Session, key);
       }
       entities[entityIndex] = result;
       return result;
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Linq.Materialization
     public ItemMaterializationContext(MaterializationContext materializationContext, Session session)
     {
       this.materializationContext = materializationContext;
-      this.session = session;
+      Session = session;
       entities = new Entity[materializationContext.EntitiesInRow];
     }
 

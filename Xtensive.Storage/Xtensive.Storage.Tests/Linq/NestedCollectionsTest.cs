@@ -7,6 +7,7 @@
 using System.Collections;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -31,6 +32,24 @@ namespace Xtensive.Storage.Tests.Linq
         numberOfEmployees = Query<Employee>.All.Count();
         t.Complete();
       }
+    }
+
+    [Test]
+    public void SubqueryTest()
+    {
+      var result =
+        from c in Query<Customer>.All
+        select new {
+          Customer = c,
+          Orders = c.Orders
+            .Select(o => new { Order = o, Details = o.OrderDetails })
+        };
+      var list = result.ToList();
+      foreach (var a in list)
+        foreach (var b in a.Orders)
+          foreach (var detail in b.Details) {
+            
+          }
     }
 
     [Test]

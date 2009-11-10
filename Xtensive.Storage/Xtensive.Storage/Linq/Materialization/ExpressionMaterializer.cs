@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Linq.Materialization
       var keyMaterializer = Visit(groupingExpression.KeyExpression);
       var groupingCtor = typeof (Grouping<,>)
         .MakeGenericType(keyType, elementType)
-        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), typeof (Tuple), keyType});
+        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), typeof (Tuple), keyType, typeof(ItemMaterializationContext)});
 
       // 3. Create result expression.
       var resultExpression = Expression.New(
@@ -91,7 +91,8 @@ namespace Xtensive.Storage.Linq.Materialization
         Expression.Constant(translatedQuery),
         Expression.Constant(parameterOfTuple),
         tupleParameter,
-        keyMaterializer);
+        keyMaterializer,
+        itemMaterializationContextParameter);
 
       // 4. Result must be IGrouping<,> instead of Grouping<,>. Convert result expression.
       return Expression.Convert(resultExpression, groupingExpression.Type);
@@ -108,7 +109,7 @@ namespace Xtensive.Storage.Linq.Materialization
       // 2. Create constructor
       var subQueryCtor = typeof (SubQuery<>)
         .MakeGenericType(elementType)
-        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), typeof (Tuple)});
+        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), typeof (Tuple), typeof(ItemMaterializationContext)});
 
       // 3. Create result expression.
       var resultExpression = Expression.New(
@@ -116,7 +117,8 @@ namespace Xtensive.Storage.Linq.Materialization
         Expression.Constant(projection),
         Expression.Constant(translatedQuery),
         Expression.Constant(parameterOfTuple),
-        tupleParameter);
+        tupleParameter,
+        itemMaterializationContextParameter);
 
       return Expression.Convert(resultExpression, subQueryExpression.Type);
     }
