@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void FullLoadingOfEntitySetItemsWithoutAuxTypeTest()
+    public void FullLoadingOfDirectEntitySetItemsTest()
     {
       var keys = new List<Key>();
       using (Session.Open(Domain))
@@ -256,7 +256,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void FullLoadingOfEntitySetItemsWithAuxTypeTest()
+    public void FullLoadingOfIndirectEntitySetItemsTest()
     {
       var publisherKeys = new List<Key>();
       var bookShopKeys = new List<Key>();

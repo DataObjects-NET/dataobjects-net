@@ -27,12 +27,31 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
 
     [Field(Length = 50)]
     public string Name { get; set; }
+
+
+    // Constructors
+
+    protected Person()
+    {}
+
+    protected Person(int id)
+      : base(id)
+    {}
   }
 
   public abstract class AdvancedPerson : Person
   {
     [Field]
     public int Age { get; set; }
+
+    // Constructors
+
+    protected AdvancedPerson()
+    {}
+
+    protected AdvancedPerson(int id)
+      : base(id)
+    {}
   }
 
   public class Customer : AdvancedPerson
@@ -42,6 +61,16 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
 
     [Field]
     public string City { get; set; }
+
+
+    // Constructors
+
+    public Customer()
+    {}
+
+    public Customer(int id)
+      : base(id)
+    {}
   }
 
   public class Supplier : AdvancedPerson
@@ -258,5 +287,42 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public int AuxField { get; set; }
 
     public IReferenceToSelf Reference { get; set; }
+  }
+
+  public class Offer : Structure
+  {
+    [Field]
+    public int Number { get; set; }
+
+    [Field]
+    public Book Book { get; set; }
+
+    [Field]
+    public IBookShop BookShop { get; set; }
+  }
+
+  public class IntermediateOffer : Structure
+  {
+    [Field]
+    public int Number { get; set; }
+
+    [Field]
+    public Offer RealOffer { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class OfferContainer : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public Offer RealOffer { get; set; }
+
+    [Field]
+    public IntermediateOffer IntermediateOffer { get; set; }
+
+    [Field]
+    public string AuxField { get; set; }
   }
 }

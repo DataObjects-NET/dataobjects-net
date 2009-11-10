@@ -232,7 +232,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void TasksAreExecutedAutomaticallyWhenTheirCountIsReachedLimitTest()
+    public void TasksAreExecutedAutomaticallyWhenCountLimitIsReachedTest()
     {
       const int entityCount = 101;
       var keys = new List<Key>(entityCount);
@@ -462,7 +462,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void FetchEntitySetWhenItsOwnerHasAlreadyBeenFetchedInAnotherTransactionTest()
+    public void EntitySetWhenItsOwnerHasAlreadyBeenFetchedInAnotherTransactionPrefetchTest()
     {
       var orderKey = GetFirstKey<Order>();
       using (var session = Session.Open(Domain)) {
@@ -567,15 +567,16 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void NotificationAboutKeyWhenItsEntityHasBeenLoadedInAnotherTransactionTest()
+    public void NotificationAboutUnknownForeignKeyWhenItsEntityHasBeenLoadedInAnotherTransactionTest()
     {
       Key book0Key;
       Key title0Key;
+      Key book1Key;
+      Key title1Key;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var title0 = new Title {Text = "text0", Language = "En"};
-        title0Key = title0.Key;
-        book0Key = new Book {Category = "a", Title = title0}.Key;
+        CreateBookAndTitleInExistingSession(out title0Key, out book0Key);
+        CreateBookAndTitleInExistingSession(out title1Key, out book1Key);
         tx.Complete();
       }
 
@@ -583,16 +584,55 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         using (var tx = Transaction.Open()) {
           prefetchProcessor.Prefetch(title0Key, null, new PrefetchFieldDescriptor(title0Key.Type.Fields["Id"]));
+          prefetchProcessor.Prefetch(book1Key, null, new PrefetchFieldDescriptor(book1Key.Type.Fields["Id"]));
+          prefetchProcessor.Prefetch(title1Key, null, new PrefetchFieldDescriptor(title1Key.Type.Fields["Id"]));
           prefetchProcessor.ExecuteTasks();
         }
         using (var tx = Transaction.Open()) {
-          var hasSubscriberBeenNotified = false;
           prefetchProcessor.Prefetch(book0Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true,
-            (ownerKey, field, key) => hasSubscriberBeenNotified = true));
+            (ownerKey, field, key) => Assert.Fail()));
+          prefetchProcessor.Prefetch(book1Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true,
+            (ownerKey, field, key) => Assert.Fail()));
           prefetchProcessor.ExecuteTasks();
 
-          Assert.IsTrue(hasSubscriberBeenNotified);
           PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(title0Key, ITitleType, session);
+        }
+      }
+    }
+
+    [Test]
+    public void FetchEntityWhenItsStateHasBeenMarkedAsNotFoundInPreviousTransactionTest()
+    {
+      const int idValue = int.MaxValue - 1;
+      var key = Key.Create(Domain, typeof (Person).GetTypeInfo(Domain), TypeReferenceAccuracy.BaseType,
+        idValue);
+      var personType = typeof (Person).GetTypeInfo(Domain);
+      using (var session = Session.Open(Domain)) {
+        EntityState previousState;
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
+        using (var tx = Transaction.Open()) {
+          prefetchProcessor.Prefetch(key, personType, new PrefetchFieldDescriptor(PersonIdField));
+          prefetchProcessor.ExecuteTasks();
+          previousState = session.EntityStateCache[key, true];
+          Assert.AreSame(key, previousState.Key);
+          Assert.IsFalse(previousState.Key.HasExactType);
+          Assert.IsTrue(previousState.IsTupleLoaded);
+          Assert.IsNull(previousState.Tuple);
+        }
+        using (var nestedSession = Session.Open(Domain))
+        using (var tx = Transaction.Open()) {
+          new Customer(idValue) {Age = 25, City = "A"};
+          tx.Complete();
+        }
+        using (var tx = Transaction.Open()) {
+          prefetchProcessor.Prefetch(key, personType, new PrefetchFieldDescriptor(PersonIdField));
+          prefetchProcessor.ExecuteTasks();
+          var state = session.EntityStateCache[key, true];
+          Assert.AreNotSame(previousState, state);
+          Assert.AreNotSame(key, state.Key);
+          Assert.IsTrue(state.Key.HasExactType);
+          Assert.IsTrue(state.IsTupleLoaded);
+          Assert.IsNotNull(state.Tuple);
         }
       }
     }
@@ -701,12 +741,17 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var title = new Title {Text = "abc", Language = "En"};
-        titleKey = title.Key;
-        var book = new Book {Category = "1", Title = title};
-        bookKey = book.Key;
+        CreateBookAndTitleInExistingSession(out titleKey, out bookKey);
         tx.Complete();
       }
+    }
+
+    private static void CreateBookAndTitleInExistingSession(out Key titleKey, out Key bookKey)
+    {
+      var title = new Title {Text = "abc", Language = "En"};
+      titleKey = title.Key;
+      var book = new Book {Category = "1", Title = title};
+      bookKey = book.Key;
     }
   }
 }

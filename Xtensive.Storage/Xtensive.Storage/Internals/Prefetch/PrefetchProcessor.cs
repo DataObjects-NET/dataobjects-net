@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       tuple = null;
       bool isRemoved;
-      var entityState = GetCachedEntityState(key, out isRemoved);
+      var entityState = GetCachedEntityState(ref key, out isRemoved);
       if (isRemoved)
         return false;
       if (entityState != null) {
@@ -147,10 +147,11 @@ namespace Xtensive.Storage.Internals.Prefetch
       referenceContainer.Join(new StrongReferenceContainer(reference));
     }
 
-    public EntityState GetCachedEntityState(Key key, out bool isRemoved)
+    public EntityState GetCachedEntityState(ref Key key, out bool isRemoved)
     {
       EntityState cachedState;
       if (Owner.TryGetEntityState(key, out cachedState)) {
+        key = cachedState.Key;
         isRemoved = cachedState.PersistenceState==PersistenceState.Removed;
         return cachedState.IsTupleLoaded ? cachedState : null;
       }

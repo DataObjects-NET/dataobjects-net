@@ -59,15 +59,15 @@ namespace Xtensive.Storage
       var result = EntityStateCache[key, true];
       if (result == null) {
         if (!key.HasExactType && tuple!=null)
-          throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType, Log.Instance);
-        result = new EntityState(this, key, tuple, isStale) {
-          PersistenceState = PersistenceState.Synchronized
-        };
-        EntityStateCache.Add(result);
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.SessionXCachingY, this, result);
+          throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType,
+            Log.Instance);
+        result = AddEntityStateToCache(key, tuple, isStale);
       }
       else {
+        if (!result.Key.HasExactType && key.HasExactType) {
+          EntityStateCache.RemoveKey(result.Key);
+          result = AddEntityStateToCache(key, tuple, result.IsStale);
+        }
         result.Update(tuple);
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.SessionXUpdatingCacheY, this, result);
@@ -94,6 +94,17 @@ namespace Xtensive.Storage
           UpdateEntityState(key, tuple);
         }
       }
+    }
+
+    private EntityState AddEntityStateToCache(Key key, Tuple tuple, bool isStale)
+    {
+      var result = new EntityState(this, key, tuple, isStale) {
+        PersistenceState = PersistenceState.Synchronized
+      };
+      EntityStateCache.Add(result);
+      if (IsDebugEventLoggingEnabled)
+        Log.Debug(Strings.SessionXCachingY, this, result);
+      return result;
     }
   }
 }

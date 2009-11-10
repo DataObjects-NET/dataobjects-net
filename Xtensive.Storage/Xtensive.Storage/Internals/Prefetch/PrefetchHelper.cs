@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Internals.Prefetch
   {
     public static bool IsFieldToBeLoadedByDefault(FieldInfo field)
     {
-      return field.IsPrimaryKey || field.IsSystem || !field.IsLazyLoad && !field.IsEntitySet;
+      return field.IsPrimaryKey || field.IsSystem || (!field.IsLazyLoad && !field.IsEntitySet);
     }
 
     public static PrefetchFieldDescriptor[] CreateDescriptorsForFieldsLoadedByDefault(TypeInfo type)
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         if (!processor.TryGetTupleOfNonRemovedEntity(ref cachedKey, out entityTuple))
           return null;
         if (cachedKey.HasExactType) {
-          type = cachedKey.Type;
+          type = cachedKey.TypeRef.Type;
           return true;
         }
         return false;

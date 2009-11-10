@@ -151,14 +151,14 @@ namespace Xtensive.Storage.Internals.Prefetch
         referencingFieldDescriptor.Field.Association.TargetType, TypeReferenceAccuracy.BaseType,
         referencedKeyTuple);
       var targetType = referencingFieldDescriptor.Field.Association.TargetType;
-      var needToNotifyOwner = true;
+      var areToNotifyOwner = true;
       TypeInfo exactReferencedType;
       var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(referencedKey, processor,
         out exactReferencedType);
       if (hasExactTypeBeenGotten!=null) {
         if (hasExactTypeBeenGotten.Value) {
           targetType = exactReferencedType;
-          needToNotifyOwner = false;
+          areToNotifyOwner = false;
         }
       }
       else
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       var fieldsToBeLoaded = PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(targetType);
       var graphContainer = processor.SetUpContainers(referencedKey, targetType, fieldsToBeLoaded,
         true, null);
-      if (needToNotifyOwner)
+      if (areToNotifyOwner)
         graphContainer.RootEntityContainer.SetParametersOfReference(referencingFieldDescriptor, referencedKey);
     }
 

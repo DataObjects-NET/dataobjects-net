@@ -25,6 +25,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     protected TypeInfo BookType;
     protected TypeInfo TitleType;
     protected TypeInfo ITitleType;
+    protected TypeInfo OfferContainerType;
     protected FieldInfo PersonIdField;
     protected FieldInfo AgeField;
     protected FieldInfo CityField;
@@ -59,6 +60,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       BookType = Domain.Model.Types[typeof (Book)];
       TitleType = Domain.Model.Types[typeof (Title)];
       ITitleType = typeof (ITitle).GetTypeInfo(Domain);
+      OfferContainerType = typeof (OfferContainer).GetTypeInfo(Domain);
       PersonIdField = Domain.Model.Types[typeof (Person)].Fields["Id"];
       OrderIdField = Domain.Model.Types[typeof (Order)].Fields["Id"];
       CityField = CustomerType.Fields["City"];

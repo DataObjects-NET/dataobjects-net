@@ -148,7 +148,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
             field => PrefetchHelper.IsFieldToBeLoadedByDefault(field)
               || field.Equals(employeeField) || (field.Parent != null && field.Parent.Equals(employeeField)));
           var state = session.EntityStateCache[orderKey, true];
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(state.Entity.GetFieldValue<Employee>(employeeField).Key,
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(
+            state.Entity.GetFieldValue<Employee>(employeeField).Key,
             employeeType, session, field =>
               PrefetchHelper.IsFieldToBeLoadedByDefault(field) || field.Equals(ordersField));
         }
