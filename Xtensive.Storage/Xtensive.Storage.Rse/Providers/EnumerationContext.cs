@@ -24,7 +24,15 @@ namespace Xtensive.Storage.Rse.Providers
     private const string DefaultName = "Default";
     private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
 
-    public abstract bool MultipleActiveResultSetSupported { get; }
+    /// <summary>
+    /// Gets a value indicating whether <see cref="IEnumerator{T}"/> of root provider
+    /// should be fully loaded before returning data to user.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if <see cref="IEnumerator{T}"/> of root provider should be preloaded;
+    /// otherwise, <see langword="false"/>.
+    /// </value>
+    public abstract bool PreloadEnumerator { get; }
 
     /// <summary>
     /// Gets the current <see cref="EnumerationContext"/>.

@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.30
 
-using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers.Executable;
 
@@ -16,28 +15,22 @@ namespace Xtensive.Storage.Providers
   /// </summary>
   public sealed class EnumerationContext : Rse.Providers.EnumerationContext
   {
-    private readonly bool multipleActiveResultSetSupported;
-
-    public override bool MultipleActiveResultSetSupported
-    {
-      get { return multipleActiveResultSetSupported; }
-    }
+    private readonly bool preloadEnumerator;
 
     /// <inheritdoc/>
-    public override GlobalTemporaryData GlobalTemporaryData
-    {
-      get
-      {
+    public override bool PreloadEnumerator { get { return preloadEnumerator; } }
+
+    /// <inheritdoc/>
+    public override GlobalTemporaryData GlobalTemporaryData {
+      get {
         var domain = Domain.Current;
         return domain!=null ? domain.TemporaryData : null;
       }
     }
 
     /// <inheritdoc/>
-    public override TransactionTemporaryData TransactionTemporaryData
-    {
-      get
-      {
+    public override TransactionTemporaryData TransactionTemporaryData {
+      get {
         var transaction = Transaction.Current;
         return transaction!=null ? transaction.TemporaryData : null;
       }
@@ -46,7 +39,7 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateNew()
     {
-      return new EnumerationContext();
+      return new EnumerationContext(preloadEnumerator);
     }
 
     /// <inheritdoc/>
@@ -61,13 +54,10 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public EnumerationContext()
+    /// <param name="preloadEnumerator">A value for <see cref="PreloadEnumerator"/>.</param>
+    public EnumerationContext(bool preloadEnumerator)
     {
-      var session = Session.Demand();
-      session.Persist(true);
-      session.ExecuteAllDelayedQueries(true);
-      session.Handler.OnEnumerationContextCreated();
-      multipleActiveResultSetSupported = session.Domain.StorageProviderInfo.Supports(ProviderFeatures.MultipleActiveResultSets);
+      this.preloadEnumerator = preloadEnumerator;
     }
   }
 }

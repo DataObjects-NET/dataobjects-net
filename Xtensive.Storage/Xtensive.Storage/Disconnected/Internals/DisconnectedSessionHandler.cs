@@ -176,19 +176,20 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <inheritdoc/>
-    public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool dirty)
+    public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
     {
       if (!isChainedTransactionStarted)
         throw new ConnectionRequiredException();
 
-      base.ExecuteQueryTasks(queryTasks, dirty);
+      base.ExecuteQueryTasks(queryTasks, allowPartialExecution);
     }
 
-    public override void OnEnumerationContextCreated()
+    public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
       if (!isChainedTransactionStarted)
         throw new ConnectionRequiredException();
- 	    base.OnEnumerationContextCreated();
+
+      return base.CreateEnumerationContext();
     }
 
     /// <inheritdoc/>

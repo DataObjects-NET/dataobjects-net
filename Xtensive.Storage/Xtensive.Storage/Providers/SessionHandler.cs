@@ -128,10 +128,12 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Called when enumeration context is created, i.e. just befor query execution.
+    /// Creates enumeration context.
     /// </summary>
-    public virtual void OnEnumerationContextCreated()
+    public virtual Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
+      var preloadData = !Handlers.Domain.StorageProviderInfo.Supports(ProviderFeatures.MultipleActiveResultSets);
+      return new EnumerationContext(preloadData);
     }
 
     /// <summary>

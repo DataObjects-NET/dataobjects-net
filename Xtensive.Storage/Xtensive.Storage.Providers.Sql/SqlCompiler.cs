@@ -1070,7 +1070,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       return new SqlQueryParameterBinding(
         BuildLimitOffsetAccessor(accessor),
-        Driver.GetTypeMapping(typeof (int)),
+        null,
         SqlQueryParameterBindingType.LimitOffset);
     }
 

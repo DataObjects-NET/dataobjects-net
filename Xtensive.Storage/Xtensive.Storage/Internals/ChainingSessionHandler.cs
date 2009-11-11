@@ -120,9 +120,9 @@ namespace Xtensive.Storage.Internals
       return ChainedHandler.GetService<T>();
     }
 
-    public override void OnEnumerationContextCreated()
+    public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
-      ChainedHandler.OnEnumerationContextCreated();
+      return ChainedHandler.CreateEnumerationContext();
     }
 
 

@@ -268,6 +268,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Temporary table &apos;{0}&apos; is locked.
+        /// </summary>
+        internal static string ExTemporaryTableXIsLocked {
+            get {
+                return ResourceManager.GetString("ExTemporaryTableXIsLocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Transaction is already open..
         /// </summary>
         internal static string ExTransactionIsAlreadyOpen {

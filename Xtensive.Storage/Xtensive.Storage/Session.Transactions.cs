@@ -89,53 +89,52 @@ namespace Xtensive.Storage
       scope.DisposeSafely();
     }
 
-    #region OnXxx event-like methods
-
     internal void BeginTransaction()
     {
       Handler.BeginTransaction();
-      OnTransactionOpen(Transaction);
+      NotifyTransactionOpen(Transaction);
     }
 
-    private void OnTransactionOpen(Transaction transaction)
+    #region NotifyXxx methods
+
+    private void NotifyTransactionOpen(Transaction transaction)
     {
       if (TransactionOpen!=null)
         TransactionOpen(this, new TransactionEventArgs(transaction));
     }
 
-    private void OnTransactionCommitting(Transaction transaction)
+    private void NotifyTransactionCommitting(Transaction transaction)
     {
       if (TransactionCommitting!=null)
         TransactionCommitting(this, new TransactionEventArgs(transaction));
     }
 
-    private void OnTransactionCommitted(Transaction transaction)
+    private void NotifyTransactionCommitted(Transaction transaction)
     {
       if (TransactionCommitted!=null)
         TransactionCommitted(this, new TransactionEventArgs(transaction));
     }
 
-    private void OnTransactionRollbacking(Transaction transaction)
+    private void NotifyTransactionRollbacking(Transaction transaction)
     {
       if (TransactionRollbacking!=null)
         TransactionRollbacking(this, new TransactionEventArgs(transaction));
     }
 
-    private void NotifyRollbackTransaction(Transaction transaction)
+    private void NotifyTransactionRollbacked(Transaction transaction)
     {
       if (TransactionRollbacked!=null)
         TransactionRollbacked(this, new TransactionEventArgs(transaction));
     }
-
-
+    
     internal void CommitTransaction()
     {
       try {
         Persist();
         queryTasks.Clear();
-        OnTransactionCommitting(Transaction);
+        NotifyTransactionCommitting(Transaction);
         Handler.CommitTransaction();
-        OnTransactionCommitted(Transaction);
+        NotifyTransactionCommitted(Transaction);
         CompleteTransaction();
       }
       catch {        
@@ -147,9 +146,9 @@ namespace Xtensive.Storage
     internal void RollbackTransaction()
     {
       try {
-        OnTransactionRollbacking(Transaction);
+        NotifyTransactionRollbacking(Transaction);
         Handler.RollbackTransaction();
-        NotifyRollbackTransaction(Transaction);
+        NotifyTransactionRollbacked(Transaction);
       }
       finally {
         foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))

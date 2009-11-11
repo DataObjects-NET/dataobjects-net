@@ -15,26 +15,17 @@ namespace Xtensive.Storage.Rse.Compilation
   /// </summary>
   public sealed class DefaultEnumerationContext : EnumerationContext
   {
-    private static readonly GlobalTemporaryData globalTemporaryData = new GlobalTemporaryData();
-
-    public override bool MultipleActiveResultSetSupported
-    {
-      get { return true; }
-    }
+    private static readonly GlobalTemporaryData GlobalTemporaryDataInstance = new GlobalTemporaryData();
 
     /// <inheritdoc/>
-    public override GlobalTemporaryData GlobalTemporaryData {
-      get {
-        return globalTemporaryData;
-      }
-    }
+    public override bool PreloadEnumerator { get { return false; } }
+
+    /// <inheritdoc/>
+    public override GlobalTemporaryData GlobalTemporaryData { get { return GlobalTemporaryDataInstance; } }
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Always thrown by this property getter.</exception>
-    public override TransactionTemporaryData TransactionTemporaryData
-    {
-      get { throw new NotSupportedException(); }
-    }
+    public override TransactionTemporaryData TransactionTemporaryData { get { throw new NotSupportedException(); } }
 
     /// <inheritdoc/>
     public override EnumerationContext CreateNew()

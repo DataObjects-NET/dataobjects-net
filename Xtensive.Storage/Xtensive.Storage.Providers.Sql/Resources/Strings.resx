@@ -239,4 +239,7 @@
   <data name="ExXIsNotSupported" xml:space="preserve">
     <value>'{0}' is not supported</value>
   </data>
+  <data name="ExTemporaryTableXIsLocked" xml:space="preserve">
+    <value>Temporary table '{0}' is locked</value>
+  </data>
 </root>

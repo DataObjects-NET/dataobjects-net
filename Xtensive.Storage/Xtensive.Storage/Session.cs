@@ -21,6 +21,7 @@ using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
 using Xtensive.Storage.Resources;
+using EnumerationContext=Xtensive.Storage.Rse.Providers.EnumerationContext;
 
 namespace Xtensive.Storage
 {
@@ -165,10 +166,7 @@ namespace Xtensive.Storage
 
     internal bool IsDelayedQueryRunning { get; private set; }
 
-    internal CompilationContext CompilationContext
-    {
-      get { return Handlers.DomainHandler.CompilationContext; }
-    }
+    internal CompilationContext CompilationContext { get { return Handlers.DomainHandler.CompilationContext; } }
 
     #endregion
 
@@ -412,6 +410,13 @@ namespace Xtensive.Storage
     }
 
     #endregion
+
+    internal EnumerationContext CreateEnumerationContext()
+    {
+      Persist(true);
+      ExecuteAllDelayedQueries(true);
+      return Handler.CreateEnumerationContext();
+    }
 
     /// <inheritdoc/>
     public override string ToString()

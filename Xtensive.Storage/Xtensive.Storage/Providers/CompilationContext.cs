@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
-      return new EnumerationContext();
+      return Session.Demand().CreateEnumerationContext();
     }
 
 
