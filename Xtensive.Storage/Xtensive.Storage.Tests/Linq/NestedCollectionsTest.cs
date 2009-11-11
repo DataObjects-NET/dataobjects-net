@@ -44,14 +44,10 @@ namespace Xtensive.Storage.Tests.Linq
           Orders = c.Orders
             .Select(o => new { Order = o, Details = o.OrderDetails })
         };
-      var list = result.ToList();
-      foreach (var a in list)
+      foreach (var a in result)
         foreach (var b in a.Orders)
           foreach (var detail in b.Details) {
-            goto label;
           }
-    label:
-      ;
     }
 
     [Test]
