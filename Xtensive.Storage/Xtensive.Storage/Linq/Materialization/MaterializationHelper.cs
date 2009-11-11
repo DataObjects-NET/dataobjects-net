@@ -14,6 +14,7 @@ using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Linq;
 using System.Linq;
@@ -31,6 +32,7 @@ namespace Xtensive.Storage.Linq.Materialization
     public static readonly MethodInfo CompileItemMaterializerMethodInfo;
     public static readonly MethodInfo IsNullMethodInfo;
     public static readonly MethodInfo ThrowSequenceExceptionMethodInfo;
+    public static readonly MethodInfo PrefetchEntitySetMethodInfo;
 
     public static int[] CreateSingleSourceMap(int targetLength, Pair<int>[] remappedColumns)
     {
@@ -105,6 +107,16 @@ namespace Xtensive.Storage.Linq.Materialization
       return itemMaterializerLambda.CachingCompile();
     }
 
+    public static TEntitySet PrefetechEntitySet<TEntitySet>(TEntitySet entitySet, ItemMaterializationContext context)
+      where TEntitySet : EntitySetBase
+    {
+      context.Session.Handler.Prefetch(
+        entitySet.Owner.Key, 
+        entitySet.Owner.Type, 
+        new PrefetchFieldDescriptor(entitySet.Field, EntitySetBase.LoadStateCount));
+      return entitySet;
+    }
+
 // ReSharper restore UnusedMember.Global
 
 
@@ -122,6 +134,8 @@ namespace Xtensive.Storage.Linq.Materialization
         .GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static);
       ThrowSequenceExceptionMethodInfo = typeof(MaterializationHelper)
         .GetMethod("ThrowSequenceException", BindingFlags.Public | BindingFlags.Static);
+      PrefetchEntitySetMethodInfo = typeof(MaterializationHelper)
+        .GetMethod("PrefetechEntitySet", BindingFlags.Public | BindingFlags.Static);
     }
   }
 }

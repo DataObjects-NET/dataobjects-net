@@ -72,7 +72,6 @@ namespace Xtensive.Storage
     where TItem : IEntity
   {
     private const int MaxCacheSize = 10240;
-    private const int LoadStateCount = 32;
 
     private static readonly MethodInfo getItemCountQueryMethod = typeof(EntitySet<TItem>)
       .GetMethod("GetItemCountQuery", BindingFlags.Static | BindingFlags.NonPublic);

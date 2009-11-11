@@ -48,8 +48,10 @@ namespace Xtensive.Storage.Tests.Linq
       foreach (var a in list)
         foreach (var b in a.Orders)
           foreach (var detail in b.Details) {
-            
+            goto label;
           }
+    label:
+      ;
     }
 
     [Test]

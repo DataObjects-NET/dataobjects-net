@@ -325,7 +325,14 @@ namespace Xtensive.Storage.Linq.Materialization
     protected override Expression VisitEntitySetExpression(EntitySetExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
-      return MaterializeThroughOwner(expression, tupleExpression);
+      var materializedEntitySetExpression = MaterializeThroughOwner(expression, tupleExpression);
+      var prefetechMethodInfo = MaterializationHelper.PrefetchEntitySetMethodInfo
+        .MakeGenericMethod(expression.Type);
+      var prefetchEntitySetExpression = Expression.Call(
+        prefetechMethodInfo,
+        materializedEntitySetExpression,
+        itemMaterializationContextParameter);
+      return prefetchEntitySetExpression;
     }
 
     protected override Expression VisitColumnExpression(ColumnExpression expression)
@@ -364,16 +371,13 @@ namespace Xtensive.Storage.Linq.Materialization
 
     #region Private Methods
 
-    private
-      Expression MaterializeThroughOwner
-      (Expression target, Expression tuple)
+    private Expression MaterializeThroughOwner (Expression target, Expression tuple)
     {
       return MaterializeThroughOwner(target, tuple, false);
     }
 
 
-    private Expression MaterializeThroughOwner
-      (Expression target, Expression tuple, bool defaultIfEmpty)
+    private Expression MaterializeThroughOwner (Expression target, Expression tuple, bool defaultIfEmpty)
     {
       var field = target as FieldExpression;
       if (field!=null) {
@@ -391,9 +395,7 @@ namespace Xtensive.Storage.Linq.Materialization
       return CreateEntity((EntityExpression) target, tuple);
     }
 
-    private Expression GetTupleExpression
-      (ParameterizedExpression
-        expression)
+    private Expression GetTupleExpression (ParameterizedExpression expression)
     {
       if (expression.OuterParameter==null)
         return tupleParameter;
@@ -416,18 +418,14 @@ namespace Xtensive.Storage.Linq.Materialization
     }
 
     // ReSharper disable UnusedMember.Local
-    private static
-      Tuple BuildPersistentTuple
-      (Tuple tuple, Tuple tuplePrototype, int[] mapping)
+    private static Tuple BuildPersistentTuple (Tuple tuple, Tuple tuplePrototype, int[] mapping)
     {
       var result = tuplePrototype.CreateNew();
       tuple.CopyTo(result, mapping);
       return result;
     }
 
-    private static
-      Tuple GetTupleSegment
-      (Tuple tuple, Segment<int> segment)
+    private static Tuple GetTupleSegment (Tuple tuple, Segment<int> segment)
     {
       return tuple.GetSegment(segment).ToRegular();
     }

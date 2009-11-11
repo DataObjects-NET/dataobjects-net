@@ -37,6 +37,8 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
+    internal const int LoadStateCount = 32;
+
     private static readonly object entitySetCachingRegion = new object();
 
     internal static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyFieldName);
@@ -407,6 +409,21 @@ namespace Xtensive.Storage
 
     #region Private / internal members
 
+    protected internal bool Add(IEntity item)
+    {
+      return Add((Entity)item);
+    }
+
+    protected internal bool Remove(IEntity item)
+    {
+      return Remove((Entity)item);
+    }
+
+    protected bool Contains(IEntity item)
+    {
+      return Contains((Entity)item);
+    }
+
     private bool Contains(Key key, PersistenceState? state)
     {
       bool containsKey = State.Contains(key);
@@ -562,7 +579,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="owner">Persistent this entity set belongs to.</param>
     /// <param name="field">Field corresponds to this entity set.</param>
-    protected EntitySetBase(Entity owner, FieldInfo field)
+    protected internal EntitySetBase(Entity owner, FieldInfo field)
     {
       Field = field;
       this.owner = owner;
@@ -574,24 +591,9 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="info">The <see cref="SerializationInfo"/>.</param>
     /// <param name="context">The <see cref="StreamingContext"/>.</param>
-    protected EntitySetBase(SerializationInfo info, StreamingContext context)
+    protected internal EntitySetBase(SerializationInfo info, StreamingContext context)
     {
       throw new NotImplementedException();
-    }
-
-    protected internal bool Add(IEntity item)
-    {
-      return Add((Entity)item);
-    }
-
-    protected internal bool Remove(IEntity item)
-    {
-      return Remove((Entity) item);
-    }
-
-    protected bool Contains(IEntity item)
-    {
-      return Contains((Entity)item);
     }
   }
 }
