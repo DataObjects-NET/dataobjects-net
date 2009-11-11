@@ -219,6 +219,7 @@ namespace Xtensive.Storage
         Session.RemovalProcessor.Remove(this);
         SystemRemove();
         region.Complete();
+        SystemRemoveCompleted(null);
       }
       catch(Exception e) {
         SystemRemoveCompleted(e);
@@ -226,7 +227,6 @@ namespace Xtensive.Storage
       }
       finally {
         region.DisposeSafely();
-        SystemRemoveCompleted(null);
       }
     }
 

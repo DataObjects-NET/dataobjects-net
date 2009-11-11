@@ -160,15 +160,12 @@ namespace Xtensive.Storage
         State.Add(item.Key);
         Owner.UpdateVersionInternal();
         SystemAdd(item);
-
+        SystemAddCompleted(item, null);
         return true;
       }
       catch(Exception e) {
         SystemAddCompleted(item, e);
         throw;
-      }
-      finally {
-        SystemAddCompleted(item, null);
       }
     }
 
@@ -201,14 +198,12 @@ namespace Xtensive.Storage
         State.Remove(item.Key);
         Owner.UpdateVersionInternal();
         SystemRemove(item);
+        SystemRemoveCompleted(item, null);
         return true;
       }
       catch(Exception e) {
         SystemRemoveCompleted(item, e);
         throw;
-      }
-      finally {
-        SystemRemoveCompleted(item, null);
       }
     }
 

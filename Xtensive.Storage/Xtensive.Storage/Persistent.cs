@@ -164,14 +164,12 @@ namespace Xtensive.Storage
         SystemBeforeGetValue(field);
         result = GetAccessor<T>(field).GetValue(this, field);
         SystemGetValue(field, result);
+        SystemGetValueCompleted(field, result, null);
         return result;
       }
       catch(Exception e) {
         SystemGetValueCompleted(field, result, e);
         throw;
-      }
-      finally {
-        SystemGetValueCompleted(field, result, null);
       }
     }
 
@@ -217,14 +215,12 @@ namespace Xtensive.Storage
         }
         key = Key.Create(Session.Domain, type, accuracy, keyValue);
         SystemGetValue(field, key);
+        SystemGetValueCompleted(field, key, null);
         return key;
       }
       catch(Exception e) {
         SystemGetValueCompleted(field, key, e);
         throw;
-      }
-      finally {
-        SystemGetValueCompleted(field, key, null);
       }
     }
 
@@ -273,13 +269,11 @@ namespace Xtensive.Storage
           }
         }
         SystemSetValue(field, oldValue, value);
+        SystemSetValueCompleted(field, oldValue, value, null);
       }
       catch (Exception e) {
         SystemSetValueCompleted(field, oldValue, value, e);
         throw;
-      }
-      finally {
-        SystemSetValueCompleted(field, oldValue, value, null);
       }
     }
 
@@ -363,7 +357,6 @@ namespace Xtensive.Storage
     }
 
     #endregion
-
 
     #region System-level event-like members
 
