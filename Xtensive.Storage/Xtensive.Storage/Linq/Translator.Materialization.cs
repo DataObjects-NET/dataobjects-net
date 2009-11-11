@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
@@ -17,9 +16,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
-using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Materialization;
-using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq

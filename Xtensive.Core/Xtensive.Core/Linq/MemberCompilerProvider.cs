@@ -181,7 +181,8 @@ namespace Xtensive.Core.Linq
 
     private static Type[] ExtractTypesAndValidate(MethodInfo compiler, bool requireMemberInfo)
     {
-      int length = compiler.GetParameters().Length;
+      var parameters = compiler.GetParameters();
+      int length = parameters.Length;
 
       if (length > MaxNumberOfCompilerParameters)
         throw new InvalidOperationException(string.Format(
@@ -199,7 +200,6 @@ namespace Xtensive.Core.Linq
           compiler.GetFullName(true),
           typeof(T).GetFullName(true)));
 
-      var parameters = compiler.GetParameters();
       var result = new Type[length];
 
       for (int i = 0; i < length; i++)
