@@ -218,8 +218,7 @@ namespace Xtensive.Storage.Tests.Storage
   using VersionModel;
 
   [TestFixture]
-  public class UpdateVersionTests
-    : AutoBuildTest
+  public class UpdateVersionTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -414,7 +413,7 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void AutoUpdateVersion()
+    public void AutoUpdateVersionTest()
     {
       Key bookKey;
       VersionInfo bookVersion;

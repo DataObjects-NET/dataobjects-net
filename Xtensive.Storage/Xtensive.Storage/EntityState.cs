@@ -213,7 +213,7 @@ namespace Xtensive.Storage
     /// Gets a value indicating whether this state is stale.
     /// </summary>
     [Infrastructure]
-    public bool IsStale { get; private set; }
+    public bool IsStale { get; set; }
 
     /// <inheritdoc/>
     protected override Tuple LoadState()

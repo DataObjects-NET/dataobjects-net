@@ -69,6 +69,7 @@ namespace Xtensive.Storage
           result = AddEntityStateToCache(key, tuple, result.IsStale);
         }
         result.Update(tuple);
+        result.IsStale = isStale;
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.SessionXUpdatingCacheY, this, result);
       }

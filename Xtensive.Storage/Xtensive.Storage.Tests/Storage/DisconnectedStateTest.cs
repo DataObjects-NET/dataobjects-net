@@ -171,12 +171,34 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public Container ManyToMany { get; set; }
   }
 
+  [HierarchyRoot]
+  public class A : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public int Number { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class B : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public int Number { get; set; }
+
+    [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
+    public A Root { get; set; }
+  }
 }
 
 namespace Xtensive.Storage.Tests.Storage
 {
   [TestFixture]
-  public class DisconnectedStateTests : AutoBuildTest
+  public class DisconnectedStateTest : AutoBuildTest
   {
     [SetUp]
     public void SetUp()
@@ -555,7 +577,7 @@ namespace Xtensive.Storage.Tests.Storage
           
           transactionScope.Complete();
         }
-        disconnectedState.Detach();
+        // disconnectedState.Detach();
       }
     }
     
@@ -785,7 +807,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    [Test, Ignore]
+    [Test]
     public void CheckVersionTest()
     {
       var disconnectedState = new DisconnectedState();
@@ -1108,7 +1130,70 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
+    [Test]
+    public void ApplyRemoveOperationTest()
+    {
+      // Create data
+      using (var session = Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
 
+          var a = new A();
+          a.Number = 1;
+          var b1 = new B();
+          b1.Root = a;
+          var b2 = new B();
+          b2.Root = a;
+          
+          transactionScope.Complete();
+        }
+      }
+
+      var ds = new DisconnectedState();
+
+      // Remove A instance in cache
+      using (var session = Session.Open(Domain)) {
+        ds.Attach(session);
+        using (var transactionScope = Transaction.Open()) {
+          A a = null;
+          List<B> list = null;
+          ds.Prefetch(()=> {
+            a = Query<A>.All.First();
+            list = Query<B>.All.ToList();
+          });
+          a.Remove();
+          Assert.IsTrue(list.All(item => item.Root==null));
+          transactionScope.Complete();
+        }
+        ds.Detach();
+      }
+
+      // Add references to A in DB
+      using (var session = Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          var a = Query<A>.All.First();
+          var b3 = new B();
+          b3.Root = a;
+          transactionScope.Complete();
+        }
+      }
+
+      // Save changes to DB
+      using (var session = Session.Open(Domain)) {
+        ds.Attach(session);
+        ds.SaveChanges();
+        ds.Detach();
+      }
+
+      // Check data
+      using (var session = Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          Assert.IsNull(Query<A>.All.FirstOrDefault());
+          Assert.IsTrue(Query<B>.All.All(item => item.Root==null));
+          transactionScope.Complete();
+        }
+      }
+    }
+    
     private void FillDataBase()
     {
       using (var sesscionScope = Session.Open(Domain)) {

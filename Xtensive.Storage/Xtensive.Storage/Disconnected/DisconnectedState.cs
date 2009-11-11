@@ -107,47 +107,22 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     public void SaveChanges()
     {
-//      throw new NotSupportedException();
       if (!IsAttached)
         throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
       var tempSession = Session;
       try {
         Detach();
-        using (var transactionScope = Transaction.Open(tempSession)) {
-          registry.Log.Apply(tempSession);
-          transactionScope.Complete();
+        using (new VersionValidator(tempSession, GetStoredVerion)) {
+          using (var transactionScope = Transaction.Open(tempSession)) {
+            registry.Log.Apply(tempSession);
+            transactionScope.Complete();
+          }
+          registry.Commit();
         }
       }
       finally {
         Attach(tempSession);
       }
-
-//      var itemsToSave = cache.GetChanges()
-//        .Where(item => item.State!=PersistenceState.Synchronized)
-//        .ToList();
-//      if (itemsToSave.Count==0)
-//        return;
-//      var tempSession = Session;
-//      Detach();
-//      try {
-//        using (var transactionScope = Transaction.Open(tempSession)) {
-//          CheckVersions(itemsToSave, tempSession.Handler);
-//          foreach (var cachedState in itemsToSave) {
-//            var tuple = cachedState.Actual!=null
-//              ? new DifferentialTuple(cachedState.Actual, cachedState.Differences)
-//              : cachedState.Actual;
-//            var entityState = tempSession.UpdateEntityState(cachedState.Key, tuple, true);
-//            entityState.PersistenceState = cachedState.State;
-//          }
-//          transactionScope.Complete();
-//        }
-//        // TODO: Complete (removes)
-//        foreach (var entityState in itemsToSave)
-//          entityState.State = PersistenceState.Synchronized;
-//      }
-//      finally {
-//        Attach(tempSession);
-//      }
     }
 
     /// <summary>
@@ -174,6 +149,14 @@ namespace Xtensive.Storage.Disconnected
     # endregion
     
     # region Internal API
+
+    internal VersionInfo GetStoredVerion(Key key)
+    {
+      VersionInfo storedVersion;
+      if (versionCache.TryGetValue(key, out storedVersion))
+        return storedVersion;
+      return new VersionInfo();
+    }
 
     internal void OnTransactionStarted()
     {
