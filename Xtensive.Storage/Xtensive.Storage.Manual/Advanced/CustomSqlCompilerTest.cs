@@ -39,9 +39,9 @@ namespace Xtensive.Storage.Manual.Advanced
           var person1 = new Person {Name = "John"};
           var person2 = new Person {Name = "Ivan"};
           var names = Query<Person>.All.Select(p => p.Name).ToList();
-          var substrings = Query<Person>.All.Select(p => p.Name.Substring(2, 3));
-          var thirdChars = Query<Person>.All.Select(p => p.Name.GetThirdChar()).OrderBy(c=>c).ToList();
-          Assert.IsTrue(thirdChars.SequenceEqual(new[]{'a','h'}));
+          var thirdChars = Query<Person>.All.Select(p => p.Name.GetThirdChar());
+          var orderedThirdChars = thirdChars.OrderBy(c=>c).ToList();
+          Assert.IsTrue(orderedThirdChars.SequenceEqual(new[]{'a','h'}));
         }
       }
     }

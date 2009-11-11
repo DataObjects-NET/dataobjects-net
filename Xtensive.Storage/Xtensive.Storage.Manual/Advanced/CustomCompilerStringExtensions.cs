@@ -9,12 +9,11 @@ using System.Diagnostics;
 
 namespace Xtensive.Storage.Manual.Advanced
 {
-  [Serializable]
   public static class CustomCompilerStringExtensions
   {
     public static char GetThirdChar(this string source)
     {
-      throw new NotImplementedException();
+      return source[2];
     }
   }
 }
