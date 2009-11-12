@@ -19,12 +19,13 @@ using Xtensive.Storage.Linq.Materialization;
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  internal class SubQuery<TElement> :
+  internal class SubQuery<TElement> : IMaterializable,
     IOrderedQueryable<TElement>, 
     IOrderedEnumerable<TElement>
   {
     private readonly ProjectionExpression projectionExpression;
-    private readonly FutureSequence<TElement> futureSequence;
+    private FutureSequence<TElement> futureSequence;
+    private List<TElement> materializedSequence;
 
     public IOrderedEnumerable<TElement> CreateOrderedEnumerable<TKey>(Func<TElement, TKey> keySelector, IComparer<TKey> comparer, bool descending)
     {
@@ -33,7 +34,9 @@ namespace Xtensive.Storage.Linq
 
     public IEnumerator<TElement> GetEnumerator()
     {
-      return futureSequence.GetEnumerator();
+      if (materializedSequence == null)
+        materializedSequence = futureSequence.ToList();
+      return materializedSequence.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -54,6 +57,14 @@ namespace Xtensive.Storage.Linq
     public IQueryProvider Provider
     {
       get { return QueryProvider.Instance; }
+    }
+
+    public void MaterializeSelf()
+    {
+      if (materializedSequence != null) 
+        return;
+      materializedSequence = futureSequence.ToList();
+      futureSequence = null;
     }
 
 
@@ -87,6 +98,7 @@ namespace Xtensive.Storage.Linq
         EnumerableUtils<Parameter<Tuple>>.Empty);
       futureSequence = new FutureSequence<TElement>(translatedQuery, parameterContext);
       context.Session.RegisterDelayedQuery(futureSequence.Task);
+      context.MaterializationContext.MaterializationQueue.Enqueue(this);
     }
   }
 }

@@ -82,6 +82,9 @@ namespace Xtensive.Storage.Linq.Materialization
     public static IEnumerable<TResult> Materialize<TResult>(IEnumerable<Tuple> dataSource, MaterializationContext context, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
     {
       ParameterContext ctx;
+      var isRootMaterializing = context.MaterializationQueue == null;
+      if (isRootMaterializing)
+        context.MaterializationQueue = new Queue<IMaterializable>();
       var session = Session.Demand();
       using (session.OpenTransaction()) {
         using (new ParameterContext().Activate()) {
@@ -95,7 +98,15 @@ namespace Xtensive.Storage.Linq.Materialization
           .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
           .ApplyBeforeAndAfter(
             () => scope = ctx.Activate(), 
-            () => scope.DisposeSafely());
+            () => {
+              scope.DisposeSafely();
+              if (isRootMaterializing) {
+                while(context.MaterializationQueue.Count > 0) {
+                  var materializable = context.MaterializationQueue.Dequeue();
+                  materializable.MaterializeSelf();
+                }
+              }
+            });
         foreach (var batch in batched)
           foreach (var result in batch)
             yield return result;

@@ -15,8 +15,8 @@ namespace Xtensive.Storage.Linq.Materialization
     public static MethodInfo MaterializeMethodInfo    { get; private set; }
 
     public readonly Session Session;
+    public readonly MaterializationContext MaterializationContext;
     private readonly Entity[] entities;
-    private readonly MaterializationContext materializationContext;
 
 // ReSharper disable UnusedMember.Global
     public bool IsMaterialized(int index)
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Linq.Materialization
         return null;
 
       bool canCache = accuracy==TypeReferenceAccuracy.ExactType;
-      var materializationInfo = materializationContext.GetTypeMapping(entityIndex, type, typeId, entityColumns);
+      var materializationInfo = MaterializationContext.GetTypeMapping(entityIndex, type, typeId, entityColumns);
       Key key;
       if (materializationInfo.KeyIndexes.Length <= WellKnown.MaxGenericKeyLength)
         key = KeyFactory.Create(Domain.Demand(), materializationInfo.Type, tuple, accuracy, canCache, materializationInfo.KeyIndexes);
@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
     public ItemMaterializationContext(MaterializationContext materializationContext, Session session)
     {
-      this.materializationContext = materializationContext;
+      MaterializationContext = materializationContext;
       Session = session;
       entities = new Entity[materializationContext.EntitiesInRow];
     }

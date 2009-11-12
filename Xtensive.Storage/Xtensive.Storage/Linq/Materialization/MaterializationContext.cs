@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Linq.Materialization
     private readonly EntityMappingCache[] entityMappings;
     private readonly DomainModel model;
     public int EntitiesInRow;
+    public Queue<IMaterializable> MaterializationQueue;
 
     public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, Pair<int>[] columns)
     {
