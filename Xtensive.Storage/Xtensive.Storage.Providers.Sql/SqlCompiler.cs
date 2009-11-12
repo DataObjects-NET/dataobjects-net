@@ -29,7 +29,6 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Sql.ValueTypeMapping;
 using ColumnInfo=Xtensive.Storage.Model.ColumnInfo;
 using IndexInfo=Xtensive.Storage.Model.IndexInfo;
-using Xtensive.Storage.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Linq;
 

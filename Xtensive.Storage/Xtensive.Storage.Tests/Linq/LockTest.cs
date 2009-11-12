@@ -14,7 +14,6 @@ using Xtensive.Core.Testing;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
-using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Tests.Linq
 {

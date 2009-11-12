@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Disconnected.Log.Operations

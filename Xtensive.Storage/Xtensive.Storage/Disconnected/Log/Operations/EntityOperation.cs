@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Disconnected.Log.Operations
 {

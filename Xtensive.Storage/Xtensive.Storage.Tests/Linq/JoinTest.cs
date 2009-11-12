@@ -10,7 +10,6 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Testing;
-using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using Region=Xtensive.Storage.Tests.ObjectModel.NorthwindDO.Region;

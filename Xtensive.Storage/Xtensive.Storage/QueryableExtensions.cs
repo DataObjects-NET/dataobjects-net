@@ -10,9 +10,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Rse;
 
-namespace Xtensive.Storage.Linq
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Extends Linq methods for <see cref="Xtensive.Storage.Linq"/> query. 
