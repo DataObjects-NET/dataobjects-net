@@ -776,7 +776,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key book0Key;
       Key bookShop1Key;
       Key book1Key;
-      CreateOfferContainer(out contaierKey, out book0Key, out bookShop0Key, out book1Key, out bookShop1Key);
+      PrefetchTestHelper.CreateOfferContainer(Domain, out contaierKey, out book0Key, out bookShop0Key,
+        out book1Key, out bookShop1Key);
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -809,7 +810,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key book0Key;
       Key bookShop1Key;
       Key book1Key;
-      CreateOfferContainer(out contaierKey, out book0Key, out bookShop0Key, out book1Key, out bookShop1Key);
+      PrefetchTestHelper.CreateOfferContainer(Domain, out contaierKey, out book0Key, out bookShop0Key,
+        out book1Key, out bookShop1Key);
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -834,7 +836,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key book0Key;
       Key bookShop1Key;
       Key book1Key;
-      CreateOfferContainer(out contaierKey, out book0Key, out bookShop0Key, out book1Key, out bookShop1Key);
+      PrefetchTestHelper.CreateOfferContainer(Domain, out contaierKey, out book0Key, out bookShop0Key,
+        out book1Key, out bookShop1Key);
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -919,29 +922,6 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       publisher4.Distributors.Add(bookShop2);
       publisher4.Distributors.Add(bookShop3);
       publisher4.Distributors.Add(bookShop4);
-    }
-
-    private void CreateOfferContainer(out Key contaierKey, out Key book0Key, out Key bookShop0Key,
-      out Key book1Key, out Key bookShop1Key)
-    {
-      using (Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
-        var book0 = new Book {Category = "abc", Title = new Title {Text = "title"}};
-        book0Key = book0.Key;
-        var bookShop0 = new BookShop {Name = "a"};
-        bookShop0Key = bookShop0.Key;
-        var offer0 = new Offer {Book = book0, BookShop = bookShop0, Number = 3};
-        var book1 = new Book {Category = "abc", Title = new Title {Text = "title"}};
-        book1Key = book1.Key;
-        var bookShop1 = new BookShop {Name = "a"};
-        bookShop1Key = bookShop1.Key;
-        var offer1 = new Offer {Book = book1, BookShop = bookShop1, Number = 5};
-        var intermediateOffer = new IntermediateOffer {RealOffer = offer1, Number = 15};
-        contaierKey = new OfferContainer {
-          RealOffer = offer0, IntermediateOffer = intermediateOffer, AuxField = "test"
-        }.Key;
-        tx.Complete();
-      }
     }
   }
 }

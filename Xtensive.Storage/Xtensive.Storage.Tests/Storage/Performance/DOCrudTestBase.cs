@@ -13,8 +13,9 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 {
   public abstract class DOCrudTestBase : AutoBuildTest
   {
-    private const int BaseCount = 10000;
+    private const int BaseCount = 50000;
     private const int InsertCount = BaseCount;
+    private const int EntitySetItemCount = 10;
 
     private bool warmup;
     private int instanceCount;
@@ -36,7 +37,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     public void RegularTest()
     {
       warmup = true;
-      CombinedTest(10, 10);
+      CombinedTest(10, EntitySetItemCount + 1);
       warmup = false;
       CombinedTest(BaseCount, InsertCount);
     }
@@ -47,18 +48,18 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     public void ProfileTest()
     {
       warmup = true;
-      CombinedTest(10, 10);
+      CombinedTest(10, EntitySetItemCount + 1);
       warmup = false;
       InsertTest(BaseCount);
-      FetchTest(BaseCount / 2);
+//      FetchTest(BaseCount / 2);
 //      PrefetchTest(BaseCount / 2);
-      MaterializeTest(BaseCount);
+//      MaterializeTest(BaseCount);
 //      UpdateTest();
-      RemoveTest();
-//      CreateSimplestContainer(BaseCount);
-//      AccessToPairedEntitySetTest(collectionCount);
-//      AccessToNonPairedEntitySetTest(collectionCount);
-//      DeleteSimplestContainer();
+//      RemoveTest();
+      CreateSimplestContainer(BaseCount);
+      AccessToPairedEntitySetTest(collectionCount);
+      AccessToNonPairedEntitySetTest(collectionCount);
+      DeleteSimplestContainer();
     }
 
     [Test]
@@ -266,7 +267,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         int i = 0;
         using (var ts = Transaction.Open()) {
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Access to non-paired EntitySet", count)) {
+          var message = string.Format("Access to non-paired EntitySet[{0} items]", EntitySetItemCount);
+          using (warmup ? null : new Measurement(message, count)) {
             NonPairedSimplestContainerItem t = null;
             while (i < count)
               foreach (var o in Query.Execute(() => Query<SimplestContainer>.All)) {
@@ -289,7 +291,8 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         int i = 0;
         using (var ts = Transaction.Open()) {
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Access to paired EntitySet", count)) {
+          var message = string.Format("Access to paired EntitySet[{0} items]", EntitySetItemCount);
+          using (warmup ? null : new Measurement(message, count)) {
             PairedSimplestContainerItem t = null;
             while (i < count)
               foreach (var o in Query.Execute(() => Query<SimplestContainer>.All)) {
@@ -314,7 +317,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         using (var ts = Transaction.Open()) {
           SimplestContainer owner = null;
           for (int i = 0; i < insertCount; i++) {
-            if (i % 10 == 0) {
+            if (i % EntitySetItemCount == 0) {
               owner = new SimplestContainer();
               count++;
             }

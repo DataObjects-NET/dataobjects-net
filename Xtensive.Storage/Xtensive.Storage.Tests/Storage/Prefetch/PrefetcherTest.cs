@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
@@ -21,6 +22,14 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
   [TestFixture]
   public sealed class PrefetcherTest : NorthwindDOModelTest
   {
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var config = base.BuildConfiguration();
+      config.NamingConvention.NamespacePolicy = NamespacePolicy.AsIs;
+      config.Types.Register(typeof (Model.Offer).Assembly, typeof (Model.Offer).Namespace);
+      return config;
+    }
+
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var recreateConfig = configuration.Clone();
@@ -222,7 +231,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
-    public void SimultaneouslyUsageOfMultipleEnumerators()
+    public void SimultaneouslyUsageOfMultipleEnumeratorsTest()
     {
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -237,6 +246,28 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           while (enumerator0.MoveNext())
             Assert.AreSame(source[index++], enumerator0.Current);
           Assert.AreEqual(source.Count, index);
+        }
+      }
+    }
+
+    [Test]
+    public void StructureFieldsPrefetchTest()
+    {
+      Key containerKey;
+      Key bookShop0Key;
+      Key book0Key;
+      Key bookShop1Key;
+      Key book1Key;
+      PrefetchTestHelper.CreateOfferContainer(Domain, out containerKey, out book0Key, out bookShop0Key,
+        out book1Key, out bookShop1Key);
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetcher = EnumerableUtils.One(containerKey).Prefetch<Model.OfferContainer, Key>(key => key)
+          .Prefetch(oc => oc.RealOffer.Book).Prefetch(oc => oc.IntermediateOffer.RealOffer.BookShop);
+        foreach (var key in prefetcher) {
+          PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(book0Key, book0Key.Type, session);
+          PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(bookShop1Key, bookShop1Key.Type, session);
         }
       }
     }

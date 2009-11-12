@@ -4,6 +4,7 @@
 // Created by: Elena Vakhtina
 // Created:    2009.03.11
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -24,7 +25,7 @@ namespace Xtensive.Storage.Tests.Storage.EntitySetModel
     [Field]
     public int Name { get; set; }
 
-    [Field, Association(PairTo = "Books")]
+    [Field, Association(PairTo = "Books", OnTargetRemove = OnRemoveAction.Clear)]
     public Author Author { get; private set; }
   }
 
@@ -189,6 +190,77 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
+    [Test]
+    public void EnumerateFullyLoadedEntitySetWhenItsOwnerIsRemovedTest()
+    {
+      Key author0Key;
+      Key author1Key;
+      CreateTwoAuthorsAndTheirBooksSet(out author0Key, out author1Key);
+
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var author0 = Query<Author>.Single(author0Key);
+        LoadEntitySetThenRemoveOwnerAndEnumerateIt(author0, author0.Books);
+
+        var author1 = Query<Author>.Single(author1Key);
+        LoadEntitySetThenRemoveOwnerAndEnumerateIt(author1, author1.Books);
+      }
+    }
+
+    [Test]
+    public void EnumerateNotLoadedEntitySetWhenItsOwnerIsRemovedTest()
+    {
+      Key author0Key;
+      Key author1Key;
+      CreateTwoAuthorsAndTheirBooksSet(out author0Key, out author1Key);
+
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var author0 = Query<Author>.Single(author0Key);
+        RemoveOwnerAndEnumerateEntitySet(author0, author0.Books);
+
+        var author1 = Query<Author>.Single(author1Key);
+        RemoveOwnerAndEnumerateEntitySet(author1, author1.Books);
+      }
+    }
+
+    private static void LoadEntitySetThenRemoveOwnerAndEnumerateIt(Author owner, EntitySet<Book> entitySet)
+    {
+      foreach (var book in entitySet) {}
+      RemoveOwnerAndEnumerateEntitySet(owner, entitySet);
+    }
+
+    private static void RemoveOwnerAndEnumerateEntitySet(Author owner, EntitySet<Book> entitySet)
+    {
+      var expectedCount = entitySet.Count;
+      owner.Remove();
+      var actualCount = 0;
+      foreach (var book in entitySet)
+        actualCount++;
+      Assert.AreEqual(expectedCount, actualCount);
+      Assert.AreEqual(5, entitySet.Count);
+      Assert.IsTrue(entitySet.Add(new Book()));
+      Assert.AreEqual(6, entitySet.Count);
+    }
+
+    private void CreateTwoAuthorsAndTheirBooksSet(out Key author0Key, out Key author1Key)
+    {
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        Action<Author, int> bookGenerator = (author, count) => {
+          for (var i = 0; i < count; i++)
+            author.Books.Add(new Book());
+        };
+        var author0 = new Author();
+        author0Key = author0.Key;
+        bookGenerator.Invoke(author0, 5);
+        var author1 = new Author();
+        author1Key = author1.Key;
+        bookGenerator.Invoke(author1, 50);
+        t.Complete();
+      }
+    }
+    
     private List<Order> GenerateOrders(int count)
     {
       var result = new List<Order>();

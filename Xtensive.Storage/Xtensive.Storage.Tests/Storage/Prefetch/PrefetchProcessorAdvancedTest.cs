@@ -603,6 +603,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     [Test]
     public void FetchEntityWhenItsStateHasBeenMarkedAsNotFoundInPreviousTransactionTest()
     {
+      if (IncludeTypeIdModifier.IsEnabled)
+        Assert.Ignore("This test is meaningless when TypeIds of entities are being included in the corresponding key values.");
       const int idValue = int.MaxValue - 1;
       var key = Key.Create(Domain, typeof (Person).GetTypeInfo(Domain), TypeReferenceAccuracy.BaseType,
         idValue);

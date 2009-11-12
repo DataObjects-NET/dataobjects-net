@@ -39,8 +39,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly List<Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>>>
       prefetchManyProcessorCreators =
         new List<Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>>>();
-
     private object blockingDelayedElement;
+    private readonly Session session;
 
     /// <summary>
     /// Registers the prefetch of the field specified by <paramref name="expression"/>.
@@ -209,21 +209,58 @@ namespace Xtensive.Storage.Internals.Prefetch
       var body = expression.Body;
       if (body.NodeType != ExpressionType.MemberAccess)
         throw new ArgumentException(Strings.ExSpecifiedExpressionIsNotMemberExpression, "expression");
-      var memberAccess = (MemberExpression) body;
-      if (memberAccess.Expression != expression.Parameters[0])
-        throw new ArgumentException(Strings.ExAccessToTypeMemberCanNotBeExtractedFromSpecifiedExpression,
-          "expression");
-      var property = memberAccess.Member as PropertyInfo;
-      if (property == null)
-        throw new ArgumentException(Strings.ExAccessedMemberIsNotProperty, "expression");
-      var modelField = modelType.Fields
-        .Where(field => field.UnderlyingProperty != null && field.UnderlyingProperty.Equals(property))
-        .SingleOrDefault();
-      if (modelField == null)
-        throw new ArgumentException(String.Format(Strings.ExSpecifiedPropertyXIsNotPersistent,
-          property.Name), "expression");
+      var modelField = GetModelField(expression, (MemberExpression) body);
       fieldDescriptors[modelField] = new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit,
         true, null);
+    }
+
+    private FieldInfo GetModelField(LambdaExpression expression, MemberExpression memberAccess)
+    {
+      var root = memberAccess;
+      FieldInfo modelField = null;
+      TypeInfo referencingType;
+      if (root.Expression.Type.IsSubclassOf(typeof (Structure))) {
+        while (root.Expression.NodeType==ExpressionType.MemberAccess) {
+          if (modelField==null)
+            modelField = FindFieldByProperty(root.Member as PropertyInfo, root.Expression.Type,
+              out referencingType);
+          else
+            modelField = GetMappedFieldOfStructure(root, modelField);
+          root = (MemberExpression) root.Expression;
+        }
+        modelField = GetMappedFieldOfStructure(root, modelField);
+      }
+      else
+        modelField = FindFieldByProperty(root.Member as PropertyInfo, root.Expression.Type,
+          out referencingType);
+      if (root.Expression!=expression.Parameters[0])
+        throw new ArgumentException(Strings.ExAccessToTypeMemberCanNotBeExtractedFromSpecifiedExpression,
+          "expression");
+      return modelField;
+    }
+
+    private FieldInfo GetMappedFieldOfStructure(MemberExpression propertyAccess, FieldInfo modelField)
+    {
+      TypeInfo referencingType;
+      var fieldToStructure = FindFieldByProperty(propertyAccess.Member as PropertyInfo,
+        propertyAccess.Expression.Type, out referencingType);
+      modelField = referencingType
+        .StructureFieldMapping[new Pair<FieldInfo>(fieldToStructure, modelField)];
+      return modelField;
+    }
+
+    private FieldInfo FindFieldByProperty(PropertyInfo property, Type type, out TypeInfo typeInfo)
+    {
+      if (property==null)
+        throw new ArgumentException(Strings.ExAccessedMemberIsNotProperty, "expression");
+      typeInfo = type.GetTypeInfo(session.Domain);
+      var result = typeInfo.Fields
+        .Where(field => field.UnderlyingProperty!=null && field.UnderlyingProperty.Equals(property))
+        .SingleOrDefault();
+      if (result==null)
+        throw new ArgumentException(String.Format(Strings.ExSpecifiedPropertyXIsNotPersistent,
+          property.Name), "expression");
+      return result;
     }
 
     #endregion
@@ -237,7 +274,8 @@ namespace Xtensive.Storage.Internals.Prefetch
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.source = source;
       this.keyExtractor = keyExtractor;
-      modelType = typeof (T) != typeof (Entity) ? typeof (T).GetTypeInfo() : null;
+      session = Session.Demand();
+      modelType = typeof (T) != typeof (Entity) ? typeof (T).GetTypeInfo(session.Domain) : null;
     }
   }
 }

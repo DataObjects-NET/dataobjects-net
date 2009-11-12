@@ -249,9 +249,11 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected internal sealed override IEnumerable<IEntity> Entities {
       get {
-        return State.IsFullyLoaded 
-          ? GetCachedEntities() 
-          : GetRealEntities();
+        if (IsStateLoaded)
+          return State.IsFullyLoaded
+            ? GetCachedEntities()
+            : GetRealEntities();
+        return GetRealEntities();
       }
     }
 
