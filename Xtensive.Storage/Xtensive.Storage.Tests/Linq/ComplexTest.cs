@@ -204,18 +204,22 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ModifiedClosuresTest()
     {
-      var customers = from o in Query<Order>.All
-                      join c in Query<Customer>.All on o.Customer equals c into oc
-                      from x in oc.DefaultIfEmpty()
-                      select new { CustomerId = x.Id, CompanyName = x.CompanyName, Country = x.Address.Country };
+      var result = from order in Query<Order>.All
+                      join customer in Query<Customer>.All on order.Customer equals customer into oc
+                      from joinedCustomer in oc.DefaultIfEmpty()
+                      select new {
+                        CustomerId = joinedCustomer.Id, 
+                        joinedCustomer.CompanyName, 
+                        joinedCustomer.Address.Country
+                      };
 
       string searchTerms = "U A";
       var searchCriteria = searchTerms.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
       foreach (var search in searchCriteria) {
         var searchTerm = search;
-        customers = customers.Where(p => p.Country.Contains(searchTerm));
+        result = result.Where(p => p.Country.Contains(searchTerm));
       }
-      var ids = (from c in customers select c.CustomerId).ToArray();
+      var ids = (from c in result select c.CustomerId).ToArray();
     }
   }
 }
