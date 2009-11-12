@@ -19,7 +19,7 @@ using Xtensive.Storage.Linq.Materialization;
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  internal class SubQuery<TElement> : IMaterializable,
+  internal class SubQuery<TElement> : 
     IOrderedQueryable<TElement>, 
     IOrderedEnumerable<TElement>
   {
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Linq
       get { return QueryProvider.Instance; }
     }
 
-    public void MaterializeSelf()
+    private void MaterializeSelf()
     {
       if (materializedSequence != null) 
         return;
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Linq
         EnumerableUtils<Parameter<Tuple>>.Empty);
       futureSequence = new FutureSequence<TElement>(translatedQuery, parameterContext);
       context.Session.RegisterDelayedQuery(futureSequence.Task);
-      context.MaterializationContext.MaterializationQueue.Enqueue(this);
+      context.MaterializationContext.MaterializationQueue.Enqueue(MaterializeSelf);
     }
   }
 }

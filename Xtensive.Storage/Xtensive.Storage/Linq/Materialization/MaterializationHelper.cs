@@ -34,6 +34,33 @@ namespace Xtensive.Storage.Linq.Materialization
     public static readonly MethodInfo ThrowSequenceExceptionMethodInfo;
     public static readonly MethodInfo PrefetchEntitySetMethodInfo;
 
+    class BatchActivator
+    {
+      private readonly Queue<Action> materializationQueue;
+      private readonly ParameterContext parameterContext;
+      private ParameterScope scope;
+
+      public void Activate()
+      {
+        scope = parameterContext.Activate();
+      }
+
+      public void Deactivate()
+      {
+        scope.DisposeSafely();
+        while (materializationQueue.Count > 0) {
+          var materializeSelf = materializationQueue.Dequeue();
+          materializeSelf.Invoke();
+        }
+      }
+
+      public BatchActivator(Queue<Action> materializationQueue, ParameterContext parameterContext)
+      {
+        this.materializationQueue = materializationQueue;
+        this.parameterContext = parameterContext;
+      }
+    }
+
     public static int[] CreateSingleSourceMap(int targetLength, Pair<int>[] remappedColumns)
     {
       var map = new int[targetLength];
@@ -81,36 +108,46 @@ namespace Xtensive.Storage.Linq.Materialization
     /// <returns></returns>
     public static IEnumerable<TResult> Materialize<TResult>(IEnumerable<Tuple> dataSource, MaterializationContext context, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
     {
-      ParameterContext ctx;
-      var isRootMaterializing = context.MaterializationQueue == null;
-      if (isRootMaterializing)
-        context.MaterializationQueue = new Queue<IMaterializable>();
+      var parameterContext = new ParameterContext();
+      using (parameterContext.Activate())
+        foreach (var tupleParameterBinding in tupleParameterBindings)
+          tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
       var session = Session.Demand();
+      var materializedSequence = dataSource
+        .Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session)));
+      return context.MaterializationQueue == null 
+        ? BatchMaterialize(materializedSequence, context, parameterContext, session) 
+        : SubqueryMaterialize(materializedSequence, parameterContext);
+    }
+
+    private static IEnumerable<TResult> BatchMaterialize<TResult>(IEnumerable<TResult> materializedSequence, MaterializationContext context, ParameterContext parameterContext, Session session)
+    {
+      var materializationQueue = new Queue<Action>();
+      var batchActivator = new BatchActivator(materializationQueue, parameterContext);
+      context.MaterializationQueue = materializationQueue;
+      var batchSequence = materializedSequence
+        .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
+        .ApplyBeforeAndAfter(batchActivator.Activate, batchActivator.Deactivate);
       using (session.OpenTransaction()) {
-        using (new ParameterContext().Activate()) {
-          ctx = ParameterContext.Current;
-          foreach (var tupleParameterBinding in tupleParameterBindings)
-            tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
-        }
-        ParameterScope scope = null;
-        var batched = dataSource.Select(
-          tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session)))
-          .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
-          .ApplyBeforeAndAfter(
-            () => scope = ctx.Activate(), 
-            () => {
-              scope.DisposeSafely();
-              if (isRootMaterializing) {
-                while(context.MaterializationQueue.Count > 0) {
-                  var materializable = context.MaterializationQueue.Dequeue();
-                  materializable.MaterializeSelf();
-                }
-              }
-            });
-        foreach (var batch in batched)
+        foreach (var batch in batchSequence)
           foreach (var result in batch)
             yield return result;
       }
+    }
+
+    private static IEnumerable<TResult> SubqueryMaterialize<TResult>(IEnumerable<TResult> materializedSequence, ParameterContext parameterContext)
+    {
+      ParameterScope scope = null;
+      var batchSequence = materializedSequence
+        .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
+        .ApplyBeforeAndAfter(
+          () => scope = parameterContext.Activate(),
+          () => scope.DisposeSafely());
+      foreach (var batch in batchSequence)
+        foreach (var result in batch)
+          yield return result;
+//      using (parameterContext.Activate())
+//        return materializedSequence.ToList();
     }
 
     public static Func<Tuple, ItemMaterializationContext, TResult> CompileItemMaterializer<TResult>(Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda)
