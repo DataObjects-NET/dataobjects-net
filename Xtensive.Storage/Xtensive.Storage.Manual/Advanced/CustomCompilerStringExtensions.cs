@@ -15,5 +15,10 @@ namespace Xtensive.Storage.Manual.Advanced
     {
       return source[2];
     }
+
+    public static string BuildAddressString(string string1, string string2, string string3)
+    {
+      return string.Format("{0}, {1}-{2}", string1, string2, string3);
+    }
   }
 }

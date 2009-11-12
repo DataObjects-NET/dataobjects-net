@@ -12,6 +12,21 @@ using System.Linq;
 
 namespace Xtensive.Storage.Manual.Advanced
 {
+  public class Address : Structure
+  {
+    [Field(Length = 200)]
+    public string Country { get; set; }
+
+    [Field(Length = 200)]
+    public string City { get; set; }
+
+    [Field(Length = 200)]
+    public string Street { get; set; }
+
+    [Field(Length = 200)]
+    public string Building { get; set; }
+  }
+
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -21,29 +36,54 @@ namespace Xtensive.Storage.Manual.Advanced
     [Field(Length = 200)]
     public string Name { get; set; }
 
+    [Field]
+    public Address Address { get; set; }
   }
 
   [TestFixture]
   public class CustomSqlCompilerTest
   {
     [Test]
-    public void MainTest()
+    public void GetThirdCharTest()
     {
       var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof (Person));
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
       config.CompilerContainers.Register(typeof (CustomStringCompilerContainer));
       var domain = Domain.Build(config);
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {
-          var person1 = new Person {Name = "John"};
-          var person2 = new Person {Name = "Ivan"};
-          var names = Query<Person>.All.Select(p => p.Name).ToList();
+          AddPersons();
           var thirdChars = Query<Person>.All.Select(p => p.Name.GetThirdChar());
           var orderedThirdChars = thirdChars.OrderBy(c=>c).ToList();
-          Assert.IsTrue(orderedThirdChars.SequenceEqual(new[]{'a','h'}));
+          Assert.IsTrue(orderedThirdChars.SequenceEqual(new[]{'a','r'}));
         }
       }
+    }
+
+    [Test]
+    public void BuildAddress()
+    {
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      config.CompilerContainers.Register(typeof (CustomStringCompilerContainer));
+      var domain = Domain.Build(config);
+      using (var session = Session.Open(domain)) {
+        using (Transaction.Open(session)) {
+          AddPersons();
+          var addresses = Query<Person>.All.Select(p => CustomCompilerStringExtensions.BuildAddressString(p.Address.Country, p.Address.City, p.Address.Building));
+          var orderedAddresses = addresses.OrderBy(c=>c).ToList();
+          var addressesExpected = Query<Person>.All.AsEnumerable().Select(p => CustomCompilerStringExtensions.BuildAddressString(p.Address.Country, p.Address.City, p.Address.Building)).OrderBy(a=>a);
+          Assert.IsTrue(orderedAddresses.SequenceEqual(addressesExpected));
+        }
+      }
+    }
+
+    private void AddPersons()
+    {
+      new Person {Name = "Tereza", Address = new Address {Country="Czech Republic", City="Prague", Street="Vinohradska", Building="34"}};
+      new Person {Name = "Ivan", Address = new Address {Country="Russia", City="Ekaterinburg", Street="Lenina", Building="11/2"}};
     }
   }
 }

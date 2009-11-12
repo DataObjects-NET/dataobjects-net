@@ -19,7 +19,13 @@ namespace Xtensive.Storage.Manual.Advanced
     [Compiler(typeof(CustomCompilerStringExtensions), "GetThirdChar", TargetKind.Method | TargetKind.Static)]
     public static SqlExpression GetThirdChar(SqlExpression _this)
     {
-      return SqlDml.Substring(_this, 2, 1);;
+      return SqlDml.Substring(_this, 2, 1);
+    }
+
+    [Compiler(typeof(CustomCompilerStringExtensions), "BuildAddressString", TargetKind.Method | TargetKind.Static)]
+    public static SqlExpression BuildAddressString(SqlExpression countryExpression, SqlExpression streetExpression, SqlExpression buildingExpression)
+    {
+      return SqlDml.Concat(countryExpression, SqlDml.Literal(", "), streetExpression, SqlDml.Literal("-"), buildingExpression);
     }
   }
 }
