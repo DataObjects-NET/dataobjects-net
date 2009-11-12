@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
 
-      Request = new SqlQueryRequest(statement, tupleDescriptor, parameterBindings, allowBatching.Value);
+      Request = new SqlQueryRequest(statement, tupleDescriptor, allowBatching.Value, parameterBindings);
     }
 
     /// <summary>

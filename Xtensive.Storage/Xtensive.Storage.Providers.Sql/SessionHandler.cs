@@ -8,8 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
-using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Storage.Internals;
@@ -180,11 +178,25 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
     
-    public void Store(SqlPersistRequest request, IEnumerable<Tuple> tuples)
+    public void Store(TemporaryTableDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
-      foreach (var tuple in tuples)
-        commandProcessor.RegisterTask(new SqlPersistTask(request, tuple));
-      commandProcessor.ExecuteRequests();
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        foreach (var tuple in tuples)
+          commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
+        commandProcessor.ExecuteRequests();
+      }
+    }
+
+    public void Clear(TemporaryTableDescriptor descriptor)
+    {
+      lock (ConnectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        EnsureAutoShortenTransactionIsStarted();
+        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
+        commandProcessor.ExecuteRequests();
+      }
     }
 
     #endregion

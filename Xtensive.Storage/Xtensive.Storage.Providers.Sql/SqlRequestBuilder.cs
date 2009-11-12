@@ -43,13 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
         break;
       }
 
-      return new SqlPersistRequest(context.Batch, GetExpectedResult(context.Batch),
-        context.ParameterBindings.Values);
-    }
-
-    protected virtual int? GetExpectedResult(SqlBatch request)
-    {
-      return request.Count;
+      return new SqlPersistRequest(context.Batch, context.ParameterBindings.Values);
     }
     
     protected virtual void BuildInsertRequest(SqlRequestBuilderContext context)

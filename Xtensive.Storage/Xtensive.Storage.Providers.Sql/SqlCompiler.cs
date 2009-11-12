@@ -8,15 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Threading;
+using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Model;
+using Xtensive.Sql.ValueTypeMapping;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Expressions;
@@ -26,11 +26,7 @@ using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
-using Xtensive.Sql.ValueTypeMapping;
-using ColumnInfo=Xtensive.Storage.Model.ColumnInfo;
-using IndexInfo=Xtensive.Storage.Model.IndexInfo;
-using Xtensive.Core.Tuples;
-using Xtensive.Core.Linq;
+using IndexInfo = Xtensive.Storage.Model.IndexInfo;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -41,24 +37,22 @@ namespace Xtensive.Storage.Providers.Sql
     private const string TableNamePattern = "Tmp_{0}";
 
     private readonly BooleanExpressionConverter booleanExpressionConverter;
-
-    public readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
+    private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
 
     /// <summary>
-    /// Gets the value type mapper.
+    /// Gets the SQL domain handler.
     /// </summary>
-    protected Driver Driver
-    {
-      get { return ((DomainHandler) Handlers.DomainHandler).Driver; }
-    }
+    protected DomainHandler DomainHandler { get { return ((DomainHandler) Handlers.DomainHandler); } }
+
+    /// <summary>
+    /// Gets the SQL driver.
+    /// </summary>
+    protected Driver Driver { get { return DomainHandler.Driver; } }
 
     /// <summary>
     /// Gets the provider info.
     /// </summary>
-    protected ProviderInfo ProviderInfo
-    {
-      get { return Handlers.DomainHandler.ProviderInfo; }
-    }
+    protected ProviderInfo ProviderInfo { get { return Handlers.DomainHandler.ProviderInfo; } }
 
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.
@@ -428,49 +422,17 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override SqlProvider VisitStore(StoreProvider provider)
     {
-      ExecutableProvider source = null;
-      var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      var catalog = new Catalog(domainHandler.Schema.Catalog.Name);
-      Schema schema = catalog.CreateSchema(domainHandler.Schema.Name);
-      Table table;
-      string tableName = string.Format(TableNamePattern, provider.Name);
-      if (provider.Source!=null) {
-        source = provider.Source as ExecutableProvider
+      ExecutableProvider source =
+        provider.Source as ExecutableProvider
           ?? (provider.Source is RawProvider
             ? (ExecutableProvider) (new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
             : Compile((CompilableProvider) provider.Source));
-
-        if (provider.Scope!=TemporaryDataScope.Enumeration)
-          throw new NotSupportedException(string.Format(Strings.ExXIsNotSupported, provider.Scope));
-
-        table = schema.CreateTemporaryTable(tableName);
-
-        foreach (Column column in provider.Header.Columns) {
-          SqlValueType valueType;
-          var mappedColumn = column as MappedColumn;
-          if (mappedColumn!=null) {
-            ColumnInfo columnInfo = mappedColumn.ColumnInfoRef.Resolve(domainHandler.Domain.Model);
-            TypeMapping mapping = Driver.GetTypeMapping(columnInfo);
-            valueType = Driver.BuildValueType(columnInfo);
-          }
-          else
-            valueType = Driver.BuildValueType(column.Type, null, null, null);
-          TableColumn tableColumn = table.CreateColumn(column.Name, valueType);
-          tableColumn.IsNullable = true;
-          // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
-          if (column.Type==typeof (string))
-            tableColumn.Collation = domainHandler.Schema.Collations.FirstOrDefault();
-        }
-      }
-      else
-        table = schema.Tables[tableName];
-
-      SqlTableRef tr = SqlDml.TableRef(table);
-      SqlSelect query = SqlDml.Select(tr);
-      foreach (SqlTableColumn column in tr.Columns)
-        query.Columns.Add(column);
-      
-      return new SqlStoreProvider(provider, query, Handlers, source, table);
+      if (provider.Scope!=TemporaryDataScope.Enumeration)
+        throw new NotSupportedException(string.Format(Strings.ExXIsNotSupported, provider.Scope));
+      var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
+      var descriptor = DomainHandler.TemporaryTableManager
+        .BuildDescriptor(provider.Name, provider.Header.TupleDescriptor, columnNames);
+      return new SqlStoreProvider(provider, descriptor, Handlers, source);
     }
 
     /// <inheritdoc/>

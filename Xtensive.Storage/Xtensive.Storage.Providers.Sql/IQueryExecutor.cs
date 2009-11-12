@@ -53,10 +53,16 @@ namespace Xtensive.Storage.Providers.Sql
 
 
     /// <summary>
-    /// Stores the specified tuples to database.
+    /// Stores the specified tuples in specified temporary table.
     /// </summary>
-    /// <param name="request">The request that describes how to store tuples.</param>
+    /// <param name="descriptor">The descriptor of temporary table.</param>
     /// <param name="tuples">The tuples to store.</param>
-    void Store(SqlPersistRequest request, IEnumerable<Tuple> tuples);
+    void Store(TemporaryTableDescriptor descriptor, IEnumerable<Tuple> tuples);
+
+    /// <summary>
+    /// Clears the specified temporary table.
+    /// </summary>
+    /// <param name="descriptor">The descriptor of temporary table.</param>
+    void Clear(TemporaryTableDescriptor descriptor);
   }
 }

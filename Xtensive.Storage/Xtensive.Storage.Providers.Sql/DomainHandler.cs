@@ -7,11 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
-using Xtensive.Sql;
-using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Expressions;
@@ -49,6 +46,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the SQL request builder.
     /// </summary>
     public SqlRequestBuilder RequestBuilder { get; private set; }
+
+    /// <summary>
+    /// Gets the temporary table manager.
+    /// </summary>
+    public TemporaryTableManager TemporaryTableManager { get; private set; }
     
     /// <summary>
     /// Gets the SQL driver.
@@ -210,6 +212,8 @@ namespace Xtensive.Storage.Providers.Sql
       Mapping = new ModelMapping();
       RequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
       RequestBuilder.Initialize();
+      TemporaryTableManager = Handlers.HandlerFactory.CreateHandler<TemporaryTableManager>();
+      TemporaryTableManager.Initialize();
     }
   }
 }

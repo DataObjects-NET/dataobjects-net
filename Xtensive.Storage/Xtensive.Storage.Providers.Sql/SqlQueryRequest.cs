@@ -46,10 +46,21 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <param name="tupleDescriptor">The tuple descriptor.</param>
-    /// <param name="parameterBindings">The parameter bindings.</param>
     /// <param name="allowBatching">if set to <see langword="true"/> batching of this query is allowed.</param>
+    public SqlQueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, bool allowBatching)
+      : this(statement, tupleDescriptor, allowBatching, EnumerableUtils<SqlQueryParameterBinding>.Empty)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="statement">The statement.</param>
+    /// <param name="tupleDescriptor">The tuple descriptor.</param>
+    /// <param name="allowBatching">if set to <see langword="true"/> batching of this query is allowed.</param>
+    /// <param name="parameterBindings">The parameter bindings.</param>
     public SqlQueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor,
-      IEnumerable<SqlQueryParameterBinding> parameterBindings, bool allowBatching)
+      bool allowBatching, IEnumerable<SqlQueryParameterBinding> parameterBindings)
       : base(statement)
     {
       ParameterBindings = parameterBindings.ToHashSet();

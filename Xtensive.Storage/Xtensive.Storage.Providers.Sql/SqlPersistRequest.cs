@@ -20,26 +20,27 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the parameter bindings.
     /// </summary>
     public IEnumerable<SqlPersistParameterBinding> ParameterBindings { get; private set; }
-
-    /// <summary>
-    /// Gets or sets the expected result.
-    /// </summary>
-    /// <remarks>Usually is the number of touched rows.</remarks>
-    public int? ExpectedResult { get; private set; }
     
+
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
-    /// <param name="expectedResult">The expected result.</param>
+    public SqlPersistRequest(ISqlCompileUnit statement)
+      : this(statement, EnumerableUtils<SqlPersistParameterBinding>.Empty)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="statement">The statement.</param>
     /// <param name="parameterBindings">The parameter bindings.</param>
-    public SqlPersistRequest(ISqlCompileUnit statement, int? expectedResult,
-      IEnumerable<SqlPersistParameterBinding> parameterBindings)
+    public SqlPersistRequest(ISqlCompileUnit statement, IEnumerable<SqlPersistParameterBinding> parameterBindings)
       : base(statement)
     {
-      ExpectedResult = expectedResult;
       ParameterBindings = parameterBindings.ToHashSet();
     }
   }
