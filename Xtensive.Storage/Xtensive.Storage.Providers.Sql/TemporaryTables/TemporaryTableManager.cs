@@ -81,23 +81,24 @@ namespace Xtensive.Storage.Providers.Sql
 
       // insert statement
       var insertStatement = SqlDml.Insert(tableRef);
-      var storeRequestBindings = new List<SqlPersistParameterBinding>();
+      var storeRequestBindings = new List<PersistParameterBinding>();
       fieldIndex = 0;
       foreach (var column in tableRef.Columns) {
         TypeMapping typeMapping = typeMappings[fieldIndex];
-        var binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
+        var binding = new PersistParameterBinding(fieldIndex, typeMapping);
         insertStatement.Values[column] = binding.ParameterReference;
         storeRequestBindings.Add(binding);
         fieldIndex++;
       }
 
-      var result = new TemporaryTableDescriptor(name);
-      result.CreateScript = driver.Compile(SqlDdl.Create(table)).GetCommandText();
-      result.DropScript = driver.Compile(SqlDdl.Drop(table)).GetCommandText();
-      result.TupleDescriptor = source;
-      result.StoreRequest = new SqlPersistRequest(insertStatement, storeRequestBindings);
-      result.ClearRequest = new SqlPersistRequest(SqlDml.Delete(tableRef));
-      result.QueryStatement = queryStatement;
+      var result = new TemporaryTableDescriptor(name) {
+        TupleDescriptor = source,
+        CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
+        DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
+        StoreRequest = new PersistRequest(insertStatement, storeRequestBindings),
+        ClearRequest = new PersistRequest(SqlDml.Delete(tableRef)),
+        QueryStatement = queryStatement
+      };
       return result;
     }
 
@@ -118,7 +119,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
       bool isLocked;
       if (!registry.States.TryGetValue(name, out isLocked))
-        Handlers.SessionHandler.GetService<IQueryExecutor>().ExecuteNonQuery(descriptor.CreateScript);
+        Handlers.SessionHandler.GetService<IQueryExecutor>().ExecuteNonQuery(descriptor.CreateStatement);
       else if (isLocked)
         throw new InvalidOperationException(string.Format(Strings.ExTemporaryTableXIsLocked, name));
       registry.States[name] = true;

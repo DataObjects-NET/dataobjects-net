@@ -24,9 +24,9 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlTable permanentReference;
 
     /// <summary>
-    /// Gets <see cref="SqlQueryRequest"/> associated with this provider.
+    /// Gets <see cref="QueryRequest"/> associated with this provider.
     /// </summary>
-    public SqlQueryRequest Request { get; private set; }
+    public QueryRequest Request { get; private set; }
 
     /// <summary>
     /// Gets the permanent reference (<see cref="SqlQueryRef"/>) for <see cref="SqlSelect"/> associated with this provider.
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Providers.Sql
       CompilableProvider origin,
       SqlSelect statement,
       HandlerAccessor handlers,
-      IEnumerable<SqlQueryParameterBinding> extraBindings,
+      IEnumerable<QueryParameterBinding> extraBindings,
       params ExecutableProvider[] sources)
       : this(origin, statement, handlers, extraBindings, null, sources)
     {
@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Providers.Sql
       CompilableProvider origin,
       SqlSelect statement,
       HandlerAccessor handlers,
-      IEnumerable<SqlQueryParameterBinding> extraBindings,
+      IEnumerable<QueryParameterBinding> extraBindings,
       bool? allowBatching,
       params ExecutableProvider[] sources)
       : base(origin, sources)
@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
 
-      Request = new SqlQueryRequest(statement, tupleDescriptor, allowBatching.Value, parameterBindings);
+      Request = new QueryRequest(statement, tupleDescriptor, allowBatching.Value, parameterBindings);
     }
 
     /// <summary>

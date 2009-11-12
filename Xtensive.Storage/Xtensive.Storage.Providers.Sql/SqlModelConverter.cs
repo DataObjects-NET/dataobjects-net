@@ -12,7 +12,6 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Sql;
-using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Indexing.Model;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;

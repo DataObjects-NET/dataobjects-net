@@ -5,12 +5,16 @@
 // Created:    2008.09.25
 
 using System;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public sealed class SqlQueryParameterBinding : SqlParameterBinding
+  /// <summary>
+  /// A binding of a parameter for <see cref="QueryRequest"/>.
+  /// </summary>
+  public class QueryParameterBinding : ParameterBinding
   {
     /// <summary>
     /// Gets the value accessor.
@@ -20,7 +24,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the type of the binding.
     /// </summary>
-    public SqlQueryParameterBindingType BindingType { get; private set; }
+    public QueryParameterBindingType BindingType { get; private set; }
+
 
     // Constructors
 
@@ -28,11 +33,19 @@ namespace Xtensive.Storage.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="valueAccessor">Value for <see cref="ValueAccessor"/>.</param>
-    /// <param name="typeMapping">Value for <see cref="SqlParameterBinding.TypeMapping"/>.</param>
+    /// <param name="typeMapping">Value for <see cref="ParameterBinding.TypeMapping"/>.</param>
     /// <param name="bindingType">Value for <see cref="BindingType"/>.</param>
-    public SqlQueryParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping, SqlQueryParameterBindingType bindingType)
+    public QueryParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping, QueryParameterBindingType bindingType)
       : base(typeMapping)
     {
+      ArgumentValidator.EnsureArgumentNotNull(valueAccessor, "valueAccessor");
+      switch (bindingType) {
+      case QueryParameterBindingType.Regular:
+      case QueryParameterBindingType.SmartNull:
+        ArgumentValidator.EnsureArgumentNotNull(typeMapping, "typeMapping");
+        break;
+      }
+
       ValueAccessor = valueAccessor;
       BindingType = bindingType;
     }
@@ -42,8 +55,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="valueAccessor"></param>
     /// <param name="typeMapping"></param>
-    public SqlQueryParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping)
-      : this(valueAccessor, typeMapping, SqlQueryParameterBindingType.Regular)
+    public QueryParameterBinding(Func<object> valueAccessor, TypeMapping typeMapping)
+      : this(valueAccessor, typeMapping, QueryParameterBindingType.Regular)
     {
     }
   }

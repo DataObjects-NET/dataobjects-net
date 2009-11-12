@@ -12,11 +12,11 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public sealed class SqlRequestBuilderContext
+  public sealed class PersistRequestBuilderContext
   {
     public SqlBatch Batch { get; private set; }
 
-    public SqlRequestBuilderTask Task { get; private set; }
+    public PersistRequestBuilderTask Task { get; private set; }
 
     public TypeInfo Type { get; private set; }
 
@@ -24,12 +24,12 @@ namespace Xtensive.Storage.Providers.Sql
 
     public IndexInfo PrimaryIndex { get; private set; }
 
-    public Dictionary<ColumnInfo, SqlPersistParameterBinding> ParameterBindings { get; private set; }
+    public Dictionary<ColumnInfo, PersistParameterBinding> ParameterBindings { get; private set; }
 
 
     // Constructors
 
-    public SqlRequestBuilderContext(SqlRequestBuilderTask task, SqlBatch batch)
+    public PersistRequestBuilderContext(PersistRequestBuilderTask task, SqlBatch batch)
     {
       Task = task;
       Batch = batch;
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
           return 0;});
       AffectedIndexes = new ReadOnlyList<IndexInfo>(affectedIndexes);
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
-      ParameterBindings = new Dictionary<ColumnInfo, SqlPersistParameterBinding>();
+      ParameterBindings = new Dictionary<ColumnInfo, PersistParameterBinding>();
     }
   }
 }

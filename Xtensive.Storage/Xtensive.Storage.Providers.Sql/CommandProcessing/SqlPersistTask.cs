@@ -10,7 +10,7 @@ namespace Xtensive.Storage.Providers.Sql
 {
   internal sealed class SqlPersistTask : SqlTask
   {
-    public SqlPersistRequest Request;
+    public PersistRequest Request;
     public Tuple Tuple;
 
     public override void Process(CommandProcessor processor)
@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructors
 
-    public SqlPersistTask(SqlPersistRequest request, Tuple tuple)
+    public SqlPersistTask(PersistRequest request, Tuple tuple)
     {
       Request = request;
       Tuple = tuple;

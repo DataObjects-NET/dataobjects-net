@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Providers.Sql
   public abstract class DomainHandler : Providers.DomainHandler
   {
     private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
-    private ThreadSafeDictionary<SqlRequestBuilderTask, SqlPersistRequest> requestCache;
+    private ThreadSafeDictionary<PersistRequestBuilderTask, PersistRequest> requestCache;
 
     /// <summary>
     /// Gets the storage schema.
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the SQL request builder.
     /// </summary>
-    public SqlRequestBuilder RequestBuilder { get; private set; }
+    public PersistRequestBuilder PersistRequestBuilder { get; private set; }
 
     /// <summary>
     /// Gets the temporary table manager.
@@ -104,10 +104,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the persist request for the specified <paramref name="task"/>.
     /// </summary>
     /// <param name="task">The task to get request from.</param>
-    /// <returns>A <see cref="SqlPersistRequest"/> that represents <paramref name="task"/>.</returns>
-    public SqlPersistRequest GetPersistRequest(SqlRequestBuilderTask task)
+    /// <returns>A <see cref="PersistRequest"/> that represents <paramref name="task"/>.</returns>
+    public PersistRequest GetPersistRequest(PersistRequestBuilderTask task)
     {
-      return requestCache.GetValue(task, RequestBuilder.Build);
+      return requestCache.GetValue(task, PersistRequestBuilder.Build);
     }
 
     /// <summary>
@@ -208,10 +208,10 @@ namespace Xtensive.Storage.Providers.Sql
       Driver = new Driver(Handlers.Domain.Configuration.ConnectionInfo);
       base.Initialize();
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
-      requestCache = ThreadSafeDictionary<SqlRequestBuilderTask, SqlPersistRequest>.Create(new object());
+      requestCache = ThreadSafeDictionary<PersistRequestBuilderTask, PersistRequest>.Create(new object());
       Mapping = new ModelMapping();
-      RequestBuilder = Handlers.HandlerFactory.CreateHandler<SqlRequestBuilder>();
-      RequestBuilder.Initialize();
+      PersistRequestBuilder = Handlers.HandlerFactory.CreateHandler<PersistRequestBuilder>();
+      PersistRequestBuilder.Initialize();
       TemporaryTableManager = Handlers.HandlerFactory.CreateHandler<TemporaryTableManager>();
       TemporaryTableManager.Initialize();
     }

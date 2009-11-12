@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Providers.Sql
       activeCommand.AddPart(part);
     }
 
-    public override IEnumerator<Tuple> ExecuteRequestsWithReader(SqlQueryRequest request)
+    public override IEnumerator<Tuple> ExecuteRequestsWithReader(QueryRequest request)
     {
       while (tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Providers.Sql
       return RunTupleReader(ExecuteBatch(tasks.Count, request), request.TupleDescriptor);
     }
 
-    private DbDataReader ExecuteBatch(int numberOfTasks, SqlQueryRequest lastRequest)
+    private DbDataReader ExecuteBatch(int numberOfTasks, QueryRequest lastRequest)
     {
       if (numberOfTasks==0 && lastRequest==null)
         return null;

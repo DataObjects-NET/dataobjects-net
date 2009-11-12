@@ -5,28 +5,27 @@
 // Created:    2009.04.24
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Sorting;
 using Xtensive.Modelling.Actions;
-using Xtensive.Core;
+using Xtensive.Modelling.Comparison;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Sql;
+using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Indexing.Model;
-using System.Collections.Generic;
+using Xtensive.Storage.Providers.Sql.Resources;
 using ColumnInfo = Xtensive.Storage.Indexing.Model.ColumnInfo;
-using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
-using SqlRefAction = Xtensive.Sql.ReferentialAction;
 using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
 using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
-using SqlDomain = Xtensive.Sql.Model.Domain;
-using Xtensive.Modelling.Comparison;
-using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Storage.Providers.Sql.Resources;
-using Xtensive.Core.Sorting;
-using Xtensive.Sql.Ddl;
+using SqlRefAction = Xtensive.Sql.ReferentialAction;
+using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
 
 namespace Xtensive.Storage.Providers.Sql
 {

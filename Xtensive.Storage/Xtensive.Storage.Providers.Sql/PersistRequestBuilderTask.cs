@@ -10,9 +10,9 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Task for <see cref="SqlRequestBuilder"/>.
+  /// A task for <see cref="PersistRequestBuilder"/>.
   /// </summary>
-  public sealed class SqlRequestBuilderTask
+  public sealed class PersistRequestBuilderTask
   {
     private int hashCode;
 
@@ -27,10 +27,10 @@ namespace Xtensive.Storage.Providers.Sql
     public BitArray FieldMap { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="SqlPersistRequestKind"/>.
+    /// Gets the <see cref="PersistRequestKind"/>.
     /// </summary>
     /// <value></value>
-    public SqlPersistRequestKind Kind { get; private set; }
+    public PersistRequestKind Kind { get; private set; }
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Providers.Sql
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      var other = obj as SqlRequestBuilderTask;
+      var other = obj as PersistRequestBuilderTask;
       if (other == null)
         return false;
       if (Type != other.Type)
@@ -74,13 +74,13 @@ namespace Xtensive.Storage.Providers.Sql
     
     // Constructors
 
-    internal SqlRequestBuilderTask(SqlPersistRequestKind kind, TypeInfo type, BitArray fieldMap)
+    internal PersistRequestBuilderTask(PersistRequestKind kind, TypeInfo type, BitArray fieldMap)
       : this(kind, type)
     {
       FieldMap = fieldMap;
     }
 
-    internal SqlRequestBuilderTask(SqlPersistRequestKind kind, TypeInfo type)
+    internal PersistRequestBuilderTask(PersistRequestKind kind, TypeInfo type)
     {
       Kind = kind;
       Type = type;

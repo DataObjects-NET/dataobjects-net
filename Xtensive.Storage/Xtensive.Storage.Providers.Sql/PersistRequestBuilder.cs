@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.28
 
-using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -15,9 +14,9 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Builder of <see cref="SqlRequest"/>s.
+  /// Builder of <see cref="Request"/>s.
   /// </summary>
-  public class SqlRequestBuilder : InitializableHandlerBase
+  public class PersistRequestBuilder : InitializableHandlerBase
   {
     private bool useLargeObjects;
 
@@ -27,26 +26,26 @@ namespace Xtensive.Storage.Providers.Sql
     /// Builds the request.
     /// </summary>
     /// <param name="task">The request builder task.</param>
-    /// <returns><see cref="SqlPersistRequest"/> instance for the specified <paramref name="task"/>.</returns>
-    public SqlPersistRequest Build(SqlRequestBuilderTask task)
+    /// <returns><see cref="PersistRequest"/> instance for the specified <paramref name="task"/>.</returns>
+    public PersistRequest Build(PersistRequestBuilderTask task)
     {
-      var context = new SqlRequestBuilderContext(task, SqlDml.Batch());
+      var context = new PersistRequestBuilderContext(task, SqlDml.Batch());
       switch (task.Kind) {
-      case SqlPersistRequestKind.Insert:
+      case PersistRequestKind.Insert:
         BuildInsertRequest(context);
         break;
-      case SqlPersistRequestKind.Remove:
+      case PersistRequestKind.Remove:
         BuildRemoveRequest(context);
         break;
-      case SqlPersistRequestKind.Update:
+      case PersistRequestKind.Update:
         BuildUpdateRequest(context);
         break;
       }
 
-      return new SqlPersistRequest(context.Batch, context.ParameterBindings.Values);
+      return new PersistRequest(context.Batch, context.ParameterBindings.Values);
     }
     
-    protected virtual void BuildInsertRequest(SqlRequestBuilderContext context)
+    protected virtual void BuildInsertRequest(PersistRequestBuilderContext context)
     {
       foreach (IndexInfo index in context.AffectedIndexes) {
         var table = DomainHandler.Mapping[index].Table;
@@ -57,11 +56,11 @@ namespace Xtensive.Storage.Providers.Sql
           ColumnInfo column = index.Columns[i];
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0) {
-            SqlPersistParameterBinding binding;
+            PersistParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
               var typeMapping = DomainHandler.Driver.GetTypeMapping(column);
               var bindingType = GetBindingType(table.TableColumns[column.Name]);
-              binding = new SqlPersistParameterBinding(fieldIndex, typeMapping, bindingType);
+              binding = new PersistParameterBinding(fieldIndex, typeMapping, bindingType);
               context.ParameterBindings.Add(column, binding);
             }
             query.Values[tableRef[column.Name]] = binding.ParameterReference;
@@ -71,7 +70,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    protected virtual void BuildUpdateRequest(SqlRequestBuilderContext context)
+    protected virtual void BuildUpdateRequest(PersistRequestBuilderContext context)
     {
       foreach (IndexInfo index in context.AffectedIndexes) {
         var table = DomainHandler.Mapping[index].Table;
@@ -82,11 +81,11 @@ namespace Xtensive.Storage.Providers.Sql
           ColumnInfo column = index.Columns[i];
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
-            SqlPersistParameterBinding binding;
+            PersistParameterBinding binding;
             if (!context.ParameterBindings.TryGetValue(column, out binding)) {
               var typeMapping = DomainHandler.Driver.GetTypeMapping(column);
               var bindingType = GetBindingType(table.TableColumns[column.Name]);
-              binding = new SqlPersistParameterBinding(fieldIndex, typeMapping, bindingType);
+              binding = new PersistParameterBinding(fieldIndex, typeMapping, bindingType);
               context.ParameterBindings.Add(column, binding);
             }
             query.Values[tableRef[column.Name]] = binding.ParameterReference;
@@ -101,7 +100,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    protected virtual void BuildRemoveRequest(SqlRequestBuilderContext context)
+    protected virtual void BuildRemoveRequest(PersistRequestBuilderContext context)
     {
       for (int i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
         var index = context.AffectedIndexes[i];
@@ -112,15 +111,15 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    protected virtual SqlExpression BuildWhereExpression(SqlRequestBuilderContext context, SqlTableRef table)
+    protected virtual SqlExpression BuildWhereExpression(PersistRequestBuilderContext context, SqlTableRef table)
     {
       SqlExpression expression = null;
       foreach (ColumnInfo column in context.PrimaryIndex.KeyColumns.Keys) {
         int fieldIndex = GetFieldIndex(context.Task.Type, column);
-        SqlPersistParameterBinding binding;
+        PersistParameterBinding binding;
         if (!context.ParameterBindings.TryGetValue(column, out binding)) {
           TypeMapping typeMapping = DomainHandler.Driver.GetTypeMapping(column);
-          binding = new SqlPersistParameterBinding(fieldIndex, typeMapping);
+          binding = new PersistParameterBinding(fieldIndex, typeMapping);
           context.ParameterBindings.Add(column, binding);
         }
         expression &= table[column.Name]==binding.ParameterReference;
@@ -128,17 +127,17 @@ namespace Xtensive.Storage.Providers.Sql
       return expression;
     }
 
-    protected virtual SqlPersistParameterBindingType GetBindingType(TableColumn column)
+    protected virtual PersistParameterBindingType GetBindingType(TableColumn column)
     {
       if (!useLargeObjects)
-        return SqlPersistParameterBindingType.Regular;
+        return PersistParameterBindingType.Regular;
       switch (column.DataType.Type) {
       case SqlType.VarCharMax:
-        return SqlPersistParameterBindingType.CharacterLob;
+        return PersistParameterBindingType.CharacterLob;
       case SqlType.VarBinaryMax:
-        return SqlPersistParameterBindingType.BinaryLob;
+        return PersistParameterBindingType.BinaryLob;
       default:
-        return SqlPersistParameterBindingType.Regular;
+        return PersistParameterBindingType.Regular;
       }
     }
 
@@ -162,7 +161,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public SqlRequestBuilder()
+    public PersistRequestBuilder()
     {
     }
   }

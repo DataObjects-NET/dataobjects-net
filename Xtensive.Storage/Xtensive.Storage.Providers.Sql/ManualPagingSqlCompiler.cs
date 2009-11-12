@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var isSourceTake = provider.Source is TakeProvider;
       var compiledSource = Compile(provider.Source);
-      var bindings = new List<SqlQueryParameterBinding>();
+      var bindings = new List<QueryParameterBinding>();
       var source = compiledSource.Request.SelectStatement;
       var sourceQuery = source.ShallowClone();
       if (isSourceTake && compiledSource.Request.SelectStatement.Limit.IsNullReference()) {
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var isSourceSkip = provider.Source is SkipProvider;
       var compiledSource = Compile(provider.Source);
-      var bindings = new List<SqlQueryParameterBinding>();
+      var bindings = new List<QueryParameterBinding>();
 
       var source = compiledSource.Request.SelectStatement;
       var sourceQuery = source.ShallowClone();
@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlExpression AddTakePartToSkipWhereExpression(
       SqlSelect sourceQuery, SqlTable sourceQueryRef, TakeProvider provider,
-      List<SqlQueryParameterBinding> bindings)
+      List<QueryParameterBinding> bindings)
     {
       SqlExpression result;
       var takeParameterBinding = CreateLimitOffsetParameterBinding(provider.Count);
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlExpression AddSkipPartToTakeWhereExpression(
       SqlSelect sourceQuery, SqlTable sourceQueryRef, SkipProvider provider,
-      List<SqlQueryParameterBinding> bindings)
+      List<QueryParameterBinding> bindings)
     {
       var skipParameterBinding = CreateLimitOffsetParameterBinding(provider.Count);
       bindings.Add(skipParameterBinding);

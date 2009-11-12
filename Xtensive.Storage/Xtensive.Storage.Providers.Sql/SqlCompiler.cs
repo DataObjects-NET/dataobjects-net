@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Providers.Sql
         sqlSelect = ExtractSqlSelect(provider, source);
 
       var sourceColumns = ExtractColumnExpressions(sqlSelect, provider);
-      var allBindings = EnumerableUtils<SqlQueryParameterBinding>.Empty;
+      var allBindings = EnumerableUtils<QueryParameterBinding>.Empty;
       foreach (var column in provider.CalculatedColumns) {
         var result = ProcessExpression(column.Expression, sourceColumns);
         var predicate = result.First;
@@ -323,12 +323,12 @@ namespace Xtensive.Storage.Providers.Sql
       var query = source.ShallowClone();
       var keyColumns = provider.Header.Order.ToList();
       var rangeProvider = new SqlRangeProvider(provider, query, Handlers, compiledSource);
-      var bindings = (HashSet<SqlQueryParameterBinding>) rangeProvider.Request.ParameterBindings;
+      var bindings = (HashSet<QueryParameterBinding>) rangeProvider.Request.ParameterBindings;
       for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
         var column = provider.Header.Columns[keyColumns[i].Key];
         TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
         int fieldIndex = i;
-        var binding = new SqlQueryParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
+        var binding = new QueryParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
         bindings.Add(binding);
         query.Where &= query.Columns[keyColumns[i].Key]==binding.ParameterReference;
       }
@@ -342,7 +342,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       SqlSelect source = compiledSource.Request.SelectStatement;
       var query = source.ShallowClone();
-      var parameterBindings = new List<SqlQueryParameterBinding>();
+      var parameterBindings = new List<QueryParameterBinding>();
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
         pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
@@ -356,7 +356,7 @@ namespace Xtensive.Storage.Providers.Sql
         var column = provider.Header.Columns[columnIndex];
         TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
         int index = i;
-        var binding = new SqlQueryParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
+        var binding = new QueryParameterBinding(() => provider.CompiledKey.Invoke().GetValue(index), typeMapping);
         parameterBindings.Add(binding);
         query.Where &= sqlColumn==binding.ParameterReference;
       }
@@ -696,14 +696,14 @@ namespace Xtensive.Storage.Providers.Sql
 //      var columnName = ProcessAliasedName(provider.ResultColumnName);
 //      // TODO: Rewrite
 //      var sqlArray = SqlDml.Array<Tuple>()
-//      var binding = new SqlQueryParameterBinding(provider.FilterDataSource);
+//      var binding = new QueryParameterBinding(provider.FilterDataSource);
 //      var query = SqlDml.In(source, binding.ParameterReference);
 //      var columnRef = SqlDml.ColumnRef(SqlDml.Column(query), columnName);
 //      sqlSelect.Columns.Add(columnRef);
 //
-//      var allBindings = EnumerableUtils<SqlQueryParameterBinding>.Empty;
+//      var allBindings = EnumerableUtils<QueryParameterBinding>.Empty;
 //      foreach (var column in provider.CalculatedColumns) {
-//        Pair<SqlExpression, HashSet<SqlQueryParameterBinding>> result = ProcessExpression(column.Expression, sourceColumns);
+//        Pair<SqlExpression, HashSet<QueryParameterBinding>> result = ProcessExpression(column.Expression, sourceColumns);
 //        var predicate = result.First;
 //        var bindings = result.Second;
 //        if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions) && (column.Type.StripNullable()==typeof (bool)))
@@ -1027,12 +1027,12 @@ namespace Xtensive.Storage.Providers.Sql
       return sourceSelect.ShallowClone();
     }
 
-    protected SqlQueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)
+    protected QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)
     {
-      return new SqlQueryParameterBinding(
+      return new QueryParameterBinding(
         BuildLimitOffsetAccessor(accessor),
         null,
-        SqlQueryParameterBindingType.LimitOffset);
+        QueryParameterBindingType.LimitOffset);
     }
 
     private static Func<object> BuildLimitOffsetAccessor(Func<int> originalAccessor)
@@ -1043,10 +1043,10 @@ namespace Xtensive.Storage.Providers.Sql
       };
     }
 
-    private Pair<SqlExpression, HashSet<SqlQueryParameterBinding>> ProcessExpression(LambdaExpression le, params List<SqlExpression>[] sourceColumns)
+    private Pair<SqlExpression, HashSet<QueryParameterBinding>> ProcessExpression(LambdaExpression le, params List<SqlExpression>[] sourceColumns)
     {
       var processor = new ExpressionProcessor(le, this, Handlers, sourceColumns);
-      var result = new Pair<SqlExpression, HashSet<SqlQueryParameterBinding>>(
+      var result = new Pair<SqlExpression, HashSet<QueryParameterBinding>>(
         processor.Translate(),
         processor.Bindings);
       return result;

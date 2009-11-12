@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// Fetch request.
   /// </summary>
-  public class SqlQueryRequest : SqlRequest
+  public class QueryRequest : Request
   {
     /// <summary>
     /// Gets the select statement.
@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the parameter bindings.
     /// </summary>
-    public IEnumerable<SqlQueryParameterBinding> ParameterBindings { get; private set; }
+    public IEnumerable<QueryParameterBinding> ParameterBindings { get; private set; }
 
     /// <summary>
     /// Gets the record set header.
@@ -47,8 +47,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="statement">The statement.</param>
     /// <param name="tupleDescriptor">The tuple descriptor.</param>
     /// <param name="allowBatching">if set to <see langword="true"/> batching of this query is allowed.</param>
-    public SqlQueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, bool allowBatching)
-      : this(statement, tupleDescriptor, allowBatching, EnumerableUtils<SqlQueryParameterBinding>.Empty)
+    public QueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, bool allowBatching)
+      : this(statement, tupleDescriptor, allowBatching, EnumerableUtils<QueryParameterBinding>.Empty)
     {
     }
 
@@ -59,8 +59,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="tupleDescriptor">The tuple descriptor.</param>
     /// <param name="allowBatching">if set to <see langword="true"/> batching of this query is allowed.</param>
     /// <param name="parameterBindings">The parameter bindings.</param>
-    public SqlQueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor,
-      bool allowBatching, IEnumerable<SqlQueryParameterBinding> parameterBindings)
+    public QueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor,
+      bool allowBatching, IEnumerable<QueryParameterBinding> parameterBindings)
       : base(statement)
     {
       ParameterBindings = parameterBindings.ToHashSet();

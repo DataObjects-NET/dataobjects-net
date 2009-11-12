@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Providers.Sql
       ExecuteAllTasks();
     }
     
-    public override IEnumerator<Tuple> ExecuteRequestsWithReader(SqlQueryRequest lastRequest)
+    public override IEnumerator<Tuple> ExecuteRequestsWithReader(QueryRequest lastRequest)
     {
       ExecuteAllTasks();
       return RunTupleReader(ExecuteQuery(new SqlQueryTask(lastRequest)), lastRequest.TupleDescriptor);

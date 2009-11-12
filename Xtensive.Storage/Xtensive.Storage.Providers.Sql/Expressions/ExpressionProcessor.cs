@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
     private readonly LambdaExpression lambda;
-    private readonly HashSet<SqlQueryParameterBinding> bindings;
+    private readonly HashSet<QueryParameterBinding> bindings;
     private readonly List<ParameterExpression> activeParameters;
     private readonly Dictionary<ParameterExpression, List<SqlExpression>> sourceMapping;
     private readonly ICompiler compiler;
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private bool emptyStringIsNull;
     private bool executed;
     
-    public HashSet<SqlQueryParameterBinding> Bindings { get { return bindings; } }
+    public HashSet<QueryParameterBinding> Bindings { get { return bindings; } }
     
     public SqlExpression Translate()
     {
@@ -83,11 +83,11 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var typeMapping = driver.GetTypeMapping(type);
       var expression = parameterExtractor.ExtractParameter<object>(e);
       var bindingType = optimizeBooleanParameter
-        ? SqlQueryParameterBindingType.BooleanConstant
+        ? QueryParameterBindingType.BooleanConstant
         : (smartNull
-            ? SqlQueryParameterBindingType.SmartNull
-            : SqlQueryParameterBindingType.Regular);
-      var binding = new SqlQueryParameterBinding(expression.CachingCompile(), typeMapping, bindingType);
+            ? QueryParameterBindingType.SmartNull
+            : QueryParameterBindingType.Regular);
+      var binding = new QueryParameterBinding(expression.CachingCompile(), typeMapping, bindingType);
       bindings.Add(binding);
       SqlExpression result;
       if (optimizeBooleanParameter) {
@@ -380,7 +380,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       memberCompilerProvider = domainHandler.GetMemberCompilerProvider<SqlExpression>();
       driver = ((DomainHandler) domainHandler).Driver;
       lambda = le;
-      bindings = new HashSet<SqlQueryParameterBinding>();
+      bindings = new HashSet<QueryParameterBinding>();
       activeParameters = new List<ParameterExpression>();
       evaluator = new ExpressionEvaluator(le);
       parameterExtractor = new ParameterExtractor(evaluator);

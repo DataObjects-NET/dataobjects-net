@@ -12,14 +12,14 @@ using Xtensive.Sql;
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Modification (insert, update, delete) request.
+  /// Modification (Insert, Update, Delete) request.
   /// </summary>
-  public class SqlPersistRequest : SqlRequest
+  public class PersistRequest : Request
   {
     /// <summary>
     /// Gets the parameter bindings.
     /// </summary>
-    public IEnumerable<SqlPersistParameterBinding> ParameterBindings { get; private set; }
+    public IEnumerable<PersistParameterBinding> ParameterBindings { get; private set; }
     
 
     // Constructors
@@ -28,8 +28,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
-    public SqlPersistRequest(ISqlCompileUnit statement)
-      : this(statement, EnumerableUtils<SqlPersistParameterBinding>.Empty)
+    public PersistRequest(ISqlCompileUnit statement)
+      : this(statement, EnumerableUtils<PersistParameterBinding>.Empty)
     {
     }
 
@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <param name="parameterBindings">The parameter bindings.</param>
-    public SqlPersistRequest(ISqlCompileUnit statement, IEnumerable<SqlPersistParameterBinding> parameterBindings)
+    public PersistRequest(ISqlCompileUnit statement, IEnumerable<PersistParameterBinding> parameterBindings)
       : base(statement)
     {
       ParameterBindings = parameterBindings.ToHashSet();

@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private void RegisterQueryTask(QueryTask task, SqlQueryRequest request)
+    private void RegisterQueryTask(QueryTask task, QueryRequest request)
     {
       task.Result = new List<Tuple>();
       commandProcessor.RegisterTask(new SqlQueryTask(request, task.ParameterContext, task.Result));
@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Providers.Sql
     #region IQueryExecutor members
 
     /// <inheritdoc/>
-    public IEnumerator<Tuple> ExecuteTupleReader(SqlQueryRequest request)
+    public IEnumerator<Tuple> ExecuteTupleReader(QueryRequest request)
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
@@ -227,7 +227,7 @@ namespace Xtensive.Storage.Providers.Sql
     
     private SqlPersistTask CreateInsertTask(PersistAction action)
     {
-      var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Insert, action.EntityState.Type);
+      var task = new PersistRequestBuilderTask(PersistRequestKind.Insert, action.EntityState.Type);
       var request = domainHandler.GetPersistRequest(task);
       var tuple = action.EntityState.Tuple.ToRegular();
       return new SqlPersistTask(request, tuple);
@@ -239,7 +239,7 @@ namespace Xtensive.Storage.Providers.Sql
       var dTuple = entityState.DifferentialTuple;
       var source = dTuple.Difference;
       var fieldStateMap = source.GetFieldStateMap(TupleFieldState.Available);
-      var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Update, entityState.Type, fieldStateMap);
+      var task = new PersistRequestBuilderTask(PersistRequestKind.Update, entityState.Type, fieldStateMap);
       var request = domainHandler.GetPersistRequest(task);
       var tuple = entityState.Tuple.ToRegular();
       return new SqlPersistTask(request, tuple);
@@ -247,7 +247,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlPersistTask CreateRemoveTask(PersistAction action)
     {
-      var task = new SqlRequestBuilderTask(SqlPersistRequestKind.Remove, action.EntityState.Type);
+      var task = new PersistRequestBuilderTask(PersistRequestKind.Remove, action.EntityState.Type);
       var request = domainHandler.GetPersistRequest(task);
       var tuple = action.EntityState.Key.Value;
       return new SqlPersistTask(request, tuple);

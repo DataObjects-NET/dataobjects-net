@@ -51,18 +51,18 @@ namespace Xtensive.Storage.Providers.Sql
         foreach (var binding in request.ParameterBindings) {
           object parameterValue = binding.ValueAccessor.Invoke();
           // no parameters - just inlined constant
-          if (binding.BindingType==SqlQueryParameterBindingType.LimitOffset) {
+          if (binding.BindingType==QueryParameterBindingType.LimitOffset) {
             configuration.PlaceholderValues.Add(binding, parameterValue.ToString());
             continue;
           }
           // expanding true/false parameters to constants to help query optimizer with branching
-          if (binding.BindingType==SqlQueryParameterBindingType.BooleanConstant) {
+          if (binding.BindingType==QueryParameterBindingType.BooleanConstant) {
             if ((bool) parameterValue)
               configuration.AlternativeBranches.Add(binding);
             continue;
           }
           // replacing "x = @p" with "x is null" when @p = null (or empty string in case of Oracle)
-          if (binding.BindingType==SqlQueryParameterBindingType.SmartNull &&
+          if (binding.BindingType==QueryParameterBindingType.SmartNull &&
             (parameterValue==null || emptyStringIsNull && parameterValue.Equals(string.Empty))) {
             configuration.AlternativeBranches.Add(binding);
             continue;
@@ -127,16 +127,16 @@ namespace Xtensive.Storage.Providers.Sql
       commandPart.Parameters.Add(parameter);
     }
 
-    private void AddPersistParameter(CommandPart commandPart, string parameterName, object parameterValue, SqlPersistParameterBinding binding)
+    private void AddPersistParameter(CommandPart commandPart, string parameterName, object parameterValue, PersistParameterBinding binding)
     {
       switch (binding.BindingType) {
-      case SqlPersistParameterBindingType.Regular:
+      case PersistParameterBindingType.Regular:
         AddRegularParameter(commandPart, parameterName, parameterValue, binding.TypeMapping);
         break;
-      case SqlPersistParameterBindingType.CharacterLob:
+      case PersistParameterBindingType.CharacterLob:
         AddCharacterLobParameter(commandPart, parameterName, (string) parameterValue);
         break;
-      case SqlPersistParameterBindingType.BinaryLob:
+      case PersistParameterBindingType.BinaryLob:
         AddBinaryLobParameter(commandPart, parameterName, (byte[]) parameterValue);
         break;
       default:

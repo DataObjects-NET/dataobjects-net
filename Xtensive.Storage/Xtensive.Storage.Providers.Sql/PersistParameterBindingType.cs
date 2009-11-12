@@ -9,9 +9,9 @@ using Xtensive.Sql;
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Possible types of <see cref="SqlPersistParameterBinding"/>.
+  /// Possible types of <see cref="PersistParameterBinding"/>.
   /// </summary>
-  public enum SqlPersistParameterBindingType
+  public enum PersistParameterBindingType
   {
     /// <summary>
     /// Indicates that no special handling of parameter is performed.

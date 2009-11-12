@@ -11,7 +11,7 @@ using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public abstract class SqlParameterBinding
+  public abstract class ParameterBinding
   {
     /// <summary>
     /// Gets the type mapping.
@@ -23,12 +23,13 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public SqlPlaceholder ParameterReference { get; private set; }
 
+
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected SqlParameterBinding(TypeMapping typeMapping)
+    protected ParameterBinding(TypeMapping typeMapping)
     {
       TypeMapping = typeMapping;
       ParameterReference = SqlDml.Placeholder(this);

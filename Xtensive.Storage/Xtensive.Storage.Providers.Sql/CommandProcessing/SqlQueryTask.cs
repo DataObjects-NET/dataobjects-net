@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Providers.Sql
 {
   internal sealed class SqlQueryTask : SqlTask
   {
-    public SqlQueryRequest Request;
+    public QueryRequest Request;
     public ParameterContext ParameterContext;
     public List<Tuple> Result;
    
@@ -24,14 +24,14 @@ namespace Xtensive.Storage.Providers.Sql
  
     // Constructors
 
-    public SqlQueryTask(SqlQueryRequest request)
+    public SqlQueryTask(QueryRequest request)
     {
       Request = request;
       ParameterContext = null;
       Result = null;
     }
 
-    public SqlQueryTask(SqlQueryRequest request, ParameterContext parameterContext, List<Tuple> output)
+    public SqlQueryTask(QueryRequest request, ParameterContext parameterContext, List<Tuple> output)
     {
       Request = request;
       ParameterContext = parameterContext;

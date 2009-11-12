@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Providers.Sql
     public abstract void ProcessTask(SqlQueryTask task);
     public abstract void ProcessTask(SqlPersistTask task);
 
-    public abstract IEnumerator<Tuple> ExecuteRequestsWithReader(SqlQueryRequest request);
+    public abstract IEnumerator<Tuple> ExecuteRequestsWithReader(QueryRequest request);
     public abstract void ExecuteRequests(bool allowPartialExecution);
     
     public void ExecuteRequests()

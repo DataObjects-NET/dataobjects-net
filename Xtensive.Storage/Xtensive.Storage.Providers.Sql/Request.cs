@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// Base class for any SQL request.
   /// </summary>
-  public abstract class SqlRequest
+  public abstract class Request
   {
     private ThreadSafeCached<SqlCompilationResult> compilationResult = ThreadSafeCached<SqlCompilationResult>.Create(new object());
     
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
-    protected SqlRequest(ISqlCompileUnit statement)
+    protected Request(ISqlCompileUnit statement)
     {
       Statement = statement;
     }

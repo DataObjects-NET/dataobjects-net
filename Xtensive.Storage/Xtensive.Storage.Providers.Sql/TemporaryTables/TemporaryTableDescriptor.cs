@@ -29,22 +29,22 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets or sets the table creation script.
     /// </summary>
-    public string CreateScript { get; set; }
+    public string CreateStatement { get; set; }
 
     /// <summary>
     /// Gets or sets the table destruction script.
     /// </summary>
-    public string DropScript { get; set; }
+    public string DropStatement { get; set; }
 
     /// <summary>
     /// Gets or sets the persist request used to store data in temporary table.
     /// </summary>
-    public SqlPersistRequest StoreRequest { get; set; }
+    public PersistRequest StoreRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the clear reqest used to delete all data from temporary table.
     /// </summary>
-    public SqlPersistRequest ClearRequest { get; set; }
+    public PersistRequest ClearRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the query statement associated with this table descriptor.

@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="request">The request to execute.</param>
     /// <returns><see cref="IEnumerator{Tuple}"/> that contains result of execution.</returns>
-    IEnumerator<Tuple> ExecuteTupleReader(SqlQueryRequest request);
+    IEnumerator<Tuple> ExecuteTupleReader(QueryRequest request);
 
     /// <summary>
     /// Executes the specified scalar statement. This method is similar to <see cref="DbCommand.ExecuteScalar"/>.
@@ -50,8 +50,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="commandText">The statement to execute.</param>
     /// <returns>Result of execution.</returns>
     int ExecuteNonQuery(string commandText);
-
-
+    
     /// <summary>
     /// Stores the specified tuples in specified temporary table.
     /// </summary>
