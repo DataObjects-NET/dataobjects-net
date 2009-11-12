@@ -6,12 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
@@ -21,17 +20,15 @@ namespace Xtensive.Storage.Rse.Providers.Executable
     protected internal override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
       var sources = Source.Enumerate(context);
-      var tuples = Origin
-        .Tuples
-        .CachingCompile()
-        .Invoke();
+      var tuples = Origin.FilterDataSource.CachingCompile().Invoke().ToHashSet();
       foreach (var source in sources) {
-        var checkTuple = Origin.FilterTransform.Apply(TupleTransformType.Auto, source);
+        var checkTuple = Origin.FilteredColumnsExtractionTransform.Apply(TupleTransformType.Auto, source);
         bool isContains = tuples.Contains(checkTuple);
-        var newTuple = Origin.CombineTransform.Apply(TupleTransformType.Auto, source, Tuple.Create(isContains));
+        var newTuple = Origin.ResultTransform.Apply(TupleTransformType.Auto, source, Tuple.Create(isContains));
         yield return newTuple;
       }
     }
+
 
     // Constructors
 

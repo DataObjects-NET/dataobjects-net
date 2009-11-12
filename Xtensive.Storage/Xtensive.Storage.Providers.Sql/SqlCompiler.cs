@@ -660,18 +660,18 @@ namespace Xtensive.Storage.Providers.Sql
       var applyParameterValueProperty = typeof (ApplyParameter).GetProperty("Value");
       Expression applyParameterValueExpression = Expression.Property(Expression.Constant(applyParameter), applyParameterValueProperty);
 
-      var rawProvider = new RawProvider(new RecordSetHeader(provider.FilterTransform.Descriptor, provider.FilterTransform.Descriptor.Select((type, index)=>(Column)new SystemColumn("column"+index,index,type))), provider.Tuples);
+      var rawProvider = new RawProvider(new RecordSetHeader(provider.FilteredColumnsExtractionTransform.Descriptor, provider.FilteredColumnsExtractionTransform.Descriptor.Select((type, index)=>(Column)new SystemColumn("column"+index,index,type))), provider.FilterDataSource);
       
       var storeProvider = new StoreProvider(rawProvider);
       
-      var body = Expression.Equal(tupleParameter.MakeTupleAccess(provider.FilterTransform.Descriptor[0], 0), applyParameterValueExpression.MakeTupleAccess(provider.FilterTransform.Descriptor[0], 0));
-      for (int i = 1; i < provider.FilterTransform.Descriptor.Count; i++)
-        body = Expression.AndAlso(body, Expression.Equal(tupleParameter.MakeTupleAccess(provider.FilterTransform.Descriptor[i], i), applyParameterValueExpression.MakeTupleAccess(provider.FilterTransform.Descriptor[i], i)));
+      var body = Expression.Equal(tupleParameter.MakeTupleAccess(provider.FilteredColumnsExtractionTransform.Descriptor[0], 0), applyParameterValueExpression.MakeTupleAccess(provider.FilteredColumnsExtractionTransform.Descriptor[0], 0));
+      for (int i = 1; i < provider.FilteredColumnsExtractionTransform.Descriptor.Count; i++)
+        body = Expression.AndAlso(body, Expression.Equal(tupleParameter.MakeTupleAccess(provider.FilteredColumnsExtractionTransform.Descriptor[i], i), applyParameterValueExpression.MakeTupleAccess(provider.FilteredColumnsExtractionTransform.Descriptor[i], i)));
       var predicate = Expression.Lambda<Func<Tuple, bool>>(body, tupleParameter);
 
       var filerProvider = new FilterProvider(storeProvider, predicate);
 
-      var existProvider = new ExistenceProvider(filerProvider, provider.ColumnName);
+      var existProvider = new ExistenceProvider(filerProvider, provider.ResultColumnName);
 
       var applyProvider = new ApplyProvider(applyParameter, provider.Source, existProvider, false, ApplySequenceType.Single, JoinType.Default);
 
@@ -693,10 +693,10 @@ namespace Xtensive.Storage.Providers.Sql
 //        sqlSelect = ExtractSqlSelect(provider, source);
 //
 //      var sourceColumns = ExtractColumnExpressions(sqlSelect, provider);
-//      var columnName = ProcessAliasedName(provider.ColumnName);
+//      var columnName = ProcessAliasedName(provider.ResultColumnName);
 //      // TODO: Rewrite
 //      var sqlArray = SqlDml.Array<Tuple>()
-//      var binding = new SqlQueryParameterBinding(provider.Tuples);
+//      var binding = new SqlQueryParameterBinding(provider.FilterDataSource);
 //      var query = SqlDml.In(source, binding.ParameterReference);
 //      var columnRef = SqlDml.ColumnRef(SqlDml.Column(query), columnName);
 //      sqlSelect.Columns.Add(columnRef);

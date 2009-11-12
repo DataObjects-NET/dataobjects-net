@@ -363,7 +363,8 @@ namespace Xtensive.Storage.Rse.Providers
       OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
-      return new IncludeProvider(source, provider.Tuples, provider.ColumnName, provider.Mapping);
+      return new IncludeProvider(source, provider.Algorithm,
+        provider.FilterDataSource, provider.ResultColumnName, provider.FilteredColumns);
     }
     
     private static Expression DefaultExpressionTranslator(Provider p, Expression e)

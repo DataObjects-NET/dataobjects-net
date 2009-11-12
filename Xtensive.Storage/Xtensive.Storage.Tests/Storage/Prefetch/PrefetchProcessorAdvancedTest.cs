@@ -678,7 +678,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         Assert.AreEqual(originalCachedItems.Count + 1, currentCachedItems.Count);
         var inProviderEntryCustomer01 = currentCachedItems.Except(originalCachedItems).Single();
         IncludeProvider inProviderCustomer01 = GetIncludeProvider(inProviderEntryCustomer01, keyField);
-        var inProviderFilteringSequence = inProviderCustomer01.Tuples.CachingCompile().Invoke();
+        var inProviderFilteringSequence = inProviderCustomer01.FilterDataSource.CachingCompile().Invoke();
         Assert.AreEqual(2, inProviderFilteringSequence.Count());
         Assert.IsTrue(inProviderFilteringSequence.Contains(customer0Key.Value));
         Assert.IsTrue(inProviderFilteringSequence.Contains(customer1Key.Value));
@@ -699,7 +699,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var inProviderEntryCustomer2 = currentCachedItems.Except(originalCachedItems)
           .Except(EnumerableUtils.One(inProviderEntryCustomer01)).Single();
         var inProviderCustomer2 = GetIncludeProvider(inProviderEntryCustomer2, keyField);
-        inProviderFilteringSequence = inProviderCustomer2.Tuples.CachingCompile().Invoke();
+        inProviderFilteringSequence = inProviderCustomer2.FilterDataSource.CachingCompile().Invoke();
         Assert.AreEqual(1, inProviderFilteringSequence.Count());
         Assert.IsTrue(inProviderFilteringSequence.Contains(customer2Key.Value));
 
@@ -727,7 +727,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
             .Concat(EnumerableUtils.One(inProviderEntryCustomer2)))
           .Single();
         var inProviderOrder01 = GetIncludeProvider(inProviderEntryOrder01, keyField);
-        inProviderFilteringSequence = inProviderOrder01.Tuples.CachingCompile().Invoke();
+        inProviderFilteringSequence = inProviderOrder01.FilterDataSource.CachingCompile().Invoke();
         Assert.AreEqual(1, inProviderFilteringSequence.Count());
         Assert.IsTrue(inProviderFilteringSequence.Contains(customer2Key.Value));
       }

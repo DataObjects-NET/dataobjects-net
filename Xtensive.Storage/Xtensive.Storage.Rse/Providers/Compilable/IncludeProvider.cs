@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -23,31 +24,42 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   [Serializable]
   public class IncludeProvider: UnaryProvider
   {
+    private readonly int[] filteredColumns;
+
     /// <summary>
     /// Gets the name of the column.
     /// </summary>
-    public string ColumnName { get; private set; }
+    public string ResultColumnName { get; private set; }
 
     /// <summary>
-    /// Gets source mapping.
+    /// Gets the algorithm that performes filtering.
+    /// For non-SQL storages value of this field has no effect.
     /// </summary>
-    public int[] Mapping { get; private set; }
+    public IncludeAlgorithm Algorithm { get; private set; }
 
     /// <summary>
-    /// Gets filter function.
+    /// Gets the filtered columns.
     /// </summary>
-    public Expression<Func<IEnumerable<Tuple>>> Tuples { get; private set; }
+    public int[] FilteredColumns {
+      [DebuggerStepThrough]
+      get { return filteredColumns.Copy(); }
+    }
 
-    public MapTransform FilterTransform{ get; private set;}
-    public CombineTransform CombineTransform{ get; private set;}
+    /// <summary>
+    /// Gets filter data.
+    /// </summary>
+    public Expression<Func<IEnumerable<Tuple>>> FilterDataSource { get; private set; }
+
+    public MapTransform FilteredColumnsExtractionTransform { get; private set; }
+    public CombineTransform ResultTransform { get; private set; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      var newHeader = Source.Header.Add(new SystemColumn(ColumnName, 0, typeof(bool)));
-      var types = Mapping.Select(m => newHeader.Columns[m].Type);
-      FilterTransform = new MapTransform(true, TupleDescriptor.Create(types), Mapping);
-      CombineTransform = new CombineTransform(true, Source.Header.TupleDescriptor, TupleDescriptor.Create(new []{typeof(bool)}));
+      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, typeof(bool)));
+      var types = FilteredColumns.Select(m => newHeader.Columns[m].Type);
+      FilteredColumnsExtractionTransform = new MapTransform(true, TupleDescriptor.Create(types), FilteredColumns);
+      ResultTransform = new CombineTransform(true, Source.Header.TupleDescriptor, TupleDescriptor.Create(new []{typeof(bool)}));
       return newHeader;
     }
 
@@ -57,18 +69,23 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       return EmptyOrder;
     }
 
+
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public IncludeProvider(CompilableProvider source, Expression<Func<IEnumerable<Tuple>>> tuples, string columnName, int[] mapping)
+    public IncludeProvider(CompilableProvider source, IncludeAlgorithm algorithm,
+      Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
       : base(ProviderType.Include, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(tuples, "filter");
-      Tuples = tuples;
-      ColumnName = columnName;
-      Mapping = mapping;
+      ArgumentValidator.EnsureArgumentNotNull(filterDataSource, "filterDataSource");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(resultColumnName, "resultColumnName");
+      ArgumentValidator.EnsureArgumentNotNull(filteredColumns, "filteredColumns");
+      Algorithm = algorithm;
+      FilterDataSource = filterDataSource;
+      ResultColumnName = resultColumnName;
+      this.filteredColumns = filteredColumns.Copy();
     }
   }
 }
