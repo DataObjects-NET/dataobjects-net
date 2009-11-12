@@ -29,9 +29,8 @@ namespace Xtensive.Storage.Internals
 
     // Constructors
 
-    public FutureSequence(TranslatedQuery<IEnumerable<T>> translatedQuery,
-      ParameterContext parameterContext) :
-      base(translatedQuery, parameterContext)
+    public FutureSequence(TranslatedQuery<IEnumerable<T>> translatedQuery, ParameterContext parameterContext) 
+      : base(translatedQuery, parameterContext)
     {}
   }
 }

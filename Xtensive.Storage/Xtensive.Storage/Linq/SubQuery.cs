@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
@@ -18,11 +19,12 @@ using Xtensive.Storage.Linq.Materialization;
 namespace Xtensive.Storage.Linq
 {
   [Serializable]
-  internal class SubQuery<TElement> : FutureBase<IEnumerable<TElement>>,
+  internal class SubQuery<TElement> :
     IOrderedQueryable<TElement>, 
     IOrderedEnumerable<TElement>
   {
     private readonly ProjectionExpression projectionExpression;
+    private readonly FutureSequence<TElement> futureSequence;
 
     public IOrderedEnumerable<TElement> CreateOrderedEnumerable<TKey>(Func<TElement, TKey> keySelector, IComparer<TKey> comparer, bool descending)
     {
@@ -31,7 +33,7 @@ namespace Xtensive.Storage.Linq
 
     public IEnumerator<TElement> GetEnumerator()
     {
-      return Materialize().GetEnumerator();
+      return futureSequence.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -57,24 +59,34 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple, ItemMaterializationContext context)
-      : base((TranslatedQuery<IEnumerable<TElement>>)translatedQuery, new ParameterContext())
+    public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery query, Parameter<Tuple> parameter, Tuple tuple, ItemMaterializationContext context)
     {
-      this.projectionExpression = new ProjectionExpression(projectionExpression.Type, projectionExpression.ItemProjector, projectionExpression.TupleParameterBindings, projectionExpression.ResultType);
-      var query = ((TranslatedQuery<IEnumerable<TElement>>) translatedQuery);
+      var parameterContext = new ParameterContext();
+      var tupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(projectionExpression.TupleParameterBindings);
+      var currentTranslatedQuery = ((TranslatedQuery<IEnumerable<TElement>>) query);
 
       // Gather Parameter<Tuple> values from current ParameterScope for future use. 
       parameter.Value = tuple;
-      foreach (var tupleParameter in query.TupleParameters) {
+      foreach (var tupleParameter in currentTranslatedQuery.TupleParameters) {
         var value = tupleParameter.Value;
-        this.projectionExpression.TupleParameterBindings[tupleParameter] = value;
         tupleParameterBindings[tupleParameter] = value;
       }
-
-      using (Task.ParameterContext.ActivateSafely())
-      foreach (var tupleParameter in query.TupleParameters)
+      using (parameterContext.Activate())
+      foreach (var tupleParameter in currentTranslatedQuery.TupleParameters)
         tupleParameter.Value = tupleParameter.Value;
-      context.Session.RegisterDelayedQuery(Task);
+
+      this.projectionExpression = new ProjectionExpression(
+        projectionExpression.Type, 
+        projectionExpression.ItemProjector, 
+        tupleParameterBindings, 
+        projectionExpression.ResultType);
+      var translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(
+        query.DataSource,
+        (Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, IEnumerable<TElement>>) query.UntypedMaterializer,
+        tupleParameterBindings,
+        EnumerableUtils<Parameter<Tuple>>.Empty);
+      futureSequence = new FutureSequence<TElement>(translatedQuery, parameterContext);
+      context.Session.RegisterDelayedQuery(futureSequence.Task);
     }
   }
 }
