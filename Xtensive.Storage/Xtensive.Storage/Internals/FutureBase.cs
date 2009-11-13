@@ -42,8 +42,10 @@ namespace Xtensive.Storage.Internals
       if (transaction != Transaction.Current)
         throw new InvalidOperationException(
           Strings.ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance);
-      if (Task.Result == null)
-          transaction.Session.ExecuteAllDelayedQueries(false);
+      if (Task.Result == null) {
+        transaction.Session.Persist(true);
+        transaction.Session.ExecuteAllDelayedQueries(false);
+      }
       return materializer.Invoke(Task.Result, tupleParameterBindings);
     }
 

@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         result = type.Fields
           .Where(field => field.Parent==null && PrefetchHelper.IsFieldToBeLoadedByDefault(field)
             && !fieldDescriptors.ContainsKey(field))
-          .Select(field => new PrefetchFieldDescriptor(field, false))
+          .Select(field => new PrefetchFieldDescriptor(field, false, false))
           .Concat(fieldDescriptors.Values).ToArray();
         userDescriptorsCache[type] = result;
       }
@@ -231,7 +231,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       foreach (var pair in fieldDescriptors)
         this.fieldDescriptors[pair.Key] = new PrefetchFieldDescriptor(pair.Value.Field,
           pair.Value.EntitySetItemCountLimit, pair.Value.FetchFieldsOfReferencedEntity,
-          HandleReferencedKeyExtraction);
+          pair.Value.FetchLazyFields, HandleReferencedKeyExtraction);
       this.sessionHandler = sessionHandler;
       strongReferenceContainer = new StrongReferenceContainer(null);
       referencedDelayedElementKeys = referencedDelayedElementKeysFirst;

@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     public static PrefetchFieldDescriptor[] CreateDescriptorsForFieldsLoadedByDefault(TypeInfo type)
     {
       return type.Fields.Where(field => field.Parent==null && IsFieldToBeLoadedByDefault(field))
-        .Select(field => new PrefetchFieldDescriptor(field, false)).ToArray();
+        .Select(field => new PrefetchFieldDescriptor(field, false, false)).ToArray();
     }
 
     public static bool? TryGetExactKeyType(Key key, PrefetchProcessor processor, out TypeInfo type)

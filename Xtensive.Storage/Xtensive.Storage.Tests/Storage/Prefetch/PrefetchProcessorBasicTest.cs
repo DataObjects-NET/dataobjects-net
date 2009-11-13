@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Testing;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
@@ -72,12 +73,12 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (Transaction.Open()) {
         var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
 
-        prefetchProcessor.Prefetch(orderKey0, null, new PrefetchFieldDescriptor(CustomerField, true));
-        prefetchProcessor.Prefetch(orderKey0, null, new PrefetchFieldDescriptor(EmployeeField, true));
+        prefetchProcessor.Prefetch(orderKey0, null, new PrefetchFieldDescriptor(CustomerField, true, true));
+        prefetchProcessor.Prefetch(orderKey0, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
 
-        prefetchProcessor.Prefetch(orderKey1, null, new PrefetchFieldDescriptor(CustomerField, true));
+        prefetchProcessor.Prefetch(orderKey1, null, new PrefetchFieldDescriptor(CustomerField, true, true));
 
-        prefetchProcessor.Prefetch(orderKey2, null, new PrefetchFieldDescriptor(EmployeeField, true));
+        prefetchProcessor.Prefetch(orderKey2, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
         prefetchProcessor.ExecuteTasks();
 
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey0, OrderType, session, field =>
@@ -360,7 +361,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         orderQuery.ToEntities(0).Single();
         var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
 
-        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true));
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
         var graphContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchProcessor);
         Assert.AreEqual(2, graphContainers.Count);
         foreach (var container in graphContainers)
@@ -395,7 +396,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
-        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true));
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
         var graphContainer = GetSingleGraphContainer(prefetchProcessor);
         Assert.AreEqual(1, graphContainer.ReferencedEntityContainers.Count());
         var referencedEntityContainer = graphContainer.ReferencedEntityContainers.Single();
@@ -411,7 +412,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         session.Handler.FetchInstance(orderKey);
-        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true));
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
         var taskContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchProcessor);
         Assert.AreEqual(1, taskContainers.Count);
         Assert.AreEqual(orderKey, taskContainers.Single().Key);
@@ -457,10 +458,10 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var iHasCategoryType = Domain.Model.Types[typeof (IHasCategory)];
         var categoryField = iHasCategoryType.Fields["Category"];
         var bookCategoryField = BookType.FieldMap[categoryField];
-        prefetchProcessor.Prefetch(bookKey0, null, new PrefetchFieldDescriptor(categoryField, false));
+        prefetchProcessor.Prefetch(bookKey0, null, new PrefetchFieldDescriptor(categoryField, false, false));
         var interfaceKey = Key.Create(Domain, iHasCategoryType, TypeReferenceAccuracy.BaseType, bookKey1.Value);
         prefetchProcessor.Prefetch(interfaceKey, iHasCategoryType,
-          new PrefetchFieldDescriptor(categoryField, false));
+          new PrefetchFieldDescriptor(categoryField, false, false));
         prefetchProcessor.ExecuteTasks();
 
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookKey0, BookType, session,
@@ -471,7 +472,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         AssertEx.Throws<InvalidOperationException>(
           () => prefetchProcessor.Prefetch(Key
             .Create(Domain, iHasCategoryType, TypeReferenceAccuracy.BaseType, bookKey2.Value),
-          iHasCategoryType, new PrefetchFieldDescriptor(bookCategoryField, false)));
+          iHasCategoryType, new PrefetchFieldDescriptor(bookCategoryField, false, false)));
       }
     }
 
@@ -496,7 +497,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var titleType = typeof (Title);
         var textField = titleType.GetTypeInfo().Fields["Text"];
         var bookField = titleType.GetTypeInfo().Fields["Book"];
-        prefetchProcessor.Prefetch(bookKey, null, new PrefetchFieldDescriptor(titleField, true));
+        prefetchProcessor.Prefetch(bookKey, null, new PrefetchFieldDescriptor(titleField, true, true));
         prefetchProcessor.ExecuteTasks();
 
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookKey, bookKey.Type, session,
@@ -695,15 +696,15 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         prefetchProcessor.Prefetch(title3Key, null, new PrefetchFieldDescriptor(titleIdField));
         prefetchProcessor.ExecuteTasks();
 
-        prefetchProcessor.Prefetch(book0Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true,
+        prefetchProcessor.Prefetch(book0Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true, true,
           failingValidator));
-        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField, null, true,
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField, null, true, true,
           failingValidator));
-        prefetchProcessor.Prefetch(book1Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true,
+        prefetchProcessor.Prefetch(book1Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true, true,
           notificationValidator.Bind(book1Key, BookTitleField, title1Key, 1)));
-        prefetchProcessor.Prefetch(book2Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true,
+        prefetchProcessor.Prefetch(book2Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true, true,
           notificationValidator.Bind(book2Key, BookTitleField, title2Key, 2)));
-        prefetchProcessor.Prefetch(book3Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true,
+        prefetchProcessor.Prefetch(book3Key, null, new PrefetchFieldDescriptor(BookTitleField, null, true, true,
           failingValidator));
         prefetchProcessor.ExecuteTasks();
 
@@ -742,14 +743,14 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         var notificationCount = 0;
         prefetchProcessor.Prefetch(publisherKey, null, new PrefetchFieldDescriptor(distributorsField, null,
-          false, (ownerKey, field, key) => {
+          false, false, (ownerKey, field, key) => {
             Assert.AreEqual(publisherKey, ownerKey);
             Assert.AreEqual(distributorsField, field);
             bookShopKeys.Contains(key);
             notificationCount++;
           }));
-        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, null, false,
-          (ownerKey, field, key) => Assert.Fail()));
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, null,
+          false, false, (ownerKey, field, key) => Assert.Fail()));
         prefetchProcessor.ExecuteTasks();
         
         Assert.AreEqual(bookShopKeys.Count, notificationCount);
@@ -781,9 +782,10 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
+        const string intermediateOfferName = "IntermediateOffer";
         var realOfferField = OfferContainerType.Fields["RealOffer"];
         var realOfferBookField = OfferContainerType.Fields["RealOffer.Book"];
-        var intermediateOfferField = OfferContainerType.Fields["IntermediateOffer"];
+        var intermediateOfferField = OfferContainerType.Fields[intermediateOfferName];
         var auxField = OfferContainerType.Fields["AuxField"];
         var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
         prefetchProcessor.Prefetch(contaierKey, null, new PrefetchFieldDescriptor(realOfferField),
@@ -793,7 +795,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         EntityState state;
         Assert.IsFalse(session.EntityStateCache.TryGetItem(book0Key, true, out state));
         Assert.IsFalse(session.EntityStateCache.TryGetItem(bookShop0Key, true, out state));
-        PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(contaierKey, contaierKey.Type, session);
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(contaierKey, contaierKey.Type, session,
+          field => PrefetchTestHelper.IsFieldToBeLoadedByDefault(field)
+            || field.Name.StartsWith(intermediateOfferName) || field.Name == "RealOffer.Lazy");
 
         prefetchProcessor.Prefetch(contaierKey, null, new PrefetchFieldDescriptor(realOfferBookField));
         prefetchProcessor.ExecuteTasks();
@@ -851,6 +855,40 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(book1Key, book1Key.Type, session);
         PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(bookShop1Key,
           typeof (IBookShop).GetTypeInfo(Domain), session);
+      }
+    }
+
+    [Test]
+    public void LazyLoadFieldPrefetchTest()
+    {
+      Key contaierKey;
+      Key bookShop0Key;
+      Key book0Key;
+      Key bookShop1Key;
+      Key book1Key;
+      PrefetchTestHelper.CreateOfferContainer(Domain, out contaierKey, out book0Key, out bookShop0Key,
+        out book1Key, out bookShop1Key);
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
+        var idField = contaierKey.Type.Fields["Id"];
+        var lazyField = contaierKey.Type.Fields["Lazy"];
+        var intermediateOfferField = contaierKey.Type.Fields["IntermediateOffer"];
+        var realOfferField = contaierKey.Type.Fields["RealOffer"];
+        var container = Query<OfferContainer>.Single(contaierKey);
+
+        var conatinerPrimitiveFields = contaierKey.Type.Fields.Where(field => field.IsPrimitive);
+        foreach (var fieldInfo in conatinerPrimitiveFields)
+          Assert.AreEqual(!fieldInfo.IsLazyLoad,
+            container.State.Tuple.GetFieldState(fieldInfo.MappingInfo.Offset).IsAvailable());
+        PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(contaierKey, contaierKey.Type, session);
+
+        prefetchProcessor.Prefetch(contaierKey, null, new PrefetchFieldDescriptor(lazyField),
+          new PrefetchFieldDescriptor(intermediateOfferField), new PrefetchFieldDescriptor(realOfferField));
+        prefetchProcessor.ExecuteTasks();
+        foreach (var fieldInfo in conatinerPrimitiveFields)
+          Assert.IsTrue(container.State.Tuple.GetFieldState(fieldInfo.MappingInfo.Offset).IsAvailable());
       }
     }
 

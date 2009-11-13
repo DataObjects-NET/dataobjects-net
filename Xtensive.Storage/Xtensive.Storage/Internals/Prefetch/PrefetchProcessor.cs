@@ -134,8 +134,12 @@ namespace Xtensive.Storage.Internals.Prefetch
           result.RegisterReferencedEntityContainer(entityTuple, descriptor);
         else if (descriptor.Field.IsEntitySet)
           result.RegisterEntitySetTask(entityTuple, descriptor);
-        else
-          result.AddEntityColumns(descriptor.Field.Columns);
+        else {
+          IEnumerable<ColumnInfo> columns = descriptor.Field.Columns;
+          if (descriptor.Field.IsStructure && !descriptor.FetchLazyFields)
+            columns = columns.Where(column => !column.Field.IsLazyLoad);
+          result.AddEntityColumns(columns);
+        }
       }
       return result;
     }

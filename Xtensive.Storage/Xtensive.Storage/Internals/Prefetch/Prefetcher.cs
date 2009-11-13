@@ -211,7 +211,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         throw new ArgumentException(Strings.ExSpecifiedExpressionIsNotMemberExpression, "expression");
       var modelField = GetModelField(expression, (MemberExpression) body);
       fieldDescriptors[modelField] = new PrefetchFieldDescriptor(modelField, entitySetItemCountLimit,
-        true, null);
+        true, true, null);
     }
 
     private FieldInfo GetModelField(LambdaExpression expression, MemberExpression memberAccess)
@@ -241,6 +241,9 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private FieldInfo GetMappedFieldOfStructure(MemberExpression propertyAccess, FieldInfo modelField)
     {
+      if (!modelField.DeclaringType.IsStructure)
+        throw new ArgumentException(Strings.ExAccessToTypeMemberCanNotBeExtractedFromSpecifiedExpression,
+          "expression");
       TypeInfo referencingType;
       var fieldToStructure = FindFieldByProperty(propertyAccess.Member as PropertyInfo,
         propertyAccess.Expression.Type, out referencingType);

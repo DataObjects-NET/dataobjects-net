@@ -32,8 +32,12 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var tuple = state.Tuple;
       Assert.IsNotNull(tuple);
       foreach (var field in type.Fields) {
-        var isFieldSelected = fieldSelector.Invoke(field);
+        var isFieldSelected = false;
+        if (!field.IsStructure)
+          isFieldSelected = fieldSelector.Invoke(field);
         foreach (var column in field.Columns) {
+          if (field.IsStructure)
+            isFieldSelected = fieldSelector.Invoke(column.Field);
           var isAvailable = tuple.GetFieldState(type.Columns.IndexOf(column)).IsAvailable();
           if (isFieldSelected)
             Assert.IsTrue(isAvailable);

@@ -299,12 +299,18 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
 
     [Field]
     public IBookShop BookShop { get; set; }
+
+    [Field(LazyLoad = true)]
+    public int Lazy { get; set; }
   }
 
   public class IntermediateOffer : Structure
   {
     [Field]
     public int Number { get; set; }
+
+    [Field]
+    public OfferContainer AnotherContainer { get; set; }
 
     [Field]
     public Offer RealOffer { get; set; }
@@ -319,10 +325,13 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     [Field]
     public Offer RealOffer { get; set; }
 
-    [Field]
+    [Field(LazyLoad = true)]
     public IntermediateOffer IntermediateOffer { get; set; }
 
     [Field]
     public string AuxField { get; set; }
+
+    [Field(LazyLoad = true)]
+    public int Lazy { get; set; }
   }
 }

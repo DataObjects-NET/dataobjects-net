@@ -224,6 +224,24 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
+    [Test]
+    public void ExecutingFutureQueryOnEntitySetWhenItsOwnerHasBeenRemovedTest()
+    {
+      Key author0Key;
+      Key author1Key;
+      CreateTwoAuthorsAndTheirBooksSet(out author0Key, out author1Key);
+
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var author0 = Query<Author>.Single(author0Key);
+        var books0 = author0.Books;
+        author0.Remove();
+        var books0Query = Query.ExecuteFuture(() => books0.Where(b => b.Name==0));
+        Assert.AreEqual(books0Query.Count(), 0);
+        Assert.Fail("The query must not be executed.");
+      }
+    }
+    
     private static void LoadEntitySetThenRemoveOwnerAndEnumerateIt(Author owner, EntitySet<Book> entitySet)
     {
       foreach (var book in entitySet) {}

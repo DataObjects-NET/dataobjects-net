@@ -221,7 +221,7 @@ namespace Xtensive.Storage.Providers
     protected internal virtual void FetchField(Key key, FieldInfo field)
     {
       var type = key.TypeRef.Type;
-      prefetchProcessor.Prefetch(key, type, new PrefetchFieldDescriptor(field, false));
+      prefetchProcessor.Prefetch(key, type, new PrefetchFieldDescriptor(field, false, false));
       prefetchProcessor.ExecuteTasks();
     }
 

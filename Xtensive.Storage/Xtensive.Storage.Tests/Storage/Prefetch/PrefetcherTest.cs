@@ -227,6 +227,10 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         AssertEx.Throws<ArgumentException>(() => Query<Territory>.All.Prefetch(t => new {t.Id, t.Region}));
         AssertEx.Throws<ArgumentException>(() => Query<Territory>.All.Prefetch(t => t.Region.RegionDescription));
         AssertEx.Throws<ArgumentException>(() => Query<Territory>.All.Prefetch(t => t.PersistenceState));
+        AssertEx.Throws<ArgumentException>(() => EnumerableUtils
+          .One(Key.Create<Model.OfferContainer>(Domain, 1))
+          .Prefetch<Model.OfferContainer, Key>(key => key)
+          .Prefetch(oc => oc.IntermediateOffer.AnotherContainer.RealOffer.Book));
       }
     }
 
@@ -268,6 +272,29 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         foreach (var key in prefetcher) {
           PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(book0Key, book0Key.Type, session);
           PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(bookShop1Key, bookShop1Key.Type, session);
+        }
+      }
+    }
+
+    [Test]
+    public void StructurePrefetchTest()
+    {
+      Key containerKey;
+      Key bookShop0Key;
+      Key book0Key;
+      Key bookShop1Key;
+      Key book1Key;
+      PrefetchTestHelper.CreateOfferContainer(Domain, out containerKey, out book0Key, out bookShop0Key,
+        out book1Key, out bookShop1Key);
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var prefetcher = EnumerableUtils.One(containerKey).Prefetch<Model.OfferContainer, Key>(key => key)
+          .Prefetch(oc => oc.IntermediateOffer);
+        foreach (var key in prefetcher) {
+          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(containerKey, containerKey.Type, session,
+            field => PrefetchTestHelper.IsFieldToBeLoadedByDefault(field)
+              || field.Name.StartsWith("IntermediateOffer"));
         }
       }
     }

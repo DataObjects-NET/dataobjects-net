@@ -224,6 +224,7 @@ namespace Xtensive.Storage.Building.Builders
       foreach (FieldInfo field in buffer) {
         var clone = field.Clone();
         clone.IsSystem = false;
+        clone.IsLazyLoad = field.IsLazyLoad || target.IsLazyLoad;
         if (target.IsDeclared) {
           clone.Name = context.NameBuilder.BuildNestedFieldName(target, field);
           clone.OriginalName = field.OriginalName;

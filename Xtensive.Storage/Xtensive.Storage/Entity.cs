@@ -194,7 +194,7 @@ namespace Xtensive.Storage
       var tuple = State.Tuple;
       var fieldsToLoad = Type.GetVersionColumns()
         .Where(pair => !tuple.GetFieldState(pair.Second).IsAvailable())
-        .Select(pair => new PrefetchFieldDescriptor(pair.First.Field, false))
+        .Select(pair => new PrefetchFieldDescriptor(pair.First.Field, false, false))
         .ToArray();
       if (fieldsToLoad.Length > 0) {
         Session.Handler.Prefetch(Key, Type, fieldsToLoad);

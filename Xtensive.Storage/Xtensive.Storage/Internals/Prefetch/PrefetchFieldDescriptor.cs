@@ -35,6 +35,11 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// </summary>
     public readonly int? EntitySetItemCountLimit;
 
+    /// <summary>
+    /// Indicates whether children lazy-load fields will be fetched, or not.
+    /// </summary>
+    public readonly bool FetchLazyFields;
+
     /// <inheritdoc/>
     public bool Equals(PrefetchFieldDescriptor other)
     {
@@ -72,7 +77,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <param name="field">The field which value will be fetched.</param>
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
     public PrefetchFieldDescriptor(FieldInfo field)
-      : this(field, null, true, null)
+      : this(field, null, true, true, null)
     {}
 
     /// <summary>
@@ -82,7 +87,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <param name="entitySetItemCountLimit">The maximal count of items 
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
     public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit) :
-      this(field, entitySetItemCountLimit, false, null)
+      this(field, entitySetItemCountLimit, false, false, null)
     {}
 
     /// <summary>
@@ -92,8 +97,10 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true" /> 
     /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/> 
     /// will be fetched.</param>
-    public PrefetchFieldDescriptor(FieldInfo field, bool fetchFieldsOfReferencedEntity) :
-      this(field, null, fetchFieldsOfReferencedEntity, null)
+    /// <param name="fetchLazyFields">if set to <see langword="true"/> 
+    /// children lazy-load fields will be fetched.</param>
+    public PrefetchFieldDescriptor(FieldInfo field, bool fetchFieldsOfReferencedEntity, bool fetchLazyFields) :
+      this(field, null, fetchFieldsOfReferencedEntity, fetchLazyFields, null)
     {}
 
     /// <summary>
@@ -105,11 +112,14 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true"/>
     /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/>
     /// will be fetched.</param>
-    /// <param name="keyExtractionSubscriber">The delegate which will be invoked 
-    /// if a key of a referenced entity has been extracted and 
+    /// <param name="fetchLazyFields">if set to <see langword="true"/> 
+    /// children lazy-load fields will be fetched.</param>
+    /// <param name="keyExtractionSubscriber">The delegate which will be invoked
+    /// if a key of a referenced entity has been extracted and
     /// its exact type can't be get or inferred.</param>
     public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit,
-      bool fetchFieldsOfReferencedEntity, Action<Key, FieldInfo, Key> keyExtractionSubscriber)
+      bool fetchFieldsOfReferencedEntity, bool fetchLazyFields,
+      Action<Key, FieldInfo, Key> keyExtractionSubscriber)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       if (entitySetItemCountLimit != null)
@@ -118,6 +128,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       Field = field;
       FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
       EntitySetItemCountLimit = entitySetItemCountLimit;
+      FetchLazyFields = fetchLazyFields;
       this.keyExtractionSubscriber = keyExtractionSubscriber;
     }
   }
