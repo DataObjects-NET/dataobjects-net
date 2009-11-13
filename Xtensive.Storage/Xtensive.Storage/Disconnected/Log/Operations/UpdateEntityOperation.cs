@@ -5,19 +5,22 @@
 // Created:    2009.10.22
 
 using System;
-using System.Diagnostics;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Disconnected.Log.Operations
 {
   [Serializable]
-  public class UpdateEntityOperation : IUpdateEntityOperation
+  public class UpdateEntityOperation : IUpdateEntityOperation,
+    ISerializable
   {
     public Key Key { get; private set; }
     public EntityOperationType Type { get; private set; }
-    public FieldInfo FieldInfo { get; private set; }
+    public FieldInfo Field { get; private set; }
     public object Value { get; private set; }
     private readonly Key entityValueKey;
 
@@ -34,16 +37,16 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
         this, 
         typeof (UpdateEntityOperation), 
         "ExecuteSetValue", 
-        FieldInfo.ValueType);
-      var value = Value;
-      if (entityValueKey != null)
-        value = Query.Single(session, entityValueKey);
+        Field.ValueType);
+      var value = entityValueKey != null 
+        ? Query.Single(session, entityValueKey) 
+        : Value;
       setter.Invoke(entity, value);
     }
 
     private void ExecuteSetValue<T>(Entity entity, object value)
     {
-      entity.SetFieldValue(FieldInfo, (T)value);
+      entity.SetFieldValue(Field, (T)value);
     }
 
     
@@ -53,11 +56,63 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
     {
       Key = key;
       Type = EntityOperationType.Update;
-      FieldInfo = fieldInfo;
-      Value = value;
-      var entityValue = Value as IEntity;
+      Field = fieldInfo;
+      var entityValue = value as IEntity;
       if (entityValue != null)
         entityValueKey = entityValue.Key;
+      else
+        Value = value;
+    }
+
+    
+    // Serialization
+
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("key", Key.Format());
+      info.AddValue("type", Type, typeof(EntityOperationType));
+      info.AddValue("field", new FieldInfoRef(Field), typeof(FieldInfoRef));
+      var structureValue = Value as Structure;
+      if (typeof(IEntity).IsAssignableFrom(Field.ValueType)) {
+        // serializing entity value as key
+        if (entityValueKey != null)
+          info.AddValue("value", entityValueKey.Format());
+        else
+          info.AddValue("value", string.Empty);
+      }
+      else if (structureValue != null) {
+        // serializing structure value as tuple
+        var serializedTuple = new SerializedTuple(structureValue.Tuple.ToRegular());
+        info.AddValue("value", serializedTuple, typeof(SerializedTuple));
+      }
+      else
+        info.AddValue("value", Value, Field.ValueType);
+    }
+
+    protected UpdateEntityOperation(SerializationInfo info, StreamingContext context)
+    {
+      var session = Session.Demand();
+      Key = Key.Parse(session.Domain, info.GetString("key"));
+      Key.TypeRef = new TypeReference(Key.TypeRef.Type, TypeReferenceAccuracy.ExactType);
+      Type = (EntityOperationType)info.GetInt32("type");
+      var fieldRef = (FieldInfoRef)info.GetValue("field", typeof(FieldInfoRef));
+      Field = fieldRef.Resolve(session.Domain.Model);
+      if (typeof(IEntity).IsAssignableFrom(Field.ValueType)) {
+        // deserializing entity
+        var value = info.GetString("value");
+        if (!value.IsNullOrEmpty()) {
+          entityValueKey = Key.Parse(session.Domain, value);
+          entityValueKey.TypeRef = new TypeReference(entityValueKey.TypeRef.Type, TypeReferenceAccuracy.ExactType);
+        }
+      }
+      else if (typeof (Structure).IsAssignableFrom(Field.ValueType)) {
+        var serializedTuple = (SerializedTuple) info.GetValue("value", typeof (SerializedTuple));
+        var tuple = serializedTuple.Value;
+        Value = session.CoreServices.PersistentAccessor.CreateStructure(Field.ValueType, tuple);
+      }
+      else
+        Value = info.GetValue("value", Field.ValueType);
     }
   }
 }

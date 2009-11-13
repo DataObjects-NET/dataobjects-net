@@ -53,6 +53,11 @@ namespace Xtensive.Storage.Disconnected
       get { return modelHelper; }
     }
 
+    internal IOperationLog GetOperationLog()
+    {
+      return registry.Log;
+    }
+
     # region Public API
 
     /// <summary>

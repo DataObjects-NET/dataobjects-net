@@ -9,11 +9,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Xml.Serialization;
 using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Disconnected;
+using Xtensive.Storage.Disconnected.Log;
 using Xtensive.Storage.DisconnectedTests.Model;
 
 namespace Xtensive.Storage.DisconnectedTests.Model
@@ -747,6 +751,80 @@ namespace Xtensive.Storage.Tests.Storage
           transactionScope.Complete();
         }
         ds.Detach();
+      }
+    }
+
+    [Test]
+    public void OperationLogSerializationTest()
+    {
+      Key order1Key;
+      Key newCustomerKey;
+
+      var log = new OperationLog();
+      // Modify data
+      using (var session = Session.Open(Domain)) {
+        using (new Logger(session, log))
+        using (var transactionScope = Transaction.Open()) {
+          var orders = Query<Order>.All
+            .Prefetch(o => o.Customer)
+            .PrefetchMany(o => o.Details, set => set,
+              od => od.Prefetch(item => item.Product)).ToList();
+          
+          var newCustomer = new Customer {Name = "NewCustomer"};
+          newCustomerKey = newCustomer.Key;
+          session.Persist();
+          newCustomer.Remove();
+          session.Persist();
+
+          var order1 = orders.First(order => order.Number==1);
+          order1Key = order1.Key;
+          Assert.AreEqual(2, order1.Details.Count);
+          Product product3 = null;
+          product3 = Query<Product>.All.First(product => product.Name=="Product3");
+          new OrderDetail() {
+            Product = product3,
+            Count = 250,
+            Order = order1
+          };
+          var order1Detail1 = order1.Details.ToList().First(detail => detail.Product.Name=="Product1");
+          order1Detail1.Product.Name = "Product1.New";
+          order1Detail1.Count = 150;
+          var order1Detail2 = order1.Details.ToList().First(detail => detail.Product.Name=="Product2");
+          order1.Details.Remove(order1Detail2);
+          order1Detail2.Remove();
+        }
+      }
+
+      // Serialize/Deserialize operationLog
+      IOperationLog deserializedLog = null;
+      var binaryFormatter = new BinaryFormatter();
+      using (var stream = new MemoryStream()) {
+        binaryFormatter.Serialize(stream, log);
+        stream.Position = 0;
+        using (Session.Open(Domain))
+          deserializedLog = (IOperationLog)binaryFormatter.Deserialize(stream);
+      }
+ 
+      // Save data to storage
+      using (var session = Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open(session)) {
+          deserializedLog.Apply(session);
+          transactionScope.Complete();
+        }
+      }
+
+      // Check saved data
+      
+      using (var session = Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          Order order1 = Query<Order>.Single(order1Key);
+          var details = order1.Details.ToList();
+          Assert.AreEqual(2, order1.Details.Count);
+          Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
+          Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
+          AssertEx.Throws<KeyNotFoundException>(() => Query<Customer>.Single(newCustomerKey));
+          transactionScope.Complete();
+        }
       }
     }
     

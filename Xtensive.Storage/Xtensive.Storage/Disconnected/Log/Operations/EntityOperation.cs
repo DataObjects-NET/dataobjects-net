@@ -5,13 +5,15 @@
 // Created:    2009.10.22
 
 using System;
-using System.Diagnostics;
-using Xtensive.Core;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Disconnected.Log.Operations
 {
   [Serializable]
-  public class EntityOperation : IEntityOperation
+  public sealed class EntityOperation : IEntityOperation,
+    ISerializable
   {
     public Key Key { get; private set;}
 
@@ -47,6 +49,22 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
         throw new InvalidOperationException();
       Key = key;
       Type = type;
+    }
+
+    // Serialization
+
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("key", Key.Format());
+      info.AddValue("type", Type, typeof(EntityOperationType));
+    }
+
+    protected EntityOperation(SerializationInfo info, StreamingContext context)
+    {
+      Key = Key.Parse(info.GetString("key"));
+      Key.TypeRef = new TypeReference(Key.TypeRef.Type, TypeReferenceAccuracy.ExactType);
+      Type = (EntityOperationType)info.GetValue("type", typeof(EntityOperationType));
     }
   }
 }

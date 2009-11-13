@@ -95,10 +95,27 @@ namespace Xtensive.Storage
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(structureType, "structureType");
         if (!typeof (Structure).IsAssignableFrom(structureType))
-          throw new InvalidOperationException(
-            string.Format(Strings.TypeXIsNotAnYDescendant, structureType, typeof (Structure)));
+          throw new InvalidOperationException(string.Format(Strings.TypeXIsNotAnYDescendant, structureType, typeof (Structure)));
 
         return Activator.CreateStructure(structureType, null, null);
+      }
+    }
+
+    /// <summary>
+    /// Creates new <see cref="Structure"/> of the specified type filled with provided data.
+    /// </summary>
+    /// <param name="structureType">The type of structure to create. Must be descendant of the <see cref="Structure"/> type.</param>
+    /// <param name="structureData">The structure data tuple.</param>
+    /// <returns>Created structure.</returns>
+    [Infrastructure]
+    public Structure CreateStructure(Type structureType, Tuple structureData)
+    {
+      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+        ArgumentValidator.EnsureArgumentNotNull(structureType, "structureType");
+        if (!typeof(Structure).IsAssignableFrom(structureType))
+          throw new InvalidOperationException(string.Format(Strings.TypeXIsNotAnYDescendant, structureType, typeof(Structure)));
+
+        return Activator.CreateStructure(structureType, structureData);
       }
     }
 

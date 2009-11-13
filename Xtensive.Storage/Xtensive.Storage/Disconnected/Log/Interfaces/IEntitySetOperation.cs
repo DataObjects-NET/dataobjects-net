@@ -11,6 +11,6 @@ namespace Xtensive.Storage.Disconnected.Log
   public interface IEntitySetOperation : IEntityOperation
   {
     Key TargetKey { get; }
-    FieldInfo FieldInfo { get; }
+    FieldInfo Field { get; }
   }
 }

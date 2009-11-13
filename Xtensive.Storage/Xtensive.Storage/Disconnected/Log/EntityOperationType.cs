@@ -4,8 +4,11 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
+using System;
+
 namespace Xtensive.Storage.Disconnected.Log
 {
+  [Serializable]
   public enum EntityOperationType
   {
     Create,

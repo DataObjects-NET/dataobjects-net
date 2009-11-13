@@ -10,7 +10,7 @@ namespace Xtensive.Storage.Disconnected.Log
 {
   public interface IUpdateEntityOperation : IEntityOperation
   {
-    FieldInfo FieldInfo { get; }
+    FieldInfo Field { get; }
     object Value { get; }
   }
 }
