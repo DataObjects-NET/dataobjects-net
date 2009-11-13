@@ -27,6 +27,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     private readonly int[] filteredColumns;
 
     /// <summary>
+    /// Gets a value indicating whether result column could be inlined.
+    /// </summary>
+    public bool CouldBeInlined { get; private set; }
+
+    /// <summary>
     /// Gets the name of the column.
     /// </summary>
     public string ResultColumnName { get; private set; }
@@ -75,7 +80,13 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public IncludeProvider(CompilableProvider source, IncludeAlgorithm algorithm,
+    /// <param name="source">A value for <see cref="UnaryProvider.Source"/>.</param>
+    /// <param name="algorithm">A value for <see cref="Algorithm"/>.</param>
+    /// <param name="couldBeInlined">A value for <see cref="CouldBeInlined"/>.</param>
+    /// <param name="filterDataSource">A value for <see cref="FilterDataSource"/>.</param>
+    /// <param name="resultColumnName">A value for <see cref="ResultColumnName"/>.</param>
+    /// <param name="filteredColumns">A value for <see cref="FilteredColumns"/>.</param>
+    public IncludeProvider(CompilableProvider source, IncludeAlgorithm algorithm, bool couldBeInlined,
       Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
       : base(ProviderType.Include, source)
     {
@@ -83,6 +94,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(resultColumnName, "resultColumnName");
       ArgumentValidator.EnsureArgumentNotNull(filteredColumns, "filteredColumns");
       Algorithm = algorithm;
+      CouldBeInlined = couldBeInlined;
       FilterDataSource = filterDataSource;
       ResultColumnName = resultColumnName;
       this.filteredColumns = filteredColumns.Copy();

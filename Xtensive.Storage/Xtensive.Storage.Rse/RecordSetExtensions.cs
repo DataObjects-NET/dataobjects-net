@@ -279,12 +279,17 @@ namespace Xtensive.Storage.Rse
 
     public static RecordSet Include(this RecordSet recordSet, Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
     {
-      return new IncludeProvider(recordSet.Provider, IncludeAlgorithm.Auto, filterDataSource, resultColumnName, filteredColumns).Result;
+      return new IncludeProvider(recordSet.Provider, IncludeAlgorithm.Auto, false, filterDataSource, resultColumnName, filteredColumns).Result;
     }
     
     public static RecordSet Include(this RecordSet recordSet, IncludeAlgorithm algorithm, Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
     {
-      return new IncludeProvider(recordSet.Provider, algorithm, filterDataSource, resultColumnName, filteredColumns).Result;
+      return new IncludeProvider(recordSet.Provider, algorithm, false, filterDataSource, resultColumnName, filteredColumns).Result;
+    }
+
+    public static RecordSet Include(this RecordSet recordSet, IncludeAlgorithm algorithm, bool couldBeInlined, Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
+    {
+      return new IncludeProvider(recordSet.Provider, algorithm, couldBeInlined, filterDataSource, resultColumnName, filteredColumns).Result;
     }
     
     public static RecordSet Intersect(this RecordSet left, RecordSet right)

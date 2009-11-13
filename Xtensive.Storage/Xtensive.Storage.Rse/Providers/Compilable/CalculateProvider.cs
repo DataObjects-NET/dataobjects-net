@@ -66,7 +66,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
     public CalculateProvider(CompilableProvider source, params CalculatedColumnDescriptor[] columnDescriptors)
       : this(source, false, columnDescriptors)
-    {}
+    {
+    }
 
     /// <summary>
     /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>

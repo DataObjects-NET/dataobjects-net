@@ -363,7 +363,7 @@ namespace Xtensive.Storage.Rse.Providers
       OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
-      return new IncludeProvider(source, provider.Algorithm,
+      return new IncludeProvider(source, provider.Algorithm, provider.CouldBeInlined,
         provider.FilterDataSource, provider.ResultColumnName, provider.FilteredColumns);
     }
     
