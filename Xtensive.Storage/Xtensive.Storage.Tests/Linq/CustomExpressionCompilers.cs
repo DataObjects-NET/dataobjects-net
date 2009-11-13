@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Linq.CustomExpressionCompilersModel
 namespace Xtensive.Storage.Tests.Linq
 {
   [CompilerContainer(typeof (Expression))]
-  public static class CustomLinqCompilerContainer
+  internal static class CustomLinqCompilerContainer
   {
     [Compiler(typeof (Person), "Fullname", TargetKind.PropertyGet)]
     public static Expression FullName(Expression _this)
@@ -61,20 +61,21 @@ namespace Xtensive.Storage.Tests.Linq
       return BindLambdaParameters(ex, _this, name);
     }
 
-    private static Expression BindLambdaParameters(LambdaExpression _this, params Expression[] expressions)
+    private static Expression BindLambdaParameters(LambdaExpression expression, params Expression[] parameters)
     {
-      if (_this.Parameters.Count!=expressions.Length)
-        throw new InvalidOperationException("parameters count incorrect");
-      var parameters = new Expression[expressions.Length];
-      for (int i = 0; i < _this.Parameters.Count; i++) {
-        if (_this.Parameters[i].Type.IsAssignableFrom(expressions[i].Type))
-          parameters[i] = _this.Parameters[i].Type==expressions[i].Type
-            ? expressions[i]
-            : Expression.Convert(expressions[i], _this.Parameters[i].Type);
+      if (expression.Parameters.Count!=parameters.Length)
+        throw new InvalidOperationException(String.Format("Unable to bind parameters to lambda {0}. Parameters count is incorrect.", expression.ToString(true)));
+      var convertedParameters = new Expression[parameters.Length];
+      for (int i = 0; i < expression.Parameters.Count; i++) {
+        var expressionParameter = expression.Parameters[i];
+        if (expressionParameter.Type.IsAssignableFrom(parameters[i].Type))
+          convertedParameters[i] = expressionParameter.Type==parameters[i].Type
+            ? parameters[i]
+            : Expression.Convert(parameters[i], expressionParameter.Type);
         else
-          throw new InvalidOperationException("type incorrect");
+          throw new InvalidOperationException(String.Format("Unable to use expression {0} as {2} parameter of lambda {3} because of type mistmatch.", parameters[i].ToString(true), i , expression.Parameters[i].ToString(true)));
       }
-      return ExpressionReplacer.ReplaceAll(_this.Body, _this.Parameters.ToArray(), parameters);
+      return ExpressionReplacer.ReplaceAll(expression.Body, expression.Parameters.ToArray(), convertedParameters);
     }
   }
 
