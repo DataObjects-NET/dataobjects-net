@@ -32,8 +32,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly TypeInfo type;
     private readonly int cachedHashCode;
     private readonly PrefetchProcessor processor;
-    private List<QueryTask> queryTasks;
-    //private QueryTask queryTask;
+    //private List<QueryTask> queryTasks;
+    private QueryTask queryTask;
 
     public RecordSet RecordSet { get; private set; }
 
@@ -48,23 +48,32 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public void RegisterQueryTasks()
     {
-      /*queryTask = CreateQueryTask();
-      processor.Owner.Session.RegisterDelayedQuery(queryTask);*/
-      queryTasks = new List<QueryTask>(keys.Count);
+      queryTask = CreateQueryTask();
+      processor.Owner.Session.RegisterDelayedQuery(queryTask);
+      /*queryTasks = new List<QueryTask>(keys.Count);
+      var skip = 0;
+      var take = 100;
+      while (skip < keys.Count) {
+        var queryTask = CreateQueryTask(skip, take);
+        queryTasks.Add(queryTask);
+        processor.Owner.Session.RegisterDelayedQuery(queryTask);
+        skip += take;
+      };*/
+      /*queryTasks = new List<QueryTask>(keys.Count);
       foreach (var pair in keys) {
         var queryTask = CreateQueryTask(pair.Key);
         queryTasks.Add(queryTask);
         processor.Owner.Session.RegisterDelayedQuery(queryTask);
-      }
+      }*/
     }
 
     public void UpdateCache(HashSet<Key> foundedKeys)
     {
       foundedKeys.Clear();
       var reader = processor.Owner.Session.Domain.RecordSetReader;
-      foreach (var queryTask in queryTasks)
-        PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
-      //PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
+      //foreach (var queryTask in queryTasks)
+      //  PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
+      PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
       HandleMissedKeys(foundedKeys);
     }
 
@@ -100,12 +109,13 @@ namespace Xtensive.Storage.Internals.Prefetch
       return cachedHashCode;
     }
 
-    private QueryTask CreateQueryTask(Key key)
+    private QueryTask CreateQueryTask(/*Key key*/)
     {
       var parameterContext = new ParameterContext();
       using (parameterContext.Activate()) {
-        seekParameter.Value = key.Value;
-        //includeParameter.Value = keys.Select(pair => pair.Key.Value).ToList();
+        //seekParameter.Value = key.Value;
+        //includeParameter.Value = keys.Skip(skip).Take(take).Select(pair => pair.Key.Value).ToList();
+        includeParameter.Value = keys.Select(pair => pair.Key.Value).ToList();
         RecordSet = (RecordSet) processor.Owner.Session.Domain.GetCachedItem(
           new Pair<object, EntityGroupTask>(recordSetCachingRegion, this), CreateRecordSet);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);
@@ -117,14 +127,14 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       var pair = (Pair<object, EntityGroupTask>) cachingKey;
       var selectedColumnIndexes = pair.Second.columnIndexes;
-      return pair.Second.type.Indexes.PrimaryIndex.ToRecordSet().Seek(() => seekParameter.Value)
-        .Select(selectedColumnIndexes);
-      /*var keyColumnIndexes = EnumerableUtils.Unfold(0, i => i + 1)
+      /*return pair.Second.type.Indexes.PrimaryIndex.ToRecordSet().Seek(() => seekParameter.Value)
+        .Select(selectedColumnIndexes);*/
+      var keyColumnIndexes = EnumerableUtils.Unfold(0, i => i + 1)
         .Take(pair.Second.type.Indexes.PrimaryIndex.KeyColumns.Count).ToArray();
       var columnCollectionLenght = pair.Second.type.Indexes.PrimaryIndex.Columns.Count;
-      return pair.Second.type.Indexes.PrimaryIndex.ToRecordSet().Include(() => includeParameter.Value,
-        String.Format("includeColumnName-{0}", Guid.NewGuid()), keyColumnIndexes)
-        .Filter(t => t.GetValue<bool>(columnCollectionLenght)).Select(selectedColumnIndexes);*/
+      return pair.Second.type.Indexes.PrimaryIndex.ToRecordSet().Include(IncludeAlgorithm.ComplexCondition,
+        true, () => includeParameter.Value, String.Format("includeColumnName-{0}", Guid.NewGuid()),
+        keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLenght)).Select(selectedColumnIndexes);
     }
 
     private void PutLoadedStatesInCache(IEnumerable<Tuple> queryResult, RecordSetReader reader,

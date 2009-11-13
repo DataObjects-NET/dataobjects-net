@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     [Field]
     public Employee Employee { get; set; }
 
-    [Field]
+    [Field(LazyLoad = true)]
     public Customer Customer { get; set; }
 
     [Field, Association(PairTo = "Order", OnOwnerRemove = OnRemoveAction.Clear)]
@@ -294,7 +294,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     [Field]
     public int Number { get; set; }
 
-    [Field]
+    [Field(LazyLoad = true)]
     public Book Book { get; set; }
 
     [Field]
@@ -333,5 +333,18 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
 
     [Field(LazyLoad = true)]
     public int Lazy { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class LazyClass : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field(LazyLoad = true)]
+    public string LazyString { get; set; }
+
+    [Field(LazyLoad = true)]
+    public int LazyInt { get; set; }
   }
 }

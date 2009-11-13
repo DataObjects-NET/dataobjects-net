@@ -13,6 +13,7 @@ using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Testing;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Providers;
@@ -637,6 +638,41 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           Assert.IsTrue(state.IsTupleLoaded);
           Assert.IsNotNull(state.Tuple);
         }
+      }
+    }
+
+    [Test]
+    public void LazyLoadFlagShouldBeIgnoredForFieldReferencingToEntityTest()
+    {
+      var orderKey = GetFirstKey<Order>();
+
+      using (var session = Session.Open(Domain))
+      using (Transaction.Open()) {
+        var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField, false, false));
+        prefetchProcessor.ExecuteTasks();
+
+        var tuple = session.EntityStateCache[orderKey, true].Tuple;
+        foreach (var field in CustomerField.Fields)
+          Assert.IsTrue(tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable());
+      }
+    }
+
+    [Test]
+    public void EntityContainingOnlyLazyFieldsPrefetchTestTest()
+    {
+      Key key;
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        key = new LazyClass {LazyInt = 3, LazyString = "a"}.Key;
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (Transaction.Open()) {
+        Assert.IsNotNull(Query<LazyClass>.Single(key));
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, IsFieldKeyOrSystem);
       }
     }
 

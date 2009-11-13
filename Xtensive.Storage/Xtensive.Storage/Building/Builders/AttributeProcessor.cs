@@ -174,11 +174,11 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessIsLazyLoad(FieldDef fieldDef, FieldAttribute attribute)
     {
-      fieldDef.IsLazyLoad = attribute.LazyLoad;
-      if (!fieldDef.IsPrimitive && fieldDef.IsLazyLoad) {
+      if (!fieldDef.IsPrimitive && attribute.LazyLoad)
         Log.Warning(
           Strings.ExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
-      }
+      else 
+        fieldDef.IsLazyLoad = attribute.LazyLoad;
     }
 
     private static void ProcessMappingName(MappingNode node, string mappingName, ValidationRule rule)

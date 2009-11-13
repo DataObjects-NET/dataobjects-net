@@ -875,12 +875,15 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var idField = contaierKey.Type.Fields["Id"];
         var lazyField = contaierKey.Type.Fields["Lazy"];
         var intermediateOfferField = contaierKey.Type.Fields["IntermediateOffer"];
+        var intermediateOfferRealOfferLazyField = contaierKey.Type.Fields["IntermediateOffer.RealOffer.Lazy"];
         var realOfferField = contaierKey.Type.Fields["RealOffer"];
+        var realOfferLazyField = contaierKey.Type.Fields["RealOffer.Lazy"];
         var container = Query<OfferContainer>.Single(contaierKey);
 
         var conatinerPrimitiveFields = contaierKey.Type.Fields.Where(field => field.IsPrimitive);
         foreach (var fieldInfo in conatinerPrimitiveFields)
-          Assert.AreEqual(!fieldInfo.IsLazyLoad,
+          Assert.AreEqual(!fieldInfo.Equals(lazyField) && !fieldInfo.Equals(realOfferLazyField)
+            && !fieldInfo.Equals(intermediateOfferRealOfferLazyField),
             container.State.Tuple.GetFieldState(fieldInfo.MappingInfo.Offset).IsAvailable());
         PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(contaierKey, contaierKey.Type, session);
 
