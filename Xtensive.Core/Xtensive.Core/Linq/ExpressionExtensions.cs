@@ -59,6 +59,30 @@ namespace Xtensive.Core.Linq
         );
     }
 
+
+    /// <summary>
+    /// Bind parameter expressions to <see cref="LambdaExpression"/>.
+    /// </summary>
+    /// <param name="lambdaExpression"><see cref="LambdaExpression"/> to bind parameters.</param>
+    /// <param name="parameters"><see cref="Expression"/>s to bind to <paramref name="lambdaExpression"/></param>
+    /// <returns>Body of <paramref name="lambdaExpression"/> with lambda's parameters replaced with corresponding expression from <paramref name="parameters"/></returns>
+    public static Expression BindParameters(this LambdaExpression lambdaExpression, params Expression[] parameters)
+    {
+      if (lambdaExpression.Parameters.Count!=parameters.Length)
+        throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToBindParametersToLambdaXParametersCountIsIncorrect, lambdaExpression.ToString(true)));
+      var convertedParameters = new Expression[parameters.Length];
+      for (int i = 0; i < lambdaExpression.Parameters.Count; i++) {
+        var expressionParameter = lambdaExpression.Parameters[i];
+        if (expressionParameter.Type.IsAssignableFrom(parameters[i].Type))
+          convertedParameters[i] = expressionParameter.Type==parameters[i].Type
+            ? parameters[i]
+            : Expression.Convert(parameters[i], expressionParameter.Type);
+        else
+          throw new InvalidOperationException(String.Format(Resources.Strings.ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch, parameters[i].ToString(true), i , lambdaExpression.Parameters[i].ToString(true)));
+      }
+      return ExpressionReplacer.ReplaceAll(lambdaExpression.Body, lambdaExpression.Parameters.ToArray(), convertedParameters);
+    }
+
     /// <summary>
     /// Makes <c>IsNull</c> condition expression.
     /// </summary>

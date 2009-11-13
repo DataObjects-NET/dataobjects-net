@@ -48,34 +48,17 @@ namespace Xtensive.Storage.Tests.Linq
   internal static class CustomLinqCompilerContainer
   {
     [Compiler(typeof (Person), "Fullname", TargetKind.PropertyGet)]
-    public static Expression FullName(Expression _this)
+    public static Expression FullName(Expression personExpression)
     {
       Expression<Func<Person, string>> ex = person => person.FirstName + " " + person.LastName;
-      return BindLambdaParameters(ex, _this);
+      return ex.BindParameters(personExpression);
     }
 
     [Compiler(typeof (Person), "AddPrefix", TargetKind.Method)]
-    public static Expression AddPrefix(Expression _this, Expression name)
+    public static Expression AddPrefix(Expression personExpression, Expression prefixExpression)
     {
       Expression<Func<Person, string, string>> ex =  (person, prefix) => prefix + person.LastName;
-      return BindLambdaParameters(ex, _this, name);
-    }
-
-    private static Expression BindLambdaParameters(LambdaExpression expression, params Expression[] parameters)
-    {
-      if (expression.Parameters.Count!=parameters.Length)
-        throw new InvalidOperationException(String.Format("Unable to bind parameters to lambda {0}. Parameters count is incorrect.", expression.ToString(true)));
-      var convertedParameters = new Expression[parameters.Length];
-      for (int i = 0; i < expression.Parameters.Count; i++) {
-        var expressionParameter = expression.Parameters[i];
-        if (expressionParameter.Type.IsAssignableFrom(parameters[i].Type))
-          convertedParameters[i] = expressionParameter.Type==parameters[i].Type
-            ? parameters[i]
-            : Expression.Convert(parameters[i], expressionParameter.Type);
-        else
-          throw new InvalidOperationException(String.Format("Unable to use expression {0} as {2} parameter of lambda {3} because of type mistmatch.", parameters[i].ToString(true), i , expression.Parameters[i].ToString(true)));
-      }
-      return ExpressionReplacer.ReplaceAll(expression.Body, expression.Parameters.ToArray(), convertedParameters);
+      return ex.BindParameters(personExpression, prefixExpression);
     }
   }
 

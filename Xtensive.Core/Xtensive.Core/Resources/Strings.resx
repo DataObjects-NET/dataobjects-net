@@ -666,4 +666,10 @@
   <data name="SimpleLogFormat" xml:space="preserve">
     <value>{3}: {5}</value>
   </data>
+  <data name="ExUnableToBindParametersToLambdaXParametersCountIsIncorrect" xml:space="preserve">
+    <value>Unable to bind parameters to lambda {0}. Parameters count is incorrect.</value>
+  </data>
+  <data name="ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch" xml:space="preserve">
+    <value>Unable to use expression {0} as {1} parameter of lambda {2} because of type mistmatch.</value>
+  </data>
 </root>
