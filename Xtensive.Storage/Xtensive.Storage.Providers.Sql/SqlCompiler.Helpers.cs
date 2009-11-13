@@ -1,0 +1,212 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2009.11.13
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
+using Xtensive.Storage.Providers.Sql.Expressions;
+using Xtensive.Storage.Rse.Helpers;
+using Xtensive.Storage.Rse.Providers;
+using Xtensive.Storage.Rse.Providers.Compilable;
+
+namespace Xtensive.Storage.Providers.Sql
+{
+  partial class SqlCompiler 
+  {
+    protected SqlProvider CreateProvider(SqlSelect statement,
+      CompilableProvider origin, params ExecutableProvider[] sources)
+    {
+      var extraBindings = (IEnumerable<QueryParameterBinding>) null;
+      return CreateProvider(statement, extraBindings, origin, sources);
+    }
+
+    protected SqlProvider CreateProvider(SqlSelect statement, QueryParameterBinding extraBinding,
+      CompilableProvider origin, params ExecutableProvider[] sources)
+    {
+      var extraBindings = extraBinding!=null ? EnumerableUtils.One(extraBinding) : null;
+      return CreateProvider(statement, extraBindings, origin, sources);
+    }
+
+    protected SqlProvider CreateProvider(SqlSelect statement, IEnumerable<QueryParameterBinding> extraBindings,
+      CompilableProvider origin, params ExecutableProvider[] sources)
+    {
+      var sqlSources = sources.OfType<SqlProvider>();
+
+      var parameterBindings = sqlSources.SelectMany(p => p.Request.ParameterBindings);
+      if (extraBindings!=null)
+        parameterBindings = parameterBindings.Concat(extraBindings);
+
+      bool allowBatching = sqlSources
+        .Aggregate(true, (current, provider) =>
+          current && provider.Request.CheckOptions(RequestOptions.AllowBatching));
+      var tupleDescriptor = origin.Header.TupleDescriptor;
+
+      var options = RequestOptions.Empty;
+      if (allowBatching)
+        options |= RequestOptions.AllowBatching;
+
+      if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
+        tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
+      
+      var request = new QueryRequest(statement, tupleDescriptor, options, parameterBindings);
+
+      return new SqlProvider(Handlers, request, origin, sources);
+    }
+
+    protected virtual string ProcessAliasedName(string name)
+    {
+      return name;
+    }
+    
+    protected Pair<SqlExpression, HashSet<QueryParameterBinding>> ProcessExpression(LambdaExpression le, params List<SqlExpression>[] sourceColumns)
+    {
+      var processor = new ExpressionProcessor(le, this, Handlers, sourceColumns);
+      var result = new Pair<SqlExpression, HashSet<QueryParameterBinding>>(
+        processor.Translate(),
+        processor.Bindings);
+      return result;
+    }
+
+    protected SqlSelect ExtractSqlSelect(CompilableProvider origin, SqlProvider compiledSource)
+    {
+      var sourceSelect = compiledSource.Request.SelectStatement;
+      if (ShouldUseQueryReference(origin, compiledSource)) {
+        var queryRef = compiledSource.PermanentReference;
+        var query = SqlDml.Select(queryRef);
+        query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+        return query;
+      }
+      return sourceSelect.ShallowClone();
+    }
+
+    public List<SqlExpression> ExtractColumnExpressions(SqlSelect query, CompilableProvider origin)
+    {
+      var result = new List<SqlExpression>(query.Columns.Count);
+      var shouldUseQueryColumns = origin.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Filter, ProviderType.Index, ProviderType.RowNumber)  
+        && query.Columns.Count < query.From.Columns.Count;
+      if (query.Columns.Any(IsColumnStub) || query.GroupBy.Count > 0 || shouldUseQueryColumns) {
+        foreach (var column in query.Columns) {
+          var expression = IsColumnStub(column)
+            ? stubColumnMap[ExtractColumnStub(column)]
+            : column;
+          var columnRef = expression as SqlColumnRef;
+          if (!columnRef.IsNullReference())
+            expression = columnRef.SqlColumn;
+          result.Add(expression);
+        }
+      }
+      else
+        result.AddRange(query.From.Columns.Cast<SqlExpression>());
+      return result;
+    }
+
+    #region Private methods
+
+    private static bool IsCalculatedColumn(SqlColumn column)
+    {
+      if (column is SqlUserColumn)
+        return true;
+      var cRef = column as SqlColumnRef;
+      if (!ReferenceEquals(null, cRef))
+        return cRef.SqlColumn is SqlUserColumn;
+      return false;
+    }
+
+    private static bool IsColumnStub(SqlColumn column)
+    {
+      if (column is SqlColumnStub)
+        return true;
+      var cRef = column as SqlColumnRef;
+      if (!ReferenceEquals(null, cRef))
+        return cRef.SqlColumn is SqlColumnStub;
+      return false;
+    }
+
+    private static SqlColumnStub ExtractColumnStub(SqlColumn column)
+    {
+      var columnStub = column as SqlColumnStub;
+      if (!ReferenceEquals(null, columnStub))
+        return columnStub;
+      var columnRef = column as SqlColumnRef;
+      if (!ReferenceEquals(null, columnRef))
+        return (SqlColumnStub) columnRef.SqlColumn;
+      return (SqlColumnStub) column;
+    }
+
+    private static SqlUserColumn ExtractUserColumn(SqlColumn column)
+    {
+      var userColumn = column as SqlUserColumn;
+      if (!ReferenceEquals(null, userColumn))
+        return userColumn;
+      var columnRef = column as SqlColumnRef;
+      if (!ReferenceEquals(null, columnRef))
+        return (SqlUserColumn) columnRef.SqlColumn;
+      return (SqlUserColumn) column;
+    }
+
+    private static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
+    {
+      var sourceSelect = compiledSource.Request.SelectStatement;
+      var calculatedColumnIndexes = sourceSelect.Columns
+        .Select((c, i) => IsCalculatedColumn(c) ? i : -1)
+        .Where(i => i >= 0)
+        .ToList();
+      var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
+      var pagingIsUsed = !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference();
+      var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
+      var distinctIsUsed = sourceSelect.Distinct;
+      var filterIsUsed = !sourceSelect.Where.IsNullReference();
+      var columnCountIsNotSame = sourceSelect.From.Columns.Count!=sourceSelect.Columns.Count;
+
+      if (origin.Type==ProviderType.Filter) {
+        var filterProvider = (FilterProvider) origin;
+        var usedColumnIndexes = new TupleAccessGatherer().Gather(filterProvider.Predicate.Body);
+        return pagingIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
+      }
+
+      if (origin.Type==ProviderType.Select) {
+        var selectProvider = (SelectProvider) origin;
+        return containsCalculatedColumns && !calculatedColumnIndexes.All(ci => selectProvider.ColumnIndexes.Contains(ci));
+      }
+
+      if (origin.Type==ProviderType.RowNumber) {
+        var usedColumnIndexes = origin.Header.Order.Select(o => o.Key);
+        return pagingIsUsed || groupByIsUsed || distinctIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
+      }
+
+      if (origin.Type==ProviderType.Calculate) {
+        var calculateProvider = (CalculateProvider) origin;
+        var columnGatherer = new TupleAccessGatherer();
+        var usedColumnIndexes = new List<int>();
+        foreach (var column in calculateProvider.CalculatedColumns)
+          usedColumnIndexes.AddRange(
+            columnGatherer.Gather(column.Expression.Body, column.Expression.Parameters[0]));
+
+        return usedColumnIndexes.Any(calculatedColumnIndexes.Contains) || columnCountIsNotSame;
+      }
+
+      if (origin.Type==ProviderType.Take || origin.Type==ProviderType.Skip) {
+        var sortProvider = origin.Sources[0] as SortProvider;
+        var orderingOverCalculatedColumn = sortProvider!=null &&
+          sortProvider.ExpectedOrder
+            .Select(order => order.Key)
+            .Any(calculatedColumnIndexes.Contains);
+        return distinctIsUsed || pagingIsUsed || groupByIsUsed || orderingOverCalculatedColumn;
+      }
+
+      if (origin.Type==ProviderType.Apply || origin.Type==ProviderType.Join || origin.Type==ProviderType.PredicateJoin)
+        return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+
+      return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+    }
+
+    #endregion
+  }
+}

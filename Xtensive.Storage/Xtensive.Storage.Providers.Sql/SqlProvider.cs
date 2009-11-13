@@ -18,9 +18,10 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public class SqlProvider : ExecutableProvider
   {
+    protected readonly HandlerAccessor handlers;
+
     private const string ParameterNamePrefix = "@p";
     private const string ToStringFormat = "[Command: \"{0}\"]";
-    protected readonly HandlerAccessor handlers;
     private SqlTable permanentReference;
 
     /// <summary>
@@ -38,6 +39,11 @@ namespace Xtensive.Storage.Providers.Sql
         return permanentReference;
       }
     }
+
+    /// <summary>
+    /// Gets the domain handler this provider is bound to.
+    /// </summary>
+    protected DomainHandler DomainHandler { get { return (DomainHandler) handlers.DomainHandler; } }
 
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)

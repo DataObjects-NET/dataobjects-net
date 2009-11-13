@@ -4,24 +4,17 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.05
 
-using System;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  public class SqlStoreProvider : SqlProvider,
+  public class SqlStoreProvider : SqlTemporaryDataProvider,
     IHasNamedResult
   {
-    private const string TemporaryTableLockName = "TemporaryTableLockName";
-
-    private readonly TemporaryTableDescriptor descriptor;
-    
     private new StoreProvider Origin { get { return (StoreProvider) base.Origin; } }
     private ExecutableProvider Source { get { return (ExecutableProvider) Sources[0]; } }
-    private DomainHandler DomainHandler { get { return (DomainHandler) handlers.DomainHandler; } }
 
     #region IHasNamedResult members
 
@@ -33,18 +26,12 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      var tableLock = DomainHandler.TemporaryTableManager.Acquire(descriptor);
-      context.SetValue(this, TemporaryTableLockName, tableLock);
-      var executor = handlers.SessionHandler.GetService<IQueryExecutor>();
-      executor.Store(descriptor, Source);
+      LockAndStore(context, Source);
     }
 
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
-      var tableLock = context.GetValue<IDisposable>(this, TemporaryTableLockName);
-      if (tableLock!=null)
-        using (tableLock)
-          handlers.SessionHandler.GetService<IQueryExecutor>().Clear(descriptor);
+      ClearAndUnlock(context);
       base.OnAfterEnumerate(context);
     }
 
@@ -52,12 +39,11 @@ namespace Xtensive.Storage.Providers.Sql
     // Constructors
 
     public SqlStoreProvider(
-      HandlerAccessor handlers, TemporaryTableDescriptor descriptor, QueryRequest request,
+      HandlerAccessor handlers, QueryRequest request, TemporaryTableDescriptor descriptor,
       StoreProvider origin, ExecutableProvider source)
-     : base(handlers, request, origin, new [] {source})
+     : base(handlers, request, descriptor, origin, new [] {source})
     {
       AddService<IHasNamedResult>();
-      this.descriptor = descriptor;
     }
   }
 }
