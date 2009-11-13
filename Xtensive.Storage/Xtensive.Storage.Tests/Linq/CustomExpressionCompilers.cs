@@ -22,22 +22,22 @@ namespace Xtensive.Storage.Tests.Linq.CustomExpressionCompilersModel
     public int Id { get; private set; }
 
     [Field]
-    public string Name { get; set; }
+    public string FirstName { get; set; }
 
     [Field]
-    public string Surname { get; set; }
+    public string LastName { get; set; }
 
     [Field]
     public DateTime BirthDay { get; set; }
 
     public string Fullname
     {
-      get { return GetFullname(Name); }
+      get { return string.Format("{0} {1}", FirstName, LastName); }
     }
 
-    public string GetFullname(string name)
+    public string AddPrefix(string prefix)
     {
-      return string.Format("{0} {1}", name, Surname);
+      return string.Format("{0}{1}", prefix, LastName);
     }
   }
 }
@@ -50,15 +50,15 @@ namespace Xtensive.Storage.Tests.Linq
     [Compiler(typeof (Person), "Fullname", TargetKind.PropertyGet)]
     public static Expression FullName(Expression _this)
     {
-      Expression<Func<Person, string>> ex = p => p.Name + " " + p.Fullname;
+      Expression<Func<Person, string>> ex = person => person.FirstName + " " + person.LastName;
       return BindLambdaParameters(ex, _this);
     }
 
-    [Compiler(typeof (Person), "GetFullname", TargetKind.Method)]
-    public static Expression GetFullName(Expression _this, Expression name)
+    [Compiler(typeof (Person), "AddPrefix", TargetKind.Method)]
+    public static Expression AddPrefix(Expression _this, Expression name)
     {
-      Expression<Func<Person, string, string>> ex =  (p, fullName) => p.Name + " " + fullName;
-      return BindLambdaParameters(ex, name);
+      Expression<Func<Person, string, string>> ex =  (person, prefix) => prefix + person.LastName;
+      return BindLambdaParameters(ex, _this, name);
     }
 
     private static Expression BindLambdaParameters(LambdaExpression _this, params Expression[] expressions)
@@ -94,12 +94,14 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Fill();
-          var expected = Query<Person>.All.AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
-          Assert.Greater(expected.Count, 0);
+          var expected1 = Query<Person>.All.AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
+          Assert.Greater(expected1.Count, 0);
           var fullNames1 = Query<Person>.All.OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
-          var fullNames2 = Query<Person>.All.OrderBy(p => p.Id).Select(p => p.GetFullname(p.Name)).ToList();
-          Assert.IsTrue(expected.SequenceEqual(fullNames1));
-          Assert.IsTrue(expected.SequenceEqual(fullNames2));
+          Assert.IsTrue(expected1.SequenceEqual(fullNames1));
+
+          var expected2 = Query<Person>.All.AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
+          var fullNames2 = Query<Person>.All.OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
+          Assert.IsTrue(expected2.SequenceEqual(fullNames2));
           // Rollback
         }
       }
@@ -107,9 +109,9 @@ namespace Xtensive.Storage.Tests.Linq
 
     private void Fill()
     {
-      new Person {Name = "Ivan", Surname = "Semenov"};
-      new Person {Name = "John", Surname = "Smith"};
-      new Person {Name = "Andrew", Surname = "Politkovsky"};
+      new Person {FirstName = "Ivan", LastName = "Semenov"};
+      new Person {FirstName = "John", LastName = "Smith"};
+      new Person {FirstName = "Andrew", LastName = "Politkovsky"};
     }
   }
 }

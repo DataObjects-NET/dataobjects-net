@@ -21,6 +21,7 @@ namespace Xtensive.Storage.Providers
   /// </summary>
   public abstract class DomainHandler : InitializableHandlerBase
   {
+    private object syncRoot = new object();
     private readonly Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders = new Dictionary<Type, IMemberCompilerProvider>();
 
     /// <summary>
@@ -55,9 +56,17 @@ namespace Xtensive.Storage.Providers
     /// </returns>
     public IMemberCompilerProvider<T> GetMemberCompilerProvider<T>()
     {
-      return (IMemberCompilerProvider<T>) memberCompilerProviders[typeof(T)];
+      IMemberCompilerProvider result;
+      if (!memberCompilerProviders.TryGetValue(typeof (T), out result))
+        lock (syncRoot) {
+          if (!memberCompilerProviders.TryGetValue(typeof (T), out result)) {
+            result = MemberCompilerProviderFactory.Create<T>();
+            memberCompilerProviders.Add(typeof (T), result);
+          }
+        }
+      return (IMemberCompilerProvider<T>) result;
     }
-    
+
     // Abstract methods
 
     /// <summary>
@@ -117,29 +126,35 @@ namespace Xtensive.Storage.Providers
       var builtinCompilerContainers = GetCompilerProviderContainerTypes();
       var typeGroups = builtinCompilerContainers.GroupBy(
         t => ((CompilerContainerAttribute[]) t.GetCustomAttributes(
-          typeof(CompilerContainerAttribute), false))[0].ExtensionType);
+          typeof (CompilerContainerAttribute), false))[0].ExtensionType);
 
       foreach (var types in typeGroups) {
         var extensionType = ((CompilerContainerAttribute) types.First().GetCustomAttributes(
-          typeof(CompilerContainerAttribute), false)[0]).ExtensionType;
-        var memberCompilerProvider = MemberCompilerProviderFactory.Create(extensionType);
-        memberCompilerProviders.Add(extensionType, memberCompilerProvider);
+          typeof (CompilerContainerAttribute), false)[0]).ExtensionType;
+        IMemberCompilerProvider memberCompilerProvider;
+        memberCompilerProviders.TryGetValue(extensionType, out memberCompilerProvider);
+        if (memberCompilerProvider==null) {
+          memberCompilerProvider = MemberCompilerProviderFactory.Create(extensionType);
+          memberCompilerProviders.Add(extensionType, memberCompilerProvider);
+        }
         foreach (var type in types)
           memberCompilerProvider.RegisterCompilers(type);
       }
 
       foreach (var type in customCompilerContainers) {
-        var atr = type.GetCustomAttributes(typeof(CompilerContainerAttribute), false);
+        var atr = type.GetCustomAttributes(typeof (CompilerContainerAttribute), false);
         if (atr.IsNullOrEmpty())
           throw new InvalidOperationException(String.Format(
             Strings.ExCompilerContainerAttributeIsNotAppliedToTypeX, type.Name));
-        var extensionType = ((CompilerContainerAttribute)atr[0]).ExtensionType;
-        var conflictHandlingMethod = ((CompilerContainerAttribute)atr[0]).ConflictHandlingMethod;
+        var extensionType = ((CompilerContainerAttribute) atr[0]).ExtensionType;
+        var conflictHandlingMethod = ((CompilerContainerAttribute) atr[0]).ConflictHandlingMethod;
 
         IMemberCompilerProvider memberCompilerProvider;
         memberCompilerProviders.TryGetValue(extensionType, out memberCompilerProvider);
-        if (memberCompilerProvider == null)
+        if (memberCompilerProvider==null) {
           memberCompilerProvider = MemberCompilerProviderFactory.Create(extensionType);
+          memberCompilerProviders.Add(extensionType, memberCompilerProvider);
+        }
         memberCompilerProvider.RegisterCompilers(type, conflictHandlingMethod);
       }
     }

@@ -61,8 +61,7 @@ namespace Xtensive.Storage.Linq
 
     internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
     {
-      var model = Domain.Demand().Model;
-      var context = new TranslatorContext(expression, model);
+      var context = new TranslatorContext(expression, Domain.Demand());
       return context.Translator.Translate<TResult>();
     }
 

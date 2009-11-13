@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
@@ -32,6 +33,7 @@ namespace Xtensive.Storage.Linq
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
+    private readonly IMemberCompilerProvider<Expression> customCompilerProvider;
 
     public Expression Query
     {
@@ -41,6 +43,11 @@ namespace Xtensive.Storage.Linq
     public DomainModel Model
     {
       get { return model; }
+    }
+
+    public IMemberCompilerProvider<Expression> CustomCompilerProvider
+    {
+      get { return customCompilerProvider; }
     }
 
     public Translator Translator
@@ -120,12 +127,14 @@ namespace Xtensive.Storage.Linq
 
     // Constructors
 
-    public TranslatorContext(Expression query, DomainModel model)
+    public TranslatorContext(Expression query, Domain domain)
     {
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
       this.query = EntitySetAccessRewriter.Rewrite(EqualityRewriter.Rewrite(ClosureAccessRewriter.Rewrite(query)));
-      this.model = model;
+
+      customCompilerProvider = domain.Handler.GetMemberCompilerProvider<Expression>();
+      model = domain.Model;
       translator = new Translator(this);
       evaluator = new ExpressionEvaluator(this.query);
       parameterExtractor = new ParameterExtractor(evaluator);

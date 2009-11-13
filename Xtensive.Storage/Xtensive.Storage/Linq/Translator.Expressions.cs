@@ -177,6 +177,10 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitMemberAccess(MemberExpression ma)
     {
+      var customCompiler = context.CustomCompilerProvider.GetCompiler(ma.Member);
+      if (customCompiler!=null)
+        return Visit(customCompiler.Invoke(ma.Expression, ArrayUtils<Expression>.EmptyArray));
+
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
           Func<IQueryable> lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
@@ -217,6 +221,10 @@ namespace Xtensive.Storage.Linq
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
+      var customCompiler = context.CustomCompilerProvider.GetCompiler(mc.Method);
+      if (customCompiler!=null)
+        return Visit(customCompiler.Invoke(mc.Object, mc.Arguments.ToArray()));
+
       // Visit Queryable extensions.
       if (mc.Method.DeclaringType==typeof (QueryableExtensions))
         if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionJoinLeft.Name)
