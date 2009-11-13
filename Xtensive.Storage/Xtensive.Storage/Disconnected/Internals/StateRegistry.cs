@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -21,14 +22,16 @@ namespace Xtensive.Storage.Disconnected
   /// </summary>
   internal sealed class StateRegistry
   {
+    private readonly StateRegistry origin;
     private readonly DisconnectedState disconnectedState;
     private readonly Dictionary<Key, DisconnectedEntityState> states;
+    private readonly OperationLog log;
 
     private ModelHelper ModelHelper { get { return disconnectedState.ModelHelper; } }
 
-    public OperationLog Log { get; private set; }
-
-    public StateRegistry Origin { get; private set; }
+    public OperationLog Log { get { return log; } }
+    
+    public StateRegistry Origin { get { return origin; } }
 
     public DisconnectedEntityState GetState(Key key)
     {
@@ -156,6 +159,13 @@ namespace Xtensive.Storage.Disconnected
       if (Origin.Log!=null)
         Origin.Log.Append(Log);
     }
+
+    public void AddState(DisconnectedEntityState state)
+    {
+      states.Add(state.Key, state);
+    }
+
+    public IEnumerable<DisconnectedEntityState> States { get { return states.Values; } }
     
     private void InsertIntoEntitySet(Key ownerKey, FieldInfo field, Key itemKey)
     {
@@ -202,7 +212,7 @@ namespace Xtensive.Storage.Disconnected
 
       states = new Dictionary<Key, DisconnectedEntityState>();
       this.disconnectedState = disconnectedState;
-      Log = new OperationLog();
+      log = new OperationLog();
     }
 
     /// <summary>
@@ -214,9 +224,27 @@ namespace Xtensive.Storage.Disconnected
       ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
 
       states = new Dictionary<Key, DisconnectedEntityState>();
-      Origin = origin;
+      this.origin = origin;
       disconnectedState = origin.disconnectedState;
-      Log = new OperationLog();
+      log = new OperationLog();
     }
+
+
+    // Serialization
+    /*
+    [OnSerializing]
+    protected void OnSerializing(StreamingContext context)
+    {
+      serialized = new List<SerializedEntityState>();
+      foreach (var state in states)
+        serialized.Add(new SerializedEntityState(state.Value));
+    }
+
+    [OnSerialized]
+    protected void OnSerialized(StreamingContext context)
+    {
+      
+    }
+    */
   }
 }

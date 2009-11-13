@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Disconnected
     /// Called when entity changing.
     /// </summary>
     /// <param name="entity">The changed entity.</param>
-    protected virtual void OnEntityChanged(Entity entity)
+    protected virtual void OnEntityChanging(Entity entity)
     {
       if (entity.PersistenceState==PersistenceState.New)
         return;
@@ -119,22 +119,22 @@ namespace Xtensive.Storage.Disconnected
 
     private void OnEntityRemoving(object sender, EntityEventArgs e)
     {
-      OnEntityChanged(e.Entity);
+      OnEntityChanging(e.Entity);
     }
 
     private void OnEntitySetItemRemoving(object sender, EntitySetItemEventArgs e)
     {
-      OnEntityChanged(e.EntitySet.Owner);
+      OnEntityChanging(e.EntitySet.Owner);
     }
 
     private void OnEntitySetItemAdding(object sender, EntitySetItemEventArgs e)
     {
-      OnEntityChanged(e.EntitySet.Owner);
+      OnEntityChanging(e.EntitySet.Owner);
     }
 
     private void OnEntityFieldValueSetting(object sender, FieldValueEventArgs e)
     {
-      OnEntityChanged(e.Entity);
+      OnEntityChanging(e.Entity);
     }
 
     private void OnTransactionOpen(object sender, TransactionEventArgs e)

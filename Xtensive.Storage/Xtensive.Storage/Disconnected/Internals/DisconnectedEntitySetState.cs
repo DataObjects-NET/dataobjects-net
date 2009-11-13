@@ -7,6 +7,7 @@ namespace Xtensive.Storage.Disconnected
   [DebuggerDisplay("Count = {Items.Count}, IsFullyLoaded = {IsFullyLoaded}")]
   internal sealed class DisconnectedEntitySetState
   {
+
     private bool? isFullyLoaded;
 
     public DisconnectedEntitySetState Origin { get; private set; }

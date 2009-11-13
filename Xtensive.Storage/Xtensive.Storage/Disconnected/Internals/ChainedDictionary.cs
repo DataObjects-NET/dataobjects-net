@@ -190,6 +190,22 @@ namespace Xtensive.Storage.Disconnected
       }
     }
 
+    /// <summary>
+    /// Gets the added items.
+    /// </summary>
+    public virtual IEnumerable<KeyValuePair<TKey, TValue>> AddedItems
+    {
+      get { return addedItems;}
+    }
+
+    /// <summary>
+    /// Gets the removed items.
+    /// </summary>
+    public virtual IEnumerable<KeyValuePair<TKey, TValue>> RemovedItems
+    {
+      get { return removedItems;}
+    }
+
 
     // Constructors
 
@@ -205,5 +221,6 @@ namespace Xtensive.Storage.Disconnected
       addedItems = new Dictionary<TKey, TValue>();
       removedItems = new Dictionary<TKey, TValue>();
     }
+
   }
 }

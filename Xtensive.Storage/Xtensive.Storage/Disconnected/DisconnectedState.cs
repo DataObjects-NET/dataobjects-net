@@ -5,6 +5,7 @@
 // Created:    2009.10.23
 
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -22,18 +23,35 @@ namespace Xtensive.Storage.Disconnected
   /// <summary>
   /// Disconnected state.
   /// </summary>
+  [Serializable]
   public sealed class DisconnectedState
   {
-    private StateRegistry transactionalRegistry;
-    private StateRegistry registry;
-    private readonly StateRegistry globalRegistry;
-    private IDisposable disposable;
-    private DisconnectedSessionHandler handler;
-    private Session session;
+    private List<DisconnectedEntityState.SerializedEntityState> serializedRegistry;
+    private List<DisconnectedEntityState.SerializedEntityState> serializedGlobalRegistry;
+    
+    [NonSerialized]
     private readonly Dictionary<Key, VersionInfo> versionCache;
+    [NonSerialized]
+    private StateRegistry transactionalRegistry;
+    [NonSerialized]
+    private StateRegistry registry;
+    [NonSerialized]
+    private StateRegistry globalRegistry;
+    [NonSerialized]
+    private IDisposable disposable;
+    [NonSerialized]
+    private DisconnectedSessionHandler handler;
+    [NonSerialized]
+    private Session session;
+    [NonSerialized]
     private Logger logger;
-
-    internal ModelHelper ModelHelper { get; private set; }
+    [NonSerialized]
+    private readonly ModelHelper modelHelper = new ModelHelper();
+    
+    internal ModelHelper ModelHelper
+    {
+      get { return modelHelper; }
+    }
 
     # region Public API
 
@@ -131,19 +149,6 @@ namespace Xtensive.Storage.Disconnected
     public void ClearChanges()
     {
       registry = new StateRegistry(globalRegistry);
-    }
-
-    private void CheckVersions(IEnumerable<DisconnectedEntityState> items, SessionHandler handler)
-    {
-      var versionsToCheck = new Dictionary<Key, VersionInfo>();
-      foreach (var item in items)
-        if (versionCache.ContainsKey(item.Key))
-          versionsToCheck.Add(item.Key, versionCache[item.Key]);
-      var actualVersions = handler.GetActualVersions(versionsToCheck.Keys);
-      foreach (var versionPair in versionsToCheck)
-        if (!actualVersions.ContainsKey(versionPair.Key) 
-          || actualVersions[versionPair.Key] != versionPair.Value)
-          throw new InvalidOperationException("Version conflict.");
     }
 
     # endregion
@@ -250,10 +255,47 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     public DisconnectedState()
     {
-      ModelHelper = new ModelHelper();
+      modelHelper = new ModelHelper();
       globalRegistry = new StateRegistry(this);
       registry = new StateRegistry(globalRegistry);
       versionCache = new Dictionary<Key, VersionInfo>();
+    }
+
+
+    // Serialization
+
+    [OnSerializing]
+    protected void OnSerializing(StreamingContext context)
+    {
+      serializedRegistry = new List<DisconnectedEntityState.SerializedEntityState>();
+      foreach (var state in registry.States)
+        serializedRegistry.Add(state.Serialize());
+      serializedGlobalRegistry = new List<DisconnectedEntityState.SerializedEntityState>();
+      foreach (var state in globalRegistry.States)
+        serializedGlobalRegistry.Add(state.Serialize());
+    }
+
+    [OnSerialized]
+    protected void OnSerialized(StreamingContext context)
+    {
+      serializedRegistry = null;
+      serializedGlobalRegistry = null;
+    }
+
+    [OnDeserialized]
+    protected void OnDeserialized(StreamingContext context)
+    {
+      var domain = Session.Demand().Domain;
+
+      globalRegistry = new StateRegistry(this);
+      foreach (var state in serializedGlobalRegistry)
+        globalRegistry.AddState(DisconnectedEntityState.Deserialize(state, globalRegistry, domain));
+      serializedGlobalRegistry = null;
+
+      registry = new StateRegistry(globalRegistry);
+      foreach (var state in serializedRegistry)
+        registry.AddState(DisconnectedEntityState.Deserialize(state, registry, domain));
+      serializedRegistry = null;
     }
   }
 }

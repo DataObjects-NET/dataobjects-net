@@ -753,26 +753,42 @@ namespace Xtensive.Storage.Tests.Storage
     [Test, Ignore]
     public void SerializationTest()
     {
-      // Modify data
       var disconnectedState = new DisconnectedState();
+      Key order1Key;
+      Key newCustomerKey;
+
+      // Modify data
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
         using (var transactionScope = Transaction.Open()) {
-          var orders = Query<Order>.All.ToList();
+          List<Order> orders = null;
+          disconnectedState.Prefetch(() => {
+            orders = Query<Order>.All
+              .Prefetch(o => o.Customer)
+              .PrefetchMany(o => o.Details, set => set,
+                od => od.Prefetch(item => item.Product)).ToList();
+          });
+          
           var newCustomer = new Customer {Name = "NewCustomer"};
+          newCustomerKey = newCustomer.Key;
           session.Persist();
           newCustomer.Remove();
+          session.Persist();
+
           var order1 = orders.First(order => order.Number==1);
+          order1Key = order1.Key;
           Assert.AreEqual(2, order1.Details.Count);
+          Product product3 = null;
+          disconnectedState.Prefetch(() => product3 = Query<Product>.All.First(product => product.Name=="Product3"));
           new OrderDetail() {
-            Product = Query<Product>.All.First(product => product.Name=="Product3"),
+            Product = product3,
             Count = 250,
             Order = order1
           };
-          var order1Detail1 = order1.Details.First(detail => detail.Product.Name=="Product1");
+          var order1Detail1 = order1.Details.ToList().First(detail => detail.Product.Name=="Product1");
           order1Detail1.Product.Name = "Product1.New";
           order1Detail1.Count = 150;
-          var order1Detail2 = order1.Details.First(detail => detail.Product.Name=="Product2");
+          var order1Detail2 = order1.Details.ToList().First(detail => detail.Product.Name=="Product2");
           order1.Details.Remove(order1Detail2);
           order1Detail2.Remove();
           transactionScope.Complete();
@@ -780,31 +796,38 @@ namespace Xtensive.Storage.Tests.Storage
         disconnectedState.Detach();
       }
 
+      
       // Serialize, deserialize
-      using (var stream = new MemoryStream()) {
-        disconnectedState = LegacyBinarySerializer.Instance.Clone(disconnectedState) as DisconnectedState;
-        Assert.IsNotNull(disconnectedState);
+      using (var session = Session.Open(Domain)) {
+        using (var stream = new MemoryStream()) {
+          disconnectedState = LegacyBinarySerializer.Instance.Clone(disconnectedState) as DisconnectedState;
+          Assert.IsNotNull(disconnectedState);
+        }
       }
       
-      // Save data to storage
+      // Check data and save to DB
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
+        using (var transactionScope = Transaction.Open()) {
+          var order1 = Query<Order>.Single(order1Key);
+          var details = order1.Details.ToList();
+          Assert.AreEqual(2, order1.Details.Count);
+          Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
+          Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
+          transactionScope.Complete();
+        }
         disconnectedState.SaveChanges();
         disconnectedState.Detach();
       }
 
-      // Check saved data
-      using (var session = Session.Open(Domain)) {
-        using (var transactionScope = Transaction.Open()) {
-          var order1 = Query<Order>.All.First(order => order.Number==1);
-          var details = order1.Details;
-          Assert.AreEqual(2, order1.Details.Count);
-          Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
-          Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
-          Assert.IsNull(Query<Customer>.All.FirstOrDefault(customer => customer.Name=="NewCustomer"));
-          transactionScope.Complete();
-        }
-      }
+//      // Save data to storage
+//      using (var session = Session.Open(Domain)) {
+//        disconnectedState.Attach(session);
+//        disconnectedState.SaveChanges();
+//        disconnectedState.Detach();
+//      }
+
+      
     }
 
     [Test]
