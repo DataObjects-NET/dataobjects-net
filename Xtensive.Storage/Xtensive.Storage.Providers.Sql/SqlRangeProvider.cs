@@ -39,8 +39,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructors
 
-    public SqlRangeProvider(CompilableProvider origin, SqlSelect statement, HandlerAccessor handlers, params ExecutableProvider[] sources)
-      : base(origin, statement, handlers, sources)
+    public SqlRangeProvider(HandlerAccessor handlers, QueryRequest request, RangeProvider origin, params ExecutableProvider[] sources)
+      : base(handlers, request, origin, sources)
     {
     }
   }

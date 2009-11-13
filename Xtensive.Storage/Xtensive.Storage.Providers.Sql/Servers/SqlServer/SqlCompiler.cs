@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       query.Limit = binding.ParameterReference;
       if (!(provider.Source is TakeProvider) && !(provider.Source is SkipProvider))
         AddOrderByStatement(provider, query);
-      return new SqlProvider(provider, query, Handlers, EnumerableUtils.One(binding), compiledSource);
+      return CreateProvider(query, binding, provider, compiledSource);
     }
 
     protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)

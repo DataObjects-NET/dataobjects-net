@@ -27,14 +27,14 @@ namespace Xtensive.Storage.Providers.Sql
       var sourceQuery = source.ShallowClone();
       if (isSourceTake && compiledSource.Request.SelectStatement.Limit.IsNullReference()) {
         sourceQuery.Where = AddSkipPartToTakeWhereExpression(sourceQuery, null, provider, bindings);
-        return new SqlProvider(provider.Source, sourceQuery, Handlers, bindings, compiledSource);
+        return CreateProvider(sourceQuery, bindings, provider.Source, compiledSource);
       }
 
       var queryRef = SqlDml.QueryRef(sourceQuery);
       var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Where = AddSkipPartToTakeWhereExpression(sourceQuery, queryRef, provider, bindings);
-      return new SqlProvider(provider, query, Handlers, bindings, compiledSource);
+      return CreateProvider(query, bindings, provider, compiledSource);
     }
 
     protected override SqlProvider VisitTake(TakeProvider provider)
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Providers.Sql
       var sourceQuery = source.ShallowClone();
       if (isSourceSkip && compiledSource.Request.SelectStatement.Offset.IsNullReference()) {
         sourceQuery.Where = AddTakePartToSkipWhereExpression(sourceQuery, null, provider, bindings);
-        return new SqlProvider(provider.Source, sourceQuery, Handlers, bindings, compiledSource);
+        return CreateProvider(sourceQuery, bindings, provider.Source, compiledSource);
       }
 
       var queryRef = SqlDml.QueryRef(sourceQuery);
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Providers.Sql
       
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Where = AddTakePartToSkipWhereExpression(sourceQuery, queryRef, provider, bindings);
-      return new SqlProvider(provider, query, Handlers, bindings, compiledSource);
+      return CreateProvider(query, bindings, provider, compiledSource);
     }
 
     private SqlExpression AddTakePartToSkipWhereExpression(

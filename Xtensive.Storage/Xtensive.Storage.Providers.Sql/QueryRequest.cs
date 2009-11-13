@@ -13,7 +13,7 @@ using Xtensive.Sql.Dml;
 namespace Xtensive.Storage.Providers.Sql
 {
   /// <summary>
-  /// Fetch request.
+  /// Query request.
   /// </summary>
   public class QueryRequest : Request
   {
@@ -33,39 +33,32 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public TupleDescriptor TupleDescriptor { get; private set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether batching of this query is allowed.
-    /// </summary>
-    public bool AllowBatching { get; private set; }
-
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <param name="tupleDescriptor">The tuple descriptor.</param>
-    /// <param name="allowBatching">if set to <see langword="true"/> batching of this query is allowed.</param>
-    public QueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, bool allowBatching)
-      : this(statement, tupleDescriptor, allowBatching, EnumerableUtils<QueryParameterBinding>.Empty)
+    /// <param name="options">The options.</param>
+    public QueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, RequestOptions options)
+      : this(statement, tupleDescriptor, options, EnumerableUtils<QueryParameterBinding>.Empty)
     {
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
     /// <param name="tupleDescriptor">The tuple descriptor.</param>
-    /// <param name="allowBatching">if set to <see langword="true"/> batching of this query is allowed.</param>
+    /// <param name="options">The options.</param>
     /// <param name="parameterBindings">The parameter bindings.</param>
-    public QueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor,
-      bool allowBatching, IEnumerable<QueryParameterBinding> parameterBindings)
-      : base(statement)
+    public QueryRequest(SqlSelect statement, TupleDescriptor tupleDescriptor, RequestOptions options, IEnumerable<QueryParameterBinding> parameterBindings)
+      : base(statement, options)
     {
       ParameterBindings = parameterBindings.ToHashSet();
       TupleDescriptor = tupleDescriptor;
-      AllowBatching = allowBatching;
     }
   }
 }

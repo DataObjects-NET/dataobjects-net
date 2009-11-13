@@ -5,6 +5,7 @@
 // Created:    2009.02.13
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -34,8 +35,6 @@ namespace Xtensive.Storage.Providers.Sql
   [Serializable]
   public class SqlCompiler : Compiler<SqlProvider>
   {
-    private const string TableNamePattern = "Tmp_{0}";
-
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
 
@@ -101,7 +100,7 @@ namespace Xtensive.Storage.Providers.Sql
         sqlSelect.Columns.Add(expression, column.Name);
       }
 
-      return new SqlProvider(provider, sqlSelect, Handlers, source);
+      return CreateProvider(sqlSelect, provider, source);
     }
 
     /// <inheritdoc/>
@@ -126,7 +125,7 @@ namespace Xtensive.Storage.Providers.Sql
         else
           sqlSelect.Columns.Add(column, columnName);
       }
-      return new SqlProvider(provider, sqlSelect, Handlers, source);
+      return CreateProvider(sqlSelect, provider, source);
     }
 
     /// <inheritdoc/>
@@ -162,8 +161,7 @@ namespace Xtensive.Storage.Providers.Sql
           sqlSelect.Columns.Add(columnRef);
         allBindings = allBindings.Concat(bindings);
       }
-
-      return new SqlProvider(provider, sqlSelect, Handlers, allBindings, source);
+      return CreateProvider(sqlSelect, allBindings, provider, source);
     }
 
     /// <inheritdoc/>
@@ -181,7 +179,7 @@ namespace Xtensive.Storage.Providers.Sql
       else
         query = sourceSelect.ShallowClone();
       query.Distinct = true;
-      return new SqlProvider(provider, query, Handlers, source);
+      return CreateProvider(query, provider, source);
     }
 
     /// <inheritdoc/>
@@ -198,7 +196,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       query.Where &= predicate;
 
-      return new SqlProvider(provider, query, Handlers, bindings, source);
+      return CreateProvider(query, bindings, provider, source);
     }
 
     /// <inheritdoc/>
@@ -206,7 +204,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
-      return new SqlProvider(provider, query, Handlers);
+      return CreateProvider(query, provider);
     }
 
     /// <inheritdoc/>
@@ -258,7 +256,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (!rightShouldUseReference)
         query.Where &= right.Request.SelectStatement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
-      return new SqlProvider(provider, query, Handlers, left, right);
+      return CreateProvider(query, provider, left, right);
     }
 
     /// <inheritdoc/>
@@ -310,19 +308,21 @@ namespace Xtensive.Storage.Providers.Sql
       if (!rightShouldUseReference)
         query.Where &= right.Request.SelectStatement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
-      return new SqlProvider(provider, query, Handlers, bindings, left, right);
+      return CreateProvider(query, bindings, provider, left, right);
     }
 
     /// <inheritdoc/>
     protected override SqlProvider VisitRange(RangeProvider provider)
     {
+      // TODO: fix RangeProvider usage, this method should throw NotSupportedException
+      
       var compiledSource = Compile(provider.Source);
 
       var originalRange = provider.CompiledRange.Invoke();
-      SqlSelect source = compiledSource.Request.SelectStatement;
-      var query = source.ShallowClone();
+      var query = compiledSource.Request.SelectStatement.ShallowClone();
       var keyColumns = provider.Header.Order.ToList();
-      var rangeProvider = new SqlRangeProvider(provider, query, Handlers, compiledSource);
+      var request = new QueryRequest(query, provider.Header.TupleDescriptor, RequestOptions.AllowBatching);
+      var rangeProvider = new SqlRangeProvider(Handlers, request, provider, compiledSource);
       var bindings = (HashSet<QueryParameterBinding>) rangeProvider.Request.ParameterBindings;
       for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
         var column = provider.Header.Columns[keyColumns[i].Key];
@@ -361,7 +361,7 @@ namespace Xtensive.Storage.Providers.Sql
         query.Where &= sqlColumn==binding.ParameterReference;
       }
 
-      return new SqlProvider(provider, query, Handlers, parameterBindings, compiledSource);
+      return CreateProvider(query, parameterBindings, provider, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -383,7 +383,7 @@ namespace Xtensive.Storage.Providers.Sql
         query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
       }
 
-      return new SqlProvider(provider, query, Handlers, compiledSource);
+      return CreateProvider(query, provider, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -416,7 +416,7 @@ namespace Xtensive.Storage.Providers.Sql
           }
         }
       }
-      return new SqlProvider(provider, query, Handlers, compiledSource);
+      return CreateProvider(query, provider, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -432,7 +432,7 @@ namespace Xtensive.Storage.Providers.Sql
       var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
       var descriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(provider.Name, provider.Header.TupleDescriptor, columnNames);
-      return new SqlStoreProvider(provider, descriptor, Handlers, source);
+      return CreateStoreProvider(descriptor, provider, source);
     }
 
     /// <inheritdoc/>
@@ -446,7 +446,7 @@ namespace Xtensive.Storage.Providers.Sql
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
       query.Offset = binding.ParameterReference;
       AddOrderByStatement(provider, query);
-      return new SqlProvider(provider, query, Handlers, EnumerableUtils.One(binding), compiledSource);
+      return CreateProvider(query, binding, provider, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -459,7 +459,7 @@ namespace Xtensive.Storage.Providers.Sql
       query.Limit = binding.ParameterReference;
       if (!(provider.Source is TakeProvider) && !(provider.Source is SkipProvider))
         AddOrderByStatement(provider, query);
-      return new SqlProvider(provider, query, Handlers, EnumerableUtils.One(binding), compiledSource);
+      return CreateProvider(query, binding, provider, compiledSource);
     }
 
     /// <inheritdoc/>
@@ -520,7 +520,7 @@ namespace Xtensive.Storage.Providers.Sql
           ? ProcessApplyViaCrossApply(provider, left, right)
           : ProcessApplyViaSubqueries(provider, left, right, shouldUseQueryReference);
 
-        return new SqlProvider(provider, query, Handlers, left, right);
+        return CreateProvider(query, provider, left, right);
       }
     }
 
@@ -540,7 +540,7 @@ namespace Xtensive.Storage.Providers.Sql
       var select = SqlDml.Select();
       select.Columns.Add(existsExpression, provider.ExistenceColumnName);
 
-      return new SqlProvider(provider, select, Handlers, source);
+      return CreateProvider(select, provider, source);
     }
 
     /// <inheritdoc/>
@@ -557,7 +557,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      return new SqlProvider(provider, query, Handlers, left, right);
+      return CreateProvider(query, provider, left, right);
     }
 
     /// <inheritdoc/>
@@ -573,7 +573,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      return new SqlProvider(provider, query, Handlers, left, right);
+      return CreateProvider(query, provider, left, right);
     }
 
     /// <inheritdoc/>
@@ -589,7 +589,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      return new SqlProvider(provider, query, Handlers, left, right);
+      return CreateProvider(query, provider, left, right);
     }
 
     /// <inheritdoc/>
@@ -605,7 +605,7 @@ namespace Xtensive.Storage.Providers.Sql
       SqlSelect query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
 
-      return new SqlProvider(provider, query, Handlers, left, right);
+      return CreateProvider(query, provider, left, right);
     }
 
     protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
@@ -620,7 +620,7 @@ namespace Xtensive.Storage.Providers.Sql
       var columns = ExtractColumnExpressions(query, provider);
       foreach (KeyValuePair<int, Direction> order in provider.Header.Order)
         rowNumber.OrderBy.Add(columns[order.Key], order.Value==Direction.Positive);
-      return new SqlProvider(provider, query, Handlers, source);
+      return CreateProvider(query, provider, source);
     }
 
     /// <inheritdoc/>
@@ -650,7 +650,7 @@ namespace Xtensive.Storage.Providers.Sql
         query.Lock |= SqlLockType.SkipLocked;
         break;
       }
-      return new SqlProvider(provider, query, Handlers, source);
+      return CreateProvider(query, provider, source);
     }
 
     protected override SqlProvider VisitInclude(IncludeProvider provider)
@@ -896,7 +896,7 @@ namespace Xtensive.Storage.Providers.Sql
         query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
     }
 
-    public static bool IsCalculatedColumn(SqlColumn column)
+    private static bool IsCalculatedColumn(SqlColumn column)
     {
       if (column is SqlUserColumn)
         return true;
@@ -906,7 +906,7 @@ namespace Xtensive.Storage.Providers.Sql
       return false;
     }
 
-    public static bool IsColumnStub(SqlColumn column)
+    private static bool IsColumnStub(SqlColumn column)
     {
       if (column is SqlColumnStub)
         return true;
@@ -937,7 +937,7 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
-    public static SqlColumnStub ExtractColumnStub(SqlColumn column)
+    private static SqlColumnStub ExtractColumnStub(SqlColumn column)
     {
       var columnStub = column as SqlColumnStub;
       if (!ReferenceEquals(null, columnStub))
@@ -948,7 +948,7 @@ namespace Xtensive.Storage.Providers.Sql
       return (SqlColumnStub) column;
     }
 
-    public static SqlUserColumn ExtractUserColumn(SqlColumn column)
+    private static SqlUserColumn ExtractUserColumn(SqlColumn column)
     {
       var userColumn = column as SqlUserColumn;
       if (!ReferenceEquals(null, userColumn))
@@ -959,7 +959,7 @@ namespace Xtensive.Storage.Providers.Sql
       return (SqlUserColumn) column;
     }
 
-    protected static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
+    private static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
     {
       var sourceSelect = compiledSource.Request.SelectStatement;
       var calculatedColumnIndexes = sourceSelect.Columns
@@ -1027,7 +1027,7 @@ namespace Xtensive.Storage.Providers.Sql
       return sourceSelect.ShallowClone();
     }
 
-    protected QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)
+    protected static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)
     {
       return new QueryParameterBinding(
         BuildLimitOffsetAccessor(accessor),
@@ -1150,6 +1150,60 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
+
+    #region Provider factory methods 
+
+    protected SqlProvider CreateProvider(SqlProvider provider, SqlTable permanentReference)
+    {
+      return new SqlProvider(provider, permanentReference);
+    }
+
+    protected SqlProvider CreateProvider(SqlSelect statement,
+      CompilableProvider origin, params ExecutableProvider[] sources)
+    {
+      return CreateProvider(statement, (IEnumerable<QueryParameterBinding>) null, origin, sources);
+    }
+
+    protected SqlProvider CreateProvider(SqlSelect statement, QueryParameterBinding extraBinding,
+      CompilableProvider origin, params ExecutableProvider[] sources)
+    {
+      return CreateProvider(statement, EnumerableUtils.One(extraBinding), origin, sources);
+    }
+
+    protected SqlProvider CreateProvider(SqlSelect statement, IEnumerable<QueryParameterBinding> extraBindings,
+      CompilableProvider origin, params ExecutableProvider[] sources)
+    {
+      var sqlSources = sources.OfType<SqlProvider>();
+
+      var parameterBindings = sqlSources.SelectMany(p => p.Request.ParameterBindings);
+      if (extraBindings!=null)
+        parameterBindings = parameterBindings.Concat(extraBindings);
+
+      bool allowBatching = sqlSources
+        .Aggregate(true, (current, provider) => current && provider.Request.CheckOptions(RequestOptions.AllowBatching));
+      var tupleDescriptor = origin.Header.TupleDescriptor;
+
+      var options = RequestOptions.Empty;
+      if (allowBatching)
+        options |= RequestOptions.AllowBatching;
+
+      if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
+        tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
+      
+      var request = new QueryRequest(statement, tupleDescriptor, options, parameterBindings);
+
+      return new SqlProvider(Handlers, request, origin, sources);
+    }
+    
+    protected SqlStoreProvider CreateStoreProvider(TemporaryTableDescriptor descriptor,
+      StoreProvider origin, ExecutableProvider source)
+    {
+      var request = new QueryRequest(descriptor.QueryStatement, descriptor.TupleDescriptor, RequestOptions.Empty);
+      return new SqlStoreProvider(Handlers, descriptor, request, origin, source);
+    }
+
+    #endregion
+
 
     #region Not supported providers
 

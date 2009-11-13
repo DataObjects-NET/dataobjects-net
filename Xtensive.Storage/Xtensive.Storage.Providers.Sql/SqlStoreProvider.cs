@@ -5,13 +5,14 @@
 // Created:    2008.09.05
 
 using System;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal sealed class SqlStoreProvider : SqlProvider,
+  public class SqlStoreProvider : SqlProvider,
     IHasNamedResult
   {
     private const string TemporaryTableLockName = "TemporaryTableLockName";
@@ -47,10 +48,13 @@ namespace Xtensive.Storage.Providers.Sql
       base.OnAfterEnumerate(context);
     }
 
+
     // Constructors
 
-    public SqlStoreProvider(StoreProvider origin, TemporaryTableDescriptor descriptor, HandlerAccessor handlers, ExecutableProvider source)
-     : base(origin, descriptor.QueryStatement, handlers, null, false, source)
+    public SqlStoreProvider(
+      HandlerAccessor handlers, TemporaryTableDescriptor descriptor, QueryRequest request,
+      StoreProvider origin, ExecutableProvider source)
+     : base(handlers, request, origin, new [] {source})
     {
       AddService<IHasNamedResult>();
       this.descriptor = descriptor;

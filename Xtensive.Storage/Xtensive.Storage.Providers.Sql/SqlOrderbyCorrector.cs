@@ -37,8 +37,11 @@ namespace Xtensive.Storage.Providers.Sql
         else
           return rootProvider;
       }
-      return new SqlProvider(rootProvider.Origin, query, handlers, sqlProvider.Request.ParameterBindings,
-        (ExecutableProvider[]) rootProvider.Sources);
+      var originalRequest = sqlProvider.Request;
+      var newRequest = new QueryRequest(query,
+        originalRequest.TupleDescriptor, originalRequest.Options, originalRequest.ParameterBindings);
+      return new SqlProvider(handlers,
+        newRequest, rootProvider.Origin, (ExecutableProvider[]) rootProvider.Sources);
     }
 
     private static void ApplyOrderingToProvider(ExecutableProvider sqlProvider, SqlSelect query)

@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override void AppendDescriptionTo(StringBuilder builder, int indent)
     {
       AppendOriginTo(builder, indent);
-      var result = Request.Compile((DomainHandler) handlers.DomainHandler);
+      var result = Request.GetCompiledStatement((DomainHandler) handlers.DomainHandler);
       AppendCommandTo(result, builder, indent);
     }
 
@@ -90,73 +90,17 @@ namespace Xtensive.Storage.Providers.Sql
     // Constructors
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="origin">The origin.</param>
-    /// <param name="statement">The statement.</param>
     /// <param name="handlers">The handlers.</param>
     /// <param name="sources">The sources.</param>
-    public SqlProvider(
-      CompilableProvider origin,
-      SqlSelect statement,
-      HandlerAccessor handlers,
-      params ExecutableProvider[] sources)
-      : this(origin, statement, handlers, null, null, sources)
-    {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="origin">The origin.</param>
-    /// <param name="statement">The statement.</param>
-    /// <param name="handlers">The handlers.</param>
-    /// <param name="extraBindings">The extra bindings.</param>
-    /// <param name="sources">The sources.</param>
-    public SqlProvider(
-      CompilableProvider origin,
-      SqlSelect statement,
-      HandlerAccessor handlers,
-      IEnumerable<QueryParameterBinding> extraBindings,
-      params ExecutableProvider[] sources)
-      : this(origin, statement, handlers, extraBindings, null, sources)
-    {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="origin">The origin.</param>
-    /// <param name="statement">The statement.</param>
-    /// <param name="handlers">The handlers.</param>
-    /// <param name="extraBindings">The extra bindings.</param>
-    /// <param name="allowBatching">The allow batching.</param>
-    /// <param name="sources">The sources.</param>
-    public SqlProvider(
-      CompilableProvider origin,
-      SqlSelect statement,
-      HandlerAccessor handlers,
-      IEnumerable<QueryParameterBinding> extraBindings,
-      bool? allowBatching,
-      params ExecutableProvider[] sources)
+    public SqlProvider(HandlerAccessor handlers, QueryRequest request,
+      CompilableProvider origin, ExecutableProvider[] sources)
       : base(origin, sources)
     {
       this.handlers = handlers;
-      var sqlSources = sources.OfType<SqlProvider>();
-
-      var parameterBindings = sqlSources.SelectMany(p => p.Request.ParameterBindings);
-      if (extraBindings!=null)
-        parameterBindings = parameterBindings.Concat(extraBindings);
-
-      if (allowBatching==null)
-        allowBatching = sqlSources
-          .Aggregate(true, (current, provider) => current && provider.Request.AllowBatching);
-      var tupleDescriptor = origin.Header.TupleDescriptor;
-
-      if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
-        tupleDescriptor = origin.Header.TupleDescriptor.TrimFields(statement.Columns.Count);
-
-      Request = new QueryRequest(statement, tupleDescriptor, allowBatching.Value, parameterBindings);
+      Request = request;
     }
 
     /// <summary>

@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Rse
     /// </summary>
     ComplexCondition = 1,
     /// <summary>
-    /// Include is perfored using temporary tables.
+    /// Include is performed using temporary tables.
     /// </summary>
     TemporaryTable = 2,
   }

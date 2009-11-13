@@ -19,19 +19,35 @@ namespace Xtensive.Storage.Providers.Sql
     private ThreadSafeCached<SqlCompilationResult> compilationResult = ThreadSafeCached<SqlCompilationResult>.Create(new object());
     
     /// <summary>
-    /// Gets the statement.
+    /// Gets the statement of this request.
     /// </summary>
     protected ISqlCompileUnit Statement { get; private set; }
 
     /// <summary>
-    /// Compiles the request using <see cref="SqlDriver"/> from specified <see cref="DomainHandler"/>.
+    /// Gets the options of this request.
+    /// </summary>
+    public RequestOptions Options { get; private set; }
+    
+    /// <summary>
+    /// Gets the compiled statement.
     /// </summary>
     /// <param name="domainHandler">The domain handler.</param>
-    /// <returns></returns>
-    public SqlCompilationResult Compile(DomainHandler domainHandler)
+    /// <returns>Compiled statement.</returns>
+    public SqlCompilationResult GetCompiledStatement(DomainHandler domainHandler)
     {
       return compilationResult.GetValue(
         (driver, _this) => driver.Compile(_this.Statement), domainHandler.Driver, this);
+    }
+
+    /// <summary>
+    /// Checks that specified options are enabled for this request.
+    /// </summary>
+    /// <param name="requiredOptions">The required options.</param>
+    /// <returns><see langword="true"/> is specified options is suppored;
+    /// otherwise, <see langword="false"/>.</returns>
+    public bool CheckOptions(RequestOptions requiredOptions)
+    {
+      return (Options & requiredOptions)==requiredOptions;
     }
 
 
@@ -41,9 +57,20 @@ namespace Xtensive.Storage.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="statement">The statement.</param>
-    protected Request(ISqlCompileUnit statement)
+    /// <param name="options">The options.</param>
+    protected Request(ISqlCompileUnit statement, RequestOptions options)
     {
       Statement = statement;
+      Options = options;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="statement">The statement.</param>
+    protected Request(ISqlCompileUnit statement)
+      : this(statement, RequestOptions.AllowBatching)
+    {
     }
   }
 }

@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Providers.Sql
       var request = task.Request;
       var tuple = task.Tuple;
       int parameterIndex = 0;
-      var compilationResult = request.Compile(domainHandler);
+      var compilationResult = request.GetCompiledStatement(domainHandler);
       var configuration = new SqlPostCompilerConfiguration();
       var result = new CommandPart();
       
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var request = task.Request;
       int parameterIndex = 0;
-      var compilationResult = request.Compile(domainHandler);
+      var compilationResult = request.GetCompiledStatement(domainHandler);
       var configuration = new SqlPostCompilerConfiguration();
       var result = new CommandPart();
 
