@@ -1421,7 +1421,7 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterCycleBodyScope(node.Id, delimiter)) {
         if (isMulticolumn) {
           context.Output.AppendText(translator.RowBegin);
-          for (int i = 0; i < numberOfExpressions - 1; i++) {
+          for (int i = 0; i < numberOfExpressions; i++) {
             context.Output.AppendCycleItem(i);
             if (i!=numberOfExpressions - 1)
               context.Output.AppendDelimiter(translator.RowItemDelimiter);
