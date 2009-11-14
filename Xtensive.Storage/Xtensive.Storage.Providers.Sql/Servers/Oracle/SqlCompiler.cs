@@ -6,9 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Linq;
+using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
 {
@@ -26,12 +29,28 @@ namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
         switch (Type.GetTypeCode(aggregateColumn.Type)) {
         case TypeCode.Single:
         case TypeCode.Double:
-          result = SqlDml.Cast(result, Driver.BuildValueType(aggregateColumn.Type, null, null, null));
+          result = SqlDml.Cast(result, Driver.BuildValueType(aggregateColumn.Type));
           break;
         }
       }
       return result;
     }
+
+    protected override SqlProvider VisitInclude(IncludeProvider provider)
+    {
+      var source = Compile(provider.Source);
+      var resultQuery = ExtractSqlSelect(provider, source);
+      var sourceColumns = ExtractColumnExpressions(resultQuery, provider);
+      var parameterAcessor = BuildRowFilterParameterAccessor(
+        provider.FilterDataSource.CachingCompile(), false);
+      QueryParameterBinding binding;
+      var includeExpression = CreateIncludeViaComplexConditionExpression(
+        provider, parameterAcessor, sourceColumns, out binding);
+      includeExpression = GetBooleanColumnExpression(includeExpression);
+      AddInlinableColumn(provider, resultQuery, provider.ResultColumnName, includeExpression);
+      return CreateProvider(resultQuery, binding, provider, source);
+    }
+
 
     // Constructors
     

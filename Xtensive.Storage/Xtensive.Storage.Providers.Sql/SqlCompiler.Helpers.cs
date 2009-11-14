@@ -121,6 +121,13 @@ namespace Xtensive.Storage.Providers.Sql
         resultQuery.Columns.Add(columnRef);      
     }
 
+    protected SqlExpression GetBooleanColumnExpression(SqlExpression originalExpression)
+    {
+      return ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions)
+        ? originalExpression
+        : booleanExpressionConverter.BooleanToInt(originalExpression);
+    }
+
     #region Private methods
 
     private static bool IsCalculatedColumn(SqlColumn column)

@@ -1,6 +1,6 @@
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Testing;
@@ -11,7 +11,7 @@ using Xtensive.Storage.Tests.Storage.Performance.CrudModel;
 
 namespace Xtensive.Storage.Tests.Storage.Performance
 {
-  public abstract class DOCrudTestBase : AutoBuildTest
+  public abstract class DoCrudTest : AutoBuildTest
   {
     private const int BaseCount = 50000;
     private const int InsertCount = BaseCount;
@@ -424,7 +424,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
               var rs = d.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.ToRecordSet();
               rs = rs.Seek(() => pKey.Value);
               using (new ParameterContext().Activate()) {
-                pKey.Value = Tuple.Create(i % instanceCount);
+                pKey.Value = Tuple.Create((long)(i % instanceCount));
                 var es = rs.ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate
@@ -450,7 +450,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (new ParameterContext().Activate()) {
             using (warmup ? null : new Measurement("Cached RSE query", count)) {
               for (int i = 0; i < count; i++) {
-                pKey.Value = Tuple.Create(i % instanceCount);
+                pKey.Value = Tuple.Create((long)(i % instanceCount));
                 var es = rs.ToEntities<Simplest>(0);
                 foreach (var o in es) {
                   // Doing nothing, just enumerate

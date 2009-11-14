@@ -55,8 +55,7 @@ namespace Xtensive.Storage.Providers.Sql
       default:
         throw new ArgumentOutOfRangeException("provider.Algorithm");
       }
-      if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions))
-        resultExpression = booleanExpressionConverter.BooleanToInt(resultExpression);
+      resultExpression = GetBooleanColumnExpression(resultExpression);
       AddInlinableColumn(provider, resultQuery, provider.ResultColumnName, resultExpression);
       if (extraBinding!=null)
         bindings = bindings.Concat(EnumerableUtils.One(extraBinding));
@@ -64,7 +63,7 @@ namespace Xtensive.Storage.Providers.Sql
       return new SqlIncludeProvider(Handlers, request, tableDescriptor, filterDataSource, provider, source);
     }
 
-    private SqlExpression CreateIncludeViaComplexConditionExpression(
+    protected SqlExpression CreateIncludeViaComplexConditionExpression(
       IncludeProvider provider, Func<object> valueAccessor,
       IList<SqlExpression> sourceColumns, out QueryParameterBinding binding)
     {
@@ -76,7 +75,7 @@ namespace Xtensive.Storage.Providers.Sql
       return resultExpression;
     }
 
-    private SqlExpression CreateIncludeViaTemporaryTableExpression(
+    protected SqlExpression CreateIncludeViaTemporaryTableExpression(
       IncludeProvider provider, IList<SqlExpression> sourceColumns,
       out TemporaryTableDescriptor tableDescriptor)
     {
@@ -91,7 +90,7 @@ namespace Xtensive.Storage.Providers.Sql
       return resultExpression;
     }
 
-    private static Func<object> BuildRowFilterParameterAccessor(
+    protected static Func<object> BuildRowFilterParameterAccessor(
       Func<IEnumerable<Tuple>> filterDataSource, bool takeFromContext)
     {
       if (!takeFromContext)

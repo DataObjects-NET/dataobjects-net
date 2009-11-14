@@ -1,8 +1,8 @@
-// Copyright (C) 2008 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alex Yakunin
-// Created:    2008.09.08
+// Created by: Denis Krjuchkov
+// Created:    2009.04.30
 
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
@@ -11,11 +11,11 @@ namespace Xtensive.Storage.Tests.Storage.Performance
 {
   [TestFixture]
   [Explicit]
-  public class SqlDOCrudTest : DOCrudTestBase
+  public class DoPostgreSqlCrudTest : DoCrudTest
   {
     protected override DomainConfiguration CreateConfiguration()
     {
-      return DomainConfigurationFactory.Create("mssql2005");
+      return DomainConfigurationFactory.Create("pgsql");
     }
   }
 }

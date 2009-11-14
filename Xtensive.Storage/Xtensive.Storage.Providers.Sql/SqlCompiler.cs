@@ -107,8 +107,8 @@ namespace Xtensive.Storage.Providers.Sql
         var result = ProcessExpression(column.Expression, sourceColumns);
         var predicate = result.First;
         var bindings = result.Second;
-        if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions) && (column.Type.StripNullable()==typeof (bool)))
-          predicate = booleanExpressionConverter.BooleanToInt(predicate);
+        if (column.Type.StripNullable()==typeof (bool))
+          predicate = GetBooleanColumnExpression(predicate);
         AddInlinableColumn(provider, sqlSelect, column.Name, predicate);
         allBindings = allBindings.Concat(bindings);
       }
@@ -390,8 +390,7 @@ namespace Xtensive.Storage.Providers.Sql
       query.OrderBy.Clear();
       query.GroupBy.Clear();
       SqlExpression existsExpression = SqlDml.Exists(query);
-      if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions))
-        existsExpression = booleanExpressionConverter.BooleanToInt(existsExpression);
+      existsExpression = GetBooleanColumnExpression(existsExpression);
       var select = SqlDml.Select();
       select.Columns.Add(existsExpression, provider.ExistenceColumnName);
 

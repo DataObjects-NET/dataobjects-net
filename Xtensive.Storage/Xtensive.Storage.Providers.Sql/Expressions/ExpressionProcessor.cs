@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var targetType = cast.Type.StripNullable();
       if (sourceType==targetType || targetType==typeof(object))
         return operand;
-      return SqlDml.Cast(operand, driver.BuildValueType(targetType, null, null, null));
+      return SqlDml.Cast(operand, driver.BuildValueType(targetType));
     }
 
     protected override SqlExpression VisitBinary(BinaryExpression expression)
