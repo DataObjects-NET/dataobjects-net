@@ -97,9 +97,9 @@ namespace Xtensive.Storage.Rse
       return new CalculateProvider(recordSet.Provider, columns).Result;
     }
 
-    public static RecordSet Calculate(this RecordSet recordSet, bool couldBeInlined, params CalculatedColumnDescriptor[] columns)
+    public static RecordSet Calculate(this RecordSet recordSet, bool isInlined, params CalculatedColumnDescriptor[] columns)
     {
-      return new CalculateProvider(recordSet.Provider, couldBeInlined, columns).Result;
+      return new CalculateProvider(recordSet.Provider, isInlined, columns).Result;
     }
 
     public static RecordSet RowNumber(this RecordSet recordSet, string columnName)
@@ -267,9 +267,9 @@ namespace Xtensive.Storage.Rse
       return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, sequenceType, applyType).Result;
     }
 
-    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right, bool couldBeInlinied, ApplySequenceType sequenceType, JoinType applyType)
+    public static RecordSet Apply(this RecordSet recordSet, ApplyParameter applyParameter, RecordSet right, bool isInlined, ApplySequenceType sequenceType, JoinType applyType)
     {
-      return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, couldBeInlinied, sequenceType, applyType).Result;
+      return new ApplyProvider(applyParameter, recordSet.Provider, right.Provider, isInlined, sequenceType, applyType).Result;
     }
 
     public static RecordSet Existence(this RecordSet recordSet, string existenceColumnName)
@@ -287,9 +287,9 @@ namespace Xtensive.Storage.Rse
       return new IncludeProvider(recordSet.Provider, algorithm, false, filterDataSource, resultColumnName, filteredColumns).Result;
     }
 
-    public static RecordSet Include(this RecordSet recordSet, IncludeAlgorithm algorithm, bool couldBeInlined, Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
+    public static RecordSet Include(this RecordSet recordSet, IncludeAlgorithm algorithm, bool isInlined, Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
     {
-      return new IncludeProvider(recordSet.Provider, algorithm, couldBeInlined, filterDataSource, resultColumnName, filteredColumns).Result;
+      return new IncludeProvider(recordSet.Provider, algorithm, isInlined, filterDataSource, resultColumnName, filteredColumns).Result;
     }
     
     public static RecordSet Intersect(this RecordSet left, RecordSet right)

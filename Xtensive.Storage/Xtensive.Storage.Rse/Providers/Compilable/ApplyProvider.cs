@@ -18,7 +18,8 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// provider result for each item from the <see cref="BinaryProvider.Left"/> provider.
   /// </summary>
   [Serializable]
-  public sealed class ApplyProvider : BinaryProvider
+  public sealed class ApplyProvider : BinaryProvider,
+    IInlinableProvider
   {
     /// <summary>
     /// Gets the apply parameter.
@@ -26,10 +27,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public ApplyParameter ApplyParameter { get; private set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether columns could be inlined.
+    /// Gets a value indicating whether columns of this provider should be inlined.
     /// </summary>
-    /// <value><see langword="true" /> if columns could be inlined; otherwise, <see langword="false" />.</value>
-    public bool CouldBeInlined { get; private set; }
+    public bool IsInlined { get; private set; }
 
     /// <summary>
     /// Gets apply type.
@@ -93,11 +93,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, bool couldBeInlined, ApplySequenceType applySequenceType, JoinType applyType)
+    public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, bool isInlined, ApplySequenceType applySequenceType, JoinType applyType)
       : base(ProviderType.Apply, left, right)
     {
       ApplyParameter = applyParameter;
-      CouldBeInlined = couldBeInlined;
+      IsInlined = isInlined;
       SequenceType = applySequenceType;
       ApplyType = applyType;
     }

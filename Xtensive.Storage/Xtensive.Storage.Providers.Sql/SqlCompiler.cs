@@ -109,15 +109,7 @@ namespace Xtensive.Storage.Providers.Sql
         var bindings = result.Second;
         if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions) && (column.Type.StripNullable()==typeof (bool)))
           predicate = booleanExpressionConverter.BooleanToInt(predicate);
-        var columnName = ProcessAliasedName(column.Name);
-        var columnRef = SqlDml.ColumnRef(SqlDml.Column(predicate), columnName);
-        if (provider.CouldBeInlined) {
-          var columnStub = SqlDml.ColumnStub(columnRef);
-          stubColumnMap.Add(columnStub, predicate);
-          sqlSelect.Columns.Add(columnStub);
-        }
-        else
-          sqlSelect.Columns.Add(columnRef);
+        AddInlinableColumn(provider, sqlSelect, column.Name, predicate);
         allBindings = allBindings.Concat(bindings);
       }
       return CreateProvider(sqlSelect, allBindings, provider, source);

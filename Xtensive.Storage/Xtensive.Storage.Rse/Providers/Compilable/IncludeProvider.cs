@@ -22,14 +22,15 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   /// Column value is <see langword="true" /> if source value equal to one of provided values; otherwise <see langword="false" />.
   /// </summary>
   [Serializable]
-  public class IncludeProvider: UnaryProvider
+  public class IncludeProvider: UnaryProvider,
+    IInlinableProvider
   {
     private readonly int[] filteredColumns;
 
     /// <summary>
-    /// Gets a value indicating whether result column could be inlined.
+    /// Gets a value indicating whether result column should be inlined.
     /// </summary>
-    public bool CouldBeInlined { get; private set; }
+    public bool IsInlined { get; private set; }
 
     /// <summary>
     /// Gets the name of the column.
@@ -82,11 +83,11 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// </summary>
     /// <param name="source">A value for <see cref="UnaryProvider.Source"/>.</param>
     /// <param name="algorithm">A value for <see cref="Algorithm"/>.</param>
-    /// <param name="couldBeInlined">A value for <see cref="CouldBeInlined"/>.</param>
+    /// <param name="isInlined">A value for <see cref="IsInlined"/>.</param>
     /// <param name="filterDataSource">A value for <see cref="FilterDataSource"/>.</param>
     /// <param name="resultColumnName">A value for <see cref="ResultColumnName"/>.</param>
     /// <param name="filteredColumns">A value for <see cref="FilteredColumns"/>.</param>
-    public IncludeProvider(CompilableProvider source, IncludeAlgorithm algorithm, bool couldBeInlined,
+    public IncludeProvider(CompilableProvider source, IncludeAlgorithm algorithm, bool isInlined,
       Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
       : base(ProviderType.Include, source)
     {
@@ -94,7 +95,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(resultColumnName, "resultColumnName");
       ArgumentValidator.EnsureArgumentNotNull(filteredColumns, "filteredColumns");
       Algorithm = algorithm;
-      CouldBeInlined = couldBeInlined;
+      IsInlined = isInlined;
       FilterDataSource = filterDataSource;
       ResultColumnName = resultColumnName;
       this.filteredColumns = filteredColumns.Copy();

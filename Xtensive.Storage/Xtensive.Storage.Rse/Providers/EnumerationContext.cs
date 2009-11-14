@@ -22,17 +22,6 @@ namespace Xtensive.Storage.Rse.Providers
   public abstract class EnumerationContext: Context<EnumerationScope>
   {
     private const string DefaultName = "Default";
-    private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
-
-    /// <summary>
-    /// Gets a value indicating whether <see cref="IEnumerator{T}"/> of root provider
-    /// should be fully loaded before returning data to user.
-    /// </summary>
-    /// <value>
-    /// <see langword="true"/> if <see cref="IEnumerator{T}"/> of root provider should be preloaded;
-    /// otherwise, <see langword="false"/>.
-    /// </value>
-    public abstract bool PreloadEnumerator { get; }
 
     /// <summary>
     /// Gets the current <see cref="EnumerationContext"/>.
@@ -40,14 +29,21 @@ namespace Xtensive.Storage.Rse.Providers
     public static EnumerationContext Current {
       get { return EnumerationScope.CurrentContext; }
     }
-    
+
+    private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
+
     /// <summary>
-    /// Gets or sets the global temporary data.
+    /// Gets the options of this context.
+    /// </summary>
+    public abstract EnumerationContextOptions Options { get; }
+
+    /// <summary>
+    /// Gets the global temporary data.
     /// </summary>
     public abstract GlobalTemporaryData GlobalTemporaryData { get; }
 
     /// <summary>
-    /// Gets or sets the transaction temporary data.
+    /// Gets the transaction temporary data.
     /// </summary>
     public abstract TransactionTemporaryData TransactionTemporaryData { get; }
 
@@ -106,6 +102,17 @@ namespace Xtensive.Storage.Rse.Providers
       object result;
       cache.TryGetValue(new Pair<object, string>(key, name), out result);
       return (T) result;
+    }
+
+    /// <summary>
+    /// Checks whenever the specified option set is enable for this context.
+    /// </summary>
+    /// <param name="requiredOptions">The options to check.</param>
+    /// <returns><see langword="true"/> if the speicifed options set is enable in this context;
+    /// otherwise, <see langword="false"/>.</returns>
+    public bool CheckOptions(EnumerationContextOptions requiredOptions)
+    {
+      return (Options & requiredOptions)==requiredOptions;
     }
 
     #region IContext<...> methods

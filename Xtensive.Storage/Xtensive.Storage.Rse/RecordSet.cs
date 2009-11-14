@@ -65,8 +65,8 @@ namespace Xtensive.Storage.Rse
         if (compilationContext==null)
           throw new InvalidOperationException();
         compiled = compilationContext.Compile(Provider);
-        if (ctx.PreloadEnumerator) {
-          // If MARS not supported, enumerate all data into memory first.
+        if (ctx.CheckOptions(EnumerationContextOptions.PreloadEnumerator)) {
+          // preloading all data into memory first.
           foreach (var tuple in compiled.ToList())
             yield return tuple;
           yield break;

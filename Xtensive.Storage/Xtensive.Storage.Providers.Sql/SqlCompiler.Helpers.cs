@@ -107,6 +107,20 @@ namespace Xtensive.Storage.Providers.Sql
       return result;
     }
 
+    protected void AddInlinableColumn(IInlinableProvider provider,
+      SqlSelect resultQuery, string columnName, SqlExpression columnExpression)
+    {
+      columnName = ProcessAliasedName(columnName);
+      var columnRef = SqlDml.ColumnRef(SqlDml.Column(columnExpression), columnName);
+      if (provider.IsInlined) {
+        var columnStub = SqlDml.ColumnStub(columnRef);
+        stubColumnMap.Add(columnStub, columnExpression);
+        resultQuery.Columns.Add(columnStub);
+      }
+      else
+        resultQuery.Columns.Add(columnRef);      
+    }
+
     #region Private methods
 
     private static bool IsCalculatedColumn(SqlColumn column)

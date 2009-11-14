@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       if (provider.Right.Type==ProviderType.Existence) {
         var column = rightQuery.Columns[0];
-        if (provider.CouldBeInlined) {
+        if (provider.IsInlined) {
           var columnStub = SqlDml.ColumnStub(column);
           var userColumn = ExtractUserColumn(column);
           stubColumnMap.Add(columnStub, userColumn.Expression);
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Providers.Sql
         query.Columns.Add(column);
       }
       else {
-        if (provider.CouldBeInlined) {
+        if (provider.IsInlined) {
           for (int i = 0; i < rightQuery.Columns.Count; i++) {
             var subquery = rightQuery.ShallowClone();
             var columnRef = (SqlColumnRef) subquery.Columns[i];

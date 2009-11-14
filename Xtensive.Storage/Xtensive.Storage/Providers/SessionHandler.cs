@@ -22,6 +22,7 @@ using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers
 {
@@ -130,10 +131,22 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Creates enumeration context.
     /// </summary>
+    /// <returns>Created context.</returns>
     public virtual Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
-      var preloadData = !Handlers.Domain.StorageProviderInfo.Supports(ProviderFeatures.MultipleActiveResultSets);
-      return new EnumerationContext(preloadData);
+      return new EnumerationContext(GetEnumerationContextOptions());
+    }
+
+    /// <summary>
+    /// Gets the enumeration context options.
+    /// </summary>
+    /// <returns>Options for new enumeration context.</returns>
+    public virtual EnumerationContextOptions GetEnumerationContextOptions()
+    {
+      var options = EnumerationContextOptions.Default;
+      if (!Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.MultipleActiveResultSets))
+        options |= EnumerationContextOptions.PreloadEnumerator;
+      return options;
     }
 
     /// <summary>

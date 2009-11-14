@@ -5,6 +5,7 @@
 // Created:    2008.08.30
 
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Executable;
 
 namespace Xtensive.Storage.Providers
@@ -15,10 +16,10 @@ namespace Xtensive.Storage.Providers
   /// </summary>
   public sealed class EnumerationContext : Rse.Providers.EnumerationContext
   {
-    private readonly bool preloadEnumerator;
+    private readonly EnumerationContextOptions options;
 
     /// <inheritdoc/>
-    public override bool PreloadEnumerator { get { return preloadEnumerator; } }
+    public override EnumerationContextOptions Options { get { return options; } }
 
     /// <inheritdoc/>
     public override GlobalTemporaryData GlobalTemporaryData {
@@ -39,7 +40,7 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateNew()
     {
-      return new EnumerationContext(preloadEnumerator);
+      return new EnumerationContext(options);
     }
 
     /// <inheritdoc/>
@@ -54,10 +55,10 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="preloadEnumerator">A value for <see cref="PreloadEnumerator"/>.</param>
-    public EnumerationContext(bool preloadEnumerator)
+    /// <param name="options">A value for <see cref="Options"/>.</param>
+    public EnumerationContext(EnumerationContextOptions options)
     {
-      this.preloadEnumerator = preloadEnumerator;
+      this.options = options;
     }
   }
 }

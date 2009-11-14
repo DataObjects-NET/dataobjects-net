@@ -57,15 +57,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
       if (!ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions))
         resultExpression = booleanExpressionConverter.BooleanToInt(resultExpression);
-      var columnName = ProcessAliasedName(provider.ResultColumnName);
-      var columnRef = SqlDml.ColumnRef(SqlDml.Column(resultExpression), columnName);
-        if (provider.CouldBeInlined) {
-          var columnStub = SqlDml.ColumnStub(columnRef);
-          stubColumnMap.Add(columnStub, resultExpression);
-          resultQuery.Columns.Add(columnStub);
-        }
-        else
-          resultQuery.Columns.Add(columnRef);
+      AddInlinableColumn(provider, resultQuery, provider.ResultColumnName, resultExpression);
       if (extraBinding!=null)
         bindings = bindings.Concat(EnumerableUtils.One(extraBinding));
       var request = new QueryRequest(resultQuery, provider.Header.TupleDescriptor, requestOptions, bindings);
