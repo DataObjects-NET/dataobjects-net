@@ -7,7 +7,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
@@ -39,14 +38,18 @@ namespace Xtensive.Core.Linq
     public Func<T, T[], T> GetCompiler(MemberInfo source, out MethodInfo compiler)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      
+
       compiler = null;
       bool withMemberInfo = false;
       var realSource = source;
 
       var sourceProperty = realSource as PropertyInfo;
-      if (sourceProperty != null)
+      if (sourceProperty != null) {
         source = realSource = sourceProperty.GetGetMethod();
+        // GetGetMethod returns null in case of non public getter.
+        if (source==null)
+          return null;
+      }
 
       var sourceMethod = realSource as MethodInfo;
       if (sourceMethod != null && sourceMethod.IsGenericMethod) {
@@ -89,10 +92,7 @@ namespace Xtensive.Core.Linq
     }
 
     /// <inheritdoc/>
-    public Type ExpressionType
-    {
-      get { return typeof(T); }
-    }
+    public Type ExpressionType { get { return typeof(T); } }
 
     /// <inheritdoc/>
     public void RegisterCompilers(Type typeWithCompilers)
@@ -121,13 +121,13 @@ namespace Xtensive.Core.Linq
       lock (syncRoot) {
         switch (conflictHandlingMethod) {
           case ConflictHandlingMethod.KeepOld:
-            this.compilers = MergeCompilers(newCompilers, this.compilers);
+            compilers = MergeCompilers(newCompilers, compilers);
             break;
           case ConflictHandlingMethod.Overwrite:
-            this.compilers = MergeCompilers(this.compilers, newCompilers);
+            compilers = MergeCompilers(compilers, newCompilers);
             break;
           case ConflictHandlingMethod.ReportError:
-            var result = new Compilers(this.compilers);
+            var result = new Compilers(compilers);
               foreach (var pair in newCompilers) {
                 if (result.ContainsKey(pair.Key))
                   throw new InvalidOperationException(string.Format(
@@ -135,13 +135,13 @@ namespace Xtensive.Core.Linq
                     pair.Key.GetFullName(true)));
                 result.Add(pair.Key, pair.Value);
               }
-            this.compilers = result;
+            compilers = result;
           break;
         }
       }
     }
 
-    #region private methods
+    #region Private methods
 
     private static Compilers MergeCompilers(Compilers first, Compilers second)
     {
@@ -258,34 +258,34 @@ namespace Xtensive.Core.Linq
             Strings.ExCompilerXHasBadTargetMember,
             compiler.GetFullName(true)));
 
-      var paramTypes = ExtractTypesAndValidate(compiler, isGeneric);
-      var bindFlags = BindingFlags.Public;
+      var parameterTypes = ExtractTypesAndValidate(compiler, isGeneric);
+      var bindingFlags = BindingFlags.Public;
 
       if (isGeneric)
-        paramTypes = paramTypes.Skip(1).ToArray();
+        parameterTypes = parameterTypes.Skip(1).ToArray();
 
       if (isCtor)
-        bindFlags |= BindingFlags.Instance;
+        bindingFlags |= BindingFlags.Instance;
       else
         if (!isStatic) {
-          if (paramTypes.Length==0)
+          if (parameterTypes.Length==0)
             throw new InvalidOperationException(string.Format(
               Strings.ExCompilerXShouldHaveThisParameter,
               compiler.GetFullName(true)));
 
-          paramTypes = paramTypes.Skip(1).ToArray();
-          bindFlags |= BindingFlags.Instance;
+          parameterTypes = parameterTypes.Skip(1).ToArray();
+          bindingFlags |= BindingFlags.Instance;
         }
         else
-          bindFlags |= BindingFlags.Static;
+          bindingFlags |= BindingFlags.Static;
 
       if (isPropertyGetter) {
-        bindFlags |= BindingFlags.GetProperty;
+        bindingFlags |= BindingFlags.GetProperty;
         memberName = WellKnown.GetterPrefix + memberName;
       }
 
       if (isPropertySetter) {
-        bindFlags |= BindingFlags.SetProperty;
+        bindingFlags |= BindingFlags.SetProperty;
         memberName = WellKnown.SetterPrefix + memberName;
       }
 
@@ -311,13 +311,14 @@ namespace Xtensive.Core.Linq
       
       if (!specialCase) {
         if (isCtor)
-          memberInfo = attribute.TargetType.GetConstructor(bindFlags, paramTypes);
+          memberInfo = attribute.TargetType.GetConstructor(bindingFlags, parameterTypes);
         else if (isField)
-          memberInfo = attribute.TargetType.GetField(memberName, bindFlags);
+          memberInfo = attribute.TargetType.GetField(memberName, bindingFlags);
         else {
           // method / property getter / property setter
-          var genericArgNames = isGenericMethod ? new string[attribute.GenericParamsCount] : null;
-          memberInfo = attribute.TargetType.GetMethod(memberName, bindFlags, genericArgNames, paramTypes);
+          var genericArgumentNames = isGenericMethod ? new string[attribute.GenericParamsCount] : null;
+          memberInfo = attribute.TargetType
+            .GetMethod(memberName, bindingFlags, genericArgumentNames, parameterTypes);
         }
       }
 
@@ -496,6 +497,7 @@ namespace Xtensive.Core.Linq
     }
 
     #endregion
+
 
     // Constructors
 

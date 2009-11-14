@@ -158,5 +158,16 @@ namespace Xtensive.Core.Tests.Linq
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.ReportError);
     }
+
+    [Test]
+    public void NonPublicGetterTest()
+    {
+      var provider = MemberCompilerProviderFactory.Create<string>();
+      var property = typeof (NonGenericTarget)
+        .GetProperty("InternalProperty", BindingFlags.Instance | BindingFlags.NonPublic);
+      Assert.IsNotNull(property);
+      var result = provider.GetCompiler(property);
+      Assert.IsNull(result);
+    }
   }
 }

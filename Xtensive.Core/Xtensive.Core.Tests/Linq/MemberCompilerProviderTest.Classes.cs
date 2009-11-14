@@ -4,9 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.10
 
-using System;
 using System.Reflection;
-using NUnit.Framework;
 using Xtensive.Core.Linq;
 
 namespace Xtensive.Core.Tests.Linq
@@ -44,11 +42,13 @@ namespace Xtensive.Core.Tests.Linq
 
       public string InstanceProperty { get; set; }
 
+      internal string InternalProperty { get; set; }
+
       public string this[int a, int b]{
         get { return dummy; }
         set { dummy = value; }
       }
-
+      
       public NonGenericTarget(int k)
       {
         dummy = k.ToString();
