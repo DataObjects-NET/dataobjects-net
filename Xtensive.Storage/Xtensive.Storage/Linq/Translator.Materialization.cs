@@ -17,6 +17,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Materialization;
+using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq
@@ -65,6 +66,8 @@ namespace Xtensive.Storage.Linq
 
     private static ProjectionExpression Optimize(ProjectionExpression origin)
     {
+//      origin = StoreToIncludeProviderRewriter.Rewrite(origin);
+
       var originProvider = origin.ItemProjector.DataSource.Provider;
 
       var usedColumns = origin.ItemProjector

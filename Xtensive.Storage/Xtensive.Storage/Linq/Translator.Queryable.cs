@@ -23,6 +23,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Linq.Expressions.Visitors;
+using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Linq
 {
@@ -941,6 +942,11 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)
     {
+//      if (source.IsLocalCollection(context) && predicate!=null) {
+//        var visitedPredicate = Visit(predicate.Body);
+//        throw new NotImplementedException();
+//      }
+
       ProjectionExpression subquery;
       using (state.CreateScope()) {
         state.CalculateExpressions = false;
