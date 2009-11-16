@@ -45,9 +45,9 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
     public void PropertyTest()
     {
       var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      config.CompilerContainers.Register(typeof (CustomLinqCompilerContainer));
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
-      config.CompilerContainers.Register(typeof (CustomLinqCompilerContainer));
       var domain = Domain.Build(config);
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {

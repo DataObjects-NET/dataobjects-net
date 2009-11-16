@@ -12,7 +12,7 @@ using Xtensive.Core.Linq;
 namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
 {
   [CompilerContainer(typeof (Expression))]
-  public class CustomLinqCompilerContainer
+  public static class CustomLinqCompilerContainer
   {
     [Compiler(typeof (Person), "Fullname", TargetKind.PropertyGet)]
     public static Expression FullName(Expression personExpression)

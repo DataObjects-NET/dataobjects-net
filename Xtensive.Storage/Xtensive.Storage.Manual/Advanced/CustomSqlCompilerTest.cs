@@ -92,10 +92,14 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
         using (Transaction.Open(session)) {
           AddPersons();
           var hashCodes = Query<Person>.All
-            .OrderBy(c=>c)
-            .Select(p => new {String = p.Address.Country, HashCode = p.Address.Country.GetHashCode()});
-          foreach (var hashCode in hashCodes)
-            Assert.AreEqual(hashCode.String.Length, hashCode.HashCode);
+            .OrderBy(p=>p.Id)
+            .Select(p => p.Address.Country.GetHashCode());
+          var expected = Query<Person>.All
+            .OrderBy(p => p.Id)
+            .Select(p => p.Address.Country)
+            .ToList()
+            .Select(country => country.Length);
+          Assert.IsTrue(expected.SequenceEqual(hashCodes));
         }
       }
     }

@@ -13,7 +13,7 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
 {
-  [CompilerContainer(typeof(SqlExpression))]
+  [CompilerContainer(typeof(Xtensive.Sql.Dml.SqlExpression))]
   public static class CustomSqlCompilerContainer
   {
     [Compiler(typeof(CustomSqlCompilerStringExtensions), "GetThirdChar", TargetKind.Method | TargetKind.Static)]
