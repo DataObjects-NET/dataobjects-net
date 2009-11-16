@@ -293,6 +293,7 @@ namespace Xtensive.Storage.Linq
       if (source.IsQuery() || source.IsLocalCollection(context))
         return VisitExists(source, le, false);
 
+
       throw new NotSupportedException(Strings.ExContainsMethodIsOnlySupportedForRootExpressionsOrSubqueries);
     }
 
@@ -942,10 +943,41 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)
     {
-//      if (source.IsLocalCollection(context) && predicate!=null) {
-//        var visitedPredicate = Visit(predicate.Body);
-//        throw new NotImplementedException();
-//      }
+      if (source.IsLocalCollection(context) && predicate!=null && predicate.Body.NodeType==ExpressionType.Equal) {
+        var parameter = predicate.Parameters[0];
+        ProjectionExpression visitedSource = VisitSequence(source);
+
+        ParameterExpression outerParameter = state.Parameters[0];
+        var outerResult = context.Bindings[outerParameter];
+
+
+        using (context.Bindings.Add(parameter, visitedSource))
+        using (state.CreateScope()) {
+          state.CalculateExpressions = false;
+          state.CurrentLambda = predicate;
+          var predicateExpression = (ItemProjectorExpression) VisitLambda(predicate);
+          var predicateLambda = predicateExpression.ToLambda(context);
+
+          var parameterSource = context.Bindings[parameter];
+          var parameterRecordSet = parameterSource.ItemProjector.DataSource;
+          var rawProvider = ((RawProvider) ((StoreProvider) visitedSource.ItemProjector.DataSource.Provider).Source);
+          var tuples = rawProvider.Source;
+          var mapping = IncludeFilterMappingGatherer.Visit(predicateLambda.Parameters[0], rawProvider.Header.Length, predicateLambda.Body);
+
+          var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
+          var newDataSource = outerResult.ItemProjector.DataSource
+            .Include(IncludeAlgorithm.Auto, true, tuples, context.GetNextAlias(), mapping);
+//            .Filter(tuple => tuple.GetValueOrDefault<bool>(columnIndex));
+
+          var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
+          var newOuterResult = new ProjectionExpression(outerResult.Type, newItemProjector, outerResult.TupleParameterBindings, outerResult.ResultType);
+          context.Bindings.ReplaceBound(outerParameter, newOuterResult);
+          Expression columnExpression = ColumnExpression.Create(typeof(bool), columnIndex);
+          if (notExists)
+            columnExpression = Expression.Not(columnExpression);
+          return columnExpression;
+        }
+      }
 
       ProjectionExpression subquery;
       using (state.CreateScope()) {

@@ -66,8 +66,6 @@ namespace Xtensive.Storage.Linq
 
     private static ProjectionExpression Optimize(ProjectionExpression origin)
     {
-//      origin = StoreToIncludeProviderRewriter.Rewrite(origin);
-
       var originProvider = origin.ItemProjector.DataSource.Provider;
 
       var usedColumns = origin.ItemProjector

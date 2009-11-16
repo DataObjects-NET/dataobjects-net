@@ -146,6 +146,16 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void AnonimousContains2Test()
+    {
+      var list = new[] {new {Id1 = "FISSA", Id2 = "FISSA"}, new {Id1 = "PARIS", Id2 = "PARIS"}};
+      var query = Query<Customer>.All.Where(c => new {Id1 = c.Id, Id2 = c.Id}.In(list)).Select(c => c.Orders);
+      var expected = Query<Customer>.All.AsEnumerable().Where(c => new {Id1 = c.Id, Id2 = c.Id}.In(list)).Select(c => c.Orders);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
     public void QueryableDoubleContainsTest()
     {
       var list = Query<Order>.All
