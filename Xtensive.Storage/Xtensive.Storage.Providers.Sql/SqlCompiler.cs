@@ -255,30 +255,6 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitRange(RangeProvider provider)
-    {
-      // TODO: fix RangeProvider usage, this method should throw NotSupportedException
-      
-      var compiledSource = Compile(provider.Source);
-
-      var originalRange = provider.CompiledRange.Invoke();
-      var query = compiledSource.Request.SelectStatement.ShallowClone();
-      var keyColumns = provider.Header.Order.ToList();
-      var request = new QueryRequest(query, provider.Header.TupleDescriptor, RequestOptions.AllowBatching);
-      var rangeProvider = new SqlRangeProvider(Handlers, request, provider, compiledSource);
-      var bindings = (HashSet<QueryParameterBinding>) rangeProvider.Request.ParameterBindings;
-      for (int i = 0; i < originalRange.EndPoints.First.Value.Count; i++) {
-        var column = provider.Header.Columns[keyColumns[i].Key];
-        TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
-        int fieldIndex = i;
-        var binding = new QueryParameterBinding(() => rangeProvider.CurrentRange.EndPoints.First.Value.GetValue(fieldIndex), typeMapping);
-        bindings.Add(binding);
-        query.Where &= query.Columns[keyColumns[i].Key]==binding.ParameterReference;
-      }
-      return rangeProvider;
-    }
-
-    /// <inheritdoc/>
     protected override SqlProvider VisitSeek(SeekProvider provider)
     {
       var compiledSource = Compile(provider.Source);

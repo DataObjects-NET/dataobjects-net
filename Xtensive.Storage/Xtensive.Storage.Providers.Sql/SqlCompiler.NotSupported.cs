@@ -24,6 +24,12 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
+    protected override SqlProvider VisitRange(RangeProvider provider)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <inheritdoc/>
     protected override SqlProvider VisitRangeSet(RangeSetProvider provider)
     {
       throw new NotSupportedException();
