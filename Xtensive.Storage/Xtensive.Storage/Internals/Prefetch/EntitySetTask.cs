@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
@@ -160,10 +161,8 @@ namespace Xtensive.Storage.Internals.Prefetch
       return result;
     }
 
-    private static RecordSet CreateQueryForAssociationViaAuxType(Pair<object, EntitySetTask> pair,
-      IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static RecordSet CreateQueryForAssociationViaAuxType(Pair<object, EntitySetTask> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
-      ParameterExpression tupleParameter;
       var associationIndex = pair.Second.ReferencingField.Association.UnderlyingIndex;
       var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex,
         pair.Second.ReferencingField.Association.AuxiliaryType != null);
@@ -176,24 +175,20 @@ namespace Xtensive.Storage.Internals.Prefetch
         .Take(associationIndex.KeyColumns.Count)
         .Select(column => column.ValueType)
         .ToList();
-      var filterExpression = CreateFilterExpression(firstKeyColumnIndex,keyColumnTypes, out tupleParameter);
       return associationIndex.ToRecordSet()
-        .Filter(Expression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter))
-        .Alias("a").Join(primaryTargetIndex.ToRecordSet(), joiningColumns);
+        .Filter(QueryHelper.BuildFilterLambda(firstKeyColumnIndex, keyColumnTypes, ownerParameter))
+        .Alias("a")
+        .Join(primaryTargetIndex.ToRecordSet(), joiningColumns);
     }
 
-    private static RecordSet CreateQueryForDirectAssociation(Pair<object, EntitySetTask> pair,
-      IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static RecordSet CreateQueryForDirectAssociation(Pair<object, EntitySetTask> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
-      ParameterExpression tupleParameter;
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
       var field = pair.Second.ReferencingField.Association.Reversed.OwnerField;
       var keyColumnTypes = field.Columns.Select(column => column.ValueType).ToList();
-      var filterExpression = CreateFilterExpression(field.MappingInfo.Offset, keyColumnTypes,
-        out tupleParameter);
       return primaryTargetIndex
         .ToRecordSet()
-        .Filter(Expression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter));
+        .Filter(QueryHelper.BuildFilterLambda(field.MappingInfo.Offset, keyColumnTypes, ownerParameter));
     }
 
     private static void AddResultColumnIndexes(ICollection<int> indexes, IndexInfo index,
@@ -206,8 +201,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
     }
 
-    private static Pair<int>[] GetJoiningColumnIndexes(IndexInfo primaryIndex, IndexInfo associationIndex,
-      bool hasAuxType)
+    private static Pair<int>[] GetJoiningColumnIndexes(IndexInfo primaryIndex, IndexInfo associationIndex, bool hasAuxType)
     {
       var joiningColumns = new Pair<int>[primaryIndex.KeyColumns.Count];
       var firstColumnIndex = primaryIndex.Columns.IndexOf(primaryIndex.KeyColumns[0].Key);
@@ -223,8 +217,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       return joiningColumns;
     }
 
-    private static Expression CreateFilterExpression(int firstKeyColumnIndex, IList<Type> keyColumnTypes,
-      out ParameterExpression tupleParameter)
+    /*private static Expression CreateFilterExpression(int firstKeyColumnIndex, IList<Type> keyColumnTypes, out ParameterExpression tupleParameter)
     {
       Expression filterExpression = null;
       tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
@@ -244,7 +237,7 @@ namespace Xtensive.Storage.Internals.Prefetch
             Expression.Equal(tupleParameterFieldAccess, ownerKeyFieldAccess));
       }
       return filterExpression;
-    }
+    }*/
 
     #endregion
 

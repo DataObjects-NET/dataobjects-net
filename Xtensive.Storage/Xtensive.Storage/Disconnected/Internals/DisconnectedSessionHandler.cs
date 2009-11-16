@@ -208,9 +208,14 @@ namespace Xtensive.Storage.Disconnected
             list.Add(new ReferenceInfo(item.Entity, target, association));
           }
           return list;
-        default:
-          return base.GetReferencesTo(target, association);
+        case Multiplicity.OneToOne:
+        case Multiplicity.OneToMany:
+          var key = target.GetReferenceKey(association.Reversed.OwnerField);
+          if (key!=null)
+            return EnumerableUtils.One(new ReferenceInfo(FetchInstance(key).Entity, target, association));
+          break;
       }
+      throw new ArgumentException("association.Multiplicity");
     }
 
 

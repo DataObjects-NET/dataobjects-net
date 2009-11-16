@@ -47,31 +47,18 @@ namespace Xtensive.Storage.Linq
     {
       // Key
       public static readonly PropertyInfo Value;
-//    public static readonly MethodInfo Resolve;
-//    public static readonly MethodInfo ResolveOfT;
       public static readonly MethodInfo Create;
-
-      // Key extensions
-//    public static readonly MethodInfo TryResolve;
-//    public static readonly MethodInfo TryResolveOfT;
 
       static Key()
       {
         // Key
         Value = typeof (Storage.Key).GetProperty("Value");
-//      Resolve = typeof (Query).GetMethods()
-//        .Where(mi => mi.Name=="SingleOrDefault" && mi.IsGenericMethodDefinition==false && mi.GetParameters().Length==1)
-//        .Single();
-//      ResolveOfT = typeof (Query<>).GetMethod("SingleOrDefault", BindingFlags.Public | BindingFlags.Instance, new[] {"T"}, new object[0]);
         Create = typeof (Storage.Key).GetMethod(
           "Create",
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
           null,
            new[] {typeof(Domain), typeof (TypeInfo), typeof(TypeReferenceAccuracy), typeof (Core.Tuples.Tuple)}, null);
 
-        // KeyExtensions
-//      TryResolve = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[0], new object[1]);
-//      TryResolveOfT = typeof (KeyExtensions).GetMethod("TryResolve", BindingFlags.Public | BindingFlags.Static, new string[1], new object[1]);
       }
     }
 

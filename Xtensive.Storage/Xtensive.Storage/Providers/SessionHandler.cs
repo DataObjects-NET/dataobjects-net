@@ -23,6 +23,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Providers
 {
@@ -32,6 +33,7 @@ namespace Xtensive.Storage.Providers
   public abstract partial class SessionHandler : InitializableHandlerBase,
     IDisposable, IHasServices
   {
+    private static readonly object cachingRegion = new object();
     private PrefetchProcessor prefetchProcessor;
 
     /// <summary>
@@ -291,38 +293,89 @@ namespace Xtensive.Storage.Providers
     /// <returns>References.</returns>
     protected internal virtual IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
     {
-      IndexInfo index;
-      Tuple keyTuple;
-      RecordSet recordSet;
+      var result = new List<ReferenceInfo>();
+      using (new ParameterContext().Activate()) {
+        var pair = (Pair<RecordSet, Parameter<Tuple>>)Session.Domain.GetCachedItem(
+          new Pair<object, AssociationInfo>(cachingRegion, association),
+          p => BuildReferencingQuery(((Pair<object, AssociationInfo>)p).Second));
+        var recordSet = pair.First;
+        var parameter = pair.Second;
+        parameter.Value = target.Key.Value;
+        foreach (var item in recordSet.ToEntities(0))
+          result.Add(new ReferenceInfo(item, target, association));
+      }
+      return result;
 
+    }
+
+    private static Pair<RecordSet,Parameter<Tuple>> BuildReferencingQuery(AssociationInfo association)
+    {
+      var recordSet = (RecordSet)null;
+      var parameter = new Parameter<Tuple>();
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:
-        case Multiplicity.ManyToOne:
-          index = association.OwnerType.Indexes.GetIndex(association.OwnerField.Name);
-          keyTuple = target.Key.Value;
-          recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
-          foreach (var item in recordSet.ToEntities(0))
-            yield return new ReferenceInfo(item, target, association);
+        case Multiplicity.ManyToOne: {
+          var index = association.OwnerType.Indexes.PrimaryIndex;
+          recordSet = index.ToRecordSet()
+            .Filter(QueryHelper.BuildFilterLambda(
+              association.OwnerField.MappingInfo.Offset,
+              association.OwnerField.Columns.Select(c => c.ValueType).ToList(),
+              parameter));
           break;
+        }
         case Multiplicity.OneToOne:
-        case Multiplicity.OneToMany:
-          Key key = target.GetReferenceKey(association.Reversed.OwnerField);
-          if (key!=null)
-            yield return new ReferenceInfo(Query.SingleOrDefault(key), target, association);
+        case Multiplicity.OneToMany: {
+          var index = association.OwnerType.Indexes.PrimaryIndex;
+          var targetIndex = association.TargetType.Indexes.PrimaryIndex;
+          recordSet = targetIndex.ToRecordSet()
+            .Filter(QueryHelper.BuildFilterLambda(0,
+              association.TargetType.KeyProviderInfo.TupleDescriptor,
+              parameter))
+            .Alias("a")
+            .Join(
+              index.ToRecordSet(), 
+              JoinAlgorithm.Loop, 
+              association.Reversed.OwnerField.MappingInfo
+                .GetItems()
+                .Select((l,r) => new Pair<int>(l,r))
+                .ToArray())
+            .Select(Enumerable.Range(targetIndex.Columns.Count, index.Columns.Count).ToArray());
           break;
+        }
         case Multiplicity.ZeroToMany:
-        case Multiplicity.ManyToMany:
-          if (association.IsMaster)
-            index = association.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
-          else
-            index = association.Master.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
-
-          keyTuple = target.Key.Value;
-          recordSet = index.ToRecordSet().Range(keyTuple, keyTuple);
-          foreach (var item in recordSet)
-            yield return new ReferenceInfo(Query.SingleOrDefault(Key.Create(Session.Domain, association.OwnerType, TypeReferenceAccuracy.BaseType, association.ExtractForeignKey(item))), target, association);
+        case Multiplicity.ManyToMany: {
+          var referencedType = association.IsMaster
+            ? association.OwnerType
+            : association.TargetType;
+          var referencingType = association.IsMaster
+            ? association.TargetType
+            : association.OwnerType;
+          var index = referencedType.Indexes.PrimaryIndex;
+          var targetIndex = association.AuxiliaryType.Indexes.PrimaryIndex;
+          var referencingField = association.IsMaster
+            ? association.AuxiliaryType.Fields[WellKnown.SlaveFieldName]
+            : association.AuxiliaryType.Fields[WellKnown.MasterFieldName];
+          var referencedField = association.IsMaster
+            ? association.AuxiliaryType.Fields[WellKnown.MasterFieldName]
+            : association.AuxiliaryType.Fields[WellKnown.SlaveFieldName];
+          recordSet = targetIndex.ToRecordSet()
+            .Filter(QueryHelper.BuildFilterLambda(
+              referencingField.MappingInfo.Offset,
+              referencingType.KeyProviderInfo.TupleDescriptor,
+              parameter))
+            .Alias("a")
+            .Join(
+              index.ToRecordSet(),
+              JoinAlgorithm.Loop,
+              referencedField.MappingInfo
+                .GetItems()
+                .Select((l, r) => new Pair<int>(l, r))
+                .ToArray())
+            .Select(Enumerable.Range(targetIndex.Columns.Count, index.Columns.Count).ToArray());
           break;
+        }
       }
+      return new Pair<RecordSet, Parameter<Tuple>>(recordSet, parameter);
     }
 
     /// <summary>

@@ -5,12 +5,15 @@
 // Created:    2009.04.02
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
@@ -20,6 +23,31 @@ namespace Xtensive.Storage.Linq
   internal static class QueryHelper
   {
     public const string QueryAllMethodName = "All";
+
+    public static Expression<Func<Tuple,bool>> BuildFilterLambda(int startIndex, IList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
+    {
+      Expression filterExpression = null;
+      var tupleParameter = Expression.Parameter(typeof(Tuple), "tuple");
+      var valueProperty = typeof(Parameter<Tuple>).GetProperty("Value", typeof(Tuple));
+      var keyValue = Expression.Property(Expression.Constant(keyParameter), valueProperty);
+      for (var i = 0; i < keyColumnTypes.Count; i++) {
+        var getValueMethod = WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(keyColumnTypes[i]);
+        var tupleParameterFieldAccess = Expression.Call(
+          tupleParameter, 
+          getValueMethod,
+          Expression.Constant(startIndex + i));
+        var keyParameterFieldAccess = Expression.Call(
+          keyValue, 
+          getValueMethod,
+          Expression.Constant(i));
+        if (filterExpression == null)
+          filterExpression = Expression.Equal(tupleParameterFieldAccess, keyParameterFieldAccess);
+        else
+          filterExpression = Expression.And(filterExpression,
+            Expression.Equal(tupleParameterFieldAccess, keyParameterFieldAccess));
+      }
+      return Expression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter);
+    }
 
     public static Expression CreateEntityQueryExpression(Type elementType)
     {
