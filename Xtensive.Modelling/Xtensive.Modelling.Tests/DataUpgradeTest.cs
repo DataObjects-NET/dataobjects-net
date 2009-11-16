@@ -8,12 +8,10 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Tests.IndexingModel;
-using System.Linq;
 
 namespace Xtensive.Modelling.Tests
 {
@@ -58,6 +56,11 @@ namespace Xtensive.Modelling.Tests
     private static StorageInfo CreateSimpleStorageModel()
     {
       var storage = new StorageInfo("Storage");
+
+      // Model:
+      // class A:Entity {int Id}
+      // class B:A {int Id}
+      // class C:B {int Id; A RefA; B RefB; C RefC}
 
       var tA = new TableInfo(storage, "A");
       var tB = new TableInfo(storage, "B");

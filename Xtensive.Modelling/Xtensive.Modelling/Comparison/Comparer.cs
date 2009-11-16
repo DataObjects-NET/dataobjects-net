@@ -7,9 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
+using Xtensive.Core.Reflection;
+using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Resources;
 
@@ -168,7 +171,7 @@ namespace Xtensive.Modelling.Comparison
           // Build movement info
           difference.MovementInfo = BuildMovementInfo(source, target);
           // Detect data changes
-          difference.IsDataChanged = HasDataChangeHint(difference);
+          difference.IsDataChanged = HasDataChangeHint(difference.Source);
         }
 
         difference.PropertyChanges.Clear();
@@ -299,11 +302,11 @@ namespace Xtensive.Modelling.Comparison
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected Difference GetReferencedPropertyDifference(object sourceValue, object targetValue, Node target, string property)
     {
-
       if (targetValue!=null && sourceValue!=null) {
+        var isDataDependent = IsDependOnData(target);
         Difference referencedPropertyDifference = null;
         if (Results.TryGetValue(targetValue, out referencedPropertyDifference))
-          return HasChanges(referencedPropertyDifference) 
+          return HasChanges(referencedPropertyDifference, isDataDependent) 
             ? new ValueDifference(sourceValue, targetValue) 
             : null;
 
@@ -313,7 +316,6 @@ namespace Xtensive.Modelling.Comparison
       }
 
       return new ValueDifference(sourceValue, targetValue);
-      
     }
 
     /// <summary>
@@ -495,15 +497,17 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>
     /// <see langword="true"/> if difference contains changed node properties; otherwise, <see langword="false"/>.
     /// </returns>
-    protected virtual bool HasChanges(Difference difference)
+    protected virtual bool HasChanges(Difference difference, bool isDataDependent)
     {
       if (difference is ValueDifference)
         return true;
 
       var nodeDifference = difference as NodeDifference;
       if (nodeDifference!=null) {
-        if (nodeDifference.IsChanged || nodeDifference.IsDataChanged 
-          || (nodeDifference.MovementInfo & MovementInfo.Relocated) != 0 || nodeDifference.HasChanges)
+        if ((nodeDifference.MovementInfo & MovementInfo.Relocated)!=0 
+          || (nodeDifference.MovementInfo & MovementInfo.Changed)!=0 
+          || nodeDifference.PropertyChanges.Count!=0 
+          || (isDataDependent && nodeDifference.IsDataChanged))
           return true;
         
         foreach (var pair in nodeDifference.PropertyChanges)
@@ -518,6 +522,22 @@ namespace Xtensive.Modelling.Comparison
             return true;
       
       return false;
+    }
+
+    /// <summary>
+    /// Determines whether specified node is depend on data changing.
+    /// </summary>
+    /// <param name="node">The node.</param>
+    /// <returns>
+    /// <see langword="true"/> if node is depend on data changing; otherwise, <see langword="false"/>.
+    /// </returns>
+    protected virtual bool IsDependOnData(Node node)
+    {
+      if (node.GetType().GetAttribute<DataDependentAttribute>(AttributeSearchOptions.Default)!=null)
+        return true;
+      if (node.Parent==null)
+        return false;
+      return IsDependOnData(node.Parent);
     }
     
     /// <summary>
@@ -549,73 +569,21 @@ namespace Xtensive.Modelling.Comparison
     }
 
     /// <summary>
-    /// Determines whether difference has associated <see cref="CopyDataHint"/>.
-    /// </summary>
-    /// <param name="difference">The difference.</param>
-    /// <returns>
-    /// <see langword="true"/> if hint exist; otherwise, <see langword="false"/>.
-    /// </returns>
-    protected bool HasCopyDataHint(NodeDifference difference)
-    {
-      return difference.Source!=null 
-        && Hints.GetHints<CopyDataHint>(difference.Source).Any();
-    }
-
-    /// <summary>
-    /// Determines whether difference has associated <see cref="ClearDataHint"/>.
-    /// </summary>
-    /// <param name="difference">The difference.</param>
-    /// <returns>
-    /// <see langword="true"/> if hint exist; otherwise, <see langword="false"/>.
-    /// </returns>
-    protected bool HasClearDataHint(NodeDifference difference)
-    {
-      return false;
-      //var source = difference.Source;
-      //var target = difference.Target;
-
-      //return source!=null && target!=null
-      //  && Hints.OfType<ClearDataHint>()
-      //    .Any(clearHint => clearHint.Path==source.Path
-      //      && clearHint.Dependences.Any(IsNodeRemoved));
-    }
-
-    /// <summary>
-    /// Determines whether the node with specific path 
-    /// has <see cref="NodeDifference"/> with <see cref="MovementInfo.Removed"/>.
-    /// </summary>
-    /// <param name="path">The node path.</param>
-    /// <returns>
-    /// <see langword="true"/> if node removed; otherwise, <see langword="false"/>.
-    /// </returns>
-    protected bool IsNodeRemoved(string path)
-    {
-      Difference difference;
-      var node = Source.Resolve(path) as Node;
-      if (Results.TryGetValue(node, out difference)) {
-        var nodeDifference = difference as NodeDifference;
-        if (nodeDifference!=null
-          && (nodeDifference.MovementInfo & MovementInfo.Removed)!=0)
-          return true;
-      }
-      return false;
-    }
-
-    /// <summary>
     /// Determines whether <see cref="Hints"/> contains data change hints.
     /// </summary>
     /// <param name="difference">The difference.</param>
     /// <returns>
     /// <see langword="true"/> if data change hints exists; otherwise, <see langword="false"/>.
     /// </returns>
-    protected bool HasDataChangeHint(NodeDifference difference)
+    protected bool HasDataChangeHint(Node source)
     {
-      if (difference.Source==null)
+      if (source==null)
         return false;
 
-      return Hints.GetHints<CopyDataHint>(difference.Source).Any()
-        || Hints.GetHints<DeleteDataHint>(difference.Source).Any()
-        || Hints.GetHints<UpdateDataHint>(difference.Source).Any();
+      return 
+        Hints.GetHints<CopyDataHint>(source).Any()
+        || Hints.GetHints<DeleteDataHint>(source).Any()
+        || Hints.GetHints<UpdateDataHint>(source).Any();
     }
 
     /// <summary>

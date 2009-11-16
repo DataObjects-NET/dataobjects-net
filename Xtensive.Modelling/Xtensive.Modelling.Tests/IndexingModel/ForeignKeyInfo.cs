@@ -18,7 +18,8 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// Foreign key.
   /// </summary>
   [Serializable]
-  public sealed class ForeignKeyInfo: NodeBase<TableInfo>
+  [DataDependent]
+  public sealed class ForeignKeyInfo : NodeBase<TableInfo>
   {
     private ReferentialAction onUpdateAction;
     private ReferentialAction onRemoveAction;

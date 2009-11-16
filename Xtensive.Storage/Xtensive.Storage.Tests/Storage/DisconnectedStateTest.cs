@@ -10,8 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Xml.Serialization;
 using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
@@ -19,6 +17,8 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Disconnected.Log;
 using Xtensive.Storage.DisconnectedTests.Model;
+
+# region Model
 
 namespace Xtensive.Storage.DisconnectedTests.Model
 {
@@ -198,6 +198,8 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public A Root { get; set; }
   }
 }
+
+# endregion
 
 namespace Xtensive.Storage.Tests.Storage
 {
@@ -828,7 +830,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
     
-    [Test, Ignore]
+    [Test]
     public void SerializationTest()
     {
       var disconnectedState = new DisconnectedState();
@@ -873,7 +875,6 @@ namespace Xtensive.Storage.Tests.Storage
         }
         disconnectedState.Detach();
       }
-
       
       // Serialize, deserialize
       using (var session = Session.Open(Domain)) {
@@ -883,7 +884,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
       
-      // Check data and save to DB
+      // Check data in cache and save to DB
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
         using (var transactionScope = Transaction.Open()) {
@@ -898,14 +899,17 @@ namespace Xtensive.Storage.Tests.Storage
         disconnectedState.Detach();
       }
 
-//      // Save data to storage
-//      using (var session = Session.Open(Domain)) {
-//        disconnectedState.Attach(session);
-//        disconnectedState.SaveChanges();
-//        disconnectedState.Detach();
-//      }
-
-      
+      // Check data in DB
+      using (var session = Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          var order1 = Query<Order>.Single(order1Key);
+          var details = order1.Details.ToList();
+          Assert.AreEqual(2, order1.Details.Count);
+          Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
+          Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
+          transactionScope.Complete();
+        }
+      }
     }
 
     [Test]

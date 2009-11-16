@@ -13,10 +13,10 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Internals;
 using System;
-using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Disconnected.Log;
 using Xtensive.Core.Disposing;
+using System.Linq;
 
 namespace Xtensive.Storage.Disconnected
 {
@@ -26,11 +26,13 @@ namespace Xtensive.Storage.Disconnected
   [Serializable]
   public sealed class DisconnectedState
   {
-    private List<DisconnectedEntityState.SerializedEntityState> serializedRegistry;
-    private List<DisconnectedEntityState.SerializedEntityState> serializedGlobalRegistry;
+    private OperationLog serializedLog;
+    private KeyValuePair<string, VersionInfo>[] serializedVersions;
+    private SerializedEntityState[] serializedRegistry;
+    private SerializedEntityState[] serializedGlobalRegistry;
     
     [NonSerialized]
-    private readonly Dictionary<Key, VersionInfo> versionCache;
+    private Dictionary<Key, VersionInfo> versionCache;
     [NonSerialized]
     private StateRegistry transactionalRegistry;
     [NonSerialized]
@@ -272,12 +274,12 @@ namespace Xtensive.Storage.Disconnected
     [OnSerializing]
     protected void OnSerializing(StreamingContext context)
     {
-      serializedRegistry = new List<DisconnectedEntityState.SerializedEntityState>();
-      foreach (var state in registry.States)
-        serializedRegistry.Add(state.Serialize());
-      serializedGlobalRegistry = new List<DisconnectedEntityState.SerializedEntityState>();
-      foreach (var state in globalRegistry.States)
-        serializedGlobalRegistry.Add(state.Serialize());
+      serializedVersions = versionCache.Select(pair => 
+        new KeyValuePair<string, VersionInfo>(pair.Key.ToString(true), pair.Value))
+        .ToArray();
+      serializedLog = registry.Log;
+      serializedRegistry = registry.States.Select(state => state.Serialize()).ToArray();
+      serializedGlobalRegistry = globalRegistry.States.Select(state => state.Serialize()).ToArray();
     }
 
     [OnSerialized]
@@ -285,6 +287,8 @@ namespace Xtensive.Storage.Disconnected
     {
       serializedRegistry = null;
       serializedGlobalRegistry = null;
+      serializedLog = null;
+      serializedVersions = null;
     }
 
     [OnDeserialized]
@@ -292,15 +296,21 @@ namespace Xtensive.Storage.Disconnected
     {
       var domain = Session.Demand().Domain;
 
+      versionCache = new Dictionary<Key, VersionInfo>();
+      foreach (var pair in serializedVersions)
+        versionCache.Add(Key.Parse(domain, pair.Key), pair.Value);
+
       globalRegistry = new StateRegistry(this);
       foreach (var state in serializedGlobalRegistry)
         globalRegistry.AddState(DisconnectedEntityState.Deserialize(state, globalRegistry, domain));
       serializedGlobalRegistry = null;
 
       registry = new StateRegistry(globalRegistry);
+      registry.Log = serializedLog;
       foreach (var state in serializedRegistry)
         registry.AddState(DisconnectedEntityState.Deserialize(state, registry, domain));
       serializedRegistry = null;
+      serializedLog = null;
     }
   }
 }

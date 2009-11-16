@@ -16,14 +16,14 @@ namespace Xtensive.Storage.Model
   /// </summary>
   [Serializable]
   [DebuggerDisplay("TypeName = {TypeName}, FieldName = {FieldName}")]
-  public sealed class FieldInfoRef
+  public sealed class FieldInfoRef : IEquatable<FieldInfoRef>
   {
     private const string ToStringFormat = "Field '{0}.{1}'";
 
     /// <summary>
     /// Name of the type.
     /// </summary>
-    public string TypeName { get; private set; }
+    public TypeInfoRef TypeRef { get; private set; }
 
     /// <summary>
     /// Name of the field.
@@ -36,9 +36,7 @@ namespace Xtensive.Storage.Model
     /// <param name="model">Domain model.</param>
     public FieldInfo Resolve(DomainModel model)
     {
-      TypeInfo type;
-      if (!model.Types.TryGetValue(TypeName, out type))
-        throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
+      var type = TypeRef.Resolve(model);
       FieldInfo field;
       if (!type.Fields.TryGetValue(FieldName, out field))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "field", FieldName));
@@ -73,7 +71,7 @@ namespace Xtensive.Storage.Model
       if (ReferenceEquals(other, null))
         return false;
       return 
-        TypeName==other.TypeName
+        TypeRef==other.TypeRef
         && FieldName==other.FieldName;
     }
 
@@ -88,7 +86,7 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return unchecked( FieldName.GetHashCode() + 29*TypeName.GetHashCode() );
+      return unchecked( FieldName.GetHashCode() + 29*TypeRef.GetHashCode() );
     }
 
     #endregion
@@ -96,7 +94,7 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format(ToStringFormat, TypeName, FieldName);
+      return string.Format(ToStringFormat, TypeRef.TypeName, FieldName);
     }
 
 
@@ -108,7 +106,7 @@ namespace Xtensive.Storage.Model
     /// <param name="fieldInfo"><see cref="FieldInfo"/> object to make reference for.</param>
     public FieldInfoRef(FieldInfo fieldInfo)
     {
-      TypeName = fieldInfo.ReflectedType.Name;
+      TypeRef = new TypeInfoRef(fieldInfo.ReflectedType);
       FieldName = fieldInfo.Name;
     }
   }

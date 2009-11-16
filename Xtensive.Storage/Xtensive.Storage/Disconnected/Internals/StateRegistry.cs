@@ -25,12 +25,11 @@ namespace Xtensive.Storage.Disconnected
     private readonly StateRegistry origin;
     private readonly DisconnectedState disconnectedState;
     private readonly Dictionary<Key, DisconnectedEntityState> states;
-    private readonly OperationLog log;
 
     private ModelHelper ModelHelper { get { return disconnectedState.ModelHelper; } }
 
-    public OperationLog Log { get { return log; } }
-    
+    public OperationLog Log { get; set; }
+
     public StateRegistry Origin { get { return origin; } }
 
     public DisconnectedEntityState GetState(Key key)
@@ -212,7 +211,7 @@ namespace Xtensive.Storage.Disconnected
 
       states = new Dictionary<Key, DisconnectedEntityState>();
       this.disconnectedState = disconnectedState;
-      log = new OperationLog();
+      Log = new OperationLog();
     }
 
     /// <summary>
@@ -226,7 +225,7 @@ namespace Xtensive.Storage.Disconnected
       states = new Dictionary<Key, DisconnectedEntityState>();
       this.origin = origin;
       disconnectedState = origin.disconnectedState;
-      log = new OperationLog();
+      Log = new OperationLog();
     }
 
 

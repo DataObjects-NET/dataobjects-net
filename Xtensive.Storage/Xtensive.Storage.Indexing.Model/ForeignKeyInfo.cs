@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Indexing.Model
   /// Foreign key.
   /// </summary>
   [Serializable]
+  [DataDependent]
   public sealed class ForeignKeyInfo : NodeBase<TableInfo>
   {
     private ReferentialAction onUpdateAction;

@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
@@ -17,7 +16,7 @@ namespace Xtensive.Storage.Model
   /// </summary>
   [Serializable]
   [DebuggerDisplay("TypeName = {TypeName}")]
-  public sealed class TypeInfoRef
+  public sealed class TypeInfoRef : IEquatable<TypeInfoRef>
   {
     private const string ToStringFormat = "Type '{0}'";
 

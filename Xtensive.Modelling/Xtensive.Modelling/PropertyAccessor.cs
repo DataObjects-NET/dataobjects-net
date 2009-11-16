@@ -131,6 +131,8 @@ namespace Xtensive.Modelling
       return null;
     }
 
+    public bool IsDataDependent { get; private set; }
+
     private void Initialize()
     {
       var propertyInfo = PropertyInfo;

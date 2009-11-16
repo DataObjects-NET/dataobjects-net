@@ -723,9 +723,10 @@ namespace Xtensive.Modelling.Comparison
       }
 
       // Process IgnoreHints
-      originalHints.OfType<IgnoreHint>().Apply(ignoreHint => Hints.Add(ignoreHint));
+      foreach (var ignoreHint in originalHints.OfType<IgnoreHint>())
+        Hints.Add(ignoreHint);
       
-      // ClearDataHints is not needed now.
+      // DeleteDataHints are not needed now.
     }
 
     private string GetActualPath(string oldNodePath)

@@ -293,7 +293,8 @@ namespace Xtensive.Storage
     protected virtual void UpdateVersion()
     {
       foreach (var field in Type.GetVersionFields())
-        this[field.Name] = IncrementalVersionGenerator.GetNext(this[field.Name]);
+        SetFieldValue<object>(field.Name, 
+          IncrementalVersionGenerator.GetNext(GetFieldValue<object>(field.Name)));
     }
 
     #endregion

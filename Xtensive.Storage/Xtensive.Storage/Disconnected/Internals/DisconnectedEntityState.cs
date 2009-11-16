@@ -22,92 +22,11 @@ namespace Xtensive.Storage.Disconnected
   [DebuggerDisplay("Key = {Key}, Tuple = {Tuple}, IsRemoved = {IsRemoved}")]
   internal sealed class DisconnectedEntityState
   {
-    # region Nested types: SerializedEntityState, SerializedChainedDictionary
-
-    [Serializable]
-    public sealed class SerializedEntityState
-    {
-      private Dictionary<FieldInfoRef, SerializedChainedDictionary<string>> references;
-      private Dictionary<FieldInfoRef, Pair<bool, SerializedChainedDictionary<string>>> entitySets;
-
-      public string Key { get; private set; }
-
-      public SerializedTuple Tuple { get; private set; }
-
-      public bool IsRemoved { get; private set; }
-      
-      public Dictionary<FieldInfoRef, SerializedChainedDictionary<string>> References
-      {
-        get { return references; }
-      }
-      
-      public Dictionary<FieldInfoRef, Pair<bool, SerializedChainedDictionary<string>>> EntitySets
-      {
-        get { return entitySets; }
-      }
-
-      public SerializedEntityState(DisconnectedEntityState state)
-      {
-        Key = state.Key.ToString(true);
-        if (state.tuple!=null)
-          Tuple = state.tuple.Difference!=null 
-            ? new SerializedTuple(state.tuple.Difference) 
-            : new SerializedTuple(state.tuple.Origin);
-        IsRemoved = state.IsRemoved;
-        references = new Dictionary<FieldInfoRef, SerializedChainedDictionary<string>>();
-        foreach (var reference in state.references) {
-          var key = new FieldInfoRef(reference.Key);
-          var value = new SerializedChainedDictionary<string>();
-          var chainedDictionary = reference.Value as ChainedDictionary<Key, Key>;
-          if (chainedDictionary!=null) {
-            value.AddedItems.AddRange(chainedDictionary.AddedItems.Select(item => item.Key.ToString(true)));
-            value.RemovedItems.AddRange(chainedDictionary.RemovedItems.Select(item => item.Key.ToString(true)));
-          }
-          else 
-            value.Items.AddRange(reference.Value.Keys.Select(item => item.ToString(true)));
-          References.Add(key, value);
-        }
-        entitySets = new Dictionary<FieldInfoRef, Pair<bool, SerializedChainedDictionary<string>>>();
-        foreach (var setState in state.setStates) {
-          var key = new FieldInfoRef(setState.Key);
-          var items = new SerializedChainedDictionary<string>();
-          var chainedDictionary = setState.Value.Items as ChainedDictionary<Key, Key>;
-          if (chainedDictionary!=null) {
-            items.AddedItems.AddRange(chainedDictionary.AddedItems.Select(item => item.Key.ToString(true)));
-            items.RemovedItems.AddRange(chainedDictionary.RemovedItems.Select(item => item.Key.ToString(true)));
-          }
-          else 
-            items.Items.AddRange(setState.Value.Items.Keys.Select(item => item.ToString(true)));
-          var value = new Pair<bool, SerializedChainedDictionary<string>>(setState.Value.IsFullyLoaded, items);
-          EntitySets.Add(key, value);
-        }
-      }
-    }
-
-    [Serializable]
-    internal sealed class SerializedChainedDictionary<T>
-    {
-      public List<T> Items { get; private set; }
-
-      public List<T> AddedItems { get; private set; }
-
-      public List<T> RemovedItems { get; private set; }
-
-      public SerializedChainedDictionary()
-      {
-        Items = new List<T>();
-        AddedItems = new List<T>();
-        RemovedItems = new List<T>();
-      }
-    }
-
-    # endregion
-
     private readonly Dictionary<FieldInfo, DisconnectedEntitySetState> setStates = 
       new Dictionary<FieldInfo, DisconnectedEntitySetState>();
     private readonly Dictionary<FieldInfo, IDictionary<Key, Key>> references = 
       new Dictionary<FieldInfo, IDictionary<Key, Key>>();
-
+    
     private DifferentialTuple tuple;
 
     /// <summary>
@@ -231,51 +150,105 @@ namespace Xtensive.Storage.Disconnected
 
     public SerializedEntityState Serialize()
     {
-      return new SerializedEntityState(this);
+      var key = Key.ToString(true);
+      var serializedTuple =
+        tuple==null
+          ? new SerializedTuple()
+          : tuple.Difference!=null
+            ? new SerializedTuple(tuple.Difference)
+            : new SerializedTuple(tuple.Origin);
+      var refs = references.Select(pair => {
+        var chainedDict = pair.Value as ChainedDictionary<Key, Key>;
+        return new SerializedReference {
+          Field = new FieldInfoRef(pair.Key),
+          AddedItems = chainedDict==null
+            ? null
+            : chainedDict.AddedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
+          RemovedItems = chainedDict==null
+            ? null
+            : chainedDict.RemovedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
+          Items = chainedDict==null
+            ? pair.Value.Select(keyPair => keyPair.Key.ToString(true)).ToArray()
+            : null
+        };
+      }).ToArray();
+      var entitySets = setStates.Select(pair => {
+        var chainedDict = pair.Value.Items as ChainedDictionary<Key, Key>;
+        return new SerializedEntitySet {
+          Field = new FieldInfoRef(pair.Key),
+          IsFullyLoaded = pair.Value.IsFullyLoaded,
+          AddedItems = chainedDict==null
+            ? null
+            : chainedDict.AddedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
+          RemovedItems = chainedDict==null
+            ? null
+            : chainedDict.RemovedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
+          Items = chainedDict==null
+            ? pair.Value.Items.Select(keyPair => keyPair.Key.ToString(true)).ToArray()
+            : null
+        };
+      }).ToArray();
+
+      return new SerializedEntityState() {
+        Key = key,
+        Tuple = serializedTuple,
+        IsRemoved = IsRemoved,
+        References = refs,
+        EntitySets = entitySets
+      };
     }
 
     public static DisconnectedEntityState Deserialize(SerializedEntityState serialized, StateRegistry registry, Domain domain)
     {
       var key = Key.Parse(domain, serialized.Key);
       var origin = registry.Origin!=null ? registry.Origin.GetState(key) : null;
-      DisconnectedEntityState state;
-      state = origin!=null
-        ? new DisconnectedEntityState(origin) 
+      var state = origin!=null
+        ? new DisconnectedEntityState(origin)
         : new DisconnectedEntityState(key);
       state.IsRemoved = serialized.IsRemoved;
       if (serialized.Tuple.Value!=null)
         state.Tuple = serialized.Tuple.Value;
-      foreach (var reference in serialized.References) {
-        var field = reference.Key.Resolve(domain.Model);
-        var dictionary = state.GetReferences(field);
-        foreach (var item in reference.Value.Items) {
-          var itemKey = Key.Parse(domain, item);
-          dictionary.Add(itemKey, itemKey);
-        }
-        foreach (var item in reference.Value.AddedItems) {
-          var itemKey = Key.Parse(domain, item);
-          dictionary.Add(itemKey, itemKey);
-        }
-        foreach (var item in reference.Value.RemovedItems) {
-          var itemKey = Key.Parse(domain, item);
-          dictionary.Remove(itemKey);
+      if (serialized.References!=null) {
+        foreach (var reference in serialized.References) {
+          var field = reference.Field.Resolve(domain.Model);
+          var dictionary = state.GetReferences(field);
+          if (reference.Items!=null)
+            foreach (var item in reference.Items) {
+              var itemKey = Key.Parse(domain, item);
+              dictionary.Add(itemKey, itemKey);
+            }
+          if (reference.AddedItems!=null)
+            foreach (var item in reference.AddedItems) {
+              var itemKey = Key.Parse(domain, item);
+              dictionary.Add(itemKey, itemKey);
+            }
+          if (reference.RemovedItems!=null)
+            foreach (var item in reference.RemovedItems) {
+              var itemKey = Key.Parse(domain, item);
+              dictionary.Remove(itemKey);
+            }
         }
       }
-      foreach (var entitySet in serialized.EntitySets) {
-        var field = entitySet.Key.Resolve(domain.Model);
-        var setState = state.GetEntitySetState(field);
-        setState.IsFullyLoaded = entitySet.Value.First;
-        foreach (var item in entitySet.Value.Second.Items) {
-          var itemKey = Key.Parse(domain, item);
-          setState.Items.Add(itemKey, itemKey);
-        }
-        foreach (var item in entitySet.Value.Second.AddedItems) {
-          var itemKey = Key.Parse(domain, item);
-          setState.Items.Add(itemKey, itemKey);
-        }
-        foreach (var item in entitySet.Value.Second.RemovedItems) {
-          var itemKey = Key.Parse(domain, item);
-          setState.Items.Remove(itemKey);
+      if (serialized.EntitySets!=null) {
+        foreach (var entitySet in serialized.EntitySets) {
+          var field = entitySet.Field.Resolve(domain.Model);
+          var setState = state.GetEntitySetState(field);
+          setState.IsFullyLoaded = entitySet.IsFullyLoaded;
+          if (entitySet.Items!=null)
+            foreach (var item in entitySet.Items) {
+              var itemKey = Key.Parse(domain, item);
+              setState.Items.Add(itemKey, itemKey);
+            }
+          if (entitySet.AddedItems!=null)
+            foreach (var item in entitySet.AddedItems) {
+              var itemKey = Key.Parse(domain, item);
+              setState.Items.Add(itemKey, itemKey);
+            }
+          if (entitySet.RemovedItems!=null)
+            foreach (var item in entitySet.RemovedItems) {
+              var itemKey = Key.Parse(domain, item);
+              setState.Items.Remove(itemKey);
+            }
         }
       }
       return state;
