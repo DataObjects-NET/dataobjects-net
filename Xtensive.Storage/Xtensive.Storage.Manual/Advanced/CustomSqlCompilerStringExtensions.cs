@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace Xtensive.Storage.Manual.Advanced
 {
-  public static class CustomCompilerStringExtensions
+  public static class CustomSqlCompilerStringExtensions
   {
     public static char GetThirdChar(this string source)
     {

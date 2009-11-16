@@ -259,10 +259,6 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitIn(MethodCallExpression mc)
     {
-//      if (mc.Arguments[1].IsLocalCollection(context)) {
-//        var data = Visit(mc.Arguments[0]);
-//        throw new NotImplementedException();
-//      }
       return VisitContains(mc.Arguments[1], mc.Arguments[0], false);
     }
 

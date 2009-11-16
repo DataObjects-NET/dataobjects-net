@@ -72,10 +72,30 @@ namespace Xtensive.Storage.Manual.Advanced
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {
           AddPersons();
-          var addresses = Query<Person>.All.Select(p => CustomCompilerStringExtensions.BuildAddressString(p.Address.Country, p.Address.City, p.Address.Building));
+          var addresses = Query<Person>.All.Select(p => CustomSqlCompilerStringExtensions.BuildAddressString(p.Address.Country, p.Address.City, p.Address.Building));
           var orderedAddresses = addresses.OrderBy(c=>c).ToList();
-          var addressesExpected = Query<Person>.All.AsEnumerable().Select(p => CustomCompilerStringExtensions.BuildAddressString(p.Address.Country, p.Address.City, p.Address.Building)).OrderBy(a=>a);
+          var addressesExpected = Query<Person>.All.AsEnumerable().Select(p => CustomSqlCompilerStringExtensions.BuildAddressString(p.Address.Country, p.Address.City, p.Address.Building)).OrderBy(a=>a);
           Assert.IsTrue(orderedAddresses.SequenceEqual(addressesExpected));
+        }
+      }
+    }
+
+    [Test]
+    public void GetHashCode()
+    {
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      config.CompilerContainers.Register(typeof (CustomStringCompilerContainer));
+      var domain = Domain.Build(config);
+      using (var session = Session.Open(domain)) {
+        using (Transaction.Open(session)) {
+          AddPersons();
+          var hashCodes = Query<Person>.All
+            .OrderBy(c=>c)
+            .Select(p => new {String = p.Address.Country, HashCode = p.Address.Country.GetHashCode()});
+          foreach (var hashCode in hashCodes)
+            Assert.AreEqual(hashCode.String.Length, hashCode.HashCode);
         }
       }
     }

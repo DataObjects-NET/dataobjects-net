@@ -16,16 +16,23 @@ namespace Xtensive.Storage.Manual.Advanced
   [CompilerContainer(typeof(SqlExpression))]
   public static class CustomStringCompilerContainer
   {
-    [Compiler(typeof(CustomCompilerStringExtensions), "GetThirdChar", TargetKind.Method | TargetKind.Static)]
+    [Compiler(typeof(CustomSqlCompilerStringExtensions), "GetThirdChar", TargetKind.Method | TargetKind.Static)]
     public static SqlExpression GetThirdChar(SqlExpression _this)
     {
       return SqlDml.Substring(_this, 2, 1);
     }
 
-    [Compiler(typeof(CustomCompilerStringExtensions), "BuildAddressString", TargetKind.Method | TargetKind.Static)]
+    [Compiler(typeof(CustomSqlCompilerStringExtensions), "BuildAddressString", TargetKind.Method | TargetKind.Static)]
     public static SqlExpression BuildAddressString(SqlExpression countryExpression, SqlExpression streetExpression, SqlExpression buildingExpression)
     {
       return SqlDml.Concat(countryExpression, SqlDml.Literal(", "), streetExpression, SqlDml.Literal("-"), buildingExpression);
+    }
+
+    [Compiler(typeof(string), "GetHashCode", TargetKind.Method)]
+    public static SqlExpression GetHashCode(SqlExpression _this)
+    {
+      // return string length as hashcode.
+      return SqlDml.CharLength(_this);
     }
   }
 }

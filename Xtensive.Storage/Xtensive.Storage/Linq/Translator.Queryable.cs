@@ -967,7 +967,6 @@ namespace Xtensive.Storage.Linq
           var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
           var newDataSource = outerResult.ItemProjector.DataSource
             .Include(IncludeAlgorithm.Auto, true, tuples, context.GetNextAlias(), mapping);
-//            .Filter(tuple => tuple.GetValueOrDefault<bool>(columnIndex));
 
           var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
           var newOuterResult = new ProjectionExpression(outerResult.Type, newItemProjector, outerResult.TupleParameterBindings, outerResult.ResultType);
