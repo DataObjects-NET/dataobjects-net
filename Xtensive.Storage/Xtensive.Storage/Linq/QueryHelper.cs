@@ -66,12 +66,12 @@ namespace Xtensive.Storage.Linq
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, Log.Instance);
 
       var elementType = field.UnderlyingProperty.PropertyType.GetGenericArguments()[0];
-
-      if (field.Association.Multiplicity == Multiplicity.OneToMany) {
+      var association = field.Association;
+      if (association.Multiplicity == Multiplicity.OneToMany) {
         var whereParameter = Expression.Parameter(elementType, "p");
         var whereExpression = Expression.Equal(
           Expression.Property(
-            Expression.Property(whereParameter, field.Association.Reversed.OwnerField.Name),
+            Expression.Property(whereParameter, association.Reversed.OwnerField.Name),
             WellKnown.KeyFieldName),
           Expression.Property(
             ownerEntity,
@@ -84,23 +84,25 @@ namespace Xtensive.Storage.Linq
           );
       }
 
-      var connectorType = field.Association.Master.AuxiliaryType.UnderlyingType;
-      string master = WellKnown.MasterFieldName;
-      string slave = WellKnown.SlaveFieldName;
+      var connectorType = association.AuxiliaryType.UnderlyingType;
+      var referencedType = association.IsMaster
+        ? association.OwnerType
+        : association.TargetType;
+      var referencingField = association.IsMaster
+        ? association.AuxiliaryType.Fields[WellKnown.SlaveFieldName]
+        : association.AuxiliaryType.Fields[WellKnown.MasterFieldName];
+      var referencedField = association.IsMaster
+        ? association.AuxiliaryType.Fields[WellKnown.MasterFieldName]
+        : association.AuxiliaryType.Fields[WellKnown.SlaveFieldName];
 
-      if (field.ReflectedType.UnderlyingType != field.Association.Master.OwnerType.UnderlyingType) {
-        var s = master;
-        master = slave;
-        slave = s;
-      }
       var filterParameter = Expression.Parameter(connectorType, "t");
       var filterExpression = Expression.Equal(
-        Expression.Property(
-          Expression.Property(filterParameter, master),
-          WellKnown.KeyFieldName),
-        Expression.Property(
+        Expression.MakeMemberAccess(
+          Expression.MakeMemberAccess(filterParameter, referencedField.UnderlyingProperty),
+          WellKnownMembers.IEntityKey),
+        Expression.MakeMemberAccess(
           ownerEntity,
-          WellKnown.KeyFieldName)
+          WellKnownMembers.IEntityKey)
         );
 
       var outerQuery = Expression.Call(
@@ -110,20 +112,25 @@ namespace Xtensive.Storage.Linq
         );
 
       var outerSelectorParameter = Expression.Parameter(connectorType, "o");
-      var outerSelector = FastExpression.Lambda(Expression.Property(outerSelectorParameter, slave), outerSelectorParameter);
+      var outerSelector = FastExpression.Lambda(
+        Expression.MakeMemberAccess(outerSelectorParameter, referencingField.UnderlyingProperty),
+        outerSelectorParameter);
       var innerSelectorParameter = Expression.Parameter(elementType, "i");
       var innerSelector = FastExpression.Lambda(innerSelectorParameter, innerSelectorParameter);
       var resultSelector = FastExpression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
 
-      return Expression.Call(typeof(Queryable), "Join", new[]
-        {
+      var innerQuery = CreateEntityQueryExpression(elementType);
+      var joinMethodInfo = typeof (Queryable).GetMethods()
+        .Single(mi => mi.Name == Core.Reflection.WellKnown.Queryable.Join && mi.IsGenericMethod && mi.GetParameters().Length == 5)
+        .MakeGenericMethod(new[] {
           connectorType,
           elementType,
           outerSelector.Body.Type,
           resultSelector.Body.Type
-        },
+        });
+      return Expression.Call(joinMethodInfo, 
         outerQuery,
-        CreateEntityQueryExpression(elementType),
+        innerQuery,
         outerSelector,
         innerSelector,
         resultSelector);
