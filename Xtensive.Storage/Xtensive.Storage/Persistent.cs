@@ -108,8 +108,13 @@ namespace Xtensive.Storage
     {
       FieldInfo field = Type.Fields[fieldName];
       // TODO: Improve (use DelegateHelper)
-      if (field.UnderlyingProperty!=null)
+      if (field.UnderlyingProperty!=null) {
+        // Public accessor check
+        var mi = field.UnderlyingProperty.GetGetMethod();
+        if (mi == null)
+          throw new InvalidOperationException(string.Format("Property '{0}' doesn't have public getter.", fieldName));
         return (T) field.UnderlyingProperty.GetValue(this, null);
+      }
       return GetFieldValue<T>(fieldName);
     }
 
@@ -129,8 +134,13 @@ namespace Xtensive.Storage
     {
       FieldInfo field = Type.Fields[fieldName];
       // TODO: Improve (use DelegateHelper)
-      if (field.UnderlyingProperty!=null)
+      if (field.UnderlyingProperty!=null) {
+        // Public accessor check
+        var mi = field.UnderlyingProperty.GetSetMethod();
+        if (mi == null)
+          throw new InvalidOperationException(string.Format("Property '{0}' doesn't have public setter.", fieldName));
         field.UnderlyingProperty.SetValue(this, value, null);
+      }
       else
         SetFieldValue(fieldName, value);
     }
