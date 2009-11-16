@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage
 {
@@ -61,6 +62,12 @@ namespace Xtensive.Storage
     /// Maximal supported length (count of values) of purely generic keys.
     /// </summary>
     public const int MaxGenericKeyLength = 4;
+
+    /// <summary>
+    /// Maximal number of filtering values in an <see cref="IncludeProvider"/> 
+    /// which are to be placed inside a resulted SQL command (as boolean predicate).
+    /// </summary>
+    public const int MaxNumberOfConditions = 20;
 
     /// <summary>
     /// Well-known storage protocol names.

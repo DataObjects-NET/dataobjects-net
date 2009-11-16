@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Internals.Prefetch
   [Serializable]
   internal sealed class EntityGroupTask
   {
+    private const int MaxKeyCountInOneStatement = 100;
     private static readonly object recordSetCachingRegion = new object();
     private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private static readonly Parameter<IEnumerable<Tuple>> includeParameter =
@@ -32,8 +33,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly TypeInfo type;
     private readonly int cachedHashCode;
     private readonly PrefetchProcessor processor;
-    //private List<QueryTask> queryTasks;
-    private QueryTask queryTask;
+    private List<QueryTask> queryTasks;
+    //private QueryTask queryTask;
 
     public RecordSet RecordSet { get; private set; }
 
@@ -48,17 +49,16 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public void RegisterQueryTasks()
     {
-      queryTask = CreateQueryTask();
-      processor.Owner.Session.RegisterDelayedQuery(queryTask);
-      /*queryTasks = new List<QueryTask>(keys.Count);
-      var skip = 0;
-      var take = 100;
-      while (skip < keys.Count) {
-        var queryTask = CreateQueryTask(skip, take);
+      /*queryTask = CreateQueryTask();
+      processor.Owner.Session.RegisterDelayedQuery(queryTask);*/
+      queryTasks = new List<QueryTask>(keys.Count);
+      var skipCount = 0;
+      while (skipCount < keys.Count) {
+        var queryTask = CreateQueryTask(skipCount);
         queryTasks.Add(queryTask);
         processor.Owner.Session.RegisterDelayedQuery(queryTask);
-        skip += take;
-      };*/
+        skipCount += MaxKeyCountInOneStatement;
+      };
       /*queryTasks = new List<QueryTask>(keys.Count);
       foreach (var pair in keys) {
         var queryTask = CreateQueryTask(pair.Key);
@@ -71,9 +71,9 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       foundedKeys.Clear();
       var reader = processor.Owner.Session.Domain.RecordSetReader;
-      //foreach (var queryTask in queryTasks)
-      //  PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
-      PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
+      foreach (var queryTask in queryTasks)
+        PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
+      //PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
       HandleMissedKeys(foundedKeys);
     }
 
@@ -109,13 +109,15 @@ namespace Xtensive.Storage.Internals.Prefetch
       return cachedHashCode;
     }
 
-    private QueryTask CreateQueryTask(/*Key key*/)
+    private QueryTask CreateQueryTask(/*Key key*/int skipCount)
     {
       var parameterContext = new ParameterContext();
       using (parameterContext.Activate()) {
         //seekParameter.Value = key.Value;
-        //includeParameter.Value = keys.Skip(skip).Take(take).Select(pair => pair.Key.Value).ToList();
-        includeParameter.Value = keys.Select(pair => pair.Key.Value).ToList();
+        var tuples = new List<Tuple>(MaxKeyCountInOneStatement);
+        tuples.AddRange(keys.Skip(skipCount).Take(MaxKeyCountInOneStatement)
+          .Select(pair => pair.Key.Value));
+        includeParameter.Value = tuples;
         RecordSet = (RecordSet) processor.Owner.Session.Domain.GetCachedItem(
           new Pair<object, EntityGroupTask>(recordSetCachingRegion, this), CreateRecordSet);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);

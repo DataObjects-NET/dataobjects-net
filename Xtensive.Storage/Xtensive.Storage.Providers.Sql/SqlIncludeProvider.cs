@@ -21,8 +21,6 @@ namespace Xtensive.Storage.Providers.Sql
   {
     public const string RowFilterDataName = "RowFilterData";
     
-    private const int MaxNumberOfConditions = 20;
-
     private readonly Func<IEnumerable<Tuple>> filterDataSource;
 
     private new IncludeProvider Origin { get { return (IncludeProvider) base.Origin; } }
@@ -33,7 +31,7 @@ namespace Xtensive.Storage.Providers.Sql
       switch (Origin.Algorithm) {
       case IncludeAlgorithm.Auto:
         var filterData = filterDataSource.Invoke().ToList();
-        if (filterData.Count > MaxNumberOfConditions)
+        if (filterData.Count > WellKnown.MaxNumberOfConditions)
           LockAndStore(context, filterData);
         else
           context.SetValue(filterDataSource, RowFilterDataName, filterData);
