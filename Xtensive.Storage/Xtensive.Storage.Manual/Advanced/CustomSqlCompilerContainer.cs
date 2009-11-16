@@ -14,7 +14,7 @@ using Xtensive.Sql.Dml;
 namespace Xtensive.Storage.Manual.Advanced
 {
   [CompilerContainer(typeof(SqlExpression))]
-  public static class CustomStringCompilerContainer
+  public static class CustomSqlCompilerContainer
   {
     [Compiler(typeof(CustomSqlCompilerStringExtensions), "GetThirdChar", TargetKind.Method | TargetKind.Static)]
     public static SqlExpression GetThirdChar(SqlExpression _this)
