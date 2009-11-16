@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using System.Linq;
 
-namespace Xtensive.Storage.Manual.Advanced
+namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
 {
   public class Address : Structure
   {

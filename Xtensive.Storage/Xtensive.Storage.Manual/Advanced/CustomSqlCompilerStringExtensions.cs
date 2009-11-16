@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Storage.Manual.Advanced
+namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
 {
   public static class CustomSqlCompilerStringExtensions
   {

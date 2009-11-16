@@ -11,7 +11,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Storage.Manual.Advanced
+namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
 {
   [CompilerContainer(typeof(SqlExpression))]
   public static class CustomSqlCompilerContainer
