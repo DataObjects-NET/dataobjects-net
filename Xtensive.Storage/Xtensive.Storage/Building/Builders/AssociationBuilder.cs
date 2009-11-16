@@ -24,6 +24,7 @@ namespace Xtensive.Storage.Building.Builders
       var association = new AssociationInfo(field, referencedType, multiplicity, fieldDef.OnOwnerRemove, fieldDef.OnTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       context.Model.Associations.Add(association);
+      field.Association = association;
 
       if (!fieldDef.PairTo.IsNullOrEmpty())
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, fieldDef.PairTo));
@@ -35,6 +36,7 @@ namespace Xtensive.Storage.Building.Builders
       var association = new AssociationInfo(field, origin.TargetType, origin.Multiplicity, origin.OnOwnerRemove, origin.OnTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       context.Model.Associations.Add(association);
+      field.Association = association;
 
       Pair<AssociationInfo, string> pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();
       if (pairTo.First!=null)
@@ -55,8 +57,8 @@ namespace Xtensive.Storage.Building.Builders
       FieldInfo pairedField = slave.OwnerField;
 
       AssociationInfo master = masterField.Association;
-//      if (master.Reversed!=null && master.Reversed!=slave)
-//        throw new InvalidOperationException(String.Format(Strings.ExMasterAssociationIsAlreadyPaired, master.Name, master.Reversed.Name));
+      if (master.Reversed!=null && master.Reversed!=slave)
+        throw new InvalidOperationException(String.Format(Strings.ExMasterAssociationIsAlreadyPaired, master.Name, master.Reversed.Name));
 
       slave.IsMaster = false;
       master.IsMaster = true;

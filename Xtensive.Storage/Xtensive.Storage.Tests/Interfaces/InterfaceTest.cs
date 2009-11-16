@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.09.08
 
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model;
@@ -12,17 +13,22 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
 {
   public interface IPerson : IEntity
   {
+    [Field]
     string Name { get; set; }
 
+    [Field]
     EntitySet<IAnimal> Pets { get; }
 
+    [Field]
     IAnimal Favorite { get; set; }
   }
 
   public interface IAnimal : IEntity
   {
+    [Field]
     string PetName { get; set; }
 
+    [Field]
     IPerson Owner { get; set; }
   }
 
@@ -32,13 +38,10 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
     public string Name { get; set; }
 
-    [Field]
     public EntitySet<IAnimal> Pets { get; private set; }
 
-    [Field]
     public IAnimal Favorite { get; set; }
   }
 
@@ -48,13 +51,10 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
     public string Name { get; set; }
 
-    [Field]
     public EntitySet<IAnimal> Pets { get; private set; }
 
-    [Field]
     public IAnimal Favorite { get; set; }
   }
 
@@ -64,10 +64,8 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
     public string PetName { get; set; }
 
-    [Field]
     public IPerson Owner { get; set; }
   }
 
@@ -77,10 +75,8 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
     public string PetName { get; set; }
 
-    [Field]
     public IPerson Owner { get; set; }
   }
 }
@@ -101,9 +97,32 @@ namespace Xtensive.Storage.Tests.Interfaces
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          
 
-          // Rollback
+          IPerson p = new Person1();
+          p.Pets.Add(new Animal1());
+          p.Pets.Add(new Animal1());
+          p.Pets.Add(new Animal2());
+
+          p = new Person2();
+          p.Pets.Add(new Animal1());
+          p.Pets.Add(new Animal1());
+          p.Pets.Add(new Animal2());
+
+          Session.Current.Persist();
+
+          p = Query<IPerson>.All.First();
+          Assert.AreEqual(3, p.Pets.Count);
+
+          p.Pets.First().Remove();
+          Assert.AreEqual(2, p.Pets.Count);
+
+          p.Pets.First().Owner.Remove();
+
+          var animals = Query<IAnimal>.All;
+          Assert.AreEqual(3, animals.Count());
+          Assert.IsNotNull(animals.First().Owner);
+
+          t.Complete();
         }
       }
     }

@@ -127,9 +127,11 @@ namespace Xtensive.Storage.Building.Builders
       }
       typeInfo.Columns.AddRange(typeInfo.Fields.Where(f => f.Column!=null).Select(f => f.Column));
 
-      if (!typeInfo.IsInterface)
+      if (typeInfo.IsEntity && !IsEntitySetItem(typeInfo)) {
         foreach (var @interface in typeInfo.GetInterfaces())
           BuildFieldMap(context, @interface, typeInfo);
+        ProcessImplementedAssociations(context, typeInfo);
+      }
     }
 
     #region Private members
@@ -153,6 +155,18 @@ namespace Xtensive.Storage.Building.Builders
           implementor.FieldMap.Add(field, implField);
         else
           implementor.FieldMap.Override(field, implField);
+      }
+    }
+
+    private static void ProcessImplementedAssociations(BuildingContext context, TypeInfo typeInfo)
+    {
+      var fields = typeInfo.Fields.Where(f => f.IsDeclared && f.IsInterfaceImplementation && (f.IsEntity || f.IsEntitySet));
+      foreach (var fieldInfo in fields) {
+        var interfaceField = typeInfo.FieldMap.GetImplementedInterfaceFields(fieldInfo).FirstOrDefault();
+        if (interfaceField == null)
+          continue;
+        context.Model.Associations.Remove(fieldInfo.Association);
+        fieldInfo.Association = interfaceField.Association;
       }
     }
 
@@ -185,9 +199,7 @@ namespace Xtensive.Storage.Building.Builders
         BuildNestedFields(context, fieldInfo, fields);
 
         if (type.IsEntity) {
-          // Skip association building for EntitySetItem types
-          var baseType = type.UnderlyingType.BaseType;
-          if (!baseType.IsGenericType || baseType.GetGenericTypeDefinition()!=typeof (EntitySetItem<,>))
+          if (!IsEntitySetItem(type))
             AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
         }
         else if (type.IsInterface)

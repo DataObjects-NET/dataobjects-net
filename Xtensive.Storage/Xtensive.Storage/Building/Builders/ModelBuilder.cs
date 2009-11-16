@@ -116,6 +116,8 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var pair in context.PairedAssociations) {
           if (context.DiscardedAssociations.Contains(pair.First))
             continue;
+          if (!context.Model.Associations.Contains(pair.First))
+            continue;
           AssociationBuilder.BuildPairedAssociation(pair.First, pair.Second);
         }
 

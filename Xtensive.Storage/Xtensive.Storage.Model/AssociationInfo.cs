@@ -183,8 +183,7 @@ namespace Xtensive.Storage.Model
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
-      if (!OwnerType.IsEntity)
-        return;
+
       switch (Multiplicity) {
       case Multiplicity.ZeroToOne:
       case Multiplicity.OneToOne:
@@ -227,7 +226,6 @@ namespace Xtensive.Storage.Model
       Multiplicity = multiplicity;
       OnOwnerRemove = onOwnerRemove;
       OnTargetRemove = onTargetRemove;
-      ownerField.Association = this;
     }
   }
 }
