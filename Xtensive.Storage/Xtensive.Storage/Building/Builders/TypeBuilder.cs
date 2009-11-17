@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Building.Builders
       }
       typeInfo.Columns.AddRange(typeInfo.Fields.Where(f => f.Column!=null).Select(f => f.Column));
 
-      if (typeInfo.IsEntity && !IsEntitySetItem(typeInfo)) {
+      if (typeInfo.IsEntity && !IsAuxiliaryType(typeInfo)) {
         foreach (var @interface in typeInfo.GetInterfaces())
           BuildFieldMap(context, @interface, typeInfo);
         ProcessImplementedAssociations(context, typeInfo);
@@ -198,11 +198,7 @@ namespace Xtensive.Storage.Building.Builders
         var fields = context.Model.Types[fieldInfo.ValueType].Fields.Where(f => f.IsPrimaryKey);
         BuildNestedFields(context, fieldInfo, fields);
 
-        if (type.IsEntity) {
-          if (!IsEntitySetItem(type))
-            AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
-        }
-        else if (type.IsInterface)
+        if (!IsAuxiliaryType(type))
           AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
       }
 
@@ -253,23 +249,24 @@ namespace Xtensive.Storage.Building.Builders
             target.Fields.Add(clonedFields);
         }
         else {
-          if (field.Column != null)
+          if (field.Column!=null)
             clone.Column = BuildInheritedColumn(context, clone, field.Column);
-          if (clone.IsEntity && !IsEntitySetItem(clone.ReflectedType)) {
-            var refField = field;
-            var origin = context.Model.Associations.Find(context.Model.Types[field.ValueType], true).Where(a => a.OwnerField == refField).FirstOrDefault();
-            if (origin != null) {
-              AssociationBuilder.BuildAssociation(origin, clone);
-              context.DiscardedAssociations.Add(origin);
-            }
+        }
+        if (clone.IsEntity && !IsAuxiliaryType(clone.ReflectedType)) {
+          var origin = context.Model.Associations.Find(context.Model.Types[field.ValueType], true).Where(a => a.OwnerField==field).FirstOrDefault();
+          if (origin!=null) {
+            AssociationBuilder.BuildAssociation(origin, clone);
+            context.DiscardedAssociations.Add(origin);
           }
         }
       }
     }
 
-    private static bool IsEntitySetItem(TypeInfo type)
+    private static bool IsAuxiliaryType(TypeInfo type)
     {
-      Type underlyingBaseType = type.UnderlyingType.BaseType;
+      if (!type.IsEntity)
+        return false;
+      var underlyingBaseType = type.UnderlyingType.BaseType;
       return underlyingBaseType!=null
         && underlyingBaseType.IsGenericType
           && underlyingBaseType.GetGenericTypeDefinition()==typeof (EntitySetItem<,>);

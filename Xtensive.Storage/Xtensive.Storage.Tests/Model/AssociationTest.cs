@@ -768,5 +768,23 @@ namespace Xtensive.Storage.Tests.Model
         }
       }
     }
+
+    [Test]
+    public void IntermediateStructureTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var tx = Transaction.Open()) {
+          
+          A first = new A();
+          A second = new A();
+          first.IndirectA.IntermediateStructure2.A = second;
+
+          second.Remove();
+          Assert.IsNull(first.IndirectA.IntermediateStructure2.A);
+
+          tx.Complete();
+        }
+      }
+    }
   }
 }
