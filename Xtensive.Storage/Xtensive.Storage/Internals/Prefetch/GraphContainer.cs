@@ -55,23 +55,21 @@ namespace Xtensive.Storage.Internals.Prefetch
       RootEntityContainer.AddColumns(columns);
     }
 
-    public void RegisterReferencedEntityContainer(Tuple ownerEntityTuple,
+    public void RegisterReferencedEntityContainer(EntityState ownerState,
       PrefetchFieldDescriptor referencingFieldDescriptor)
     {
       if (referencedEntityContainers != null
         && referencedEntityContainers.ContainsKey(referencingFieldDescriptor.Field))
         return;
-      var notLoadedForeignKeyColumns = GetNotLoadedFieldColumns(ownerEntityTuple,
-        referencingFieldDescriptor.Field);
+      var notLoadedForeignKeyColumns = GetNotLoadedFieldColumns(ownerState, referencingFieldDescriptor.Field);
       var areAllForeignKeyColumnsLoaded = notLoadedForeignKeyColumns.Count()==0;
       if (!areAllForeignKeyColumnsLoaded)
         RegisterFetchByUnknownForeignKey(referencingFieldDescriptor, notLoadedForeignKeyColumns);
       else
-        RegisterFetchByKnownForeignKey(referencingFieldDescriptor, ownerEntityTuple);
+        RegisterFetchByKnownForeignKey(referencingFieldDescriptor, ownerState);
     }
 
-    public void RegisterEntitySetTask(Tuple ownerEntityTuple,
-      PrefetchFieldDescriptor referencingFieldDescriptor)
+    public void RegisterEntitySetTask(EntityState ownerState, PrefetchFieldDescriptor referencingFieldDescriptor)
     {
       if (entitySetTasks==null)
         entitySetTasks = new Dictionary<FieldInfo, EntitySetTask>();
@@ -79,7 +77,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         AddEntityColumns(Key.TypeRef.Type.Fields
           .Where(field => field.IsPrimaryKey || field.IsSystem).SelectMany(field => field.Columns));
       entitySetTasks[referencingFieldDescriptor.Field] =
-        new EntitySetTask(Key, referencingFieldDescriptor, ownerEntityTuple != null, processor);
+        new EntitySetTask(Key, referencingFieldDescriptor, ownerState != null, processor);
     }
     
     public void NotifyAboutExtractionOfKeysWithUnknownType()
@@ -126,23 +124,26 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     #region Private \ internal methods
 
-    private IEnumerable<ColumnInfo> GetNotLoadedFieldColumns(Tuple tuple, FieldInfo field)
+    private static IEnumerable<ColumnInfo> GetNotLoadedFieldColumns(EntityState state, FieldInfo field)
     {
-      return field.Columns.Where(column => !IsColumnLoaded(tuple, column));
+      if (state == null)
+        return field.Columns;
+      return FindNotLoadedColumns(state.Tuple, field);
     }
 
-    private bool IsColumnLoaded(Tuple tuple, ColumnInfo column)
+    private static IEnumerable<ColumnInfo> FindNotLoadedColumns(Tuple tuple, FieldInfo field)
     {
-      var columnIndex = Type.Indexes.PrimaryIndex.Columns.IndexOf(column);
-      return tuple!=null
-        && tuple.GetFieldState(columnIndex).IsAvailable();
+      var fieldStateMap = tuple.GetFieldStateMap(TupleFieldState.Available);
+      for (var i = 0; i < field.MappingInfo.Length; i++)
+        if (!fieldStateMap[field.MappingInfo.Offset + i])
+          yield return field.Columns[i];
     }
 
     private void RegisterFetchByKnownForeignKey(PrefetchFieldDescriptor referencingFieldDescriptor,
-      Tuple ownerEntityTuple)
+      EntityState ownerState)
     {
       var referencedKeyTuple = referencingFieldDescriptor.Field.Association
-        .ExtractForeignKey(ownerEntityTuple);
+        .ExtractForeignKey(ownerState.Tuple, ownerState.Type);
       var referencedKeyTupleState = referencedKeyTuple.GetFieldStateMap(TupleFieldState.Null);
       for (var i = 0; i < referencedKeyTupleState.Length; i++)
         if (referencedKeyTupleState[i])

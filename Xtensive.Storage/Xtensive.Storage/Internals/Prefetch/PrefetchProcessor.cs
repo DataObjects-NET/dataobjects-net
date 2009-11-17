@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
@@ -47,9 +46,9 @@ namespace Xtensive.Storage.Internals.Prefetch
 
         EnsureKeyTypeCorrespondsToSpecifiedType(key, type);
 
-        Tuple ownerEntityTuple;
+        EntityState ownerState;
         var currentKey = key;
-        if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out ownerEntityTuple))
+        if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out ownerState))
           return null;
         IEnumerable<PrefetchFieldDescriptor> selectedFields = descriptors;
         var currentType = type;
@@ -65,11 +64,11 @@ namespace Xtensive.Storage.Internals.Prefetch
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
           SetUpContainers(currentKey, currentKey.TypeRef.Type,
             PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(currentKey.TypeRef.Type),
-            true, ownerEntityTuple);
+            true, ownerState);
           var hierarchyRoot = currentKey.TypeRef.Type;
           selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
         }
-        SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerEntityTuple);
+        SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerState);
         if (referenceContainer!=null) {
           referenceContainer.JoinIfPossible(prevContainer);
           return referenceContainer;
@@ -110,30 +109,30 @@ namespace Xtensive.Storage.Internals.Prefetch
       graphContainers.Clear();
     }
 
-    public bool TryGetTupleOfNonRemovedEntity(ref Key key, out Tuple tuple)
+    public bool TryGetTupleOfNonRemovedEntity(ref Key key, out EntityState state)
     {
-      tuple = null;
+      state = null;
       bool isRemoved;
       var entityState = GetCachedEntityState(ref key, out isRemoved);
       if (isRemoved)
         return false;
       if (entityState != null) {
         SaveStrongReference(entityState);
-        tuple = entityState.Tuple;
+        state = entityState;
         key = entityState.Key;
       }
       return true;
     }
 
     public GraphContainer SetUpContainers(Key key, TypeInfo type,
-      IEnumerable<PrefetchFieldDescriptor> descriptors, bool exactType, Tuple entityTuple)
+      IEnumerable<PrefetchFieldDescriptor> descriptors, bool exactType, EntityState state)
     {
       var result = GetGraphContainer(key, type, exactType);
       foreach (var descriptor in descriptors) {
         if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary)
-          result.RegisterReferencedEntityContainer(entityTuple, descriptor);
+          result.RegisterReferencedEntityContainer(state, descriptor);
         else if (descriptor.Field.IsEntitySet)
-          result.RegisterEntitySetTask(entityTuple, descriptor);
+          result.RegisterEntitySetTask(state, descriptor);
         else {
           IEnumerable<ColumnInfo> columns = descriptor.Field.Columns;
           if (descriptor.Field.IsStructure && !descriptor.FetchLazyFields)

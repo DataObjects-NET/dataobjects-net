@@ -28,8 +28,8 @@ namespace Xtensive.Storage.Internals.Prefetch
       type = null;
       if (!key.TypeRef.Type.IsLeaf) {
         var cachedKey = key;
-        Tuple entityTuple;
-        if (!processor.TryGetTupleOfNonRemovedEntity(ref cachedKey, out entityTuple))
+        EntityState state;
+        if (!processor.TryGetTupleOfNonRemovedEntity(ref cachedKey, out state))
           return null;
         if (cachedKey.HasExactType) {
           type = cachedKey.TypeRef.Type;

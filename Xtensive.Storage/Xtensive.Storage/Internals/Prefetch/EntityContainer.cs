@@ -51,9 +51,10 @@ namespace Xtensive.Storage.Internals.Prefetch
     protected bool SelectColumnsToBeLoaded()
     {
       var key = Key;
-      Tuple tuple;
-      if (!Processor.TryGetTupleOfNonRemovedEntity(ref key, out tuple))
+      EntityState state;
+      if (!Processor.TryGetTupleOfNonRemovedEntity(ref key, out state))
         return false;
+      var tuple = state == null ? null : state.Tuple;
       var needToFetchSystemColumns = false;
       foreach (var pair in columns)
         if (tuple==null || !tuple.GetFieldState(pair.Key).IsAvailable())

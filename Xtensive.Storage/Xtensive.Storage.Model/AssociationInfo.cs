@@ -173,8 +173,8 @@ namespace Xtensive.Storage.Model
     /// Extracts the foreign key from the specified <see cref="Tuple"/>.
     /// </summary>
     /// <param name="tuple">The tuple.</param>
-    /// <returns><see cref="Tuple"/> instance with the extracted foreign key.</returns>
-    public Tuple ExtractForeignKey(Tuple tuple)
+    /// <param name="type">The type.</param>
+    public Tuple ExtractForeignKey(Tuple tuple, TypeInfo type)
     {
       return foreignKeyExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
     }
