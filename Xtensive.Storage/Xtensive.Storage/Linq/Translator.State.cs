@@ -28,6 +28,13 @@ namespace Xtensive.Storage.Linq
       private bool calculateExpressions;
       private LambdaExpression currentLambda;
       private bool joinLocalCollectionEntity;
+      private IncludeAlgorithm includeAlgorithm = IncludeAlgorithm.Auto;
+
+      public IncludeAlgorithm IncludeAlgorithm
+      {
+        get { return includeAlgorithm; }
+        set { includeAlgorithm = value; }
+      }
 
       public bool JoinLocalCollectionEntity
       {
@@ -86,6 +93,7 @@ namespace Xtensive.Storage.Linq
         newState.parameters = le.Parameters.ToArray();
         newState.calculatedColumns = new List<CalculatedColumnDescriptor>();
         newState.currentLambda = le;
+        newState.includeAlgorithm = includeAlgorithm;
         translator.state = newState;
         return new Disposable(_ => translator.state = currentState);
       }
@@ -111,6 +119,7 @@ namespace Xtensive.Storage.Linq
         buildingProjection = currentState.buildingProjection;
         currentLambda = currentState.currentLambda;
         joinLocalCollectionEntity = currentState.joinLocalCollectionEntity;
+        includeAlgorithm = currentState.includeAlgorithm;
       }
     }
   }

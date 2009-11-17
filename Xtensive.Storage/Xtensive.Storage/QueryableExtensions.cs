@@ -124,6 +124,36 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Checks if <paramref name="source"/> value contains in specified list of values.
+    /// </summary>
+    /// <typeparam name="T">Type of value to check.</typeparam>
+    /// <param name="source">Source value.</param>
+    /// <param name="source">Translation algorithm.</param>
+    /// <param name="values">List of values to check.</param>
+    /// <returns><see langword="True"/> if <paramref name="source"/> contains in the list of values, otherwise returns <see langword="false"/>.</returns>
+    /// <remarks>LINQ translator detects this method and converts it to appropriate <see langword="Contains"/> method.</remarks>
+    public static bool In<T>(this T source, IncludeAlgorithm algorithm, params T[] values)
+    {
+      return In(source, algorithm, (IEnumerable<T>)values);
+    }
+
+    /// <summary>
+    /// Checks if <paramref name="source"/> value contains in specified list of values.
+    /// </summary>
+    /// <typeparam name="T">Type of value to check.</typeparam>
+    /// <param name="source">Source value.</param>
+    /// <param name="source">Translation algorithm.</param>
+    /// <param name="values">List of values to check.</param>
+    /// <returns><see langword="True"/> if <paramref name="source"/> contains in the list of values, otherwise returns <see langword="false"/>.</returns>
+    /// <remarks>LINQ translator detects this method and converts it to appropriate <see langword="Contains"/> method.</remarks>
+    public static bool In<T>(this T source, IncludeAlgorithm algorithm, IEnumerable<T> values)
+    {
+      if (values==null)
+        return false;
+      return values.Contains(source);
+    }
+
+    /// <summary>
     /// Correlates the elements of two sequences based on matching keys. 
     /// </summary>
     /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>

@@ -259,7 +259,27 @@ namespace Xtensive.Storage.Linq
 
     private Expression VisitIn(MethodCallExpression mc)
     {
-      return VisitContains(mc.Arguments[1], mc.Arguments[0], false);
+      IncludeAlgorithm algorithm = IncludeAlgorithm.Auto;
+      Expression source = null;
+      Expression match = null;
+      switch (mc.Arguments.Count) {
+        case 2:
+        source = mc.Arguments[1];
+        match = mc.Arguments[0];
+        break;
+        case 3:
+        source = mc.Arguments[2];
+        match = mc.Arguments[0];
+        algorithm = (IncludeAlgorithm)context.Evaluator.Evaluate(mc.Arguments[1]).Value;
+        break;
+          default:
+        Exceptions.InternalError("Unknown \"In\" syntax", Log.Instance);
+        break;
+      }
+      using (state.CreateScope()) {
+        state.IncludeAlgorithm = algorithm;
+        return VisitContains(source, match, false);
+      }
     }
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>

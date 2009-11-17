@@ -945,7 +945,11 @@ namespace Xtensive.Storage.Linq
     {
       if (source.IsLocalCollection(context) && predicate!=null && predicate.Body.NodeType==ExpressionType.Equal) {
         var parameter = predicate.Parameters[0];
-        ProjectionExpression visitedSource = VisitSequence(source);
+        ProjectionExpression visitedSource;
+        using (state.CreateScope()) {
+          state.IncludeAlgorithm = IncludeAlgorithm.Auto;
+          visitedSource = VisitSequence(source);
+        }
 
         ParameterExpression outerParameter = state.Parameters[0];
         var outerResult = context.Bindings[outerParameter];
@@ -955,7 +959,11 @@ namespace Xtensive.Storage.Linq
         using (state.CreateScope()) {
           state.CalculateExpressions = false;
           state.CurrentLambda = predicate;
-          var predicateExpression = (ItemProjectorExpression) VisitLambda(predicate);
+          ItemProjectorExpression predicateExpression;
+          using (state.CreateScope()) {
+            state.IncludeAlgorithm = IncludeAlgorithm.Auto;
+            predicateExpression = (ItemProjectorExpression) VisitLambda(predicate);
+          }
           var predicateLambda = predicateExpression.ToLambda(context);
 
           var parameterSource = context.Bindings[parameter];
@@ -966,12 +974,12 @@ namespace Xtensive.Storage.Linq
 
           var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
           var newDataSource = outerResult.ItemProjector.DataSource
-            .Include(IncludeAlgorithm.Auto, true, tuples, context.GetNextAlias(), mapping);
+            .Include(state.IncludeAlgorithm, true, tuples, context.GetNextAlias(), mapping);
 
           var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
           var newOuterResult = new ProjectionExpression(outerResult.Type, newItemProjector, outerResult.TupleParameterBindings, outerResult.ResultType);
           context.Bindings.ReplaceBound(outerParameter, newOuterResult);
-          Expression columnExpression = ColumnExpression.Create(typeof(bool), columnIndex);
+          Expression columnExpression = ColumnExpression.Create(typeof (bool), columnIndex);
           if (notExists)
             columnExpression = Expression.Not(columnExpression);
           return columnExpression;

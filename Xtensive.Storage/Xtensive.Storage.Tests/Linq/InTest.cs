@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -218,6 +219,35 @@ namespace Xtensive.Storage.Tests.Linq
         from order in Query<Order>.All
         where order.Id.In(ids)
         select order);
+    }
+
+    [Test]
+    public void ComplexCondition1Test()
+    {
+      var includeAlgorithm = IncludeAlgorithm.TemporaryTable;
+      var list = new List<int> {7, 22, 46};
+      var query = from order in Query<Order>.All
+      where order.Id.In(includeAlgorithm, list)
+      select order;
+      var expected = from order in Query<Order>.All.AsEnumerable()
+      where order.Id.In(includeAlgorithm, list)
+      select order;
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public void ComplexCondition2Test()
+    {
+      var includeAlgorithm = IncludeAlgorithm.TemporaryTable;
+      var query = from order in Query<Order>.All
+      where order.Id.In(includeAlgorithm, 7, 22, 46)
+      select order;
+      var expected = from order in Query<Order>.All.AsEnumerable()
+      where order.Id.In(includeAlgorithm, 7, 22, 46)
+      select order;
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
     }
   }
 }
