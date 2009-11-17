@@ -779,8 +779,7 @@ namespace Xtensive.Storage.Tests.Model
           A second = new A();
           first.IndirectA.IntermediateStructure2.A = second;
 
-          second.Remove();
-          Assert.IsNull(first.IndirectA.IntermediateStructure2.A);
+          AssertEx.Throws<ReferentialIntegrityException>(second.Remove);
 
           tx.Complete();
         }
