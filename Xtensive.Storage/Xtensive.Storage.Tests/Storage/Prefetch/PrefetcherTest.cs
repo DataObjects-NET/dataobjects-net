@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           var orderState = session.EntityStateCache[key, true];
           var employeeKey = Key.Create(Domain, typeof(Employee).GetTypeInfo(Domain),
             TypeReferenceAccuracy.ExactType, employeeField.Association
-              .ExtractForeignKey(orderState.Tuple, orderState.Type));
+              .ExtractForeignKey(orderState.Type, orderState.Tuple));
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session, fieldSelector);
         }
       }

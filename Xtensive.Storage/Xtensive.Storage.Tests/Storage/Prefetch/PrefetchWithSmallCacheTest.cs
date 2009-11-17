@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, orderType, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           var employeeKey = Key.Create<Person>(employeeField.Association
-            .ExtractForeignKey(orderState.Tuple, orderState.Type));
+            .ExtractForeignKey(orderState.Type, orderState.Tuple));
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }

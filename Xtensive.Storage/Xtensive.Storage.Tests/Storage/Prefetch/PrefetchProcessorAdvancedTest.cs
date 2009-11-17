@@ -275,7 +275,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           var orderState = session.EntityStateCache[orderKey, true];
           var customerKey = Key.Create(Domain, typeof(Customer).GetTypeInfo(Domain),
             TypeReferenceAccuracy.ExactType, CustomerField.Association
-              .ExtractForeignKey(orderState.Tuple, orderState.Type));
+              .ExtractForeignKey(orderState.Type, orderState.Tuple));
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customerKey, CustomerType, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }

@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
               PrefetchTestHelper.IsFieldToBeLoadedByDefault);
             var employeeKey = Key.Create<Person>(employeeField.Association
-              .ExtractForeignKey(orderState.Tuple, orderState.Type));
+              .ExtractForeignKey(orderState.Type, orderState.Tuple));
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session,
               PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           }
@@ -366,7 +366,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, bookType, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           var ownerState = session.EntityStateCache[key, true];
-          var titleKeyValue = titleField.Association.ExtractForeignKey(ownerState.Tuple, ownerState.Type);
+          var titleKeyValue = titleField.Association.ExtractForeignKey(ownerState.Type, ownerState.Tuple);
           if ((titleKeyValue.GetFieldState(0) & TupleFieldState.Null) == TupleFieldState.Null)
             continue;
           var titleKey = Key.Create(Domain, typeof (Title), titleKeyValue);

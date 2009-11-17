@@ -174,9 +174,18 @@ namespace Xtensive.Storage.Model
     /// </summary>
     /// <param name="tuple">The tuple.</param>
     /// <param name="type">The type.</param>
-    public Tuple ExtractForeignKey(Tuple tuple, TypeInfo type)
+    public Tuple ExtractForeignKey(TypeInfo type, Tuple tuple)
     {
-      return foreignKeyExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+      // foreignKeyExtractorTransform can be null if OwnerType is interface
+      if (foreignKeyExtractorTransform != null)
+        return foreignKeyExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+
+      if (OwnerType.IsInterface) {
+        var field = type.FieldMap[OwnerField];
+        return field.ExtractValue(tuple);
+      }
+
+      throw new InvalidOperationException("Can't extract foreign key.");
     }
 
     /// <inheritdoc/>
@@ -185,26 +194,28 @@ namespace Xtensive.Storage.Model
       base.UpdateState(recursive);
 
       switch (Multiplicity) {
-      case Multiplicity.ZeroToOne:
-      case Multiplicity.OneToOne:
-      case Multiplicity.ManyToOne:
-        UnderlyingIndex = OwnerType.Indexes.PrimaryIndex;
-        foreignKeyExtractorTransform = OwnerField.valueExtractorTransform;
-        break;
-      case Multiplicity.OneToMany:
-        UnderlyingIndex = Reversed.OwnerType.Indexes.GetIndex(Reversed.OwnerField.Name);
-        break;
-      case Multiplicity.ZeroToMany:
-      case Multiplicity.ManyToMany:
-        if (IsMaster)
-          UnderlyingIndex = auxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
-        else
-          UnderlyingIndex = Reversed.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
-        if (foreignKeyExtractorTransform == null) {
-          var foreignKeySegment = new Segment<int>(OwnerType.Columns.Count(c => c.IsPrimaryKey), TargetType.Columns.Count(c => c.IsPrimaryKey));
-          foreignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
-        }
-        break;
+        case Multiplicity.ZeroToOne:
+        case Multiplicity.OneToOne:
+        case Multiplicity.ManyToOne:
+          UnderlyingIndex = OwnerType.Indexes.PrimaryIndex;
+          if (!OwnerType.IsInterface)
+            foreignKeyExtractorTransform = OwnerField.valueExtractorTransform;
+          break;
+        case Multiplicity.OneToMany:
+          UnderlyingIndex = Reversed.OwnerType.Indexes.GetIndex(Reversed.OwnerField.Name);
+          break;
+        case Multiplicity.ZeroToMany:
+        case Multiplicity.ManyToMany:
+          if (IsMaster)
+            UnderlyingIndex = auxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).First();
+          else
+            UnderlyingIndex = Reversed.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
+
+          if (!OwnerType.IsInterface) {
+            var foreignKeySegment = new Segment<int>(OwnerType.Columns.Count(c => c.IsPrimaryKey), TargetType.Columns.Count(c => c.IsPrimaryKey));
+            foreignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
+          }
+          break;
       }
     }
 

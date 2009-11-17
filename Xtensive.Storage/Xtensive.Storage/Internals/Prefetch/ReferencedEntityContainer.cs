@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private Tuple ExtractForeignKeyTuple(EntityState ownerState)
     {
-      var result = ReferencingField.Association.ExtractForeignKey(ownerState.Tuple, ownerState.Type);
+      var result = ReferencingField.Association.ExtractForeignKey(ownerState.Type, ownerState.Tuple);
       var tupleState = result.GetFieldStateMap(TupleFieldState.Null);
       for (int i = 0; i < result.Count; i++) {
         if (!result.GetFieldState(i).IsAvailable())

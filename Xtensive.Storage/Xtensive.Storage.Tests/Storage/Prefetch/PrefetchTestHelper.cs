@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     public static void AssertReferencedEntityIsLoaded(Key key, Session session, FieldInfo referencingField)
     {
       var state = session.EntityStateCache[key, true];
-      var foreignKeyValue = referencingField.Association.ExtractForeignKey(state.Tuple, state.Type);
+      var foreignKeyValue = referencingField.Association.ExtractForeignKey(state.Type, state.Tuple);
       var foreignKey = Key.Create(session.Domain, referencingField.Association.TargetType,
         TypeReferenceAccuracy.BaseType, foreignKeyValue);
       AssertOnlySpecifiedColumnsAreLoaded(foreignKey, referencingField.Association.TargetType,
