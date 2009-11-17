@@ -217,28 +217,6 @@ namespace Xtensive.Storage.Internals.Prefetch
       return joiningColumns;
     }
 
-    /*private static Expression CreateFilterExpression(int firstKeyColumnIndex, IList<Type> keyColumnTypes, out ParameterExpression tupleParameter)
-    {
-      Expression filterExpression = null;
-      tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
-      var valueProperty = typeof (Parameter<Tuple>).GetProperty("Value", typeof (Tuple));
-      var keyValue = Expression.Property(Expression.Constant(ownerParameter), valueProperty);
-      for (var i = 0; i < keyColumnTypes.Count; i++) {
-        var getValueMethod = getValueMethodDefinition
-          .MakeGenericMethod(keyColumnTypes[i]);
-        var tupleParameterFieldAccess = Expression.Call(tupleParameter, getValueMethod,
-          Expression.Constant(firstKeyColumnIndex + i));
-        var ownerKeyFieldAccess = Expression.Call(keyValue, getValueMethod,
-          Expression.Constant(i));
-        if (filterExpression == null)
-          filterExpression = Expression.Equal(tupleParameterFieldAccess, ownerKeyFieldAccess);
-        else
-          filterExpression = Expression.And(filterExpression,
-            Expression.Equal(tupleParameterFieldAccess, ownerKeyFieldAccess));
-      }
-      return filterExpression;
-    }*/
-
     #endregion
 
 

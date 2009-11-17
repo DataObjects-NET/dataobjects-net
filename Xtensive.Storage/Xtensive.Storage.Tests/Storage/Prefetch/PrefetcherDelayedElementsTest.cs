@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
         Assert.AreEqual(keys.Count, count);
-        Assert.AreEqual(prefetchCount + 5, session.Handler.PrefetchTaskExecutionCount);
+        Assert.AreEqual(prefetchCount + 4, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 

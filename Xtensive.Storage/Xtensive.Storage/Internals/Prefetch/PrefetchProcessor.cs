@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 {
   internal sealed class PrefetchProcessor
   {
-    private const int MaxContainerCount = 100;
+    private const int MaxContainerCount = 120;
 
     private readonly SetSlim<GraphContainer> graphContainers = new SetSlim<GraphContainer>();
     private StrongReferenceContainer referenceContainer;
