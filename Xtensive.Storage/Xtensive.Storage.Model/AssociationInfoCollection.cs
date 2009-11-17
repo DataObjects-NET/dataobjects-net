@@ -20,9 +20,10 @@ namespace Xtensive.Storage.Model
     /// <returns></returns>
     public IEnumerable<AssociationInfo> Find(TypeInfo type)
     {
-      var ancestors = new HashSet<TypeInfo>(type.GetAncestors());
-      return this.Where(a => (a.TargetType==type || ancestors.Contains(a.TargetType) ||
-        a.OwnerType==type || ancestors.Contains(a.OwnerType)));
+      var candidates = new HashSet<TypeInfo>(type.GetAncestors());
+      candidates.UnionWith(type.GetInterfaces(true));
+      candidates.Add(type);
+      return this.Where(a => (candidates.Contains(a.TargetType) || candidates.Contains(a.OwnerType)));
     }
 
     /// <summary>
@@ -33,10 +34,12 @@ namespace Xtensive.Storage.Model
     /// <returns></returns>
     public IEnumerable<AssociationInfo> Find(TypeInfo type, bool target)
     {
-      var ancestors = type.GetAncestors();
-      Func<AssociationInfo, TypeInfo> accessor;
-      accessor = target ? (Func<AssociationInfo, TypeInfo>) (a => a.TargetType) : (a => a.OwnerType);
-      return this.Where(a => (accessor(a)==type || ancestors.Contains(accessor(a))));
+      var candidates = new HashSet<TypeInfo>(type.GetAncestors());
+      candidates.UnionWith(type.GetInterfaces(true));
+      candidates.Add(type);
+
+      var filter = target ? (Func<AssociationInfo, TypeInfo>) (a => a.TargetType) : (a => a.OwnerType);
+      return this.Where(a => candidates.Contains(filter(a)));
     }
   }
 }

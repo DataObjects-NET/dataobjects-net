@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
     string Name { get; set; }
 
     [Field]
+    [Association(OnTargetRemove = OnRemoveAction.Clear)]
     EntitySet<IAnimal> Pets { get; }
 
     [Field]
@@ -113,14 +114,16 @@ namespace Xtensive.Storage.Tests.Interfaces
           p = Query<IPerson>.All.First();
           Assert.AreEqual(3, p.Pets.Count);
 
-          p.Pets.First().Remove();
+          var first = p.Pets.First();
+          first.Remove();
+          Assert.IsTrue(first.PersistenceState == PersistenceState.Removed);
+          Assert.IsFalse(p.Pets.Contains(first));
           Assert.AreEqual(2, p.Pets.Count);
 
-          p.Pets.First().Owner.Remove();
+          p.Remove();
 
           var animals = Query<IAnimal>.All;
-          Assert.AreEqual(3, animals.Count());
-          Assert.IsNotNull(animals.First().Owner);
+          Assert.AreEqual(5, animals.Count());
 
           t.Complete();
         }

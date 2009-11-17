@@ -390,9 +390,9 @@ namespace Xtensive.Storage.Providers
         case Multiplicity.ZeroToOne:
         case Multiplicity.OneToOne:
         case Multiplicity.ManyToOne:
-          var target = owner.GetFieldValue<Entity>(association.OwnerField);
+          var target = owner.GetFieldValue<IEntity>(association.OwnerField);
           if (target != null)
-            yield return new ReferenceInfo(owner, target, association);
+            yield return new ReferenceInfo(owner, (Entity) target, association);
           break;
         case Multiplicity.ZeroToMany:
         case Multiplicity.OneToMany:
