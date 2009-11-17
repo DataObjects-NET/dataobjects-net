@@ -14,10 +14,27 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
   [CompilerContainer(typeof (Expression))]
   public static class CustomLinqCompilerContainer
   {
-    [Compiler(typeof (Person), "Fullname", TargetKind.PropertyGet)]
+    [Compiler(typeof (Person), "FullName", TargetKind.PropertyGet)]
     public static Expression FullName(Expression personExpression)
     {
+      var spaceExpression = Expression.Constant(" ");
+      var firstNameExpression = Expression.Property(personExpression, "FirstName");
+      var lastNameExpression = Expression.Property(personExpression, "lastName");
+      var methodInfo = typeof (string).GetMethod("Concat", new[] {typeof (string), typeof (string), typeof (string)});
+      var concatExpression = Expression.Call(Expression.Constant(null, typeof(string)), methodInfo, firstNameExpression, spaceExpression, lastNameExpression);
+      return concatExpression;
+    }
+
+    [Compiler(typeof (Person), "FullName2", TargetKind.PropertyGet)]
+    public static Expression FullName2(Expression personExpression)
+    {
+      // FullName logic. As of "ex" expression type exactly specified, 
+      // C# compiler allows to use "Person" properties.
       Expression<Func<Person, string>> ex = person => person.FirstName + " " + person.LastName;
+
+      // Binding lambda parameters replaces parameter usage in labda and returns labda body
+      // after binding expression become to something like:
+      // personExpression.FirstName + " " + personExpression.LastName
       return ex.BindParameters(personExpression);
     }
 

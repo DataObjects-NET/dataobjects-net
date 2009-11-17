@@ -27,7 +27,12 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
     [Field]
     public DateTime BirthDay { get; set; }
 
-    public string Fullname
+    public string FullName
+    {
+      get { return string.Format("{0} {1}", FirstName, LastName); }
+    }
+
+    public string FullName2
     {
       get { return string.Format("{0} {1}", FirstName, LastName); }
     }
@@ -52,9 +57,30 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {
           Fill();
-          var expectedFullNames = Query<Person>.All.AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname);
+          var expectedFullNames = Query<Person>.All.AsEnumerable().OrderBy(p => p.Id).Select(p => p.FullName);
           Assert.Greater(expectedFullNames.Count(), 0);
-          var fullNames = Query<Person>.All.OrderBy(p => p.Id).Select(p => p.Fullname);
+          var fullNames = Query<Person>.All
+            .OrderBy(p => p.Id)
+            .Select(p => p.FullName);
+          Assert.IsTrue(expectedFullNames.SequenceEqual(fullNames));
+        }
+      }
+    }
+
+    [Test]
+    public void Property2Test()
+    {
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      config.CompilerContainers.Register(typeof (CustomLinqCompilerContainer));
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      var domain = Domain.Build(config);
+      using (var session = Session.Open(domain)) {
+        using (Transaction.Open(session)) {
+          Fill();
+          var expectedFullNames = Query<Person>.All.AsEnumerable().OrderBy(p => p.Id).Select(p => p.FullName2);
+          Assert.Greater(expectedFullNames.Count(), 0);
+          var fullNames = Query<Person>.All.OrderBy(p => p.Id).Select(p => p.FullName2);
           Assert.IsTrue(expectedFullNames.SequenceEqual(fullNames));
         }
       }
@@ -72,7 +98,29 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
         using (Transaction.Open(session)) {
           Fill();
           var expectedStrings = Query<Person>.All.AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. "));
-          var resultStrings = Query<Person>.All.OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. "));
+          var resultStrings = Query<Person>.All
+            .OrderBy(p => p.Id)
+            .Select(p => p.AddPrefix("Mr. "));
+          Assert.IsTrue(expectedStrings.SequenceEqual(resultStrings));
+        }
+      }
+    }
+
+    [Test]
+    public void Method2Test()
+    {
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      config.CompilerContainers.Register(typeof (CustomLinqCompilerContainer));
+      var domain = Domain.Build(config);
+      using (var session = Session.Open(domain)) {
+        using (Transaction.Open(session)) {
+          Fill();
+          var expectedStrings = Query<Person>.All.AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix(p.Id.ToString()));
+          var resultStrings = Query<Person>.All
+            .OrderBy(p => p.Id)
+            .Select(p => p.AddPrefix(p.Id.ToString()));
           Assert.IsTrue(expectedStrings.SequenceEqual(resultStrings));
         }
       }
