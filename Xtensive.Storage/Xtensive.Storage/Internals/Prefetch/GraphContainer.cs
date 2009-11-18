@@ -76,8 +76,16 @@ namespace Xtensive.Storage.Internals.Prefetch
       if (RootEntityContainer==null)
         AddEntityColumns(Key.TypeRef.Type.Fields
           .Where(field => field.IsPrimaryKey || field.IsSystem).SelectMany(field => field.Columns));
-      entitySetTasks[referencingFieldDescriptor.Field] =
-        new EntitySetTask(Key, referencingFieldDescriptor, ownerState != null, processor);
+      EntitySetTask task;
+      if (!entitySetTasks.TryGetValue(referencingFieldDescriptor.Field, out task))
+        entitySetTasks.Add(referencingFieldDescriptor.Field,
+          new EntitySetTask(Key, referencingFieldDescriptor, ownerState != null, processor));
+      else if (task.ItemCountLimit == null)
+        return;
+      else if (referencingFieldDescriptor.EntitySetItemCountLimit == null
+        || task.ItemCountLimit < referencingFieldDescriptor.EntitySetItemCountLimit)
+        entitySetTasks[referencingFieldDescriptor.Field] =
+          new EntitySetTask(Key, referencingFieldDescriptor, ownerState != null, processor);
     }
     
     public void NotifyAboutExtractionOfKeysWithUnknownType()

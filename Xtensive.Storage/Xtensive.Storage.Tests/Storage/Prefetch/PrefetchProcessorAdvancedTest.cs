@@ -300,8 +300,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
-        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 1));
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, null));
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 1));
         prefetchProcessor.ExecuteTasks();
         EntitySetState entitySetState;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(orderKey, DetailsField, out entitySetState));
@@ -311,8 +311,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var prefetchProcessor = (PrefetchProcessor) PrefetchProcessorField.GetValue(session.Handler);
-        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 1));
         prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 2));
+        prefetchProcessor.Prefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 1));
         prefetchProcessor.ExecuteTasks();
         EntitySetState entitySetState;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(orderKey, DetailsField, out entitySetState));

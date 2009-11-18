@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         var detailsField = typeof (Order).GetTypeInfo().Fields["OrderDetails"];
         var productField = typeof (OrderDetails).GetTypeInfo().Fields["Product"];
-        var prefetcher = Query<Order>.All.PrefetchMany(o => o.OrderDetails, details => details,
+        var prefetcher = Query<Order>.All.Take(500).PrefetchMany(o => o.OrderDetails, details => details,
           details => details.Prefetch(d => d.Product));
         foreach (var order in prefetcher) {
           var entitySetState = GetFullyLoadedEntitySet(session, order.Key, detailsField);
@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
             PrefetchTestHelper.AssertReferencedEntityIsLoaded(detailKey, session, productField);
           }
         }
-        Assert.AreEqual(38, session.Handler.PrefetchTaskExecutionCount);
+        Assert.AreEqual(24, session.Handler.PrefetchTaskExecutionCount);
       }
     }
 
