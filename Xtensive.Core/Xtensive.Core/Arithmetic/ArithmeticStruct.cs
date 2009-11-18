@@ -38,6 +38,21 @@ namespace Xtensive.Core.Arithmetic
     public readonly T One;
 
     /// <summary>
+    /// Gets the maximal value.
+    /// </summary>
+    public readonly T MaxValue;
+
+    /// <summary>
+    /// Gets the minimal value.
+    /// </summary>
+    public readonly T MinValue;
+
+    /// <summary>
+    /// Gets the signed flag.
+    /// </summary>
+    public readonly bool IsSigned;
+
+    /// <summary>
     /// Adds one value to another.
     /// </summary>
     public readonly Func<T, T, T> Add;
@@ -89,12 +104,16 @@ namespace Xtensive.Core.Arithmetic
       Arithmetic = arithmetic;
       Zero = Arithmetic==null ? default(T) : Arithmetic.Zero;
       One = Arithmetic==null ? default(T) : Arithmetic.One;
+      MinValue = Arithmetic == null ? default(T) : Arithmetic.MinValue;
+      MaxValue = Arithmetic == null ? default(T) : Arithmetic.MaxValue;
+      IsSigned = Arithmetic == null ? true : Arithmetic.IsSigned;
       Add = Arithmetic==null ? null : Arithmetic.Add;
       Subtract = Arithmetic==null ? null : Arithmetic.Subtract;
       Multiply = Arithmetic==null ? null : Arithmetic.Multiply;
       Divide = Arithmetic==null ? null : Arithmetic.Divide;
       Negation = Arithmetic==null ? null : Arithmetic.Negation;
       ApplyRules = Arithmetic==null ? null : Arithmetic.ApplyRules;
+
     }
 
     /// <summary>
@@ -107,6 +126,9 @@ namespace Xtensive.Core.Arithmetic
       Arithmetic = (Arithmetic<T>)info.GetValue("Arithmetic", typeof (Arithmetic<T>));
       Zero = Arithmetic==null ? default(T) : Arithmetic.Zero;
       One = Arithmetic==null ? default(T) : Arithmetic.One;
+      MinValue = Arithmetic == null ? default(T) : Arithmetic.MinValue;
+      MaxValue = Arithmetic == null ? default(T) : Arithmetic.MaxValue;
+      IsSigned = Arithmetic == null ? true : Arithmetic.IsSigned;
       Add = Arithmetic==null ? null : Arithmetic.Add;
       Subtract = Arithmetic==null ? null : Arithmetic.Subtract;
       Multiply = Arithmetic==null ? null : Arithmetic.Multiply;

@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Arithmetic
 {
   [Serializable]
-  internal class ByteArithmetic
+  internal sealed class ByteArithmetic
     : ArithmeticBase<Byte>
   {
     private const Byte zero     = (Byte) 0;
@@ -27,6 +27,24 @@ namespace Xtensive.Core.Arithmetic
     public override Byte One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override Byte MaxValue
+    {
+      get { return Byte.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override Byte MinValue
+    {
+      get { return Byte.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return Byte.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -123,7 +141,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class SByteArithmetic
+  internal sealed class SByteArithmetic
     : ArithmeticBase<SByte>
   {
     private const SByte zero     = (SByte) 0;
@@ -140,6 +158,24 @@ namespace Xtensive.Core.Arithmetic
     public override SByte One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override SByte MaxValue
+    {
+      get { return SByte.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override SByte MinValue
+    {
+      get { return SByte.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return SByte.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -236,7 +272,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class CharArithmetic
+  internal sealed class CharArithmetic
     : ArithmeticBase<Char>
   {
     private const Char zero     = (Char) 0;
@@ -253,6 +289,24 @@ namespace Xtensive.Core.Arithmetic
     public override Char One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override Char MaxValue
+    {
+      get { return Char.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override Char MinValue
+    {
+      get { return Char.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return Char.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -349,7 +403,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class Int16Arithmetic
+  internal sealed class Int16Arithmetic
     : ArithmeticBase<Int16>
   {
     private const Int16 zero     = (Int16) 0;
@@ -366,6 +420,24 @@ namespace Xtensive.Core.Arithmetic
     public override Int16 One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override Int16 MaxValue
+    {
+      get { return Int16.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override Int16 MinValue
+    {
+      get { return Int16.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return Int16.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -462,7 +534,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class UInt16Arithmetic
+  internal sealed class UInt16Arithmetic
     : ArithmeticBase<UInt16>
   {
     private const UInt16 zero     = (UInt16) 0;
@@ -479,6 +551,24 @@ namespace Xtensive.Core.Arithmetic
     public override UInt16 One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override UInt16 MaxValue
+    {
+      get { return UInt16.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override UInt16 MinValue
+    {
+      get { return UInt16.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return UInt16.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -575,7 +665,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class Int32Arithmetic
+  internal sealed class Int32Arithmetic
     : ArithmeticBase<Int32>
   {
     private const Int32 zero     = (Int32) 0;
@@ -592,6 +682,24 @@ namespace Xtensive.Core.Arithmetic
     public override Int32 One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override Int32 MaxValue
+    {
+      get { return Int32.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override Int32 MinValue
+    {
+      get { return Int32.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return Int32.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -688,7 +796,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class UInt32Arithmetic
+  internal sealed class UInt32Arithmetic
     : ArithmeticBase<UInt32>
   {
     private const UInt32 zero     = (UInt32) 0;
@@ -705,6 +813,24 @@ namespace Xtensive.Core.Arithmetic
     public override UInt32 One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override UInt32 MaxValue
+    {
+      get { return UInt32.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override UInt32 MinValue
+    {
+      get { return UInt32.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return UInt32.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -801,7 +927,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class Int64Arithmetic
+  internal sealed class Int64Arithmetic
     : ArithmeticBase<Int64>
   {
     private const Int64 zero     = (Int64) 0;
@@ -818,6 +944,24 @@ namespace Xtensive.Core.Arithmetic
     public override Int64 One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override Int64 MaxValue
+    {
+      get { return Int64.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override Int64 MinValue
+    {
+      get { return Int64.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return Int64.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -914,7 +1058,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class UInt64Arithmetic
+  internal sealed class UInt64Arithmetic
     : ArithmeticBase<UInt64>
   {
     private const UInt64 zero     = (UInt64) 0;
@@ -931,6 +1075,24 @@ namespace Xtensive.Core.Arithmetic
     public override UInt64 One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override UInt64 MaxValue
+    {
+      get { return UInt64.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override UInt64 MinValue
+    {
+      get { return UInt64.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return UInt64.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -1027,7 +1189,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class DecimalArithmetic
+  internal sealed class DecimalArithmetic
     : ArithmeticBase<Decimal>
   {
     private const Decimal zero     = (Decimal) 0;
@@ -1044,6 +1206,24 @@ namespace Xtensive.Core.Arithmetic
     public override Decimal One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override Decimal MaxValue
+    {
+      get { return Decimal.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override Decimal MinValue
+    {
+      get { return Decimal.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return Decimal.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -1140,7 +1320,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class SingleArithmetic
+  internal sealed class SingleArithmetic
     : ArithmeticBase<Single>
   {
     private const Single zero     = (Single) 0;
@@ -1157,6 +1337,24 @@ namespace Xtensive.Core.Arithmetic
     public override Single One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override Single MaxValue
+    {
+      get { return Single.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override Single MinValue
+    {
+      get { return Single.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return Single.MinValue != zero; }
     }
 
     /// <inheritdoc/>
@@ -1253,7 +1451,7 @@ namespace Xtensive.Core.Arithmetic
   }
   
   [Serializable]
-  internal class DoubleArithmetic
+  internal sealed class DoubleArithmetic
     : ArithmeticBase<Double>
   {
     private const Double zero     = (Double) 0;
@@ -1270,6 +1468,24 @@ namespace Xtensive.Core.Arithmetic
     public override Double One
     {
       get { return one; }
+    }
+
+	/// <inheritdoc/>
+    public override Double MaxValue
+    {
+      get { return Double.MaxValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override Double MinValue
+    {
+      get { return Double.MinValue; }
+    }
+    
+    /// <inheritdoc/>
+    public override bool IsSigned
+    {
+      get { return Double.MinValue != zero; }
     }
 
     /// <inheritdoc/>

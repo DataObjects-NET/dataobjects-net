@@ -22,15 +22,18 @@ namespace Xtensive.Storage.Internals
     public static Key CreateNext(Domain domain, TypeInfo typeInfo)
     {
       if (!typeInfo.IsEntity)
-        throw new InvalidOperationException(
-          string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
+        throw new InvalidOperationException(string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
 
-      var keyGenerator = domain.KeyGenerators[typeInfo.KeyProviderInfo];
-      if (keyGenerator==null)
-        throw new InvalidOperationException(
-          String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
+      KeyGenerator keyGenerator = null;
+      var session = Session.Current;
+      if (session != null)
+        keyGenerator = session.Handler.GetKeyGenerator(typeInfo.KeyProviderInfo);
+      if (keyGenerator == null)
+        keyGenerator = domain.KeyGenerators[typeInfo.KeyProviderInfo];
+      if (keyGenerator == null)
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
       var keyValue = keyGenerator.Next();
-      return Create(Domain.Demand(), typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
+      return Create(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
     }
 
     public static Key Create(Domain domain, TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, int[] keyIndexes)

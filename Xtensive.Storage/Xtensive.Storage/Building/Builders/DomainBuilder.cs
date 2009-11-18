@@ -163,19 +163,26 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogCreatingX, Strings.Generators)) {
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         var keyGenerators = BuildingContext.Current.Domain.KeyGenerators;
+        var localKeyGenerators = BuildingContext.Current.Domain.LocalKeyGenerators;
         var generatorFactory = handlerAccessor.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
+        var localGeneratorFactory = new LocalKeyGeneratorFactory();
         foreach (var keyProviderInfo in BuildingContext.Current.Model.KeyProviders) {
           KeyGenerator keyGenerator;
           if (keyProviderInfo.KeyGeneratorType==null)
             continue;
-          if (keyProviderInfo.KeyGeneratorType==typeof (KeyGenerator))
+          if (keyProviderInfo.KeyGeneratorType == typeof(KeyGenerator)) {
             keyGenerator = generatorFactory.CreateGenerator(keyProviderInfo);
+            var localKeyGenerator = localGeneratorFactory.CreateGenerator(keyProviderInfo);
+            localKeyGenerator.Initialize();
+            localKeyGenerators.Register(keyProviderInfo, keyGenerator);
+          }
           else
-            keyGenerator = (KeyGenerator) Activator.CreateInstance(keyProviderInfo.KeyGeneratorType, new object[] {keyProviderInfo});
+            keyGenerator = (KeyGenerator)Activator.CreateInstance(keyProviderInfo.KeyGeneratorType, new object[] { keyProviderInfo });
           keyGenerator.Initialize();
           keyGenerators.Register(keyProviderInfo, keyGenerator);
         }
         keyGenerators.Lock();
+        localKeyGenerators.Lock();
       }
     }
 

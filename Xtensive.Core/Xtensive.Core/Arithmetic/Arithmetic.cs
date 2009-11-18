@@ -54,6 +54,21 @@ namespace Xtensive.Core.Arithmetic
     public readonly T One;
 
     /// <summary>
+    /// Gets the maximal value.
+    /// </summary>
+    public readonly T MaxValue;
+
+    /// <summary>
+    /// Gets the minimal value.
+    /// </summary>
+    public readonly T MinValue;
+
+    /// <summary>
+    /// Gets the signed flag.
+    /// </summary>
+    public readonly bool IsSigned;
+
+    /// <summary>
     /// Adds one value to another.
     /// </summary>
     public readonly Func<T, T, T> Add;
@@ -98,6 +113,9 @@ namespace Xtensive.Core.Arithmetic
       Provider = Implementation.Provider;
       Zero = Implementation.Zero;
       One = Implementation.One;
+      MaxValue = Implementation.MaxValue;
+      MinValue = Implementation.MinValue;
+      IsSigned = Implementation.IsSigned;
       Add = Implementation.Add;
       Subtract = Implementation.Subtract;
       Multiply = Implementation.Multiply;
@@ -116,6 +134,9 @@ namespace Xtensive.Core.Arithmetic
       Provider = Implementation.Provider;
       Zero = Implementation.Zero;
       One = Implementation.One;
+      MaxValue = Implementation.MaxValue;
+      MinValue = Implementation.MinValue;
+      IsSigned = Implementation.IsSigned;
       Add = Implementation.Add;
       Subtract = Implementation.Subtract;
       Multiply = Implementation.Multiply;

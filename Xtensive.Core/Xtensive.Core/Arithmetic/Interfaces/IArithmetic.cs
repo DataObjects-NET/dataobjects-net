@@ -23,6 +23,21 @@ namespace Xtensive.Core.Arithmetic
     T One { get; }
 
     /// <summary>
+    /// Gets the maximal value.
+    /// </summary>
+    T MaxValue { get;}
+
+    /// <summary>
+    /// Gets the minimal value.
+    /// </summary>
+    T MinValue { get;}
+
+    /// <summary>
+    /// Gets the signed flag.
+    /// </summary>
+    bool IsSigned { get; }
+
+    /// <summary>
     /// Adds one value to another.
     /// </summary>
     /// <param name="value1">First summand.</param>

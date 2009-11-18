@@ -26,6 +26,21 @@ namespace Xtensive.Core.Arithmetic
       get { return BaseArithmetic.One; }
     }
 
+    public override T? MaxValue
+    {
+      get { return BaseArithmetic.MaxValue; }
+    }
+
+    public override T? MinValue
+    {
+      get { return BaseArithmetic.MinValue; }
+    }
+
+    public override bool IsSigned
+    {
+      get { return BaseArithmetic.IsSigned; }
+    }
+
     /// <inheritdoc/>
     public override T? Add(T? value1, T? value2)
     {

@@ -59,6 +59,15 @@ namespace Xtensive.Core.Arithmetic
     public abstract T One { get; }
 
     /// <inheritdoc/>
+    public abstract T MaxValue { get; }
+
+    /// <inheritdoc/>
+    public abstract T MinValue { get; }
+
+    /// <inheritdoc/>
+    public abstract bool IsSigned { get; }
+
+    /// <inheritdoc/>
     public abstract T Add(T value1, T value2);
 
     /// <inheritdoc/>

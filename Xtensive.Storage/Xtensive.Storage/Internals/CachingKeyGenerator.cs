@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public override Tuple Next()
     {
-      Tuple result = Tuple.Create(KeyProviderInfo.TupleDescriptor);
+      var result = tuplePrototype.CreateNew();
       LockType.Exclusive.Execute(_lock, () => {
         if (Cache.Count==0)
           CacheNext();
