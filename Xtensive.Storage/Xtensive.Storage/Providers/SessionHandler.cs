@@ -210,7 +210,7 @@ namespace Xtensive.Storage.Providers
       var entity = entityState.Entity;
       if (entity==null)
         return null;
-      var entitySet = Session.CoreServices.EntitySetAccessor.GetEntitySet(entity, fieldInfo);
+      var entitySet = entity.GetFieldValue<EntitySetBase>(fieldInfo);
       return entitySet.UpdateState(items, isFullyLoaded);
     }
 
@@ -276,7 +276,7 @@ namespace Xtensive.Storage.Providers
       if (entityState!=null) {
         var entity = entityState.Entity;
         if (entity!=null) {
-          var entitySet = Session.CoreServices.EntitySetAccessor.GetEntitySet(entity, fieldInfo);
+          var entitySet = entity.GetFieldValue<EntitySetBase>(fieldInfo);
           entitySetState = entitySet.GetState();
           return entitySetState!=null;
         }
