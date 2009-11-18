@@ -227,11 +227,11 @@ namespace Xtensive.Storage.Internals.Prefetch
       this.keyExtractor = keyExtractor;
       this.modelType = modelType;
       this.fieldDescriptors = new Dictionary<FieldInfo, PrefetchFieldDescriptor>(fieldDescriptors.Count);
-      //Action<Key, FieldInfo, Key> keyExtractionSubscriber = HandleReferencedKeyExtraction;
+      Action<Key, FieldInfo, Key> keyExtractionSubscriber = HandleReferencedKeyExtraction;
       foreach (var pair in fieldDescriptors)
         this.fieldDescriptors[pair.Key] = new PrefetchFieldDescriptor(pair.Value.Field,
           pair.Value.EntitySetItemCountLimit, pair.Value.FetchFieldsOfReferencedEntity,
-          pair.Value.FetchLazyFields, HandleReferencedKeyExtraction);
+          pair.Value.FetchLazyFields, keyExtractionSubscriber);
       this.sessionHandler = sessionHandler;
       strongReferenceContainer = new StrongReferenceContainer(null);
       referencedDelayedElementKeys = referencedDelayedElementKeysFirst;
