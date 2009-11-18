@@ -86,5 +86,10 @@ namespace Xtensive.Sql.Info
     /// Indicates that RDBMS supports multicolumn IN operator.
     /// </summary>
     MulticolumnIn = 0x1000,
+
+    /// <summary>
+    /// Indicates that RDBMS supports multiple results via cursor parameters.
+    /// </summary>
+    CursorParameters = 0x2000,
   }
 }

@@ -39,11 +39,11 @@ namespace Xtensive.Sql
     /// Erases this instance.
     /// </summary>
     void Erase();
-    
+
     /// <summary>
-    /// Sets the parameter value.
+    /// Binds this LOB to the specified parameter.
     /// </summary>
-    /// <param name="parameter">The parameter to set value.</param>
-    void SetParameterValue(DbParameter parameter);
+    /// <param name="parameter">The parameter to bind to.</param>
+    void BindTo(DbParameter parameter);
   }
 }

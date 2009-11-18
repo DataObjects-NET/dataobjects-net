@@ -72,10 +72,21 @@ namespace Xtensive.Sql
     /// <summary>
     /// Creates the parameter.
     /// </summary>
+    /// <seealso cref="SqlConnectionHandler.CreateParameter"/>.
     /// <returns>Created parameter.</returns>
     public DbParameter CreateParameter()
     {
       return Driver.ConnectionHandler.CreateParameter();
+    }
+
+    /// <summary>
+    /// Creates the cursor parameter.
+    /// </summary>
+    /// <seealso cref="SqlConnectionHandler.CreateCursorParameter"/>.
+    /// <returns>Created parameter.</returns>
+    public DbParameter CreateCursorParameter()
+    {
+      return Driver.ConnectionHandler.CreateCursorParameter();
     }
 
     /// <summary>

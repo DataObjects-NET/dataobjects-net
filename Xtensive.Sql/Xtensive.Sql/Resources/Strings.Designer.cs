@@ -133,6 +133,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cursor parameters are not supported by this server..
+        /// </summary>
+        internal static string ExCursorParametersAreNotSupportedByThisServer {
+            get {
+                return ResourceManager.GetString("ExCursorParametersAreNotSupportedByThisServer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Driver is not properly initialized..
         /// </summary>
         internal static string ExDriverIsNotProperlyInitialized {
@@ -277,11 +286,11 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Only SqlLiteral and SqlNode can used in Limit/Offset.
+        ///   Looks up a localized string similar to Only SqlLiteral or SqlPlaceholder can be used in Limit/Offset.
         /// </summary>
-        internal static string ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset {
+        internal static string ExOnlySqlLiteralOrSqlPlaceholderCanBeUsedInLimitOffset {
             get {
-                return ResourceManager.GetString("ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset", resourceCulture);
+                return ResourceManager.GetString("ExOnlySqlLiteralOrSqlPlaceholderCanBeUsedInLimitOffset", resourceCulture);
             }
         }
         

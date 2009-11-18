@@ -48,6 +48,16 @@ namespace Xtensive.Sql
     public abstract DbParameter CreateParameter();
 
     /// <summary>
+    /// Creates the cursor parameter.
+    /// </summary>
+    /// <exception cref="NotSupportedException">Underlying server does not support cursor parameters.</exception>
+    /// <returns>Created parameter.</returns>
+    public virtual DbParameter CreateCursorParameter()
+    {
+      throw new NotSupportedException(Strings.ExCursorParametersAreNotSupportedByThisServer);
+    }
+
+    /// <summary>
     /// Begins the transaction with default isolation level.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -72,6 +82,8 @@ namespace Xtensive.Sql
     /// Creates the character large object.
     /// Created object initially have NULL value (<see cref="ILargeObject.IsNull"/> returns <see langword="true"/>)
     /// </summary>
+    /// <exception cref="NotSupportedException">
+    /// Large objects are not supported by underlying storage.</exception>
     /// <param name="connection">The connection.</param>
     /// <returns>Created CLOB.</returns>
     public virtual ICharacterLargeObject CreateCharacterLargeObject(DbConnection connection)
@@ -83,13 +95,15 @@ namespace Xtensive.Sql
     /// Creates the binary large object.
     /// Created object initially have NULL value (<see cref="ILargeObject.IsNull"/> returns <see langword="true"/>)
     /// </summary>
+    /// <exception cref="NotSupportedException">
+    /// Large objects are not supported by underlying storage.</exception>
     /// <param name="connection">The connection.</param>
     /// <returns>Created BLOB.</returns>
     public virtual IBinaryLargeObject CreateBinaryLargeObject(DbConnection connection)
     {
       throw new NotSupportedException(Strings.ExLargeObjectsAreNotSupportedByThisServer);
     }
-
+    
     // Constructors
 
     /// <summary>

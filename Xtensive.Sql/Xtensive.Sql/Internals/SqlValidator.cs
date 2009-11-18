@@ -64,7 +64,7 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
       if (!IsLimitOffsetArgument(node))
-        throw new InvalidOperationException(Strings.ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset);
+        throw new InvalidOperationException(Strings.ExOnlySqlLiteralOrSqlPlaceholderCanBeUsedInLimitOffset);
     }
 
     public static bool IsBooleanExpression(SqlExpression node)

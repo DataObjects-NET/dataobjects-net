@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Oracle
       lob.Write(buffer, offset, count);
     }
 
-    public void SetParameterValue(DbParameter parameter)
+    public void BindTo(DbParameter parameter)
     {
       var nativeParameter = (OracleParameter) parameter;
       nativeParameter.Value = lob ?? OracleBlob.Null;

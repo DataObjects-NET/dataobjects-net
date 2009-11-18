@@ -139,7 +139,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
       var parameter = connection.CreateParameter();
       parameter.ParameterName = name;
-      lob.SetParameterValue(parameter);
+      lob.BindTo(parameter);
       commandPart.Parameters.Add(parameter);
     }
 
@@ -155,7 +155,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
       var parameter = connection.CreateParameter();
       parameter.ParameterName = name;
-      lob.SetParameterValue(parameter);
+      lob.BindTo(parameter);
       commandPart.Parameters.Add(parameter);
     }
 

@@ -4,9 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.11
 
-using System;
-using System.Data.Common;
 using Oracle.DataAccess.Client;
+using System.Data;
+using System.Data.Common;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Oracle
@@ -21,6 +21,15 @@ namespace Xtensive.Sql.Oracle
     public override DbParameter CreateParameter()
     {
       return new OracleParameter();
+    }
+
+    public override DbParameter CreateCursorParameter()
+    {
+      var result = new OracleParameter {
+        OracleDbType = OracleDbType.RefCursor,
+        Direction = ParameterDirection.Output
+      };
+      return result;
     }
 
     public override IBinaryLargeObject CreateBinaryLargeObject(DbConnection connection)

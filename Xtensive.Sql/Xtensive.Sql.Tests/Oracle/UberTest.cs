@@ -24,9 +24,39 @@ namespace Xtensive.Sql.Tests.Oracle
     protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      testSchema = ExtractCatalog().DefaultSchema;
+      testSchema = ExtractDefaultSchema();
       EnsureTableNotExists(testSchema, BatchTestTable);
       EnsureTableNotExists(testSchema, LobTestTable);
+    }
+
+    [Test]
+    public void MultipleResultsTest()
+    {
+      var select1 = SqlDml.Select(SqlDml.Literal("1"));
+      var select2 = SqlDml.Select(SqlDml.Literal("2"));
+      var query = string.Format(
+        "begin open :p1 for {0}; open :p2 for {1}; end;",
+        Driver.Compile(select1).GetCommandText(),
+        Driver.Compile(select2).GetCommandText());
+      using (var command = Connection.CreateCommand()) {
+        var p1 = Connection.CreateCursorParameter();
+        p1.ParameterName = "p1";
+        command.Parameters.Add(p1);
+        var p2 = Connection.CreateCursorParameter();
+        p2.ParameterName = "p2";
+        command.Parameters.Add(p2);
+        command.CommandText = query;
+        using (var reader = command.ExecuteReader()) {
+          Assert.IsTrue(reader.Read());
+          Assert.AreEqual(reader.GetValue(0), "1");
+          Assert.IsFalse(reader.Read());
+          Assert.IsTrue(reader.NextResult());
+          Assert.IsTrue(reader.Read());
+          Assert.AreEqual(reader.GetValue(0), "2");
+          Assert.IsFalse(reader.Read());
+          Assert.IsFalse(reader.NextResult());
+        }
+      }
     }
 
     [Test]
@@ -89,11 +119,11 @@ namespace Xtensive.Sql.Tests.Oracle
         var binParameter = command.CreateParameter();
         binParameter.ParameterName = "p_bin";
         binLob.Write(binBuffer, 0, binBuffer.Length);
-        binLob.SetParameterValue(binParameter);
+        binLob.BindTo(binParameter);
         var charParameter = command.CreateParameter();
         charParameter.ParameterName = "p_char";
         charLob.Write(charBuffer, 0, charBuffer.Length);
-        charLob.SetParameterValue(charParameter);
+        charLob.BindTo(charParameter);
         command.Parameters.Add(charParameter);
         command.Parameters.Add(binParameter);
         command.ExecuteNonQuery();

@@ -243,8 +243,8 @@
   <data name="ExLockXIsNotSupported" xml:space="preserve">
     <value>Lock '{0}' is not supported</value>
   </data>
-  <data name="ExOnlySqlLiteralAndSqlNodeCanUsedInLimitOffset" xml:space="preserve">
-    <value>Only SqlLiteral and SqlNode can used in Limit/Offset</value>
+  <data name="ExOnlySqlLiteralOrSqlPlaceholderCanBeUsedInLimitOffset" xml:space="preserve">
+    <value>Only SqlLiteral or SqlPlaceholder can be used in Limit/Offset</value>
   </data>
   <data name="ExNameForParameterXIsNotFound" xml:space="preserve">
     <value>Name for parameter '{0}' is not found'</value>
@@ -254,5 +254,8 @@
   </data>
   <data name="ExItemsForCycleXAreNotSpecified" xml:space="preserve">
     <value>Items for cycle '{0}' are not specified.</value>
+  </data>
+  <data name="ExCursorParametersAreNotSupportedByThisServer" xml:space="preserve">
+    <value>Cursor parameters are not supported by this server.</value>
   </data>
 </root>
