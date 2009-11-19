@@ -249,5 +249,27 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
     }
+
+    [Test]
+    public void CompiledInTest()
+    {
+      var result1 = GetCustomers("ANTON", "LACOR")
+        .Select(customer => customer.Id)
+        .ToList();
+      Assert.AreEqual(2, result1.Count);
+      Assert.IsTrue(result1.Contains("ANTON"));
+      Assert.IsTrue(result1.Contains("LACOR"));
+
+      var result2 = GetCustomers("BERGS")
+        .Select(customer => customer.Id)
+        .ToList();
+      Assert.AreEqual(1, result2.Count);
+      Assert.AreEqual("BERGS", result2[0]);
+    }
+
+    private static IEnumerable<Customer> GetCustomers(params string[] customerIds)
+    {
+      return Query.Execute(() => Query<Customer>.All.Where(customer => customer.Id.In(customerIds)));
+    }
   }
 }
