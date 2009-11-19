@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Disconnected
   /// </summary>
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TValue">The type of the value.</typeparam>
-  public class ChainedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+  internal class ChainedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
   {
     private readonly IDictionary<TKey, TValue> origin;
     private Dictionary<TKey, TValue> addedItems;

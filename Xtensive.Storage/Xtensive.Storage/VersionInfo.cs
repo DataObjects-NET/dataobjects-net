@@ -155,7 +155,7 @@ namespace Xtensive.Storage
     {
       if (Value==null)
         return;
-      serializedValue = new SerializedTuple(Value);
+      serializedValue = new SerializableTuple(Value);
     }
 
     [OnSerialized]
@@ -174,7 +174,7 @@ namespace Xtensive.Storage
     {
       if (serializedValue==null)
         return;
-      value = ((SerializedTuple) serializedValue).Value;
+      value = ((SerializableTuple) serializedValue).Value;
       serializedValue = null;
     }
   }

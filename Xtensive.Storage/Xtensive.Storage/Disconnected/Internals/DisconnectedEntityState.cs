@@ -148,18 +148,18 @@ namespace Xtensive.Storage.Disconnected
           Origin.Update(tuple.Difference);
     }
 
-    public SerializedEntityState Serialize()
+    public SerializableEntityState Serialize()
     {
       var key = Key.ToString(true);
       var serializedTuple =
         tuple==null
-          ? new SerializedTuple()
+          ? new SerializableTuple()
           : tuple.Difference!=null
-            ? new SerializedTuple(tuple.Difference)
-            : new SerializedTuple(tuple.Origin);
+            ? new SerializableTuple(tuple.Difference)
+            : new SerializableTuple(tuple.Origin);
       var refs = references.Select(pair => {
         var chainedDict = pair.Value as ChainedDictionary<Key, Key>;
-        return new SerializedReference {
+        return new SerializableReference {
           Field = new FieldInfoRef(pair.Key),
           AddedItems = chainedDict==null
             ? null
@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Disconnected
       }).ToArray();
       var entitySets = setStates.Select(pair => {
         var chainedDict = pair.Value.Items as ChainedDictionary<Key, Key>;
-        return new SerializedEntitySet {
+        return new SerializableEntitySet {
           Field = new FieldInfoRef(pair.Key),
           IsFullyLoaded = pair.Value.IsFullyLoaded,
           AddedItems = chainedDict==null
@@ -189,7 +189,7 @@ namespace Xtensive.Storage.Disconnected
         };
       }).ToArray();
 
-      return new SerializedEntityState() {
+      return new SerializableEntityState() {
         Key = key,
         Tuple = serializedTuple,
         IsRemoved = IsRemoved,
@@ -198,7 +198,7 @@ namespace Xtensive.Storage.Disconnected
       };
     }
 
-    public static DisconnectedEntityState Deserialize(SerializedEntityState serialized, StateRegistry registry, Domain domain)
+    public static DisconnectedEntityState Deserialize(SerializableEntityState serialized, StateRegistry registry, Domain domain)
     {
       var key = Key.Parse(domain, serialized.Key);
       var origin = registry.Origin!=null ? registry.Origin.GetState(key) : null;

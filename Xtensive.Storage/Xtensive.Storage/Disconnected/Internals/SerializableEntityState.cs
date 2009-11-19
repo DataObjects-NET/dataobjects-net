@@ -10,16 +10,16 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Disconnected
 {
   [Serializable]
-  internal sealed class SerializedEntityState
+  internal sealed class SerializableEntityState
   {
     public string Key { get; set; }
     
-    public SerializedTuple Tuple { get; set; }
+    public SerializableTuple Tuple { get; set; }
     
     public bool IsRemoved { get; set; }
     
-    public SerializedReference[] References { get; set; }
+    public SerializableReference[] References { get; set; }
     
-    public SerializedEntitySet[] EntitySets { get; set; }
+    public SerializableEntitySet[] EntitySets { get; set; }
   }
 }

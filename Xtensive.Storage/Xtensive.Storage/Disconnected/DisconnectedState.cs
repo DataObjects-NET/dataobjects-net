@@ -28,8 +28,8 @@ namespace Xtensive.Storage.Disconnected
   {
     private OperationLog serializedLog;
     private KeyValuePair<string, VersionInfo>[] serializedVersions;
-    private SerializedEntityState[] serializedRegistry;
-    private SerializedEntityState[] serializedGlobalRegistry;
+    private SerializableEntityState[] serializedRegistry;
+    private SerializableEntityState[] serializedGlobalRegistry;
     
     [NonSerialized]
     private Dictionary<Key, VersionInfo> versionCache;

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -227,23 +226,5 @@ namespace Xtensive.Storage.Disconnected
       disconnectedState = origin.disconnectedState;
       Log = new OperationLog();
     }
-
-
-    // Serialization
-    /*
-    [OnSerializing]
-    protected void OnSerializing(StreamingContext context)
-    {
-      serialized = new List<SerializedEntityState>();
-      foreach (var state in states)
-        serialized.Add(new SerializedEntityState(state.Value));
-    }
-
-    [OnSerialized]
-    protected void OnSerialized(StreamingContext context)
-    {
-      
-    }
-    */
   }
 }

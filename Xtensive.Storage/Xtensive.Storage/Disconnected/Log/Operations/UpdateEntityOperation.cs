@@ -88,8 +88,8 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
       }
       else if (structureValue != null) {
         // serializing structure value as tuple
-        var serializedTuple = new SerializedTuple(structureValue.Tuple.ToRegular());
-        info.AddValue("value", serializedTuple, typeof(SerializedTuple));
+        var serializedTuple = new SerializableTuple(structureValue.Tuple.ToRegular());
+        info.AddValue("value", serializedTuple, typeof (SerializableTuple));
       }
       else
         info.AddValue("value", Value, Field.ValueType);
@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
         }
       }
       else if (typeof (Structure).IsAssignableFrom(Field.ValueType)) {
-        var serializedTuple = (SerializedTuple) info.GetValue("value", typeof (SerializedTuple));
+        var serializedTuple = (SerializableTuple) info.GetValue("value", typeof (SerializableTuple));
         var tuple = serializedTuple.Value;
         Value = session.CoreServices.PersistentAccessor.CreateStructure(Field.ValueType, tuple);
       }

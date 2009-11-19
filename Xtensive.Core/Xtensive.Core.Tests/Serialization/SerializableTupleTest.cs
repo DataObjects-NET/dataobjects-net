@@ -11,14 +11,14 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Core.Tests.Serialization
 {
   [TestFixture]
-  public class SerializedTupleTest
+  public class SerializableTupleTest
   {
     [Test]
     public void BaseTest()
     {
       var tuple = Tuple.Create(1, false);
-      var serializedTuple = new SerializedTuple(tuple);
-      var clone = (SerializedTuple) LegacyBinarySerializer.Instance.Clone(serializedTuple);
+      var serializedTuple = new SerializableTuple(tuple);
+      var clone = (SerializableTuple) LegacyBinarySerializer.Instance.Clone(serializedTuple);
       Assert.IsFalse(clone.Value==null);
       Assert.AreEqual(tuple, clone.Value);
     }
@@ -46,7 +46,7 @@ namespace Xtensive.Core.Tests.Serialization
 
     private static Tuple CloneBySerialization(Tuple source)
     {
-      return ((SerializedTuple) LegacyBinarySerializer.Instance.Clone(new SerializedTuple(source))).Value;
+      return ((SerializableTuple) LegacyBinarySerializer.Instance.Clone(new SerializableTuple(source))).Value;
     }
   }
 }

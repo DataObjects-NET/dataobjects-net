@@ -18,7 +18,7 @@ namespace Xtensive.Core.Tuples
   /// A helper struct allowing to serialize <see cref="Tuple"/> objects.
   /// </summary>
   [Serializable]
-  public struct SerializedTuple : IEquatable<SerializedTuple>
+  public struct SerializableTuple : IEquatable<SerializableTuple>
   {
     [Serializable] private sealed class NotAvailable { }
     private readonly static NotAvailable notAvailableInstance = new NotAvailable();
@@ -43,7 +43,7 @@ namespace Xtensive.Core.Tuples
     #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
-    public bool Equals(SerializedTuple other)
+    public bool Equals(SerializableTuple other)
     {
       return AdvancedComparerStruct<Tuple>.System.Equals(Value, other.Value);
     }
@@ -53,9 +53,9 @@ namespace Xtensive.Core.Tuples
     {
       if (ReferenceEquals(null, obj))
         return false;
-      if (obj.GetType()!=typeof (SerializedTuple))
+      if (obj.GetType()!=typeof (SerializableTuple))
         return false;
-      return Equals((SerializedTuple) obj);
+      return Equals((SerializableTuple) obj);
     }
 
     /// <inheritdoc/>
@@ -65,13 +65,13 @@ namespace Xtensive.Core.Tuples
     }
 
     /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
-    public static bool operator ==(SerializedTuple left, SerializedTuple right)
+    public static bool operator ==(SerializableTuple left, SerializableTuple right)
     {
       return left.Equals(right);
     }
 
     /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
-    public static bool operator !=(SerializedTuple left, SerializedTuple right)
+    public static bool operator !=(SerializableTuple left, SerializableTuple right)
     {
       return !left.Equals(right);
     }
@@ -91,7 +91,7 @@ namespace Xtensive.Core.Tuples
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="value">The <see cref="Value"/> property value.</param>
-    public SerializedTuple(Tuple value)
+    public SerializableTuple(Tuple value)
     {
       tuple = value;
       this.value = null;

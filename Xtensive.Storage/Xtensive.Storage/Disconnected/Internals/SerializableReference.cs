@@ -10,14 +10,12 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Disconnected
 {
   [Serializable]
-  internal sealed class SerializedEntitySet
+  internal sealed class SerializableReference
   {
     public FieldInfoRef Field { get; set; }
 
-    public bool IsFullyLoaded { get; set; }
-
     public string[] Items { get; set; }
-
+    
     public string[] AddedItems { get; set; }
 
     public string[] RemovedItems { get; set; }
