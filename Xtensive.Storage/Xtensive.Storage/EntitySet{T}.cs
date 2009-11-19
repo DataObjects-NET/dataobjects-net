@@ -249,6 +249,8 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected internal sealed override IEnumerable<IEntity> Entities {
       get {
+        if (Owner.PersistenceState==PersistenceState.New)
+          return GetCachedEntities();
         if (IsStateLoaded)
           return State.IsFullyLoaded
             ? GetCachedEntities()

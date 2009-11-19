@@ -55,11 +55,13 @@ namespace Xtensive.Storage.Disconnected
       get { return modelHelper; }
     }
 
+    internal bool AllowUnderlignTransactions { get; set; }
+
     internal IOperationLog GetOperationLog()
     {
       return registry.Log;
     }
-
+    
     # region Public API
 
     /// <summary>
@@ -99,6 +101,7 @@ namespace Xtensive.Storage.Disconnected
       if (session.Transaction!=null)
         throw new InvalidOperationException(Strings.ExActiveTransactionIsPresent);
 
+      CloseUnderlyingTransaction();
       session = null;
       handler = null;
       disposable.Dispose();
@@ -116,6 +119,7 @@ namespace Xtensive.Storage.Disconnected
         throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
 
       try {
+        AllowUnderlignTransactions = true;
         handler.BeginChainedTransaction();
         if (prefetcher!=null)
           prefetcher.Invoke();
@@ -124,6 +128,9 @@ namespace Xtensive.Storage.Disconnected
       catch {
         handler.RollbackChainedTransaction();
         throw;
+      }
+      finally {
+        AllowUnderlignTransactions = false;
       }
     }
 
@@ -152,12 +159,36 @@ namespace Xtensive.Storage.Disconnected
       return keyMapping;
     }
 
+    public void SaveChanges(Session session)
+    {
+      if (IsAttached)
+        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
+      using (new VersionValidator(session, GetStoredVerion)) {
+        using (var transactionScope = Transaction.Open(session)) {
+          registry.Log.Apply(session);
+          transactionScope.Complete();
+        }
+        registry.Commit();
+      }
+    }
+
     /// <summary>
     /// Clears all changes.
     /// </summary>
     public void ClearChanges()
     {
       registry = new StateRegistry(globalRegistry);
+    }
+
+    public void BeginUnderlyingTransaction()
+    {
+      AllowUnderlignTransactions = true;
+    }
+
+    public void CloseUnderlyingTransaction()
+    {
+      AllowUnderlignTransactions = false;
+      handler.CommitChainedTransaction();
     }
 
     # endregion

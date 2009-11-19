@@ -1252,4 +1252,7 @@ Actions:
   <data name="ExServiceXIsNotSupported" xml:space="preserve">
     <value>Service '{0}' is not supported.</value>
   </data>
+  <data name="ExTransactionIsRequired" xml:space="preserve">
+    <value>Transaction is required.</value>
+  </data>
 </root>

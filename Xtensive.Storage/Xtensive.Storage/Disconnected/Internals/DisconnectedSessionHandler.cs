@@ -11,6 +11,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using System.Linq;
@@ -54,6 +55,8 @@ namespace Xtensive.Storage.Disconnected
     public void BeginChainedTransaction()
     {
       if (!isChainedTransactionStarted) {
+        if (!disconnectedState.AllowUnderlignTransactions)
+          throw new ConnectionRequiredException();
         ChainedHandler.BeginTransaction();
         isChainedTransactionStarted = true;
       }
@@ -109,7 +112,8 @@ namespace Xtensive.Storage.Disconnected
       var entityState = Session.UpdateEntityState(cachedEntityState.Key, cachedEntityState.Tuple.Clone(), true);
       
       // Fetch version roots
-      if (isChainedTransactionStarted && entityState.Type.HasVersionRoots) {
+      if (entityState.Type.HasVersionRoots) {
+        BeginChainedTransaction();
         var entity = entityState.Entity as IHasVersionRoots;
         if (entity!=null)
           entity.GetVersionRoots().ToList();
@@ -152,15 +156,26 @@ namespace Xtensive.Storage.Disconnected
     protected internal override EntityState FetchInstance(Key key)
     {
       var cachedState = disconnectedState.GetState(key);
+      
+      // If state is cached return it
       if (cachedState!=null && cachedState.IsLoaded) {
         var tuple = cachedState.Tuple!=null ? cachedState.Tuple.Clone() : null;
         var entityState = Session.UpdateEntityState(cachedState.Key, tuple, true);
         return cachedState.IsRemoved ? null : entityState;
       }
-      if (cachedState!=null && !cachedState.IsLoaded)
-        throw new ConnectionRequiredException();
-      if (isChainedTransactionStarted)
-        return base.FetchInstance(key);
+
+      // If state isn't cached try cache get it form storage
+      if ((cachedState!=null && !cachedState.IsLoaded) 
+        || disconnectedState.AllowUnderlignTransactions) {
+        BeginChainedTransaction();
+        var type = key.TypeRef.Type;
+        Prefetch(key, type, PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(type));
+        ExecutePrefetchTasks();
+        EntityState result;
+        return TryGetEntityState(key, out result) ? result : null;
+      }
+
+      // If state unknown return null
       return null;
     }
 
@@ -178,9 +193,7 @@ namespace Xtensive.Storage.Disconnected
     /// <inheritdoc/>
     public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
     {
-      if (!isChainedTransactionStarted)
-        throw new ConnectionRequiredException();
-
+      BeginChainedTransaction();
       base.ExecuteQueryTasks(queryTasks, allowPartialExecution);
     }
 
@@ -192,9 +205,7 @@ namespace Xtensive.Storage.Disconnected
 
     public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
-      if (!isChainedTransactionStarted)
-        throw new ConnectionRequiredException();
-
+      BeginChainedTransaction();
       return base.CreateEnumerationContext();
     }
 

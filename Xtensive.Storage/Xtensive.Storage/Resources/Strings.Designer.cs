@@ -2090,6 +2090,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Transaction is required..
+        /// </summary>
+        internal static string ExTransactionIsRequired {
+            get {
+                return ResourceManager.GetString("ExTransactionIsRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to process operation without a transaction. Use Transaction.Open(...) to open it..
         /// </summary>
         internal static string ExTransactionRequired {

@@ -5,6 +5,7 @@
 // Created:    2009.08.18
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -230,6 +231,8 @@ namespace Xtensive.Storage.Tests.Storage
     public void FetchFromCacheTest()
     {
       Key key;
+      DisconnectedState state;
+
       // Create instance
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
@@ -238,22 +241,22 @@ namespace Xtensive.Storage.Tests.Storage
           transactionScope.Complete();
         }
       }
+
       // Fetch instance to cache
-      var disconnectedState = new DisconnectedState();
-      using (var session = Session.Open(Domain)) {
-        disconnectedState.Attach(Session.Current);
+      using (var disconnectedSession = DisconnectedSession.Open(Domain)) {
+        state = disconnectedSession.State;
         using (var transactionScope = Transaction.Open()) {
-          disconnectedState.Prefetch(() =>
+          using (disconnectedSession.Connect()) {
             Query<Simple>.All
               .Prefetch(item => item.Id)
               .Prefetch(item => item.VersionId)
               .Prefetch(item => item.Value)
-              .ToList());
+              .ToList();
+          }
           var simple = Query<Simple>.Single(key);
           Assert.IsNotNull(simple);
           transactionScope.Complete();
         }
-        disconnectedState.Detach();
       }
       // Change instance in DB
       using (var session = Session.Open(Domain)) {
@@ -262,22 +265,15 @@ namespace Xtensive.Storage.Tests.Storage
           simple.Value = "new value";
           transactionScope.Complete();
         }
-        using (var transactionScope = Transaction.Open()) {
-          var simple = Query<Simple>.Single(key);
-          Assert.AreEqual("new value", simple.Value);
-          transactionScope.Complete();
-        }
       }
-      // Look instance from cache
-      using (var session = Session.Open(Domain)) {
-        disconnectedState.Attach(Session.Current);
+      // Look instance in cache
+      using (var disconnectedSession = DisconnectedSession.Open(Domain, state)) {
         using (var transactionScope = Transaction.Open()) {
           var simple = Query<Simple>.Single(key);
           Assert.IsNotNull(simple);
           Assert.AreEqual("some value", simple.Value);
           transactionScope.Complete();
         }
-        disconnectedState.Detach();
       }
     }
 
@@ -966,25 +962,14 @@ namespace Xtensive.Storage.Tests.Storage
     {
       var disconnectedState = new DisconnectedState();
       Key supplierKey = null;
+      DisconnectedState state;
 
-      using (var session = Session.Open(Domain)) {
-        disconnectedState.Attach(session);
+      using (var session = DisconnectedSession.Open(Domain)) {
+        state = session.State;
         using (var transactionScope = Transaction.Open()) {
           var supplier = new Supplier();
-          supplierKey = supplier.Key;
-          var productCount = supplier.Products.Count;
-          Assert.AreEqual(0, productCount);
-
-          transactionScope.Complete();
-        }
-        disconnectedState.Detach();
-      }
-      using (var session = Session.Open(Domain)) {
-        disconnectedState.Attach(session);
-        using (var transactionScope = Transaction.Open()) {
-          var supplier = Query<Supplier>.Single(supplierKey);
-          var productCount = supplier.Products.Count;
-          Assert.AreEqual(0, productCount);
+          var e = (IEnumerable) supplier.Products;
+          var first = e.GetEnumerator().MoveNext();
           transactionScope.Complete();
         }
       }
