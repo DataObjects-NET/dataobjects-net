@@ -33,9 +33,23 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void SelectForeignKeyTestTest()
+    public void SelectEmployeeTest()
+    {
+      var result = Query<Employee>.All;
+      var list = result.ToList();
+    }
+
+    [Test]
+    public void SelectForeignKeyTest()
     {
       var result = Query<Product>.All.Select(p => p.Category.Id);
+      var list = result.ToList();
+    }
+
+    [Test]
+    public void SelectForeignFieldTest()
+    {
+      var result = Query<Product>.All.Select(p => p.Category.CategoryName);
       var list = result.ToList();
     }
 

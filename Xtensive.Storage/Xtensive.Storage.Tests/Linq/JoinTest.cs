@@ -30,13 +30,12 @@ namespace Xtensive.Storage.Tests.Linq
         select new {ords = ords.Count(), emps = emps.Count()};
       var list = result.ToList();
       var expected =
-        Query<Customer>.All.Select(c => new
-          {
-            ords = (int) c.Orders.Count,
-            emps = Query<Employee>.All.Where(e => c.Address.City == e.Address.City).Count()
-          }).ToList();
+        Query<Customer>.All.Select(c => new {
+          ords = (int) c.Orders.Count,
+          emps = Query<Employee>.All.Where(e => c.Address.City==e.Address.City).Count()
+        }).ToList();
 
-      Assert.IsTrue(expected.Except(list).Count() == 0);
+      Assert.IsTrue(expected.Except(list).Count()==0);
     }
 
     [Test]
@@ -78,14 +77,26 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void SingleTest()
+    public void SimpleJoinTest()
     {
-      var products = Query<Product>.All;
-      var productsCount = products.Count();
-      var suppliers = Query<Supplier>.All;
-      var result = from p in products
-      join s in suppliers on p.Supplier.Id equals s.Id
-      select new {p.ProductName, s.ContactName, s.Phone};
+      var productsCount = Query<Product>.All.Count();
+      var result =
+        from product in Query<Product>.All
+        join supplier in Query<Supplier>.All on product.Supplier.Id equals supplier.Id
+        select new {product.ProductName, supplier.ContactName, supplier.Phone};
+      var list = result.ToList();
+      Assert.AreEqual(productsCount, list.Count);
+    }
+
+    [Test]
+    public void SimpleLeftTest()
+    {
+      var productsCount = Query<Product>.All.Count();
+      var result = Query<Product>.All
+        .JoinLeft(Query<Supplier>.All,
+          product => product.Supplier.Id,
+          supplier => supplier.Id,
+          (product, supplier) => new {product.ProductName, supplier.ContactName, supplier.Phone});
       var list = result.ToList();
       Assert.AreEqual(productsCount, list.Count);
     }
@@ -197,21 +208,20 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupJoinTest()
     {
-      var categories = Query<Category>.All;
-      var products = Query<Product>.All;
-      var categoryCount = categories.Count();
-      IQueryable<IEnumerable<Product>> result =
-        categories.GroupJoin(
-          products,
-          c => c,
-          p => p.Category,
-          (c, pGroup) => pGroup);
+      var categoryCount = Query<Category>.All.Count();
+      var result =
+        from category in Query<Category>.All
+        join product in Query<Product>.All
+          on category equals product.Category
+          into groups
+        select groups;
+
       var expected =
-        categories.AsEnumerable().GroupJoin(
-          products.AsEnumerable(),
-          c => c,
-          p => p.Category,
-          (c, pGroup) => pGroup);
+        from category in Query<Category>.All.AsEnumerable()
+        join product in Query<Product>.All.AsEnumerable()
+          on category equals product.Category
+          into groups
+        select groups;
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);
       QueryDumper.Dump(result, true);
@@ -281,8 +291,8 @@ namespace Xtensive.Storage.Tests.Linq
       var categoryCount = categories.Count();
       var result = categories.GroupJoin(
         products,
-        c => c,
-        p => p.Category,
+        category => category,
+        product => product.Category,
         (c, pGroup) => pGroup.DefaultIfEmpty());
       var list = result.ToList();
       Assert.AreEqual(categoryCount, list.Count);

@@ -212,7 +212,7 @@ namespace Xtensive.Storage.Tests.Linq
                         joinedCustomer.CompanyName, 
                         joinedCustomer.Address.Country
                       };
-
+      var t = result.ToList();
       string searchTerms = "U A";
       var searchCriteria = searchTerms.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
       foreach (var search in searchCriteria) {

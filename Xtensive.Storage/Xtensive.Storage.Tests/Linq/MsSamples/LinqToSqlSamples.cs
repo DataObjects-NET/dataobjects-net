@@ -514,13 +514,13 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample shows how to get LEFT OUTER JOIN by using DefaultIfEmpty(). The DefaultIfEmpty() method returns null when there is no Order for the Employee.")]
     public void DLinqJoin7()
     {
-      var q =
-        from e in Query<Employee>.All
-        join o in Query<Order>.All on e equals o.Employee into ords
-        from o in ords.DefaultIfEmpty()
-        select new {e.FirstName, e.LastName, Order = o};
+      var query =
+        from employee in Query<Employee>.All
+        join order in Query<Order>.All on employee equals order.Employee into orderJoins
+        from orderJoin in orderJoins.DefaultIfEmpty()
+        select new {employee.FirstName, employee.LastName, Order = orderJoin};
 
-      QueryDumper.Dump(q);
+      QueryDumper.Dump(query);
     }
 
     [Category("JOIN")]
