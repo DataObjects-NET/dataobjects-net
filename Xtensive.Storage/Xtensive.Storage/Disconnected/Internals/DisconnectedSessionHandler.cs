@@ -184,6 +184,12 @@ namespace Xtensive.Storage.Disconnected
       base.ExecuteQueryTasks(queryTasks, allowPartialExecution);
     }
 
+    /// <inheritdoc/>
+    public override KeyGenerator GetKeyGenerator(KeyProviderInfo keyProviderInfo)
+    {
+      return Session.Domain.LocalKeyGenerators[keyProviderInfo];
+    }
+
     public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
       if (!isChainedTransactionStarted)

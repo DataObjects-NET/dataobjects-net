@@ -10,8 +10,10 @@ namespace Xtensive.Storage.Disconnected.Log
 {
   public interface IOperationLog : IEnumerable<IOperation>
   {
+    HashSet<Key> GetKeysForRemap();
+    void RegisterKeyForRemap(Key key);
     void Register(IOperation operation);
-    void Append(IEnumerable<IOperation> operations);
-    void Apply(Session session);
+    void Append(IOperationLog source);
+    KeyMapping Apply(Session session);
   }
 }

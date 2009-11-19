@@ -24,16 +24,23 @@ namespace Xtensive.Storage.Internals
       if (!typeInfo.IsEntity)
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
 
+      bool notifyLocalKeyCreated = false;
       KeyGenerator keyGenerator = null;
       var session = Session.Current;
-      if (session != null)
+      if (session != null) {
         keyGenerator = session.Handler.GetKeyGenerator(typeInfo.KeyProviderInfo);
+        if (keyGenerator != null)
+          notifyLocalKeyCreated = true;
+      }
       if (keyGenerator == null)
         keyGenerator = domain.KeyGenerators[typeInfo.KeyProviderInfo];
       if (keyGenerator == null)
         throw new InvalidOperationException(String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
       var keyValue = keyGenerator.Next();
-      return Create(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
+      var key = Create(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
+      if (notifyLocalKeyCreated)
+        session.NotifyLocalKeyCreated(key);
+      return key;
     }
 
     public static Key Create(Domain domain, TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, int[] keyIndexes)

@@ -130,8 +130,9 @@ namespace Xtensive.Storage.Disconnected
     /// <summary>
     /// Saves all the changes to storage.
     /// </summary>
-    public void SaveChanges()
+    public KeyMapping SaveChanges()
     {
+      KeyMapping keyMapping;
       if (!IsAttached)
         throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
       var tempSession = Session;
@@ -139,7 +140,7 @@ namespace Xtensive.Storage.Disconnected
         Detach();
         using (new VersionValidator(tempSession, GetStoredVerion)) {
           using (var transactionScope = Transaction.Open(tempSession)) {
-            registry.Log.Apply(tempSession);
+            keyMapping = registry.Log.Apply(tempSession);
             transactionScope.Complete();
           }
           registry.Commit();
@@ -148,6 +149,7 @@ namespace Xtensive.Storage.Disconnected
       finally {
         Attach(tempSession);
       }
+      return keyMapping;
     }
 
     /// <summary>

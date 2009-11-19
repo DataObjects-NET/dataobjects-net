@@ -21,14 +21,19 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
     public EntityOperationType Type { get; private set; }
     public FieldInfo Field { get; private set; }
 
-    public void Prepare(PrefetchContext prefetchContext)
+    public void Prepare(OperationContext operationContext)
     {
-      prefetchContext.Register(Key);
-      prefetchContext.Register(TargetKey);
+      if (operationContext.KeysForRemap.Contains(Key))
+        Key = operationContext.KeyMapping[Key];
+      if (operationContext.KeysForRemap.Contains(TargetKey))
+        TargetKey = operationContext.KeyMapping[TargetKey];
+      operationContext.Register(Key);
+      operationContext.Register(TargetKey);
     }
 
-    public void Execute(Session session)
+    public void Execute(OperationContext operationContext)
     {
+      var session = operationContext.Session;
       var target = Query.Single(session, TargetKey);
       var entity = Query.Single(session, Key);
       var entitySet = target.GetFieldValue<EntitySetBase>(Field);

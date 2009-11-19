@@ -465,7 +465,9 @@ namespace Xtensive.Storage.Tests.Storage
       // Save data to storage
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
-        disconnectedState.SaveChanges();
+        var keyMapping = disconnectedState.SaveChanges();
+        order1Key = keyMapping.Remap(order1Key);
+        newCustomerKey = keyMapping.Remap(newCustomerKey);
         disconnectedState.Detach();
       }
 
@@ -559,7 +561,12 @@ namespace Xtensive.Storage.Tests.Storage
       // Save changes to storage
       using (var session = Session.Open(Domain)) {
         disconnectedState.Attach(session);
-        disconnectedState.SaveChanges();
+        var keyMapping = disconnectedState.SaveChanges();
+        newProduct1Key = keyMapping.Remap(newProduct1Key);
+        newProduct2Key = keyMapping.Remap(newProduct2Key);
+        product3Key = keyMapping.Remap(product3Key);
+        newSupplierKey = keyMapping.Remap(newSupplierKey);
+        supplier1Key = keyMapping.Remap(supplier1Key);
         disconnectedState.Detach();
       }
 
@@ -895,7 +902,9 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
           transactionScope.Complete();
         }
-        disconnectedState.SaveChanges();
+        var keyMapping = disconnectedState.SaveChanges();
+        order1Key = keyMapping.Remap(order1Key);
+        newCustomerKey = keyMapping.Remap(newCustomerKey);
         disconnectedState.Detach();
       }
 
@@ -947,7 +956,7 @@ namespace Xtensive.Storage.Tests.Storage
           customer1.Name = "NewName2";
           transactionScope.Complete();
         }
-        AssertEx.Throws<InvalidOperationException>(disconnectedState.SaveChanges);
+        AssertEx.Throws<InvalidOperationException>(() => disconnectedState.SaveChanges());
         disconnectedState.Detach();
       }
     }

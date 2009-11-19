@@ -24,6 +24,7 @@ namespace Xtensive.Storage.Disconnected.Log
 
     private void AttachEventHandlers()
     {
+      session.LocalKeyCreated += LocalKeyCreated;
       session.EntityCreated += EntityCreated;
       session.EntityFieldValueSetting += EntityFieldValueSetting;
       session.EntityFieldValueSetCompleted += EntityFieldValueSetCompleted;
@@ -37,6 +38,7 @@ namespace Xtensive.Storage.Disconnected.Log
 
     private void DetachEventHandlers()
     {
+      session.LocalKeyCreated -= LocalKeyCreated;
       session.EntityCreated -= EntityCreated;
       session.EntityFieldValueSetting -= EntityFieldValueSetting;
       session.EntityFieldValueSetCompleted -= EntityFieldValueSetCompleted;
@@ -49,6 +51,11 @@ namespace Xtensive.Storage.Disconnected.Log
     }
 
     #region Session event handlers
+
+    void LocalKeyCreated(object sender, KeyEventArgs e)
+    {
+      log.RegisterKeyForRemap(e.Key);
+    }
 
     void EntitySetItemRemoveCompleted(object sender, EntitySetItemActionCompletedEventArgs e)
     {

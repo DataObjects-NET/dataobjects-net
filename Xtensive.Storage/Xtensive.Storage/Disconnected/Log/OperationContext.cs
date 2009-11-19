@@ -9,10 +9,13 @@ using System.Collections.Generic;
 
 namespace Xtensive.Storage.Disconnected.Log
 {
-  public sealed class PrefetchContext : IEnumerable<Key>
+  public sealed class OperationContext : IEnumerable<Key>
   {
     private readonly HashSet<Key> prefetchKeys;
     private readonly HashSet<Key> excludedKeys;
+    public readonly Session Session;
+    public readonly Dictionary<Key, Key> KeyMapping;
+    public readonly HashSet<Key> KeysForRemap;
 
     public void Register(Key key)
     {
@@ -42,8 +45,11 @@ namespace Xtensive.Storage.Disconnected.Log
 
     // Constructors
 
-    public PrefetchContext()
+    public OperationContext(Session session, IOperationLog log)
     {
+      Session = session;
+      KeysForRemap = log.GetKeysForRemap();
+      KeyMapping = new Dictionary<Key, Key>();
       prefetchKeys = new HashSet<Key>();
       excludedKeys = new HashSet<Key>();
     }

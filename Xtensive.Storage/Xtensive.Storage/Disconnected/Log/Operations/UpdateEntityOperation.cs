@@ -22,16 +22,21 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
     public EntityOperationType Type { get; private set; }
     public FieldInfo Field { get; private set; }
     public object Value { get; private set; }
-    private readonly Key entityValueKey;
+    private Key entityValueKey;
 
-    public void Prepare(PrefetchContext prefetchContext)
+    public void Prepare(OperationContext operationContext)
     {
-      prefetchContext.Register(Key);
-      prefetchContext.Register(entityValueKey);
+      if (operationContext.KeysForRemap.Contains(Key))
+        Key = operationContext.KeyMapping[Key];
+      if (operationContext.KeysForRemap.Contains(entityValueKey))
+        entityValueKey = operationContext.KeyMapping[entityValueKey];
+      operationContext.Register(Key);
+      operationContext.Register(entityValueKey);
     }
 
-    public void Execute(Session session)
+    public void Execute(OperationContext operationContext)
     {
+      var session = operationContext.Session;
       var entity = Query.Single(session, Key);
       var setter = DelegateHelper.CreateDelegate<Action<Entity,object>>(
         this, 

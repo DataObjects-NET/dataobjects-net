@@ -8,6 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage.Disconnected.Log.Operations
 {
@@ -19,16 +20,26 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
 
     public EntityOperationType Type { get; private set; }
 
-    public void Prepare(PrefetchContext prefetchContext)
+    public void Prepare(OperationContext operationContext)
     {
-      if (Type == EntityOperationType.Create)
-        prefetchContext.RegisterNew(Key);
+      if (operationContext.KeysForRemap.Contains(Key)) {
+        var oldKey = Key;
+        Key newKey;
+        if (!operationContext.KeyMapping.TryGetValue(oldKey, out newKey)) {
+          newKey = KeyFactory.CreateNext(operationContext.Session.Domain, oldKey.Type);
+          operationContext.KeyMapping.Add(oldKey, newKey);
+        }
+        Key = newKey;
+      }
+      if (Type == EntityOperationType.Create) 
+        operationContext.RegisterNew(Key);
       else
-        prefetchContext.Register(Key);
+        operationContext.Register(Key);
     }
 
-    public void Execute(Session session)
+    public void Execute(OperationContext operationContext)
     {
+      var session = operationContext.Session;
       if (Type == EntityOperationType.Create) {
         var entityType = Key.TypeRef.Type;
         var domain = session.Domain;

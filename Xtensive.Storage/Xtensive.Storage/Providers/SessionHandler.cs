@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="keyProviderInfo">The key provider info.</param>
     public virtual KeyGenerator GetKeyGenerator(KeyProviderInfo keyProviderInfo)
     {
-      return Session.Domain.KeyGenerators[keyProviderInfo];
+      return null;
     }
 
     /// <summary>

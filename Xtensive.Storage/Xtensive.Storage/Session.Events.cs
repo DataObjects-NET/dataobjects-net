@@ -32,6 +32,11 @@ namespace Xtensive.Storage
     public event EventHandler<EntityEventArgs> EntityCreated;
 
     /// <summary>
+    /// Occurs when local <see cref="Key"/> created.
+    /// </summary>
+    public event EventHandler<KeyEventArgs> LocalKeyCreated;
+
+    /// <summary>
     /// Occurs when field value is about to be read.
     /// </summary>
     public event EventHandler<FieldEventArgs> EntityFieldValueGetting;
@@ -128,6 +133,12 @@ namespace Xtensive.Storage
     {
       if (!IsSystemLogicOnly && Persisted!=null)
         Persisted(this, EventArgs.Empty);
+    }
+
+    internal void NotifyLocalKeyCreated(Key key)
+    {
+      if (LocalKeyCreated != null)
+        LocalKeyCreated(this, new KeyEventArgs(key));
     }
 
     internal void NotifyEntityCreated(Entity entity)

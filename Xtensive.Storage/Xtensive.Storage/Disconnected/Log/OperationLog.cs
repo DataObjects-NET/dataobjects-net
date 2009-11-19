@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 
 namespace Xtensive.Storage.Disconnected.Log
 {
@@ -15,30 +15,43 @@ namespace Xtensive.Storage.Disconnected.Log
   public class OperationLog : IOperationLog
   {
     private readonly List<IOperation> log;
+    private readonly List<SerializableKey> serializableKeys;
+
+    public HashSet<Key> GetKeysForRemap()
+    {
+      return new HashSet<Key>(serializableKeys.Select(sk => sk.Key));
+    }
+
+    public void RegisterKeyForRemap(Key key)
+    {
+      serializableKeys.Add(key);
+    }
 
     public void Register(IOperation operation)
     {
       log.Add(operation);
     }
 
-    public void Append(IEnumerable<IOperation> operations)
+    public void Append(IOperationLog source)
     {
-      log.AddRange(operations);
+      log.AddRange(source);
+      serializableKeys.AddRange(source.GetKeysForRemap().Select(k => (SerializableKey)k));
     }
 
-    public void Apply(Session session)
+    public KeyMapping Apply(Session session)
     {
-      var prefetchContext = new PrefetchContext();
+      var operationContext = new OperationContext(session, this);
       foreach (var operation in log)
-        operation.Prepare(prefetchContext);
-      prefetchContext
+        operation.Prepare(operationContext);
+      operationContext
         .Prefetch<Entity,Key>(key => key)
         .Execute();
 
       foreach (var operation in log)
-        operation.Execute(session);
+        operation.Execute(operationContext);
 
       log.Clear();
+      return new KeyMapping(operationContext.KeyMapping);
     }
 
     #region IEnumerable implementation
@@ -61,6 +74,7 @@ namespace Xtensive.Storage.Disconnected.Log
     public OperationLog()
     {
       log = new List<IOperation>();
+      serializableKeys = new List<SerializableKey>();
     }
   }
 }

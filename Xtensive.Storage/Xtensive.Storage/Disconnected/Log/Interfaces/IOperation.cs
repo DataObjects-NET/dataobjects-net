@@ -4,11 +4,13 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
+using System.Collections.Generic;
+
 namespace Xtensive.Storage.Disconnected.Log
 {
   public interface IOperation
   {
-    void Prepare(PrefetchContext prefetchContext);
-    void Execute(Session session);
+    void Prepare(OperationContext operationContext);
+    void Execute(OperationContext operationContext);
   }
 }
