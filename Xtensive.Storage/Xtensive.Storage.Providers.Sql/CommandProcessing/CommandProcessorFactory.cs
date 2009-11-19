@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       int batchSize = session.Configuration.BatchSize;
       bool useBatches = batchSize > 1
-        && domainHandler.ProviderInfo.Supports(ProviderFeatures.Batches);
+        && domainHandler.ProviderInfo.Supports(ProviderFeatures.DmlBatches);
       bool useCursorParameters = useBatches
         && domainHandler.ProviderInfo.Supports(ProviderFeatures.MultipleResultsViaCursorParameters);
 

@@ -35,25 +35,30 @@ namespace Xtensive.Sql.Info
     ExplicitJoinOrder = 0x4,
 
     /// <summary>
-    /// Indicates that RDBMS supports batch query execution.
+    /// Indicates that RDBMS supports batch query execution for DDL statements.
     /// </summary>
-    Batches = 0x8,
+    DdlBatches = 0x8,
+
+    /// <summary>
+    /// Indicates that RDBMS supports batch query execution for DML statements.
+    /// </summary>
+    DmlBatches = 0x10,
 
     /// <summary>
     /// Indicates that RDBMS supports query optimizer hints.
     /// </summary>
-    Hints = 0x10,
+    Hints = 0x20,
 
     /// <summary>
     /// Indicates that RDBMS supports CROSS APPLY and OUTER APPLY operators.
     /// </summary>
-    CrossApply = 0x20,
+    CrossApply = 0x40,
 
     /// <summary>
     /// Indicates that RDBMS allows boolean expressions in equality/inequality comparisons,
     /// inside CASE and COALESCE operators.
     /// </summary>
-    FullBooleanExpressionSupport = 0x40,
+    FullBooleanExpressionSupport = 0x80,
 
     /// <summary>
     /// Indicates that RDBMS uses large objects (LOBs) for manipulating large data chunks.
@@ -78,11 +83,6 @@ namespace Xtensive.Sql.Info
     Offset = 0x800,
 
     /// <summary>
-    /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
-    /// </summary>
-    Paging = Limit | Offset,
-
-    /// <summary>
     /// Indicates that RDBMS supports multicolumn IN operator.
     /// </summary>
     MulticolumnIn = 0x1000,
@@ -91,5 +91,15 @@ namespace Xtensive.Sql.Info
     /// Indicates that RDBMS supports multiple results via cursor parameters.
     /// </summary>
     MultipleResultsViaCursorParameters = 0x2000,
+
+    /// <summary>
+    /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
+    /// </summary>
+    Paging = Limit | Offset,
+
+    /// <summary>
+    /// Indicates that RDBMS supports batches for both DDL and DML statements.
+    /// </summary>
+    Batches = DdlBatches | DmlBatches,
   }
 }

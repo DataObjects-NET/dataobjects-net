@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void Execute(IEnumerable<string> batch)
     {
-      if (DomainHandler.ProviderInfo.Supports(ProviderFeatures.Batches)) {
+      if (DomainHandler.ProviderInfo.Supports(ProviderFeatures.DdlBatches)) {
         var commandText = Driver.BuildBatch(batch.ToArray());
         if (string.IsNullOrEmpty(commandText))
           return;

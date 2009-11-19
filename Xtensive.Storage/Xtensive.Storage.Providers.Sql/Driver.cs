@@ -36,8 +36,10 @@ namespace Xtensive.Storage.Providers.Sql
       var foreignKeyFeatures = si.ForeignKey.Features;
 
       var f = ProviderFeatures.None;
-      if (queryFeatures.Supports(QueryFeatures.Batches))
-        f |= ProviderFeatures.Batches;
+      if (queryFeatures.Supports(QueryFeatures.DdlBatches))
+        f |= ProviderFeatures.DdlBatches;
+      if (queryFeatures.Supports(QueryFeatures.DmlBatches))
+        f |= ProviderFeatures.DmlBatches;
       if (indexFeatures.Supports(IndexFeatures.Clustered))
         f |= ProviderFeatures.ClusteredIndexes;
       if (si.Collation!=null)

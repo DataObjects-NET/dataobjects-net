@@ -93,9 +93,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (statements.Count==0)
         throw new InvalidOperationException();
-      underlyingCommand.CommandText = statements.Count > 1
-        ? driver.BuildBatch(statements.ToArray())
-        : statements[0];
+      underlyingCommand.CommandText = driver.BuildBatch(statements.ToArray());
     }
 
     #endregion

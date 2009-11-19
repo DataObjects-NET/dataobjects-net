@@ -12,17 +12,18 @@ namespace Xtensive.Storage.Providers
   public enum ProviderFeatures
   {
     None = 0x0,
-    Batches = 0x1,
-    ClusteredIndexes = 0x2,
-    Collations = 0x4,
-    CrossApply = 0x8,
-    DeferrableConstraints = 0x10,
-    ForeignKeyConstraints = 0x20,
-    FullFledgedBooleanExpressions = 0x40, // This option is named in honor of Denis Krjuchkov :)
-    IncludedColumns = 0x80,
-    KeyColumnSortOrder = 0x100,
-    LargeObjects = 0x200,
-    NamedParameters = 0x400,
+    DdlBatches = 0x1,
+    DmlBatches = 0x2,
+    ClusteredIndexes = 0x4,
+    Collations = 0x8,
+    CrossApply = 0x10,
+    DeferrableConstraints = 0x20,
+    ForeignKeyConstraints = 0x40,
+    FullFledgedBooleanExpressions = 0x80,
+    IncludedColumns = 0x100,
+    KeyColumnSortOrder = 0x200,
+    LargeObjects = 0x400,
+    NamedParameters = 0x800,
     Sequences = 0x1000,
     TransactionEnlist = 0x2000,
     TreatEmptyBlobAsNull = 0x4000,
@@ -33,5 +34,6 @@ namespace Xtensive.Storage.Providers
     MultipleActiveResultSets = 0x80000,
     MultipleResultsViaCursorParameters = 0x100000,
     Paging = Limit | Offset,
+    Batches = DdlBatches | DmlBatches,
   }
 }

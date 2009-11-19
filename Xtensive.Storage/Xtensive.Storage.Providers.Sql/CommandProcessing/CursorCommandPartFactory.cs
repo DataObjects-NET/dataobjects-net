@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Providers.Sql
   public class CursorCommandPartFactory : CommandPartFactory
   {
     private const string CursorParameterNameFormat = "{0}c";
-    private const string StatementFormat = "open :{0} for {1}";
+    private const string StatementFormat = "OPEN :{0} FOR {1}";
 
     public override CommandPart CreateQueryCommandPart(SqlQueryTask task, string parameterNamePrefix)
     {

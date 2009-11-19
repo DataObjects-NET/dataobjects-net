@@ -183,7 +183,7 @@ namespace Xtensive.Sql.Oracle.v09
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
         QueryFeatures.Hints |
-        QueryFeatures.Batches | 
+        QueryFeatures.DmlBatches |
         QueryFeatures.LargeObjects |
         QueryFeatures.MultipleResultsViaCursorParameters;
       return queryInfo;
