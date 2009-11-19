@@ -8,6 +8,7 @@ using System;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Manual.Upgrade;
 
 namespace Xtensive.Storage.Manual
 {
