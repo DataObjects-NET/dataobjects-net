@@ -11,18 +11,33 @@ using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal sealed class Command : IDisposable
+  /// <summary>
+  /// A command ready for execution.
+  /// </summary>
+  public sealed class Command : IDisposable
   {
-    private readonly CommandProcessor processor;
+    private readonly Driver driver;
+    private readonly Session session;
     private readonly DbCommand underlyingCommand;
     private readonly List<string> statements = new List<string>();
     private readonly List<SqlQueryTask> queryTasks = new List<SqlQueryTask>();
 
     private DisposableSet disposables;
-    
+
+    /// <summary>
+    /// Gets the statements this command is consist of.
+    /// </summary>
     public List<string> Statements { get { return statements; } }
+
+    /// <summary>
+    /// Gets the query tasks registered in this command.
+    /// </summary>
     public List<SqlQueryTask> QueryTasks { get { return queryTasks; } }
 
+    /// <summary>
+    /// Adds the part to this command.
+    /// </summary>
+    /// <param name="part">The part to add.</param>
     public void AddPart(CommandPart part)
     {
       statements.Add(part.Query);
@@ -36,45 +51,62 @@ namespace Xtensive.Storage.Providers.Sql
         disposables.Add(disposable);
     }
 
+    /// <summary>
+    /// Adds the part to this command.
+    /// </summary>
+    /// <param name="part">The part to add.</param>
+    /// <param name="task">The task.</param>
     public void AddPart(CommandPart part, SqlQueryTask task)
     {
       AddPart(part);
       QueryTasks.Add(task);
     }
 
+    /// <summary>
+    /// Executes this command. This method is equivalent of <seealso cref="DbCommand.ExecuteNonQuery"/>.
+    /// </summary>
     public void ExecuteNonQuery()
     {
       PrepareCommand();
-      processor.Driver.ExecuteNonQuery(processor.SessionHandler.Session, underlyingCommand);
+      driver.ExecuteNonQuery(session, underlyingCommand);
     }
 
+    /// <summary>
+    /// Executes this command. This method is equivalent of <seealso cref="DbCommand.ExecuteReader()"/>.
+    /// </summary>
     public DbDataReader ExecuteReader()
     {
       PrepareCommand();
-      return processor.Driver.ExecuteReader(processor.SessionHandler.Session, underlyingCommand);
+      return driver.ExecuteReader(session, underlyingCommand);
     }
-    
+
+    /// <inheritdoc/>
     public void Dispose()
     {
       underlyingCommand.DisposeSafely();
       disposables.DisposeSafely();
     }
 
+    #region Private / internal methods
+
     private void PrepareCommand()
     {
       if (statements.Count==0)
         throw new InvalidOperationException();
       underlyingCommand.CommandText = statements.Count > 1
-        ? processor.Driver.BuildBatch(statements.ToArray())
+        ? driver.BuildBatch(statements.ToArray())
         : statements[0];
     }
+
+    #endregion
 
 
     // Constructors
 
-    public Command(CommandProcessor processor, DbCommand underlyingCommand)
+    public Command(Driver driver, Session session, DbCommand underlyingCommand)
     {
-      this.processor = processor;
+      this.driver = driver;
+      this.session = session;
       this.underlyingCommand = underlyingCommand;
     }
   }

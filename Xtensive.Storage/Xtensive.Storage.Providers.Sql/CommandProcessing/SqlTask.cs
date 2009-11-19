@@ -6,8 +6,15 @@
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal abstract class SqlTask
+  /// <summary>
+  /// An abstract task for <see cref="CommandProcessor"/>.
+  /// </summary>
+  public abstract class SqlTask
   {
-    public abstract void Process(CommandProcessor processor);
+    /// <summary>
+    /// Processes this command with the specified <see cref="CommandProcessor"/>.
+    /// </summary>
+    /// <param name="processor">The processor to use.</param>
+    public abstract void ProcessWith(CommandProcessor processor);
   }
 }

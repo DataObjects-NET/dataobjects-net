@@ -256,15 +256,6 @@ namespace Xtensive.Storage.Providers.Sql
     #endregion
     
     #region Private / internal members
-    
-    private CommandProcessor CreateCommandProcessor()
-    {
-      int batchSize = Session.Configuration.BatchSize;
-      var result = Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.Batches) && batchSize > 1
-        ? new BatchingCommandProcessor(this, batchSize)
-        : (CommandProcessor) new SimpleCommandProcessor(this);
-      return result;
-    }
 
     private void EnsureConnectionIsOpen()
     {
@@ -273,7 +264,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (connection==null)
         connection = driver.CreateConnection(Session, Handlers.Domain.Configuration.ConnectionInfo);
       driver.OpenConnection(Session, connection);
-      commandProcessor = CreateCommandProcessor();
+      commandProcessor = domainHandler.CommandProcessorFactory
+        .CreateCommandProcessor(Session, Connection);
     }
     
     private void EnsureAutoShortenTransactionIsStarted()

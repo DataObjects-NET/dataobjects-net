@@ -7,27 +7,35 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal sealed class SimpleCommandProcessor : CommandProcessor
+  /// <summary>
+  /// A command processor that simply executes all incoming commands immediately.
+  /// </summary>
+  public sealed class SimpleCommandProcessor : CommandProcessor
   {
+    /// <inheritdoc/>
     public override void ExecuteRequests(bool allowPartialExecution)
     {
       ExecuteAllTasks();
     }
-    
+
+    /// <inheritdoc/>
     public override IEnumerator<Tuple> ExecuteRequestsWithReader(QueryRequest lastRequest)
     {
       ExecuteAllTasks();
       return RunTupleReader(ExecuteQuery(new SqlQueryTask(lastRequest)), lastRequest.TupleDescriptor);
     }
 
+    /// <inheritdoc/>
     public override void ProcessTask(SqlQueryTask task)
     {
-      ReadTuples(ExecuteQuery(task), task.Request.TupleDescriptor, task.Result);
+      ReadTuples(ExecuteQuery(task), task.Request.TupleDescriptor, task.Output);
     }
 
+    /// <inheritdoc/>
     public override void ProcessTask(SqlPersistTask task)
     {
       ExecutePersist(task);
@@ -39,7 +47,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       while (tasks.Count > 0) {
         var task = tasks.Dequeue();
-        task.Process(this);
+        task.ProcessWith(this);
       }
     }
 
@@ -83,8 +91,10 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructors
 
-    public SimpleCommandProcessor(SessionHandler sessionHandler)
-      : base(sessionHandler)
+    public SimpleCommandProcessor(
+      DomainHandler domainHandler, Session session,
+      SqlConnection connection, CommandPartFactory factory)
+      : base(domainHandler, session, connection, factory)
     {
     }
   }

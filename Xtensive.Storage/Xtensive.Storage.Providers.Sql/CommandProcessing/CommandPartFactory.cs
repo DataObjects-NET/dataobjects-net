@@ -14,7 +14,10 @@ using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal sealed class CommandPartFactory
+  /// <summary>
+  /// A factory of <see cref="CommandPart"/>s.
+  /// </summary>
+  public class CommandPartFactory
   {
     private const string ParameterNameFormat = "{0}{1}";
     private const string RowFilterParameterNameFormat = "{0}_{1}_{2}";
@@ -22,10 +25,20 @@ namespace Xtensive.Storage.Providers.Sql
     private const int LobBlockSize = ushort.MaxValue;
     private readonly DomainHandler domainHandler;
     private readonly Driver driver;
-    private readonly SqlConnection connection;
     private readonly bool emptyStringIsNull;
-    
-    public CommandPart CreatePersistCommandPart(SqlPersistTask task, string parameterNamePrefix)
+
+    /// <summary>
+    /// Connection this command part factory is bound to,
+    /// </summary>
+    protected readonly SqlConnection connection;
+
+    /// <summary>
+    /// Creates the persist command part.
+    /// </summary>
+    /// <param name="task">The task.</param>
+    /// <param name="parameterNamePrefix">The parameter name prefix.</param>
+    /// <returns>Created command part.</returns>
+    public virtual CommandPart CreatePersistCommandPart(SqlPersistTask task, string parameterNamePrefix)
     {
       var request = task.Request;
       var tuple = task.Tuple;
@@ -40,11 +53,18 @@ namespace Xtensive.Storage.Providers.Sql
         configuration.PlaceholderValues.Add(binding, driver.BuildParameterReference(parameterName));
         AddPersistParameter(result, parameterName, parameterValue, binding);
       }
+
       result.Query = compilationResult.GetCommandText(configuration);
       return result;
     }
 
-    public CommandPart CreateQueryCommandPart(SqlQueryTask task, string parameterNamePrefix)
+    /// <summary>
+    /// Creates the query command part.
+    /// </summary>
+    /// <param name="task">The task.</param>
+    /// <param name="parameterNamePrefix">The parameter name prefix.</param>
+    /// <returns>Created command part.</returns>
+    public virtual CommandPart CreateQueryCommandPart(SqlQueryTask task, string parameterNamePrefix)
     {
       var request = task.Request;
       int parameterIndex = 0;
@@ -189,8 +209,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     public CommandPartFactory(DomainHandler domainHandler, SqlConnection connection)
     {
-      this.connection = connection;
       this.domainHandler = domainHandler;
+      this.connection = connection;
       driver = domainHandler.Driver;
       emptyStringIsNull = domainHandler.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
     }

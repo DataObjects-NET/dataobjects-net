@@ -8,18 +8,19 @@ using System.Collections.Generic;
 using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal sealed class BatchingCommandProcessor : CommandProcessor
+  /// <summary>
+  /// A command processor that arranges incoming commands into series of batches
+  /// to minimize client-server network roundtrips.
+  /// </summary>
+  public sealed class BatchingCommandProcessor : CommandProcessor
   {
     private readonly int batchSize;
-    
-    private string GetParameterPrefix()
-    {
-      return string.Format("p{0}_", activeCommand.Statements.Count + 1);
-    }
 
+    /// <inheritdoc/>
     public override void ExecuteRequests(bool allowPartialExecution)
     {
       while (tasks.Count >= batchSize)
@@ -29,18 +30,21 @@ namespace Xtensive.Storage.Providers.Sql
         ExecuteBatch(tasks.Count, null);
     }
 
+    /// <inheritdoc/>
     public override void ProcessTask(SqlQueryTask task)
     {
       var part = factory.CreateQueryCommandPart(task, GetParameterPrefix());
       activeCommand.AddPart(part, task);
     }
 
+    /// <inheritdoc/>
     public override void ProcessTask(SqlPersistTask task)
     {
       var part = factory.CreatePersistCommandPart(task, GetParameterPrefix());
       activeCommand.AddPart(part);
     }
 
+    /// <inheritdoc/>
     public override IEnumerator<Tuple> ExecuteRequestsWithReader(QueryRequest request)
     {
       while (tasks.Count >= batchSize)
@@ -48,6 +52,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       return RunTupleReader(ExecuteBatch(tasks.Count, request), request.TupleDescriptor);
     }
+
+    #region Private / internal methods
 
     private DbDataReader ExecuteBatch(int numberOfTasks, QueryRequest lastRequest)
     {
@@ -59,7 +65,7 @@ namespace Xtensive.Storage.Providers.Sql
         while (numberOfTasks > 0 && tasks.Count > 0) {
           numberOfTasks--;
           var task = tasks.Dequeue();
-          task.Process(this);
+          task.ProcessWith(this);
         }
         if (lastRequest!=null) {
           var part = factory.CreateQueryCommandPart(new SqlQueryTask(lastRequest), DefaultParameterNamePrefix);
@@ -75,9 +81,9 @@ namespace Xtensive.Storage.Providers.Sql
           while (currentQueryTask < activeCommand.QueryTasks.Count) {
             var queryTask = activeCommand.QueryTasks[currentQueryTask];
             var descriptor = queryTask.Request.TupleDescriptor;
-            var accessor = DomainHandler.GetDataReaderAccessor(descriptor);
-            var result = queryTask.Result;
-            while (Driver.ReadRow(reader)) {
+            var accessor = domainHandler.GetDataReaderAccessor(descriptor);
+            var result = queryTask.Output;
+            while (driver.ReadRow(reader)) {
               var tuple = Tuple.Create(descriptor);
               accessor.Read(reader, tuple);
               result.Add(tuple);
@@ -95,11 +101,19 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
+    private string GetParameterPrefix()
+    {
+      return string.Format("p{0}_", activeCommand.Statements.Count + 1);
+    }
+
+    #endregion
 
     // Constructors
 
-    public BatchingCommandProcessor(SessionHandler sessionHandler, int batchSize)
-      : base(sessionHandler)
+    public BatchingCommandProcessor(
+      DomainHandler domainHandler, Session session,
+      SqlConnection connection, CommandPartFactory factory, int batchSize)
+      : base(domainHandler, session, connection, factory)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, "batchSize");
       this.batchSize = batchSize;

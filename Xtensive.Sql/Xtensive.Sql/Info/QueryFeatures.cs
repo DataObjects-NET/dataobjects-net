@@ -90,6 +90,6 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Indicates that RDBMS supports multiple results via cursor parameters.
     /// </summary>
-    CursorParameters = 0x2000,
+    MultipleResultsViaCursorParameters = 0x2000,
   }
 }

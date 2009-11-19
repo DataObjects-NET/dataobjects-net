@@ -10,11 +10,24 @@ using System.Data.Common;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal sealed class CommandPart
+  /// <summary>
+  /// A part of a command.
+  /// </summary>
+  public sealed class CommandPart
   {
+    /// <summary>
+    /// Query text.
+    /// </summary>
     public string Query;
 
+    /// <summary>
+    /// Parameters bound to this command part.
+    /// </summary>
     public readonly List<DbParameter> Parameters = new List<DbParameter>();
+
+    /// <summary>
+    /// Objects that should be disposed uppon this command part completion.
+    /// </summary>
     public readonly List<IDisposable> Disposables = new List<IDisposable>();
   }
 }

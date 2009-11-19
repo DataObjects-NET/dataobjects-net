@@ -51,6 +51,11 @@ namespace Xtensive.Storage.Providers.Sql
     /// Gets the temporary table manager.
     /// </summary>
     public TemporaryTableManager TemporaryTableManager { get; private set; }
+
+    /// <summary>
+    /// Gets the command processor factory.
+    /// </summary>
+    public CommandProcessorFactory CommandProcessorFactory { get; private set; }
     
     /// <summary>
     /// Gets the SQL driver.
@@ -206,14 +211,20 @@ namespace Xtensive.Storage.Providers.Sql
     public override void Initialize()
     {
       Driver = new Driver(Handlers.Domain.Configuration.ConnectionInfo);
+
       base.Initialize();
+
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
       requestCache = ThreadSafeDictionary<PersistRequestBuilderTask, PersistRequest>.Create(new object());
       Mapping = new ModelMapping();
+
       PersistRequestBuilder = Handlers.HandlerFactory.CreateHandler<PersistRequestBuilder>();
-      PersistRequestBuilder.Initialize();
       TemporaryTableManager = Handlers.HandlerFactory.CreateHandler<TemporaryTableManager>();
+      CommandProcessorFactory = Handlers.HandlerFactory.CreateHandler<CommandProcessorFactory>();
+
       TemporaryTableManager.Initialize();
+      PersistRequestBuilder.Initialize();
+      CommandProcessorFactory.Initialize();
     }
   }
 }

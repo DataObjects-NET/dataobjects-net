@@ -8,12 +8,23 @@ using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Providers.Sql
 {
-  internal sealed class SqlPersistTask : SqlTask
+  /// <summary>
+  /// A persist task (i.e. INSERT, UPDATE, DELETE) for <see cref="CommandProcessor"/>.
+  /// </summary>
+  public sealed class SqlPersistTask : SqlTask
   {
-    public PersistRequest Request;
-    public Tuple Tuple;
+    /// <summary>
+    /// A request.
+    /// </summary>
+    public readonly PersistRequest Request;
 
-    public override void Process(CommandProcessor processor)
+    /// <summary>
+    /// A tuple containing parameter for request.
+    /// </summary>
+    public readonly Tuple Tuple;
+
+    /// <inheritdoc/>
+    public override void ProcessWith(CommandProcessor processor)
     {
       processor.ProcessTask(this);
     }

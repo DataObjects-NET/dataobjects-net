@@ -67,6 +67,8 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.Limit;
       if (queryFeatures.Supports(QueryFeatures.Offset))
         f |= ProviderFeatures.Offset;
+      if (queryFeatures.Supports(QueryFeatures.MultipleResultsViaCursorParameters))
+        f |= ProviderFeatures.MultipleResultsViaCursorParameters;
       if (si.MultipleActiveResultSets)
         f |= ProviderFeatures.MultipleActiveResultSets;
 
@@ -102,6 +104,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       return underlyingDriver.Compile(statement);
     }
+
 
     // Constructors
 

@@ -22,7 +22,7 @@ namespace Xtensive.Sql
     /// </summary>
     public virtual void Initialize()
     {
-    }
+    }                   
 
     /// <summary>
     /// Creates the connection from the specified URL.
