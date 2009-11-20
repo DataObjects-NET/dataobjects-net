@@ -8,12 +8,12 @@ using System.Collections.Generic;
 
 namespace Xtensive.Storage.Disconnected.Log
 {
-  public interface IOperationLog : IEnumerable<IOperation>
+  public interface IOperationSet : IEnumerable<IOperation>
   {
     HashSet<Key> GetKeysForRemap();
     void RegisterKeyForRemap(Key key);
     void Register(IOperation operation);
-    void Append(IOperationLog source);
+    void Register(IOperationSet source);
     KeyMapping Apply(Session session);
   }
 }

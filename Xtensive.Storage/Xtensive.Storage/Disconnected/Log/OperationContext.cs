@@ -45,10 +45,10 @@ namespace Xtensive.Storage.Disconnected.Log
 
     // Constructors
 
-    public OperationContext(Session session, IOperationLog log)
+    public OperationContext(Session session, IOperationSet set)
     {
       Session = session;
-      KeysForRemap = log.GetKeysForRemap();
+      KeysForRemap = set.GetKeysForRemap();
       KeyMapping = new Dictionary<Key, Key>();
       prefetchKeys = new HashSet<Key>();
       excludedKeys = new HashSet<Key>();

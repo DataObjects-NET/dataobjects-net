@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Disconnected
 
     private ModelHelper ModelHelper { get { return disconnectedState.ModelHelper; } }
 
-    public OperationLog Log { get; set; }
+    public OperationSet OperationSet { get; set; }
 
     public StateRegistry Origin { get { return origin; } }
 
@@ -154,8 +154,8 @@ namespace Xtensive.Storage.Disconnected
 
       foreach (var state in states)
         state.Value.Commit();
-      if (Origin.Log!=null)
-        Origin.Log.Append(Log);
+      if (Origin.OperationSet!=null)
+        Origin.OperationSet.Register(OperationSet);
     }
 
     public void AddState(DisconnectedEntityState state)
@@ -210,7 +210,7 @@ namespace Xtensive.Storage.Disconnected
 
       states = new Dictionary<Key, DisconnectedEntityState>();
       this.disconnectedState = disconnectedState;
-      Log = new OperationLog();
+      OperationSet = new OperationSet();
     }
 
     /// <summary>
@@ -224,7 +224,7 @@ namespace Xtensive.Storage.Disconnected
       states = new Dictionary<Key, DisconnectedEntityState>();
       this.origin = origin;
       disconnectedState = origin.disconnectedState;
-      Log = new OperationLog();
+      OperationSet = new OperationSet();
     }
   }
 }

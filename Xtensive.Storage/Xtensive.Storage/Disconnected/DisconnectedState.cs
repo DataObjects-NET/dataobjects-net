@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Disconnected
   [Serializable]
   public sealed class DisconnectedState
   {
-    private OperationLog serializedLog;
+    private OperationSet serializedSet;
     private KeyValuePair<string, VersionInfo>[] serializedVersions;
     private SerializableEntityState[] serializedRegistry;
     private SerializableEntityState[] serializedGlobalRegistry;
@@ -56,10 +56,9 @@ namespace Xtensive.Storage.Disconnected
     }
 
     internal bool AllowUnderlignTransactions { get; set; }
-
-    internal IOperationLog GetOperationLog()
+    internal IOperationSet GetOperationLog()
     {
-      return registry.Log;
+      return registry.OperationSet;
     }
     
     # region Public API
@@ -147,7 +146,7 @@ namespace Xtensive.Storage.Disconnected
         Detach();
         using (new VersionValidator(tempSession, GetStoredVerion)) {
           using (var transactionScope = Transaction.Open(tempSession)) {
-            keyMapping = registry.Log.Apply(tempSession);
+            keyMapping = registry.OperationSet.Apply(tempSession);
             transactionScope.Complete();
           }
           registry.Commit();
@@ -165,7 +164,7 @@ namespace Xtensive.Storage.Disconnected
         throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
       using (new VersionValidator(session, GetStoredVerion)) {
         using (var transactionScope = Transaction.Open(session)) {
-          registry.Log.Apply(session);
+          registry.OperationSet.Apply(session);
           transactionScope.Complete();
         }
         registry.Commit();
@@ -206,7 +205,7 @@ namespace Xtensive.Storage.Disconnected
     internal void OnTransactionStarted()
     {
       transactionalRegistry = new StateRegistry(registry);
-      logger = new Logger(Session, transactionalRegistry.Log);
+      logger = new Logger(Session, transactionalRegistry.OperationSet);
     }
 
     internal void OnTransactionCommited()
@@ -310,7 +309,7 @@ namespace Xtensive.Storage.Disconnected
       serializedVersions = versionCache.Select(pair => 
         new KeyValuePair<string, VersionInfo>(pair.Key.ToString(true), pair.Value))
         .ToArray();
-      serializedLog = registry.Log;
+      serializedSet = registry.OperationSet;
       serializedRegistry = registry.States.Select(state => state.Serialize()).ToArray();
       serializedGlobalRegistry = globalRegistry.States.Select(state => state.Serialize()).ToArray();
     }
@@ -320,7 +319,7 @@ namespace Xtensive.Storage.Disconnected
     {
       serializedRegistry = null;
       serializedGlobalRegistry = null;
-      serializedLog = null;
+      serializedSet = null;
       serializedVersions = null;
     }
 
@@ -339,11 +338,11 @@ namespace Xtensive.Storage.Disconnected
       serializedGlobalRegistry = null;
 
       registry = new StateRegistry(globalRegistry);
-      registry.Log = serializedLog;
+      registry.OperationSet = serializedSet;
       foreach (var state in serializedRegistry)
         registry.AddState(DisconnectedEntityState.Deserialize(state, registry, domain));
       serializedRegistry = null;
-      serializedLog = null;
+      serializedSet = null;
     }
   }
 }

@@ -9,12 +9,15 @@ using System;
 namespace Xtensive.Storage.Disconnected.Log
 {
   [Serializable]
-  public enum EntityOperationType
+  public enum OperationType
   {
-    Create,
-    Update,
-    Remove,
-    AddItem,
-    RemoveItem
+    CreateEntity,
+    SetEntityField,
+    RemoveEntity,
+    ClearEntitySet,
+    AddEntitySetItem,
+    RemoveEntitySetItem,
+    MethodCall,
+    Unknown
   }
 }

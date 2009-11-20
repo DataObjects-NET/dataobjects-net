@@ -13,9 +13,9 @@ namespace Xtensive.Storage.Disconnected.Log
   public class Logger : IDisposable
   {
     private readonly Session session;
-    private readonly IOperationLog log;
+    private readonly IOperationSet set;
     private Entity currentEntity;
-    private EntityOperationType currentOperationType;
+    private OperationType currentOperationType;
 
     public void Dispose()
     {
@@ -54,17 +54,17 @@ namespace Xtensive.Storage.Disconnected.Log
 
     void LocalKeyCreated(object sender, KeyEventArgs e)
     {
-      log.RegisterKeyForRemap(e.Key);
+      set.RegisterKeyForRemap(e.Key);
     }
 
     void EntitySetItemRemoveCompleted(object sender, EntitySetItemActionCompletedEventArgs e)
     {
-      if (currentEntity != e.Entity || currentOperationType != EntityOperationType.RemoveItem)
+      if (currentEntity != e.Entity || currentOperationType != OperationType.RemoveEntitySetItem)
         return;
 
       currentEntity = null;
-      var operation = new EntitySetOperation(e.Entity.Key, e.EntitySet.Owner.Key, e.EntitySet.Field, EntityOperationType.RemoveItem);
-      log.Register(operation);
+      var operation = new EntitySetItemOperation(e.EntitySet.Owner.Key, e.EntitySet.Field, OperationType.RemoveEntitySetItem, e.Entity.Key);
+      set.Register(operation);
     }
 
     void EntitySetItemRemoving(object sender, EntitySetItemEventArgs e)
@@ -73,17 +73,17 @@ namespace Xtensive.Storage.Disconnected.Log
         return;
 
       currentEntity = e.Entity;
-      currentOperationType = EntityOperationType.RemoveItem;
+      currentOperationType = OperationType.RemoveEntitySetItem;
     }
 
     void EntitySetItemAddCompleted(object sender, EntitySetItemActionCompletedEventArgs e)
     {
-      if (currentEntity != e.Entity || currentOperationType != EntityOperationType.AddItem)
+      if (currentEntity != e.Entity || currentOperationType != OperationType.AddEntitySetItem)
         return;
 
       currentEntity = null;
-      var operation = new EntitySetOperation(e.Entity.Key, e.EntitySet.Owner.Key, e.EntitySet.Field, EntityOperationType.AddItem);
-      log.Register(operation);
+      var operation = new EntitySetItemOperation(e.EntitySet.Owner.Key, e.EntitySet.Field, OperationType.AddEntitySetItem, e.Entity.Key);
+      set.Register(operation);
     }
 
     void EntitySetItemAdding(object sender, EntitySetItemEventArgs e)
@@ -92,17 +92,17 @@ namespace Xtensive.Storage.Disconnected.Log
         return;
 
       currentEntity = e.Entity;
-      currentOperationType = EntityOperationType.AddItem;
+      currentOperationType = OperationType.AddEntitySetItem;
     }
 
     void EntityRemoveCompleted(object sender, EntityRemoveCompletedEventArgs e)
     {
-      if (currentEntity != e.Entity || currentOperationType != EntityOperationType.Remove)
+      if (currentEntity != e.Entity || currentOperationType != OperationType.RemoveEntity)
         return;
 
       currentEntity = null;
-      var operation = new EntityOperation(e.Entity.Key, EntityOperationType.Remove);
-      log.Register(operation);
+      var operation = new EntityOperation(e.Entity.Key, OperationType.RemoveEntity);
+      set.Register(operation);
     }
 
     void EntityRemoving(object sender, EntityEventArgs e)
@@ -111,17 +111,17 @@ namespace Xtensive.Storage.Disconnected.Log
         return;
 
       currentEntity = e.Entity;
-      currentOperationType = EntityOperationType.Remove;
+      currentOperationType = OperationType.RemoveEntity;
     }
 
     void EntityFieldValueSetCompleted(object sender, FieldValueSetCompletedEventArgs e)
     {
-      if (currentEntity != e.Entity || currentOperationType != EntityOperationType.Update) 
+      if (currentEntity != e.Entity || currentOperationType != OperationType.SetEntityField) 
         return;
 
       currentEntity = null;
-      var operation = new UpdateEntityOperation(e.Entity.Key, e.Field, e.NewValue);
-      log.Register(operation);
+      var operation = new EntityFieldSetOperation(e.Entity.Key, e.Field, e.NewValue);
+      set.Register(operation);
     }
 
     void EntityFieldValueSetting(object sender, FieldValueEventArgs e)
@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Disconnected.Log
         return;
 
       currentEntity = e.Entity;
-      currentOperationType = EntityOperationType.Update;
+      currentOperationType = OperationType.SetEntityField;
     }
 
     void EntityCreated(object sender, EntityEventArgs e)
@@ -138,8 +138,8 @@ namespace Xtensive.Storage.Disconnected.Log
       if (currentEntity != null)
         return;
 
-      var operation = new EntityOperation(e.Entity.Key, EntityOperationType.Create);
-      log.Register(operation);
+      var operation = new EntityOperation(e.Entity.Key, OperationType.CreateEntity);
+      set.Register(operation);
     }
 
     #endregion
@@ -147,10 +147,10 @@ namespace Xtensive.Storage.Disconnected.Log
 
     // Constructors
 
-    public Logger(Session session, IOperationLog log)
+    public Logger(Session session, IOperationSet set)
     {
       this.session = session;
-      this.log = log;
+      this.set = set;
 
       AttachEventHandlers();
     }

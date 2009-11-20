@@ -12,7 +12,7 @@ using System.Linq;
 namespace Xtensive.Storage.Disconnected.Log
 {
   [Serializable]
-  public class OperationLog : IOperationLog
+  public sealed class OperationSet : IOperationSet
   {
     private readonly List<IOperation> log;
     private readonly List<SerializableKey> serializableKeys;
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Disconnected.Log
       log.Add(operation);
     }
 
-    public void Append(IOperationLog source)
+    public void Register(IOperationSet source)
     {
       log.AddRange(source);
       serializableKeys.AddRange(source.GetKeysForRemap().Select(k => (SerializableKey)k));
@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Disconnected.Log
 
     // Constructors
 
-    public OperationLog()
+    public OperationSet()
     {
       log = new List<IOperation>();
       serializableKeys = new List<SerializableKey>();

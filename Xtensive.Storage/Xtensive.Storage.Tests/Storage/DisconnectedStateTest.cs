@@ -765,7 +765,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key order1Key;
       Key newCustomerKey;
 
-      var log = new OperationLog();
+      var log = new OperationSet();
       // Modify data
       using (var session = Session.Open(Domain)) {
         using (new Logger(session, log))
@@ -801,19 +801,19 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       // Serialize/Deserialize operationLog
-      IOperationLog deserializedLog = null;
+      IOperationSet deserializedSet = null;
       var binaryFormatter = new BinaryFormatter();
       using (var stream = new MemoryStream()) {
         binaryFormatter.Serialize(stream, log);
         stream.Position = 0;
         using (Session.Open(Domain))
-          deserializedLog = (IOperationLog)binaryFormatter.Deserialize(stream);
+          deserializedSet = (IOperationSet)binaryFormatter.Deserialize(stream);
       }
  
       // Save data to storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open(session)) {
-          deserializedLog.Apply(session);
+          deserializedSet.Apply(session);
           transactionScope.Complete();
         }
       }

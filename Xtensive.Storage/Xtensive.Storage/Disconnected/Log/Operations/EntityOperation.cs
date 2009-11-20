@@ -6,21 +6,17 @@
 
 using System;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage.Disconnected.Log.Operations
 {
   [Serializable]
-  public sealed class EntityOperation : IEntityOperation,
-    ISerializable
+  internal class EntityOperation : Operation
   {
-    public Key Key { get; private set;}
+    protected Key Key { get; private set;}
 
-    public EntityOperationType Type { get; private set; }
-
-    public void Prepare(OperationContext operationContext)
+    /// <inheritdoc/>
+    public override void Prepare(OperationContext operationContext)
     {
       if (operationContext.KeysForRemap.Contains(Key)) {
         var oldKey = Key;
@@ -31,16 +27,17 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
         }
         Key = newKey;
       }
-      if (Type == EntityOperationType.Create) 
+      if (Type == OperationType.CreateEntity) 
         operationContext.RegisterNew(Key);
       else
         operationContext.Register(Key);
     }
 
-    public void Execute(OperationContext operationContext)
+    /// <inheritdoc/>
+    public override void Execute(OperationContext operationContext)
     {
       var session = operationContext.Session;
-      if (Type == EntityOperationType.Create) {
+      if (Type == OperationType.CreateEntity) {
         var entityType = Key.TypeRef.Type;
         var domain = session.Domain;
         session.CreateEntityState(Key);
@@ -54,28 +51,28 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
 
     // Constructors
 
-    public EntityOperation(Key key, EntityOperationType type)
+    /// <inheritdoc/>
+    public EntityOperation(Key key, OperationType type)
+      : base(type)
     {
-      if (type.In(EntityOperationType.AddItem, EntityOperationType.RemoveItem, EntityOperationType.Update))
-        throw new InvalidOperationException();
       Key = key;
-      Type = type;
     }
 
     // Serialization
 
-    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+    /// <inheritdoc/>
+    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
+      base.GetObjectData(info, context);
       info.AddValue("key", Key.Format());
-      info.AddValue("type", Type, typeof(EntityOperationType));
     }
 
+    /// <inheritdoc/>
     protected EntityOperation(SerializationInfo info, StreamingContext context)
+      : base(info, context)
     {
       Key = Key.Parse(info.GetString("key"));
       Key.TypeRef = new TypeReference(Key.TypeRef.Type, TypeReferenceAccuracy.ExactType);
-      Type = (EntityOperationType)info.GetValue("type", typeof(EntityOperationType));
     }
   }
 }

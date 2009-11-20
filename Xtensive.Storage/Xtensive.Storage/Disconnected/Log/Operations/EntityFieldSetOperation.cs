@@ -6,7 +6,6 @@
 
 using System;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -15,32 +14,26 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Disconnected.Log.Operations
 {
   [Serializable]
-  public class UpdateEntityOperation : IUpdateEntityOperation,
-    ISerializable
+  internal sealed class EntityFieldSetOperation : EntityFieldOperation
   {
-    public Key Key { get; private set; }
-    public EntityOperationType Type { get; private set; }
-    public FieldInfo Field { get; private set; }
-    public object Value { get; private set; }
+    private object Value { get; set; }
     private Key entityValueKey;
 
-    public void Prepare(OperationContext operationContext)
+    public override void Prepare(OperationContext operationContext)
     {
-      if (operationContext.KeysForRemap.Contains(Key))
-        Key = operationContext.KeyMapping[Key];
+      base.Prepare(operationContext);
       if (operationContext.KeysForRemap.Contains(entityValueKey))
         entityValueKey = operationContext.KeyMapping[entityValueKey];
-      operationContext.Register(Key);
       operationContext.Register(entityValueKey);
     }
 
-    public void Execute(OperationContext operationContext)
+    public override void Execute(OperationContext operationContext)
     {
       var session = operationContext.Session;
       var entity = Query.Single(session, Key);
       var setter = DelegateHelper.CreateDelegate<Action<Entity,object>>(
         this, 
-        typeof (UpdateEntityOperation), 
+        typeof (EntityFieldSetOperation), 
         "ExecuteSetValue", 
         Field.ValueType);
       var value = entityValueKey != null 
@@ -57,11 +50,9 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
     
     // Constructors
 
-    public UpdateEntityOperation(Key key, FieldInfo fieldInfo, object value)
+    public EntityFieldSetOperation(Key key, FieldInfo fieldInfo, object value)
+      : base(key, OperationType.SetEntityField, fieldInfo)
     {
-      Key = key;
-      Type = EntityOperationType.Update;
-      Field = fieldInfo;
       var entityValue = value as IEntity;
       if (entityValue != null)
         entityValueKey = entityValue.Key;
@@ -72,12 +63,10 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
     
     // Serialization
 
-    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
-    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+    /// <inheritdoc/>
+    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("key", Key.Format());
-      info.AddValue("type", Type, typeof(EntityOperationType));
-      info.AddValue("field", new FieldInfoRef(Field), typeof(FieldInfoRef));
+      base.GetObjectData(info, context);
       var structureValue = Value as Structure;
       if (typeof(IEntity).IsAssignableFrom(Field.ValueType)) {
         // serializing entity value as key
@@ -95,14 +84,10 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
         info.AddValue("value", Value, Field.ValueType);
     }
 
-    protected UpdateEntityOperation(SerializationInfo info, StreamingContext context)
+    protected EntityFieldSetOperation(SerializationInfo info, StreamingContext context)
+      : base(info, context)
     {
       var session = Session.Demand();
-      Key = Key.Parse(session.Domain, info.GetString("key"));
-      Key.TypeRef = new TypeReference(Key.TypeRef.Type, TypeReferenceAccuracy.ExactType);
-      Type = (EntityOperationType)info.GetInt32("type");
-      var fieldRef = (FieldInfoRef)info.GetValue("field", typeof(FieldInfoRef));
-      Field = fieldRef.Resolve(session.Domain.Model);
       if (typeof(IEntity).IsAssignableFrom(Field.ValueType)) {
         // deserializing entity
         var value = info.GetString("value");
