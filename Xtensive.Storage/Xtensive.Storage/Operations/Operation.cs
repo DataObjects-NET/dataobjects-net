@@ -8,13 +8,13 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Disconnected.Log.Operations
+namespace Xtensive.Storage.Operations
 {
   /// <summary>
   /// Base abstract class for all <see cref="IOperation"/> implementors.
   /// </summary>
   public abstract class Operation : IOperation, 
-    ISerializable
+                                    ISerializable
   {
     /// <summary>
     /// Gets or sets the operation type.

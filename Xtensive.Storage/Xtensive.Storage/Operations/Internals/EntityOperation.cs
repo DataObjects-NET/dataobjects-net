@@ -8,7 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using Xtensive.Storage.Internals;
 
-namespace Xtensive.Storage.Disconnected.Log.Operations
+namespace Xtensive.Storage.Operations
 {
   [Serializable]
   internal class EntityOperation : Operation

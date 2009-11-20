@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Disconnected.Log
+namespace Xtensive.Storage.Operations
 {
   [Serializable]
   public enum OperationType

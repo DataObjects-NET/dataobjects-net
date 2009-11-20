@@ -10,11 +10,11 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Disconnected.Log.Operations
+namespace Xtensive.Storage.Operations
 {
   [Serializable]
   internal sealed class EntitySetItemOperation : EntitySetOperation,
-    ISerializable
+                                                 ISerializable
   {
     private Key ItemKey { get; set; }
 

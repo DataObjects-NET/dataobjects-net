@@ -7,7 +7,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Xtensive.Storage.Disconnected.Log
+namespace Xtensive.Storage.Operations
 {
   public sealed class OperationContext : IEnumerable<Key>
   {

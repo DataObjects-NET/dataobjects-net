@@ -11,7 +11,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Disconnected.Log.Operations
+namespace Xtensive.Storage.Operations
 {
   [Serializable]
   internal sealed class EntityFieldSetOperation : EntityFieldOperation
@@ -37,8 +37,8 @@ namespace Xtensive.Storage.Disconnected.Log.Operations
         "ExecuteSetValue", 
         Field.ValueType);
       var value = entityValueKey != null 
-        ? Query.Single(session, entityValueKey) 
-        : Value;
+                    ? Query.Single(session, entityValueKey) 
+                    : Value;
       setter.Invoke(entity, value);
     }
 

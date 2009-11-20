@@ -6,9 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Storage.Disconnected.Log.Operations;
+using Xtensive.Storage.Operations;
 
-namespace Xtensive.Storage.Disconnected.Log
+namespace Xtensive.Storage.Disconnected
 {
   public class Logger : IDisposable
   {

@@ -13,8 +13,8 @@ using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Internals;
 using System;
+using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Disconnected.Log;
 using Xtensive.Core.Disposing;
 using System.Linq;
 

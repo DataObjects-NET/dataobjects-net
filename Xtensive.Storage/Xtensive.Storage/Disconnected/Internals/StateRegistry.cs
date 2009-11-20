@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Disconnected.Log;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Disconnected

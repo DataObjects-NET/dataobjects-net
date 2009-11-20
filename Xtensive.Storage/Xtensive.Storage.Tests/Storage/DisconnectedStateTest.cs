@@ -16,8 +16,8 @@ using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Disconnected;
-using Xtensive.Storage.Disconnected.Log;
 using Xtensive.Storage.DisconnectedTests.Model;
+using Xtensive.Storage.Operations;
 
 # region Model
 

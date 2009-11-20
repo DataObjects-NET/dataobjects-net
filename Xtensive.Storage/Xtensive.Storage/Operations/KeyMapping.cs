@@ -10,14 +10,14 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
-namespace Xtensive.Storage.Disconnected
+namespace Xtensive.Storage.Operations
 {
   /// <summary>
   /// This class is responsible for mapping between local <see cref="Key"/> instances into storage <see cref="Key"/> instances.
   /// </summary>
   [Serializable]
   public sealed class KeyMapping : IEnumerable<KeyValuePair<Key,Key>>,
-    ISerializable
+                                   ISerializable
   {
     private readonly Dictionary<Key, Key> mapping;
 
@@ -30,8 +30,8 @@ namespace Xtensive.Storage.Disconnected
     {
       var key = (Key) null;
       return mapping.TryGetValue(localKey, out key) 
-        ? key 
-        : localKey;
+               ? key 
+               : localKey;
     }
 
     /// <inheritdoc/>
@@ -68,8 +68,8 @@ namespace Xtensive.Storage.Disconnected
     protected KeyMapping(SerializationInfo info, StreamingContext context)
     {
       var serializedMapping = (Dictionary<SerializableKey, SerializableKey>)info.GetValue(
-        "mapping", 
-        typeof(Dictionary<SerializableKey, SerializableKey>));
+                                                                              "mapping", 
+                                                                              typeof(Dictionary<SerializableKey, SerializableKey>));
       mapping = new Dictionary<Key, Key>();
       foreach (var pair in serializedMapping)
         mapping.Add((Key) pair.Key, (Key) pair.Value);

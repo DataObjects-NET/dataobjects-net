@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Xtensive.Storage.Disconnected.Log
+namespace Xtensive.Storage.Operations
 {
   [Serializable]
   public sealed class OperationSet : IOperationSet
