@@ -6,6 +6,7 @@
 
 using System;
 using Oracle.DataAccess.Client;
+using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Sql.Oracle.v10

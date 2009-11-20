@@ -66,23 +66,6 @@ namespace Xtensive.Storage.Providers.Sql
     protected Command activeCommand;
 
     /// <summary>
-    /// Current transaction.
-    /// </summary>
-    protected DbTransaction transaction;
-
-    /// <summary>
-    /// Gets or sets the current transaction.
-    /// </summary>
-    public DbTransaction Transaction {
-      get { return transaction; }
-      set {
-        if (reenterCount > 0 && value!=transaction)
-          throw new InvalidOperationException();
-        transaction = value;
-      }
-    }
-
-    /// <summary>
     /// Processes the specified task.
     /// </summary>
     /// <param name="task">The task to process.</param>
@@ -191,11 +174,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private Command CreateCommand()
     {
-      if (transaction==null)
-        throw new InvalidOperationException();
-      var nativeCommand = connection.CreateCommand();
-      nativeCommand.Transaction = transaction;
-      return new Command(driver, session, nativeCommand);
+      return new Command(driver, session, connection.CreateCommand());
     }
 
     #endregion

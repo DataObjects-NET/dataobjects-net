@@ -13,11 +13,11 @@ namespace Xtensive.Sql.SqlServer
   {
     private const string DefaultSchemaName = "dbo";
 
-    protected override SqlConnectionHandler CreateConnectionHandler()
+    public override SqlConnection CreateConnection(UrlInfo url)
     {
-      return new ConnectionHandler(this);
+      return new Connection(this, url);
     }
-
+    
     protected override ValueTypeMapping.TypeMappingHandler CreateTypeMappingHandler()
     {
       return new TypeMappingHandler(this);

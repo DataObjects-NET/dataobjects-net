@@ -3168,21 +3168,19 @@ namespace Xtensive.Sql.Tests.VistaDb
       table.CreateColumn("C1", new SqlValueType(SqlType.Int32));
 
       SqlConnection conn = null;
-      DbTransaction trx = null;
       try {
         conn = SqlDriver.CreateConnection(TestUrl.VistaDb);
         conn.Open();
-        trx = conn.BeginTransaction();
+        conn.BeginTransaction();
 
         using (var cmd = conn.CreateCommand()) {
           SqlBatch batch = SqlDml.Batch();
           batch.Add(SqlDdl.Create(table));
           cmd.CommandText = SqlDriver.Compile(batch).GetCommandText();
-          cmd.Transaction = trx;
           cmd.ExecuteNonQuery();
         }
 
-        var exModel1 = SqlDriver.ExtractCatalog(conn, trx);
+        var exModel1 = SqlDriver.ExtractCatalog(conn);
         var exT1 = exModel1.Schemas[schema.DbName].Tables[table.DbName];
         Assert.IsNotNull(exT1);
         var exC1 = exT1.TableColumns["C1"];
@@ -3193,18 +3191,17 @@ namespace Xtensive.Sql.Tests.VistaDb
           batch.Add(SqlDdl.Rename(exC1, "C2"));
           batch.Add(SqlDdl.Rename(exT1, "T2"));
           cmd.CommandText = SqlDriver.Compile(batch).GetCommandText();
-          cmd.Transaction = trx;
           cmd.ExecuteNonQuery();
         }
 
-        var exModel2 = SqlDriver.ExtractCatalog(conn, trx);
+        var exModel2 = SqlDriver.ExtractCatalog(conn);
         var exT2 = exModel2.Schemas[schema.DbName].Tables["T2"];
         Assert.IsNotNull(exT2);
         var exC2 = exT2.TableColumns["C2"];
         Assert.IsNotNull(exC2);
 
       } finally {
-        trx.Rollback();
+        conn.Rollback();
         conn.Close();
       }
     }

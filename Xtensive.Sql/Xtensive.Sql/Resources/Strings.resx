@@ -258,4 +258,13 @@
   <data name="ExCursorParametersAreNotSupportedByThisServer" xml:space="preserve">
     <value>Cursor parameters are not supported by this server.</value>
   </data>
+  <data name="ExSavepointsAreNotSupportedByCurrentStorage" xml:space="preserve">
+    <value>Savepoints are not supported by current storage</value>
+  </data>
+  <data name="ExTransactionShouldBeActive" xml:space="preserve">
+    <value>Transaction should be active</value>
+  </data>
+  <data name="ExTransactionShouldNotBeActive" xml:space="preserve">
+    <value>Transaction should not be active</value>
+  </data>
 </root>

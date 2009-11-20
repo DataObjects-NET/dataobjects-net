@@ -55,9 +55,12 @@ namespace Xtensive.Sql.Tests
     protected Catalog ExtractCatalog()
     {
       Catalog model;
-      using (var transaction = Connection.BeginTransaction()) {
-        model = Driver.ExtractCatalog(Connection, transaction);
-        transaction.Commit();
+      try {
+        Connection.BeginTransaction();
+        model = Driver.ExtractCatalog(Connection);
+      }
+      finally {
+        Connection.Rollback(); 
       }
       return model;
     }
@@ -65,9 +68,12 @@ namespace Xtensive.Sql.Tests
     protected Schema ExtractSchema(string schemaName)
     {
       Schema schema;
-      using (var transacation = Connection.BeginTransaction()) {
-        schema = Driver.ExtractSchema(Connection, transacation, schemaName);
-        transacation.Commit();
+      try {
+        Connection.BeginTransaction();
+        schema = Driver.ExtractSchema(Connection, schemaName);
+      }
+      finally {
+        Connection.Rollback();
       }
       return schema;
     }
@@ -75,9 +81,12 @@ namespace Xtensive.Sql.Tests
     protected Schema ExtractDefaultSchema()
     {
       Schema schema;
-      using (var transaction = Connection.BeginTransaction()) {
-        schema = Driver.ExtractDefaultSchema(Connection, transaction);
-        transaction.Commit();
+      try {
+        Connection.BeginTransaction();
+        schema = Driver.ExtractDefaultSchema(Connection);
+      }
+      finally {
+        Connection.Rollback();
       }
       return schema;
     }

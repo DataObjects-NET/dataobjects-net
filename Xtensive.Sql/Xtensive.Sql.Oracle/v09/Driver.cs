@@ -4,8 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using System;
 using Oracle.DataAccess.Client;
+using System;
+using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Sql.Oracle.v09

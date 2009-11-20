@@ -358,6 +358,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Savepoints are not supported by current storage.
+        /// </summary>
+        internal static string ExSavepointsAreNotSupportedByCurrentStorage {
+            get {
+                return ResourceManager.GetString("ExSavepointsAreNotSupportedByCurrentStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Scale should be non-negative value..
         /// </summary>
         internal static string ExScaleShouldBeNonNegativeValue {
@@ -435,6 +444,24 @@ namespace Xtensive.Sql.Resources {
         internal static string ExTheScaleMustBeLessThanOrEqualToPrecision {
             get {
                 return ResourceManager.GetString("ExTheScaleMustBeLessThanOrEqualToPrecision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transaction should be active.
+        /// </summary>
+        internal static string ExTransactionShouldBeActive {
+            get {
+                return ResourceManager.GetString("ExTransactionShouldBeActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transaction should not be active.
+        /// </summary>
+        internal static string ExTransactionShouldNotBeActive {
+            get {
+                return ResourceManager.GetString("ExTransactionShouldNotBeActive", resourceCulture);
             }
         }
         

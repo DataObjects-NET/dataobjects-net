@@ -47,7 +47,7 @@ namespace Xtensive.Sql.SqlServer.v09
     {
       const string query = "select s.schema_id, s.name, dp.name from sys.schemas as s inner join sys.database_principals as dp on s.principal_id = dp.principal_id where s.schema_id < 16384";
 
-      using (var cmd = CreateCommand(query))
+      using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
         while (reader.Read()) {
           Schema schema;
@@ -71,7 +71,7 @@ namespace Xtensive.Sql.SqlServer.v09
 
       int currentSchemaId = schemaId;
       Schema schema = Schema;
-      using (var command = CreateCommand(query))
+      using (var command = Connection.CreateCommand(query))
       using (var reader = command.ExecuteReader())
         while (reader.Read()) {
 
@@ -103,7 +103,7 @@ namespace Xtensive.Sql.SqlServer.v09
 
       int currentSchemaId = schemaId;
       Schema schema = Schema;
-      using (var cmd = CreateCommand(query))
+      using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
         while (reader.Read()) {
           GetSchema(reader.GetInt32(0), ref currentSchemaId, ref schema);
@@ -129,7 +129,7 @@ namespace Xtensive.Sql.SqlServer.v09
       DataTableProxy dataTable = null;
       int currentSchemaId = schemaId;
       Schema schema = Schema;
-      using (var cmd = CreateCommand(query))
+      using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader()) {
         while (reader.Read()) {
           
@@ -186,7 +186,7 @@ namespace Xtensive.Sql.SqlServer.v09
         query += " and t.schema_id = " + schemaId;
       query += " order by t.schema_id, ic.object_id";
 
-      using (var cmd = CreateCommand(query))
+      using (var cmd = Connection.CreateCommand(query))
         using (var reader = cmd.ExecuteReader())
           while (reader.Read()) {
 
@@ -226,7 +226,7 @@ namespace Xtensive.Sql.SqlServer.v09
       Index index = null;
       PrimaryKey primaryKey = null;
       UniqueConstraint uniqueConstraint = null;
-      using (var cmd = CreateCommand(query))
+      using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
         while (reader.Read()) {
 
@@ -288,7 +288,7 @@ namespace Xtensive.Sql.SqlServer.v09
       DataTableProxy referencingTable = null;
       DataTableProxy referencedTable = null;
       ForeignKey foreignKey = null;
-      using (var cmd = CreateCommand(query))
+      using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader()) {
         while (reader.Read()) {
           // First column in constraint => new constraint

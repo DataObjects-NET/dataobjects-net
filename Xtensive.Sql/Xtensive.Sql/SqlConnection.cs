@@ -6,18 +6,19 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Core;
+using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql
 {
   /// <summary>
   /// Represents a connection to a database.
   /// </summary>
-  public sealed class SqlConnection : IDisposable
+  public abstract class SqlConnection : IDisposable
   {
     /// <summary>
-    /// Gets the state of the connection.
+    /// Gets a <see cref="SqlDriver">RDBMS driver</see> the connection is working through.
     /// </summary>
-    public ConnectionState State { get { return UnderlyingConnection.State; } }
+    public SqlDriver Driver { get; private set; }
 
     /// <summary>
     /// Gets the connection info.
@@ -27,22 +28,29 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets the underlying connection.
     /// </summary>
-    public DbConnection UnderlyingConnection { get; private set; }
+    public abstract DbConnection UnderlyingConnection { get; }
 
     /// <summary>
-    /// Gets a <see cref="SqlDriver">RDBMS driver</see> the connection is working through.
+    /// Gets the active transaction.
     /// </summary>
-    public SqlDriver Driver { get; private set; }
+    public abstract DbTransaction ActiveTransaction { get; }
 
+    /// <summary>
+    /// Gets the state of the connection.
+    /// </summary>
+    public ConnectionState State { get { return UnderlyingConnection.State; } }
+    
     /// <summary>
     /// Creates and returns a <see cref="DbCommand"/> object associated with the current connection.
     /// </summary>
     /// <returns>Created command.</returns>
     public DbCommand CreateCommand()
     {
-      return CreateCommandInternal();
+      var command = CreateNativeCommand();
+      command.Transaction = ActiveTransaction;
+      return command;
     }
-
+    
     /// <summary>
     /// Creates and returns a <see cref="DbCommand"/> object with specified <paramref name="statement"/>.
     /// Created command will be associated with the current connection.
@@ -51,7 +59,8 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand(ISqlCompileUnit statement)
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      var command = CreateCommandInternal();
+      var command = CreateNativeCommand();
+      command.Transaction = ActiveTransaction;
       command.CommandText = Driver.Compile(statement).GetCommandText();
       return command;
     }
@@ -64,7 +73,8 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand(string commandText)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(commandText, "commandText");
-      var command = CreateCommandInternal();
+      var command = CreateNativeCommand();
+      command.Transaction = ActiveTransaction;
       command.CommandText = commandText;
       return command;
     }
@@ -72,21 +82,16 @@ namespace Xtensive.Sql
     /// <summary>
     /// Creates the parameter.
     /// </summary>
-    /// <seealso cref="SqlConnectionHandler.CreateParameter"/>.
     /// <returns>Created parameter.</returns>
-    public DbParameter CreateParameter()
-    {
-      return Driver.ConnectionHandler.CreateParameter();
-    }
-
+    public abstract DbParameter CreateParameter();
+    
     /// <summary>
     /// Creates the cursor parameter.
     /// </summary>
-    /// <seealso cref="SqlConnectionHandler.CreateCursorParameter"/>.
     /// <returns>Created parameter.</returns>
-    public DbParameter CreateCursorParameter()
+    public virtual DbParameter CreateCursorParameter()
     {
-      return Driver.ConnectionHandler.CreateCursorParameter();
+      throw new NotSupportedException(Strings.ExCursorParametersAreNotSupportedByThisServer);
     }
 
     /// <summary>
@@ -94,9 +99,9 @@ namespace Xtensive.Sql
     /// Created object initially have NULL value (<see cref="ILargeObject.IsNull"/> returns <see langword="true"/>)
     /// </summary>
     /// <returns>Created CLOB.</returns>
-    public ICharacterLargeObject CreateCharacterLargeObject()
+    public virtual ICharacterLargeObject CreateCharacterLargeObject()
     {
-      return Driver.ConnectionHandler.CreateCharacterLargeObject(UnderlyingConnection);
+      throw new NotSupportedException(Strings.ExLargeObjectsAreNotSupportedByThisServer);
     }
 
     /// <summary>
@@ -104,15 +109,15 @@ namespace Xtensive.Sql
     /// Created object initially have NULL value (<see cref="ILargeObject.IsNull"/> returns <see langword="true"/>)
     /// </summary>
     /// <returns>Created BLOB.</returns>
-    public IBinaryLargeObject CreateBinaryLargeObject()
+    public virtual IBinaryLargeObject CreateBinaryLargeObject()
     {
-      return Driver.ConnectionHandler.CreateBinaryLargeObject(UnderlyingConnection);
+      throw new NotSupportedException(Strings.ExLargeObjectsAreNotSupportedByThisServer);
     }
 
     /// <summary>
     /// Opens the connection.
     /// </summary>
-    public void Open()
+    public virtual void Open()
     {
       UnderlyingConnection.Open();
     }
@@ -120,7 +125,7 @@ namespace Xtensive.Sql
     /// <summary>
     /// Closes the connection.
     /// </summary>
-    public void Close()
+    public virtual void Close()
     {
       UnderlyingConnection.Close();
     }
@@ -128,39 +133,110 @@ namespace Xtensive.Sql
     /// <summary>
     /// Begins the transaction.
     /// </summary>
-    /// <returns>Started transaction.</returns>
-    public DbTransaction BeginTransaction()
-    {
-      return Driver.ConnectionHandler.BeginTransaction(UnderlyingConnection);
-    }
+    public abstract void BeginTransaction();
 
     /// <summary>
     /// Begins the transaction with the specified <see cref="IsolationLevel"/>.
     /// </summary>
     /// <param name="isolationLevel">The isolation level.</param>
-    /// <returns>Started transaction.</returns>
-    public DbTransaction BeginTransaction(IsolationLevel isolationLevel)
+    public abstract void BeginTransaction(IsolationLevel isolationLevel);
+
+    /// <summary>
+    /// Commits the current transaction.
+    /// </summary>
+    public virtual void Commit()
     {
-      return Driver.ConnectionHandler.BeginTransaction(UnderlyingConnection, isolationLevel);
+      EnsureTransactionIsActive();
+      try {
+        ActiveTransaction.Commit();
+      }
+      finally {
+        ActiveTransaction.Dispose();
+        ClearActiveTransaction();
+      }
+    }
+
+    /// <summary>
+    /// Rollbacks the current transaction.
+    /// </summary>
+    public virtual void Rollback()
+    {
+      EnsureTransactionIsActive();
+      try {
+        ActiveTransaction.Rollback();
+      }
+      finally {
+        ActiveTransaction.Dispose();
+        ClearActiveTransaction();
+      }      
+    }
+
+    /// <summary>
+    /// Makes the transaction savepoint.
+    /// </summary>
+    /// <param name="name">The name of the savepoint.</param>
+    public virtual void MakeSavepoint(string name)
+    {
+      throw new NotSupportedException(Strings.ExSavepointsAreNotSupportedByCurrentStorage);
+    }
+
+    /// <summary>
+    /// Rollbacks current transaction to the specified savepoint.
+    /// </summary>
+    /// <param name="name">The name of the safepoint.</param>
+    public virtual void RollbackToSavepoint(string name)
+    {
+      throw new NotSupportedException(Strings.ExSavepointsAreNotSupportedByCurrentStorage);
     }
 
     /// <inheritdoc/>
     public void Dispose()
     {
+      if (ActiveTransaction!=null) {
+        ActiveTransaction.Dispose();
+        ClearActiveTransaction();
+      }
       UnderlyingConnection.Dispose();
     }
 
-    private DbCommand CreateCommandInternal()
+    /// <summary>
+    /// Clears the active transaction (i.e. sets <see cref="ActiveTransaction"/> to <see langword="null"/>.
+    /// </summary>
+    protected abstract void ClearActiveTransaction();
+    
+    /// <summary>
+    /// Creates the native command.
+    /// </summary>
+    /// <returns>Created command.</returns>
+    protected virtual DbCommand CreateNativeCommand()
     {
-      return Driver.ConnectionHandler.CreateCommand(UnderlyingConnection);
+      return UnderlyingConnection.CreateCommand();
     }
+
+    /// <summary>
+    /// Ensures the transaction is active (i.e. <see cref="ActiveTransaction"/> is not <see langword="null"/>).
+    /// </summary>
+    protected void EnsureTransactionIsActive()
+    {
+      if (ActiveTransaction==null)
+        throw new InvalidOperationException(Strings.ExTransactionShouldBeActive);
+    }
+
+    /// <summary>
+    /// Ensures the trasaction is not active (i.e. <see cref="ActiveTransaction"/> is <see langword="null"/>).
+    /// </summary>
+    protected void EnsureTrasactionIsNotActive()
+    {
+      if (ActiveTransaction!=null)
+        throw new InvalidOperationException(Strings.ExTransactionShouldNotBeActive);
+    }
+
 
     // Constructors
 
-    internal SqlConnection(SqlDriver driver, UrlInfo url)
+    protected SqlConnection(SqlDriver driver, UrlInfo url)
     {
       Driver = driver;
-      UnderlyingConnection = driver.ConnectionHandler.CreateConnection(url);
       Url = url;
     }
   }

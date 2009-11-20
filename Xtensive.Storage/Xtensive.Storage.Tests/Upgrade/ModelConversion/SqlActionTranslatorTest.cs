@@ -184,7 +184,8 @@ namespace Xtensive.Storage.Tests.Upgrade
       
       using (var connection = driver.CreateConnection(null, parsedUrl)) {
         connection.Open();
-        using (var transaction = connection.BeginTransaction()) {
+        try {
+          connection.BeginTransaction();
           var translator = new SqlActionTranslator(actions,
             schema, oldModel, newModel, CreateProviderInfo(),
             driver, "TypeId", new List<string>(), GetGeneratorValue);
@@ -195,14 +196,16 @@ namespace Xtensive.Storage.Tests.Upgrade
           batch.Add(driver.BuildBatch(translator.PostUpgradeCommands.ToArray()));
           foreach (var commandText in batch) {
             if (!string.IsNullOrEmpty(commandText))
-              using (var command = connection.CreateCommand()) {
+              using (var command = connection.CreateCommand(commandText)) {
                 Log.Info(commandText);
-                command.CommandText = commandText;
-                command.Transaction = transaction;
                 command.ExecuteNonQuery();
               }
           }
-          transaction.Commit();
+          connection.Commit();
+        }
+        catch {
+          connection.Rollback();
+          throw;
         }
       }
     }
@@ -221,8 +224,13 @@ namespace Xtensive.Storage.Tests.Upgrade
       var driver = new Driver(parsedUrl);
       using (var connection = driver.CreateConnection(null, parsedUrl)) {
         connection.Open();
-        using (var t = connection.BeginTransaction())
-          schema = driver.ExtractSchema(connection, t);
+        try {
+          connection.BeginTransaction();
+          schema = driver.ExtractSchema(connection);
+        }
+        finally {
+          connection.Rollback();
+        }
       }
       return schema;
     }

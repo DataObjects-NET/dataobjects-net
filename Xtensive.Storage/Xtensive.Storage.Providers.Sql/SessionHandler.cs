@@ -38,11 +38,6 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    /// <summary>
-    /// Gets the active transaction.
-    /// </summary>    
-    public DbTransaction Transaction { get; private set; }
-
     public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
     {
       lock (ConnectionSyncRoot) {
@@ -78,7 +73,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       lock (ConnectionSyncRoot) {
         EnsureConnectionIsOpen();
-        if (Transaction!=null || IsAutoshortenTransactionActivated)
+        if (Connection.ActiveTransaction!=null || IsAutoshortenTransactionActivated)
           throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpen);
         if (IsAutoshortenTransactionsEnabled()) {
           IsAutoshortenTransactionActivated = true;
@@ -93,10 +88,10 @@ namespace Xtensive.Storage.Providers.Sql
     {
       base.CommitTransaction();
       lock (ConnectionSyncRoot) {
-        if (Transaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
+        if (Connection.ActiveTransaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
-        if (Transaction!=null)
-          driver.CommitTransaction(Session, Transaction);
+        if (Connection.ActiveTransaction!=null)
+          driver.CommitTransaction(Session, Connection);
         IsAutoshortenTransactionActivated = false;
         EndNativeTransaction();
       }
@@ -107,10 +102,10 @@ namespace Xtensive.Storage.Providers.Sql
     {
       base.RollbackTransaction();
       lock (ConnectionSyncRoot) {
-        if (Transaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
+        if (Connection.ActiveTransaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
-        if (Transaction!=null)
-          driver.RollbackTransaction(Session, Transaction);
+        if (Connection.ActiveTransaction!=null)
+          driver.RollbackTransaction(Session, Connection);
         IsAutoshortenTransactionActivated = false;
         EndNativeTransaction();
       }
@@ -271,7 +266,7 @@ namespace Xtensive.Storage.Providers.Sql
     private void EnsureAutoShortenTransactionIsStarted()
     {
       // TODO: remove autoshortened transactions logic from SQL session handler
-      if (Transaction!=null)
+      if (Connection.ActiveTransaction!=null)
         return;
       if (!IsAutoshortenTransactionsEnabled() || !IsAutoshortenTransactionActivated)
         throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
@@ -280,30 +275,23 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void BeginNativeTransaction()
     {
-      Transaction = driver.BeginTransaction(Session, connection, 
+      driver.BeginTransaction(Session, connection, 
         IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
-      commandProcessor.Transaction = Transaction;
     }
 
     private void EndNativeTransaction()
     {
       commandProcessor.ClearTasks();
-      Transaction = null;
     }
 
     private DbCommand CreateCommand(string commandText)
     {
-      var command = connection.CreateCommand(commandText);
-      command.Transaction = Transaction;
-      command.CommandText = commandText;
-      return command;
+      return connection.CreateCommand(commandText);
     }
 
     private DbCommand CreateCommand(ISqlCompileUnit statement)
     {
-      var command = connection.CreateCommand(statement);
-      command.Transaction = Transaction;
-      return command;
+      return connection.CreateCommand(statement);
     }
  
     #endregion

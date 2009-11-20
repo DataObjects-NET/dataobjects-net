@@ -916,9 +916,8 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
     [Test]
     public virtual void ModelTest()
     {
-      DbTransaction trx = null;
       try {
-        trx = Connection.BeginTransaction();
+        Connection.BeginTransaction();
 
         //Create model
         using (var cmd = Connection.CreateCommand()) {
@@ -932,7 +931,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
 
         //Extract initial model
         {
-          var extractedCatalog = Driver.ExtractCatalog(Connection, trx);
+          var extractedCatalog = Driver.ExtractCatalog(Connection);
           new CatalogComparer(Connection)
             .CompareCatalogs(MyCatalog, extractedCatalog);
         }
@@ -1005,7 +1004,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
 
         //Extract altered model
         {
-          var extractedCatalog = Driver.ExtractCatalog(Connection, trx);
+          var extractedCatalog = Driver.ExtractCatalog(Connection);
           new CatalogComparer(Connection)
             .CompareCatalogs(MyCatalog, extractedCatalog);
         }
@@ -1064,7 +1063,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
 
         //Extract altered model again
         {
-          var extractedCatalog = Driver.ExtractCatalog(Connection, trx);
+          var extractedCatalog = Driver.ExtractCatalog(Connection);
           new CatalogComparer(Connection)
             .CompareCatalogs(MyCatalog, extractedCatalog);
         }
@@ -1112,7 +1111,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
         }
       }
       finally {
-        trx.Rollback();
+        Connection.Rollback();
       }
     }
 
@@ -1422,7 +1421,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
     [Test]
     public void UniquePredicateTest()
     {
-      DbTransaction trx = Connection.BeginTransaction();
+      Connection.BeginTransaction();
       try {
         SqlBatch batch = SqlDml.Batch();
         TemporaryTable t = MyCatalog.DefaultSchema.CreateTemporaryTable("unique_pred_test");
@@ -1493,14 +1492,14 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
         Assert.Fail(ex.ToString());
       }
       finally {
-        trx.Rollback();
+        Connection.Rollback();
       }
     }
 
     [Test]
     public void MatchPredicateTest()
     {
-      DbTransaction trx = Connection.BeginTransaction();
+      Connection.BeginTransaction();
       try {
         SqlBatch batch = SqlDml.Batch();
         TemporaryTable t = MyCatalog.DefaultSchema.CreateTemporaryTable("match_pred_test");
@@ -1685,14 +1684,14 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
         Assert.Fail(ex.ToString());
       }
       finally {
-        trx.Rollback();
+        Connection.Rollback();
       }
     }
 
     [Test]
     public void AggregateTest()
     {
-      DbTransaction trx = Connection.BeginTransaction();
+      Connection.BeginTransaction();
       try {
         SqlBatch batch = SqlDml.Batch();
         TemporaryTable t = MyCatalog.DefaultSchema.CreateTemporaryTable("agg_test");
@@ -1771,7 +1770,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
         Assert.Fail(ex.ToString());
       }
       finally {
-        trx.Rollback();
+        Connection.Rollback();
       }
     }
 
@@ -1897,7 +1896,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
     [Test]
     public void CursorTest()
     {
-      DbTransaction trx = Connection.BeginTransaction();
+      Connection.BeginTransaction();
       try {
         SqlBatch batch = SqlDml.Batch();
         TemporaryTable t = MyCatalog.DefaultSchema.CreateTemporaryTable("cursor_test");
@@ -2048,7 +2047,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
         Assert.Fail(ex.ToString());
       }
       finally {
-        trx.Rollback();
+        Connection.Rollback();
       }
     }
 
@@ -2110,9 +2109,8 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
       Table table = schema.CreateTable("T1");
       table.CreateColumn("C1", new SqlValueType(SqlType.Int32));
 
-      DbTransaction trx = null;
       try {
-        trx = Connection.BeginTransaction();
+        Connection.BeginTransaction();
 
         using (var cmd = Connection.CreateCommand()) {
           SqlBatch batch = SqlDml.Batch();
@@ -2121,7 +2119,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
           cmd.ExecuteNonQuery();
         }
 
-        var exModel1 = Driver.ExtractCatalog(Connection, trx);
+        var exModel1 = Driver.ExtractCatalog(Connection);
         var exT1 = exModel1.Schemas[schema.DbName].Tables[table.DbName];
         Assert.IsNotNull(exT1);
         var exC1 = exT1.TableColumns["C1"];
@@ -2135,14 +2133,14 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
           cmd.ExecuteNonQuery();
         }
 
-        var exModel2 = Driver.ExtractCatalog(Connection, trx);
+        var exModel2 = Driver.ExtractCatalog(Connection);
         var exT2 = exModel2.Schemas[schema.DbName].Tables["T2"];
         Assert.IsNotNull(exT2);
         var exC2 = exT2.TableColumns["C2"];
         Assert.IsNotNull(exC2);
 
       } finally {
-        trx.Rollback();
+        Connection.Rollback();
       }
     }
   }

@@ -99,10 +99,14 @@ namespace Xtensive.Sql.Tests.SqlServer
 
       var stopWatch = new Stopwatch();
       stopWatch.Start();
-      using (var transaction = sqlConnection.BeginTransaction()) {
-//        Catalog = sqlDriver.ExtractSchema(sqlConnection, transaction, "Production").Catalog;
-        Catalog = sqlDriver.ExtractCatalog(sqlConnection, transaction);
-        transaction.Commit();
+      try {
+        sqlConnection.BeginTransaction();
+        Catalog = sqlDriver.ExtractCatalog(sqlConnection);
+        sqlConnection.Commit();
+      }
+      catch {
+        sqlConnection.Rollback();
+        throw;
       }
       stopWatch.Stop();
       Console.WriteLine(stopWatch.Elapsed);
@@ -3933,19 +3937,17 @@ namespace Xtensive.Sql.Tests.SqlServer
       Table table = schema.CreateTable("T1");
       table.CreateColumn("C1", new SqlValueType(SqlType.Int32));
 
-      DbTransaction trx = null;
       try {
-        trx = sqlConnection.BeginTransaction();
+        sqlConnection.BeginTransaction();
 
         using (var cmd = sqlConnection.CreateCommand()) {
           SqlBatch batch = SqlDml.Batch();
           batch.Add(SqlDdl.Create(schema));
           cmd.CommandText = Compile(batch).GetCommandText();
-          cmd.Transaction = trx;
           cmd.ExecuteNonQuery();
         }
 
-        var exModel1 = sqlDriver.ExtractCatalog(sqlConnection, trx);
+        var exModel1 = sqlDriver.ExtractCatalog(sqlConnection);
         var exT1 = exModel1.Schemas[schema.DbName].Tables[table.DbName];
         Assert.IsNotNull(exT1);
         var exC1 = exT1.TableColumns["C1"];
@@ -3956,18 +3958,18 @@ namespace Xtensive.Sql.Tests.SqlServer
           batch.Add(SqlDdl.Rename(exC1, "C2"));
           batch.Add(SqlDdl.Rename(exT1, "T2"));
           cmd.CommandText = Compile(batch).GetCommandText();
-          cmd.Transaction = trx;
           cmd.ExecuteNonQuery();
         }
 
-        var exModel2 = sqlDriver.ExtractCatalog(sqlConnection, trx);
+        var exModel2 = sqlDriver.ExtractCatalog(sqlConnection);
         var exT2 = exModel2.Schemas[schema.DbName].Tables["T2"];
         Assert.IsNotNull(exT2);
         var exC2 = exT2.TableColumns["C2"];
         Assert.IsNotNull(exC2);
 
-      } finally {
-        trx.Rollback();
+      }
+      finally {
+        sqlConnection.Rollback();
       }
     }
 

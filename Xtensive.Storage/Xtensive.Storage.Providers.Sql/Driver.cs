@@ -97,9 +97,9 @@ namespace Xtensive.Storage.Providers.Sql
       return translator.ParameterPrefix + parameterName;
     }
 
-    public Schema ExtractSchema(SqlConnection connection, DbTransaction transaction)
+    public Schema ExtractSchema(SqlConnection connection)
     {
-      return underlyingDriver.ExtractDefaultSchema(connection, transaction);
+      return underlyingDriver.ExtractDefaultSchema(connection);
     }
 
     public SqlCompilationResult Compile(ISqlCompileUnit statement)

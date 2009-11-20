@@ -47,7 +47,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       q.Columns.Add(rel["oid"]);
       q.Columns.Add(rel["relname"]);
 
-      using (var cmd = CreateCommand(q))
+      using (var cmd = Connection.CreateCommand(q))
       using (var dr = cmd.ExecuteReader())
         while (dr.Read()) {
           int oid = Convert.ToInt32(dr[0]);
@@ -329,7 +329,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         if (Schema != null)
           q2.Where &= nsp2["nspname"]==Schema.Name;
         ISqlCompileUnit q = q1.UnionAll(q2);
-        using (var cmd = CreateCommand(q))
+        using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
             while (dr.Read()) {
               int oid = Convert.ToInt32(dr["oid"]);
@@ -376,7 +376,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
           return defCase;
         })(), "definition");
 
-        using (var cmd = CreateCommand(q))
+        using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
             int reloid = Convert.ToInt32(dr["reloid"]);
@@ -432,7 +432,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         q.OrderBy.Add(att["attrelid"]);
         q.OrderBy.Add(att["attnum"]);
 
-        using (var cmd = CreateCommand(q))
+        using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
             int attrelid = Convert.ToInt32(dr["attrelid"]);
@@ -503,7 +503,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         AddSpecialIndexQueryColumns(q, spc, rel, ind, depend);
 
         int maxColumnNumber = 0;
-        using (var cmd = CreateCommand(q))
+        using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
             int tableOid = Convert.ToInt32(dr["indrelid"]);
@@ -563,7 +563,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
           for (int i = 1; i <= maxColumnNumber; i++)
             q.Columns.Add(SqlDml.FunctionCall("pg_get_indexdef", ind["indexrelid"], i, true), i.ToString());
           q.Where = SqlDml.In(ind["indexrelid"], SqlDml.Array(expressionIndexes.Keys.ToArray()));
-          using (var cmd = CreateCommand(q))
+          using (var cmd = Connection.CreateCommand(q))
           using (DbDataReader dr = cmd.ExecuteReader()) {
             while (dr.Read()) {
               var exprIndexInfo = expressionIndexes[Convert.ToInt32(dr.GetInt64(1))];
@@ -603,7 +603,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         q.Columns.Add(typ["typdefault"], "default");
         q.Columns.Add(basetyp["typname"], "basetypname");
 
-        using (var cmd = CreateCommand(q))
+        using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
             int oid = Convert.ToInt32(dr["oid"]);
@@ -642,7 +642,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
           con["confrelid"], con["confkey"], con["confupdtype"],
           con["confdeltype"], con["confmatchtype"]);
 
-        using (var cmd = CreateCommand(q))
+        using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
             char contype = dr["contype"].ToString()[0];
@@ -875,7 +875,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       if (mUserSysId < 0) {
         string user = Connection.Url.User;
         using (var cmd = (NpgsqlCommand) Connection.CreateCommand()) {
-          cmd.Transaction = (NpgsqlTransaction) Transaction;
           cmd.CommandText = @"SELECT usesysid FROM pg_user WHERE usename = @name";
           cmd.Parameters.Add("@name", user);
           mUserSysId = Convert.ToInt32(cmd.ExecuteScalar());

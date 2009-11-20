@@ -46,11 +46,6 @@ namespace Xtensive.Sql
     public TypeMappingHandler TypeMappingHandler { get; private set; }
 
     /// <summary>
-    /// Gets the connection handler.
-    /// </summary>
-    public SqlConnectionHandler ConnectionHandler { get; private set; }
-
-    /// <summary>
     /// Compiles the specified statement into SQL command representation.
     /// </summary>
     /// <param name="statement">The Sql.Dom statement.</param>
@@ -78,50 +73,45 @@ namespace Xtensive.Sql
     /// Extracts all schemas from the database.
     /// </summary>
     /// <param name="connection">The connection.</param>
-    /// <param name="transaction">The transaction.</param>
     /// <returns>
     /// <see cref="Catalog"/> that holds all schemas in the database.
     /// </returns>
-    public Catalog ExtractCatalog(SqlConnection connection, DbTransaction transaction)
+    public Catalog ExtractCatalog(SqlConnection connection)
     {
-      return GetExtractor(connection, transaction).ExtractCatalog();
+      return GetExtractor(connection).ExtractCatalog();
     }
 
     /// <summary>
     /// Extracts the default schema from the database.
     /// </summary>
     /// <param name="connection">The connection.</param>
-    /// <param name="transaction">The transaction.</param>
     /// <returns>
     /// <see cref="Catalog"/> that holds just the default schema in the database.
     /// </returns>
-    public Schema ExtractDefaultSchema(SqlConnection connection, DbTransaction transaction)
+    public Schema ExtractDefaultSchema(SqlConnection connection)
     {
       var url = connection.Url;
-      return ExtractSchema(connection, transaction, GetDefaultSchemaName(url));
+      return ExtractSchema(connection, GetDefaultSchemaName(url));
     }
 
     /// <summary>
     /// Extracts the specified schema from the database.
     /// </summary>
     /// <param name="connection">The connection.</param>
-    /// <param name="transaction">The transaction.</param>
     /// <returns>
     /// Extracted <see cref="Schema"/> instance.
     /// </returns>
-    public Schema ExtractSchema(SqlConnection connection, DbTransaction transaction, string schemaName)
+    public Schema ExtractSchema(SqlConnection connection, string schemaName)
     {
-      return GetExtractor(connection, transaction).ExtractSchema(schemaName);
+      return GetExtractor(connection).ExtractSchema(schemaName);
     }
 
     /// <summary>
-    /// Gets the name of the default schema.
+    /// Creates the connection from the specified connection info.
     /// </summary>
-    /// <param name="url">The URL.</param>
-    protected virtual string GetDefaultSchemaName(UrlInfo url)
-    {
-      return url.GetSchema(url.User);
-    }
+    /// <param name="url">The connection url.</param>
+    /// <returns>Created connection.</returns>
+    public abstract SqlConnection CreateConnection(UrlInfo url);
 
     /// <summary>
     /// Creates the connection from the specified url.
@@ -130,21 +120,19 @@ namespace Xtensive.Sql
     /// <returns>Created connection</returns>
     public SqlConnection CreateConnection(string url)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
-      return new SqlConnection(this, UrlInfo.Parse(url));
+      return CreateConnection(UrlInfo.Parse(url));
     }
 
     /// <summary>
-    /// Creates the connection from the specified connection info.
+    /// Gets the type of the exception.
     /// </summary>
-    /// <param name="url">The connection url.</param>
-    /// <returns>Created connection.</returns>
-    public SqlConnection CreateConnection(UrlInfo url)
+    /// <param name="exception">The exception.</param>
+    /// <returns>Type of the exception.</returns>
+    public virtual SqlExceptionType GetExceptionType(Exception exception)
     {
-      ArgumentValidator.EnsureArgumentNotNull(url, "url");
-      return new SqlConnection(this, url);
+      return SqlExceptionType.Unknown;
     }
-
+    
     /// <summary>
     /// Creates the SQL DOM compiler.
     /// </summary>
@@ -170,21 +158,14 @@ namespace Xtensive.Sql
     protected abstract TypeMappingHandler CreateTypeMappingHandler();
 
     /// <summary>
-    /// Creates the connection handler.
+    /// Gets the name of the default schema.
     /// </summary>
-    /// <returns>Created connection handler.</returns>
-    protected abstract SqlConnectionHandler CreateConnectionHandler();
-
-    /// <summary>
-    /// Gets the type of the exception.
-    /// </summary>
-    /// <param name="exception">The exception.</param>
-    /// <returns>Type of the exception.</returns>
-    public virtual SqlExceptionType GetExceptionType(Exception exception)
+    /// <param name="url">The URL.</param>
+    protected virtual string GetDefaultSchemaName(UrlInfo url)
     {
-      return SqlExceptionType.Unknown;
+      return url.GetSchema(url.User);
     }
-
+    
     /// <summary>
     /// Creates the driver from the specified connection url.
     /// </summary>
@@ -217,20 +198,16 @@ namespace Xtensive.Sql
       TypeMappingHandler = CreateTypeMappingHandler();
       TypeMappingHandler.Initialize();
 
-      ConnectionHandler = CreateConnectionHandler();
-      ConnectionHandler.Initialize();
-
       TypeMappings = new TypeMappingCollection(TypeMappingHandler);
     }
 
-    private Extractor GetExtractor(SqlConnection connection, DbTransaction transaction)
+    private Extractor GetExtractor(SqlConnection connection)
     {
       ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-      ArgumentValidator.EnsureArgumentNotNull(transaction, "transaction");
       if (connection.Driver != this)
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
       var extractor = CreateExtractor();
-      extractor.Initialize(connection, transaction);
+      extractor.Initialize(connection);
       return extractor;
     }
 

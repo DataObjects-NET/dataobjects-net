@@ -5,15 +5,16 @@
 // Created:    2009.07.01
 
 using System;
+using Xtensive.Core;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.VistaDb
 {
   internal abstract class Driver : SqlDriver
   {
-    protected override SqlConnectionHandler CreateConnectionHandler()
+    public override SqlConnection CreateConnection(UrlInfo url)
     {
-      return new ConnectionHandler(this);
+      return new Connection(this, url);
     }
 
     protected override ValueTypeMapping.TypeMappingHandler CreateTypeMappingHandler()

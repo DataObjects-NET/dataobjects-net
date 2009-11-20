@@ -75,7 +75,6 @@ namespace Xtensive.Storage.Providers.Sql
         if (string.IsNullOrEmpty(commandText))
           return;
         var command = Connection.CreateCommand(commandText);
-        command.Transaction = SessionHandler.Transaction;
         using (command) {
           Driver.ExecuteNonQuery(null, command);
         }
@@ -85,7 +84,6 @@ namespace Xtensive.Storage.Providers.Sql
           if (string.IsNullOrEmpty(commandText))
             continue;
           var command = Connection.CreateCommand(commandText);
-          command.Transaction = SessionHandler.Transaction;
           using (command) {
             Driver.ExecuteNonQuery(null, command);
           }
@@ -98,7 +96,7 @@ namespace Xtensive.Storage.Providers.Sql
       var context = UpgradeContext.Demand();
       var schema = context.NativeExtractedSchema as Schema;
       if (schema == null) {
-        schema = DomainHandler.Driver.ExtractSchema(SessionHandler.Connection, SessionHandler.Transaction);
+        schema = DomainHandler.Driver.ExtractSchema(SessionHandler.Connection);
         SaveSchemaInContext(schema);
       }
       return schema;

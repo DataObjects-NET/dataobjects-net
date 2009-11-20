@@ -1,4 +1,3 @@
-using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
 
@@ -13,9 +12,9 @@ namespace Xtensive.Sql.PostgreSql
       return new TypeMappingHandler(this);
     }
 
-    protected override SqlConnectionHandler CreateConnectionHandler()
+    public override SqlConnection CreateConnection(UrlInfo url)
     {
-      return new ConnectionHandler(this);
+      return new Connection(this, url);
     }
 
     protected override string GetDefaultSchemaName(UrlInfo url)

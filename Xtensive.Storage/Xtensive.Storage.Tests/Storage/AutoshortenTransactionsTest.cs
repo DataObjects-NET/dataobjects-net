@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     private static object GetTransaction()
     {
-      return ((Xtensive.Storage.Providers.Sql.SessionHandler) Session.Current.Handler).Transaction;
+      return ((Xtensive.Storage.Providers.Sql.SessionHandler) Session.Current.Handler).Connection.ActiveTransaction;
     }
   }
 }

@@ -34,11 +34,6 @@ namespace Xtensive.Sql.Model
     protected Schema Schema { get; private set; }
 
     /// <summary>
-    /// Gets the transaction.
-    /// </summary>
-    protected DbTransaction Transaction { get; private set; }
-
-    /// <summary>
     /// Extracts all schemes from the database.
     /// </summary>
     /// <returns><see cref="Catalog"/> that holds all schemes in the database.</returns>
@@ -68,11 +63,9 @@ namespace Xtensive.Sql.Model
     /// Initializes the translator with specified <see cref="SqlConnection"/> and <see cref="DbTransaction"/>.
     /// </summary>
     /// <param name="connection">The connection.</param>
-    /// <param name="transaction">The transaction.</param>
-    public void Initialize(SqlConnection connection, DbTransaction transaction)
+    public void Initialize(SqlConnection connection)
     {
       Connection = connection;
-      Transaction = transaction;
       var url = connection.Url;
       Catalog = new Catalog(url.GetDatabase());
       Initialize();
@@ -89,50 +82,24 @@ namespace Xtensive.Sql.Model
     #region Helper methods
 
     /// <summary>
-    /// Creates the command attached to <see cref="Connection"/> and <see cref="Transaction"/>.
-    /// </summary>
-    /// <param name="commandText">The command text.</param>
-    /// <returns>Created command.</returns>
-    protected DbCommand CreateCommand(string commandText)
-    {
-      var command = Connection.CreateCommand(commandText);
-      command.Transaction = Transaction;
-      return command;
-    }
-
-    /// <summary>
-    /// Creates the command attached to <see cref="Connection"/> and <see cref="Transaction"/>.
-    /// </summary>
-    /// <param name="statement">The statement.</param>
-    /// <returns>Created command.</returns>
-    protected DbCommand CreateCommand(ISqlCompileUnit statement)
-    {
-      var command = Connection.CreateCommand(statement);
-      command.Transaction = Transaction;
-      return command;
-    }
-
-    /// <summary>
     /// Executes the reader againts the command created from the specified <paramref name="statement"/>.
-    /// This method creates command via <see cref="CreateCommand(Xtensive.Sql.ISqlCompileUnit)"/> method.
     /// </summary>
     /// <param name="statement">The statement to execute.</param>
     /// <returns>Executed reader.</returns>
     protected DbDataReader ExecuteReader(ISqlCompileUnit statement)
     {
-      using (var command = CreateCommand(statement))
+      using (var command = Connection.CreateCommand(statement))
         return command.ExecuteReader();
     }
     
     /// <summary>
     /// Executes the reader againts the command created from the specified <paramref name="commandText"/>.
-    /// This method creates command via <see cref="CreateCommand(string)"/> method.
     /// </summary>
     /// <param name="commandText">The command text to execute.</param>
     /// <returns>Executed reader.</returns>
     protected DbDataReader ExecuteReader(string commandText)
     {
-      using (var command = CreateCommand(commandText))
+      using (var command = Connection.CreateCommand(commandText))
         return command.ExecuteReader();
     }
 

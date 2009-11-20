@@ -75,10 +75,15 @@ namespace Xtensive.Sql.Tests.SqlServer
       var driver = SqlDriver.Create(connectionUrl);
       using (var connection = driver.CreateConnection(connectionUrl)) {
         connection.Open();
-        using (var transaction = connection.BeginTransaction()) {
-          var result = driver.ExtractCatalog(connection, transaction);
-          transaction.Commit();
+        try {
+          connection.BeginTransaction();
+          var result = driver.ExtractCatalog(connection);
+          connection.Commit();
           return result;
+        }
+        catch {
+          connection.Rollback();
+          throw;
         }
       }
     }

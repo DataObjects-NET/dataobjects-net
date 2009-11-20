@@ -57,41 +57,39 @@ namespace Xtensive.Storage.Providers.Sql
       }      
     }
 
-    public DbTransaction BeginTransaction(Session session, SqlConnection connection, IsolationLevel isolationLevel)
+    public void BeginTransaction(Session session, SqlConnection connection, IsolationLevel isolationLevel)
     {
       try {
         if (IsDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, 
             session.GetFullNameSafely(), isolationLevel);
-        return connection.BeginTransaction(isolationLevel);
+        connection.BeginTransaction(isolationLevel);
       }
       catch (Exception exception) {
         throw TranslateException(null, exception);
       }      
     }
 
-    public void CommitTransaction(Session session, DbTransaction transaction)
+    public void CommitTransaction(Session session, SqlConnection connection)
     {
       try {
         if (IsDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXCommitTransaction, 
             session.GetFullNameSafely());
-        transaction.Commit();
-        transaction.Dispose();
+        connection.Commit();
       }
       catch (Exception exception) {
         throw TranslateException(null, exception);
       }
     }
 
-    public void RollbackTransaction(Session session, DbTransaction transaction)
+    public void RollbackTransaction(Session session, SqlConnection connection)
     {
       try {
         if (IsDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXRollbackTransaction, 
             session.GetFullNameSafely());
-        transaction.Rollback();
-        transaction.Dispose();
+        connection.Rollback();
       }
       catch (Exception exception) {
         throw TranslateException(null, exception);
