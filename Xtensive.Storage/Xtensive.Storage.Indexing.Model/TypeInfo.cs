@@ -169,6 +169,9 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     public override string ToString()
     {
+      if (IsTypeUndefined)
+        return "Type is undefined.";
+
       var sb = new StringBuilder();
       var type = Type;
       if (type.IsNullable())
