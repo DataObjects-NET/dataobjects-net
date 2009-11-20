@@ -415,6 +415,7 @@ namespace Xtensive.Storage
     {
       Persist(true);
       ExecuteAllDelayedQueries(true);
+      EnsureTransactionIsStarted();
       return Handler.CreateEnumerationContext();
     }
 
@@ -443,7 +444,6 @@ namespace Xtensive.Storage
       Handlers = domain.Handlers;
       Handler = Handlers.HandlerFactory.CreateHandler<SessionHandler>();
       Handler.Session = this;
-      Handler.DefaultIsolationLevel = configuration.DefaultIsolationLevel;
       Handler.Initialize();
 
       // Caches, registry

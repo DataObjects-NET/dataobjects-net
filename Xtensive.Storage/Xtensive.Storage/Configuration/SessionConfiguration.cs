@@ -161,6 +161,13 @@ namespace Xtensive.Storage.Configuration
       get { return (options & SessionOptions.AmbientTransactions)==SessionOptions.AmbientTransactions; }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether session uses autoshortened transactions.
+    /// </summary>
+    public bool UsesAutoshortenedTransactions {
+      get { return (options & SessionOptions.AutoShortenTransactions)==SessionOptions.AutoShortenTransactions; }
+    }
+
     /// <inheritdoc/>
     public override void Validate()
     {

@@ -4,11 +4,8 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.07.30
 
-using System;
-using System.Data.Common;
-using System.Diagnostics;
-using System.Linq;
 using NUnit.Framework;
+using System.Linq;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;

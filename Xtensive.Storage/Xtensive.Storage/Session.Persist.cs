@@ -46,6 +46,8 @@ namespace Xtensive.Storage
           if (EntityChangeRegistry.Count==0)
             return;
 
+          EnsureTransactionIsStarted();
+
           if (IsDebugEventLoggingEnabled)
             Log.Debug(Strings.LogSessionXPersistingY, 
               this, 

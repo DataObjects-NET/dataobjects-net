@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Transactions will actually be opened just before execution of DB command. 
-    /// This option is ignored fo our in-memory provider.
+    /// This option is ignored for non-SQL providers.
     /// Value is <see langword="0x4" />.
     /// </summary>
     AutoShortenTransactions = 0x4

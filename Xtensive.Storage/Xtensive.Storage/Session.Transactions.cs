@@ -47,7 +47,7 @@ namespace Xtensive.Storage
 
     internal TransactionScope OpenTransaction()
     {
-      return OpenTransaction(Handler.DefaultIsolationLevel);
+      return OpenTransaction(Configuration.DefaultIsolationLevel);
     }
 
     internal TransactionScope OpenTransaction(IsolationLevel isolationLevel)
@@ -91,42 +91,11 @@ namespace Xtensive.Storage
 
     internal void BeginTransaction()
     {
-      Handler.BeginTransaction();
+      if (!Configuration.UsesAutoshortenedTransactions)
+        Handler.BeginTransaction();
       NotifyTransactionOpen(Transaction);
     }
 
-    #region NotifyXxx methods
-
-    private void NotifyTransactionOpen(Transaction transaction)
-    {
-      if (TransactionOpen!=null)
-        TransactionOpen(this, new TransactionEventArgs(transaction));
-    }
-
-    private void NotifyTransactionCommitting(Transaction transaction)
-    {
-      if (TransactionCommitting!=null)
-        TransactionCommitting(this, new TransactionEventArgs(transaction));
-    }
-
-    private void NotifyTransactionCommitted(Transaction transaction)
-    {
-      if (TransactionCommitted!=null)
-        TransactionCommitted(this, new TransactionEventArgs(transaction));
-    }
-
-    private void NotifyTransactionRollbacking(Transaction transaction)
-    {
-      if (TransactionRollbacking!=null)
-        TransactionRollbacking(this, new TransactionEventArgs(transaction));
-    }
-
-    private void NotifyTransactionRollbacked(Transaction transaction)
-    {
-      if (TransactionRollbacked!=null)
-        TransactionRollbacked(this, new TransactionEventArgs(transaction));
-    }
-    
     internal void CommitTransaction()
     {
       try {
@@ -163,11 +132,51 @@ namespace Xtensive.Storage
       }
     }
 
+    private void EnsureTransactionIsStarted()
+    {
+      if (Transaction==null)
+        throw new InvalidOperationException(Strings.ExTransactionRequired);
+      if (Configuration.UsesAutoshortenedTransactions && !Handler.TransactionIsStarted)
+        Handler.BeginTransaction();
+    }
+
     private void CompleteTransaction()
     {
       Transaction = null;
     }
 
+    #region NotifyXxx methods
+
+    private void NotifyTransactionOpen(Transaction transaction)
+    {
+      if (TransactionOpen!=null)
+        TransactionOpen(this, new TransactionEventArgs(transaction));
+    }
+
+    private void NotifyTransactionCommitting(Transaction transaction)
+    {
+      if (TransactionCommitting!=null)
+        TransactionCommitting(this, new TransactionEventArgs(transaction));
+    }
+
+    private void NotifyTransactionCommitted(Transaction transaction)
+    {
+      if (TransactionCommitted!=null)
+        TransactionCommitted(this, new TransactionEventArgs(transaction));
+    }
+
+    private void NotifyTransactionRollbacking(Transaction transaction)
+    {
+      if (TransactionRollbacking!=null)
+        TransactionRollbacking(this, new TransactionEventArgs(transaction));
+    }
+
+    private void NotifyTransactionRollbacked(Transaction transaction)
+    {
+      if (TransactionRollbacked!=null)
+        TransactionRollbacked(this, new TransactionEventArgs(transaction));
+    }
+    
     #endregion
   }
 }

@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Disconnected
     public override void CommitTransaction()
     {
       if (isChainedTransactionStarted)
-        ChainedHandler.CommitTransaction();
+        chainedHandler.CommitTransaction();
       isChainedTransactionStarted = false;
       disconnectedState.OnTransactionCommited();
     }
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Disconnected
     public override void RollbackTransaction()
     {
       if (isChainedTransactionStarted)
-        ChainedHandler.RollbackTransaction();
+        chainedHandler.RollbackTransaction();
       isChainedTransactionStarted = false;
       disconnectedState.OnTransactionRollbacked();
     }
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Disconnected
       if (!isChainedTransactionStarted) {
         if (!disconnectedState.AllowUnderlignTransactions)
           throw new ConnectionRequiredException();
-        ChainedHandler.BeginTransaction();
+        chainedHandler.BeginTransaction();
         isChainedTransactionStarted = true;
       }
     }
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Disconnected
     {
       if (isChainedTransactionStarted) {
         isChainedTransactionStarted = false;
-        ChainedHandler.CommitTransaction();
+        chainedHandler.CommitTransaction();
       }
     }
 
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Disconnected
     {
       if (isChainedTransactionStarted) {
         isChainedTransactionStarted = false;
-        ChainedHandler.RollbackTransaction();
+        chainedHandler.RollbackTransaction();
       }
     }
 

@@ -30,10 +30,13 @@ namespace Xtensive.Storage.Providers.Index
     public IStorageView StorageView { get; private set; }
 
     /// <inheritdoc/>
+    public override bool TransactionIsStarted { get { return StorageView!=null; } }
+
+    /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Transaction is already open.</exception>
     public override void BeginTransaction()
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         if (StorageView!=null)
           throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
         StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
@@ -46,7 +49,7 @@ namespace Xtensive.Storage.Providers.Index
     public override void CommitTransaction()
     {
       base.CommitTransaction();
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         if (StorageView==null)
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
         StorageView.Transaction.Commit();
@@ -60,7 +63,7 @@ namespace Xtensive.Storage.Providers.Index
     public override void RollbackTransaction()
     {
       base.RollbackTransaction();
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         if (StorageView==null)
           throw new InvalidOperationException(Strings.ExTransactionIsNotOpened);
         StorageView.Transaction.Rollback();
@@ -72,7 +75,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         var batched = persistActions.SelectMany(statePair => CreateCommandBatch(statePair)).Batch(0, 256, 256);
         foreach (var batch in batched)
           foreach (var command in batch)

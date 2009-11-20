@@ -26,6 +26,7 @@ namespace Xtensive.Storage
     {
       if (IsDelayedQueryRunning || queryTasks.Count==0)
         return;
+      EnsureTransactionIsStarted();
       try {
         IsDelayedQueryRunning = true;
         Handler.ExecuteQueryTasks(queryTasks, allowPartialExecution);

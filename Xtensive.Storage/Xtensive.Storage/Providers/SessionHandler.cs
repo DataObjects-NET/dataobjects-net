@@ -33,34 +33,30 @@ namespace Xtensive.Storage.Providers
   public abstract partial class SessionHandler : InitializableHandlerBase,
     IDisposable, IHasServices
   {
-    private static readonly object cachingRegion = new object();
+    private static readonly object CachingRegion = new object();
+
     private PrefetchProcessor prefetchProcessor;
 
     /// <summary>
     /// The <see cref="object"/> to synchronize access to a connection.
     /// </summary>
-    protected readonly object ConnectionSyncRoot = new object();
-
-    /// <summary>
-    /// Determines whether an auto-shortened transaction is activated.
-    /// </summary>
-    protected bool IsAutoshortenTransactionActivated;
+    protected readonly object connectionSyncRoot = new object();
 
     /// <summary>
     /// Gets the current <see cref="Session"/>.
     /// </summary>
     public Session Session { get; internal set; }
 
-    ///<summary>
-    /// Gets the specified <see cref="IsolationLevel"/>.
-    ///</summary>
-    public IsolationLevel DefaultIsolationLevel { get; internal set; }
-
     /// <summary>
     /// Gets the query provider.
     /// </summary>
     public virtual QueryProvider Provider {get { return QueryProvider.Instance; }}
 
+    /// <summary>
+    /// Gets a value indicating whether transaction is actually started.
+    /// </summary>
+    public abstract bool TransactionIsStarted { get; }
+    
     internal virtual int PrefetchTaskExecutionCount { get { return prefetchProcessor.TaskExecutionCount;} }
 
     /// <summary>
@@ -91,8 +87,8 @@ namespace Xtensive.Storage.Providers
     /// to release the connection lock.</returns>
     public IDisposable AcquireConnectionLock()
     {
-      Monitor.Enter(ConnectionSyncRoot);
-      return new Disposable<object>(ConnectionSyncRoot, (disposing, syncRoot) => Monitor.Exit(syncRoot));
+      Monitor.Enter(connectionSyncRoot);
+      return new Disposable<object>(connectionSyncRoot, (disposing, syncRoot) => Monitor.Exit(syncRoot));
     }
 
     /// <inheritdoc/>
@@ -149,18 +145,6 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Gets the enumeration context options.
-    /// </summary>
-    /// <returns>Options for new enumeration context.</returns>
-    public virtual EnumerationContextOptions GetEnumerationContextOptions()
-    {
-      var options = EnumerationContextOptions.Default;
-      if (!Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.MultipleActiveResultSets))
-        options |= EnumerationContextOptions.PreloadEnumerator;
-      return options;
-    }
-
-    /// <summary>
     /// Executes the specified query tasks.
     /// </summary>
     /// <param name="queryTasks">The query tasks to execute.</param>
@@ -196,6 +180,18 @@ namespace Xtensive.Storage.Providers
     public virtual StrongReferenceContainer ExecutePrefetchTasks()
     {
       return prefetchProcessor.ExecuteTasks();
+    }
+
+    /// <summary>
+    /// Gets the enumeration context options.
+    /// </summary>
+    /// <returns>Options for new enumeration context.</returns>
+    protected virtual EnumerationContextOptions GetEnumerationContextOptions()
+    {
+      var options = EnumerationContextOptions.Default;
+      if (!Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.MultipleActiveResultSets))
+        options |= EnumerationContextOptions.PreloadEnumerator;
+      return options;
     }
 
     /// <summary>
@@ -249,18 +245,6 @@ namespace Xtensive.Storage.Providers
       prefetchProcessor.ExecuteTasks();
     }
 
-    /// <summary>
-    /// Determines whether autoshorten transactions is enabled.
-    /// </summary>
-    /// <returns>
-    /// <see langword="true"/> if autoshorten transactions is enabled; otherwise, <see langword="false"/>.
-    /// </returns>
-    protected bool IsAutoshortenTransactionsEnabled()
-    {
-      return (Session.Configuration.Options & SessionOptions.AutoShortenTransactions)
-        ==SessionOptions.AutoShortenTransactions;
-    }
-
     internal virtual EntityState RegisterEntityState(Key key, Tuple tuple)
     {
       return Session.UpdateEntityState(key, tuple);
@@ -305,7 +289,7 @@ namespace Xtensive.Storage.Providers
       var result = new List<ReferenceInfo>();
       using (new ParameterContext().Activate()) {
         var pair = (Pair<RecordSet, Parameter<Tuple>>)Session.Domain.GetCachedItem(
-          new Pair<object, AssociationInfo>(cachingRegion, association),
+          new Pair<object, AssociationInfo>(CachingRegion, association),
           p => BuildReferencingQuery(((Pair<object, AssociationInfo>)p).Second));
         var recordSet = pair.First;
         var parameter = pair.Second;

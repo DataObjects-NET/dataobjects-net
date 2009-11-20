@@ -25,104 +25,107 @@ namespace Xtensive.Storage.Internals
     /// <summary>
     /// The chained handler.
     /// </summary>
-    public readonly SessionHandler ChainedHandler;
+    protected readonly SessionHandler chainedHandler;
 
     /// <inheritdoc/>
-    public override QueryProvider Provider { get { return ChainedHandler.Provider; } }
+    public override QueryProvider Provider { get { return chainedHandler.Provider; } }
 
     internal override int PrefetchTaskExecutionCount {
-      get { return ChainedHandler.PrefetchTaskExecutionCount; }
+      get { return chainedHandler.PrefetchTaskExecutionCount; }
     }
-    
+
+    /// <inheritdoc/>
+    public override bool TransactionIsStarted { get { return chainedHandler.TransactionIsStarted; } }
+
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
-      ChainedHandler.BeginTransaction();
+      chainedHandler.BeginTransaction();
     }
 
     /// <inheritdoc/>
     public override void CommitTransaction()
     {
-      ChainedHandler.CommitTransaction();
+      chainedHandler.CommitTransaction();
     }
 
     /// <inheritdoc/>
     public override void RollbackTransaction()
     {
-      ChainedHandler.RollbackTransaction();
+      chainedHandler.RollbackTransaction();
     }
 
     /// <inheritdoc/>
     public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
     {
-      ChainedHandler.ExecuteQueryTasks(queryTasks, allowPartialExecution);
+      chainedHandler.ExecuteQueryTasks(queryTasks, allowPartialExecution);
     }
 
     /// <inheritdoc/>
     public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {
-      ChainedHandler.Persist(registry, allowPartialExecution);
+      chainedHandler.Persist(registry, allowPartialExecution);
     }
 
     /// <inheritdoc/>
     public override void Persist(IEnumerable<PersistAction> persistActions, bool allowPartialExecution)
     {
-      ChainedHandler.Persist(persistActions, allowPartialExecution);
+      chainedHandler.Persist(persistActions, allowPartialExecution);
     }
 
     /// <inheritdoc/>
     public override StrongReferenceContainer Prefetch(Key key, Model.TypeInfo type,
       params PrefetchFieldDescriptor[] descriptors)
     {
-      return ChainedHandler.Prefetch(key, type, descriptors);
+      return chainedHandler.Prefetch(key, type, descriptors);
     }
 
     /// <inheritdoc/>
     public override StrongReferenceContainer ExecutePrefetchTasks()
     {
-      return ChainedHandler.ExecutePrefetchTasks();
+      return chainedHandler.ExecutePrefetchTasks();
     }
     
     protected internal override EntityState FetchInstance(Key key)
     {
-      return ChainedHandler.FetchInstance(key);
+      return chainedHandler.FetchInstance(key);
     }
 
     protected internal override void FetchField(Key key, Model.FieldInfo field)
     {
-      ChainedHandler.FetchField(key, field);
+      chainedHandler.FetchField(key, field);
     }
 
     internal override EntitySetState RegisterEntitySetState(Key key, Model.FieldInfo fieldInfo,
       bool isFullyLoaded, List<Key> entities, List<Pair<Key, Tuple>> auxEntities)
     {
-      return ChainedHandler.RegisterEntitySetState(key, fieldInfo, isFullyLoaded, entities, auxEntities);
+      return chainedHandler.RegisterEntitySetState(key, fieldInfo, isFullyLoaded, entities, auxEntities);
     }
 
     internal override EntityState RegisterEntityState(Key key, Tuple tuple)
     {
-      return ChainedHandler.RegisterEntityState(key, tuple);
+      return chainedHandler.RegisterEntityState(key, tuple);
     }
 
     internal override bool TryGetEntitySetState(Key key, Model.FieldInfo fieldInfo,
       out EntitySetState entitySetState)
     {
-      return ChainedHandler.TryGetEntitySetState(key, fieldInfo, out entitySetState);
+      return chainedHandler.TryGetEntitySetState(key, fieldInfo, out entitySetState);
     }
 
     internal override bool TryGetEntityState(Key key, out EntityState entityState)
     {
-      return ChainedHandler.TryGetEntityState(key, out entityState);
+      return chainedHandler.TryGetEntityState(key, out entityState);
     }
 
     public override T GetService<T>()
     {
-      return ChainedHandler.GetService<T>();
+      return chainedHandler.GetService<T>();
     }
 
     public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
-      return ChainedHandler.CreateEnumerationContext();
+      return chainedHandler.CreateEnumerationContext();
     }
 
 
@@ -135,13 +138,13 @@ namespace Xtensive.Storage.Internals
     protected ChainingSessionHandler(SessionHandler chainedHandler)
     {
       ArgumentValidator.EnsureArgumentNotNull(chainedHandler, "chainedHandler");
-      ChainedHandler = chainedHandler;
+      this.chainedHandler = chainedHandler;
     }
 
     /// <inheritdoc/>
     public override void Dispose()
     {
-      ChainedHandler.Dispose();
+      chainedHandler.Dispose();
     }
   }
 }

@@ -6,12 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Storage.Internals;
-using Xtensive.Storage.Providers.Sql.Resources;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -26,12 +23,17 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlConnection connection;
     private CommandProcessor commandProcessor;
 
+    /// <inheritdoc/>
+    public override bool TransactionIsStarted {
+      get { return connection!=null && connection.ActiveTransaction!=null; }
+    }
+
     /// <summary>
     /// Gets the connection.
     /// </summary>
     public SqlConnection Connection {
       get {
-        lock (ConnectionSyncRoot) {
+        lock (connectionSyncRoot) {
           EnsureConnectionIsOpen();
         }
         return connection;
@@ -40,9 +42,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
         var nonBatchedTasks = new List<QueryTask>();
         foreach (var task in queryTasks) {
           var sqlProvider = task.DataSource as SqlProvider;
@@ -71,15 +72,10 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        if (Connection.ActiveTransaction!=null || IsAutoshortenTransactionActivated)
-          throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpen);
-        if (IsAutoshortenTransactionsEnabled()) {
-          IsAutoshortenTransactionActivated = true;
-          return;
-        }
-        BeginNativeTransaction();
+        driver.BeginTransaction(
+          Session, connection, IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
       }
     }
 
@@ -87,12 +83,9 @@ namespace Xtensive.Storage.Providers.Sql
     public override void CommitTransaction()
     {
       base.CommitTransaction();
-      lock (ConnectionSyncRoot) {
-        if (Connection.ActiveTransaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
-          throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
+      lock (connectionSyncRoot) {
         if (Connection.ActiveTransaction!=null)
-          driver.CommitTransaction(Session, Connection);
-        IsAutoshortenTransactionActivated = false;
+          driver.CommitTransaction(Session, connection);
         EndNativeTransaction();
       }
     }
@@ -101,12 +94,9 @@ namespace Xtensive.Storage.Providers.Sql
     public override void RollbackTransaction()
     {
       base.RollbackTransaction();
-      lock (ConnectionSyncRoot) {
-        if (Connection.ActiveTransaction==null && (!IsAutoshortenTransactionActivated && IsAutoshortenTransactionsEnabled()))
-          throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
+      lock (connectionSyncRoot) {
         if (Connection.ActiveTransaction!=null)
           driver.RollbackTransaction(Session, Connection);
-        IsAutoshortenTransactionActivated = false;
         EndNativeTransaction();
       }
     }
@@ -118,9 +108,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public IEnumerator<Tuple> ExecuteTupleReader(QueryRequest request)
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
         var enumerator = commandProcessor.ExecuteRequestsWithReader(request);
         using (enumerator) {
           while (enumerator.MoveNext())
@@ -132,10 +121,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public int ExecuteNonQuery(ISqlCompileUnit statement)
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreateCommand(statement))
+        using (var command = connection.CreateCommand(statement))
           return driver.ExecuteNonQuery(Session, command);
       }
     }
@@ -143,10 +131,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public object ExecuteScalar(ISqlCompileUnit statement)
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreateCommand(statement))
+        using (var command = connection.CreateCommand(statement))
           return driver.ExecuteScalar(Session, command);
       }
     }
@@ -154,10 +141,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public int ExecuteNonQuery(string commandText)
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreateCommand(commandText))
+        using (var command = connection.CreateCommand(commandText))
           return driver.ExecuteNonQuery(Session, command);
       }
     }
@@ -165,19 +151,17 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public object ExecuteScalar(string commandText)
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
-        using (var command = CreateCommand(commandText))
+        using (var command = connection.CreateCommand(commandText))
           return driver.ExecuteScalar(Session, command);
       }
     }
     
     public void Store(TemporaryTableDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
         foreach (var tuple in tuples)
           commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
         commandProcessor.ExecuteRequests();
@@ -186,9 +170,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     public void Clear(TemporaryTableDescriptor descriptor)
     {
-      lock (ConnectionSyncRoot) {
+      lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        EnsureAutoShortenTransactionIsStarted();
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
         commandProcessor.ExecuteRequests();
       }
@@ -254,29 +237,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void EnsureConnectionIsOpen()
     {
-      if (connection!=null && connection.State==ConnectionState.Open)
+      if (connection!=null)
         return;
-      if (connection==null)
-        connection = driver.CreateConnection(Session, Handlers.Domain.Configuration.ConnectionInfo);
+      connection = driver.CreateConnection(Session, Handlers.Domain.Configuration.ConnectionInfo);
       driver.OpenConnection(Session, connection);
-      commandProcessor = domainHandler.CommandProcessorFactory
-        .CreateCommandProcessor(Session, Connection);
-    }
-    
-    private void EnsureAutoShortenTransactionIsStarted()
-    {
-      // TODO: remove autoshortened transactions logic from SQL session handler
-      if (Connection.ActiveTransaction!=null)
-        return;
-      if (!IsAutoshortenTransactionsEnabled() || !IsAutoshortenTransactionActivated)
-        throw new InvalidOperationException(Strings.ExTransactionIsNotOpen);
-      BeginNativeTransaction();
-    }
-
-    private void BeginNativeTransaction()
-    {
-      driver.BeginTransaction(Session, connection, 
-        IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
+      commandProcessor = domainHandler.CommandProcessorFactory.CreateCommandProcessor(Session, Connection);
     }
 
     private void EndNativeTransaction()
@@ -284,16 +249,6 @@ namespace Xtensive.Storage.Providers.Sql
       commandProcessor.ClearTasks();
     }
 
-    private DbCommand CreateCommand(string commandText)
-    {
-      return connection.CreateCommand(commandText);
-    }
-
-    private DbCommand CreateCommand(ISqlCompileUnit statement)
-    {
-      return connection.CreateCommand(statement);
-    }
- 
     #endregion
 
     /// <inheritdoc/>
