@@ -6,9 +6,13 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Operations
 {
+  /// <summary>
+  /// Operation context for <see cref="IOperation.Execute"/> and <see cref="IOperation.Prepare"/> methods executed for a set of operations.
+  /// </summary>
   public sealed class OperationContext : IEnumerable<Key>
   {
     private readonly HashSet<Key> prefetchKeys;
@@ -17,6 +21,10 @@ namespace Xtensive.Storage.Operations
     public readonly Dictionary<Key, Key> KeyMapping;
     public readonly HashSet<Key> KeysForRemap;
 
+    /// <summary>
+    /// Registers the specified key.
+    /// </summary>
+    /// <param name="key">The key.</param>
     public void Register(Key key)
     {
       if (key == null)
@@ -25,6 +33,10 @@ namespace Xtensive.Storage.Operations
         prefetchKeys.Add(key);
     }
 
+    /// <summary>
+    /// Registers new key.
+    /// </summary>
+    /// <param name="key">The key.</param>
     public void RegisterNew(Key key)
     {
       if (key == null)
@@ -32,19 +44,24 @@ namespace Xtensive.Storage.Operations
       excludedKeys.Add(key);
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
+    /// <inheritdoc/>
     public IEnumerator<Key> GetEnumerator()
     {
       return prefetchKeys.GetEnumerator();
     }
 
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public OperationContext(Session session, IOperationSet set)
     {
       Session = session;

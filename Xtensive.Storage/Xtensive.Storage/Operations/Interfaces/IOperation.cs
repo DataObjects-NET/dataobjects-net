@@ -6,9 +6,21 @@
 
 namespace Xtensive.Storage.Operations
 {
+  /// <summary>
+  /// Declares public contract for operations that could be executed later.
+  /// </summary>
   public interface IOperation
   {
+    /// <summary>
+    /// Prepares the operation using specified operation context.
+    /// </summary>
+    /// <param name="operationContext">The operation context.</param>
     void Prepare(OperationContext operationContext);
+
+    /// <summary>
+    /// Executes the operation using specified operation context.
+    /// </summary>
+    /// <param name="operationContext">The operation context.</param>
     void Execute(OperationContext operationContext);
   }
 }

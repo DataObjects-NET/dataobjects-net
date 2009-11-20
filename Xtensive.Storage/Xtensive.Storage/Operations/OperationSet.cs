@@ -8,36 +8,45 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Operations
 {
+  /// <summary>
+  /// Built-in implementation of <see cref="IOperationSet"/>.
+  /// </summary>
   [Serializable]
   public sealed class OperationSet : IOperationSet
   {
     private readonly List<IOperation> log;
     private readonly List<SerializableKey> serializableKeys;
 
+    /// <inheritdoc/>
     public HashSet<Key> GetKeysForRemap()
     {
       return new HashSet<Key>(serializableKeys.Select(sk => sk.Key));
     }
 
+    /// <inheritdoc/>
     public void RegisterKeyForRemap(Key key)
     {
       serializableKeys.Add(key);
     }
 
+    /// <inheritdoc/>
     public void Register(IOperation operation)
     {
       log.Add(operation);
     }
 
+    /// <inheritdoc/>
     public void Register(IOperationSet source)
     {
       log.AddRange(source);
       serializableKeys.AddRange(source.GetKeysForRemap().Select(k => (SerializableKey)k));
     }
 
+    /// <inheritdoc/>
     public KeyMapping Apply(Session session)
     {
       var operationContext = new OperationContext(session, this);
@@ -56,14 +65,16 @@ namespace Xtensive.Storage.Operations
 
     #region IEnumerable implementation
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
+    /// <inheritdoc/>
     public IEnumerator<IOperation> GetEnumerator()
     {
       return log.GetEnumerator();
+    }
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
     }
 
     #endregion
@@ -71,6 +82,9 @@ namespace Xtensive.Storage.Operations
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public OperationSet()
     {
       log = new List<IOperation>();

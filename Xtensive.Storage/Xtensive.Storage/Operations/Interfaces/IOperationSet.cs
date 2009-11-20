@@ -8,12 +8,40 @@ using System.Collections.Generic;
 
 namespace Xtensive.Storage.Operations
 {
+  /// <summary>
+  /// Declares public contract for operations container.
+  /// </summary>
   public interface IOperationSet : IEnumerable<IOperation>
   {
+    /// <summary>
+    /// Gets the keys for remap.
+    /// </summary>
+    /// <returns></returns>
     HashSet<Key> GetKeysForRemap();
+
+    /// <summary>
+    /// Registers the key for remap.
+    /// </summary>
+    /// <param name="key">The key.</param>
     void RegisterKeyForRemap(Key key);
+
+    /// <summary>
+    /// Registers the specified operation.
+    /// </summary>
+    /// <param name="operation">The operation.</param>
     void Register(IOperation operation);
+
+    /// <summary>
+    /// Registers the specified <see cref="IOperationSet"/>.
+    /// </summary>
+    /// <param name="source">The source.</param>
     void Register(IOperationSet source);
+
+    /// <summary>
+    /// Applies current operation set using specified session.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <returns>Key mapping.</returns>
     KeyMapping Apply(Session session);
   }
 }

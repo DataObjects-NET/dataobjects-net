@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Operations
 {
@@ -40,6 +41,7 @@ namespace Xtensive.Storage.Operations
       return mapping.GetEnumerator();
     }
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
@@ -48,6 +50,9 @@ namespace Xtensive.Storage.Operations
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public KeyMapping(Dictionary<Key,Key> mapping)
     {
       this.mapping = mapping;
