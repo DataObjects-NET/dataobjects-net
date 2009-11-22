@@ -146,20 +146,23 @@ namespace Xtensive.Storage.Tests.Storage.Performance
       var d = Domain;
       using (var ss = Session.Open(d)) {
         var s = ss;
-        long sum = (long)count*(count-1)/2;
+        //long sum = (long)count*(count-1)/2;
+        var i = 0;
         using (var ts = Transaction.Open()) {
           TestHelper.CollectGarbage();
-          using (warmup ? null : new Measurement("Prefetch & GetField", count)) {
+          using (warmup ? null : new Measurement("Prefetch", count)) {
             var keys = GetKeys(count).Prefetch<Simplest, Key>(key => key);
             foreach (var key in keys) {
-              var o = Query<Simplest>.SingleOrDefault(key);
-              sum -= o.Id;
+              i++;
+              //var o = Query<Simplest>.SingleOrDefault(key);
+              //sum -= o.Id;
             }
             ts.Complete();
           }
         }
-        if (count<=instanceCount)
-          Assert.AreEqual(0, sum);
+        Assert.AreEqual(count, i);
+        //if (count<=instanceCount)
+          //Assert.AreEqual(0, sum);
       }
     }
 

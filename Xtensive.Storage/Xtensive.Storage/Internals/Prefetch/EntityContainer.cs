@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private static readonly object indexSeekCachingRegion = new object();
     private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
 
-    private readonly SortedDictionary<int, ColumnInfo> columns = new SortedDictionary<int, ColumnInfo>();
+    private SortedDictionary<int, ColumnInfo> columns;
 
     protected readonly PrefetchProcessor Processor;
 
@@ -37,15 +37,19 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public void AddColumns(IEnumerable<ColumnInfo> candidateColumns)
     {
-      var primaryIndex = Type.Indexes.PrimaryIndex;
-      foreach (var column in candidateColumns) {
-        if (Type.IsInterface == column.Field.DeclaringType.IsInterface)
-          columns[Type.Fields[column.Field.Name].MappingInfo.Offset] = column;
-        else if (column.Field.DeclaringType.IsInterface)
-          columns[Type.FieldMap[column.Field].MappingInfo.Offset] = column;
-        else
-          throw new InvalidOperationException();
-      }
+      if (columns == null)
+        columns = new SortedDictionary<int, ColumnInfo>();
+      if (PrefetchHelper.AddColumns(candidateColumns, columns, Type) && ColumnIndexesToBeLoaded != null)
+        ColumnIndexesToBeLoaded = null;
+    }
+
+    public void SetColumnCollections(SortedDictionary<int, ColumnInfo> forcedColumns,
+      List<int> forcedColumnsToBeLoaded)
+    {
+      if (columns != null)
+        throw new InvalidOperationException();
+      columns = forcedColumns;
+      ColumnIndexesToBeLoaded = forcedColumnsToBeLoaded;
     }
 
     protected bool SelectColumnsToBeLoaded()
@@ -55,6 +59,10 @@ namespace Xtensive.Storage.Internals.Prefetch
       if (!Processor.TryGetTupleOfNonRemovedEntity(ref key, out state))
         return false;
       var tuple = state == null ? null : state.Tuple;
+      if (tuple == null && ColumnIndexesToBeLoaded != null)
+        return true;
+      if (ColumnIndexesToBeLoaded != null)
+        ColumnIndexesToBeLoaded = null;
       var needToFetchSystemColumns = false;
       foreach (var pair in columns)
         if (tuple==null || !tuple.GetFieldState(pair.Key).IsAvailable())

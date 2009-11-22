@@ -717,7 +717,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           prefetchProcessor);
       }
     }
-
+    
     private void TestGroupingWithDifferentTypesAndFieldSets(Key customer0Key, Key customer1Key, Key order0Key,
       Key order1Key, Xtensive.Storage.Model.FieldInfo nameField, FieldInfo keyField,
       object inProviderEntryCustomer01, object inProviderEntryCustomer2, IEnumerable cache, Session session,

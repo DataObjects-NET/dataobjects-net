@@ -227,7 +227,8 @@ namespace Xtensive.Storage.Providers
     protected internal virtual EntityState FetchInstance(Key key)
     {
       var type = key.TypeRef.Type;
-      prefetchProcessor.Prefetch(key, type, PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(type));
+      prefetchProcessor.Prefetch(key, type,
+        PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type));
       prefetchProcessor.ExecuteTasks();
       EntityState result;
       return TryGetEntityState(key, out result) ? result : null;

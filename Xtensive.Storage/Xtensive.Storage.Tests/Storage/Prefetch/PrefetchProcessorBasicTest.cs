@@ -371,7 +371,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         Assert.IsNotNull(orderContainer);
         Assert.IsNotNull(employeeContainer);
         prefetchProcessor.ExecuteTasks();
-        Assert.IsNull(orderContainer.RootEntityContainer);
+        Assert.IsNull(orderContainer.RootEntityContainer.Task);
         Assert.IsNotNull(employeeContainer.RootEntityContainer.Task);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, OrderType,
           session, field => IsFieldKeyOrSystem(field) || field == EmployeeField

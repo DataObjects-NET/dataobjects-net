@@ -15,8 +15,7 @@ using Xtensive.Storage.Providers;
 namespace Xtensive.Storage.Internals.Prefetch
 {
   [Serializable]
-  internal sealed class RootElementsPrefetcher<T> : RootElementsPrefetcher,
-    IEnumerable<T>
+  internal sealed class RootElementsPrefetcher<T> : IEnumerable<T>
   {
     private readonly Func<T, Key> keyExtractor;
     private readonly IEnumerable<T> source;
@@ -157,10 +156,8 @@ namespace Xtensive.Storage.Internals.Prefetch
           keyWithType = sessionHandler.Session.EntityStateCache[keyWithType, false].Key;
       if (!keyWithType.HasExactType || keyWithType.TypeRef.Type == queriedType)
         return;
-      var descriptorsArray = (PrefetchFieldDescriptor[]) sessionHandler.Session.Domain
-        .GetCachedItem(new Pair<object, TypeInfo>(DescriptorArraysCachingRegion, keyWithType.TypeRef.Type),
-          pair => PrefetchHelper
-            .CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second));
+      var descriptorsArray = PrefetchHelper
+        .GetCachedDescriptorsForFieldsLoadedByDefault(sessionHandler.Session.Domain, keyWithType.TypeRef.Type);
       strongReferenceContainer.JoinIfPossible(sessionHandler.Prefetch(keyWithType, keyWithType.TypeRef.Type,
         descriptorsArray));
     }

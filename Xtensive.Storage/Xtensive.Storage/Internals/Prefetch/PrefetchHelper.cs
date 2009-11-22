@@ -4,14 +4,18 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.22
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Tuples;
+using Xtensive.Core;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals.Prefetch
 {
   internal static class PrefetchHelper
   {
+    private static readonly object descriptorArraysCachingRegion = new object();
+
     public static bool IsFieldToBeLoadedByDefault(FieldInfo field)
     {
       return field.IsPrimaryKey || field.IsSystem || (!field.IsLazyLoad && !field.IsEntitySet);
@@ -21,6 +25,14 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       return type.Fields.Where(field => field.Parent==null && IsFieldToBeLoadedByDefault(field))
         .Select(field => new PrefetchFieldDescriptor(field, false, false)).ToArray();
+    }
+
+    public static PrefetchFieldDescriptor[] GetCachedDescriptorsForFieldsLoadedByDefault(Domain domain,
+      TypeInfo type)
+    {
+      return (PrefetchFieldDescriptor[]) domain
+        .GetCachedItem(new Pair<object, TypeInfo>(descriptorArraysCachingRegion, type),
+          pair => CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second));
     }
 
     public static bool? TryGetExactKeyType(Key key, PrefetchProcessor processor, out TypeInfo type)
@@ -39,6 +51,41 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
       type = key.TypeRef.Type;
       return true;
+    }
+
+    public static SortedDictionary<int, ColumnInfo> GetColumns(IEnumerable<ColumnInfo> candidateColumns,
+      TypeInfo type)
+    {
+      var columns = new SortedDictionary<int, ColumnInfo>();
+      AddColumns(candidateColumns, columns, type);
+      return columns;
+    }
+
+    public static bool AddColumns(IEnumerable<ColumnInfo> candidateColumns,
+      SortedDictionary<int, ColumnInfo> columns, TypeInfo type)
+    {
+      var result = false;
+      var primaryIndex = type.Indexes.PrimaryIndex;
+      foreach (var column in candidateColumns) {
+        result = true;
+        if (type.IsInterface == column.Field.DeclaringType.IsInterface)
+          columns[type.Fields[column.Field.Name].MappingInfo.Offset] = column;
+        else if (column.Field.DeclaringType.IsInterface)
+          columns[type.FieldMap[column.Field].MappingInfo.Offset] = column;
+        else
+          throw new InvalidOperationException();
+      }
+      return result;
+    }
+
+    public static List<int> GetColumnsToBeLoaded(SortedDictionary<int, ColumnInfo> userColumnIndexes,
+      TypeInfo type)
+    {
+      var result = new List<int>(userColumnIndexes.Count);
+      result.AddRange(type.Indexes.PrimaryIndex.ColumnIndexMap.System);
+      result.AddRange(userColumnIndexes.Where(pair => !pair.Value.IsPrimaryKey
+        && !pair.Value.IsSystem).Select(pair => pair.Key));
+      return result;
     }
   }
 }

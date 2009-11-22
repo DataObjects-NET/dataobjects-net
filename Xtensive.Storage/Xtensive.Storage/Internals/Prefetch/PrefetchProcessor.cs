@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
@@ -17,9 +18,71 @@ namespace Xtensive.Storage.Internals.Prefetch
 {
   internal sealed class PrefetchProcessor
   {
+    #region Nested classes
+
+    private struct RootContainerCacheKey : IEquatable<RootContainerCacheKey>
+    {
+      private readonly int hashCode;
+
+      private readonly TypeInfo type;
+      private readonly IEnumerable<PrefetchFieldDescriptor> descriptors;
+      
+      public bool Equals(RootContainerCacheKey other)
+      {
+        return Equals(other.type, type) && Equals(other.descriptors, descriptors);
+      }
+
+      public override bool Equals(object obj)
+      {
+        if (ReferenceEquals(null, obj))
+          return false;
+        if (obj.GetType()!=typeof (RootContainerCacheKey))
+          return false;
+        return Equals((RootContainerCacheKey) obj);
+      }
+
+      public override int GetHashCode()
+      {
+        return hashCode;
+      }
+
+
+      // Constructors
+
+      public RootContainerCacheKey(TypeInfo type, IEnumerable<PrefetchFieldDescriptor> descriptors)
+      {
+        this.descriptors = descriptors;
+        this.type = type;
+        hashCode = unchecked ((type.GetHashCode() * 397) ^ descriptors.GetHashCode());
+      }
+    }
+
+    private class RootContainerCacheEntry
+    {
+      public readonly RootContainerCacheKey Key;
+
+      public readonly SortedDictionary<int, ColumnInfo> Columns;
+
+      public readonly List<int> ColumnsToBeLoaded;
+
+
+      // Constructors
+
+      public RootContainerCacheEntry(RootContainerCacheKey key, SortedDictionary<int, ColumnInfo> columns,
+        List<int> columnsToBeLoaded)
+      {
+        Key = key;
+        Columns = columns;
+        ColumnsToBeLoaded = columnsToBeLoaded;
+      }
+    }
+
+    #endregion
+
     private const int MaxContainerCount = 120;
 
     private readonly SetSlim<GraphContainer> graphContainers = new SetSlim<GraphContainer>();
+    private readonly LruCache<RootContainerCacheKey,RootContainerCacheEntry> columnsCache;
     private StrongReferenceContainer referenceContainer;
     private readonly Fetcher fetcher;
     private readonly Session session;
@@ -63,7 +126,7 @@ namespace Xtensive.Storage.Internals.Prefetch
           ArgumentValidator.EnsureArgumentNotNull(currentType, "type");
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
           SetUpContainers(currentKey, currentKey.TypeRef.Type,
-            PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(currentKey.TypeRef.Type),
+            PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, currentKey.TypeRef.Type),
             true, ownerState);
           var hierarchyRoot = currentKey.TypeRef.Type;
           selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
@@ -128,18 +191,20 @@ namespace Xtensive.Storage.Internals.Prefetch
       IEnumerable<PrefetchFieldDescriptor> descriptors, bool exactType, EntityState state)
     {
       var result = GetGraphContainer(key, type, exactType);
+      var areAnyColumns = false;
+      var haveColumnsBeenSet = TrySetCachedColumnIndexes(result, descriptors, state);
       foreach (var descriptor in descriptors) {
-        if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary)
+        if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary) {
+          areAnyColumns = true;
           result.RegisterReferencedEntityContainer(state, descriptor);
+        }
         else if (descriptor.Field.IsEntitySet)
           result.RegisterEntitySetTask(state, descriptor);
-        else {
-          IEnumerable<ColumnInfo> columns = descriptor.Field.Columns;
-          if (descriptor.Field.IsStructure && !descriptor.FetchLazyFields)
-            columns = columns.Where(column => !column.Field.IsLazyLoad);
-          result.AddEntityColumns(columns);
-        }
+        else
+          areAnyColumns = true;
       }
+      if (!haveColumnsBeenSet && areAnyColumns)
+        result.AddEntityColumns(ExtractColumns(descriptors));
       return result;
     }
 
@@ -160,6 +225,23 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
       isRemoved = false;
       return null;
+    }
+
+    public void GetCachedColumnIndexes(TypeInfo type,
+      IEnumerable<PrefetchFieldDescriptor> descriptors, out SortedDictionary<int, ColumnInfo> columns,
+      out List<int> columnsToBeLoaded)
+    {
+      var cacheKey = new RootContainerCacheKey(type, descriptors);
+      var cacheEntry = columnsCache[cacheKey, true];
+      if (cacheEntry == null) {
+        columns = PrefetchHelper.GetColumns(ExtractColumns(descriptors),type);
+        columnsToBeLoaded = PrefetchHelper.GetColumnsToBeLoaded(columns, type);
+        cacheEntry = new RootContainerCacheEntry(cacheKey, columns, columnsToBeLoaded);
+        columnsCache.Add(cacheEntry);
+        return;
+      }
+      columns = cacheEntry.Columns;
+      columnsToBeLoaded = cacheEntry.ColumnsToBeLoaded;
     }
 
     #region Private \ internal methods
@@ -202,6 +284,33 @@ namespace Xtensive.Storage.Internals.Prefetch
       return registeredTaskContainer;
     }
 
+    private static IEnumerable<ColumnInfo> ExtractColumns(IEnumerable<PrefetchFieldDescriptor> descriptors)
+    {
+      foreach (var descriptor in descriptors) {
+        IEnumerable<ColumnInfo> columns;
+        if (descriptor.Field.IsStructure && !descriptor.FetchLazyFields)
+          columns = descriptor.Field.Columns.Where(column => !column.Field.IsLazyLoad);
+        else
+          columns = descriptor.Field.Columns;
+        foreach (var column in columns)
+          yield return column;
+      }
+    }
+
+    private bool TrySetCachedColumnIndexes(GraphContainer container,
+      IEnumerable<PrefetchFieldDescriptor> descriptors, EntityState state)
+    {
+      var result = false;
+      if (container.RootEntityContainer == null) {
+        SortedDictionary<int, ColumnInfo> columns;
+        List<int> columnsToBeLoaded;
+        GetCachedColumnIndexes(container.Type, descriptors, out columns, out columnsToBeLoaded);
+        container.CreateRootEntityContainer(columns, state == null ? columnsToBeLoaded : null);
+        result = true;
+      }
+      return result;
+    }
+
     #endregion
 
 
@@ -212,6 +321,8 @@ namespace Xtensive.Storage.Internals.Prefetch
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       this.session = session;
       fetcher = new Fetcher(this);
+      columnsCache = new LruCache<RootContainerCacheKey, RootContainerCacheEntry>(128,
+        cacheEntry => cacheEntry.Key);
     }
   }
 }

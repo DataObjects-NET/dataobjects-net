@@ -50,12 +50,23 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       queryTasks = new List<QueryTask>(keys.Count);
       var skipCount = 0;
-      while (skipCount < keys.Count) {
-        var queryTask = CreateQueryTask(skipCount);
-        queryTasks.Add(queryTask);
-        processor.Owner.Session.RegisterDelayedQuery(queryTask);
-        skipCount += MaxKeyCountInOneStatement;
-      };
+      var count = 0;
+      var keyCount = keys.Count;
+      var totalCount = 0;
+      List<Tuple> currentKeySet = null;
+      foreach (var pair in keys) {
+        if (count == 0)
+          currentKeySet = new List<Tuple>(MaxKeyCountInOneStatement);
+        currentKeySet.Add(pair.Key.Value);
+        count++;
+        totalCount++;
+        if (count == MaxKeyCountInOneStatement || totalCount == keyCount) {
+          count = 0;
+          var queryTask = CreateQueryTask(currentKeySet);
+          queryTasks.Add(queryTask);
+          processor.Owner.Session.RegisterDelayedQuery(queryTask);
+        }
+      }
     }
 
     public void UpdateCache(HashSet<Key> foundedKeys)
@@ -99,14 +110,11 @@ namespace Xtensive.Storage.Internals.Prefetch
       return cachedHashCode;
     }
 
-    private QueryTask CreateQueryTask(int skipCount)
+    private QueryTask CreateQueryTask(List<Tuple> currentKeySet)
     {
       var parameterContext = new ParameterContext();
       using (parameterContext.Activate()) {
-        var tuples = new List<Tuple>(MaxKeyCountInOneStatement);
-        tuples.AddRange(keys.Skip(skipCount).Take(MaxKeyCountInOneStatement)
-          .Select(pair => pair.Key.Value));
-        includeParameter.Value = tuples;
+        includeParameter.Value = currentKeySet;
         RecordSet = (RecordSet) processor.Owner.Session.Domain.GetCachedItem(
           new Pair<object, EntityGroupTask>(recordSetCachingRegion, this), CreateRecordSet);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);

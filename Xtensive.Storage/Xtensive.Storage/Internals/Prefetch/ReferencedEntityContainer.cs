@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
@@ -18,7 +17,6 @@ namespace Xtensive.Storage.Internals.Prefetch
   [Serializable]
   internal sealed class ReferencedEntityContainer : EntityContainer
   {
-    private static readonly object defaultFieldsCachingRegion = new object();
     private readonly MapTransform referencedEntityKeyTransform;
     private readonly Key ownerKey;
     private readonly bool isOwnerTypeKnown;
@@ -83,7 +81,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       if (hasExactTypeBeenGotten!=null) {
         if (hasExactTypeBeenGotten.Value) {
           Type = exactReferencedType;
-          FillColumnCollection();
+          //FillColumnCollection();
           needToNotifyOwner = false;
         }
         else
@@ -91,6 +89,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
       else
         return null;
+      FillColumnCollection();
       if (!SelectColumnsToBeLoaded())
         return null;
       Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Processor);
@@ -99,12 +98,12 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private void FillColumnCollection()
     {
-      var fieldsToBeLoaded = (IEnumerable<FieldInfo>) Processor.Owner.Session.Domain
-        .GetCachedItem(new Pair<object, TypeInfo>(defaultFieldsCachingRegion, Type),
-          pair => ((Pair<object, TypeInfo>) pair).Second.Fields
-            .Where(field => field.Parent == null && PrefetchHelper.IsFieldToBeLoadedByDefault(field)));
-      foreach (var field in fieldsToBeLoaded)
-        AddColumns(field.Columns);
+      var descriptors = PrefetchHelper
+        .GetCachedDescriptorsForFieldsLoadedByDefault(Processor.Owner.Session.Domain, Type);
+      SortedDictionary<int, ColumnInfo> columns;
+      List<int> columnsToBeLoaded;
+      Processor.GetCachedColumnIndexes(Type, descriptors, out columns, out columnsToBeLoaded);
+      SetColumnCollections(columns, columnsToBeLoaded);
     }
 
 
@@ -119,7 +118,6 @@ namespace Xtensive.Storage.Internals.Prefetch
       this.ownerKey = ownerKey;
       this.referencingFieldDescriptor = referencingFieldDescriptor;
       this.isOwnerTypeKnown = isOwnerTypeKnown;
-      FillColumnCollection();
     }
   }
 }
