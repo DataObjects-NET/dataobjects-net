@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       TextField = TitleType.Fields["Text"];
       GraphContainersField = typeof (PrefetchManager).GetField("graphContainers",
         BindingFlags.NonPublic | BindingFlags.Instance);
-      PrefetchProcessorField = typeof (SessionHandler).GetField("prefetchProcessor",
+      PrefetchProcessorField = typeof (SessionHandler).GetField("prefetchManager",
         BindingFlags.NonPublic | BindingFlags.Instance);
       CompilationContextCacheField = typeof (Xtensive.Storage.Rse.Compilation.CompilationContext)
         .GetField("cache", BindingFlags.NonPublic | BindingFlags.Instance);
