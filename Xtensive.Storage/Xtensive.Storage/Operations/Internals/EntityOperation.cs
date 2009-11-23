@@ -16,27 +16,27 @@ namespace Xtensive.Storage.Operations
     protected Key Key { get; private set;}
 
     /// <inheritdoc/>
-    public override void Prepare(OperationContext operationContext)
+    public override void Prepare(OperationExecutionContext context)
     {
-      if (operationContext.KeysForRemap.Contains(Key)) {
+      if (context.KeysForRemap.Contains(Key)) {
         var oldKey = Key;
         Key newKey;
-        if (!operationContext.KeyMapping.TryGetValue(oldKey, out newKey)) {
-          newKey = KeyFactory.CreateNext(operationContext.Session.Domain, oldKey.Type);
-          operationContext.KeyMapping.Add(oldKey, newKey);
+        if (!context.KeyMapping.TryGetValue(oldKey, out newKey)) {
+          newKey = KeyFactory.CreateNext(context.Session.Domain, oldKey.Type);
+          context.KeyMapping.Add(oldKey, newKey);
         }
         Key = newKey;
       }
       if (Type == OperationType.CreateEntity) 
-        operationContext.RegisterNew(Key);
+        context.RegisterNew(Key);
       else
-        operationContext.Register(Key);
+        context.Register(Key);
     }
 
     /// <inheritdoc/>
-    public override void Execute(OperationContext operationContext)
+    public override void Execute(OperationExecutionContext context)
     {
-      var session = operationContext.Session;
+      var session = context.Session;
       if (Type == OperationType.CreateEntity) {
         var entityType = Key.TypeRef.Type;
         var domain = session.Domain;

@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Operations
     /// <inheritdoc/>
     public KeyMapping Apply(Session session)
     {
-      var operationContext = new OperationContext(session, this);
+      var operationContext = new OperationExecutionContext(session, this);
       foreach (var operation in log)
         operation.Prepare(operationContext);
       operationContext

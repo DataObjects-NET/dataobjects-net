@@ -19,18 +19,18 @@ namespace Xtensive.Storage.Operations
     private Key ItemKey { get; set; }
 
     /// <inheritdoc/>
-    public override void Prepare(OperationContext operationContext)
+    public override void Prepare(OperationExecutionContext context)
     {
-      base.Prepare(operationContext);
-      if (operationContext.KeysForRemap.Contains(ItemKey))
-        ItemKey = operationContext.KeyMapping[ItemKey];
-      operationContext.Register(ItemKey);
+      base.Prepare(context);
+      if (context.KeysForRemap.Contains(ItemKey))
+        ItemKey = context.KeyMapping[ItemKey];
+      context.Register(ItemKey);
     }
 
     /// <inheritdoc/>
-    public override void Execute(OperationContext operationContext)
+    public override void Execute(OperationExecutionContext context)
     {
-      var session = operationContext.Session;
+      var session = context.Session;
       var target = Query.Single(session, Key);
       var item = Query.Single(session, ItemKey);
       var entitySet = target.GetFieldValue<EntitySetBase>(Field);

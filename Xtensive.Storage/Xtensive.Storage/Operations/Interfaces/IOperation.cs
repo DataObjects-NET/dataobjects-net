@@ -14,13 +14,13 @@ namespace Xtensive.Storage.Operations
     /// <summary>
     /// Prepares the operation using specified operation context.
     /// </summary>
-    /// <param name="operationContext">The operation context.</param>
-    void Prepare(OperationContext operationContext);
+    /// <param name="context">The operation context.</param>
+    void Prepare(OperationExecutionContext context);
 
     /// <summary>
     /// Executes the operation using specified operation context.
     /// </summary>
-    /// <param name="operationContext">The operation context.</param>
-    void Execute(OperationContext operationContext);
+    /// <param name="context">The operation context.</param>
+    void Execute(OperationExecutionContext context);
   }
 }

@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage
 {
@@ -111,7 +112,19 @@ namespace Xtensive.Storage
     /// </summary>
     public event EventHandler<EntitySetItemActionCompletedEventArgs> EntitySetItemAddCompleted;
 
+    /// <summary>
+    /// Occurs when the <see cref="IOperation"/> is being registered.
+    /// </summary>
+    public event EventHandler<OperationEventArgs> OperationRegister;
 
+    /// <summary>
+    /// <see cref="OperationRegister"/> event has subscribers.
+    /// </summary>
+    internal bool OperationRegisterHasSubscribers()
+    {
+      return OperationRegister != null;
+    }
+    
     /// <summary>
     /// The manager of <see cref="Entity"/>'s events.
     /// </summary>
@@ -235,6 +248,12 @@ namespace Xtensive.Storage
     {
       if (EntitySetItemAddCompleted != null)
         EntitySetItemAddCompleted(this, new EntitySetItemActionCompletedEventArgs(entity, entitySet, exception));
+    }
+
+    internal void NotifyOperationRegister(IOperation operation)
+    {
+      if (OperationRegister != null)
+        OperationRegister(this, new OperationEventArgs(operation));
     }
   }
 }

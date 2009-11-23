@@ -11,6 +11,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
@@ -47,6 +48,20 @@ namespace Xtensive.Storage
             Strings.ExUnauthorizedAccessDeclarationOfCallerTypeIsNotInRegisteredAssembly);
         return session.CoreServices;
       }
+    }
+
+    /// <summary>
+    /// Opens the operation context.
+    /// </summary>
+    /// <param name="disableNested">if set to <see langword="true"/> disable nested context actions.</param>
+    /// <returns>New instance of the <see cref="OperationContext"/>.</returns>
+    protected OperationContext OpenOperationContext(bool disableNested)
+    {
+      if (Session.CurrentOperationContext.DisableNested)
+        return null;
+      if (!Session.OperationRegisterHasSubscribers())
+        return null;
+      return new OperationContext(Session, disableNested);
     }
 
     #region IContextBound<Session> Members

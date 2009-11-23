@@ -22,10 +22,10 @@ namespace Xtensive.Storage.Operations
     protected OperationType Type { get; private set; }
 
     /// <inheritdoc/>
-    public abstract void Prepare(OperationContext operationContext);
+    public abstract void Prepare(OperationExecutionContext context);
 
     /// <inheritdoc/>
-    public abstract void Execute(OperationContext operationContext);
+    public abstract void Execute(OperationExecutionContext context);
 
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)

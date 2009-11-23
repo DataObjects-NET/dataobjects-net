@@ -19,17 +19,17 @@ namespace Xtensive.Storage.Operations
     private object Value { get; set; }
     private Key entityValueKey;
 
-    public override void Prepare(OperationContext operationContext)
+    public override void Prepare(OperationExecutionContext context)
     {
-      base.Prepare(operationContext);
-      if (operationContext.KeysForRemap.Contains(entityValueKey))
-        entityValueKey = operationContext.KeyMapping[entityValueKey];
-      operationContext.Register(entityValueKey);
+      base.Prepare(context);
+      if (context.KeysForRemap.Contains(entityValueKey))
+        entityValueKey = context.KeyMapping[entityValueKey];
+      context.Register(entityValueKey);
     }
 
-    public override void Execute(OperationContext operationContext)
+    public override void Execute(OperationExecutionContext context)
     {
-      var session = operationContext.Session;
+      var session = context.Session;
       var entity = Query.Single(session, Key);
       var setter = DelegateHelper.CreateDelegate<Action<Entity,object>>(
         this, 

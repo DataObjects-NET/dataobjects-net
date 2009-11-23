@@ -17,6 +17,7 @@ using Xtensive.Core.IoC;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Operations;
 using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.ReferentialIntegrity;
@@ -167,6 +168,8 @@ namespace Xtensive.Storage
     internal bool IsDelayedQueryRunning { get; private set; }
 
     internal CompilationContext CompilationContext { get { return Handlers.DomainHandler.CompilationContext; } }
+
+    internal OperationContext CurrentOperationContext { get; set; }
 
     #endregion
 
@@ -465,6 +468,7 @@ namespace Xtensive.Storage
       EntityEventBroker = new EntityEventBroker();
       if (activate)
         sessionScope = new SessionScope(this);
+      CurrentOperationContext = OperationContext.Default;
     }
 
     #region Dispose pattern

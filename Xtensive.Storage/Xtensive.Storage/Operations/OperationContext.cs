@@ -2,73 +2,74 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexis Kochetov
-// Created:    2009.10.21
+// Created:    2009.11.23
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Operations
 {
   /// <summary>
-  /// Operation context for <see cref="IOperation.Execute"/> and <see cref="IOperation.Prepare"/> methods executed for a set of operations.
+  /// Operation context that manages <see cref="IOperation"/> registration.
   /// </summary>
-  public sealed class OperationContext : IEnumerable<Key>
+  public sealed class OperationContext : IDisposable
   {
-    private readonly HashSet<Key> prefetchKeys;
-    private readonly HashSet<Key> excludedKeys;
-    public readonly Session Session;
-    public readonly Dictionary<Key, Key> KeyMapping;
-    public readonly HashSet<Key> KeysForRemap;
+    private static readonly OperationContext defaultContext = new OperationContext();
+    private readonly Session session;
+    private readonly OperationContext parentOperationContext;
+    private List<IOperation> operations;
+    internal bool completed;
 
-    /// <summary>
-    /// Registers the specified key.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    public void Register(Key key)
+    internal List<IOperation> Operations
     {
-      if (key == null)
-        return;
-      if (!excludedKeys.Contains(key))
-        prefetchKeys.Add(key);
+      get
+      {
+        if (operations == null)
+          operations = new List<IOperation>();
+        return operations;
+      }
     }
 
     /// <summary>
-    /// Registers new key.
+    /// Gets the default operation context.
     /// </summary>
-    /// <param name="key">The key.</param>
-    public void RegisterNew(Key key)
+    public static OperationContext Default
     {
-      if (key == null)
-        return;
-      excludedKeys.Add(key);
+      get { return defaultContext; }
     }
 
-    /// <inheritdoc/>
-    public IEnumerator<Key> GetEnumerator()
-    {
-      return prefetchKeys.GetEnumerator();
-    }
+    /// <summary>
+    /// Gets a flag indicating disabling of nested <see cref="OperationContext"/>.
+    /// </summary>
+    internal bool DisableNested { get; private set; }
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
+    void IDisposable.Dispose()
     {
-      return GetEnumerator();
+      session.CurrentOperationContext = parentOperationContext;
+      if (operations != null)
+        foreach (var operation in operations)
+          session.NotifyOperationRegister(operation);
     }
 
 
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public OperationContext(Session session, IOperationSet set)
+    /// <param name="session">The session.</param>
+    /// <param name="disableNested">Disable nested operation contexts.</param>
+    public OperationContext(Session session, bool disableNested)
     {
-      Session = session;
-      KeysForRemap = set.GetKeysForRemap();
-      KeyMapping = new Dictionary<Key, Key>();
-      prefetchKeys = new HashSet<Key>();
-      excludedKeys = new HashSet<Key>();
+      this.session = session;
+      parentOperationContext = session.CurrentOperationContext;
+      session.CurrentOperationContext = this;
+      DisableNested = disableNested;
     }
+
+    private OperationContext()
+    {}
   }
 }
