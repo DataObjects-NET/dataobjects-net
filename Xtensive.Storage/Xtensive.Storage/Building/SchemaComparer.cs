@@ -44,8 +44,13 @@ namespace Xtensive.Storage.Building
       };
       var status = GetComparisonStatus(actions);
       var unsafeActions = GetUnsafeActions(actions);
-      var hasTypeChanges = GetTypeChangeActions(actions).Any();
-      var hasCreateDataNodeActions = actions
+      var hasTypeChanges = GetTypeChangeActions(actions).Any(action => {
+        var sourceType = action.Difference.Source as TypeInfo;
+        var targetType = action.Difference.Target as TypeInfo;
+        return sourceType==null || targetType==null
+          || sourceType.Type!=targetType.Type;
+      });
+      var hasCreateDataNodeActions = actions.Flatten()
         .OfType<CreateNodeAction>()
         .Any(action => action.Difference.Target is TableInfo
           || action.Difference.Target is ColumnInfo);
