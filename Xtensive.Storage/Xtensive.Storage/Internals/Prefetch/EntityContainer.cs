@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private SortedDictionary<int, ColumnInfo> columns;
 
-    protected readonly PrefetchProcessor Processor;
+    protected readonly PrefetchManager Manager;
 
     public Key Key { get; protected set; }
 
@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       var key = Key;
       EntityState state;
-      if (!Processor.TryGetTupleOfNonRemovedEntity(ref key, out state))
+      if (!Manager.TryGetTupleOfNonRemovedEntity(ref key, out state))
         return false;
       var tuple = state == null ? null : state.Tuple;
       if (tuple == null && ColumnIndexesToBeLoaded != null)
@@ -88,14 +88,14 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     // Constructors
 
-    protected EntityContainer(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)
+    protected EntityContainer(Key key, TypeInfo type, bool exactType, PrefetchManager manager)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
+      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
       Key = key;
       Type = type;
       ExactType = exactType;
-      Processor = processor;
+      Manager = manager;
     }
   }
 }

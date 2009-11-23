@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       if (Task == null) {
         if (!SelectColumnsToBeLoaded())
           return null;
-        Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Processor);
+        Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Manager);
       }
       return Task;
     }
@@ -41,8 +41,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     
     // Constructors
 
-    public RootEntityContainer(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)
-      : base(key, type, exactType, processor)
+    public RootEntityContainer(Key key, TypeInfo type, bool exactType, PrefetchManager manager)
+      : base(key, type, exactType, manager)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
     }

@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly SetSlim<EntityGroupTask> tasks = new SetSlim<EntityGroupTask>();
     private readonly HashSet<Key> foundedKeys = new HashSet<Key>();
 
-    private readonly PrefetchProcessor processor;
+    private readonly PrefetchManager manager;
 
     public void ExecuteTasks(SetSlim<GraphContainer> containers)
     {
@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         RegisterAllEntityGroupTasks();
         RegisterAllEntitySetTasks(containers);
 
-        processor.Owner.Session.ExecuteAllDelayedQueries(false);
+        manager.Owner.Session.ExecuteAllDelayedQueries(false);
         UpdateCacheFromAllEntityGroupTasks();
         UpdateCacheFromAllEntitySetTasks(containers);
 
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Internals.Prefetch
           return;
         RegisterAllEntityGroupTasks();
 
-        processor.Owner.Session.ExecuteAllDelayedQueries(false);
+        manager.Owner.Session.ExecuteAllDelayedQueries(false);
         UpdateCacheFromAllEntityGroupTasks();
       }
       finally {
@@ -104,11 +104,11 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     // Constructors
 
-    public Fetcher(PrefetchProcessor processor)
+    public Fetcher(PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
+      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
 
-      this.processor = processor;
+      this.manager = manager;
     }
   }
 }

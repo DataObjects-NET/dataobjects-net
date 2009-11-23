@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private readonly Key ownerKey;
     private readonly bool isOwnerCached;
-    private readonly PrefetchProcessor processor;
+    private readonly PrefetchManager manager;
     private QueryTask itemsQueryTask;
     private int? cachedHashCode;
     private readonly PrefetchFieldDescriptor referencingFieldDescriptor;
@@ -47,20 +47,20 @@ namespace Xtensive.Storage.Internals.Prefetch
     public void RegisterQueryTask()
     {
       EntitySetState state;
-      if (isOwnerCached && processor.Owner.TryGetEntitySetState(ownerKey, ReferencingField, out state)
+      if (isOwnerCached && manager.Owner.TryGetEntitySetState(ownerKey, ReferencingField, out state)
         && (state.IsFullyLoaded || state.Count >= ItemCountLimit))
         return;
       itemsQueryTask = CreateQueryTask();
-      processor.Owner.Session.RegisterDelayedQuery(itemsQueryTask);
+      manager.Owner.Session.RegisterDelayedQuery(itemsQueryTask);
     }
 
     public void UpdateCache()
     {
       if (itemsQueryTask==null)
         return;
-      var areToNotifyAboutKeys = !processor.Owner.Session.Domain.Model
+      var areToNotifyAboutKeys = !manager.Owner.Session.Domain.Model
         .Types[referencingFieldDescriptor.Field.ItemType].IsLeaf;
-      var reader = processor.Owner.Session.Domain.RecordSetReader;
+      var reader = manager.Owner.Session.Domain.RecordSetReader;
       var records = reader.Read(itemsQueryTask.Result, RecordSet.Header);
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
       List<Pair<Key, Tuple>> auxEntities = null;
@@ -78,20 +78,20 @@ namespace Xtensive.Storage.Internals.Prefetch
             if (i==0)
               auxEntities.Add(new Pair<Key, Tuple>(key, tuple));
             else {
-              processor.SaveStrongReference(processor.Owner.RegisterEntityState(key, tuple));
+              manager.SaveStrongReference(manager.Owner.RegisterEntityState(key, tuple));
               entityKeys.Add(key);
               if (areToNotifyAboutKeys)
                 referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
             }
           else {
-            processor.SaveStrongReference(processor.Owner.RegisterEntityState(key, tuple));
+            manager.SaveStrongReference(manager.Owner.RegisterEntityState(key, tuple));
             entityKeys.Add(key);
             if (areToNotifyAboutKeys)
               referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
           }
         }
       }
-      processor.Owner.RegisterEntitySetState(ownerKey, ReferencingField,
+      manager.Owner.RegisterEntitySetState(ownerKey, ReferencingField,
         ItemCountLimit==null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
     }
 
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         ownerParameter.Value = ownerKey.Value;
         if (ItemCountLimit != null)
           itemCountLimitParameter.Value = ItemCountLimit.Value;
-        RecordSet = (RecordSet) processor.Owner.Session.Domain.GetCachedItem(
+        RecordSet = (RecordSet) manager.Owner.Session.Domain.GetCachedItem(
           new Pair<object, EntitySetTask>(itemsQueryCachingRegion, this), CreateRecordSetLoadingItems);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);
         return new QueryTask(executableProvider, parameterContext);
@@ -223,17 +223,17 @@ namespace Xtensive.Storage.Internals.Prefetch
     // Constructors
 
     public EntitySetTask(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor, bool isOwnerCached,
-      PrefetchProcessor processor)
+      PrefetchManager manager)
     {
       ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
       ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");
-      ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
+      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
 
       this.ownerKey = ownerKey;
       this.referencingFieldDescriptor = referencingFieldDescriptor;
       this.isOwnerCached = isOwnerCached;
       ItemCountLimit = referencingFieldDescriptor.EntitySetItemCountLimit;
-      this.processor = processor;
+      this.manager = manager;
     }
   }
 }

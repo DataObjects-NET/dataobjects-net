@@ -16,7 +16,7 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals.Prefetch
 {
-  internal sealed class PrefetchProcessor
+  internal sealed class PrefetchManager
   {
     #region Nested classes
 
@@ -317,7 +317,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     // Constructors
 
-    public PrefetchProcessor(Session session)
+    public PrefetchManager(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       this.session = session;

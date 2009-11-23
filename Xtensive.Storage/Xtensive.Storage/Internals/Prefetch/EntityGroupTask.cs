@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private Dictionary<Key, bool> keys;
     private readonly TypeInfo type;
     private readonly int cachedHashCode;
-    private readonly PrefetchProcessor processor;
+    private readonly PrefetchManager manager;
     private List<QueryTask> queryTasks;
 
     public RecordSet RecordSet { get; private set; }
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Internals.Prefetch
           count = 0;
           var queryTask = CreateQueryTask(currentKeySet);
           queryTasks.Add(queryTask);
-          processor.Owner.Session.RegisterDelayedQuery(queryTask);
+          manager.Owner.Session.RegisterDelayedQuery(queryTask);
         }
       }
     }
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     public void UpdateCache(HashSet<Key> foundedKeys)
     {
       foundedKeys.Clear();
-      var reader = processor.Owner.Session.Domain.RecordSetReader;
+      var reader = manager.Owner.Session.Domain.RecordSetReader;
       foreach (var queryTask in queryTasks)
         PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
       HandleMissedKeys(foundedKeys);
@@ -115,7 +115,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       var parameterContext = new ParameterContext();
       using (parameterContext.Activate()) {
         includeParameter.Value = currentKeySet;
-        RecordSet = (RecordSet) processor.Owner.Session.Domain.GetCachedItem(
+        RecordSet = (RecordSet) manager.Owner.Session.Domain.GetCachedItem(
           new Pair<object, EntityGroupTask>(recordSetCachingRegion, this), CreateRecordSet);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);
         return new QueryTask(executableProvider, parameterContext);
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Internals.Prefetch
           var fetchedKey = record.GetKey();
           var tuple = record.GetTuple();
           if (tuple!=null) {
-            processor.SaveStrongReference(processor.Owner.RegisterEntityState(fetchedKey, tuple));
+            manager.SaveStrongReference(manager.Owner.RegisterEntityState(fetchedKey, tuple));
             foundedKeys.Add(fetchedKey);
           }
         }
@@ -163,27 +163,27 @@ namespace Xtensive.Storage.Internals.Prefetch
     private void MarkMissedEntityState(Key key, bool exactType)
     {
       bool isRemoved;
-      var cachedEntityState = processor.GetCachedEntityState(ref key, out isRemoved);
+      var cachedEntityState = manager.GetCachedEntityState(ref key, out isRemoved);
       if (exactType && !isRemoved
         && (cachedEntityState==null || cachedEntityState.Key.HasExactType && cachedEntityState.Key
           .TypeRef.Type==type))
         // Ensures there will be "removed" EntityState associated with this key
-        processor.SaveStrongReference(processor.Owner.RegisterEntityState(key, null));
+        manager.SaveStrongReference(manager.Owner.RegisterEntityState(key, null));
     }
 
 
     // Constructors
 
-    public EntityGroupTask(TypeInfo type, int[] columnIndexes, PrefetchProcessor processor)
+    public EntityGroupTask(TypeInfo type, int[] columnIndexes, PrefetchManager manager)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");
       ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Length, 0, "columnIndexes.Length");
-      ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
+      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
 
       this.type = type;
       this.columnIndexes = columnIndexes;
-      this.processor = processor;
+      this.manager = manager;
       cachedHashCode = 0;
       for (var i = 0; i < columnIndexes.Length; i++)
         cachedHashCode = unchecked (379 * cachedHashCode + columnIndexes[i]);

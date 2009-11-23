@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         return Task;
 
       EntityState ownerState;
-      var isStateCached = Processor.Owner.TryGetEntityState(ownerKey, out ownerState);
+      var isStateCached = Manager.Owner.TryGetEntityState(ownerKey, out ownerState);
       if (isStateCached
         && (ownerState.Tuple==null || ownerState.PersistenceState==PersistenceState.Removed))
         return null;
@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       var foreignKeyTuple = ExtractForeignKeyTuple(ownerState);
       if (foreignKeyTuple == null)
         return null;
-      Key = Key.Create(Processor.Owner.Session.Domain, Type, TypeReferenceAccuracy.BaseType, foreignKeyTuple);
+      Key = Key.Create(Manager.Owner.Session.Domain, Type, TypeReferenceAccuracy.BaseType, foreignKeyTuple);
       return CreateTask();
     }
 
@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private EntityGroupTask CreateTask()
     {
       TypeInfo exactReferencedType;
-      var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(Key, Processor, out exactReferencedType);
+      var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(Key, Manager, out exactReferencedType);
       if (hasExactTypeBeenGotten!=null) {
         if (hasExactTypeBeenGotten.Value) {
           Type = exactReferencedType;
@@ -92,17 +92,17 @@ namespace Xtensive.Storage.Internals.Prefetch
       FillColumnCollection();
       if (!SelectColumnsToBeLoaded())
         return null;
-      Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Processor);
+      Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Manager);
       return Task;
     }
 
     private void FillColumnCollection()
     {
       var descriptors = PrefetchHelper
-        .GetCachedDescriptorsForFieldsLoadedByDefault(Processor.Owner.Session.Domain, Type);
+        .GetCachedDescriptorsForFieldsLoadedByDefault(Manager.Owner.Session.Domain, Type);
       SortedDictionary<int, ColumnInfo> columns;
       List<int> columnsToBeLoaded;
-      Processor.GetCachedColumnIndexes(Type, descriptors, out columns, out columnsToBeLoaded);
+      Manager.GetCachedColumnIndexes(Type, descriptors, out columns, out columnsToBeLoaded);
       SetColumnCollections(columns, columnsToBeLoaded);
     }
 
@@ -110,8 +110,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     // Constructors
 
     public ReferencedEntityContainer(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor,
-      bool isOwnerTypeKnown, PrefetchProcessor processor)
-      : base(null, referencingFieldDescriptor.Field.Association.TargetType, true, processor)
+      bool isOwnerTypeKnown, PrefetchManager manager)
+      : base(null, referencingFieldDescriptor.Field.Association.TargetType, true, manager)
     {
       ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");
       ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");

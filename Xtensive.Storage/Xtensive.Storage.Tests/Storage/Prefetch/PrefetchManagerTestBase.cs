@@ -17,7 +17,7 @@ using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Tests.Storage.Prefetch
 {
-  public class PrefetchProcessorTestBase : AutoBuildTest
+  public class PrefetchManagerTestBase : AutoBuildTest
   {
     protected TypeInfo CustomerType;
     protected TypeInfo OrderType;
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       TitleBookField = TitleType.Fields["Book"];
       LanguageField = TitleType.Fields["Language"];
       TextField = TitleType.Fields["Text"];
-      GraphContainersField = typeof (PrefetchProcessor).GetField("graphContainers",
+      GraphContainersField = typeof (PrefetchManager).GetField("graphContainers",
         BindingFlags.NonPublic | BindingFlags.Instance);
       PrefetchProcessorField = typeof (SessionHandler).GetField("prefetchProcessor",
         BindingFlags.NonPublic | BindingFlags.Instance);
@@ -101,9 +101,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Assert.AreEqual(isFullyLoaded, state.IsFullyLoaded);
     }
 
-    internal GraphContainer GetSingleGraphContainer(PrefetchProcessor prefetchProcessor)
+    internal GraphContainer GetSingleGraphContainer(PrefetchManager prefetchManager)
     {
-      return ((IEnumerable<GraphContainer>) GraphContainersField.GetValue(prefetchProcessor)).Single();
+      return ((IEnumerable<GraphContainer>) GraphContainersField.GetValue(prefetchManager)).Single();
     }
 
     internal static bool IsFieldKeyOrSystem(FieldInfo field)

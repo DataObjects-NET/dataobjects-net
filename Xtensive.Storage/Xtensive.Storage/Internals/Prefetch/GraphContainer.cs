@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private int? cachedHashCode;
     private bool isReferenceContainerCreated;
 
-    internal readonly PrefetchProcessor processor;
+    internal readonly PrefetchManager manager;
 
     public readonly Key Key;
     
@@ -51,14 +51,14 @@ namespace Xtensive.Storage.Internals.Prefetch
     public void AddEntityColumns(IEnumerable<ColumnInfo> columns)
     {
       if (RootEntityContainer == null)
-        RootEntityContainer = new RootEntityContainer(Key, Type, exactType, processor);
+        RootEntityContainer = new RootEntityContainer(Key, Type, exactType, manager);
       RootEntityContainer.AddColumns(columns);
     }
 
     public void CreateRootEntityContainer(SortedDictionary<int, ColumnInfo> forcedColumns,
       List<int> forcedColumnsToBeLoaded)
     {
-      RootEntityContainer = new RootEntityContainer(Key, Type, exactType, processor);
+      RootEntityContainer = new RootEntityContainer(Key, Type, exactType, manager);
       RootEntityContainer.SetColumnCollections(forcedColumns, forcedColumnsToBeLoaded);
     }
     
@@ -84,13 +84,13 @@ namespace Xtensive.Storage.Internals.Prefetch
       EntitySetTask task;
       if (!entitySetTasks.TryGetValue(referencingFieldDescriptor.Field, out task))
         entitySetTasks.Add(referencingFieldDescriptor.Field,
-          new EntitySetTask(Key, referencingFieldDescriptor, ownerState != null, processor));
+          new EntitySetTask(Key, referencingFieldDescriptor, ownerState != null, manager));
       else if (task.ItemCountLimit == null)
         return;
       else if (referencingFieldDescriptor.EntitySetItemCountLimit == null
         || task.ItemCountLimit < referencingFieldDescriptor.EntitySetItemCountLimit)
         entitySetTasks[referencingFieldDescriptor.Field] =
-          new EntitySetTask(Key, referencingFieldDescriptor, ownerState != null, processor);
+          new EntitySetTask(Key, referencingFieldDescriptor, ownerState != null, manager);
     }
     
     public void NotifyAboutExtractionOfKeysWithUnknownType()
@@ -158,13 +158,13 @@ namespace Xtensive.Storage.Internals.Prefetch
       for (var i = 0; i < referencedKeyTupleState.Length; i++)
         if (referencedKeyTupleState[i])
           return;
-      var referencedKey = Key.Create(processor.Owner.Session.Domain,
+      var referencedKey = Key.Create(manager.Owner.Session.Domain,
         referencingFieldDescriptor.Field.Association.TargetType, TypeReferenceAccuracy.BaseType,
         referencedKeyTuple);
       var targetType = referencingFieldDescriptor.Field.Association.TargetType;
       var areToNotifyOwner = true;
       TypeInfo exactReferencedType;
-      var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(referencedKey, processor,
+      var hasExactTypeBeenGotten = PrefetchHelper.TryGetExactKeyType(referencedKey, manager,
         out exactReferencedType);
       if (hasExactTypeBeenGotten!=null) {
         if (hasExactTypeBeenGotten.Value) {
@@ -175,8 +175,8 @@ namespace Xtensive.Storage.Internals.Prefetch
       else
         return;
       var fieldsToBeLoaded = PrefetchHelper
-        .GetCachedDescriptorsForFieldsLoadedByDefault(processor.Owner.Session.Domain, targetType);
-      var graphContainer = processor.SetUpContainers(referencedKey, targetType,
+        .GetCachedDescriptorsForFieldsLoadedByDefault(manager.Owner.Session.Domain, targetType);
+      var graphContainer = manager.SetUpContainers(referencedKey, targetType,
         fieldsToBeLoaded, true, null);
       if (areToNotifyOwner)
         graphContainer.RootEntityContainer.SetParametersOfReference(referencingFieldDescriptor, referencedKey);
@@ -187,7 +187,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       if (referencedEntityContainers == null)
         referencedEntityContainers = new Dictionary<FieldInfo, ReferencedEntityContainer>();
       referencedEntityContainers.Add(referencingFieldDescriptor.Field, new ReferencedEntityContainer(Key,
-        referencingFieldDescriptor, exactType, processor));
+        referencingFieldDescriptor, exactType, manager));
     }
 
     #endregion
@@ -195,14 +195,14 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     // Constructors
 
-    public GraphContainer(Key key, TypeInfo type, bool exactType, PrefetchProcessor processor)
+    public GraphContainer(Key key, TypeInfo type, bool exactType, PrefetchManager manager)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
+      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
       Key = key;
       Type = type;
-      this.processor = processor;
+      this.manager = manager;
       this.exactType = exactType;
     }
   }

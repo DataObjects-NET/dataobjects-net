@@ -35,13 +35,13 @@ namespace Xtensive.Storage.Internals.Prefetch
           pair => CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second));
     }
 
-    public static bool? TryGetExactKeyType(Key key, PrefetchProcessor processor, out TypeInfo type)
+    public static bool? TryGetExactKeyType(Key key, PrefetchManager manager, out TypeInfo type)
     {
       type = null;
       if (!key.TypeRef.Type.IsLeaf) {
         var cachedKey = key;
         EntityState state;
-        if (!processor.TryGetTupleOfNonRemovedEntity(ref cachedKey, out state))
+        if (!manager.TryGetTupleOfNonRemovedEntity(ref cachedKey, out state))
           return null;
         if (cachedKey.HasExactType) {
           type = cachedKey.TypeRef.Type;

@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Providers
   {
     private static readonly object CachingRegion = new object();
 
-    private PrefetchProcessor prefetchProcessor;
+    private PrefetchManager prefetchManager;
 
     /// <summary>
     /// The <see cref="object"/> to synchronize access to a connection.
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     public abstract bool TransactionIsStarted { get; }
     
-    internal virtual int PrefetchTaskExecutionCount { get { return prefetchProcessor.TaskExecutionCount;} }
+    internal virtual int PrefetchTaskExecutionCount { get { return prefetchManager.TaskExecutionCount;} }
 
     /// <summary>
     /// Opens the transaction.
@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>    
     public virtual void CommitTransaction()
     {
-      prefetchProcessor.Clear();
+      prefetchManager.Clear();
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>    
     public virtual void RollbackTransaction()
     {
-      prefetchProcessor.Clear();
+      prefetchManager.Clear();
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public override void Initialize()
     {
-      prefetchProcessor = new PrefetchProcessor(Session);
+      prefetchManager = new PrefetchManager(Session);
 
       PersistRequiresTopologicalSort =
         (Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0 &&
@@ -169,7 +169,7 @@ namespace Xtensive.Storage.Providers
     public virtual StrongReferenceContainer Prefetch(Key key, TypeInfo type,
       params PrefetchFieldDescriptor[] descriptors)
     {
-      return prefetchProcessor.Prefetch(key, type, descriptors);
+      return prefetchManager.Prefetch(key, type, descriptors);
     }
 
     /// <summary>
@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Providers
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public virtual StrongReferenceContainer ExecutePrefetchTasks()
     {
-      return prefetchProcessor.ExecuteTasks();
+      return prefetchManager.ExecuteTasks();
     }
 
     /// <summary>
@@ -227,9 +227,9 @@ namespace Xtensive.Storage.Providers
     protected internal virtual EntityState FetchInstance(Key key)
     {
       var type = key.TypeRef.Type;
-      prefetchProcessor.Prefetch(key, type,
+      prefetchManager.Prefetch(key, type,
         PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type));
-      prefetchProcessor.ExecuteTasks();
+      prefetchManager.ExecuteTasks();
       EntityState result;
       return TryGetEntityState(key, out result) ? result : null;
     }
@@ -242,8 +242,8 @@ namespace Xtensive.Storage.Providers
     protected internal virtual void FetchField(Key key, FieldInfo field)
     {
       var type = key.TypeRef.Type;
-      prefetchProcessor.Prefetch(key, type, new PrefetchFieldDescriptor(field, false, false));
-      prefetchProcessor.ExecuteTasks();
+      prefetchManager.Prefetch(key, type, new PrefetchFieldDescriptor(field, false, false));
+      prefetchManager.ExecuteTasks();
     }
 
     internal virtual EntityState RegisterEntityState(Key key, Tuple tuple)
