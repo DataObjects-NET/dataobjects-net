@@ -149,10 +149,10 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         //long sum = (long)count*(count-1)/2;
         var i = 0;
         using (var ts = Transaction.Open()) {
+          var keys = GetKeys(count).ToList();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Prefetch", count)) {
-            var keys = GetKeys(count).Prefetch<Simplest, Key>(key => key);
-            foreach (var key in keys) {
+            foreach (var key in keys.Prefetch<Simplest, Key>(key => key)) {
               i++;
               //var o = Query<Simplest>.SingleOrDefault(key);
               //sum -= o.Id;

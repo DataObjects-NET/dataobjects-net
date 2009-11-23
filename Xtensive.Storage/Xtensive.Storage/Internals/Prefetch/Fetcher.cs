@@ -40,6 +40,9 @@ namespace Xtensive.Storage.Internals.Prefetch
             foreach (var referencedEntityPrefetchContainer in referencedEntityPrefetchContainers)
               AddTask(referencedEntityPrefetchContainer);
         }
+
+        if (tasks.Count == 0)
+          return;
         RegisterAllEntityGroupTasks();
 
         processor.Owner.Session.ExecuteAllDelayedQueries(false);

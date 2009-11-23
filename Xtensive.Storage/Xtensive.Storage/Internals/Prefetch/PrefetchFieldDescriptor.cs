@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Internals.Prefetch
   /// Descriptor of a field's fetching request.
   /// </summary>
   [Serializable]
-  public struct PrefetchFieldDescriptor
+  public class PrefetchFieldDescriptor
   {
     private readonly Action<Key, FieldInfo, Key> keyExtractionSubscriber;
 
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="field">The field which value will be fetched.</param>
+    /// <param name="field">The field whose value will be fetched.</param>
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
     public PrefetchFieldDescriptor(FieldInfo field)
       : this(field, null, true, true, null)
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="field">The field which value will be fetched.</param>
+    /// <param name="field">The field whose value will be fetched.</param>
     /// <param name="entitySetItemCountLimit">The maximal count of items 
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
     public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit) :
@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="field">The field which value will be fetched.</param>
+    /// <param name="field">The field whose value will be fetched.</param>
     /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true" /> 
     /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/> 
     /// will be fetched.</param>
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="field">The field which value will be fetched.</param>
+    /// <param name="field">The field whose value will be fetched.</param>
     /// <param name="entitySetItemCountLimit">The maximal count of items
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
     /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true"/>

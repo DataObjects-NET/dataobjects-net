@@ -80,6 +80,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     #endregion
 
     private const int MaxContainerCount = 120;
+    private const int ColumnIndexesCacheSize = 256;
 
     private readonly SetSlim<GraphContainer> graphContainers = new SetSlim<GraphContainer>();
     private readonly LruCache<RootContainerCacheKey,RootContainerCacheEntry> columnsCache;
@@ -321,7 +322,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       this.session = session;
       fetcher = new Fetcher(this);
-      columnsCache = new LruCache<RootContainerCacheKey, RootContainerCacheEntry>(128,
+      columnsCache = new LruCache<RootContainerCacheKey, RootContainerCacheEntry>(ColumnIndexesCacheSize,
         cacheEntry => cacheEntry.Key);
     }
   }
