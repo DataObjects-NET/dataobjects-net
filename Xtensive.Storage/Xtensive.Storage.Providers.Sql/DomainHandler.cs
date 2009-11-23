@@ -172,6 +172,7 @@ namespace Xtensive.Storage.Providers.Sql
             storageColumn,
             Driver.GetTypeMapping(column));
         }
+        /*
         foreach (var secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(i => !i.IsPrimary)) {
           var storageIndexName = secondaryIndex.MappingName;
           var storageIndex = storageTable.Indexes
@@ -181,6 +182,7 @@ namespace Xtensive.Storage.Providers.Sql
               string.Format(Strings.ExIndexXIsNotFound, storageIndexName));
           mapping.RegisterMapping(secondaryIndex, storageIndex);
         }
+        */
       }
     }
 

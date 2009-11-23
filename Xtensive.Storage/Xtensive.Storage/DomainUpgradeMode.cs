@@ -44,5 +44,10 @@ namespace Xtensive.Storage
     /// excess columns and tables will be removed only if there are corresponding hints.
     /// </summary>
     PerformSafely = 0x03,
+
+    /// <summary>
+    /// 
+    /// </summary>
+    Legacy = 0x04,
   }
 }

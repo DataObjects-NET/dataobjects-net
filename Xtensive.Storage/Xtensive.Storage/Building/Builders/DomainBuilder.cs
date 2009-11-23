@@ -266,7 +266,12 @@ namespace Xtensive.Storage.Building.Builders
             throw new SchemaSynchronizationException(
               string.Format(Strings.ExCannotUpgradeSchemaSafely, GetErrorMessage(firstUnsafeAction)));
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
-            break;
+          break;
+        case SchemaUpgradeMode.ValidateLegacy:
+          if (!result.IsCompatible)
+            throw new SchemaSynchronizationException(
+            Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
+          break;
         default:
           throw new ArgumentOutOfRangeException("schemaUpgradeMode");
         }

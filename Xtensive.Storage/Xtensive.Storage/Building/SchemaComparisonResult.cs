@@ -52,6 +52,11 @@ namespace Xtensive.Storage.Building
     /// Gets unsafe actions.
     /// </summary>
     public ReadOnlyList<NodeAction> UnsafeUpgradeActions { get; private set;}
+
+    /// <summary>
+    /// Indicates whether storage schema is compatible with domain model.
+    /// </summary>
+    public bool IsCompatible { get; private set; }
     
     /// <inheritdoc/>
     public override string ToString()
@@ -78,13 +83,14 @@ namespace Xtensive.Storage.Building
     /// <param name="hasTypeChanges">if set to <see langword="true"/> extracted column type are 
     /// different with target column types.</param>
     public SchemaComparisonResult(SchemaComparisonStatus status, HintSet hints, Difference difference, 
-      ActionSequence upgradeActions, bool hasTypeChanges, IList<NodeAction> unsafeActions)
+      ActionSequence upgradeActions, bool hasTypeChanges, IList<NodeAction> unsafeActions, bool isCompatible)
     {
       Difference = difference;
       UpgradeActions = upgradeActions;
       HasTypeChanges = hasTypeChanges;
       Status = status;
       Hints = hints;
+      IsCompatible = isCompatible;
       UnsafeUpgradeActions = unsafeActions!=null 
         ? new ReadOnlyList<NodeAction>(unsafeActions) 
         : new ReadOnlyList<NodeAction>(new List<NodeAction>());

@@ -45,8 +45,13 @@ namespace Xtensive.Storage.Building
       var status = GetComparisonStatus(actions);
       var unsafeActions = GetUnsafeActions(actions);
       var hasTypeChanges = GetTypeChangeActions(actions).Any();
+      var hasCreateDataNodeActions = actions
+        .OfType<CreateNodeAction>()
+        .Any(action => action.Difference.Target is TableInfo
+          || action.Difference.Target is ColumnInfo);
+      var isCompatible = !hasCreateDataNodeActions && !hasTypeChanges;
 
-      return new SchemaComparisonResult(status, hints, difference, actions, hasTypeChanges, unsafeActions);
+      return new SchemaComparisonResult(status, hints, difference, actions, hasTypeChanges, unsafeActions, isCompatible);
     }
 
     private static IList<NodeAction> GetUnsafeActions(ActionSequence upgradeActions)

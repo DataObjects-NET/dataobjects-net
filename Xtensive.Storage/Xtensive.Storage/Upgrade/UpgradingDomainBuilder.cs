@@ -90,13 +90,15 @@ namespace Xtensive.Storage.Upgrade
       switch (stage) {
       case UpgradeStage.Validation:
         if (configuration.UpgradeMode==DomainUpgradeMode.Recreate ||
-            configuration.UpgradeMode==DomainUpgradeMode.Validate)
+            configuration.UpgradeMode==DomainUpgradeMode.Validate ||
+            configuration.UpgradeMode==DomainUpgradeMode.Legacy)
           return null; // Nothing to do in these modes here
         schemaUpgradeMode = SchemaUpgradeMode.ValidateCompatible;
         break;
       case UpgradeStage.Upgrading:
         if (configuration.UpgradeMode==DomainUpgradeMode.Recreate ||
-            configuration.UpgradeMode==DomainUpgradeMode.Validate)
+            configuration.UpgradeMode==DomainUpgradeMode.Validate ||
+            configuration.UpgradeMode==DomainUpgradeMode.Legacy)
           return null; // Nothing to do in these modes here
         if (configuration.UpgradeMode==DomainUpgradeMode.PerformSafely)
           schemaUpgradeMode = SchemaUpgradeMode.PerformSafely;
@@ -106,6 +108,8 @@ namespace Xtensive.Storage.Upgrade
           schemaUpgradeMode = SchemaUpgradeMode.Recreate;
         if (configuration.UpgradeMode==DomainUpgradeMode.Validate)
           schemaUpgradeMode = SchemaUpgradeMode.ValidateExact;
+        if (configuration.UpgradeMode==DomainUpgradeMode.Legacy)
+          schemaUpgradeMode = SchemaUpgradeMode.ValidateLegacy;
         break;
       default:
         throw new ArgumentOutOfRangeException("context.Stage");

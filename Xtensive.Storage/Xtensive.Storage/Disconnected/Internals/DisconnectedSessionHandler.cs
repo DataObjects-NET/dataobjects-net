@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Disconnected
     public void BeginChainedTransaction()
     {
       if (!isChainedTransactionStarted) {
-        if (!disconnectedState.AllowUnderlignTransactions)
+        if (!disconnectedState.IsConnected)
           throw new ConnectionRequiredException();
         chainedHandler.BeginTransaction();
         isChainedTransactionStarted = true;
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Disconnected
 
       // If state isn't cached try cache get it form storage
       if ((cachedState!=null && !cachedState.IsLoaded) 
-        || disconnectedState.AllowUnderlignTransactions) {
+        || disconnectedState.IsConnected) {
         BeginChainedTransaction();
         var type = key.TypeRef.Type;
         Prefetch(key, type, PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(type));

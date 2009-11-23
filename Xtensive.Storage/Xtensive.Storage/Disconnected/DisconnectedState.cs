@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Disconnected
       get { return modelHelper; }
     }
 
-    internal bool AllowUnderlignTransactions { get; set; }
+    internal bool IsConnected { get; set; }
     internal IOperationSet GetOperationLog()
     {
       return registry.OperationSet;
@@ -77,60 +77,30 @@ namespace Xtensive.Storage.Disconnected
     /// Attach to specified session.
     /// </summary>
     /// <param name="session">The session.</param>
-    public void Attach(Session session)
+    /// <returns>Scope.</returns>
+    public IDisposable Attach(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      if (IsAttached)
-        throw new InvalidOperationException(Strings.ExDisconnectedStateIsAlreadyAttachedToSession);
+      EnsureIsNotAttached();
       if (session.Transaction!=null)
         throw new InvalidOperationException(Strings.ExActiveTransactionIsPresent);
-
-      this.session = session;
-      handler = new DisconnectedSessionHandler(Session.Handler, this);
-      disposable = Session.CoreServices.ChangeSessionHandler(handler);
+      
+      AttachInternal(session);
+      return new Disposable<DisconnectedState>(this, (b, _this) => _this.Detach());
     }
 
     /// <summary>
-    /// Detaches this instance.
+    /// Opens connection.
     /// </summary>
-    public void Detach()
+    /// <returns>Scope.</returns>
+    public IDisposable Connect()
     {
-      if (!IsAttached)
-        return;
-      if (session.Transaction!=null)
-        throw new InvalidOperationException(Strings.ExActiveTransactionIsPresent);
-
-      CloseUnderlyingTransaction();
-      session = null;
-      handler = null;
-      disposable.Dispose();
-      disposable = null;
-    }
-
-    /// <summary>
-    /// Prefetches instances to <see cref="DisconnectedState"/>.
-    /// </summary>
-    /// <param name="prefetcher">The prefetcher.</param>
-    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
-    public void Prefetch(Action prefetcher)
-    {
-      if (!IsAttached)
-        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
-
-      try {
-        AllowUnderlignTransactions = true;
-        handler.BeginChainedTransaction();
-        if (prefetcher!=null)
-          prefetcher.Invoke();
-        handler.CommitChainedTransaction();
-      }
-      catch {
-        handler.RollbackChainedTransaction();
-        throw;
-      }
-      finally {
-        AllowUnderlignTransactions = false;
-      }
+      EnsureIsAttached();
+      if (IsConnected)
+        return null;
+      
+      IsConnected = true;
+      return new Disposable<DisconnectedState>(this, (b, _this) => _this.CloseConnection());
     }
 
     /// <summary>
@@ -138,12 +108,11 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     public KeyMapping SaveChanges()
     {
+      EnsureIsAttached();
       KeyMapping keyMapping;
-      if (!IsAttached)
-        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
       var tempSession = Session;
+      Detach();
       try {
-        Detach();
         using (new VersionValidator(tempSession, GetStoredVerion)) {
           using (var transactionScope = Transaction.Open(tempSession)) {
             keyMapping = registry.OperationSet.Apply(tempSession);
@@ -153,22 +122,9 @@ namespace Xtensive.Storage.Disconnected
         }
       }
       finally {
-        Attach(tempSession);
+        AttachInternal(tempSession);
       }
       return keyMapping;
-    }
-
-    public void SaveChanges(Session session)
-    {
-      if (IsAttached)
-        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
-      using (new VersionValidator(session, GetStoredVerion)) {
-        using (var transactionScope = Transaction.Open(session)) {
-          registry.OperationSet.Apply(session);
-          transactionScope.Complete();
-        }
-        registry.Commit();
-      }
     }
 
     /// <summary>
@@ -177,19 +133,10 @@ namespace Xtensive.Storage.Disconnected
     public void ClearChanges()
     {
       registry = new StateRegistry(globalRegistry);
+      if (transactionalRegistry!=null)
+        transactionalRegistry = new StateRegistry(registry);
     }
-
-    public void BeginUnderlyingTransaction()
-    {
-      AllowUnderlignTransactions = true;
-    }
-
-    public void CloseUnderlyingTransaction()
-    {
-      AllowUnderlignTransactions = false;
-      handler.CommitChainedTransaction();
-    }
-
+    
     # endregion
     
     # region Internal API
@@ -224,16 +171,13 @@ namespace Xtensive.Storage.Disconnected
 
     internal DisconnectedEntityState GetState(Key key)
     {
-      if (!IsAttached)
-        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
-
+      EnsureIsAttached();
       return transactionalRegistry.GetState(key);
     }
 
     internal DisconnectedEntityState RegisterState(Key key, Tuple tuple)
     {
-      if (!IsAttached)
-        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
+      EnsureIsAttached();
 
       // Store object version
       if (key.TypeRef.Type.VersionExtractor!=null && !versionCache.ContainsKey(key)) {
@@ -248,8 +192,7 @@ namespace Xtensive.Storage.Disconnected
     internal DisconnectedEntitySetState RegisterSetState(Key key, FieldInfo fieldInfo, bool isFullyLoaded, 
       List<Key> entities, List<Pair<Key, Tuple>> auxEntities)
     {
-      if (!IsAttached)
-        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
+      EnsureIsAttached();
 
       if (auxEntities!=null)
         foreach (var entity in auxEntities)
@@ -266,8 +209,7 @@ namespace Xtensive.Storage.Disconnected
 
     internal void Persist(EntityState entityState, PersistActionKind persistAction)
     {
-      if (!IsAttached)
-        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
+      EnsureIsAttached();
 
       switch (persistAction) {
         case PersistActionKind.Insert:
@@ -285,7 +227,40 @@ namespace Xtensive.Storage.Disconnected
     }
 
     # endregion
+    
+    private void CloseConnection()
+    {
+      IsConnected = false;
+      handler.CommitChainedTransaction();
+    }
 
+    private void EnsureIsNotAttached()
+    {
+      if (IsAttached)
+        throw new InvalidOperationException(Strings.ExDisconnectedStateIsAlreadyAttachedToSession);
+    }
+
+    private void EnsureIsAttached()
+    {
+      if (!IsAttached)
+        throw new InvalidOperationException(Strings.ExDisconnectedStateIsDetached);
+    }
+
+    private void AttachInternal(Session session)
+    {
+      this.session = session;
+      handler = new DisconnectedSessionHandler(Session.Handler, this);
+      disposable = Session.CoreServices.ChangeSessionHandler(handler);
+    }
+
+    private void Detach()
+    {
+      CloseConnection();
+      session = null;
+      handler = null;
+      disposable.Dispose();
+      disposable = null;
+    }
 
     // Constructors
 
