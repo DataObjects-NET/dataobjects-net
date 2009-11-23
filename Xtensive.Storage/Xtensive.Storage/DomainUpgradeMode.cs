@@ -24,30 +24,31 @@ namespace Xtensive.Storage
     /// <see cref="DomainBuilderException"/> will be 
     /// thrown if storage schema differs from the expected one.
     /// </summary>
-    Validate = 0x00,
+    Validate = 0,
 
     /// <summary>
     /// Recreates all storage structures. Storage will
     /// contain no instances after this type of update.
     /// </summary>
-    Recreate = 0x01,
+    Recreate = 1,
 
     /// <summary>
     /// Storage upgrade will be performed. 
     /// Missing columns and tables will be added, excess columns and tables will be removed.
     /// </summary>
-    Perform = 0x02,
+    Perform = 2,
     
     /// <summary>
     /// Storage upgrade will be performed. 
     /// Missing columns and tables will be added, 
     /// excess columns and tables will be removed only if there are corresponding hints.
     /// </summary>
-    PerformSafely = 0x03,
+    PerformSafely = 3,
 
     /// <summary>
-    /// 
+    /// Legacy database support mode. Database schema won't be modified. 
+    /// Exception will be thrown in case of required tables or columns absence.
     /// </summary>
-    Legacy = 0x04,
+    Legacy = 4,
   }
 }

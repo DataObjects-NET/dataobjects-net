@@ -626,7 +626,7 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsFalse(typeInfo.Indexes["Book.FK_Author"].IsPrimary);
       Assert.IsFalse(typeInfo.Indexes["Book.FK_Author"].IsUnique);
       Assert.AreEqual(domain.Model.Types[typeof(Author)].Hierarchy.KeyProviderInfo.Length, typeInfo.Indexes["Book.FK_Author"].KeyColumns.Count);
-      Assert.AreEqual("BookAuthor.PassportNumber", typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Key.Name);
+      Assert.AreEqual("BookAuthor", typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Key.Name);
       Assert.AreEqual(Direction.Positive, typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Value);
 
       Assert.IsNotNull(typeInfo.Indexes["Book.IX_Title"]);

@@ -73,6 +73,19 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
     public int ID { get; private set; }
   }
 
+  public class IdentifiableEntity : Entity
+  {
+    [Field, Key]
+    public Guid Id { get; private set; }
+  }
+
+  [HierarchyRoot]
+  public class MyEntity : IdentifiableEntity
+  {
+    [Field]
+    public string Name { get; set; }
+  }
+
   public class CustomStorageDefinitionBuilder : IModule
   {
     public static bool IsEnabled;
@@ -150,6 +163,19 @@ namespace Xtensive.Storage.Tests.Model
       Assert.AreEqual(typeof (Guid), Domain.Model.Types[typeof (BC)].Fields["ID"].ValueType);
       Assert.AreEqual(typeof (long), Domain.Model.Types[typeof (BD)].Fields["ID"].ValueType);
       Assert.AreEqual(typeof (int), Domain.Model.Types[typeof (BE)].Fields["ID"].ValueType);
+    }
+
+    [Test]
+    public void AnotherTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          var m = new MyEntity();
+          m.Name = "Name";
+
+          t.Complete();
+        }
+      }
     }
   }
 }

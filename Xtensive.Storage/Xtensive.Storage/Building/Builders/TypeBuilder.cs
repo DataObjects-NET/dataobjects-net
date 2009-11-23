@@ -236,7 +236,11 @@ namespace Xtensive.Storage.Building.Builders
         if (target.IsDeclared) {
           clone.Name = context.NameBuilder.BuildNestedFieldName(target, field);
           clone.OriginalName = field.OriginalName;
-          clone.MappingName = context.NameBuilder.BuildMappingName(target, field);
+          // One-field reference
+          if (target.IsEntity && buffer.Count == 1)
+            clone.MappingName = target.MappingName;
+          else
+            clone.MappingName = context.NameBuilder.BuildMappingName(target, field);
         }
         if (target.Fields.Contains(clone.Name))
           continue;
