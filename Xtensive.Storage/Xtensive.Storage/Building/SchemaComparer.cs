@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -48,7 +49,7 @@ namespace Xtensive.Storage.Building
         var sourceType = action.Difference.Source as TypeInfo;
         var targetType = action.Difference.Target as TypeInfo;
         return sourceType==null || targetType==null
-          || sourceType.Type!=targetType.Type;
+          || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
       });
       var hasCreateDataNodeActions = actions.Flatten()
         .OfType<CreateNodeAction>()
