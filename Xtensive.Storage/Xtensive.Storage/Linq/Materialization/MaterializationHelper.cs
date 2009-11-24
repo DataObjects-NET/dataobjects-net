@@ -161,7 +161,10 @@ namespace Xtensive.Storage.Linq.Materialization
       context.Session.Handler.Prefetch(
         entitySet.Owner.Key, 
         entitySet.Owner.Type, 
-        new PrefetchFieldDescriptor(entitySet.Field, EntitySetBase.LoadStateCount));
+        new ReadOnlyList<PrefetchFieldDescriptor>(
+          new List<PrefetchFieldDescriptor> {
+            new PrefetchFieldDescriptor(entitySet.Field, EntitySetBase.LoadStateCount)
+          }, false));
       return entitySet;
     }
 

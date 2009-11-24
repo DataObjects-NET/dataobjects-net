@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 
@@ -21,8 +22,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly IEnumerable<T> source;
     private readonly TypeInfo modelType;
     private readonly Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors;
-    private readonly Dictionary<TypeInfo, PrefetchFieldDescriptor[]> userDescriptorsCache =
-      new Dictionary<TypeInfo, PrefetchFieldDescriptor[]>();
+    private readonly Dictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>> userDescriptorsCache =
+      new Dictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
     private readonly Queue<T> processedElements = new Queue<T>();
     private readonly Queue<Pair<Key, T>> waitingElements = new Queue<Pair<Key, T>>();
     private readonly StrongReferenceContainer strongReferenceContainer;
@@ -92,15 +93,15 @@ namespace Xtensive.Storage.Internals.Prefetch
       return type;
     }
 
-    private PrefetchFieldDescriptor[] GetUserDescriptorArray(TypeInfo type)
+    private ReadOnlyList<PrefetchFieldDescriptor> GetUserDescriptorArray(TypeInfo type)
     {
-      PrefetchFieldDescriptor[] result;
+      ReadOnlyList<PrefetchFieldDescriptor> result;
       if (!userDescriptorsCache.TryGetValue(type, out result)) {
-        result = type.Fields
+        result = new ReadOnlyList<PrefetchFieldDescriptor>(type.Fields
           .Where(field => field.Parent==null && PrefetchHelper.IsFieldToBeLoadedByDefault(field)
             && !fieldDescriptors.ContainsKey(field))
           .Select(field => new PrefetchFieldDescriptor(field, false, false))
-          .Concat(fieldDescriptors.Values).ToArray();
+          .Concat(fieldDescriptors.Values).ToList(), false);
         userDescriptorsCache[type] = result;
       }
       return result;

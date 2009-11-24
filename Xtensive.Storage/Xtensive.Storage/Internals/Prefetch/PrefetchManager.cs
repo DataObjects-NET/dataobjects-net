@@ -96,11 +96,11 @@ namespace Xtensive.Storage.Internals.Prefetch
     public int TaskExecutionCount { get; private set; }
 
     public StrongReferenceContainer Prefetch(Key key, TypeInfo type,
-      params PrefetchFieldDescriptor[] descriptors)
+      ReadOnlyList<PrefetchFieldDescriptor> descriptors)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
-      if (descriptors.Length == 0)
+      if (descriptors.Count == 0)
         return null;
 
       try {
@@ -262,10 +262,10 @@ namespace Xtensive.Storage.Internals.Prefetch
       throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
     }
 
-    private static void EnsureAllFieldsBelongToSpecifiedType(PrefetchFieldDescriptor[] descriptors,
+    private static void EnsureAllFieldsBelongToSpecifiedType(IList<PrefetchFieldDescriptor> descriptors,
       TypeInfo type)
     {
-      for (int i = 0; i < descriptors.Length; i++) {
+      for (int i = 0; i < descriptors.Count; i++) {
         var declaringType = descriptors[i].Field.DeclaringType;
         if (type!=declaringType && !declaringType.UnderlyingType.IsAssignableFrom(type.UnderlyingType))
           throw new InvalidOperationException(

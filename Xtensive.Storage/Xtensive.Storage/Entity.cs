@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
@@ -195,9 +196,9 @@ namespace Xtensive.Storage
       var fieldsToLoad = Type.GetVersionColumns()
         .Where(pair => !tuple.GetFieldState(pair.Second).IsAvailable())
         .Select(pair => new PrefetchFieldDescriptor(pair.First.Field, false, false))
-        .ToArray();
-      if (fieldsToLoad.Length > 0) {
-        Session.Handler.Prefetch(Key, Type, fieldsToLoad);
+        .ToList();
+      if (fieldsToLoad.Count > 0) {
+        Session.Handler.Prefetch(Key, Type, new ReadOnlyList<PrefetchFieldDescriptor>(fieldsToLoad, false));
         Session.Handler.ExecutePrefetchTasks();
       }
       var versionTuple = Type.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);

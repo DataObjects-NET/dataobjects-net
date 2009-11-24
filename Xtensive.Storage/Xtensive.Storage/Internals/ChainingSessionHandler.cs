@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals.Prefetch;
@@ -75,7 +76,7 @@ namespace Xtensive.Storage.Internals
 
     /// <inheritdoc/>
     public override StrongReferenceContainer Prefetch(Key key, Model.TypeInfo type,
-      params PrefetchFieldDescriptor[] descriptors)
+      ReadOnlyList<PrefetchFieldDescriptor> descriptors)
     {
       return chainedHandler.Prefetch(key, type, descriptors);
     }

@@ -5,11 +5,15 @@
 // Created:    2009.10.10
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using NUnit.Framework;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.Prefetch.Model;
 
 namespace Xtensive.Storage.Tests.Storage.Prefetch
@@ -78,6 +82,20 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         FillDataBase(session);
         transactionScope.Complete();
       }
+    }
+
+    internal static void Prefetch(this PrefetchManager prefetchManager, Key key, TypeInfo type,
+      params PrefetchFieldDescriptor[] descriptors)
+    {
+      prefetchManager.Prefetch(key, type,
+        new ReadOnlyList<PrefetchFieldDescriptor>(new List<PrefetchFieldDescriptor>(descriptors), false));
+    }
+
+    public static void Prefetch(this SessionHandler sessionHandler, Key key, TypeInfo type,
+      params PrefetchFieldDescriptor[] descriptors)
+    {
+      sessionHandler.Prefetch(key, type,
+        new ReadOnlyList<PrefetchFieldDescriptor>(new List<PrefetchFieldDescriptor>(descriptors), false));
     }
 
     public static void FillDataBase(Session session)
