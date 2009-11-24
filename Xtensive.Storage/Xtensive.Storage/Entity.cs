@@ -23,6 +23,7 @@ using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -213,21 +214,22 @@ namespace Xtensive.Storage
     /// <seealso cref="IsRemoved"/>
     public void Remove()
     {
-      InconsistentRegion region = null;
       try {
-        region = Validation.Disable();
-        SystemBeforeRemove();
-        Session.RemovalProcessor.Remove(this);
-        SystemRemove();
-        region.Complete();
-        SystemRemoveCompleted(null);
+        using (var region = Validation.Disable())
+        using (var context = OpenOperationContext(true)) {
+          if (context.IsEnabled())
+            context.Add(new EntityOperation(Key, OperationType.RemoveEntity));
+          SystemBeforeRemove();
+          Session.RemovalProcessor.Remove(this);
+          SystemRemove();
+          region.Complete();
+          context.Complete();
+          SystemRemoveCompleted(null);
+        }
       }
       catch(Exception e) {
         SystemRemoveCompleted(e);
         throw;
-      }
-      finally {
-        region.DisposeSafely();
       }
     }
 
@@ -407,6 +409,11 @@ namespace Xtensive.Storage
         return;
 
       Session.NotifyEntityCreated(this);
+      using (var context = OpenOperationContext(true)) {
+        if (context.IsEnabled())
+          context.Add(new EntityOperation(Key, OperationType.CreateEntity));
+        context.Complete();
+      }
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializingPersistentEventKey);
       if (subscriptionInfo.Second != null)
         ((Action<Key>)subscriptionInfo.Second).Invoke(subscriptionInfo.First);

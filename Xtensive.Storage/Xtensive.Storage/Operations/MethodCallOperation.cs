@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Operations
 {
@@ -15,16 +16,33 @@ namespace Xtensive.Storage.Operations
   [Serializable]
   public sealed class MethodCallOperation : IOperation
   {
+    private readonly Action<OperationExecutionContext> prepare;
+    private readonly Action<OperationExecutionContext> execute;
+
     /// <inheritdoc/>
     public void Prepare(OperationExecutionContext context)
     {
-      throw new NotImplementedException();
+      prepare(context);
     }
 
     /// <inheritdoc/>
     public void Execute(OperationExecutionContext context)
     {
-      throw new NotImplementedException();
+      execute(context);
+    }
+
+
+    // Constructors
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="prepare">The <see cref="Prepare"/> method action.</param>
+    /// <param name="execute">The <see cref="Execute"/> method action.</param>
+    public MethodCallOperation(Action<OperationExecutionContext> prepare, Action<OperationExecutionContext> execute)
+    {
+      this.prepare = prepare;
+      this.execute = execute;
     }
   }
 }

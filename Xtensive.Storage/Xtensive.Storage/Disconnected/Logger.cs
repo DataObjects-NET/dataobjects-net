@@ -5,7 +5,6 @@
 // Created:    2009.10.22
 
 using System;
-using System.Diagnostics;
 using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage.Disconnected
@@ -14,8 +13,6 @@ namespace Xtensive.Storage.Disconnected
   {
     private readonly Session session;
     private readonly IOperationSet set;
-    private Entity currentEntity;
-    private OperationType currentOperationType;
 
     public void Dispose()
     {
@@ -25,29 +22,13 @@ namespace Xtensive.Storage.Disconnected
     private void AttachEventHandlers()
     {
       session.LocalKeyCreated += LocalKeyCreated;
-      session.EntityCreated += EntityCreated;
-      session.EntityFieldValueSetting += EntityFieldValueSetting;
-      session.EntityFieldValueSetCompleted += EntityFieldValueSetCompleted;
-      session.EntityRemoving += EntityRemoving;
-      session.EntityRemoveCompleted += EntityRemoveCompleted;
-      session.EntitySetItemAdding += EntitySetItemAdding;
-      session.EntitySetItemAddCompleted += EntitySetItemAddCompleted;
-      session.EntitySetItemRemoving += EntitySetItemRemoving;
-      session.EntitySetItemRemoveCompleted += EntitySetItemRemoveCompleted;
+      session.OperationRegister += OperationRegister;
     }
 
     private void DetachEventHandlers()
     {
       session.LocalKeyCreated -= LocalKeyCreated;
-      session.EntityCreated -= EntityCreated;
-      session.EntityFieldValueSetting -= EntityFieldValueSetting;
-      session.EntityFieldValueSetCompleted -= EntityFieldValueSetCompleted;
-      session.EntityRemoving -= EntityRemoving;
-      session.EntityRemoveCompleted -= EntityRemoveCompleted;
-      session.EntitySetItemAdding -= EntitySetItemAdding;
-      session.EntitySetItemAddCompleted -= EntitySetItemAddCompleted;
-      session.EntitySetItemRemoving -= EntitySetItemRemoving;
-      session.EntitySetItemRemoveCompleted -= EntitySetItemRemoveCompleted;
+      session.OperationRegister -= OperationRegister;
     }
 
     #region Session event handlers
@@ -57,89 +38,9 @@ namespace Xtensive.Storage.Disconnected
       set.RegisterKeyForRemap(e.Key);
     }
 
-    void EntitySetItemRemoveCompleted(object sender, EntitySetItemActionCompletedEventArgs e)
+    private void OperationRegister(object sender, OperationEventArgs e)
     {
-      if (currentEntity != e.Entity || currentOperationType != OperationType.RemoveEntitySetItem)
-        return;
-
-      currentEntity = null;
-      var operation = new EntitySetItemOperation(e.EntitySet.Owner.Key, e.EntitySet.Field, OperationType.RemoveEntitySetItem, e.Entity.Key);
-      set.Register(operation);
-    }
-
-    void EntitySetItemRemoving(object sender, EntitySetItemEventArgs e)
-    {
-      if (currentEntity != null)
-        return;
-
-      currentEntity = e.Entity;
-      currentOperationType = OperationType.RemoveEntitySetItem;
-    }
-
-    void EntitySetItemAddCompleted(object sender, EntitySetItemActionCompletedEventArgs e)
-    {
-      if (currentEntity != e.Entity || currentOperationType != OperationType.AddEntitySetItem)
-        return;
-
-      currentEntity = null;
-      var operation = new EntitySetItemOperation(e.EntitySet.Owner.Key, e.EntitySet.Field, OperationType.AddEntitySetItem, e.Entity.Key);
-      set.Register(operation);
-    }
-
-    void EntitySetItemAdding(object sender, EntitySetItemEventArgs e)
-    {
-      if (currentEntity != null)
-        return;
-
-      currentEntity = e.Entity;
-      currentOperationType = OperationType.AddEntitySetItem;
-    }
-
-    void EntityRemoveCompleted(object sender, EntityRemoveCompletedEventArgs e)
-    {
-      if (currentEntity != e.Entity || currentOperationType != OperationType.RemoveEntity)
-        return;
-
-      currentEntity = null;
-      var operation = new EntityOperation(e.Entity.Key, OperationType.RemoveEntity);
-      set.Register(operation);
-    }
-
-    void EntityRemoving(object sender, EntityEventArgs e)
-    {
-      if (currentEntity != null)
-        return;
-
-      currentEntity = e.Entity;
-      currentOperationType = OperationType.RemoveEntity;
-    }
-
-    void EntityFieldValueSetCompleted(object sender, FieldValueSetCompletedEventArgs e)
-    {
-      if (currentEntity != e.Entity || currentOperationType != OperationType.SetEntityField) 
-        return;
-
-      currentEntity = null;
-      var operation = new EntityFieldSetOperation(e.Entity.Key, e.Field, e.NewValue);
-      set.Register(operation);
-    }
-
-    void EntityFieldValueSetting(object sender, FieldValueEventArgs e)
-    {
-      if (currentEntity != null) 
-        return;
-
-      currentEntity = e.Entity;
-      currentOperationType = OperationType.SetEntityField;
-    }
-
-    void EntityCreated(object sender, EntityEventArgs e)
-    {
-      if (currentEntity != null)
-        return;
-
-      var operation = new EntityOperation(e.Entity.Key, OperationType.CreateEntity);
-      set.Register(operation);
+      set.Register(e.Operation);
     }
 
     #endregion

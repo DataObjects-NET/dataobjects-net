@@ -13,12 +13,23 @@ namespace Xtensive.Storage.Operations
   [Serializable]
   internal class EntitySetOperation : EntityFieldOperation
   {
+    /// <inheritdoc/>
+    public override void Execute(OperationExecutionContext context)
+    {
+      base.Execute(context);
+      if (Type != OperationType.ClearEntitySet) 
+        return;
+      var session = context.Session;
+      var target = Query.Single(session, Key);
+      var entitySet = target.GetFieldValue<EntitySetBase>(Field);
+      entitySet.Clear();
+    }
 
     // Constructors
 
     /// <inheritdoc/>
-    protected EntitySetOperation(Key key, OperationType type, FieldInfo fieldInfo)
-      : base(key, type, fieldInfo)
+    public EntitySetOperation(Key targetKey, OperationType type, FieldInfo fieldInfo)
+      : base(targetKey, type, fieldInfo)
     {}
 
     // Serializable

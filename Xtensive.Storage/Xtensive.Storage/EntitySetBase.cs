@@ -22,9 +22,10 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.PairIntegrity;
+using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
+using OperationType=Xtensive.Storage.PairIntegrity.OperationType;
 
 namespace Xtensive.Storage
 {
@@ -149,19 +150,28 @@ namespace Xtensive.Storage
         return false;
 
       try {
-        SystemBeforeAdd(item);
+        using (var context = OpenOperationContext(true)) {
+          if (context.IsEnabled())
+            context.Add(new EntitySetItemOperation(
+              Owner.Key, 
+              Field, 
+              Operations.OperationType.AddEntitySetItem, 
+              item.Key));
+          SystemBeforeAdd(item);
 
-        if (Field.Association.IsPaired)
-          Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
+          if (Field.Association.IsPaired)
+            Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
 
-        if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster)
-          GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
+          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster)
+            GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
 
-        State.Add(item.Key);
-        Owner.UpdateVersionInternal();
-        SystemAdd(item);
-        SystemAddCompleted(item, null);
-        return true;
+          State.Add(item.Key);
+          Owner.UpdateVersionInternal();
+          SystemAdd(item);
+          SystemAddCompleted(item, null);
+          context.Complete();
+          return true;
+        }
       }
       catch(Exception e) {
         SystemAddCompleted(item, e);
@@ -183,23 +193,33 @@ namespace Xtensive.Storage
         return false;
 
       try {
-        SystemBeforeRemove(item);
+        using (var context = OpenOperationContext(true)) {
+          if (context.IsEnabled())
+            context.Add(new EntitySetItemOperation(
+              Owner.Key, 
+              Field, 
+              Operations.OperationType.RemoveEntitySetItem,
+              item.Key));
+          SystemBeforeRemove(item);
 
-        if (Field.Association.IsPaired)
-          Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
+          if (Field.Association.IsPaired)
+            Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
 
-        if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
-          var combinedKey = Key.Create(Session.Domain, Field.Association.AuxiliaryType, TypeReferenceAccuracy.ExactType,
-                                       Owner.Key.Value.Combine(item.Key.Value));
-          Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
-          underlyingItem.Remove();
+          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
+            var combinedKey = Key.Create(Session.Domain, Field.Association.AuxiliaryType,
+                                         TypeReferenceAccuracy.ExactType,
+                                         Owner.Key.Value.Combine(item.Key.Value));
+            Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
+            underlyingItem.Remove();
+          }
+
+          State.Remove(item.Key);
+          Owner.UpdateVersionInternal();
+          SystemRemove(item);
+          SystemRemoveCompleted(item, null);
+          context.Complete();
+          return true;
         }
-
-        State.Remove(item.Key);
-        Owner.UpdateVersionInternal();
-        SystemRemove(item);
-        SystemRemoveCompleted(item, null);
-        return true;
       }
       catch(Exception e) {
         SystemRemoveCompleted(item, e);
@@ -212,10 +232,15 @@ namespace Xtensive.Storage
     /// </summary>
     public void Clear()
     {
-      SystemBeforeClear();
-      foreach (var entity in Entities.ToList())
-        Remove(entity);
-      SystemClear();
+      using (var context = OpenOperationContext(true)) {
+        if (context.IsEnabled())
+          context.Add(new EntitySetOperation(Owner.Key, Operations.OperationType.ClearEntitySet, Field));
+        SystemBeforeClear();
+        foreach (var entity in Entities.ToList())
+          Remove(entity);
+        SystemClear();
+        context.Complete();
+      }
     }
 
     /// <summary>

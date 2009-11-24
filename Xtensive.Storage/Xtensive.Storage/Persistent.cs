@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Collections;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Atomicity;
@@ -16,8 +17,9 @@ using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.PairIntegrity;
+using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
+using OperationType=Xtensive.Storage.PairIntegrity.OperationType;
 
 namespace Xtensive.Storage
 {
@@ -256,32 +258,55 @@ namespace Xtensive.Storage
     {
       T oldValue = default(T);
       try {
-        SystemBeforeSetValue(field, value);
-        oldValue = GetFieldValue<T>(field);
-        var structure = value as Structure;
-        var association = field.Association;
-        if (association != null && association.IsPaired) {
-          Key currentKey = GetReferenceKey(field);
-          Key newKey = null;
-          var newReference = (Entity) (object) value;
-          if (newReference != null)
-            newKey = newReference.Key;
-          if (currentKey != newKey) {
-            Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
-            PrepareToSetField();
-            GetAccessor<T>(field).SetValue(this, field, value);
+        using (var context = OpenOperationContext(true)) {
+          if (context.IsEnabled()) {
+            var entity = this as Entity;
+            if (entity != null)
+              context.Add(new EntityFieldSetOperation(entity.Key, field, value));
+            else {
+              var persistent = this;
+              var entityField = field;
+              var structureInstance = persistent as Structure;
+              while (structureInstance != null && structureInstance.Owner != null) {
+                var pair = new Pair<FieldInfo>(structureInstance.Field, entityField);
+                entityField = structureInstance.Owner.Type.StructureFieldMapping[pair];
+                persistent = structureInstance.Owner;
+                structureInstance = persistent as Structure;
+              }
+              entity = persistent as Entity;
+              if (entity != null)
+                context.Add(new EntityFieldSetOperation(entity.Key, entityField, value));
+            }
           }
-        }
-        else {
-          if (!Equals(value, oldValue) || field.IsStructure) {
-            PrepareToSetField();
-            GetAccessor<T>(field).SetValue(this, field, value);
+          SystemBeforeSetValue(field, value);
+          oldValue = GetFieldValue<T>(field);
+          var structure = value as Structure;
+          var association = field.Association;
+          if (association != null && association.IsPaired) {
+            Key currentKey = GetReferenceKey(field);
+            Key newKey = null;
+            var newReference = (Entity) (object) value;
+            if (newReference != null)
+              newKey = newReference.Key;
+            if (currentKey != newKey) {
+              Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
+              PrepareToSetField();
+              GetAccessor<T>(field).SetValue(this, field, value);
+            }
           }
+          else {
+            if (!Equals(value, oldValue) || field.IsStructure) {
+              PrepareToSetField();
+              GetAccessor<T>(field).SetValue(this, field, value);
+            }
+          }
+          SystemSetValue(field, oldValue, value);
+          SystemSetValueCompleted(field, oldValue, value, null);
+          context.Complete();
         }
-        SystemSetValue(field, oldValue, value);
-        SystemSetValueCompleted(field, oldValue, value, null);
       }
-      catch (Exception e) {
+      catch (Exception e)
+      {
         SystemSetValueCompleted(field, oldValue, value, e);
         throw;
       }
