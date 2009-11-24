@@ -5,12 +5,14 @@
 // Created:    2009.10.22
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage.Operations
 {
   [Serializable]
+  [DebuggerDisplay("Key = {Key}, Type = {Type}")]
   internal class EntityOperation : Operation
   {
     protected Key Key { get; private set;}

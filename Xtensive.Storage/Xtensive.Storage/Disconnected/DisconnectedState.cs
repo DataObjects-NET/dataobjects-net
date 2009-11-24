@@ -230,6 +230,8 @@ namespace Xtensive.Storage.Disconnected
     
     private void CloseConnection()
     {
+      if (!IsConnected)
+        return;
       IsConnected = false;
       handler.CommitChainedTransaction();
     }
@@ -255,7 +257,9 @@ namespace Xtensive.Storage.Disconnected
 
     private void Detach()
     {
-      CloseConnection();
+      EnsureIsAttached();
+      if (IsConnected)
+        CloseConnection();
       session = null;
       handler = null;
       disposable.Dispose();

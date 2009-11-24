@@ -7,15 +7,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Upgrade;
+using ColumnInfo=Xtensive.Storage.Indexing.Model.ColumnInfo;
+using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 using UpgradeContext=Xtensive.Storage.Upgrade.UpgradeContext;
+using UpgradeStage=Xtensive.Modelling.Comparison.UpgradeStage;
 
 namespace Xtensive.Storage.Building
 {
@@ -32,7 +35,7 @@ namespace Xtensive.Storage.Building
     /// <param name="hints">The upgrade hints.</param>
     /// <returns>Comparison result.</returns>
     public static SchemaComparisonResult Compare(StorageInfo sourceSchema,
-      StorageInfo targetSchema, HintSet hints)
+      StorageInfo targetSchema, HintSet hints, bool legacyUpgrade, DomainModel model)
     {
       if (hints == null)
         hints = new HintSet(sourceSchema, targetSchema);
@@ -45,20 +48,77 @@ namespace Xtensive.Storage.Building
       };
       var status = GetComparisonStatus(actions);
       var unsafeActions = GetUnsafeActions(actions);
-      var hasTypeChanges = GetTypeChangeActions(actions).Any(action => {
+      var typeChanges = GetTypeChangeActions(actions);
+      
+      /*
+      (action => {
         var sourceType = action.Difference.Source as TypeInfo;
         var targetType = action.Difference.Target as TypeInfo;
         return sourceType==null || targetType==null
           || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
       });
-      var hasCreateDataNodeActions = actions.Flatten()
-        .OfType<CreateNodeAction>()
-        .Any(action => action.Difference.Target is TableInfo
-          || action.Difference.Target is ColumnInfo);
-      var isCompatible = !hasCreateDataNodeActions && !hasTypeChanges;
+      */
+      if (!legacyUpgrade)
+        return new SchemaComparisonResult(status, hints, difference, actions, typeChanges.Any(), unsafeActions, true);
 
+      var systemTables = model.Types.Where(type => type.IsSystem)
+        .Select(type => type.MappingName).ToHashSet();
+      
+      var createTableActions = actions.Flatten()
+        .OfType<CreateNodeAction>()
+        .Where(action => {
+          var table = action.Difference.Target as TableInfo;
+          return table!=null && !systemTables.Contains(table.Name);
+        }).ToList();
+      var createColumneActions = actions.Flatten()
+        .OfType<CreateNodeAction>()
+        .Where(action => {
+          var column = action.Difference.Target as ColumnInfo;
+          return column!=null && !systemTables.Contains(column.Parent.Name);
+        }).ToList();
+      var hasTypeChanges = typeChanges.Any(action => {
+        var sourceType = action.Difference.Source as TypeInfo;
+        var targetType = action.Difference.Target as TypeInfo;
+        return sourceType==null || targetType==null
+          || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
+      });
+
+      var isCompatible = !createTableActions.Any() && !createColumneActions.Any() && !hasTypeChanges;
+      var systemTableActions = GetSystemTableActions(actions, systemTables);
+      actions = new ActionSequence();
+      var g = new GroupingNodeAction {
+        Comment = UpgradeStage.Upgrade.ToString()
+      };
+      foreach (var action in systemTableActions)
+        g.Actions.Add(action);
+      actions.Add(g);
       return new SchemaComparisonResult(status, hints, difference, actions, hasTypeChanges, unsafeActions, isCompatible);
+
+      /*
+      var systemTableActions = actions.Flatten(
+        action => {
+          var gActions = action as GroupingNodeAction;
+          if (gActions!=null)
+            return gActions.Actions;
+          return EnumerableUtils.One(action);
+        },
+        null, true).ToList();
+      */
+
+
+//      var systemTableActions = actions.Flatten()
+//        .OfType<GroupingNodeAction>()
+//        .Where(action => systemTables.Contains(action.Comment));
+      
     }
+
+    private static IList<GroupingNodeAction> GetSystemTableActions(ActionSequence actions, HashSet<string> systemTableNames)
+    {
+      return actions.OfType<GroupingNodeAction>().Flatten(
+        action => action.Actions.OfType<GroupingNodeAction>(), ga => { }, false)
+        .Where(action => systemTableNames.Contains(action.Comment)).ToList();
+    }
+
 
     private static IList<NodeAction> GetUnsafeActions(ActionSequence upgradeActions)
     {

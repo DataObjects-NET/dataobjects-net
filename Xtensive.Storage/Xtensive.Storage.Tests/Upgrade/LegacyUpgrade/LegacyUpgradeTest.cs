@@ -5,6 +5,7 @@
 // Created:    2009.11.20
 
 using Xtensive.Sql;
+using System;
 
 namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgradeTest.Model
 {
@@ -21,7 +22,17 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgradeTest.Model
   public class B : A
   {
     [Field]
-    public int Number { get; set; }
+    public Guid? Number { get; set; }
+
+    [Field]
+    public C C { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class C : Entity
+  {
+    [Key, Field]
+    public Guid Id { get; private set; }
   }
 
 }
@@ -40,6 +51,7 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
     private string createValidDbScript = @"
       IF object_id('[dbo].[B]') is not null drop table [dbo].[B]
       IF object_id('[dbo].[A]') is not null drop table [dbo].[A]
+      IF object_id('[dbo].[C]') is not null drop table [dbo].[C]
       IF object_id('[dbo].[Int32-Generator]') is not null drop table [dbo].[Int32-Generator]
       IF object_id('[dbo].[Metadata.Assembly]') is not null drop table [dbo].[Metadata.Assembly]
       IF object_id('[dbo].[Metadata.Extension]') is not null drop table [dbo].[Metadata.Extension]
@@ -53,34 +65,23 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
       CREATE TABLE [dbo].[B](
 	      [Id] [int] NOT NULL,
 	      [TypeId] [int] NOT NULL,
-	      [Number] [int] NOT NULL DEFAULT ((0)),
+	      [Number] [uniqueidentifier] NOT NULL,
+        [C.Id] [uniqueidentifier] NOT NULL,
         CONSTRAINT [PK_B.A] PRIMARY KEY CLUSTERED ([Id] ASC))
       ALTER TABLE [dbo].[B]  WITH CHECK ADD CONSTRAINT [FK_B_A] FOREIGN KEY([Id]) REFERENCES [dbo].[A] ([Id])
       ALTER TABLE [dbo].[B] CHECK CONSTRAINT [FK_B_A]
+      CREATE TABLE [dbo].[C](
+	      [Id] [uniqueidentifier] NOT NULL,
+	      [TypeId] [int] NOT NULL,
+        CONSTRAINT [PK_C] PRIMARY KEY CLUSTERED ([Id] ASC))
       CREATE TABLE [dbo].[Int32-Generator](
 	      [ID] [int] IDENTITY(128,128) NOT NULL,
-        CONSTRAINT [PK_Int32-Generator] PRIMARY KEY CLUSTERED ([ID] ASC))
-      CREATE TABLE [dbo].[Metadata.Assembly](
-	      [Name] [nvarchar](1024) NOT NULL,
-	      [TypeId] [int] NOT NULL,
-	      [Version] [nvarchar](64) NULL DEFAULT (NULL),
-      CONSTRAINT [PK_Assembly] PRIMARY KEY CLUSTERED ([Name] ASC))
-      CREATE TABLE [dbo].[Metadata.Extension](
-	      [Name] [nvarchar](1024) NOT NULL,
-	      [TypeId] [int] NOT NULL,
-	      [Text] [nvarchar](max) NULL DEFAULT (NULL),
-	      [Data] [varbinary](max) NULL DEFAULT (NULL),
-        CONSTRAINT [PK_Extension] PRIMARY KEY CLUSTERED ([Name] ASC))
-      CREATE TABLE [dbo].[Metadata.Type](
-	      [Id] [int] NOT NULL,
-	      [TypeId] [int] NOT NULL,
-	      [Name] [nvarchar](1000) NULL DEFAULT (NULL),
-        CONSTRAINT [PK_Type_TEST] PRIMARY KEY CLUSTERED ([Id] ASC))
-      CREATE UNIQUE NONCLUSTERED INDEX [Type.IX_Name] ON [dbo].[Metadata.Type] ([Name] ASC)";
+        CONSTRAINT [PK_Int32-Generator] PRIMARY KEY CLUSTERED ([ID] ASC))";
 
     private string createInvalidDbScript1 = @"
       IF object_id('[dbo].[B]') is not null drop table [dbo].[B]
       IF object_id('[dbo].[A]') is not null drop table [dbo].[A]
+      IF object_id('[dbo].[C]') is not null drop table [dbo].[C]
       IF object_id('[dbo].[Int32-Generator]') is not null drop table [dbo].[Int32-Generator]
       IF object_id('[dbo].[Metadata.Assembly]') is not null drop table [dbo].[Metadata.Assembly]
       IF object_id('[dbo].[Metadata.Extension]') is not null drop table [dbo].[Metadata.Extension]
@@ -91,6 +92,10 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
 	      [TypeId] [int] NOT NULL,
 	      [Name] [nvarchar](4000) NULL DEFAULT (NULL),
         CONSTRAINT [PK_A_TEST] PRIMARY KEY CLUSTERED ([Id] ASC))
+      CREATE TABLE [dbo].[C](
+	      [Id] [uniqueidentifier] NOT NULL,
+	      [TypeId] [int] NOT NULL,
+        CONSTRAINT [PK_C] PRIMARY KEY CLUSTERED ([Id] ASC))
       CREATE TABLE [dbo].[Int32-Generator](
 	      [ID] [int] IDENTITY(128,128) NOT NULL,
         CONSTRAINT [PK_Int32-Generator] PRIMARY KEY CLUSTERED ([ID] ASC))
@@ -115,6 +120,7 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
     private string createInvalidDbScript2 = @"
       IF object_id('[dbo].[B]') is not null drop table [dbo].[B]
       IF object_id('[dbo].[A]') is not null drop table [dbo].[A]
+      IF object_id('[dbo].[C]') is not null drop table [dbo].[C]    
       IF object_id('[dbo].[Int32-Generator]') is not null drop table [dbo].[Int32-Generator]
       IF object_id('[dbo].[Metadata.Assembly]') is not null drop table [dbo].[Metadata.Assembly]
       IF object_id('[dbo].[Metadata.Extension]') is not null drop table [dbo].[Metadata.Extension]
@@ -132,6 +138,10 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
         CONSTRAINT [PK_B.A] PRIMARY KEY CLUSTERED ([Id] ASC))
       ALTER TABLE [dbo].[B]  WITH CHECK ADD CONSTRAINT [FK_B_A] FOREIGN KEY([Id]) REFERENCES [dbo].[A] ([Id])
       ALTER TABLE [dbo].[B] CHECK CONSTRAINT [FK_B_A]
+      CREATE TABLE [dbo].[C](
+	      [Id] [uniqueidentifier] NOT NULL,
+	      [TypeId] [int] NOT NULL,
+        CONSTRAINT [PK_C] PRIMARY KEY CLUSTERED ([Id] ASC))
       CREATE TABLE [dbo].[Int32-Generator](
 	      [ID] [int] IDENTITY(128,128) NOT NULL,
         CONSTRAINT [PK_Int32-Generator] PRIMARY KEY CLUSTERED ([ID] ASC))
@@ -139,7 +149,7 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
 	      [Name] [nvarchar](1024) NOT NULL,
 	      [TypeId] [int] NOT NULL,
 	      [Version] [nvarchar](64) NULL DEFAULT (NULL),
-      CONSTRAINT [PK_Assembly] PRIMARY KEY CLUSTERED ([Name] ASC))
+        CONSTRAINT [PK_Assembly] PRIMARY KEY CLUSTERED ([Name] ASC))
       CREATE TABLE [dbo].[Metadata.Extension](
 	      [Name] [nvarchar](1024) NOT NULL,
 	      [TypeId] [int] NOT NULL,
