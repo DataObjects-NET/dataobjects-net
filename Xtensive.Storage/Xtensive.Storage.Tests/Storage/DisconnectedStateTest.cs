@@ -113,6 +113,47 @@ namespace Xtensive.Storage.DisconnectedTests.Model
 
     [Field, Association(PairTo = "Order")]
     public EntitySet<OrderDetail> Details { get; private set; }
+
+    [Serializable]
+    class CreateOrderItemOperation : IOperation
+    {
+      private SerializableKey productKey;
+      private SerializableKey orderKey;
+      private int count;
+
+      public void Prepare(OperationExecutionContext context)
+      {
+        context.Register(productKey.Key);
+        context.Register(orderKey.Key);
+      }
+
+      public void Execute(OperationExecutionContext context)
+      {
+        var p = Query<Product>.Single(productKey.Key);
+        var o = Query<Order>.Single(orderKey.Key);
+        var orderItem = new OrderDetail { Product = p, Order = o, Count = count };
+      }
+
+      public CreateOrderItemOperation(Product product, Order order, int count)
+      {
+        productKey = product.Key;
+        orderKey = order.Key;
+        this.count = count;
+      }
+    }
+
+    public void CreateOrderItem(Product product, int count)
+    {
+      using (var context = OpenOperationContext(true)) {
+        if (context.IsEnabled()) {
+          var productKey = (SerializableKey)product.Key;
+          var orderKey = (SerializableKey)Key;
+          var operation = new CreateOrderItemOperation(product, this, count);
+          context.Add(operation);
+        }
+        context.Complete();
+      }
+    }
   }
 
   [HierarchyRoot]
@@ -826,12 +867,14 @@ namespace Xtensive.Storage.Tests.Storage
             Count = 250,
             Order = order1
           };
+          var product2 = Query<Product>.All.First(product => product.Name == "Product2");
           var order1Detail1 = order1.Details.ToList().First(detail => detail.Product.Name=="Product1");
           order1Detail1.Product.Name = "Product1.New";
           order1Detail1.Count = 150;
           var order1Detail2 = order1.Details.ToList().First(detail => detail.Product.Name=="Product2");
           order1.Details.Remove(order1Detail2);
           order1Detail2.Remove();
+          order1.CreateOrderItem(product2, 499);
         }
       }
 
@@ -859,8 +902,9 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           Order order1 = Query<Order>.Single(order1Key);
           var details = order1.Details.ToList();
-          Assert.AreEqual(2, order1.Details.Count);
+          Assert.AreEqual(3, order1.Details.Count);
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
+          Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product2" && detail.Count == 499));
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
           AssertEx.Throws<KeyNotFoundException>(() => Query<Customer>.Single(newCustomerKey));
           transactionScope.Complete();
