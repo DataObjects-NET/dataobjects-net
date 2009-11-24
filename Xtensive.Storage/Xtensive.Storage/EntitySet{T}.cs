@@ -205,6 +205,7 @@ namespace Xtensive.Storage
     public Expression Expression
     {
       get {
+        EnsureOwnerIsNotRemoved();
         if (expression == null) {
           // A hack making expression to look like regular parameter 
           // (ParameterExtractor.IsParameter => true)
@@ -250,6 +251,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected internal sealed override IEnumerable<IEntity> Entities {
       get {
+        EnsureOwnerIsNotRemoved();
         if (Owner.PersistenceState==PersistenceState.New)
           return GetCachedEntities();
         if (IsStateLoaded)

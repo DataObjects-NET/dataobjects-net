@@ -72,6 +72,7 @@ namespace Xtensive.Storage
     {
       [DebuggerStepThrough]
       get {
+        EnsureOwnerIsNotRemoved();
         if (State.Count == null || !State.IsFullyLoaded)
           LoadItemsCount();
         return (long) State.Count;
@@ -114,6 +115,7 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Entity type is not supported.</exception>
     public bool Contains(Key key)
     {
+      EnsureOwnerIsNotRemoved();
       if (key == null || !Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
         return false;
 
@@ -131,6 +133,7 @@ namespace Xtensive.Storage
     /// </returns>
     protected bool Contains(Entity item)
     {
+      EnsureOwnerIsNotRemoved();
       if (item==null || !Field.ItemType.IsAssignableFrom(item.Type.UnderlyingType))
         return false;
       return Contains(item.Key, item.PersistenceState);
@@ -232,6 +235,7 @@ namespace Xtensive.Storage
     /// </summary>
     public void Clear()
     {
+      EnsureOwnerIsNotRemoved();
       using (var context = OpenOperationContext(true)) {
         if (context.IsEnabled())
           context.Add(new EntitySetOperation(Owner.Key, Operations.OperationType.ClearEntitySet, Field));
@@ -446,6 +450,7 @@ namespace Xtensive.Storage
 
     private bool Contains(Key key, PersistenceState? state)
     {
+      EnsureOwnerIsNotRemoved();
       bool containsKey = State.Contains(key);
 
       // Valid result
@@ -477,10 +482,17 @@ namespace Xtensive.Storage
       return ((Entity) owner).Key;
     }
 
+    internal void EnsureOwnerIsNotRemoved()
+    {
+      if (Owner.IsRemoved)
+        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+    }
+
     protected internal abstract IEnumerable<IEntity> Entities { get; }
 
     internal EntitySetState UpdateState(IEnumerable<Key> items, bool isFullyLoaded)
     {
+      EnsureOwnerIsNotRemoved();
       var state = new EntitySetState(1024);
       state.Clear();
       long count = 0;
@@ -496,6 +508,7 @@ namespace Xtensive.Storage
 
     internal EntitySetState GetState()
     {
+      EnsureOwnerIsNotRemoved();
       if (IsStateLoaded)
         return State;
       return null;
@@ -504,6 +517,7 @@ namespace Xtensive.Storage
     internal void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : IEntity
     {
+      EnsureOwnerIsNotRemoved();
       if (this == other)
         return;
       var otherEntities = other.Cast<IEntity>().ToHashSet();
@@ -515,6 +529,7 @@ namespace Xtensive.Storage
     internal void UnionWith<TElement>(IEnumerable<TElement> other)
       where TElement : IEntity
     {
+      EnsureOwnerIsNotRemoved();
       if (this == other)
         return;
       foreach (var item in other)
@@ -524,6 +539,7 @@ namespace Xtensive.Storage
     internal void ExceptWith<TElement>(IEnumerable<TElement> other)
       where TElement : IEntity
     {
+      EnsureOwnerIsNotRemoved();
       if (this == other) {
         Clear();
         return;
@@ -534,6 +550,7 @@ namespace Xtensive.Storage
 
     internal EntitySetTypeState GetEntitySetTypeState()
     {
+      EnsureOwnerIsNotRemoved();
       return (EntitySetTypeState) Session.Domain.GetCachedItem(
         new Pair<object, FieldInfo>(entitySetCachingRegion, Field), BuildEntitySetTypeState, this);
     }

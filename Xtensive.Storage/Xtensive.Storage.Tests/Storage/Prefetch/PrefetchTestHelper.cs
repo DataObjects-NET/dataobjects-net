@@ -84,14 +84,14 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
     }
 
-    internal static void Prefetch(this PrefetchManager prefetchManager, Key key, TypeInfo type,
+    internal static void InvokePrefetch(this PrefetchManager prefetchManager, Key key, TypeInfo type,
       params PrefetchFieldDescriptor[] descriptors)
     {
       prefetchManager.Prefetch(key, type,
         new ReadOnlyList<PrefetchFieldDescriptor>(new List<PrefetchFieldDescriptor>(descriptors), false));
     }
 
-    public static void Prefetch(this SessionHandler sessionHandler, Key key, TypeInfo type,
+    public static void InvokePrefetch(this SessionHandler sessionHandler, Key key, TypeInfo type,
       params PrefetchFieldDescriptor[] descriptors)
     {
       sessionHandler.Prefetch(key, type,

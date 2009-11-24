@@ -28,6 +28,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         RegisterAllEntityGroupTasks();
         RegisterAllEntitySetTasks(containers);
 
+        manager.Owner.Session.Persist(true);
         manager.Owner.Session.ExecuteAllDelayedQueries(false);
         UpdateCacheFromAllEntityGroupTasks();
         UpdateCacheFromAllEntitySetTasks(containers);
@@ -45,6 +46,7 @@ namespace Xtensive.Storage.Internals.Prefetch
           return;
         RegisterAllEntityGroupTasks();
 
+        manager.Owner.Session.Persist(true);
         manager.Owner.Session.ExecuteAllDelayedQueries(false);
         UpdateCacheFromAllEntityGroupTasks();
       }

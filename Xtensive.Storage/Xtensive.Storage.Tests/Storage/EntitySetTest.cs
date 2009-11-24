@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using Xtensive.Storage.Tests.Storage.EntitySetModel;
@@ -236,9 +237,8 @@ namespace Xtensive.Storage.Tests.Storage
         var author0 = Query<Author>.Single(author0Key);
         var books0 = author0.Books;
         author0.Remove();
-        var books0Query = Query.ExecuteFuture(() => books0.Where(b => b.Name==0));
-        Assert.AreEqual(books0Query.Count(), 0);
-        Assert.Fail("The query must not be executed.");
+        AssertEx.Throws<InvalidOperationException>(() =>
+          Query.ExecuteFuture(() => books0.Where(b => b.Name==0)));
       }
     }
     
@@ -253,12 +253,7 @@ namespace Xtensive.Storage.Tests.Storage
       var expectedCount = entitySet.Count;
       owner.Remove();
       var actualCount = 0;
-      foreach (var book in entitySet)
-        actualCount++;
-      Assert.AreEqual(expectedCount, actualCount);
-      Assert.AreEqual(5, entitySet.Count);
-      Assert.IsTrue(entitySet.Add(new Book()));
-      Assert.AreEqual(6, entitySet.Count);
+      AssertEx.Throws<InvalidOperationException>(() => entitySet.GetEnumerator().MoveNext());
     }
 
     private void CreateTwoAuthorsAndTheirBooksSet(out Key author0Key, out Key author1Key)
