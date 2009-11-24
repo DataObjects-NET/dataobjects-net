@@ -48,7 +48,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore("Not implemented")]
     public void AnyWithLocalCollectionTest()
     {
       var ids = new[] {"ABCDE", "ALFKI"};
@@ -82,7 +81,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore("Not implemented")]
     public void AllWithLocalCollectionTest()
     {
       var patterns = new[] {"a", "e"};
