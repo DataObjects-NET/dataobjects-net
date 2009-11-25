@@ -46,9 +46,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetSelectTest()
     {
-      var result = Query<Customer>.All.OrderBy(c=>c.Key).Select(c => c.Orders).ToList();
-      var expected = Query<Customer>.All.AsEnumerable().OrderBy(c=>c.Key).Select(c => c.Orders).ToList();
-      Assert.Greater(0, result.Count);
+      var result = Query<Customer>.All.OrderBy(c=>c.Id).Select(c => c.Orders).ToList();
+      var expected = Query<Customer>.All.AsEnumerable().OrderBy(c=>c.Id).Select(c => c.Orders).ToList();
+      Assert.Greater(result.Count, 0);
       Assert.AreEqual(expected.Count, result.Count);
       for (int i = 0; i < result.Count; i++)
         Assert.AreSame(expected[i], result[i]);
