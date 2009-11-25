@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       if (evaluator.CanBeEvaluated(e)) {
         if (parameterExtractor.IsParameter(e))
           return VisitParameterAccess(e, smartNull);
-        return VisitConstant(evaluator.Evaluate(e));
+        return VisitConstant(ExpressionEvaluator.Evaluate(e));
       }
       return base.Visit(e);
     }

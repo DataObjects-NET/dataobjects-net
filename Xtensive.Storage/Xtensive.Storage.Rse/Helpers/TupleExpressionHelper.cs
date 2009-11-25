@@ -21,6 +21,29 @@ namespace Xtensive.Storage.Rse.Helpers
   public static class TupleExpressionHelper
   {
     /// <summary>
+    /// Checks if expression is access to tuple.
+    /// </summary>
+    /// <param name="expression">Expression to check.</param>
+    /// <param name="tupleParameter">Tuple parameter that access must be on.</param>
+    /// <returns></returns>
+    public static  bool IsTupleAccess(this Expression expression, ParameterExpression tupleParameter)
+    {
+      if (tupleParameter==null)
+        return expression.AsTupleAccess()!=null;
+      return expression.AsTupleAccess(tupleParameter)!=null;
+    }
+
+    /// <summary>
+    /// Checks if expression is access to tuple.
+    /// </summary>
+    /// <param name="expression">Expression to check.</param>
+    /// <returns></returns>
+    public static bool IsTupleAccess(this Expression expression)
+    {
+      return expression.IsTupleAccess(null);
+    }
+
+    /// <summary>
     /// If <paramref name="expression"/> is an access to tuple element
     /// returns <paramref name="expression"/> casted to <see cref="MethodCallExpression"/>.
     /// Otherwise returns <see langword="null"/>.

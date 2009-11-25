@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Linq
     /// Evaluates the specified <paramref name="e"/> into <see cref="ConstantExpression"/>.
     /// </summary>
     /// <param name="e">The expression.</param>
-    public ConstantExpression Evaluate(Expression e)
+    public static ConstantExpression Evaluate(Expression e)
     {
       if (e==null)
         return null;

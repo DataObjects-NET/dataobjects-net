@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Linq
           return base.Visit(e);
         return context.ParameterExtractor.IsParameter(e)
           ? e
-          : context.Evaluator.Evaluate(e);
+          : ExpressionEvaluator.Evaluate(e);
       }
       return base.Visit(e);
     }
@@ -270,7 +270,7 @@ namespace Xtensive.Storage.Linq
         case 3:
         source = mc.Arguments[2];
         match = mc.Arguments[0];
-        algorithm = (IncludeAlgorithm)context.Evaluator.Evaluate(mc.Arguments[1]).Value;
+        algorithm = (IncludeAlgorithm)ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
         break;
           default:
         Exceptions.InternalError("Unknown \"In\" syntax", Log.Instance);
@@ -333,7 +333,7 @@ namespace Xtensive.Storage.Linq
       if (context.Evaluator.CanBeEvaluated(binaryExpression))
         return context.ParameterExtractor.IsParameter(binaryExpression)
           ? (Expression) binaryExpression
-          : context.Evaluator.Evaluate(binaryExpression);
+          : ExpressionEvaluator.Evaluate(binaryExpression);
 
       Expression left = binaryExpression.Left.StripCasts();
       Expression right = binaryExpression.Right.StripCasts();

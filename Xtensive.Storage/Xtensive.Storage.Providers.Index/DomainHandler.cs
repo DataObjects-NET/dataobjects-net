@@ -62,6 +62,7 @@ namespace Xtensive.Storage.Providers.Index
     protected override IPreCompiler CreatePreCompiler()
     {
       return new CompositePreCompiler(
+        new IncludeOnIndexCorrector(),
         new ApplyProviderCorrector(false),
         new OrderingCorrector(DefaultCompilationContext.ResolveOrderingDescriptor, false),
         new IndexOptimizer(Handlers.Domain.Model, new OptimizationInfoProviderResolver(this)),

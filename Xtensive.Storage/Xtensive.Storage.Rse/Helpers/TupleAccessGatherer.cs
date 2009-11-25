@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Rse.Helpers
     /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (IsTupleAccess(mc)) {
+      if (mc.IsTupleAccess(tupleParameter)) {
         var columnIndex = mc.GetTupleAccessArgument();
         var outerParameter = mc.GetApplyParameter();
         if (outerParameter!=null)
@@ -76,14 +76,6 @@ namespace Xtensive.Storage.Rse.Helpers
     private static void DefaultRegisterOuterColumn(ApplyParameter parameter, int columnIndex)
     {
     }
-
-    private bool IsTupleAccess(Expression mc)
-    {
-      if (tupleParameter==null)
-        return mc.AsTupleAccess()!=null;
-      return mc.AsTupleAccess(tupleParameter)!=null;
-    }
-
 
     // Constructors
 
