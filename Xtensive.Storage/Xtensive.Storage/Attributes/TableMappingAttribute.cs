@@ -26,6 +26,7 @@ namespace Xtensive.Storage
     /// </remarks>
     public string Name { get; private set; }
 
+
     // Constructors
 
     /// <summary>
