@@ -5,8 +5,6 @@
 // Created:    2007.09.10
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Diagnostics;
 using System.Reflection;
@@ -34,7 +32,6 @@ namespace Xtensive.Storage.Model
     private FieldInfo                     parent;
     private ColumnInfo                    column;
     private AssociationInfo               association;
-    private CultureInfo                   cultureInfo = CultureInfo.InvariantCulture;
     private ThreadSafeCached<int>         cachedHashCode = ThreadSafeCached<int>.Create(new object());
     private Type                          itemType;
     private string                        originalName;
@@ -432,19 +429,6 @@ namespace Xtensive.Storage.Model
       set {
         this.EnsureNotLocked();
         association = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets field <see cref="CultureInfo"/> info.
-    /// </summary>
-    public CultureInfo CultureInfo {
-      [DebuggerStepThrough]
-      get { return cultureInfo; }
-      [DebuggerStepThrough]
-      set {
-        this.EnsureNotLocked();
-        cultureInfo = value;
       }
     }
 
