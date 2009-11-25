@@ -11,6 +11,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using Xtensive.Storage.Tests.Storage.EntitySetModel;
@@ -241,7 +242,84 @@ namespace Xtensive.Storage.Tests.Storage
           Query.ExecuteFuture(() => books0.Where(b => b.Name==0)));
       }
     }
-    
+
+    [Test]
+    public void CountPropertyBehaviorTest()
+    {
+      const int itemCountOfBigEntitySet = 50;
+      const int itemCountOfSmallEntitySet = 30;
+      Key bigKey;
+      Key smallKey;
+      Action<Author, int> generator = (a, count) => {
+        for (var i = 0; i < count; i++)
+          a.Books.Add(new Book());
+      };
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var bigAuthor = new Author();
+        bigKey = bigAuthor.Key;
+        generator.Invoke(bigAuthor, itemCountOfBigEntitySet);
+        var smallAuthor = new Author();
+        smallKey = smallAuthor.Key;
+        generator.Invoke(smallAuthor, itemCountOfSmallEntitySet);
+        t.Complete();
+      }
+
+      var booksField = typeof (Author).GetTypeInfo(Domain).Fields["Books"];
+      TestAdd(bigKey, itemCountOfBigEntitySet, booksField);
+      TestRemove(bigKey, itemCountOfBigEntitySet + 2, booksField);
+      TestSmallEntitySet(smallKey, itemCountOfSmallEntitySet, booksField);
+    }
+
+    private void TestAdd(Key key, int itemCount, Xtensive.Storage.Model.FieldInfo booksField)
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var author = Query<Author>.Single(key);
+        author.Books.Add(new Book());
+        EntitySetState setState;
+        session.Handler.TryGetEntitySetState(key, booksField, out setState);
+        Assert.IsNull(setState.count);
+        Assert.AreEqual(itemCount + 1, author.Books.Count);
+        Assert.AreEqual(itemCount + 1, setState.count);
+        author.Books.Add(new Book());
+        Assert.AreEqual(itemCount + 2, setState.count);
+        t.Complete();
+      }
+    }
+
+    private void TestRemove(Key key, int itemCount, Xtensive.Storage.Model.FieldInfo booksField)
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var author = Query<Author>.Single(key);
+        var booksToBeRemoved = Query<Book>.All.Where(b => b.Author.Key == key).Take(2).ToList();
+        var bookToBeRemoved0 = booksToBeRemoved[0];
+        var bookToBeRemoved1 = booksToBeRemoved[1];
+        author.Books.Remove(bookToBeRemoved0);
+        EntitySetState setState;
+        session.Handler.TryGetEntitySetState(key, booksField, out setState);
+        Assert.IsNull(setState.count);
+        Assert.AreEqual(itemCount - 1, author.Books.Count);
+        Assert.AreEqual(itemCount - 1, setState.count);
+        author.Books.Remove(bookToBeRemoved1);
+        Assert.AreEqual(itemCount - 2, setState.count);
+        t.Complete();
+      }
+    }
+
+    private void TestSmallEntitySet(Key key, int itemCount, Xtensive.Storage.Model.FieldInfo booksField)
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var author = Query<Author>.Single(key);
+        author.Books.Add(new Book());
+        EntitySetState setState;
+        Assert.IsTrue(session.Handler.TryGetEntitySetState(key, booksField, out setState));
+        Assert.AreEqual(itemCount+1, setState.count);
+      }
+    }
+
     private static void LoadEntitySetThenRemoveOwnerAndEnumerateIt(Author owner, EntitySet<Book> entitySet)
     {
       foreach (var book in entitySet) {}

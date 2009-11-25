@@ -539,7 +539,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         EntitySetState setState;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(bookKey, translationTitlesField, out setState));
         Assert.IsTrue(setState.IsFullyLoaded);
-        Assert.AreEqual(instanceCount, setState.count);
+        Assert.AreEqual(instanceCount, setState.Count);
         var iTitleType = typeof (ITitle).GetTypeInfo();
         foreach (var key in setState)
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, iTitleType, session, field => true);
@@ -592,7 +592,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         EntitySetState setState;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(publisherKey0, distributorsField, out setState));
         Assert.IsTrue(setState.IsFullyLoaded);
-        Assert.AreEqual(4, setState.count);
+        Assert.AreEqual(4, setState.Count);
         foreach (var bookShopKey in bookShopKeys)
           Assert.IsTrue(setState.Contains(bookShopKey));
       }
@@ -616,7 +616,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         EntitySetState setState;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(bookShopKey0, suppliersField, out setState));
         Assert.IsTrue(setState.IsFullyLoaded);
-        Assert.AreEqual(4, setState.count);
+        Assert.AreEqual(4, setState.Count);
         foreach (var publisherKey in publisherKeys)
           Assert.IsTrue(setState.Contains(publisherKey));
       }

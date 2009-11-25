@@ -127,11 +127,12 @@ namespace Xtensive.Storage.Internals.Prefetch
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
           SetUpContainers(currentKey, currentKey.TypeRef.Type,
             PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, currentKey.TypeRef.Type),
-            true, ownerState);
+            true, ownerState, true);
           var hierarchyRoot = currentKey.TypeRef.Type;
           selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
         }
-        SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerState);
+        SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerState,
+          ReferenceEquals(descriptors, selectedFields));
         if (referenceContainer!=null) {
           referenceContainer.JoinIfPossible(prevContainer);
           return referenceContainer;
@@ -188,11 +189,13 @@ namespace Xtensive.Storage.Internals.Prefetch
     }
 
     public GraphContainer SetUpContainers(Key key, TypeInfo type,
-      IEnumerable<PrefetchFieldDescriptor> descriptors, bool exactType, EntityState state)
+      IEnumerable<PrefetchFieldDescriptor> descriptors, bool exactType, EntityState state, bool canUseCache)
     {
       var result = GetGraphContainer(key, type, exactType);
       var areAnyColumns = false;
-      var haveColumnsBeenSet = TrySetCachedColumnIndexes(result, descriptors, state);
+      var haveColumnsBeenSet = false;
+      if (canUseCache)
+        haveColumnsBeenSet = TrySetCachedColumnIndexes(result, descriptors, state);
       foreach (var descriptor in descriptors) {
         if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary) {
           areAnyColumns = true;

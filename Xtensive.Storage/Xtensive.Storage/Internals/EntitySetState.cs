@@ -79,9 +79,8 @@ namespace Xtensive.Storage.Internals
     public void Add(Key key)
     {
       Register(key);
-      if (count == null)
-        count = 0;
-      count++;
+      if (count != null)
+        count++;
       Version++;
     }
 
@@ -92,9 +91,8 @@ namespace Xtensive.Storage.Internals
     public void Remove(Key key)
     {
       keys.RemoveKey(key);
-      if (count == null)
-        count = 0;
-      count--;
+      if (count != null)
+        count--;
       Version++;
     }
 
@@ -104,7 +102,7 @@ namespace Xtensive.Storage.Internals
     public void Clear()
     {
       keys.Clear();
-      count = 0;
+      count = null;
       Version++;
     }
 

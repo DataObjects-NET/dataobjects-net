@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       var fieldsToBeLoaded = PrefetchHelper
         .GetCachedDescriptorsForFieldsLoadedByDefault(manager.Owner.Session.Domain, targetType);
       var graphContainer = manager.SetUpContainers(referencedKey, targetType,
-        fieldsToBeLoaded, true, null);
+        fieldsToBeLoaded, true, null, true);
       if (areToNotifyOwner)
         graphContainer.RootEntityContainer.SetParametersOfReference(referencingFieldDescriptor, referencedKey);
     }

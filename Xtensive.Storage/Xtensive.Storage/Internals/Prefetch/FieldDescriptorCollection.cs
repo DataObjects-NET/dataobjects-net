@@ -52,9 +52,9 @@ namespace Xtensive.Storage.Internals.Prefetch
     public FieldDescriptorCollection(IEnumerable<PrefetchFieldDescriptor> descriptors)
     {
       ArgumentValidator.EnsureArgumentNotNull(descriptors, "descriptors");
-      var asList = descriptors as List<PrefetchFieldDescriptor>;
-      if (asList != null)
-        this.descriptors = new List<PrefetchFieldDescriptor>(asList.Count);
+      var asCollection = descriptors as ICollection<PrefetchFieldDescriptor>;
+      if (asCollection != null)
+        this.descriptors = new List<PrefetchFieldDescriptor>(asCollection.Count);
       else {
         var asArray = descriptors as PrefetchFieldDescriptor[];
         this.descriptors = asArray != null

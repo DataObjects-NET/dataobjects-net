@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       EntitySetState state;
       if (isOwnerCached && manager.Owner.TryGetEntitySetState(ownerKey, ReferencingField, out state)
-        && (state.IsFullyLoaded || state.Count >= ItemCountLimit))
+        && state.IsFullyLoaded)
         return;
       itemsQueryTask = CreateQueryTask();
       manager.Owner.Session.RegisterDelayedQuery(itemsQueryTask);
