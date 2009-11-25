@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 
@@ -22,8 +21,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly IEnumerable<T> source;
     private readonly TypeInfo modelType;
     private readonly Dictionary<FieldInfo, PrefetchFieldDescriptor> fieldDescriptors;
-    private readonly Dictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>> userDescriptorsCache =
-      new Dictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
+    private readonly Dictionary<TypeInfo, FieldDescriptorCollection> userDescriptorsCache =
+      new Dictionary<TypeInfo, FieldDescriptorCollection>();
     private readonly Queue<T> processedElements = new Queue<T>();
     private readonly Queue<Pair<Key, T>> waitingElements = new Queue<Pair<Key, T>>();
     private readonly StrongReferenceContainer strongReferenceContainer;
@@ -75,9 +74,9 @@ namespace Xtensive.Storage.Internals.Prefetch
     private TypeInfo RegisterPrefetch(T element, Key key)
     {
       var type = SelectType(key);
-      var descriptorArray = GetUserDescriptorArray(type);
+      var descriptors = GetUserDescriptors(type);
       strongReferenceContainer.JoinIfPossible(sessionHandler
-        .Prefetch(keyExtractor.Invoke(element), type, descriptorArray));
+        .Prefetch(keyExtractor.Invoke(element), type, descriptors));
       return type;
     }
 
@@ -93,15 +92,15 @@ namespace Xtensive.Storage.Internals.Prefetch
       return type;
     }
 
-    private ReadOnlyList<PrefetchFieldDescriptor> GetUserDescriptorArray(TypeInfo type)
+    private FieldDescriptorCollection GetUserDescriptors(TypeInfo type)
     {
-      ReadOnlyList<PrefetchFieldDescriptor> result;
+      FieldDescriptorCollection result;
       if (!userDescriptorsCache.TryGetValue(type, out result)) {
-        result = new ReadOnlyList<PrefetchFieldDescriptor>(type.Fields
+        result = new FieldDescriptorCollection(type.Fields
           .Where(field => field.Parent==null && PrefetchHelper.IsFieldToBeLoadedByDefault(field)
             && !fieldDescriptors.ContainsKey(field))
           .Select(field => new PrefetchFieldDescriptor(field, false, false))
-          .Concat(fieldDescriptors.Values).ToList(), false);
+          .Concat(fieldDescriptors.Values));
         userDescriptorsCache[type] = result;
       }
       return result;

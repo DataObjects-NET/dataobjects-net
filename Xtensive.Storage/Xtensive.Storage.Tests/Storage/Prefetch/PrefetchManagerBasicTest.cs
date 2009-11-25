@@ -895,6 +895,20 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       }
     }
 
+    [Test]
+    public void RemoveTest()
+    {
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var order = Query<Order>.All.Prefetch(o => o.Details).First();
+        var detail = order.Details.First();
+        order.Details.Remove(detail);
+        detail.Remove();
+        //Query<Order>.All.Prefetch(o => o.Details).First();
+        t.Complete();
+      }
+    }
+
     private void PrefetchIntrinsicFields(PrefetchManager prefetchManager, Key key, Type type)
     {
       var typeInfo = Domain.Model.Types[type];

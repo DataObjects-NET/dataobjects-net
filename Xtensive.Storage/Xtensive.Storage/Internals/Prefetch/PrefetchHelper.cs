@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals.Prefetch
@@ -22,17 +21,17 @@ namespace Xtensive.Storage.Internals.Prefetch
       return field.IsPrimaryKey || field.IsSystem || (!field.IsLazyLoad && !field.IsEntitySet);
     }
 
-    public static ReadOnlyList<PrefetchFieldDescriptor> CreateDescriptorsForFieldsLoadedByDefault(TypeInfo type)
+    public static FieldDescriptorCollection CreateDescriptorsForFieldsLoadedByDefault(TypeInfo type)
     {
-      return new ReadOnlyList<PrefetchFieldDescriptor>(type.Fields
+      return new FieldDescriptorCollection(type.Fields
         .Where(field => field.Parent==null && IsFieldToBeLoadedByDefault(field))
-        .Select(field => new PrefetchFieldDescriptor(field, false, false)).ToList(), false);
+        .Select(field => new PrefetchFieldDescriptor(field, false, false)));
     }
 
-    public static ReadOnlyList<PrefetchFieldDescriptor> GetCachedDescriptorsForFieldsLoadedByDefault(Domain domain,
+    public static FieldDescriptorCollection GetCachedDescriptorsForFieldsLoadedByDefault(Domain domain,
       TypeInfo type)
     {
-      return (ReadOnlyList<PrefetchFieldDescriptor>) domain
+      return (FieldDescriptorCollection) domain
         .GetCachedItem(new Pair<object, TypeInfo>(descriptorArraysCachingRegion, type),
           pair => CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second));
     }

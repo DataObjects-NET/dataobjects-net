@@ -238,8 +238,8 @@ namespace Xtensive.Storage
     protected sealed override EntitySetState LoadState()
     {
       if (Owner.State.PersistenceState!=PersistenceState.New) {
-        Session.Handler.Prefetch(Owner.Key, Owner.Type, new ReadOnlyList<PrefetchFieldDescriptor>(
-          new List<PrefetchFieldDescriptor> {new PrefetchFieldDescriptor(Field, LoadStateCount)}, false));
+        Session.Handler.Prefetch(Owner.Key, Owner.Type,
+          new FieldDescriptorCollection(new PrefetchFieldDescriptor(Field, LoadStateCount)));
         Session.Handler.ExecutePrefetchTasks();
         return State;
       }
@@ -287,8 +287,8 @@ namespace Xtensive.Storage
     private IEnumerable<IEntity> GetRealEntities()
     {
       State = null;
-      Session.Handler.Prefetch(Owner.Key, Owner.Type, new ReadOnlyList<PrefetchFieldDescriptor>(
-        new List<PrefetchFieldDescriptor> {new PrefetchFieldDescriptor(Field, null)}, false));
+      Session.Handler.Prefetch(Owner.Key, Owner.Type,
+        new FieldDescriptorCollection(new PrefetchFieldDescriptor(Field, null)));
       Session.Handler.ExecutePrefetchTasks();
       return GetCachedEntities();
     }

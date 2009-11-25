@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Internals
 
     /// <inheritdoc/>
     public override StrongReferenceContainer Prefetch(Key key, Model.TypeInfo type,
-      ReadOnlyList<PrefetchFieldDescriptor> descriptors)
+      FieldDescriptorCollection descriptors)
     {
       return chainedHandler.Prefetch(key, type, descriptors);
     }

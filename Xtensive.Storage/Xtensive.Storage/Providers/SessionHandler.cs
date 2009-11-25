@@ -167,7 +167,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save 
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public virtual StrongReferenceContainer Prefetch(Key key, TypeInfo type,
-      ReadOnlyList<PrefetchFieldDescriptor> descriptors)
+      FieldDescriptorCollection descriptors)
     {
       return prefetchManager.Prefetch(key, type, descriptors);
     }
@@ -243,8 +243,7 @@ namespace Xtensive.Storage.Providers
     {
       var type = key.TypeRef.Type;
       prefetchManager.Prefetch(key, type,
-        new ReadOnlyList<PrefetchFieldDescriptor>(
-          new List<PrefetchFieldDescriptor> { new PrefetchFieldDescriptor(field, false, false)}, false));
+        new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, false, false)));
       prefetchManager.ExecuteTasks();
     }
 

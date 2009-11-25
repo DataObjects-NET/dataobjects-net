@@ -5,9 +5,7 @@
 // Created:    2009.10.10
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
@@ -87,15 +85,13 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     internal static void InvokePrefetch(this PrefetchManager prefetchManager, Key key, TypeInfo type,
       params PrefetchFieldDescriptor[] descriptors)
     {
-      prefetchManager.Prefetch(key, type,
-        new ReadOnlyList<PrefetchFieldDescriptor>(new List<PrefetchFieldDescriptor>(descriptors), false));
+      prefetchManager.Prefetch(key, type, new FieldDescriptorCollection(descriptors));
     }
 
     public static void InvokePrefetch(this SessionHandler sessionHandler, Key key, TypeInfo type,
       params PrefetchFieldDescriptor[] descriptors)
     {
-      sessionHandler.Prefetch(key, type,
-        new ReadOnlyList<PrefetchFieldDescriptor>(new List<PrefetchFieldDescriptor>(descriptors), false));
+      sessionHandler.Prefetch(key, type, new FieldDescriptorCollection(descriptors));
     }
 
     public static void FillDataBase(Session session)
