@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Resources;
@@ -138,10 +140,26 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitFilter(FilterProvider provider)
     {
+      // Special case - Include provider optimization
+      if (provider.Source.Type==ProviderType.Include && provider.Predicate.Body.IsTupleAccess(provider.Predicate.Parameters[0])) {
+        var includeProvider = (IncludeProvider) provider.Source;
+        var columnIndex = provider.Predicate.Body.GetTupleAccessArgument();
+        if (columnIndex==includeProvider.Header.Length - 1
+          && includeProvider.Source.Type==ProviderType.Index
+            && includeProvider.FilteredColumns.SequenceEqual(Enumerable.Range(0, includeProvider.FilteredColumns.Length))) {
+          var compiledIndexProvider = Compile(includeProvider.Source);
+          return new Providers.Executable.MultySeekProvider(
+            provider,
+            compiledIndexProvider,
+            includeProvider.FilterDataSource);
+        }
+      }
+
+
       var compiledSource = Compile(provider.Source);
       return new Providers.Executable.FilterProvider(
-       provider,
-       compiledSource);
+        provider,
+        compiledSource);
     }
 
     /// <inheritdoc/>
@@ -175,7 +193,7 @@ namespace Xtensive.Storage.Rse.Compilation
     protected override ExecutableProvider VisitAggregate(AggregateProvider provider)
     {
       var compiledSource = Compile(provider.Source);
-      if (provider.GroupColumnIndexes.Length == 0)
+      if (provider.GroupColumnIndexes.Length==0)
         return new Providers.Executable.AggregateProvider(
           provider,
           compiledSource);
@@ -183,36 +201,36 @@ namespace Xtensive.Storage.Rse.Compilation
       var groupOrder = new bool[provider.GroupColumnIndexes.Length];
       var source = compiledSource.Origin;
 
-      while (source != null) {
-        if (!GroupIsOrdered(groupOrder) && (source.Type == ProviderType.Join || source.Type == ProviderType.Select))
+      while (source!=null) {
+        if (!GroupIsOrdered(groupOrder) && (source.Type==ProviderType.Join || source.Type==ProviderType.Select))
           break;
 
-        if (source.Type == ProviderType.Sort) {
-          var order = ((SortProvider)source).Order;
+        if (source.Type==ProviderType.Sort) {
+          var order = ((SortProvider) source).Order;
           for (int i = 0; i < provider.GroupColumnIndexes.Length; i++)
             if (order.ContainsKey(provider.GroupColumnIndexes[i]))
               groupOrder[i] = true;
         }
         if (GroupIsOrdered(groupOrder))
           return new Providers.Executable.OrderedGroupProvider(
-              provider,
-              compiledSource);
-        source = source.Sources.Length != 0
-          ? (CompilableProvider)source.Sources[0]
+            provider,
+            compiledSource);
+        source = source.Sources.Length!=0
+          ? (CompilableProvider) source.Sources[0]
           : null;
       }
 
       return new Providers.Executable.UnorderedGroupProvider(
-      provider,
-      compiledSource);
+        provider,
+        compiledSource);
     }
 
     /// <inheritdoc/>
     protected override ExecutableProvider VisitStore(StoreProvider provider)
     {
       ExecutableProvider ex = null;
-      if (provider.Source != null) {
-        var compiledSource = 
+      if (provider.Source!=null) {
+        var compiledSource =
           provider.Source as ExecutableProvider ?? Compile((CompilableProvider) provider.Source);
         ex = compiledSource;
       }
@@ -241,7 +259,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <inheritdoc/>
     protected override ExecutableProvider VisitRowNumber(RowNumberProvider provider)
     {
-      if (provider.Header.Order.Count == 0)
+      if (provider.Header.Order.Count==0)
         throw new InvalidOperationException(Strings.ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider);
       var compiledSource = Compile(provider.Source);
       return new Providers.Executable.RowNumberProvider(
