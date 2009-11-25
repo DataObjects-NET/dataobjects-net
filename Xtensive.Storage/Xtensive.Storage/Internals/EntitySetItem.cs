@@ -5,11 +5,12 @@
 // Created:    2008.09.05
 
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
   [KeyGenerator(KeyGeneratorKind.None)]
-  [HierarchyRoot]
+  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
   public abstract class EntitySetItem<TMaster, TSlave> : Entity
     where TMaster : IEntity
     where TSlave : IEntity
