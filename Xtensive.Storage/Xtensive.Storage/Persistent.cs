@@ -168,7 +168,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Value type</typeparam>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    [AspectBehavior]
+    [ActivateSession, Transactional]
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
       T result = default(T);
@@ -253,7 +253,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Value type</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
-    [AspectBehavior]
+    [ActivateSession, Transactional]
     protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
       T oldValue = default(T);
@@ -474,7 +474,7 @@ namespace Xtensive.Storage
       InnerOnValidate();
     }
 
-    [AspectBehavior]
+    [ActivateSession, Transactional]
     private void InnerOnValidate()
     {
       if (!CanBeValidated) // True for Structures which aren't bound to entities

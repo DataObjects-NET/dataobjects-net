@@ -6,6 +6,8 @@
 
 using System;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Aspects
 {
@@ -13,6 +15,7 @@ namespace Xtensive.Storage.Aspects
   /// Describes aspect behavior related to a particular method.
   /// </summary>
   [Serializable]
+  [Obsolete("Use TransactionalAttribute and ActivateSessionAttribute instead.")]
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor, 
     AllowMultiple = false, Inherited = true)]
   public class AspectBehaviorAttribute : StorageAttribute

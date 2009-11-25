@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Aspects
   {
     private bool openSession = true;
     private bool openTransaction = true;
+    private TransactionMode mode = TransactionMode.Auto;
 
     /// <inheritdoc/>
     int ILaosWeavableAspect.AspectPriority {
@@ -59,6 +60,17 @@ namespace Xtensive.Storage.Aspects
       set { openTransaction = value; }
     }
 
+    /// <summary>
+    /// Gets or sets value describing transaction opening mode.
+    /// Default value is <see cref="TransactionMode.Auto"/>.
+    /// </summary>
+    public TransactionMode Mode
+    {
+      get { return mode; }
+      set { mode = value; }
+    }
+
+
     public override bool CompileTimeValidate(MethodBase method)
     {
       if (!AspectHelper.ValidateContextBoundMethod<Session>(this, method, true, false))
@@ -70,14 +82,16 @@ namespace Xtensive.Storage.Aspects
       return true;
     }
 
-    public static TransactionalAspect ApplyOnce(MethodBase method, bool openSession, bool openTransaction)
+    public static TransactionalAspect ApplyOnce(MethodBase method, 
+      bool openSession, bool openTransaction, TransactionMode mode)
     {
       ArgumentValidator.EnsureArgumentNotNull(method, "method");
 
       return AppliedAspectSet.Add(method, 
         () => new TransactionalAspect {
           OpenSession = openSession, 
-          OpenTransaction = openTransaction
+          OpenTransaction = openTransaction,
+          Mode = mode
         });
     }
 
@@ -92,8 +106,6 @@ namespace Xtensive.Storage.Aspects
       var transactionScope = openSession 
         ? Transaction.Open(sessionBound.Session)
         : Transaction.Open();
-      if (transactionScope==null)
-        return sessionScope;
       return transactionScope.Join(sessionScope);
     }
 
@@ -121,8 +133,8 @@ namespace Xtensive.Storage.Aspects
     [DebuggerStepThrough]
     public override void OnExit(object instance, object onEntryResult)
     {
-      var d = (IDisposable) onEntryResult;
-      d.DisposeSafely();
+      var disposable = (IDisposable) onEntryResult;
+      disposable.DisposeSafely();
     }
   }
 }

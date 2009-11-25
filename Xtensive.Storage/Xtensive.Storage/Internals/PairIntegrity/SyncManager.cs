@@ -109,6 +109,7 @@ namespace Xtensive.Storage.PairIntegrity
 
     // Constructors
 
+    [Infrastructure]
     public SyncManager(Session session)
       : base(session)
     {

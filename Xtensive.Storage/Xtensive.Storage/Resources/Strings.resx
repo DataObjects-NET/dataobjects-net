@@ -1255,4 +1255,7 @@ Actions:
   <data name="ExTransactionIsRequired" xml:space="preserve">
     <value>Transaction is required.</value>
   </data>
+  <data name="ExXIsObsoleteUseYAndZInstead" xml:space="preserve">
+    <value>{0} is obsolete. Use {1} and {2} instead.</value>
+  </data>
 </root>

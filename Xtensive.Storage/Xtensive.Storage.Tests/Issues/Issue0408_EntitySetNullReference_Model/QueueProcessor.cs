@@ -67,10 +67,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     /// <summary>
     /// Process one document: override it with your implementation
     /// </summary>
-    [AspectBehavior(OpenTransaction = true)]    
+    [ActivateSession, Transactional]
     public virtual void ProcessDocument(Document inputDocument) 
     { 
-      throw new NotImplementedException(); 
+      throw new NotImplementedException();  
     }
 
     public virtual IList<object> GetWork()

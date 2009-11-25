@@ -182,6 +182,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="session">The session.</param>
+    [Infrastructure]
     public EntitySetAccessor(Session session)
       : base(session)
     {

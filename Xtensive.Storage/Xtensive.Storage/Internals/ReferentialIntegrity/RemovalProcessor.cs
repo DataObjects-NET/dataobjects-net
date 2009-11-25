@@ -96,6 +96,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     // Constructors
 
+    [Infrastructure]
     public RemovalProcessor(Session session)
       : base(session)
     {

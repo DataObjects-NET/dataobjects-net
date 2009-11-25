@@ -250,7 +250,7 @@ namespace Xtensive.Storage
         return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
-    [AspectBehavior]
+    [ActivateSession, Transactional]
     private bool InnerEquals(Structure other)
     {
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);

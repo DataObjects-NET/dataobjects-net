@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Disposing;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage
@@ -62,6 +63,7 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <inheritdoc/>
+    [Infrastructure]
     public CoreServiceAccessor(Session session)
       : base(session)
     {

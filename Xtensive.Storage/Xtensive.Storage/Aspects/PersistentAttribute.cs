@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
@@ -76,49 +77,91 @@ namespace Xtensive.Storage.Aspects
         ProvideEntitySetAspects(type, collection);
     }
 
-    private static void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
+    private struct AttributeSet
+    {
+      public TransactionalAttribute Transactional { get; private set;}
+
+      public ActivateSessionAttribute ActivateSession { get; private set;}
+
+      public bool IsEmpty
+      {
+        get { return Transactional==null && ActivateSession==null; }
+      }
+
+      public static AttributeSet ExctractFrom(MemberInfo member)
+      {
+        return new AttributeSet {
+          Transactional = member.GetAttribute<TransactionalAttribute>(AttributeSearchOptions.InheritNone),
+          ActivateSession = member.GetAttribute<ActivateSessionAttribute>(AttributeSearchOptions.InheritNone)
+        };
+      }
+    }
+
+    private static Dictionary<MethodBase, AttributeSet> GetPropertyAccessorsAttributes(Type type)
+    {
+      var propertyAttributes = new Dictionary<MethodBase, AttributeSet>();
+      foreach(var property in GetProperties(type)) {
+        var attributeSet = AttributeSet.ExctractFrom(property);
+        if (attributeSet.IsEmpty)
+          continue;
+
+        var getter = property.GetGetMethod(true);
+        if (getter!=null)
+          propertyAttributes[getter] = attributeSet;
+        var setter = property.GetSetMethod(true);
+        if (setter!=null)
+          propertyAttributes[setter] = attributeSet;
+      }
+      return propertyAttributes;
+    }
+
+
+    public static void ProvideTransactionalAspects(Type type, LaosReflectionAspectCollection collection)
     {
       // var explicitMethods = GetExplicitMethods(type).Cast<MethodBase>().ToHashSet();
       // ^^^ Does not work because of a bug in PostSharp. ^^^
-      var explicitMethods = new HashSet<MethodBase>(); 
+      var explicitMethods = new HashSet<MethodBase>();
+      
       var candidates = GetMethods(type).Cast<MethodBase>()
         .Concat(explicitMethods)
-        .Concat(GetPublicConstructors(type))
+        .Concat(GetConstructors(type))
         .ToHashSet();
 
+      var propertyAccessorsAttributes = GetPropertyAccessorsAttributes(type);
+
       foreach (MethodBase method in candidates) {
+
         if (method.IsAbstract)
-            continue;
+          continue;
         if (method.IsStatic)
           continue;
         if (AspectHelper.IsInfrastructureMethod(method))
           continue;
-        var behaviorAttribute = method.GetAttribute<AspectBehaviorAttribute>(AttributeSearchOptions.InheritNone);
-        if (behaviorAttribute==null) {
-          if (IsCompilerGenerated(method))
-            continue;
-          if (!method.IsPublic && !explicitMethods.Contains(method))
-            continue; // Non-public and non-explicit implementation
-          if (method.IsConstructor) {
-            if (!entityType.IsAssignableFrom(type))
-              continue;
-            else {
-              // Public constructors of Entities are transactional
-              behaviorAttribute = new AspectBehaviorAttribute {
-                OpenSession = false,
-                OpenTransaction = true
-              };
-            }
-          }
-        }
-        if (behaviorAttribute==null)
-          behaviorAttribute = new AspectBehaviorAttribute();
 
-        if (behaviorAttribute.OpenSession || behaviorAttribute.OpenTransaction) {
-          var ta = TransactionalAspect.ApplyOnce(method,
-            behaviorAttribute.OpenSession, behaviorAttribute.OpenTransaction);
-          if (ta!=null)
-            collection.AddAspect(method, ta);
+        bool isCompilerGenerated = IsCompilerGenerated(method);
+
+        bool activateSession = method.IsPublic && !isCompilerGenerated && !method.IsConstructor;
+        bool openTransaction = method.IsPublic && !isCompilerGenerated;
+        TransactionMode mode = TransactionMode.Auto;
+
+        var attributeSet = AttributeSet.ExctractFrom(method);
+
+        // Check whether attributes are applied to appropriate property
+        if (attributeSet.IsEmpty)
+          propertyAccessorsAttributes.TryGetValue(method, out attributeSet);
+
+        if (attributeSet.Transactional!=null) {
+          openTransaction = attributeSet.Transactional.IsTransactional;
+          mode = attributeSet.Transactional.Mode;
+          activateSession = true;
+        }
+        if (attributeSet.ActivateSession!=null)
+          activateSession = attributeSet.ActivateSession.Activate;
+
+        if (activateSession || openTransaction) {
+          var aspect = TransactionalAspect.ApplyOnce(method, activateSession, openTransaction, mode);
+          if (aspect!=null)
+            collection.AddAspect(method, aspect);
         }
       }
     }
@@ -181,7 +224,7 @@ namespace Xtensive.Storage.Aspects
           var constraints = propertyInfo.GetAttributes<PropertyConstraintAspect>(AttributeSearchOptions.InheritNone);
           bool hasConstraints = !(constraints==null || constraints.Length==0);
           if (hasConstraints) {
-            var transactionalAspect = TransactionalAspect.ApplyOnce(setter, true, true);
+            var transactionalAspect = TransactionalAspect.ApplyOnce(setter, true, true, TransactionMode.Auto);
             if (transactionalAspect!=null)
               collection.AddAspect(setter, transactionalAspect);
           }
@@ -295,6 +338,15 @@ namespace Xtensive.Storage.Aspects
         yield return method;
     }
 
+    private static IEnumerable<PropertyInfo> GetProperties(Type type)
+    {
+      foreach (var property in type.GetProperties(
+        BindingFlags.Public   | BindingFlags.NonPublic |
+        BindingFlags.Instance | BindingFlags.Static |
+        BindingFlags.DeclaredOnly))
+        yield return property;
+    }
+
     private static IEnumerable<MethodInfo> GetExplicitMethods(Type type)
     {
       foreach (var @interface in type.FindInterfaces((_type, _criteris) => true, null)) {
@@ -305,9 +357,9 @@ namespace Xtensive.Storage.Aspects
       }
     }
 
-    private static IEnumerable<MethodBase> GetPublicConstructors(Type type)
+    private static IEnumerable<MethodBase> GetConstructors(Type type)
     {
-      foreach (var method in type.GetConstructors())
+      foreach (var method in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
         yield return method;
     }
 
