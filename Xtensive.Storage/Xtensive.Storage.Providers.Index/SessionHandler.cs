@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
@@ -33,15 +34,26 @@ namespace Xtensive.Storage.Providers.Index
     public override bool TransactionIsStarted { get { return StorageView!=null; } }
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">Transaction is already open.</exception>
-    public override void BeginTransaction()
+    public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       lock (connectionSyncRoot) {
         if (StorageView!=null)
           throw new InvalidOperationException(Strings.ExTransactionIsAlreadyOpened);
-        StorageView = storage.CreateView(Session.Transaction.IsolationLevel);
+        StorageView = storage.CreateView(isolationLevel);
         // TODO: Implement transactions
       }
+    }
+
+    /// <inheritdoc/>
+    public override void MakeSavepoint(string name)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public override void RollbackToSavepoint(string name)
+    {
+      throw new NotImplementedException();
     }
 
     /// <inheritdoc/>

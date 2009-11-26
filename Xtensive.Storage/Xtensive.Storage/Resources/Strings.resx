@@ -349,7 +349,7 @@
     <value>Key '{0}' was not found in storage.</value>
   </data>
   <data name="ExCannotFindHandlerOfTypeX" xml:space="preserve">
-    <value>Cannot find a hanlder of type '{0}'.</value>
+    <value>Cannot find a handler of type '{0}'.</value>
   </data>
   <data name="ExKeyCanNotBeNull" xml:space="preserve">
     <value>Key can not be null.</value>
@@ -441,8 +441,8 @@
   <data name="ExEntitySetInvalidBecauseTransactionIsNotActive" xml:space="preserve">
     <value>Entity set is invalid due to current transaction is not active.</value>
   </data>
-  <data name="ExCannotCommitATransactionValidationContextIsInInconsistentState" xml:space="preserve">
-    <value>Cannot commit a transaction: ValidationContext is in inconsistent state.</value>
+  <data name="ExCanNotCommitATransactionValidationContextIsInInconsistentState" xml:space="preserve">
+    <value>Can not commit a transaction: ValidationContext is in inconsistent state.</value>
   </data>
   <data name="ExItemNotFoundInEntitySet" xml:space="preserve">
     <value>Item is not found in EntitySet.</value>
@@ -1257,5 +1257,17 @@ Actions:
   </data>
   <data name="ExXIsObsoleteUseYAndZInstead" xml:space="preserve">
     <value>{0} is obsolete. Use {1} and {2} instead.</value>
+  </data>
+  <data name="ExCanNotCompleteOuterTransactionInnerTransactionIsActive" xml:space="preserve">
+    <value>Can not complete outer transaction: inner transaction is active.</value>
+  </data>
+  <data name="ExCanNotOpenMoreThanOneInnerTransaction" xml:space="preserve">
+    <value>Can not open more than one inner transaction.</value>
+  </data>
+  <data name="ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent" xml:space="preserve">
+    <value>Can not reuse opened transaction: requested isolation level is different.</value>
+  </data>
+  <data name="ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction" xml:space="preserve">
+    <value>Can not mark state as modified: it is not valid in current transaction.</value>
   </data>
 </root>

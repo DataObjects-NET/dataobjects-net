@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -26,12 +27,24 @@ namespace Xtensive.Storage.Disconnected
     private readonly DisconnectedState disconnectedState;
     private bool isChainedTransactionStarted;
 
-    # region Transaction
+    #region Transaction
 
     /// <inheritdoc/>
-    public override void BeginTransaction()
+    public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       disconnectedState.OnTransactionStarted();
+    }
+
+    /// <inheritdoc/>
+    public override void MakeSavepoint(string name)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public override void RollbackToSavepoint(string name)
+    {
+      throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
@@ -57,7 +70,7 @@ namespace Xtensive.Storage.Disconnected
       if (!isChainedTransactionStarted) {
         if (!disconnectedState.IsConnected)
           throw new ConnectionRequiredException();
-        chainedHandler.BeginTransaction();
+        chainedHandler.BeginTransaction(Session.Configuration.DefaultIsolationLevel);
         isChainedTransactionStarted = true;
       }
     }
@@ -78,7 +91,7 @@ namespace Xtensive.Storage.Disconnected
       }
     }
 
-    # endregion
+    #endregion
 
     internal override bool TryGetEntityState(Key key, out EntityState entityState)
     {

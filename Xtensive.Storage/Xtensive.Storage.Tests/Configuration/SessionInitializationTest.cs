@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Configuration
       TestCacheType(dc, typeof (LruCache<,>));
       // Infinite CacheType
       dc = new DomainConfiguration(url);
-      dc.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default) { CacheType = SessionCacheType.Infinite });
+      dc.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default) {CacheType = SessionCacheType.Infinite});
       TestCacheType(dc, typeof (InfiniteCache<,>));
     }
 

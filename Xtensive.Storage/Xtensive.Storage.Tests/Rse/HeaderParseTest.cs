@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Rse
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
           Assert.IsTrue(state.Tuple.GetFieldState(3).IsAvailable());
-          state.ResetState();
+          ResetState(state);
 
           // Select Id, TypeId, Title
           RecordSet rsTitle = rsMain.Select(0, 1, 2);
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Tests.Rse
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
           Assert.IsFalse(state.Tuple.GetFieldState(3).IsAvailable());
-          state.ResetState();
+          ResetState(state);
 
           // Select Id, TypeId, Text
           RecordSet rsText = rsMain.Select(0, 1, 3);
@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Tests.Rse
           Assert.IsNotNull(state);
           Assert.IsFalse(state.Tuple.GetFieldState(2).IsAvailable());
           Assert.IsTrue(state.Tuple.GetFieldState(3).IsAvailable());
-          state.ResetState();
+          ResetState(state);
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
           RecordSet rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
@@ -77,9 +77,17 @@ namespace Xtensive.Storage.Tests.Rse
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
           Assert.IsTrue(state.Tuple.GetFieldState(3).IsAvailable());
-          state.ResetState();
+          ResetState(state);
         }
       }
+    }
+
+    private static void ResetState(EntityState state)
+    {
+      typeof (EntityState).InvokeMember(
+        "ResetState",
+        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod,
+        null, state, new object[0]);
     }
   }
 }

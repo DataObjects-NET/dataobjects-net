@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core.Aspects;
-using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
@@ -14,56 +13,104 @@ namespace Xtensive.Storage
   /// <summary>
   /// An abstract base class for objects having associated transactional state.
   /// </summary>
-  public abstract class TransactionalStateContainer : SessionBound
+  public abstract class TransactionalStateContainer<TState> : SessionBound
   {
-    private Transaction stateTransaction;
+    private TState state;
+    private bool stateIsLoaded;
 
     /// <summary>
-    /// Gets the transaction where <see cref="TransactionalStateContainer"/>'s 
-    /// state was acquired.
+    /// Gets the transaction where container's state was acquired.
     /// </summary>
     [Infrastructure]
-    public Transaction StateTransaction {
-      get { return stateTransaction; }
+    public Transaction StateTransaction { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether base state is loaded or not.
+    /// </summary>
+    protected bool StateIsLoaded {
+      get {
+        EnsureStateIsActual();
+        return stateIsLoaded;
+      }
     }
 
     /// <summary>
-    /// Gets a value indicating whether this instance's state is actual now.
+    /// Gets the transactional state.
     /// </summary>
-    protected bool IsStateActual {
+    protected TState State {
       get {
-        return stateTransaction!=null && stateTransaction.State.IsActive();
+        EnsureStateIsActual();
+        if (!stateIsLoaded) {
+          ResetState();
+          state = LoadState();
+          BindStateTransaction();
+          stateIsLoaded = true;
+        }
+        return state;
+      }
+      set {
+        EnsureStateIsActual();
+        BindStateTransaction();
+        stateIsLoaded = true;
+        state = value;
       }
     }
 
     /// <summary>
     /// Ensures the state is actual. 
     /// If it really is now, this method does nothing.
-    /// Otherwise it calls <see cref="ResetState"/> method and sets
-    /// <see cref="StateTransaction"/> to <see langword="null" />.
+    /// Otherwise it calls <see cref="ResetState"/> method.
     /// </summary>
     protected void EnsureStateIsActual()
     {
-      if (IsStateActual)
-        return;
-      ResetState();
-      stateTransaction = null;
+      if (!CheckStateIsActual())
+        ResetState();
     }
 
     /// <summary>
     /// Resets the cached transactional state.
     /// </summary>
-    protected internal abstract void ResetState();
+    protected virtual void ResetState()
+    {
+      state = default(TState);
+      stateIsLoaded = false;
+      StateTransaction = null;
+    }
 
-    /// <exception cref="NotSupportedException"></exception>
-    protected void BindStateTransaction()
+    /// <summary>
+    /// Loads the state.
+    /// </summary>
+    /// <returns>Loaded state.</returns>
+    protected abstract TState LoadState();
+    
+    /// <summary>
+    /// Marks the state as modified.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// State is not loaded yet or it is not valid in current transaction.</exception>
+    protected void MarkStateAsModified()
+    {
+      if (!stateIsLoaded || StateTransaction==null || !StateTransaction.AreChangesVisibleTo(Session.Transaction))
+        throw new InvalidOperationException(Strings.ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction);
+      BindStateTransaction();
+    }
+
+    private bool CheckStateIsActual()
+    {
+      if (StateTransaction==null)
+        return false;
+      var currentTransaction = Session.Transaction;
+      if (currentTransaction==null)
+        return false;
+      return StateTransaction.AreChangesVisibleTo(currentTransaction);
+    }
+
+    private void BindStateTransaction()
     {
       var currentTransaction = Session.Transaction;
-      if (currentTransaction == null)
+      if (currentTransaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
-      if (stateTransaction!=null && stateTransaction!=currentTransaction)
-        throw new InvalidOperationException(Strings.ExStateTransactionIsDifferent);
-      stateTransaction = currentTransaction;
+      StateTransaction = currentTransaction;
     }
 
 

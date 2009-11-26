@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Linq.Materialization
       var batchSequence = materializedSequence
         .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
         .ApplyBeforeAndAfter(batchActivator.Activate, batchActivator.Deactivate);
-      using (session.OpenTransaction()) {
+      using (Transaction.Open(session)) {
         foreach (var batch in batchSequence)
           foreach (var result in batch)
             yield return result;

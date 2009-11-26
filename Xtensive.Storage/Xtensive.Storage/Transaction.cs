@@ -25,11 +25,26 @@ namespace Xtensive.Storage
   {
     private InconsistentRegion inconsistentRegion;
     private ExtensionCollection extensions;
-
+    
     /// <summary>
     /// Gets the session.
     /// </summary>
     public Session Session { get; private set; }
+
+    /// <summary>
+    /// Gets the outer transaction.
+    /// </summary>
+    public Transaction Outer { get; private set; }
+
+    /// <summary>
+    /// Gets the outermost transaction.
+    /// </summary>
+    public Transaction Outermost { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether this transaction is a nested transaction.
+    /// </summary>
+    public bool IsNested { get { return Outer!=null; } }
 
     /// <summary>
     /// Gets the transaction-level temporary data.
@@ -41,10 +56,28 @@ namespace Xtensive.Storage
     /// </summary>    
     public ValidationContext ValidationContext { get; private set; }
 
+    internal string SavepointName { get; private set; }
+
+    internal Transaction Inner { get; set; }
+
+    internal bool IsActuallyStarted { get; set; }
+    
     /// <inheritdoc/>
     protected override Integrity.Transactions.TransactionScope CreateScope()
     {
       return new TransactionScope(this);
+    }
+
+    internal bool AreChangesVisibleTo(Transaction otherTransaction)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(otherTransaction, "otherTransaction");
+      if (Outermost!=otherTransaction.Outermost)
+        return false;
+      var t = this;
+      var outermost = t.Outermost;
+      while (t!=outermost && t!=otherTransaction && t.State==TransactionState.Committed)
+        t = t.Outer;
+      return t.State.IsActive();      
     }
 
     #region IHasExtensions Members
@@ -74,7 +107,7 @@ namespace Xtensive.Storage
       ValidationContext.Reset();
       if (Session.Domain.Configuration.ValidationMode==ValidationMode.OnDemand)
         inconsistentRegion = ValidationContext.OpenInconsistentRegion();
-      Session.BeginTransaction();
+      Session.BeginTransaction(this);
     }
 
     /// <inheritdoc/>
@@ -82,7 +115,7 @@ namespace Xtensive.Storage
     {
       try {
         if (inconsistentRegion==null && !ValidationContext.IsConsistent)
-          throw new InvalidOperationException(Strings.ExCannotCommitATransactionValidationContextIsInInconsistentState);
+          throw new InvalidOperationException(Strings.ExCanNotCommitATransactionValidationContextIsInInconsistentState);
 
         try {
           Validation.Enforce(Session);
@@ -99,8 +132,9 @@ namespace Xtensive.Storage
       catch {
         OnRollback();
         throw;
-      }      
-      Session.CommitTransaction();
+      }
+
+      Session.CommitTransaction(this);
     }
 
     /// <inheritdoc/>
@@ -110,7 +144,7 @@ namespace Xtensive.Storage
         inconsistentRegion.DisposeSafely();
       }
       finally {
-        Session.RollbackTransaction();
+        Session.RollbackTransaction(this);
       }
     }
 
@@ -139,7 +173,8 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     public static TransactionScope Open()
     {
-      return Session.Demand().OpenTransaction();
+      var session = Session.Demand();
+      return session.OpenTransaction(TransactionOpenMode.Default, session.Configuration.DefaultIsolationLevel);
     }
 
     /// <summary>
@@ -153,7 +188,39 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     public static TransactionScope Open(IsolationLevel isolationLevel)
     {
-      return Session.Demand().OpenTransaction(isolationLevel);
+      var session = Session.Demand();
+      return session.OpenTransaction(TransactionOpenMode.Default, isolationLevel);
+    }
+    
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <param name="mode">The mode.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public static TransactionScope Open(TransactionOpenMode mode)
+    {
+      var session = Session.Demand();
+      return session.OpenTransaction(mode, session.Configuration.DefaultIsolationLevel);
+    }
+
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <param name="mode">The mode.</param>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public static TransactionScope Open(TransactionOpenMode mode, IsolationLevel isolationLevel)
+    {
+      var session = Session.Demand();
+      return session.OpenTransaction(mode, isolationLevel);
     }
 
     /// <summary>
@@ -168,7 +235,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction();
+      return session.OpenTransaction(TransactionOpenMode.Default, session.Configuration.DefaultIsolationLevel);
     }
 
     /// <summary>
@@ -184,7 +251,40 @@ namespace Xtensive.Storage
     public static TransactionScope Open(Session session, IsolationLevel isolationLevel)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(isolationLevel);
+      return session.OpenTransaction(TransactionOpenMode.Default, isolationLevel);
+    }
+
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="mode">The mode.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public static TransactionScope Open(Session session, TransactionOpenMode mode)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      return session.OpenTransaction(mode, session.Configuration.DefaultIsolationLevel);
+    }
+
+    /// <summary>
+    /// Opens a new or already running transaction.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="mode">The mode.</param>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public static TransactionScope Open(Session session, TransactionOpenMode mode, IsolationLevel isolationLevel)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      return session.OpenTransaction(mode, isolationLevel);
     }
 
     #endregion
@@ -198,7 +298,7 @@ namespace Xtensive.Storage
     /// <param name="session">The session.</param>
     /// <param name="isolationLevel">The isolation level.</param>
     internal Transaction(Session session, IsolationLevel isolationLevel)
-      : this (session, Guid.NewGuid(), isolationLevel)
+      : this(session, isolationLevel, null, null)
     {
     }
 
@@ -206,14 +306,24 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="session">The session.</param>
-    /// <param name="identifier">The identifier.</param>
     /// <param name="isolationLevel">The isolation level.</param>
-    internal Transaction(Session session, Guid identifier, IsolationLevel isolationLevel)
-      : base (identifier, isolationLevel)
+    /// <param name="outer">The outer transaction.</param>
+    /// <param name="savepointName">Name of the savepoint associated with nested transaction.</param>
+    internal Transaction(Session session, IsolationLevel isolationLevel, Transaction outer, string savepointName)
+      : base (Guid.NewGuid(), isolationLevel)
     {
       Session = session;
       TemporaryData = new TransactionTemporaryData();
       ValidationContext = new ValidationContext();
+
+      if (outer!=null) {
+        outer.Inner = this;
+        Outer = outer;
+        Outermost = outer.Outermost;
+        SavepointName = savepointName;
+      }
+      else
+        Outermost = this;
     }
   }
 } 

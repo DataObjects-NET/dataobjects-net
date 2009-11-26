@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Aspects
     /// <summary>
     /// Gets the transaction opening mode.
     /// </summary>
-    public TransactionMode Mode { get; private set; }
+    public TransactionOpenMode Mode { get; private set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether member marked by this attribute requires transaction or not. 
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Aspects
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="mode">The transaction opening mode.</param>
-    public TransactionalAttribute(TransactionMode mode) : 
+    public TransactionalAttribute(TransactionOpenMode mode) : 
       this(true, mode)
     {
     }
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Aspects
     /// </summary>
     /// <param name="isTransactional">Whether or not member is transactional.</param>
     public TransactionalAttribute(bool isTransactional) :
-      this (isTransactional, TransactionMode.Auto)
+      this (isTransactional, TransactionOpenMode.Auto)
     {
     }
 
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Aspects
     /// </summary>
     /// <param name="isTransactional">Whether or not member is transactional.</param>
     /// <param name="mode">The transaction opening mode.</param>
-    public TransactionalAttribute(bool isTransactional, TransactionMode mode)
+    public TransactionalAttribute(bool isTransactional, TransactionOpenMode mode)
     {
       IsTransactional = isTransactional;
       Mode = mode;

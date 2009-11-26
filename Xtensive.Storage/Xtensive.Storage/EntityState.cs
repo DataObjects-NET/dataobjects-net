@@ -18,7 +18,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// The underlying state of the <see cref="Storage.Entity"/>.
   /// </summary>
-  [DebuggerDisplay("Key = {key}, Tuple = {state}, IsStateLoaded = {isStateLoaded}, PersistenceState = {persistenceState}")]
+  [DebuggerDisplay("Key = {key}, Tuple = {state}, StateIsLoaded = {StateIsLoaded}, PersistenceState = {persistenceState}")]
   public sealed class EntityState : TransactionalStateContainer<Tuple>, 
     IEquatable<EntityState>
   {
@@ -79,7 +79,7 @@ namespace Xtensive.Storage
     /// </summary>
     [Infrastructure]
     public bool IsTupleLoaded {
-      get { return IsStateLoaded; }
+      get { return StateIsLoaded; }
     }
 
     /// <summary>
@@ -120,6 +120,7 @@ namespace Xtensive.Storage
           break;
         }
         Session.EntityChangeRegistry.Register(this);
+        MarkStateAsModified();
       }
     }
 
@@ -225,7 +226,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    protected internal override void ResetState()
+    protected override void ResetState()
     {
       persistenceState = PersistenceState.Synchronized;
       base.ResetState();

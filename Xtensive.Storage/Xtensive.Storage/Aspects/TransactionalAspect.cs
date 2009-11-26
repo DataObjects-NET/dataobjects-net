@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Aspects
   {
     private bool openSession = true;
     private bool openTransaction = true;
-    private TransactionMode mode = TransactionMode.Auto;
+    private TransactionOpenMode mode = TransactionOpenMode.Auto;
 
     /// <inheritdoc/>
     int ILaosWeavableAspect.AspectPriority {
@@ -62,9 +62,9 @@ namespace Xtensive.Storage.Aspects
 
     /// <summary>
     /// Gets or sets value describing transaction opening mode.
-    /// Default value is <see cref="TransactionMode.Auto"/>.
+    /// Default value is <see cref="TransactionOpenMode.Auto"/>.
     /// </summary>
-    public TransactionMode Mode
+    public TransactionOpenMode Mode
     {
       get { return mode; }
       set { mode = value; }
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Aspects
     }
 
     public static TransactionalAspect ApplyOnce(MethodBase method, 
-      bool openSession, bool openTransaction, TransactionMode mode)
+      bool openSession, bool openTransaction, TransactionOpenMode mode)
     {
       ArgumentValidator.EnsureArgumentNotNull(method, "method");
 

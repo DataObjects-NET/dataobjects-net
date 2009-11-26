@@ -9,17 +9,22 @@ namespace Xtensive.Storage
   /// <summary>
   /// Describes transaction opening mode.
   /// </summary>
-  public enum TransactionMode
+  public enum TransactionOpenMode
   {
     /// <summary>
     /// Existing transaction will be used if it is already open, 
     /// otherwise new transaction will be open.
     /// </summary>
-    Auto,
+    Auto = 1,
 
     /// <summary>
     /// New transaction will be open, i.e. nested one if some transaction is already open.
     /// </summary>
-    New
+    New = 2,
+
+    /// <summary>
+    /// Default value is <see cref="Auto"/>.
+    /// </summary>
+    Default = Auto
   }
 }

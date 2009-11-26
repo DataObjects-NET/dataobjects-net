@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Aspects
 
         bool activateSession = method.IsPublic && !isCompilerGenerated && !method.IsConstructor;
         bool openTransaction = method.IsPublic && !isCompilerGenerated;
-        TransactionMode mode = TransactionMode.Auto;
+        TransactionOpenMode mode = TransactionOpenMode.Auto;
 
         var attributeSet = AttributeSet.ExctractFrom(method);
 
@@ -224,7 +224,7 @@ namespace Xtensive.Storage.Aspects
           var constraints = propertyInfo.GetAttributes<PropertyConstraintAspect>(AttributeSearchOptions.InheritNone);
           bool hasConstraints = !(constraints==null || constraints.Length==0);
           if (hasConstraints) {
-            var transactionalAspect = TransactionalAspect.ApplyOnce(setter, true, true, TransactionMode.Auto);
+            var transactionalAspect = TransactionalAspect.ApplyOnce(setter, true, true, TransactionOpenMode.Auto);
             if (transactionalAspect!=null)
               collection.AddAspect(setter, transactionalAspect);
           }

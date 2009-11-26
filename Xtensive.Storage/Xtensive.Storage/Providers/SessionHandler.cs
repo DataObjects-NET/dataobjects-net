@@ -62,7 +62,19 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Opens the transaction.
     /// </summary>
-    public abstract void BeginTransaction();
+    public abstract void BeginTransaction(IsolationLevel isolationLevel);
+
+    /// <summary>
+    /// Makes the savepoint.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    public abstract void MakeSavepoint(string name);
+
+    /// <summary>
+    /// Rollbacks to savepoint.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    public abstract void RollbackToSavepoint(string name);
 
     /// <summary>
     /// Commits the transaction.

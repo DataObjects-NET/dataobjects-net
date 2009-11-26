@@ -254,7 +254,7 @@ namespace Xtensive.Storage
         EnsureOwnerIsNotRemoved();
         if (Owner.PersistenceState==PersistenceState.New)
           return GetCachedEntities();
-        if (IsStateLoaded)
+        if (StateIsLoaded)
           return State.IsFullyLoaded
             ? GetCachedEntities()
             : GetRealEntities();

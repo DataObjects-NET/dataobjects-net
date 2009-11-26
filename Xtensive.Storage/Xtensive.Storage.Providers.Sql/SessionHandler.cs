@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Transactions;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Storage.Internals;
@@ -70,12 +71,30 @@ namespace Xtensive.Storage.Providers.Sql
     #region Transaction control methods
 
     /// <inheritdoc/>
-    public override void BeginTransaction()
+    public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
         driver.BeginTransaction(
-          Session, connection, IsolationLevelConverter.Convert(Session.Transaction.IsolationLevel));
+          Session, connection, IsolationLevelConverter.Convert(isolationLevel));
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void MakeSavepoint(string name)
+    {
+      lock (connectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        connection.MakeSavepoint(name);
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void RollbackToSavepoint(string name)
+    {
+      lock (connectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        connection.RollbackToSavepoint(name);
       }
     }
 

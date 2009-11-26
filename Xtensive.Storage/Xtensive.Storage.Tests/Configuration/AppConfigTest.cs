@@ -4,21 +4,12 @@
 // Created by: Alexey Gamzov
 // Created:    2008.08.06
 
-using System;
-using System.Collections.Generic;
-using System.Transactions;
 using NUnit.Framework;
-using Xtensive.Core.Caching;
 using Xtensive.Core.Linq;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
-using System.Reflection;
-using Xtensive.Storage.Tests.Storage.TranscationsTest;
-
 
 namespace Xtensive.Storage.Tests.Configuration.UserDefinedMappings
 {

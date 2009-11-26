@@ -418,7 +418,7 @@ namespace Xtensive.Storage
     {
       Persist(true);
       ExecuteAllDelayedQueries(true);
-      EnsureTransactionIsStarted();
+      EnsureTransactionIsStarted(Transaction);
       return Handler.CreateEnumerationContext();
     }
 

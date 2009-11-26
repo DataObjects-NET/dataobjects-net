@@ -169,6 +169,7 @@ namespace Xtensive.Storage
             GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
 
           State.Add(item.Key);
+          MarkStateAsModified();
           Owner.UpdateVersionInternal();
           SystemAdd(item);
           SystemAddCompleted(item, null);
@@ -217,6 +218,7 @@ namespace Xtensive.Storage
           }
 
           State.Remove(item.Key);
+          MarkStateAsModified();
           Owner.UpdateVersionInternal();
           SystemRemove(item);
           SystemRemoveCompleted(item, null);
@@ -509,9 +511,7 @@ namespace Xtensive.Storage
     internal EntitySetState GetState()
     {
       EnsureOwnerIsNotRemoved();
-      if (IsStateLoaded)
-        return State;
-      return null;
+      return StateIsLoaded ? State : null;
     }
 
     internal void IntersectWith<TElement>(IEnumerable<TElement> other)

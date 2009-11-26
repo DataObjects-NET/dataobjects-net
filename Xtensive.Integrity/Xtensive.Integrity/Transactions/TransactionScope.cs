@@ -25,7 +25,7 @@ namespace Xtensive.Integrity.Transactions
       set {
         if (value==false)
           throw new InvalidOperationException(Strings.ExTransactionScopeIsCompletedCanNotBeSetToFalse);
-        isCompleted = value;
+        isCompleted = true;
       }
     }
 

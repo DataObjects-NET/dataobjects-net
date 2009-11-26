@@ -14,6 +14,8 @@ using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
+using SqlSessionHandler = Xtensive.Storage.Providers.Sql.SessionHandler;
+using IndexSessionHandler = Xtensive.Storage.Providers.Index.SessionHandler;
 
 namespace Xtensive.Storage.Tests
 {
@@ -94,6 +96,19 @@ namespace Xtensive.Storage.Tests
         throw;
       }
     }
+
+    protected static object GetNativeTransaction()
+    {
+      var handler = Session.Current.Handler;
+      var sqlHandler = handler as SqlSessionHandler;
+      if (sqlHandler!=null)
+        return sqlHandler.Connection.ActiveTransaction;
+      var indexHandler = handler as IndexSessionHandler;
+      if (indexHandler!=null)
+        return indexHandler.StorageView;
+      throw new InvalidOperationException();
+    }
+
 
     private void SelectProtocol(DomainConfiguration config)
     {

@@ -13,8 +13,11 @@ namespace Xtensive.Storage
 {
   public partial class Session
   {
+    private const string SavepointNameFormat = "s{0}";
+
+    private int nextSavepoint;
     private TransactionScope ambientTransactionScope;
- 
+    
     /// <summary>
     /// Gets the active transaction.
     /// </summary>    
@@ -44,24 +47,12 @@ namespace Xtensive.Storage
     /// Occurs when <see cref="Transaction"/> is rolled back.
     /// </summary>
     public event EventHandler<TransactionEventArgs> TransactionRollbacked;
-
-    internal TransactionScope OpenTransaction()
+    
+    internal TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
-      return OpenTransaction(Configuration.DefaultIsolationLevel);
-    }
-
-    internal TransactionScope OpenTransaction(IsolationLevel isolationLevel)
-    {
-      if (Transaction != null)
-        return TransactionScope.VoidScopeInstance;
-      var transaction = new Transaction(this, isolationLevel);
-      Transaction = transaction;
-      var transactionScope = (TransactionScope) transaction.Begin();
-      if (transactionScope!=null && Configuration.UsesAmbientTransactions) {
-        ambientTransactionScope = transactionScope;
-        return TransactionScope.VoidScopeInstance;
-      }
-      return transactionScope;
+      return Configuration.UsesAmbientTransactions
+        ? OpenAmbientTransaction(isolationLevel)
+        : OpenRegularTransaction(mode, isolationLevel);
     }
 
     /// <summary>
@@ -89,60 +80,151 @@ namespace Xtensive.Storage
       scope.DisposeSafely();
     }
 
-    internal void BeginTransaction()
+    internal void BeginTransaction(Transaction transaction)
     {
       if (!Configuration.UsesAutoshortenedTransactions)
-        Handler.BeginTransaction();
-      NotifyTransactionOpen(Transaction);
+        StartTransaction(transaction);
+      NotifyTransactionOpen(transaction);
     }
 
-    internal void CommitTransaction()
+    internal void CommitTransaction(Transaction transaction)
     {
       try {
+        EnsureCanCompleteTransaction(transaction);
         Persist();
         queryTasks.Clear();
-        NotifyTransactionCommitting(Transaction);
-        Handler.CommitTransaction();
-        NotifyTransactionCommitted(Transaction);
-        CompleteTransaction();
+        NotifyTransactionCommitting(transaction);
+        if (transaction.IsActuallyStarted && !transaction.IsNested)
+          Handler.CommitTransaction();
+        NotifyTransactionCommitted(transaction);
+        CompleteTransaction(transaction);
       }
-      catch {        
-        RollbackTransaction();
+      catch {
+        RollbackTransaction(transaction);
         throw;
       }
     }
 
-    internal void RollbackTransaction()
+    internal void RollbackTransaction(Transaction transaction)
     {
       try {
-        NotifyTransactionRollbacking(Transaction);
-        Handler.RollbackTransaction();
-        NotifyTransactionRollbacked(Transaction);
+        EnsureCanCompleteTransaction(transaction);
+        NotifyTransactionRollbacking(transaction);
+        if (transaction.IsActuallyStarted)
+          if (transaction.IsNested)
+            Handler.RollbackToSavepoint(transaction.SavepointName);
+          else
+            Handler.RollbackTransaction();
+        NotifyTransactionRollbacked(transaction);
       }
       finally {
-        foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
-          item.PersistenceState = PersistenceState.Synchronized;
-        foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified))
-          item.PersistenceState = PersistenceState.Synchronized;
-        foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
-          item.PersistenceState = PersistenceState.Synchronized;
-        EntityChangeRegistry.Clear();
-        queryTasks.Clear();
-        CompleteTransaction();
+        ClearTransactionalRegistires();
+        CompleteTransaction(transaction);
       }
     }
 
-    private void EnsureTransactionIsStarted()
+    private void EnsureTransactionIsStarted(Transaction transaction)
     {
-      if (Transaction==null)
+      if (transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
-      if (Configuration.UsesAutoshortenedTransactions && !Handler.TransactionIsStarted)
-        Handler.BeginTransaction();
+      if (!transaction.IsActuallyStarted)
+        StartTransaction(transaction);
     }
 
-    private void CompleteTransaction()
+    private void StartTransaction(Transaction transaction)
     {
+      transaction.IsActuallyStarted = true;
+      if (transaction.IsNested) {
+        EnsureTransactionIsStarted(transaction);
+        Persist();
+        Handler.MakeSavepoint(transaction.SavepointName);
+      }
+      else
+        Handler.BeginTransaction(transaction.IsolationLevel);
+    }
+
+    private void EnsureCanCompleteTransaction(Transaction transaction)
+    {
+      if (transaction.Inner==null)
+        return;
+
       Transaction = null;
+      Handler.RollbackTransaction();
+      ClearTransactionalRegistires();
+
+      throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
+    }
+
+    private void CompleteTransaction(Transaction transaction)
+    {
+      Transaction = transaction.Outer;
+      if (Transaction!=null)
+        Transaction.Inner = null;
+    }
+
+    private void ClearTransactionalRegistires()
+    {
+      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
+        item.PersistenceState = PersistenceState.Synchronized;
+      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified))
+        item.PersistenceState = PersistenceState.Synchronized;
+      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
+        item.PersistenceState = PersistenceState.Synchronized;
+      EntityChangeRegistry.Clear();
+      queryTasks.Clear();      
+    }
+
+    private string GetNextSavepointName()
+    {
+      return string.Format(SavepointNameFormat, nextSavepoint++);
+    }
+
+    private TransactionScope OpenAmbientTransaction(IsolationLevel isolationLevel)
+    {
+      if (Transaction==null) {
+        var newTransaction = new Transaction(this, isolationLevel);
+        ambientTransactionScope = (TransactionScope) newTransaction.Begin();
+        Transaction = newTransaction;
+      }
+      return TransactionScope.VoidScopeInstance;
+    }
+
+    private TransactionScope OpenRegularTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel)
+    {
+      Transaction newTransaction = null;
+
+      if (Transaction==null)
+        newTransaction = new Transaction(this, isolationLevel);
+      else
+        switch (mode) {
+        case TransactionOpenMode.New:
+          if (Transaction.Inner!=null)
+            throw new InvalidOperationException(Strings.ExCanNotOpenMoreThanOneInnerTransaction);
+          newTransaction = new Transaction(this, isolationLevel, Transaction, GetNextSavepointName());
+          break;
+        case TransactionOpenMode.Auto:
+          if (isolationLevel!=Transaction.IsolationLevel)
+            throw new InvalidOperationException(Strings.ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent);
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("mode");
+        }
+
+      if (newTransaction==null)
+        return TransactionScope.VoidScopeInstance;
+
+      TransactionScope result;
+      try {
+        result = (TransactionScope) newTransaction.Begin();
+      }
+      catch {
+        if (Transaction!=null)
+          Transaction.Inner = null;
+        throw;
+      }
+
+      Transaction = newTransaction;
+      return result;
     }
 
     #region NotifyXxx methods

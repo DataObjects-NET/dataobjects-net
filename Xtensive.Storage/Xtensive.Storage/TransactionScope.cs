@@ -12,33 +12,24 @@ namespace Xtensive.Storage
   /// </summary>
   public class TransactionScope : Integrity.Transactions.TransactionScope
   {
-    private static readonly TransactionScope voidRegionInstance = new TransactionScope();
+    private static readonly TransactionScope VoidRegionInstance = new TransactionScope();
 
     /// <summary>
     /// <see cref="TransactionScope"/> instance that is used for all <see cref="IsVoid">nested</see> scopes.
     /// </summary>
-    public static TransactionScope VoidScopeInstance
-    {
-      get { return voidRegionInstance; }
-    }
+    public static TransactionScope VoidScopeInstance { get { return VoidRegionInstance; } }
 
     /// <summary>
     /// Gets a value indicating whether this scope is void,
     /// i.e. is included into another <see cref="TransactionScope"/> 
     /// and therefore does nothing on opening and disposing.
     /// </summary>
-    public bool IsVoid
-    {
-      get { return this==VoidScopeInstance; }
-    }
+    public bool IsVoid { get { return this==VoidScopeInstance; } }
 
     /// <summary>
     /// Gets the transaction this scope controls.
     /// </summary>
-    public new Transaction Transaction
-    {
-      get { return (Transaction) base.Transaction; }
-    }
+    public new Transaction Transaction { get { return (Transaction) base.Transaction; } }
 
     /// <summary>
     /// Marks the scope as successfully completed 

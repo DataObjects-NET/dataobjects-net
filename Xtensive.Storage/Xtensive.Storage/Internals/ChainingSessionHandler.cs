@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -39,9 +40,9 @@ namespace Xtensive.Storage.Internals
     public override bool TransactionIsStarted { get { return chainedHandler.TransactionIsStarted; } }
 
     /// <inheritdoc/>
-    public override void BeginTransaction()
+    public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      chainedHandler.BeginTransaction();
+      chainedHandler.BeginTransaction(isolationLevel);
     }
 
     /// <inheritdoc/>
@@ -54,6 +55,18 @@ namespace Xtensive.Storage.Internals
     public override void RollbackTransaction()
     {
       chainedHandler.RollbackTransaction();
+    }
+
+    /// <inheritdoc/>
+    public override void MakeSavepoint(string name)
+    {
+      chainedHandler.MakeSavepoint(name);
+    }
+
+    /// <inheritdoc/>
+    public override void RollbackToSavepoint(string name)
+    {
+      chainedHandler.RollbackToSavepoint(name);
     }
 
     /// <inheritdoc/>
