@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Resources;
 
@@ -30,6 +31,8 @@ namespace Xtensive.Storage.Model
     /// Name of the reflecting type.
     /// </summary>
     public string TypeName { get; private set; }
+
+    public TupleDescriptor KeyTupleDescriptor { get; private set; }
 
     /// <summary>
     /// Resolves this instance to <see cref="IndexInfo"/> object within specified <paramref name="model"/>.
@@ -122,6 +125,7 @@ namespace Xtensive.Storage.Model
     {
       IndexName = indexInfo.Name;      
       TypeName = indexInfo.ReflectedType.Name;
+      KeyTupleDescriptor = indexInfo.KeyTupleDescriptor;
     }
   }
 }

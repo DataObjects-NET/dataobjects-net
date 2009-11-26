@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -145,13 +146,16 @@ namespace Xtensive.Storage.Rse.Compilation
         var includeProvider = (IncludeProvider) provider.Source;
         var columnIndex = provider.Predicate.Body.GetTupleAccessArgument();
         if (columnIndex==includeProvider.Header.Length - 1
-          && includeProvider.Source.Type==ProviderType.Index
-            && includeProvider.FilteredColumns.SequenceEqual(Enumerable.Range(0, includeProvider.FilteredColumns.Length))) {
-          var compiledIndexProvider = Compile(includeProvider.Source);
-          return new Providers.Executable.MultySeekProvider(
-            provider,
-            compiledIndexProvider,
-            includeProvider.FilterDataSource);
+          && includeProvider.Source.Type==ProviderType.Index){
+          var indexProvider = (IndexProvider)includeProvider.Source;
+          var keyTupleDescriptor = indexProvider.Index.KeyTupleDescriptor;
+          if (includeProvider.FilteredColumns.SequenceEqual(Enumerable.Range(0, keyTupleDescriptor.Count))) {
+            var compiledIndexProvider = Compile(includeProvider.Source);
+            return new Providers.Executable.MultySeekProvider(
+              provider,
+              compiledIndexProvider,
+              includeProvider.FilterDataSource);
+          }
         }
       }
 
