@@ -419,23 +419,31 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     [Test]
     public void PutNullInCacheIfEntityIsNotFoundTest()
     {
-      Key orderKey;
+      Key orderKey0;
+      Key orderKey1;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var customer = new Customer {Age = 25, City = "A", Name = "test"};
-        orderKey = new Order {Number = 999, Customer = customer}.Key;
+        var customer0 = new Customer {Age = 25, City = "A", Name = "test"};
+        orderKey0 = new Order {Number = 999, Customer = customer0}.Key;
+        var customer1 = new Customer {Age = 25, City = "B", Name = "test"};
+        orderKey1 = new Order {Number = 1000, Customer = customer0}.Key;
       }
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         var numberField = typeof (Order).GetTypeInfo().Fields["Number"];
-        prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(numberField));
+        prefetchManager.InvokePrefetch(orderKey0, null, new PrefetchFieldDescriptor(numberField));
+        prefetchManager.InvokePrefetch(orderKey1, null, new PrefetchFieldDescriptor(numberField));
         prefetchManager.ExecuteTasks();
 
-        var state = session.EntityStateCache[orderKey, true];
-        Assert.IsNull(state.Tuple);
-        Assert.AreEqual(PersistenceState.Synchronized, state.PersistenceState);
+        Action<Key> validator = key => {
+          var state = session.EntityStateCache[key, true];
+          Assert.IsNull(state.Tuple);
+          Assert.AreEqual(PersistenceState.Synchronized, state.PersistenceState);
+        };
+        validator.Invoke(orderKey0);
+        validator.Invoke(orderKey1);
       }
     }
 

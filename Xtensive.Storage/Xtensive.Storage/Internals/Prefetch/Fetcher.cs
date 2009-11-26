@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Internals.Prefetch
   internal sealed class Fetcher
   {
     private readonly SetSlim<EntityGroupTask> tasks = new SetSlim<EntityGroupTask>();
-    private readonly HashSet<Key> foundedKeys = new HashSet<Key>();
+    private readonly HashSet<Key> foundKeys = new HashSet<Key>();
 
     private readonly PrefetchManager manager;
 
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
       finally {
         tasks.Clear();
-        foundedKeys.Clear();
+        foundKeys.Clear();
       }
     }
 
@@ -93,8 +93,10 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private void UpdateCacheFromAllEntityGroupTasks()
     {
-      foreach (var task in tasks)
-        task.UpdateCache(foundedKeys);
+      foreach (var task in tasks) {
+        foundKeys.Clear();
+        task.UpdateCache(foundKeys);
+      }
     }
 
     private void RegisterAllEntityGroupTasks()

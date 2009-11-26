@@ -69,13 +69,12 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
     }
 
-    public void UpdateCache(HashSet<Key> foundedKeys)
+    public void UpdateCache(HashSet<Key> foundKeys)
     {
-      foundedKeys.Clear();
       var reader = manager.Owner.Session.Domain.RecordSetReader;
       foreach (var queryTask in queryTasks)
-        PutLoadedStatesInCache(queryTask.Result, reader, foundedKeys);
-      HandleMissedKeys(foundedKeys);
+        PutLoadedStatesInCache(queryTask.Result, reader, foundKeys);
+      HandleMissedKeys(foundKeys);
     }
 
     public bool Equals(EntityGroupTask other)
@@ -150,13 +149,19 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
     }
 
-    private void HandleMissedKeys(HashSet<Key> foundedKeys)
+    private void HandleMissedKeys(HashSet<Key> foundKeys)
     {
-      if (foundedKeys.Count == keys.Count)
+      if (foundKeys.Count == keys.Count)
         return;
+      var countOfHandledKeys = foundKeys.Count;
+      var totalCount = keys.Count;
       foreach (var pair in keys) {
-        if (!foundedKeys.Contains(pair.Key))
+        if (!foundKeys.Contains(pair.Key)) {
           MarkMissedEntityState(pair.Key, pair.Value);
+          countOfHandledKeys++;
+        }
+        if (countOfHandledKeys == totalCount)
+          break;
       }
     }
 
