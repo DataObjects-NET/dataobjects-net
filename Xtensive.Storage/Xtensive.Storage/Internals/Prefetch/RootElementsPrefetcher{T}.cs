@@ -96,10 +96,8 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       FieldDescriptorCollection result;
       if (!userDescriptorsCache.TryGetValue(type, out result)) {
-        result = new FieldDescriptorCollection(type.Fields
-          .Where(field => field.Parent==null && PrefetchHelper.IsFieldToBeLoadedByDefault(field)
-            && !fieldDescriptors.ContainsKey(field))
-          .Select(field => new PrefetchFieldDescriptor(field, false, false))
+        result = new FieldDescriptorCollection(
+          PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(sessionHandler.Session.Domain, type)
           .Concat(fieldDescriptors.Values));
         userDescriptorsCache[type] = result;
       }
