@@ -9,7 +9,6 @@ using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Resources;
@@ -20,16 +19,37 @@ namespace Xtensive.Storage
   /// <summary>
   /// An implementation of transaction suitable for storage.
   /// </summary>
-  public sealed class Transaction : TransactionBase,
-    IHasExtensions
+  public sealed partial class Transaction : IHasExtensions
   {
+    /// <summary>
+    /// Gets the current <see cref="Transaction"/> object
+    /// using <see cref="Session"/>.<see cref="Storage.Session.Current"/>.
+    /// </summary>
+    public static Transaction Current {
+      get {
+        var session = Session.Current;
+        return session!=null ? session.Transaction : null;
+      }
+    }
+
     private InconsistentRegion inconsistentRegion;
     private ExtensionCollection extensions;
+    private Transaction inner;
     
     /// <summary>
-    /// Gets the session.
+    /// Gets the session this transaction is bound to.
     /// </summary>
     public Session Session { get; private set; }
+
+    /// <summary>
+    /// Gets the isolation level.
+    /// </summary>
+    public IsolationLevel IsolationLevel { get; private set; }
+
+    /// <summary>
+    /// Gets the state of the transaction.
+    /// </summary>
+    public TransactionState State { get; private set; }
 
     /// <summary>
     /// Gets the outer transaction.
@@ -42,10 +62,15 @@ namespace Xtensive.Storage
     public Transaction Outermost { get; private set; }
 
     /// <summary>
+    /// Gets the timestamp of this transaction.
+    /// </summary>
+    public DateTime TimeStamp { get; private set; }
+    
+    /// <summary>
     /// Gets a value indicating whether this transaction is a nested transaction.
     /// </summary>
     public bool IsNested { get { return Outer!=null; } }
-
+    
     /// <summary>
     /// Gets the transaction-level temporary data.
     /// </summary>
@@ -55,19 +80,26 @@ namespace Xtensive.Storage
     /// Gets the validation context of this <see cref="Transaction"/>.
     /// </summary>    
     public ValidationContext ValidationContext { get; private set; }
-
-    internal string SavepointName { get; private set; }
-
-    internal Transaction Inner { get; set; }
-
-    internal bool IsActuallyStarted { get; set; }
     
+    #region IHasExtensions Members
+
     /// <inheritdoc/>
-    protected override Integrity.Transactions.TransactionScope CreateScope()
-    {
-      return new TransactionScope(this);
+    public IExtensionCollection Extensions {
+      get {
+        if (extensions==null)
+          extensions = new ExtensionCollection();
+        return extensions;
+      }
     }
 
+    #endregion
+
+    internal string SavepointName { get; private set; }
+    
+    internal bool IsActuallyStarted { get; set; }
+  
+    #region Private / internal methods
+    
     internal bool AreChangesVisibleTo(Transaction otherTransaction)
     {
       ArgumentValidator.EnsureArgumentNotNull(otherTransaction, "otherTransaction");
@@ -80,244 +112,117 @@ namespace Xtensive.Storage
       return t.State.IsActive();      
     }
 
-    #region IHasExtensions Members
+    internal void Begin()
+    {
+      if (State!=TransactionState.NotActivated)
+        throw new InvalidOperationException(Strings.ExTransactionShouldNotBeActive);
+      try {
+        PerformBegin();
+      }
+      catch {
+        ClearReferences();
+        throw;
+      }
+      State = TransactionState.Active;
+    }
 
-    /// <inheritdoc/>
-    public IExtensionCollection Extensions {
-      get {
-        if (extensions != null)
-          return extensions;
-
-        lock (this) {
-          if (extensions == null)
-            extensions = new ExtensionCollection();
-        }
-
-        return extensions;
+    internal void Commit()
+    {
+      EnsureTransactionIsActive();
+      State = TransactionState.Committing;
+      try {
+        PerformCommit();
+        State = TransactionState.Committed;
+      }
+      catch {
+        State = TransactionState.RolledBack;
+        throw;
+      }
+      finally {
+        ClearReferences();
       }
     }
 
-    #endregion
-
-    #region OnXxx methods
-
-    /// <inheritdoc/>
-    protected override void OnBegin()
+    internal void Rollback()
     {
-      ValidationContext.Reset();
-      if (Session.Domain.Configuration.ValidationMode==ValidationMode.OnDemand)
-        inconsistentRegion = ValidationContext.OpenInconsistentRegion();
+      EnsureTransactionIsActive();
+      State = TransactionState.RollingBack;
+      try {
+        PerformRollback();
+      }
+      finally {
+        State = TransactionState.RolledBack;
+        ClearReferences();
+      }
+    }
+
+    private void EnsureTransactionIsActive()
+    {
+      if (State!=TransactionState.Active)
+        throw new InvalidOperationException(Strings.ExTransactionIsNotActive);
+    }
+
+    private void PerformBegin()
+    {
+      BeginValidation();
       Session.BeginTransaction(this);
     }
 
-    /// <inheritdoc/>
-    protected override void OnCommit()
+    private void PerformCommit()
     {
       try {
-        if (inconsistentRegion==null && !ValidationContext.IsConsistent)
-          throw new InvalidOperationException(Strings.ExCanNotCommitATransactionValidationContextIsInInconsistentState);
-
-        try {
-          Validation.Enforce(Session);
-
-          if (inconsistentRegion!=null) {
-            inconsistentRegion.Complete();
-            inconsistentRegion.DisposeSafely();
-          }
-        }
-        catch (AggregateException exception) {
-          throw new InvalidOperationException(Strings.ExCanNotCommitATransactionEntitiesValidationFailed, exception);
-        }
+        if (inner!=null)
+          throw new InvalidOperationException(
+            Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
+        CompleteValidation();
       }
       catch {
-        OnRollback();
+        PerformRollback();
         throw;
       }
-
       Session.CommitTransaction(this);
     }
 
-    /// <inheritdoc/>
-    protected override void OnRollback()
+    private void PerformRollback()
     {
       try {
-        inconsistentRegion.DisposeSafely();
+        if (inner!=null)
+          inner.Rollback();
+        AbortValidation();
       }
       finally {
         Session.RollbackTransaction(this);
       }
     }
 
+    private void ClearReferences()
+    {
+      if (Outer!=null)
+        Outer.inner = null;
+    }
+
     #endregion
 
-    #region Static Current (property), Open (method)
-
-    /// <summary>
-    /// Gets the current <see cref="Transaction"/> object
-    /// using <see cref="Session"/>.<see cref="Storage.Session.Current"/>.
-    /// </summary>
-    public static Transaction Current {
-      get {
-        var session = Session.Current;
-        return session!=null ? session.Transaction : null;
-      }
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open()
-    {
-      var session = Session.Demand();
-      return session.OpenTransaction(TransactionOpenMode.Default, session.Configuration.DefaultIsolationLevel);
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(IsolationLevel isolationLevel)
-    {
-      var session = Session.Demand();
-      return session.OpenTransaction(TransactionOpenMode.Default, isolationLevel);
-    }
     
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="mode">The mode.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(TransactionOpenMode mode)
-    {
-      var session = Session.Demand();
-      return session.OpenTransaction(mode, session.Configuration.DefaultIsolationLevel);
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="mode">The mode.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(TransactionOpenMode mode, IsolationLevel isolationLevel)
-    {
-      var session = Session.Demand();
-      return session.OpenTransaction(mode, isolationLevel);
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(Session session)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(TransactionOpenMode.Default, session.Configuration.DefaultIsolationLevel);
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(Session session, IsolationLevel isolationLevel)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(TransactionOpenMode.Default, isolationLevel);
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="mode">The mode.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(Session session, TransactionOpenMode mode)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(mode, session.Configuration.DefaultIsolationLevel);
-    }
-
-    /// <summary>
-    /// Opens a new or already running transaction.
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="mode">The mode.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object, if new <see cref="Transaction"/> is created;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public static TransactionScope Open(Session session, TransactionOpenMode mode, IsolationLevel isolationLevel)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(mode, isolationLevel);
-    }
-
-    #endregion
-
-
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
     internal Transaction(Session session, IsolationLevel isolationLevel)
       : this(session, isolationLevel, null, null)
     {
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <param name="outer">The outer transaction.</param>
-    /// <param name="savepointName">Name of the savepoint associated with nested transaction.</param>
     internal Transaction(Session session, IsolationLevel isolationLevel, Transaction outer, string savepointName)
-      : base (Guid.NewGuid(), isolationLevel)
     {
       Session = session;
+      IsolationLevel = isolationLevel;
+      TimeStamp = DateTime.Now;
       TemporaryData = new TransactionTemporaryData();
       ValidationContext = new ValidationContext();
-
+      
       if (outer!=null) {
-        outer.Inner = this;
+        if (outer.inner!=null)
+          throw new InvalidOperationException(Strings.ExCanNotOpenMoreThanOneInnerTransaction);
+        outer.inner = this;
         Outer = outer;
         Outermost = outer.Outermost;
         SavepointName = savepointName;

@@ -4,20 +4,30 @@
 // Created by: 
 // Created:    2008.08.30
 
+using System;
+using Xtensive.Integrity.Transactions;
+
 namespace Xtensive.Storage
 {
   /// <summary>
   /// An implementation of <see cref="Integrity.Transactions.TransactionScope"/>
   /// suitable for storage.
   /// </summary>
-  public class TransactionScope : Integrity.Transactions.TransactionScope
+  public class TransactionScope : IDisposable
   {
-    private static readonly TransactionScope VoidRegionInstance = new TransactionScope();
+    private static readonly TransactionScope VoidScope = new TransactionScope();
+
+    private bool isCompleted;
 
     /// <summary>
     /// <see cref="TransactionScope"/> instance that is used for all <see cref="IsVoid">nested</see> scopes.
     /// </summary>
-    public static TransactionScope VoidScopeInstance { get { return VoidRegionInstance; } }
+    public static TransactionScope VoidScopeInstance { get { return VoidScope; } }
+
+    /// <summary>
+    /// Gets the transaction this scope controls.
+    /// </summary>
+    public Transaction Transaction { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether this scope is void,
@@ -27,29 +37,35 @@ namespace Xtensive.Storage
     public bool IsVoid { get { return this==VoidScopeInstance; } }
 
     /// <summary>
-    /// Gets the transaction this scope controls.
-    /// </summary>
-    public new Transaction Transaction { get { return (Transaction) base.Transaction; } }
-
-    /// <summary>
     /// Marks the scope as successfully completed 
     /// (i.e. all operations within the scope are completed successfully).
     /// </summary>
     public void Complete()
     {
-      IsCompleted = true;
+      isCompleted = true;
     }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+      if (Transaction==null || !Transaction.State.IsActive())
+        return;
+      if (isCompleted)
+        Transaction.Commit();
+      else
+        Transaction.Rollback();
+    }
+
 
     // Constructors
 
     private TransactionScope()
-      : base(null)
     {
     }
 
     internal TransactionScope(Transaction transaction)
-      : base(transaction)
     {
+      Transaction = transaction;
     }
   }
 }

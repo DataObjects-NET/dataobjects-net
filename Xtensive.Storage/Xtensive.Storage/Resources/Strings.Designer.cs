@@ -2126,6 +2126,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Transaction is not active.
+        /// </summary>
+        internal static string ExTransactionIsNotActive {
+            get {
+                return ResourceManager.GetString("ExTransactionIsNotActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Transaction is required..
         /// </summary>
         internal static string ExTransactionIsRequired {
@@ -2140,6 +2149,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExTransactionRequired {
             get {
                 return ResourceManager.GetString("ExTransactionRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Transaction should not be active.
+        /// </summary>
+        internal static string ExTransactionShouldNotBeActive {
+            get {
+                return ResourceManager.GetString("ExTransactionShouldNotBeActive", resourceCulture);
             }
         }
         

@@ -90,7 +90,6 @@ namespace Xtensive.Storage
     internal void CommitTransaction(Transaction transaction)
     {
       try {
-        EnsureCanCompleteTransaction(transaction);
         Persist();
         queryTasks.Clear();
         NotifyTransactionCommitting(transaction);
@@ -108,7 +107,6 @@ namespace Xtensive.Storage
     internal void RollbackTransaction(Transaction transaction)
     {
       try {
-        EnsureCanCompleteTransaction(transaction);
         NotifyTransactionRollbacking(transaction);
         if (transaction.IsActuallyStarted)
           if (transaction.IsNested)
@@ -118,7 +116,7 @@ namespace Xtensive.Storage
         NotifyTransactionRollbacked(transaction);
       }
       finally {
-        ClearTransactionalRegistires();
+        ClearTransactionalRegistries();
         CompleteTransaction(transaction);
       }
     }
@@ -143,26 +141,12 @@ namespace Xtensive.Storage
         Handler.BeginTransaction(transaction.IsolationLevel);
     }
 
-    private void EnsureCanCompleteTransaction(Transaction transaction)
-    {
-      if (transaction.Inner==null)
-        return;
-
-      Transaction = null;
-      Handler.RollbackTransaction();
-      ClearTransactionalRegistires();
-
-      throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
-    }
-
     private void CompleteTransaction(Transaction transaction)
     {
       Transaction = transaction.Outer;
-      if (Transaction!=null)
-        Transaction.Inner = null;
     }
 
-    private void ClearTransactionalRegistires()
+    private void ClearTransactionalRegistries()
     {
       foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
         item.PersistenceState = PersistenceState.Synchronized;
@@ -171,7 +155,7 @@ namespace Xtensive.Storage
       foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
         item.PersistenceState = PersistenceState.Synchronized;
       EntityChangeRegistry.Clear();
-      queryTasks.Clear();      
+      queryTasks.Clear();
     }
 
     private string GetNextSavepointName()
@@ -183,8 +167,9 @@ namespace Xtensive.Storage
     {
       if (Transaction==null) {
         var newTransaction = new Transaction(this, isolationLevel);
-        ambientTransactionScope = (TransactionScope) newTransaction.Begin();
+        newTransaction.Begin();
         Transaction = newTransaction;
+        ambientTransactionScope = new TransactionScope(newTransaction);
       }
       return TransactionScope.VoidScopeInstance;
     }
@@ -198,8 +183,6 @@ namespace Xtensive.Storage
       else
         switch (mode) {
         case TransactionOpenMode.New:
-          if (Transaction.Inner!=null)
-            throw new InvalidOperationException(Strings.ExCanNotOpenMoreThanOneInnerTransaction);
           newTransaction = new Transaction(this, isolationLevel, Transaction, GetNextSavepointName());
           break;
         case TransactionOpenMode.Auto:
@@ -213,18 +196,9 @@ namespace Xtensive.Storage
       if (newTransaction==null)
         return TransactionScope.VoidScopeInstance;
 
-      TransactionScope result;
-      try {
-        result = (TransactionScope) newTransaction.Begin();
-      }
-      catch {
-        if (Transaction!=null)
-          Transaction.Inner = null;
-        throw;
-      }
-
+      newTransaction.Begin();
       Transaction = newTransaction;
-      return result;
+      return new TransactionScope(newTransaction);
     }
 
     #region NotifyXxx methods

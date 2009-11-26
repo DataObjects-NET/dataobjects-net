@@ -4,11 +4,9 @@
 // Created by: Alex Kofman
 // Created:    2008.08.27
 
-using System.Reflection;
 using NUnit.Framework;
 using System;
 using Xtensive.Core.Testing;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.TransactionsTestModel;
 
@@ -25,6 +23,11 @@ namespace Xtensive.Storage.Tests.Storage.TransactionsTestModel
 
     [Field]
     public Hexagon Babuka { get; set; }
+
+    public void IncreaseKwanza()
+    {
+      Kwanza++;
+    }
 
     public void Wobble(int newKanza)
     {
@@ -45,9 +48,9 @@ namespace Xtensive.Storage.Tests.Storage
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (Hexagon).Assembly, typeof (Hexagon).Namespace);
-      return config;
+      var configuration = base.BuildConfiguration();
+      configuration.Types.Register(typeof (Hexagon).Assembly, typeof (Hexagon).Namespace);
+      return configuration;
     }
 
     [Test]
@@ -158,53 +161,6 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(3, hexagon.Kwanza);
         }
       }
-    }
-
-    [Test]
-    public void NestedTransactionTest()
-    {
-      using (Session.Open(Domain)) {
-        using (Transaction.Open()) {
-          var theThing = new Hexagon();
-          var outerTransaction = Transaction.Current;
-          using (Transaction.Open(TransactionOpenMode.New)) {
-            var innerTransaction = Transaction.Current;
-            Assert.IsTrue(CheckStateIsActual(theThing.State));
-            Assert.AreSame(theThing.State.StateTransaction, outerTransaction);
-            theThing.Kwanza = 5;
-            Assert.AreSame(theThing.State.StateTransaction, innerTransaction);
-            // rollback
-          }
-          Assert.IsFalse(CheckStateIsActual(theThing.State));
-        }
-      }
-    }
-
-    [Test]
-    public void WrongNestedTransactionUsageTest()
-    {
-      using (Session.Open(Domain)) {
-        try {
-          using (var outer = Transaction.Open()) {
-            using (var inner = Transaction.Open(TransactionOpenMode.New)) {
-              AssertEx.ThrowsInvalidOperationException(outer.Dispose);
-            }
-          }
-        }
-        finally {
-          Assert.IsNull(Session.Current.Transaction);
-          Assert.IsNull(GetNativeTransaction());
-        }
-      }
-    }
-
-    private static bool CheckStateIsActual(EntityState state)
-    {
-      var result = typeof (TransactionalStateContainer<Tuple>).InvokeMember(
-        "CheckStateIsActual",
-        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod,
-        null, state, new object[0]);
-      return (bool) result;
     }
   }
 }

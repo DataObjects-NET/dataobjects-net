@@ -1270,4 +1270,10 @@ Actions:
   <data name="ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction" xml:space="preserve">
     <value>Can not mark state as modified: it is not valid in current transaction.</value>
   </data>
+  <data name="ExTransactionIsNotActive" xml:space="preserve">
+    <value>Transaction is not active</value>
+  </data>
+  <data name="ExTransactionShouldNotBeActive" xml:space="preserve">
+    <value>Transaction should not be active</value>
+  </data>
 </root>
