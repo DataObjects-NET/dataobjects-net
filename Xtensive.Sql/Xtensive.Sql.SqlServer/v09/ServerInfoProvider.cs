@@ -243,9 +243,9 @@ namespace Xtensive.Sql.SqlServer.v09
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         new ValueRange<DateTime>(new DateTime(1753, 1, 1), new DateTime(9999, 12,31)), "datetime");
 
-      types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar");
-      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "nvarchar");
-      types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "nvarchar(max)", "ntext");
+      types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar", "char");
+      types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "nvarchar", "varchar");
+      types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common, "nvarchar(max)", "ntext", "varchar(max)", "text", "xml");
 
       types.Binary = DataTypeInfo.Stream(SqlType.Binary, common | index, 4000, "binary");
       types.VarBinary = DataTypeInfo.Stream(SqlType.VarBinary, common | index, 4000, "varbinary");
