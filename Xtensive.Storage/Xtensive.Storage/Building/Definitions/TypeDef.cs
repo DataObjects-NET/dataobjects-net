@@ -119,6 +119,20 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
+    /// Gets or sets the type discriminator value.
+    /// </summary>
+    /// <value>The type discriminator value.</value>
+    public object TypeDiscriminatorValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is default type in hierarchy.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if this instance is default type in hierarchy; otherwise, <see langword="false"/>.
+    /// </value>
+    public bool IsDefaultTypeInHierarchy { get; set; }
+
+    /// <summary>
     /// Defines the index and adds it to the <see cref="Indexes"/>.
     /// </summary>
     /// <param name="name">The name.</param>

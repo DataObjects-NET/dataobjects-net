@@ -9,10 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building.Definitions;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
@@ -83,6 +80,7 @@ namespace Xtensive.Storage.Building.Builders
       ProcessScale(fieldDef, attribute);
       ProcessPrecision(fieldDef, attribute);
       ProcessIsLazyLoad(fieldDef, attribute);
+      ProcessTypeDiscriminator(fieldDef, attribute);
     }
 
     public static void Process(FieldDef fieldDef, AssociationAttribute attribute)
@@ -106,24 +104,32 @@ namespace Xtensive.Storage.Building.Builders
       ProcessIsUnique(indexDef, attribute);
     }
 
+    public static void Process(TypeDef typeDef, TypeDiscriminatorValueAttribute attribute)
+    {
+      typeDef.IsDefaultTypeInHierarchy = attribute.Default;
+      if (!attribute.Default && attribute.Value == null)
+        throw new InvalidOperationException(string.Format("Type discriminator value is required unless {0} is marked as default type in hierarchy.", typeDef.Name));
+      typeDef.TypeDiscriminatorValue = attribute.Value;
+    }
+
     public static void Process(FieldDef fieldDef, VersionAttribute attribute)
     {
       fieldDef.Attributes |= FieldAttributes.Version;
     }
 
-    public static void ProcessPairTo(FieldDef fieldDef, AssociationAttribute attribute)
+    private static void ProcessPairTo(FieldDef fieldDef, AssociationAttribute attribute)
     {
       fieldDef.PairTo = attribute.PairTo;
     }
 
-    public static void ProcessOnOwnerRemove(FieldDef fieldDef, AssociationAttribute attribute)
+    private static void ProcessOnOwnerRemove(FieldDef fieldDef, AssociationAttribute attribute)
     {
       if (attribute.onOwnerRemove==null)
         return;
       fieldDef.OnOwnerRemove = attribute.OnOwnerRemove;
     }
 
-    public static void ProcessOnTargetRemove(FieldDef fieldDef, AssociationAttribute attribute)
+    private static void ProcessOnTargetRemove(FieldDef fieldDef, AssociationAttribute attribute)
     {
       if (attribute.onTargetRemove==null)
         return;
@@ -170,6 +176,11 @@ namespace Xtensive.Storage.Building.Builders
           string.Format(Strings.InvalidPrecisionAttributeOnFieldX, fieldDef.Name));
 
       fieldDef.Precision = attribute.Precision;
+    }
+
+    private static void ProcessTypeDiscriminator(FieldDef fieldDef, FieldAttribute attribute)
+    {
+      fieldDef.IsTypeDiscriminator = attribute.TypeDiscriminator;
     }
 
     private static void ProcessIsLazyLoad(FieldDef fieldDef, FieldAttribute attribute)

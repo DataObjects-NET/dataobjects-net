@@ -64,5 +64,13 @@ namespace Xtensive.Storage
     /// <see cref="Entity"/> and <see cref="EntitySet{TItem}"/> fields are always loaded on demand.
     /// </remarks>
     public bool LazyLoad { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this field is used as type discriminator.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if field is used as type discriminator; otherwise, <see langword="false"/>.
+    /// </value>
+    public bool TypeDiscriminator { get; set; }
   }
 }

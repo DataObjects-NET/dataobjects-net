@@ -19,6 +19,8 @@ namespace Xtensive.Storage.Model
     PrimaryKey = 0x10,
     System = 0x40,
     LazyLoad = 0x80,
-    Stub = 0x100
+    Stub = 0x100,
+    TypeDiscriminator = 0x200,
+    Computed = 0x400,
   }
 }

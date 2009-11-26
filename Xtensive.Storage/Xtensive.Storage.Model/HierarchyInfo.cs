@@ -34,6 +34,11 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public KeyProviderInfo KeyProviderInfo { get; private set; }
 
+    /// <summary>
+    /// Gets the type discriminator.
+    /// </summary>
+    public TypeDiscriminatorMap TypeDiscriminatorMap { get; private set; }
+
     /// <inheritdoc/>
     public override void UpdateState(bool recursive)
     {
@@ -42,6 +47,10 @@ namespace Xtensive.Storage.Model
       var list = new List<TypeInfo> {Root};
       list.AddRange(Root.GetDescendants(true));
       Types = new ReadOnlyList<TypeInfo>(list);
+      if (Types.Count == 1)
+        Schema = InheritanceSchema.ConcreteTable;
+      if (TypeDiscriminatorMap != null)
+        TypeDiscriminatorMap.UpdateState();
     }
 
     /// <inheritdoc/>
@@ -49,6 +58,8 @@ namespace Xtensive.Storage.Model
     {
       base.Lock(recursive);
       KeyProviderInfo.Lock(recursive);
+      if (TypeDiscriminatorMap != null)
+        TypeDiscriminatorMap.Lock();
     }
 
 
@@ -59,12 +70,13 @@ namespace Xtensive.Storage.Model
     /// </summary>
     /// <param name="root">The hierarchy root.</param>
     /// <param name="schema">The schema.</param>
-    /// <param name="keyProviderInfo">The key info.</param>
-    public HierarchyInfo(TypeInfo root, InheritanceSchema schema, KeyProviderInfo keyProviderInfo)
+    /// <param name="keyProviderInfo">The key provider info.</param>
+    public HierarchyInfo(TypeInfo root, InheritanceSchema schema, KeyProviderInfo keyProviderInfo, TypeDiscriminatorMap typeDiscriminatorMap)
     {
       Root = root;
       Schema = schema;
       KeyProviderInfo = keyProviderInfo;
+      TypeDiscriminatorMap = typeDiscriminatorMap;
     }
   }
 }

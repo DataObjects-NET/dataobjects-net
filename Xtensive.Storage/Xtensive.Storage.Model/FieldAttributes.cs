@@ -28,6 +28,8 @@ namespace Xtensive.Storage.Model
     Explicit = 0x2000,
     Enum = 0x4000,
     TypeId = 0x8000,
-    Version = 0x10000
+    Version = 0x10000,
+    TypeDiscriminator = 0x20000,
+    Computed = 0x40000,
   }
 }

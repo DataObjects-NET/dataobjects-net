@@ -5,9 +5,7 @@
 // Created:    2009.05.26
 
 using System;
-using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage
 {

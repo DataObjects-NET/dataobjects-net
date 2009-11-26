@@ -232,6 +232,14 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    private object typeDiscriminatorValue;
+
+    public object TypeDiscriminatorValue
+    {
+      get { return typeDiscriminatorValue; }
+      set { typeDiscriminatorValue = value; }
+    }
+
     /// <summary>
     /// Gets the tuple descriptor.
     /// </summary>

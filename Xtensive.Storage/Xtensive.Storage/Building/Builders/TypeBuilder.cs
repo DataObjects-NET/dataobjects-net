@@ -70,6 +70,10 @@ namespace Xtensive.Storage.Building.Builders
           foreach (var fieldInfo in root.Fields.Where(f => f.IsPrimaryKey && f.Parent == null))
             BuildInheritedField(context, typeInfo, fieldInfo);
         }
+        if (typeDef.TypeDiscriminatorValue != null)
+          typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterTypeMapping(typeInfo, typeDef.TypeDiscriminatorValue);
+        if (typeDef.IsDefaultTypeInHierarchy)
+          typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterDefaultType(typeInfo);
       }
       else if (typeDef.IsInterface) {
         var hierarchyDef = context.ModelDef.FindHierarchy(typeDef.Implementors[0]);
@@ -188,6 +192,9 @@ namespace Xtensive.Storage.Building.Builders
       };
 
       type.Fields.Add(fieldInfo);
+
+      if (fieldDef.IsTypeDiscriminator)
+        type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo;
 
       if (fieldInfo.IsEntitySet) {
         AssociationBuilder.BuildAssociation(fieldDef, fieldInfo);
@@ -331,8 +338,10 @@ namespace Xtensive.Storage.Building.Builders
           keyProviderInfo.MappingName = context.NameBuilder.BuildGeneratorName(keyProviderInfo);
         context.Model.KeyProviders.Add(keyProviderInfo);
       }
+      var typeDiscriminatorField = hierarchyDef.Root.Fields.Where(f => f.IsTypeDiscriminator);
+      var typeDiscriminatorMap = typeDiscriminatorField!=null ? new TypeDiscriminatorMap() : null;
 
-      var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, keyProviderInfo) {
+      var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, keyProviderInfo, typeDiscriminatorMap) {
         Name = root.Name
       };
       context.Model.Hierarchies.Add(hierarchy);

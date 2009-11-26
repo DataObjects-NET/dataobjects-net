@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Building.Builders
         if (fa==null)
           continue;
 
-        FieldDef field = DefineField(propertyInfo);
+        var field = DefineField(propertyInfo);
 
         // Declared & inherited fields must be processed for hierarchy root
         if (hierarchyDef != null) {
@@ -140,16 +140,21 @@ namespace Xtensive.Storage.Building.Builders
       typeDef.Name = BuildingContext.Current.NameBuilder.BuildTypeName(typeDef);
 
       if (!(type.UnderlyingSystemType.IsInterface || type.IsAbstract)) {
-        var sta = typeDef.UnderlyingType.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.Default);
-        if (sta!=null)
-          AttributeProcessor.Process(typeDef, sta);
+          var sta = type.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.Default);
+          if (sta!=null)
+            AttributeProcessor.Process(typeDef, sta);
+      }
+      if (typeDef.IsEntity) {
+        var tdva = type.GetAttribute<TypeDiscriminatorValueAttribute>(AttributeSearchOptions.Default);
+        if (tdva != null)
+          AttributeProcessor.Process(typeDef, tdva);
       }
       if (typeDef.IsInterface) {
-        var mva = typeDef.UnderlyingType.GetAttribute<MaterializedViewAttribute>(AttributeSearchOptions.Default);
+        var mva = type.GetAttribute<MaterializedViewAttribute>(AttributeSearchOptions.Default);
         if (mva!=null)
           AttributeProcessor.Process(typeDef, mva);
       }
-      var ma = typeDef.UnderlyingType.GetAttribute<TableMappingAttribute>(AttributeSearchOptions.Default);
+      var ma = type.GetAttribute<TableMappingAttribute>(AttributeSearchOptions.Default);
       if (ma!=null)
         AttributeProcessor.Process(typeDef, ma);
       return typeDef;
