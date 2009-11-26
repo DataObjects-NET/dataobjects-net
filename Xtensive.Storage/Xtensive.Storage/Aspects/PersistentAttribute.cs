@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Aspects
         if (attributeSet.Transactional!=null) {
           openTransaction = attributeSet.Transactional.IsTransactional;
           mode = attributeSet.Transactional.Mode;
-          activateSession = true;
+          activateSession = activateSession || openTransaction;
         }
         if (attributeSet.ActivateSession!=null)
           activateSession = attributeSet.ActivateSession.Activate;

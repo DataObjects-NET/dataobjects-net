@@ -103,9 +103,10 @@ namespace Xtensive.Storage.Aspects
       var sessionScope = openSession ? sessionBound.ActivateContext() : null;
       if (!openTransaction)
         return sessionScope;
-      var transactionScope = openSession 
-        ? Transaction.Open(sessionBound.Session)
-        : Transaction.Open();
+      var session = sessionBound.Session;
+      var transactionScope = session==null ? 
+        Transaction.Open(mode) : 
+        Transaction.Open(session, mode);
       return transactionScope.Join(sessionScope);
     }
 

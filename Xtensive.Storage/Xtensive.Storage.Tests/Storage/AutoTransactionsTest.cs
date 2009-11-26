@@ -4,6 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2009.11.24
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core.Aspects;
 using Xtensive.Integrity.Transactions;
@@ -37,220 +38,294 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void MainTest()
+    public void TransactionsTest()
     {
       using (Session.Open(Domain)) {
 
-        var testObject = new MySessionBound(1);
+        var testObject = new MySessionBound();
         testObject.CheckAutoTransactions();
       }
     }
-  }
 
-  #region MySessionBound class
+    [Test]
+    public void SessionsTest()
+    {
+      var session = Session.Open(Domain, false);
+
+      MySessionBound testObject;
+
+      using (session.Activate()) {
+        testObject = new MySessionBound();
+      }
+
+      testObject.CheckSessionActivating();
+    }
+  }    
+
+  
   public class MySessionBound : SessionBound
   {
-    #region Properties
 
-    public bool PublicProperty
+    [ActivateSession(false), Transactional(false)]
+    public void CheckSessionActivating()
     {
-      get { return IsTransactionOpen; }
+      TestSession = this.Session;
+
+      Assert(TransactionState.None, SessionState.NotActive);
+      using (Session.Activate()) {
+        Assert(TransactionState.None, SessionState.Active);
+      }
+      Assert(TransactionState.None, SessionState.NotActive);
+
+      // Check properties
+
+      CallAllMethods();
     }
 
-    protected bool ProtectedProperty
+    [ActivateSession(true), Transactional(false)]
+    public void CheckAutoTransactions()
     {
-      get { return IsTransactionOpen; }
+      // Check whether IsTransactionOpen property is OK
+
+      TestSession = this.Session;
+
+      Assert(TransactionState.None, SessionState.Active);
+      using (Transaction.Open()) {
+        Assert(TransactionState.Open, SessionState.Active);
+      }
+      Assert(TransactionState.None, SessionState.Active);
+
+      CallAllMethods();
+      CallConstructors();
     }
 
-    internal bool InternalProperty
+    [Infrastructure]
+    public void CallConstructors()
     {
-      get { return IsTransactionOpen; }
+      new MySessionBound(1); // public constructor
+      new MySessionBound(true); // private transactional constructor
+            
+      new MySessionBound(DateTime.Now); // internal constructor
+      new MySessionBound("hello"); // private constructor
+      new MySessionBound(1.5F); // not transactional public constructor
+      new MySessionBound('a'); // infrastructure constructor
     }
 
-    protected internal bool ProtectedInternalProperty
+    [Infrastructure]
+    public void CallAllMethods()
     {
-      get { return IsTransactionOpen; }
+      PublicProperty = PublicProperty;
+      PrivateTransactionalProperty = PrivateTransactionalProperty;
+
+      ProtectedProperty = ProtectedProperty;
+      InternalProperty = InternalProperty;
+      ProtectedInternalProperty = ProtectedInternalProperty;
+      PrivateProperty = PrivateProperty;
+      PublicNotTransactionalProperty = PublicNotTransactionalProperty;
+      PublicInfrastructureProperty = PublicInfrastructureProperty;
+
+      // Check methods
+
+      PublicMethod();
+      PrivateTransactionalMethod();
+
+      ProtectedMethod();
+      InternalMethod();
+      ProtectedInternalMethod();
+      PrivateMethod();
+      PublicNotTransactionalMethod();
+      PublicInfrastructureMethod();
+      PublicNotSessionMethod();
+      InternalTransactionalNotSessionMethod();
     }
 
-    public static bool PublicStaticProperty
+
+    #region Test Members
+
+    public int PublicProperty
     {
-      get { return IsTransactionOpen; }
+      get { return Assert(TransactionState.Open, SessionState.Active); }
+      set { Assert(TransactionState.Open, SessionState.Active); }
     }
 
-    private bool PrivateProperty
+    protected int ProtectedProperty
     {
-      get { return IsTransactionOpen; }
+      get { return Assert(TransactionState.None, SessionState.NotActive); }
+      set { Assert(TransactionState.None, SessionState.NotActive); }
+    }
+
+    internal int InternalProperty
+    {
+      get { return Assert(TransactionState.None, SessionState.NotActive); }
+      set { Assert(TransactionState.None, SessionState.NotActive); }
+    }
+
+    protected internal int ProtectedInternalProperty
+    {
+      get { return Assert(TransactionState.None, SessionState.NotActive); }
+      set { Assert(TransactionState.None, SessionState.NotActive); }
+    }
+
+    private int PrivateProperty
+    {
+      get { return Assert(TransactionState.None, SessionState.NotActive); }
+      set { Assert(TransactionState.None, SessionState.NotActive); }
     }
 
     [Transactional(false)]
-    public bool PublicNotTransactionalProperty
+    public int PublicNotTransactionalProperty
     {
-        get { return IsTransactionOpen; }
+      get { return Assert(TransactionState.None, SessionState.Active); }
+      set { Assert(TransactionState.None, SessionState.Active); }
     }
 
     [Transactional]
-    private bool PrivateTransactionalProperty
+    private int PrivateTransactionalProperty
     {
-        get { return IsTransactionOpen; }
+      get { return Assert(TransactionState.Open, SessionState.Active); }
+      set { Assert(TransactionState.Open, SessionState.Active); }
     }
 
     [Infrastructure]
-    public bool PublicInfrastructureProperty
+    public int PublicInfrastructureProperty
     {
-        get { return IsTransactionOpen; }
+      get { return Assert(TransactionState.None, SessionState.NotActive); }
+      set { Assert(TransactionState.None, SessionState.NotActive); }
     }
 
-    #endregion 
 
-    #region Methods
+    // Methods
 
-    public bool PublicMethod()
+    public void PublicMethod()
     {
-      return IsTransactionOpen;
+      Assert(TransactionState.Open, SessionState.Active);
     }
 
-    protected bool ProtectedMethod()
+    protected void ProtectedMethod()
     {
-      return IsTransactionOpen;
+      Assert(TransactionState.None, SessionState.NotActive);
     }
 
-    internal bool InternalMethod()
+    internal void InternalMethod()
     {
-      return IsTransactionOpen;
+      Assert(TransactionState.None, SessionState.NotActive);
     }
 
-    protected internal bool ProtectedInternalMethod()
+    protected internal void ProtectedInternalMethod()
     {
-      return IsTransactionOpen;
+      Assert(TransactionState.None, SessionState.NotActive);
     }
 
-    public static bool PublicStaticMethod()
+    private void PrivateMethod()
     {
-      return IsTransactionOpen;
-    }
-
-    private bool PrivateMethod()
-    {
-      return IsTransactionOpen;
+      Assert(TransactionState.None, SessionState.NotActive);
     }
 
     [Transactional(false)]
-    public bool PublicNotTransactionalMethod()
+    public void PublicNotTransactionalMethod()
     {
-      return IsTransactionOpen;
+      Assert(TransactionState.None, SessionState.Active);
     }
 
     [Transactional(true)]
-    private bool PrivateTransactionalMethod()
+    private void PrivateTransactionalMethod()
     {
-      return IsTransactionOpen;
+      Assert(TransactionState.Open, SessionState.Active);
     }
 
     [Infrastructure]
-    public bool PublicInfrastructureMethod()
+    public void PublicInfrastructureMethod()
     {
-      return IsTransactionOpen;
+      Assert(TransactionState.None, SessionState.NotActive);
     }
 
-    #endregion 
+    [ActivateSession(false)]
+    public void PublicNotSessionMethod()
+    {
+      Assert(TransactionState.Open, SessionState.NotActive);
+    }
 
-    #region Constructors
+    [ActivateSession(false), Transactional]
+    public void InternalTransactionalNotSessionMethod()
+    {
+      Assert(TransactionState.Open, SessionState.NotActive);
+    }
 
-    private readonly bool isCreatedTransactionally;
+
+    // Constructors
 
     public MySessionBound(int parameter)
     {
-      isCreatedTransactionally = IsTransactionOpen;
+      Assert(TransactionState.Open, SessionState.NotActive);
     }
 
-    internal MySessionBound()
+    internal MySessionBound(DateTime parameter)
     {
-      isCreatedTransactionally = IsTransactionOpen;
+      Assert(TransactionState.None, SessionState.NotActive);
     }
 
     private MySessionBound(string parameter)
     {
-      isCreatedTransactionally = IsTransactionOpen;
+      Assert(TransactionState.None, SessionState.NotActive);
     }
 
     [Transactional(false)]
     public MySessionBound(float parameter)
     {
-      isCreatedTransactionally = IsTransactionOpen;
+      Assert(TransactionState.None, SessionState.NotActive);
     }
 
     [Transactional]
     private MySessionBound(bool parameter)
     {
-      isCreatedTransactionally = IsTransactionOpen;
+      Assert(TransactionState.Open, SessionState.NotActive);
     }
 
     [Infrastructure]
     public MySessionBound(char parameter)
     {
-      isCreatedTransactionally = IsTransactionOpen;
+      Assert(TransactionState.None, SessionState.NotActive);
+    }
+
+    public MySessionBound()
+    {
     }
 
     #endregion
 
-    [ActivateSession(false), Transactional(false)]
-    public void CheckAutoTransactions()
+
+    #region Infrastructure
+
+    private static Session TestSession { get; set;}
+
+    public enum TransactionState
     {
-      // Check whether IsTransactionOpen property is OK
-
-      Assert.IsFalse(IsTransactionOpen);
-      using (Transaction.Open()) {
-        Assert.IsTrue(IsTransactionOpen);
-      }
-      Assert.IsFalse(IsTransactionOpen);
-
-      // Check properties
-
-      Assert.IsTrue(PublicProperty);
-      Assert.IsTrue(PrivateTransactionalProperty);
-
-      Assert.IsFalse(ProtectedProperty);
-      Assert.IsFalse(InternalProperty);
-      Assert.IsFalse(ProtectedInternalProperty);
-      Assert.IsFalse(PrivateProperty);
-      Assert.IsFalse(PublicStaticProperty);
-      Assert.IsFalse(PublicNotTransactionalProperty);
-      Assert.IsFalse(PublicInfrastructureProperty);
-
-      // Check methods
-
-      Assert.IsTrue(PublicMethod());
-      Assert.IsTrue(PrivateTransactionalMethod());
-
-      Assert.IsFalse(ProtectedMethod());
-      Assert.IsFalse(InternalMethod());
-      Assert.IsFalse(ProtectedInternalMethod());
-      Assert.IsFalse(PrivateMethod());
-      Assert.IsFalse(PublicStaticMethod());
-      Assert.IsFalse(PublicNotTransactionalMethod());
-      Assert.IsFalse(PublicInfrastructureMethod());
-
-      // Check constructors
-
-      Assert.IsTrue(new MySessionBound(1).isCreatedTransactionally); // public constructor
-      Assert.IsTrue(new MySessionBound(true).isCreatedTransactionally); // private transactional constructor
-            
-      Assert.IsFalse(new MySessionBound().isCreatedTransactionally); // internal constructor
-      Assert.IsFalse(new MySessionBound("hello").isCreatedTransactionally); // private constructor
-      Assert.IsFalse(new MySessionBound(1.5F).isCreatedTransactionally); // not transactional public constructor
-      Assert.IsFalse(new MySessionBound('a').isCreatedTransactionally); // infrastructure constructor
+      None,
+      Open,
+      Nested
     }
 
-    private static bool IsTransactionOpen
+    public enum SessionState
     {
-      get
-      {
-        var transaction = Session.Current.Transaction;
-        return 
-          transaction!=null && 
-          transaction.State==TransactionState.Active;
-      }
+      Active,
+      NotActive
     }
+
+    public static bool CheckSession { get; set; }
+
+    public static int Assert(TransactionState transactionState, SessionState sessionState)
+    {
+      if (CheckSession)
+        NUnit.Framework.Assert.IsTrue(TestSession.IsActive);
+
+      bool isTransactionOpen = TestSession.Transaction!=null &&
+        TestSession.Transaction.State==Integrity.Transactions.TransactionState.Active;
+
+      NUnit.Framework.Assert.AreEqual(isTransactionOpen, transactionState==TransactionState.Open);
+
+      return 0;
+    }
+    #endregion
   }
-#endregion
+  
 }
