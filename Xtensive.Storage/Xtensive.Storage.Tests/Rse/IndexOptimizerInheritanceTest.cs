@@ -103,8 +103,8 @@ namespace Xtensive.Storage.Tests.Rse
       TypeModifier.Current.InheritanceSchema = InheritanceSchema.ConcreteTable;
       Test<Product>(index => CheckVirtualIndex(index, IndexAttributes.Union),
         index => CheckVirtualIndex(index, IndexAttributes.Union));
-      Test<ActiveProduct>(index => Assert.IsFalse(index.IsVirtual),
-        index => Assert.IsFalse(index.IsVirtual));
+      Test<ActiveProduct>(index => Assert.IsTrue(index.IsTyped),
+        index => Assert.IsTrue(index.IsTyped));
     }
 
     private void Test<T>(Action<IndexInfo> secondaryIndexValidator, Action<IndexInfo> primaryIndexValidator)
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Tests.Rse
     private static void CheckVirtualIndex(IndexInfo index, IndexAttributes expectedIndexType)
     {
       Assert.IsTrue(index.IsVirtual);
-      Assert.AreEqual(expectedIndexType, index.Attributes & (IndexAttributes.View | IndexAttributes.Union | IndexAttributes.Join | IndexAttributes.Filtered));
+      Assert.AreEqual(expectedIndexType, index.Attributes & (IndexAttributes.View | IndexAttributes.Union | IndexAttributes.Join | IndexAttributes.Filtered | IndexAttributes.Typed));
     }
 
     private void CreateDomain()

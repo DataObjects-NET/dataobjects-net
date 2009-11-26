@@ -36,6 +36,8 @@ namespace Xtensive.Storage.Providers.Sql
           return BuildFilteredQuery(index);
         if ((index.Attributes & IndexAttributes.View) > 0)
           return BuildViewQuery(index);
+        if ((index.Attributes & IndexAttributes.Typed) > 0)
+          return BuildTypedQuery(index);
         throw new NotSupportedException(String.Format(Strings.ExUnsupportedIndex, index.Name, index.Attributes));
       }
       return BuildTableQuery(index);
@@ -154,5 +156,23 @@ namespace Xtensive.Storage.Providers.Sql
       return query;
     }
 
+    private SqlSelect BuildTypedQuery(IndexInfo index)
+    {
+      var underlyingIndex = index.UnderlyingIndexes[0];
+      var baseQuery = BuildProviderQuery(underlyingIndex);
+      var query = SqlDml.Select(baseQuery.From);
+      query.Where = baseQuery.Where;
+
+      var baseColumns = baseQuery.Columns.ToList();
+      var typeIdColumnIndex = index.Columns
+        .Select((c, i) => new {c, i})
+        .Single(p => p.c.Field.IsTypeId).i;
+      baseColumns.Insert(typeIdColumnIndex, 
+        SqlDml.ColumnRef(
+          SqlDml.Column(SqlDml.Literal(index.ReflectedType.TypeId)), 
+          WellKnown.TypeIdFieldName));
+      query.Columns.AddRange(baseColumns);
+      return query;
+    }
   }
 }

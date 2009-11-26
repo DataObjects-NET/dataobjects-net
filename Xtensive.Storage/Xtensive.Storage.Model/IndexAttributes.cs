@@ -11,17 +11,18 @@ namespace Xtensive.Storage.Model
   [Flags]
   public enum IndexAttributes
   {
-    None = 0x0,
-    Primary = 0x1,
-    Unique = 0x2,
-    FullText = 0x4,
-    Real = 0x8,
-    Virtual = 0x10,
-    Union = 0x20,
-    Join = 0x40,
-    Filtered = 0x80,
-    View = 0x100,
-    Secondary = 0x200,
-    Abstract = 0x400
+    None =        0x0,
+    Primary =     0x1,
+    Unique =      0x2,
+    FullText =    0x4,
+    Real =        0x8,
+    Secondary =  0x10,
+    Abstract =   0x20,
+    Virtual =    0x40,
+    Typed =      0x80,
+    Union =     0x100,
+    Join =      0x200,
+    Filtered =  0x400,
+    View =      0x800
   }
 }

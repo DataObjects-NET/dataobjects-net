@@ -313,7 +313,7 @@ namespace Xtensive.Storage.Providers
         if (index.IsVirtual) {
           var originIndex = index;
           while (true) {
-            var singleSourceIndex = (originIndex.Attributes & (IndexAttributes.Filtered | IndexAttributes.View)) != IndexAttributes.None;
+            var singleSourceIndex = (originIndex.Attributes & (IndexAttributes.Filtered | IndexAttributes.View | IndexAttributes.Typed)) != IndexAttributes.None;
             if (singleSourceIndex) {
               var sourceIndex = originIndex.UnderlyingIndexes[0];
               if (sourceIndex.ReflectedType != originIndex.ReflectedType) {
@@ -329,7 +329,9 @@ namespace Xtensive.Storage.Providers
           }
           result = originIndex != null
             ? string.Format("PK_{0}.{1}", type, originIndex.ReflectedType)
-            : string.Format("PK_{0}.{1}", type, index.DeclaringType);
+            : (type == index.DeclaringType
+                ? string.Format("PK_{0}", type)
+                : string.Format("PK_{0}.{1}", type, index.DeclaringType));
         }
         else
           result = index.DeclaringType != type
@@ -374,6 +376,8 @@ namespace Xtensive.Storage.Providers
           suffix = ".UNION";
         else if ((index.Attributes & IndexAttributes.View)!=IndexAttributes.None)
           suffix = ".VIEW";
+        else if ((index.Attributes & IndexAttributes.Typed) != IndexAttributes.None)
+          suffix = ".TYPED";
       }
       return ApplyNamingRules(string.Concat(result, suffix));
     }

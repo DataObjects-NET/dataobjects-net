@@ -217,6 +217,15 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets or sets a value indicating whether this instance is typed index.
+    /// </summary>
+    public bool IsTyped
+    {
+      [DebuggerStepThrough]
+      get { return (attributes & IndexAttributes.Typed) > 0; }
+    }
+
+    /// <summary>
     /// Gets or sets a value indicating whether this instance is unique index.
     /// </summary>
     public bool IsUnique

@@ -4,11 +4,9 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.06.17
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Building.Builders
@@ -58,24 +56,29 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
+      // Build typed indexes
+      foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real)) {
+        var typedIndex = BuildTypedIndex(type, realIndex);
+        type.Indexes.Add(typedIndex);
+      }
+
       // Build indexes for descendants
       foreach (var descendant in type.GetDescendants())
         BuildConcreteTableIndexes(descendant);
 
-      // Import inherited indexes
-      var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
       var ancestors = type.GetAncestors().ToList();
       var descendants = type.GetDescendants(true).ToList();
 
-      // Build virtual primary index
+      // Build primary virtual union index
       if (descendants.Count > 0) {
-        var indexesToUnion = new List<IndexInfo>(){primaryIndex};
-        foreach (var index in descendants.SelectMany(t => t.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Real))) {
+        var indexesToUnion = new List<IndexInfo>(){type.Indexes.PrimaryIndex};
+        foreach (var index in descendants.Select(t => t.Indexes.PrimaryIndex)) {
           var indexView = BuildViewIndex(type, index);
           indexesToUnion.Add(indexView);
         }
         var virtualPrimaryIndex = BuildUnionIndex(type, indexesToUnion);
         type.Indexes.Add(virtualPrimaryIndex);
+
       }
 
       // Build inherited secondary indexes
@@ -85,14 +88,17 @@ namespace Xtensive.Storage.Building.Builders
         var secondaryIndex = BuildInheritedIndex(type, ancestorIndex, type.UnderlyingType.IsAbstract);
         type.Indexes.Add(secondaryIndex);
         context.Model.RealIndexes.Add(secondaryIndex);
+        // Build typed index for secondary one
+        var typedIndex = BuildTypedIndex(type, secondaryIndex);
+        type.Indexes.Add(typedIndex);
       }
 
       // Build virtual secondary indexes
       if (descendants.Count > 0)
-        foreach (var index in type.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None)) {
+        foreach (var index in type.Indexes.Where(i => !i.IsPrimary && i.IsVirtual && i.IsTyped).ToList()) {
           var indexesToUnion = new List<IndexInfo>() {index};
           indexesToUnion.AddRange(
-            descendants.Select(t => t.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && !i.IsVirtual)));
+            descendants.Select(t => t.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && i.IsTyped)));
           var virtualSecondaryIndex = BuildUnionIndex(type, indexesToUnion);
           type.Indexes.Add(virtualSecondaryIndex);
         }

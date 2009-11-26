@@ -36,6 +36,7 @@ namespace Xtensive.Storage.Building.Builders
           }
         }
         BuildInterfaceIndexes();
+        CleanupTypedIndexes();
         BuildAffectedIndexes();
       }
     }
@@ -162,7 +163,7 @@ namespace Xtensive.Storage.Building.Builders
                   .Where(t => t.Hierarchy == grouping.Key)
                   .ToList();
                 var primaryIndexes = allImplementors
-                  .Select(t => t.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary))
+                  .Select(t => t.Indexes.Single(i => i.IsPrimary && i.IsTyped))
                   .Select(i => BuildViewIndex(@interface, i));
                 underlyingIndex.UnderlyingIndexes.AddRange(primaryIndexes);
                 break;
@@ -225,7 +226,7 @@ namespace Xtensive.Storage.Building.Builders
               case InheritanceSchema.ConcreteTable: {
                 var indexes = @interface.GetImplementors(true)
                   .Where(t => t.Hierarchy == grouping.Key)
-                  .Select(t => t.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual));
+                  .Select(t => t.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && i.IsTyped));
                 underlyingIndex.UnderlyingIndexes.AddRange(indexes);
                 underlyingIndexes.Add(underlyingIndex);
                 break;
@@ -292,9 +293,18 @@ namespace Xtensive.Storage.Building.Builders
           result.IncludedColumns.Add(column);
       }
 
+      bool skipTypeId = false;
+      if (typeInfo.Hierarchy != null) {
+        if (typeInfo.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+          skipTypeId = true;
+      }
+
       // Adding system columns as included (only if they are not primary key or index is not primary)
-      foreach (ColumnInfo column in typeInfo.Columns.Find(ColumnAttributes.System).Where(c => indexDef.IsPrimary ? !c.IsPrimaryKey : true))
+      foreach (ColumnInfo column in typeInfo.Columns.Find(ColumnAttributes.System).Where(c => indexDef.IsPrimary ? !c.IsPrimaryKey : true)) {
+        if (skipTypeId && column.Field.IsTypeId)
+          continue;
         result.IncludedColumns.Add(column);
+      }
 
       // Adding value columns
       if (indexDef.IsPrimary) {
@@ -319,7 +329,9 @@ namespace Xtensive.Storage.Building.Builders
 
         var columns = new List<ColumnInfo>();
         columns.AddRange(result.IncludedColumns);
-        columns.AddRange(types.SelectMany(t => t.Columns.Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None)));
+        columns.AddRange(types.SelectMany(t => t.Columns
+          .Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None)
+          .Where(c => skipTypeId ? !c.Field.IsTypeId : true)));
         result.ValueColumns.AddRange(GatherValueColumns(columns));
       }
       else {
@@ -361,8 +373,16 @@ namespace Xtensive.Storage.Building.Builders
         result.KeyColumns.Add(field.Column, pair.Value);
       }
 
+      bool skipTypeId = false;
+      if (reflectedType.Hierarchy != null) {
+        if (reflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+          skipTypeId = true;
+      }
+
       // Adding included columns
       foreach (var column in ancestorIndex.IncludedColumns) {
+        if (skipTypeId && column.Field.IsTypeId)
+          continue;
         var field = useFieldMap ? 
           reflectedType.FieldMap[column.Field] : 
           reflectedType.Fields[column.Field.Name];
@@ -372,27 +392,39 @@ namespace Xtensive.Storage.Building.Builders
       // Adding value columns
       if (!ancestorIndex.IsPrimary)
         foreach (var column in ancestorIndex.ValueColumns) {
+          if (skipTypeId && column.Field.IsTypeId)
+            continue;
           var field = useFieldMap ?
             reflectedType.FieldMap[column.Field] :
             reflectedType.Fields[column.Field.Name];
           result.ValueColumns.Add(field.Column);
         }
       else if ((reflectedType.Attributes & TypeAttributes.Materialized) != 0)
-        result.ValueColumns.AddRange(reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None));
+        result.ValueColumns.AddRange(reflectedType.Columns
+          .Find(ColumnAttributes.PrimaryKey, MatchType.None)
+          .Where(c => skipTypeId ? !c.Field.IsTypeId : true));
 
       if (ancestorIndex.IsPrimary && reflectedType.IsEntity) {
         if (reflectedType.Hierarchy.Schema==InheritanceSchema.ClassTable) {
           foreach (var column in ancestorIndex.IncludedColumns) {
+            if (skipTypeId && column.Field.IsTypeId)
+              continue;
             var field = reflectedType.Fields[column.Field.Name];
             result.ValueColumns.Add(field.Column);
           }
-          foreach (var column in reflectedType.Columns.Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None))
+          foreach (var column in reflectedType.Columns.Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None)) {
+            if (skipTypeId && column.Field.IsTypeId)
+              continue;
             result.ValueColumns.Add(column);
+          }
         }
         else if (reflectedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable) {
-          foreach (var column in reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None))
+          foreach (var column in reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None)) {
+            if (skipTypeId && column.Field.IsTypeId)
+              continue;
             if (!result.ValueColumns.Contains(column.Name))
               result.ValueColumns.Add(column);
+          }
         }
       }
 
@@ -405,6 +437,43 @@ namespace Xtensive.Storage.Building.Builders
     #endregion
 
     #region Build virtual index methods
+
+    private static IndexInfo BuildTypedIndex(TypeInfo reflectedType, IndexInfo realIndex)
+    {
+      if (realIndex.IsVirtual)
+        throw new InvalidOperationException();
+      var nameBuilder = BuildingContext.Current.NameBuilder;
+      var attributes = realIndex.Attributes
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.FullText)
+        | IndexAttributes.Typed | IndexAttributes.Virtual;
+      var result = new IndexInfo(reflectedType, attributes, realIndex, ArrayUtils<IndexInfo>.EmptyArray);
+
+      // Adding key columns
+      foreach (KeyValuePair<ColumnInfo, Direction> pair in realIndex.KeyColumns) {
+        var field = reflectedType.Fields[pair.Key.Field.Name];
+        result.KeyColumns.Add(field.Column, pair.Value);
+      }
+
+      // Adding included columns
+      foreach (var column in realIndex.IncludedColumns) {
+        var field = reflectedType.Fields[column.Field.Name];
+        result.IncludedColumns.Add(field.Column);
+      }
+
+      // Adding TypeId column
+      if (realIndex.IsPrimary)
+        result.ValueColumns.Add(reflectedType.Columns.Single(c => c.Field.IsTypeId));
+      // Adding value columns
+      result.ValueColumns.AddRange(realIndex.ValueColumns);
+      // Adding TypeId column
+      if (!realIndex.IsPrimary)
+        result.ValueColumns.Add(reflectedType.Columns.Single(c => c.Field.IsTypeId));
+
+      result.Name = nameBuilder.BuildIndexName(reflectedType, result);
+      result.Group = BuildColumnGroup(result);
+
+      return result;
+    }
 
     private static IndexInfo BuildFilterIndex(TypeInfo reflectedType, IndexInfo indexToFilter, IEnumerable<TypeInfo> filterByTypes)
     {
@@ -694,6 +763,25 @@ namespace Xtensive.Storage.Building.Builders
             .ToList();
       var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList();
       return new ColumnGroup(reflectedType, keyColumns, columns);
+    }
+
+    private static void CleanupTypedIndexes()
+    {
+      var context = BuildingContext.Current;
+      foreach (var typeInfo in context.Model.Types.Where(t => t.IsEntity)) {
+        var indexes = typeInfo.Indexes.Where(i => i.IsVirtual).ToList();
+        var typedIndexes = indexes.Where(i => i.IsTyped);
+        foreach (var typedIndex in typedIndexes) {
+          bool remove = false;
+          foreach (var index in indexes)
+            if (index.UnderlyingIndexes.Contains(typedIndex)) {
+              remove = true;
+              break;
+            }
+          if (remove)
+            typeInfo.Indexes.Remove(typedIndex);
+        }
+      }
     }
 
     private static void BuildAffectedIndexes()

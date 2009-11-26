@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Model
           .TakeWhile((_, index) => index < columns.Count)
           .Select((pair, index) => new {column = pair.Key, columnIndex = index})
           .All(p => p.column==columns[p.columnIndex]))
-        .OrderByDescending(i => i.IsVirtual).ToList();
+        .OrderByDescending(i => i.Attributes).ToList();
 
       var result = candidates.Where(c => c.KeyColumns.Count==columnNumber).FirstOrDefault();
 
@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Model
     private List<IndexInfo> FindIndexesContainingAllData()
     {
       var result = new List<IndexInfo>(Items.Count);
-      var virtualIndexes = from index in this where index.IsVirtual select index;
+      var virtualIndexes = this.Where(index => index.IsVirtual);
       result.AddRange(virtualIndexes);
       var realIndexes = from index in this where !index.IsVirtual 
                           && (index.Attributes & IndexAttributes.Abstract) == 0
@@ -142,10 +142,8 @@ namespace Xtensive.Storage.Model
 
     private IndexInfo FindPrimaryIndex()
     {
-      IndexInfo result = FindFirst(IndexAttributes.Virtual | IndexAttributes.Primary);
-      if (result!=null)
-        return result;
-      return FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
+      var result = this.Where(i => i.IsVirtual && i.IsPrimary).OrderByDescending(i => i.Attributes).FirstOrDefault();
+      return result ?? FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
     }
 
     private List<IndexInfo> FindRealPrimaryIndexes(IndexInfo index)

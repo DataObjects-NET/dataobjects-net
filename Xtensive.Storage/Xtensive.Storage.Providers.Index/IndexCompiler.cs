@@ -57,6 +57,8 @@ namespace Xtensive.Storage.Providers.Index
           return BuildFilterProvider(provider, index);
         if ((index.Attributes & IndexAttributes.View) > 0)
           return BuildViewProvider(provider, index);
+        if ((index.Attributes & IndexAttributes.Typed) > 0)
+          return BuildTypedProvider(provider, index);
         throw new NotSupportedException(String.Format(Strings.ExUnsupportedIndex, index.Name, index.Attributes));
       }
       return BuildIndexProviderInternal(provider);
@@ -101,6 +103,16 @@ namespace Xtensive.Storage.Providers.Index
       var source = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
       var columnMap = index.SelectColumns.ToArray();
       return new ViewIndexProvider(provider, source, columnMap);
+    }
+
+    private ExecutableProvider BuildTypedProvider(Rse.Providers.Compilable.IndexProvider provider, IndexInfo index)
+    {
+      var firstUnderlyingIndex = index.UnderlyingIndexes.First();
+      var source = BuildIndexProvider(Rse.Providers.Compilable.IndexProvider.Get(firstUnderlyingIndex), firstUnderlyingIndex);
+      var typeIdColumnIndex = index.Columns
+        .Select((c, i) => new {c, i})
+        .Single(p => p.c.Field.IsTypeId).i;
+      return new TypedIndexProvider(provider, source, typeIdColumnIndex, index.ReflectedType.TypeId);
     }
 
     private ExecutableProvider BuildIndexProviderInternal(Rse.Providers.Compilable.IndexProvider provider)
