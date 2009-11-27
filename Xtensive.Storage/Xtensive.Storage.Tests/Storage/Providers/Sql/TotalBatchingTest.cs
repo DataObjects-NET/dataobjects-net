@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
         CreateEntities(3);
         session.Persist(false);
         CreateQueries(5);
-        session.ExecuteAllDelayedQueries(false);
+        session.ExecuteAllDelayedQueries();
         ValidateQueries(3);
       }
     }
@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
         CreateEntities(5);
         session.Persist(true);
         CreateQueries(5);
-        session.ExecuteAllDelayedQueries(false);
+        session.ExecuteAllDelayedQueries();
         ValidateQueries(5);
         ValidateEntities(5);
       }

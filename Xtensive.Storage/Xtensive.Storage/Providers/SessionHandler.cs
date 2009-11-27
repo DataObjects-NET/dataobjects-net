@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="queryTasks">The query tasks to execute.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
-    public virtual void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
+    public virtual void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
       foreach (var task in queryTasks) {
         using (EnumerationScope.Open())

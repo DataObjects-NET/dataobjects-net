@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Disconnected
       readVersionTasks = new Dictionary<Key, QueryTask>();
       RegisterCheckVersionTasks();
       if (readVersionTasks.Count > 0)
-        Session.ExecuteAllDelayedQueries(true);
+        Session.Handler.ExecuteQueryTasks(readVersionTasks.Values, true);
     }
 
     private void OnPersisted(object sender, EventArgs e)

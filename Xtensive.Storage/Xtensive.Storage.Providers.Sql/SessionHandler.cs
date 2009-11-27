@@ -41,7 +41,8 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
+    /// <inheritdoc/>
+    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
       lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();

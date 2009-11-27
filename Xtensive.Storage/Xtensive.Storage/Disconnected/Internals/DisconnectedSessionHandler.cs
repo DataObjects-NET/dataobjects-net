@@ -204,7 +204,7 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <inheritdoc/>
-    public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
+    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
       BeginChainedTransaction();
       base.ExecuteQueryTasks(queryTasks, allowPartialExecution);

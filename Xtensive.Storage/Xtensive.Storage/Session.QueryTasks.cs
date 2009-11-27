@@ -21,8 +21,14 @@ namespace Xtensive.Storage
         throw new InvalidOperationException();
       queryTasks.Add(task);
     }
-    
-    internal void ExecuteAllDelayedQueries(bool allowPartialExecution)
+
+    internal void ExecuteAllDelayedQueries()
+    {
+      Persist(true);
+      ExecuteAllDelayedQueries(false);
+    }
+
+    private void ExecuteAllDelayedQueries(bool allowPartialExecution)
     {
       if (IsDelayedQueryRunning || queryTasks.Count==0)
         return;

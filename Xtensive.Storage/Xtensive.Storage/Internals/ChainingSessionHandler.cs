@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void ExecuteQueryTasks(IList<QueryTask> queryTasks, bool allowPartialExecution)
+    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {
       chainedHandler.ExecuteQueryTasks(queryTasks, allowPartialExecution);
     }
