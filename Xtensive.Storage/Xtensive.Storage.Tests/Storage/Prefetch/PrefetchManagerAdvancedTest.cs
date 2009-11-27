@@ -685,6 +685,24 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
+    public void EntityContainingOnlyIdFieldPrefetchTest()
+    {
+      Key key;
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        key = new IdOnly().Key;
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (Transaction.Open()) {
+        Assert.IsNotNull(Query<IdOnly>.Single(key));
+        PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.Type, session, IsFieldKeyOrSystem);
+      }
+    }
+
+    [Test]
     public void RequestsGroupingByTypeAndColumnsTest()
     {
       Key customer0Key;

@@ -347,4 +347,11 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     [Field(LazyLoad = true)]
     public int LazyInt { get; set; }
   }
+
+  [HierarchyRoot]
+  public class IdOnly : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+  }
 }
