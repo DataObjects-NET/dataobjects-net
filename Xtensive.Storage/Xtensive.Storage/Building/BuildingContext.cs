@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Building
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
     internal Graph<TypeDef> DependencyGraph { get; private set; }
     internal HashSet<TypeDef> Interfaces { get; private set; }
+    internal HashSet<IndexInfo> UntypedIndexes { get; private set; }
 
     #region Current property & Demand() method
 
@@ -120,6 +121,7 @@ namespace Xtensive.Storage.Building
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();
       Interfaces = new HashSet<TypeDef>();
+      UntypedIndexes = new HashSet<IndexInfo>();
     }
   }
 }

@@ -163,7 +163,10 @@ namespace Xtensive.Storage.Building.Builders
                   .Where(t => t.Hierarchy == grouping.Key)
                   .ToList();
                 var primaryIndexes = allImplementors
-                  .Select(t => t.Indexes.Single(i => i.IsPrimary && i.IsTyped))
+                  .Select(t => new {Index = t.Indexes.Single(i => i.IsPrimary && !i.IsVirtual), Type = t})
+                  .Select(p => context.UntypedIndexes.Contains(p.Index) 
+                    ? p.Type.Indexes.Single(i => i.IsPrimary && i.IsTyped) 
+                    : p.Index)
                   .Select(i => BuildViewIndex(@interface, i));
                 underlyingIndex.UnderlyingIndexes.AddRange(primaryIndexes);
                 break;
@@ -226,7 +229,10 @@ namespace Xtensive.Storage.Building.Builders
               case InheritanceSchema.ConcreteTable: {
                 var indexes = @interface.GetImplementors(true)
                   .Where(t => t.Hierarchy == grouping.Key)
-                  .Select(t => t.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && i.IsTyped));
+                  .Select(t => new { Index = t.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual), Type = t })
+                  .Select(p => context.UntypedIndexes.Contains(p.Index)
+                    ? p.Type.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && i.IsTyped)
+                    : p.Index);
                 underlyingIndex.UnderlyingIndexes.AddRange(indexes);
                 underlyingIndexes.Add(underlyingIndex);
                 break;
@@ -267,6 +273,14 @@ namespace Xtensive.Storage.Building.Builders
         MappingName = indexDef.MappingName
       };
 
+      var skipTypeId = false;
+      if (typeInfo.Hierarchy != null) {
+        if (typeInfo.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+          skipTypeId = true;
+      }
+      if (typeInfo.Fields.Any(f => f.IsTypeId && f.IsPrimaryKey))
+        skipTypeId = false;
+
       // Adding key columns
       foreach (KeyValuePair<string, Direction> pair in indexDef.KeyFields) {
         var fieldInfo = typeInfo.Fields[pair.Key];
@@ -291,12 +305,6 @@ namespace Xtensive.Storage.Building.Builders
 
         foreach (var column in columns)
           result.IncludedColumns.Add(column);
-      }
-
-      bool skipTypeId = false;
-      if (typeInfo.Hierarchy != null) {
-        if (typeInfo.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
-          skipTypeId = true;
       }
 
       // Adding system columns as included (only if they are not primary key or index is not primary)
@@ -344,6 +352,8 @@ namespace Xtensive.Storage.Building.Builders
 
       result.Name = context.NameBuilder.BuildIndexName(typeInfo, result);
       result.Group = BuildColumnGroup(result);
+      if (skipTypeId)
+        context.UntypedIndexes.Add(result);
 
       return result;
     }
@@ -365,18 +375,21 @@ namespace Xtensive.Storage.Building.Builders
       var result = new IndexInfo(reflectedType, attributes, ancestorIndex);
       var useFieldMap = ancestorIndex.ReflectedType.IsInterface && !reflectedType.IsInterface;
 
+      var skipTypeId = false;
+      if (reflectedType.Hierarchy != null) {
+        if (reflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+          skipTypeId = true;
+      }
+      if (reflectedType.Fields.Any(f => f.IsTypeId && f.IsPrimaryKey))
+        skipTypeId = false;
+
+
       // Adding key columns
       foreach (KeyValuePair<ColumnInfo, Direction> pair in ancestorIndex.KeyColumns) {
         var field = useFieldMap ?
           reflectedType.FieldMap[pair.Key.Field] :
           reflectedType.Fields[pair.Key.Field.Name];
         result.KeyColumns.Add(field.Column, pair.Value);
-      }
-
-      bool skipTypeId = false;
-      if (reflectedType.Hierarchy != null) {
-        if (reflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
-          skipTypeId = true;
       }
 
       // Adding included columns
@@ -428,8 +441,11 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      result.Name = BuildingContext.Current.NameBuilder.BuildIndexName(reflectedType, result);
+      var context = BuildingContext.Current;
+      result.Name = context.NameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
+      if (skipTypeId)
+        context.UntypedIndexes.Add(result);
 
       return result;
     }

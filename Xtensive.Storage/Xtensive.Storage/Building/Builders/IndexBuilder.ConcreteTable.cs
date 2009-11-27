@@ -58,6 +58,8 @@ namespace Xtensive.Storage.Building.Builders
 
       // Build typed indexes
       foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real)) {
+        if (!context.UntypedIndexes.Contains(realIndex)) 
+          continue;
         var typedIndex = BuildTypedIndex(type, realIndex);
         type.Indexes.Add(typedIndex);
       }
@@ -89,16 +91,23 @@ namespace Xtensive.Storage.Building.Builders
         type.Indexes.Add(secondaryIndex);
         context.Model.RealIndexes.Add(secondaryIndex);
         // Build typed index for secondary one
+        if (!context.UntypedIndexes.Contains(secondaryIndex))
+          continue;
         var typedIndex = BuildTypedIndex(type, secondaryIndex);
         type.Indexes.Add(typedIndex);
       }
 
       // Build virtual secondary indexes
       if (descendants.Count > 0)
-        foreach (var index in type.Indexes.Where(i => !i.IsPrimary && i.IsVirtual && i.IsTyped).ToList()) {
-          var indexesToUnion = new List<IndexInfo>() {index};
-          indexesToUnion.AddRange(
-            descendants.Select(t => t.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && i.IsTyped)));
+        foreach (var index in type.Indexes.Where(i => !i.IsPrimary && !i.IsVirtual).ToList()) {
+          var isUntyped = context.UntypedIndexes.Contains(index);
+          var indexToUnion = isUntyped
+            ? type.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && i.IsTyped)
+            : index;
+
+          var indexesToUnion = new List<IndexInfo>() {indexToUnion};
+          indexesToUnion.AddRange(descendants
+            .Select(t => t.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && (isUntyped ? i.IsTyped : !i.IsVirtual))));
           var virtualSecondaryIndex = BuildUnionIndex(type, indexesToUnion);
           type.Indexes.Add(virtualSecondaryIndex);
         }
