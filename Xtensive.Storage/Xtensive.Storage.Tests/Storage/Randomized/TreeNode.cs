@@ -15,23 +15,15 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
     public int Id { get; private set; }
 
     [Field]
-    public Tree Tree { get; private set; }
+    [Association(OnTargetRemove = OnRemoveAction.Cascade)]
+    public Tree Tree { get; set; }
 
     [Field]
     public TreeNode Parent { get; set; }
 
     [Field]
-    [Association(PairTo = "Parent", OnOwnerRemove = OnRemoveAction.Deny,
+    [Association(PairTo = "Parent", OnOwnerRemove = OnRemoveAction.Cascade,
       OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<TreeNode> Children { get; private set; }
-
-
-    // Constructors
-
-    public TreeNode(Tree tree)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(tree, "tree");
-      Tree = tree;
-    }
   }
 }

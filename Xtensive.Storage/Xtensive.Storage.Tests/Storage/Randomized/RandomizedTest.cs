@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Tests.Storage.Randomized
 {
@@ -18,18 +19,18 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
   {
     private const int iterationCount = 1000;
     private const int initialNodeCount = 5000;
+    private const int initialTreeCount = 10;
     private List<Pair<Key, int>> nodesData;
     private List<Action> actions;
-    private RNGCryptoServiceProvider randomProvider;
-    private readonly byte[] actionBytes = new byte[1];
-    private readonly byte[] nodeIndexBytes = new byte[sizeof (int)];
-    private readonly byte[] txBytes = new byte[1];
+    private Random randomProvider;
     private bool isSettingUp;
     private readonly List<Key> entitySetCache = new List<Key>();
-
+    private bool isProtocolMemory;
+    
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
+      isProtocolMemory = config.ConnectionInfo.Protocol==WellKnown.Protocol.Memory;
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Tree).Assembly, typeof(Tree).Namespace);
       return config;
@@ -38,16 +39,17 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
     [SetUp]
     public void SetUp()
     {
-      randomProvider = new RNGCryptoServiceProvider();
-      actions = new List<Action> {AddNode, RemoveNode, TransferNode};
+      var seed = 1439675735;//GetSeed();
+      Console.WriteLine("Seed: {0}", seed);
+      randomProvider = new Random(seed);
+      actions = new List<Action> {AddNode, RemoveNode, TransferNode, AddTree};
       nodesData = new List<Pair<Key, int>>();
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var tree = new Tree();
-        tree.Root = new TreeNode(tree);
-        nodesData.Add(new Pair<Key, int>(tree.Root.Key, 0));
         isSettingUp = true;
-        for (var i = 0; i < initialNodeCount; i++)
+        for (int i = 0; i < initialTreeCount; i++)
+          AddTree();
+        for (var j = 0; j < initialNodeCount - initialTreeCount; j++)
           AddNode();
         isSettingUp = false;
         tx.Complete();
@@ -63,22 +65,28 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
 
       using (Session.Open(Domain))
       using (Transaction.Open()) {
-        var tree = Query<Tree>.All.Single();
-        ValidateNodes(tree.Root);
+        var trees = Query<Tree>.All.ToList();
+        long totalCount = 0;
+        foreach (var tree in trees)
+          totalCount += ValidateNodes(tree.Root) + 1;
+        Assert.AreEqual(nodesData.Count, totalCount);
       }
     }
 
-    private void ValidateNodes(TreeNode current)
+    private long ValidateNodes(TreeNode current)
     {
-      Assert.IsNotNull(current.Tree);
+      if (current.Parent == null)
+        Assert.IsNotNull(current.Tree);
+      else
+        Assert.IsNull(current.Tree);
       var nodePair = nodesData.Where(pair => pair.First == current.Key).First();
       Assert.AreEqual(current.Children.Count, nodePair.Second);
-      if (current.Tree.Root != current) {
-        Assert.IsNotNull(current.Parent);
+      var result = current.Children.Count;
+      if (current.Parent != null)
         Assert.IsTrue(current.Parent.Children.Contains(current));
-      }
       foreach (var node in current.Children)
-        ValidateNodes(node);
+        result += ValidateNodes(node);
+      return result;
     }
 
     private void AddNode()
@@ -89,7 +97,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
         using (var tx = isSettingUp ? null : Transaction.Open()) {
           parentNodeKey = nodesData[GetNodeIndex()].First;
           var parentNode = Query<TreeNode>.Single(parentNodeKey);
-          var newNode = new TreeNode (parentNode.Tree);
+          var newNode = new TreeNode();
           parentNode.Children.Add(newNode);
           newNodeKey = newNode.Key;
           ThrowOrCompleteTransaction(tx);
@@ -139,16 +147,20 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       Key newParentKey;
       try {
         using (var tx = Transaction.Open()) {
+          var treeCount = Query<Tree>.All.Count();
+          if (nodesData.Count == 1 || treeCount == 1)
+            return;
           var nodeIndex = GetNodeIndex();
           var nodeKey = nodesData[nodeIndex].First;
-          var newParentIndex = GetNodeIndex();
-          if (newParentIndex == nodeIndex)
-            newParentIndex = nodeIndex <= nodesData.Count - 1 ? nodeIndex + 1 : 0;
-          newParentKey = nodesData[newParentIndex].First;
           var node = Query<TreeNode>.Single(nodeKey);
           if (node.Parent == null)
             return;
-          var newParentNode = Query<TreeNode>.Single(newParentKey);
+          var root = node;
+          while (root.Tree == null)
+            root = root.Parent;
+          var newParentNode =  Query<Tree>.All.Where(t => t != root.Tree)
+            .Skip(randomProvider.Next(0, treeCount)).First().Root;
+          newParentKey = newParentNode.Key;
           oldParentKey = node.Parent.Key;
           node.Parent.Children.Remove(node);
           newParentNode.Children.Add(node);
@@ -162,6 +174,50 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       UpdateChildrenCount(oldParentKey, false);
     }
 
+    private void AddTree()
+    {
+      Key key;
+      try {
+        using (var tx = isSettingUp ? null : Transaction.Open()) {
+          var tree = new Tree();
+          tree.Root = new TreeNode {Tree = tree};
+          key = tree.Root.Key;
+          ThrowOrCompleteTransaction(tx);
+        }
+      }
+      catch(InvalidOperationException) {
+        return;
+      }
+      nodesData.Add(new Pair<Key, int>(key, 0));
+    }
+
+    private void RemoveTree()
+    {
+      var treeNodeKeys = new List<Key>();
+      try {
+        using (var tx = Transaction.Open()) {
+          if (Query<Tree>.All.Count()==1)
+            return;
+          var nodeIndex = GetNodeIndex();
+          var nodeKey = nodesData[nodeIndex].First;
+          var node = Query<TreeNode>.Single(nodeKey);
+          while (node.Tree==null)
+            node = node.Parent;
+          treeNodeKeys.AddRange(node.Children.Flatten(n => n.Children, null, true).Select(n => n.Key));
+          treeNodeKeys.Add(node.Key);
+          node.Tree.Remove();
+          ThrowOrCompleteTransaction(tx);
+        }
+      }
+      catch (InvalidOperationException) {
+        return;
+      }
+
+      // TODO: It's very slow. Probably it should be optimized.
+      foreach (var key in treeNodeKeys)
+        nodesData.RemoveAt(FindNodeIndex(key));
+    }
+
     private void UpdateChildrenCount(Key parentNodeKey, bool increment)
     {
       UpdateChildrenCount(parentNodeKey, increment ? 1 : -1);
@@ -169,40 +225,49 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
 
     private void UpdateChildrenCount(Key parentNodeKey, int increment)
     {
-      for (int i = 0; i < nodesData.Count; i++) {
+      var index = FindNodeIndex(parentNodeKey);
+      var pair = nodesData[index];
+      nodesData[index] = new Pair<Key, int>(parentNodeKey, pair.Second + increment);
+    }
+
+    private int FindNodeIndex(Key key)
+    {
+      for (var i = 0; i < nodesData.Count; i++) {
         var pair = nodesData[i];
-        if (pair.First == parentNodeKey) {
-          nodesData[i] = new Pair<Key, int>(parentNodeKey, pair.Second + increment);
-          return;
-        }
+        if (pair.First == key)
+          return i;
       }
+      throw new Exception();
     }
 
     private Action GetAction()
     {
-      randomProvider.GetBytes(actionBytes);
-      var index = (int) Math.Truncate(actions.Count * (actionBytes[0] / 255d));
-      if (index == actions.Count)
-        index--;
+      var index = randomProvider.Next(0, actions.Count);
+      /*if(!isSettingUp)
+        Console.WriteLine(actions[index].Method.Name);*/
       return actions[index];
     }
 
     private int GetNodeIndex()
     {
-      randomProvider.GetBytes(nodeIndexBytes);
-      var t = Math.Abs(BitConverter.ToInt32(nodeIndexBytes, 0) / (double) (int.MaxValue));
-      return (int) Math.Truncate((nodesData.Count - 1)
-        * t);
+      return randomProvider.Next(0, nodesData.Count);
     }
 
     private void ThrowOrCompleteTransaction(TransactionScope tx)
     {
       if (isSettingUp)
         return;
-      randomProvider.GetBytes(txBytes);
-      if (txBytes[0] > 127)
+      if (!isProtocolMemory && randomProvider.Next(0, 2) == 1)
         throw new InvalidOperationException();
       tx.Complete();
+    }
+
+    private static int GetSeed()
+    {
+      var bytes = new byte[sizeof (int)];
+      var seedProvider = new RNGCryptoServiceProvider();
+      seedProvider.GetNonZeroBytes(bytes);
+      return BitConverter.ToInt32(bytes, 0);
     }
   }
 }

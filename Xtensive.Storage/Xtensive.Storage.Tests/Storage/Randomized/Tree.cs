@@ -4,10 +4,16 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.11.26
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Xtensive.Core.Collections;
+
 namespace Xtensive.Storage.Tests.Storage.Randomized
 {
   [HierarchyRoot]
-  public sealed class Tree : Entity
+  public sealed class Tree : Entity,
+    IEnumerable<TreeNode>
   {
     [Field, Key]
     public int Id { get; private set; }
@@ -19,6 +25,19 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
     public int Depth { get; set; }
 
     [Field]
+    [Association(OnOwnerRemove = OnRemoveAction.Cascade)]
     public TreeNode Root { get; set; }
+
+    /// <inheritdoc/>
+    public IEnumerator<TreeNode> GetEnumerator()
+    {
+      return EnumerableUtils.One(Root).Flatten(node => node.Children, null, true).GetEnumerator();
+    }
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
   }
 }
