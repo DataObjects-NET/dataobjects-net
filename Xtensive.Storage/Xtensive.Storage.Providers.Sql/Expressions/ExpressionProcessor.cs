@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     private readonly HashSet<QueryParameterBinding> bindings;
     private readonly List<ParameterExpression> activeParameters;
     private readonly Dictionary<ParameterExpression, List<SqlExpression>> sourceMapping;
-    private readonly ICompiler compiler;
+    private readonly SqlCompiler compiler;
 
     private bool fixBooleanExpressions;
     private bool emptyStringIsNull;
@@ -306,7 +306,10 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           compiler.OuterReferences.ReplaceBound(parameter, provider);
         }
         var sqlProvider = (SqlProvider) provider;
-        return sqlProvider.PermanentReference[columnIndex];
+        var permanentReference = sqlProvider.PermanentReference;
+        if (permanentReference.Columns.Count < sqlProvider.Request.SelectStatement.Columns.Count)
+          return compiler.ExtractColumnExpressions(sqlProvider.Request.SelectStatement, sqlProvider.Origin)[columnIndex];
+        return permanentReference[columnIndex];
       }
 
       var queryRef = sourceMapping[(ParameterExpression) tupleAccess.Object];
@@ -358,7 +361,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
    
     // Constructors
 
-    public ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers, params List<SqlExpression>[] sourceColumns)
+    public ExpressionProcessor(LambdaExpression le, SqlCompiler compiler, HandlerAccessor handlers, params List<SqlExpression>[] sourceColumns)
       : this(le, compiler, handlers)
     {
       ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
@@ -370,7 +373,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       sourceMapping = new Dictionary<ParameterExpression, List<SqlExpression>>();
     }
 
-    private ExpressionProcessor(LambdaExpression le, ICompiler compiler, HandlerAccessor handlers)
+    private ExpressionProcessor(LambdaExpression le, SqlCompiler compiler, HandlerAccessor handlers)
     {
       this.compiler = compiler;
       var domainHandler = handlers.DomainHandler;
