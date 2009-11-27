@@ -93,8 +93,11 @@ namespace Xtensive.Storage
         Persist();
         queryTasks.Clear();
         NotifyTransactionCommitting(transaction);
-        if (transaction.IsActuallyStarted && !transaction.IsNested)
-          Handler.CommitTransaction();
+        if (transaction.IsActuallyStarted)
+          if (transaction.IsNested)
+            Handler.ReleaseSavepoint(transaction.SavepointName);
+          else
+            Handler.CommitTransaction();
         NotifyTransactionCommitted(transaction);
         CompleteTransaction(transaction);
       }

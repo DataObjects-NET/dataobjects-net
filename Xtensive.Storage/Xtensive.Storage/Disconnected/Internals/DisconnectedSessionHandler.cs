@@ -48,6 +48,12 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <inheritdoc/>
+    public override void ReleaseSavepoint(string name)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
     public override void CommitTransaction()
     {
       if (isChainedTransactionStarted)

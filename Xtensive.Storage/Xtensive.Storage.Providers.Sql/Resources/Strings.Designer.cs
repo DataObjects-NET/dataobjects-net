@@ -394,6 +394,15 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Make savepoint &apos;{1}&apos;..
+        /// </summary>
+        internal static string LogSessionXMakeSavepointY {
+            get {
+                return ResourceManager.GetString("LogSessionXMakeSavepointY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Session &apos;{0}&apos;. Opening connection &apos;{1}&apos;..
         /// </summary>
         internal static string LogSessionXOpeningConnectionY {
@@ -409,6 +418,24 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         internal static string LogSessionXQueryY {
             get {
                 return ResourceManager.GetString("LogSessionXQueryY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Release savepoint &apos;{1}&apos;..
+        /// </summary>
+        internal static string LogSessionXReleaseSavepointY {
+            get {
+                return ResourceManager.GetString("LogSessionXReleaseSavepointY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Rollback to savepoint &apos;{1}&apos;..
+        /// </summary>
+        internal static string LogSessionXRollbackToSavepointY {
+            get {
+                return ResourceManager.GetString("LogSessionXRollbackToSavepointY", resourceCulture);
             }
         }
         

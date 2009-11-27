@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        connection.MakeSavepoint(name);
+        driver.MakeSavepoint(Session, connection, name);
       }
     }
 
@@ -95,7 +95,16 @@ namespace Xtensive.Storage.Providers.Sql
     {
       lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
-        connection.RollbackToSavepoint(name);
+        driver.RollbackToSavepoint(Session, connection, name);
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void ReleaseSavepoint(string name)
+    {
+      lock (connectionSyncRoot) {
+        EnsureConnectionIsOpen();
+        driver.ReleaseSavepoint(Session, connection, name);
       }
     }
 

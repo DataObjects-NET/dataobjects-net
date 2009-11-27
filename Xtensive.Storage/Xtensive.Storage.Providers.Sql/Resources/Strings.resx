@@ -242,4 +242,13 @@
   <data name="ExTemporaryTableXIsLocked" xml:space="preserve">
     <value>Temporary table '{0}' is locked</value>
   </data>
+  <data name="LogSessionXMakeSavepointY" xml:space="preserve">
+    <value>Session '{0}'. Make savepoint '{1}'.</value>
+  </data>
+  <data name="LogSessionXRollbackToSavepointY" xml:space="preserve">
+    <value>Session '{0}'. Rollback to savepoint '{1}'.</value>
+  </data>
+  <data name="LogSessionXReleaseSavepointY" xml:space="preserve">
+    <value>Session '{0}'. Release savepoint '{1}'.</value>
+  </data>
 </root>

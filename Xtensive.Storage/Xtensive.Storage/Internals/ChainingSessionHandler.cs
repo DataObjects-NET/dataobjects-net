@@ -69,6 +69,11 @@ namespace Xtensive.Storage.Internals
       chainedHandler.RollbackToSavepoint(name);
     }
 
+    public override void ReleaseSavepoint(string name)
+    {
+      chainedHandler.ReleaseSavepoint(name);
+    }
+
     /// <inheritdoc/>
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
     {

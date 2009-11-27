@@ -61,6 +61,15 @@ namespace Xtensive.Sql.PostgreSql
     }
 
     /// <inheritdoc/>
+    public override void ReleaseSavepoint(string name)
+    {
+      EnsureTransactionIsActive();
+      var commandText = string.Format("RELEASE SAVEPOINT {0}", name);
+      using (var command = CreateCommand(commandText))
+        command.ExecuteNonQuery();
+    }
+
+    /// <inheritdoc/>
     protected override void ClearActiveTransaction()
     {
       activeTransaction = null;

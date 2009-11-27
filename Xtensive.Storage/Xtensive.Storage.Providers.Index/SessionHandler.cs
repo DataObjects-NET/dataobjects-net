@@ -53,7 +53,12 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public override void RollbackToSavepoint(string name)
     {
-      throw new NotImplementedException();
+      // TODO: Implement transactions
+    }
+
+    public override void ReleaseSavepoint(string name)
+    {
+      // TODO: Implement transactions
     }
 
     /// <inheritdoc/>

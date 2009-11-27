@@ -183,8 +183,17 @@ namespace Xtensive.Sql
     /// <summary>
     /// Rollbacks current transaction to the specified savepoint.
     /// </summary>
-    /// <param name="name">The name of the safepoint.</param>
+    /// <param name="name">The name of the savepoint.</param>
     public virtual void RollbackToSavepoint(string name)
+    {
+      throw new NotSupportedException(Strings.ExSavepointsAreNotSupportedByCurrentStorage);
+    }
+
+    /// <summary>
+    /// Releases the savepoint with the specfied name.
+    /// </summary>
+    /// <param name="name">The name of the savepoint.</param>
+    public virtual void ReleaseSavepoint(string name)
     {
       throw new NotSupportedException(Strings.ExSavepointsAreNotSupportedByCurrentStorage);
     }

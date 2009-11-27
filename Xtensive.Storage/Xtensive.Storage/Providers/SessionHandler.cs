@@ -77,6 +77,12 @@ namespace Xtensive.Storage.Providers
     public abstract void RollbackToSavepoint(string name);
 
     /// <summary>
+    /// Releases the savepoint.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    public abstract void ReleaseSavepoint(string name);
+
+    /// <summary>
     /// Commits the transaction.
     /// </summary>    
     public virtual void CommitTransaction()

@@ -58,6 +58,13 @@ namespace Xtensive.Sql.SqlServer
     }
 
     /// <inheritdoc/>
+    public override void ReleaseSavepoint(string name)
+    {
+      EnsureTransactionIsActive();
+      // nothing
+    }
+
+    /// <inheritdoc/>
     protected override void ClearActiveTransaction()
     {
       activeTransaction = null;

@@ -96,7 +96,45 @@ namespace Xtensive.Storage.Providers.Sql
       }      
     }
 
+    public void MakeSavepoint(Session session, SqlConnection connection, string name)
+    {
+      try {
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXMakeSavepointY,
+            session.GetFullNameSafely(), name);
+        connection.MakeSavepoint(name);
+      }
+      catch (Exception exception) {
+        throw TranslateException(null, exception);
+      }
+    }
+
+    public void RollbackToSavepoint(Session session, SqlConnection connection, string name)
+    {
+      try {
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXRollbackToSavepointY,
+            session.GetFullNameSafely(), name);
+        connection.RollbackToSavepoint(name);
+      }
+      catch (Exception exception) {
+        throw TranslateException(null, exception);
+      }
+    }
  
+    public void ReleaseSavepoint(Session session, SqlConnection connection, string name)
+    {
+      try {
+        if (IsDebugLoggingEnabled)
+          Log.Debug(Strings.LogSessionXReleaseSavepointY,
+            session.GetFullNameSafely(), name);
+        connection.ReleaseSavepoint(name);
+      }
+      catch (Exception exception) {
+        throw TranslateException(null, exception);
+      }
+    }
+
     public int ExecuteNonQuery(Session session, DbCommand command)
     {
       try {
