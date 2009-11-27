@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Building.Builders
       };
       context.Model.Types.Add(typeInfo);
 
-      // Registering connections between typeInfo & its ancestors
+      // Registering connections between type & its ancestors
       var node = context.DependencyGraph.TryGetNode(typeDef);
       if (node != null) {
         foreach (var edge in node.OutgoingEdges.Where(e => e.Kind == EdgeKind.Implementation || e.Kind == EdgeKind.Inheritance)) {
@@ -338,10 +338,22 @@ namespace Xtensive.Storage.Building.Builders
           keyProviderInfo.MappingName = context.NameBuilder.BuildGeneratorName(keyProviderInfo);
         context.Model.KeyProviders.Add(keyProviderInfo);
       }
+
+      var schema = hierarchyDef.Schema;
+
+      // Optimization. It there is the only class in hierarchy then ConcreteTable schema is applied
+      if (schema != InheritanceSchema.ConcreteTable) {
+        var node = context.DependencyGraph.TryGetNode(hierarchyDef.Root);
+
+        // No dependencies => no descendants
+        if (node == null || node.IncomingEdges.Where(e => e.Kind == EdgeKind.Inheritance).Count() == 0)
+          schema = InheritanceSchema.ConcreteTable;
+      }
+
       var typeDiscriminatorField = hierarchyDef.Root.Fields.Where(f => f.IsTypeDiscriminator);
       var typeDiscriminatorMap = typeDiscriminatorField!=null ? new TypeDiscriminatorMap() : null;
 
-      var hierarchy = new HierarchyInfo(root, hierarchyDef.Schema, keyProviderInfo, typeDiscriminatorMap) {
+      var hierarchy = new HierarchyInfo(root, schema, keyProviderInfo, typeDiscriminatorMap) {
         Name = root.Name
       };
       context.Model.Hierarchies.Add(hierarchy);

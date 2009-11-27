@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.AnimalDbTestModel
   {
   }
 
-  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
+  [HierarchyRoot]
   public class Person : Entity
   {
     [Field, Key]
