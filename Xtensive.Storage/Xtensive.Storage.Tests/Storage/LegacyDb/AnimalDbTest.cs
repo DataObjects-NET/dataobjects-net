@@ -14,7 +14,7 @@ using Xtensive.Storage.Tests.Storage.LegacyDb.AnimalDbTestModel;
 namespace Xtensive.Storage.Tests.Storage.LegacyDb.AnimalDbTestModel
 {
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
-  [TypeDiscriminatorValue(null, Default = true)]
+  [TypeDiscriminatorValue("Animal", Default = true)]
   public class Animal : Entity
   {
     [Field, Key]
@@ -81,9 +81,14 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           
+          Animal a = new Animal();
+          a.Name = "Elephant";
+          Dog d = new Dog();
+          d.Name = "Rex";
+          Cat c = new Cat();
+          c.Name = "Pussycat";
 
-
-          // Rollback
+          t.Complete();
         }
       }
     }

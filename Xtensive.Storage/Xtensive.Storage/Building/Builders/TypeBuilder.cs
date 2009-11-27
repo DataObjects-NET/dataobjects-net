@@ -70,8 +70,10 @@ namespace Xtensive.Storage.Building.Builders
           foreach (var fieldInfo in root.Fields.Where(f => f.IsPrimaryKey && f.Parent == null))
             BuildInheritedField(context, typeInfo, fieldInfo);
         }
-        if (typeDef.TypeDiscriminatorValue != null)
+        if (typeDef.TypeDiscriminatorValue != null) {
           typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterTypeMapping(typeInfo, typeDef.TypeDiscriminatorValue);
+          typeInfo.TypeDiscriminatorValue = typeDef.TypeDiscriminatorValue;
+        }
         if (typeDef.IsDefaultTypeInHierarchy)
           typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterDefaultType(typeInfo);
       }
@@ -350,7 +352,7 @@ namespace Xtensive.Storage.Building.Builders
           schema = InheritanceSchema.ConcreteTable;
       }
 
-      var typeDiscriminatorField = hierarchyDef.Root.Fields.Where(f => f.IsTypeDiscriminator);
+      var typeDiscriminatorField = hierarchyDef.Root.Fields.Where(f => f.IsTypeDiscriminator).FirstOrDefault();
       var typeDiscriminatorMap = typeDiscriminatorField!=null ? new TypeDiscriminatorMap() : null;
 
       var hierarchy = new HierarchyInfo(root, schema, keyProviderInfo, typeDiscriminatorMap) {

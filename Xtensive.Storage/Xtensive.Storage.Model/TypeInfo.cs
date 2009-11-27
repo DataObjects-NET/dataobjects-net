@@ -597,10 +597,17 @@ namespace Xtensive.Storage.Model
       // Building TuplePrototype
       var tuple = Tuple.Create(TupleDescriptor);
       tuple.Initialize(nullableMap);
-      if (IsEntity){
+      if (IsEntity) {
+
+        // Setting TypeId column
         var typeIdField = Fields.Where(f => f.IsTypeId).FirstOrDefault();
         if (typeIdField != null)
           tuple.SetValue(typeIdField.MappingInfo.Offset, TypeId);
+
+        // Setting type discriminator column
+        if (Hierarchy.TypeDiscriminatorMap != null) {
+          tuple.SetValue(Hierarchy.TypeDiscriminatorMap.Field.MappingInfo.Offset, typeDiscriminatorValue);
+        }
 
         // Building primary key injector
         var fieldCount = TupleDescriptor.Count;
