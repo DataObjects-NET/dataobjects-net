@@ -23,6 +23,8 @@ namespace Xtensive.Sql.Dml
 
     public override Type ItemType { get { return typeof (T); } }
 
+    public override int Length { get { return Values.Length; } }
+
     public override object[] GetValues()
     {
       return Values.Cast<object>().ToArray();

@@ -12,6 +12,7 @@ namespace Xtensive.Sql.Dml
   public abstract class SqlArray : SqlExpression
   {
     public abstract Type ItemType { get; }
+    public abstract int Length { get; }
     public abstract object[] GetValues();
     
     public override void AcceptVisitor(ISqlVisitor visitor)

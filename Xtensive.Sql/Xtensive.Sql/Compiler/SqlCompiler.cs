@@ -247,7 +247,7 @@ namespace Xtensive.Sql.Compiler
         var array = node.Right as SqlArray;
         bool emptyIn =
           !row.IsNullReference() && row.Count==0 ||
-          !array.IsNullReference() && array.GetValues().Length==0;
+          !array.IsNullReference() && array.Length==0;
         if (emptyIn) {
           SqlDml.Literal(node.NodeType==SqlNodeType.NotIn).AcceptVisitor(this);
           return;
