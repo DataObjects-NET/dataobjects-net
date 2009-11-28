@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Resources;
@@ -135,6 +136,25 @@ namespace Xtensive.Sql
     #endregion
 
     #region Array
+
+    public static SqlArray Array(IEnumerable<object> values)
+    {
+      var valueList = values.ToList();
+      if (valueList.Count==0)
+        return Array(ArrayUtils<int>.EmptyArray);
+      var itemType = valueList[0].GetType();
+      foreach (var t in values.Select(value => value.GetType())) {
+        SqlValidator.EnsureLiteralTypeIsSupported(t);
+        if (!itemType.IsAssignableFrom(t))
+          throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
+      }
+      var resultType = typeof (SqlArray<>).MakeGenericType(itemType);
+      var result = Activator.CreateInstance(
+        resultType,
+        BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
+        null, valueList, null);
+      return (SqlArray) result;
+    }
 
     public static SqlArray<bool> Array(params bool[] value)
     {
@@ -756,17 +776,6 @@ namespace Xtensive.Sql
 
     #region Literal
 
-    public static SqlLiteral<T> Literal<T>(T value)
-    {
-      if (ReferenceEquals(value, null))
-        throw new ArgumentNullException("value");
-      if (typeof (T)==typeof (object))
-        SqlValidator.EnsureLiteralTypeIsSupported(value.GetType());
-      else
-        SqlValidator.EnsureLiteralTypeIsSupported(typeof (T));
-      return new SqlLiteral<T>(value);
-    }
-
     public static SqlLiteral<bool> Literal(bool value)
     {
       return new SqlLiteral<bool>(value);
@@ -857,19 +866,23 @@ namespace Xtensive.Sql
       return new SqlLiteral<Guid>(value);
     }
 
-    public static SqlExpression Literal(object value, Type valueType)
+    public static SqlLiteral Literal(object value)
     {
+      var valueType = value.GetType();
       SqlValidator.EnsureLiteralTypeIsSupported(valueType);
-      var type = typeof (SqlLiteral<>).MakeGenericType(valueType);
-      var method = type.GetMethod("Create", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-      var result = (SqlExpression) method.Invoke(null, new[] {value});
-      return result;
+      var resultType = typeof (SqlLiteral<>).MakeGenericType(valueType);
+      var result = Activator.CreateInstance(
+        resultType,
+        BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
+        null, new[] {value}, null);
+      return (SqlLiteral) result;
     }
 
-    public static SqlExpression LiteralOrContainer(object value, Type valueType)
+    public static SqlExpression LiteralOrContainer(object value)
     {
+      var valueType = value.GetType();
       return SqlValidator.IsLiteralTypeSupported(valueType)
-        ? Literal(value, valueType)
+        ? (SqlExpression) Literal(value)
         : Container(value);
     }
 

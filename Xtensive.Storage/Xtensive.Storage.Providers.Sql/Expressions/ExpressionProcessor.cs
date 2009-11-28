@@ -268,7 +268,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       type = type.StripNullable();
       if (fixBooleanExpressions && type==typeof (bool))
         return (bool) expression.Value ? booleanExpressionConverter.IntToBoolean(1) : booleanExpressionConverter.IntToBoolean(0);
-      return SqlDml.LiteralOrContainer(expression.Value, type);
+      return SqlDml.LiteralOrContainer(expression.Value);
     }
 
     protected override SqlExpression VisitParameter(ParameterExpression expression)

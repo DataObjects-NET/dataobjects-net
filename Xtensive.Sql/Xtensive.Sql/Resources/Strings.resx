@@ -267,4 +267,7 @@
   <data name="ExTransactionShouldNotBeActive" xml:space="preserve">
     <value>Transaction should not be active</value>
   </data>
+  <data name="ExTypesOfValuesAreDifferent" xml:space="preserve">
+    <value>Types of values are different</value>
+  </data>
 </root>

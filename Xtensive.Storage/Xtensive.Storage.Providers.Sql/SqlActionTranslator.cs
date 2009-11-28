@@ -948,8 +948,8 @@ namespace Xtensive.Storage.Providers.Sql
     private SqlExpression GetDefaultValueExpression(ColumnInfo columnInfo)
     {
       var result = columnInfo.DefaultValue==null
-        ? SqlDml.Null
-        : SqlDml.Literal(columnInfo.DefaultValue, columnInfo.DefaultValue.GetType());
+        ? (SqlExpression) SqlDml.Null
+        : SqlDml.Literal(columnInfo.DefaultValue);
       var type = columnInfo.Type.Type;
       if (type.IsNullable())
         type = type.GetGenericArguments()[0];

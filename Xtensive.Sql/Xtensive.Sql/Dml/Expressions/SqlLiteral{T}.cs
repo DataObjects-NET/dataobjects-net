@@ -43,11 +43,6 @@ namespace Xtensive.Sql.Dml
       return clone;
     }
 
-    internal static SqlLiteral<T> Create(T value)
-    {
-      return new SqlLiteral<T>(value);
-    }
-
     // Constructor
 
     internal SqlLiteral(T value)

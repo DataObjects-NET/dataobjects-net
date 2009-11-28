@@ -475,6 +475,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Types of values are different.
+        /// </summary>
+        internal static string ExTypesOfValuesAreDifferent {
+            get {
+                return ResourceManager.GetString("ExTypesOfValuesAreDifferent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; is not supported..
         /// </summary>
         internal static string ExTypeXIsNotSupported {

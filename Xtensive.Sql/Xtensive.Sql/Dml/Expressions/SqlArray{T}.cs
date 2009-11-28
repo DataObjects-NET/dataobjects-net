@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 
@@ -49,11 +50,17 @@ namespace Xtensive.Sql.Dml
       return clone;
     }
 
-    // Constructor
+
+    // Constructors
 
     internal SqlArray(T[] values)
     {
       Values = values;
+    }
+
+    internal SqlArray(IEnumerable<object> values)
+    {
+      Values = values.Cast<T>().ToArray();
     }
   }
 }

@@ -130,8 +130,8 @@ namespace Xtensive.Sql.Tests
           var value = testValues[columnIndex][rowIndex];
           var mapping = typeMappings[columnIndex];
           var valueExpression = value==null
-            ? SqlDml.Null
-            : SqlDml.Literal(value, mapping.Type);
+            ? (SqlExpression) SqlDml.Null
+            : SqlDml.Literal(value);
           if (mapping.LiteralCastRequired)
             valueExpression = SqlDml.Cast(valueExpression, mapping.BuildSqlType());
           query.Columns.Add(valueExpression, columnName);
