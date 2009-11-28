@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 
@@ -18,6 +19,17 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     public override void Visit(SqlOpenCursor node)
     {
       base.Visit(node.Cursor.Declare());
+    }
+
+    public override void Visit(SqlBinary node)
+    {
+      var right = node.Right as SqlArray;
+      if (!right.IsNullReference() && (node.NodeType==SqlNodeType.In || node.NodeType==SqlNodeType.NotIn)) {
+        var row = SqlDml.Row(right.GetValues().Select(value => SqlDml.Literal(value)).ToArray());
+        base.Visit(node.NodeType==SqlNodeType.In ? SqlDml.In(node.Left, row) : SqlDml.NotIn(node.Left, row));
+      }
+      else
+        base.Visit(node);
     }
 
     public override void Visit(SqlFunctionCall node)

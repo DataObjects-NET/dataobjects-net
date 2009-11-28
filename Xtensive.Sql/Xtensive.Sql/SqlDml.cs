@@ -350,7 +350,7 @@ namespace Xtensive.Sql
       return Binary(SqlNodeType.In, left, right);
     }
 
-    public static SqlBinary In<T>(SqlExpression left, SqlArray<T> right) where T : IConvertible
+    public static SqlBinary In(SqlExpression left, SqlArray right)
     {
       SqlValidator.EnsureIsRowValueConstructor(left);
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
@@ -371,7 +371,7 @@ namespace Xtensive.Sql
       return Binary(SqlNodeType.NotIn, left, right);
     }
 
-    public static SqlBinary NotIn<T>(SqlExpression left, SqlArray<T> right) where T : IConvertible
+    public static SqlBinary NotIn(SqlExpression left, SqlArray right)
     {
       SqlValidator.EnsureIsRowValueConstructor(left);
       ArgumentValidator.EnsureArgumentNotNull(right, "right");

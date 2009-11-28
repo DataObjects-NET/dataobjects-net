@@ -312,7 +312,7 @@ namespace Xtensive.Sql.Compiler
       case NodeSection.Entry:
          return (node.NodeType==SqlNodeType.RawConcat) ? string.Empty : OpeningParenthesis;
       case NodeSection.Exit:
-         return (node.NodeType == SqlNodeType.RawConcat) ? string.Empty : ClosingParenthesis;
+         return (node.NodeType==SqlNodeType.RawConcat) ? string.Empty : ClosingParenthesis;
       }
       return string.Empty;
     }

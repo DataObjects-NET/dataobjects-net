@@ -242,6 +242,18 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlBinary node)
     {
+      if (node.NodeType==SqlNodeType.In || node.NodeType==SqlNodeType.NotIn) {
+        var row = node.Right as SqlRow;
+        var array = node.Right as SqlArray;
+        bool emptyIn =
+          !row.IsNullReference() && row.Count==0 ||
+          !array.IsNullReference() && array.GetValues().Length==0;
+        if (emptyIn) {
+          SqlDml.Literal(node.NodeType==SqlNodeType.NotIn).AcceptVisitor(this);
+          return;
+        }
+      }
+
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, NodeSection.Entry));
         node.Left.AcceptVisitor(this);
