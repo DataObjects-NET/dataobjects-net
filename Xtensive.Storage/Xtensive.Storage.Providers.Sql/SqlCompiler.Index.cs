@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Providers.Sql
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
         var sqlCase = SqlDml.Case(discriminatorColumn);
         foreach (var pair in discriminatorMap)
-          sqlCase.Add(SqlDml.Literal(pair.First, columnType), SqlDml.Literal(pair.Second.TypeId));
+          sqlCase.Add(SqlDml.Literal(pair.First), SqlDml.Literal(pair.Second.TypeId));
         if (discriminatorMap.Default != null)
           sqlCase.Else = SqlDml.Literal(discriminatorMap.Default.TypeId);
         typeIdColumn = SqlDml.ColumnRef(
