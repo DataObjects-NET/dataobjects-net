@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Disconnected
         if (tuple!=null)
           throw new InvalidOperationException("State is already contains value.");
 
-        tuple = Origin!=null && Origin.Tuple != null
+        tuple = Origin!=null && Origin.Tuple!=null
           ? new DifferentialTuple(Origin.Tuple, value) 
           : new DifferentialTuple(value);
       }
@@ -110,17 +110,24 @@ namespace Xtensive.Storage.Disconnected
       references.Clear();
     }
 
-    public bool Merge(Tuple newValue)
+    public bool MergeValue(Tuple newValue)
     {
       if (Origin!=null)
-        return false;
-      
-      if (tuple==null) {
-        tuple = new DifferentialTuple(newValue.Clone());
-        return true;
-      }
+        throw new InvalidOperationException("Can't merge state.");
       
       return MergeTuples(tuple.Origin, newValue);
+    }
+
+    public void SetNewValue(Tuple newValue)
+    {
+      if (Origin!=null)
+        throw new InvalidOperationException("Can't merge state.");
+      
+      if (tuple==null)
+        tuple = new DifferentialTuple(newValue.Clone());
+      else
+        for (int i = 0; i < tuple.Count; i++)
+          tuple.SetValue(i, newValue.GetValue(i));
     }
 
     /// <summary>

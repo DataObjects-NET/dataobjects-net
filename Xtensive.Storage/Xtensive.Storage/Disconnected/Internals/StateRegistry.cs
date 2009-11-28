@@ -27,6 +27,8 @@ namespace Xtensive.Storage.Disconnected
 
     private ModelHelper ModelHelper { get { return disconnectedState.ModelHelper; } }
 
+    public IEnumerable<DisconnectedEntityState> States { get { return states.Values; } }
+
     public OperationSet OperationSet { get; set; }
 
     public StateRegistry Origin { get { return origin; } }
@@ -65,10 +67,7 @@ namespace Xtensive.Storage.Disconnected
           Strings.ExStateWithKeyXIsAlreadyExists, key));
 
       state.Tuple = tuple.Clone();
-      foreach (var item in ModelHelper.GetEntitySetItems(key, state.Tuple))
-        InsertIntoEntitySet(item.OwnerKey, item.Field, item.ItemKey);
-      foreach (var reference in ModelHelper.GetReferencesFrom(key, state.Tuple))
-        AddReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
+      OnStateChanged(key, null, state.Tuple);
       foreach (var fieldInfo in ModelHelper.GetEntitySetFields(key.TypeRef.Type))
         state.GetEntitySetState(fieldInfo).IsFullyLoaded = true;
     }
@@ -91,28 +90,7 @@ namespace Xtensive.Storage.Disconnected
       var isAuxEntity = baseType.IsGenericType && baseType.GetGenericTypeDefinition()==typeof (EntitySetItem<,>);
       if (isAuxEntity)
         return;
-      // Add/remove to entity sets
-      foreach (var pair in ModelHelper.GetEntitySets(type)) {
-        var prevOwnerKey = ModelHelper.GetKeyFieldValue(pair.First, prevValue);
-        var ownerKey = ModelHelper.GetKeyFieldValue(pair.First, newValue);
-        if (ownerKey!=prevOwnerKey) {
-          if (prevOwnerKey!=null)
-            RemoveFromEntitySet(prevOwnerKey, pair.Second, state.Key);
-          if (ownerKey!=null)
-            InsertIntoEntitySet(ownerKey, pair.Second, state.Key);
-        }
-      }
-      // Add/remove to reference mappings
-      foreach (var field in ModelHelper.GetReferencingFields(type)) {
-        var prevOwnerKey = ModelHelper.GetKeyFieldValue(field, prevValue);
-        var ownerKey = ModelHelper.GetKeyFieldValue(field, newValue);
-        if (ownerKey!=prevOwnerKey) {
-          if (prevOwnerKey!=null)
-            RemoveReference(prevOwnerKey, field, state.Key);
-          if (ownerKey!=null)
-            AddReference(ownerKey, field, state.Key);
-        }
-      }
+      OnStateChanged(key, prevValue, newValue);
     }
 
     public void Remove(Key key)
@@ -124,27 +102,48 @@ namespace Xtensive.Storage.Disconnected
       if (!state.IsLoaded)
         throw new InvalidOperationException(Strings.ExStateIsNotLoaded);
       
-      foreach (var item in ModelHelper.GetEntitySetItems(key, state.Tuple))
-        RemoveFromEntitySet(item.OwnerKey, item.Field, item.ItemKey);
-      foreach (var reference in ModelHelper.GetReferencesFrom(key, state.Tuple))
-        RemoveReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
+      OnStateChanged(key, state.Tuple, null);
       state.Remove();
     }
 
     public void Register(Key key, Tuple tuple)
     {
       if (Origin!=null)
-        return;
+        throw new InvalidOperationException("Can't register state.");
 
       var state = GetForUpdate(key);
       if (state.IsRemoved)
         return;
-      if (!state.Merge(tuple.Clone()))
-        return;
-      foreach (var item in ModelHelper.GetEntitySetItems(key, state.Tuple))
-        InsertIntoEntitySet(item.OwnerKey, item.Field, item.ItemKey);
-      foreach (var reference in ModelHelper.GetReferencesFrom(key, state.Tuple))
-        AddReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
+
+      state.Tuple = tuple.Clone();
+      OnStateChanged(key, null, state.Tuple);
+    }
+
+    public void MergeUnloadedFields(Key key, Tuple newValue)
+    {
+      if (Origin!=null)
+        throw new InvalidOperationException("Can't merge state.");
+
+      var state = GetForUpdate(key);
+      if (state.IsRemoved || !state.IsLoaded)
+        throw new InvalidOperationException("Can't merge state.");
+
+      if (state.MergeValue(newValue))
+        OnStateChanged(key, null, state.Tuple);
+    }
+
+    public void Merge(Key key, Tuple newValue)
+    {
+      if (Origin!=null)
+        throw new InvalidOperationException("Can't merge state.");
+
+      var state = GetForUpdate(key);
+      if (state.IsRemoved || !state.IsLoaded)
+        throw new InvalidOperationException("Can't merge state.");
+
+      var preValue = state.Tuple.Clone();
+      state.SetNewValue(newValue);
+      OnStateChanged(key, preValue, state.Tuple);
     }
 
     public void Commit()
@@ -163,8 +162,47 @@ namespace Xtensive.Storage.Disconnected
       states.Add(state.Key, state);
     }
 
-    public IEnumerable<DisconnectedEntityState> States { get { return states.Values; } }
-    
+    public void OnStateChanged(Key key, Tuple prevValue, Tuple newValue)
+    {
+      // Inserting
+      if (prevValue==null) {
+        foreach (var item in ModelHelper.GetEntitySetItems(key, newValue))
+          InsertIntoEntitySet(item.OwnerKey, item.Field, item.ItemKey);
+        foreach (var reference in ModelHelper.GetReferencesFrom(key, newValue))
+          AddReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
+      }
+      // Deleting
+      else if (newValue==null) {
+        foreach (var item in ModelHelper.GetEntitySetItems(key, prevValue))
+          RemoveFromEntitySet(item.OwnerKey, item.Field, item.ItemKey);
+        foreach (var reference in ModelHelper.GetReferencesFrom(key, prevValue))
+          RemoveReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
+      }
+      // Updating
+      else {
+        foreach (var pair in ModelHelper.GetEntitySets(key.Type)) {
+          var prevOwnerKey = ModelHelper.GetKeyFieldValue(pair.First, prevValue);
+          var ownerKey = ModelHelper.GetKeyFieldValue(pair.First, newValue);
+          if (ownerKey!=prevOwnerKey) {
+            if (prevOwnerKey!=null)
+              RemoveFromEntitySet(prevOwnerKey, pair.Second, key);
+            if (ownerKey!=null)
+              InsertIntoEntitySet(ownerKey, pair.Second, key);
+          }
+        }
+        foreach (var field in ModelHelper.GetReferencingFields(key.Type)) {
+          var prevOwnerKey = ModelHelper.GetKeyFieldValue(field, prevValue);
+          var ownerKey = ModelHelper.GetKeyFieldValue(field, newValue);
+          if (ownerKey!=prevOwnerKey) {
+            if (prevOwnerKey!=null)
+              RemoveReference(prevOwnerKey, field, key);
+            if (ownerKey!=null)
+              AddReference(ownerKey, field, key);
+          }
+        }
+      }
+    }
+
     private void InsertIntoEntitySet(Key ownerKey, FieldInfo field, Key itemKey)
     {
       var state = GetForUpdate(ownerKey);

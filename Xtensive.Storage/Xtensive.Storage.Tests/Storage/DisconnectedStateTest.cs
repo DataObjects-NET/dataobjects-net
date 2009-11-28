@@ -338,6 +338,8 @@ namespace Xtensive.Storage.Tests.Storage
       }
       // Fetch all instances to cache
       var state = new DisconnectedState();
+      state.MergeMode = MergeMode.PreferTarget;
+
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
@@ -540,6 +542,70 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
           AssertEx.Throws<KeyNotFoundException>(() => Query<Customer>.Single(newCustomerKey));
+          transactionScope.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void ModifyDataAfterSaveChangesTest()
+    {
+      var state = new DisconnectedState();
+      Key order1Key = null;
+
+      // Modify data
+      using (var session = Session.Open(Domain)) {
+        using (state.Attach(session)) {
+          using (var transactionScope = Transaction.Open()) {
+            List<Order> orders = null;
+            using (state.Connect()) {
+              orders = Query<Order>.All
+                .Prefetch(o => o.Customer)
+                .PrefetchMany(o => o.Details, set => set,
+                  od => od.Prefetch(item => item.Product)).ToList();
+            }
+
+            var order1 = orders.First(order => order.Number==1);
+            order1Key = order1.Key;
+            Product product3 = null;
+            using (state.Connect()) {
+              product3 = Query<Product>.All.First(product => product.Name=="Product3");
+            }
+            new OrderDetail() {
+              Product = product3,
+              Count = 250,
+              Order = order1
+            };
+            transactionScope.Complete();
+          }
+          state.SaveChanges();
+        }
+      }
+      using (var session = Session.Open(Domain)) {
+        using (state.Attach(session)) {
+          using (var transactionScope = Transaction.Open()) {
+            var order1 = Query<Order>.Single(order1Key);
+            order1.Number = 1000;
+            var details = order1.Details.ToList();
+            var detail3 = details.First(detail => detail.Count==250);
+            detail3.Count = 1250;
+
+            transactionScope.Complete();
+          }
+          state.SaveChanges();
+        }
+      }
+
+
+      // Check saved data
+      using (var session = Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          Order order1 = Query<Order>.Single(order1Key);
+          Assert.AreEqual(1000, order1.Number);
+          var details = order1.Details.ToList();
+          Assert.AreEqual(3, order1.Details.Count);
+          var detail3 = details.FirstOrDefault(detailt => detailt.Count==1250);
+          Assert.IsNotNull(detail3);
           transactionScope.Complete();
         }
       }
@@ -1378,6 +1444,66 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.IsNull(Query<A>.All.FirstOrDefault());
           Assert.IsTrue(Query<B>.All.All(item => item.Root==null));
           transactionScope.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void MergeModeTest()
+    {
+      Key key;
+
+      // Create instances
+      using (var session = Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          var simple = new Simple {
+            VersionId = 1,
+            Value = "Value1"
+          };
+          key = simple.Key;
+          transactionScope.Complete();
+        }
+      }
+      
+
+      // Target state
+      var state2 = new DisconnectedState();
+      using (var session = Session.Open(Domain)) {
+        using (state2.Attach(session)) {
+          // Load data
+          using (var transactionScope = Transaction.Open()) {
+            using (state2.Connect()) {
+              Query<Simple>.All.ToList();
+            }
+          }
+        }
+      }
+
+      // Source state
+      var state1 = new DisconnectedState();
+      using (var session = Session.Open(Domain)) {
+        using (state1.Attach(session)) {
+          using (var transactionScope = Transaction.Open()) {
+            using (state1.Connect()) {
+              Query<Simple>.All.ToList();
+            }
+            var simple = Query<Simple>.Single(key);
+            simple.Value = "Value2";
+            Assert.IsNotNull(simple);
+            transactionScope.Complete();
+          }
+          state1.SaveChanges();
+        }
+      }
+      
+      // Merge and check
+      using (var session = Session.Open(Domain)) {
+        using (state2.Attach(session)) {
+          AssertEx.Throws<InvalidOperationException>(() => state2.Merge(state1, MergeMode.Restrict));
+          state2.Merge(state1, MergeMode.PreferTarget);
+          Assert.AreEqual("Value1", Query<Simple>.Single(key).Value);
+          state2.Merge(state1, MergeMode.PreferSource);
+          Assert.AreEqual("Value2", Query<Simple>.Single(key).Value);
         }
       }
     }

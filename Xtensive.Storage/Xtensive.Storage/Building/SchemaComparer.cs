@@ -50,14 +50,6 @@ namespace Xtensive.Storage.Building
       var unsafeActions = GetUnsafeActions(actions);
       var typeChanges = GetTypeChangeActions(actions);
       
-      /*
-      (action => {
-        var sourceType = action.Difference.Source as TypeInfo;
-        var targetType = action.Difference.Target as TypeInfo;
-        return sourceType==null || targetType==null
-          || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
-      });
-      */
       if (!legacyUpgrade)
         return new SchemaComparisonResult(status, hints, difference, actions, typeChanges.Any(), unsafeActions, true);
 
@@ -93,23 +85,6 @@ namespace Xtensive.Storage.Building
         g.Actions.Add(action);
       actions.Add(g);
       return new SchemaComparisonResult(status, hints, difference, actions, hasTypeChanges, unsafeActions, isCompatible);
-
-      /*
-      var systemTableActions = actions.Flatten(
-        action => {
-          var gActions = action as GroupingNodeAction;
-          if (gActions!=null)
-            return gActions.Actions;
-          return EnumerableUtils.One(action);
-        },
-        null, true).ToList();
-      */
-
-
-//      var systemTableActions = actions.Flatten()
-//        .OfType<GroupingNodeAction>()
-//        .Where(action => systemTables.Contains(action.Comment));
-      
     }
 
     private static IList<GroupingNodeAction> GetSystemTableActions(ActionSequence actions, HashSet<string> systemTableNames)
@@ -118,8 +93,7 @@ namespace Xtensive.Storage.Building
         action => action.Actions.OfType<GroupingNodeAction>(), ga => { }, false)
         .Where(action => systemTableNames.Contains(action.Comment)).ToList();
     }
-
-
+    
     private static IList<NodeAction> GetUnsafeActions(ActionSequence upgradeActions)
     {
       var unsafeActions = new List<NodeAction>();

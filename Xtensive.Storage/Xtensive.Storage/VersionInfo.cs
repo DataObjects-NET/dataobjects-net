@@ -90,7 +90,7 @@ namespace Xtensive.Storage
         return false;
       if (ReferenceEquals(obj, null))
         return false;
-      if (obj.GetType()!= typeof (VersionInfo))
+      if (obj.GetType()!=typeof (VersionInfo))
         return false;
       if (obj.GetHashCode()!=GetHashCode())
         return false;

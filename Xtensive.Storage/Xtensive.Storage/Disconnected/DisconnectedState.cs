@@ -50,17 +50,8 @@ namespace Xtensive.Storage.Disconnected
     [NonSerialized]
     private readonly ModelHelper modelHelper = new ModelHelper();
     
-    internal ModelHelper ModelHelper
-    {
-      get { return modelHelper; }
-    }
-
     internal bool IsConnected { get; set; }
-    internal IOperationSet GetOperationLog()
-    {
-      return registry.OperationSet;
-    }
-    
+
     # region Public API
 
     /// <summary>
@@ -72,6 +63,11 @@ namespace Xtensive.Storage.Disconnected
     /// Gets a value indicating whether this instance is attached to session.
     /// </summary>
     public bool IsAttached { get { return disposable!=null; } }
+
+    /// <summary>
+    /// Gets or sets the merge mode.
+    /// </summary>
+    public MergeMode MergeMode { get; set; }
 
     /// <summary>
     /// Attach to specified session.
@@ -111,6 +107,7 @@ namespace Xtensive.Storage.Disconnected
       EnsureIsAttached();
       KeyMapping keyMapping;
       var tempSession = Session;
+      var newVersionCache = new Dictionary<Key, VersionInfo>();
       Detach();
       try {
         using (new VersionValidator(tempSession, GetStoredVerion)) {
@@ -119,6 +116,14 @@ namespace Xtensive.Storage.Disconnected
             transactionScope.Complete();
           }
           registry.Commit();
+          registry = new StateRegistry(globalRegistry);
+          versionCache = new Dictionary<Key, VersionInfo>();
+          foreach (var state in globalRegistry.States)
+            if (state.Tuple!=null) {
+              var version = GetVersion(state.Key.Type, state.Tuple);
+              if (!version.IsVoid)
+                versionCache.Add(state.Key, version);
+            }
         }
       }
       finally {
@@ -132,15 +137,31 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     public void ClearChanges()
     {
+      if (Transaction.Current!=null)
+        throw new InvalidOperationException(Strings.ExTransactionShouldNotBeActive);
+
       registry = new StateRegistry(globalRegistry);
-      if (transactionalRegistry!=null)
-        transactionalRegistry = new StateRegistry(registry);
+    }
+
+    /// <summary>
+    /// Merges state with the specified source state.
+    /// </summary>
+    /// <param name="source">The source state.</param>
+    /// <param name="mergeMode">The merge mode.</param>
+    public void Merge(DisconnectedState source, MergeMode mergeMode)
+    {
+      var sourceStates = source.globalRegistry.States;
+      foreach (var state in sourceStates) {
+        RegisterState(state.Key, state.Tuple, source.GetStoredVerion(state.Key), mergeMode);
+      }
     }
     
     # endregion
     
     # region Internal API
 
+    internal ModelHelper ModelHelper { get { return modelHelper; } }
+    
     internal VersionInfo GetStoredVerion(Key key)
     {
       VersionInfo storedVersion;
@@ -174,19 +195,42 @@ namespace Xtensive.Storage.Disconnected
       EnsureIsAttached();
       return transactionalRegistry.GetState(key);
     }
-
+    
     internal DisconnectedEntityState RegisterState(Key key, Tuple tuple)
     {
-      EnsureIsAttached();
+      RegisterState(key, tuple, GetVersion(key.TypeRef.Type, tuple), MergeMode);
+      return GetState(key);
+    }
 
-      // Store object version
-      if (key.TypeRef.Type.VersionExtractor!=null && !versionCache.ContainsKey(key)) {
-        var versionTuple = key.TypeRef.Type.VersionExtractor.Apply(TupleTransformType.Tuple, tuple);
-        versionCache.Add(key, new VersionInfo(versionTuple));
+    internal void RegisterState(Key key, Tuple tuple, VersionInfo version, MergeMode mergeMode)
+    {
+      DisconnectedEntityState cachedState;
+      if (transactionalRegistry!=null)
+        cachedState = transactionalRegistry.GetState(key);
+      else
+        cachedState = registry.GetState(key);
+
+      if (cachedState==null || !cachedState.IsLoaded) {
+        globalRegistry.Register(key, tuple);
+        versionCache[key] = version;
+        return;
       }
 
-      globalRegistry.Register(key, tuple);
-      return GetState(key);
+      var targetVersion = GetVersion(cachedState.Key.Type, cachedState.Tuple);
+      var sourceVersion = GetVersion(key.Type, tuple);
+
+      var isVersionEquals =
+        (targetVersion.IsVoid && sourceVersion.IsVoid)
+          || (!targetVersion.IsVoid && !sourceVersion.IsVoid && targetVersion==sourceVersion);
+
+      if (isVersionEquals)
+        globalRegistry.MergeUnloadedFields(key, tuple);
+      else if (mergeMode==MergeMode.Restrict)
+        throw new InvalidOperationException("Version conflict.");
+      else if (mergeMode==MergeMode.PreferSource) {
+        globalRegistry.Merge(key, tuple);
+        versionCache[key] = version;
+      }
     }
 
     internal DisconnectedEntitySetState RegisterSetState(Key key, FieldInfo fieldInfo, bool isFullyLoaded, 
@@ -228,6 +272,11 @@ namespace Xtensive.Storage.Disconnected
 
     # endregion
     
+    internal IOperationSet GetOperationLog()
+    {
+      return registry.OperationSet;
+    }
+
     private void CloseConnection()
     {
       if (!IsConnected)
@@ -265,6 +314,16 @@ namespace Xtensive.Storage.Disconnected
       disposable.Dispose();
       disposable = null;
     }
+
+    private static VersionInfo GetVersion(TypeInfo type, Tuple tuple)
+    {
+      if (type.VersionExtractor==null)
+        return new VersionInfo();
+      
+      var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, tuple);
+      return new VersionInfo(versionTuple);
+    }
+
 
     // Constructors
 
