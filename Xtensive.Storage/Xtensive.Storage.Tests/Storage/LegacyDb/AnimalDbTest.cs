@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.AnimalDbTestModel
   }
 
   [HierarchyRoot]
-  public class Person : Entity
+  public abstract class Person : Entity
   {
     [Field, Key]
     public Guid Id { get; private set;}
@@ -314,13 +314,18 @@ ALTER TABLE [dbo].[DogLover-Pets-Dog] CHECK CONSTRAINT [FK_DogLover-Pets-Dog_Sla
     {
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        Animal a = new Animal();
-        a.Name = "Elephant";
-        Dog d = new Dog();
-        d.Name = "Rex";
-        Cat c = new Cat();
-        c.Name = "Pussycat";
-
+        Animal animal = new Animal();
+        animal.Name = "Elephant";
+        Dog dog = new Dog();
+        dog.Name = "Rex";
+        Cat cat = new Cat();
+        cat.Name = "Pussycat";
+        var catLover = new CatLover {Name = "CatLover", Favorite = cat};
+        catLover.Pets.Add(cat);
+        var dogLover = new DogLover { Name = "CatLover", Favorite = dog };
+        dogLover.Pets.Add(dog);
+        var dogClinic = new DogClinic {Name = "Dog healer.", Address = "Address 1"};
+        var catClinic = new CatClinic {Name = "Cat healer.", Address = "Address 2"};
         t.Complete();
       }
       using (Session.Open(Domain))
@@ -328,9 +333,24 @@ ALTER TABLE [dbo].[DogLover-Pets-Dog] CHECK CONSTRAINT [FK_DogLover-Pets-Dog_Sla
         var animals = Query<Animal>.All.ToList();
         var dogs = Query<Dog>.All.ToList();
         var cats = Query<Cat>.All.ToList();
+        var persons = Query<Person>.All.ToList();
+        var dogLovers = Query<DogLover>.All.ToList();
+        var catLovers = Query<CatLover>.All.ToList();
+        var clinics = Query<VetClinic>.All.ToList();
+        var dogClinics = Query<DogClinic>.All.ToList();
+        var catClinics = Query<CatClinic>.All.ToList();
+
         Assert.AreEqual(3, animals.Count);
         Assert.AreEqual(1, dogs.Count);
         Assert.AreEqual(1, cats.Count);
+
+        Assert.AreEqual(2, persons.Count);
+        Assert.AreEqual(1, dogLovers.Count);
+        Assert.AreEqual(1, catLovers.Count);
+
+        Assert.AreEqual(2, clinics.Count);
+        Assert.AreEqual(1, dogClinics.Count);
+        Assert.AreEqual(1, catClinics.Count);
         t.Complete();
       }
     }

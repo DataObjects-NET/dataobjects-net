@@ -152,7 +152,7 @@ namespace Xtensive.Sql
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
-        null, valueList, null);
+        null, new object[] {valueList}, null);
       return (SqlArray) result;
     }
 

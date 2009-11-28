@@ -141,17 +141,33 @@ namespace Xtensive.Storage.Providers.Sql
       SqlExpression filter = null;
       var type = index.ReflectedType;
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
+      var filterByTypes = index.FilterByTypes.ToList();
       if (underlyingIndex.IsTyped && discriminatorMap != null) {
         var columnType = discriminatorMap.Column.ValueType;
-        var discriminatorColumnIndex = underlyingIndex.Columns.IndexOf(discriminatorMap.Column);
+        var discriminatorColumnIndex = underlyingIndex.Columns
+          .Where(c => !c.Field.IsTypeId)
+          .Select((c,i) => new {c,i})
+          .Where(p => p.c == discriminatorMap.Column)
+          .Single().i;
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
-//        filter = SqlDml.In(discriminatorColumn, SqlDml.Array());
-//        filter = SqlDml.In(discriminatorColumn, SqlDml.Array());
+        var containsDefault = filterByTypes.Contains(discriminatorMap.Default);
+        var values = filterByTypes.Select(t => t.TypeDiscriminatorValue);
+        if (filterByTypes.Count == 1)
+          filter = discriminatorColumn == SqlDml.Literal(filterByTypes.First().TypeDiscriminatorValue);
+        else {
+          filter = SqlDml.In(discriminatorColumn, SqlDml.Array(values));
+          if (containsDefault) {
+            var allValues = discriminatorMap.Select(p => p.First);
+            filter |= SqlDml.NotIn(discriminatorColumn, SqlDml.Array(allValues));
+          }
+        }
       }
       else {
         var typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
-        var typeIds = index.FilterByTypes.Select(t => t.TypeId).ToArray();
-        filter = SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
+        var typeIds = filterByTypes.Select(t => t.TypeId).ToArray();
+        filter = filterByTypes.Count == 1
+          ? typeIdColumn == filterByTypes.First().TypeId
+          : SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
       }
       var query = SqlDml.Select(baseQuery.From);
       query.Columns.AddRange(baseQuery.Columns);
@@ -186,7 +202,6 @@ namespace Xtensive.Storage.Providers.Sql
         WellKnown.TypeIdFieldName);
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
       if (discriminatorMap != null) {
-        var columnType = discriminatorMap.Column.ValueType;
         var discriminatorColumnIndex = underlyingIndex.Columns.IndexOf(discriminatorMap.Column);
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
         var sqlCase = SqlDml.Case(discriminatorColumn);

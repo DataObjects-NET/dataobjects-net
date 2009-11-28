@@ -60,7 +60,7 @@ namespace Xtensive.Sql.Dml
       Values = values;
     }
 
-    internal SqlArray(IEnumerable<object> values)
+    internal SqlArray(List<object> values)
     {
       Values = values.Cast<T>().ToArray();
     }
