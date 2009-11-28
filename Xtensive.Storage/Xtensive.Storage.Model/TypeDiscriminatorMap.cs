@@ -15,6 +15,7 @@ namespace Xtensive.Storage.Model
   {
     private TypeInfo @default;
     private readonly Dictionary<object, TypeInfo> map = new Dictionary<object, TypeInfo>();
+    private readonly Dictionary<TypeInfo, object> reversedMap = new Dictionary<TypeInfo, object>();
     private FieldInfo field;
 
     public FieldInfo Field
@@ -45,10 +46,22 @@ namespace Xtensive.Storage.Model
       }
     }
 
+    public object this[TypeInfo typeInfo]
+    {
+      get
+      {
+        object result;
+        if (reversedMap.TryGetValue(typeInfo, out result))
+          return result;
+        return null;
+      }
+    }
+
     public void RegisterTypeMapping(TypeInfo type, object typeDiscriminatorValue)
     {
       this.EnsureNotLocked();
       map.Add(typeDiscriminatorValue, type);
+      reversedMap.Add(type, typeDiscriminatorValue);
     }
 
     public void RegisterDefaultType(TypeInfo type)

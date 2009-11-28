@@ -46,10 +46,22 @@ namespace Xtensive.Storage.Building.Builders
       }
 
       // Build indexes for descendants
-      foreach (var descendant in type.GetDescendants())
+      var directDescendants = type.GetDescendants().ToList();
+      foreach (var descendant in directDescendants)
         BuildSingleTableIndexes(descendant);
 
       if (type == root) return;
+      if (directDescendants.Count == 0) {
+        // Build typed indexes
+        foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real)) {
+          if (!context.UntypedIndexes.Contains(realIndex))
+            continue;
+          if (root.Indexes.Any(i => i.DeclaringIndex == realIndex.DeclaringIndex && i.IsTyped))
+            continue;
+          var typedIndex = BuildTypedIndex(realIndex.ReflectedType, realIndex);
+          root.Indexes.Add(typedIndex);
+        }
+      }
 
       var types = type.GetAncestors().AddOne(type).ToHashSet();
       var descendants = type.GetDescendants(true).ToList();
@@ -60,8 +72,11 @@ namespace Xtensive.Storage.Building.Builders
       
       // Import inherited indexes
       var ancestorIndexes = root.Indexes
-        .Where(i => types.Contains(i.ReflectedType))
+        .Where(i => types.Contains(i.ReflectedType) && !i.IsTyped)
         .Reverse()
+        .Select(i => context.UntypedIndexes.Contains(i) 
+          ? root.Indexes.Single(index => index.DeclaringIndex == i.DeclaringIndex && index.IsTyped)
+          : i)
         .ToList();
       foreach (var ancestorIndex in ancestorIndexes) {
         if (type.Indexes.Any(i => 

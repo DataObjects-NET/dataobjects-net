@@ -277,6 +277,8 @@ namespace Xtensive.Storage.Building.Builders
       if (typeInfo.Hierarchy != null) {
         if (typeInfo.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
           skipTypeId = true;
+        else if (typeInfo.Hierarchy.TypeDiscriminatorMap != null)
+          skipTypeId = true;
       }
       if (typeInfo.Fields.Any(f => f.IsTypeId && f.IsPrimaryKey))
         skipTypeId = false;
@@ -378,6 +380,8 @@ namespace Xtensive.Storage.Building.Builders
       var skipTypeId = false;
       if (reflectedType.Hierarchy != null) {
         if (reflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+          skipTypeId = true;
+        else if (reflectedType.Hierarchy.TypeDiscriminatorMap != null)
           skipTypeId = true;
       }
       if (reflectedType.Fields.Any(f => f.IsTypeId && f.IsPrimaryKey))

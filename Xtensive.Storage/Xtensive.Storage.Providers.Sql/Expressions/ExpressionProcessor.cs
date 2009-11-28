@@ -305,6 +305,8 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
           provider = compiler.ToCompatible(provider);
           compiler.OuterReferences.ReplaceBound(parameter, provider);
         }
+
+        // TODO: Check out this sh..t
         var sqlProvider = (SqlProvider) provider;
         var permanentReference = sqlProvider.PermanentReference;
         if (permanentReference.Columns.Count < sqlProvider.Request.SelectStatement.Columns.Count)
