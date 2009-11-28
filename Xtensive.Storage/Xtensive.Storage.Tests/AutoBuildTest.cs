@@ -27,8 +27,8 @@ namespace Xtensive.Storage.Tests
     private DisposableSet disposables;
     private static UnityContainer container;
 
-    protected ProviderInfo ProviderInfo { get; private set; }
-    protected Domain Domain { get; private set; }
+    protected ProviderInfo ProviderInfo { get; set; }
+    protected Domain Domain { get; set; }
     
     [TestFixtureSetUp]
     public virtual void TestFixtureSetUp()
