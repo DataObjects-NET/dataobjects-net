@@ -23,8 +23,8 @@ namespace Xtensive.Storage.Linq.Materialization
 {
   internal static class MaterializationHelper
   {
-    public readonly static int BatchFastFirstCount = 2;
-    public readonly static int BatchMinSize = 32;
+    public readonly static int BatchFastFirstCount = 0;
+    public readonly static int BatchMinSize = 16;
     public readonly static int BatchMaxSize = 1024;
 
     public static readonly MethodInfo MaterializeMethodInfo;

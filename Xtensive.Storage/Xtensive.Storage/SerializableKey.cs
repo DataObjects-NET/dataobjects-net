@@ -22,7 +22,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the key.
     /// </summary>
-    /// <value>The key.</value>
     public Key Key { get; private set; }
 
     /// <inheritdoc/>
@@ -85,13 +84,14 @@ namespace Xtensive.Storage
 
     // Serialization
 
+    /// <inheritdoc/>
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("key", Key.Format());
     }
 
-    protected SerializableKey(SerializationInfo info, StreamingContext context)
+    private SerializableKey(SerializationInfo info, StreamingContext context)
     {
       Key = Key.Parse(info.GetString("key"));
     }
