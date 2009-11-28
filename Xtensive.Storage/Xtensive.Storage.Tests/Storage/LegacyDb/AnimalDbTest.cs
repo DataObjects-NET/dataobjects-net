@@ -81,6 +81,49 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.AnimalDbTestModel
     [Association(OnOwnerRemove = OnRemoveAction.Clear)]
     public EntitySet<Dog> Pets { get; private set; }
   }
+
+  [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
+  public abstract class VetClinic : Entity
+  {
+    [Field, Key]
+    public Guid Id { get; private set; }
+
+    [Field(Length = 50)]
+    public string Name { get; set; }
+
+    [Field(Length = 50)]
+    public string Address { get; set; }
+
+    public abstract void Heal(Animal patient);
+
+    public abstract void Kill(Animal victim);
+  }
+
+  public class DogClinic : VetClinic
+  {
+    public override void Heal(Animal patient)
+    {
+      Console.WriteLine(string.Format("Healing the dog {0}", patient.Name));
+    }
+
+    public override void Kill(Animal victim)
+    {
+      Console.WriteLine(string.Format("Killing the dog {0}", victim.Name));
+    }
+  }
+
+  public class CatClinic : VetClinic
+  {
+    public override void Heal(Animal patient)
+    {
+      Console.WriteLine(string.Format("Healing the cat {0}", patient.Name));
+    }
+
+    public override void Kill(Animal victim)
+    {
+      Console.WriteLine(string.Format("Killing the cat {0}", victim.Name));
+    }
+  }
 }
 
 namespace Xtensive.Storage.Tests.Storage.LegacyDb
@@ -96,12 +139,37 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
 
     protected override string GetCreateDbScript(DomainConfiguration config)
     {
-      return @"
-CREATE TABLE [dbo].[Person](
+      return @"CREATE TABLE [dbo].[Person](
 	[Id] [uniqueidentifier] NOT NULL,
 	[Name] [nvarchar](50) NULL,
 	[Type] [nvarchar](50) NULL,
  CONSTRAINT [PK_Person] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE TABLE [dbo].[VetClinic](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Address] [nvarchar](50) NOT NULL
+) ON [PRIMARY]
+
+CREATE TABLE [dbo].[DogClinic](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Address] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_DogClinic] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE TABLE [dbo].[CatClinic](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Address] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_CatClinic] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
@@ -119,8 +187,32 @@ CREATE TABLE [dbo].[CatLover](
 CREATE NONCLUSTERED INDEX [CatLover.FK_Favorite] ON [dbo].[CatLover] 
 (
 	[Favorite.Id] ASC
-)
-WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+
+CREATE TABLE [dbo].[Animal](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Type] [nvarchar](50) NULL,
+	[Name] [nvarchar](50) NULL,
+	[Age] [int] NOT NULL,
+	[Owner] [uniqueidentifier] NULL,
+ CONSTRAINT [PK_Animal] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE NONCLUSTERED INDEX [Animal.FK_Owner] ON [dbo].[Animal] 
+(
+	[Owner] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+
+CREATE TABLE [dbo].[DogLover](
+	[Id] [uniqueidentifier] NOT NULL,
+ CONSTRAINT [PK_DogLover.Person] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
 
 CREATE TABLE [dbo].[CatLover-Pets-Cat](
 	[CatLover] [uniqueidentifier] NOT NULL,
@@ -162,32 +254,6 @@ CREATE NONCLUSTERED INDEX [DogLover-Pets-Dog.FK_Slave] ON [dbo].[DogLover-Pets-D
 	[Dog] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 
-CREATE TABLE [dbo].[Animal](
-	[Id] [uniqueidentifier] NOT NULL,
-	[Type] [nvarchar](50) NULL,
-	[Name] [nvarchar](50) NULL,
-	[Age] [int] NOT NULL,
-	[Owner] [uniqueidentifier] NULL,
- CONSTRAINT [PK_Animal] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY]
-
-CREATE NONCLUSTERED INDEX [Animal.FK_Owner] ON [dbo].[Animal] 
-(
-	[Owner] ASC
-)
-WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-
-CREATE TABLE [dbo].[DogLover](
-	[Id] [uniqueidentifier] NOT NULL,
- CONSTRAINT [PK_DogLover.Person] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY]
-
 ALTER TABLE [dbo].[Person] ADD  DEFAULT (NULL) FOR [Name]
 
 ALTER TABLE [dbo].[Person] ADD  DEFAULT (NULL) FOR [Type]
@@ -212,6 +278,16 @@ REFERENCES [dbo].[Animal] ([Id])
 
 ALTER TABLE [dbo].[CatLover] CHECK CONSTRAINT [FK_CatLover-Favorite-Cat_Favorite]
 
+ALTER TABLE [dbo].[Animal]  WITH CHECK ADD  CONSTRAINT [FK_Animal-Owner-Person_Owner] FOREIGN KEY([Owner])
+REFERENCES [dbo].[Person] ([Id])
+
+ALTER TABLE [dbo].[Animal] CHECK CONSTRAINT [FK_Animal-Owner-Person_Owner]
+
+ALTER TABLE [dbo].[DogLover]  WITH CHECK ADD  CONSTRAINT [FK_DogLover_Person] FOREIGN KEY([Id])
+REFERENCES [dbo].[Person] ([Id])
+
+ALTER TABLE [dbo].[DogLover] CHECK CONSTRAINT [FK_DogLover_Person]
+
 ALTER TABLE [dbo].[CatLover-Pets-Cat]  WITH CHECK ADD  CONSTRAINT [FK_CatLover-Pets-Cat_Master] FOREIGN KEY([CatLover])
 REFERENCES [dbo].[CatLover] ([Id])
 
@@ -230,17 +306,7 @@ ALTER TABLE [dbo].[DogLover-Pets-Dog] CHECK CONSTRAINT [FK_DogLover-Pets-Dog_Mas
 ALTER TABLE [dbo].[DogLover-Pets-Dog]  WITH CHECK ADD  CONSTRAINT [FK_DogLover-Pets-Dog_Slave] FOREIGN KEY([Dog])
 REFERENCES [dbo].[Animal] ([Id])
 
-ALTER TABLE [dbo].[DogLover-Pets-Dog] CHECK CONSTRAINT [FK_DogLover-Pets-Dog_Slave]
-
-ALTER TABLE [dbo].[Animal]  WITH CHECK ADD  CONSTRAINT [FK_Animal-Owner-Person_Owner] FOREIGN KEY([Owner])
-REFERENCES [dbo].[Person] ([Id])
-
-ALTER TABLE [dbo].[Animal] CHECK CONSTRAINT [FK_Animal-Owner-Person_Owner]
-
-ALTER TABLE [dbo].[DogLover]  WITH CHECK ADD  CONSTRAINT [FK_DogLover_Person] FOREIGN KEY([Id])
-REFERENCES [dbo].[Person] ([Id])
-
-ALTER TABLE [dbo].[DogLover] CHECK CONSTRAINT [FK_DogLover_Person]";
+ALTER TABLE [dbo].[DogLover-Pets-Dog] CHECK CONSTRAINT [FK_DogLover-Pets-Dog_Slave]";
     }
 
     [Test]
