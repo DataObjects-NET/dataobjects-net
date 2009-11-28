@@ -569,17 +569,17 @@ namespace Xtensive.Sql.Compiler
         context.Output.AppendText(translator.Translate(context, node, CreateTableSection.Entry));
         context.Output.AppendText(translator.Translate(context, node, CreateTableSection.TableElementsEntry));
 
-        bool first = true;
+        bool firstWasProcessed = false;
         if (node.Table.Columns.Count>0)
           using (context.EnterCollectionScope()) {
             foreach (TableColumn c in node.Table.Columns) {
               // Skipping computed columns
               if (!c.Expression.IsNullReference() && !driver.ServerInfo.Column.Features.Supports(ColumnFeatures.Computed))
                 continue;
-              if (!context.IsEmpty) {
+              if (firstWasProcessed)
                 context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
-                first = false;
-              }
+              else
+                firstWasProcessed = true;
               Visit(c);
             }
           }
@@ -587,8 +587,10 @@ namespace Xtensive.Sql.Compiler
         if (node.Table.TableConstraints.Count>0)
           using (context.EnterCollectionScope()) {
             foreach (TableConstraint cs in node.Table.TableConstraints) {
-              if (!context.IsEmpty || !first)
+              if (firstWasProcessed)
                 context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
+              else
+                firstWasProcessed = true;
               Visit(cs);
             }
           }
