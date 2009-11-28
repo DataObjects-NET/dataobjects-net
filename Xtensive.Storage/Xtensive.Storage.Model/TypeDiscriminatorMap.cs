@@ -5,13 +5,17 @@
 // Created:    2009.11.26
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using System.Linq;
 
 namespace Xtensive.Storage.Model
 {
   [Serializable]
-  public sealed class TypeDiscriminatorMap : Node
+  public sealed class TypeDiscriminatorMap : Node, 
+    IEnumerable<Pair<object, TypeInfo>>
   {
     private TypeInfo @default;
     private readonly Dictionary<object, TypeInfo> map = new Dictionary<object, TypeInfo>();
@@ -33,6 +37,11 @@ namespace Xtensive.Storage.Model
     public ColumnInfo Column
     {
       get { return Field.Column; }
+    }
+
+    public TypeInfo Default
+    {
+      get { return @default; }
     }
 
     public TypeInfo this[object typeDiscriminatorValue]
@@ -71,6 +80,20 @@ namespace Xtensive.Storage.Model
         throw new InvalidOperationException("Default type is already registered.");
 
       @default = type;
+    }
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    /// <inheritdoc/>
+    public IEnumerator<Pair<object, TypeInfo>> GetEnumerator()
+    {
+      return map
+        .Select(kvp => new Pair<object, TypeInfo>(kvp.Key, kvp.Value))
+        .ToList().GetEnumerator();
     }
   }
 }

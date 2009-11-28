@@ -5,6 +5,7 @@
 // Created:    2009.11.26
 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -245,18 +246,26 @@ ALTER TABLE [dbo].[DogLover] CHECK CONSTRAINT [FK_DogLover_Person]";
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
-          
-          Animal a = new Animal();
-          a.Name = "Elephant";
-          Dog d = new Dog();
-          d.Name = "Rex";
-          Cat c = new Cat();
-          c.Name = "Pussycat";
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        Animal a = new Animal();
+        a.Name = "Elephant";
+        Dog d = new Dog();
+        d.Name = "Rex";
+        Cat c = new Cat();
+        c.Name = "Pussycat";
 
-          t.Complete();
-        }
+        t.Complete();
+      }
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var animals = Query<Animal>.All.ToList();
+        var dogs = Query<Dog>.All.ToList();
+        var cats = Query<Cat>.All.ToList();
+        Assert.AreEqual(3, animals.Count);
+        Assert.AreEqual(1, dogs.Count);
+        Assert.AreEqual(1, cats.Count);
+        t.Complete();
       }
     }
   }

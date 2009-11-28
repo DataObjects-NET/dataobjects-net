@@ -64,19 +64,31 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
+      // Build typed indexes
+      foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real)) {
+        if (!context.UntypedIndexes.Contains(realIndex)) 
+          continue;
+        var typedIndex = BuildTypedIndex(type, realIndex);
+        type.Indexes.Add(typedIndex);
+      }
+
       // Build indexes for descendants
       foreach (var descendant in type.GetDescendants())
         BuildClassTableIndexes(descendant);
 
       // Import inherited indexes
       var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
+      if (context.UntypedIndexes.Contains(primaryIndex))
+        primaryIndex = type.Indexes.Single(i => i.DeclaringIndex == primaryIndex.DeclaringIndex && i.IsTyped);
       var filterByTypes = type.GetDescendants(true).AddOne(type).ToList();
 
       // Build virtual primary index
       if (ancestors.Count > 0) {
         var baseIndexes = new Stack<IndexInfo>();
         foreach (var ancestor in ancestors.Where(t => t.Fields.Any(f => !f.IsPrimaryKey && !f.IsTypeId && f.IsDeclared))) {
-          var ancestorIndex = ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Real, MatchType.Full).First();
+          var ancestorIndex = ancestor.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
+          if (context.UntypedIndexes.Contains(ancestorIndex))
+            ancestorIndex = ancestor.Indexes.Single(i => i.DeclaringIndex == ancestorIndex.DeclaringIndex && i.IsTyped);
           if (ancestorIndex.ValueColumns.Count > 0)
             baseIndexes.Push(ancestorIndex);
         }
@@ -99,6 +111,10 @@ namespace Xtensive.Storage.Building.Builders
       foreach (var ancestorIndex in ancestors.SelectMany(ancestor => ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None))) {
         if (ancestorIndex.DeclaringIndex != ancestorIndex)
           continue;
+        var ancestorType = ancestorIndex.ReflectedType;
+        var indexToFilter = context.UntypedIndexes.Contains(ancestorIndex)
+          ? ancestorType.Indexes.Single(i => i.DeclaringIndex == ancestorIndex.DeclaringIndex && i.IsTyped)
+          : ancestorIndex;
         var virtualIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
         type.Indexes.Add(virtualIndex);
       }

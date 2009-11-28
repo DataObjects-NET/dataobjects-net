@@ -135,14 +135,27 @@ namespace Xtensive.Storage.Providers.Sql
 
     private SqlSelect BuildFilteredQuery(IndexInfo index)
     {
-      var typeIds = index.FilterByTypes.Select(t => t.TypeId).ToArray();
       var underlyingIndex = index.UnderlyingIndexes[0];
       var baseQuery = BuildProviderQuery(underlyingIndex);
-      var typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
-      var inQuery = SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
+
+      SqlExpression filter = null;
+      var type = index.ReflectedType;
+      var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
+      if (underlyingIndex.IsTyped && discriminatorMap != null) {
+        var columnType = discriminatorMap.Column.ValueType;
+        var discriminatorColumnIndex = underlyingIndex.Columns.IndexOf(discriminatorMap.Column);
+        var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
+//        filter = SqlDml.In(discriminatorColumn, SqlDml.Array());
+//        filter = SqlDml.In(discriminatorColumn, SqlDml.Array());
+      }
+      else {
+        var typeIdColumn = baseQuery.Columns[Handlers.Domain.NameBuilder.TypeIdColumnName];
+        var typeIds = index.FilterByTypes.Select(t => t.TypeId).ToArray();
+        filter = SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
+      }
       var query = SqlDml.Select(baseQuery.From);
       query.Columns.AddRange(baseQuery.Columns);
-      query.Where = inQuery;
+      query.Where = filter;
       return query;
     }
 
@@ -167,10 +180,25 @@ namespace Xtensive.Storage.Providers.Sql
       var typeIdColumnIndex = index.Columns
         .Select((c, i) => new {c, i})
         .Single(p => p.c.Field.IsTypeId).i;
-      baseColumns.Insert(typeIdColumnIndex, 
-        SqlDml.ColumnRef(
-          SqlDml.Column(SqlDml.Literal(index.ReflectedType.TypeId)), 
-          WellKnown.TypeIdFieldName));
+      var type = index.ReflectedType;
+      var typeIdColumn = SqlDml.ColumnRef(
+        SqlDml.Column(SqlDml.Literal(type.TypeId)), 
+        WellKnown.TypeIdFieldName);
+      var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
+      if (discriminatorMap != null) {
+        var columnType = discriminatorMap.Column.ValueType;
+        var discriminatorColumnIndex = underlyingIndex.Columns.IndexOf(discriminatorMap.Column);
+        var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
+        var sqlCase = SqlDml.Case(discriminatorColumn);
+        foreach (var pair in discriminatorMap)
+          sqlCase.Add(SqlDml.Literal(pair.First, columnType), SqlDml.Literal(pair.Second.TypeId));
+        if (discriminatorMap.Default != null)
+          sqlCase.Else = SqlDml.Literal(discriminatorMap.Default.TypeId);
+        typeIdColumn = SqlDml.ColumnRef(
+          SqlDml.Column(sqlCase),
+          WellKnown.TypeIdFieldName);
+      }
+      baseColumns.Insert(typeIdColumnIndex, typeIdColumn);
       query.Columns.AddRange(baseColumns);
       return query;
     }
