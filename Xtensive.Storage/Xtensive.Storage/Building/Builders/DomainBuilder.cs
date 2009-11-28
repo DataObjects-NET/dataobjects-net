@@ -272,7 +272,7 @@ namespace Xtensive.Storage.Building.Builders
           if (!result.IsCompatible)
             throw new SchemaSynchronizationException(
               Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
-          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
+//          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         default:
           throw new ArgumentOutOfRangeException("schemaUpgradeMode");

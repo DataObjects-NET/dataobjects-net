@@ -148,11 +148,14 @@ namespace Xtensive.Storage.Providers.Sql
 //      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
 //      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
 //      var storageModel = SqlModel.Build(modelProvider);
-      Schema = UpgradeContext.Demand().NativeExtractedSchema as Schema; // storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
+      var context = UpgradeContext.Demand();
+      Schema = context.NativeExtractedSchema as Schema; // storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
       var domainModel = Handlers.Domain.Model;
 
       foreach (var type in domainModel.Types) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
+        if (context.Configuration.UpgradeMode == DomainUpgradeMode.Legacy && type.IsSystem)
+          continue;
         if (primaryIndex==null || Mapping[primaryIndex]!=null)
           continue;
         var storageTableName = primaryIndex.ReflectedType.MappingName;
