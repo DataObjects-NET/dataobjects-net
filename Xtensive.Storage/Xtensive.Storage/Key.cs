@@ -14,6 +14,8 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Helpers;
+using System.Linq;
 
 namespace Xtensive.Storage
 {
@@ -26,6 +28,8 @@ namespace Xtensive.Storage
   /// <seealso cref="Entity.Key"/>
   public abstract class Key : IEquatable<Key>
   {
+    private const char KeyFormatEscape    = '\\';
+    private const char KeyFormatDelimiter = ':';
     protected Tuple value;
 
     private int? hashCode;
@@ -189,11 +193,10 @@ namespace Xtensive.Storage
     public string Format()
     {
       if (cachedFormatResult==null) {
-        var builder = new StringBuilder();
-        builder.Append(TypeRef.Type.TypeId);
-        builder.Append(":");
-        builder.Append(Value.Format());
-        cachedFormatResult = builder.ToString();
+        return new[] {
+          TypeRef.Type.UnderlyingType.AssemblyQualifiedName,
+          Value.Format()
+        }.RevertibleJoin(KeyFormatEscape, KeyFormatDelimiter);
       }
       return cachedFormatResult;
     }
@@ -227,14 +230,19 @@ namespace Xtensive.Storage
     {
       if (source==null)
         return null;
-      int separatorIndex = source.IndexOf(':');
-      if (separatorIndex<0)
+
+      var parts = source.RevertibleSplitFirstAndTail(KeyFormatEscape, KeyFormatDelimiter);
+      var typeName = parts.First;
+      if (typeName==null)
+        throw new InvalidOperationException(Strings.ExInvalidKeyString);
+      parts = parts.Second.RevertibleSplitFirstAndTail(KeyFormatEscape, KeyFormatDelimiter);
+      var valueString = parts.First;
+      if (valueString==null)
+        throw new InvalidOperationException(Strings.ExInvalidKeyString);
+      if (parts.Second!=null)
         throw new InvalidOperationException(Strings.ExInvalidKeyString);
 
-      string typeIdString = source.Substring(0, separatorIndex);
-      string valueString = source.Substring(separatorIndex+1);
-
-      var type = domain.Model.Types[Int32.Parse(typeIdString)];
+      var type = domain.Model.Types[System.Type.GetType(typeName, true)];
       var keyTupleDescriptor = type.KeyProviderInfo.TupleDescriptor;
 
       return Create(domain, type, TypeReferenceAccuracy.BaseType, keyTupleDescriptor.Parse(valueString));
