@@ -17,19 +17,6 @@ namespace Xtensive.Storage.Manual.EntitySets
   public class TestFixture
   {
     [HierarchyRoot]
-    public class WebPage : Entity
-    {
-      [Key, Field]
-      public int Id { get; private set; }
-
-      [Field(Length = 200)]
-      public string Title { get; set; }
-
-      [Field(Length = 200)]
-      public string Url { get; set; }
-    }
-
-    [HierarchyRoot]
     public class User : Entity
     {
       [Key, Field]
@@ -61,6 +48,19 @@ namespace Xtensive.Storage.Manual.EntitySets
       [Field]
       [Association(PairTo = "Participants")]
       public EntitySet<Meeting> Meetings { get; private set; }
+    }
+
+    [HierarchyRoot]
+    public class WebPage : Entity
+    {
+      [Key, Field]
+      public int Id { get; private set; }
+
+      [Field(Length = 200)]
+      public string Title { get; set; }
+
+      [Field(Length = 200)]
+      public string Url { get; set; }
     }
 
     [HierarchyRoot]
@@ -237,6 +237,34 @@ namespace Xtensive.Storage.Manual.EntitySets
           anotherDmitri = Query<User>.Single(dmitriId);
           Assert.AreSame(dmitri, anotherDmitri);
 
+          // Querying the storage using regular LINQ query
+          var query =
+            from user in Query<User>.All
+            where user.Name=="Dmitri"
+            select user;
+          Assert.AreSame(dmitri, query.First());
+
+          // Querying the storage using compiled query
+          anotherDmitri = Query.Execute(() => // Default caching key is methodof( () => ... )
+            from user in Query<User>.All
+            where user.Name=="Dmitri"
+            select user).First();
+          Assert.AreSame(dmitri, anotherDmitri);
+
+          // Querying the storage using compiled future scalar query
+          var delayedDmitry1 = Query.ExecuteFutureScalar(() => (
+            from user in Query<User>.All
+            where user.Name=="Dmitri"
+            select user
+            ).FirstOrDefault());
+          var delayedDmitry2 = Query.ExecuteFutureScalar(() => (
+            from user in Query<User>.All
+            where user.Id==dmitriId
+            select user
+            ).First());
+          Assert.AreSame(dmitri, delayedDmitry1.Value); // Both queries are executed at once here
+          Assert.AreSame(dmitri, delayedDmitry2.Value);
+
           // Modifying the entity
           dmitri.Name = "Dmitri Maximov";
 
@@ -356,6 +384,7 @@ namespace Xtensive.Storage.Manual.EntitySets
       var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
+      // var domain = Domain.Build(config);
       return Domain.Build(config);
     }
   }
