@@ -23,6 +23,8 @@ namespace Xtensive.Storage.Aspects
     public bool Activate { get; private set; }
 
 
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
