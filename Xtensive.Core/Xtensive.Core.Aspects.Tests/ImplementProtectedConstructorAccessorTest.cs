@@ -15,10 +15,20 @@ namespace Xtensive.Core.Aspects.Tests
   public class ImplementProtectedConstructorAccessorTest
   {
     [ProtectedConstructorAccessorAspect(typeof(int))]
-    public class ProtectedCtorClassB : ProtectedCtorClassA
+    public class ProtectedCtorClassB : ProtectedCtorGenericA<int>
     {
       protected ProtectedCtorClassB(int i)
         : base(i)
+      {
+      }
+    }
+
+    public class ProtectedCtorGenericA<T> : ProtectedCtorClassA
+    {
+      public T Ignored { get; set; }
+
+      protected ProtectedCtorGenericA(T i)
+        : base(typeof(T)==typeof(int) ? (int) (object) i : 0)
       {
       }
     }

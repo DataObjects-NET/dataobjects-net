@@ -23,15 +23,15 @@ namespace Xtensive.Core.Weaver
     {
       var type = targetType;
       var typeDef = Task.Project.Module.Domain.FindTypeDefinition(type);
-      var baseTypeDef = typeDef.BaseType.GetTypeDefinition();
-      var baseType = GenericHelper.GetTypeCanonicalGenericInstance(baseTypeDef);
+      var baseType = typeDef.BaseType;
       var module = Task.Project.Module;
-     
-      var ctorSignature = new MethodSignature(
-        CallingConvention.HasThis,
-        module.Cache.GetIntrinsic(IntrinsicType.Void),
-        argumentTypes,
-        0);
+
+      var ctorSignature =
+        new MethodSignature(
+          CallingConvention.HasThis,
+          module.Cache.GetIntrinsic(IntrinsicType.Void),
+          argumentTypes,
+          0);
 
       var ctorDef = (MethodDefDeclaration)typeDef.Methods.GetMethod(WellKnown.CtorName,
           ctorSignature.Translate(module),

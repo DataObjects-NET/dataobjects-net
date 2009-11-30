@@ -5,7 +5,6 @@
 // Created:    2009.10.28
 
 using System;
-using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Configuration;
@@ -18,27 +17,35 @@ namespace Xtensive.Storage.Manual.Validation
     [Test]
     public void MainTest()
     {
-      try {
-        using (var transactionScope = Transaction.Open()) {
-          using (var inconsistencyRegion = Storage.Validation.Disable()) {
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
+      config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+      var domain = Domain.Build(config);
 
-            Person person = new Person();
-            person.FirstName = "Mike";
-            person.LastName = "Grooovy";
-            person.Height = 1.5;
-            person.BirthDay = new DateTime(1983, 03, 16);
-            person.IsSubscribedOnNews = true;
-            person.Email = "mike@grooovy.com";
+      using (Session.Open(domain)) {
+        try {
+          using (var transactionScope = Transaction.Open()) {
+            using (var inconsistencyRegion = Storage.Validation.Disable()) {
 
-            inconsistencyRegion.Complete();
+              var person = new Person {
+                FirstName = "Mike",
+                LastName = "Grooovy",
+                Height = 1.5,
+                BirthDay = new DateTime(1983, 03, 16),
+                IsSubscribedOnNews = true,
+                Email = "mike@grooovy.com"
+              };
+
+              inconsistencyRegion.Complete();
+            }
+            transactionScope.Complete();
           }
-          transactionScope.Complete();
         }
-      }
-      catch (AggregateException exception) {
-        Console.WriteLine("Following validation errors were found:");
-        foreach (var error in exception.GetFlatExceptions())
-          Console.WriteLine(error.Message);
+        catch (AggregateException exception) {
+          Console.WriteLine("Following validation errors were found:");
+          foreach (var error in exception.GetFlatExceptions())
+            Console.WriteLine(error.Message);
+        }
       }
     }
   }
