@@ -11,12 +11,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Storage.Linq;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Extends Linq methods for <see cref="Xtensive.Storage.Linq"/> query. 
+  /// Extends LINQ methods for <see cref="Xtensive.Storage.Linq"/> queries. 
   /// </summary>
   public static class QueryableExtensions
   {
@@ -96,7 +97,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Checks if <paramref name="source"/> value contains in specified list of values.
+    /// Checks if <paramref name="source"/> value is contained in specified list of values.
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>
     /// <param name="source">Source value.</param>
@@ -109,7 +110,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Checks if <paramref name="source"/> value contains in specified list of values.
+    /// Checks if <paramref name="source"/> value is contained in specified list of values.
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>
     /// <param name="source">Source value.</param>
@@ -124,7 +125,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Checks if <paramref name="source"/> value contains in specified list of values.
+    /// Checks if <paramref name="source"/> value is contained in specified list of values.
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>
     /// <param name="source">Source value.</param>
@@ -138,7 +139,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Checks if <paramref name="source"/> value contains in specified list of values.
+    /// Checks if <paramref name="source"/> value is contained in specified list of values.
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>
     /// <param name="source">Source value.</param>
@@ -166,31 +167,27 @@ namespace Xtensive.Storage
     /// <param name="innerKeySelector">A function to extract the join key from each element of the second sequence.</param>
     /// <param name="resultSelector">A function to create a result element from two matching elements.</param>
     /// <returns></returns>
-    /// <exception cref="ArgumentNullException"><paramref name="outer"/> argument is null.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="inner"/> argument is null.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="outerKeySelector"/> argument is null.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="innerKeySelector"/> argument is null.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="resultSelector"/> argument is null.</exception>
-    /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
-    public static IQueryable<TResult> JoinLeft<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+    /// <exception cref="ArgumentNullException">One of provided arguments is <see langword="null" />.</exception>
+    /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Storage.Linq"/> query.</exception>
+    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
     {
       ArgumentValidator.EnsureArgumentNotNull(outer, "outer");
       ArgumentValidator.EnsureArgumentNotNull(inner, "inner");
       ArgumentValidator.EnsureArgumentNotNull(outerKeySelector, "outerKeySelector");
       ArgumentValidator.EnsureArgumentNotNull(innerKeySelector, "innerKeySelector");
       ArgumentValidator.EnsureArgumentNotNull(resultSelector, "resultSelector");
-      var errorMessage = Resources.Strings.ExJoinLeftDoesNotSupportQueryProviderOfTypeX;
+      var errorMessage = Strings.ExLeftJoinDoesNotSupportQueryProviderOfTypeX;
 
       var outerProviderType = outer.Provider.GetType();
       if (outerProviderType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, outerProviderType));
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionJoinLeft.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
       var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
       return outer.Provider.CreateQuery<TResult>(expression);
     }
 
-    /// <exception cref="NotSupportedException">Queryable is not <see cref="Xtensive.Storage.Linq"/> query.</exception>
+    /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Storage.Linq"/> query.</exception>
     private static IQueryable<TSource> CallTranslator<TSource>(MethodInfo methodInfo, IQueryable source, Expression fieldSelector, string errorMessage)
     {
       var providerType = source.Provider.GetType();

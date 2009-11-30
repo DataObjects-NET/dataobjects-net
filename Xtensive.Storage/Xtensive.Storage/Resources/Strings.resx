@@ -739,8 +739,8 @@ Actions:
   <data name="ReferentialIntegrityViolationOnAttemptToRemoveXKeyY" xml:space="preserve">
     <value>Referential integrity violation on attempt to remove '{0}', Key='{1}'.</value>
   </data>
-  <data name="ExJoinLeftDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
-    <value>JoinLeft does not support query provider of type '{0}'.</value>
+  <data name="ExLeftJoinDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
+    <value>LeftJoin does not support query provider of type '{0}'.</value>
   </data>
   <data name="ExTypeXDoesNotHaveAParameterlessConstructor" xml:space="preserve">
     <value>Type '{0}' does not have a parameterless constructor.</value>

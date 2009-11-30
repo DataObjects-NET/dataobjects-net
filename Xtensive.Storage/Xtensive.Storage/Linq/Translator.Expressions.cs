@@ -227,7 +227,7 @@ namespace Xtensive.Storage.Linq
 
       // Visit Queryable extensions.
       if (mc.Method.DeclaringType==typeof (QueryableExtensions))
-        if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionJoinLeft.Name)
+        if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionLeftJoin.Name)
           return VisitJoinLeft(mc);
         else if (mc.Method.Name=="In")
           return VisitIn(mc);

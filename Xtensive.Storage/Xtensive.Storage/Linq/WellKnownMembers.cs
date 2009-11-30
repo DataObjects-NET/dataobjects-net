@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Linq
       public static readonly MethodInfo Contains;
 
       // Querable extensions
-      public static readonly MethodInfo ExtensionJoinLeft;
+      public static readonly MethodInfo ExtensionLeftJoin;
       public static readonly MethodInfo ExtensionLock;
       public static readonly MethodInfo ExtensionTake;
       public static readonly MethodInfo ExtensionSkip;
@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Linq
         }).First();
 
         // Querable extensions
-        ExtensionJoinLeft = GetQueryableExtensionsMethod("JoinLeft", 4, 5);
+        ExtensionLeftJoin = GetQueryableExtensionsMethod("LeftJoin", 4, 5);
         ExtensionLock = GetQueryableExtensionsMethod("Lock", 1, 3);
         ExtensionTake = GetQueryableExtensionsMethod("Take", 1, 2);
         ExtensionSkip = GetQueryableExtensionsMethod("Skip", 1, 2);

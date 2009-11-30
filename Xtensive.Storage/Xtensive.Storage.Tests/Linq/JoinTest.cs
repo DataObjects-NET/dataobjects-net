@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var productsCount = Query<Product>.All.Count();
       var result = Query<Product>.All
-        .JoinLeft(Query<Supplier>.All,
+        .LeftJoin(Query<Supplier>.All,
           product => product.Supplier.Id,
           supplier => supplier.Id,
           (product, supplier) => new {product.ProductName, supplier.ContactName, supplier.Phone});
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Tests.Linq
       Session.Current.Persist();
       var territories = Query<Territory>.All;
       var regions = Query<Region>.All;
-      var result = territories.JoinLeft(
+      var result = territories.LeftJoin(
         regions,
         territory => territory.Region,
         region => region,
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Tests.Linq
       Session.Current.Persist();
       var territories = Query<Territory>.All;
       var regions = Query<Region>.All;
-      var result = territories.JoinLeft(
+      var result = territories.LeftJoin(
         regions,
         territory => territory.Region.Id,
         region => region.Id,

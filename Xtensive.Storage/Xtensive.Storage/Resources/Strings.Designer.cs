@@ -1313,15 +1313,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to JoinLeft does not support query provider of type &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExJoinLeftDoesNotSupportQueryProviderOfTypeX {
-            get {
-                return ResourceManager.GetString("ExJoinLeftDoesNotSupportQueryProviderOfTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Key can not be null..
         /// </summary>
         internal static string ExKeyCanNotBeNull {
@@ -1471,6 +1462,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExLambdaXMustHaveOnlyOneParameter {
             get {
                 return ResourceManager.GetString("ExLambdaXMustHaveOnlyOneParameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LeftJoin does not support query provider of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExLeftJoinDoesNotSupportQueryProviderOfTypeX {
+            get {
+                return ResourceManager.GetString("ExLeftJoinDoesNotSupportQueryProviderOfTypeX", resourceCulture);
             }
         }
         

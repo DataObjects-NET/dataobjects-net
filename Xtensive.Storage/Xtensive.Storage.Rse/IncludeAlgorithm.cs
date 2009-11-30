@@ -12,15 +12,15 @@ namespace Xtensive.Storage.Rse
   public enum IncludeAlgorithm
   {
     /// <summary>
-    /// Include algorithm is automatically chosen according to a filter data.
+    /// Inclusion algorithm must be automatically chosen based on filter data.
     /// </summary>
     Auto = 0,
     /// <summary>
-    /// Include is performed using comprex condition.
+    /// Inclusion is described as a complex condition (expression).
     /// </summary>
     ComplexCondition = 1,
     /// <summary>
-    /// Include is performed using temporary tables.
+    /// Inclusion is described via temporary table.
     /// </summary>
     TemporaryTable = 2,
   }
