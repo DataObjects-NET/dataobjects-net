@@ -262,17 +262,16 @@ namespace Xtensive.Storage.Building.Builders
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         case SchemaUpgradeMode.PerformSafely:
-          var firstUnsafeAction = result.UnsafeUpgradeActions.FirstOrDefault();
-          if (firstUnsafeAction!=null)
+          var firstBreakingAction = result.BreakingActions.FirstOrDefault();
+          if (firstBreakingAction!=null)
             throw new SchemaSynchronizationException(
-              string.Format(Strings.ExCannotUpgradeSchemaSafely, GetErrorMessage(firstUnsafeAction)));
+              string.Format(Strings.ExCannotUpgradeSchemaSafely, GetErrorMessage(firstBreakingAction)));
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         case SchemaUpgradeMode.ValidateLegacy:
+          firstBreakingAction = result.BreakingActions.FirstOrDefault();
           if (!result.IsCompatible)
-            throw new SchemaSynchronizationException(
-              Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
-//          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
+            throw new SchemaSynchronizationException(string.Format("Legacy schema is not compatible ({0}).", firstBreakingAction != null ? GetErrorMessage(firstBreakingAction) : string.Empty));
           break;
         default:
           throw new ArgumentOutOfRangeException("schemaUpgradeMode");
@@ -289,9 +288,16 @@ namespace Xtensive.Storage.Building.Builders
       if (unsafeAction is RemoveNodeAction) {
         var source = ((NodeDifference) unsafeAction.Difference).Source;
         if (source is TableInfo)
-          return string.Format(Strings.CantRemoveTableX, path);
+          return string.Format(Strings.CantRemoveTableX, source.Path);
         if (source is ColumnInfo)
-          return string.Format(Strings.CantRemoveColumnX, path);
+          return string.Format(Strings.CantRemoveColumnX, source.Path);
+      }
+      if (unsafeAction is CreateNodeAction) {
+        var target = ((NodeDifference) unsafeAction.Difference).Target;
+        if (target is TableInfo)
+          return string.Format("Can't find table {0}", target.Path);
+        if (target is ColumnInfo)
+          return string.Format("Can't find column {0}", target.Path);
       }
       return string.Empty;
     }

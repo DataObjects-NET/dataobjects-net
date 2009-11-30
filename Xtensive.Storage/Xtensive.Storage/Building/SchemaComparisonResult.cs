@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Building
     /// <summary>
     /// Gets unsafe actions.
     /// </summary>
-    public ReadOnlyList<NodeAction> UnsafeUpgradeActions { get; private set;}
+    public ReadOnlyList<NodeAction> BreakingActions { get; private set;}
 
     /// <summary>
     /// Indicates whether storage schema is compatible with domain model.
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Building
     public override string ToString()
     {
       return string.Format(Strings.SchemaComparisonResultFormat,
-        Status + (UnsafeUpgradeActions.Any()
+        Status + (BreakingActions.Any()
           ? ", " + Strings.CantUpgradeTypeSafely
           : ", " + Strings.CanUpgradeTypeSafely),
         Hints!=null ? Hints.ToString().Indent(2) : string.Empty,
@@ -80,10 +80,12 @@ namespace Xtensive.Storage.Building
     /// <param name="hints">The upgrade hints.</param>
     /// <param name="difference">The difference.</param>
     /// <param name="upgradeActions">The upgrade actions.</param>
-    /// <param name="hasTypeChanges">if set to <see langword="true"/> extracted column type are 
+    /// <param name="hasTypeChanges">if set to <see langword="true"/> extracted column type are
     /// different with target column types.</param>
+    /// <param name="breakingActions">The breaking actions.</param>
+    /// <param name="isCompatible">if set to <see langword="true"/> [is compatible].</param>
     public SchemaComparisonResult(SchemaComparisonStatus status, HintSet hints, Difference difference, 
-      ActionSequence upgradeActions, bool hasTypeChanges, IList<NodeAction> unsafeActions, bool isCompatible)
+      ActionSequence upgradeActions, bool hasTypeChanges, IList<NodeAction> breakingActions, bool isCompatible)
     {
       Difference = difference;
       UpgradeActions = upgradeActions;
@@ -91,8 +93,8 @@ namespace Xtensive.Storage.Building
       Status = status;
       Hints = hints;
       IsCompatible = isCompatible;
-      UnsafeUpgradeActions = unsafeActions!=null 
-        ? new ReadOnlyList<NodeAction>(unsafeActions) 
+      BreakingActions = breakingActions!=null 
+        ? new ReadOnlyList<NodeAction>(breakingActions) 
         : new ReadOnlyList<NodeAction>(new List<NodeAction>());
     }
   }

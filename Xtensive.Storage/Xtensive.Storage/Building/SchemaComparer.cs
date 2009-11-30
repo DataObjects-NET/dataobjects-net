@@ -68,23 +68,20 @@ namespace Xtensive.Storage.Building
           var column = action.Difference.Target as ColumnInfo;
           return column!=null && !systemTables.Contains(column.Parent.Name);
         }).ToList();
-      var hasTypeChanges = typeChanges.Any(action => {
+      typeChanges = typeChanges.Where(action => {
         var sourceType = action.Difference.Source as TypeInfo;
         var targetType = action.Difference.Target as TypeInfo;
         return sourceType==null || targetType==null
           || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
       });
 
-      var isCompatible = !createTableActions.Any() && !createColumneActions.Any() && !hasTypeChanges;
-      var systemTableActions = GetSystemTableActions(actions, systemTables);
-      actions = new ActionSequence();
-      var g = new GroupingNodeAction {
-        Comment = UpgradeStage.Upgrade.ToString()
-      };
-      foreach (var action in systemTableActions)
-        g.Actions.Add(action);
-      actions.Add(g);
-      return new SchemaComparisonResult(status, hints, difference, actions, hasTypeChanges, unsafeActions, isCompatible);
+      var isCompatible = !createTableActions.Any() && !createColumneActions.Any() && !typeChanges.Any();
+      unsafeActions = 
+        createTableActions.Cast<NodeAction>()
+        .Concat(createColumneActions.Cast<NodeAction>())
+        .Concat(typeChanges.Cast<NodeAction>())
+        .ToList();
+      return new SchemaComparisonResult(status, hints, difference, actions, typeChanges.Any(), unsafeActions, isCompatible);
     }
 
     private static IList<GroupingNodeAction> GetSystemTableActions(ActionSequence actions, HashSet<string> systemTableNames)
