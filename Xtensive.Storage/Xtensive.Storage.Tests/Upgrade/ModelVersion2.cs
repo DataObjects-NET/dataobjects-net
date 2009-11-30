@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 
   #endregion
 
-  # region GenericTypes
+  #region GenericTypes
 
   [HierarchyRoot]
   public class NewSync<T> : Entity
@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public T NewRoot { get; set; }
   }
 
-  # endregion
+  #endregion
 
   #region ProductGroup, Product
 

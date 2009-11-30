@@ -11,7 +11,7 @@ using Xtensive.Storage.Upgrade;
 using System.Reflection;
 using System.Linq;
 
-# region Models
+#region Models
 
 namespace Xtensive.Storage.Tests.Issues.Issue0376.Model1
 {
@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0376.Model3
   }
 }
 
-# endregion
+#endregion
 
 
 namespace Xtensive.Storage.Tests.Issues

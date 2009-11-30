@@ -12,7 +12,7 @@ using Xtensive.Storage.Configuration;
 using System.Linq;
 using Xtensive.Core.Collections;
 
-# region Model
+#region Model
 
 namespace Xtensive.Storage.Tests.Storage.VersionRootModel
 {
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionRootModel
   }
 }
 
-# endregion
+#endregion
 
 namespace Xtensive.Storage.Tests.Storage
 {

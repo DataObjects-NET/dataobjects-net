@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Providers.Sql
       return StorageInfo;
     }
 
-    # region SqlModelVisitor<IPathNode> implementation
+    #region SqlModelVisitor<IPathNode> implementation
 
     /// <inheritdoc/>
     protected override IPathNode VisitSchema(Schema schema)
@@ -200,7 +200,7 @@ namespace Xtensive.Storage.Providers.Sql
       return sequenceInfo;
     }
 
-    # endregion
+    #endregion
 
     /// <summary>
     /// Visits the generator table.

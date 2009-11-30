@@ -11,7 +11,7 @@ using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using System;
 
-# region Models
+#region Models
 
 namespace Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel1
 {
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Tests.Model.VersionInfoTests.ValidModel
   }
 }
 
-# endregion
+#endregion
 
 namespace Xtensive.Storage.Tests.Model
 {

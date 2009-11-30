@@ -311,7 +311,7 @@ namespace Xtensive.Storage.Upgrade
 
     #endregion
 
-    # region Hint translation
+    #region Hint translation
 
     private IEnumerable<UpgradeHint> TranslateGenericTypeHints(IEnumerable<UpgradeHint> hints)
     {
@@ -503,7 +503,7 @@ namespace Xtensive.Storage.Upgrade
       hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
     }
     
-    # endregion
+    #endregion
     
     #region Hint generation
 

@@ -1276,4 +1276,13 @@ Actions:
   <data name="ExTransactionShouldNotBeActive" xml:space="preserve">
     <value>Transaction should not be active</value>
   </data>
+  <data name="ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne" xml:space="preserve">
+    <value>Version of entity with key '{0}' differs from the expected one.</value>
+  </data>
+  <data name="ExTheServiceIsAlreadyAttachedToSession" xml:space="preserve">
+    <value>The service is already attached to Session.</value>
+  </data>
+  <data name="ExServiceCanNotBeAttachedToSessionWhileItIsPersistingTheChanges" xml:space="preserve">
+    <value>Service can not be attached to Session while it is persisting the changes.</value>
+  </data>
 </root>

@@ -261,7 +261,7 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
     
-    # region Visit concrete action methods
+    #region Visit concrete action methods
 
     /// <exception cref="InvalidOperationException">Can not create copy command 
     /// with specific hint parameters.</exception>
@@ -706,9 +706,9 @@ namespace Xtensive.Storage.Providers.Sql
       column.Table.TableColumns.Remove(column);
     }
     
-    # endregion
+    #endregion
 
-    # region Helper methods
+    #region Helper methods
 
     private Table CreateTable(TableInfo tableInfo)
     {
@@ -965,7 +965,7 @@ namespace Xtensive.Storage.Providers.Sql
       return Convert.ToInt64(commandExecutor.Invoke(selectNextValue));
     }
 
-    # endregion
+    #endregion
     
 
     // Constructors

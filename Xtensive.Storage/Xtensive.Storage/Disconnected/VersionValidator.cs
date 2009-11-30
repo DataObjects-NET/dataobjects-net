@@ -7,47 +7,74 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
 using System.Linq;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Disconnected
 {
   /// <summary>
-  /// Validate versions.
+  /// An attachable service validating versions inside the specified <see cref="Session"/>.
   /// </summary>
-  public class VersionValidator : IDisposable
+  public sealed class VersionValidator : SessionBound, 
+    IDisposable
   {
-    private HashSet<Key> checkedKeys = new HashSet<Key>();
-    private Dictionary<Key, VersionInfo> actualVersionCache;
-    private readonly Func<Key, VersionInfo> versionGetter;
-    private Dictionary<Key, QueryTask> readVersionTasks;
-    private Dictionary<Key, VersionInfo> versionsToCheck;
+    private HashSet<Key> processed = new HashSet<Key>();
+    private Dictionary<Key, VersionInfo> knownVersions;
+    private Dictionary<Key, VersionInfo> queuedVersions;
+    private Dictionary<Key, QueryTask> fetchVersionTasks;
+    private readonly Func<Key, VersionInfo> expectedVersionProvider;
+    private bool isAttached;
 
     /// <summary>
-    /// Gets the session.
+    /// Validates the <paramref name="version"/>
+    /// for the specified <paramref name="key"/>.
     /// </summary>
-    protected Session Session { get; private set; }
-    
-    /// <summary>
-    /// Gets the stored version.
-    /// </summary>
-    /// <param name="key">The instance key.</param>
-    /// <returns>Stored version.</returns>
-    protected virtual VersionInfo GetStoredVersion(Key key)
+    /// <param name="key">The key to validate version for.</param>
+    /// <param name="version">The version to validate.</param>
+    /// <returns>
+    /// <see langword="True"/>, if validation passes successfully;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool ValidateVersion(Key key, VersionInfo version)
     {
-      return versionGetter.Invoke(key);
+      var expectedVersion = expectedVersionProvider.Invoke(key);
+      if (expectedVersion.IsVoid)
+        return true;
+      if (version.IsVoid)
+        return false;
+      return expectedVersion==version;
     }
 
     /// <summary>
-    /// Called when entity changing.
+    /// Validates the <paramref name="version"/>
+    /// for the specified <paramref name="key"/>.
     /// </summary>
-    /// <param name="entity">The changed entity.</param>
-    protected virtual void OnEntityChanging(Entity entity)
+    /// <param name="key">The key to validate version for.</param>
+    /// <param name="version">The version to validate.</param>
+    /// <param name="throwOnFailure">Indicates whether <see cref="InvalidOperationException"/>
+    /// must be thrown on validation failure.</param>
+    /// <returns>
+    /// <see langword="True"/>, if validation passes successfully;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">Version conflict is detected.</exception>
+    public bool ValidateVersion(Key key, VersionInfo version, bool throwOnFailure)
+    {
+      var result = ValidateVersion(key, version);
+      if (throwOnFailure && !result)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
+      return result;
+    }
+
+    #region Valiadtor logic
+
+    private void OnEntityChanging(Entity entity)
     {
       if (entity.PersistenceState==PersistenceState.New)
         return;
@@ -55,67 +82,81 @@ namespace Xtensive.Storage.Disconnected
         return;
       if (entity.State.IsStale)
         return;
-      if (actualVersionCache.ContainsKey(entity.Key))
+      if (knownVersions.ContainsKey(entity.Key))
         return;
-      if (checkedKeys.Contains(entity.Key))
+      if (processed.Contains(entity.Key))
         return;
-      actualVersionCache.Add(entity.Key, entity.GetVersion());
+      knownVersions.Add(entity.Key, entity.GetVersion());
     }
 
-    /// <summary>
-    /// Called when transaction opening.
-    /// </summary>
-    protected virtual void OnTransactionOpen()
-    {
-    }
-
-    /// <summary>
-    /// Registers specified entity to check version.
-    /// </summary>
-    /// <param name="entity">The entity.</param>
-    protected virtual void RegisterToCheck(Entity entity)
+    private void QueueVersionValidation(Entity entity)
     {
       if (entity.Type.VersionExtractor==null
-        || versionsToCheck.ContainsKey(entity.Key))
+        || queuedVersions.ContainsKey(entity.Key))
         return;
       VersionInfo version;
-      if (actualVersionCache.TryGetValue(entity.Key, out version))
-        versionsToCheck.Add(entity.Key, version);
+      if (knownVersions.TryGetValue(entity.Key, out version))
+        queuedVersions.Add(entity.Key, version);
       else {
-        var queryTask = CreateReadVersionTask(entity.Key);
+        var queryTask = CreateFetchVersionTask(entity.Key);
         Session.RegisterDelayedQuery(queryTask);
-        readVersionTasks.Add(entity.Key, queryTask);
+        fetchVersionTasks.Add(entity.Key, queryTask);
       }
     }
 
-    /// <summary>
-    /// Checks the version.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="actualVersion">The actual version.</param>
-    protected virtual void CheckVersion(Key key, VersionInfo actualVersion)
+    private void CreateFetchVersionTasks()
     {
-      var storedVersion = GetStoredVersion(key);
-      if (storedVersion.IsVoid)
-        return;
-      if (storedVersion!=actualVersion || actualVersion.IsVoid)
-        throw new InvalidOperationException(string.Format(
-          "Version of entity with key '{0}' is not actual.", key));
+      var registry = Session.EntityChangeRegistry;
+      foreach (var item in registry.GetItems(PersistenceState.New))
+        processed.Add(item.Key);
+      foreach (var item in registry.GetItems(PersistenceState.Modified)) {
+        QueueVersionValidation(item.Entity);
+        processed.Add(item.Key);
+      }
+      foreach (var item in registry.GetItems(PersistenceState.Removed)) {
+        QueueVersionValidation(item.Entity);
+        processed.Add(item.Key);
+      }
+
+//      var changedItem =
+//        registry.GetItems(PersistenceState.Modified)
+//          .Concat(registry.GetItems(PersistenceState.Removed))
+//          .Where(item => item.Type.VersionExtractor!=null
+//            && !processed.Contains(item.Key));
+//      foreach (var item in changedItem) {
+//        if (queuedVersions.ContainsKey(item.Key)
+//          || fetchVersionTasks.ContainsKey(item.Key))
+//          continue;
+//        VersionInfo version;
+//        if (actualVersions.TryGetValue(item.Key, out version))
+//          queuedVersions.Add(item.Key, version);
+//        else {
+//          var queryTask = CreateFetchVersionTask(item.Key);
+//          Session.RegisterDelayedQuery(queryTask);
+//          fetchVersionTasks.Add(item.Key, queryTask);
+//        }
+//      }
     }
 
-    /// <summary>
-    /// Determines whether entity with specified key is already checked.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <returns>
-    /// <see langword="true"/> if entity with specified key is already checked; otherwise, <see langword="false"/>.
-    /// </returns>
-    protected bool IsChecked(Key key)
+    private QueryTask CreateFetchVersionTask(Key key)
     {
-      return checkedKeys.Contains(key);
+      var type = key.Type;
+      var provider = type.Indexes.PrimaryIndex.ToRecordSet().Seek(key.Value).Provider;
+      var execProvider = Session.CompilationContext.Compile(provider);
+      return new QueryTask(execProvider, null);
     }
-    
-    # region Event handlers
+
+    private static VersionInfo FetchVersion(TypeInfo type, Tuple state)
+    {
+      if (state==null)
+        return new VersionInfo();
+      var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, state);
+      return new VersionInfo(versionTuple);
+    }
+
+    #endregion
+
+    #region Event handlers
 
     private void OnEntityRemoving(object sender, EntityEventArgs e)
     {
@@ -139,135 +180,108 @@ namespace Xtensive.Storage.Disconnected
 
     private void OnTransactionOpen(object sender, TransactionEventArgs e)
     {
-      checkedKeys = new HashSet<Key>();
-      actualVersionCache = new Dictionary<Key, VersionInfo>();
-      OnTransactionOpen();
+      processed = new HashSet<Key>();
+      knownVersions = new Dictionary<Key, VersionInfo>();
     }
 
     private void OnPersisting(object sender, EventArgs e)
     {
-      versionsToCheck = new Dictionary<Key, VersionInfo>();
-      readVersionTasks = new Dictionary<Key, QueryTask>();
-      RegisterCheckVersionTasks();
-      if (readVersionTasks.Count > 0)
-        Session.Handler.ExecuteQueryTasks(readVersionTasks.Values, true);
+      queuedVersions = new Dictionary<Key, VersionInfo>();
+      fetchVersionTasks = new Dictionary<Key, QueryTask>();
+      CreateFetchVersionTasks();
+      if (fetchVersionTasks.Count > 0)
+        Session.Handler.ExecuteQueryTasks(fetchVersionTasks.Values, true);
     }
 
     private void OnPersisted(object sender, EventArgs e)
     {
-      if (readVersionTasks.Count > 0)
-        foreach (var task in readVersionTasks) {
+      if (fetchVersionTasks.Count > 0)
+        foreach (var task in fetchVersionTasks) {
           var key = task.Key;
-          var version = ReadVersion(task.Key.Type, task.Value.Result.FirstOrDefault());
-          versionsToCheck.Add(key, version);
+          var version = FetchVersion(task.Key.Type, task.Value.Result.FirstOrDefault());
+          queuedVersions.Add(key, version);
         }
-      foreach (var pair in versionsToCheck)
-        CheckVersion(pair.Key, pair.Value);
+      foreach (var pair in queuedVersions)
+        ValidateVersion(pair.Key, pair.Value, true);
     }
 
-    # endregion
+    #endregion
 
-    private void Attach()
-    {
-      Session.Persisting += OnPersisting;
-      Session.Persisted += OnPersisted;
-      Session.TransactionOpen += OnTransactionOpen;
-      Session.EntityFieldValueSetting += OnEntityFieldValueSetting;
-      Session.EntitySetItemAdding += OnEntitySetItemAdding;
-      Session.EntitySetItemRemoving += OnEntitySetItemRemoving;
-      Session.EntityRemoving += OnEntityRemoving;
-    }
+    #region AttachEventHandlers \ DetachEventHandlers methods
 
-    private void Detach()
+    private void AttachEventHandlers()
     {
-      Session.Persisting -= OnPersisting;
-      Session.Persisted -= OnPersisted;
-      Session.TransactionOpen -= OnTransactionOpen;
-      Session.EntityFieldValueSetting -= OnEntityFieldValueSetting;
-      Session.EntitySetItemAdding -= OnEntitySetItemAdding;
-      Session.EntitySetItemRemoving -= OnEntitySetItemRemoving;
-      Session.EntityRemoving -= OnEntityRemoving;
-    }
-
-    private void RegisterCheckVersionTasks()
-    {
-      var registry = Session.EntityChangeRegistry;
-      foreach (var item in registry.GetItems(PersistenceState.New))
-        checkedKeys.Add(item.Key);
-      foreach (var item in registry.GetItems(PersistenceState.Modified)) {
-        RegisterToCheck(item.Entity);
-        checkedKeys.Add(item.Key);
+      if (isAttached)
+        throw new InvalidOperationException(Strings.ExTheServiceIsAlreadyAttachedToSession);
+      isAttached = true;
+      try {
+        Session.Persisting += OnPersisting;
+        Session.Persisted += OnPersisted;
+        Session.TransactionOpen += OnTransactionOpen;
+        Session.EntityFieldValueSetting += OnEntityFieldValueSetting;
+        Session.EntitySetItemAdding += OnEntitySetItemAdding;
+        Session.EntitySetItemRemoving += OnEntitySetItemRemoving;
+        Session.EntityRemoving += OnEntityRemoving;
       }
-      foreach (var item in registry.GetItems(PersistenceState.Removed)) {
-        RegisterToCheck(item.Entity);
-        checkedKeys.Add(item.Key);
+      catch {
+        DetachEventHandlers();
+        throw;
       }
-
-      /*
-      var changedItem =
-        registry.GetItems(PersistenceState.Modified)
-          .Concat(registry.GetItems(PersistenceState.Removed))
-          .Where(item => item.Type.VersionExtractor!=null
-            && !checkedKeys.Contains(item.Key));
-      foreach (var item in changedItem) {
-        if (versionsToCheck.ContainsKey(item.Key)
-          || readVersionTasks.ContainsKey(item.Key))
-          continue;
-        VersionInfo version;
-        if (actualVersions.TryGetValue(item.Key, out version))
-          versionsToCheck.Add(item.Key, version);
-        else {
-          var queryTask = CreateReadVersionTask(item.Key);
-          Session.RegisterDelayedQuery(queryTask);
-          readVersionTasks.Add(item.Key, queryTask);
-        }
-      }
-      */
     }
 
-    private static VersionInfo ReadVersion(TypeInfo type, Tuple state)
+    private void DetachEventHandlers()
     {
-      if (state==null)
-        return new VersionInfo();
-      var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, state);
-      return new VersionInfo(versionTuple);
-    }
-
-    private QueryTask CreateReadVersionTask(Key key)
-    {
-      var type = key.Type;
-      var provider = type.Indexes.PrimaryIndex.ToRecordSet().Seek(key.Value).Provider;
-      var execProvider = Session.CompilationContext.Compile(provider);
-      return new QueryTask(execProvider, null);
-    }
-
-    /// <inheritdoc/>
-    public void Dispose()
-    {
-      if (Session!=null) {
-        Detach();
-        Session = null;
+      if (isAttached) {
+        isAttached = false;
+        Session.Persisting -= OnPersisting;
+        Session.Persisted -= OnPersisted;
+        Session.TransactionOpen -= OnTransactionOpen;
+        Session.EntityFieldValueSetting -= OnEntityFieldValueSetting;
+        Session.EntitySetItemAdding -= OnEntitySetItemAdding;
+        Session.EntitySetItemRemoving -= OnEntitySetItemRemoving;
+        Session.EntityRemoving -= OnEntityRemoving;
       }
+    }
+
+    #endregion
+
+
+    // Constructor replacement
+
+    /// <summary>
+    /// Attaches the validator to the specified session.
+    /// </summary>
+    /// <param name="session">The session to attach validator to.</param>
+    /// <param name="expectedVersionProvider">The expected version provider.</param>
+    /// <returns>A newly created <see cref="VersionValidator"/> attached
+    /// to the specified <paramref name="session"/>.</returns>
+    public static VersionValidator Attach(Session session, Func<Key, VersionInfo> expectedVersionProvider)
+    {
+      return new VersionValidator(session, expectedVersionProvider);
     }
 
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="versionGetter">The stored version getter.</param>
-    public VersionValidator(Session session, Func<Key, VersionInfo> versionGetter)
+    /// <exception cref="InvalidOperationException">Session is persisting the changes.</exception>
+    private VersionValidator(Session session, Func<Key, VersionInfo> expectedVersionProvider)
+      : base(session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(versionGetter, "versionGetter");
+      ArgumentValidator.EnsureArgumentNotNull(expectedVersionProvider, "expectedVersionProvider");
       if (session.IsPersisting)
-        throw new InvalidOperationException();
+        throw new InvalidOperationException(
+          Strings.ExServiceCanNotBeAttachedToSessionWhileItIsPersistingTheChanges);
 
-      Session = session;
-      this.versionGetter = versionGetter;
-      Attach();
+      this.expectedVersionProvider = expectedVersionProvider;
+      AttachEventHandlers();
+    }
+  
+    // Dispose
+    
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+      DetachEventHandlers();
     }
   }
 }

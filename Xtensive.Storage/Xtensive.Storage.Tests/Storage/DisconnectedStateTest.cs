@@ -19,7 +19,7 @@ using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.DisconnectedTests.Model;
 using Xtensive.Storage.Operations;
 
-# region Model
+#region Model
 
 namespace Xtensive.Storage.DisconnectedTests.Model
 {
@@ -241,7 +241,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
   }
 }
 
-# endregion
+#endregion
 
 namespace Xtensive.Storage.Tests.Storage
 {

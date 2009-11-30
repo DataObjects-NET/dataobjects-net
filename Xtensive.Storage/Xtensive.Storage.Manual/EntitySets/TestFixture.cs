@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.EntitySets
@@ -48,6 +49,13 @@ namespace Xtensive.Storage.Manual.EntitySets
       [Field]
       [Association(PairTo = "Participants")]
       public EntitySet<Meeting> Meetings { get; private set; }
+
+      [Transactional(TransactionOpenMode.New)]
+      public void RemoveAndCancel()
+      {
+        Remove();
+        throw new InvalidOperationException("Cancelled.");
+      }
     }
 
     [HierarchyRoot]
@@ -357,6 +365,53 @@ namespace Xtensive.Storage.Manual.EntitySets
           Assert.IsTrue(dmitryFavoriteBlogList.Contains(alexYakuninBlogPage));
           Assert.IsFalse(dmitryFavoriteBlogList.Contains(xtensiveWebPage));
           Assert.AreEqual(1, dmitryFavoriteBlogList.Count);
+          
+          // Marking the transaction scope as completed to commit it 
+          transactionScope.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void NestedTransactionTest()
+    {
+      // Building the domain
+      var domain = BuildDomain();
+
+      using (Session.Open(domain)) {
+        using (var transactionScope = Transaction.Open()) {
+
+          // Creating user
+          var dmitri = new User {
+            Name = "Dmitri"
+          };
+
+          // Modifying the entity
+          dmitri.Name = "Dmitri Maximov";
+
+          // Opening new nested transaction
+          using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+            // Removing the entity
+            dmitri.Remove();
+            Assert.IsTrue(dmitri.IsRemoved);
+            AssertEx.Throws<InvalidOperationException>(() => {
+              var dmitryName = dmitri.Name;
+            });
+            // No nestedScope.Complete(), so nested transaction will be rolled back
+          }
+
+          // Transparent Entity state update
+          Assert.IsFalse(dmitri.IsRemoved);
+          Assert.AreEqual("Dmitri Maximov", dmitri.Name);
+
+          // Repeating the same, but using transactional method
+          AssertEx.Throws<InvalidOperationException>(() => {
+            dmitri.RemoveAndCancel();
+          });
+
+          // Transparent Entity state update
+          Assert.IsFalse(dmitri.IsRemoved);
+          Assert.AreEqual("Dmitri Maximov", dmitri.Name);
           
           // Marking the transaction scope as completed to commit it 
           transactionScope.Complete();

@@ -123,7 +123,7 @@ namespace Xtensive.Storage
       return cachedHashCode;
     }
 
-    # endregion
+    #endregion
 
     /// <inheritdoc/>
     [DebuggerStepThrough]

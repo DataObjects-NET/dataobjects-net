@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Disconnected
     
     internal bool IsConnected { get; set; }
 
-    # region Public API
+    #region Public API
 
     /// <summary>
     /// Gets the session this instance attached to.
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Disconnected
       var newVersionCache = new Dictionary<Key, VersionInfo>();
       Detach();
       try {
-        using (new VersionValidator(tempSession, GetStoredVerion)) {
+        using (VersionValidator.Attach(tempSession, GetOriginalVerion)) {
           using (var transactionScope = Transaction.Open(tempSession)) {
             keyMapping = registry.OperationSet.Apply(tempSession);
             transactionScope.Complete();
@@ -152,21 +152,21 @@ namespace Xtensive.Storage.Disconnected
     {
       var sourceStates = source.globalRegistry.States;
       foreach (var state in sourceStates) {
-        RegisterState(state.Key, state.Tuple, source.GetStoredVerion(state.Key), mergeMode);
+        RegisterState(state.Key, state.Tuple, source.GetOriginalVerion(state.Key), mergeMode);
       }
     }
     
-    # endregion
+    #endregion
     
-    # region Internal API
+    #region Internal API
 
     internal ModelHelper ModelHelper { get { return modelHelper; } }
     
-    internal VersionInfo GetStoredVerion(Key key)
+    internal VersionInfo GetOriginalVerion(Key key)
     {
-      VersionInfo storedVersion;
-      if (versionCache.TryGetValue(key, out storedVersion))
-        return storedVersion;
+      VersionInfo originalVersion;
+      if (versionCache.TryGetValue(key, out originalVersion))
+        return originalVersion;
       return new VersionInfo();
     }
 
@@ -270,7 +270,7 @@ namespace Xtensive.Storage.Disconnected
       }
     }
 
-    # endregion
+    #endregion
     
     internal IOperationSet GetOperationLog()
     {

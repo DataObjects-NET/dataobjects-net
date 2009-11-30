@@ -12,7 +12,7 @@ using Xtensive.Storage.Configuration;
 using System.Linq;
 using Xtensive.Storage.Disconnected;
 
-# region Model
+#region Model
 
 namespace Xtensive.Storage.Tests.Storage.VersionValidationModel
 {
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionValidationModel
   }
 }
 
-# endregion
+#endregion
 
 namespace Xtensive.Storage.Tests.Storage
 {
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Storage
       };
 
       using (var session = Session.Open(Domain)) {
-        using (new VersionValidator(session, versionGetter)) {
+        using (VersionValidator.Attach(session, versionGetter)) {
           using (var transactionScope = Transaction.Open()) {
             var customer = Query<Customer>.Single(customerKey);
             customer.Name = "Customer3";
@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Tests.Storage
       };
 
       using (var session = Session.Open(Domain)) {
-        using (new VersionValidator(session, versionGetter)) {
+        using (VersionValidator.Attach(session, versionGetter)) {
           AssertEx.Throws<InvalidOperationException>(() => {
             using (var transactionScope = Transaction.Open()) {
               var customer = Query<Customer>.Single(customerKey);
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Storage
       };
 
       using (var session = Session.Open(Domain)) {
-        using (new VersionValidator(session, versionGetter)) {
+        using (VersionValidator.Attach(session, versionGetter)) {
           using (var transactionScope = Transaction.Open()) {
             var customer = Query<Customer>.Single(customerKey);
             customer.Remove();
@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Storage
       };
 
       using (var session = Session.Open(Domain)) {
-        using (new VersionValidator(session, versionGetter)) {
+        using (VersionValidator.Attach(session, versionGetter)) {
           AssertEx.Throws<InvalidOperationException>(() => {
             using (var transactionScope = Transaction.Open()) {
               var customer = Query<Customer>.Single(customerKey);

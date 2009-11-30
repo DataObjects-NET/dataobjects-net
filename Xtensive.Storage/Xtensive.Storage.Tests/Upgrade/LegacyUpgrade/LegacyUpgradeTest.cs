@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
 
   public class LegacyUpgradeTest : AutoBuildTest
   {
-    # region Sql scripts
+    #region Sql scripts
 
     private string createValidDbScript = @"
       IF object_id('[dbo].[B]') is not null drop table [dbo].[B]
@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
         CONSTRAINT [PK_Type_TEST] PRIMARY KEY CLUSTERED ([Id] ASC))
       CREATE UNIQUE NONCLUSTERED INDEX [Type.IX_Name] ON [dbo].[Metadata.Type] ([Name] ASC)";
 
-    # endregion
+    #endregion
 
     protected override void CheckRequirements()
     {

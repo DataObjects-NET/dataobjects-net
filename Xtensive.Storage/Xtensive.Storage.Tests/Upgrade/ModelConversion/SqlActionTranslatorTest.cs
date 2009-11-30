@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       Assert.IsNull(postUpgradeDifference);
     }
 
-    # region Helper methods
+    #region Helper methods
 
     private static ActionSequence Compare(StorageInfo oldModel, StorageInfo newModel, HintSet hints)
     {

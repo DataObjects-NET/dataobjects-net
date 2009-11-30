@@ -12,7 +12,7 @@ using Xtensive.Core.Serialization.Binary;
 using Xtensive.Storage.Configuration;
 using System.Linq;
 
-# region Model
+#region Model
 
 namespace Xtensive.Storage.Tests.Storage.VersionModel
 {
@@ -211,7 +211,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
   }
 }
 
-# endregion
+#endregion
 
 namespace Xtensive.Storage.Tests.Storage
 {
