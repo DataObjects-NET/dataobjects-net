@@ -1285,4 +1285,10 @@ Actions:
   <data name="ExServiceCanNotBeAttachedToSessionWhileItIsPersistingTheChanges" xml:space="preserve">
     <value>Service can not be attached to Session while it is persisting the changes.</value>
   </data>
+  <data name="ExCantRegisterState" xml:space="preserve">
+    <value>Can't register state.</value>
+  </data>
+  <data name="ExCantMergeState" xml:space="preserve">
+    <value>Can't merge state.</value>
+  </data>
 </root>

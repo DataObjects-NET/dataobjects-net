@@ -226,7 +226,8 @@ namespace Xtensive.Storage.Disconnected
       if (isVersionEquals)
         globalRegistry.MergeUnloadedFields(key, tuple);
       else if (mergeMode==MergeMode.Restrict)
-        throw new InvalidOperationException("Version conflict.");
+        throw new InvalidOperationException(string.Format(
+          Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
       else if (mergeMode==MergeMode.PreferSource) {
         globalRegistry.Merge(key, tuple);
         versionCache[key] = version;

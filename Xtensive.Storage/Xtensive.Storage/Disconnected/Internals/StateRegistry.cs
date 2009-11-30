@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Disconnected
     public void Register(Key key, Tuple tuple)
     {
       if (Origin!=null)
-        throw new InvalidOperationException("Can't register state.");
+        throw new InvalidOperationException(Strings.ExCantRegisterState);
 
       var state = GetForUpdate(key);
       if (state.IsRemoved)
@@ -122,11 +122,11 @@ namespace Xtensive.Storage.Disconnected
     public void MergeUnloadedFields(Key key, Tuple newValue)
     {
       if (Origin!=null)
-        throw new InvalidOperationException("Can't merge state.");
+        throw new InvalidOperationException(Strings.ExCantMergeState);
 
       var state = GetForUpdate(key);
       if (state.IsRemoved || !state.IsLoaded)
-        throw new InvalidOperationException("Can't merge state.");
+        throw new InvalidOperationException(Strings.ExCantMergeState);
 
       if (state.MergeValue(newValue))
         OnStateChanged(key, null, state.Tuple);
@@ -135,11 +135,11 @@ namespace Xtensive.Storage.Disconnected
     public void Merge(Key key, Tuple newValue)
     {
       if (Origin!=null)
-        throw new InvalidOperationException("Can't merge state.");
+        throw new InvalidOperationException(Strings.ExCantMergeState);
 
       var state = GetForUpdate(key);
       if (state.IsRemoved || !state.IsLoaded)
-        throw new InvalidOperationException("Can't merge state.");
+        throw new InvalidOperationException(Strings.ExCantMergeState);
 
       var preValue = state.Tuple.Clone();
       state.SetNewValue(newValue);
