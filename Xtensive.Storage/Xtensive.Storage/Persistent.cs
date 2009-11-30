@@ -494,6 +494,28 @@ namespace Xtensive.Storage
 
     #endregion
 
+    #region IDataErrorInfo members
+
+    [Infrastructure]
+    string IDataErrorInfo.this[string columnName] {
+      get { return this.GetPropertyError(columnName); }
+    }
+
+    [ActivateSession, Transactional]
+    string IDataErrorInfo.Error {
+      get { 
+        try {
+          OnValidate();
+        }
+        catch (Exception error) {
+          return error.Message;
+        }
+        return null;
+      }
+    }
+
+    #endregion
+
     #region Private \ Internal methods
 
     internal abstract void PrepareToSetField();
@@ -534,28 +556,8 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region IDataErrorInfo members
 
-    string IDataErrorInfo.this[string columnName]
-    {
-      get { return this.GetPropertyError(columnName); }
-    }
-
-    string IDataErrorInfo.Error
-    {
-      get 
-      { 
-        try {
-          OnValidate();
-        }
-        catch(Exception error) {
-          return error.Message;
-        }
-        return null;
-      }
-    }
-
-    #endregion
+    // Constructors
 
     internal Persistent()
     {

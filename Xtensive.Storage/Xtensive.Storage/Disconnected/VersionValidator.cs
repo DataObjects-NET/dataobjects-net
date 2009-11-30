@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using System.Linq;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
@@ -40,6 +41,7 @@ namespace Xtensive.Storage.Disconnected
     /// <see langword="True"/>, if validation passes successfully;
     /// otherwise, <see langword="false"/>.
     /// </returns>
+    [Infrastructure]
     public bool ValidateVersion(Key key, VersionInfo version)
     {
       var expectedVersion = expectedVersionProvider.Invoke(key);
@@ -63,6 +65,7 @@ namespace Xtensive.Storage.Disconnected
     /// otherwise, <see langword="false"/>.
     /// </returns>
     /// <exception cref="InvalidOperationException">Version conflict is detected.</exception>
+    [Infrastructure]
     public bool ValidateVersion(Key key, VersionInfo version, bool throwOnFailure)
     {
       var result = ValidateVersion(key, version);
@@ -279,6 +282,7 @@ namespace Xtensive.Storage.Disconnected
     // Dispose
     
     /// <inheritdoc/>
+    [Infrastructure]
     public void Dispose()
     {
       DetachEventHandlers();
