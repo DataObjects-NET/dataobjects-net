@@ -6,17 +6,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Contains referential-related methods.
+  /// Provides a set of referential integrity related methods.
   /// </summary>
   public static class ReferenceFinder
   {
@@ -29,7 +26,7 @@ namespace Xtensive.Storage
     /// <returns>The sequence of <see cref="ReferenceInfo"/> objects.</returns>
     public static IEnumerable<ReferenceInfo> FindReferencingObjects(this Entity target)
     {
-      return FindReferencesTo(target);
+      return GetReferencesTo(target);
     }
 
     /// <summary>
@@ -42,7 +39,7 @@ namespace Xtensive.Storage
     /// </returns>
     public static IEnumerable<ReferenceInfo> FindReferencingObjects(this Entity target, AssociationInfo association)
     {
-      return FindReferencesTo(target, association);
+      return GetReferencesTo(target, association);
     }
 
     /// <summary>
@@ -54,19 +51,19 @@ namespace Xtensive.Storage
     /// </returns>
     public static bool IsReferenced(this Entity target)
     {
-      return !FindReferencesTo(target).IsNullOrEmpty();
+      return !GetReferencesTo(target).IsNullOrEmpty();
     }
 
     #endregion
 
     /// <summary>
-    /// Finds entities that reference this entity.
+    /// Finds all the entities that reference specified <paramref name="target"/> entity.
     /// </summary>
     /// <param name="target">The entity to find references to.</param>
     /// <returns>
     /// The sequence of <see cref="ReferenceInfo"/> objects.
     /// </returns>
-    public static IEnumerable<ReferenceInfo> FindReferencesTo(Entity target)
+    public static IEnumerable<ReferenceInfo> GetReferencesTo(Entity target)
     {
       var handler = Session.Demand().Handler;
       foreach (var association in target.Type.GetTargetAssociations())
@@ -75,15 +72,16 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Finds entities that reference this entity within specified <paramref name="association"/>.
+    /// Finds all the entities that reference <paramref name="target"/> entity 
+    /// via specified <paramref name="association"/>.
     /// </summary>
     /// <param name="target">The entity to find references to.</param>
-    /// <param name="association">The association.</param>
+    /// <param name="association">The association to process.</param>
     /// <returns>
     /// The sequence of <see cref="ReferenceInfo"/> objects.
     /// </returns>
     /// <exception cref="InvalidOperationException">Type doesn't participate in the specified association.</exception>
-    public static IEnumerable<ReferenceInfo> FindReferencesTo(Entity target, AssociationInfo association)
+    public static IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
     {
       var handler = Session.Demand().Handler;
       if (!association.TargetType.UnderlyingType.IsAssignableFrom(target.Type.UnderlyingType))
@@ -92,10 +90,19 @@ namespace Xtensive.Storage
       return handler.GetReferencesTo(target, association);
     }
 
-    public static IEnumerable<ReferenceInfo> GetReferencesFrom(Entity target, AssociationInfo association)
+    /// <summary>
+    /// Gets all the references from the specified <paramref name="source"/> entity
+    /// via specified <paramref name="association"/>.
+    /// </summary>
+    /// <param name="source">The source entity.</param>
+    /// <param name="association">The association to process.</param>
+    /// <returns>
+    /// The sequence of <see cref="ReferenceInfo"/> objects.
+    /// </returns>
+    public static IEnumerable<ReferenceInfo> GetReferencesFrom(Entity source, AssociationInfo association)
     {
       var handler = Session.Demand().Handler;
-      return handler.GetReferencesFrom(target, association);
+      return handler.GetReferencesFrom(source, association);
     }
   }
 }

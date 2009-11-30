@@ -75,7 +75,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
         if (association.TargetType.UnderlyingType.IsAssignableFrom(item.Type.UnderlyingType)) {
           actionProcessor = GetProcessor(association.OnTargetRemove.Value);
-          foreach (var reference in ReferenceFinder.FindReferencesTo(item, association).ToList())
+          foreach (var reference in ReferenceFinder.GetReferencesTo(item, association).ToList())
             actionProcessor.Process(context, association, item, reference.ReferencingEntity, reference.ReferencingEntity, item);
         }
       }
