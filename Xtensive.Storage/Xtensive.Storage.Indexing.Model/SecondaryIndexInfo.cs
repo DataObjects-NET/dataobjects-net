@@ -39,6 +39,8 @@ namespace Xtensive.Storage.Indexing.Model
     /// </summary>
     public void PopulatePrimaryKeyColumns()
     {
+      if (Parent.PrimaryIndex == null)
+        return;
       foreach (var kcr in Parent.PrimaryIndex.KeyColumns)
         new PrimaryKeyColumnRef(this, kcr.Value, kcr.Direction);
     }
@@ -66,7 +68,7 @@ namespace Xtensive.Storage.Indexing.Model
           }, group.Key);
 
         // Primary key columns
-        if (PrimaryKeyColumns.Count!=Parent.PrimaryIndex.KeyColumns.Count)
+        if (Parent.PrimaryIndex != null && PrimaryKeyColumns.Count!=Parent.PrimaryIndex.KeyColumns.Count)
           ea.Execute(() => {
             throw new ValidationException(Strings.ExInvalidPrimaryKeyColumnsCollection, Path);
           });

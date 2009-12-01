@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Building
         var sourceType = action.Difference.Source as TypeInfo;
         var targetType = action.Difference.Target as TypeInfo;
         return sourceType==null || targetType==null
-          || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
+          || sourceType.IsTypeUndefined || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
       });
 
       var isCompatible = !createTableActions.Any() && !createColumneActions.Any() && !typeChanges.Any();
