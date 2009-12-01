@@ -115,37 +115,20 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void AmbientTransactionsTest()
     {
-//      var sessionConfiguration = new SessionConfiguration {
-//        Options = SessionOptions.AutoShortenTransactions | SessionOptions.AmbientTransactions
-//      };
-//      short reorderLevel;
-//      Key productKey;
-//      using (Session.Open(Domain, sessionConfiguration)) {
-//        Assert.IsNull(GetNativeTransaction());
-//        var product = Query<Product>.All.Where(p => p.Id > 0).First();
-//        product.ReorderLevel++;
-//        reorderLevel = product.ReorderLevel;
-//        productKey = product.Key;
-//        Assert.IsNotNull(GetNativeTransaction());
-//        Session.Current.CommitAmbientTransaction();
-//      }
-
       var sessionConfiguration = new SessionConfiguration {
-        Options = SessionOptions.AmbientTransactions
+        Options = SessionOptions.AutoShortenTransactions | SessionOptions.AmbientTransactions
       };
-      
-      using (var session = Session.Open(domain, sessionConfiguration)) {
-
-        var product = new Product(); // new transaction begins here
-        product.ProductName = "Cheese";
-        session.CommitAmbientTransaction(); // product creation is commited
-
-        product.ProductName = "Cheeeeeeese"; // another ambient transaction begins here
-        product.UnitPrice = 10000;
-        session.RollbackAmbientTransaction(); // changes is rolled back
+      short reorderLevel;
+      Key productKey;
+      using (Session.Open(Domain, sessionConfiguration)) {
+        Assert.IsNull(GetNativeTransaction());
+        var product = Query<Product>.All.Where(p => p.Id > 0).First();
+        product.ReorderLevel++;
+        reorderLevel = product.ReorderLevel;
+        productKey = product.Key;
+        Assert.IsNotNull(GetNativeTransaction());
+        Session.Current.CommitAmbientTransaction();
       }
-
-
 
       using (Session.Open(Domain, sessionConfiguration)) {
         Assert.IsNull(GetNativeTransaction());
