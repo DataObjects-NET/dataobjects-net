@@ -56,7 +56,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Max number of key fields.
     /// </summary>
-    public const int MaxKeyFieldNumber = 4;
+    public const int MaxKeyFieldNumber = 8;
 
     /// <summary>
     /// Maximal supported length (count of values) of purely generic keys.
