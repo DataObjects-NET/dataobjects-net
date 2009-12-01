@@ -5,15 +5,12 @@
 // Created:    2007.08.01
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
@@ -29,7 +26,6 @@ using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Serialization;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
-using Xtensive.Core.Disposing;
 
 namespace Xtensive.Storage
 {
@@ -227,17 +223,23 @@ namespace Xtensive.Storage
           SystemRemoveCompleted(null);
         }
       }
-      catch(Exception e) {
+      catch (Exception e) {
         SystemRemoveCompleted(e);
         throw;
       }
     }
 
     /// <inheritdoc/>
-    public override event PropertyChangedEventHandler PropertyChanged
+    public override sealed event PropertyChangedEventHandler PropertyChanged
     {
-      add { Session.EntityEventBroker.AddSubscriber(Key, EntityEventBroker.PropertyChangedEventKey, value); }
-      remove { Session.EntityEventBroker.RemoveSubscriber(Key, EntityEventBroker.PropertyChangedEventKey, value); }
+      add {
+        Session.EntityEventBroker.AddSubscriber(
+          Key, EntityEventBroker.PropertyChangedEventKey, value);
+      }
+      remove {
+        Session.EntityEventBroker.RemoveSubscriber(Key, 
+          EntityEventBroker.PropertyChangedEventKey, value);
+      }
     }
 
     /// <summary>
@@ -323,13 +325,6 @@ namespace Xtensive.Storage
         return;
 
       Session.Handler.FetchField(Key, field);
-    }
-
-    internal override void PrepareToSetField()
-    {
-      if (PersistenceState!=PersistenceState.New) {
-        var dTuple = State.DifferentialTuple;
-      }
     }
 
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
@@ -462,11 +457,19 @@ namespace Xtensive.Storage
       OnGetFieldValue(field, value);
     }
 
-    internal override void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception)
+    internal override sealed void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception)
     {
       if (Session.IsSystemLogicOnly)
         return;
       Session.NotifyFieldValueGetCompleted(this, fieldInfo, value, exception);
+    }
+
+    internal override sealed void SystemBeforeChange()
+    {
+      if (PersistenceState!=PersistenceState.New) {
+        // Ensures there will be a DifferentialTuple, not the regular one
+        var dTuple = State.DifferentialTuple;
+      }
     }
 
     internal override sealed void SystemBeforeSetValue(FieldInfo field, object value)
@@ -508,18 +511,19 @@ namespace Xtensive.Storage
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object, object>) subscriptionInfo.Second)
           .Invoke(subscriptionInfo.First, field, oldValue, newValue);
-      NotifyPropertyChanged(field);
+      NotifyFieldChanged(field);
       OnSetFieldValue(field, oldValue, newValue);
     }
 
-    internal override void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception)
+    internal override sealed void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception)
     {
       if (Session.IsSystemLogicOnly)
         return;
       Session.NotifyFieldValueSetCompleted(this, fieldInfo, oldValue, newValue, exception);
     }
 
-    protected override Pair<Key, Delegate> GetSubscription(object eventKey)
+    /// <inheritdoc/>
+    protected override sealed Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = Key;
       return new Pair<Key, Delegate>(entityKey,

@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Providers
       foreach (var restoreGroup in loopReferences.GroupBy(restoreData =>restoreData.First)) {
         var entityState = restoreGroup.Key;
         entityState.PersistenceState = PersistenceState.Synchronized;
-        entityState.Entity.PrepareToSetField();
+        entityState.Entity.SystemBeforeChange();
         foreach (var restoreData in restoreGroup)
           Persistent.GetAccessor<IEntity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
         yield return new PersistAction(entityState, PersistActionKind.Update);
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Providers
       // TODO: Group by entity
       // Restore loop links
       foreach (var restoreData in loopReferences) {
-        // No necessity to call Entity.PrepareToSetField, since it already is
+        // No necessity to call Entity.SystemBeforeChange, since it already is
         Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, null);
         yield return new PersistAction(restoreData.First, PersistActionKind.Update);
       }
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Providers
         AssociationInfo associationInfo = edge.ConnectionItem;
         keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.OwnerField, edge.Destination.Item.Entity));
         var entity = edge.Source.Item.Entity;
-        entity.PrepareToSetField();
+        entity.SystemBeforeChange();
         Persistent.GetAccessor<Entity>(associationInfo.OwnerField).SetValue(entity, associationInfo.OwnerField, null);
       }
     }

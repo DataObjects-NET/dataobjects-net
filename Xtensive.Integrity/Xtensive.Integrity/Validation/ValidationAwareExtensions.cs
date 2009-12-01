@@ -111,7 +111,16 @@ namespace Xtensive.Integrity.Validation
             aggregator.Execute(constraint.Check, target);
     }
 
-    public static string GetPropertyError(this IValidationAware target, string propertyName)
+    /// <summary>
+    /// Gets the validation error for the property with specified <paramref name="propertyName"/>.
+    /// </summary>
+    /// <param name="target">The object to validate the property of.</param>
+    /// <param name="propertyName">Name of the property to get the error for.</param>
+    /// <returns>
+    /// An exception, if property validation has failed;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public static Exception GetPropertyValidationError(this IValidationAware target, string propertyName)
     {
       var constraints = ConstraintRegistry.GetConstraints(target.GetType());
       foreach (var constraint in constraints)
@@ -119,10 +128,10 @@ namespace Xtensive.Integrity.Validation
           try {
             constraint.Check(target);
           }
-          catch (ConstraintViolationException exception) {
-            return exception.Message;
+          catch (Exception error) {
+            return error;
           }
-      return string.Empty;
+      return null;
     }
   }
 }

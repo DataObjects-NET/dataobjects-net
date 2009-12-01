@@ -79,32 +79,6 @@ namespace Xtensive.Storage
       }
     }
 
-    /// <inheritdoc/>
-    [Infrastructure]
-    public event PropertyChangedEventHandler PropertyChanged {
-      add {
-        Session.EntityEventBroker.AddSubscriber(GetOwnerKey(Owner), Field,
-        EntityEventBroker.PropertyChangedEventKey, value);
-      }
-      remove {
-        Session.EntityEventBroker.RemoveSubscriber(GetOwnerKey(Owner), Field,
-        EntityEventBroker.PropertyChangedEventKey, value);
-      }
-    }
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    public event NotifyCollectionChangedEventHandler CollectionChanged {
-      add {
-        Session.EntityEventBroker.AddSubscriber(GetOwnerKey(Owner), Field,
-        EntityEventBroker.CollectionChangedEventKey, value);
-      }
-      remove {
-        Session.EntityEventBroker.RemoveSubscriber(GetOwnerKey(Owner), Field,
-        EntityEventBroker.CollectionChangedEventKey, value);
-      }
-    }
-
     /// <summary>
     /// Determines whether <see cref="EntitySetBase"/> contains the specified <see cref="Key"/>.
     /// </summary>
@@ -160,17 +134,18 @@ namespace Xtensive.Storage
               Field, 
               Operations.OperationType.AddEntitySetItem, 
               item.Key));
+
           SystemBeforeAdd(item);
 
           if (Field.Association.IsPaired)
             Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
-
           if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster)
             GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
 
           State.Add(item.Key);
           MarkStateAsModified();
           Owner.UpdateVersionInternal();
+
           SystemAdd(item);
           SystemAddCompleted(item, null);
           context.Complete();
@@ -260,7 +235,7 @@ namespace Xtensive.Storage
     /// </returns>
     protected abstract Delegate GetItemCountQueryDelegate(FieldInfo field);
 
-    #region System-level event-like members & GetSubscription members
+    #region System-level event-like members
 
     private void SystemInitialize()
     {
@@ -359,17 +334,58 @@ namespace Xtensive.Storage
       NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
     }
 
-    private void NotifyPropertyChanged(string name)
+    #endregion
+
+    #region INotifyXxxChanged & event support related methods
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    public event PropertyChangedEventHandler PropertyChanged {
+      add {
+        Session.EntityEventBroker.AddSubscriber(GetOwnerKey(Owner), Field,
+          EntityEventBroker.PropertyChangedEventKey, value);
+      }
+      remove {
+        Session.EntityEventBroker.RemoveSubscriber(GetOwnerKey(Owner), Field,
+          EntityEventBroker.PropertyChangedEventKey, value);
+      }
+    }
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    public event NotifyCollectionChangedEventHandler CollectionChanged {
+      add {
+        Session.EntityEventBroker.AddSubscriber(GetOwnerKey(Owner), Field,
+          EntityEventBroker.CollectionChangedEventKey, value);
+      }
+      remove {
+        Session.EntityEventBroker.RemoveSubscriber(GetOwnerKey(Owner), Field,
+          EntityEventBroker.CollectionChangedEventKey, value);
+      }
+    }
+
+    /// <summary>
+    /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
+    /// </summary>
+    /// <param name="propertyName">Name of the changed property.</param>
+    [Infrastructure]
+    protected void NotifyPropertyChanged(string propertyName)
     {
       if (!Session.EntityEventBroker.HasSubscribers)
         return;
       var subscriptionInfo = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
       if (subscriptionInfo.Second != null)
         ((PropertyChangedEventHandler) subscriptionInfo.Second)
-          .Invoke(this, new PropertyChangedEventArgs(name));
+          .Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item)
+    /// <summary>
+    /// Raises <see cref="INotifyCollectionChanged.CollectionChanged"/> event.
+    /// </summary>
+    /// <param name="action">The actual action.</param>
+    /// <param name="item">The item, that was participating in the specified action.</param>
+    [Infrastructure]
+    protected void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item)
     {
       if (!Session.EntityEventBroker.HasSubscribers)
         return;
@@ -380,13 +396,19 @@ namespace Xtensive.Storage
       NotifyPropertyChanged("Count");
     }
 
-    private Pair<Key, Delegate> GetSubscription(object eventKey)
+    /// <summary>
+    /// Gets the subscription for the specified event key.
+    /// </summary>
+    /// <param name="eventKey">The event key.</param>
+    /// <returns>Event subscription (delegate) for the specified event key.</returns>
+    [Infrastructure]
+    protected Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerKey(Owner);
       if (entityKey!=null)
         return new Pair<Key, Delegate>(entityKey,
           Session.EntityEventBroker.GetSubscriber(entityKey, Field, eventKey));
-        return new Pair<Key, Delegate>(null, null);
+      return new Pair<Key, Delegate>(null, null);
     }
 
     #endregion

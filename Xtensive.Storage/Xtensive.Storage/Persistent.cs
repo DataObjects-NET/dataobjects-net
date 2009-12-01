@@ -9,7 +9,6 @@ using System.ComponentModel;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Atomicity;
@@ -290,13 +289,13 @@ namespace Xtensive.Storage
               newKey = newReference.Key;
             if (currentKey != newKey) {
               Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
-              PrepareToSetField();
+              SystemBeforeChange();
               GetAccessor<T>(field).SetValue(this, field, value);
             }
           }
           else {
             if (!Equals(value, oldValue) || field.IsStructure) {
-              PrepareToSetField();
+              SystemBeforeChange();
               GetAccessor<T>(field).SetValue(this, field, value);
             }
           }
@@ -348,7 +347,7 @@ namespace Xtensive.Storage
     /// </remarks>
     protected virtual void OnGetFieldValue(FieldInfo field, object value)
     {
-    } 
+    }
 
     /// <summary>
     /// Called before field value is about to be changed.
@@ -382,7 +381,7 @@ namespace Xtensive.Storage
     /// {
     ///   base.OnValidate();
     ///   if (Age &lt;= 0) 
-    ///     throw new Exception("Age should be positive.");
+    ///     throw new InvalidOperationException("Age should be positive.");
     /// }
     /// </code>
     /// </example>
@@ -405,23 +404,40 @@ namespace Xtensive.Storage
 
     internal abstract void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception);
 
+    internal abstract void SystemBeforeChange();
+
     internal abstract void SystemBeforeSetValue(FieldInfo field, object value);
 
     internal abstract void SystemSetValue(FieldInfo field, object oldValue, object newValue);
 
     internal abstract void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception);
 
-    protected internal void NotifyPropertyChanged(FieldInfo fieldInfo)
+    #endregion
+
+    #region INotifyPropertyChanged & event support related methods
+
+    /// <summary>
+    /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
+    /// </summary>
+    /// <param name="field">The field, which value is changed.</param>
+    protected internal void NotifyFieldChanged(FieldInfo field)
     {
+      if (!Session.EntityEventBroker.HasSubscribers)
+        return;
       Func<FieldInfo, FieldInfo> rootFinder = null;
       rootFinder = f => f.Parent == null ? f : rootFinder(f.Parent);
-      var rootField = rootFinder(fieldInfo);
+      var rootField = rootFinder(field);
       var subscription = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
       if (subscription.Second != null)
         ((PropertyChangedEventHandler)subscription.Second)
           .Invoke(this, new PropertyChangedEventArgs(rootField.Name));
     }
 
+    /// <summary>
+    /// Gets the subscription for the specified event key.
+    /// </summary>
+    /// <param name="eventKey">The event key.</param>
+    /// <returns>Event subscription (delegate) for the specified event key.</returns>
     protected abstract Pair<Key, Delegate> GetSubscription(object eventKey);
 
     #endregion
@@ -496,29 +512,31 @@ namespace Xtensive.Storage
 
     #region IDataErrorInfo members
 
-    [Infrastructure]
+    /// <inheritdoc/>
+    [ActivateSession, Transactional]
     string IDataErrorInfo.this[string columnName] {
-      get { return this.GetPropertyError(columnName); }
+      get {
+        return GetErrorMessage(this.GetPropertyValidationError(columnName));
+      }
     }
 
+    /// <inheritdoc/>
     [ActivateSession, Transactional]
     string IDataErrorInfo.Error {
       get { 
         try {
           OnValidate();
+          return string.Empty;
         }
         catch (Exception error) {
-          return error.Message;
+          return GetErrorMessage(error);
         }
-        return null;
       }
     }
 
     #endregion
 
     #region Private \ Internal methods
-
-    internal abstract void PrepareToSetField();
 
     internal static FieldAccessor<T> GetAccessor<T>(FieldInfo field)
     {
@@ -533,6 +551,24 @@ namespace Xtensive.Storage
       if (field.ValueType==typeof(Key))
         return KeyFieldAccessor<T>.Instance;
       return DefaultFieldAccessor<T>.Instance;
+    }
+
+    private static string GetErrorMessage(Exception error)
+    {
+      string result;
+      if (error==null)
+        result = string.Empty;
+      else if (error is AggregateException) {
+        var ae = error as AggregateException;
+        var errors = ae.GetFlatExceptions();
+        if (errors.Count==1)
+          result = errors[0].Message;
+        else
+          result = ae.Message;
+      }
+      else 
+        result = error.Message;
+      return result ?? string.Empty;
     }
 
     #endregion

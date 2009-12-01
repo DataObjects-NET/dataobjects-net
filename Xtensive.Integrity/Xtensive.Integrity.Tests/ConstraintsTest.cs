@@ -128,18 +128,18 @@ namespace Xtensive.Integrity.Tests
 
         Assert.AreEqual(
           "Name can not be null or empty.", 
-          person.GetPropertyError("Name"));
+          person.GetPropertyValidationError("Name"));
 
         person.Name = "Alex Kofman";
         person.Age = -26;
 
         Assert.AreEqual(
           "Incorrect age (-26), age can not be less than 0.", 
-          person.GetPropertyError("Age"));
+          person.GetPropertyValidationError("Age"));
 
         Assert.AreEqual(
           string.Empty, 
-          person.GetPropertyError("Name"));
+          person.GetPropertyValidationError("Name"));
       }
     }
 

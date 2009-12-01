@@ -88,18 +88,18 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    protected internal override Tuple Tuple {
+    protected internal override sealed Tuple Tuple {
       [DebuggerStepThrough]
       get { return tuple; }
     }
 
     /// <inheritdoc/> 
-    protected internal override bool CanBeValidated {
+    protected internal override sealed bool CanBeValidated {
       get { return IsBoundToEntity; }
     }
 
     /// <inheritdoc/>
-    public override event PropertyChangedEventHandler PropertyChanged {
+    public override sealed event PropertyChangedEventHandler PropertyChanged {
       add {
         Session.EntityEventBroker.AddSubscriber(GetOwnerEntityKey(Owner), Field,
           EntityEventBroker.PropertyChangedEventKey, value);
@@ -165,12 +165,18 @@ namespace Xtensive.Storage
       Owner.SystemGetValue(ownerField, value);
     }
 
-    internal override void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception)
+    internal override sealed void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception)
     {
       if (Owner == null)
         return;
       var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
       Owner.SystemGetValueCompleted(ownerField, value, exception);
+    }
+
+    internal override sealed void SystemBeforeChange()
+    {
+      if (Owner!=null)
+        Owner.SystemBeforeChange();
     }
 
     internal override sealed void SystemBeforeSetValue(FieldInfo fieldInfo, object value)
@@ -188,7 +194,7 @@ namespace Xtensive.Storage
       Owner.SystemBeforeSetValue(ownerField, value);
     }
 
-    internal override sealed void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue)
+    internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
     {
       if (!Session.IsSystemLogicOnly) {
         if (Session.Domain.Configuration.AutoValidation)
@@ -196,18 +202,18 @@ namespace Xtensive.Storage
         var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
         if (subscriptionInfo.Second != null)
           ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, Field, fieldInfo, oldValue, newValue);
+            .Invoke(subscriptionInfo.First, Field, field, oldValue, newValue);
 
-        NotifyPropertyChanged(fieldInfo);
+        NotifyFieldChanged(field);
         OnSetFieldValue(Field, oldValue, newValue);
       }
       if (Owner == null)
         return;
-      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
       Owner.SystemSetValue(ownerField, oldValue, newValue);
     }
 
-    internal override void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception)
+    internal override sealed void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception)
     {
       if (Owner == null)
         return;
@@ -215,7 +221,8 @@ namespace Xtensive.Storage
       Owner.SystemSetValueCompleted(ownerField, oldValue, newValue, exception);
     }
 
-    protected override Pair<Key, Delegate> GetSubscription(object eventKey)
+    /// <inheritdoc/>
+    protected override sealed Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerEntityKey(Owner);
       if (entityKey!=null)
@@ -270,12 +277,6 @@ namespace Xtensive.Storage
     {
       if (Owner!=null)
         Owner.EnsureIsFetched(field);
-    }
-
-    internal override void PrepareToSetField()
-    {
-      if (Owner!=null)
-        Owner.PrepareToSetField();
     }
 
     private static Key GetOwnerEntityKey(Persistent owner)
