@@ -136,5 +136,76 @@ namespace Xtensive.Storage.Tests.Storage
         Assert.AreEqual(reorderLevel, product.ReorderLevel);
       }
     }
+
+    [Test]
+    public void NestedTransactionsWithAmbientOptionTest()
+    {
+      var sessionConfiguration = new SessionConfiguration {
+        Options = SessionOptions.AmbientTransactions
+      };
+
+      using (var session = Session.Open(Domain, sessionConfiguration))
+        try {
+          var anton = Query<Customer>.Single("ANTON");
+          var firstTransaction = Transaction.Current;
+          using (Transaction.Open(TransactionOpenMode.Auto)) {
+            var lacor = Query<Customer>.Single("LACOR");
+            Assert.AreSame(firstTransaction, Transaction.Current);
+          }
+          using (Transaction.Open(TransactionOpenMode.New)) {
+            var bergs = Query<Customer>.Single("BERGS");
+            Assert.AreNotSame(firstTransaction, Transaction.Current);
+          }
+        }
+        finally {
+          session.RollbackAmbientTransaction();
+        }
+
+      using (var session = Session.Open(Domain, sessionConfiguration))
+        try {
+          Transaction outerTransaction;
+          using (Transaction.Open(TransactionOpenMode.New)) {
+            Assert.IsTrue(Transaction.Current.IsNested);
+            outerTransaction = Transaction.Current.Outer;
+          }
+          Assert.AreSame(outerTransaction, Transaction.Current);
+        }
+        finally {
+          session.RollbackAmbientTransaction();
+        }
+    }
+
+    [Test]
+    public void NestedTransactionsWithAutoshortenedOptionTest()
+    {
+      var sessionConfiguration = new SessionConfiguration {
+        Options = SessionOptions.AutoShortenTransactions
+      };
+      using (Session.Open(Domain, sessionConfiguration)) {
+        using (var outer = Transaction.Open(TransactionOpenMode.New)) {
+          Assert.IsFalse(outer.Transaction.IsActuallyStarted);
+          using (var mid = Transaction.Open(TransactionOpenMode.New)) {
+            Assert.IsFalse(outer.Transaction.IsActuallyStarted);
+            Assert.IsFalse(mid.Transaction.IsActuallyStarted);
+            using (var inner = Transaction.Open(TransactionOpenMode.New)) {
+              Assert.IsFalse(outer.Transaction.IsActuallyStarted);
+              Assert.IsFalse(mid.Transaction.IsActuallyStarted);
+              Assert.IsFalse(inner.Transaction.IsActuallyStarted);
+            }
+          }
+        }
+      }
+
+      using (Session.Open(Domain, sessionConfiguration)) {
+        using (var outer = Transaction.Open(TransactionOpenMode.New)) {
+          Assert.IsFalse(outer.Transaction.IsActuallyStarted);
+          using (var inner = Transaction.Open(TransactionOpenMode.New)) {
+            var lacor = Query<Customer>.Single("LACOR");
+            Assert.IsTrue(outer.Transaction.IsActuallyStarted);
+            Assert.IsTrue(inner.Transaction.IsActuallyStarted);
+          }
+        }
+      }
+    }
   }
 }

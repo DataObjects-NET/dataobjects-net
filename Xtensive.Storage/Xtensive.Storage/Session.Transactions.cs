@@ -50,9 +50,27 @@ namespace Xtensive.Storage
     
     internal TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
-      return Configuration.UsesAmbientTransactions
-        ? OpenAmbientTransaction(isolationLevel)
-        : OpenRegularTransaction(mode, isolationLevel);
+      switch (mode) {
+      case TransactionOpenMode.Auto:
+        if (Transaction!=null) {
+          if (isolationLevel!=Transaction.IsolationLevel)
+            throw new InvalidOperationException(Strings.ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent);
+          return TransactionScope.VoidScopeInstance;
+        }
+        return Configuration.UsesAmbientTransactions
+          ? CreateAmbientTransaction(isolationLevel)
+          : CreateOutermostTransaction(isolationLevel);
+      case TransactionOpenMode.New:
+        if (Transaction!=null)
+          return CreateNestedTransaction(isolationLevel);
+        if (Configuration.UsesAmbientTransactions) {
+          CreateAmbientTransaction(isolationLevel);
+          return CreateNestedTransaction(isolationLevel);
+        }
+        return CreateOutermostTransaction(isolationLevel);
+      default:
+        throw new ArgumentOutOfRangeException("mode");
+      }
     }
 
     /// <summary>
@@ -124,24 +142,26 @@ namespace Xtensive.Storage
       }
     }
 
-    private void EnsureTransactionIsStarted(Transaction transaction)
+    private void EnsureTransactionIsStarted()
     {
-      if (transaction==null)
+      if (Transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
-      if (!transaction.IsActuallyStarted)
-        StartTransaction(transaction);
+      if (!Transaction.IsActuallyStarted)
+        StartTransaction(Transaction);
     }
 
     private void StartTransaction(Transaction transaction)
     {
       transaction.IsActuallyStarted = true;
       if (transaction.IsNested) {
-        EnsureTransactionIsStarted(transaction);
+        if (!transaction.Outer.IsActuallyStarted)
+          StartTransaction(transaction.Outer);
         Persist();
         Handler.MakeSavepoint(transaction.SavepointName);
       }
       else
         Handler.BeginTransaction(transaction.IsolationLevel);
+
     }
 
     private void CompleteTransaction(Transaction transaction)
@@ -166,42 +186,30 @@ namespace Xtensive.Storage
       return string.Format(SavepointNameFormat, nextSavepoint++);
     }
 
-    private TransactionScope OpenAmbientTransaction(IsolationLevel isolationLevel)
+    private TransactionScope CreateAmbientTransaction(IsolationLevel isolationLevel)
     {
-      if (Transaction==null) {
-        var newTransaction = new Transaction(this, isolationLevel);
-        newTransaction.Begin();
-        Transaction = newTransaction;
-        ambientTransactionScope = new TransactionScope(newTransaction);
-      }
+      var newTransaction = new Transaction(this, isolationLevel);
+      ambientTransactionScope = OpenTransactionScope(newTransaction);
       return TransactionScope.VoidScopeInstance;
     }
 
-    private TransactionScope OpenRegularTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel)
+    private TransactionScope CreateOutermostTransaction(IsolationLevel isolationLevel)
     {
-      Transaction newTransaction = null;
+      var newTransaction = new Transaction(this, isolationLevel);
+      return OpenTransactionScope(newTransaction);
+    }
 
-      if (Transaction==null)
-        newTransaction = new Transaction(this, isolationLevel);
-      else
-        switch (mode) {
-        case TransactionOpenMode.New:
-          newTransaction = new Transaction(this, isolationLevel, Transaction, GetNextSavepointName());
-          break;
-        case TransactionOpenMode.Auto:
-          if (isolationLevel!=Transaction.IsolationLevel)
-            throw new InvalidOperationException(Strings.ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent);
-          break;
-        default:
-          throw new ArgumentOutOfRangeException("mode");
-        }
+    private TransactionScope CreateNestedTransaction(IsolationLevel isolationLevel)
+    {
+      var newTransaction = new Transaction(this, isolationLevel, Transaction, GetNextSavepointName());
+      return OpenTransactionScope(newTransaction);
+    }
 
-      if (newTransaction==null)
-        return TransactionScope.VoidScopeInstance;
-
-      newTransaction.Begin();
-      Transaction = newTransaction;
-      return new TransactionScope(newTransaction);
+    private TransactionScope OpenTransactionScope(Transaction transaction)
+    {
+      transaction.Begin();
+      Transaction = transaction;
+      return new TransactionScope(transaction);
     }
 
     #region NotifyXxx methods
