@@ -69,16 +69,16 @@ namespace Xtensive.Storage.Tests.Rse
       RecordSet personIndexed = personsRS.OrderBy(OrderBy.Asc(0), true);
       RecordSet authorsIndexed = authorsRS.OrderBy(OrderBy.Asc(0), true).Alias("Authors");
 
-      RecordSet resultLeft = personIndexed.JoinLeft(authorsIndexed, 0, 0);
-      RecordSet resultLeft1 = personIndexed.JoinLeft(authorsIndexed, JoinAlgorithm.Hash, 0, 0);
+      RecordSet resultLeft = personIndexed.LeftJoin(authorsIndexed, 0, 0);
+      RecordSet resultLeft1 = personIndexed.LeftJoin(authorsIndexed, JoinAlgorithm.Hash, 0, 0);
       TestJoinCount(resultLeft, resultLeft1, personCount);
 
       resultLeft = personIndexed.Join(authorsIndexed, 0, 0);
       resultLeft1 = personIndexed.Join(authorsIndexed, JoinAlgorithm.Hash, 0, 0);
       TestJoinCount(resultLeft, resultLeft1, personCount / 2);
 
-      resultLeft = authorsIndexed.JoinLeft(personIndexed, 0, 0);
-      resultLeft1 = authorsIndexed.JoinLeft(personIndexed, JoinAlgorithm.Hash, 0, 0);
+      resultLeft = authorsIndexed.LeftJoin(personIndexed, 0, 0);
+      resultLeft1 = authorsIndexed.LeftJoin(personIndexed, JoinAlgorithm.Hash, 0, 0);
       TestJoinCount(resultLeft, resultLeft1, personCount / 2);
 
       resultLeft = authorsIndexed.Join(personIndexed, 0, 0);

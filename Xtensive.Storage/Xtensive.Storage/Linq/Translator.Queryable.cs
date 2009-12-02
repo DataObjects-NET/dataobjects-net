@@ -231,7 +231,7 @@ namespace Xtensive.Storage.Linq
       return VisitSequence(source);
     }
 
-    private Expression VisitJoinLeft(MethodCallExpression mc)
+    private Expression VisitLeftJoin(MethodCallExpression mc)
     {
       return VisitJoin(mc.Arguments[0],
         mc.Arguments[1],
@@ -760,7 +760,7 @@ namespace Xtensive.Storage.Linq
         var inner = context.Bindings[innerParameter];
         var innerAlias = inner.ItemProjector.DataSource.Alias(context.GetNextAlias());
         var recordSet = isLeftJoin
-          ? outer.ItemProjector.DataSource.JoinLeft(innerAlias, keyPairs)
+          ? outer.ItemProjector.DataSource.LeftJoin(innerAlias, keyPairs)
           : outer.ItemProjector.DataSource.Join(innerAlias, keyPairs);
         return CombineProjections(outer, inner, recordSet, resultSelector);
       }

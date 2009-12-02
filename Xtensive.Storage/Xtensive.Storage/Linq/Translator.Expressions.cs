@@ -228,7 +228,7 @@ namespace Xtensive.Storage.Linq
       // Visit Queryable extensions.
       if (mc.Method.DeclaringType==typeof (QueryableExtensions))
         if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionLeftJoin.Name)
-          return VisitJoinLeft(mc);
+          return VisitLeftJoin(mc);
         else if (mc.Method.Name=="In")
           return VisitIn(mc);
         else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionLock.Name)
@@ -769,7 +769,7 @@ namespace Xtensive.Storage.Linq
           .ToArray();
 
         // Replace recordset.
-        RecordSet joinedRecordSet = originalRecordset.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
+        RecordSet joinedRecordSet = originalRecordset.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
         var itemProjectorExpression = new ItemProjectorExpression(originalResultExpression.ItemProjector.Item,
           joinedRecordSet,
           context);
@@ -804,7 +804,7 @@ namespace Xtensive.Storage.Linq
         .ToArray();
       int offset = itemProjector.DataSource.Header.Length;
       if (leftJoin)
-        itemProjector.DataSource = itemProjector.DataSource.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
+        itemProjector.DataSource = itemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
       else
         itemProjector.DataSource = itemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       EntityExpression.Fill(entityExpression, offset);
@@ -825,7 +825,7 @@ namespace Xtensive.Storage.Linq
         ? context.Bindings[state.Parameters[0]].ItemProjector
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
       int offset = originalItemProjector.DataSource.Header.Length;
-      originalItemProjector.DataSource = originalItemProjector.DataSource.JoinLeft(joinedRs, JoinAlgorithm.Default, keyPairs);
+      originalItemProjector.DataSource = originalItemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
       entityFieldExpression.RegisterEntityExpression(offset);
     }
 

@@ -54,7 +54,11 @@ namespace Xtensive.Storage.Linq
     {
       foreach (var parameter in parameters)
         linkedParameters.Add(parameter, parameters);
-      return new Disposable(isDisposing => parameters.Select(parameter => linkedParameters.Remove(parameter)));
+      return new Disposable(isDisposing => {
+        foreach (var parameter in parameters) {
+          linkedParameters.Remove(parameter);
+        }
+      });
     }
   }
 }

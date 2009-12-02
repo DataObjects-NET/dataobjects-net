@@ -18,10 +18,24 @@ namespace Xtensive.Storage.Tests.Linq
   public class AggregateTest : NorthwindDOModelTest
   {
     [Test]
+    public void EntitySetWithGroupingAggregateTest()
+    {
+      var query =
+        Query<Customer>.All
+          .GroupBy(customer => customer.Address.City)
+          .Select(grouping => new {
+            City = grouping.Key,
+            MaxFreight = grouping.Max(g => g.Orders)
+          });
+
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
     public void SingleAggregateTest()
     {
       var result = Query<Order>.All
-        .Select(o =>o.OrderDetails.Count());
+        .Select(o => o.OrderDetails.Count());
       QueryDumper.Dump(result);
     }
 
