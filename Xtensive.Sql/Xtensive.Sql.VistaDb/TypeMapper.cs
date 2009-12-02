@@ -6,11 +6,11 @@
 
 namespace Xtensive.Sql.VistaDb
 {
-  internal class TypeMappingHandler : ValueTypeMapping.TypeMappingHandler
+  internal class TypeMapper : ValueTypeMapping.TypeMapper
   {
     // Constructors
 
-    public TypeMappingHandler(SqlDriver driver)
+    public TypeMapper(SqlDriver driver)
       : base(driver)
     {
     }

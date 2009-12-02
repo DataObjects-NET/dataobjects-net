@@ -9,22 +9,22 @@ using System.Data;
 using System.Data.Common;
 using Xtensive.Sql.Info;
 
-namespace Xtensive.Sql.SqlServer
+namespace Xtensive.Sql.SqlServer.v09
 {
-  internal class TypeMappingHandler : ValueTypeMapping.TypeMappingHandler
+  internal class TypeMapper : ValueTypeMapping.TypeMapper
   {
     private DateTime MinDateTimeValue;
 
     public override bool IsLiteralCastRequired(Type type)
     {
       switch (Type.GetTypeCode(type)) {
-      case TypeCode.Byte:
-      case TypeCode.SByte:
-      case TypeCode.Int16:
-      case TypeCode.UInt16:
-      case TypeCode.Int64:
-      case TypeCode.UInt64:
-        return true;
+        case TypeCode.Byte:
+        case TypeCode.SByte:
+        case TypeCode.Int16:
+        case TypeCode.UInt16:
+        case TypeCode.Int64:
+        case TypeCode.UInt64:
+          return true;
       }
       if (type==typeof(TimeSpan))
         return true;
@@ -117,7 +117,7 @@ namespace Xtensive.Sql.SqlServer
 
     // Constructors
 
-    public TypeMappingHandler(SqlDriver driver)
+    public TypeMapper(SqlDriver driver)
       : base(driver)
     {
     }

@@ -27,6 +27,11 @@ namespace Xtensive.Sql.SqlServer.v10
       return new Translator(this);
     }
 
+    protected override ValueTypeMapping.TypeMapper CreateTypeMapper()
+    {
+      return new TypeMapper(this);
+    }
+
     // Constructors
 
     public Driver(SqlServerConnection connection, Version version)

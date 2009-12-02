@@ -19,6 +19,21 @@ namespace Xtensive.Sql.SqlServer.v10
       return result;
     }
 
+    public override DataTypeCollection GetDataTypesInfo()
+    {
+      var types = base.GetDataTypesInfo();
+
+      var common = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.NonKeyIndexing |
+        DataTypeFeatures.Grouping | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;
+
+      var index = DataTypeFeatures.Indexing | DataTypeFeatures.Clustering |
+        DataTypeFeatures.FillFactor | DataTypeFeatures.KeyConstraint;
+
+      types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
+        new ValueRange<DateTime>(new DateTime(1, 1, 1), new DateTime(9999, 12,31)), "datetime2", "datetime", "date", "time");
+
+      return types;
+    }
 
     // Constructors
 

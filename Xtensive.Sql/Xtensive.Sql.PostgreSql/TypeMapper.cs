@@ -16,7 +16,7 @@ using NpgsqlTypes;
 
 namespace Xtensive.Sql.PostgreSql
 {
-  internal class TypeMappingHandler : ValueTypeMapping.TypeMappingHandler
+  internal class TypeMapper : ValueTypeMapping.TypeMapper
   {
     public override bool IsLiteralCastRequired(Type type)
     {
@@ -253,7 +253,7 @@ namespace Xtensive.Sql.PostgreSql
 
     // Constructors
 
-    public TypeMappingHandler(SqlDriver driver)
+    public TypeMapper(SqlDriver driver)
       : base(driver)
     {
     }

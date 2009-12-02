@@ -12,7 +12,7 @@ using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.ValueTypeMapping
 {
-  public abstract class TypeMappingHandler
+  public abstract class TypeMapper
   {
     private const int DecimalPrecisionLimit = 60;
 
@@ -379,7 +379,7 @@ namespace Xtensive.Sql.ValueTypeMapping
 
     // Constructors
 
-    protected TypeMappingHandler(SqlDriver driver)
+    protected TypeMapper(SqlDriver driver)
     {
       Driver = driver;
     }

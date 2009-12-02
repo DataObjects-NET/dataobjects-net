@@ -17,9 +17,9 @@ namespace Xtensive.Sql.VistaDb
       return new Connection(this, url);
     }
 
-    protected override ValueTypeMapping.TypeMappingHandler CreateTypeMappingHandler()
+    protected override ValueTypeMapping.TypeMapper CreateTypeMapper()
     {
-      return new TypeMappingHandler(this);
+      return new TypeMapper(this);
     }
 
     // Constructors

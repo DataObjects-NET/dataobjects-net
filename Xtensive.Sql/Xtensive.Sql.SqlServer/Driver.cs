@@ -17,11 +17,6 @@ namespace Xtensive.Sql.SqlServer
     {
       return new Connection(this, url);
     }
-    
-    protected override ValueTypeMapping.TypeMappingHandler CreateTypeMappingHandler()
-    {
-      return new TypeMappingHandler(this);
-    }
 
     protected override string GetDefaultSchemaName(UrlInfo url)
     {

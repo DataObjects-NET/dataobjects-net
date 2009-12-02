@@ -43,7 +43,7 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets the data access handler.
     /// </summary>
-    public TypeMappingHandler TypeMappingHandler { get; private set; }
+    public TypeMapper TypeMapper { get; private set; }
 
     /// <summary>
     /// Compiles the specified statement into SQL command representation.
@@ -155,7 +155,7 @@ namespace Xtensive.Sql
     /// Creates the data access handler.
     /// </summary>
     /// <returns>Created data access handler.</returns>
-    protected abstract TypeMappingHandler CreateTypeMappingHandler();
+    protected abstract TypeMapper CreateTypeMapper();
 
     /// <summary>
     /// Gets the name of the default schema.
@@ -195,10 +195,10 @@ namespace Xtensive.Sql
       Translator = CreateTranslator();
       Translator.Initialize();
 
-      TypeMappingHandler = CreateTypeMappingHandler();
-      TypeMappingHandler.Initialize();
+      TypeMapper = CreateTypeMapper();
+      TypeMapper.Initialize();
 
-      TypeMappings = new TypeMappingCollection(TypeMappingHandler);
+      TypeMappings = new TypeMappingCollection(TypeMapper);
     }
 
     private Extractor GetExtractor(SqlConnection connection)
