@@ -18,33 +18,6 @@ namespace Xtensive.Storage.Tests.Linq
 {
   public class DataContextTest : NorthwindDOModelTest
   {
-    private class Queryabe<T> : IQueryable<T>
-  {
-      public IEnumerator<T> GetEnumerator()
-      {
-        throw new NotImplementedException();
-      }
-
-      IEnumerator IEnumerable.GetEnumerator()
-      {
-        return GetEnumerator();
-      }
-
-      public Expression Expression
-      {
-        get { throw new NotImplementedException(); }
-      }
-
-      public Type ElementType
-      {
-        get { throw new NotImplementedException(); }
-      }
-
-      public IQueryProvider Provider
-      {
-        get { throw new NotImplementedException(); }
-      }
-  }
 
     private class UserException : Exception
     {
@@ -91,7 +64,7 @@ namespace Xtensive.Storage.Tests.Linq
       var expected = from c in Query<Customer>.All.AsEnumerable()
       from o in Query<Order>.All.AsEnumerable()
       select new {c, o};
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.AreEqual(0, expected.Except(result).Count());
     }
 
     [Test]

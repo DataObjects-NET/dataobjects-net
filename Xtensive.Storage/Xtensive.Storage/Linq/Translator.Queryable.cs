@@ -558,6 +558,8 @@ namespace Xtensive.Storage.Linq
           using (state.CreateScope()) {
             state.CalculateExpressions = true;
             var result = (ItemProjectorExpression) VisitLambda(argument);
+            if (!result.IsPrimitive)
+              throw new NotSupportedException(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported);
             // Default
             columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
             innerProjection = context.Bindings[argument.Parameters[0]];

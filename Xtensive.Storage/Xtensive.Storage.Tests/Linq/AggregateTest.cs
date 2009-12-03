@@ -18,15 +18,13 @@ namespace Xtensive.Storage.Tests.Linq
   public class AggregateTest : NorthwindDOModelTest
   {
     [Test]
+    [ExpectedException(typeof(NotSupportedException))]
     public void EntitySetWithGroupingAggregateTest()
     {
       var query =
         Query<Customer>.All
           .GroupBy(customer => customer.Address.City)
-          .Select(grouping => new {
-            City = grouping.Key,
-            MaxFreight = grouping.Max(g => g.Orders)
-          });
+          .Select(grouping => grouping.Max(g => g.Orders));
 
       QueryDumper.Dump(query);
     }
