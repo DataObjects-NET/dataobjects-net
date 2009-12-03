@@ -20,34 +20,41 @@ namespace Xtensive.Storage
     Default = PerformSafely,
     
     /// <summary>
-    /// Restricts any modifications to storage.
+    /// Validation only mode.
     /// <see cref="DomainBuilderException"/> will be 
     /// thrown if storage schema differs from the expected one.
     /// </summary>
     Validate = 0,
 
     /// <summary>
-    /// Recreates all storage structures. Storage will
-    /// contain no instances after this type of update.
+    /// Recreates all the necessary structures. 
+    /// Storage will contain no instances after this type of update.
     /// </summary>
     Recreate = 1,
 
     /// <summary>
     /// Storage upgrade will be performed. 
-    /// Missing columns and tables will be added, excess columns and tables will be removed.
+    /// Missing columns and tables will be added, 
+    /// unmapped columns and tables will be removed.
     /// </summary>
     Perform = 2,
     
     /// <summary>
     /// Storage upgrade will be performed. 
     /// Missing columns and tables will be added, 
-    /// excess columns and tables will be removed only if there are corresponding hints.
+    /// unmapped columns and tables will be removed 
+    /// only if there are corresponding hints.
     /// </summary>
     PerformSafely = 3,
 
     /// <summary>
-    /// Legacy database support mode. Database schema won't be modified. 
-    /// Exception will be thrown in case of required tables or columns absence.
+    /// Legacy database support mode. 
+    /// Similar to <see cref="Validate"/>, but schema comparison
+    /// is limited to comparison of tables and columns, everything
+    /// else is ignored.
+    /// <see cref="DomainBuilderException"/> will be 
+    /// thrown if storage schema significantly differs 
+    /// from the expected one.
     /// </summary>
     Legacy = 4,
   }
