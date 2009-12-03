@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
@@ -251,7 +252,8 @@ namespace Xtensive.Storage.Tests.Storage
     [SetUp]
     public void SetUp()
     {
-      BuildDomain(BuildConfiguration());
+      Domain.DisposeSafely();
+      Domain = BuildDomain(BuildConfiguration());
       FillDataBase();
     }
 
@@ -261,11 +263,6 @@ namespace Xtensive.Storage.Tests.Storage
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof (Simple).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
-    }
-
-    protected override void CheckRequirements()
-    {
-      EnsureProtocolIs(StorageProtocol.Sql);
     }
 
     [Test]

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Index.Resources;
 using Xtensive.Storage.Rse.Compilation;
@@ -20,6 +21,8 @@ namespace Xtensive.Storage.Providers.Index
   [Serializable]
   public class IndexCompiler : RseCompiler
   {
+    private readonly IIndexResolver indexResolver;
+
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.
     /// </summary>
@@ -117,21 +120,20 @@ namespace Xtensive.Storage.Providers.Index
 
     private ExecutableProvider BuildIndexProviderInternal(Rse.Providers.Compilable.IndexProvider provider)
     {
-      var sessionHandler = (SessionHandler)Handlers.SessionHandler;
-      var domainHandler = (DomainHandler)Handlers.DomainHandler;
-      return new IndexProvider(provider, domainHandler.GetStorageIndexInfo(provider.Index), sessionHandler.StorageView.GetIndex);
+      var domainHandler = (DomainHandler) Handlers.DomainHandler;
+      return new IndexProvider(provider, domainHandler.GetStorageIndexInfo(provider.Index), indexResolver);
     }
-
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public IndexCompiler(HandlerAccessor handlers)
+    public IndexCompiler(HandlerAccessor handlers, IIndexResolver indexResolver)
       : base(handlers.Domain.Configuration.ConnectionInfo)
     {
       Handlers = handlers;
+      this.indexResolver = indexResolver;
     }
   }
 }

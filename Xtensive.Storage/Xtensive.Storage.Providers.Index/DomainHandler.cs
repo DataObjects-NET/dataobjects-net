@@ -5,10 +5,9 @@
 // Created:    2008.07.01
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
@@ -19,13 +18,11 @@ using Xtensive.Storage.Rse.Compilation;
 using Xtensive.Storage.Rse.PreCompilation;
 using Xtensive.Storage.Rse.PreCompilation.Correction;
 using Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection;
-using Xtensive.Storage.Rse.PreCompilation.Optimization;
 using Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection;
-using Xtensive.Storage.Rse.Providers;
-using IndexInfo=Xtensive.Storage.Model.IndexInfo;
-using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
-using TypeInfo=Xtensive.Storage.Model.TypeInfo;
+using IndexInfo = Xtensive.Storage.Model.IndexInfo;
 using PF = Xtensive.Storage.Providers.ProviderFeatures;
+using StorageIndexInfo = Xtensive.Storage.Indexing.Model.IndexInfo;
+using TypeInfo = Xtensive.Storage.Model.TypeInfo;
 
 
 namespace Xtensive.Storage.Providers.Index
@@ -55,7 +52,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler()
     {
-      return new IndexCompiler(Handlers);
+      return new IndexCompiler(Handlers, new IndexResolver(Handlers));
     }
 
     /// <inheritdoc/>

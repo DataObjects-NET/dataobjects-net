@@ -9,8 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Indexing;
 using Xtensive.Storage.Indexing;
+using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers.Index.Resources;
 
@@ -19,7 +22,8 @@ namespace Xtensive.Storage.Providers.Index
   /// <summary>
   /// <see cref="Session"/>-level handler for index storage.
   /// </summary>
-  public class SessionHandler : Providers.SessionHandler
+  public class SessionHandler : Providers.SessionHandler,
+    IIndexResolver
   {
     private IndexStorage storage;
     
@@ -151,5 +155,15 @@ namespace Xtensive.Storage.Providers.Index
     public override void Dispose()
     {
     }
+
+    #region IIndexResolver members
+
+    /// <inheritdoc/>
+    public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
+    {
+      return StorageView.GetIndex(indexInfo);
+    }
+
+    #endregion
   }
 }
