@@ -15,7 +15,7 @@ namespace Xtensive.Sql.SqlServer.v10
     public override void SetDateTimeParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.DateTime2;
-      parameter.Value = value;
+      parameter.Value = value ?? DBNull.Value;
     }
 
     public override object ReadDateTime(DbDataReader reader, int index)
