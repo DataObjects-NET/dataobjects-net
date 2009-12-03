@@ -294,7 +294,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     public override bool GetMultipleActiveResultSets()
     {
-      return true;
+      return false;
     }
 
 
@@ -303,12 +303,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     public ServerInfoProvider(NpgsqlConnection connection)
     {
       ArgumentValidator.EnsureArgumentNotNull(connection, "conn");
-#if OLD_NPGSQL
-      var sv = connection.PostgreSqlVersion;
-      mVersionInfo = new VersionInfo(new Version(sv.Major, sv.Minor, /*sv.Patch*/0, 0));
-#else
       mVersionInfo = new VersionInfo(connection.PostgreSqlVersion);
-#endif
       serverConfig = new ServerConfiguration(connection);
     }
   }

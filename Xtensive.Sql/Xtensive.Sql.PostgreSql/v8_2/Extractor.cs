@@ -19,17 +19,9 @@ namespace Xtensive.Sql.PostgreSql.v8_2
     protected RelOptions ParseRelOptions(object value)
     {
       var result = new RelOptions();
-#if OLD_NPGSQL
-      var relOptions = value as string;
-      if (string.IsNullOrEmpty(relOptions))
-        return result;
-      relOptions = relOptions.Trim('{', '}');
-      string[] options = relOptions.Split(',');
-#else
       var options = value as string[];
       if (options==null)
         return result;
-#endif
       for (int i = 0; i < options.Length; i++) {
         options[i] = options[i].Trim();
         string optionName;

@@ -842,17 +842,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     private int[] ReadIntArray(object value)
     {
-#if OLD_NPGSQL
-      var arrayLiteral = (string) value;
-      arrayLiteral = arrayLiteral.Trim();
-      arrayLiteral = arrayLiteral.Substring(1, arrayLiteral.Length - 2);
-      string[] elements = arrayLiteral.Split(','); // {"2","1","10"}
-      int[] indexes = new int[elements.Length];
-      for (int i = 0; i < elements.Length; i++) {
-        indexes[i] = Int32.Parse(elements[i]);
-      }
-      return indexes;
-#else
       var shortArray = value as short[];
       if (shortArray!=null) {
         var result = new int[shortArray.Length];
@@ -864,7 +853,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       if (intArray!=null)
         return intArray;
       throw new InvalidOperationException();
-#endif
     }
 
     /// <summary>
