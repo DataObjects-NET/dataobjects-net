@@ -386,8 +386,9 @@ namespace Xtensive.Sql.SqlServer.v09
       return string.Empty;
     }
 
-    public override string Translate(SqlCompilerContext context, Type literalType, object literalValue)
+    public override string Translate(SqlCompilerContext context, object literalValue)
     {
+      var literalType = literalValue.GetType();
       if (literalType==typeof (TimeSpan))
         return Convert.ToString((long) ((TimeSpan) literalValue).TotalMilliseconds);
       if (literalType==typeof (Boolean))
@@ -407,7 +408,7 @@ namespace Xtensive.Sql.SqlServer.v09
       }
       if (literalType==typeof(Guid))
         return QuoteString(literalValue.ToString());
-      return base.Translate(context, literalType, literalValue);
+      return base.Translate(context, literalValue);
     }
     
     public override string Translate(SqlLockType lockType)

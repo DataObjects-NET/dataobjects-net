@@ -282,13 +282,14 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return string.Empty;
     }
     
-    public override string Translate(SqlCompilerContext context, Type literalType, object literalValue)
+    public override string Translate(SqlCompilerContext context, object literalValue)
     {
+      var literalType = literalValue.GetType();
       if (literalType==typeof(byte[]))
         return TranslateByteArrayLiteral((byte[]) literalValue);
       if (literalType==typeof(Guid))
         return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
-      return base.Translate(context, literalType, literalValue);
+      return base.Translate(context, literalValue);
     }
 
     public override string Translate(SqlCompilerContext context, SqlArray node, ArraySection section)

@@ -1006,8 +1006,9 @@ namespace Xtensive.Sql.Compiler
       }
     }
     
-    public virtual string Translate(SqlCompilerContext context, Type literalType, object literalValue)
+    public virtual string Translate(SqlCompilerContext context, object literalValue)
     {
+      var literalType = literalValue.GetType();
       switch (Type.GetTypeCode(literalType)) {
       case TypeCode.Char:
       case TypeCode.String:

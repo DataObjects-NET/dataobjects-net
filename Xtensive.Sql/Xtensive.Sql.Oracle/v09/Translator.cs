@@ -145,8 +145,9 @@ namespace Xtensive.Sql.Oracle.v09
       }
     }
 
-    public override string Translate(SqlCompilerContext context, Type literalType, object literalValue)
+    public override string Translate(SqlCompilerContext context, object literalValue)
     {
+      var literalType = literalValue.GetType();
       switch (Type.GetTypeCode(literalType)) {
       case TypeCode.Boolean:
         return (bool) literalValue ? "1" : "0";
@@ -161,7 +162,7 @@ namespace Xtensive.Sql.Oracle.v09
       }
       if (literalType==typeof(Guid))
         return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
-      return base.Translate(context, literalType, literalValue);
+      return base.Translate(context, literalValue);
     }
 
     public override string Translate(SqlCompilerContext context, SqlDropIndex node)

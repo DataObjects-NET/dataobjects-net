@@ -180,7 +180,6 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlArray node)
     {
-      var itemType = node.ItemType;
       var items = node.GetValues();
       if (items.Length==0) {
         context.Output.AppendText(translator.Translate(context, node, ArraySection.EmptyArray));
@@ -188,10 +187,10 @@ namespace Xtensive.Sql.Compiler
       }
       context.Output.AppendText(translator.Translate(context, node, ArraySection.Entry));
       for (int i = 0; i < items.Length-1; i++) {
-        context.Output.AppendText(translator.Translate(context, itemType, items[i]));
+        context.Output.AppendText(translator.Translate(context, items[i]));
         context.Output.AppendDelimiter(translator.RowItemDelimiter);
       }
-      context.Output.AppendText(translator.Translate(context, itemType, items[items.Length-1]));
+      context.Output.AppendText(translator.Translate(context, items[items.Length-1]));
       context.Output.AppendText(translator.Translate(context, node, ArraySection.Exit));
     }
 
@@ -907,7 +906,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlLiteral node)
     {
-      context.Output.AppendText(translator.Translate(context, node.LiteralType, node.GetValue()));
+      context.Output.AppendText(translator.Translate(context, node.GetValue()));
     }
 
     public virtual void Visit(SqlMatch node)
@@ -1209,7 +1208,7 @@ namespace Xtensive.Sql.Compiler
         context.Output.AppendText(translator.Translate(context, node, TrimSection.Entry));
         context.Output.AppendText(translator.Translate(node.TrimType));
         if (node.TrimCharacters!=null)
-          context.Output.AppendText(translator.Translate(context, typeof(string), node.TrimCharacters));
+          context.Output.AppendText(translator.Translate(context, node.TrimCharacters));
         context.Output.AppendText(translator.Translate(context, node, TrimSection.From));
         node.Expression.AcceptVisitor(this);
         context.Output.AppendText(translator.Translate(context, node, TrimSection.Exit));
