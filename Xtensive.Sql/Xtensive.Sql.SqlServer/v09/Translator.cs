@@ -14,6 +14,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.SqlServer.Resources;
+using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Sql.SqlServer.v09
 {
@@ -395,8 +396,8 @@ namespace Xtensive.Sql.SqlServer.v09
         return ((bool) literalValue) ? "cast(1 as bit)" : "cast(0 as bit)";
       if (literalType==typeof(DateTime)) {
         var dateTime = (DateTime) literalValue;
-        var minAllowedValue = ((ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange).MinValue;
-        var newValue = dateTime > minAllowedValue ? dateTime : minAllowedValue;
+        var dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
+        var newValue = DataRangeValidator.Correct(dateTime, dateTimeRange);
         return newValue.ToString(DateTimeFormatString);
       }
       if (literalType==typeof(byte[])) {

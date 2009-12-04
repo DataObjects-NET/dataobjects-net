@@ -133,6 +133,24 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Current storage does not support &apos;{0}&apos; values greather than &apos;{1}&apos;. Supplied value is &apos;{2}&apos;..
+        /// </summary>
+        internal static string ExCurrentStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ {
+            get {
+                return ResourceManager.GetString("ExCurrentStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current storage does not support &apos;{0}&apos; values less than &apos;{1}&apos;. Supplied value is &apos;{2}&apos;..
+        /// </summary>
+        internal static string ExCurrentStorageDoesNotSupporXValuesLessThanYSuppliedValueIsZ {
+            get {
+                return ResourceManager.GetString("ExCurrentStorageDoesNotSupporXValuesLessThanYSuppliedValueIsZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cursor parameters are not supported by this server..
         /// </summary>
         internal static string ExCursorParametersAreNotSupportedByThisServer {

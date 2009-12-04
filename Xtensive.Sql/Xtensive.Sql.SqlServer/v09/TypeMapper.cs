@@ -8,12 +8,13 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Sql.Info;
+using Xtensive.Sql.ValueTypeMapping;
 
 namespace Xtensive.Sql.SqlServer.v09
 {
   internal class TypeMapper : ValueTypeMapping.TypeMapper
   {
-    private DateTime MinDateTimeValue;
+    private ValueRange<DateTime> dateTimeRange;
 
     public override bool IsLiteralCastRequired(Type type)
     {
@@ -59,24 +60,20 @@ namespace Xtensive.Sql.SqlServer.v09
 
     public override void SetDateTimeParameterValue(DbParameter parameter, object value)
     {
-      parameter.DbType = DbType.DateTime;
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
-      }
-      var dateTime = (DateTime) value;
-      parameter.Value = dateTime > MinDateTimeValue ? value : MinDateTimeValue;
+      if (value!=null)
+        value = DataRangeValidator.Correct((DateTime) value, dateTimeRange);
+      base.SetDateTimeParameterValue(parameter, value);
     }
 
     public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
-      if (value==null) {
-        parameter.Value = DBNull.Value;
-        return;
+      if (value!=null) {
+        var timeSpan = (TimeSpan) value;
+        parameter.Value = (long) timeSpan.TotalMilliseconds;
       }
-      var timeSpan = (TimeSpan) value;
-      parameter.Value = (long) timeSpan.TotalMilliseconds;
+      else
+        parameter.Value = DBNull.Value;
     }
 
     public override SqlValueType BuildSByteSqlType(int? length, int? precision, int? scale)
@@ -112,8 +109,9 @@ namespace Xtensive.Sql.SqlServer.v09
     public override void Initialize()
     {
       base.Initialize();
-      MinDateTimeValue = ((ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange).MinValue;
+      dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
     }
+
 
     // Constructors
 

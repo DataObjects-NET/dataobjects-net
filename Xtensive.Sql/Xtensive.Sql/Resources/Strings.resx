@@ -270,4 +270,10 @@
   <data name="ExTypesOfValuesAreDifferent" xml:space="preserve">
     <value>Types of values are different</value>
   </data>
+  <data name="ExCurrentStorageDoesNotSupporXValuesLessThanYSuppliedValueIsZ" xml:space="preserve">
+    <value>Current storage does not support '{0}' values less than '{1}'. Supplied value is '{2}'.</value>
+  </data>
+  <data name="ExCurrentStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ" xml:space="preserve">
+    <value>Current storage does not support '{0}' values greather than '{1}'. Supplied value is '{2}'.</value>
+  </data>
 </root>

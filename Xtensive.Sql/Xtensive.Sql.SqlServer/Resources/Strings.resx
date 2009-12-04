@@ -117,16 +117,16 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ExMicrosoftSqlServerBelow2005IsNotSupported" xml:space="preserve">
-    <value>Microsoft SQL Server below 2005 is not supported</value>
+  <data name="ExSqlServerBelow2005IsNotSupported" xml:space="preserve">
+    <value>SQL Server below 2005 is not supported.</value>
   </data>
   <data name="ExSqlServerSupportsTrimmingOfSpaceCharactersOnly" xml:space="preserve">
     <value>SQL Server supports trimming of space characters only.</value>
   </data>
   <data name="ExOperationXIsNotSupported" xml:space="preserve">
-    <value>Operation '{0} is not supported</value>
+    <value>Operation '{0}' is not supported</value>
   </data>
-  <data name="ExInvalidBooleanString0" xml:space="preserve">
-    <value>Invalid boolean string {0}</value>
+  <data name="ExInvalidBooleanStringX" xml:space="preserve">
+    <value>Invalid boolean string '{0}'.</value>
   </data>
 </root>

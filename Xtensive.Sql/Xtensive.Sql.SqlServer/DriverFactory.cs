@@ -37,7 +37,7 @@ namespace Xtensive.Sql.SqlServer
             }
             break;
           default:
-            throw new NotSupportedException(Strings.ExMicrosoftSqlServerBelow2005IsNotSupported);
+            throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
         }
         connection.Close();
         return driver;

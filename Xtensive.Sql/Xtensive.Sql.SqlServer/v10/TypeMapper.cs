@@ -22,7 +22,7 @@ namespace Xtensive.Sql.SqlServer.v10
     {
       string type = reader.GetDataTypeName(index);
       if (type=="time") {
-        TimeSpan time = (TimeSpan) reader.GetValue(index);
+        var time = (TimeSpan) reader.GetValue(index);
         return new DateTime(time.Ticks);
       }
       return base.ReadDateTime(reader, index);
