@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -25,6 +26,19 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
     public static SqlExpression NullableHasValue(MemberInfo memberInfo, SqlExpression _this)
     {
       return SqlDml.IsNotNull(_this);
+    }
+
+    [Compiler(typeof(Nullable<>), "GetValueOrDefault")]
+    public static SqlExpression NullableGetValueOrDefault(MemberInfo memberInfo, SqlExpression _this)
+    {
+      var valueType = memberInfo.DeclaringType.StripNullable();
+      return SqlDml.Coalesce(_this, SqlDml.Literal(Activator.CreateInstance(valueType)));
+    }
+
+    [Compiler(typeof(Nullable<>), "GetValueOrDefault")]
+    public static SqlExpression NullableGetValueOrDefault(MemberInfo memberInfo, SqlExpression _this, SqlExpression _default)
+    {
+      return SqlDml.Coalesce(_this, _default);
     }
   }
 }
