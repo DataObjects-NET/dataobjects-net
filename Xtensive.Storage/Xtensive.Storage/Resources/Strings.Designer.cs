@@ -3201,6 +3201,33 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Begin transaction..
+        /// </summary>
+        internal static string LogSessionXBeginTransaction {
+            get {
+                return ResourceManager.GetString("LogSessionXBeginTransaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Committed transaction..
+        /// </summary>
+        internal static string LogSessionXCommittedTransaction {
+            get {
+                return ResourceManager.GetString("LogSessionXCommittedTransaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Committing transaction..
+        /// </summary>
+        internal static string LogSessionXCommittingTransaction {
+            get {
+                return ResourceManager.GetString("LogSessionXCommittingTransaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Session &apos;{0}&apos;. Disposing..
         /// </summary>
         internal static string LogSessionXDisposing {
@@ -3269,6 +3296,24 @@ namespace Xtensive.Storage.Resources {
         internal static string LogSessionXResolvingKeyYKeyIsAlreadyResolved {
             get {
                 return ResourceManager.GetString("LogSessionXResolvingKeyYKeyIsAlreadyResolved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Rolled back transaction..
+        /// </summary>
+        internal static string LogSessionXRolledBackTransaction {
+            get {
+                return ResourceManager.GetString("LogSessionXRolledBackTransaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Rolling back transaction..
+        /// </summary>
+        internal static string LogSessionXRollingBackTransaction {
+            get {
+                return ResourceManager.GetString("LogSessionXRollingBackTransaction", resourceCulture);
             }
         }
         

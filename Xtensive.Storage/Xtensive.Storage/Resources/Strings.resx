@@ -1291,4 +1291,19 @@ Actions:
   <data name="ExCantMergeState" xml:space="preserve">
     <value>Can't merge state.</value>
   </data>
+  <data name="LogSessionXBeginTransaction" xml:space="preserve">
+    <value>Session '{0}'. Begin transaction.</value>
+  </data>
+  <data name="LogSessionXCommittingTransaction" xml:space="preserve">
+    <value>Session '{0}'. Committing transaction.</value>
+  </data>
+  <data name="LogSessionXCommittedTransaction" xml:space="preserve">
+    <value>Session '{0}'. Committed transaction.</value>
+  </data>
+  <data name="LogSessionXRollingBackTransaction" xml:space="preserve">
+    <value>Session '{0}'. Rolling back transaction.</value>
+  </data>
+  <data name="LogSessionXRolledBackTransaction" xml:space="preserve">
+    <value>Session '{0}'. Rolled back transaction.</value>
+  </data>
 </root>

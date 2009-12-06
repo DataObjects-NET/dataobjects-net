@@ -102,6 +102,8 @@ namespace Xtensive.Storage
     {
       if (!Configuration.UsesAutoshortenedTransactions)
         StartTransaction(transaction);
+      if (IsDebugEventLoggingEnabled)
+        Log.Debug(Strings.LogSessionXBeginTransaction, this);
       NotifyTransactionOpen(transaction);
     }
 
@@ -110,12 +112,16 @@ namespace Xtensive.Storage
       try {
         Persist();
         queryTasks.Clear();
+        if (IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXCommittingTransaction, this);
         NotifyTransactionCommitting(transaction);
         if (transaction.IsActuallyStarted)
           if (transaction.IsNested)
             Handler.ReleaseSavepoint(transaction.SavepointName);
           else
             Handler.CommitTransaction();
+        if (IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXCommittedTransaction, this);
         NotifyTransactionCommitted(transaction);
         CompleteTransaction(transaction);
       }
@@ -128,12 +134,16 @@ namespace Xtensive.Storage
     internal void RollbackTransaction(Transaction transaction)
     {
       try {
+        if (IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXRollingBackTransaction, this);
         NotifyTransactionRollbacking(transaction);
         if (transaction.IsActuallyStarted)
           if (transaction.IsNested)
             Handler.RollbackToSavepoint(transaction.SavepointName);
           else
             Handler.RollbackTransaction();
+        if (IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXRolledBackTransaction, this);
         NotifyTransactionRollbacked(transaction);
       }
       finally {
