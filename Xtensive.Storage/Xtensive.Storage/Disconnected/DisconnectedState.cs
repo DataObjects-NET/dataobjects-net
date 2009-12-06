@@ -4,19 +4,19 @@
 // Created by: Ivan Galkin
 // Created:    2009.10.23
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Internals;
-using System;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Disposing;
-using System.Linq;
 
 namespace Xtensive.Storage.Disconnected
 {
@@ -34,13 +34,13 @@ namespace Xtensive.Storage.Disconnected
     [NonSerialized]
     private Dictionary<Key, VersionInfo> versionCache;
     [NonSerialized]
-    private StateRegistry transactionalRegistry;
+    private StateRegistry transactionalStates;
     [NonSerialized]
-    private StateRegistry registry;
+    private StateRegistry commitedStates;
     [NonSerialized]
-    private StateRegistry globalRegistry;
+    private StateRegistry originalStates;
     [NonSerialized]
-    private IDisposable disposable;
+    private IDisposable sessionHandlerSubstitutionScope;
     [NonSerialized]
     private DisconnectedSessionHandler handler;
     [NonSerialized]
@@ -48,9 +48,9 @@ namespace Xtensive.Storage.Disconnected
     [NonSerialized]
     private Logger logger;
     [NonSerialized]
-    private readonly ModelHelper modelHelper = new ModelHelper();
+    private ModelRequestCache modelRequestCache;
     
-    internal bool IsConnected { get; set; }
+    internal bool IsConnected { get; private set; }
 
     #region Public API
 
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Disconnected
     /// <summary>
     /// Gets a value indicating whether this instance is attached to session.
     /// </summary>
-    public bool IsAttached { get { return disposable!=null; } }
+    public bool IsAttached { get { return sessionHandlerSubstitutionScope!=null; } }
 
     /// <summary>
     /// Gets or sets the merge mode.
@@ -112,13 +112,13 @@ namespace Xtensive.Storage.Disconnected
       try {
         using (VersionValidator.Attach(tempSession, GetOriginalVerion)) {
           using (var transactionScope = Transaction.Open(tempSession)) {
-            keyMapping = registry.OperationSet.Apply(tempSession);
+            keyMapping = commitedStates.OperationSet.Apply(tempSession);
             transactionScope.Complete();
           }
-          registry.Commit();
-          registry = new StateRegistry(globalRegistry);
+          commitedStates.Commit();
+          commitedStates = new StateRegistry(originalStates);
           versionCache = new Dictionary<Key, VersionInfo>();
-          foreach (var state in globalRegistry.States)
+          foreach (var state in originalStates.States)
             if (state.Tuple!=null) {
               var version = GetVersion(state.Key.Type, state.Tuple);
               if (!version.IsVoid)
@@ -137,10 +137,10 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     public void ClearChanges()
     {
-      if (Transaction.Current!=null)
+      if (Session.Transaction!=null)
         throw new InvalidOperationException(Strings.ExTransactionShouldNotBeActive);
 
-      registry = new StateRegistry(globalRegistry);
+      commitedStates = new StateRegistry(originalStates);
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Disconnected
     /// <param name="mergeMode">The merge mode.</param>
     public void Merge(DisconnectedState source, MergeMode mergeMode)
     {
-      var sourceStates = source.globalRegistry.States;
+      var sourceStates = source.originalStates.States;
       foreach (var state in sourceStates) {
         RegisterState(state.Key, state.Tuple, source.GetOriginalVerion(state.Key), mergeMode);
       }
@@ -160,7 +160,7 @@ namespace Xtensive.Storage.Disconnected
     
     #region Internal API
 
-    internal ModelHelper ModelHelper { get { return modelHelper; } }
+    internal ModelRequestCache ModelRequestCache { get { return modelRequestCache; } }
     
     internal VersionInfo GetOriginalVerion(Key key)
     {
@@ -172,28 +172,26 @@ namespace Xtensive.Storage.Disconnected
 
     internal void OnTransactionStarted()
     {
-      transactionalRegistry = new StateRegistry(registry);
-      logger = new Logger(Session, transactionalRegistry.OperationSet);
+      DisposeLogger();
+      transactionalStates = new StateRegistry(transactionalStates ?? commitedStates);
+      CreateLogger();
     }
 
     internal void OnTransactionCommited()
     {
-      transactionalRegistry.Commit();
-      transactionalRegistry = null;
-      logger.DisposeSafely();
-      logger = null;
+      transactionalStates.Commit();
+      OnTransactionEnded();
     }
 
     internal void OnTransactionRollbacked()
     {
-      logger.DisposeSafely();
-      transactionalRegistry = null;
+      OnTransactionEnded();
     }
 
     internal DisconnectedEntityState GetState(Key key)
     {
       EnsureIsAttached();
-      return transactionalRegistry.GetState(key);
+      return transactionalStates.GetState(key);
     }
     
     internal DisconnectedEntityState RegisterState(Key key, Tuple tuple)
@@ -205,13 +203,13 @@ namespace Xtensive.Storage.Disconnected
     internal void RegisterState(Key key, Tuple tuple, VersionInfo version, MergeMode mergeMode)
     {
       DisconnectedEntityState cachedState;
-      if (transactionalRegistry!=null)
-        cachedState = transactionalRegistry.GetState(key);
+      if (transactionalStates!=null)
+        cachedState = transactionalStates.GetState(key);
       else
-        cachedState = registry.GetState(key);
+        cachedState = commitedStates.GetState(key);
 
       if (cachedState==null || !cachedState.IsLoaded) {
-        globalRegistry.Register(key, tuple);
+        originalStates.Register(key, tuple);
         versionCache[key] = version;
         return;
       }
@@ -224,12 +222,12 @@ namespace Xtensive.Storage.Disconnected
           || (!targetVersion.IsVoid && !sourceVersion.IsVoid && targetVersion==sourceVersion);
 
       if (isVersionEquals)
-        globalRegistry.MergeUnloadedFields(key, tuple);
+        originalStates.MergeUnloadedFields(key, tuple);
       else if (mergeMode==MergeMode.Restrict)
         throw new InvalidOperationException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
       else if (mergeMode==MergeMode.PreferSource) {
-        globalRegistry.Merge(key, tuple);
+        originalStates.Merge(key, tuple);
         versionCache[key] = version;
       }
     }
@@ -243,13 +241,13 @@ namespace Xtensive.Storage.Disconnected
         foreach (var entity in auxEntities)
           RegisterState(entity.First, entity.Second);
 
-      var state = registry.GetForUpdate(key);
+      var state = commitedStates.GetForUpdate(key);
       var setState = state.GetEntitySetState(fieldInfo);
       setState.IsFullyLoaded = isFullyLoaded;
       foreach (var entity in entities)
         if (!setState.Items.ContainsKey(entity))
           setState.Items.Add(entity, entity);
-      return transactionalRegistry.GetState(key).GetEntitySetState(fieldInfo);
+      return transactionalStates.GetState(key).GetEntitySetState(fieldInfo);
     }
 
     internal void Persist(EntityState entityState, PersistActionKind persistAction)
@@ -258,13 +256,13 @@ namespace Xtensive.Storage.Disconnected
 
       switch (persistAction) {
         case PersistActionKind.Insert:
-          transactionalRegistry.Insert(entityState.Key, entityState.Tuple.ToRegular());
+          transactionalStates.Insert(entityState.Key, entityState.Tuple.ToRegular());
           break;
         case PersistActionKind.Update:
-          transactionalRegistry.Update(entityState.Key, entityState.DifferentialTuple.Difference.ToRegular());
+          transactionalStates.Update(entityState.Key, entityState.DifferentialTuple.Difference.ToRegular());
           break;
         case PersistActionKind.Remove:
-          transactionalRegistry.Remove(entityState.Key);
+          transactionalStates.Remove(entityState.Key);
           break;
         default:
           throw new ArgumentOutOfRangeException("persistAction");
@@ -273,17 +271,12 @@ namespace Xtensive.Storage.Disconnected
 
     #endregion
     
-    internal IOperationSet GetOperationLog()
-    {
-      return registry.OperationSet;
-    }
-
     private void CloseConnection()
     {
       if (!IsConnected)
         return;
       IsConnected = false;
-      handler.CommitChainedTransaction();
+      handler.EndChainedTransaction();
     }
 
     private void EnsureIsNotAttached()
@@ -302,7 +295,7 @@ namespace Xtensive.Storage.Disconnected
     {
       this.session = session;
       handler = new DisconnectedSessionHandler(Session.Handler, this);
-      disposable = Session.CoreServices.ChangeSessionHandler(handler);
+      sessionHandlerSubstitutionScope = Session.CoreServices.ChangeSessionHandler(handler);
     }
 
     private void Detach()
@@ -312,8 +305,8 @@ namespace Xtensive.Storage.Disconnected
         CloseConnection();
       session = null;
       handler = null;
-      disposable.Dispose();
-      disposable = null;
+      sessionHandlerSubstitutionScope.Dispose();
+      sessionHandlerSubstitutionScope = null;
     }
 
     private static VersionInfo GetVersion(TypeInfo type, Tuple tuple)
@@ -325,6 +318,29 @@ namespace Xtensive.Storage.Disconnected
       return new VersionInfo(versionTuple);
     }
 
+    private void CreateLogger()
+    {
+      logger = new Logger(Session, transactionalStates.OperationSet);
+    }
+
+    private void DisposeLogger()
+    {
+      logger.DisposeSafely();
+      logger = null;
+    }
+
+    private void OnTransactionEnded()
+    {
+      DisposeLogger();
+      var origin = transactionalStates.Origin;
+      if (origin!=commitedStates) {
+        transactionalStates = origin;
+        CreateLogger();
+      }
+      else {
+        transactionalStates = null;
+      }
+    }
 
     // Constructors
 
@@ -333,9 +349,9 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     public DisconnectedState()
     {
-      modelHelper = new ModelHelper();
-      globalRegistry = new StateRegistry(this);
-      registry = new StateRegistry(globalRegistry);
+      modelRequestCache = new ModelRequestCache();
+      originalStates = new StateRegistry(modelRequestCache);
+      commitedStates = new StateRegistry(originalStates);
       versionCache = new Dictionary<Key, VersionInfo>();
     }
 
@@ -348,9 +364,9 @@ namespace Xtensive.Storage.Disconnected
       serializedVersions = versionCache.Select(pair => 
         new KeyValuePair<string, VersionInfo>(pair.Key.ToString(true), pair.Value))
         .ToArray();
-      serializedSet = registry.OperationSet;
-      serializedRegistry = registry.States.Select(state => state.Serialize()).ToArray();
-      serializedGlobalRegistry = globalRegistry.States.Select(state => state.Serialize()).ToArray();
+      serializedSet = commitedStates.OperationSet;
+      serializedRegistry = commitedStates.States.Select(state => state.Serialize()).ToArray();
+      serializedGlobalRegistry = originalStates.States.Select(state => state.Serialize()).ToArray();
     }
 
     [OnSerialized]
@@ -367,19 +383,21 @@ namespace Xtensive.Storage.Disconnected
     {
       var domain = Session.Demand().Domain;
 
+      modelRequestCache = new ModelRequestCache();
+
       versionCache = new Dictionary<Key, VersionInfo>();
       foreach (var pair in serializedVersions)
         versionCache.Add(Key.Parse(domain, pair.Key), pair.Value);
 
-      globalRegistry = new StateRegistry(this);
+      originalStates = new StateRegistry(modelRequestCache);
       foreach (var state in serializedGlobalRegistry)
-        globalRegistry.AddState(DisconnectedEntityState.Deserialize(state, globalRegistry, domain));
+        originalStates.AddState(DisconnectedEntityState.Deserialize(state, originalStates, domain));
       serializedGlobalRegistry = null;
 
-      registry = new StateRegistry(globalRegistry);
-      registry.OperationSet = serializedSet;
+      commitedStates = new StateRegistry(originalStates);
+      commitedStates.OperationSet = serializedSet;
       foreach (var state in serializedRegistry)
-        registry.AddState(DisconnectedEntityState.Deserialize(state, registry, domain));
+        commitedStates.AddState(DisconnectedEntityState.Deserialize(state, commitedStates, domain));
       serializedRegistry = null;
       serializedSet = null;
     }

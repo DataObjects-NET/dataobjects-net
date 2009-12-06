@@ -8,7 +8,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Disconnected
 {
-  internal struct ReferenceDesc
+  internal struct ReferenceDescriptor
   {
     public Key TargetKey { get; private set; }
 
@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Disconnected
 
     public Key ReferencingKey { get; private set; }
 
-    public ReferenceDesc(Key referencedKey, FieldInfo field, Key referencingKey)
+    public ReferenceDescriptor(Key referencedKey, FieldInfo field, Key referencingKey)
       : this()
     {
       TargetKey = referencedKey;

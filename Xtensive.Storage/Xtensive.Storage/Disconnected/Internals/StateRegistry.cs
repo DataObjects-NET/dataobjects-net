@@ -22,11 +22,9 @@ namespace Xtensive.Storage.Disconnected
   internal sealed class StateRegistry
   {
     private readonly StateRegistry origin;
-    private readonly DisconnectedState disconnectedState;
     private readonly Dictionary<Key, DisconnectedEntityState> states;
-
-    private ModelHelper ModelHelper { get { return disconnectedState.ModelHelper; } }
-
+    private readonly ModelRequestCache modelRequestCache;
+    
     public IEnumerable<DisconnectedEntityState> States { get { return states.Values; } }
 
     public OperationSet OperationSet { get; set; }
@@ -68,7 +66,7 @@ namespace Xtensive.Storage.Disconnected
 
       state.Tuple = tuple.Clone();
       OnStateChanged(key, null, state.Tuple);
-      foreach (var fieldInfo in ModelHelper.GetEntitySetFields(key.TypeRef.Type))
+      foreach (var fieldInfo in modelRequestCache.GetEntitySetFields(key.TypeRef.Type))
         state.GetEntitySetState(fieldInfo).IsFullyLoaded = true;
     }
 
@@ -166,23 +164,23 @@ namespace Xtensive.Storage.Disconnected
     {
       // Inserting
       if (prevValue==null) {
-        foreach (var item in ModelHelper.GetEntitySetItems(key, newValue))
+        foreach (var item in modelRequestCache.GetEntitySetItems(key, newValue))
           InsertIntoEntitySet(item.OwnerKey, item.Field, item.ItemKey);
-        foreach (var reference in ModelHelper.GetReferencesFrom(key, newValue))
+        foreach (var reference in modelRequestCache.GetReferencesFrom(key, newValue))
           AddReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
       }
       // Deleting
       else if (newValue==null) {
-        foreach (var item in ModelHelper.GetEntitySetItems(key, prevValue))
+        foreach (var item in modelRequestCache.GetEntitySetItems(key, prevValue))
           RemoveFromEntitySet(item.OwnerKey, item.Field, item.ItemKey);
-        foreach (var reference in ModelHelper.GetReferencesFrom(key, prevValue))
+        foreach (var reference in modelRequestCache.GetReferencesFrom(key, prevValue))
           RemoveReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
       }
       // Updating
       else {
-        foreach (var pair in ModelHelper.GetEntitySets(key.Type)) {
-          var prevOwnerKey = ModelHelper.GetKeyFieldValue(pair.First, prevValue);
-          var ownerKey = ModelHelper.GetKeyFieldValue(pair.First, newValue);
+        foreach (var pair in modelRequestCache.GetEntitySets(key.Type)) {
+          var prevOwnerKey = modelRequestCache.GetKeyFieldValue(pair.First, prevValue);
+          var ownerKey = modelRequestCache.GetKeyFieldValue(pair.First, newValue);
           if (ownerKey!=prevOwnerKey) {
             if (prevOwnerKey!=null)
               RemoveFromEntitySet(prevOwnerKey, pair.Second, key);
@@ -190,9 +188,9 @@ namespace Xtensive.Storage.Disconnected
               InsertIntoEntitySet(ownerKey, pair.Second, key);
           }
         }
-        foreach (var field in ModelHelper.GetReferencingFields(key.Type)) {
-          var prevOwnerKey = ModelHelper.GetKeyFieldValue(field, prevValue);
-          var ownerKey = ModelHelper.GetKeyFieldValue(field, newValue);
+        foreach (var field in modelRequestCache.GetReferencingFields(key.Type)) {
+          var prevOwnerKey = modelRequestCache.GetKeyFieldValue(field, prevValue);
+          var ownerKey = modelRequestCache.GetKeyFieldValue(field, newValue);
           if (ownerKey!=prevOwnerKey) {
             if (prevOwnerKey!=null)
               RemoveReference(prevOwnerKey, field, key);
@@ -241,13 +239,13 @@ namespace Xtensive.Storage.Disconnected
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="disconnectedState">State of the disconnected.</param>
-    public StateRegistry(DisconnectedState disconnectedState)
+    
+    public StateRegistry(ModelRequestCache modelRequestCache)
     {
-      ArgumentValidator.EnsureArgumentNotNull(disconnectedState, "disconnectedState");
+      ArgumentValidator.EnsureArgumentNotNull(modelRequestCache, "modelRequestCache");
 
       states = new Dictionary<Key, DisconnectedEntityState>();
-      this.disconnectedState = disconnectedState;
+      this.modelRequestCache = modelRequestCache;
       OperationSet = new OperationSet();
     }
 
@@ -261,7 +259,7 @@ namespace Xtensive.Storage.Disconnected
 
       states = new Dictionary<Key, DisconnectedEntityState>();
       this.origin = origin;
-      disconnectedState = origin.disconnectedState;
+      this.modelRequestCache = origin.modelRequestCache;
       OperationSet = new OperationSet();
     }
   }

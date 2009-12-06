@@ -25,8 +25,7 @@ namespace Xtensive.Storage.Disconnected
   public sealed class DisconnectedSessionHandler : ChainingSessionHandler
   {
     private readonly DisconnectedState disconnectedState;
-    private bool isChainedTransactionStarted;
-
+    
     #region Transaction
 
     /// <inheritdoc/>
@@ -38,64 +37,54 @@ namespace Xtensive.Storage.Disconnected
     /// <inheritdoc/>
     public override void MakeSavepoint(string name)
     {
-      throw new NotImplementedException();
+      disconnectedState.OnTransactionStarted();
     }
 
     /// <inheritdoc/>
     public override void RollbackToSavepoint(string name)
     {
-      throw new NotImplementedException();
+      disconnectedState.OnTransactionRollbacked();
     }
 
     /// <inheritdoc/>
     public override void ReleaseSavepoint(string name)
     {
-      throw new NotImplementedException();
+      disconnectedState.OnTransactionCommited();
     }
 
     /// <inheritdoc/>
     public override void CommitTransaction()
     {
-      if (isChainedTransactionStarted)
+      if (chainedHandler.TransactionIsStarted)
         chainedHandler.CommitTransaction();
-      isChainedTransactionStarted = false;
       disconnectedState.OnTransactionCommited();
     }
 
     /// <inheritdoc/>
     public override void RollbackTransaction()
     {
-      if (isChainedTransactionStarted)
+      if (chainedHandler.TransactionIsStarted)
         chainedHandler.RollbackTransaction();
-      isChainedTransactionStarted = false;
       disconnectedState.OnTransactionRollbacked();
     }
 
     public void BeginChainedTransaction()
     {
-      if (!isChainedTransactionStarted) {
+      if (!chainedHandler.TransactionIsStarted) {
         if (!disconnectedState.IsConnected)
           throw new ConnectionRequiredException();
         chainedHandler.BeginTransaction(Session.Configuration.DefaultIsolationLevel);
-        isChainedTransactionStarted = true;
       }
     }
 
-    public void CommitChainedTransaction()
+    // We assume that chained transactions are always readonly, so there is no rollback.
+
+    public void EndChainedTransaction()
     {
-      if (isChainedTransactionStarted) {
-        isChainedTransactionStarted = false;
+      if (chainedHandler.TransactionIsStarted)
         chainedHandler.CommitTransaction();
-      }
     }
 
-    public void RollbackChainedTransaction()
-    {
-      if (isChainedTransactionStarted) {
-        isChainedTransactionStarted = false;
-        chainedHandler.RollbackTransaction();
-      }
-    }
 
     #endregion
 
@@ -142,7 +131,7 @@ namespace Xtensive.Storage.Disconnected
 
     internal override bool TryGetEntitySetState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
     {
-      if (isChainedTransactionStarted)
+      if (chainedHandler.TransactionIsStarted)
         return base.TryGetEntitySetState(key, fieldInfo, out entitySetState);
 
       if (base.TryGetEntitySetState(key, fieldInfo, out entitySetState))

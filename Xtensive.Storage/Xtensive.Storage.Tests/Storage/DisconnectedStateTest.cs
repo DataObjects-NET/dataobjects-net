@@ -777,7 +777,71 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
-    
+
+    [Test]
+    public void NestedTransactionsTest()
+    {
+      var disconnectedState = new DisconnectedState();
+      Key customerKey;
+      Key orderKey;
+
+      // nested transactions in connected mode
+      using (var session = Session.Open(Domain))
+      using (disconnectedState.Attach(session))
+      using (disconnectedState.Connect())
+      using (var outer = Transaction.Open()) {
+        var customer = new Customer();
+        customerKey = customer.Key;
+        var order = new Order();
+        customer.Orders.Add(order);
+        orderKey = order.Key;
+        Assert.AreEqual(customer.Orders.Count, 1);
+        using (var inner = Transaction.Open(TransactionOpenMode.New)) {
+          Assert.AreEqual(customer.Orders.Count, 1);
+          customer.Orders.Add(new Order());
+          Assert.AreEqual(customer.Orders.Count, 2);
+          // rollback
+        }
+        Assert.AreEqual(customer.Orders.Count, 1);
+        outer.Complete();
+      }
+
+      // verifying changes
+      using (var session = Session.Open(Domain))
+      using (disconnectedState.Attach(session))
+      using (Transaction.Open()) {
+        var customer = Query<Customer>.Single(customerKey);
+        var order = customer.Orders.AsEnumerable().Single();
+        Assert.AreEqual(orderKey, order.Key);
+      }
+      
+      // nested transactions in disconnected mode
+      using (var session = Session.Open(Domain))
+      using (disconnectedState.Attach(session))
+      using (var outer = Transaction.Open()) {
+        var customer = Query<Customer>.Single(customerKey);
+        using (var inner = Transaction.Open(TransactionOpenMode.New)) {
+          customer.Name = "Vasya";
+          inner.Complete();
+        }
+        Assert.AreEqual("Vasya", customer.Name);
+        using (var inner = Transaction.Open(TransactionOpenMode.New)) {
+          customer.Name = "Joe";
+          // rollback
+        }
+        Assert.AreEqual("Vasya", customer.Name);
+        outer.Complete();
+      }
+
+      // verifying changes
+      using (var session = Session.Open(Domain))
+      using (disconnectedState.Attach(session))
+      using (Transaction.Open()) {
+        var customer = Query<Customer>.Single(customerKey);
+        Assert.AreEqual(customer.Name, "Vasya");
+      }
+    }
+
     [Test]
     public void GetEntitySetFromCache()
     {
@@ -1344,7 +1408,7 @@ namespace Xtensive.Storage.Tests.Storage
 
           using (var transactionScope = Transaction.Open()) {
             var newCustomer = Query<Customer>.Single(customerKey);
-            AssertEx.Throws<ReferentialIntegrityException>(() => newCustomer.Remove());
+            AssertEx.Throws<ReferentialIntegrityException>(newCustomer.Remove);
 
             transactionScope.Complete();
           }

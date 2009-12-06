@@ -14,7 +14,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Disconnected
 {
-  internal sealed class ModelHelper
+  internal sealed class ModelRequestCache
   {
     // Triplet<Association, MasterField, SlaveField>
     private Dictionary<TypeInfo, Triplet<AssociationInfo, FieldInfo, FieldInfo>> auxTypeDescriptions = 
@@ -32,8 +32,8 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="tuple">The tuple.</param>
-    /// <returns><see cref="ReferenceDesc"/> instances.</returns>
-    public IEnumerable<ReferenceDesc> GetReferencesFrom(Key key, Tuple tuple)
+    /// <returns><see cref="ReferenceDescriptor"/> instances.</returns>
+    public IEnumerable<ReferenceDescriptor> GetReferencesFrom(Key key, Tuple tuple)
     {
       var type = key.TypeRef.Type;
       var baseType = type.UnderlyingType.BaseType;
@@ -44,14 +44,14 @@ namespace Xtensive.Storage.Disconnected
           var ownerKey = GetKeyFieldValue(typeDesc.Second, tuple);
           var itemKey = GetKeyFieldValue(typeDesc.Third, tuple);
           if (ownerKey!=null && itemKey!=null)
-            yield return new ReferenceDesc(itemKey, typeDesc.First.OwnerField, ownerKey);
+            yield return new ReferenceDescriptor(itemKey, typeDesc.First.OwnerField, ownerKey);
         }
       }
       else {
         foreach (var field in GetReferencingFields(type)) {
           var ownerKey = GetKeyFieldValue(field, tuple);
           if (ownerKey!=null)
-            yield return new ReferenceDesc(ownerKey, field, key);
+            yield return new ReferenceDescriptor(ownerKey, field, key);
         }
       }
     }
