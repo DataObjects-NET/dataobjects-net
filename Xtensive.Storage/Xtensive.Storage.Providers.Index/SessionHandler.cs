@@ -55,11 +55,13 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public override void RollbackToSavepoint(string name)
     {
+      base.RollbackToSavepoint(name);
       // TODO: Implement transactions
     }
 
     public override void ReleaseSavepoint(string name)
     {
+      base.ReleaseSavepoint(name);
       // TODO: Implement transactions
     }
 

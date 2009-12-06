@@ -26,7 +26,10 @@ namespace Xtensive.Storage.Disconnected
   {
     private readonly DisconnectedState disconnectedState;
     
-    #region Transaction
+    #region Transactions
+
+    /// <inheritdoc/>
+    public override bool TransactionIsStarted { get { return disconnectedState.TransactionIsStarted; } }
 
     /// <inheritdoc/>
     public override void BeginTransaction(IsolationLevel isolationLevel)
@@ -161,7 +164,7 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <inheritdoc/>
-    protected internal override EntityState FetchInstance(Key key)
+    public override EntityState FetchInstance(Key key)
     {
       var cachedState = disconnectedState.GetState(key);
       
@@ -214,6 +217,7 @@ namespace Xtensive.Storage.Disconnected
     }
     */
 
+    /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
       BeginChainedTransaction();
@@ -221,7 +225,7 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <inheritdoc/>
-    protected internal override IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
+    public override IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
     {
       switch (association.Multiplicity) {
         case Multiplicity.ManyToOne:

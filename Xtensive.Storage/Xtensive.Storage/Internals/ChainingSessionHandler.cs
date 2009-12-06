@@ -5,16 +5,13 @@
 // Created:    2009.07.06
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Transactions;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Providers;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Internals
 {
@@ -104,13 +101,15 @@ namespace Xtensive.Storage.Internals
     {
       return chainedHandler.ExecutePrefetchTasks();
     }
-    
-    protected internal override EntityState FetchInstance(Key key)
+
+    /// <inheritdoc/>
+    public override EntityState FetchInstance(Key key)
     {
       return chainedHandler.FetchInstance(key);
     }
 
-    protected internal override void FetchField(Key key, Model.FieldInfo field)
+    /// <inheritdoc/>
+    public override void FetchField(Key key, Model.FieldInfo field)
     {
       chainedHandler.FetchField(key, field);
     }

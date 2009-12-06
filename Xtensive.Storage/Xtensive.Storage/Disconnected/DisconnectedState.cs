@@ -160,6 +160,8 @@ namespace Xtensive.Storage.Disconnected
     
     #region Internal API
 
+    internal bool TransactionIsStarted { get { return transactionalStates!=null; } }
+
     internal ModelRequestCache ModelRequestCache { get { return modelRequestCache; } }
     
     internal VersionInfo GetOriginalVerion(Key key)

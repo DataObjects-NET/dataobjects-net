@@ -93,6 +93,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void RollbackToSavepoint(string name)
     {
+      base.RollbackToSavepoint(name);
       lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
         driver.RollbackToSavepoint(Session, connection, name);
@@ -102,6 +103,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void ReleaseSavepoint(string name)
     {
+      base.ReleaseSavepoint(name);
       lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();
         driver.ReleaseSavepoint(Session, connection, name);

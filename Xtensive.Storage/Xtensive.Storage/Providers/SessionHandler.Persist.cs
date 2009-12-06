@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Providers
 {
   partial class SessionHandler
   {
-    protected bool PersistRequiresTopologicalSort;
+    private bool persistRequiresTopologicalSort;
 
     /// <summary>
     /// Persists changed entities.
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers
         where !state.IsNotAvailableOrMarkedAsRemoved
         select state;
 
-      if (PersistRequiresTopologicalSort)
+      if (persistRequiresTopologicalSort)
         foreach (var action in GetInsertSequence(entityStates))
           yield return action;
       else
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Providers
         registry.GetItems(PersistenceState.Removed)
           .Except(registry.GetItems(PersistenceState.New));
 
-      if (PersistRequiresTopologicalSort && entityStates.AtLeast(2))
+      if (persistRequiresTopologicalSort && entityStates.AtLeast(2))
         foreach (var action in GetDeleteSequence(entityStates))
           yield return action;
       else
