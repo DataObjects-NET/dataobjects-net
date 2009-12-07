@@ -6,8 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Transactions;
 using NUnit.Framework;
 using System.Linq;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.Linq.LocalCollectionsTest_Model;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -224,7 +226,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof(TranslationException))]
     public void Poco1Test()
     {
       var pocos = Query<Customer>.All
@@ -314,7 +316,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TargetInvocationException))]
+    [ExpectedException(typeof(TranslationException))]
     public void TypeLoop1Test()
     {
       var nodes = new Node[10];

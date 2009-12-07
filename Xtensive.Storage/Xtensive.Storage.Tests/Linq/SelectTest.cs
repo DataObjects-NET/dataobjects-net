@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Tests.Linq
 {
@@ -119,7 +120,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
+    [ExpectedException(typeof (TranslationException))]
     public void OutOfHierarchy()
     {
       Assert.Greater(Query<Person>.All.Count(), 0);
@@ -582,7 +583,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
+    [ExpectedException(typeof (TranslationException))]
     public void NonPersistentFieldTest()
     {
       var result = from e in Query<Employee>.All select e.FullName;

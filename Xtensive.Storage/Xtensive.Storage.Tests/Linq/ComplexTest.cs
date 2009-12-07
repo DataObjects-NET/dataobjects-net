@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Parameters;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -24,7 +25,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof(TranslationException))]
     public void CachedQueryTest()
     {
       for (char c = 'A'; c <= 'Z'; c++) {

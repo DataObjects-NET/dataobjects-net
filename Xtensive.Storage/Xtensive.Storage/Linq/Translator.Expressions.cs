@@ -209,7 +209,7 @@ namespace Xtensive.Storage.Linq
       }
       else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key")
         if (!context.Model.Types[ma.Expression.Type].Fields.Contains(ma.Member.Name))
-          throw new NotSupportedException(Strings.ExNonpersistentFieldsAreNotSupported);
+          throw new NotSupportedException(String.Format("Field '{0}' must be persistent (marked by [Field] attribute).", ma.ToString(true)));
       Expression source;
       using (state.CreateScope()) {
         state.BuildingProjection = false;
@@ -603,7 +603,7 @@ namespace Xtensive.Storage.Linq
         Type elementType = rootPoint.ElementType;
         TypeInfo type;
         if (!context.Model.Types.TryGetValue(elementType, out type))
-          throw new NotSupportedException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
 
         IndexInfo index = type.Indexes.PrimaryIndex;
         EntityExpression entityExpression = EntityExpression.Create(type, 0, false);
@@ -849,9 +849,9 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private static ProjectionExpression CreateLocalCollectionProjectionExpression(Type itemType, object value, Translator translator)
+    private static ProjectionExpression CreateLocalCollectionProjectionExpression(Type itemType, object value, Translator translator, Expression sourceExpression)
     {
-      var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, value, translator.context.Model);
+      var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, value, translator.context.Model, sourceExpression);
       var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(translator.context.GetNextColumnAlias(), 0, x)).Cast<Column>());
       var rawProvider = new RawProvider(rsHeader, itemToTupleConverter.GetEnumerable());
       var recordset = new StoreProvider(rawProvider).Result;

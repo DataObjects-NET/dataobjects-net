@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
     protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
     {
-      throw new NotSupportedException(Resources.Strings.ExUnableToMaterializeBackLocalCollectionItem);
+      throw new NotSupportedException(String.Format(Resources.Strings.ExUnableToMaterializeBackLocalCollectionItem, expression.SourceExpression));
     }
 
     protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)

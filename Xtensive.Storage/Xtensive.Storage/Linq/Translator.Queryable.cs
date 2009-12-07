@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -162,7 +161,8 @@ namespace Xtensive.Storage.Linq
             mc.Arguments[2].StripQuotes(),
             mc.Arguments[3].StripQuotes(),
             mc.Arguments[4].StripQuotes(),
-            mc.Arguments.Count > 5 ? mc.Arguments[5] : null);
+            mc.Arguments.Count > 5 ? mc.Arguments[5] : null,
+            mc);
         case QueryableMethodKind.Join:
           state.BuildingProjection = false;
           return VisitJoin(mc.Arguments[0],
@@ -198,9 +198,9 @@ namespace Xtensive.Storage.Linq
         case QueryableMethodKind.Sum:
         case QueryableMethodKind.Average:
           if (mc.Arguments.Count==1)
-            return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc));
+            return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc), mc);
           if (mc.Arguments.Count==2)
-            return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+            return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc), mc);
           break;
         case QueryableMethodKind.Skip:
           if (mc.Arguments.Count==2)
@@ -223,7 +223,7 @@ namespace Xtensive.Storage.Linq
           throw new ArgumentOutOfRangeException("methodKind");
         }
       }
-      throw new NotSupportedException(String.Format(Strings.ExLinqTranslatorDoesNotSupportMethodX, methodKind));
+      throw new NotSupportedException(String.Format(Strings.ExLinqTranslatorDoesNotSupportMethodX, mc, methodKind));
     }
 
     private Expression VisitAsQueryable(Expression source)
@@ -401,12 +401,10 @@ namespace Xtensive.Storage.Linq
       }
       else {
         if ((int) ((ConstantExpression) index).Value < 0) {
-          if (allowDefault) {
+          if (allowDefault)
             rs = projection.ItemProjector.DataSource.Take(0);
-          }
-          else {
+          else
             throw new ArgumentOutOfRangeException("index", index, Strings.ExElementAtIndexMustBeGreaterOrEqualToZero);
-          }
         }
         else {
           Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(index);
@@ -508,7 +506,8 @@ namespace Xtensive.Storage.Linq
       return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
     }
 
-    private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot)
+    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
+    private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot, MethodCallExpression expressionPart)
     {
       int aggregateColumn;
       AggregateType aggregateType;
@@ -534,7 +533,7 @@ namespace Xtensive.Storage.Linq
         aggregateType = AggregateType.Avg;
         break;
       default:
-        throw new NotSupportedException(String.Format(Strings.ExAggregateMethodXIsNotSupported, method.Name));
+        throw new NotSupportedException(String.Format(Strings.ExAggregateMethodXIsNotSupported, expressionPart, method.Name));
       }
 
       if (aggregateType==AggregateType.Count) {
@@ -549,7 +548,7 @@ namespace Xtensive.Storage.Linq
 
         if (argument==null) {
           if (!innerProjection.ItemProjector.IsPrimitive)
-            throw new NotSupportedException(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported);
+            throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, expressionPart));
           // Default
           columnList = innerProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
         }
@@ -559,7 +558,7 @@ namespace Xtensive.Storage.Linq
             state.CalculateExpressions = true;
             var result = (ItemProjectorExpression) VisitLambda(argument);
             if (!result.IsPrimitive)
-              throw new NotSupportedException(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported);
+              throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, expressionPart));
             // Default
             columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
             innerProjection = context.Bindings[argument.Parameters[0]];
@@ -567,7 +566,7 @@ namespace Xtensive.Storage.Linq
         }
 
         if (columnList.Count!=1)
-          throw new NotSupportedException(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported);
+          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, expressionPart));
         aggregateColumn = columnList[0];
       }
 
@@ -783,10 +782,10 @@ namespace Xtensive.Storage.Linq
         return BuildProjection(resultSelector);
     }
 
-    private Expression VisitGroupJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer)
+    private Expression VisitGroupJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer, Expression expressionPart)
     {
       if (keyComparer!=null)
-        throw new NotSupportedException(Resources.Strings.ExKeyComparerNotSupportedInGroupJoin);
+        throw new InvalidOperationException(String.Format(Resources.Strings.ExKeyComparerNotSupportedInGroupJoin, expressionPart));
       var visitedInnerSource = Visit(innerSource);
       var visitedOuterSource = Visit(outerSource);
       var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, visitedInnerSource.Type.GetGenericArguments()[0]);
@@ -861,7 +860,7 @@ namespace Xtensive.Storage.Linq
               return selectManyInfo.GroupByProjection;
           }
 
-          var projection = VisitSequence(visitedCollectionSelector);
+          var projection = VisitSequence(visitedCollectionSelector, collectionSelector);
           var innerItemProjector = projection.ItemProjector;
           if (isOuter)
             innerItemProjector = innerItemProjector.SetDefaultIfEmpty();
@@ -1075,6 +1074,11 @@ namespace Xtensive.Storage.Linq
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     private ProjectionExpression VisitSequence(Expression sequenceExpression)
     {
+      return VisitSequence(sequenceExpression, sequenceExpression);
+    }
+
+    private ProjectionExpression VisitSequence(Expression sequenceExpression, Expression expressionPart)
+    {
       var sequence = sequenceExpression.StripCasts();
       if (sequence.GetMemberType()==MemberType.EntitySet) {
         if (sequence.NodeType==ExpressionType.MemberAccess) {
@@ -1121,7 +1125,7 @@ namespace Xtensive.Storage.Linq
       if (visitedExpression.IsProjection())
         return (ProjectionExpression) visitedExpression;
 
-      throw new NotSupportedException(string.Format(Strings.ExExpressionOfTypeXIsNotASequence, visitedExpression.Type));
+      throw new InvalidOperationException(string.Format(Strings.ExExpressionXIsNotASequence, expressionPart.ToString(true)));
     }
 
 // ReSharper disable UnusedMember.Local
@@ -1139,7 +1143,7 @@ namespace Xtensive.Storage.Linq
         Expression<Func<IEnumerable<TItem>>> parameter = context.ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(sequence);
         collectionGetter = parameter.CachingCompile();
       }
-      return CreateLocalCollectionProjectionExpression(typeof (TItem), collectionGetter, this);
+      return CreateLocalCollectionProjectionExpression(typeof (TItem), collectionGetter, this, sequence);
     }
 
 // ReSharper restore UnusedMember.Local

@@ -542,9 +542,6 @@ Add the following line to AssemblyInfo.cs for "{0}" assembly: [assembly: Persist
   <data name="ExTypeWithTypeIdXIsNotFound" xml:space="preserve">
     <value>Type with type TypeId='{0}' is not found.</value>
   </data>
-  <data name="ExExpressionOfTypeXIsNotASequence" xml:space="preserve">
-    <value>The expression of type '{0}' is not a sequence.</value>
-  </data>
   <data name="ExActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyItIsZ" xml:space="preserve">
     <value>Actual schema version of assembly '{0}' is expected to be '{1}', but currently it is '{2}'.</value>
   </data>
@@ -725,7 +722,7 @@ Actions:
     <value>Invalid 'Precision' attribute on field '{0}'</value>
   </data>
   <data name="ExKeyComparerNotSupportedInGroupJoin" xml:space="preserve">
-    <value>Key comparer is not supported in GroupJoin.</value>
+    <value>Unable to translate expression '{0}'. Key comparer is not supported in GroupJoin.</value>
   </data>
   <data name="TypeXDoesNotParticipateInTheSpecifiedAssociation" xml:space="preserve">
     <value>Type '{0}' does not participate in the specified association.</value>
@@ -922,14 +919,8 @@ Actions:
   <data name="ExUnableToRemapFieldExpression" xml:space="preserve">
     <value>Unable to remap FieldExpression.</value>
   </data>
-  <data name="ExNonpersistentFieldsAreNotSupported" xml:space="preserve">
-    <value>Nonpersistent fields are not supported.</value>
-  </data>
-  <data name="CachedQuerySupportsOnlyQueriesWrittenWithinItsExecuteMethods" xml:space="preserve">
-    <value>CachedQuery supports only queries written within its Execute methods.</value>
-  </data>
   <data name="ExAggregatesForNonPrimitiveTypesAreNotSupported" xml:space="preserve">
-    <value>Aggregates for non primitive types are not supported.</value>
+    <value>Unable to translate '{0}' expression. Aggregates for non primitive types are not supported.</value>
   </data>
   <data name="ExParameterExpressionMustHaveSameTypeAsProjectionExpressionItemProjector" xml:space="preserve">
     <value>ParameterExpression must have same type as ProjectionExpression.ItemProjector</value>
@@ -971,7 +962,7 @@ Actions:
     <value>Subquery '{0}' header must have only one column.</value>
   </data>
   <data name="ExLinqTranslatorDoesNotSupportMethodX" xml:space="preserve">
-    <value>LINQ translator does not support method '{0}'.</value>
+    <value>Unable to translate expression '{0}'. LINQ translator does not support method '{1}'.</value>
   </data>
   <data name="ExContainsMethodIsOnlySupportedForRootExpressionsOrSubqueries" xml:space="preserve">
     <value>'Contains' method is only supported for root expressions or subqueries.</value>
@@ -1013,7 +1004,7 @@ Actions:
     <value>Lambda '{0}' must have only one parameter.</value>
   </data>
   <data name="ExAggregateMethodXIsNotSupported" xml:space="preserve">
-    <value>Aggregate method '{0} is not supported.</value>
+    <value>Unable to translate '{0}' expression. Aggregate method '{1} is not supported.</value>
   </data>
   <data name="ExCantAccessMemberOfTypeEntitySet" xml:space="preserve">
     <value>Can't access member of type 'EntitySet&lt;&gt;'.</value>
@@ -1034,7 +1025,7 @@ Actions:
     <value>Type '{0}' is not structure.</value>
   </data>
   <data name="ExUnableToMaterializeBackLocalCollectionItem" xml:space="preserve">
-    <value>Unable to materialize back local collection item.</value>
+    <value>Unable to materialize back local collection item '{0}'.</value>
   </data>
   <data name="ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage" xml:space="preserve">
     <value>Type '{0}' does not has any public readable properties or fields, so it can't be persisted to storage.</value>
@@ -1305,5 +1296,14 @@ Actions:
   </data>
   <data name="LogSessionXRolledBackTransaction" xml:space="preserve">
     <value>Session '{0}'. Rolled back transaction.</value>
+  </data>
+  <data name="ExUnableToTranslateXExpressionSeeInnerExceptionForDetails" xml:space="preserve">
+    <value>Unable to translate '{0}' expression. See inner exception for details</value>
+  </data>
+  <data name="ExExpressionDefinedOutsideOfCachingQueryClosure" xml:space="preserve">
+    <value>Expression '{0}' defined outside of CachingQuery closure.</value>
+  </data>
+  <data name="ExExpressionXIsNotASequence" xml:space="preserve">
+    <value>Expression '{0}' is not a sequence.</value>
   </data>
 </root>

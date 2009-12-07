@@ -20,6 +20,7 @@ using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Resources;
 using Activator=System.Activator;
+using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage
 {
@@ -301,6 +302,7 @@ namespace Xtensive.Storage
       return result;
     }
 
+    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     private static Parameter BuildQueryParameter(object target, out ExtendedExpressionReplacer replacer)
     {
       if (target == null) {
@@ -316,7 +318,8 @@ namespace Xtensive.Storage
         if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
           if (e.Type == closureType)
             return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-          throw new NotSupportedException(Strings.CachedQuerySupportsOnlyQueriesWrittenWithinItsExecuteMethods);
+          throw new NotSupportedException(String.Format(Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, e));
+
         }
         return null;
       });

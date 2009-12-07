@@ -10,6 +10,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using Region=Xtensive.Storage.Tests.ObjectModel.NorthwindDO.Region;
@@ -239,7 +240,7 @@ namespace Xtensive.Storage.Tests.Linq
           p => p.Id,
           (c, pGroup) => pGroup,
           AdvancedComparer<int>.Default.EqualityComparerImplementation);
-      AssertEx.Throws<NotSupportedException>(() => result.ToList());
+      AssertEx.Throws<TranslationException>(() => result.ToList());
     }
 
     [Test]
@@ -283,7 +284,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
+    [ExpectedException(typeof (TranslationException))]
     public void DefaultIfEmptyTest()
     {
       var categories = Query<Category>.All;

@@ -7,8 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using Xtensive.Core.Testing;
@@ -522,7 +524,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
+    [ExpectedException(typeof (TranslationException))]
     public void GroupBySelectManyKeyTest()
     {
       var result = Query<Customer>.All

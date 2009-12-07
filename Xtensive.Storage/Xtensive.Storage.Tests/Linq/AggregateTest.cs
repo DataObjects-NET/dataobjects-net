@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Tests.Linq
 {
@@ -18,7 +19,7 @@ namespace Xtensive.Storage.Tests.Linq
   public class AggregateTest : NorthwindDOModelTest
   {
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof(TranslationException))]
     public void EntitySetWithGroupingAggregateTest()
     {
       var query =
@@ -48,8 +49,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntityNotSupportedTest()
     {
-      AssertEx.ThrowsNotSupportedException(() => Query<Order>.All.Max());
-      AssertEx.ThrowsNotSupportedException(() => Query<Order>.All.Min());
+      AssertEx.Throws<TranslationException>(() => Query<Order>.All.Max());
+      AssertEx.Throws<TranslationException>(() => Query<Order>.All.Min());
     }
 
     [Test]

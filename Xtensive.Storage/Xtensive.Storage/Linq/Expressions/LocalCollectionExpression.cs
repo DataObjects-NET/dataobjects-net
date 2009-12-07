@@ -23,6 +23,7 @@ namespace Xtensive.Storage.Linq.Expressions
       get { return default(Segment<int>); }
     }
 
+    public Expression SourceExpression { get;private set; }
     public IDictionary<MemberInfo, IMappedExpression> Fields { get; set; }
     public Expression MaterializationExpression { get; private set; }
     public MemberInfo MemberInfo { get; private set; }
@@ -47,7 +48,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, MemberInfo);
+      var result = new LocalCollectionExpression(Type, MemberInfo, SourceExpression);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.Remap(offset, processedExpressions));
       return result;
@@ -61,7 +62,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, MemberInfo);
+      var result = new LocalCollectionExpression(Type, MemberInfo, SourceExpression);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.Remap(map, processedExpressions));
       return result;
@@ -73,7 +74,7 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, MemberInfo);
+      var result = new LocalCollectionExpression(Type, MemberInfo, SourceExpression);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.BindParameter(parameter, processedExpressions));
       return result;
@@ -85,17 +86,19 @@ namespace Xtensive.Storage.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, MemberInfo);
+      var result = new LocalCollectionExpression(Type, MemberInfo, SourceExpression);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.RemoveOuterParameter(processedExpressions));
       return result;
     }
 
-    public LocalCollectionExpression(Type type, MemberInfo memberInfo)
+    public LocalCollectionExpression(Type type, MemberInfo memberInfo, Expression sourceExpression)
       : base(ExtendedExpressionType.LocalCollection, type, null, true)
     {
       Fields = new Dictionary<MemberInfo, IMappedExpression>();
       MemberInfo = memberInfo;
+      SourceExpression = sourceExpression;
     }
+
   }
 }

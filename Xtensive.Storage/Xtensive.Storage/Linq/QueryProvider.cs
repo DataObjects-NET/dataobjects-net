@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage.Linq
 {
@@ -62,7 +63,12 @@ namespace Xtensive.Storage.Linq
     internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
     {
       var context = new TranslatorContext(expression, Domain.Demand());
-      return context.Translator.Translate<TResult>();
+      try {
+        return context.Translator.Translate<TResult>();
+      }
+      catch(Exception ex) {
+        throw new TranslationException(String.Format(Resources.Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);      
+      }
     }
 
 

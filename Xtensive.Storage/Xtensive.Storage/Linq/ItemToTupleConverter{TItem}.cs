@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Linq
     private readonly Func<IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
     private Func<TItem, Tuple> converter;
+    private readonly Expression sourceExpression;
 
     public override Expression<Func<IEnumerable<Tuple>>> GetEnumerable()
     {
@@ -130,7 +131,7 @@ namespace Xtensive.Storage.Linq
       }
       if (fields.Count==0)
         throw new InvalidOperationException(String.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, type.FullName));
-      var result = new LocalCollectionExpression(type, parentMember);
+      var result = new LocalCollectionExpression(type, parentMember, sourceExpression);
       result.Fields = fields;
       return result;
     }
@@ -195,10 +196,11 @@ namespace Xtensive.Storage.Linq
       this.converter = converter;
     }
 
-    public ItemToTupleConverter(Func<IEnumerable<TItem>> enumerableFunc, DomainModel model)
+    public ItemToTupleConverter(Func<IEnumerable<TItem>> enumerableFunc, DomainModel model, Expression sourceExpression)
     {
       this.model = model;
       this.enumerableFunc = enumerableFunc;
+      this.sourceExpression = sourceExpression;
       BuildConverter();
     }
   }
