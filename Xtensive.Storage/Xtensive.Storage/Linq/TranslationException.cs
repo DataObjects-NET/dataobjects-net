@@ -6,17 +6,24 @@
 
 using System;
 using System.Runtime.Serialization;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Linq
 {
+  /// <summary>
+  /// LINQ translation exception. Throws than query translates.
+  /// </summary>
   [Serializable]
-  public sealed class TranslationException : Exception
+  public sealed class TranslationException : ApplicationException
   {
     protected TranslationException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     public TranslationException(string message, Exception innerException)
       : base(message, innerException)
     {
