@@ -57,6 +57,48 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void SimpleEntitySetPrefetchTest()
+    {
+      Key key;
+      using (Session.Open(Domain)) {
+        using (var tx = Transaction.Open()) {
+          var a = new Author();
+          key = a.Key;
+          for (int i = 0; i < 10; i++)
+            a.Books.Add(new Book());
+          tx.Complete();
+        }
+      }
+
+      using (Session.Open(Domain)) {
+        using (var tx = Transaction.Open()) {
+          var a = Query<Author>.Single(key);
+          a.Books.ToList();
+          var b = new Book();
+          a.Books.Add(b);
+          tx.Complete();
+        }
+      }
+    }
+
+    [Test, Category("Requires manual SQL profiler log observation")]
+    public void AddNewEntityToEntitySetTest()
+    {
+      using (Session.Open(Domain)) {
+        Author a;
+        using (var t = Transaction.Open()) {
+          a = new Author();
+          t.Complete();
+        }
+        using (var t = Transaction.Open()) {
+          var b = new Book();
+          a.Books.Add(b);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void OneToManyTest()
     {
       using (Session.Open(Domain))
