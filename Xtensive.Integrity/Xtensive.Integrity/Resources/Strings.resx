@@ -264,4 +264,10 @@
   <data name="ExValidationContextIsInvalid" xml:space="preserve">
     <value>Validation context is in invalid state. This means that some validation error has happened, but later it was suppressed.</value>
   </data>
+  <data name="ExXAndYPropertiesMustBeUsedTogether" xml:space="preserve">
+    <value>'{0}' and '{1}' properties must be used together.</value>
+  </data>
+  <data name="ExBothLocalizableMessageResourceAndNotLocalizableMessageAndCanNotBeSpecifiedAtOnce" xml:space="preserve">
+    <value>Both localizable message resource and not localizable message and can not be specified at once.</value>
+  </data>
 </root>

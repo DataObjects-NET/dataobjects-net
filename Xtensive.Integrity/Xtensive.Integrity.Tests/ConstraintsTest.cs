@@ -104,7 +104,8 @@ namespace Xtensive.Integrity.Tests
       [PastConstraint]
       public DateTime RegistrationDate { get; set;}
 
-      [RegexConstraint(Pattern = @"^(\(\d+\))?[-\d ]+$", Message = "Incorrect phone format '{value}'")]
+      [RegexConstraint(Pattern = @"^(\(\d+\))?[-\d ]+$", 
+        MessageResourceType = typeof(TestResources) , MessageResourceName = "IncorrectPhoneFormat")]
       public string Phone { get; set;}
 
       [EmailConstraint]
@@ -128,17 +129,17 @@ namespace Xtensive.Integrity.Tests
 
         Assert.AreEqual(
           "Name can not be null or empty.", 
-          person.GetPropertyValidationError("Name"));
+          person.GetPropertyValidationError("Name").Message);
 
         person.Name = "Alex Kofman";
         person.Age = -26;
 
         Assert.AreEqual(
           "Incorrect age (-26), age can not be less than 0.", 
-          person.GetPropertyValidationError("Age"));
+          person.GetPropertyValidationError("Age").Message);
 
         Assert.AreEqual(
-          string.Empty, 
+          null, 
           person.GetPropertyValidationError("Name"));
       }
     }

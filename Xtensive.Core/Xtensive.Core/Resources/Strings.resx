@@ -672,4 +672,10 @@
   <data name="ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch" xml:space="preserve">
     <value>Unable to use expression {0} as {1} parameter of lambda {2} because of type mistmatch.</value>
   </data>
+  <data name="ExTypeXDoesNotHavePropertyY" xml:space="preserve">
+    <value>Type '{0}' does not have property '{1}'.</value>
+  </data>
+  <data name="ExResourcePropertyXIsNotOfStringType" xml:space="preserve">
+    <value>Resource property {0} is not of string type.</value>
+  </data>
 </root>

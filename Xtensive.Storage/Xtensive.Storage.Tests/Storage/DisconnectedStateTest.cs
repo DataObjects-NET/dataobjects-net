@@ -265,6 +265,45 @@ namespace Xtensive.Storage.Tests.Storage
       return config;
     }
 
+
+    [Test]
+    public void TransactionsTest()
+    {
+
+      using (var session = Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          var simple = new Simple {
+            VersionId = 1,
+            Value = "some value"
+          };          
+        }
+      }
+
+      using (var session = Session.Open(Domain)) {
+
+        var sessionHandler = session.Handler;
+
+        var disconnectedState = new DisconnectedState();
+        using (disconnectedState.Attach(session)) {
+
+          using (var transactionScope = Transaction.Open()) {
+
+            Assert.IsFalse(sessionHandler.TransactionIsStarted);
+
+            using (disconnectedState.Connect()) {
+
+              var objects = Query<Simple>.All.ToList();
+
+              Assert.IsTrue(sessionHandler.TransactionIsStarted);
+            }
+
+            Assert.IsFalse(sessionHandler.TransactionIsStarted);
+          }
+        }
+      }
+    }
+
+
     [Test]
     public void FetchFromCacheTest()
     {
@@ -282,8 +321,9 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      // Fetch instance to cache
       var state = new DisconnectedState();
+
+      // Fetch instance to cache
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
@@ -294,8 +334,8 @@ namespace Xtensive.Storage.Tests.Storage
                 .Prefetch(item => item.Value)
                 .ToList();
             }
-            var simple = Query<Simple>.Single(key);
-            Assert.IsNotNull(simple);
+          var simple = Query<Simple>.Single(key);
+            Assert.IsNotNull(simple);  
             transactionScope.Complete();
           }
         }
@@ -308,7 +348,7 @@ namespace Xtensive.Storage.Tests.Storage
           transactionScope.Complete();
         }
       }
-      // Look instance in cache
+      // Look for instance in cache
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {

@@ -12,6 +12,18 @@ using Xtensive.Storage.Manual.Upgrade;
 
 namespace Xtensive.Storage.Manual
 {
+  [HierarchyRoot]
+  public class Person : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Name { get; set; }
+  }
+
+  #region Domain sample
+
   [TestFixture]
   public class DomainAndSessionSample
   {
@@ -21,17 +33,6 @@ namespace Xtensive.Storage.Manual
     public const string InMemoryUrl = "memory://localhost/myDatabase";
     #endregion
 
-    [HierarchyRoot]
-    public class Person : Entity
-    {
-      [Field, Key]
-      public int Id { get; private set; }
-
-      [Field]
-      public string Name { get; set; }
-    }
-
-    #region Domain sample
     public void Main()
     {
       var configuration = new DomainConfiguration("sqlserver://localhost/MyDatabase");

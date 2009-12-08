@@ -1168,6 +1168,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Resource property {0} is not of string type..
+        /// </summary>
+        internal static string ExResourcePropertyXIsNotOfStringType {
+            get {
+                return ResourceManager.GetString("ExResourcePropertyXIsNotOfStringType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Scope can&apos;t be disposed. Most likely it is bound to a different thread..
         /// </summary>
         internal static string ExScopeCantBeDisposed {
@@ -1273,6 +1282,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExTypeIsNotSupportedByBinaryPrimitiveSerializer {
             get {
                 return ResourceManager.GetString("ExTypeIsNotSupportedByBinaryPrimitiveSerializer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; does not have property &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExTypeXDoesNotHavePropertyY {
+            get {
+                return ResourceManager.GetString("ExTypeXDoesNotHavePropertyY", resourceCulture);
             }
         }
         

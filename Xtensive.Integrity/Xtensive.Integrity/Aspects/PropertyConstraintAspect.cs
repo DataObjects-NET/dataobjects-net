@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
@@ -42,15 +41,39 @@ namespace Xtensive.Integrity.Aspects
     public PropertyInfo Property { get; private set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="ValidationMode"/> to be used on setting property value.
+    /// Gets or sets the <see cref="ConstrainMode"/> to be used on setting property value.
     /// </summary>
     public ConstrainMode Mode { get; set; }
 
     /// <summary>
     /// Gets or sets the message of exception to show if property value is invalid.
     /// </summary>
+    /// <remarks>
+    /// You use the <see cref="MessageResourceName"/> and <see cref="MessageResourceType"/> properties to provide localizable error messages. 
+    /// To provide a non-localizable error message, use the <see cref="Message"/> property.
+    /// </remarks>
     public string Message { get; set; }
 
+    /// <summary>
+    /// Gets or sets the property name on the resource type that provides the localizable error message.
+    /// </summary>
+    /// <remarks>
+    /// You use the <see cref="MessageResourceName"/> and <see cref="MessageResourceType"/> properties to provide localizable error messages. 
+    /// To provide a non-localizable error message, use the <see cref="Message"/> property.
+    /// </remarks>
+    /// <seealso cref="MessageResourceType"/>
+    public string MessageResourceName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the resource type that provides the localizable error message.
+    /// </summary>
+    /// <remarks>
+    /// You use the <see cref="MessageResourceName"/> and <see cref="MessageResourceType"/> properties to provide localizable error messages. 
+    /// To provide a non-localizable error message, use the <see cref="Message"/> property.
+    /// </remarks>
+    /// <see cref="MessageResourceName"/>
+    public Type MessageResourceType { get; set; }
+    
     /// <inheritdoc/>
     public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
@@ -97,6 +120,14 @@ namespace Xtensive.Integrity.Aspects
           AspectHelper.FormatMember(Property.DeclaringType, Property),
           exception.Message);
         return false;
+      }
+
+      if (string.IsNullOrEmpty(MessageResourceName) ^ MessageResourceType==null)
+        ErrorLog.Write(SeverityType.Error,
+          string.Format(Strings.ExXAndYPropertiesMustBeUsedTogether, "MessageResourceName", "MessageResourceType"));
+
+      if (!string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(MessageResourceName)) {
+        ErrorLog.Write(SeverityType.Error, Strings.ExBothLocalizableMessageResourceAndNotLocalizableMessageAndCanNotBeSpecifiedAtOnce);
       }
 
       return true;
@@ -214,6 +245,9 @@ namespace Xtensive.Integrity.Aspects
       ConstraintRegistry.RegisterConstraint(Property.ReflectedType, this);
       ValidateSelf(false);
       Initialize();
+      if (MessageResourceType!=null && !string.IsNullOrEmpty(MessageResourceName))
+        Message = ResourceHelper.GetStringResource(MessageResourceType, MessageResourceName);
+
       if (string.IsNullOrEmpty(Message))
         Message = GetDefaultMessage();
     }
@@ -242,7 +276,7 @@ namespace Xtensive.Integrity.Aspects
     /// Initializes this instance in runtime.
     /// </summary>
     protected virtual void Initialize()
-    {
+    {      
     }
 
 

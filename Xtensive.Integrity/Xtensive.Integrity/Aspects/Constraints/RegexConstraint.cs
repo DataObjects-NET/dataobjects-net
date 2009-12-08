@@ -56,7 +56,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
     /// <inheritdoc/>
     protected override string GetDefaultMessage()
     {
-      return Strings.ConstraintMessageValueFormatIsIncorrect;
+      return Strings.PropertyValueDoesNotMatchRegexPattern;
     }
 
     /// <inheritdoc/>
@@ -80,7 +80,6 @@ namespace Xtensive.Integrity.Aspects.Constraints
     /// </summary>
     public RegexConstraint()
     {
-      Message = Strings.PropertyValueDoesNotMatchRegexPattern;
       Options = RegexOptions.Compiled;
     }
   }
