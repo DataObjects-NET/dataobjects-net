@@ -174,4 +174,58 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
       set { SetFieldValue("IComposite_First", value); }
     }
   }
+
+  [HierarchyRoot(InheritanceSchema.ClassTable)]
+  [TypeDiscriminatorValue(0, Default = true)]
+  public class P : Entity, INamed
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+    [Field(TypeDiscriminator = true)]
+    public int ElementType { get; private set; }
+    public string Name { get; set; }
+  }
+
+  [TypeDiscriminatorValue(1)]
+  public class Q : P, INamed, ITagged
+  {
+    string INamed.Name
+    {
+      get { return GetFieldValue<string>("INamed_Name"); }
+      set { SetFieldValue("INamed_Name", value); }
+    }
+    public string Tag { get; set; }
+  }
+
+  [TypeDiscriminatorValue(2)]
+  public class R : P, ITagged
+  {
+    string ITagged.Tag
+    {
+      get { return GetFieldValue<string>("ITagged_Tag"); }
+      set { SetFieldValue("ITagged_Tag", value); }
+    }
+  }
+
+  [TypeDiscriminatorValue(3)]
+  public class S : Q, INamed, IComposite
+  {
+    string INamed.Name
+    {
+      get { return GetFieldValue<string>("INamed_Name"); }
+      set { SetFieldValue("INamed_Name", value); }
+    }
+    public string First { get; set; }
+    public string Second { get; set; }
+  }
+
+  [TypeDiscriminatorValue(4)]
+  public class T : S, IComposite
+  {
+    string IComposite.First
+    {
+      get { return GetFieldValue<string>("IComposite_First"); }
+      set { SetFieldValue("IComposite_First", value); }
+    }
+  }
 }

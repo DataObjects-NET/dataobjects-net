@@ -112,6 +112,7 @@ namespace Xtensive.Storage.Building.Builders
                   var interfaceFields = @interface.Fields.ToHashSet();
                   var typeIndexes = new Queue<IndexInfo>();
                   var type = implementor;
+                  var typedIndex = (IndexInfo)null;
                   while (interfaceFields.Count > 0) {
                     var foundFields = new List<FieldInfo>();
                     foreach (var field in interfaceFields) {
@@ -121,7 +122,19 @@ namespace Xtensive.Storage.Building.Builders
                     }
                     if (foundFields.Count > 0) {
                       var typeIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
-                      typeIndexes.Enqueue(typeIndex);
+                      if (context.UntypedIndexes.Contains(typeIndex)) {
+                        if (type == hierarchy.Key.Root) {
+                          typeIndex = null;
+                          typedIndex = type.Indexes.Single(i => i.IsPrimary && i.IsTyped);
+                        }
+                        else {
+                          typeIndex = type.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
+                          if (typedIndex == null)
+                            typedIndex = hierarchy.Key.Root.Indexes.Single(i => i.IsPrimary && i.IsTyped);
+                        }
+                      }
+                      if (typeIndex != null)
+                        typeIndexes.Enqueue(typeIndex);
                       foreach (var foundField in foundFields)
                         interfaceFields.Remove(foundField);
                     }
@@ -132,8 +145,9 @@ namespace Xtensive.Storage.Building.Builders
                     filterByTypes.Add(implementor);
                   filterByTypes.AddRange(GatherDescendants(implementor, hierarchyImplementors));
                   var indexesToJoin = new List<IndexInfo>();
-                  var firstIndex = typeIndexes.Dequeue();
-                  var filterIndex = BuildFilterIndex(implementor, firstIndex, filterByTypes);
+                  var filterIndex = typedIndex != null
+                    ? BuildFilterIndex(implementor, typedIndex, filterByTypes)
+                    : BuildFilterIndex(implementor, typeIndexes.Dequeue(), filterByTypes);
                   indexesToJoin.Add(filterIndex);
                   indexesToJoin.AddRange(typeIndexes);
                   var indexToApplyView = indexesToJoin.Count > 1 
