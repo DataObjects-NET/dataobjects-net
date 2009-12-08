@@ -7,6 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals_Model;
 using System.Linq;
 using Xtensive.Storage.Tests.Linq;
@@ -70,7 +71,7 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException), "Unable to translate lambda expression 'item => Equals(Convert(item), Convert(value(Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals+<>c__DisplayClass2).item1))' because it requires to materialize entity of type 'Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals_Model.Item'.")]
+    [ExpectedException(typeof(TranslationException))]
     public void ItemEquals1Test()
     {
       using (Session.Open(Domain)) {
