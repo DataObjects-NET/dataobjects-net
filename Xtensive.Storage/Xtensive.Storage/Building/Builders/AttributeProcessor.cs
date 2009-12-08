@@ -81,6 +81,7 @@ namespace Xtensive.Storage.Building.Builders
       ProcessPrecision(fieldDef, attribute);
       ProcessIsLazyLoad(fieldDef, attribute);
       ProcessTypeDiscriminator(fieldDef, attribute);
+      ProcessNullable(fieldDef, attribute);
     }
 
     public static void Process(FieldDef fieldDef, AssociationAttribute attribute)
@@ -181,6 +182,12 @@ namespace Xtensive.Storage.Building.Builders
     private static void ProcessTypeDiscriminator(FieldDef fieldDef, FieldAttribute attribute)
     {
       fieldDef.IsTypeDiscriminator = attribute.TypeDiscriminator;
+    }
+
+    private static void ProcessNullable(FieldDef fieldDef, FieldAttribute attribute)
+    {
+      if (fieldDef.IsEntity && attribute.nullable.HasValue)
+        fieldDef.IsNullable = attribute.nullable.Value;
     }
 
     private static void ProcessIsLazyLoad(FieldDef fieldDef, FieldAttribute attribute)

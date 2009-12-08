@@ -57,10 +57,10 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       var type = typeof (MyEntity).GetTypeInfo(Domain);
-      Assert.AreEqual(3, type.Indexes.Count);
+      Assert.AreEqual(6, type.Indexes.Count);
 
       type = typeof (MyEntityInfo<MyEntity>).GetTypeInfo(Domain);
-      Assert.AreEqual(1, type.Indexes.Count);
+      Assert.AreEqual(2, type.Indexes.Count);
     }
   }
 }

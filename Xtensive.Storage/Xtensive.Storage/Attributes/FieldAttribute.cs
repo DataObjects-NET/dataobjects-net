@@ -19,6 +19,7 @@ namespace Xtensive.Storage
     internal int? length;
     internal int? scale;
     internal int? precision;
+    internal bool? nullable;
 
     /// <summary>
     /// Gets or sets the length of the field.
@@ -72,5 +73,21 @@ namespace Xtensive.Storage
     /// <see langword="true"/> if field is used as type discriminator; otherwise, <see langword="false"/>.
     /// </value>
     public bool TypeDiscriminator { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this field is nullable.
+    /// </summary>
+    /// <remarks>
+    /// Note that this should be applied to reference fields only. For value-based fields
+    /// consider using Nullable&lt;T&gt; approach.
+    /// </remarks>
+    /// <value>
+    /// <see langword="true"/> if field nullable; otherwise, <see langword="false"/>.
+    /// </value>
+    public bool Nullable
+    {
+      get { return nullable.HasValue ? nullable.Value : false; }
+      set { nullable = value; }
+    }
   }
 }
