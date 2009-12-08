@@ -376,8 +376,13 @@ namespace Xtensive.Storage.Linq
     {
       if (QueryCachingScope.Current!=null
         && index.NodeType==ExpressionType.Constant
-          && index.Type==typeof (int))
-        throw new InvalidOperationException(Strings.ExUnableToUseElementAtIntInQueryExecuteUseElementAtFuncIntInstead);
+          && index.Type==typeof (int)) {
+        var errorString = allowDefault
+          ? Strings.ExUnableToTranslateElementAtOrDefaultXUseElementAtOrDefaultFuncIntInsteadOfElementAtOrDefaultIntInCachingQueryEnvironmentQueryExecuteForExampleUseElementAtOrDefaultX
+          : Strings.ExUseElementAtFuncIntInsteadOfElementAtIntInCachingQueryEnvironment;
+        throw new InvalidOperationException(String.Format(errorString, ((ConstantExpression) index).Value));
+      }
+
       var projection = VisitSequence(source);
       Func<int> compiledParameter;
       if (index.NodeType==ExpressionType.Quote)
@@ -439,7 +444,7 @@ namespace Xtensive.Storage.Linq
       if (QueryCachingScope.Current!=null
         && take.NodeType==ExpressionType.Constant
           && take.Type==typeof (int))
-        throw new InvalidOperationException(Strings.ExUnableToUseTakeIntInQueryExecuteUseTakeFuncIntInstead);
+        throw new InvalidOperationException(String.Format(Strings.ExUseTakeFuncIntInsteadOfTakeIntInCachingQueryEnvironment, ((ConstantExpression) take).Value));
       var projection = VisitSequence(source);
       Func<int> compiledParameter;
       if (take.NodeType==ExpressionType.Quote)
@@ -468,7 +473,7 @@ namespace Xtensive.Storage.Linq
       if (QueryCachingScope.Current!=null
         && skip.NodeType==ExpressionType.Constant
           && skip.Type==typeof (int))
-        throw new InvalidOperationException(Strings.ExUnableToUseSkipIntInQueryExecuteUseSkipFuncIntInstead);
+        throw new InvalidOperationException(String.Format(Strings.ExUseSkipFuncIntInsteadOfSkipIntInCachingQueryEnvironment, ((ConstantExpression) skip).Value));
       var projection = VisitSequence(source);
       Func<int> compiledParameter;
       if (skip.NodeType==ExpressionType.Quote)

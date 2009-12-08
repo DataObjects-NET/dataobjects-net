@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -1093,7 +1094,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
+    [ExpectedException(typeof (TranslationException))]
     public void NonPersistentFieldTest()
     {
       var result = from e in Query<Employee>.All where e.FullName!=null select e;

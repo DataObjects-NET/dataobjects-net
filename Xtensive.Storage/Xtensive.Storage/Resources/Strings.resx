@@ -668,7 +668,7 @@ Actions:
     <value>Skipping entity '{0}' as it does not belong to any hierarchy thus it cannot be persistent.</value>
   </data>
   <data name="ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead" xml:space="preserve">
-    <value>Downcast from '{0}' to '{1}' not supported. Use 'OfType' or 'as' operator instead.</value>
+    <value>Unable to translate '{0}' expression. Downcast from '{1}' to '{2}' not supported. Use 'OfType' or 'as' operator instead.</value>
   </data>
   <data name="ExAsOperatorSupportsEntityOnly" xml:space="preserve">
     <value>'as' operator supports casting only inside Entity hierarchy.</value>
@@ -1081,12 +1081,6 @@ Actions:
   <data name="ExTakeDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>'Take' does not support query provider of type '{0}'.</value>
   </data>
-  <data name="ExUnableToUseTakeIntInQueryExecuteUseTakeFuncIntInstead" xml:space="preserve">
-    <value>Usage of Take(int) in Query.Execute is wrong. Use Take(Func&lt;int&gt;) instead.</value>
-  </data>
-  <data name="ExUnableToUseSkipIntInQueryExecuteUseSkipFuncIntInstead" xml:space="preserve">
-    <value>Usage of Skip(int) in Query.Execute is wrong. Use Skip(Func&lt;int&gt;) instead.</value>
-  </data>
   <data name="ExSkipDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>'Skip' does not support query provider of type '{0}'.</value>
   </data>
@@ -1305,5 +1299,17 @@ Actions:
   </data>
   <data name="ExExpressionXIsNotASequence" xml:space="preserve">
     <value>Expression '{0}' is not a sequence.</value>
+  </data>
+  <data name="ExUseTakeFuncIntInsteadOfTakeIntInCachingQueryEnvironment" xml:space="preserve">
+    <value>Unable to translate 'Take({0})'. Use 'Take(Func(int))' instead of 'Take(int)' in caching query environment (Query.Execute). For example use 'Take(()=&gt;{0})'.</value>
+  </data>
+  <data name="ExUseSkipFuncIntInsteadOfSkipIntInCachingQueryEnvironment" xml:space="preserve">
+    <value>Unable to translate 'Skip({0})'. Use 'Skip(Func(int))' instead of 'Skip(int)' in caching query environment (Query.Execute). For example use 'Skip(()=&gt;{0})'.</value>
+  </data>
+  <data name="ExUseElementAtFuncIntInsteadOfElementAtIntInCachingQueryEnvironment" xml:space="preserve">
+    <value>Unable to translate 'ElementAt({0})'. Use 'ElementAt(Func(int))' instead of 'ElementAt(int)' in caching query environment (Query.Execute). For example use 'ElementAt(()=&gt;{0})'.</value>
+  </data>
+  <data name="ExUnableToTranslateElementAtOrDefaultXUseElementAtOrDefaultFuncIntInsteadOfElementAtOrDefaultIntInCachingQueryEnvironmentQueryExecuteForExampleUseElementAtOrDefaultX" xml:space="preserve">
+    <value>Unable to translate 'ElementAtOrDefault({0})'. Use 'ElementAtOrDefault(Func(int))' instead of 'ElementAtOrDefault(int)' in caching query environment (Query.Execute). For example use 'ElementAtOrDefault(()=&gt;{0})'.</value>
   </data>
 </root>

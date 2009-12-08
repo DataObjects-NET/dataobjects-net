@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Disposing;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -1053,7 +1054,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
     // Modified according to DO model.
 
-    [ExpectedException(typeof (NotSupportedException))]
+    [ExpectedException(typeof (TranslationException))]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - Simple")]
     [Description("Select all contacts and show the type of each.")]
@@ -1071,7 +1072,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
     // Modified according to DO model.
 
-    [ExpectedException(typeof (NotSupportedException))]
+    [ExpectedException(typeof (TranslationException))]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - OfType 1")]
     [Description("Select all Shipper contacts.")]
@@ -1084,7 +1085,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
 
     // Modified according to DO model.
 
-    [ExpectedException(typeof (NotSupportedException))]
+    [ExpectedException(typeof (TranslationException))]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - OfType 2")]
     [Description("Select all Full contacts, which includes suppliers, customers, and employees.")]

@@ -94,8 +94,7 @@ namespace Xtensive.Storage.Linq
         if (u.GetMemberType()==MemberType.Entity) {
           if (u.Type==u.Operand.Type || u.Type.IsAssignableFrom(u.Operand.Type))
             return base.VisitUnary(u);
-          throw new NotSupportedException(
-            String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u.Operand.Type, u.Type));
+          throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
         break;
       }

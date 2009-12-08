@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -20,7 +21,7 @@ namespace Xtensive.Storage.Tests.Linq
   {
 
     [Test]
-    [ExpectedException(typeof (InvalidOperationException))]
+    [ExpectedException(typeof (TranslationException))]
     public void ReuseTake1Test()
     {
       var result1 = TakeCustomersIncorrect(1).Count();
@@ -39,7 +40,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (InvalidOperationException))]
+    [ExpectedException(typeof (TranslationException))]
     public void ReuseSkipTest()
     {
       var totalCount = Query<Customer>.All.Count();
@@ -60,7 +61,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (InvalidOperationException))]
+    [ExpectedException(typeof (TranslationException))]
     public void ReuseElementAtTest()
     {
       var customers = Query<Customer>.All.OrderBy(customer=>customer.Id).ToList();
@@ -103,7 +104,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (InvalidOperationException))]
+    [ExpectedException(typeof (TranslationException))]
     public void ReuseElementAtOrDefault2Test()
     {
       var customers = Query<Customer>.All.OrderBy(customer=>customer.Id).ToList();

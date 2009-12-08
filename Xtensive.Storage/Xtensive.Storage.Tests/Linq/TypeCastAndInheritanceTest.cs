@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -54,7 +55,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof(TranslationException))]
     public void IsIntermediateTest()
     {
       Query<Product>.All
@@ -64,7 +65,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof(TranslationException))]
     public void IsCountTest()
     {
       int productCount = Query<Product>.All.Count();
@@ -195,12 +196,12 @@ namespace Xtensive.Storage.Tests.Linq
     public void CastSimpleTest()
     {
       var discontinuedProducts = Query<DiscontinuedProduct>.All.Cast<Product>();
-      AssertEx.ThrowsNotSupportedException(() => QueryDumper.Dump(discontinuedProducts));
+      AssertEx.Throws<TranslationException>(() => QueryDumper.Dump(discontinuedProducts));
     }
 
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
+    [ExpectedException(typeof (TranslationException))]
     public void CastCountTest()
     {
       var discontinuedProductCount1 = Query<DiscontinuedProduct>.All.Count();
@@ -226,7 +227,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof(TranslationException))]
     public void IsGetParentFieldTest()
     {
       var result = Query<Product>.All
@@ -237,7 +238,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof(TranslationException))]
     public void IsGetChildFieldTest()
     {
       var result = Query<Product>.All
@@ -293,7 +294,7 @@ namespace Xtensive.Storage.Tests.Linq
 
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
+    [ExpectedException(typeof(TranslationException))]
     public void ComplexIsCastTest()
     {
       var result = Query<Product>.All
