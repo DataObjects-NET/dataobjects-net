@@ -45,26 +45,28 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
+      var types = type.GetAncestors().AddOne(type).ToHashSet();
+
+      // Build typed indexes
+      foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real)) {
+        if (!types.Contains(realIndex.ReflectedType))
+          continue;
+        if (!context.UntypedIndexes.Contains(realIndex))
+          continue;
+        if (root.Indexes.Any(i => i.DeclaringIndex == realIndex.DeclaringIndex && i.ReflectedType == type && i.IsTyped))
+          continue;
+        var typedIndex = BuildTypedIndex(type, realIndex);
+        root.Indexes.Add(typedIndex);
+      }
+
       // Build indexes for descendants
       var directDescendants = type.GetDescendants().ToList();
       foreach (var descendant in directDescendants)
         BuildSingleTableIndexes(descendant);
 
       if (type == root) return;
-      if (directDescendants.Count == 0) {
-        // Build typed indexes
-        foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real)) {
-          if (!context.UntypedIndexes.Contains(realIndex))
-            continue;
-          if (root.Indexes.Any(i => i.DeclaringIndex == realIndex.DeclaringIndex && i.IsTyped))
-            continue;
-          var typedIndex = BuildTypedIndex(realIndex.ReflectedType, realIndex);
-          root.Indexes.Add(typedIndex);
-        }
-      }
-
-      var types = type.GetAncestors().AddOne(type).ToHashSet();
       var descendants = type.GetDescendants(true).ToList();
+
       var primaryIndexFilterTypes = new List<TypeInfo>();
       if (!type.IsAbstract)
         primaryIndexFilterTypes.Add(type);
@@ -74,8 +76,8 @@ namespace Xtensive.Storage.Building.Builders
       var ancestorIndexes = root.Indexes
         .Where(i => types.Contains(i.ReflectedType) && !i.IsTyped)
         .Reverse()
-        .Select(i => context.UntypedIndexes.Contains(i) 
-          ? root.Indexes.Single(index => index.DeclaringIndex == i.DeclaringIndex && index.IsTyped)
+        .Select(i => context.UntypedIndexes.Contains(i)
+          ? root.Indexes.Single(index => index.DeclaringIndex == i.DeclaringIndex && index.ReflectedType == type && index.IsTyped)
           : i)
         .ToList();
       foreach (var ancestorIndex in ancestorIndexes) {

@@ -159,7 +159,9 @@ namespace Xtensive.Storage.Building.Builders
                 break;
               }
               case InheritanceSchema.SingleTable: {
-                var primaryIndex = hierarchy.Key.Root.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
+                var primaryIndex = hierarchy.Key.Root.Indexes.Single(i => i.ReflectedType == hierarchy.Key.Root && i.IsPrimary && !i.IsVirtual);
+                if (context.UntypedIndexes.Contains(primaryIndex))
+                  primaryIndex = hierarchy.Key.Root.Indexes.Single(i => i.ReflectedType == hierarchy.Key.Root && i.IsPrimary && i.IsTyped);
                 foreach (var implementor in hierarchy) {
                   var typesToFilter = new List<TypeInfo>();
                   if (!implementor.IsAbstract)
@@ -226,9 +228,11 @@ namespace Xtensive.Storage.Building.Builders
                 break;
               }
               case InheritanceSchema.SingleTable: {
-                var rootIndexes = hierarchy.Key.Root.Indexes.Where(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual);
+                var rootIndexes = hierarchy.Key.Root.Indexes.Where(i => i.DeclaringIndex == localIndex.DeclaringIndex && implementors.Contains(i.ReflectedType) && !i.IsVirtual);
                 foreach (var rootIndex in rootIndexes) {
-                  var index = rootIndex;
+                  var index = context.UntypedIndexes.Contains(rootIndex)
+                    ? hierarchy.Key.Root.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && i.ReflectedType == rootIndex.ReflectedType && i.IsTyped)
+                    : rootIndex;
                   var filterByTypes = new List<TypeInfo>();
                   var reflectedType = rootIndex.ReflectedType;
                   if (!reflectedType.IsAbstract)
