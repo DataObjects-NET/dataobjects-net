@@ -14,8 +14,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
     {
       if (!context.Items.Contains(target))
         throw new ReferentialIntegrityException(association, removingObject, referencingObject, referencedObject);
-
-      base.Process(context, association, removingObject, target, referencingObject, referencedObject);
     }
   }
 }
