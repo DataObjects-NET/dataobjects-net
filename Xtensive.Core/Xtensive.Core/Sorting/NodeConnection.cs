@@ -15,69 +15,47 @@ namespace Xtensive.Core.Sorting
   /// <typeparam name="TNodeItem">Type of node item.</typeparam>
   /// <typeparam name="TConnectionItem">Type of connection item.</typeparam>
   [Serializable]
-  public class NodeConnection<TNodeItem, TConnectionItem> : 
-    IEquatable<NodeConnection<TNodeItem, TConnectionItem>>
+  public class NodeConnection<TNodeItem, TConnectionItem>
   {
-    private readonly TConnectionItem connectionItem;
-    private readonly Node<TNodeItem, TConnectionItem> source;
-    private readonly Node<TNodeItem, TConnectionItem> destination;
-
     /// <summary>
     /// Gets connection item.
     /// </summary>
-    public TConnectionItem ConnectionItem {
-      get { return connectionItem; }
-    }
+    public TConnectionItem ConnectionItem { get; private set; }
 
     /// <summary>
     /// Gets connection source.
     /// </summary>
-    public Node<TNodeItem, TConnectionItem> Source {
-      get { return source; }
-    }
+    public Node<TNodeItem, TConnectionItem> Source { get; private set; }
 
     /// <summary>
     /// Gets connection destination.
     /// </summary>
-    public Node<TNodeItem, TConnectionItem> Destination {
-      get { return destination; }
-    }
+    public Node<TNodeItem, TConnectionItem> Destination { get; private set; }
+    
+    /// <summary>
+    /// Gets connection weight.
+    /// </summary>
+    public int Weight { get; private set; }
 
-    #region Equality members
+    public bool IsBinded { get; private set; }
 
-    public bool Equals(NodeConnection<TNodeItem, TConnectionItem> other)
+    public void BindToNodes()
     {
-      if (ReferenceEquals(null, other))
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return Equals(other.connectionItem, connectionItem) && Equals(other.source, source) && Equals(other.destination, destination);
-    }
-
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType()!=typeof (NodeConnection<TNodeItem, TConnectionItem>))
-        return false;
-      return Equals((NodeConnection<TNodeItem, TConnectionItem>) obj);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = ReferenceEquals(connectionItem,null) ? 0 : connectionItem.GetHashCode();
-        result = (result * 397) ^ (source!=null ? source.GetHashCode() : 0);
-        result = (result * 397) ^ (destination!=null ? destination.GetHashCode() : 0);
-        return result;
+      if (!IsBinded) {
+        Source.AddOutgoingConnection(this);
+        Destination.AddIncomingConnection(this);
+        IsBinded = true;
       }
     }
 
-    #endregion
-
+    public void UnbindFromNodes()
+    {
+      if (IsBinded) {
+        Source.RemoveOutgoingConnection(this);
+        Destination.RemoveIncomingConnection(this);
+        IsBinded = false;
+      }
+    }
 
     // Constructors
 
@@ -88,10 +66,25 @@ namespace Xtensive.Core.Sorting
     /// <param name="destination">The destination.</param>
     /// <param name="connectionItem">The connection item.</param>
     public NodeConnection(Node<TNodeItem, TConnectionItem> source, Node<TNodeItem, TConnectionItem> destination, TConnectionItem connectionItem)
+      : this(source, destination, connectionItem, 1)
     {
-      this.connectionItem = connectionItem;
-      this.source = source;
-      this.destination = destination;
-    }  
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="destination">The destination.</param>
+    /// <param name="connectionItem">The connection item.</param>
+    /// <param name="weight">Connection weight.</param>
+    public NodeConnection(Node<TNodeItem, TConnectionItem> source, Node<TNodeItem, TConnectionItem> destination, TConnectionItem connectionItem, int weight)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(destination, "destination");
+      ConnectionItem = connectionItem;
+      Source = source;
+      Destination = destination;
+      Weight = weight;
+    }
   }
 }

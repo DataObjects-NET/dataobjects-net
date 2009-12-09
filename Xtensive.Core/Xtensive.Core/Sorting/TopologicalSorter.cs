@@ -66,7 +66,7 @@ namespace Xtensive.Core.Sorting
     /// </returns>
     public static List<TNodeItem> Sort<TNodeItem>(IEnumerable<TNodeItem> items, Predicate<TNodeItem, TNodeItem> connector, out List<NodeConnection<TNodeItem, object>> removedEdges)
     {
-      return Sort<TNodeItem>(items, connector, out removedEdges, false);
+      return Sort(items, connector, out removedEdges, false);
     }
 
     /// <summary>
@@ -108,21 +108,21 @@ namespace Xtensive.Core.Sorting
       while (nodeList.Count > 0) {
         nodesToRemove.Clear();
         foreach (var node in nodeList) {
-          if (node.GetConnectionCount(false)==0) {
+          if (node.IncomingConnectionCount==0) {
             // Add to head
             head.Enqueue(node.Item);
             nodesToRemove.Add(node);
             var connections = node.OutgoingConnections.ToArray();
             foreach (var connection in connections)
-              node.RemoveConnection(connection);
+              connection.UnbindFromNodes();
           }
-          else if (node.GetConnectionCount(true)==0) {
+          else if (node.OutgoingConnectionCount==0) {
             // Add to tail
             tail.Enqueue(node.Item);
             nodesToRemove.Add(node);
             var connections = node.IncomingConnections.ToArray();
             foreach (var connection in connections)
-              node.RemoveConnection(connection);
+              connection.UnbindFromNodes();
           }
         }
         if (nodesToRemove.Count==0) {
@@ -169,24 +169,24 @@ namespace Xtensive.Core.Sorting
         nodesToRemove.Clear();
         Node<TNodeItem, TConnectionItem> nodeToBreakLoop = null;
         foreach (var node in nodeList) {
-          if (node.GetConnectionCount(false)==0) {
+          if (node.IncomingConnectionCount==0) {
             // Add to head
             head.Enqueue(node.Item);
             nodesToRemove.Add(node);
             var connections = node.OutgoingConnections.ToArray();
             foreach (var connection in connections)
-              node.RemoveConnection(connection);
+              connection.UnbindFromNodes();
           }
-          else if (node.GetConnectionCount(true)==0) {
+          else if (node.OutgoingConnectionCount==0) {
             // Add to tail
             tail.Enqueue(node.Item);
             nodesToRemove.Add(node);
             var connections = node.IncomingConnections.ToArray();
             foreach (var connection in connections)
-              node.RemoveConnection(connection);
+              connection.UnbindFromNodes();
           }
           else {
-            if (removeWholeNode && (nodeToBreakLoop==null || node.GetConnectionCount(true) > nodeToBreakLoop.GetConnectionCount(true)))
+            if (removeWholeNode && (nodeToBreakLoop==null || node.OutgoingConnectionCount > nodeToBreakLoop.OutgoingConnectionCount))
               nodeToBreakLoop = node;
           }
         }
@@ -194,9 +194,9 @@ namespace Xtensive.Core.Sorting
           if (nodeToBreakLoop!=null) {
             var connections = nodeToBreakLoop.OutgoingConnections.ToArray();
             foreach (var connection in connections)
-              nodeToBreakLoop.RemoveConnection(connection);
+              connection.UnbindFromNodes();
             foreach (var connection in nodeToBreakLoop.IncomingConnections.ToArray())
-              nodeToBreakLoop.RemoveConnection(connection);
+              connection.UnbindFromNodes();
             removedEdges.AddRange(connections);
             tail.Enqueue(nodeToBreakLoop.Item);
             nodeList.Remove(nodeToBreakLoop);
@@ -205,7 +205,7 @@ namespace Xtensive.Core.Sorting
             // remove edge
             var removedConnection = nodeList[0].OutgoingConnections.First();
             removedEdges.Add(removedConnection);
-            nodeList[0].RemoveConnection(removedConnection);
+            removedConnection.UnbindFromNodes();
           }
         }
         foreach (var nodeToRemove in nodesToRemove)
@@ -226,7 +226,7 @@ namespace Xtensive.Core.Sorting
           if (nodeA==nodeB)
             continue;
           if (connector.Invoke(nodeA.Item, nodeB.Item))
-            nodeA.AddConnection(nodeB, true, null);
+            nodeA.AddConnection(nodeB, null);
         }
       return nodes;
     }

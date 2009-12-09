@@ -219,10 +219,9 @@ namespace Xtensive.Core.Collections
     public ReadOnlyList(IList<T> list, bool copy)
     {
       ArgumentValidator.EnsureArgumentNotNull(list, "list");
-      if (!copy)
-        innerList = list;
-      else
-        innerList = new List<T>(list);
+      innerList = copy 
+        ? new List<T>(list) 
+        : list;
       isFixedSize = copy;
     }
 

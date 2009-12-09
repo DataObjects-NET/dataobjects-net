@@ -21,7 +21,7 @@ namespace Xtensive.Core.Tests.Helpers
     {
       var node = new Node<int, string>(1);
       var connection = new NodeConnection<int, string>(node, node, "ConnectionItem");
-      node.AddConnection(connection);
+      connection.BindToNodes();
 
       List<NodeConnection<int, string>> removedEdges;
       var result = TopologicalSorter.Sort(EnumerableUtils.One(node), out removedEdges);
@@ -37,12 +37,12 @@ namespace Xtensive.Core.Tests.Helpers
     {
       var node1 = new Node<int, string>(1);
       var node2 = new Node<int, string>(2);
-      var connection121 = new NodeConnection<int, string>(node1, node2, "ConnectionItem 1->2 1");
-      node1.AddConnection(connection121);
-      var connection122 = new NodeConnection<int, string>(node1, node2, "ConnectionItem 1->2 2");
-      node1.AddConnection(connection122);
-      var connection211 = new NodeConnection<int, string>(node2, node1, "ConnectionItem 2->1 1");
-      node2.AddConnection(connection211);
+      var connection12_1 = new NodeConnection<int, string>(node1, node2, "ConnectionItem 1->2 1");
+      connection12_1.BindToNodes();
+      var connection12_2 = new NodeConnection<int, string>(node1, node2, "ConnectionItem 1->2 2");
+      connection12_2.BindToNodes();
+      var connection21_1 = new NodeConnection<int, string>(node2, node1, "ConnectionItem 2->1 1");
+      connection21_1.BindToNodes();
 
       // Remove edge by edge.
 
@@ -53,12 +53,12 @@ namespace Xtensive.Core.Tests.Helpers
       Assert.AreEqual(node2.Item, result[1]);
 
       Assert.AreEqual(1, removedEdges.Count);
-      Assert.AreEqual(connection211, removedEdges[0]);
+      Assert.AreEqual(connection21_1, removedEdges[0]);
 
       // Remove whole node
-      node1.AddConnection(connection121);
-      node1.AddConnection(connection122);
-      node2.AddConnection(connection211);
+      connection12_1.BindToNodes();
+      connection12_2.BindToNodes();
+      connection21_1.BindToNodes();
 
       result = TopologicalSorter.Sort(new[]{node2, node1}, out removedEdges, true);
       Assert.AreEqual(2, result.Count);
@@ -66,8 +66,7 @@ namespace Xtensive.Core.Tests.Helpers
       Assert.AreEqual(node2.Item, result[0]);
 
       Assert.AreEqual(2, removedEdges.Count);
-      Assert.AreEqual(connection121, removedEdges[1]);
-      Assert.AreEqual(connection122, removedEdges[0]);
+      Assert.AreEqual(0, removedEdges.Except(new[]{connection12_1, connection12_2} ).Count());
     }
 
     [Test]
@@ -86,7 +85,7 @@ namespace Xtensive.Core.Tests.Helpers
       T[] actualLoops = null;
       if (actualLoopNodes!=null)
         actualLoops = actualLoopNodes
-          .Where(n => n.GetConnectionCount(true)!=0)
+          .Where(n => n.OutgoingConnectionCount!=0)
           .Select(n => n.Item)
           .ToArray();
 

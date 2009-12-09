@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Sorting
@@ -18,8 +20,10 @@ namespace Xtensive.Core.Sorting
   [Serializable]
   public class Node<TNodeItem, TConnectionItem>
   {
-    private HashSet<NodeConnection<TNodeItem, TConnectionItem>> incomingConnections;
-    private HashSet<NodeConnection<TNodeItem, TConnectionItem>> outgoingConnections;
+    private List<NodeConnection<TNodeItem, TConnectionItem>> incomingConnections;
+    private ReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>> incomingConnectionsReadOnlyList;
+    private List<NodeConnection<TNodeItem, TConnectionItem>> outgoingConnections;
+    private ReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>> outgoingConnectionsReadOnlyList;
 
     /// <summary>
     /// Gets node item.
@@ -29,99 +33,136 @@ namespace Xtensive.Core.Sorting
     /// <summary>
     /// Gets <see cref="HashSet{T}"/> of incoming connections.
     /// </summary>
-    public HashSet<NodeConnection<TNodeItem, TConnectionItem>> IncomingConnections {
-      get {
-        if (incomingConnections==null)
-          incomingConnections = new HashSet<NodeConnection<TNodeItem, TConnectionItem>>();
-        return incomingConnections;
+    public ReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>> IncomingConnections {
+      get
+      {
+        EnsureIncomingConnections();
+        return incomingConnectionsReadOnlyList;
       }
     }
 
     /// <summary>
     /// Gets <see cref="HashSet{T}"/> of outgoing connections.
     /// </summary>
-    public HashSet<NodeConnection<TNodeItem, TConnectionItem>> OutgoingConnections {
-      get {
-        if (outgoingConnections==null)
-          outgoingConnections = new HashSet<NodeConnection<TNodeItem, TConnectionItem>>();
-        return outgoingConnections;
+    public ReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>> OutgoingConnections {
+      get
+      {
+        EnsureOutgoingConnections();
+        return outgoingConnectionsReadOnlyList;
       }
     }
 
     /// <summary>
-    /// Gets count of connections.
+    /// Gets count of outgoing connections.
     /// </summary>
-    /// <param name="outgoing">If <see langword="True" />, gets count for outgoing connections, otherwise gets count for incoming connections.</param>
-    /// <returns>Count of corresponding connections.</returns>
-    public int GetConnectionCount(bool outgoing)
+    public int OutgoingConnectionCount { get{ return outgoingConnections==null ? 0 : outgoingConnections.Count;} }
+
+    /// <summary>
+    /// Gets weight of outgoing connections.
+    /// </summary>
+    public int OutgoingConnectionWeight { get; private set; }
+
+    /// <summary>
+    /// Gets count of incoming connections.
+    /// </summary>
+    public int IncomingConnectionCount { get{ return incomingConnections==null ? 0 : incomingConnections.Count;} }
+
+
+    /// <summary>
+    /// Gets weight of incoming connections.
+    /// </summary>
+    public int IncomingConnectionWeight { get; private set; }
+
+    internal void AddOutgoingConnection(NodeConnection<TNodeItem, TConnectionItem> connection)
     {
-      if (outgoing)
-        return outgoingConnections==null ? 0 : outgoingConnections.Count;
-      else
-        return incomingConnections==null ? 0 : incomingConnections.Count;
+      EnsureOutgoingConnections();
+      outgoingConnections.Add(connection);
+      OutgoingConnectionWeight += connection.Weight;
+    }
+
+    internal void AddIncomingConnection(NodeConnection<TNodeItem, TConnectionItem> connection)
+    {
+      EnsureIncomingConnections();
+      incomingConnections.Add(connection);
+      IncomingConnectionWeight += connection.Weight;
+    }
+
+    internal void RemoveOutgoingConnection(NodeConnection<TNodeItem, TConnectionItem> connection)
+    {
+      if (OutgoingConnectionCount>0) {
+        outgoingConnections.Remove(connection);
+        OutgoingConnectionWeight -= connection.Weight;
+      }
+    }
+
+    internal void RemoveIncomingConnection(NodeConnection<TNodeItem, TConnectionItem> connection)
+    {
+      if (IncomingConnectionCount>0) {
+        incomingConnections.Remove(connection);
+        IncomingConnectionWeight -= connection.Weight;
+      }
     }
 
     /// <summary>
-    /// Adds new connection to node.
-    /// </summary>
-    /// <param name="connection">Connection to add to node.</param>
-    public void AddConnection(NodeConnection<TNodeItem, TConnectionItem> connection)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-      if (!connection.Source.OutgoingConnections.Contains(connection))
-        connection.Source.OutgoingConnections.Add(connection);
-      if (!connection.Destination.IncomingConnections.Contains(connection))
-        connection.Destination.IncomingConnections.Add(connection);
-    }
-
-    /// <summary>
-    /// Adds new connection to node.
+    /// Adds new outgoing connection to node.
     /// </summary>
     /// <param name="node">Paired node.</param>
-    /// <param name="outgoing">If <see langword="True" />, adds outgoing connection, otherwise adds incoming connection.</param>
     /// <param name="connectionItem">Item of connection.</param>
-    public void AddConnection(Node<TNodeItem, TConnectionItem> node, bool outgoing, TConnectionItem connectionItem)
+    public NodeConnection<TNodeItem, TConnectionItem> AddConnection(Node<TNodeItem, TConnectionItem> node, TConnectionItem connectionItem)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
-      AddConnection(new NodeConnection<TNodeItem, TConnectionItem>(outgoing ? this : node, outgoing ? node : this, connectionItem));
+      var connection = new NodeConnection<TNodeItem, TConnectionItem>(this, node, connectionItem);
+      connection.BindToNodes();
+      return connection;
     }
 
     /// <summary>
-    /// Removes connection from node.
-    /// </summary>
-    /// <param name="connection">Connection to remove from node.</param>
-    public void RemoveConnection(NodeConnection<TNodeItem, TConnectionItem> connection)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-      connection.Source.OutgoingConnections.Remove(connection);
-      connection.Destination.IncomingConnections.Remove(connection);
-    }
-
-    /// <summary>
-    /// Removes connection from node.
+    /// Adds new outgoing connection to node.
     /// </summary>
     /// <param name="node">Paired node.</param>
-    /// <param name="outgoing">If <see langword="True" />, removes outgoing connection, otherwise removes incoming connection.</param>
-    public void RemoveConnection(Node<TNodeItem, TConnectionItem> node, bool outgoing)
+    /// <param name="connectionItem">Item of connection.</param>
+    /// <param name="weight">Item weight.</param>
+    public NodeConnection<TNodeItem, TConnectionItem> AddConnection(Node<TNodeItem, TConnectionItem> node, TConnectionItem connectionItem, int weight)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
-      Node<TNodeItem, TConnectionItem> a, b;
-      if (outgoing) {
-        a = this;
-        b = node;
-      }
-      else {
-        a = node;
-        b = this;
-      }
-      if (a.OutgoingConnections==null)
-        return;
-      if (b.IncomingConnections==null)
-        return;
-      a.OutgoingConnections.RemoveWhere(connection => connection.Destination.Equals(b));
-      b.IncomingConnections.RemoveWhere(connection => connection.Destination.Equals(a));
+      var connection = new NodeConnection<TNodeItem, TConnectionItem>(this, node, connectionItem, weight);
+      connection.BindToNodes();
+      return connection;
     }
 
+    /// <summary>
+    /// Removes outgoing connections from node.
+    /// </summary>
+    /// <param name="destination">Paired node.</param>
+    public IEnumerable<NodeConnection<TNodeItem, TConnectionItem>> RemoveConnections(Node<TNodeItem, TConnectionItem> destination)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(destination, "destination");
+      if (OutgoingConnectionCount==0)
+        return EnumerableUtils<NodeConnection<TNodeItem, TConnectionItem>>.Empty;
+
+      var nodesToRemove = outgoingConnections.Where(connection => connection.Destination==destination).ToList();
+      nodesToRemove.Apply(nodeConnection=>nodeConnection.UnbindFromNodes());
+      return nodesToRemove;
+    }
+
+
+    // Private
+
+    private void EnsureIncomingConnections()
+    {
+      if (incomingConnectionsReadOnlyList==null) {
+        incomingConnections = new List<NodeConnection<TNodeItem, TConnectionItem>>();
+        incomingConnectionsReadOnlyList = new ReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>>(incomingConnections);
+      }
+    }
+
+    private void EnsureOutgoingConnections()
+    {
+      if (outgoingConnectionsReadOnlyList==null) {
+        outgoingConnections = new List<NodeConnection<TNodeItem, TConnectionItem>>();
+        outgoingConnectionsReadOnlyList = new ReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>>(outgoingConnections);
+      }
+    }
 
     // Constructors
 
