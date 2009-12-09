@@ -5,6 +5,7 @@
 // Created:    2009.04.21
 
 using System;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -68,6 +69,16 @@ namespace Xtensive.Storage
     /// which are to be placed inside a resulted SQL command (as boolean predicate).
     /// </summary>
     public const int MaxNumberOfConditions = 20;
+
+    /// <summary>
+    /// Maximum number of cached keys in <see cref="EntitySetState"/>.
+    /// </summary>
+    public const int EntitySetStateMaxSize = 10240;
+
+    /// <summary>
+    /// Number of items that are preloaded on first <see cref="EntitySet{TItem}"/> access.
+    /// </summary>
+    public const int EntitySetPreloadCount = 32;
 
     /// <summary>
     /// Well-known storage protocol names.

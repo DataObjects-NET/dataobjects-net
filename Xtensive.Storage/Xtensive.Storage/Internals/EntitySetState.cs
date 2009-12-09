@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Internals.DocTemplates;
+using KeyCache = Xtensive.Core.Caching.ICache<Xtensive.Storage.Key, Xtensive.Storage.Key>;
 
 namespace Xtensive.Storage.Internals
 {
@@ -21,8 +22,7 @@ namespace Xtensive.Storage.Internals
     IEnumerable<Key>,
     IHasVersion<long>
   {
-    internal long? count;
-    private readonly ICache<Key, Key> keys;
+    private readonly ICache<Key, Key> fetchedKeys;
 
     #region IHasVersion<...> methods
 
@@ -30,28 +30,24 @@ namespace Xtensive.Storage.Internals
     public long Version { get; private set; }
 
     /// <inheritdoc/>
-    object IHasVersion.Version
-    {
-      get { return Version; }
-    }
+    object IHasVersion.Version { get { return Version; } }
 
     #endregion
 
     /// <summary>
     /// Gets a value indicating whether state is fully loaded.
     /// </summary>
-    public bool IsFullyLoaded {
-      get {
-        return count != null && count == keys.Count;
-      }
-    }
+    public bool IsFullyLoaded { get { return TotalItemsCount==CachedItemsCount; } }
 
     /// <summary>
-    /// Gets the count of cached items.
+    /// Gets the total number of items.
     /// </summary>
-    public long? Count {
-      get { return count;}
-    }
+    public long? TotalItemsCount { get; internal set; }
+
+    /// <summary>
+    /// Gets the number of cached items.
+    /// </summary>
+    public long CachedItemsCount { get { return fetchedKeys.Count; } }
 
     /// <summary>
     /// Determines whether cached state contains specified item.
@@ -60,7 +56,7 @@ namespace Xtensive.Storage.Internals
     /// <returns>Check result.</returns>
     public bool Contains(Key key)
     {
-      return keys.ContainsKey(key);
+      return fetchedKeys.ContainsKey(key);
     }
 
     /// <summary>
@@ -69,7 +65,7 @@ namespace Xtensive.Storage.Internals
     /// <param name="key">The key to register.</param>
     public void Register(Key key)
     {
-      keys.Add(key);
+      fetchedKeys.Add(key);
     }
 
     /// <summary>
@@ -79,8 +75,8 @@ namespace Xtensive.Storage.Internals
     public void Add(Key key)
     {
       Register(key);
-      if (count != null)
-        count++;
+      if (TotalItemsCount!=null)
+        TotalItemsCount++;
       Version++;
     }
 
@@ -90,19 +86,19 @@ namespace Xtensive.Storage.Internals
     /// <param name="key">The key to remove.</param>
     public void Remove(Key key)
     {
-      keys.RemoveKey(key);
-      if (count != null)
-        count--;
+      fetchedKeys.RemoveKey(key);
+      if (TotalItemsCount!=null)
+        TotalItemsCount--;
       Version++;
     }
 
     /// <summary>
-    /// Clears this instance.
+    /// Clears fetched keys registry.
     /// </summary>
     public void Clear()
     {
-      keys.Clear();
-      count = null;
+      fetchedKeys.Clear();
+      TotalItemsCount = null;
       Version++;
     }
 
@@ -111,7 +107,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     public IEnumerator<Key> GetEnumerator()
     {
-      return keys.GetEnumerator();
+      return fetchedKeys.GetEnumerator();
     }
 
     /// <inheritdoc/>
@@ -128,11 +124,11 @@ namespace Xtensive.Storage.Internals
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="maxCacheSize">Maximal count of items to cache.</param>
+    /// <param name="maxCacheSize">Maximal number of items to cache.</param>
     /// <inheritdoc/>
     public EntitySetState(long maxCacheSize)
     {
-      keys = new LruCache<Key, Key>(maxCacheSize, cachedKey => cachedKey);
+      fetchedKeys = new LruCache<Key, Key>(maxCacheSize, cachedKey => cachedKey);
     }
   }
 }

@@ -68,9 +68,7 @@ namespace Xtensive.Storage
     IQueryable<TItem>
     where TItem : IEntity
   {
-    private const int MaxCacheSize = 10240;
-
-    private static readonly MethodInfo getItemCountQueryMethod = typeof(EntitySet<TItem>)
+    private static readonly MethodInfo GetItemCountQueryMethod = typeof(EntitySet<TItem>)
       .GetMethod("GetItemCountQuery", BindingFlags.Static | BindingFlags.NonPublic);
     
     private Expression expression;
@@ -83,14 +81,7 @@ namespace Xtensive.Storage
       return base.Contains(item);
     }
 
-    /// <summary>
-    /// Adds the specified item to the collection.
-    /// </summary>
-    /// <param name="item">The item to add.</param>
-    /// <returns>
-    /// <see langword="True"/>, if the item is added to the collection;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
+    /// <inheritdoc/>
     [Infrastructure] // Proxy
     public bool Add(TItem item)
     {
@@ -232,20 +223,6 @@ namespace Xtensive.Storage
     #region Protected overriden members
 
     /// <inheritdoc/>
-    protected sealed override EntitySetState LoadState()
-    {
-      if (Owner.State.PersistenceState!=PersistenceState.New) {
-        Session.Handler.Prefetch(Owner.Key, Owner.Type,
-          new FieldDescriptorCollection(new PrefetchFieldDescriptor(Field, LoadStateCount)));
-        Session.Handler.ExecutePrefetchTasks();
-        return State;
-      }
-      var state = new EntitySetState(MaxCacheSize);
-      state.count = 0;
-      return state;
-    }
-
-    /// <inheritdoc/>
     protected internal sealed override IEnumerable<IEntity> Entities {
       get {
         EnsureOwnerIsNotRemoved();
@@ -262,7 +239,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected sealed override Delegate GetItemCountQueryDelegate(FieldInfo field)
     {
-      return Delegate.CreateDelegate(typeof(Func<int>), field, getItemCountQueryMethod);
+      return Delegate.CreateDelegate(typeof(Func<int>), field, GetItemCountQueryMethod);
     }
 
     #endregion
@@ -292,7 +269,7 @@ namespace Xtensive.Storage
 
     private static IQueryable<TItem> GetItemsQuery(FieldInfo field)
     {
-      var owner = Expression.Property(Expression.Constant(parameterOwner), parameterOwner.GetType()
+      var owner = Expression.Property(Expression.Constant(OwnerParameter), OwnerParameter.GetType()
         .GetProperty("Value", typeof(Entity)));
       var queryExpression = QueryHelper.CreateEntitySetQueryExpression(owner, field);
       return new Queryable<TItem>(queryExpression);

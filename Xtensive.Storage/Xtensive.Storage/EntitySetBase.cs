@@ -21,6 +21,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
@@ -38,12 +39,10 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
-    internal const int LoadStateCount = 32;
+    private static readonly object EntitySetCachingRegion = new object();
 
-    private static readonly object entitySetCachingRegion = new object();
-
-    internal static readonly Parameter<Tuple> pKey = new Parameter<Tuple>(WellKnown.KeyFieldName);
-    internal static readonly Parameter<Entity> parameterOwner = new Parameter<Entity>("Owner");
+    private static readonly Parameter<Tuple> KeyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
+    internal static readonly Parameter<Entity> OwnerParameter = new Parameter<Entity>("Owner");
 
     private readonly Entity owner;
     private bool isInitialized;
@@ -51,15 +50,11 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the owner of this instance.
     /// </summary>
-    public Entity Owner {
-      get { return owner; }
-    }
+    public Entity Owner { get { return owner; } }
 
     /// <inheritdoc/>
     [Infrastructure] // Proxy
-    Persistent IFieldValueAdapter.Owner {
-      get { return Owner; }
-    }
+    Persistent IFieldValueAdapter.Owner { get { return Owner; } }
 
     /// <inheritdoc/>
     [Infrastructure]
@@ -68,14 +63,13 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
     /// </summary>
-    public long Count
-    {
+    public long Count {
       [DebuggerStepThrough]
       get {
         EnsureOwnerIsNotRemoved();
-        if (State.Count == null || !State.IsFullyLoaded)
+        if (State.TotalItemsCount==null)
           LoadItemsCount();
-        return (long) State.Count;
+        return (long) State.TotalItemsCount;
       }
     }
 
@@ -90,11 +84,11 @@ namespace Xtensive.Storage
     public bool Contains(Key key)
     {
       EnsureOwnerIsNotRemoved();
-      if (key == null || !Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
+      if (key==null || !Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
         return false;
 
       var state = Session.EntityStateCache[key, true];
-      return state != null ? Contains(key, state.PersistenceState) : Contains(key, null);
+      return state!=null ? Contains(key, state.PersistenceState) : Contains(key, null);
     }
 
     /// <summary>
@@ -105,7 +99,7 @@ namespace Xtensive.Storage
     /// <see langword="true"/> if this collection contains the specified item; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    protected bool Contains(Entity item)
+    public bool Contains(Entity item)
     {
       EnsureOwnerIsNotRemoved();
       if (item==null || !Field.ItemType.IsAssignableFrom(item.Type.UnderlyingType))
@@ -208,6 +202,45 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Adds the specified item to the collection.
+    /// </summary>
+    /// <param name="item">The item to add.</param>
+    /// <returns>
+    /// <see langword="True"/>, if the item is added to the collection;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    protected bool Add(IEntity item)
+    {
+      return Add((Entity) item);
+    }
+
+    /// <summary>
+    /// Removes the specified item from the collection.
+    /// </summary>
+    /// <param name="item">The item to remove.</param>
+    /// <returns>
+    /// <see langword="True"/>, if the item is removed from the collection;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    protected bool Remove(IEntity item)
+    {
+      return Remove((Entity) item);
+    }
+
+    /// <summary>
+    /// Determines whether this collection contains the specified item.
+    /// </summary>
+    /// <param name="item">The item to check for containment.</param>
+    /// <returns>
+    /// <see langword="true"/> if this collection contains the specified item; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    protected bool Contains(IEntity item)
+    {
+      return Contains((Entity) item);
+    }
+
+    /// <summary>
     /// Clears this collection.
     /// </summary>
     public void Clear()
@@ -234,6 +267,41 @@ namespace Xtensive.Storage
     /// returning count of items associated with this instance.
     /// </returns>
     protected abstract Delegate GetItemCountQueryDelegate(FieldInfo field);
+
+    /// <summary>
+    /// Validates current version.
+    /// </summary>
+    /// <param name="expectedVersion">The expected version.</param>
+    protected void ValidateVersion(long expectedVersion)
+    {
+      if (expectedVersion!=State.Version)
+        throw Exceptions.CollectionHasBeenChanged(null);
+    }
+
+    /// <summary>
+    /// Ensures the owner is not removed.
+    /// </summary>
+    protected void EnsureOwnerIsNotRemoved()
+    {
+      if (Owner.IsRemoved)
+        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+    }
+
+    /// <inheritdoc/>
+    protected sealed override EntitySetState LoadState()
+    {
+      if (Owner.State.PersistenceState!=PersistenceState.New) {
+        Session.Handler.Prefetch(Owner.Key, Owner.Type,
+          new FieldDescriptorCollection(new PrefetchFieldDescriptor(Field, WellKnown.EntitySetPreloadCount)));
+        Session.Handler.ExecutePrefetchTasks();
+        return State;
+      }
+      var state = new EntitySetState(WellKnown.EntitySetStateMaxSize);
+      state.TotalItemsCount = 0;
+      return state;
+    }
+
+    protected internal abstract IEnumerable<IEntity> Entities { get; }
 
     #region System-level event-like members
 
@@ -456,77 +524,20 @@ namespace Xtensive.Storage
     #endregion
 
     #region Private / internal members
-
-    protected internal bool Add(IEntity item)
-    {
-      return Add((Entity)item);
-    }
-
-    protected internal bool Remove(IEntity item)
-    {
-      return Remove((Entity)item);
-    }
-
-    protected bool Contains(IEntity item)
-    {
-      return Contains((Entity)item);
-    }
-
-    private bool Contains(Key key, PersistenceState? state)
-    {
-      EnsureOwnerIsNotRemoved();
-      bool containsKey = State.Contains(key);
-
-      // Valid result
-      if ((state.HasValue && state == PersistenceState.New) || State.IsFullyLoaded || containsKey)
-        return containsKey;
-
-      bool result;
-      using (new ParameterContext().Activate()) {
-        pKey.Value = GetEntitySetTypeState().SeekTransform
-          .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
-        result = GetEntitySetTypeState().SeekRecordSet.FirstOrDefault()!=null;
-      }
-      if (result)
-        State.Register(key);
-      return result;
-    }
-
-    protected void ValidateVersion(long expectedVersion)
-    {
-      if (expectedVersion!=State.Version)
-        throw Exceptions.CollectionHasBeenChanged(null);
-    }
-
-    private static Key GetOwnerKey(Persistent owner)
-    {
-      var asFieldValueAdapter = owner as IFieldValueAdapter;
-      if (asFieldValueAdapter != null)
-        return GetOwnerKey(asFieldValueAdapter.Owner);
-      return ((Entity) owner).Key;
-    }
-
-    internal void EnsureOwnerIsNotRemoved()
-    {
-      if (Owner.IsRemoved)
-        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
-    }
-
-    protected internal abstract IEnumerable<IEntity> Entities { get; }
-
+    
     internal EntitySetState UpdateState(IEnumerable<Key> items, bool isFullyLoaded)
     {
       EnsureOwnerIsNotRemoved();
-      var state = new EntitySetState(1024);
-      state.Clear();
+      var newState = new EntitySetState(WellKnown.EntitySetStateMaxSize);
+      newState.Clear();
       long count = 0;
       foreach (var item in items) {
-        state.Register(item);
+        newState.Register(item);
         count++;
       }
       if (isFullyLoaded)
-        state.count = count;
-      State = state;
+        newState.TotalItemsCount = count;
+      State = newState;
       return State;
     }
 
@@ -540,7 +551,7 @@ namespace Xtensive.Storage
       where TElement : IEntity
     {
       EnsureOwnerIsNotRemoved();
-      if (this == other)
+      if (this==other)
         return;
       var otherEntities = other.Cast<IEntity>().ToHashSet();
       foreach (var item in Entities.ToList())
@@ -570,18 +581,45 @@ namespace Xtensive.Storage
         Remove(item);
     }
 
-    internal EntitySetTypeState GetEntitySetTypeState()
+    private bool Contains(Key key, PersistenceState? peristentState)
+    {
+      EnsureOwnerIsNotRemoved();
+      bool foundInCache = State.Contains(key);
+
+      if (peristentState==PersistenceState.New || State.IsFullyLoaded)
+        return foundInCache;
+
+      bool foundInDatabase;
+      using (new ParameterContext().Activate()) {
+        KeyParameter.Value = GetEntitySetTypeState().SeekTransform
+          .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
+        foundInDatabase = GetEntitySetTypeState().SeekRecordSet.FirstOrDefault()!=null;
+      }
+      if (foundInDatabase)
+        State.Register(key);
+      return foundInDatabase;
+    }
+
+    private static Key GetOwnerKey(Persistent owner)
+    {
+      var asFieldValueAdapter = owner as IFieldValueAdapter;
+      if (asFieldValueAdapter != null)
+        return GetOwnerKey(asFieldValueAdapter.Owner);
+      return ((Entity) owner).Key;
+    }
+
+    private EntitySetTypeState GetEntitySetTypeState()
     {
       EnsureOwnerIsNotRemoved();
       return (EntitySetTypeState) Session.Domain.GetCachedItem(
-        new Pair<object, FieldInfo>(entitySetCachingRegion, Field), BuildEntitySetTypeState, this);
+        new Pair<object, FieldInfo>(EntitySetCachingRegion, Field), BuildEntitySetTypeState, this);
     }
 
     private static EntitySetTypeState BuildEntitySetTypeState(object pair, object entitySetObj)
     {
       var field = ((Pair<object, FieldInfo>) pair).Second;
       var entitySet = (EntitySetBase) entitySetObj;
-      var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => pKey.Value);
+      var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => KeyParameter.Value);
       var seekTransform = new CombineTransform(true,
         field.Association.OwnerType.KeyProviderInfo.TupleDescriptor,
         field.Association.TargetType.KeyProviderInfo.TupleDescriptor);
@@ -596,9 +634,9 @@ namespace Xtensive.Storage
     private void LoadItemsCount()
     {
       using (new ParameterContext().Activate()) {
-        parameterOwner.Value = owner;
+        OwnerParameter.Value = owner;
         var cachedState = GetEntitySetTypeState();
-        State.count = Query.Execute(cachedState, (Func<int>) cachedState.ItemCountQuery);
+        State.TotalItemsCount = Query.Execute(cachedState, (Func<int>) cachedState.ItemCountQuery);
       }
     }
     
@@ -616,7 +654,7 @@ namespace Xtensive.Storage
     /// <param name="ctorType">The type, which constructor has invoked this method.</param>
     protected void Initialize(Type ctorType)
     {
-      if (ctorType == GetType() && !isInitialized) {
+      if (ctorType==GetType() && !isInitialized) {
         isInitialized = true;
         Initialize();
       }
@@ -638,11 +676,12 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="owner">Persistent this entity set belongs to.</param>
     /// <param name="field">Field corresponds to this entity set.</param>
-    protected internal EntitySetBase(Entity owner, FieldInfo field)
+    protected EntitySetBase(Entity owner, FieldInfo field)
+      : base(owner.Session)
     {
-      Field = field;
       this.owner = owner;
-      Initialize(GetType());
+      Field = field;
+      Initialize(typeof (EntitySetBase));
     }
 
     /// <summary>
@@ -650,7 +689,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="info">The <see cref="SerializationInfo"/>.</param>
     /// <param name="context">The <see cref="StreamingContext"/>.</param>
-    protected internal EntitySetBase(SerializationInfo info, StreamingContext context)
+    protected EntitySetBase(SerializationInfo info, StreamingContext context)
     {
       throw new NotImplementedException();
     }

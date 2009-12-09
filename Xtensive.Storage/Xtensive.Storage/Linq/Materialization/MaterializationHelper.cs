@@ -162,7 +162,7 @@ namespace Xtensive.Storage.Linq.Materialization
         entitySet.Owner.Key, 
         entitySet.Owner.Type, 
         new FieldDescriptorCollection(
-          new PrefetchFieldDescriptor(entitySet.Field, EntitySetBase.LoadStateCount)));
+          new PrefetchFieldDescriptor(entitySet.Field, WellKnown.EntitySetPreloadCount)));
       return entitySet;
     }
 

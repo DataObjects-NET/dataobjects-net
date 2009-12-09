@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       EntitySetState setState;
       session.Handler.TryGetEntitySetState(ownerKey, referencingField, out setState);
       Assert.IsTrue(setState.IsFullyLoaded);
-      Assert.AreEqual(expectedCount, setState.Count);
+      Assert.AreEqual(expectedCount, setState.TotalItemsCount);
     }
 
     public static void FillDataBase(Domain domain)

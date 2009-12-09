@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
-    [Test, Category("Requires manual SQL profiler log observation")]
+    [Test]
     public void AddNewEntityToEntitySetTest()
     {
       using (Session.Open(Domain)) {
@@ -93,6 +93,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           var b = new Book();
           a.Books.Add(b);
+          Assert.AreEqual(PersistenceState.New, b.PersistenceState);
           t.Complete();
         }
       }
@@ -321,11 +322,11 @@ namespace Xtensive.Storage.Tests.Storage
         author.Books.Add(new Book());
         EntitySetState setState;
         session.Handler.TryGetEntitySetState(key, booksField, out setState);
-        Assert.IsNull(setState.count);
+        Assert.IsNull(setState.TotalItemsCount);
         Assert.AreEqual(itemCount + 1, author.Books.Count);
-        Assert.AreEqual(itemCount + 1, setState.count);
+        Assert.AreEqual(itemCount + 1, setState.TotalItemsCount);
         author.Books.Add(new Book());
-        Assert.AreEqual(itemCount + 2, setState.count);
+        Assert.AreEqual(itemCount + 2, setState.TotalItemsCount);
         t.Complete();
       }
     }
@@ -341,11 +342,11 @@ namespace Xtensive.Storage.Tests.Storage
         author.Books.Remove(bookToBeRemoved0);
         EntitySetState setState;
         session.Handler.TryGetEntitySetState(key, booksField, out setState);
-        Assert.IsNull(setState.count);
+        Assert.IsNull(setState.TotalItemsCount);
         Assert.AreEqual(itemCount - 1, author.Books.Count);
-        Assert.AreEqual(itemCount - 1, setState.count);
+        Assert.AreEqual(itemCount - 1, setState.TotalItemsCount);
         author.Books.Remove(bookToBeRemoved1);
-        Assert.AreEqual(itemCount - 2, setState.count);
+        Assert.AreEqual(itemCount - 2, setState.TotalItemsCount);
         t.Complete();
       }
     }
@@ -358,7 +359,7 @@ namespace Xtensive.Storage.Tests.Storage
         author.Books.Add(new Book());
         EntitySetState setState;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(key, booksField, out setState));
-        Assert.AreEqual(itemCount+1, setState.count);
+        Assert.AreEqual(itemCount+1, setState.TotalItemsCount);
       }
     }
 

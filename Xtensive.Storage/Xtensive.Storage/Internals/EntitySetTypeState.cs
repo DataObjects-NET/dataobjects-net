@@ -5,8 +5,6 @@
 // Created:    2009.08.04
 
 using System;
-using System.Linq;
-using System.Linq.Expressions;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Rse;
