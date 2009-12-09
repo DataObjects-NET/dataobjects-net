@@ -151,10 +151,10 @@ namespace Xtensive.Storage.Providers
             if (foreignKey.Equals(data.Value.Item.Key) && processingEntityState.Entity.Type.Hierarchy.Schema == InheritanceSchema.ClassTable) {
               // Check if self-reference with inheritance.
               if (association.OwnerField.ValueType!=processingEntityState.Entity.Type.Hierarchy.Root.UnderlyingType)
-                data.Value.AddConnection(destination, true, association);
+                data.Value.AddConnection(destination, association);
             }
             else
-              data.Value.AddConnection(destination, true, association);
+              data.Value.AddConnection(destination, association);
         }
       }
 

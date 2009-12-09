@@ -616,11 +616,11 @@ namespace Xtensive.Storage.Providers.Sql
       // Merge actions
       var deleteActions = new Dictionary<TableInfo, List<string>>();
       foreach (var action in originalActions) {
-        var soureTableInfo = sourceModel.Resolve(action.DataHint.SourceTablePath) as TableInfo;
+        var sourceTableInfo = sourceModel.Resolve(action.DataHint.SourceTablePath) as TableInfo;
         List<string> list;
-        if (!deleteActions.TryGetValue(soureTableInfo, out list)) {
+        if (!deleteActions.TryGetValue(sourceTableInfo, out list)) {
           list = new List<string>();
-          deleteActions.Add(soureTableInfo, list);
+          deleteActions.Add(sourceTableInfo, list);
         }
         list.AddRange(action.DataHint.Identities.Select(pair => pair.Target));
       }
@@ -631,12 +631,11 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var pair in deleteActions)
         nodes.Add(new Node<TableInfo, ForeignKeyInfo>(pair.Key));
       foreach (var foreignKey in foreignKeys) {
-        var referencedNode = nodes.FirstOrDefault(node => node.Item==foreignKey.PrimaryKey.Parent);
-        var referencingNode = nodes.FirstOrDefault(node => node.Item==foreignKey.Parent);
+        ForeignKeyInfo foreignKeyInfo = foreignKey;
+        var referencedNode = nodes.FirstOrDefault(node => node.Item==foreignKeyInfo.PrimaryKey.Parent);
+        var referencingNode = nodes.FirstOrDefault(node => node.Item==foreignKeyInfo.Parent);
         if (referencedNode!=null && referencingNode!=null)
-          referencingNode.AddConnection(
-            new NodeConnection<TableInfo, ForeignKeyInfo>(
-              referencedNode, referencingNode, foreignKey));
+            new NodeConnection<TableInfo, ForeignKeyInfo>(referencedNode, referencingNode, foreignKey).BindToNodes();
       }
       List<NodeConnection<TableInfo, ForeignKeyInfo>> edges;
       var sortedTables = TopologicalSorter.Sort(nodes, out edges);

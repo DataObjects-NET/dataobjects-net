@@ -186,7 +186,7 @@ namespace Xtensive.Core.Sorting
               connection.UnbindFromNodes();
           }
           else {
-            if (removeWholeNode && (nodeToBreakLoop==null || node.OutgoingConnectionCount > nodeToBreakLoop.OutgoingConnectionCount))
+            if (removeWholeNode && (nodeToBreakLoop==null || node.OutgoingConnectionWeight > nodeToBreakLoop.OutgoingConnectionWeight))
               nodeToBreakLoop = node;
           }
         }
