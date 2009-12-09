@@ -100,6 +100,15 @@ CREATE TABLE [dbo].[Int32-Generator](
 	[ID] ASC
 )
 ) ON [PRIMARY]
+ALTER TABLE [dbo].[Item]  WITH CHECK ADD  CONSTRAINT [FK_Item_Container] FOREIGN KEY([Container.Id])
+REFERENCES [dbo].[Container] ([Id])
+
+ALTER TABLE [dbo].[Item] CHECK CONSTRAINT [FK_Item_Container]
+
+ALTER TABLE [dbo].[Option]  WITH CHECK ADD  CONSTRAINT [FK_Option_Container] FOREIGN KEY([Container.Id])
+REFERENCES [dbo].[Container] ([Id])
+
+ALTER TABLE [dbo].[Option] CHECK CONSTRAINT [FK_Option_Container]
 ";
     }
 
@@ -114,6 +123,22 @@ CREATE TABLE [dbo].[Int32-Generator](
         Session.Current.Persist();
         c.Remove();
         t.Complete();
+      }
+    }
+
+    [Test]
+    public void SequentialTransactionsTest()
+    {
+      using (Session.Open(Domain)) {
+        Container c;
+        using (var t = Transaction.Open()) {
+          c = new Container();
+          t.Complete();
+        }
+        using (var t = Transaction.Open()) {
+          var i = new Item(c);
+          t.Complete();
+        }
       }
     }
   }
