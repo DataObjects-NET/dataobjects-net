@@ -127,9 +127,6 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-
-
-
         }
       }
     }
@@ -320,7 +317,7 @@ namespace Xtensive.Storage.Tests.Storage
           var deserializationContext = new DeserializationContext();
 
           using (deserializationContext.Activate()) {
-            array = (object [])  formatter.Deserialize(stream);
+            array = (object []) formatter.Deserialize(stream);
           }
 
           Company oldCompany = (Company) array[0];

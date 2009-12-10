@@ -126,9 +126,9 @@ namespace Xtensive.Integrity.Aspects
         ErrorLog.Write(SeverityType.Error,
           string.Format(Strings.ExXAndYPropertiesMustBeUsedTogether, "MessageResourceName", "MessageResourceType"));
 
-      if (!string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(MessageResourceName)) {
-        ErrorLog.Write(SeverityType.Error, Strings.ExBothLocalizableMessageResourceAndNotLocalizableMessageAndCanNotBeSpecifiedAtOnce);
-      }
+      if (!string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(MessageResourceName))
+        ErrorLog.Write(SeverityType.Error, 
+          Strings.ExBothLocalizableMessageResourceAndNotLocalizableMessageAndCanNotBeSpecifiedAtOnce);
 
       return true;
     }
@@ -175,8 +175,8 @@ namespace Xtensive.Integrity.Aspects
       // We've got an error. Let's format its message.
       string message = Message;
       var parameters = new Dictionary<string, object> {
-        {PropertyNameParameter, Property.Name}, 
-        {ValueParameter, value}
+        { PropertyNameParameter, Property.Name }, 
+        { ValueParameter, value }
       };
       AddCustomMessageParameters(parameters);
       foreach (var p in parameters)
@@ -245,9 +245,10 @@ namespace Xtensive.Integrity.Aspects
       ConstraintRegistry.RegisterConstraint(Property.ReflectedType, this);
       ValidateSelf(false);
       Initialize();
+
+      // Getting message
       if (MessageResourceType!=null && !string.IsNullOrEmpty(MessageResourceName))
         Message = ResourceHelper.GetStringResource(MessageResourceType, MessageResourceName);
-
       if (string.IsNullOrEmpty(Message))
         Message = GetDefaultMessage();
     }
