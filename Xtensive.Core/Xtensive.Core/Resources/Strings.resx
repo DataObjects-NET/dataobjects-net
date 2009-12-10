@@ -690,4 +690,10 @@
   <data name="ExMappingConfigurationHasNotBeenCompleted" xml:space="preserve">
     <value>The mapping configuration hasn't been completed.</value>
   </data>
+  <data name="ExSpecifiedExpressionIsNotMemberExpression" xml:space="preserve">
+    <value>The specified expression is not a MemberExpression.</value>
+  </data>
+  <data name="ExAccessedMemberIsNotProperty" xml:space="preserve">
+    <value>The accessed member is not a property.</value>
+  </data>
 </root>

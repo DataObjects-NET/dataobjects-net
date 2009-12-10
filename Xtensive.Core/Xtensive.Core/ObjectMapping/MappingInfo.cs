@@ -72,12 +72,12 @@ namespace Xtensive.Core.ObjectMapping
       keyExtractors.Add(target, targetKeyExtractor);
     }
 
-    public void Register(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
+    public void Register(Func<object, object> converter, PropertyInfo target)
     {
       this.EnsureNotLocked();
       if (propertyReversedMap.ContainsKey(target))
         throw new InvalidOperationException(
-          String.Format(Strings.ExMappingForPropertyXHasAlreadyBeenRegistered, source));
+          String.Format(Strings.ExMappingForPropertyXHasAlreadyBeenRegistered, target));
       propertyReversedMap.Add(target, converter);
     }
     

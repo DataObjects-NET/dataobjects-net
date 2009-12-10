@@ -19,7 +19,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void DefaultConversionOfPrimitivePropertiesTest()
     {
       var source = GetSourcePerson();
-      var mapper = GetMapper();
+      var mapper = GetPersonBookMapper();
       var target = (PersonDto) mapper.Transform(source);
       Assert.IsNotNull(target);
       AssertAreEqual(source, target);
@@ -29,10 +29,10 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void DefaultConversionOfComplexPropertiesTest()
     {
       var source = GetSourceOrder();
-      var mapper = GetMapper();
+      var mapper = GetPersonBookMapper();
       var target = (OrderDto) mapper.Transform(source);
       Assert.IsNotNull(target);
-      Assert.AreEqual(source.Key, target.Key);
+      Assert.AreEqual(source.Id, target.Key);
       Assert.AreEqual(source.ShipDate, target.ShipDate);
       AssertAreEqual(source.Customer, target.Customer);
     }
@@ -41,7 +41,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void ComparisonOfObjectsContainingPrimitivePropertiesOnlyTest()
     {
       var source = GetSourcePerson();
-      var mapper = GetMapper();
+      var mapper = GetPersonBookMapper();
       var target = (PersonDto) mapper.Transform(source);
       var clone = (PersonDto) target.Clone();
       var modifiedDate = clone.BirthDate.AddDays(23);
@@ -71,7 +71,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void ComparisonOfObjectsWhenOnlyPrimitivePropertiesHaveBeenModifiedTest()
     {
       var source = GetSourceOrder();
-      var mapper = GetMapper();
+      var mapper = GetPersonBookMapper();
       var target = (OrderDto) mapper.Transform(source);
       var clone = (OrderDto) target.Clone();
       var modifiedShipDate = clone.ShipDate.AddDays(-5);
@@ -100,7 +100,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void ComparisonOfObjectsWhenReferencedObjectHasBeenReplacedTest()
     {
       var source = GetSourceOrder();
-      var mapper = GetMapper();
+      var mapper = GetPersonBookMapper();
       var target = (OrderDto) mapper.Transform(source);
       var clone = (OrderDto) target.Clone();
       var modifiedShipDate = clone.ShipDate.AddDays(-5);
@@ -148,11 +148,36 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Assert.AreEqual(4, eventRaisingCount);
     }
 
-    private static DefaultMapper GetMapper()
+    [Test]
+    public void TransformationUsingCustomMapping()
+    {
+      var source = GetSourceAuthor();
+      var mapper = GetAuthorBookMapper();
+      var target = (AuthorDto) mapper.Transform(source);
+      Assert.IsNotNull(target);
+      Assert.AreEqual(source.Name + "!!!", target.Name);
+      Assert.AreEqual(source.Book.ISBN, target.Book.ISBN);
+      Assert.AreEqual(source.Book.Title.Text, target.Book.TitleText);
+      Assert.AreEqual(source.Book.Title.Id, target.Book.Title.Id);
+    }
+
+    private static DefaultMapper GetPersonBookMapper()
     {
       var result = new DefaultMapper();
       result.MapType<Person, int, PersonDto, int>(p => p.Id, p => p.Id)
-        .MapType<Order, Guid, OrderDto, Guid>(o => o.Key, o => o.Key).Complete();
+        .MapType<Order, Guid, OrderDto, Guid>(o => o.Id, o => o.Key).Complete();
+      return result;
+    }
+
+    private static DefaultMapper GetAuthorBookMapper()
+    {
+      var result = new DefaultMapper();
+      result.MapType<Author, Guid, AuthorDto, Guid>(a => a.Id, a => a.Id)
+          .Map(a => a.Name + "!!!", a => a.Name)
+        .MapType<Book, string, BookDto, string>(b => b.ISBN, b => b.ISBN)
+          .Map(b => b.Title.Text, b => b.TitleText)
+          .Map(b => new TitleDto {Id = b.Title.Id, Text = b.Title.Text}, b => b.Title)
+        .MapType<Title, Guid, TitleDto, Guid>(t => t.Id, t => t.Id).Complete();
       return result;
     }
 
@@ -166,8 +191,15 @@ namespace Xtensive.Core.Tests.ObjectMapping
     private static Order GetSourceOrder()
     {
       return new Order {
-        Customer = GetSourcePerson(), Key = Guid.NewGuid(), ShipDate = DateTime.Today.AddMonths(3)
+        Customer = GetSourcePerson(), Id = Guid.NewGuid(), ShipDate = DateTime.Today.AddMonths(3)
       };
+    }
+
+    private static Author GetSourceAuthor()
+    {
+      var title = new Title {Id = Guid.NewGuid(), Text = "T"};
+      var book = new Book {ISBN = Guid.NewGuid().ToString(), Price = 25.0, Title = title};
+      return new Author {Book = book, Id = Guid.NewGuid(), Name = "A"};
     }
 
     private static void AssertAreEqual(Person source, PersonDto target)

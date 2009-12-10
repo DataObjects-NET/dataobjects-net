@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Linq;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
@@ -15,14 +15,11 @@ namespace Xtensive.Core.ObjectMapping
   {
     private readonly MapperBase realMapper;
 
-    public MapperAdapter<TSource, TTarget> Map<TValue>(Expression<Func<TSource, TValue>> source,
+    public MapperAdapter<TSource, TTarget> Map<TValue>(Func<TSource, TValue> source,
       Expression<Func<TTarget, TValue>> target)
     {
-      var sourceProperty = ExtractProperty(source, "source");
       var targetProperty = ExtractProperty(target, "target");
-      var compiledSource = source.CachingCompile();
-      realMapper.mappingInfo.Register(sourceProperty, obj => compiledSource.Invoke((TSource) obj),
-        targetProperty);
+      realMapper.mappingInfo.Register(obj => source.Invoke((TSource) obj), targetProperty);
       return this;
     }
 
@@ -42,10 +39,10 @@ namespace Xtensive.Core.ObjectMapping
     {
       var asMemberExpression = expression.Body as MemberExpression;
       if (asMemberExpression == null)
-        throw new ArgumentException("The specified expression is not MemberExpression.", paramName);
+        throw new ArgumentException(Strings.ExSpecifiedExpressionIsNotMemberExpression, paramName);
       var result = asMemberExpression.Member as PropertyInfo;
       if (result == null)
-        throw new ArgumentException("The accessed member is not a property.", paramName);
+        throw new ArgumentException(Strings.ExAccessedMemberIsNotProperty, paramName);
       return result;
     }
 

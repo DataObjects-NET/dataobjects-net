@@ -21,10 +21,35 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 
   public class Order
   {
-    public Guid Key { get; set; }
+    public Guid Id { get; set; }
 
     public Person Customer { get; set; }
 
     public DateTime ShipDate { get; set; }
+  }
+
+  public class Author
+  {
+    public Guid Id { get; set; }
+
+    public string Name { get; set; }
+
+    public Book Book { get; set; }
+  }
+
+  public class Book
+  {
+    public string ISBN { get; set; }
+
+    public Title Title { get; set; }
+
+    public double Price { get; set; }
+  }
+
+  public class Title
+  {
+    public Guid Id { get; set; }
+
+    public string Text { get; set; }
   }
 }

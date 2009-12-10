@@ -37,4 +37,46 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
       return new OrderDto {Customer = (PersonDto) Customer.Clone(), Key = Key, ShipDate = ShipDate};
     }
   }
+
+  public class AuthorDto : ICloneable
+  {
+    public Guid Id { get; set; }
+
+    public string Name { get; set; }
+
+    public BookDto Book { get; set; }
+
+    public object Clone()
+    {
+      return new AuthorDto {Book = (BookDto) Book.Clone(), Id = Id, Name = Name};
+    }
+  }
+
+  public class BookDto : ICloneable
+  {
+    public string ISBN { get; set; }
+
+    public TitleDto Title { get; set; }
+
+    public string TitleText { get; set; }
+
+    public double Price { get; set; }
+
+    public object Clone()
+    {
+      return new BookDto {ISBN = ISBN, Price = Price, Title = (TitleDto) Title.Clone(), TitleText = TitleText};
+    }
+  }
+
+  public class TitleDto : ICloneable
+  {
+    public Guid Id { get; set; }
+
+    public string Text { get; set; }
+
+    public object Clone()
+    {
+      return new TitleDto {Id = Id, Text = Text};
+    }
+  }
 }

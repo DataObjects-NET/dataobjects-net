@@ -133,6 +133,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The accessed member is not a property..
+        /// </summary>
+        internal static string ExAccessedMemberIsNotProperty {
+            get {
+                return ResourceManager.GetString("ExAccessedMemberIsNotProperty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Actual conjunction operand count greater than MaxConjunctionOperandCount..
         /// </summary>
         internal static string ExActualConjunctionOperandCountGreaterThanExpected {
@@ -1236,6 +1245,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExSpecifiedCapacityIsLessThenCollectionCount {
             get {
                 return ResourceManager.GetString("ExSpecifiedCapacityIsLessThenCollectionCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified expression is not a MemberExpression..
+        /// </summary>
+        internal static string ExSpecifiedExpressionIsNotMemberExpression {
+            get {
+                return ResourceManager.GetString("ExSpecifiedExpressionIsNotMemberExpression", resourceCulture);
             }
         }
         
