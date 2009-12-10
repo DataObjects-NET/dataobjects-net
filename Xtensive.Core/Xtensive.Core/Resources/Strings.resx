@@ -678,4 +678,16 @@
   <data name="ExResourcePropertyXIsNotOfStringType" xml:space="preserve">
     <value>Resource property {0} is not of string type.</value>
   </data>
+  <data name="ExTypeXHasAlreadyBeenRegistered" xml:space="preserve">
+    <value>The type {0} has already been registered.</value>
+  </data>
+  <data name="ExMappingForPropertyXHasAlreadyBeenRegistered" xml:space="preserve">
+    <value>The mapping for the property {0} has already been registered.</value>
+  </data>
+  <data name="ExTypeXHasNotBeenRegistered" xml:space="preserve">
+    <value>The type {0} hasn't been registered.</value>
+  </data>
+  <data name="ExMappingConfigurationHasNotBeenCompleted" xml:space="preserve">
+    <value>The mapping configuration hasn't been completed.</value>
+  </data>
 </root>
