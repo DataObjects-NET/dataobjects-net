@@ -27,7 +27,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets a value indicating whether base state is loaded or not.
     /// </summary>
-    protected bool StateIsLoaded {
+    public bool StateIsLoaded {
       get {
         EnsureStateIsActual();
         return stateIsLoaded;
@@ -40,12 +40,8 @@ namespace Xtensive.Storage
     protected TState State {
       get {
         EnsureStateIsActual();
-        if (!stateIsLoaded) {
-          ResetState();
-          state = LoadState();
-          BindStateTransaction();
-          stateIsLoaded = true;
-        }
+        if (!stateIsLoaded)
+          LoadState();
         return state;
       }
       set {
@@ -80,8 +76,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Loads the state.
     /// </summary>
-    /// <returns>Loaded state.</returns>
-    protected abstract TState LoadState();
+    protected abstract void LoadState();
     
     /// <summary>
     /// Marks the state as modified.
@@ -90,10 +85,12 @@ namespace Xtensive.Storage
     /// State is not loaded yet or it is not valid in current transaction.</exception>
     protected void MarkStateAsModified()
     {
-      if (!stateIsLoaded || StateTransaction==null || !StateTransaction.AreChangesVisibleTo(Session.Transaction))
+      if (StateTransaction==null || !StateTransaction.AreChangesVisibleTo(Session.Transaction))
         throw new InvalidOperationException(Strings.ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction);
       BindStateTransaction();
     }
+
+    #region Private / internal methods
 
     private bool CheckStateIsActual()
     {
@@ -113,13 +110,10 @@ namespace Xtensive.Storage
       StateTransaction = currentTransaction;
     }
 
+    #endregion
+
 
     // Constructors
-
-    /// <inheritdoc/>
-    protected TransactionalStateContainer()
-    {
-    }
 
     /// <inheritdoc/>
     protected TransactionalStateContainer(Session session)

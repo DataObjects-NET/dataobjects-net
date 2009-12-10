@@ -5,7 +5,6 @@
 // Created:    2008.09.10
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -20,6 +19,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
@@ -33,23 +33,37 @@ namespace Xtensive.Storage
   /// <summary>
   /// Base class for <see cref="EntitySet{TItem}"/>.
   /// </summary>
-  public abstract class EntitySetBase : TransactionalStateContainer<EntitySetState>,
-    ICountable,
+  public abstract class EntitySetBase : SessionBound,
     IFieldValueAdapter,
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
     private static readonly object EntitySetCachingRegion = new object();
-
     private static readonly Parameter<Tuple> KeyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     internal static readonly Parameter<Entity> OwnerParameter = new Parameter<Entity>("Owner");
 
     private readonly Entity owner;
     private bool isInitialized;
+    
+    internal EntitySetState State { get; private set; }
 
+    /// <summary>
+    /// Gets the entities contained in this <see cref="EntitySetBase"/>.
+    /// </summary>
+    protected internal IEnumerable<IEntity> Entities {
+      get {
+        EnsureOwnerIsNotRemoved();
+        EnsureIsPreloaded();
+        return Owner.PersistenceState==PersistenceState.New || State.StateIsLoaded && State.IsFullyLoaded
+          ? GetCachedEntities()
+          : GetRealEntities();
+      }
+    }
+    
     /// <summary>
     /// Gets the owner of this instance.
     /// </summary>
+    [Infrastructure]
     public Entity Owner { get { return owner; } }
 
     /// <inheritdoc/>
@@ -67,177 +81,10 @@ namespace Xtensive.Storage
       [DebuggerStepThrough]
       get {
         EnsureOwnerIsNotRemoved();
-        if (State.TotalItemsCount==null)
-          LoadItemsCount();
+        EnsureIsPreloaded();
+        EnsureCountIsLoaded();
         return (long) State.TotalItemsCount;
       }
-    }
-
-    /// <summary>
-    /// Determines whether <see cref="EntitySetBase"/> contains the specified <see cref="Key"/>.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <returns>
-    /// <see langword="true"/> if <see cref="EntitySetBase"/> contains the specified <see cref="Key"/>; otherwise, <see langword="false"/>.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">Entity type is not supported.</exception>
-    public bool Contains(Key key)
-    {
-      EnsureOwnerIsNotRemoved();
-      if (key==null || !Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
-        return false;
-
-      var state = Session.EntityStateCache[key, true];
-      return state!=null ? Contains(key, state.PersistenceState) : Contains(key, null);
-    }
-
-    /// <summary>
-    /// Determines whether this collection contains the specified item.
-    /// </summary>
-    /// <param name="item">The item to check for containment.</param>
-    /// <returns>
-    /// <see langword="true"/> if this collection contains the specified item; 
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    public bool Contains(Entity item)
-    {
-      EnsureOwnerIsNotRemoved();
-      if (item==null || !Field.ItemType.IsAssignableFrom(item.Type.UnderlyingType))
-        return false;
-      return Contains(item.Key, item.PersistenceState);
-    }
-
-    /// <summary>
-    /// Adds the specified item to the collection.
-    /// </summary>
-    /// <param name="item">The item to add.</param>
-    /// <returns>
-    /// <see langword="True"/>, if the item is added to the collection;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    public bool Add(Entity item)
-    {
-      if (Contains(item))
-        return false;
-
-      try {
-        using (var context = OpenOperationContext(true)) {
-          if (context.IsEnabled())
-            context.Add(new EntitySetItemOperation(
-              Owner.Key, 
-              Field, 
-              Operations.OperationType.AddEntitySetItem, 
-              item.Key));
-
-          SystemBeforeAdd(item);
-
-          if (Field.Association.IsPaired)
-            Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
-          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster)
-            GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
-
-          State.Add(item.Key);
-          MarkStateAsModified();
-          Owner.UpdateVersionInternal();
-
-          SystemAdd(item);
-          SystemAddCompleted(item, null);
-          context.Complete();
-          return true;
-        }
-      }
-      catch(Exception e) {
-        SystemAddCompleted(item, e);
-        throw;
-      }
-    }
-
-    /// <summary>
-    /// Removes the specified item from the collection.
-    /// </summary>
-    /// <param name="item">The item to remove.</param>
-    /// <returns>
-    /// <see langword="True"/>, if the item is removed from the collection;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    public bool Remove(Entity item)
-    {
-      if (!Contains(item))
-        return false;
-
-      try {
-        using (var context = OpenOperationContext(true)) {
-          if (context.IsEnabled())
-            context.Add(new EntitySetItemOperation(
-              Owner.Key, 
-              Field, 
-              Operations.OperationType.RemoveEntitySetItem,
-              item.Key));
-          SystemBeforeRemove(item);
-
-          if (Field.Association.IsPaired)
-            Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
-
-          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
-            var combinedKey = Key.Create(Session.Domain, Field.Association.AuxiliaryType,
-                                         TypeReferenceAccuracy.ExactType,
-                                         Owner.Key.Value.Combine(item.Key.Value));
-            Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
-            underlyingItem.Remove();
-          }
-
-          State.Remove(item.Key);
-          MarkStateAsModified();
-          Owner.UpdateVersionInternal();
-          SystemRemove(item);
-          SystemRemoveCompleted(item, null);
-          context.Complete();
-          return true;
-        }
-      }
-      catch(Exception e) {
-        SystemRemoveCompleted(item, e);
-        throw;
-      }
-    }
-
-    /// <summary>
-    /// Adds the specified item to the collection.
-    /// </summary>
-    /// <param name="item">The item to add.</param>
-    /// <returns>
-    /// <see langword="True"/>, if the item is added to the collection;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    protected bool Add(IEntity item)
-    {
-      return Add((Entity) item);
-    }
-
-    /// <summary>
-    /// Removes the specified item from the collection.
-    /// </summary>
-    /// <param name="item">The item to remove.</param>
-    /// <returns>
-    /// <see langword="True"/>, if the item is removed from the collection;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    protected bool Remove(IEntity item)
-    {
-      return Remove((Entity) item);
-    }
-
-    /// <summary>
-    /// Determines whether this collection contains the specified item.
-    /// </summary>
-    /// <param name="item">The item to check for containment.</param>
-    /// <returns>
-    /// <see langword="true"/> if this collection contains the specified item; 
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    protected bool Contains(IEntity item)
-    {
-      return Contains((Entity) item);
     }
 
     /// <summary>
@@ -258,6 +105,24 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Determines whether <see cref="EntitySetBase"/> contains the specified <see cref="Key"/>.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>
+    /// <see langword="true"/> if <see cref="EntitySetBase"/> contains the specified <see cref="Key"/>; otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">Entity type is not supported.</exception>
+    public bool Contains(Key key)
+    {
+      EnsureOwnerIsNotRemoved();
+      if (key==null || !Field.ItemType.IsAssignableFrom(key.Type.UnderlyingType))
+        return false;
+
+      var entityState = Session.EntityStateCache[key, true];
+      return entityState!=null ? Contains(key, entityState.PersistenceState) : Contains(key, null);
+    }
+
+    /// <summary>
     /// Gets a delegate which returns an <see cref="IQueryable{T}"/>
     /// returning count of items associated with this instance.
     /// </summary>
@@ -269,16 +134,6 @@ namespace Xtensive.Storage
     protected abstract Delegate GetItemCountQueryDelegate(FieldInfo field);
 
     /// <summary>
-    /// Validates current version.
-    /// </summary>
-    /// <param name="expectedVersion">The expected version.</param>
-    protected void ValidateVersion(long expectedVersion)
-    {
-      if (expectedVersion!=State.Version)
-        throw Exceptions.CollectionHasBeenChanged(null);
-    }
-
-    /// <summary>
     /// Ensures the owner is not removed.
     /// </summary>
     protected void EnsureOwnerIsNotRemoved()
@@ -286,23 +141,7 @@ namespace Xtensive.Storage
       if (Owner.IsRemoved)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
     }
-
-    /// <inheritdoc/>
-    protected sealed override EntitySetState LoadState()
-    {
-      if (Owner.State.PersistenceState!=PersistenceState.New) {
-        Session.Handler.Prefetch(Owner.Key, Owner.Type,
-          new FieldDescriptorCollection(new PrefetchFieldDescriptor(Field, WellKnown.EntitySetPreloadCount)));
-        Session.Handler.ExecutePrefetchTasks();
-        return State;
-      }
-      var state = new EntitySetState(WellKnown.EntitySetStateMaxSize);
-      state.TotalItemsCount = 0;
-      return state;
-    }
-
-    protected internal abstract IEnumerable<IEntity> Entities { get; }
-
+    
     #region System-level event-like members
 
     private void SystemInitialize()
@@ -513,39 +352,113 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region IEnumerable members
+    #region Add/Remove/Contains methods
 
-    /// <inheritdoc/>
-    public IEnumerator GetEnumerator()
+    [Transactional]
+    internal bool Contains(Entity item)
     {
-      return Entities.GetEnumerator();
+      EnsureOwnerIsNotRemoved();
+      if (item==null || !Field.ItemType.IsAssignableFrom(item.Type.UnderlyingType))
+        return false;
+      return Contains(item.Key, item.PersistenceState);
+    }
+
+    [Transactional]
+    internal bool Add(Entity item)
+    {
+      if (Contains(item))
+        return false;
+
+      try {
+        using (var context = OpenOperationContext(true)) {
+          if (context.IsEnabled())
+            context.Add(new EntitySetItemOperation(
+              Owner.Key, 
+              Field, 
+              Operations.OperationType.AddEntitySetItem, 
+              item.Key));
+
+          SystemBeforeAdd(item);
+
+          if (Field.Association.IsPaired)
+            Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
+          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster)
+            GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
+
+          State.Add(item.Key);
+          Owner.UpdateVersionInternal();
+
+          SystemAdd(item);
+          SystemAddCompleted(item, null);
+          context.Complete();
+          return true;
+        }
+      }
+      catch(Exception e) {
+        SystemAddCompleted(item, e);
+        throw;
+      }
+    }
+
+    [Transactional]
+    internal bool Remove(Entity item)
+    {
+      if (!Contains(item))
+        return false;
+
+      try {
+        using (var context = OpenOperationContext(true)) {
+          if (context.IsEnabled())
+            context.Add(new EntitySetItemOperation(
+              Owner.Key, 
+              Field, 
+              Operations.OperationType.RemoveEntitySetItem,
+              item.Key));
+          SystemBeforeRemove(item);
+
+          if (Field.Association.IsPaired)
+            Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
+
+          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
+            var combinedKey = Key.Create(Session.Domain, Field.Association.AuxiliaryType,
+                                         TypeReferenceAccuracy.ExactType,
+                                         Owner.Key.Value.Combine(item.Key.Value));
+            Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
+            underlyingItem.Remove();
+          }
+
+          State.Remove(item.Key);
+          Owner.UpdateVersionInternal();
+          SystemRemove(item);
+          SystemRemoveCompleted(item, null);
+          context.Complete();
+          return true;
+        }
+      }
+      catch(Exception e) {
+        SystemRemoveCompleted(item, e);
+        throw;
+      }
+    }
+    
+    internal bool Add(IEntity item)
+    {
+      return Add((Entity) item);
+    }
+
+    internal bool Remove(IEntity item)
+    {
+      return Remove((Entity) item);
+    }
+
+    internal bool Contains(IEntity item)
+    {
+      return Contains((Entity) item);
     }
 
     #endregion
 
-    #region Private / internal members
-    
-    internal EntitySetState UpdateState(IEnumerable<Key> items, bool isFullyLoaded)
-    {
-      EnsureOwnerIsNotRemoved();
-      var newState = new EntitySetState(WellKnown.EntitySetStateMaxSize);
-      newState.Clear();
-      long count = 0;
-      foreach (var item in items) {
-        newState.Register(item);
-        count++;
-      }
-      if (isFullyLoaded)
-        newState.TotalItemsCount = count;
-      State = newState;
-      return State;
-    }
-
-    internal EntitySetState GetState()
-    {
-      EnsureOwnerIsNotRemoved();
-      return StateIsLoaded ? State : null;
-    }
+    #region Set operations
 
     internal void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : IEntity
@@ -581,13 +494,78 @@ namespace Xtensive.Storage
         Remove(item);
     }
 
-    private bool Contains(Key key, PersistenceState? peristentState)
+    #endregion
+
+    #region Private / internal members
+
+    internal EntitySetState UpdateState(IEnumerable<Key> items, bool isFullyLoaded)
     {
       EnsureOwnerIsNotRemoved();
+      var itemList = items.ToList();
+      State.IsPreloaded = true;
+      State.Update(itemList, isFullyLoaded ? (long?) itemList.Count : null);
+      return State;
+    }
+
+    internal EntitySetState GetState()
+    {
+      EnsureOwnerIsNotRemoved();
+      return State;
+    }
+
+    private void EnsureIsPreloaded()
+    {
+      if (State.IsPreloaded)
+        return;
+      State.IsPreloaded = true;
+      if (Owner.State.PersistenceState==PersistenceState.New)
+        State.TotalItemsCount = State.CachedItemsCount;
+      else {
+        Session.Handler.Prefetch(Owner.Key, Owner.Type,
+          new FieldDescriptorCollection(new PrefetchFieldDescriptor(Field, WellKnown.EntitySetPreloadCount)));
+        Session.Handler.ExecutePrefetchTasks();
+      }
+    }
+
+    private void EnsureCountIsLoaded()
+    {
+      if (State.TotalItemsCount!=null)
+        return;
+      using (new ParameterContext().Activate()) {
+        OwnerParameter.Value = owner;
+        var cachedState = GetEntitySetTypeState();
+        State.TotalItemsCount = Query.Execute(cachedState, (Func<int>) cachedState.ItemCountQuery);
+      }
+    }
+
+    private IEnumerable<IEntity> GetCachedEntities()
+    {
+      Entity entity;
+
+      foreach (Key key in State) {
+        using (Session.Activate()) {
+          entity = Query.SingleOrDefault(Session, key);
+        }
+        yield return entity;
+      }
+    }
+    
+    private IEnumerable<IEntity> GetRealEntities()
+    {
+      Session.Handler.Prefetch(Owner.Key, Owner.Type,
+        new FieldDescriptorCollection(new PrefetchFieldDescriptor(Field, null)));
+      Session.Handler.ExecutePrefetchTasks();
+      return GetCachedEntities();
+    }
+
+    private bool Contains(Key key, PersistenceState? persistenceState)
+    {
       bool foundInCache = State.Contains(key);
 
-      if (peristentState==PersistenceState.New || State.IsFullyLoaded)
+      if (persistenceState==PersistenceState.New || State.IsFullyLoaded)
         return foundInCache;
+
+      EnsureIsPreloaded();
 
       bool foundInDatabase;
       using (new ParameterContext().Activate()) {
@@ -629,15 +607,6 @@ namespace Xtensive.Storage
           field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName,
           ArrayUtils<Type>.EmptyArray);
       return new EntitySetTypeState(seek, seekTransform, itemCtor,entitySet.GetItemCountQueryDelegate(field));
-    }
-
-    private void LoadItemsCount()
-    {
-      using (new ParameterContext().Activate()) {
-        OwnerParameter.Value = owner;
-        var cachedState = GetEntitySetTypeState();
-        State.TotalItemsCount = Query.Execute(cachedState, (Func<int>) cachedState.ItemCountQuery);
-      }
     }
     
     #endregion
@@ -681,6 +650,7 @@ namespace Xtensive.Storage
     {
       this.owner = owner;
       Field = field;
+      State = new EntitySetState(this);
       Initialize(typeof (EntitySetBase));
     }
 

@@ -835,14 +835,14 @@ namespace Xtensive.Storage.Tests.Storage
         var order = new Order();
         customer.Orders.Add(order);
         orderKey = order.Key;
-        Assert.AreEqual(customer.Orders.Count, 1);
+        Assert.AreEqual(1, customer.Orders.Count);
         using (var inner = Transaction.Open(TransactionOpenMode.New)) {
-          Assert.AreEqual(customer.Orders.Count, 1);
+          Assert.AreEqual(1, customer.Orders.Count);
           customer.Orders.Add(new Order());
-          Assert.AreEqual(customer.Orders.Count, 2);
+          Assert.AreEqual(2, customer.Orders.Count);
           // rollback
         }
-        Assert.AreEqual(customer.Orders.Count, 1);
+        Assert.AreEqual(1, customer.Orders.Count);
         outer.Complete();
       }
 

@@ -91,8 +91,9 @@ namespace Xtensive.Storage.Tests.Storage
           t.Complete();
         }
         using (var t = Transaction.Open()) {
+          var books = a.Books; // fetch the author
           var b = new Book();
-          a.Books.Add(b);
+          books.Add(b);
           Assert.AreEqual(PersistenceState.New, b.PersistenceState);
           t.Complete();
         }

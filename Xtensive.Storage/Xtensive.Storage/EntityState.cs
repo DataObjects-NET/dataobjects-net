@@ -217,12 +217,11 @@ namespace Xtensive.Storage
     public bool IsStale { get; set; }
 
     /// <inheritdoc/>
-    protected override Tuple LoadState()
+    protected override void LoadState()
     {
       persistenceState = PersistenceState.Synchronized;
       Tuple = null;
       Session.Handler.FetchInstance(key);
-      return Tuple;
     }
 
     /// <inheritdoc/>

@@ -16,8 +16,6 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Internals;
-using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Linq;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
@@ -74,21 +72,42 @@ namespace Xtensive.Storage
     private Expression expression;
     private bool isCountCalculated;
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Determines whether this collection contains the specified item.
+    /// </summary>
+    /// <param name="item">The item to check for containment.</param>
+    /// <returns>
+    /// <see langword="true"/> if this collection contains the specified item; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
     [Infrastructure] // Proxy
     public bool Contains(TItem item)
     {
       return base.Contains(item);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Adds the specified item to the collection.
+    /// </summary>
+    /// <param name="item">The item to add.</param>
+    /// <returns>
+    /// <see langword="True"/>, if the item is added to the collection;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
     [Infrastructure] // Proxy
     public bool Add(TItem item)
     {
       return base.Add(item);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Removes the specified item from the collection.
+    /// </summary>
+    /// <param name="item">The item to remove.</param>
+    /// <returns>
+    /// <see langword="True"/>, if the item is removed from the collection;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
     [Infrastructure] // Proxy
     public bool Remove(TItem item)
     {
@@ -194,10 +213,10 @@ namespace Xtensive.Storage
     {
       get {
         EnsureOwnerIsNotRemoved();
-        if (expression == null) {
+        if (expression==null) {
           // A hack making expression to look like regular parameter 
           // (ParameterExtractor.IsParameter => true)
-          var owner = Expression.Property(Expression.Constant(new {Owner = (Entity) Owner}), "Owner");
+          var owner = Expression.Property(Expression.Constant(new {Owner}), "Owner");
           expression = QueryHelper.CreateEntitySetQueryExpression(owner, Field);
         }
         return expression;
@@ -206,67 +225,20 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure]
-    public Type ElementType
-    {
-      get { return typeof (TItem); }
-    }
+    public Type ElementType { get { return typeof (TItem); } }
 
     /// <inheritdoc/>
     [Infrastructure]
-    public IQueryProvider Provider
-    {
-      get { return QueryProvider.Instance; }
-    }
+    public IQueryProvider Provider { get { return QueryProvider.Instance; } }
 
     #endregion
-
-    #region Protected overriden members
-
-    /// <inheritdoc/>
-    protected internal sealed override IEnumerable<IEntity> Entities {
-      get {
-        EnsureOwnerIsNotRemoved();
-        if (Owner.PersistenceState==PersistenceState.New)
-          return GetCachedEntities();
-        if (StateIsLoaded)
-          return State.IsFullyLoaded
-            ? GetCachedEntities()
-            : GetRealEntities();
-        return GetRealEntities();
-      }
-    }
-
+    
     /// <inheritdoc/>
     protected sealed override Delegate GetItemCountQueryDelegate(FieldInfo field)
     {
       return Delegate.CreateDelegate(typeof(Func<int>), field, GetItemCountQueryMethod);
     }
-
-    #endregion
-
-    #region Private / internal methods
-
-    private IEnumerable<IEntity> GetCachedEntities()
-    {
-      Entity entity;
-      foreach (Key key in State) {
-        ValidateVersion(State.Version);
-        using (Session.Activate()) {
-          entity = Query.SingleOrDefault(Session, key);
-        }
-        yield return entity;
-      }
-    }
-
-    private IEnumerable<IEntity> GetRealEntities()
-    {
-      State = null;
-      Session.Handler.Prefetch(Owner.Key, Owner.Type,
-        new FieldDescriptorCollection(new PrefetchFieldDescriptor(Field, null)));
-      Session.Handler.ExecutePrefetchTasks();
-      return GetCachedEntities();
-    }
-
+    
     private static IQueryable<TItem> GetItemsQuery(FieldInfo field)
     {
       var owner = Expression.Property(Expression.Constant(OwnerParameter), OwnerParameter.GetType()
@@ -279,9 +251,6 @@ namespace Xtensive.Storage
     {
       return GetItemsQuery(field).Count();
     }
-
-    #endregion
-
 
     // Constructors
 
