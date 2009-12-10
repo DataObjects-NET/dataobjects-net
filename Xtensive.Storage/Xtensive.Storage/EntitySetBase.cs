@@ -53,7 +53,7 @@ namespace Xtensive.Storage
     protected internal IEnumerable<IEntity> Entities {
       get {
         EnsureOwnerIsNotRemoved();
-        EnsureIsPreloaded();
+        EnsureIsLoaded();
         return Owner.PersistenceState==PersistenceState.New || State.StateIsLoaded && State.IsFullyLoaded
           ? GetCachedEntities()
           : GetRealEntities();
@@ -81,7 +81,7 @@ namespace Xtensive.Storage
       [DebuggerStepThrough]
       get {
         EnsureOwnerIsNotRemoved();
-        EnsureIsPreloaded();
+        EnsureIsLoaded();
         EnsureCountIsLoaded();
         return (long) State.TotalItemsCount;
       }
@@ -502,29 +502,21 @@ namespace Xtensive.Storage
     {
       EnsureOwnerIsNotRemoved();
       var itemList = items.ToList();
-      State.IsPreloaded = true;
       State.Update(itemList, isFullyLoaded ? (long?) itemList.Count : null);
+      State.IsLoaded = true;
       return State;
     }
 
-    internal EntitySetState GetState()
+    private void EnsureIsLoaded()
     {
-      EnsureOwnerIsNotRemoved();
-      return State;
-    }
-
-    private void EnsureIsPreloaded()
-    {
-      if (State.IsPreloaded)
+      if (State.IsLoaded)
         return;
-      State.IsPreloaded = true;
-      if (Owner.State.PersistenceState==PersistenceState.New)
+      if (Owner.State.PersistenceState==PersistenceState.New) {
         State.TotalItemsCount = State.CachedItemsCount;
-      else {
-        Session.Handler.Prefetch(Owner.Key, Owner.Type,
-          new FieldDescriptorCollection(new PrefetchFieldDescriptor(Field, WellKnown.EntitySetPreloadCount)));
-        Session.Handler.ExecutePrefetchTasks();
+        State.IsLoaded = true;
       }
+      else
+        Session.Handler.FetchEntitySet(Owner.Key, Field);
     }
 
     private void EnsureCountIsLoaded()
@@ -565,7 +557,7 @@ namespace Xtensive.Storage
       if (persistenceState==PersistenceState.New || State.IsFullyLoaded)
         return foundInCache;
 
-      EnsureIsPreloaded();
+      EnsureIsLoaded();
 
       bool foundInDatabase;
       using (new ParameterContext().Activate()) {

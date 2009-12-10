@@ -44,17 +44,17 @@ namespace Xtensive.Storage.Providers
       return Session.UpdateEntityState(key, tuple);
     }
 
-    internal virtual bool TryGetEntityState(Key key, out EntityState entityState)
-    {
-      return Session.EntityStateCache.TryGetItem(key, true, out entityState);
-    }
-
-    internal virtual EntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo, bool isFullyLoaded, 
-      List<Key> entityKeys, List<Pair<Key, Tuple>> auxEntities)
+    internal virtual EntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo,
+      bool isFullyLoaded, List<Key> entityKeys, List<Pair<Key, Tuple>> auxEntities)
     {
       if (Session.EntityStateCache[key, false]==null)
         return null;
       return UpdateEntitySetState(key, fieldInfo, entityKeys, isFullyLoaded);
+    }
+
+    internal virtual bool TryGetEntityState(Key key, out EntityState entityState)
+    {
+      return Session.EntityStateCache.TryGetItem(key, true, out entityState);
     }
 
     internal virtual bool TryGetEntitySetState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
@@ -63,9 +63,11 @@ namespace Xtensive.Storage.Providers
       if (entityState!=null) {
         var entity = entityState.Entity;
         if (entity!=null) {
-          var entitySet = entity.GetFieldValue<EntitySetBase>(fieldInfo);
-          entitySetState = entitySet.GetState();
-          return entitySetState!=null;
+          var state = entity.GetFieldValue<EntitySetBase>(fieldInfo).State;
+          if (state.IsLoaded) {
+            entitySetState = state;
+            return true;
+          }
         }
       }
       entitySetState = null;

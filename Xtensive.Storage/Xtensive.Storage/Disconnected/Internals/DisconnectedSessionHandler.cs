@@ -149,8 +149,8 @@ namespace Xtensive.Storage.Disconnected
       return false;
     }
 
-    internal override EntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo, bool isFullyLoaded, 
-      List<Key> entityKeys, List<Pair<Key, Tuple>> auxEntities)
+    internal override EntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo,
+      bool isFullyLoaded, List<Key> entityKeys, List<Pair<Key, Tuple>> auxEntities)
     {
       var cachedOwner = disconnectedState.GetState(key);
       if (cachedOwner==null || cachedOwner.IsRemoved)
@@ -176,8 +176,7 @@ namespace Xtensive.Storage.Disconnected
       }
 
       // If state isn't cached try cache get it form storage
-      if ((cachedState!=null && !cachedState.IsLoaded) 
-        || disconnectedState.IsConnected) {
+      if ((cachedState!=null && !cachedState.IsLoaded) || disconnectedState.IsConnected) {
         BeginChainedTransaction();
         var type = key.TypeRef.Type;
         Prefetch(key, type, PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(type));

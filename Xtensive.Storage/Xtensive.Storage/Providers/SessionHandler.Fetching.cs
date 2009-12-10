@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Providers
       EntityState result;
       return TryGetEntityState(key, out result) ? result : null;
     }
-
+    
     /// <summary>
     /// Fetches the field of an <see cref="Entity"/>.
     /// </summary>
@@ -65,6 +65,19 @@ namespace Xtensive.Storage.Providers
       prefetchManager.Prefetch(key, type,
         new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, false, false)));
       prefetchManager.ExecuteTasks();
+    }
+
+    /// <summary>
+    /// Fetches the entity set.
+    /// </summary>
+    /// <param name="ownerKey">The owner key.</param>
+    /// <param name="field">The field.</param>
+    public virtual void FetchEntitySet(Key ownerKey, FieldInfo field)
+    {
+      var ownerType = ownerKey.TypeRef.Type;
+      Session.Handler.Prefetch(ownerKey, ownerType,
+        new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, WellKnown.EntitySetPreloadCount)));
+      Session.Handler.ExecutePrefetchTasks();
     }
   }
 }

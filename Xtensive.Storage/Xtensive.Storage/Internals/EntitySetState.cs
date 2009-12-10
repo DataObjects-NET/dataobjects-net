@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Internals
   public sealed class EntitySetState : TransactionalStateContainer<KeyCache>,
     IEnumerable<Key>
   {
-    private bool isPreloaded;
+    private bool isLoaded;
     private long? totalItemsCount;
 
     private KeyCache FetchedKeys {
@@ -26,12 +26,6 @@ namespace Xtensive.Storage.Internals
       set { State = value; }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether state is fully loaded.
-    /// </summary>
-    [Infrastructure]
-    public bool IsFullyLoaded { get { return TotalItemsCount==CachedItemsCount; } }
-    
     /// <summary>
     /// Gets the total number of items.
     /// </summary>
@@ -51,21 +45,27 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     [Infrastructure]
     public long CachedItemsCount { get { return FetchedKeys.Count; } }
+
+    /// <summary>
+    /// Gets a value indicating whether state is fully loaded.
+    /// </summary>
+    [Infrastructure]
+    public bool IsFullyLoaded { get { return TotalItemsCount==CachedItemsCount; } }
     
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is preloaded.
+    /// Gets or sets a value indicating whether this instance is loaded.
     /// </summary>
     /// <value>
     /// <see langword="true"/> if this instance is preloaded; otherwise, <see langword="false"/>.
     /// </value>
     [Infrastructure]
-    public bool IsPreloaded {
+    public bool IsLoaded {
       get {
         EnsureStateIsActual();
-        return isPreloaded;
+        return isLoaded;
       }
       internal set {
-        isPreloaded = value;
+        isLoaded = value;
       }
     }
 
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Internals
     protected override void ResetState()
     {
       TotalItemsCount = null;
-      IsPreloaded = false;
+      IsLoaded = false;
       base.ResetState();
     }
 

@@ -85,7 +85,7 @@ namespace Xtensive.Storage
     {
       return base.Contains(item);
     }
-
+    
     /// <summary>
     /// Adds the specified item to the collection.
     /// </summary>
@@ -121,7 +121,7 @@ namespace Xtensive.Storage
     /// <typeparam name="TElement">The type of the element.</typeparam>
     /// <param name="other">The collection to compare to the current <see cref="EntitySet{TItem}"/> object.</param>
     public new void IntersectWith<TElement>(IEnumerable<TElement> other)
-     where TElement : TItem
+      where TElement : TItem
     {
       ArgumentValidator.EnsureArgumentNotNull(other, "other");
       base.IntersectWith(other);

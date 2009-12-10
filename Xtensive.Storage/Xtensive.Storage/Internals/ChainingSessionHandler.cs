@@ -114,6 +114,12 @@ namespace Xtensive.Storage.Internals
       chainedHandler.FetchField(key, field);
     }
 
+    /// <inheritdoc/>
+    public override void FetchEntitySet(Key ownerKey, Model.FieldInfo field)
+    {
+      chainedHandler.FetchEntitySet(ownerKey, field);
+    }
+
     internal override EntitySetState RegisterEntitySetState(Key key, Model.FieldInfo fieldInfo,
       bool isFullyLoaded, List<Key> entities, List<Pair<Key, Tuple>> auxEntities)
     {

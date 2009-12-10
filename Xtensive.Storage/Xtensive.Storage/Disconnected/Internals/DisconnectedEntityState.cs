@@ -39,18 +39,15 @@ namespace Xtensive.Storage.Disconnected
     /// </summary>
     public bool IsRemoved { get; private set; }
 
-    public Tuple Tuple
-    {
-      get
-      {
+    public Tuple Tuple {
+      get {
         if (tuple!=null)
           return tuple;
         if (Origin!=null)
           return Origin.Tuple;
         return null;
       }
-      set
-      {
+      set {
         if (tuple!=null)
           throw new InvalidOperationException("State is already contains value.");
 

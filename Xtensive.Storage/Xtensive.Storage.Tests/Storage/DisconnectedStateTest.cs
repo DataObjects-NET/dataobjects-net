@@ -649,6 +649,30 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void EntitySetMiniTest()
+    {
+      var state = new DisconnectedState();
+      Key supplierKey;
+      using (var session = Session.Open(Domain))
+      using (state.Attach(session))
+      using (var transactionScope = Transaction.Open()) {
+        var supplier = new Supplier();
+        supplierKey = supplier.Key;
+        supplier.Products.Add(new Product());
+        supplier.Products.Add(new Product());
+        transactionScope.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (state.Attach(session))
+      using (Transaction.Open()) {
+        var supplier = Query<Supplier>.Single(supplierKey);
+        Assert.AreEqual(2, supplier.Products.Count);
+        Assert.IsTrue(supplier.Products.State.IsFullyLoaded);
+      }
+    }
+
+    [Test]
     public void MultipleTransactionsTest()
     {
       var state = new DisconnectedState();
