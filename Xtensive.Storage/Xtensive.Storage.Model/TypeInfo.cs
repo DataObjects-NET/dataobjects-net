@@ -589,14 +589,22 @@ namespace Xtensive.Storage.Model
     private void BuildTuplePrototype()
     {
       // Building nullable map
-      var nullableMap = new BitArray(TupleDescriptor.Count);
+      var nullabilityMap = new BitArray(TupleDescriptor.Count);
       int i = 0;
       foreach (var column in Columns)
-        nullableMap[i++] = column.IsNullable;
+        nullabilityMap[i++] = column.IsNullable;
+
+      // fixing reference fields that are marked as not nullable
+      foreach (var field in Fields.Where(f => f.IsEntity && !f.IsPrimaryKey && f.IsNullable == false)) {
+        var segment = field.MappingInfo;
+        for (int j = segment.Offset; j < segment.EndOffset; j++) {
+          nullabilityMap[j] = true;
+        }
+      }
 
       // Building TuplePrototype
       var tuple = Tuple.Create(TupleDescriptor);
-      tuple.Initialize(nullableMap);
+      tuple.Initialize(nullabilityMap);
       if (IsEntity) {
 
         // Setting TypeId column
