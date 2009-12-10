@@ -33,9 +33,9 @@ namespace Xtensive.Core.Sorting
     public Node<TNodeItem, TConnectionItem> Destination { get; private set; }
     
     /// <summary>
-    /// Gets connection weight.
+    /// Gets connection type.
     /// </summary>
-    public int Weight { get; private set; }
+    public ConnectionType ConnectionType { get; private set; }
 
     public bool IsBinded { get; private set; }
 
@@ -66,7 +66,7 @@ namespace Xtensive.Core.Sorting
     /// <param name="destination">The destination.</param>
     /// <param name="connectionItem">The connection item.</param>
     public NodeConnection(Node<TNodeItem, TConnectionItem> source, Node<TNodeItem, TConnectionItem> destination, TConnectionItem connectionItem)
-      : this(source, destination, connectionItem, 1)
+      : this(source, destination, connectionItem, ConnectionType.Breakable)
     {
     }
 
@@ -76,15 +76,15 @@ namespace Xtensive.Core.Sorting
     /// <param name="source">The source.</param>
     /// <param name="destination">The destination.</param>
     /// <param name="connectionItem">The connection item.</param>
-    /// <param name="weight">Connection weight.</param>
-    public NodeConnection(Node<TNodeItem, TConnectionItem> source, Node<TNodeItem, TConnectionItem> destination, TConnectionItem connectionItem, int weight)
+    /// <param name="connectionType">Connection type.</param>
+    public NodeConnection(Node<TNodeItem, TConnectionItem> source, Node<TNodeItem, TConnectionItem> destination, TConnectionItem connectionItem, ConnectionType connectionType)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(destination, "destination");
       ConnectionItem = connectionItem;
       Source = source;
       Destination = destination;
-      Weight = weight;
+      ConnectionType = connectionType;
     }
   }
 }

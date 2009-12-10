@@ -596,7 +596,7 @@ namespace Xtensive.Storage.Providers.Sql
           sourceModel.Resolve(pair.First) as ColumnInfo,
           pair.Second)).ToArray();
       if (updatedColumns.Length==0)
-        throw new InvalidOperationException(Resources.Strings.ExIncorrectCommandParameters);
+        throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
       foreach (var pair in updatedColumns)
         if (pair.Second==null)
           update.Values[table[pair.First.Name]] = SqlDml.DefaultValue;

@@ -118,8 +118,10 @@ ALTER TABLE [dbo].[Option] CHECK CONSTRAINT [FK_Option_Container]
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var c = new Container();
-        c.Items.Add(new Item(c));
-        c.Options.Add(new Option(c));
+        var item = new Item(c);
+        c.Items.Add(item);
+        var option = new Option(c);
+        c.Options.Add(option);
         Session.Current.Persist();
         c.Remove();
         t.Complete();

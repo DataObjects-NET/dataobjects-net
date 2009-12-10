@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.07
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using System.Linq;
@@ -168,6 +169,7 @@ namespace Xtensive.Core.Sorting
       while (nodeList.Count > 0) {
         nodesToRemove.Clear();
         Node<TNodeItem, TConnectionItem> nodeToBreakLoop = null;
+        NodeConnection<TNodeItem, TConnectionItem> edgeToBreakLoop = null;
         foreach (var node in nodeList) {
           if (node.IncomingConnectionCount==0) {
             // Add to head
@@ -186,12 +188,19 @@ namespace Xtensive.Core.Sorting
               connection.UnbindFromNodes();
           }
           else {
-            if (removeWholeNode && (nodeToBreakLoop==null || node.OutgoingConnectionWeight > nodeToBreakLoop.OutgoingConnectionWeight))
-              nodeToBreakLoop = node;
+            if (removeWholeNode) {
+              if (node.PermanentOutgoingConnectionCount==0 && (nodeToBreakLoop==null || node.OutgoingConnectionCount > nodeToBreakLoop.OutgoingConnectionCount))
+                nodeToBreakLoop = node;
+            }
+            else {
+              if (node.BreakableOutgoingConnectionCount>0 && edgeToBreakLoop==null)
+                edgeToBreakLoop = node.OutgoingConnections.First(connection=>connection.ConnectionType==ConnectionType.Breakable);
+            }
           }
         }
         if (nodesToRemove.Count==0) {
           if (nodeToBreakLoop!=null) {
+            // Remove node
             var connections = nodeToBreakLoop.OutgoingConnections.ToArray();
             foreach (var connection in connections)
               connection.UnbindFromNodes();
@@ -201,11 +210,13 @@ namespace Xtensive.Core.Sorting
             tail.Enqueue(nodeToBreakLoop.Item);
             nodeList.Remove(nodeToBreakLoop);
           }
+          else if (edgeToBreakLoop!=null) {
+              // remove edge
+              removedEdges.Add(edgeToBreakLoop);
+              edgeToBreakLoop.UnbindFromNodes();
+            }
           else {
-            // remove edge
-            var removedConnection = nodeList[0].OutgoingConnections.First();
-            removedEdges.Add(removedConnection);
-            removedConnection.UnbindFromNodes();
+            throw new InvalidOperationException("Only breakable nodes :(");
           }
         }
         foreach (var nodeToRemove in nodesToRemove)
