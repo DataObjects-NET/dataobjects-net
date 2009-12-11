@@ -20,10 +20,10 @@ namespace Xtensive.Storage.Internals
 
     public readonly Func<Tuple, Entity> ItemCtor;
 
-    public readonly Delegate ItemCountQuery;
+    public readonly Func<long> ItemCountQuery;
 
     public EntitySetTypeState(RecordSet seekRecordSet, CombineTransform seekTransform,
-      Func<Tuple, Entity> itemCtor, Delegate itemCountQuery)
+      Func<Tuple, Entity> itemCtor, Func<long> itemCountQuery)
     {
       SeekRecordSet = seekRecordSet;
       SeekTransform = seekTransform;

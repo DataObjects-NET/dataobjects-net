@@ -234,9 +234,9 @@ namespace Xtensive.Storage
     #endregion
     
     /// <inheritdoc/>
-    protected sealed override Delegate GetItemCountQueryDelegate(FieldInfo field)
+    protected sealed override Func<long> GetItemCountQueryDelegate(FieldInfo field)
     {
-      return Delegate.CreateDelegate(typeof(Func<int>), field, GetItemCountQueryMethod);
+      return (Func<long>) Delegate.CreateDelegate(typeof (Func<long>), field, GetItemCountQueryMethod);
     }
     
     private static IQueryable<TItem> GetItemsQuery(FieldInfo field)
@@ -247,9 +247,9 @@ namespace Xtensive.Storage
       return new Queryable<TItem>(queryExpression);
     }
 
-    private static int GetItemCountQuery(FieldInfo field)
+    private static long GetItemCountQuery(FieldInfo field)
     {
-      return GetItemsQuery(field).Count();
+      return GetItemsQuery(field).LongCount();
     }
 
     // Constructors
@@ -262,6 +262,7 @@ namespace Xtensive.Storage
     protected EntitySet(Entity owner, FieldInfo field)
       : base(owner, field)
     {
+      Initialize(typeof (EntitySet<TItem>));
     }
 
     /// <summary>

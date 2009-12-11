@@ -72,11 +72,11 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="ownerKey">The owner key.</param>
     /// <param name="field">The field.</param>
-    public virtual void FetchEntitySet(Key ownerKey, FieldInfo field)
+    public virtual void FetchEntitySet(Key ownerKey, FieldInfo field, int? itemCountLimit)
     {
       var ownerType = ownerKey.TypeRef.Type;
       Session.Handler.Prefetch(ownerKey, ownerType,
-        new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, WellKnown.EntitySetPreloadCount)));
+        new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, itemCountLimit)));
       Session.Handler.ExecutePrefetchTasks();
     }
   }

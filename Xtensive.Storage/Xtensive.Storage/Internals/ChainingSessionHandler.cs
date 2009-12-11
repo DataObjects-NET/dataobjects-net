@@ -115,9 +115,9 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void FetchEntitySet(Key ownerKey, Model.FieldInfo field)
+    public override void FetchEntitySet(Key ownerKey, Model.FieldInfo field, int? itemCountLimit)
     {
-      chainedHandler.FetchEntitySet(ownerKey, field);
+      chainedHandler.FetchEntitySet(ownerKey, field, itemCountLimit);
     }
 
     internal override EntitySetState RegisterEntitySetState(Key key, Model.FieldInfo fieldInfo,

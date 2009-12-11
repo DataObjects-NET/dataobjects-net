@@ -54,7 +54,7 @@ namespace Xtensive.Storage
       get {
         EnsureOwnerIsNotRemoved();
         EnsureIsLoaded();
-        return Owner.PersistenceState==PersistenceState.New || State.StateIsLoaded && State.IsFullyLoaded
+        return Owner.PersistenceState==PersistenceState.New || State.IsFullyLoaded
           ? GetCachedEntities()
           : GetRealEntities();
       }
@@ -131,7 +131,7 @@ namespace Xtensive.Storage
     /// The created delegate which returns an <see cref="IQueryable{T}"/>
     /// returning count of items associated with this instance.
     /// </returns>
-    protected abstract Delegate GetItemCountQueryDelegate(FieldInfo field);
+    protected abstract Func<long> GetItemCountQueryDelegate(FieldInfo field);
 
     /// <summary>
     /// Ensures the owner is not removed.
@@ -516,7 +516,7 @@ namespace Xtensive.Storage
         State.IsLoaded = true;
       }
       else
-        Session.Handler.FetchEntitySet(Owner.Key, Field);
+        Session.Handler.FetchEntitySet(Owner.Key, Field, WellKnown.EntitySetPreloadCount);
     }
 
     private void EnsureCountIsLoaded()
@@ -526,7 +526,7 @@ namespace Xtensive.Storage
       using (new ParameterContext().Activate()) {
         OwnerParameter.Value = owner;
         var cachedState = GetEntitySetTypeState();
-        State.TotalItemsCount = Query.Execute(cachedState, (Func<int>) cachedState.ItemCountQuery);
+        State.TotalItemsCount = Query.Execute(cachedState, cachedState.ItemCountQuery);
       }
     }
 
@@ -544,20 +544,25 @@ namespace Xtensive.Storage
     
     private IEnumerable<IEntity> GetRealEntities()
     {
-      Session.Handler.Prefetch(Owner.Key, Owner.Type,
-        new FieldDescriptorCollection(new PrefetchFieldDescriptor(Field, null)));
-      Session.Handler.ExecutePrefetchTasks();
+      Session.Handler.FetchEntitySet(Owner.Key, Field, null);
       return GetCachedEntities();
     }
 
     private bool Contains(Key key, PersistenceState? persistenceState)
     {
       bool foundInCache = State.Contains(key);
-
+      if (foundInCache)
+        return true;
       if (persistenceState==PersistenceState.New || State.IsFullyLoaded)
-        return foundInCache;
+        return false;
 
       EnsureIsLoaded();
+
+      foundInCache = State.Contains(key);
+      if (foundInCache)
+        return true;
+      if (State.IsFullyLoaded)
+        return false;
 
       bool foundInDatabase;
       using (new ParameterContext().Activate()) {
