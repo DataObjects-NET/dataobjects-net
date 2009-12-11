@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -45,13 +46,17 @@ namespace Xtensive.Storage.Manual.Attributes
       [Field(TypeDiscriminator = true)]
       public bool BookType { get; private set; }
 
-      [Key, Field]
+      [Key(Direction = Direction.Negative), Field]
       public int Id { get; private set; }
+
+      [Field, Version]
+      public int Version { get; private set; }
 
       [Field]
       public string ISBN { get; set; }
 
-      [Field]
+      // Field will be mapped to "BookTitle" table column.
+      [Field, FieldMapping("BookTitle")]
       public int Title { get; set; }
 
       // Field associated to "Books" field int the "Author" entity
@@ -62,8 +67,15 @@ namespace Xtensive.Storage.Manual.Attributes
 
     // If "BookType" field contains "true" value, the entity is "SciFi"
     [TypeDiscriminatorValue(true)]
+    // Index on field "SciFiDescription" that includes additional "SciFiDescriptionDate" field along with keyfield.
+    [Index("SciFiDescription", IncludedFields = new[] {"SciFiDescriptionDate"})]
     public class SciFi : Book
     {
+      [Field(LazyLoad = true, Length = 5000)]
+      public string SciFiDescription { get; set; }
+
+      [Field(LazyLoad = true)]
+      public DateTime SciFiDescriptionDate { get; set; }
     }
 
     // If "BookType" field contains "false" value, the entity is "Horror"
@@ -82,11 +94,9 @@ namespace Xtensive.Storage.Manual.Attributes
       // because [HierarchyRoot] attribute does not specify custom key generator
       [Key]
       [Field]
-      // Field will be mapped to "ID_PERSON" table column.
-      [FieldMapping("ID_PERSON")]
       public int Id { get; private set; }
 
-      [Field]
+      [Field(LazyLoad = true)]
       public string Name { get; set; }
 
       // Then author removed, all its books will be removed too.
@@ -100,7 +110,7 @@ namespace Xtensive.Storage.Manual.Attributes
     {
       var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof (Author).Assembly, typeof(Author).Namespace);
+      config.Types.Register(typeof (Author).Assembly, typeof (Author).Namespace);
       var domain = Domain.Build(config);
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {
