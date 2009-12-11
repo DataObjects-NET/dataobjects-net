@@ -1249,6 +1249,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The specified expression can&apos;t be parsed..
+        /// </summary>
+        internal static string ExSpecifiedExpressionCanNotBeParsed {
+            get {
+                return ResourceManager.GetString("ExSpecifiedExpressionCanNotBeParsed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified expression is not a MemberExpression..
         /// </summary>
         internal static string ExSpecifiedExpressionIsNotMemberExpression {

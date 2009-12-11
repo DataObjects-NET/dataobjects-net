@@ -26,7 +26,7 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
   public class OrderDto : ICloneable
   {
-    public Guid Key { get; set; }
+    public Guid Id { get; set; }
 
     public PersonDto Customer { get; set; }
 
@@ -34,7 +34,7 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
     public object Clone()
     {
-      return new OrderDto {Customer = (PersonDto) Customer.Clone(), Key = Key, ShipDate = ShipDate};
+      return new OrderDto {Customer = (PersonDto) Customer.Clone(), Id = Id, ShipDate = ShipDate};
     }
   }
 

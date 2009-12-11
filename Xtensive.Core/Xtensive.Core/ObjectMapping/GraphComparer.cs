@@ -7,12 +7,13 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
+using Xtensive.Core.ObjectMapping.Model;
 
 namespace Xtensive.Core.ObjectMapping
 {
   internal sealed class GraphComparer
   {
-    private readonly MappingInfo mappingInfo;
+    private readonly MappingDescription mappingDescription;
     private readonly Action<ModificationDescriptor> subscriber;
     private readonly IExistanceInfoProvider existanceInfoProvider;
     private readonly ObjectExtractor objectExtractor;
@@ -44,15 +45,16 @@ namespace Xtensive.Core.ObjectMapping
         object originalObject;
         if (!originalObjects.TryGetValue(modifiedObjectPair.Key, out originalObject))
           continue;
-        CompareComplexProperties(modifiedObjectPair.Value, originalObject);
-        ComparePrimitiveProperties(modifiedObjectPair.Value, originalObject);
+        var description = mappingDescription.TargetTypes[modifiedObjectPair.Value.GetType()];
+        CompareComplexProperties(modifiedObjectPair.Value, originalObject, description);
+        ComparePrimitiveProperties(modifiedObjectPair.Value, originalObject, description);
       }
     }
 
-    private void CompareComplexProperties(object modified, object original)
+    private void CompareComplexProperties(object modified, object original, TargetTypeDescription description)
     {
-      var properties = mappingInfo.GetTargetComplexProperties(modified.GetType());
-      foreach (var property in properties) {
+      foreach (var propertyDesc in description.ComplexProperties) {
+        var property = propertyDesc.Value.SystemProperty;
         var modifiedValue = property.GetValue(modified, null);
         var originalValue = property.GetValue(original, null);
         if (modifiedValue == null && originalValue == null)
@@ -61,8 +63,8 @@ namespace Xtensive.Core.ObjectMapping
           subscriber.Invoke(new ModificationDescriptor(original, ModificationType.ChangeProperty,
             property, null));
         else {
-          var modifiedKey = mappingInfo.ExtractKey(modifiedValue);
-          var originalKey = mappingInfo.ExtractKey(originalValue);
+          var modifiedKey = mappingDescription.ExtractTargetKey(modifiedValue);
+          var originalKey = mappingDescription.ExtractTargetKey(originalValue);
           if (!modifiedKey.Equals(originalKey))
             subscriber.Invoke(new ModificationDescriptor(original, ModificationType.ChangeProperty,
               property, modifiedValue));
@@ -70,10 +72,10 @@ namespace Xtensive.Core.ObjectMapping
       }
     }
 
-    private void ComparePrimitiveProperties(object modified, object original)
+    private void ComparePrimitiveProperties(object modified, object original, TargetTypeDescription description)
     {
-      var properties = mappingInfo.GetTargetPrimitiveProperties(modified.GetType());
-      foreach (var property in properties) {
+      foreach (var propertyDesc in description.PrimitiveProperties) {
+        var property = propertyDesc.Value.SystemProperty;
         var modifiedValue = property.GetValue(modified, null);
         var originalValue = property.GetValue(original, null);
         if (!Equals(modifiedValue, originalValue))
@@ -85,17 +87,17 @@ namespace Xtensive.Core.ObjectMapping
 
     // Constructors
 
-    public GraphComparer(MappingInfo mappingInfo, Action<ModificationDescriptor> subscriber,
+    public GraphComparer(MappingDescription mappingDescription, Action<ModificationDescriptor> subscriber,
       IExistanceInfoProvider existanceInfoProvider)
     {
-      ArgumentValidator.EnsureArgumentNotNull(mappingInfo, "mappingInfo");
+      ArgumentValidator.EnsureArgumentNotNull(mappingDescription, "mappingDescription");
       ArgumentValidator.EnsureArgumentNotNull(subscriber, "subscriber");
       ArgumentValidator.EnsureArgumentNotNull(existanceInfoProvider, "existanceInfoProvider");
 
-      this.mappingInfo = mappingInfo;
+      this.mappingDescription = mappingDescription;
       this.subscriber = subscriber;
       this.existanceInfoProvider = existanceInfoProvider;
-      objectExtractor = new ObjectExtractor(mappingInfo);
+      objectExtractor = new ObjectExtractor(mappingDescription);
     }
   }
 }

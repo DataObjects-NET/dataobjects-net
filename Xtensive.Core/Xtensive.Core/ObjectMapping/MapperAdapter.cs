@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Resources;
+using Xtensive.Core.Linq;
 
 namespace Xtensive.Core.ObjectMapping
 {
@@ -15,17 +15,21 @@ namespace Xtensive.Core.ObjectMapping
   {
     private readonly MapperBase realMapper;
 
-    public MapperAdapter<TSource, TTarget> Map<TValue>(Func<TSource, TValue> source,
+    public MapperAdapter<TSource, TTarget> Map<TValue>(Expression<Func<TSource, TValue>> source,
       Expression<Func<TTarget, TValue>> target)
     {
-      var targetProperty = ExtractProperty(target, "target");
-      realMapper.mappingInfo.Register(obj => source.Invoke((TSource) obj), targetProperty);
+      PropertyInfo sourceProperty;
+      MappingHelper.TryExtractProperty(source, "source", out sourceProperty);
+      var targetProperty = MappingHelper.ExtractProperty(target, "target");
+      var compliedSource = source.CachingCompile();
+      realMapper.MappingBuilder.Register(sourceProperty, obj => compliedSource.Invoke((TSource) obj),
+        targetProperty);
       return this;
     }
 
     /// <inheritdoc/>
-    public MapperAdapter<TSource, TTarget> MapType<TSource, TSourceKey, TTarget, TTargetKey>(
-      Func<TSource, TSourceKey> sourceKeyExtractor, Func<TTarget, TTargetKey> targetKeyExtractor)
+    public MapperAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Func<TTarget, TKey> targetKeyExtractor)
     {
       return realMapper.MapType(sourceKeyExtractor, targetKeyExtractor);
     }
@@ -33,17 +37,6 @@ namespace Xtensive.Core.ObjectMapping
     public void Complete()
     {
       realMapper.Complete();
-    }
-
-    private static PropertyInfo ExtractProperty(LambdaExpression expression, string paramName)
-    {
-      var asMemberExpression = expression.Body as MemberExpression;
-      if (asMemberExpression == null)
-        throw new ArgumentException(Strings.ExSpecifiedExpressionIsNotMemberExpression, paramName);
-      var result = asMemberExpression.Member as PropertyInfo;
-      if (result == null)
-        throw new ArgumentException(Strings.ExAccessedMemberIsNotProperty, paramName);
-      return result;
     }
 
     // Constructors

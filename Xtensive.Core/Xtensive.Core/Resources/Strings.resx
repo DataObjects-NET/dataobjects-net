@@ -696,4 +696,7 @@
   <data name="ExAccessedMemberIsNotProperty" xml:space="preserve">
     <value>The accessed member is not a property.</value>
   </data>
+  <data name="ExSpecifiedExpressionCanNotBeParsed" xml:space="preserve">
+    <value>The specified expression can't be parsed.</value>
+  </data>
 </root>

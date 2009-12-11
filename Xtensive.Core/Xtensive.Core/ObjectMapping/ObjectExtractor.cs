@@ -5,12 +5,13 @@
 // Created:    2009.12.08
 
 using System.Collections.Generic;
+using Xtensive.Core.ObjectMapping.Model;
 
 namespace Xtensive.Core.ObjectMapping
 {
   internal sealed class ObjectExtractor
   {
-    private readonly MappingInfo mappingInfo;
+    private readonly MappingDescription mappingDescription;
     private Queue<object> referencedObjects;
 
     public void Extract(object source, Dictionary<object,object> resultContainer)
@@ -21,12 +22,12 @@ namespace Xtensive.Core.ObjectMapping
       referencedObjects.Enqueue(source);
       while (referencedObjects.Count > 0) {
         var current = referencedObjects.Dequeue();
-        var key = mappingInfo.ExtractKey(current);
+        var key = mappingDescription.ExtractTargetKey(current);
         if (resultContainer.ContainsKey(key))
           continue;
         resultContainer.Add(key, current);
-        var complexProperties = mappingInfo.GetTargetComplexProperties(current.GetType());
-        foreach (var property in complexProperties) {
+        var description = mappingDescription.TargetTypes[current.GetType()];
+        foreach (var property in description.ComplexProperties.Keys) {
           var value = property.GetValue(current, null);
           if (value != null)
             referencedObjects.Enqueue(value);
@@ -37,11 +38,11 @@ namespace Xtensive.Core.ObjectMapping
 
     // Constructors
 
-    public ObjectExtractor(MappingInfo mappingInfo)
+    public ObjectExtractor(MappingDescription mappingDescription)
     {
-      ArgumentValidator.EnsureArgumentNotNull(mappingInfo, "mappingInfo");
+      ArgumentValidator.EnsureArgumentNotNull(mappingDescription, "mappingDescription");
 
-      this.mappingInfo = mappingInfo;
+      this.mappingDescription = mappingDescription;
     }
   }
 }

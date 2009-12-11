@@ -5,34 +5,41 @@
 // Created:    2009.12.09
 
 using System;
+using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
   public abstract class MapperBase : IMapper
   {
-    private readonly GraphTransformer transformer;
-    private readonly GraphComparer comparer;
-    internal readonly MappingInfo mappingInfo;
+    private GraphTransformer transformer;
+    private GraphComparer comparer;
+
+    public MappingDescription MappingDescription { get; private set; }
+
+    internal MappingBuilder MappingBuilder { get; private set; }
 
     /// <inheritdoc/>
-    public MapperAdapter<TSource, TTarget> MapType<TSource, TSourceKey, TTarget, TTargetKey>(
-      Func<TSource, TSourceKey> sourceKeyExtractor, Func<TTarget, TTargetKey> targetKeyExtractor)
+    public MapperAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Func<TTarget, TKey> targetKeyExtractor)
     {
-      mappingInfo.Register(typeof (TSource), source => sourceKeyExtractor.Invoke((TSource) source),
+      MappingBuilder.Register(typeof (TSource), source => sourceKeyExtractor.Invoke((TSource) source),
         typeof (TTarget), target => targetKeyExtractor.Invoke((TTarget) target));
+
       return new MapperAdapter<TSource, TTarget>(this);
     }
 
     public object Transform(object source)
     {
-      if (!mappingInfo.IsLocked)
+      if (MappingDescription == null)
         throw new InvalidOperationException(Strings.ExMappingConfigurationHasNotBeenCompleted);
       return transformer.Transform(source);
     }
 
     public void Compare(object originalTarget, object modifiedTarget)
     {
+      if (MappingDescription == null)
+        throw new InvalidOperationException(Strings.ExMappingConfigurationHasNotBeenCompleted);
       comparer.Compare(originalTarget, modifiedTarget);
     }
 
@@ -40,7 +47,10 @@ namespace Xtensive.Core.ObjectMapping
 
     internal void Complete()
     {
-      mappingInfo.Build();
+      MappingDescription = MappingBuilder.Build();
+      MappingBuilder = null;
+      transformer = new GraphTransformer(MappingDescription);
+      comparer = new GraphComparer(MappingDescription, OnObjectModified, new DefaultExistanceInfoProvider());
     }
 
 
@@ -48,9 +58,7 @@ namespace Xtensive.Core.ObjectMapping
 
     protected MapperBase()
     {
-      mappingInfo = new MappingInfo();
-      transformer = new GraphTransformer(mappingInfo);
-      comparer = new GraphComparer(mappingInfo, OnObjectModified, new DefaultExistanceInfoProvider());
+      MappingBuilder = new MappingBuilder();
     }
   }
 }

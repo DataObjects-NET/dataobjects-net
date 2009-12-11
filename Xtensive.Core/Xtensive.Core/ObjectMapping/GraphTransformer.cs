@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 
@@ -43,11 +44,9 @@ namespace Xtensive.Core.ObjectMapping
 
     private static readonly ThreadSafeDictionary<Type, Func<object>> constructors =
       ThreadSafeDictionary<Type, Func<object>>.Create(new object());
-    private readonly MappingInfo mappingInfo;
+    private readonly MappingDescription mappingDescription;
     private readonly Dictionary<object, ResultDescriptor> transformedObjects =
       new Dictionary<object, ResultDescriptor>();
-    private readonly Dictionary<object, Dictionary<PropertyInfo, object>> delayedAssignments =
-      new Dictionary<object, Dictionary<PropertyInfo, object>>();
     private readonly Queue<KeyValuePair<object, object>> sourceObjects =
       new Queue<KeyValuePair<object, object>>();
 
@@ -56,29 +55,28 @@ namespace Xtensive.Core.ObjectMapping
       try {
         if (source==null)
           return null;
-        var rootKey = mappingInfo.ExtractKey(source);
+        var rootKey = mappingDescription.ExtractSourceKey(source);
         sourceObjects.Enqueue(new KeyValuePair<object, object>(rootKey, source));
         while (sourceObjects.Count > 0) {
           var currentSource = sourceObjects.Dequeue();
           ResultDescriptor resultDescriptor;
-          var map = mappingInfo.GetMap(currentSource.Value.GetType());
+          var targetTypeDesc = mappingDescription.GetMappedType(currentSource.Value.GetType());
           if (transformedObjects.TryGetValue(currentSource.Key, out resultDescriptor)) {
             if (resultDescriptor.IsTransformationCompleted)
               continue;
           }
           else {
-            var target = CreateTargetObject(map.First);
+            var target = CreateTargetObject(targetTypeDesc.SystemType);
             resultDescriptor = new ResultDescriptor(target);
             transformedObjects.Add(currentSource.Key, resultDescriptor);
           }
-          ConvertProperties(currentSource.Value, map.Second, resultDescriptor.Result);
+          ConvertProperties(currentSource.Value, targetTypeDesc, resultDescriptor.Result);
           resultDescriptor.SetIsTransformationCompeleted();
         }
         return transformedObjects[rootKey].Result;
       }
       finally {
         transformedObjects.Clear();
-        delayedAssignments.Clear();
         sourceObjects.Clear();
       }
     }
@@ -89,39 +87,30 @@ namespace Xtensive.Core.ObjectMapping
       return constructor.Invoke();
     }
 
-    private void ConvertProperties(object source, IDictionary<string, PropertyInfo> sourceProperties,
+    private void ConvertProperties(object source, TargetTypeDescription targetDescription,
       object target)
     {
-      ConvertPrimitiveProperties(source, sourceProperties, target);
-      ConvertComplexProperties(source, sourceProperties, target);
+      ConvertPrimitiveProperties(source, targetDescription, target);
+      ConvertComplexProperties(source, targetDescription, target);
     }
 
-    private void ConvertPrimitiveProperties(object source,
-      IDictionary<string, PropertyInfo> sourceProperties, object target)
+    private static void ConvertPrimitiveProperties(object source, TargetTypeDescription targetDescription,
+      object target)
     {
-      foreach (var targetProperty in mappingInfo.GetTargetPrimitiveProperties(target.GetType())) {
-        Func<object, object> converter;
-        object convertedValue;
-        if (mappingInfo.TryGetCustomConverter(targetProperty, out converter))
-          convertedValue = converter.Invoke(source);
-        else {
-          var property = sourceProperties[targetProperty.Name];
-          convertedValue = property.GetValue(source, null);
-        }
-        targetProperty.SetValue(target, convertedValue, null);
-      }
+      foreach (var targetPropertyDesc in targetDescription.PrimitiveProperties.Values)
+        targetPropertyDesc.Converter.Invoke(source, targetPropertyDesc.SourceProperty,
+          target, targetPropertyDesc);
     }
 
-    private void ConvertComplexProperties(object source,
-      IDictionary<string, PropertyInfo> sourceProperties, object target)
+    private void ConvertComplexProperties(object source, TargetTypeDescription targetDescription, object target)
     {
-      foreach (var targetProperty in mappingInfo.GetTargetComplexProperties(target.GetType())) {
-        Func<object, object> converter;
-        if (mappingInfo.TryGetCustomConverter(targetProperty, out converter))
-          targetProperty.SetValue(target, converter.Invoke(source), null);
+      foreach (var targetPropertyDesc in targetDescription.ComplexProperties.Values) {
+        if (targetPropertyDesc.Converter != null)
+          targetPropertyDesc.Converter.Invoke(source, targetPropertyDesc.SourceProperty,
+            target, targetPropertyDesc);
         else
-          ExecuteDefaultConversionOfComplexProperty(source, sourceProperties[targetProperty.Name],
-            target, targetProperty);
+          ExecuteDefaultConversionOfComplexProperty(source, targetPropertyDesc.SourceProperty.SystemProperty,
+            target, targetPropertyDesc.SystemProperty);
       }
     }
 
@@ -132,7 +121,7 @@ namespace Xtensive.Core.ObjectMapping
       if (sourceValue == null)
         targetProperty.SetValue(target, null, null);
       else {
-        var key = mappingInfo.ExtractKey(sourceValue);
+        var key = mappingDescription.ExtractSourceKey(sourceValue);
         ResultDescriptor resultDescriptor;
         if (!transformedObjects.TryGetValue(key, out resultDescriptor)) {
           var targetValue = CreateTargetObject(targetProperty.PropertyType);
@@ -147,11 +136,11 @@ namespace Xtensive.Core.ObjectMapping
 
     // Constructors
 
-    public GraphTransformer(MappingInfo mappingInfo)
+    public GraphTransformer(MappingDescription mappingDescription)
     {
-      ArgumentValidator.EnsureArgumentNotNull(mappingInfo, "mappingInfo");
+      ArgumentValidator.EnsureArgumentNotNull(mappingDescription, "mappingDescription");
 
-      this.mappingInfo = mappingInfo;
+      this.mappingDescription = mappingDescription;
     }
   }
 }

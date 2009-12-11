@@ -10,7 +10,7 @@ namespace Xtensive.Core.ObjectMapping
 {
   public interface IMapper
   {
-    MapperAdapter<TSource, TTarget> MapType<TSource, TSourceKey, TTarget, TTargetKey>(
-      Func<TSource, TSourceKey> sourceKeyExtractor, Func<TTarget, TTargetKey> targetKeyExtractor);
+    MapperAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Func<TTarget, TKey> targetKeyExtractor);
   }
 }

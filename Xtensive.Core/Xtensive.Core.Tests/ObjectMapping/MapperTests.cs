@@ -19,7 +19,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void DefaultConversionOfPrimitivePropertiesTest()
     {
       var source = GetSourcePerson();
-      var mapper = GetPersonBookMapper();
+      var mapper = GetPersonOrderMapper();
       var target = (PersonDto) mapper.Transform(source);
       Assert.IsNotNull(target);
       AssertAreEqual(source, target);
@@ -29,10 +29,10 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void DefaultConversionOfComplexPropertiesTest()
     {
       var source = GetSourceOrder();
-      var mapper = GetPersonBookMapper();
+      var mapper = GetPersonOrderMapper();
       var target = (OrderDto) mapper.Transform(source);
       Assert.IsNotNull(target);
-      Assert.AreEqual(source.Id, target.Key);
+      Assert.AreEqual(source.Id, target.Id);
       Assert.AreEqual(source.ShipDate, target.ShipDate);
       AssertAreEqual(source.Customer, target.Customer);
     }
@@ -41,7 +41,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void ComparisonOfObjectsContainingPrimitivePropertiesOnlyTest()
     {
       var source = GetSourcePerson();
-      var mapper = GetPersonBookMapper();
+      var mapper = GetPersonOrderMapper();
       var target = (PersonDto) mapper.Transform(source);
       var clone = (PersonDto) target.Clone();
       var modifiedDate = clone.BirthDate.AddDays(23);
@@ -71,7 +71,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void ComparisonOfObjectsWhenOnlyPrimitivePropertiesHaveBeenModifiedTest()
     {
       var source = GetSourceOrder();
-      var mapper = GetPersonBookMapper();
+      var mapper = GetPersonOrderMapper();
       var target = (OrderDto) mapper.Transform(source);
       var clone = (OrderDto) target.Clone();
       var modifiedShipDate = clone.ShipDate.AddDays(-5);
@@ -100,7 +100,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void ComparisonOfObjectsWhenReferencedObjectHasBeenReplacedTest()
     {
       var source = GetSourceOrder();
-      var mapper = GetPersonBookMapper();
+      var mapper = GetPersonOrderMapper();
       var target = (OrderDto) mapper.Transform(source);
       var clone = (OrderDto) target.Clone();
       var modifiedShipDate = clone.ShipDate.AddDays(-5);
@@ -149,7 +149,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
-    public void TransformationUsingCustomMapping()
+    public void TransformationUsingCustomMappingTest()
     {
       var source = GetSourceAuthor();
       var mapper = GetAuthorBookMapper();
@@ -161,23 +161,80 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Assert.AreEqual(source.Book.Title.Id, target.Book.Title.Id);
     }
 
-    private static DefaultMapper GetPersonBookMapper()
+    [Test]
+    public void TransformationWhenGraphRootIsNullTest()
+    {
+      var mapper = GetPersonOrderMapper();
+      Assert.IsNull(mapper.Transform(null));
+      mapper.ObjectModified += descriptor => Assert.Fail();
+      mapper.Compare(null, null);
+    }
+
+    [Test]
+    public void ComparisonWhenOriginalGraphRootIsNullTest()
+    {
+      var mapper = GetPersonOrderMapper();
+      var target = (OrderDto) mapper.Transform(GetSourceOrder());
+      var eventRaisingCount = 0;
+      var personCreated = false;
+      var orderCreated = false;
+      mapper.ObjectModified += descriptor => {
+        Assert.AreEqual(ModificationType.CreateObject, descriptor.Type);
+        eventRaisingCount++;
+        if (ReferenceEquals(target, descriptor.Source))
+          orderCreated = true;
+        else if (ReferenceEquals(target.Customer, descriptor.Source))
+          personCreated = true;
+        else
+          Assert.Fail();
+      };
+      mapper.Compare(null, target);
+      Assert.AreEqual(2, eventRaisingCount);
+      Assert.IsTrue(personCreated);
+      Assert.IsTrue(orderCreated);
+    }
+
+    [Test]
+    public void ComparisonWhenModifiedGraphRootIsNullTest()
+    {
+      var mapper = GetPersonOrderMapper();
+      var target = (OrderDto) mapper.Transform(GetSourceOrder());
+      var eventRaisingCount = 0;
+      var personCreated = false;
+      var orderCreated = false;
+      mapper.ObjectModified += descriptor => {
+        Assert.AreEqual(ModificationType.RemoveObject, descriptor.Type);
+        eventRaisingCount++;
+        if (ReferenceEquals(target, descriptor.Source))
+          orderCreated = true;
+        else if (ReferenceEquals(target.Customer, descriptor.Source))
+          personCreated = true;
+        else
+          Assert.Fail();
+      };
+      mapper.Compare(target, null);
+      Assert.AreEqual(2, eventRaisingCount);
+      Assert.IsTrue(personCreated);
+      Assert.IsTrue(orderCreated);
+    }
+
+    private static DefaultMapper GetPersonOrderMapper()
     {
       var result = new DefaultMapper();
-      result.MapType<Person, int, PersonDto, int>(p => p.Id, p => p.Id)
-        .MapType<Order, Guid, OrderDto, Guid>(o => o.Id, o => o.Key).Complete();
+      result.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
+        .MapType<Order, OrderDto, Guid>(o => o.Id, o => o.Id).Complete();
       return result;
     }
 
     private static DefaultMapper GetAuthorBookMapper()
     {
       var result = new DefaultMapper();
-      result.MapType<Author, Guid, AuthorDto, Guid>(a => a.Id, a => a.Id)
+      result.MapType<Author, AuthorDto, Guid>(a => a.Id, a => a.Id)
           .Map(a => a.Name + "!!!", a => a.Name)
-        .MapType<Book, string, BookDto, string>(b => b.ISBN, b => b.ISBN)
+        .MapType<Book, BookDto, string>(b => b.ISBN, b => b.ISBN)
           .Map(b => b.Title.Text, b => b.TitleText)
           .Map(b => new TitleDto {Id = b.Title.Id, Text = b.Title.Text}, b => b.Title)
-        .MapType<Title, Guid, TitleDto, Guid>(t => t.Id, t => t.Id).Complete();
+        .MapType<Title, TitleDto, Guid>(t => t.Id, t => t.Id).Complete();
       return result;
     }
 
