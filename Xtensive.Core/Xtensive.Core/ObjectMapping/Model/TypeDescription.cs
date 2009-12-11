@@ -16,8 +16,7 @@ namespace Xtensive.Core.ObjectMapping.Model
 {
   [Serializable]
   [DebuggerDisplay("{SystemType}")]
-  public abstract class TypeDescription : LockableBase,
-    IEquatable<TypeDescription>
+  public abstract class TypeDescription : LockableBase
   {
     private readonly Dictionary<PropertyInfo, PropertyDescription> properties =
       new Dictionary<PropertyInfo, PropertyDescription>();
@@ -40,35 +39,6 @@ namespace Xtensive.Core.ObjectMapping.Model
       base.Lock(recursive);
     }
 
-    /// <inheritdoc/>
-    public bool Equals(TypeDescription other)
-    {
-      if (ReferenceEquals(null, other))
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return Equals(other.SystemType, SystemType);
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType()!=GetType())
-        return false;
-      return Equals((TypeDescription) obj);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      // TODO: Consider more efficient implementation (e.g. the one that will use SourceType or TargetType)
-      return SystemType.GetHashCode();
-    }
-
     protected void AddProperty(PropertyDescription property)
     {
       this.EnsureNotLocked();
@@ -87,7 +57,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
 
       SystemType = systemType;
-      this.KeyExtractor = keyExtractor;
+      KeyExtractor = keyExtractor;
       Properties = new ReadOnlyDictionary<PropertyInfo, PropertyDescription>(properties, false);
     }
   }
