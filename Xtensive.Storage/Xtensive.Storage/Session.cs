@@ -67,11 +67,13 @@ namespace Xtensive.Storage
     private ExtensionCollection extensions;
 
     private readonly object _lock = new object();
+    private readonly Pinner pinner = new Pinner();
     private readonly bool persistRequiresTopologicalSort;
     
     private SessionServiceLocator serviceLocator;
-    private volatile bool isDisposed;
     private SessionScope sessionScope;
+
+    private volatile bool isDisposed;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -91,9 +93,7 @@ namespace Xtensive.Storage
     public long Identifier { get; private set; }
 
     /// <inheritdoc/>
-    object IIdentified.Identifier {
-      get { return Identifier; }
-    }
+    object IIdentified.Identifier { get { return Identifier; } }
 
     /// <summary>
     /// Gets the full name of the <see cref="Session"/>.
@@ -153,6 +153,17 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <summary>
+    /// Gets the session service provider.
+    /// </summary>
+    public SessionServiceLocator Services {
+      get {
+        if (serviceLocator==null)
+          serviceLocator = new SessionServiceLocator(this);
+        return serviceLocator;
+      }
+    }
+
     #region Private / internal members
 
     internal SessionHandler Handler { get; set; }
@@ -171,18 +182,21 @@ namespace Xtensive.Storage
 
     internal OperationContext CurrentOperationContext { get; set; }
 
-    #endregion
-
-    /// <summary>
-    /// Gets the session service provider.
-    /// </summary>
-    public SessionServiceLocator Services {
-      get {
-        if (serviceLocator==null)
-          serviceLocator = new SessionServiceLocator(this);
-        return serviceLocator;
-      }
+    private void EnsureNotDisposed()
+    {
+      if (isDisposed)
+        throw new ObjectDisposedException(Strings.ExSessionIsAlreadyDisposed);
     }
+
+    internal EnumerationContext CreateEnumerationContext()
+    {
+      Persist(PersistReason.Query);
+      ExecuteAllDelayedQueries(true);
+      EnsureTransactionIsStarted();
+      return Handler.CreateEnumerationContext();
+    }
+
+    #endregion
 
     #region IContext<...> methods
 
@@ -237,164 +251,6 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region EnsureXxx methods
-
-    /// <summary>
-    /// Ensures the object is not disposed.
-    /// </summary>
-    /// <exception cref="ObjectDisposedException">Object is already disposed.</exception>
-    protected void EnsureNotDisposed()
-    {
-      if (isDisposed)
-        throw new ObjectDisposedException(Strings.ExSessionIsAlreadyDisposed);
-    }
-
-    #endregion
-
-    #region Open methods
-
-    /// <summary>
-    /// Opens and activates new <see cref="Session"/> with default <see cref="SessionConfiguration"/>.
-    /// </summary>
-    /// <param name="domain">The domain.</param>
-    /// <returns>
-    /// New <see cref="Session"/> object.
-    /// </returns>
-    /// <sample><code>
-    /// using (Session.Open(domain)) {
-    /// // work with persistent objects here
-    /// // Session is available through static Session.Current property
-    /// }
-    /// </code></sample>
-    /// <seealso cref="Session"/>
-    public static Session Open(Domain domain)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      return Open(domain, domain.Configuration.Sessions.Default, true);
-    }
-
-    /// <summary>
-    /// Opens new <see cref="Session"/> with default <see cref="SessionConfiguration"/>.
-    /// </summary>
-    /// <param name="domain">The domain.</param>
-    /// <param name="activate">Determines whether created session should be activated or not.</param>
-    /// </param>
-    /// <returns>
-    /// New <see cref="Session"/> object.
-    /// </returns>
-    /// <sample><code>
-    /// using (Session.Open(domain)) {
-    /// // work with persistent objects here
-    /// // Session is available through static Session.Current property
-    /// }
-    /// </code></sample>
-    /// <seealso cref="Session"/>
-    public static Session Open(Domain domain, bool activate)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      return Open(domain, domain.Configuration.Sessions.Default, activate);
-    }
-
-    /// <summary>
-    /// Opens and activates new <see cref="Session"/> of specified <see cref="SessionType"/>.
-    /// </summary>
-    /// <param name="domain">The domain.</param>    
-    /// <param name="type">The type of session.</param>
-    /// </param>
-    /// <returns>
-    /// New <see cref="Session"/> object.
-    /// </returns>
-    /// <sample><code>
-    /// using (Session.Open(domain, sessionType)) {
-    /// // work with persistent objects here
-    /// // Session is available through static Session.Current property
-    /// }
-    /// </code></sample>
-    public static Session Open(Domain domain, SessionType type)
-    {
-      return Open(domain, type, true);
-    }
-
-    /// <summary>
-    /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/>.
-    /// </summary>
-    /// <param name="domain">The domain.</param>    
-    /// <param name="type">The type of session.</param>
-    /// <param name="activate">Determines whether created session should be activated or not.</param>
-    /// </param>
-    /// <returns>
-    /// New <see cref="Session"/> object.
-    /// </returns>
-    /// <sample><code>
-    /// using (Session.Open(domain, sessionType, false)) {
-    /// // work with persistent objects here
-    /// // Session is available through static Session.Current property
-    /// }
-    /// </code></sample>
-    public static Session Open(Domain domain, SessionType type, bool activate)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-
-      switch (type) {
-      case SessionType.User:
-        return Open(domain, domain.Configuration.Sessions.Default, activate);
-      case SessionType.System:
-        return Open(domain, domain.Configuration.Sessions.System, activate);
-      case SessionType.KeyGenerator:
-        return Open(domain, domain.Configuration.Sessions.KeyGenerator, activate);
-      case SessionType.Service:
-        return Open(domain, domain.Configuration.Sessions.Service, activate);
-      default:
-        throw new ArgumentOutOfRangeException("type");
-      }
-    }
-
-    /// <summary>
-    /// Opens and activates new <see cref="Session"/> with specified <see cref="SessionConfiguration"/>.
-    /// </summary>
-    /// <param name="domain">The domain.</param>
-    /// <param name="configuration">The session configuration.</param>
-    /// <returns>
-    /// New <see cref="Session"/> object.
-    /// </returns>
-    /// <sample><code>
-    /// using (Session.Open(domain, sessionConfiguration)) {
-    /// // work with persistent objects here
-    /// // Session is available through static Session.Current property
-    /// }
-    /// </code></sample>
-    /// <seealso cref="Session"/>
-    public static Session Open(Domain domain, SessionConfiguration configuration)
-    {
-      return Open(domain, configuration, true);
-    }
-
-    /// <summary>
-    /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/>.
-    /// </summary>
-    /// <param name="domain">The domain.</param>
-    /// <param name="configuration">The session configuration.</param>
-    /// <param name="activate">Determines whether created session should be activated or not.</param>
-    /// <returns>
-    /// New <see cref="Session"/> object.
-    /// </returns>
-    /// <sample><code>
-    /// using (Session.Open(domain, sessionConfiguration, false)) {
-    /// // work with persistent objects here
-    /// // Session is available through static Session.Current property
-    /// }
-    /// </code></sample>
-    /// <seealso cref="Session"/>
-    public static Session Open(Domain domain, SessionConfiguration configuration, bool activate)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-
-      return domain.OpenSession(configuration, activate);
-    }
-
-    #endregion
-
     #region IHasExtensions Members
 
     /// <inheritdoc/>
@@ -414,18 +270,30 @@ namespace Xtensive.Storage
 
     #endregion
 
-    internal EnumerationContext CreateEnumerationContext()
-    {
-      Persist(true);
-      ExecuteAllDelayedQueries(true);
-      EnsureTransactionIsStarted();
-      return Handler.CreateEnumerationContext();
-    }
-
     /// <inheritdoc/>
     public override string ToString()
     {
       return FullName;
+    }
+
+    /// <summary>
+    /// Pins the specified <see cref="IEntity"/>.
+    /// Pinned entity is prevented from being persisted,
+    /// when <see cref="Persist"/> is called or query is executed.
+    /// If persist is to be performed due to starting a nested transaction or committing a transaction,
+    /// any pinned entity will lead to failure.
+    /// If <paramref name="target"/> is not present in the database,
+    /// all entities that reference <paramref name="target"/> are also pinned automatically.
+    /// </summary>
+    /// <param name="target">The entity to pin.</param>
+    /// <returns>An entity pinning scope if <paramref name="target"/> was not previously pinned,
+    /// otherwise <see langword="null"/>.</returns>
+    public IDisposable Pin(IEntity target)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      var targetEntity = (Entity) target;
+      targetEntity.EnsureNotRemoved();
+      return pinner.RegisterRoot(targetEntity.State);
     }
 
 

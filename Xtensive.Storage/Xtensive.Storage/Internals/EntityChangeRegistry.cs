@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
 
 namespace Xtensive.Storage.Internals
 {
@@ -21,11 +20,9 @@ namespace Xtensive.Storage.Internals
     private int count;
 
     /// <summary>
-    /// Gets the count of registered entities.
+    /// Gets the number of registered entities.
     /// </summary>
-    public int Count {
-      get { return count; }
-    }
+    public int Count { get { return count; } }
 
     /// <summary>
     /// Registers the specified item.

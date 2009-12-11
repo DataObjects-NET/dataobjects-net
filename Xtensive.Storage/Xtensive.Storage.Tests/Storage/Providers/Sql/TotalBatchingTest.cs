@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       using (var t = Transaction.Open()) {
         Initialize();
         CreateEntities(3);
-        session.Persist(false);
+        session.Persist();
         CreateQueries(5);
         session.ExecuteAllDelayedQueries();
         ValidateQueries(3);
@@ -68,7 +68,6 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
       using (var t = Transaction.Open()) {
         Initialize();
         CreateEntities(5);
-        session.Persist(true);
         CreateQueries(5);
         session.ExecuteAllDelayedQueries();
         ValidateQueries(5);

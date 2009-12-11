@@ -7,6 +7,7 @@
 using System;
 using System.Transactions;
 using Xtensive.Core.Disposing;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
@@ -110,8 +111,7 @@ namespace Xtensive.Storage
     internal void CommitTransaction(Transaction transaction)
     {
       try {
-        Persist();
-        queryTasks.Clear();
+        Persist(PersistReason.Commit);
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXCommittingTransaction, this);
         NotifyTransactionCommitting(transaction);
@@ -147,7 +147,7 @@ namespace Xtensive.Storage
         NotifyTransactionRollbacked(transaction);
       }
       finally {
-        ClearTransactionalRegistries();
+        ClearChangeRegistry();
         CompleteTransaction(transaction);
       }
     }
@@ -166,7 +166,7 @@ namespace Xtensive.Storage
       if (transaction.IsNested) {
         if (!transaction.Outer.IsActuallyStarted)
           StartTransaction(transaction.Outer);
-        Persist();
+        Persist(PersistReason.NestedTransaction);
         Handler.MakeSavepoint(transaction.SavepointName);
       }
       else
@@ -176,10 +176,13 @@ namespace Xtensive.Storage
 
     private void CompleteTransaction(Transaction transaction)
     {
+      queryTasks.Clear();
+      pinner.ClearRoots();
+
       Transaction = transaction.Outer;
     }
-
-    private void ClearTransactionalRegistries()
+    
+    private void ClearChangeRegistry()
     {
       foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
         item.PersistenceState = PersistenceState.Synchronized;
@@ -188,7 +191,6 @@ namespace Xtensive.Storage
       foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
         item.PersistenceState = PersistenceState.Synchronized;
       EntityChangeRegistry.Clear();
-      queryTasks.Clear();
     }
 
     private string GetNextSavepointName()

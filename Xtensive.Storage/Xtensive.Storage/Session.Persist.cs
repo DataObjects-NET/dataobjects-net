@@ -5,6 +5,7 @@
 // Created:    2007.08.10
 
 using System;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
@@ -29,41 +30,59 @@ namespace Xtensive.Storage
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
     public void Persist()
     {
-      Persist(false);
+      Persist(PersistReason.Manual);
     }
 
-    internal void Persist(bool allowPartialExecution)
+    private void Persist(PersistReason reason)
     {
-      if (IsPersisting)
+      EnsureNotDisposed();
+
+      if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
+
+      bool performPinning = pinner.RootCount > 0;
+
+      if (performPinning)
+        switch (reason) {
+        case PersistReason.NestedTransaction:
+        case PersistReason.Commit:
+          throw new InvalidOperationException(Strings.ExCanNotPersistThereArePinnedEntities);
+        }
+
       IsPersisting = true;
       NotifyPersisting();
 
       try {
         using (CoreServices.OpenSystemLogicOnlyRegion()) {
-          EnsureNotDisposed();
-
-          if (EntityChangeRegistry.Count==0)
-            return;
-
           EnsureTransactionIsStarted();
-
           if (IsDebugEventLoggingEnabled)
-            Log.Debug(Strings.LogSessionXPersistingY, 
-              this, 
-              allowPartialExecution ? Strings.Partial : Strings.Full);
+            Log.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
+
+          EntityChangeRegistry itemsToPersist;
+          if (performPinning) {
+            pinner.Process(EntityChangeRegistry);
+            itemsToPersist = pinner.PersistableItems;
+          }
+          else
+            itemsToPersist = EntityChangeRegistry;
 
           try {
-            Handler.Persist(EntityChangeRegistry, allowPartialExecution);
+            Handler.Persist(itemsToPersist, reason==PersistReason.Query);
           }
           finally {
-            foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
+            foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
               item.PersistenceState = PersistenceState.Synchronized;
-            foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified))
+            foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
               item.PersistenceState = PersistenceState.Synchronized;
-            foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
+            foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
               item.Update(null);
-            EntityChangeRegistry.Clear();
+
+            if (performPinning) {
+              EntityChangeRegistry = pinner.PinnedItems;
+              pinner.Reset();
+            }
+            else
+              EntityChangeRegistry.Clear();
 
             if (IsDebugEventLoggingEnabled)
               Log.Debug(Strings.LogSessionXPersistCompleted, this);

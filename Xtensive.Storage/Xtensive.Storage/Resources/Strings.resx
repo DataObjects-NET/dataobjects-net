@@ -1150,8 +1150,8 @@ Actions:
   <data name="SessionXUpdatingCacheY" xml:space="preserve">
     <value>Session '{0}'. Updating cache: {1}.</value>
   </data>
-  <data name="LogSessionXPersistingY" xml:space="preserve">
-    <value>Session '{0}'. Persisting ({1})...</value>
+  <data name="LogSessionXPersistingReasonY" xml:space="preserve">
+    <value>Session '{0}'. Persisting (reason '{1}').</value>
   </data>
   <data name="Partial" xml:space="preserve">
     <value>partial</value>
@@ -1311,5 +1311,8 @@ Actions:
   </data>
   <data name="ExUnableToTranslateElementAtOrDefaultXUseElementAtOrDefaultFuncIntInsteadOfElementAtOrDefaultIntInCachingQueryEnvironmentQueryExecuteForExampleUseElementAtOrDefaultX" xml:space="preserve">
     <value>Unable to translate 'ElementAtOrDefault({0})'. Use 'ElementAtOrDefault(Func(int))' instead of 'ElementAtOrDefault(int)' in caching query environment (Query.Execute). For example use 'ElementAtOrDefault(()=&gt;{0})'.</value>
+  </data>
+  <data name="ExCanNotPersistThereArePinnedEntities" xml:space="preserve">
+    <value>Can not persist: there are pinned entities</value>
   </data>
 </root>

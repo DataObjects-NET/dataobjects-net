@@ -24,7 +24,7 @@ namespace Xtensive.Storage
 
     internal void ExecuteAllDelayedQueries()
     {
-      Persist(true);
+      Persist(PersistReason.Query);
       ExecuteAllDelayedQueries(false);
     }
 

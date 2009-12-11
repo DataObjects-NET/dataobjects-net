@@ -22,7 +22,7 @@ namespace Xtensive.Storage
     internal void EnforceChangeRegistrySizeLimit()
     {
       if (EntityChangeRegistry.Count>=EntityChangeRegistrySizeLimit)
-        Persist();
+        Persist(PersistReason.ChangeRegistrySizeLimit);
     }
 
     internal EntityState CreateEntityState(Key key)

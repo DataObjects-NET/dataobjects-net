@@ -307,7 +307,7 @@ namespace Xtensive.Storage
     #region Private \ internal methods
 
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
-    private void EnsureNotRemoved()
+    internal void EnsureNotRemoved()
     {
       if (IsRemoved)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
