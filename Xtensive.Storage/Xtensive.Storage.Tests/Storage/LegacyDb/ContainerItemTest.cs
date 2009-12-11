@@ -36,7 +36,8 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.ContainerItemModel
 
     public Item(Container container)
     {
-      Container = container;
+      using (Session.Pin(this))
+        Container = container;
     }
   }
 

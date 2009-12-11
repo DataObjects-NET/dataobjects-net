@@ -68,7 +68,10 @@ namespace Xtensive.Storage.Tests.Storage.PinEntityTestModel
     public int Id { get; private set; }
 
     [Field]
-    public EntitySet<Node> Children { get; set; }
+    public EntitySet<Node> Children { get; private set; }
+
+    [Field]
+    public int Tag { get; set; }
    
     [Field, Association(PairTo = "Children",
       OnOwnerRemove = OnRemoveAction.Clear, OnTargetRemove = OnRemoveAction.Cascade)]
@@ -90,7 +93,7 @@ namespace Xtensive.Storage.Tests.Storage
     }
     
     [Test]
-    public void SimpleTest()
+    public void SimplePinTest()
     {
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
@@ -120,17 +123,52 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void PinLargeGraphTest()
+    public void PinGraphsTest()
     {
       try {
         allTrees = new List<Node>();
         using (var session = Session.Open(Domain))
         using (Transaction.Open()) {
-          var tree = T(T(), T(), T(T()));
-          using (session.Pin(tree)) {
-            int numberOfTreesInDatabase = Query<Node>.All.Count();
-            Assert.AreEqual(0, numberOfTreesInDatabase);
+          var node = T(T(), T(), T(T()));
+          using (session.Pin(node)) {
+            AssertNumberOfNodesInDatabaseIs(0);
+            foreach (var item in allTrees)
+              Assert.AreEqual(PersistenceState.New, item.PersistenceState);
           }
+          session.Persist();
+          AssertNumberOfNodesInDatabaseIs(allTrees.Count);
+          using (session.Pin(node)) {
+            foreach (var item in allTrees)
+              item.Tag++;
+            session.Persist();
+            Assert.AreEqual(PersistenceState.Modified, node.PersistenceState);
+            foreach (var item in allTrees.Where(item => item!=node))
+              Assert.AreEqual(PersistenceState.Synchronized, item.PersistenceState);
+          }
+          session.Persist();
+          var newNode = T(node);
+          using (session.Pin(newNode)) {
+            AssertNumberOfNodesInDatabaseIs(allTrees.Count - 1);
+            Assert.AreEqual(PersistenceState.New, newNode.PersistenceState);
+            Assert.AreEqual(PersistenceState.Modified, node.PersistenceState);
+            foreach (var item in allTrees.Where(item => item!=newNode && item!=node))
+              Assert.AreEqual(PersistenceState.Synchronized, item.PersistenceState);
+          }
+          session.Persist();
+          AssertNumberOfNodesInDatabaseIs(allTrees.Count);
+          var cycledNode = T();
+          cycledNode.Parent = cycledNode;
+          using (session.Pin(cycledNode)) {
+            AssertNumberOfNodesInDatabaseIs(allTrees.Count - 1);
+          }
+          session.Persist();
+          var cycledGraph = T(T(T(cycledNode)));
+          cycledGraph.Parent = cycledNode;
+          using (session.Pin(cycledGraph)) {
+            AssertNumberOfNodesInDatabaseIs(allTrees.Count - 3);
+            Assert.AreEqual(PersistenceState.Modified, cycledNode.PersistenceState);
+          }
+          session.Persist();
         }
       }
       finally {
@@ -161,7 +199,7 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void CommitingWithPinnedEntityTest()
+    public void CommittingWithPinnedEntityTest()
     {
       using (var session = Session.Open(Domain))
       using (var transactionScope = Transaction.Open()) {
@@ -184,6 +222,12 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
     
+    private void AssertNumberOfNodesInDatabaseIs(int expected)
+    {
+      var actual = Query<Node>.All.Count();
+      Assert.AreEqual(expected, actual);
+    }
+
     private Node T(params Node[] children)
     {
       var result = new Node();
