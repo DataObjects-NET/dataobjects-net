@@ -614,7 +614,7 @@ namespace Xtensive.Storage.Tests.Model
       Assert.AreEqual(OnRemoveAction.Deny, typeInfo.Fields["Author"].Association.OnTargetRemove);
 
       // Indexes
-      Assert.AreEqual(3, typeInfo.Indexes.Count);
+      Assert.AreEqual(6, typeInfo.Indexes.Count);
       Assert.IsNotNull(typeInfo.Indexes["PK_Book"]);
       Assert.IsTrue(typeInfo.Indexes["PK_Book"].IsPrimary);
       Assert.IsTrue(typeInfo.Indexes["PK_Book"].IsUnique);
@@ -660,12 +660,12 @@ namespace Xtensive.Storage.Tests.Model
       Assert.AreEqual(4096, typeInfo.Fields["Text"].Length);
 
       // Indexes
-      Assert.AreEqual(3, typeInfo.Indexes.Count);
+      Assert.AreEqual(6, typeInfo.Indexes.Count);
       Assert.IsNotNull(typeInfo.Indexes["PK_BookReview"]);
       Assert.IsTrue(typeInfo.Indexes["PK_BookReview"].IsPrimary);
       Assert.IsTrue(typeInfo.Indexes["PK_BookReview"].IsUnique);
       Assert.AreEqual(typeInfo.Hierarchy.KeyProviderInfo.Length, typeInfo.Indexes["PK_BookReview"].KeyColumns.Count);
-      Assert.AreEqual("Book.Isbn", typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Key.Name);
+      Assert.AreEqual("Book", typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Key.Name);
       Assert.AreEqual(Direction.Positive, typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Value);
 //      Assert.AreEqual("Reviewer.PassportNumber", typeInfo.Indexes["PK_BookReview"].KeyColumns[1].Key.Name);
 //      Assert.AreEqual(Direction.Positive, typeInfo.Indexes["PK_BookReview"].KeyColumns[1].Value);

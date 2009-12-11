@@ -329,7 +329,7 @@ namespace Xtensive.Storage.Building.Builders
 
       // Adding system columns as included (only if they are not primary key or index is not primary)
       foreach (ColumnInfo column in typeInfo.Columns.Find(ColumnAttributes.System).Where(c => indexDef.IsPrimary ? !c.IsPrimaryKey : true)) {
-        if (skipTypeId && column.Field.IsTypeId)
+        if (skipTypeId && column.IsSystem && column.Field.IsTypeId)
           continue;
         result.IncludedColumns.Add(column);
       }
@@ -359,7 +359,7 @@ namespace Xtensive.Storage.Building.Builders
         columns.AddRange(result.IncludedColumns);
         columns.AddRange(types.SelectMany(t => t.Columns
           .Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None)
-          .Where(c => skipTypeId ? !c.Field.IsTypeId : true)));
+          .Where(c => skipTypeId ? !(c.Field.IsTypeId && c.IsSystem) : true)));
         result.ValueColumns.AddRange(GatherValueColumns(columns));
       }
       else {
@@ -416,7 +416,7 @@ namespace Xtensive.Storage.Building.Builders
 
       // Adding included columns
       foreach (var column in ancestorIndex.IncludedColumns) {
-        if (skipTypeId && column.Field.IsTypeId)
+        if (skipTypeId && column.IsSystem && column.Field.IsTypeId)
           continue;
         var field = useFieldMap ? 
           reflectedType.FieldMap[column.Field] : 
@@ -427,7 +427,7 @@ namespace Xtensive.Storage.Building.Builders
       // Adding value columns
       if (!ancestorIndex.IsPrimary)
         foreach (var column in ancestorIndex.ValueColumns) {
-          if (skipTypeId && column.Field.IsTypeId)
+          if (skipTypeId && column.IsSystem && column.Field.IsTypeId)
             continue;
           var field = useFieldMap ?
             reflectedType.FieldMap[column.Field] :
@@ -437,25 +437,25 @@ namespace Xtensive.Storage.Building.Builders
       else if ((reflectedType.Attributes & TypeAttributes.Materialized) != 0)
         result.ValueColumns.AddRange(reflectedType.Columns
           .Find(ColumnAttributes.PrimaryKey, MatchType.None)
-          .Where(c => skipTypeId ? !c.Field.IsTypeId : true));
+          .Where(c => skipTypeId ? !(c.IsSystem && c.Field.IsTypeId) : true));
 
       if (ancestorIndex.IsPrimary && reflectedType.IsEntity) {
         if (reflectedType.Hierarchy.Schema==InheritanceSchema.ClassTable) {
           foreach (var column in ancestorIndex.IncludedColumns) {
-            if (skipTypeId && column.Field.IsTypeId)
+            if (skipTypeId && column.IsSystem && column.Field.IsTypeId)
               continue;
             var field = reflectedType.Fields[column.Field.Name];
             result.ValueColumns.Add(field.Column);
           }
           foreach (var column in reflectedType.Columns.Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None)) {
-            if (skipTypeId && column.Field.IsTypeId)
+            if (skipTypeId && column.IsSystem && column.Field.IsTypeId)
               continue;
             result.ValueColumns.Add(column);
           }
         }
         else if (reflectedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable) {
           foreach (var column in reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None)) {
-            if (skipTypeId && column.Field.IsTypeId)
+            if (skipTypeId && column.IsSystem && column.Field.IsTypeId)
               continue;
             if (!result.ValueColumns.Contains(column.Name))
               result.ValueColumns.Add(column);
@@ -500,12 +500,12 @@ namespace Xtensive.Storage.Building.Builders
 
       // Adding TypeId column
       if (realIndex.IsPrimary)
-        result.ValueColumns.Add(reflectedType.Columns.Single(c => c.Field.IsTypeId));
+        result.ValueColumns.Add(reflectedType.Columns.Single(c => c.IsSystem && c.Field.IsTypeId));
       // Adding value columns
       result.ValueColumns.AddRange(realIndex.ValueColumns);
       // Adding TypeId column
       if (!realIndex.IsPrimary)
-        result.ValueColumns.Add(reflectedType.Columns.Single(c => c.Field.IsTypeId));
+        result.ValueColumns.Add(reflectedType.Columns.Single(c => c.IsSystem && c.Field.IsTypeId));
 
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
