@@ -290,6 +290,7 @@ namespace Xtensive.Storage
     /// otherwise <see langword="null"/>.</returns>
     public IDisposable Pin(IEntity target)
     {
+      EnsureNotDisposed();
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var targetEntity = (Entity) target;
       targetEntity.EnsureNotRemoved();

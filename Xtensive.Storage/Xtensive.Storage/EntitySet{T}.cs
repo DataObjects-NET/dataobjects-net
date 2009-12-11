@@ -115,6 +115,18 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Adds the <see cref="items"/> to this <see cref="EntitySet{TItem}"/>.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the element.</typeparam>
+    /// <param name="items">The items to add.</param>
+    public new void AddRange<TElement>(IEnumerable<TElement> items)
+      where TElement: TItem
+    {
+      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      base.AddRange(items);
+    }
+
+    /// <summary>
     /// Modifies the current <see cref="EntitySet{TItem}"/> object
     /// to contain only elements that are present in that object and in the specified collection.
     /// </summary>

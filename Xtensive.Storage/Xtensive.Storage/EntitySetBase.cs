@@ -460,6 +460,14 @@ namespace Xtensive.Storage
 
     #region Set operations
 
+    internal void AddRange<TElement>(IEnumerable<TElement> items)
+      where TElement: IEntity
+    {
+      EnsureOwnerIsNotRemoved();
+      foreach (var item in items)
+        Add(item);
+    }
+
     internal void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : IEntity
     {

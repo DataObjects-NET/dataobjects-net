@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Internals
       foreach (var referencingAssociation in referencedType.GetTargetAssociations()) {
         var referencingType = referencingAssociation.OwnerType;
         foreach (var possibleReferencer in QueryRegistry(referencingType)) {
-          var referenceValue = referencingAssociation
+          var referenceValue = referencingAssociation.Master
             .ExtractForeignKey(possibleReferencer.Type, possibleReferencer.Tuple);
           if (referencedKey.Equals(referenceValue))
             yield return possibleReferencer;
