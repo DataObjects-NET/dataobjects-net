@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Manual.Attributes
     public abstract class Book : Entity
     {
       // This field will be used for descendant entities type information.
-      [Field(TypeDiscriminator = true)]
+      [Field, TypeDiscriminator]
       public bool BookType { get; private set; }
 
       [Key(Direction = Direction.Negative), Field]
