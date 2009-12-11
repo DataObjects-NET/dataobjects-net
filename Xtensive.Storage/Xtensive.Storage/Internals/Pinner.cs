@@ -17,8 +17,7 @@ namespace Xtensive.Storage.Internals
     private readonly HashSet<EntityState> roots = new HashSet<EntityState>();
 
     private EntityChangeRegistry activeRegistry;
-    private HashSet<EntityState> stronglyPinnedItems;
-    private HashSet<EntityState> weaklyPinnedItems;
+    private HashSet<EntityState> pinnedItems;
 
     public int RootCount { get { return roots.Count; } }
 
@@ -75,25 +74,18 @@ namespace Xtensive.Storage.Internals
     
     private bool IsPinned(EntityState state)
     {
-      return stronglyPinnedItems.Contains(state) || weaklyPinnedItems.Contains(state);
+      return pinnedItems.Contains(state);
     }
 
     private bool Pin(EntityState state)
     {
-      if (state.PersistenceState==PersistenceState.New) {
-        stronglyPinnedItems.Add(state);
-        return true;
-      }
-
-      weaklyPinnedItems.Add(state);
-      return false;
+      pinnedItems.Add(state);
+      return state.PersistenceState==PersistenceState.New;
     }
 
     private void PinAll()
     {
-      stronglyPinnedItems = new HashSet<EntityState>();
-      weaklyPinnedItems = new HashSet<EntityState>();
-      
+      pinnedItems = new HashSet<EntityState>();
       foreach (var item in roots)
         ProcessRoot(item);
     }
@@ -117,8 +109,7 @@ namespace Xtensive.Storage.Internals
 
     private void ClearPinned()
     {
-      stronglyPinnedItems = null;
-      weaklyPinnedItems = null;
+      pinnedItems = null;
     }
 
     private IEnumerable<EntityState> FindReferencers(EntityState referencedItem)
