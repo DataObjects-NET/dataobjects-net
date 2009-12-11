@@ -5,7 +5,6 @@
 // Created:    2009.08.13
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage
 {
@@ -16,13 +15,6 @@ namespace Xtensive.Storage
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   public sealed class VersionAttribute : StorageAttribute
   {
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public VersionAttribute()
-    {
-    }
+    
   }
 }

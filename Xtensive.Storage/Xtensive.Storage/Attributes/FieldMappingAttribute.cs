@@ -5,7 +5,6 @@
 // Created:    2009.07.10
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage
@@ -14,7 +13,7 @@ namespace Xtensive.Storage
   /// Field mapping attribute.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public class FieldMappingAttribute : StorageAttribute
   {
     /// <summary>
@@ -26,35 +25,16 @@ namespace Xtensive.Storage
     /// </remarks>
     public string Name { get; private set; }
 
-    /// <summary>
-    /// Gets the base part of the field's related column name.
-    /// </summary>
-    /// <remarks>
-    /// You can use the following characters in <see cref="FieldName"/>s: [_A-Za-z0-9-.]. 
-    /// <see cref="FieldName"/> can't be an empty string or <see langword="null"/>.
-    /// </remarks>
-    public string FieldName { get; private set; }
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="mappingName">Field mapping name.</param>
-    public FieldMappingAttribute(string mappingName)
+    /// <param name="name">Field mapping name.</param>
+    public FieldMappingAttribute(string name)
     {
-      Name = mappingName;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="mappingName">Field mapping name.</param>
-    /// <param name="fieldName">Field name.</param>
-    public FieldMappingAttribute(string mappingName, string fieldName)
-    {
-      Name = mappingName;
-      FieldName = fieldName;
+      Name = name;
     }
   }
 }

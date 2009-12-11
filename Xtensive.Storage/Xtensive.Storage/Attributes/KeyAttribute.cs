@@ -24,7 +24,7 @@ namespace Xtensive.Storage
     /// <remarks>
     /// <para>Each key in hierarchy should have an unique position from 0 to N-1 where N is number of key fields.</para>
     /// <para>
-    /// Key fields positions and <see cref="Direction">directions</see> choise can be based on some optimization purposes, 
+    /// Key fields positions and <see cref="Direction">directions</see> choice can be based on some optimization purposes, 
     /// e.g. sometimes it can be better to have specific order and <see cref="Direction"/> of key fields.
     /// </para>
     /// <para>Default position is <c>0</c>.</para>
@@ -35,7 +35,7 @@ namespace Xtensive.Storage
     /// Gets or sets the sort direction. Default is <see cref="Core.Direction.Positive"/>.
     /// </summary>
     /// <para>
-    /// Key fields <see cref="Position">positions</see> and directions choise can be based on some optimization purposes, 
+    /// Key fields <see cref="Position">positions</see> and directions choice can be based on some optimization purposes, 
     /// e.g. sometimes it can be better to have specific order and direction of key fields.
     /// </para>
     public Direction Direction { get; set; }

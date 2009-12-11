@@ -32,10 +32,10 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="mappingName"><see cref="Name"/> property value.</param>
-    public TableMappingAttribute(string mappingName)
+    /// <param name="name"><see cref="Name"/> property value.</param>
+    public TableMappingAttribute(string name)
     {
-      Name = mappingName;
+      Name = name;
     }
   }
 }
