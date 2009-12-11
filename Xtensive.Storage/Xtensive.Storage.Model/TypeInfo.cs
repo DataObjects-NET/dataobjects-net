@@ -425,46 +425,42 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the version field sequence.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The version field sequence.</returns>
     public IList<FieldInfo> GetVersionFields()
     {
       if (IsLocked)
         return versionFields;
 
-      var list = Fields.Where(field => field.IsVersion).ToList();
-      return list.Count > 0 ? list : new List<FieldInfo>();
+      return Fields.Where(field => field.IsVersion).ToList();
     }
 
     /// <summary>
     /// Gets the version columns.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The version columns.</returns>
     public IList<Pair<ColumnInfo, int>> GetVersionColumns()
     {
       if (IsLocked)
         return versionColumns;
 
       var versionFields = GetVersionFields();
-      if (versionFields.Count>0)
-        return
-          versionFields
-            .SelectMany(field => field.Columns)
-            .Select(column => new Pair<ColumnInfo, int>(column, Columns.IndexOf(column)))
-            .OrderBy(pair => pair.Second)
-            .ToList();
+      if (versionFields.Count==0)
+        versionFields = (
+          from field in Fields
+          where field.IsPrimitive &&
+            !field.IsPrimaryKey && !field.IsSystem && !field.IsLazyLoad && !field.ValueType.IsArray &&
+            !((field.IsTypeId || field.IsTypeDiscriminator) && field.Parent==null)
+          select field
+          ).ToList();
 
-      return
-        Fields.Where(field =>
-          !field.IsPrimaryKey
-            && !field.IsSystem
-            && !(field.IsTypeId && field.Parent==null)
-            && field.IsPrimitive
-            && !field.IsLazyLoad
-            && !field.ValueType.IsArray)
-          .SelectMany(field => field.Columns,
-            (field, column) => new Pair<ColumnInfo, int>(column, Columns.IndexOf(column)))
-          .OrderBy(pair => pair.Second)
-          .ToList();
+      return (
+        from field in versionFields
+        from column in field.Columns
+        select new Pair<ColumnInfo, int>(column, Columns.IndexOf(column))
+        into pair
+          orderby pair.Second
+          select pair
+        ).ToList();
     }
 
     /// <inheritdoc/>

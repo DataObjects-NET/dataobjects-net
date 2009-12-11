@@ -106,7 +106,6 @@ namespace Xtensive.Core.Tests.DotNetFramework
 
     private bool isRegularTestRunning;
     public const int IterationCount = 10000000;
-    private static TypeBasedDictionary castCache = TypeBasedDictionary.Create();
 
     [Test]
     public void RegularTest()
@@ -282,7 +281,6 @@ namespace Xtensive.Core.Tests.DotNetFramework
       CallInterfaceVMethod(ic, iterations);
       CallInterfaceVMethod_WithoutCaching(ic, iterations);
       CallInterfaceVMethod_WithCast(c, iterations);
-      CallInterfaceVMethod_WithTypeBasedCache(c, iterations);
       // Real test
       iterations = (int)(IterationCount*speedFactor);
       Log.Info("Virtual call test:");
@@ -304,12 +302,9 @@ namespace Xtensive.Core.Tests.DotNetFramework
         Cleanup();
         using (new Measurement("Interface method (worst case)   ", MeasurementOptions.Log, iterations))
           CallInterfaceVMethod_WithoutCaching(ic, iterations);
-        // Cleanup();
+        Cleanup();
         using (new Measurement("Interface method (with cast)    ", MeasurementOptions.Log, iterations))
           CallInterfaceVMethod_WithCast(c, iterations);
-        // Cleanup();
-        using (new Measurement("Interface method (with cache, 2)", MeasurementOptions.Log, iterations))
-          CallInterfaceVMethod_WithTypeBasedCache(c, iterations);
         Cleanup();
         using (new Measurement("Interface method cast           ", MeasurementOptions.Log, iterations))
           CastInterfaceVMethod(ic, iterations);
@@ -652,76 +647,6 @@ namespace Xtensive.Core.Tests.DotNetFramework
         o = ic.Value;
         ic = (IContainer<T>)c;
         o = ic.Value;
-      }
-    }
-
-
-
-    private void CallInterfaceVMethod_WithTypeBasedCache<T>(ContainerBase<T> c, int count)
-    {
-      IContainer<T> cached;
-      T o;
-      for (int i = 0; i<count; i+=10) {
-        cached = castCache.GetValue<IContainer<T>, IContainer<T>>();
-        if (cached==null) {
-          cached = (IContainer<T>) c;
-          castCache.SetValue<IContainer<T>, IContainer<T>>(cached);
-        }
-        o = cached.Value;
-        cached = castCache.GetValue<IContainer<T>, IContainer<T>>();
-        if (cached==null) {
-          cached = (IContainer<T>) c;
-          castCache.SetValue<IContainer<T>, IContainer<T>>(cached);
-        }
-        o = cached.Value;
-        cached = castCache.GetValue<IContainer<T>, IContainer<T>>();
-        if (cached==null) {
-          cached = (IContainer<T>) c;
-          castCache.SetValue<IContainer<T>, IContainer<T>>(cached);
-        }
-        o = cached.Value;
-        cached = castCache.GetValue<IContainer<T>, IContainer<T>>();
-        if (cached==null) {
-          cached = (IContainer<T>) c;
-          castCache.SetValue<IContainer<T>, IContainer<T>>(cached);
-        }
-        o = cached.Value;
-        cached = castCache.GetValue<IContainer<T>, IContainer<T>>();
-        if (cached==null) {
-          cached = (IContainer<T>) c;
-          castCache.SetValue<IContainer<T>, IContainer<T>>(cached);
-        }
-        o = cached.Value;
-        cached = castCache.GetValue<IContainer<T>, IContainer<T>>();
-        if (cached==null) {
-          cached = (IContainer<T>) c;
-          castCache.SetValue<IContainer<T>, IContainer<T>>(cached);
-        }
-        o = cached.Value;
-        cached = castCache.GetValue<IContainer<T>, IContainer<T>>();
-        if (cached==null) {
-          cached = (IContainer<T>) c;
-          castCache.SetValue<IContainer<T>, IContainer<T>>(cached);
-        }
-        o = cached.Value;
-        cached = castCache.GetValue<IContainer<T>, IContainer<T>>();
-        if (cached==null) {
-          cached = (IContainer<T>) c;
-          castCache.SetValue<IContainer<T>, IContainer<T>>(cached);
-        }
-        o = cached.Value;
-        cached = castCache.GetValue<IContainer<T>, IContainer<T>>();
-        if (cached==null) {
-          cached = (IContainer<T>) c;
-          castCache.SetValue<IContainer<T>, IContainer<T>>(cached);
-        }
-        o = cached.Value;
-        cached = castCache.GetValue<IContainer<T>, IContainer<T>>();
-        if (cached==null) {
-          cached = (IContainer<T>) c;
-          castCache.SetValue<IContainer<T>, IContainer<T>>(cached);
-        }
-        o = cached.Value;
       }
     }
 

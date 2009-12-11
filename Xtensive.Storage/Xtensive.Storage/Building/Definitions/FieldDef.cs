@@ -79,15 +79,6 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is used as custom type discriminator.
-    /// </summary>
-    public bool IsTypeDiscriminator
-    {
-      get { return (attributes & FieldAttributes.TypeDiscriminator) != 0; }
-      set { attributes = value ? attributes | FieldAttributes.TypeDiscriminator : attributes & ~FieldAttributes.TypeDiscriminator; }
-    }
-
-    /// <summary>
     /// Gets or sets a value indicating whether property is nullable.
     /// </summary>
     public bool IsNullable
@@ -151,6 +142,15 @@ namespace Xtensive.Storage.Building.Definitions
     {
       get { return (attributes & FieldAttributes.TypeId) != 0; }
       internal set { attributes = value ? attributes | FieldAttributes.TypeId | FieldAttributes.System : attributes & ~FieldAttributes.TypeId; }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this instance is used as custom type discriminator.
+    /// </summary>
+    public bool IsTypeDiscriminator
+    {
+      get { return (attributes & FieldAttributes.TypeDiscriminator) != 0; }
+      set { attributes = value ? attributes | FieldAttributes.TypeDiscriminator : attributes & ~FieldAttributes.TypeDiscriminator; }
     }
 
     /// <summary>

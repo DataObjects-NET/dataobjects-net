@@ -255,8 +255,8 @@
   <data name="ExTypeXIsNotRegisteredInTheModel" xml:space="preserve">
     <value>Type '{0}' is not registered in the model.</value>
   </data>
-  <data name="ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey" xml:space="preserve">
-    <value>Field '{0}' can't have LazyLoad attribute as it is included into primary key.</value>
+  <data name="ExFieldXCannotBeLazyLoadAsItIsIncludedInPrimaryKey" xml:space="preserve">
+    <value>Field '{0}' cannot be LazyLoad as it is included into primary key.</value>
   </data>
   <data name="ExTypeWithNameXIsAlreadyDefined" xml:space="preserve">
     <value>Type with name '{0}' is already defined.</value>
@@ -295,19 +295,13 @@
     <value>Key provider '{0}' and hierarchy {1} key field amount mismatch.</value>
   </data>
   <data name="ExInvalidLengthAttributeOnXField" xml:space="preserve">
-    <value>Invalid 'Length' attribute on '{0}' field.</value>
-  </data>
-  <data name="ExInvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference" xml:space="preserve">
-    <value>Invalid 'OnDelete' attribute usage on field '{0}'. Field is not entity reference.</value>
-  </data>
-  <data name="ExplicitIsNullableAttributeIsRedundant" xml:space="preserve">
-    <value>Explicit 'IsNullable' attribute is redundant</value>
+    <value>Invalid Length attribute on '{0}' field.</value>
   </data>
   <data name="ExFieldXHasYTypeButIsMarkedAsNotNullable" xml:space="preserve">
     <value>Field '{0}' has '{1}' type but is marked as not nullable.</value>
   </data>
-  <data name="ExplicitLazyLoadAttributeOnFieldXIsRedundant" xml:space="preserve">
-    <value>Explicit 'LazyLoad' attribute on field '{0}' is redundant</value>
+  <data name="LogExplicitLazyLoadAttributeOnFieldXIsRedundant" xml:space="preserve">
+    <value>Explicit LazyLoad=true on field '{0}' is redundant.</value>
   </data>
   <data name="ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically" xml:space="preserve">
     <value>Explicit mapping name setting is redundant. The same name '{0}' will be generated automatically.</value>
@@ -468,7 +462,7 @@
   <data name="ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile" xml:space="preserve">
     <value>Configuration for Domain with name '{0}' is not found in application configuration file (section '{1}').</value>
   </data>
-  <data name="ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey" xml:space="preserve">
+  <data name="ExFieldXCannotBeNullableAsItIsIncludedInPrimaryKey" xml:space="preserve">
     <value>Field '{0}' cannot be Nullable as it is included into primary key.</value>
   </data>
   <data name="ExNoCurrentSession" xml:space="preserve">
@@ -487,7 +481,7 @@
     <value>Attempt to associate non-empty EntityState with Key of unknown type.</value>
   </data>
   <data name="ExPairToAttributeCanNotBeAppliedToXField" xml:space="preserve">
-    <value>'PairTo' attribute can not be applied to field '{0}' of type '{1}'. It is already applied to field '{2}' of type '{3}'.</value>
+    <value>[Association] attribute with PairTo can not be use with field '{0}' of type '{1}'. It is already applied to field '{2}' of type '{3}'.</value>
   </data>
   <data name="ExSessionWithNameXAlreadyExists" xml:space="preserve">
     <value>Session with name '{0}' already exists.</value>
@@ -511,9 +505,7 @@
     <value>Session is not open. Use Session.Open(...) to open it.</value>
   </data>
   <data name="ExPersistentAttributeIsNotSetOnTypeX" xml:space="preserve">
-    <value>Persistent attribute isn't applied, or assembly is not processed by PostSharp.
-Add &lt;usePostSharp&gt;true&lt;/usePostSharp&gt; and &lt;DontImportPostSharp&gt;true&lt;/DontImportPostSharp&gt; to .csproj / .vbproj for "{0}" assembly.
-Add the following line to AssemblyInfo.cs for "{0}" assembly: [assembly: Persistent(AttributeTargetAssemblies = "{0}")].</value>
+    <value>[Persistent] attribute isn't applied, or assembly is not processed by PostSharp. See section 2 of Manual for details.</value>
   </data>
   <data name="ExActiveSerializationContextIsNotFound" xml:space="preserve">
     <value>Active serialization context is not found.</value>
@@ -531,7 +523,7 @@ Add the following line to AssemblyInfo.cs for "{0}" assembly: [assembly: Persist
     <value>Unable to create key for '{0}' hierarchy. Key value or key generator should be specified.</value>
   </data>
   <data name="ExCompilerContainerAttributeIsNotAppliedToTypeX" xml:space="preserve">
-    <value>'CompilerContainer' attribute isn't applied to type '{0}'.</value>
+    <value>[CompilerContainer] attribute isn't applied to type '{0}'.</value>
   </data>
   <data name="ExInvalidUpgraderVersion" xml:space="preserve">
     <value>Invalid upgrader version.</value>
@@ -640,9 +632,6 @@ Actions:
   <data name="ExStructuresDoNotSupportFieldsOfTypeX" xml:space="preserve">
     <value>Structures do not support fields of type '{0}'.</value>
   </data>
-  <data name="ExMultipleHierarchyAttributesAreNotAllowed" xml:space="preserve">
-    <value>Multiple hierarchy attributes are not allowed.</value>
-  </data>
   <data name="LogDefiningHierarchyForTypeX" xml:space="preserve">
     <value>Defining hierarchy for type '{0}'</value>
   </data>
@@ -715,11 +704,11 @@ Actions:
   <data name="ExStructureOfFieldXDoesNotMatchStructureOfFieldY" xml:space="preserve">
     <value>Structure of field '{0}' does not match structure of field '{1}'.</value>
   </data>
-  <data name="InvalidScaleAttributeOnFieldX" xml:space="preserve">
-    <value>Invalid 'Scale' attribute on field '{0}'</value>
+  <data name="ExInvalidScaleAttributeOnFieldX" xml:space="preserve">
+    <value>Invalid Scale attribute on field '{0}'.</value>
   </data>
-  <data name="InvalidPrecisionAttributeOnFieldX" xml:space="preserve">
-    <value>Invalid 'Precision' attribute on field '{0}'</value>
+  <data name="ExInvalidPrecisionAttributeOnFieldX" xml:space="preserve">
+    <value>Invalid Precision attribute on field '{0}'.</value>
   </data>
   <data name="ExKeyComparerNotSupportedInGroupJoin" xml:space="preserve">
     <value>Unable to translate expression '{0}'. Key comparer is not supported in GroupJoin.</value>
@@ -809,7 +798,7 @@ Actions:
     <value>The query contains closures of different types.</value>
   </data>
   <data name="ExInvalidPrefetchSelectorX" xml:space="preserve">
-    <value>Invalid prefetch selector '{0}'</value>
+    <value>Invalid prefetch selector '{0}'.</value>
   </data>
   <data name="ExCanNotCommitATransactionValidationContextIsInInvalidState" xml:space="preserve">
     <value>Can not commit a transaction. Validation context is in invalid state.</value>
@@ -1314,5 +1303,11 @@ Actions:
   </data>
   <data name="ExCanNotPersistThereArePinnedEntities" xml:space="preserve">
     <value>Can not persist: there are pinned entities</value>
+  </data>
+  <data name="ExTypeDiscriminatorValueIsRequiredUnlessXIsMarkedAsDefaultTypeInHierarchy" xml:space="preserve">
+    <value>Type discriminator value is required unless {0} is marked as default type in hierarchy.</value>
+  </data>
+  <data name="ExXFieldIsNotDeclaredInEntityDescendantSoCannotBeUsedAsTypeDiscriminator" xml:space="preserve">
+    <value>'{0}' field is not declared in Entity descendant, so cannot be used as type discriminator.</value>
   </data>
 </root>

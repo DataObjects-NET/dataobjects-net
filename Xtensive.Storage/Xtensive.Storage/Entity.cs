@@ -5,6 +5,7 @@
 // Created:    2007.08.01
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -17,6 +18,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Integrity.Validation;
+using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
@@ -60,8 +62,7 @@ namespace Xtensive.Storage
   public abstract class Entity : Persistent,
     IEntity,
     ISerializable,
-    IDeserializationCallback,
-    IHasVersion<VersionInfo>
+    IDeserializationCallback
   {
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
 
@@ -79,7 +80,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Properties: Key, Type, Tuple, PersistenceState, Version
+    #region Properties: Key, Type, Tuple, PersistenceState, VersionInfo, etc.
 
     /// <summary>
     /// Gets the <see cref="Key"/> that identifies this entity.
@@ -91,20 +92,36 @@ namespace Xtensive.Storage
       get { return State.Key; }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this entity is removed.
-    /// </summary>
-    /// <seealso cref="Remove"/>
-    public bool IsRemoved
-    {
-      get
-      {
-        if (Session.IsPersisting)
-          // Removed = "already removed from storage" here
-          return State.IsNotAvailable;
-        else
-          // Removed = "either already removed, or marked as removed" here
-          return State.IsNotAvailableOrMarkedAsRemoved;
+    /// <inheritdoc/>
+    public VersionInfo VersionInfo {
+      get {
+        if (Type.HasVersionRoots) {
+          var version = new VersionInfo();
+          foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
+            if (root is IHasVersionRoots)
+              throw new InvalidOperationException(Strings.ExVersionRootObjectCantImplementIHasVersionRoots);
+            version = version.Join(root.Key, root.VersionInfo);
+          }
+          return version;
+        }
+        if (Type.VersionExtractor==null)
+          return new VersionInfo(); // returns empty VersionInfo
+        var tuple = State.Tuple;
+        var versionColumns = Type.GetVersionColumns();
+        List<PrefetchFieldDescriptor> columnsToPrefetch = null;
+        foreach (var pair in versionColumns) {
+          if (!tuple.GetFieldState(pair.Second).IsAvailable()) {
+            if (columnsToPrefetch==null)
+              columnsToPrefetch = new List<PrefetchFieldDescriptor>();
+            columnsToPrefetch.Add(new PrefetchFieldDescriptor(pair.First.Field));
+          }
+        }
+        if (columnsToPrefetch!=null) {
+          Session.Handler.Prefetch(Key, Type, new FieldDescriptorCollection(columnsToPrefetch));
+          Session.Handler.ExecutePrefetchTasks();
+        }
+        var versionTuple = Type.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
+        return new VersionInfo(versionTuple);
       }
     }
 
@@ -133,24 +150,22 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
-    object IHasVersion.Version
+    public bool IsRemoved
     {
-      [DebuggerStepThrough]
-      get { return GetVersion(); }
-    }
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    VersionInfo IHasVersion<VersionInfo>.Version
-    {
-      [DebuggerStepThrough]
-      get { return GetVersion(); }
+      get
+      {
+        if (Session.IsPersisting)
+          // Removed = "already removed from storage" here
+          return State.IsNotAvailable;
+        else
+          // Removed = "either already removed, or marked as removed" here
+          return State.IsNotAvailableOrMarkedAsRemoved;
+      }
     }
 
     #endregion
 
-    #region IIdentifier members
+    #region IIdentified members
 
     /// <inheritdoc/>
     [Infrastructure] // Proxy
@@ -170,38 +185,39 @@ namespace Xtensive.Storage
 
     #endregion
 
+    #region IHasVersion members
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    VersionInfo IHasVersion<VersionInfo>.Version {
+      [DebuggerStepThrough]
+      get { return VersionInfo; }
+    }
+
+    /// <inheritdoc/>
+    [Infrastructure]
+    object IHasVersion.Version {
+      [DebuggerStepThrough]
+      get { return VersionInfo; }
+    }
+
+    #endregion
+
     #region Public members
 
-    /// <summary>
-    /// Gets the current version.
-    /// </summary>
-    /// <returns>Current version.</returns>
-    public VersionInfo GetVersion()
+    /// <inheritdoc/>
+    public override sealed event PropertyChangedEventHandler PropertyChanged
     {
-      if (Type.HasVersionRoots) {
-        var version = new VersionInfo();
-        foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
-          if (root is IHasVersionRoots)
-            throw new InvalidOperationException(Strings.ExVersionRootObjectCantImplementIHasVersionRoots);
-          version = version.Join(root.Key, root.GetVersion());
-        }
-        return version;
+      add {
+        Session.EntityEventBroker.AddSubscriber(
+          Key, EntityEventBroker.PropertyChangedEventKey, value);
       }
-      if (Type.VersionExtractor==null)
-        return new VersionInfo(); // returns empty VersionInfo
-      var tuple = State.Tuple;
-      var fieldsToLoad = Type.GetVersionColumns()
-        .Where(pair => !tuple.GetFieldState(pair.Second).IsAvailable())
-        .Select(pair => new PrefetchFieldDescriptor(pair.First.Field, false, false))
-        .ToArray();
-      if (fieldsToLoad.Length > 0) {
-        Session.Handler.Prefetch(Key, Type, new FieldDescriptorCollection(fieldsToLoad));
-        Session.Handler.ExecutePrefetchTasks();
+      remove {
+        Session.EntityEventBroker.RemoveSubscriber(Key, 
+          EntityEventBroker.PropertyChangedEventKey, value);
       }
-      var versionTuple = Type.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
-      return new VersionInfo(versionTuple);
     }
-    
+
     /// <summary>
     /// Removes this entity.
     /// </summary>
@@ -230,23 +246,6 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public override sealed event PropertyChangedEventHandler PropertyChanged
-    {
-      add {
-        Session.EntityEventBroker.AddSubscriber(
-          Key, EntityEventBroker.PropertyChangedEventKey, value);
-      }
-      remove {
-        Session.EntityEventBroker.RemoveSubscriber(Key, 
-          EntityEventBroker.PropertyChangedEventKey, value);
-      }
-    }
-
-    /// <summary>
-    /// Locks this instance in the storage.
-    /// </summary>
-    /// <param name="lockMode">The lock mode.</param>
-    /// <param name="lockBehavior">The lock behavior.</param>
     public void Lock(LockMode lockMode, LockBehavior lockBehavior)
     {
       using (new ParameterContext().Activate()) {

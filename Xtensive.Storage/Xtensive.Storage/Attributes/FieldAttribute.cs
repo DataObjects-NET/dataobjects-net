@@ -58,23 +58,6 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether value of this field should be loaded on demand.
-    /// </summary>
-    /// <remarks>
-    /// Usually lazy loading is used for byte-arrays, large string fields or <see cref="Structure">structures</see>.
-    /// <see cref="Entity"/> and <see cref="EntitySet{TItem}"/> fields are always loaded on demand.
-    /// </remarks>
-    public bool LazyLoad { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this field is used as type discriminator.
-    /// </summary>
-    /// <value>
-    /// <see langword="true"/> if field is used as type discriminator; otherwise, <see langword="false"/>.
-    /// </value>
-    public bool TypeDiscriminator { get; set; }
-
-    /// <summary>
     /// Gets or sets a value indicating whether this field is nullable.
     /// </summary>
     /// <remarks>
@@ -89,5 +72,14 @@ namespace Xtensive.Storage
       get { return nullable.HasValue ? nullable.Value : false; }
       set { nullable = value; }
     }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether value of this field should be loaded on demand.
+    /// </summary>
+    /// <remarks>
+    /// Usually lazy loading is used for byte-arrays, large string fields or <see cref="Structure">structures</see>.
+    /// <see cref="Entity"/> and <see cref="EntitySet{TItem}"/> fields are always loaded on demand.
+    /// </remarks>
+    public bool LazyLoad { get; set; }
   }
 }

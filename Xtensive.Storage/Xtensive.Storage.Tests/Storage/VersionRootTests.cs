@@ -136,9 +136,9 @@ namespace Xtensive.Storage.Tests.Storage
           var order = new Order {Number = 1};
           var orderItem = new OrderItem {Product = "Product", Quantity = 10, Order = order};
           orderKey = order.Key;
-          orderVersion = order.GetVersion();
+          orderVersion = order.VersionInfo;
           orderItemKey = orderItem.Key;
-          orderItemVersion = orderItem.GetVersion();
+          orderItemVersion = orderItem.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -146,11 +146,11 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var order = Query<Order>.Single(orderKey);
           var orderItem = Query<OrderItem>.Single(orderItemKey);
-          Assert.IsTrue(orderVersion==order.GetVersion());
-          Assert.IsTrue(orderItemVersion==orderItem.GetVersion());
+          Assert.IsTrue(orderVersion==order.VersionInfo);
+          Assert.IsTrue(orderItemVersion==orderItem.VersionInfo);
           orderItem.Quantity = 20;
-          Assert.IsFalse(orderVersion==order.GetVersion());
-          Assert.IsFalse(orderItemVersion==orderItem.GetVersion());
+          Assert.IsFalse(orderVersion==order.VersionInfo);
+          Assert.IsFalse(orderItemVersion==orderItem.VersionInfo);
           transactionScope.Complete();
         }
       }
@@ -171,9 +171,9 @@ namespace Xtensive.Storage.Tests.Storage
             Product = "Product", Quantity = 10, Order = order, SupplierName = "Supplier1"
           };
           orderKey = order.Key;
-          orderVersion = order.GetVersion();
+          orderVersion = order.VersionInfo;
           orderItemKey = orderItem.Key;
-          orderItemVersion = orderItem.GetVersion();
+          orderItemVersion = orderItem.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -181,11 +181,11 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var order = Query<Order>.Single(orderKey);
           var orderItem = Query<AdvancedOrderItem>.Single(orderItemKey);
-          Assert.IsTrue(orderVersion==order.GetVersion());
-          Assert.IsTrue(orderItemVersion==orderItem.GetVersion());
+          Assert.IsTrue(orderVersion==order.VersionInfo);
+          Assert.IsTrue(orderItemVersion==orderItem.VersionInfo);
           orderItem.SupplierName = "Supplier2";
-          Assert.IsFalse(orderVersion==order.GetVersion());
-          Assert.IsFalse(orderItemVersion==orderItem.GetVersion());
+          Assert.IsFalse(orderVersion==order.VersionInfo);
+          Assert.IsFalse(orderItemVersion==orderItem.VersionInfo);
           transactionScope.Complete();
         }
       }
@@ -208,10 +208,10 @@ namespace Xtensive.Storage.Tests.Storage
           var item = new Item {Value = "Value"};
           owner1Key = owner1.Key;
           owner2Key = owner2.Key;
-          owner1Version = owner1.GetVersion();
-          owner2Version = owner2.GetVersion();
+          owner1Version = owner1.VersionInfo;
+          owner2Version = owner2.VersionInfo;
           itemKey = item.Key;
-          itemVersion = item.GetVersion();
+          itemVersion = item.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -220,13 +220,13 @@ namespace Xtensive.Storage.Tests.Storage
           var owner1 = Query<Owner1>.Single(owner1Key);
           var owner2 = Query<Owner2>.Single(owner2Key);
           var item = Query<Item>.Single(itemKey);
-          Assert.IsTrue(owner1Version==owner1.GetVersion());
-          Assert.IsTrue(owner2Version==owner2.GetVersion());
-          Assert.IsTrue(itemVersion==item.GetVersion());
+          Assert.IsTrue(owner1Version==owner1.VersionInfo);
+          Assert.IsTrue(owner2Version==owner2.VersionInfo);
+          Assert.IsTrue(itemVersion==item.VersionInfo);
           item.Value = "New Value";
-          Assert.IsFalse(owner1Version==owner1.GetVersion());
-          Assert.IsFalse(owner2Version==owner2.GetVersion());
-          Assert.IsFalse(itemVersion==item.GetVersion());
+          Assert.IsFalse(owner1Version==owner1.VersionInfo);
+          Assert.IsFalse(owner2Version==owner2.VersionInfo);
+          Assert.IsFalse(itemVersion==item.VersionInfo);
           transactionScope.Complete();
         }
       }
@@ -242,7 +242,7 @@ namespace Xtensive.Storage.Tests.Storage
           var owner1 = new Owner1();
           var owner2 = new Owner2();
           var item = new Item {Value = "Value"};
-          itemVersion = item.GetVersion();
+          itemVersion = item.VersionInfo;
           transactionScope.Complete();
         }
       }

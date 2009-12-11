@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Metadata
   public class Assembly : MetadataBase
   {
     /// <summary>
-    /// Gets or sets the name of the assembly.
+    /// Gets the name of the assembly.
     /// </summary>
     [Key]
     [Field(Length = 1024)]

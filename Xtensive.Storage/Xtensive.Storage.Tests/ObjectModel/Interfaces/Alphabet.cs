@@ -181,8 +181,10 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   {
     [Field, Key]
     public long Id { get; private set; }
-    [Field(TypeDiscriminator = true)]
+    
+    [Field, TypeDiscriminator]
     public int ElementType { get; private set; }
+
     public string Name { get; set; }
   }
 
@@ -235,8 +237,10 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   {
     [Field, Key]
     public long Id { get; private set; }
-    [Field(TypeDiscriminator = true)]
+    
+    [Field, TypeDiscriminator]
     public int ElementType { get; private set; }
+
     public string Name { get; set; }
   }
 

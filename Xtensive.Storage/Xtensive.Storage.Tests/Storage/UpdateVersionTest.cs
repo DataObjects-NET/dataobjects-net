@@ -237,7 +237,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var instance = new ItemWithAutoVersions();
           key = instance.Key;
-          versionInfo = instance.GetVersion();
+          versionInfo = instance.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -245,7 +245,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = Query<ItemWithAutoVersions>.Single(key);
-          Assert.AreEqual(versionInfo, instance.GetVersion());
+          Assert.AreEqual(versionInfo, instance.VersionInfo);
           instance.Field = "New value";
           transactionScope.Complete();
         }
@@ -254,7 +254,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = Query<ItemWithAutoVersions>.Single(key);
-          Assert.IsFalse(versionInfo==instance.GetVersion());
+          Assert.IsFalse(versionInfo==instance.VersionInfo);
           transactionScope.Complete();
         }
       }
@@ -270,7 +270,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var instance = new ItemWithCustomVersions();
           key = instance.Key;
-          versionInfo = instance.GetVersion();
+          versionInfo = instance.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -278,7 +278,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = Query<ItemWithCustomVersions>.Single(key);
-          Assert.AreEqual(versionInfo, instance.GetVersion());
+          Assert.AreEqual(versionInfo, instance.VersionInfo);
           instance.Field = "New value";
           transactionScope.Complete();
         }
@@ -287,7 +287,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = Query<ItemWithCustomVersions>.Single(key);
-          Assert.IsFalse(versionInfo==instance.GetVersion());
+          Assert.IsFalse(versionInfo==instance.VersionInfo);
           transactionScope.Complete();
         }
       }
@@ -303,7 +303,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var instance = new ItemWithStructureVersion();
           key = instance.Key;
-          version = instance.GetVersion();
+          version = instance.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -311,7 +311,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = Query<ItemWithStructureVersion>.Single(key);
-          Assert.IsTrue(version == instance.GetVersion());
+          Assert.IsTrue(version == instance.VersionInfo);
           instance.Field = "NextValue";
           transactionScope.Complete();
         }
@@ -320,7 +320,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = Query<ItemWithStructureVersion>.Single(key);
-          Assert.IsFalse(version == instance.GetVersion());
+          Assert.IsFalse(version == instance.VersionInfo);
           transactionScope.Complete();
         }
       }
@@ -336,7 +336,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var instance = new ItemWithEntityVersion();
           key = instance.Key;
-          version = instance.GetVersion();
+          version = instance.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -344,7 +344,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = Query<ItemWithEntityVersion>.Single(key);
-          Assert.IsTrue(version==instance.GetVersion());
+          Assert.IsTrue(version==instance.VersionInfo);
           instance.Field = "NextValue";
           transactionScope.Complete();
         }
@@ -353,7 +353,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = Query<ItemWithEntityVersion>.Single(key);
-          Assert.IsFalse(version==instance.GetVersion());
+          Assert.IsFalse(version==instance.VersionInfo);
           transactionScope.Complete();
         }
       }
@@ -381,7 +381,7 @@ namespace Xtensive.Storage.Tests.Storage
             Phone = new Phone {Code = 123, Number = 321}
           };
           customerKey = customer1.Key;
-          customerVersion = customer1.GetVersion();
+          customerVersion = customer1.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -389,7 +389,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var customer = Query<Person>.All.First(person => person.Name=="Customer1") as Customer;
-          Assert.IsTrue(customerVersion==customer.GetVersion());
+          Assert.IsTrue(customerVersion==customer.VersionInfo);
           customer.Address = new Address("City2", "Region2");
           transactionScope.Complete();
         }
@@ -397,8 +397,8 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var customer = Query<Person>.All.First(person => person.Name=="Customer1") as Customer;
-          Assert.IsFalse(customerVersion==customer.GetVersion());
-          customerVersion = customer.GetVersion();
+          Assert.IsFalse(customerVersion==customer.VersionInfo);
+          customerVersion = customer.VersionInfo;
           customer.Phone.Number = 0;
           transactionScope.Complete();
         }
@@ -406,7 +406,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var customer = Query<Person>.All.First(person => person.Name=="Customer1") as Customer;
-          Assert.IsFalse(customerVersion==customer.GetVersion());
+          Assert.IsFalse(customerVersion==customer.VersionInfo);
           transactionScope.Complete();
         }
       }
@@ -429,11 +429,11 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(1, book.Authors.Count);
           Assert.AreEqual(1, author.Books.Count);
           bookKey = book.Key;
-          bookVersion = book.GetVersion();
+          bookVersion = book.VersionInfo;
           authorKey = author.Key;
           var comment = new Comment {Author = author};
           commentKey = comment.Key;
-          authorVersion = author.GetVersion();
+          authorVersion = author.VersionInfo;
           
           transactionScope.Complete();
         }
@@ -443,10 +443,10 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var author = Query<Author>.Single(authorKey);
-          Assert.IsTrue(authorVersion==author.GetVersion());
+          Assert.IsTrue(authorVersion==author.VersionInfo);
           author.Name = "Author2";
-          Assert.IsFalse(authorVersion==author.GetVersion());
-          authorVersion = author.GetVersion();
+          Assert.IsFalse(authorVersion==author.VersionInfo);
+          authorVersion = author.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -456,8 +456,8 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var author = Query<Author>.Single(authorKey);
           author.Phone = new Phone{Code = 123, Number = 321};
-          Assert.IsFalse(authorVersion==author.GetVersion());
-          authorVersion = author.GetVersion();
+          Assert.IsFalse(authorVersion==author.VersionInfo);
+          authorVersion = author.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -465,8 +465,8 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var author = Query<Author>.Single(authorKey);
           author.Phone.Code = 0;
-          Assert.IsFalse(authorVersion==author.GetVersion());
-          authorVersion = author.GetVersion();
+          Assert.IsFalse(authorVersion==author.VersionInfo);
+          authorVersion = author.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -477,8 +477,8 @@ namespace Xtensive.Storage.Tests.Storage
           var comment = Query<Comment>.Single(commentKey);
           var author = Query<Author>.Single(authorKey);
           comment.Author = null;
-          Assert.IsFalse(authorVersion==author.GetVersion());
-          authorVersion = author.GetVersion();
+          Assert.IsFalse(authorVersion==author.VersionInfo);
+          authorVersion = author.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -488,13 +488,13 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var book = Query<Book>.Single(bookKey);
           var author = Query<Author>.Single(authorKey);
-          Assert.IsTrue(bookVersion==book.GetVersion());
-          Assert.IsTrue(authorVersion==author.GetVersion());
+          Assert.IsTrue(bookVersion==book.VersionInfo);
+          Assert.IsTrue(authorVersion==author.VersionInfo);
           book.Authors.Remove(author);
           Assert.AreEqual(0, book.Authors.Count);
           Assert.AreEqual(0, author.Books.Count);
-          Assert.IsFalse(authorVersion==author.GetVersion());
-          Assert.IsFalse(bookVersion==book.GetVersion());
+          Assert.IsFalse(authorVersion==author.VersionInfo);
+          Assert.IsFalse(bookVersion==book.VersionInfo);
           transactionScope.Complete();
         }
       }
@@ -508,7 +508,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var instance = new ItemWithAutoVersions();
-          versionInfo = instance.GetVersion();
+          versionInfo = instance.VersionInfo;
           transactionScope.Complete();
         }
       }

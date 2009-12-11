@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Building
             String.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, keyField.Name, hierarchyDef.Root.Name));
 
         if (fieldDef.IsLazyLoad)
-          throw new DomainBuilderException(String.Format(Strings.ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey, fieldDef.Name));
+          throw new DomainBuilderException(String.Format(Strings.ExFieldXCannotBeLazyLoadAsItIsIncludedInPrimaryKey, fieldDef.Name));
       }
     }
 

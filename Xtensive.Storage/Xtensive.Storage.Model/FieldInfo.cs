@@ -57,11 +57,19 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets a value indicating whether this property contains Type identifier.
+    /// Gets a value indicating whether this property contains type identifier.
     /// </summary>
     public bool IsTypeId {
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.TypeId) != 0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this property is type discriminator.
+    /// </summary>
+    public bool IsTypeDiscriminator {
+      [DebuggerStepThrough]
+      get { return (Attributes & FieldAttributes.TypeDiscriminator) != 0; }
     }
 
     /// <summary>

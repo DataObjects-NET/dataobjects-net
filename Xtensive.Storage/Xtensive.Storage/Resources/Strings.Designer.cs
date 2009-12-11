@@ -557,7 +557,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;CompilerContainer&apos; attribute isn&apos;t applied to type &apos;{0}&apos;..
+        ///   Looks up a localized string similar to [CompilerContainer] attribute isn&apos;t applied to type &apos;{0}&apos;..
         /// </summary>
         internal static string ExCompilerContainerAttributeIsNotAppliedToTypeX {
             get {
@@ -980,20 +980,20 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field &apos;{0}&apos; can&apos;t have LazyLoad attribute as it is included into primary key..
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; cannot be LazyLoad as it is included into primary key..
         /// </summary>
-        internal static string ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey {
+        internal static string ExFieldXCannotBeLazyLoadAsItIsIncludedInPrimaryKey {
             get {
-                return ResourceManager.GetString("ExFieldXCanTBeLoadOnDemandAsItIsIncludedInPrimaryKey", resourceCulture);
+                return ResourceManager.GetString("ExFieldXCannotBeLazyLoadAsItIsIncludedInPrimaryKey", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Field &apos;{0}&apos; cannot be Nullable as it is included into primary key..
         /// </summary>
-        internal static string ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey {
+        internal static string ExFieldXCannotBeNullableAsItIsIncludedInPrimaryKey {
             get {
-                return ResourceManager.GetString("ExFieldXCanTBeNullableAsItIsIncludedInPrimaryKey", resourceCulture);
+                return ResourceManager.GetString("ExFieldXCannotBeNullableAsItIsIncludedInPrimaryKey", resourceCulture);
             }
         }
         
@@ -1259,7 +1259,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid &apos;Length&apos; attribute on &apos;{0}&apos; field..
+        ///   Looks up a localized string similar to Invalid Length attribute on &apos;{0}&apos; field..
         /// </summary>
         internal static string ExInvalidLengthAttributeOnXField {
             get {
@@ -1286,20 +1286,29 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid &apos;OnDelete&apos; attribute usage on field &apos;{0}&apos;. Field is not entity reference..
+        ///   Looks up a localized string similar to Invalid Precision attribute on field &apos;{0}&apos;..
         /// </summary>
-        internal static string ExInvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference {
+        internal static string ExInvalidPrecisionAttributeOnFieldX {
             get {
-                return ResourceManager.GetString("ExInvalidOnDeleteAttributeUsageOnFieldXFieldIsNotEntityReference", resourceCulture);
+                return ResourceManager.GetString("ExInvalidPrecisionAttributeOnFieldX", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid prefetch selector &apos;{0}&apos;.
+        ///   Looks up a localized string similar to Invalid prefetch selector &apos;{0}&apos;..
         /// </summary>
         internal static string ExInvalidPrefetchSelectorX {
             get {
                 return ResourceManager.GetString("ExInvalidPrefetchSelectorX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid Scale attribute on field &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExInvalidScaleAttributeOnFieldX {
+            get {
+                return ResourceManager.GetString("ExInvalidScaleAttributeOnFieldX", resourceCulture);
             }
         }
         
@@ -1611,15 +1620,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Multiple hierarchy attributes are not allowed..
-        /// </summary>
-        internal static string ExMultipleHierarchyAttributesAreNotAllowed {
-            get {
-                return ResourceManager.GetString("ExMultipleHierarchyAttributesAreNotAllowed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Name &apos;{0}&apos; is invalid..
         /// </summary>
         internal static string ExNameXIsInvalid {
@@ -1737,7 +1737,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;PairTo&apos; attribute can not be applied to field &apos;{0}&apos; of type &apos;{1}&apos;. It is already applied to field &apos;{2}&apos; of type &apos;{3}&apos;..
+        ///   Looks up a localized string similar to [Association] attribute with PairTo can not be use with field &apos;{0}&apos; of type &apos;{1}&apos;. It is already applied to field &apos;{2}&apos; of type &apos;{3}&apos;..
         /// </summary>
         internal static string ExPairToAttributeCanNotBeAppliedToXField {
             get {
@@ -1755,9 +1755,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Persistent attribute isn&apos;t applied, or assembly is not processed by PostSharp.
-        ///Add &lt;usePostSharp&gt;true&lt;/usePostSharp&gt; and &lt;DontImportPostSharp&gt;true&lt;/DontImportPostSharp&gt; to .csproj / .vbproj for &quot;{0}&quot; assembly.
-        ///Add the following line to AssemblyInfo.cs for &quot;{0}&quot; assembly: [assembly: Persistent(AttributeTargetAssemblies = &quot;{0}&quot;)]..
+        ///   Looks up a localized string similar to [Persistent] attribute isn&apos;t applied, or assembly is not processed by PostSharp. See section 2 of Manual for details..
         /// </summary>
         internal static string ExPersistentAttributeIsNotSetOnTypeX {
             get {
@@ -1771,24 +1769,6 @@ namespace Xtensive.Storage.Resources {
         internal static string ExPersistentTypeXIsNotEntityOrPersistentInterface {
             get {
                 return ResourceManager.GetString("ExPersistentTypeXIsNotEntityOrPersistentInterface", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Explicit &apos;IsNullable&apos; attribute is redundant.
-        /// </summary>
-        internal static string ExplicitIsNullableAttributeIsRedundant {
-            get {
-                return ResourceManager.GetString("ExplicitIsNullableAttributeIsRedundant", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Explicit &apos;LazyLoad&apos; attribute on field &apos;{0}&apos; is redundant.
-        /// </summary>
-        internal static string ExplicitLazyLoadAttributeOnFieldXIsRedundant {
-            get {
-                return ResourceManager.GetString("ExplicitLazyLoadAttributeOnFieldXIsRedundant", resourceCulture);
             }
         }
         
@@ -2212,6 +2192,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY {
             get {
                 return ResourceManager.GetString("ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type discriminator value is required unless {0} is marked as default type in hierarchy..
+        /// </summary>
+        internal static string ExTypeDiscriminatorValueIsRequiredUnlessXIsMarkedAsDefaultTypeInHierarchy {
+            get {
+                return ResourceManager.GetString("ExTypeDiscriminatorValueIsRequiredUnlessXIsMarkedAsDefaultTypeInHierarchy", resourceCulture);
             }
         }
         
@@ -2850,6 +2839,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; field is not declared in Entity descendant, so cannot be used as type discriminator..
+        /// </summary>
+        internal static string ExXFieldIsNotDeclaredInEntityDescendantSoCannotBeUsedAsTypeDiscriminator {
+            get {
+                return ResourceManager.GetString("ExXFieldIsNotDeclaredInEntityDescendantSoCannotBeUsedAsTypeDiscriminator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is not valid name for {1}..
         /// </summary>
         internal static string ExXIsNotValidNameForX {
@@ -2918,24 +2916,6 @@ namespace Xtensive.Storage.Resources {
         internal static string Indexes {
             get {
                 return ResourceManager.GetString("Indexes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid &apos;Precision&apos; attribute on field &apos;{0}&apos;.
-        /// </summary>
-        internal static string InvalidPrecisionAttributeOnFieldX {
-            get {
-                return ResourceManager.GetString("InvalidPrecisionAttributeOnFieldX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid &apos;Scale&apos; attribute on field &apos;{0}&apos;.
-        /// </summary>
-        internal static string InvalidScaleAttributeOnFieldX {
-            get {
-                return ResourceManager.GetString("InvalidScaleAttributeOnFieldX", resourceCulture);
             }
         }
         
@@ -3109,6 +3089,15 @@ namespace Xtensive.Storage.Resources {
         internal static string LogExecutingActionX {
             get {
                 return ResourceManager.GetString("LogExecutingActionX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Explicit LazyLoad=true on field &apos;{0}&apos; is redundant..
+        /// </summary>
+        internal static string LogExplicitLazyLoadAttributeOnFieldXIsRedundant {
+            get {
+                return ResourceManager.GetString("LogExplicitLazyLoadAttributeOnFieldXIsRedundant", resourceCulture);
             }
         }
         

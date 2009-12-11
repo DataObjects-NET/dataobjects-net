@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.AnimalDbTestModel
     [Field, Key]
     public Guid Id { get; private set; }
 
-    [Field(Length = 50, TypeDiscriminator = true)]
+    [Field(Length = 50), TypeDiscriminator]
     [FieldMapping("Type")]
     public string ElementType { get; private set; }
 
@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.AnimalDbTestModel
     [Field(Length = 50)]
     public string Name { get; set; }
 
-    [Field(Length = 50, TypeDiscriminator = true)]
+    [Field(Length = 50), TypeDiscriminator]
     [FieldMapping("Type")]
     public string ElementType { get; private set; }
   }

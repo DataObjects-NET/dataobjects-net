@@ -89,10 +89,10 @@ namespace Xtensive.Storage.Disconnected
         return;
       if (processed.Contains(entity.Key))
         return;
-      knownVersions.Add(entity.Key, entity.GetVersion());
+      knownVersions.Add(entity.Key, entity.VersionInfo);
     }
 
-    private void QueueVersionValidation(Entity entity)
+    private void EnqueueVersionValidation(Entity entity)
     {
       if (entity.Type.VersionExtractor==null
         || queuedVersions.ContainsKey(entity.Key))
@@ -113,11 +113,11 @@ namespace Xtensive.Storage.Disconnected
       foreach (var item in registry.GetItems(PersistenceState.New))
         processed.Add(item.Key);
       foreach (var item in registry.GetItems(PersistenceState.Modified)) {
-        QueueVersionValidation(item.Entity);
+        EnqueueVersionValidation(item.Entity);
         processed.Add(item.Key);
       }
       foreach (var item in registry.GetItems(PersistenceState.Removed)) {
-        QueueVersionValidation(item.Entity);
+        EnqueueVersionValidation(item.Entity);
         processed.Add(item.Key);
       }
 

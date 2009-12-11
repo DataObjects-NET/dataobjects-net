@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Tests.Model
           instance.NonLazyField2 = 123;
           instance.StructureField = new SimpleStructure {NonLazyField = "Value"};
           instance.ReferenceField = instance;
-          version = instance.GetVersion();
+          version = instance.VersionInfo;
           transactionScope.Complete();
         }
       }

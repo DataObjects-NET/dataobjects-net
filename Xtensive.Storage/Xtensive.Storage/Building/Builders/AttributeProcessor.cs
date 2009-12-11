@@ -76,12 +76,11 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(FieldDef fieldDef, FieldAttribute attribute)
     {
+      ProcessNullable(fieldDef, attribute);
       ProcessLength(fieldDef, attribute);
       ProcessScale(fieldDef, attribute);
       ProcessPrecision(fieldDef, attribute);
-      ProcessIsLazyLoad(fieldDef, attribute);
-      ProcessTypeDiscriminator(fieldDef, attribute);
-      ProcessNullable(fieldDef, attribute);
+      ProcessLazyLoad(fieldDef, attribute);
     }
 
     public static void Process(FieldDef fieldDef, AssociationAttribute attribute)
@@ -109,13 +108,22 @@ namespace Xtensive.Storage.Building.Builders
     {
       typeDef.IsDefaultTypeInHierarchy = attribute.Default;
       if (!attribute.Default && attribute.Value == null)
-        throw new InvalidOperationException(string.Format("Type discriminator value is required unless {0} is marked as default type in hierarchy.", typeDef.Name));
+        throw new InvalidOperationException(string.Format(
+          Strings.ExTypeDiscriminatorValueIsRequiredUnlessXIsMarkedAsDefaultTypeInHierarchy, typeDef.Name));
       typeDef.TypeDiscriminatorValue = attribute.Value;
     }
 
     public static void Process(FieldDef fieldDef, VersionAttribute attribute)
     {
-      fieldDef.Attributes |= FieldAttributes.Version;
+      fieldDef.IsVersion = true;
+    }
+
+    public static void Process(FieldDef fieldDef, TypeDiscriminatorAttribute attribute)
+    {
+      if (!typeof(Entity).IsAssignableFrom(fieldDef.UnderlyingProperty.DeclaringType))
+        throw new DomainBuilderException(
+          string.Format(Strings.ExXFieldIsNotDeclaredInEntityDescendantSoCannotBeUsedAsTypeDiscriminator, fieldDef.Name));
+      fieldDef.IsTypeDiscriminator = true;
     }
 
     private static void ProcessPairTo(FieldDef fieldDef, AssociationAttribute attribute)
@@ -143,6 +151,12 @@ namespace Xtensive.Storage.Building.Builders
         indexDef.IsUnique = attribute.Unique;
     }
 
+    private static void ProcessNullable(FieldDef fieldDef, FieldAttribute attribute)
+    {
+      if (fieldDef.IsEntity && attribute.nullable.HasValue)
+        fieldDef.IsNullable = attribute.nullable.Value;
+    }
+
     private static void ProcessLength(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (attribute.length==null)
@@ -162,7 +176,7 @@ namespace Xtensive.Storage.Building.Builders
 
       if (attribute.Scale <= 0)
         throw new DomainBuilderException(
-          string.Format(Strings.InvalidScaleAttributeOnFieldX, fieldDef.Name));
+          string.Format(Strings.ExInvalidScaleAttributeOnFieldX, fieldDef.Name));
 
       fieldDef.Scale = attribute.Scale;
     }
@@ -174,27 +188,16 @@ namespace Xtensive.Storage.Building.Builders
 
       if (attribute.Precision <= 0)
         throw new DomainBuilderException(
-          string.Format(Strings.InvalidPrecisionAttributeOnFieldX, fieldDef.Name));
+          string.Format(Strings.ExInvalidPrecisionAttributeOnFieldX, fieldDef.Name));
 
       fieldDef.Precision = attribute.Precision;
     }
 
-    private static void ProcessTypeDiscriminator(FieldDef fieldDef, FieldAttribute attribute)
-    {
-      fieldDef.IsTypeDiscriminator = attribute.TypeDiscriminator;
-    }
-
-    private static void ProcessNullable(FieldDef fieldDef, FieldAttribute attribute)
-    {
-      if (fieldDef.IsEntity && attribute.nullable.HasValue)
-        fieldDef.IsNullable = attribute.nullable.Value;
-    }
-
-    private static void ProcessIsLazyLoad(FieldDef fieldDef, FieldAttribute attribute)
+    private static void ProcessLazyLoad(FieldDef fieldDef, FieldAttribute attribute)
     {
       if (!fieldDef.IsPrimitive && attribute.LazyLoad)
         Log.Warning(
-          Strings.ExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
+          Strings.LogExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
       else 
         fieldDef.IsLazyLoad = attribute.LazyLoad;
     }

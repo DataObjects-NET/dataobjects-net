@@ -206,6 +206,9 @@ namespace Xtensive.Storage.Building.Builders
         var mappingAttributes = propertyInfo.GetAttributes<FieldMappingAttribute>(AttributeSearchOptions.InheritAll);
         foreach (var fieldMappingAttribute in mappingAttributes)
           AttributeProcessor.Process(fieldDef, fieldMappingAttribute);
+        var typeDiscriminatorAttribute = propertyInfo.GetAttribute<TypeDiscriminatorAttribute>(AttributeSearchOptions.InheritAll);
+        if (typeDiscriminatorAttribute!=null)
+          AttributeProcessor.Process(fieldDef, typeDiscriminatorAttribute);
         var versionAttribute = propertyInfo.GetAttribute<VersionAttribute>(AttributeSearchOptions.InheritAll);
         if (versionAttribute!=null)
           AttributeProcessor.Process(fieldDef, versionAttribute);

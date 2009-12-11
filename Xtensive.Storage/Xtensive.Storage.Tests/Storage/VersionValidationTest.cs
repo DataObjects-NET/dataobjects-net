@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var customer = Query<Customer>.Single(customerKey);
-          customerVersion = customer.GetVersion();
+          customerVersion = customer.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var customer = Query<Customer>.Single(customerKey);
-          customerVersion = customer.GetVersion();
+          customerVersion = customer.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -137,7 +137,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var customer = Query<Customer>.Single(customerKey);
-          customerVersion = customer.GetVersion();
+          customerVersion = customer.VersionInfo;
           transactionScope.Complete();
         }
       }
@@ -169,7 +169,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           var customer = Query<Customer>.Single(customerKey);
-          customerVersion = customer.GetVersion();
+          customerVersion = customer.VersionInfo;
           transactionScope.Complete();
         }
       }

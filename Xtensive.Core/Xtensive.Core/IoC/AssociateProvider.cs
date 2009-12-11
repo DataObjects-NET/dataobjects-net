@@ -16,6 +16,7 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.IoC
 {
@@ -28,16 +29,16 @@ namespace Xtensive.Core.IoC
     IDeserializationCallback
   {
     [ThreadStatic]
-    private static ISet<KeyValuePair<Type, Type>> inProgress = 
-      new SetSlim<KeyValuePair<Type, Type>>();
+    private static ISet<TypePair> inProgress = new SetSlim<TypePair>();
     [NonSerialized]
-    private object _lock = new object();
+    private object _lock;
     [NonSerialized]
-    private TypeBasedDictionary cache = TypeBasedDictionary.Create();
+    private ThreadSafeDictionary<TypePair, object> cache;
 
     private object[] constructorParams;
     private string[] typeSuffixes;
-    private volatile List<Pair<Assembly, string>> highPriorityLocations = new List<Pair<Assembly, string>>();
+    private volatile List<Pair<Assembly, string>> highPriorityLocations = 
+      new List<Pair<Assembly, string>>();
 
     /// <summary>
     /// Gets associate constructor parameters.
@@ -110,17 +111,11 @@ namespace Xtensive.Core.IoC
     protected TResult GetAssociate<TKey, TAssociate, TResult>()
       where TAssociate : class
     {
-      TResult result = cache.GetValue<TKey, TResult>();
-      if (ReferenceEquals(result, default(TResult)))
-        lock (_lock) {
-          result = cache.GetValue<TKey, TResult>();
-          if (!ReferenceEquals(result, default(TResult)))
-            return result;
-          Type foundFor;
-          result = ConvertAssociate<TKey, TAssociate, TResult>(CreateAssociate<TKey, TAssociate>(out foundFor));
-          cache.SetValue<TKey, TResult>(result);
-        }
-      return result;
+      var key = new TypePair(typeof (TKey), typeof (TResult));
+      return (TResult) cache.GetValue(key, _key => {
+        Type foundFor;
+        return ConvertAssociate<TKey, TAssociate, TResult>(CreateAssociate<TKey, TAssociate>(out foundFor));
+      });
     }
 
     /// <summary>
@@ -137,46 +132,40 @@ namespace Xtensive.Core.IoC
     protected TResult GetAssociate<TKey1, TKey2, TAssociate, TResult>()
       where TAssociate : class
     {
-      TResult result = cache.GetValue<TKey1, TResult>();
-      if (ReferenceEquals(result, default(TResult)))
-        lock (_lock) {
-          result = cache.GetValue<TKey1, TResult>();
-          if (!ReferenceEquals(result, default(TResult)))
-            return result;
-          Type foundFor;
-          TAssociate associate1 = CreateAssociate<TKey1, TAssociate>(out foundFor);
-          TAssociate associate2 = CreateAssociate<TKey2, TAssociate>(out foundFor);
-          // Preferring non-null ;)
-          TAssociate associate;
-          if (associate1==null)
-            associate = associate2;
-          else if (associate2==null)
-            associate = associate1;
-          else
-            // Both are non-null; preferring one of two
-            associate = PreferAssociate<TKey1, TKey2, TAssociate>(associate1, associate2);
+      var key = new TypePair(typeof (TKey1), typeof (TResult));
+      return (TResult) cache.GetValue(key, _key => {
+        Type foundFor;
+        TAssociate associate1 = CreateAssociate<TKey1, TAssociate>(out foundFor);
+        TAssociate associate2 = CreateAssociate<TKey2, TAssociate>(out foundFor);
+        // Preferring non-null ;)
+        TAssociate associate;
+        if (associate1==null)
+          associate = associate2;
+        else if (associate2==null)
+          associate = associate1;
+        else
+          // Both are non-null; preferring one of two
+          associate = PreferAssociate<TKey1, TKey2, TAssociate>(associate1, associate2);
+        if (associate==null) {
+          // Try to get complex associate (create it manually)
+          associate = CreateCustomAssociate<TKey1, TKey2, TAssociate>();
           if (associate==null) {
-            // Try to get complex associate (create it manually)
-            associate = CreateCustomAssociate<TKey1, TKey2, TAssociate>();
-            if (associate==null) {
-              StringBuilder stringBuilder = new StringBuilder();
-              for (int i = 0; i < TypeSuffixes.Length; i++) {
-                if (i!=0) {
-                  stringBuilder.Append(", ");
-                }
-                stringBuilder.Append(TypeSuffixes[i]);
+            var stringBuilder = new StringBuilder();
+            for (int i = 0; i < TypeSuffixes.Length; i++) {
+              if (i!=0) {
+                stringBuilder.Append(", ");
               }
-              throw new InvalidOperationException(string.Format(
-                Strings.ExCantFindAssociate2, stringBuilder,
-                typeof (TAssociate).GetShortName(),
-                typeof (TKey1).GetShortName(),
-                typeof (TKey2).GetShortName()));
+              stringBuilder.Append(TypeSuffixes[i]);
             }
+            throw new InvalidOperationException(string.Format(
+              Strings.ExCantFindAssociate2, stringBuilder,
+              typeof (TAssociate).GetShortName(),
+              typeof (TKey1).GetShortName(),
+              typeof (TKey2).GetShortName()));
           }
-          result = ConvertAssociate<TKey1, TKey2, TAssociate, TResult>(associate);
-          cache.SetValue<TKey1, TResult>(result);
         }
-      return result;
+        return ConvertAssociate<TKey1, TKey2, TAssociate, TResult>(associate);
+      });
     }
 
     /// <summary>
@@ -232,8 +221,8 @@ namespace Xtensive.Core.IoC
       where TAssociate : class
     {
       if (inProgress == null)
-        inProgress = new SetSlim<KeyValuePair<Type, Type>>();
-      var progressionMark = new KeyValuePair<Type, Type>(typeof (TKey), typeof (TAssociate));
+        inProgress = new SetSlim<TypePair>();
+      var progressionMark = new TypePair(typeof (TKey), typeof (TAssociate));
       if (inProgress.Contains(progressionMark))
         throw new InvalidOperationException(Strings.ExRecursiveAssociateLookupDetected);
       inProgress.Add(progressionMark);
@@ -303,13 +292,15 @@ namespace Xtensive.Core.IoC
     protected AssociateProvider()
     {
       constructorParams = new object[] {this};
+      _lock = new object();
+      cache = ThreadSafeDictionary<TypePair, object>.Create(_lock);
     }
 
     /// <see cref="SerializableDocTemplate.OnDeserialization"/>
     public virtual void OnDeserialization(object sender)
     {
       _lock = new object();
-      cache = TypeBasedDictionary.Create();
+      cache = ThreadSafeDictionary<TypePair, object>.Create(_lock);
     }
   }
 }

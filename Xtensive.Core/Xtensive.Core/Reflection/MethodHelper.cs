@@ -181,10 +181,24 @@ namespace Xtensive.Core.Reflection
       if (method.IsExplicitImplementation())
         bindingFlags |= BindingFlags.Public;
       if (propertyName!=name)
-        return type.GetProperty(propertyName, bindingFlags);
+        return GetPropertyRecursive(type, bindingFlags, propertyName);
       propertyName = TryCutMethodNamePrefix(name, WellKnown.SetterPrefix);
       if (propertyName!=name)
+        return GetPropertyRecursive(type, bindingFlags, propertyName);
+      return null;
+    }
+
+    private static PropertyInfo GetPropertyRecursive(Type type, BindingFlags bindingFlags, string propertyName)
+    {
+      if (type.IsInterface)
         return type.GetProperty(propertyName, bindingFlags);
+      bindingFlags |= BindingFlags.DeclaredOnly;
+      while (type!=null) {
+        var property = type.GetProperty(propertyName, bindingFlags);
+        if (property!=null)
+          return property;
+        type = type.BaseType;
+      }
       return null;
     }
 
@@ -252,10 +266,24 @@ namespace Xtensive.Core.Reflection
       if (method.IsExplicitImplementation())
         bindingFlags |= BindingFlags.Public;
       if (eventName!=name)
-        return type.GetEvent(eventName, bindingFlags);
+        return GetEventRecursive(bindingFlags, eventName, type);
       eventName = TryCutMethodNamePrefix(name, WellKnown.RemoveEventHandlerPrefix);
       if (eventName!=name)
+        return GetEventRecursive(bindingFlags, eventName, type);
+      return null;
+    }
+
+    private static EventInfo GetEventRecursive(BindingFlags bindingFlags, string eventName, Type type)
+    {
+      if (type.IsInterface)
         return type.GetEvent(eventName, bindingFlags);
+      bindingFlags |= BindingFlags.DeclaredOnly;
+      while (type!=null) {
+        var eventInfo = type.GetEvent(eventName, bindingFlags);
+        if (eventInfo!=null)
+          return eventInfo;
+        type = type.BaseType;
+      }
       return null;
     }
 

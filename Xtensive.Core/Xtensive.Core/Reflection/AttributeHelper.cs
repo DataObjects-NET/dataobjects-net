@@ -44,7 +44,8 @@ namespace Xtensive.Core.Reflection
         }
       }
 
-      if ((options & AttributeSearchOptions.InheritFromAllBase)!=0) {
+      if ((options & AttributeSearchOptions.InheritFromAllBase)!=0
+          && member.DeclaringType!=typeof(object)) {
         MemberInfo bm = member.GetBaseMember();
         if (bm!=null) {
           var list = new List<TAttribute>();
