@@ -5,12 +5,14 @@
 // Created:    2009.12.11
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.ObjectMapping.Model
 {
   [Serializable]
+  [DebuggerDisplay("SystemType = {SystemType}")]
   public sealed class SourceTypeDescription : TypeDescription
   {
     private TargetTypeDescription targetType;

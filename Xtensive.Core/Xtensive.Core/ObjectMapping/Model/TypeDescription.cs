@@ -15,7 +15,6 @@ using Xtensive.Core.Resources;
 namespace Xtensive.Core.ObjectMapping.Model
 {
   [Serializable]
-  [DebuggerDisplay("{SystemType}")]
   public abstract class TypeDescription : LockableBase
   {
     private readonly Dictionary<PropertyInfo, PropertyDescription> properties =

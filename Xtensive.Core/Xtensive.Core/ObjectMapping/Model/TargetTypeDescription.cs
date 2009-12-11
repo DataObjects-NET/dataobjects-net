@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Collections;
@@ -14,6 +15,7 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Core.ObjectMapping.Model
 {
   [Serializable]
+  [DebuggerDisplay("SystemType = {SystemType}")]
   public sealed class TargetTypeDescription : TypeDescription
   {
     private SourceTypeDescription sourceType;
