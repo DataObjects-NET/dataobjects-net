@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Optional attribute that is responsible for key generator creation and configuration.
+  /// Configures <see cref="KeyGenerator"/> for the hierarchy.
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]

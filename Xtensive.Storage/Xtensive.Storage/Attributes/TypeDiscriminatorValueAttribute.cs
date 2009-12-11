@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Indicates that entity has custom type discriminator value and exposes it.
+  /// Specifies value of type discriminator for the entity type it is applied to.
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
