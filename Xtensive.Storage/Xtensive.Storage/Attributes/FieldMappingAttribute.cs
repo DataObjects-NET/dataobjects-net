@@ -27,7 +27,7 @@ namespace Xtensive.Storage
     public string Name { get; private set; }
 
     /// <summary>
-    /// Gets or sets the base part of the field's related column name.
+    /// Gets the base part of the field's related column name.
     /// </summary>
     /// <remarks>
     /// You can use the following characters in <see cref="FieldName"/>s: [_A-Za-z0-9-.]. 

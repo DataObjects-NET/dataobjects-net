@@ -11,7 +11,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Defines the root type of hierarchy of persistent types.
+  /// Defines root type of hierarchy of persistent types.
   /// </summary>
   /// <remarks>
   /// <para>

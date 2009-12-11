@@ -11,7 +11,7 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// Provides additional properties to association. 
-  /// This attribute can be specified for <see cref="Entity"/> or <see cref="EntitySet{TItem}"/> field only.
+  /// This attribute can be applied on persistent properties of <see cref="Entity"/> or <see cref="EntitySet{TItem}"/> type.
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -41,8 +41,8 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Indicates that persistent collection or persistent field
-    /// is a paired property with another collection or reference field.
+    /// Indicates that association (persistent collection or persistent field)
+    /// is inverse end of another another collection or reference field.
     /// </summary>
     /// <remarks>
     /// <para>

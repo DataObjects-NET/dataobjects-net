@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Indicates that property is persistent field,
+  /// Indicates that property is persistent field
   /// and defines its persistence-related properties.
   /// </summary>
   [Serializable]
