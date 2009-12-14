@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Storage.Fulltext;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Resources;
 
@@ -31,6 +32,16 @@ namespace Xtensive.Storage
     public static IQueryable<T> All
     {
       get { return new Queryable<T>(); }
+    }
+
+    /// <summary>
+    /// The "starting point" for any full-text aware LINQ query.
+    /// </summary>
+    /// <param name="searchCriteria">The search criteria.</param>
+    /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
+    public static IQueryable<Document<T>> FullText(string searchCriteria)
+    {
+      throw new NotImplementedException();
     }
     
     /// <summary>
