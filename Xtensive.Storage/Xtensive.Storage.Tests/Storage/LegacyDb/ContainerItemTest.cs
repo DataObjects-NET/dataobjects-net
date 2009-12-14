@@ -17,11 +17,11 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.ContainerItemModel
     public int Id { get; private set; }
 
     [Field]
-    [Association(PairTo = "Container", OnOwnerRemove = OnRemoveAction.Cascade)]
+    [Association(PairTo = "Container", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<Item> Items { get; private set; }
 
     [Field]
-    [Association(PairTo = "Container", OnOwnerRemove = OnRemoveAction.Cascade)]
+    [Association(PairTo = "Container", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<Option> Options { get; private set; }
   }
 
@@ -33,6 +33,10 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.ContainerItemModel
 
     [Field(Nullable = false)]
     public Container Container { get; set; }
+
+    [Field]
+    [Association(PairTo = "Item", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
+    public EntitySet<ItemOption> Options { get; private set; }
 
     public Item(Container container)
     {
@@ -54,6 +58,16 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.ContainerItemModel
     {
       Container = container;
     }
+  }
+
+  [HierarchyRoot]
+  public class ItemOption : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public Item Item { get; set; }
   }
 }
 
@@ -94,6 +108,14 @@ CREATE TABLE [dbo].[Option](
 	[Id] ASC
 )
 ) ON [PRIMARY]
+CREATE TABLE [dbo].[ItemOption](
+	[Id] [int] NOT NULL,
+	[Item.Id] [int] NOT NULL,
+ CONSTRAINT [PK_ItemOption] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)
+) ON [PRIMARY]
 CREATE TABLE [dbo].[Int32-Generator](
 	[ID] [int] IDENTITY(128,128) NOT NULL,
  CONSTRAINT [PK_Int32-Generator] PRIMARY KEY CLUSTERED 
@@ -110,6 +132,11 @@ ALTER TABLE [dbo].[Option]  WITH CHECK ADD  CONSTRAINT [FK_Option_Container] FOR
 REFERENCES [dbo].[Container] ([Id])
 
 ALTER TABLE [dbo].[Option] CHECK CONSTRAINT [FK_Option_Container]
+
+ALTER TABLE [dbo].[ItemOption]  WITH CHECK ADD  CONSTRAINT [FK_ItemOption_Item] FOREIGN KEY([Item.Id])
+REFERENCES [dbo].[Item] ([Id])
+
+ALTER TABLE [dbo].[ItemOption] CHECK CONSTRAINT [FK_ItemOption_Item]
 ";
     }
 
@@ -138,8 +165,13 @@ ALTER TABLE [dbo].[Option] CHECK CONSTRAINT [FK_Option_Container]
           c = new Container();
           t.Complete();
         }
+        Item i;
         using (var t = Transaction.Open()) {
-          var i = new Item(c);
+          i = new Item(c);
+          t.Complete();
+        }
+        using (var t = Transaction.Open()) {
+          i.Remove();
           t.Complete();
         }
       }

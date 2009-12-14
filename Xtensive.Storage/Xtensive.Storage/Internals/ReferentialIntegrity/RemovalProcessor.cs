@@ -16,7 +16,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     private static readonly DenyActionProcessor    denyActionProcessor    = new DenyActionProcessor();
     private static readonly ClearActionProcessor   clearActionProcessor   = new ClearActionProcessor();
 
-    private readonly RemovalContext context;
+    internal readonly RemovalContext context;
 
     [Infrastructure]
     public void Remove(Entity item)
