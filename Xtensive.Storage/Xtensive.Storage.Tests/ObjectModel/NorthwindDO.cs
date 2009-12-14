@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using Xtensive.Storage.Fulltext.Attributes;
 using Xtensive.Storage.Model;
 
 
@@ -111,9 +112,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field, FieldMapping("CategoryId"), Key]
     public int Id { get; private set; }
 
+    [FullText]
     [Field(Length = 15)]
     public string CategoryName { get; set; }
 
+    [FullText]
     [Field]
     public string Description { get; set; }
 
@@ -213,6 +216,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field, FieldMapping("ProductId"), Key]
     public int Id { get; private set; }
 
+    [FullText]
     [Field(Length = 40)]
     public string ProductName { get; set; }
 

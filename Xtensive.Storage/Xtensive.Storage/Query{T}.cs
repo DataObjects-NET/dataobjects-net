@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Storage.Fulltext;
 using Xtensive.Storage.Linq;
@@ -39,7 +40,61 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="searchCriteria">The search criteria.</param>
     /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
-    public static IQueryable<Document<T>> FullText(string searchCriteria)
+    public static IQueryable<Document<T>> FreeText(string searchCriteria)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// The "starting point" for any full-text aware LINQ query.
+    /// </summary>
+    /// <param name="searchCriteria">The search criteria.</param>
+    /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
+    public static IQueryable<Document<T>> FreeText<TField>(
+      Expression<Func<T,TField>> fieldSelector,
+      string searchCriteria)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// The "starting point" for any full-text aware LINQ query.
+    /// </summary>
+    /// <param name="searchCriteria">The search criteria.</param>
+    /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
+    public static IQueryable<Document<T>> FreeText<TField1,TField2>(
+      Expression<Func<T, TField1>> fieldSelector1,
+      Expression<Func<T, TField2>> fieldSelector2,
+      string searchCriteria)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// The "starting point" for any full-text aware LINQ query.
+    /// </summary>
+    /// <param name="searchCriteria">The search criteria.</param>
+    /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
+    public static IQueryable<Document<T>> FreeText<TField1, TField2, TField3>(
+      Expression<Func<T, TField1>> fieldSelector1,
+      Expression<Func<T, TField2>> fieldSelector2,
+      Expression<Func<T, TField3>> fieldSelector3,
+      string searchCriteria)
+    {
+      throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// The "starting point" for any full-text aware LINQ query.
+    /// </summary>
+    /// <param name="searchCriteria">The search criteria.</param>
+    /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
+    public static IQueryable<Document<T>> FreeText<TField1, TField2, TField3, TField4>(
+      Expression<Func<T, TField1>> fieldSelector1,
+      Expression<Func<T, TField2>> fieldSelector2,
+      Expression<Func<T, TField3>> fieldSelector3,
+      Expression<Func<T, TField4>> fieldSelector4,
+      string searchCriteria)
     {
       throw new NotImplementedException();
     }
