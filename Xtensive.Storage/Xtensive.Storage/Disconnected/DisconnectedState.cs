@@ -46,12 +46,10 @@ namespace Xtensive.Storage.Disconnected
     [NonSerialized]
     private Session session;
     [NonSerialized]
-    private Logger logger;
+    private OperationLogger operationLogger;
     [NonSerialized]
     private ModelRequestCache modelRequestCache;
     
-    internal bool IsConnected { get; private set; }
-
     #region Public API
 
     /// <summary>
@@ -60,9 +58,16 @@ namespace Xtensive.Storage.Disconnected
     public Session Session { get { return session; } }
 
     /// <summary>
-    /// Gets a value indicating whether this instance is attached to session.
+    /// Gets a value indicating whether this instance is attached to <see cref="Session"/>.
+    /// See <see cref="Attach"/> method for details.
     /// </summary>
     public bool IsAttached { get { return sessionHandlerSubstitutionScope!=null; } }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is "connected".
+    /// See <see cref="Connect"/> method for details.
+    /// </summary>
+    public bool IsConnected { get; private set; }
 
     /// <summary>
     /// Gets or sets the merge mode.
@@ -225,7 +230,7 @@ namespace Xtensive.Storage.Disconnected
 
       if (isVersionEquals)
         originalStates.MergeUnloadedFields(key, tuple);
-      else if (mergeMode==MergeMode.Restrict)
+      else if (mergeMode==MergeMode.Strict)
         throw new InvalidOperationException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
       else if (mergeMode==MergeMode.PreferSource) {
@@ -322,13 +327,17 @@ namespace Xtensive.Storage.Disconnected
 
     private void CreateLogger()
     {
-      logger = new Logger(Session, transactionalStates.OperationSet);
+      operationLogger = OperationLogger.Attach(Session, transactionalStates.OperationSet);
     }
 
     private void DisposeLogger()
     {
-      logger.DisposeSafely();
-      logger = null;
+      try {
+        operationLogger.DisposeSafely();
+      }
+      finally {
+        operationLogger = null;
+      }
     }
 
     private void OnTransactionEnded()
@@ -343,6 +352,7 @@ namespace Xtensive.Storage.Disconnected
         transactionalStates = null;
       }
     }
+
 
     // Constructors
 

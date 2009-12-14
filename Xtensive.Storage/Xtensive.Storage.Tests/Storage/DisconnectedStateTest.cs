@@ -1035,7 +1035,7 @@ namespace Xtensive.Storage.Tests.Storage
       var log = new OperationSet();
       // Modify data
       using (var session = Session.Open(Domain)) {
-        using (new Logger(session, log))
+        using (OperationLogger.Attach(session, log))
         using (var transactionScope = Transaction.Open()) {
           var orders = Query<Order>.All
             .Prefetch(o => o.Customer)
@@ -1624,7 +1624,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Merge and check
       using (var session = Session.Open(Domain)) {
         using (state2.Attach(session)) {
-          AssertEx.Throws<InvalidOperationException>(() => state2.Merge(state1, MergeMode.Restrict));
+          AssertEx.Throws<InvalidOperationException>(() => state2.Merge(state1, MergeMode.Strict));
           state2.Merge(state1, MergeMode.PreferTarget);
           Assert.AreEqual("Value1", Query<Simple>.Single(key).Value);
           state2.Merge(state1, MergeMode.PreferSource);

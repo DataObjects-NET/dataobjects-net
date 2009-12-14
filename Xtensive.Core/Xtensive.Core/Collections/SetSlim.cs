@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -16,6 +17,7 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TItem">The type of the item.</typeparam>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class SetSlim<TItem> : SetBase<TItem>
   {
     private readonly Dictionary<TItem, TItem> dictionary;

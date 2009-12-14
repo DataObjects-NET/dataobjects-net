@@ -16,6 +16,7 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="T">Type of items.</typeparam>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public struct FixedList3<T>
   {
     private T slot1;

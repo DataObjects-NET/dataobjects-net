@@ -5,6 +5,7 @@
 // Created:    2007.08.21
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -14,6 +15,7 @@ namespace Xtensive.Core.Collections
   /// Describes a single type registration call to <see cref="TypeRegistry"/>.
   /// </summary>
   [Serializable]
+  [DebuggerDisplay("Type = {Type}, Assembly = {Assembly}, Namespace = {Namespace}")]
   public sealed class TypeRegistration : IEquatable<TypeRegistration>
   {
     private readonly Type type;

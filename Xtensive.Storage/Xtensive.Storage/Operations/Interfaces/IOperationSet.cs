@@ -14,16 +14,16 @@ namespace Xtensive.Storage.Operations
   public interface IOperationSet : IEnumerable<IOperation>
   {
     /// <summary>
-    /// Gets the keys for remap.
+    /// Gets the keys to remap.
     /// </summary>
-    /// <returns></returns>
-    HashSet<Key> GetKeysForRemap();
+    /// <returns>A set of keys to remap.</returns>
+    HashSet<Key> GetKeysToRemap();
 
     /// <summary>
-    /// Registers the key for remap.
+    /// Registers the key to remap.
     /// </summary>
     /// <param name="key">The key.</param>
-    void RegisterKeyForRemap(Key key);
+    void RegisterKeyToRemap(Key key);
 
     /// <summary>
     /// Registers the specified operation.

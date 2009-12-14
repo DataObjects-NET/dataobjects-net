@@ -18,6 +18,8 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="K">Type of the key.</typeparam>
   /// <typeparam name="V">Type of the value.</typeparam>
+  [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class TopDeque<K, V> : ITopDeque<K, V>
   {
     private readonly LinkedList<Pair<K,V>> list;

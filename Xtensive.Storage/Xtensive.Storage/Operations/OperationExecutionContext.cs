@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Operations
     public OperationExecutionContext(Session session, IOperationSet set)
     {
       Session = session;
-      KeysForRemap = set.GetKeysForRemap();
+      KeysForRemap = set.GetKeysToRemap();
       KeyMapping = new Dictionary<Key, Key>();
       prefetchKeys = new HashSet<Key>();
       excludedKeys = new HashSet<Key>();

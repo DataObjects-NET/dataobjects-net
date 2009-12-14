@@ -699,4 +699,10 @@
   <data name="ExSpecifiedExpressionCanNotBeParsed" xml:space="preserve">
     <value>The specified expression can't be parsed.</value>
   </data>
+  <data name="ExKeyXIsNotFound" xml:space="preserve">
+    <value>Key {0} is not found.</value>
+  </data>
+  <data name="ExCollectionHasBeenModified" xml:space="preserve">
+    <value>Collection has been modified.</value>
+  </data>
 </root>

@@ -4,13 +4,11 @@
 // Created by: Alex Yakunin
 // Created:    2007.10.12
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Collections
 {
@@ -26,8 +24,8 @@ namespace Xtensive.Core.Collections
     IDictionary<TKey, TValue>,
     ICountable<KeyValuePair<TKey, TValue>>
   {
-    private const string PREFIX = "System.Collections.Generic.Mscorlib_";
-    private const string SUFFIX = ",mscorlib,Version=2.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089";
+    internal const string PREFIX = "System.Collections.Generic.Mscorlib_";
+    internal const string SUFFIX = ",mscorlib,Version=2.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089";
     private KeyCollection keys;
     private ValueCollection values;
 

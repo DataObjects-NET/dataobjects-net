@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Disconnected
@@ -27,10 +28,10 @@ namespace Xtensive.Storage.Disconnected
 
     public void Commit()
     {
-      var items = Items as ChainedDictionary<Key, Key>;
+      var items = Items as DifferentialDictionary<Key, Key>;
       if (items==null)
         return;
-      items.Commit();
+      items.ApplyChanges();
       if (isFullyLoaded.HasValue)
         Origin.IsFullyLoaded = isFullyLoaded.Value;
     }
@@ -59,7 +60,7 @@ namespace Xtensive.Storage.Disconnected
     public DisconnectedEntitySetState(DisconnectedEntitySetState origin)
     {
       Origin = origin;
-      Items = new ChainedDictionary<Key, Key>(origin.Items);
+      Items = new DifferentialDictionary<Key, Key>(origin.Items);
       IsFullyLoaded = origin.IsFullyLoaded;
     }
   }

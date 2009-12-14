@@ -21,6 +21,7 @@ namespace Xtensive.Core.Collections
   /// isn't disposed.
   /// </summary>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class BindingCollection<TKey, TValue> : ICountable<KeyValuePair<TKey, TValue>>
   {
     protected readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();

@@ -18,6 +18,7 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="T">The type of the elements in the array segment.</typeparam>
   [Serializable]
+  [DebuggerDisplay("Offset = {Offset}, Length = {Length}")]
   public struct ArraySegment<T> : IEnumerable<T>
   {
     private readonly T[] array;

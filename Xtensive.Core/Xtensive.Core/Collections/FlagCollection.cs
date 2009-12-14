@@ -29,6 +29,7 @@ namespace Xtensive.Core.Collections
   /// <typeparam name="TKey">Type of the key.</typeparam>
   /// <typeparam name="TFlag">Type of the flag.</typeparam>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class FlagCollection<TKey, TFlag>: LockableBase,
     IList<KeyValuePair<TKey, TFlag>>,
     IDictionary<TKey, TFlag>,

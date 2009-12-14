@@ -22,13 +22,13 @@ namespace Xtensive.Storage.Operations
     private readonly List<SerializableKey> serializableKeys;
 
     /// <inheritdoc/>
-    public HashSet<Key> GetKeysForRemap()
+    public HashSet<Key> GetKeysToRemap()
     {
       return new HashSet<Key>(serializableKeys.Select(sk => sk.Key));
     }
 
     /// <inheritdoc/>
-    public void RegisterKeyForRemap(Key key)
+    public void RegisterKeyToRemap(Key key)
     {
       serializableKeys.Add(key);
     }
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Operations
     public void Register(IOperationSet source)
     {
       log.AddRange(source);
-      serializableKeys.AddRange(source.GetKeysForRemap().Select(k => (SerializableKey)k));
+      serializableKeys.AddRange(source.GetKeysToRemap().Select(k => (SerializableKey)k));
     }
 
     /// <inheritdoc/>

@@ -19,6 +19,7 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="T">The type of collection items.</typeparam>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class ReadOnlyCollection<T> : 
     ICollection,
     ICollection<T>,

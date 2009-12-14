@@ -18,9 +18,11 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// Base class for all objects that are bound to the <see cref="Session"/> instance.
+  /// Methods of any descendant of this typer must be processed by PostSharp 
+  /// to ensure its <see cref="Session"/> is active inside method bodies.
   /// </summary>
   public abstract class SessionBound : 
-    IContextBound<Session>
+    ISessionBound
   {
     private Session session;
 

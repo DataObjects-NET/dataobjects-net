@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TValue">The type of a value.</typeparam>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public sealed class IntDictionary<TValue> :
     ICountable<KeyValuePair<int, TValue>>
   {

@@ -21,6 +21,8 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TKey">The type of key to retrieve the items by.</typeparam>
   /// <typeparam name="TItem">The type of pooled item.</typeparam>
+  [Serializable]
+  [DebuggerDisplay("Count = {Count}, AvailableCount = {AvailableCount}, Capacity = {Capacity}")]
   public class Pool<TKey, TItem>: IPool<TKey, TItem>, 
     IExpiringItemCollection<TItem>,
     IDisposable

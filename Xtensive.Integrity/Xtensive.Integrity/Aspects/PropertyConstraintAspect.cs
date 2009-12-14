@@ -28,6 +28,8 @@ namespace Xtensive.Integrity.Aspects
   [MulticastAttributeUsage(MulticastTargets.Property)]
   public abstract class PropertyConstraintAspect : CompoundAspect
   {
+    private const string MessageResourceNamePropertyName = "MessageResourceName";
+    private const string MessageResourceTypePropertyName = "MessageResourceType";
     private const string MessageParameterFormat = "{{{0}}}";
     private const string PropertyNameParameter = "PropertyName";
     private const string ValueParameter = "value";
@@ -96,7 +98,9 @@ namespace Xtensive.Integrity.Aspects
       Property = (PropertyInfo) element;
 
       if (Property.GetSetMethod()==null) {
-        ErrorLog.Write(SeverityType.Error, Strings.FieldConstraintCanNotBeAppliedToReadOnlyProperty);
+        ErrorLog.Write(SeverityType.Error, string.Format(
+          Strings.AspectExFieldConstraintCanNotBeAppliedToReadOnlyPropertyX, 
+          AspectHelper.FormatMember(Property.DeclaringType, Property)));
         return false;
       }
 
@@ -105,7 +109,10 @@ namespace Xtensive.Integrity.Aspects
 
       if (!IsSupported(Property.PropertyType)) { 
         ErrorLog.Write(SeverityType.Error, 
-          Strings.XDoesNotSupportYValueType, GetType().Name, Property.PropertyType.Name);
+          Strings.AspectExXDoesNotSupportYValueTypeLocationZ, 
+          GetType().Name, 
+          Property.PropertyType.Name, 
+          AspectHelper.FormatMember(Property.DeclaringType, Property));
         return false;
       }
 
@@ -124,11 +131,15 @@ namespace Xtensive.Integrity.Aspects
 
       if (string.IsNullOrEmpty(MessageResourceName) ^ MessageResourceType==null)
         ErrorLog.Write(SeverityType.Error,
-          string.Format(Strings.ExXAndYPropertiesMustBeUsedTogether, "MessageResourceName", "MessageResourceType"));
+          string.Format(Strings.AspectExXAndYPropertiesMustBeUsedTogetherLocationZ, 
+          MessageResourceNamePropertyName, 
+          MessageResourceTypePropertyName,
+          AspectHelper.FormatMember(Property.DeclaringType, Property)));
 
       if (!string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(MessageResourceName))
         ErrorLog.Write(SeverityType.Error, 
-          Strings.ExBothLocalizableMessageResourceAndNotLocalizableMessageAndCanNotBeSpecifiedAtOnce);
+          Strings.AspectExBothLocalizableMessageResourceAndNotLocalizableMessageCanNotBeSpecifiedAtOnceLocationX,
+          AspectHelper.FormatMember(Property.DeclaringType, Property));
 
       return true;
     }

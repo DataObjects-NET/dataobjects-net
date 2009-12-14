@@ -22,6 +22,8 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="T"><see cref="Type"/> of objects to be stored in queue.</typeparam>
   /// <typeparam name="TPriority"><see cref="Type"/> of priority value.</typeparam>
+  [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class PriorityQueue<T, TPriority> : IPriorityQueue<T, TPriority>, 
     ISerializable
     where TPriority: IComparable<TPriority>

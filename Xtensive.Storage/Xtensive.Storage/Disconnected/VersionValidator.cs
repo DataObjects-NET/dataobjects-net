@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using System.Linq;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
@@ -249,7 +250,7 @@ namespace Xtensive.Storage.Disconnected
     #endregion
 
 
-    // Constructor replacement
+    // Factory method
 
     /// <summary>
     /// Attaches the validator to the specified session.
@@ -281,7 +282,7 @@ namespace Xtensive.Storage.Disconnected
   
     // Dispose
     
-    /// <inheritdoc/>
+    /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
     [Infrastructure]
     public void Dispose()
     {

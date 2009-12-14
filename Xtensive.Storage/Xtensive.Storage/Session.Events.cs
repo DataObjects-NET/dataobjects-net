@@ -35,7 +35,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Occurs when local <see cref="Key"/> created.
     /// </summary>
-    public event EventHandler<KeyEventArgs> LocalKeyCreated;
+    public event EventHandler<KeyEventArgs> KeyGenerated;
 
     /// <summary>
     /// Occurs when field value is about to be read.
@@ -115,14 +115,14 @@ namespace Xtensive.Storage
     /// <summary>
     /// Occurs when the <see cref="IOperation"/> is being registered.
     /// </summary>
-    public event EventHandler<OperationEventArgs> OperationRegister;
+    public event EventHandler<OperationEventArgs> OperationCompleted;
 
     /// <summary>
-    /// <see cref="OperationRegister"/> event has subscribers.
+    /// <see cref="OperationCompleted"/> event has subscribers.
     /// </summary>
     internal bool OperationRegisterHasSubscribers()
     {
-      return OperationRegister != null;
+      return OperationCompleted != null;
     }
     
     /// <summary>
@@ -148,10 +148,10 @@ namespace Xtensive.Storage
         Persisted(this, EventArgs.Empty);
     }
 
-    internal void NotifyLocalKeyCreated(Key key)
+    internal void NotifyKeyGenerated(Key key)
     {
-      if (LocalKeyCreated != null)
-        LocalKeyCreated(this, new KeyEventArgs(key));
+      if (KeyGenerated != null)
+        KeyGenerated(this, new KeyEventArgs(key));
     }
 
     internal void NotifyEntityCreated(Entity entity)
@@ -250,10 +250,10 @@ namespace Xtensive.Storage
         EntitySetItemAddCompleted(this, new EntitySetItemActionCompletedEventArgs(entity, entitySet, exception));
     }
 
-    internal void NotifyOperationRegister(IOperation operation)
+    internal void NotifyOperationCompleted(IOperation operation)
     {
-      if (OperationRegister != null)
-        OperationRegister(this, new OperationEventArgs(operation));
+      if (OperationCompleted != null)
+        OperationCompleted(this, new OperationEventArgs(operation));
     }
   }
 }

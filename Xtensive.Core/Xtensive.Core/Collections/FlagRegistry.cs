@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -17,6 +18,8 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TFlag">The type of the flag.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
+  [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class FlagRegistry<TFlag, TItem>
   {
     private readonly Dictionary<TFlag, HashSet<TItem>> containers = new Dictionary<TFlag, HashSet<TItem>>();

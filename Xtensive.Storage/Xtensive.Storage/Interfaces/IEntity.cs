@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2007.05.25
 
+using System.ComponentModel;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -16,7 +17,8 @@ namespace Xtensive.Storage
   [SystemType]
   public interface IEntity: 
     IIdentified<Key>, 
-    IHasVersion<VersionInfo>
+    IHasVersion<VersionInfo>,
+    INotifyPropertyChanged
   {
     /// <summary>
     /// Gets the <see cref="Key"/> of the <see cref="Entity"/>.

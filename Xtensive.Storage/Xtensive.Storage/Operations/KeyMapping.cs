@@ -14,11 +14,12 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Operations
 {
   /// <summary>
-  /// This class is responsible for mapping between local <see cref="Key"/> instances into storage <see cref="Key"/> instances.
+  /// Maps local ("disconnected") <see cref="Key"/> instances to actual (storage) <see cref="Key"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class KeyMapping : IEnumerable<KeyValuePair<Key,Key>>,
-                                   ISerializable
+  public sealed class KeyMapping : 
+    IEnumerable<KeyValuePair<Key,Key>>,
+    ISerializable
   {
     private readonly Dictionary<Key, Key> mapping;
 
@@ -29,10 +30,11 @@ namespace Xtensive.Storage.Operations
     /// <returns>The mapped storage <see cref="Key"/>.</returns>
     public Key Remap(Key localKey)
     {
-      var key = (Key) null;
-      return mapping.TryGetValue(localKey, out key) 
-               ? key 
-               : localKey;
+      Key key;
+      if (mapping.TryGetValue(localKey, out key))
+        return key;
+      else
+        return localKey;
     }
 
     /// <inheritdoc/>
@@ -60,6 +62,7 @@ namespace Xtensive.Storage.Operations
 
     // Serialization
 
+    /// <inheritdoc/>
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
@@ -70,11 +73,11 @@ namespace Xtensive.Storage.Operations
       info.AddValue("mapping", serializedMapping, typeof(Dictionary<SerializableKey,SerializableKey>));
     }
 
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true"/>
     protected KeyMapping(SerializationInfo info, StreamingContext context)
     {
-      var serializedMapping = (Dictionary<SerializableKey, SerializableKey>)info.GetValue(
-                                                                              "mapping", 
-                                                                              typeof(Dictionary<SerializableKey, SerializableKey>));
+      var serializedMapping = (Dictionary<SerializableKey, SerializableKey>)
+        info.GetValue("mapping", typeof(Dictionary<SerializableKey, SerializableKey>));
       mapping = new Dictionary<Key, Key>();
       foreach (var pair in serializedMapping)
         mapping.Add((Key) pair.Key, (Key) pair.Value);

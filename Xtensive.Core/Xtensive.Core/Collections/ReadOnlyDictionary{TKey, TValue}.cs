@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Collections
@@ -18,6 +17,7 @@ namespace Xtensive.Core.Collections
   /// Read-only generic dictionary (<see cref="IDictionary{TKey, TValue}"/>) wrapper.
   /// </summary>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class ReadOnlyDictionary<TKey, TValue> :
     IDictionary<TKey, TValue>,
     IDictionary,

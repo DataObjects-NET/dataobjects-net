@@ -6,10 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
+using System.Diagnostics;
 using Xtensive.Core.Conversion;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Collections
 {
@@ -19,6 +18,7 @@ namespace Xtensive.Core.Collections
   ///</summary>
   /// <typeparam name="T">The type of collection item to associate with direction.</typeparam>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public sealed class DirectionCollection<T>: FlagCollection<T, Direction>
   {
     /// <inheritdoc/>

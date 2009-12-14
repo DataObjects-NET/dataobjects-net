@@ -8,14 +8,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Collections
 {
   [Serializable]
+  [DebuggerDisplay("Count = {Count}, AvailableCount = {AvailableCount}, Capacity = {Capacity}")]
   public class Pool<T> : IPool<T>
   {
     private const int DefaultCapacity = 16;

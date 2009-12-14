@@ -43,6 +43,7 @@ namespace Xtensive.Core.Collections
   /// </para>
   /// </remarks>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class Deque<T>
     : IDeque<T>, ISerializable,
       ICloneable

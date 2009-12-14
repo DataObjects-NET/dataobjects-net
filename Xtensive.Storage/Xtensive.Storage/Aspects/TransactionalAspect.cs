@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Aspects
     [DebuggerStepThrough]
     public override object OnEntry(object instance)
     {
-      var sessionBound = (SessionBound) instance;
+      var sessionBound = (ISessionBound) instance;
       var sessionScope = openSession ? sessionBound.ActivateContext() : null;
       if (!openTransaction)
         return sessionScope;

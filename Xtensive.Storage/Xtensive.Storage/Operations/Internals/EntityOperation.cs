@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Operations
         var oldKey = Key;
         Key newKey;
         if (!context.KeyMapping.TryGetValue(oldKey, out newKey)) {
-          newKey = KeyFactory.CreateNext(context.Session.Domain, oldKey.Type);
+          newKey = KeyFactory.Generate(context.Session.Domain, oldKey.Type);
           context.KeyMapping.Add(oldKey, newKey);
         }
         Key = newKey;

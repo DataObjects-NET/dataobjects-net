@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Operations
       session.CurrentOperationContext = parentOperationContext;
       if (operations != null)
         foreach (var operation in operations)
-          session.NotifyOperationRegister(operation);
+          session.NotifyOperationCompleted(operation);
     }
 
 

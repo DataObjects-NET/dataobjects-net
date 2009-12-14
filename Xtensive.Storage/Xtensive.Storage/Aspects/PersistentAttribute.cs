@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
@@ -26,12 +25,12 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Storage.Aspects
 {
   /// <summary>
-  /// Provides necessary aspects to <see cref="Persistent"/> and <see cref="SessionBound"/> descendants.
+  /// Provides necessary aspects to <see cref="Persistent"/> and <see cref="ISessionBound"/> descendants.
   /// </summary>
   /// <remarks>
   /// <list>
   ///   <listheader>PersistentAttribute applies following aspects on a target class:</listheader>
-  ///   <item><see cref="TransactionalAspect"/> on all methods of <see cref="SessionBound"/></item>
+  ///   <item><see cref="TransactionalAspect"/> on all methods of <see cref="ISessionBound"/></item>
   ///   <item><see cref="AutoPropertyReplacementAspect"/> on auto-properties with <see cref="FieldAttribute">[Field] attribute</see></item>
   ///   <item><see cref="ProtectedConstructorAspect"/> on <see cref="Persistent"/> and <see cref="EntitySet{TItem}"/> classes</item>
   ///   <item><see cref="ProtectedConstructorAccessorAspect"/> on <see cref="Persistent"/> and <see cref="EntitySet{TItem}"/> classes</item>
@@ -43,12 +42,35 @@ namespace Xtensive.Storage.Aspects
   [Serializable]
   public sealed class PersistentAttribute : CompoundAspect
   {
+    #region Nested type: MethodAttributeSet
+
+    private struct MethodAttributeSet
+    {
+      public TransactionalAttribute Transactional { get; private set;}
+      public ActivateSessionAttribute ActivateSession { get; private set;}
+
+      public bool IsEmpty
+      {
+        get { return Transactional==null && ActivateSession==null; }
+      }
+
+      public static MethodAttributeSet Extract(MemberInfo member)
+      {
+        return new MethodAttributeSet {
+          Transactional = member.GetAttribute<TransactionalAttribute>(AttributeSearchOptions.InheritNone),
+          ActivateSession = member.GetAttribute<ActivateSessionAttribute>(AttributeSearchOptions.InheritNone)
+        };
+      }
+    }
+
+    #endregion
+
     private const string HandlerMethodSuffix = "FieldValue";
     private static readonly Type persistentType   = typeof(Persistent);
     private static readonly Type entityType       = typeof(Entity);
     private static readonly Type entitySetType    = typeof(EntitySetBase);
     private static readonly Type structureType    = typeof(Structure);
-    private static readonly Type sessionBoundType = typeof(SessionBound);
+    private static readonly Type sessionBoundType = typeof(ISessionBound);
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(object element)
@@ -77,31 +99,11 @@ namespace Xtensive.Storage.Aspects
         ProvideEntitySetAspects(type, collection);
     }
 
-    private struct AttributeSet
+    private static Dictionary<MethodBase, MethodAttributeSet> GetPropertyAccessorsAttributes(Type type)
     {
-      public TransactionalAttribute Transactional { get; private set;}
-
-      public ActivateSessionAttribute ActivateSession { get; private set;}
-
-      public bool IsEmpty
-      {
-        get { return Transactional==null && ActivateSession==null; }
-      }
-
-      public static AttributeSet ExctractFrom(MemberInfo member)
-      {
-        return new AttributeSet {
-          Transactional = member.GetAttribute<TransactionalAttribute>(AttributeSearchOptions.InheritNone),
-          ActivateSession = member.GetAttribute<ActivateSessionAttribute>(AttributeSearchOptions.InheritNone)
-        };
-      }
-    }
-
-    private static Dictionary<MethodBase, AttributeSet> GetPropertyAccessorsAttributes(Type type)
-    {
-      var propertyAttributes = new Dictionary<MethodBase, AttributeSet>();
+      var propertyAttributes = new Dictionary<MethodBase, MethodAttributeSet>();
       foreach(var property in GetProperties(type)) {
-        var attributeSet = AttributeSet.ExctractFrom(property);
+        var attributeSet = MethodAttributeSet.Extract(property);
         if (attributeSet.IsEmpty)
           continue;
 
@@ -144,7 +146,7 @@ namespace Xtensive.Storage.Aspects
         bool openTransaction = method.IsPublic && !isCompilerGenerated;
         TransactionOpenMode mode = TransactionOpenMode.Auto;
 
-        var attributeSet = AttributeSet.ExctractFrom(method);
+        var attributeSet = MethodAttributeSet.Extract(method);
 
         // Check whether attributes are applied to appropriate property
         if (attributeSet.IsEmpty)

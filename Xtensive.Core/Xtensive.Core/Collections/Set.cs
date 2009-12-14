@@ -5,9 +5,8 @@
 // Created:    2007.10.26
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Comparison;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
 
@@ -18,6 +17,7 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TItem">The type of the item.</typeparam>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class Set<TItem> : SetSlim<TItem>,
     ICollectionChangeNotifier<TItem>
   {

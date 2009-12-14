@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building.Definitions;
@@ -49,7 +50,7 @@ namespace Xtensive.Storage.Disconnected
       }
       set {
         if (tuple!=null)
-          throw new InvalidOperationException("State is already contains value.");
+          throw Exceptions.AlreadyInitialized("Tuple");
 
         tuple = Origin!=null && Origin.Tuple!=null
           ? new DifferentialTuple(Origin.Tuple, value) 
@@ -82,7 +83,7 @@ namespace Xtensive.Storage.Disconnected
 
       refs = Origin==null
         ? (IDictionary<Key, Key>) new Dictionary<Key, Key>()
-        : new ChainedDictionary<Key, Key>(Origin.GetReferences(field));
+        : new DifferentialDictionary<Key, Key>(Origin.GetReferences(field));
       references.Add(field, refs);
       return refs;
     }
@@ -110,7 +111,7 @@ namespace Xtensive.Storage.Disconnected
     public bool MergeValue(Tuple newValue)
     {
       if (Origin!=null)
-        throw new InvalidOperationException("Can't merge state.");
+        throw new InvalidOperationException("Can't merge the state.");
       
       return MergeTuples(tuple.Origin, newValue);
     }
@@ -118,7 +119,7 @@ namespace Xtensive.Storage.Disconnected
     public void SetNewValue(Tuple newValue)
     {
       if (Origin!=null)
-        throw new InvalidOperationException("Can't merge state.");
+        throw new InvalidOperationException("Can't merge the state.");
       
       if (tuple==null)
         tuple = new DifferentialTuple(newValue.Clone());
@@ -141,9 +142,9 @@ namespace Xtensive.Storage.Disconnected
       foreach (var state in setStates)
         state.Value.Commit();
       foreach (var reference in references) {
-        var refs = reference.Value as ChainedDictionary<Key, Key>;
+        var refs = reference.Value as DifferentialDictionary<Key, Key>;
         if (refs!=null)
-          refs.Commit();
+          refs.ApplyChanges();
       }
       if (tuple!=null)
         if (Origin.Tuple==null)
@@ -162,32 +163,34 @@ namespace Xtensive.Storage.Disconnected
             ? new SerializableTuple(tuple.Difference)
             : new SerializableTuple(tuple.Origin);
       var refs = references.Select(pair => {
-        var chainedDict = pair.Value as ChainedDictionary<Key, Key>;
+        var dictionary = pair.Value as DifferentialDictionary<Key, Key>;
+        var difference = dictionary!=null ? dictionary.Difference : null;
         return new SerializableReference {
           Field = new FieldInfoRef(pair.Key),
-          AddedItems = chainedDict==null
+          AddedItems = difference==null
             ? null
-            : chainedDict.AddedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
-          RemovedItems = chainedDict==null
+            : difference.AddedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
+          RemovedItems = difference==null
             ? null
-            : chainedDict.RemovedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
-          Items = chainedDict==null
+            : difference.RemovedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
+          Items = dictionary==null
             ? pair.Value.Select(keyPair => keyPair.Key.ToString(true)).ToArray()
             : null
         };
       }).ToArray();
       var entitySets = setStates.Select(pair => {
-        var chainedDict = pair.Value.Items as ChainedDictionary<Key, Key>;
+        var dictionary = pair.Value.Items as DifferentialDictionary<Key, Key>;
+        var difference = dictionary!=null ? dictionary.Difference : null;
         return new SerializableEntitySet {
           Field = new FieldInfoRef(pair.Key),
           IsFullyLoaded = pair.Value.IsFullyLoaded,
-          AddedItems = chainedDict==null
+          AddedItems = difference==null
             ? null
-            : chainedDict.AddedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
-          RemovedItems = chainedDict==null
+            : difference.AddedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
+          RemovedItems = difference==null
             ? null
-            : chainedDict.RemovedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
-          Items = chainedDict==null
+            : difference.RemovedItems.Select(keyPair => keyPair.Key.ToString(true)).ToArray(),
+          Items = dictionary==null
             ? pair.Value.Items.Select(keyPair => keyPair.Key.ToString(true)).ToArray()
             : null
         };

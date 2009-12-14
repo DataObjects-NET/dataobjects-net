@@ -1,8 +1,8 @@
 // Copyright (C) 2007 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alex Ilyin
-// Created:    2007.06.04
+// Created by: Alex Yakunin
+// Created:    2009.12.14
 
 using System;
 using System.Collections;
@@ -17,14 +17,14 @@ namespace Xtensive.Core.Collections
   /// </summary>
   [Serializable]
   [DebuggerDisplay("Count = {Count}")]
-  public class ReadOnlySet<T>: ISet<T>, IReadOnly
+  public class ReadOnlyHashSet<T>: ISet<T>, IReadOnly
   {
-    private readonly ISet<T> innerSet;
+    private readonly HashSet<T> innerSet;
 
     /// <inheritdoc/>
     public T this[T item]
     {
-      get { return innerSet[item]; }
+      get { return innerSet.Contains(item) ? item : default(T); }
     }
 
     /// <inheritdoc/>
@@ -134,17 +134,17 @@ namespace Xtensive.Core.Collections
     /// </summary>
     /// <param name="set">The set to copy or wrap.</param>
     /// <param name="copy">Indicates whether <paramref name="set"/> must be copied or wrapped.</param> 
-    public ReadOnlySet(ISet<T> set, bool copy)
+    public ReadOnlyHashSet(HashSet<T> set, bool copy)
     {
       ArgumentValidator.EnsureArgumentNotNull(set, "set");
-      innerSet = copy ? new SetSlim<T>(set) : set;
+      innerSet = copy ? new HashSet<T>(set) : set;
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="set">The set to wrap.</param>
-    public ReadOnlySet(ISet<T> set)
+    public ReadOnlyHashSet(HashSet<T> set)
       : this(set, false)
     {
     }

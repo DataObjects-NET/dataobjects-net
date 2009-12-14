@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Disposing;
-using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage
@@ -28,11 +27,13 @@ namespace Xtensive.Storage
     public EntitySetAccessor EntitySetAccessor { get; private set; }
 
     /// <summary>
-    /// Opens the region in which only the system logic will be executed.
+    /// Opens the region in which only the system logic is executed.
     /// </summary>
-    /// <returns>An object implementing <see cref="IDisposable"/> which 
-    /// may be disposed to restore a previous state of the 
-    /// <see cref="Session.IsSystemLogicOnly"/> property.</returns>
+    /// <returns>
+    /// An object implementing <see cref="IDisposable"/> which
+    /// disposal will restore previous state of
+    /// <see cref="Session.IsSystemLogicOnly"/> property.
+    /// </returns>
     [Infrastructure]
     public IDisposable OpenSystemLogicOnlyRegion()
     {
@@ -46,9 +47,11 @@ namespace Xtensive.Storage
     /// Changes the value of <see cref="Session.Handler"/>.
     /// </summary>
     /// <param name="newHandler">The new handler.</param>
-    /// <returns>An object implementing <see cref="IDisposable"/> which 
-    /// may be disposed to restore a previous state of the 
-    /// <see cref="Session.Handler"/> property.</returns>
+    /// <returns>
+    /// An object implementing <see cref="IDisposable"/> which
+    /// disposal will restore previous state of
+    /// <see cref="Session.Handler"/> property.
+    /// </returns>
     [Infrastructure]
     public IDisposable ChangeSessionHandler(SessionHandler newHandler)
     {

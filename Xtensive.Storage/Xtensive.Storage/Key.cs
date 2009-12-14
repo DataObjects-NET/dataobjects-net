@@ -322,7 +322,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
-      return KeyFactory.CreateNext(domain, domain.Model.Types[type]);
+      return KeyFactory.Generate(domain, domain.Model.Types[type]);
     }
 
     #endregion
@@ -393,7 +393,7 @@ namespace Xtensive.Storage
 
     internal static Key Create(Domain domain, TypeInfo typeInfo, TypeReferenceAccuracy accuracy, Tuple value)
     {
-      return KeyFactory.Create(domain, typeInfo, value, accuracy, false, null);
+      return KeyFactory.Materialize(domain, typeInfo, value, accuracy, false, null);
     }
 
     #endregion
@@ -464,7 +464,7 @@ namespace Xtensive.Storage
 
     internal static Key Create(Domain domain, TypeInfo typeInfo, TypeReferenceAccuracy accuracy, params object[] values)
     {
-      return KeyFactory.Create(domain, typeInfo, accuracy, values);
+      return KeyFactory.Materialize(domain, typeInfo, accuracy, values);
     }
 
     #endregion

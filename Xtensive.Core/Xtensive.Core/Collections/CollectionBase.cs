@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
 
@@ -15,6 +16,7 @@ namespace Xtensive.Core.Collections
   /// Base class for any collection.
   /// </summary>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class CollectionBase<TItem>: CollectionBaseSlim<TItem>,
     ICollectionChangeNotifier<TItem>
   {

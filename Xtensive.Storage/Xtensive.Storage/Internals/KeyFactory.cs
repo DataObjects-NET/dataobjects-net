@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Internals
   {
     private const string GenericKeyNameFormat = "{0}.{1}`{2}";
 
-    public static Key CreateNext(Domain domain, TypeInfo typeInfo)
+    public static Key Generate(Domain domain, TypeInfo typeInfo)
     {
       if (!typeInfo.IsEntity)
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
@@ -37,13 +37,13 @@ namespace Xtensive.Storage.Internals
       if (keyGenerator == null)
         throw new InvalidOperationException(String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
       var keyValue = keyGenerator.Next();
-      var key = Create(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
+      var key = Materialize(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
       if (notifyLocalKeyCreated)
-        session.NotifyLocalKeyCreated(key);
+        session.NotifyKeyGenerated(key);
       return key;
     }
 
-    public static Key Create(Domain domain, TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, int[] keyIndexes)
+    public static Key Materialize(Domain domain, TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, int[] keyIndexes)
     {
       var hierarchy = type.Hierarchy;
       var keyInfo = type.KeyProviderInfo;
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Internals
       return key;
     }
 
-    public static Key Create(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
+    public static Key Materialize(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
       var keyInfo = type.KeyProviderInfo;
       ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Internals
         throw new ArgumentException(String.Format(
           Strings.ExSpecifiedValuesArentEnoughToCreateKeyForTypeX, type.Name));
 
-      return Create(domain, type, tuple, accuracy, false, null);
+      return Materialize(domain, type, tuple, accuracy, false, null);
     }
 
     private static Key CreateGenericKey(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy,

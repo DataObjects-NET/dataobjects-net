@@ -12,19 +12,20 @@ namespace Xtensive.Storage.Disconnected
   public enum MergeMode
   {
     /// <summary>
-    /// Default = Restrict.
+    /// Default value. 
+    /// The same as <see cref="Strict"/>.
     /// </summary>
-    Default = Restrict,
+    Default = Strict,
     /// <summary>
-    /// Restricts merge on version conflict.
+    /// Prevents merge on any version conflict.
     /// </summary>
-    Restrict = 0,
+    Strict = 0,
     /// <summary>
-    /// Source value will be used on version confilct.
+    /// Source value will be used on version conflict.
     /// </summary>
     PreferSource = 1,
     /// <summary>
-    /// Target value will be used on version confilct.
+    /// Target value will be used on version conflict.
     /// </summary>
     PreferTarget = 2,
   }

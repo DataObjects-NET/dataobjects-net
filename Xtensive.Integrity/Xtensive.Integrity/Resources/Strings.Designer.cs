@@ -70,11 +70,48 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Both localizable message resource and not localizable message can not be specified at once (location: {0})..
+        /// </summary>
+        internal static string AspectExBothLocalizableMessageResourceAndNotLocalizableMessageCanNotBeSpecifiedAtOnceLocationX {
+            get {
+                return ResourceManager.GetString("AspectExBothLocalizableMessageResourceAndNotLocalizableMessageCanNotBeSpecifiedAt" +
+                        "OnceLocationX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field constraint can not be applied to read only property {0}..
+        /// </summary>
+        internal static string AspectExFieldConstraintCanNotBeAppliedToReadOnlyPropertyX {
+            get {
+                return ResourceManager.GetString("AspectExFieldConstraintCanNotBeAppliedToReadOnlyPropertyX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [{0}] attribute on &apos;{1}&apos; requires a comparer for type &apos;{2}&apos;..
         /// </summary>
         internal static string AspectExNoComparer {
             get {
                 return ResourceManager.GetString("AspectExNoComparer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; and &apos;{1}&apos; properties must be used together (location: {2})..
+        /// </summary>
+        internal static string AspectExXAndYPropertiesMustBeUsedTogetherLocationZ {
+            get {
+                return ResourceManager.GetString("AspectExXAndYPropertiesMustBeUsedTogetherLocationZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; does not support &apos;{1}&apos; value type (location: {2})..
+        /// </summary>
+        internal static string AspectExXDoesNotSupportYValueTypeLocationZ {
+            get {
+                return ResourceManager.GetString("AspectExXDoesNotSupportYValueTypeLocationZ", resourceCulture);
             }
         }
         
@@ -210,16 +247,6 @@ namespace Xtensive.Integrity.Resources {
         internal static string ExAtomicContextIsSuspended {
             get {
                 return ResourceManager.GetString("ExAtomicContextIsSuspended", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Both localizable message resource and not localizable message and can not be specified at once..
-        /// </summary>
-        internal static string ExBothLocalizableMessageResourceAndNotLocalizableMessageAndCanNotBeSpecifiedAtOnce {
-            get {
-                return ResourceManager.GetString("ExBothLocalizableMessageResourceAndNotLocalizableMessageAndCanNotBeSpecifiedAtOnc" +
-                        "e", resourceCulture);
             }
         }
         
@@ -404,24 +431,6 @@ namespace Xtensive.Integrity.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; and &apos;{1}&apos; properties must be used together..
-        /// </summary>
-        internal static string ExXAndYPropertiesMustBeUsedTogether {
-            get {
-                return ResourceManager.GetString("ExXAndYPropertiesMustBeUsedTogether", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Field constraint can not be applied to read only property..
-        /// </summary>
-        internal static string FieldConstraintCanNotBeAppliedToReadOnlyProperty {
-            get {
-                return ResourceManager.GetString("FieldConstraintCanNotBeAppliedToReadOnlyProperty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Error during undoing the relation synchronization..
         /// </summary>
         internal static string LogRelationSyncUndoError {
@@ -499,24 +508,6 @@ namespace Xtensive.Integrity.Resources {
         internal static string X {
             get {
                 return ResourceManager.GetString("X", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; does not support &apos;{1}&apos; value type..
-        /// </summary>
-        internal static string XDoesNotSupportYValueType {
-            get {
-                return ResourceManager.GetString("XDoesNotSupportYValueType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; interface should be implemented to use property constraints..
-        /// </summary>
-        internal static string XInterfaceShouldBeImplementedToUsePropertyConstraints {
-            get {
-                return ResourceManager.GetString("XInterfaceShouldBeImplementedToUsePropertyConstraints", resourceCulture);
             }
         }
     }
