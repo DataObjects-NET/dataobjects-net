@@ -5,6 +5,7 @@
 // Created:    2008.11.26
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -50,7 +51,11 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
-      throw new NotSupportedException();
+      var resultType = expression.Type.IsOfGenericInterface(typeof(IEnumerable<>))
+        ? typeof(IEnumerable<>).MakeGenericType(expression.Type.GetGenericArguments())
+        : expression.Type;
+      var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
+      return executeMethod.Invoke(this, new[] {expression});
     }
 
     /// <inheritdoc/>

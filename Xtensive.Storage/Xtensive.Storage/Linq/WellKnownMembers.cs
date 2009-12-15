@@ -18,6 +18,19 @@ namespace Xtensive.Storage.Linq
 {
   internal static class WellKnownMembers
   {
+    public static class QueryProvider
+    {
+      public static readonly MethodInfo Execute;
+
+      static QueryProvider()
+      {
+        Execute = typeof(Linq.QueryProvider)
+          .GetMethods()
+          .Where(mi => mi.Name == "Execute" && mi.IsGenericMethod)
+          .Single();
+      }
+    }
+
     // Tuple
     public static class Tuple
     {
