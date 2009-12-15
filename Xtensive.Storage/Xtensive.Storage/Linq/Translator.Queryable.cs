@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
@@ -22,7 +23,6 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Linq.Expressions.Visitors;
-using Xtensive.Storage.Linq;
 
 namespace Xtensive.Storage.Linq
 {
@@ -818,11 +818,17 @@ namespace Xtensive.Storage.Linq
 
     private ProjectionExpression VisitSelectMany(Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
     {
-      if (collectionSelector.Parameters.Count > 1)
-        throw new NotSupportedException(String.Format(Strings.ExSelectManyCollectionSelector0MustHaveOnlyOneLambdaParameter, resultSelector.ToString(true)));
       var outerParameter = collectionSelector.Parameters[0];
       var visitedSource = Visit(source);
       var sequence = VisitSequence(visitedSource);
+
+      Disposable indexBinding = null;
+      if (collectionSelector.Parameters.Count==2) {
+        var indexProjection = GetIndexBinding(collectionSelector, ref sequence);
+        indexBinding = context.Bindings.Add(collectionSelector.Parameters[1], indexProjection);
+      }
+
+      using (indexBinding)
       using (context.Bindings.Add(outerParameter, sequence)) {
         bool isOuter = false;
         if (collectionSelector.Body.NodeType==ExpressionType.Call) {
@@ -838,8 +844,8 @@ namespace Xtensive.Storage.Linq
         using (state.CreateScope()) {
           state.OuterParameters = state.OuterParameters
             .Concat(state.Parameters)
-            .AddOne(outerParameter)
-            .ToArray();
+            .Concat(collectionSelector.Parameters)
+            .AddOne(outerParameter).ToArray();
           state.Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
           var visitedCollectionSelector = Visit(collectionSelector.Body);
 
@@ -893,6 +899,12 @@ namespace Xtensive.Storage.Linq
     private ProjectionExpression VisitSelect(Expression expression, LambdaExpression le)
     {
       var sequence = VisitSequence(expression);
+      Disposable indexBinding = null;
+      if (le.Parameters.Count==2) {
+        var indexProjection = GetIndexBinding(le, ref sequence);
+        indexBinding = context.Bindings.PermanentAdd(le.Parameters[1], indexProjection);
+      }
+      using (indexBinding)
       using (context.Bindings.PermanentAdd(le.Parameters[0], sequence)) {
         var projection = BuildProjection(le);
         return projection;
@@ -916,6 +928,12 @@ namespace Xtensive.Storage.Linq
     {
       var parameter = le.Parameters[0];
       ProjectionExpression visitedSource = VisitSequence(expression);
+      Disposable indexBinding = null;
+      if (le.Parameters.Count==2) {
+        var indexProjection = GetIndexBinding(le, ref visitedSource);
+        indexBinding = context.Bindings.Add(le.Parameters[1], indexProjection);
+      }
+      using (indexBinding)
       using (context.Bindings.Add(parameter, visitedSource))
       using (state.CreateScope()) {
         state.CalculateExpressions = false;

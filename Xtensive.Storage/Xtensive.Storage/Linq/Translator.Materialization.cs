@@ -17,7 +17,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Materialization;
-using Xtensive.Storage.Linq.Rewriters;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Linq
@@ -174,6 +174,22 @@ namespace Xtensive.Storage.Linq
           arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
       }
       return arguments;
+    }
+
+    private ProjectionExpression GetIndexBinding(LambdaExpression le, ref ProjectionExpression sequence)
+    {
+      if (le.Parameters.Count==2) {
+        var indexDataSource = sequence.ItemProjector.DataSource.RowNumber(context.GetNextColumnAlias());
+        var columnExpression = ColumnExpression.Create(typeof (long), indexDataSource.Header.Columns.Count - 1);
+        var indexExpression = Expression.Subtract(columnExpression, Expression.Constant(1l));
+        var itemExpression = Expression.Convert(indexExpression, typeof (int));
+        var indexItemProjector = new ItemProjectorExpression(itemExpression, indexDataSource, context);
+        var indexProjectionExpression = new ProjectionExpression(typeof (long), indexItemProjector, sequence.TupleParameterBindings);
+        var sequenceItemProjector = sequence.ItemProjector.Remap(indexDataSource, 0);
+        sequence = new ProjectionExpression(sequence.Type, sequenceItemProjector, sequence.TupleParameterBindings, sequence.ResultType);
+        return indexProjectionExpression;
+      }
+      return null;
     }
   }
 }

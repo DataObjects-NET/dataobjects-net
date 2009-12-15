@@ -11,7 +11,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
@@ -104,8 +103,8 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitLambda(LambdaExpression le)
     {
       using (state.CreateLambdaScope(le)) {
-        if (!state.BuildingProjection && le.Parameters.Count > 1)
-          throw new InvalidOperationException(String.Format(Strings.ExLambdaXMustHaveOnlyOneParameter, le.ToString(true)));
+//        if (!state.BuildingProjection && le.Parameters.Count > 1)
+//          throw new InvalidOperationException(String.Format(Strings.ExLambdaXMustHaveOnlyOneParameter, le.ToString(true)));
 
         Expression body = Visit(le.Body);
         ParameterExpression parameter = le.Parameters[0];
@@ -262,16 +261,16 @@ namespace Xtensive.Storage.Linq
       Expression source = null;
       Expression match = null;
       switch (mc.Arguments.Count) {
-        case 2:
+      case 2:
         source = mc.Arguments[1];
         match = mc.Arguments[0];
         break;
-        case 3:
+      case 3:
         source = mc.Arguments[2];
         match = mc.Arguments[0];
-        algorithm = (IncludeAlgorithm)ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
+        algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
         break;
-          default:
+      default:
         Exceptions.InternalError("Unknown \"In\" syntax", Log.Instance);
         break;
       }
@@ -576,8 +575,8 @@ namespace Xtensive.Storage.Linq
       if (state.CalculateExpressions
         && reduceCastBody.GetMemberType()==MemberType.Unknown
           && reduceCastBody.NodeType!=ExpressionType.ArrayIndex
-          && (ExtendedExpressionType)reduceCastBody.NodeType!=ExtendedExpressionType.Constructor
-            && reduceCastBody.NodeType!=ExpressionType.New) {
+            && (ExtendedExpressionType) reduceCastBody.NodeType!=ExtendedExpressionType.Constructor
+              && reduceCastBody.NodeType!=ExpressionType.New) {
         if (body.Type.IsEnum)
           body = Expression.Convert(body, Enum.GetUnderlyingType(body.Type));
         UnaryExpression convertExpression = Expression.Convert(body, typeof (object));
