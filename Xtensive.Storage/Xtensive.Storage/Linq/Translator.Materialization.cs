@@ -27,12 +27,10 @@ namespace Xtensive.Storage.Linq
     public static readonly MethodInfo TranslateMethodInfo;
     public static readonly MethodInfo VisitLocalCollectionSequenceMethodInfo;
 
-    private IEnumerable<ILinqProcessor> linqProcessors = EnumerableUtils<ILinqProcessor>.Empty;
-
     public TranslatedQuery<TResult> Translate<TResult>()
     {
       var expression = context.Query;
-      foreach (var processor in linqProcessors)
+      foreach (var processor in context.LinqProcessors)
         expression = processor.PreProcess(expression);
       var projection = (ProjectionExpression) Visit(expression);
       return Translate<TResult>(projection, EnumerableUtils<Parameter<Tuple>>.Empty);
@@ -58,7 +56,7 @@ namespace Xtensive.Storage.Linq
       
       // Postprocess item expression
       var itemExpression = prepared.ItemProjector.Item;
-      foreach (var linqProcessor in linqProcessors.Reverse())
+      foreach (var linqProcessor in context.LinqProcessors.Reverse())
         itemExpression = linqProcessor.PostProcess(itemExpression, dataSource.Header);
       var postprocessedItemProjector = new ItemProjectorExpression(itemExpression, dataSource, context);
       prepared = new ProjectionExpression(prepared.Type, postprocessedItemProjector, prepared.TupleParameterBindings, prepared.ResultType);

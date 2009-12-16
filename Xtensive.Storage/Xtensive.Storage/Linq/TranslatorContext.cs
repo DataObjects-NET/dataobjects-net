@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
@@ -34,6 +33,12 @@ namespace Xtensive.Storage.Linq
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
     private readonly IMemberCompilerProvider<Expression> customCompilerProvider;
+    private readonly IEnumerable<ILinqProcessor> linqProcessors;
+
+    public IEnumerable<ILinqProcessor> LinqProcessors
+    {
+      get { return linqProcessors; }
+    }
 
     public Expression Query
     {
@@ -142,6 +147,7 @@ namespace Xtensive.Storage.Linq
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();
       tupleParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
       boundItemProjectors = new Dictionary<ParameterExpression, ItemProjectorExpression>();
+      linqProcessors = domain.Services.GetAllInstances<ILinqProcessor>();
     }
   }
 }
