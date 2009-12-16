@@ -13,6 +13,7 @@ using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Threading;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
@@ -207,6 +208,8 @@ namespace Xtensive.Storage
       get {
         if (serviceLocator==null)
           serviceLocator = new DomainServiceLocator();
+        var container = new ServiceContainer();
+        serviceLocator.SetLocatorProvider(() => new ServiceLocatorAdapter(container));
         return serviceLocator;
       }
     }

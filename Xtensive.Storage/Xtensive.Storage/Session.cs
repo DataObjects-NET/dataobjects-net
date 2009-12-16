@@ -160,6 +160,8 @@ namespace Xtensive.Storage
       get {
         if (serviceLocator==null)
           serviceLocator = new SessionServiceLocator(this);
+        var container = new ServiceContainer();
+        serviceLocator.SetLocatorProvider(() => new ServiceLocatorAdapter(container));
         return serviceLocator;
       }
     }
