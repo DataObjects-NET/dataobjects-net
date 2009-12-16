@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Fulltext.Attributes;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -81,6 +82,13 @@ namespace Xtensive.Storage.Building.Builders
       ProcessScale(fieldDef, attribute);
       ProcessPrecision(fieldDef, attribute);
       ProcessLazyLoad(fieldDef, attribute);
+    }
+
+    public static void Process(FieldDef fieldDef, FullTextAttribute attribute)
+    {
+      fieldDef.Attributes |= attribute.Analyzed 
+        ? FieldAttributes.Analyzed 
+        : FieldAttributes.FullText;
     }
 
     public static void Process(FieldDef fieldDef, AssociationAttribute attribute)

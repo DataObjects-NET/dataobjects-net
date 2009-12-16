@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Fulltext.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 
@@ -212,6 +213,9 @@ namespace Xtensive.Storage.Building.Builders
         var versionAttribute = propertyInfo.GetAttribute<VersionAttribute>(AttributeSearchOptions.InheritAll);
         if (versionAttribute!=null)
           AttributeProcessor.Process(fieldDef, versionAttribute);
+        var fullTextAttribute = propertyInfo.GetAttribute<FullTextAttribute>(AttributeSearchOptions.InheritAll);
+        if (fullTextAttribute != null)
+          AttributeProcessor.Process(fieldDef, fullTextAttribute);
       }
 
       return fieldDef;

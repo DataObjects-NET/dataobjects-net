@@ -31,5 +31,7 @@ namespace Xtensive.Storage.Model
     Version = 0x10000,
     TypeDiscriminator = 0x20000,
     Computed = 0x40000,
+    FullText = 0x100000,
+    Analyzed = 0x180000
   }
 }
