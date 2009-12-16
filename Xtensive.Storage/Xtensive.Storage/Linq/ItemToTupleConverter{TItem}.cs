@@ -36,15 +36,23 @@ namespace Xtensive.Storage.Linq
       var select = Expression.Call(selectMethod, call, Expression.Constant(converter));
       return Expression.Lambda<Func<IEnumerable<Tuple>>>(select);
     }
-    
 
+
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private bool IsPersistableType(Type type)
     {
       if (type==typeof (Entity)
         || type.IsSubclassOf(typeof (Entity))
           || type==typeof (Structure)
-            || type.IsSubclassOf(typeof (Structure))) {
+            || type.IsSubclassOf(typeof (Structure))
+        ) {
         if (!model.Types.Contains(type))
+          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
+        return true;
+      }
+      if (type.IsOfGenericType(typeof (TypedKey<>))) {
+        var entityType = type.GetGenericType(typeof (TypedKey<>)).GetGenericArguments()[0];
+        if (!model.Types.Contains(entityType))
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
       }
@@ -105,8 +113,10 @@ namespace Xtensive.Storage.Linq
 
     private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, ref IEnumerable<Type> types)
     {
+      if (type.IsAssignableFrom(typeof (Key)))
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToStoreUntypedKeyToStorage, typeof (TypedKey<>).GetShortName()));
       if (!processedTypes.Add(type))
-        throw new InvalidOperationException(String.Format("Unable to persist type '{0}' to storage because of loop reference.", type.FullName));
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
 
 
       IEnumerable<MemberInfo> members = type
@@ -139,6 +149,17 @@ namespace Xtensive.Storage.Linq
 
     private IMappedExpression BuildField(Type type, ref int index, ref IEnumerable<Type> types)
     {
+//      if (type.IsOfGenericType(typeof (TypedKey<>))) {
+//        var entityType = type.GetGenericType(typeof (TypedKey<>)).GetGenericArguments()[0];
+//        TypeInfo typeInfo = model.Types[entityType];
+//        KeyProviderInfo keyProviderInfo = typeInfo.KeyProviderInfo;
+//        TupleDescriptor keyTupleDescriptor = keyProviderInfo.TupleDescriptor;
+//        KeyExpression entityExpression = KeyExpression.Create(typeInfo, index);
+//        index += keyTupleDescriptor.Count;
+//        types = types.Concat(keyTupleDescriptor);
+//        return Expression.Convert(entityExpression, type);
+//      }
+
       if (type.IsSubclassOf(typeof (Entity))) {
         TypeInfo typeInfo = model.Types[type];
         KeyProviderInfo keyProviderInfo = typeInfo.KeyProviderInfo;

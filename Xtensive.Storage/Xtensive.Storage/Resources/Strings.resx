@@ -1310,4 +1310,10 @@ Actions:
   <data name="ExXFieldIsNotDeclaredInEntityDescendantSoCannotBeUsedAsTypeDiscriminator" xml:space="preserve">
     <value>'{0}' field is not declared in Entity descendant, so cannot be used as type discriminator.</value>
   </data>
+  <data name="ExUnableToPersistTypeXBecauseOfLoopReference" xml:space="preserve">
+    <value>Unable to persist type '{0}' to storage because of loop reference.</value>
+  </data>
+  <data name="ExUnableToStoreUntypedKeyToStorage" xml:space="preserve">
+    <value>Unable to store untyped 'Key' to storage. Use '{0}' instead of 'Key'.</value>
+  </data>
 </root>

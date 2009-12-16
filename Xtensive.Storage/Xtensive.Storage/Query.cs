@@ -244,11 +244,6 @@ namespace Xtensive.Storage
       return new Queryable<TElement>(expression);
     }
 
-    public static IQueryable<TElement> Store<TElement>(params TElement[] source)
-    {
-      return Store((IEnumerable<TElement>) source);
-    }
-
     #region Private / internal methods
 
     /// <summary>

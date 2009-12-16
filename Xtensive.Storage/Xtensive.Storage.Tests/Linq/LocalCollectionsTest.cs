@@ -355,6 +355,17 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(TranslationException))]
+    public void KeyTest()
+    {
+      var keys = Query<Order>.All.Take(10).Select(order => order.Key).ToList();
+      var query = Query<Order>.All.Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
+      QueryDumper.Dump(query);
+      var expectedQuery = Query<Order>.All.AsEnumerable().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
+      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+    }
+
+    [Test]
     public void JoinEntityTest()
     {
       var localOrders = Query<Order>.All.Take(5).ToList();

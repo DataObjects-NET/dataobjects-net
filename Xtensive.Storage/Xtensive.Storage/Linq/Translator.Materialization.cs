@@ -27,9 +27,14 @@ namespace Xtensive.Storage.Linq
     public static readonly MethodInfo TranslateMethodInfo;
     public static readonly MethodInfo VisitLocalCollectionSequenceMethodInfo;
 
+    private IEnumerable<ILinqProcessor> linqProcessors = EnumerableUtils<ILinqProcessor>.Empty;
+
     public TranslatedQuery<TResult> Translate<TResult>()
     {
-      var projection = (ProjectionExpression) Visit(context.Query);
+      var expression = context.Query;
+      foreach (var processor in linqProcessors)
+        expression = processor.PreProcess(expression);
+      var projection = (ProjectionExpression) Visit(expression);
       return Translate<TResult>(projection, EnumerableUtils<Parameter<Tuple>>.Empty);
     }
 
@@ -50,6 +55,15 @@ namespace Xtensive.Storage.Linq
         : optimized;
 
       var dataSource = prepared.ItemProjector.DataSource;
+      
+      // Postprocess item expression
+      var itemExpression = prepared.ItemProjector.Item;
+      foreach (var linqProcessor in linqProcessors.Reverse())
+        itemExpression = linqProcessor.PostProcess(itemExpression, dataSource.Header);
+      var postprocessedItemProjector = new ItemProjectorExpression(itemExpression, dataSource, context);
+      prepared = new ProjectionExpression(prepared.Type, postprocessedItemProjector, prepared.TupleParameterBindings, prepared.ResultType);
+      
+      // Build materializer
       var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
       var translatedQuery = new TranslatedQuery<TResult>(dataSource, materializer, projection.TupleParameterBindings, tupleParameterBindings);
 

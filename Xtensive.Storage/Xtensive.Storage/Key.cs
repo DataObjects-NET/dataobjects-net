@@ -469,6 +469,10 @@ namespace Xtensive.Storage
 
     #endregion
 
+    public TypedKey<T> ToTypedKey<T>() where T : Entity
+    {
+      return (TypedKey<T>)this;
+    }
 
     // Constructors
 

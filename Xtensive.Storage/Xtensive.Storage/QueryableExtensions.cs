@@ -21,6 +21,11 @@ namespace Xtensive.Storage
   /// </summary>
   public static class QueryableExtensions
   {
+    public static IEnumerable<TypedKey<TEntity>> ToTyped<TEntity>(this IEnumerable<Key> keys) where TEntity:Entity
+    {
+      return keys.Select(key => key.ToTypedKey<TEntity>());
+    }
+
     public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
