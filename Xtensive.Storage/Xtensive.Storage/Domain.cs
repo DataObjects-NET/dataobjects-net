@@ -206,10 +206,11 @@ namespace Xtensive.Storage
     /// </summary>
     public DomainServiceLocator Services {
       get {
-        if (serviceLocator==null)
+        if (serviceLocator==null){
           serviceLocator = new DomainServiceLocator();
-        var container = new ServiceContainer();
-        serviceLocator.SetLocatorProvider(() => new ServiceLocatorAdapter(container));
+          var container = new ServiceContainer();
+          serviceLocator.SetLocatorProvider(() => new ServiceLocatorAdapter(container));
+        }
         return serviceLocator;
       }
     }

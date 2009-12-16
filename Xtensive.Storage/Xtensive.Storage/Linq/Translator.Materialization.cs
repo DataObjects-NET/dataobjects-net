@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Linq
       // Postprocess item expression
       var itemExpression = prepared.ItemProjector.Item;
       foreach (var linqProcessor in context.LinqProcessors.Reverse())
-        itemExpression = linqProcessor.PostProcess(itemExpression, dataSource.Header);
+        itemExpression = linqProcessor.PostProcess(itemExpression);
       var postprocessedItemProjector = new ItemProjectorExpression(itemExpression, dataSource, context);
       prepared = new ProjectionExpression(prepared.Type, postprocessedItemProjector, prepared.TupleParameterBindings, prepared.ResultType);
       

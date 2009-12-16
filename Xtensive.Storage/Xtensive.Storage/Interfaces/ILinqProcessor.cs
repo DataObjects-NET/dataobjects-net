@@ -12,6 +12,6 @@ namespace Xtensive.Storage
   public interface ILinqProcessor
   {
     Expression PreProcess(Expression query);
-    Expression PostProcess(Expression itemExpression, RecordSetHeader dataSource);
+    Expression PostProcess(Expression itemExpression);
   }
 }
