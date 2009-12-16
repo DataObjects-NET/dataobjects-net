@@ -53,7 +53,7 @@ namespace Xtensive.Core.IoC
     {
       List<ServiceInfo> list;
       if (!types.TryGetValue(type, out list))
-        throw new ActivationException();
+        return Enumerable.Empty<object>();
 
       return list.Select(item => GetOrCreateInstance(item));
     }
