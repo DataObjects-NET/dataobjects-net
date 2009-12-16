@@ -709,6 +709,9 @@ namespace Xtensive.Storage.Linq
           result = entityExpression.Fields.First(propertyFilter);
         }
         break;
+      case ExtendedExpressionType.Field:
+        var fieldExpression = (FieldExpression) expression;
+        throw Exceptions.InternalError(String.Format("GetMember ('{0}') is incorrect on FieldExpression ('{1}').", member.Name, fieldExpression.Field.Name), Log.Instance);
       case ExtendedExpressionType.EntityField:
         var entityFieldExpression = (EntityFieldExpression) expression;
         result = entityFieldExpression.Fields.FirstOrDefault(propertyFilter);

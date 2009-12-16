@@ -18,6 +18,28 @@ namespace Xtensive.Storage.Tests.Linq
   public class FirstSingleTest : NorthwindDOModelTest
   {
     [Test]
+    public void LengthTest()
+    {
+      var length = Query<Customer>.All
+        .Select(customer => customer.ContactName)
+        .FirstOrDefault()
+        .Length;
+    }
+
+    [Test]
+    public void Length2Test()
+    {
+      var customers = Query<Customer>.All
+        .Where(cutomer =>
+          cutomer
+            .Orders
+            .Select(order => order.ShipName)
+            .SingleOrDefault()
+            .Length > 0);
+      QueryDumper.Dump(customers);
+    }
+
+    [Test]
     public void FirstTest()
     {
       var customer = Query<Customer>.All.First();
@@ -104,15 +126,14 @@ namespace Xtensive.Storage.Tests.Linq
       var products = Query<Product>.All;
       var orderDetails = Query<OrderDetails>.All;
       var result = from p in products
-                   select new
-                     {
-                       Product = p,
-                       MaxOrder = orderDetails
-                         .Where(od => od.Product == p)
-                         .OrderByDescending(od => od.UnitPrice * od.Quantity)
-                         .First()
-                         .Order
-                     };
+      select new {
+        Product = p,
+        MaxOrder = orderDetails
+          .Where(od => od.Product==p)
+          .OrderByDescending(od => od.UnitPrice * od.Quantity)
+          .First()
+          .Order
+      };
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
       QueryDumper.Dump(list, true);
@@ -190,12 +211,11 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var categoriesCount = Query<Category>.All.Count();
       var result = Query<Category>.All.Select(
-        c => new
-             {
-               Product = c.Products.Take(1).SingleOrDefault(), 
-               c.Products.Take(1).SingleOrDefault().ProductName, 
-               c.Products.Take(1).SingleOrDefault().Supplier
-             });
+        c => new {
+          Product = c.Products.Take(1).SingleOrDefault(),
+          c.Products.Take(1).SingleOrDefault().ProductName,
+          c.Products.Take(1).SingleOrDefault().Supplier
+        });
       var list = result.ToList();
       Assert.AreEqual(categoriesCount, list.Count);
     }
@@ -205,8 +225,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var categoriesCount = Query<Category>.All.Count();
       var result = Query<Category>.All.Select(c => c.Products.Take(1).SingleOrDefault()).Select(
-        p => new
-        {
+        p => new {
           Product = p,
           p.ProductName,
           p.Supplier
@@ -221,12 +240,11 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var categoriesCount = Query<Category>.All.Count();
       var result = Query<Category>.All.Select(
-        c => new
-             {
-               Product = c.Products.First(), 
-               c.Products.First().ProductName, 
-               c.Products.First().Supplier
-             });
+        c => new {
+          Product = c.Products.First(),
+          c.Products.First().ProductName,
+          c.Products.First().Supplier
+        });
       var list = result.ToList();
       Assert.AreEqual(categoriesCount, list.Count);
     }
@@ -235,10 +253,9 @@ namespace Xtensive.Storage.Tests.Linq
     public void ComplexSubquerySelectFirstTest()
     {
       var categoriesCount = Query<Category>.All.Count();
-      var result = Query<Category>.All.Select(c => c.Products.First()).Select(p => new { Product = p, p.ProductName, p.Supplier });
+      var result = Query<Category>.All.Select(c => c.Products.First()).Select(p => new {Product = p, p.ProductName, p.Supplier});
       var list = result.ToList();
       Assert.AreEqual(categoriesCount, list.Count);
     }
-  
   }
 }
