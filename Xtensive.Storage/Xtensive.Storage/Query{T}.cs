@@ -39,8 +39,8 @@ namespace Xtensive.Storage
     /// The "starting point" for any full-text aware LINQ query.
     /// </summary>
     /// <param name="searchCriteria">The search criteria.</param>
-    /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
-    public static IQueryable<Document<T>> FreeText(string searchCriteria)
+    /// <returns>Query of <see cref="FullTextMatch{T}"/> instances.</returns>
+    public static IQueryable<FullTextMatch<T>> FreeText(string searchCriteria)
     {
       throw new NotImplementedException();
     }
@@ -49,8 +49,8 @@ namespace Xtensive.Storage
     /// The "starting point" for any full-text aware LINQ query.
     /// </summary>
     /// <param name="searchCriteria">The search criteria.</param>
-    /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
-    public static IQueryable<Document<T>> FreeText<TField>(
+    /// <returns>Query of <see cref="FullTextMatch{T}"/> instances.</returns>
+    public static IQueryable<FullTextMatch<T>> FreeText<TField>(
       Expression<Func<T,TField>> fieldSelector,
       string searchCriteria)
     {
@@ -61,8 +61,8 @@ namespace Xtensive.Storage
     /// The "starting point" for any full-text aware LINQ query.
     /// </summary>
     /// <param name="searchCriteria">The search criteria.</param>
-    /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
-    public static IQueryable<Document<T>> FreeText<TField1,TField2>(
+    /// <returns>Query of <see cref="FullTextMatch{T}"/> instances.</returns>
+    public static IQueryable<FullTextMatch<T>> FreeText<TField1,TField2>(
       Expression<Func<T, TField1>> fieldSelector1,
       Expression<Func<T, TField2>> fieldSelector2,
       string searchCriteria)
@@ -74,8 +74,8 @@ namespace Xtensive.Storage
     /// The "starting point" for any full-text aware LINQ query.
     /// </summary>
     /// <param name="searchCriteria">The search criteria.</param>
-    /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
-    public static IQueryable<Document<T>> FreeText<TField1, TField2, TField3>(
+    /// <returns>Query of <see cref="FullTextMatch{T}"/> instances.</returns>
+    public static IQueryable<FullTextMatch<T>> FreeText<TField1, TField2, TField3>(
       Expression<Func<T, TField1>> fieldSelector1,
       Expression<Func<T, TField2>> fieldSelector2,
       Expression<Func<T, TField3>> fieldSelector3,
@@ -88,8 +88,8 @@ namespace Xtensive.Storage
     /// The "starting point" for any full-text aware LINQ query.
     /// </summary>
     /// <param name="searchCriteria">The search criteria.</param>
-    /// <returns>Query of <see cref="Document{T}"/> instances.</returns>
-    public static IQueryable<Document<T>> FreeText<TField1, TField2, TField3, TField4>(
+    /// <returns>Query of <see cref="FullTextMatch{T}"/> instances.</returns>
+    public static IQueryable<FullTextMatch<T>> FreeText<TField1, TField2, TField3, TField4>(
       Expression<Func<T, TField1>> fieldSelector1,
       Expression<Func<T, TField2>> fieldSelector2,
       Expression<Func<T, TField3>> fieldSelector3,
