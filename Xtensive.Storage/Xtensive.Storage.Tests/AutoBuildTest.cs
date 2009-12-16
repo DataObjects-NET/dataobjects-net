@@ -130,16 +130,5 @@ namespace Xtensive.Storage.Tests
         throw new ArgumentOutOfRangeException();
       }
     }
-
-    static AutoBuildTest()
-    {
-      // Global logging configuration
-      var section = (UnityConfigurationSection) ConfigurationManager.GetSection("Unity");
-      if (section == null || section.Containers.Count == 0)
-        return;
-      container = new UnityContainer();
-      section.Containers.Default.Configure(container);
-      ServiceLocator.SetLocatorProvider(() => new Microsoft.Practices.Unity.ServiceLocatorAdapter.UnityServiceLocator(container));
-    }
   }
 }
