@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Practices.ServiceLocation;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.IoC
 {
@@ -33,7 +34,11 @@ namespace Xtensive.Core.IoC
 
     // Constructor
 
-    internal ServiceLocatorAdapter(ServiceContainer container)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="container">The container.</param>
+    public ServiceLocatorAdapter(ServiceContainer container)
     {
       this.container = container;
     }

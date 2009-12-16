@@ -6,8 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Practices.ServiceLocation;
+using ConfigurationSection=Xtensive.Core.IoC.Configuration.ConfigurationSection;
 
 namespace Xtensive.Core.IoC
 {
@@ -21,13 +24,12 @@ namespace Xtensive.Core.IoC
 
     private static IServiceLocator GlobalLocator {
       get {
-        // Note: Do not cache global locator instance. It can be changed anytime.
-        try {
+        // Do not cache global locator instance. It can be changed anytime.
+        var currentProviderField = typeof (Microsoft.Practices.ServiceLocation.ServiceLocator).GetField("currentProvider", BindingFlags.NonPublic | BindingFlags.Static);
+        var currentProviderValue = currentProviderField.GetValue(null);
+        if (currentProviderValue != null)
           return Microsoft.Practices.ServiceLocation.ServiceLocator.Current;
-        }
-        catch (NullReferenceException) {
-          return null;
-        }
+        return null;
       }
     }
 
@@ -36,8 +38,12 @@ namespace Xtensive.Core.IoC
         if (defaultLocator!=null)
           return defaultLocator;
 
+        // Looking for default IoC configuration section
+        var configuration = (ConfigurationSection) ConfigurationManager.GetSection(
+          ConfigurationSection.DefaultSectionName);
+        var containerConfig = configuration!=null ? configuration.Containers.Default : null;
         var container = new ServiceContainer();
-        container.Configure();
+        container.Configure(containerConfig);
         defaultLocator = new ServiceLocatorAdapter(container);
         return defaultLocator;
       }
@@ -62,15 +68,10 @@ namespace Xtensive.Core.IoC
     /// <exception cref="ActivationException">if there is are errors resolving the service instance.</exception>
     public static IEnumerable<object> GetAllInstances(Type serviceType)
     {
-      if (GlobalLocator == null)
-        return DefaultLocator.GetAllInstances(serviceType);
-
-      try {
+      if (GlobalLocator != null)
         return GlobalLocator.GetAllInstances(serviceType);
-      }
-      catch(ActivationException) {
-        return DefaultLocator.GetAllInstances(serviceType);
-      }
+
+      return DefaultLocator.GetAllInstances(serviceType);
     }
 
     /// <summary>
@@ -116,15 +117,10 @@ namespace Xtensive.Core.IoC
     /// <exception cref="ActivationException">if there is are errors resolving the service instance.</exception>
     public static object GetInstance(Type serviceType, string key)
     {
-      if (GlobalLocator == null)
-        return DefaultLocator.GetInstance(serviceType, key);
-
-      try {
+      if (GlobalLocator != null)
         return GlobalLocator.GetInstance(serviceType, key);
-      }
-      catch(ActivationException) {
-        return DefaultLocator.GetInstance(serviceType, key);
-      }
+
+      return DefaultLocator.GetInstance(serviceType, key);
     }
 
     /// <summary>
