@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Fulltext
   /// Fulltext indexed entity container.
   /// </summary>
   /// <typeparam name="T">Type of the indexed entity.</typeparam>
-  public sealed class Document<T> 
+  public sealed class FullTextMatch<T> 
     where T : class, IEntity
   {
     /// <summary>
@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Fulltext
     /// <param name="key">The <see cref="Key"/> property value.</param>
     /// <param name="rank">The <see cref="Rank"/> property value.</param>
     /// <param name="target">The <see cref="Target"/> property value.</param>
-    public Document(float rank, Key key, T target)
+    public FullTextMatch(float rank, Key key, T target)
     {
       Rank = rank;
       Key = key;
