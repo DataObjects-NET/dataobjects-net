@@ -7,12 +7,12 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Practices.ServiceLocation;
-using Xtensive.Core.Aspects;
+using Xtensive.Storage.Aspects;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Provides access to services.
+  /// Provides access to session-level services.
   /// </summary>
   public sealed class SessionServiceLocator : SessionBound,
     IServiceLocator
@@ -24,62 +24,56 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="newProvider">Delegate that, when called, will return
     /// the current session container.</param>
-    [Infrastructure]
+    [Transactional(false)]
     public void SetLocatorProvider(ServiceLocatorProvider newProvider)
     {
       locator = newProvider();
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
+    [Transactional(false)]
     public TService GetInstance<TService>()
     {
-      using (Session.Activate())
-        return GetLocator().GetInstance<TService>();
+      return GetLocator().GetInstance<TService>();
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
+    [Transactional(false)]
     public TService GetInstance<TService>(string name)
     {
-      using (Session.Activate())
-        return GetLocator().GetInstance<TService>(name);
+      return GetLocator().GetInstance<TService>(name);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
+    [Transactional(false)]
     public object GetInstance(Type type)
     {
-      using (Session.Activate())
-        return GetLocator().GetInstance(type);
+      return GetLocator().GetInstance(type);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
+    [Transactional(false)]
     public object GetInstance(Type type, string name)
     {
-      using (Session.Activate())
-        return GetLocator().GetInstance(type, name);
+      return GetLocator().GetInstance(type, name);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
+    [Transactional(false)]
     public IEnumerable<TService> GetAllInstances<TService>()
     {
-      using (Session.Activate())
-        return GetLocator().GetAllInstances<TService>();
+      return GetLocator().GetAllInstances<TService>();
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
+    [Transactional(false)]
     public IEnumerable<object> GetAllInstances(Type serviceType)
     {
-      using (Session.Activate())
-        return GetLocator().GetAllInstances(serviceType);
+      return GetLocator().GetAllInstances(serviceType);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
+    [Transactional(false)]
     public object GetService(Type serviceType)
     {
       return GetInstance(serviceType, null);
