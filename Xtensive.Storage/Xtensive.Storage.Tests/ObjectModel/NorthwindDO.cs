@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using Xtensive.Storage.FullText.Attributes;
 using Xtensive.Storage.Model;
 
 

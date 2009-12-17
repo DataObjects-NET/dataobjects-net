@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
-using Xtensive.Storage.Fulltext.Attributes;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 

@@ -34,6 +34,19 @@ namespace Xtensive.Storage.Tests.Linq
           cutomer
             .Orders
             .Select(order => order.ShipName)
+            .FirstOrDefault()
+            .Length > 0);
+      QueryDumper.Dump(customers);
+    }
+
+    [Test]
+    public void Length3Test()
+    {
+      var customers = Query<Customer>.All
+        .Where(cutomer =>
+          cutomer
+            .Orders
+            .Select(order => order.ShipName)
             .SingleOrDefault()
             .Length > 0);
       QueryDumper.Dump(customers);
