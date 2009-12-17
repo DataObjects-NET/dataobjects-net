@@ -7,7 +7,6 @@ using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Exceptions;
 
 namespace Xtensive.Sql.Tests.SqlServer
 {

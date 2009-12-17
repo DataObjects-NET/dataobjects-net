@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Sql.Exceptions;
 using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Compiler

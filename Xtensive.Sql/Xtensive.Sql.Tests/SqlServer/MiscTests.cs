@@ -3,8 +3,8 @@ using System.Data;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
+using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Exceptions;
 using System.Data.Common;
 
 namespace Xtensive.Sql.Tests.SqlServer
