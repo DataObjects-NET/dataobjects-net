@@ -3,14 +3,10 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using System.Data.Common;
-using System.Linq;
-using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Sql.Info;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Resources;
 using Xtensive.Sql.ValueTypeMapping;
@@ -20,10 +16,8 @@ namespace Xtensive.Sql
   /// <summary>
   /// Declares a base functionality of any <see cref="SqlDriver"/>.
   /// </summary>
-  public abstract class SqlDriver
+  public abstract partial class SqlDriver
   {
-    private const string DriverAssemblyFormat = "Xtensive.Sql.{0}";
-
     /// <summary>
     /// Gets an instance that provides complete information about underlying RDBMS.
     /// <seealso cref="ServerInfo"/>
@@ -78,7 +72,7 @@ namespace Xtensive.Sql
     /// </returns>
     public Catalog ExtractCatalog(SqlConnection connection)
     {
-      return GetExtractor(connection).ExtractCatalog();
+      return BuildExtractor(connection).ExtractCatalog();
     }
 
     /// <summary>
@@ -103,7 +97,7 @@ namespace Xtensive.Sql
     /// </returns>
     public Schema ExtractSchema(SqlConnection connection, string schemaName)
     {
-      return GetExtractor(connection).ExtractSchema(schemaName);
+      return BuildExtractor(connection).ExtractSchema(schemaName);
     }
 
     /// <summary>
@@ -165,18 +159,7 @@ namespace Xtensive.Sql
     {
       return url.GetSchema(url.User);
     }
-    
-    /// <summary>
-    /// Creates the driver from the specified connection url.
-    /// </summary>
-    /// <param name="url">The connection url.</param>
-    /// <returns>Created driver.</returns>
-    public static SqlDriver Create(UrlInfo url)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(url, "url");
-      return GetDriver(url);
-    }
-
+ 
     /// <summary>
     /// Creates the driver from the specified connection url.
     /// </summary>
@@ -185,7 +168,7 @@ namespace Xtensive.Sql
     public static SqlDriver Create(string url)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
-      return GetDriver(UrlInfo.Parse(url));
+      return BuildDriver(UrlInfo.Parse(url));
     }
 
     #region Private / internal methods
@@ -201,7 +184,7 @@ namespace Xtensive.Sql
       TypeMappings = new TypeMappingCollection(TypeMapper);
     }
 
-    private Extractor GetExtractor(SqlConnection connection)
+    private Extractor BuildExtractor(SqlConnection connection)
     {
       ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
       if (connection.Driver != this)
@@ -209,20 +192,6 @@ namespace Xtensive.Sql
       var extractor = CreateExtractor();
       extractor.Initialize(connection);
       return extractor;
-    }
-
-    private static SqlDriver GetDriver(UrlInfo url)
-    {
-      var thisAssemblyName = Assembly.GetExecutingAssembly().GetName();
-      string driverAssemblyShortName = string.Format(DriverAssemblyFormat, url.Protocol);
-      string driverAssemblyFullName = thisAssemblyName.FullName.Replace(thisAssemblyName.Name, driverAssemblyShortName);
-      var assembly = Assembly.Load(driverAssemblyFullName);
-      var factoryType = assembly.GetTypes()
-        .Single(type => type.IsPublicNonAbstractInheritorOf(typeof (SqlDriverFactory)));
-      var factory = (SqlDriverFactory) Activator.CreateInstance(factoryType);
-      var driver = factory.CreateDriver(url);
-      driver.Initialize();
-      return driver;
     }
 
     #endregion
