@@ -32,8 +32,10 @@ namespace Xtensive.Sql.PostgreSql
           result = new v8_1.Driver(connection, version);
         else if (major==8 && minor==2)
           result = new v8_2.Driver(connection, version);
-        else
+        else if (major==8 && minor==3)
           result = new v8_3.Driver(connection, version);
+        else
+          result = new v8_4.Driver(connection, version);
         connection.Close();
         return result;
       }

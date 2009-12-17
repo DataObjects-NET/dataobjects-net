@@ -34,7 +34,7 @@ namespace Xtensive.Sql.VistaDb.v3
       return catalog;
     }
 
-    protected override Schema ExtractSchema()
+    public override Schema ExtractSchema(string name)
     {
       throw new NotImplementedException();
     }

@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Oracle.v09
 //      "SYS;SYSTEM;DBSNMP;DMSYS;OUTLN;EXFSYS;MDSYS;ORDSYS;ORDPLUGINS;CTXSYS;DSSYS;PERFSTAT;" +
 //      "WKPROXY;WKSYS;WMSYS;XDB;ANONYMOUS;ODM;ODM_MTR;OLAPSYS;TRACESVR;TSMSYS;REPADMIN";
 
-    private static readonly SqlRow systemUsers;
+    private static readonly SqlRow SystemUsers;
 
     private static ThreadSafeCached<Schema> dataDictionaryCached = ThreadSafeCached<Schema>.Create(new object());
 
@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Oracle.v09
     protected override void Initialize()
     {
       dataDictionary = dataDictionaryCached.GetValue(BuildDataDictionary);
-      theCatalog = new Catalog(Connection.Url.GetDatabase());
+      theCatalog = new Catalog(Driver.ServerInfo.DatabaseName);
     }
 
     public override Catalog ExtractCatalog()
@@ -47,9 +47,9 @@ namespace Xtensive.Sql.Oracle.v09
       return theCatalog;
     }
 
-    protected override Schema ExtractSchema()
+    public override Schema ExtractSchema(string schemaName)
     {
-      var schemaName = GetDefaultSchemaName();
+      schemaName = schemaName.ToUpperInvariant();
       theCatalog.CreateSchema(schemaName);
       schemaFilter = AnsiString(schemaName);
       ExtractCatalogContents();
@@ -76,14 +76,15 @@ namespace Xtensive.Sql.Oracle.v09
       var allUsers = SqlDml.TableRef(dataDictionary.Views["ALL_USERS"]);
       var select = SqlDml.Select(allUsers);
       select.Columns.Add(allUsers["USERNAME"]);
-      select.Where = SqlDml.NotIn(allUsers["USERNAME"], systemUsers);
+      select.Where = SqlDml.NotIn(allUsers["USERNAME"], SystemUsers);
       using (var reader = ExecuteReader(select)) {
         while (reader.Read()) {
           theCatalog.CreateSchema(reader.GetString(0));
         }
       }
       // choosing the default schema
-      var defaultSchema = theCatalog.Schemas[GetDefaultSchemaName()];
+      var defaultSchemaName = Driver.ServerInfo.DefaultSchemaName.ToUpperInvariant();
+      var defaultSchema = theCatalog.Schemas[defaultSchemaName];
       theCatalog.DefaultSchema = defaultSchema;
     }
 
@@ -460,7 +461,7 @@ namespace Xtensive.Sql.Oracle.v09
       if (!schemaFilter.IsNullReference())
         select.Where &= filteredColumn==schemaFilter;
       else
-        select.Where &= SqlDml.NotIn(filteredColumn, systemUsers);
+        select.Where &= SqlDml.NotIn(filteredColumn, SystemUsers);
     }
 
     private void ApplyTableFilter(SqlSelect select, SqlExpression tableOwner, SqlExpression tableName)
@@ -469,11 +470,6 @@ namespace Xtensive.Sql.Oracle.v09
       var originalSource = select.From;
       select.From = SqlDml.Join(SqlJoinType.InnerJoin, originalSource, allTables,
         tableOwner==allTables["OWNER"] & tableName==allTables["TABLE_NAME"]);
-    }
-
-    private string GetDefaultSchemaName()
-    {
-      return Connection.Url.GetSchema(Connection.Url.User).ToUpperInvariant();
     }
     
     private SqlValueType CreateValueType(IDataRecord row,
@@ -691,7 +687,7 @@ namespace Xtensive.Sql.Oracle.v09
 
     static Extractor()
     {
-      systemUsers = SqlDml.Row(SystemUserNames.Split(';').Select(user => AnsiString(user)).ToArray());
+      SystemUsers = SqlDml.Row(SystemUserNames.Split(';').Select(user => AnsiString(user)).ToArray());
     }
   }
 }

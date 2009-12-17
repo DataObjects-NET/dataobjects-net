@@ -19,7 +19,10 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     // The identifier of the current user
     private int mUserSysId = -1;
     private readonly Dictionary<int, string> mUserLookup = new Dictionary<int, string>();
-    
+
+    protected Catalog catalog;
+    protected Schema schema;
+
     protected int PgClassOid { get; private set; }
     protected Schema PgCatalogSchema { get; private set; }
 
@@ -37,6 +40,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     
     protected override void Initialize()
     {
+      catalog = new Catalog(Driver.ServerInfo.DatabaseName);
+
       PgCatalogSchema = pgCatalogs.GetValue(GetType(), CreatePgCatalogSchema);
 
       // Query OID of some system catalog tables for using them in pg_depend lookups
@@ -60,23 +65,24 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     public override Catalog ExtractCatalog()
     {
       ExtractUsers();
-      ExtractSchemas(Catalog);
-      return Catalog;
+      ExtractSchemas(catalog);
+      return catalog;
     }
 
-    protected override Schema ExtractSchema()
+    public override Schema ExtractSchema(string schemaName)
     {
+      schema = catalog.CreateSchema(schemaName);
       ExtractUsers();
-      ExtractSchemas(Catalog);
-      return Schema;
+      ExtractSchemas(catalog);
+      return schema;
     }
     
     private Schema CreatePgCatalogSchema(Type dummy)
     {
-      var catalog = new Catalog("info_catalog");
-      var schema = catalog.CreateSchema("pg_catalog");
-      BuildPgCatalogSchema(schema);
-      return schema;
+      var pgCatalog = new Catalog("info_catalog");
+      var pgSchema = pgCatalog.CreateSchema("pg_catalog");
+      BuildPgCatalogSchema(pgSchema);
+      return pgSchema;
     }
 
     protected virtual void BuildPgCatalogSchema(Schema schema)
@@ -319,15 +325,15 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         q1.Columns.Add(nsp1["nspname"]);
         q1.Columns.Add(nsp1["oid"]);
         q1.Columns.Add(nsp1["nspowner"]);
-        if (Schema != null)
-          q1.Where &= nsp1["nspname"]==Schema.Name;
+        if (schema != null)
+          q1.Where &= nsp1["nspname"]==schema.Name;
         SqlSelect q2 = SqlDml.Select(nsp2);
         q2.Where = nsp2["nspowner"]==me;
         q2.Columns.Add(nsp2["nspname"]);
         q2.Columns.Add(nsp2["oid"]);
         q2.Columns.Add(nsp2["nspowner"]);
-        if (Schema != null)
-          q2.Where &= nsp2["nspname"]==Schema.Name;
+        if (schema != null)
+          q2.Where &= nsp2["nspname"]==schema.Name;
         ISqlCompileUnit q = q1.UnionAll(q2);
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {

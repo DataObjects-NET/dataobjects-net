@@ -24,16 +24,6 @@ namespace Xtensive.Sql.Model
     protected SqlConnection Connection { get; private set; }
 
     /// <summary>
-    /// Gets or sets the catalog.
-    /// </summary>
-    protected Catalog Catalog { get; private set; }
-
-    /// <summary>
-    /// Gets or sets the schema.
-    /// </summary>
-    protected Schema Schema { get; private set; }
-
-    /// <summary>
     /// Extracts all schemes from the database.
     /// </summary>
     /// <returns><see cref="Catalog"/> that holds all schemes in the database.</returns>
@@ -43,21 +33,7 @@ namespace Xtensive.Sql.Model
     /// Extracts the specified schema from the database.
     /// </summary>
     /// <returns>Extracted <see cref="Schema"/> instance.</returns>
-    public Schema ExtractSchema(string name)
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-
-      Schema = Catalog.CreateSchema(name);
-      Catalog.DefaultSchema = Schema;
-      var result = ExtractSchema();
-      Schema = null;
-      return result;
-    }
-
-    /// <summary>
-    /// Extracts the schema.
-    /// </summary>
-    protected abstract Schema ExtractSchema();
+    public abstract Schema ExtractSchema(string name);
 
     /// <summary>
     /// Initializes the translator with specified <see cref="SqlConnection"/> and <see cref="DbTransaction"/>.
@@ -66,8 +42,6 @@ namespace Xtensive.Sql.Model
     public void Initialize(SqlConnection connection)
     {
       Connection = connection;
-      var url = connection.Url;
-      Catalog = new Catalog(Driver.ServerInfo.DatabaseName);
       Initialize();
     }
 

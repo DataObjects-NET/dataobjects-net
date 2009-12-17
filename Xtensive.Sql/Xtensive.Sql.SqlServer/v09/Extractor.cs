@@ -20,26 +20,35 @@ namespace Xtensive.Sql.SqlServer.v09
     private readonly Dictionary<int, string> typeNameIndex = new Dictionary<int, string>();
     private readonly Dictionary<int, DataTableProxy> dataTableIndex = new Dictionary<int, DataTableProxy>();
 
-    public override Catalog ExtractCatalog()
+    protected Catalog catalog;
+    protected Schema schema;
+
+    protected override void Initialize()
     {
-      ExtractSchemas();
-      ExtractTypes();
-      ExtractTablesAndViews();
-      ExtractColumns();
-      ExtractIndexes();
-      ExtractForeignKeys();
-      return Catalog;
+      catalog = new Catalog(Driver.ServerInfo.DatabaseName);
     }
 
-    protected override Schema ExtractSchema()
+    public override Catalog ExtractCatalog()
+    {
+      ExtractCatalogContents();
+      return catalog;
+    }
+
+    public override Schema ExtractSchema(string schemaName)
+    {
+      schema = catalog.CreateSchema(schemaName);
+      ExtractCatalogContents();
+      return schema;
+    }
+
+    private void ExtractCatalogContents()
     {
       ExtractSchemas();
       ExtractTypes();
       ExtractTablesAndViews();
       ExtractColumns();
       ExtractIndexes();
-      ExtractForeignKeys();
-      return Schema;
+      ExtractForeignKeys();      
     }
 
     // All schemas
@@ -50,17 +59,17 @@ namespace Xtensive.Sql.SqlServer.v09
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
         while (reader.Read()) {
-          Schema schema;
+          Schema currentSchema;
           int identifier = reader.GetInt32(0);
           string name = reader.GetString(1);
-          if (Schema!=null && Schema.Name==name) {
-            schema = Schema;
+          if (schema!=null && schema.Name==name) {
+            currentSchema = schema;
             schemaId = identifier;
           }
           else
-            schema = Catalog.CreateSchema(name);
-          schemaIndex[identifier] = schema;
-          schema.Owner = reader.GetString(2);
+            currentSchema = catalog.CreateSchema(name);
+          schemaIndex[identifier] = currentSchema;
+          currentSchema.Owner = reader.GetString(2);
         }
     }
 
@@ -70,7 +79,7 @@ namespace Xtensive.Sql.SqlServer.v09
       const string query = "select schema_id, user_type_id, system_type_id, name, precision, scale, max_length, is_user_defined from sys.types order by is_user_defined, user_type_id";
 
       int currentSchemaId = schemaId;
-      Schema schema = Schema;
+      Schema currentSchema = schema;
       using (var command = Connection.CreateCommand(query))
       using (var reader = command.ExecuteReader())
         while (reader.Read()) {
@@ -87,9 +96,9 @@ namespace Xtensive.Sql.SqlServer.v09
           if (firstDomainId > userTypeId)
             firstDomainId = userTypeId;
 
-          GetSchema(reader.GetInt32(0), ref currentSchemaId, ref schema);
+          GetSchema(reader.GetInt32(0), ref currentSchemaId, ref currentSchema);
           var dataType = GetValueType(typeNameIndex[systemTypeId], reader.GetByte(4), reader.GetByte(5), reader.GetInt16(6));
-          var domain = schema.CreateDomain(name, dataType);
+          var domain = currentSchema.CreateDomain(name, dataType);
           domainIndex[userTypeId] = domain;
         }
     }
@@ -97,12 +106,12 @@ namespace Xtensive.Sql.SqlServer.v09
     private void ExtractTablesAndViews()
     {
       string query = "select t.schema_id, t.object_id, t.name, t.type from (select schema_id, object_id, name, 0 type from sys.tables union select schema_id, object_id, name, 1 type from sys.views) as t";
-      if (Schema!=null)
+      if (this.schema!=null)
         query += " where t.schema_id = " + schemaId;
       query += " order by t.schema_id, t.object_id";
 
       int currentSchemaId = schemaId;
-      Schema schema = Schema;
+      Schema schema = this.schema;
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
         while (reader.Read()) {
@@ -121,14 +130,14 @@ namespace Xtensive.Sql.SqlServer.v09
     {
       var trimChars = new[] {'(', ')'};
       string query = "select t.schema_id, c.object_id, c.column_id, c.name, c.user_type_id, c.precision, c.scale, c.max_length, c.collation_name, c.is_nullable, c.is_identity, dc.name, dc.definition, cc.is_persisted, cc.definition from sys.columns as c inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on c.object_id = t.object_id left outer join sys.default_constraints as dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id  left outer join sys.computed_columns as cc on c.object_id = cc.object_id and c.column_id = cc.column_id";
-      if (Schema!=null)
+      if (this.schema!=null)
         query += " where t.schema_id = " + schemaId;
       query += " order by t.schema_id, c.object_id, c.column_id";
 
       int currentTableId = 0;
       DataTableProxy dataTable = null;
       int currentSchemaId = schemaId;
-      Schema schema = Schema;
+      Schema currentSchema = schema;
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader()) {
         while (reader.Read()) {
@@ -154,9 +163,9 @@ namespace Xtensive.Sql.SqlServer.v09
 
             // Collation
             if (!reader.IsDBNull(8)) {
-              GetSchema(reader.GetInt32(0), ref currentSchemaId, ref schema);
+              GetSchema(reader.GetInt32(0), ref currentSchemaId, ref currentSchema);
               string collationName = reader.GetString(8);
-              column.Collation = schema.Collations[collationName] ?? schema.CreateCollation(collationName);
+              column.Collation = currentSchema.Collations[collationName] ?? currentSchema.CreateCollation(collationName);
             }
 
             // Nullability
@@ -182,7 +191,7 @@ namespace Xtensive.Sql.SqlServer.v09
       }
 
       query = "select t.schema_id, ic.object_id, ic.column_id, ic.seed_value, ic.increment_value, ic.last_value from sys.identity_columns as ic inner join sys.tables as t on ic.object_id = t.object_id where seed_value is not null and increment_value is not null";
-      if (Schema != null)
+      if (schema!=null)
         query += " and t.schema_id = " + schemaId;
       query += " order by t.schema_id, ic.object_id";
 
@@ -211,7 +220,7 @@ namespace Xtensive.Sql.SqlServer.v09
     protected virtual string GetIndexQuery()
     {
       string query = "select t.schema_id, t.object_id, t.type, i.index_id, i.name, i.type, i.is_primary_key, i.is_unique, i.is_unique_constraint, i.fill_factor, ic.column_id, 0, ic.key_ordinal, ic.is_descending_key, ic.is_included_column, NULL, NULL from sys.indexes i inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on i.object_id = t.object_id inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id where i.type < 3 and  not (ic.key_ordinal = 0 and ic.is_included_column = 0)";
-      if (Schema!=null)
+      if (schema!=null)
         query += " and schema_id = " + schemaId;
       query += " order by t.schema_id, t.object_id, i.index_id, ic.is_included_column, ic.key_ordinal";
       return query;
@@ -280,7 +289,7 @@ namespace Xtensive.Sql.SqlServer.v09
     private void ExtractForeignKeys()
     {
       string query = "select fk.schema_id, fk.object_id, fk.name, fk.delete_referential_action, fk.update_referential_action, fkc.constraint_column_id, fkc.parent_object_id, fkc.parent_column_id, fkc.referenced_object_id, fkc.referenced_column_id from sys.foreign_keys fk inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id";
-      if (Schema!=null)
+      if (schema!=null)
         query += " where fk.schema_id = " + schemaId;
       query += " order by fk.schema_id, fkc.parent_object_id, fk.object_id, fkc.constraint_column_id";
 
@@ -377,8 +386,8 @@ namespace Xtensive.Sql.SqlServer.v09
 
     private void GetSchema(int id, ref int currentId, ref Schema currentObj)
     {
-      if ((Schema!=null && id == currentId)) {
-        currentObj = Schema;
+      if ((schema!=null && id == currentId)) {
+        currentObj = schema;
         return;
       }
 
