@@ -15,13 +15,13 @@ namespace Xtensive.Storage
   /// and reprocessing all actions in a new one.
   /// </summary>
   [Serializable]
-  public class ReprocessableException : StorageException
+  public class ReprocessableStorageException : StorageException
   {
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="message">The message.</param>
-    public ReprocessableException(string message)
+    public ReprocessableStorageException(string message)
       : base(message)
     {
     }
@@ -31,7 +31,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public ReprocessableException(string message, Exception innerException)
+    public ReprocessableStorageException(string message, Exception innerException)
       : base(message, innerException)
     {
     }

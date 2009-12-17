@@ -106,20 +106,20 @@ namespace Xtensive.Storage.Providers.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error &apos;{0}&apos;.
+        ///   Looks up a localized string similar to Error &apos;{0}&apos;. Original message: {1}.
         /// </summary>
-        internal static string ExErrorX {
+        internal static string ExErrorXOriginalMessageY {
             get {
-                return ResourceManager.GetString("ExErrorX", resourceCulture);
+                return ResourceManager.GetString("ExErrorXOriginalMessageY", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error &apos;{0}&apos; while executing query &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Error &apos;{0}&apos; while executing query &apos;{1}&apos;. Original message: {2}.
         /// </summary>
-        internal static string ExErrorXWhileExecutingQueryY {
+        internal static string ExErrorXWhileExecutingQueryYOriginalMessageZ {
             get {
-                return ResourceManager.GetString("ExErrorXWhileExecutingQueryY", resourceCulture);
+                return ResourceManager.GetString("ExErrorXWhileExecutingQueryYOriginalMessageZ", resourceCulture);
             }
         }
         

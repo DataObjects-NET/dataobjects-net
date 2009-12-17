@@ -187,11 +187,14 @@ namespace Xtensive.Storage.Providers.Sql
     private Exception TranslateException(string queryText, Exception exception)
     {
       var exceptionType = underlyingDriver.GetExceptionType(exception);
+      var originalMessage = exception.Message;
       var errorText = string.IsNullOrEmpty(queryText)
-        ? string.Format(Strings.ExErrorX, exceptionType)
-        : string.Format(Strings.ExErrorXWhileExecutingQueryY, exceptionType, queryText);
+        ? string.Format(Strings.ExErrorXOriginalMessageY,
+            exceptionType, originalMessage)
+        : string.Format(Strings.ExErrorXWhileExecutingQueryYOriginalMessageZ,
+            exceptionType, queryText, originalMessage);
       return exceptionType.IsReprocessable()
-        ? new ReprocessableException(errorText, exception)
+        ? new ReprocessableStorageException(errorText, exception)
         : new StorageException(errorText, exception);
     }
   }
