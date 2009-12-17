@@ -3,9 +3,6 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using System.Data;
-using System.Globalization;
-using Xtensive.Core;
 using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
@@ -14,7 +11,7 @@ namespace Xtensive.Sql.SqlServer.v09
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
     private const int MaxIdentifierLength = 128;
-    private readonly SqlServerVersionInfo versionInfo;
+    private readonly VersionInfo versionInfo;
 
     public override EntityInfo GetCollationInfo()
     {
@@ -99,10 +96,7 @@ namespace Xtensive.Sql.SqlServer.v09
       var tableInfo = new TableInfo();
       tableInfo.MaxIdentifierLength = MaxIdentifierLength;
       tableInfo.AllowedDdlStatements = DdlStatements.All;
-
-      var vi = versionInfo;
-      if (vi!=null && (vi.Edition==SqlServerEdition.EnterpriseEdition || vi.Edition==SqlServerEdition.DeveloperEdition))
-        tableInfo.PartitionMethods = PartitionMethods.List | PartitionMethods.Range | PartitionMethods.Hash;
+      tableInfo.PartitionMethods = PartitionMethods.List | PartitionMethods.Range | PartitionMethods.Hash;
       return tableInfo;
     }
 
@@ -155,15 +149,9 @@ namespace Xtensive.Sql.SqlServer.v09
         IndexFeatures.FillFactor |
         IndexFeatures.Unique |
         IndexFeatures.NonKeyColumns |
-        IndexFeatures.SortOrder;
-
-      if (versionInfo.Edition==SqlServerEdition.EnterpriseEdition || versionInfo.Edition==SqlServerEdition.DeveloperEdition)
-        indexInfo.PartitionMethods = PartitionMethods.Range;
-
-      if (versionInfo.Edition==SqlServerEdition.EnterpriseEdition || versionInfo.Edition==SqlServerEdition.DeveloperEdition ||
-        versionInfo.Edition==SqlServerEdition.WorkgroupEdition || versionInfo.Edition==SqlServerEdition.StandardEdition)
-        indexInfo.Features |= IndexFeatures.FullText;
-
+        IndexFeatures.SortOrder | 
+        IndexFeatures.FullText;
+      indexInfo.PartitionMethods = PartitionMethods.Range;
       return indexInfo;
     }
 
@@ -303,7 +291,7 @@ namespace Xtensive.Sql.SqlServer.v09
 
     public ServerInfoProvider(SqlServerConnection connection, Version version)
     {
-      versionInfo = new SqlServerVersionInfo(version);
+      versionInfo = new VersionInfo(version);
     }
   }
 }
