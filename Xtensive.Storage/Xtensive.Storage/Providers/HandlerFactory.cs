@@ -18,8 +18,8 @@ namespace Xtensive.Storage.Providers
   public abstract class HandlerFactory : DomainBound
   {
     private readonly Dictionary<Type, Func<object>> constructors = new Dictionary<Type, Func<object>>();
-    private static readonly Type handlerBaseType = typeof(HandlerBase);
-    private static readonly Type initializableHandlerBaseType = typeof (InitializableHandlerBase);
+    private static readonly Type HandlerBaseType = typeof(HandlerBase);
+    private static readonly Type InitializableHandlerBaseType = typeof (InitializableHandlerBase);
 
     /// <summary>
     /// Creates the handler of type <typeparamref name="T"/>.
@@ -86,14 +86,14 @@ namespace Xtensive.Storage.Providers
     private void RegisterHandlersFrom(Assembly assembly, string @namespace)
     {
       foreach (Type type in assembly.GetTypes())
-        if (type.Namespace==@namespace && type.IsPublicNonAbstractInheritorOf(handlerBaseType))
+        if (type.Namespace==@namespace && type.IsPublicNonAbstractInheritorOf(HandlerBaseType))
           RegisterHandler(type);
     }
 
     private void RegisterHandler(Type type)
     {
       var constructorDelegate = DelegateHelper.CreateConstructorDelegate<Func<object>>(type);
-      while (type!=handlerBaseType && type!=initializableHandlerBaseType && !constructors.ContainsKey(type)) {
+      while (type!=HandlerBaseType && type!=InitializableHandlerBaseType && !constructors.ContainsKey(type)) {
         constructors[type] = constructorDelegate;
         type = type.BaseType;
       }

@@ -86,33 +86,16 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
         string protocol = BuildingContext.Current.Configuration.ConnectionInfo.Protocol;
-        var thisAssemblyNameObject = typeof(DomainBuilder).Assembly.GetName();
-        var thisAssemblyShortName  = thisAssemblyNameObject.Name;
-        var thisAssemblyName = thisAssemblyNameObject.FullName;
-
-        // Getting provider assembly name
-        string providerAssemblyShortName;
-        switch (protocol) {
-        case WellKnown.Protocol.Memory:
-          providerAssemblyShortName = "Xtensive.Storage.Providers.Index";
-          break;
-        case WellKnown.Protocol.SqlServer:
-        case WellKnown.Protocol.PostgreSql:
-        case WellKnown.Protocol.Oracle:
-          providerAssemblyShortName = "Xtensive.Storage.Providers.Sql";
-          break;
-        default:
-          throw new NotSupportedException(
-            string.Format(Strings.ExProtocolXIsNotSupportedUseOneOfTheFollowingY, protocol, WellKnown.Protocol.All));
+        var thisAssembly = typeof (DomainBuilder).Assembly;
+        Assembly providerAssembly;
+        if (thisAssembly.GetName().Name==WellKnown.MergedAssemblyName) {
+          GetProviderAssemblyName(protocol); // Just to validate a protocol
+          providerAssembly = thisAssembly;
         }
-        var providerAssemblyName = thisAssemblyName.Replace(thisAssemblyShortName , providerAssemblyShortName);
-
-        // Check for merged assembly
-        if (thisAssemblyShortName==WellKnown.MergedAssemblyName)
-          providerAssemblyName = thisAssemblyName;
-
+        else
+          providerAssembly = AssemblyHelper.LoadExtensionAssembly(GetProviderAssemblyName(protocol));
+        
         // Creating the provider
-        var providerAssembly = Assembly.Load(providerAssemblyName);
         var handlerProviderType = providerAssembly.GetTypes()
           .Where(type => type.IsPublicNonAbstractInheritorOf(typeof (HandlerFactory)))
           .Where(type => type.IsDefined(typeof (ProviderAttribute), false))
@@ -128,6 +111,21 @@ namespace Xtensive.Storage.Building.Builders
         handlerFactory.Initialize();
         var handlerAccessor = BuildingContext.Current.Domain.Handlers;
         handlerAccessor.HandlerFactory = handlerFactory;
+      }
+    }
+
+    private static string GetProviderAssemblyName(string providerName)
+    {
+      switch (providerName) {
+      case WellKnown.Protocol.Memory:
+        return WellKnown.ProviderAssembly.Indexing;
+      case WellKnown.Protocol.SqlServer:
+      case WellKnown.Protocol.PostgreSql:
+      case WellKnown.Protocol.Oracle:
+        return WellKnown.ProviderAssembly.Sql;
+      default:
+        throw new NotSupportedException(
+          string.Format(Strings.ExProtocolXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Protocol.All));
       }
     }
 

@@ -78,5 +78,21 @@ namespace Xtensive.Core.Reflection
       }
       return types;
     }
+
+    /// <summary>
+    /// Loads the extension assembly.
+    /// This method replaces a short name of a calling assembly.
+    /// with a <paramref name="extensionAssemblyName"/>,
+    /// then loads assembly with such name.
+    /// </summary>
+    /// <param name="extensionAssemblyName">Name of the extension assembly.</param>
+    /// <returns>Loaded assembly.</returns>
+    public static Assembly LoadExtensionAssembly(string extensionAssemblyName)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(extensionAssemblyName, "extensionAssemblyName");
+      var mainAssemblyRef = Assembly.GetCallingAssembly().GetName();
+      var extensionAssemblyFullName = mainAssemblyRef.FullName.Replace(mainAssemblyRef.Name, extensionAssemblyName);
+      return Assembly.Load(extensionAssemblyFullName);
+    }
   }
 }

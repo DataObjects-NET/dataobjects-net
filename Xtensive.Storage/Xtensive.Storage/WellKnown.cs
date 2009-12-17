@@ -81,6 +81,22 @@ namespace Xtensive.Storage
     public const int EntitySetPreloadCount = 32;
 
     /// <summary>
+    /// Well-known storage provider assembly names.
+    /// </summary>
+    public static class ProviderAssembly
+    {
+      /// <summary>
+      /// A name of Indexing provider assembly.
+      /// </summary>
+      public const string Indexing = "Xtensive.Storage.Providers.Index";
+
+      /// <summary>
+      /// A name of SQL provider assembly.
+      /// </summary>
+      public const string Sql = "Xtensive.Storage.Providers.Sql";
+    }
+
+    /// <summary>
     /// Well-known storage protocol names.
     /// </summary>
     public static class Protocol
