@@ -8,29 +8,29 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Fulltext
+namespace Xtensive.Storage.FullText
 {
   /// <summary>
-  /// Fulltext indexed entity container.
+  /// Single full-text search match result.
   /// </summary>
-  /// <typeparam name="T">Type of the indexed entity.</typeparam>
+  /// <typeparam name="T">Type of the matched entity.</typeparam>
   public sealed class FullTextMatch<T> 
     where T : class, IEntity
   {
     /// <summary>
-    /// Gets the rank of the fulltext document.
+    /// Gets the rank of the full-text document.
     /// </summary>
-    public float Rank { get; private set; }
+    public double Rank { get; private set; }
 
     /// <summary>
-    /// Gets the key of the fulltext document and <see cref="Target"/> entity.
+    /// Gets the key of the full-text document and <see cref="Entity"/> entity.
     /// </summary>
     public Key Key { get; private set; }
 
     /// <summary>
     /// Gets the target entity.
     /// </summary>
-    public T Target { get; private set; }
+    public T Entity { get; private set; }
 
 
     // Constructors
@@ -40,12 +40,12 @@ namespace Xtensive.Storage.Fulltext
     /// </summary>
     /// <param name="key">The <see cref="Key"/> property value.</param>
     /// <param name="rank">The <see cref="Rank"/> property value.</param>
-    /// <param name="target">The <see cref="Target"/> property value.</param>
-    public FullTextMatch(float rank, Key key, T target)
+    /// <param name="target">The <see cref="Entity"/> property value.</param>
+    public FullTextMatch(double rank, Key key, T target)
     {
       Rank = rank;
       Key = key;
-      Target = target;
+      Entity = target;
     }
   }
 }
