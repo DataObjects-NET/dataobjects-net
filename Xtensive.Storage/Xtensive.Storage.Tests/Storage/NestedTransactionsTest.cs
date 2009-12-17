@@ -142,7 +142,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       finally {
         Assert.IsNull(Session.Current.Transaction);
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
       }
     }
 

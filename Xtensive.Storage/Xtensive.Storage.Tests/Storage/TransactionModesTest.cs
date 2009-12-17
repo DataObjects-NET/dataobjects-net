@@ -28,14 +28,14 @@ namespace Xtensive.Storage.Tests.Storage
       Key productKey;
       using (Session.Open(Domain, sessionConfiguration))
       using (var tx = Transaction.Open()) {
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.All<Product>().First();
         product.ReorderLevel++;
         Session.Current.Persist();
-        var dbTransaction = GetNativeTransaction();
+        var dbTransaction = StorageTestHelper.GetNativeTransaction();
         product.ReorderLevel++;
         Session.Current.Persist();
-        Assert.AreSame(dbTransaction, GetNativeTransaction());
+        Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction());
         product.ReorderLevel++;
         reorderLevel = product.ReorderLevel;
         productKey = product.Key;
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain, sessionConfiguration))
       using (var tx = Transaction.Open()) {
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.Single<Product>(productKey);
         Assert.AreEqual(reorderLevel, product.ReorderLevel);
       }
@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Tests.Storage
       var sessionConfiguration = new SessionConfiguration {Options = SessionOptions.AutoShortenTransactions};
       using (Session.Open(Domain, sessionConfiguration))
       using (var tx = Transaction.Open()) {
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         tx.Complete();
       }
     }
@@ -69,12 +69,12 @@ namespace Xtensive.Storage.Tests.Storage
       Key productKey;
       using (Session.Open(Domain, sessionConfiguration))
       using (var tx = Transaction.Open()) {
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
       }
 
       using (Session.Open(Domain, sessionConfiguration))
       using (var tx = Transaction.Open()) {
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.All<Product>().First();
         reorderLevel = product.ReorderLevel;
         product.ReorderLevel++;
@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain, sessionConfiguration))
       using (var tx = Transaction.Open()) {
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.Single<Product>(productKey);
         Assert.AreEqual(reorderLevel, product.ReorderLevel);
       }
@@ -98,7 +98,7 @@ namespace Xtensive.Storage.Tests.Storage
       short reorderLevel;
       Key productKey;
       using (Session.Open(Domain, sessionConfiguration)) {
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.All<Product>().Where(p => p.Id > 0).First();
         product.ReorderLevel++;
         reorderLevel = product.ReorderLevel;
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
 
       using (Session.Open(Domain, sessionConfiguration)) {
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.Single<Product>(productKey);
         Assert.AreEqual(reorderLevel, product.ReorderLevel);
       }
@@ -121,17 +121,17 @@ namespace Xtensive.Storage.Tests.Storage
       short reorderLevel;
       Key productKey;
       using (Session.Open(Domain, sessionConfiguration)) {
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.All<Product>().Where(p => p.Id > 0).First();
         product.ReorderLevel++;
         reorderLevel = product.ReorderLevel;
         productKey = product.Key;
-        Assert.IsNotNull(GetNativeTransaction());
+        Assert.IsNotNull(StorageTestHelper.GetNativeTransaction());
         Session.Current.CommitAmbientTransaction();
       }
 
       using (Session.Open(Domain, sessionConfiguration)) {
-        Assert.IsNull(GetNativeTransaction());
+        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
         var product = Query.Single<Product>(productKey);
         Assert.AreEqual(reorderLevel, product.ReorderLevel);
       }

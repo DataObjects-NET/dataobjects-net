@@ -4,15 +4,13 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.16
 
-using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.ObjectModel.Cms;
 
-namespace Xtensive.Storage.Tests
+namespace Xtensive.Storage.Tests.Storage
 {
   public class CmsTest : AutoBuildTest
   {
@@ -38,7 +36,7 @@ namespace Xtensive.Storage.Tests
           var result = Query.All<ContentReference>()
             .Where(
             r => r.ReferenceType == ContentReferenceType.Embedded &&
-                 r.ContentID.In(Query.All<NewsList>().Where(nl => nl.WebSite == webSite).Select(nl => nl.Id)));
+              r.ContentID.In(Query.All<NewsList>().Where(nl => nl.WebSite == webSite).Select(nl => nl.Id)));
           var list = result.ToList();
           t.Complete();
         }

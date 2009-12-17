@@ -96,20 +96,7 @@ namespace Xtensive.Storage.Tests
         throw;
       }
     }
-
-    protected static object GetNativeTransaction()
-    {
-      var handler = Session.Current.Handler;
-      var sqlHandler = handler as SqlSessionHandler;
-      if (sqlHandler!=null)
-        return sqlHandler.Connection.ActiveTransaction;
-      var indexHandler = handler as IndexSessionHandler;
-      if (indexHandler!=null)
-        return indexHandler.StorageView;
-      throw new InvalidOperationException();
-    }
-
-
+    
     private void SelectProtocol(DomainConfiguration config)
     {
       protocolName = config.ConnectionInfo.Protocol;
