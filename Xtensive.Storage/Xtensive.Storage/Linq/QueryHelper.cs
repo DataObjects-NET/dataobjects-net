@@ -22,7 +22,6 @@ namespace Xtensive.Storage.Linq
 {
   internal static class QueryHelper
   {
-    public const string QueryAllMethodName = "All";
 
     public static Expression<Func<Tuple,bool>> BuildFilterLambda(int startIndex, IList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
@@ -51,9 +50,7 @@ namespace Xtensive.Storage.Linq
 
     public static Expression CreateEntityQueryExpression(Type elementType)
     {
-      var query = typeof(Query)
-        .GetMethod(QueryAllMethodName, 
-          BindingFlags.Default, null, null)
+      var query = WellKnownMembers.Query.All
         .MakeGenericMethod(elementType)
         .Invoke(null, null);
       return Expression.Constant(query, typeof(IQueryable<>).MakeGenericType(elementType));

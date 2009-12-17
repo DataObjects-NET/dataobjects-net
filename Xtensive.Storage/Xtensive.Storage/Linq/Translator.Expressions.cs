@@ -223,6 +223,16 @@ namespace Xtensive.Storage.Linq
       if (customCompiler!=null)
         return Visit(customCompiler.Invoke(mc.Object, mc.Arguments.ToArray()));
 
+      // Constructing query root.
+      if (mc.Object==null && mc.Method.DeclaringType==typeof(Query)) {
+        if (typeof (IQueryable).IsAssignableFrom(mc.Type)) {
+          Func<IQueryable> lambda = Expression.Lambda<Func<IQueryable>>(mc).CachingCompile();
+          IQueryable rootPoint = lambda();
+          if (rootPoint!=null)
+            return ConstructQueryable(rootPoint);
+        }
+      }
+
       // Visit Queryable extensions.
       if (mc.Method.DeclaringType==typeof (QueryableExtensions))
         if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionLeftJoin.Name)

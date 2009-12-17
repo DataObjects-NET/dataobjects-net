@@ -18,6 +18,16 @@ namespace Xtensive.Storage.Linq
 {
   internal static class WellKnownMembers
   {
+    public static class Query
+    {
+      public static readonly MethodInfo All;
+
+      static Query()
+      {
+        All = typeof(Storage.Query).GetMethod("All");
+      }
+    }
+
     public static class QueryProvider
     {
       public static readonly MethodInfo Execute;
