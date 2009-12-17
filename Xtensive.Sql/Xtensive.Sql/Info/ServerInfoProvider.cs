@@ -138,5 +138,17 @@ namespace Xtensive.Sql.Info
     /// Gets whether the multiple active result sets are supported.
     /// </summary>
     public abstract bool GetMultipleActiveResultSets();
+
+    /// <summary>
+    /// Gets the name of the database.
+    /// </summary>
+    /// <returns>Name of the database.</returns>
+    public abstract string GetDatabaseName();
+
+    /// <summary>
+    /// Gets the default name of the schema for current user.
+    /// </summary>
+    /// <returns>Name of the database.</returns>
+    public abstract string GetDefaultSchemaName();
   }
 }

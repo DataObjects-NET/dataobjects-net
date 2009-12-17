@@ -293,5 +293,15 @@ namespace Xtensive.Sql.VistaDb.v3
     {
       return false;
     }
+
+    public override string GetDatabaseName()
+    {
+      throw new NotImplementedException();
+    }
+
+    public override string GetDefaultSchemaName()
+    {
+      throw new NotImplementedException();
+    }
   }
 }

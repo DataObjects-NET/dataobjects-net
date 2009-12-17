@@ -15,6 +15,9 @@ using System.Linq;
 
 namespace Xtensive.Sql
 {
+  /// <summary>
+  /// A factory for SQL DML operations.
+  /// </summary>
   public static class SqlDml
   {
     public static readonly SqlDefaultValue DefaultValue = new SqlDefaultValue();

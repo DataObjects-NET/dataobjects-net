@@ -16,6 +16,8 @@ namespace Xtensive.Sql.Oracle.v09
     private const int DoNotKnow = int.MaxValue;
 
     private readonly VersionInfo versionInfo;
+    private readonly string databaseName;
+    private readonly string defaultSchemaName;
 
     public override EntityInfo GetCollationInfo()
     {
@@ -253,12 +255,25 @@ namespace Xtensive.Sql.Oracle.v09
       return true;
     }
 
+    public override string GetDatabaseName()
+    {
+      return databaseName;
+    }
+
+    public override string GetDefaultSchemaName()
+    {
+      return defaultSchemaName;
+    }
+
 
     // Constructors
 
     public ServerInfoProvider(OracleConnection connection, Version version)
     {
       versionInfo = new VersionInfo(version);
+      SqlHelper.ReadDatabaseAndSchema(connection,
+        "select sys_context('USERENV', 'DB_NAME'), sys_context('USERENV', 'CURRENT_SCHEMA') from dual",
+        out databaseName, out defaultSchemaName);
     }
   }
 }

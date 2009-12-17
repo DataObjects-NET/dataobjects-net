@@ -11,7 +11,10 @@ namespace Xtensive.Sql.SqlServer.v09
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
     private const int MaxIdentifierLength = 128;
+
     private readonly VersionInfo versionInfo;
+    private readonly string databaseName;
+    private readonly string defaultSchemaName;
 
     public override EntityInfo GetCollationInfo()
     {
@@ -286,12 +289,25 @@ namespace Xtensive.Sql.SqlServer.v09
       return true;
     }
 
+    public override string GetDatabaseName()
+    {
+      return databaseName;
+    }
+
+    public override string GetDefaultSchemaName()
+    {
+      return defaultSchemaName;
+    }
+
 
     // Constructors
 
     public ServerInfoProvider(SqlServerConnection connection, Version version)
     {
       versionInfo = new VersionInfo(version);
+      SqlHelper.ReadDatabaseAndSchema(connection,
+        "select db_name(), default_schema_name from sys.database_principals where name=user", 
+        out databaseName, out defaultSchemaName);
     }
   }
 }

@@ -26,6 +26,17 @@ namespace Xtensive.Sql
       return BuildDriver(url);
     }
 
+    /// <summary>
+    /// Creates the driver from the specified connection url.
+    /// </summary>
+    /// <param name="url">The connection url.</param>
+    /// <returns>Created driver.</returns>
+    public static SqlDriver Create(string url)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
+      return BuildDriver(UrlInfo.Parse(url));
+    }
+
     private static SqlDriver BuildDriver(UrlInfo url)
     {
       var assembly = AssemblyHelper.LoadExtensionAssembly(string.Format(DriverAssemblyFormat, url.Protocol));

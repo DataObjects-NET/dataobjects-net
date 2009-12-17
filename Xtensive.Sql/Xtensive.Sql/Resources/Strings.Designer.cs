@@ -61,6 +61,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can not read database and schema names.
+        /// </summary>
+        internal static string ExCanNotReadDatabaseAndSchemaNames {
+            get {
+                return ResourceManager.GetString("ExCanNotReadDatabaseAndSchemaNames", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Circular reference is detected..
         /// </summary>
         internal static string ExCircularReferenceDetected {

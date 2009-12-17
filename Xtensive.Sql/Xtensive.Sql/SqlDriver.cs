@@ -159,17 +159,6 @@ namespace Xtensive.Sql
     {
       return url.GetSchema(url.User);
     }
- 
-    /// <summary>
-    /// Creates the driver from the specified connection url.
-    /// </summary>
-    /// <param name="url">The connection url.</param>
-    /// <returns>Created driver.</returns>
-    public static SqlDriver Create(string url)
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
-      return BuildDriver(UrlInfo.Parse(url));
-    }
 
     #region Private / internal methods
 

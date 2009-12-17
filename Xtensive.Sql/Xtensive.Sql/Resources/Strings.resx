@@ -276,4 +276,7 @@
   <data name="ExCurrentStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ" xml:space="preserve">
     <value>Current storage does not support '{0}' values greather than '{1}'. Supplied value is '{2}'.</value>
   </data>
+  <data name="ExCanNotReadDatabaseAndSchemaNames" xml:space="preserve">
+    <value>Can not read database and schema names</value>
+  </data>
 </root>

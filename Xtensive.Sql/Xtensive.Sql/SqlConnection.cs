@@ -11,7 +11,7 @@ using Xtensive.Sql.Resources;
 namespace Xtensive.Sql
 {
   /// <summary>
-  /// Represents a connection to a database.
+  /// A connection to a database.
   /// </summary>
   public abstract class SqlConnection : IDisposable
   {

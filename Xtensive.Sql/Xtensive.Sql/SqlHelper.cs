@@ -6,6 +6,7 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -187,6 +188,28 @@ namespace Xtensive.Sql
         SqlDml.FunctionCall(paddingFunction, node.Arguments));
       result.Else = operand;
       return result;
+    }
+
+    /// <summary>
+    /// Reads the database and schema using the specified query.
+    /// By contract query should return database in first column and schema in second.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="queryText">The query text.</param>
+    /// <param name="databaseName">Name of the database.</param>
+    /// <param name="schemaName">Name of the schema.</param>
+    public static void ReadDatabaseAndSchema(DbConnection connection, string queryText,
+      out string databaseName, out string schemaName)
+    {
+      using (var command = connection.CreateCommand()) {
+        command.CommandText = queryText;
+        using (var reader = command.ExecuteReader()) {
+          if (!reader.Read())
+            throw new InvalidOperationException(Strings.ExCanNotReadDatabaseAndSchemaNames);
+          databaseName = reader.GetString(0);
+          schemaName = reader.GetString(1);
+        }
+      }
     }
 
     /// <summary>

@@ -7,11 +7,13 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
-    private const int maxTextLength = (int.MaxValue >> 1) - 1000;
-    private const int maxCharLength = 10485760;
+    private const int MaxTextLength = (int.MaxValue >> 1) - 1000;
+    private const int MaxCharLength = 10485760;
 
     private readonly VersionInfo versionInfo;
     private readonly ServerConfiguration serverConfig;
+    private readonly string defaultSchemaName;
+    private readonly string databaseName;
 
     protected virtual IndexFeatures GetIndexFeatures()
     {
@@ -20,12 +22,12 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     protected virtual int GetMaxTextLength()
     {
-      return maxTextLength;
+      return MaxTextLength;
     }
 
     protected virtual int GetMaxCharLength()
     {
-      return maxCharLength;
+      return MaxCharLength;
     }
     
     public virtual ServerConfiguration GetServerConfig()
@@ -195,10 +197,10 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       dtc.Interval = DataTypeInfo.Range(SqlType.Interval, commonFeatures,
         ValueRange.TimeSpan, "interval");
       
-      dtc.Char = DataTypeInfo.Stream(SqlType.Char, commonFeatures, maxCharLength, "character", "char", "bpchar");
-      dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, maxCharLength, "character varying", "varchar");
+      dtc.Char = DataTypeInfo.Stream(SqlType.Char, commonFeatures, MaxCharLength, "character", "char", "bpchar");
+      dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, MaxCharLength, "character varying", "varchar");
       dtc.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, commonFeatures, "text");
-      dtc.VarBinaryMax = DataTypeInfo.Stream(SqlType.VarBinaryMax, commonFeatures, maxTextLength, "bytea");
+      dtc.VarBinaryMax = DataTypeInfo.Stream(SqlType.VarBinaryMax, commonFeatures, MaxTextLength, "bytea");
       
       return dtc;
     }
@@ -297,6 +299,16 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return false;
     }
 
+    public override string GetDatabaseName()
+    {
+      return databaseName;
+    }
+
+    public override string GetDefaultSchemaName()
+    {
+      return defaultSchemaName;
+    }
+
 
     // Constructors
 
@@ -304,6 +316,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       versionInfo = new VersionInfo(version);
       serverConfig = new ServerConfiguration(connection);
+      SqlHelper.ReadDatabaseAndSchema(connection,
+        "select current_database(), current_schema()",
+        out databaseName, out defaultSchemaName);
     }
   }
 }

@@ -13,6 +13,9 @@ using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql
 {
+  /// <summary>
+  /// A factory for SQL DDL operations.
+  /// </summary>
   public static class SqlDdl
   {
     public static SqlCreateAssertion Create(Assertion assertion)

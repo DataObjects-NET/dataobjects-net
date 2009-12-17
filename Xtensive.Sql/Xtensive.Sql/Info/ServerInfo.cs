@@ -161,12 +161,19 @@ namespace Xtensive.Sql.Info
     public int StringIndexingBase { get; private set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether multiple active result sets are supported.
+    /// Gets a value indicating whether multiple active result sets are supported.
     /// </summary>
-    /// <value>
-    /// <see langword="true"/> if multiple active result sets are supported; otherwise, <see langword="false"/>.
-    /// </value>
     public bool MultipleActiveResultSets { get; private set; }
+
+    /// <summary>
+    /// Gets the name of the database.
+    /// </summary>
+    public string DatabaseName { get; private set; }
+
+    /// <summary>
+    /// Gets the default schema for current user.
+    /// </summary>
+    public string DefaultSchemaName { get; private set; }
 
     /// <summary>
     /// Builds the server info using specified <see cref="ServerInfoProvider"/>.
@@ -203,6 +210,8 @@ namespace Xtensive.Sql.Info
       info.View = provider.GetViewInfo();
       info.StringIndexingBase = provider.GetStringIndexingBase();
       info.MultipleActiveResultSets = provider.GetMultipleActiveResultSets();
+      info.DatabaseName = provider.GetDatabaseName();
+      info.DefaultSchemaName = provider.GetDefaultSchemaName();
 
       info.Lock(true);
 
