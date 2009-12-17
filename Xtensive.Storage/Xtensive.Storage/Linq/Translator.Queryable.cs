@@ -378,8 +378,8 @@ namespace Xtensive.Storage.Linq
         && index.NodeType==ExpressionType.Constant
           && index.Type==typeof (int)) {
         var errorString = allowDefault
-          ? Strings.ExUnableToTranslateElementAtOrDefaultXUseElementAtOrDefaultFuncIntInsteadOfElementAtOrDefaultIntInCachingQueryEnvironmentQueryExecuteForExampleUseElementAtOrDefaultX
-          : Strings.ExUseElementAtFuncIntInsteadOfElementAtIntInCachingQueryEnvironment;
+          ? Strings.ExElementAtOrDefaultNotSupportedInCompiledQueries
+          : Strings.ExElementAtNotSupportedInCompiledQueries;
         throw new InvalidOperationException(String.Format(errorString, ((ConstantExpression) index).Value));
       }
 
@@ -444,7 +444,7 @@ namespace Xtensive.Storage.Linq
       if (QueryCachingScope.Current!=null
         && take.NodeType==ExpressionType.Constant
           && take.Type==typeof (int))
-        throw new InvalidOperationException(String.Format(Strings.ExUseTakeFuncIntInsteadOfTakeIntInCachingQueryEnvironment, ((ConstantExpression) take).Value));
+        throw new InvalidOperationException(String.Format(Strings.ExTakeNotSupportedInCompiledQueries, ((ConstantExpression) take).Value));
       var projection = VisitSequence(source);
       Func<int> compiledParameter;
       if (take.NodeType==ExpressionType.Quote)
@@ -473,7 +473,7 @@ namespace Xtensive.Storage.Linq
       if (QueryCachingScope.Current!=null
         && skip.NodeType==ExpressionType.Constant
           && skip.Type==typeof (int))
-        throw new InvalidOperationException(String.Format(Strings.ExUseSkipFuncIntInsteadOfSkipIntInCachingQueryEnvironment, ((ConstantExpression) skip).Value));
+        throw new InvalidOperationException(String.Format(Strings.ExSkipNotSupportedInCompiledQueries, ((ConstantExpression) skip).Value));
       var projection = VisitSequence(source);
       Func<int> compiledParameter;
       if (skip.NodeType==ExpressionType.Quote)

@@ -29,10 +29,7 @@ namespace Xtensive.Storage.Linq
 
     public TranslatedQuery<TResult> Translate<TResult>()
     {
-      var expression = context.Query;
-      foreach (var processor in context.LinqProcessors)
-        expression = processor.PreProcess(expression);
-      var projection = (ProjectionExpression) Visit(expression);
+      var projection = (ProjectionExpression) Visit(context.Query);
       return Translate<TResult>(projection, EnumerableUtils<Parameter<Tuple>>.Empty);
     }
 

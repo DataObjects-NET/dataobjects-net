@@ -764,11 +764,29 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;ElementAt({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;ElementAt(Func(int))&apos; instead.For example use &apos;ElementAt(()=&gt;{0})&apos;..
+        /// </summary>
+        internal static string ExElementAtNotSupportedInCompiledQueries {
+            get {
+                return ResourceManager.GetString("ExElementAtNotSupportedInCompiledQueries", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;ElementAtOrDefault&apos; does not support query provider of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX {
             get {
                 return ResourceManager.GetString("ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;ElementAtOrDefault({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;ElementAtOrDefault(Func(int))&apos; instead.For example use &apos;ElementAtOrDefault(()=&gt;{0})&apos;..
+        /// </summary>
+        internal static string ExElementAtOrDefaultNotSupportedInCompiledQueries {
+            get {
+                return ResourceManager.GetString("ExElementAtOrDefaultNotSupportedInCompiledQueries", resourceCulture);
             }
         }
         
@@ -1989,6 +2007,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;Skip({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;Skip(Func(int))&apos; instead.For example use &apos;Skip(()=&gt;{0})&apos;..
+        /// </summary>
+        internal static string ExSkipNotSupportedInCompiledQueries {
+            get {
+                return ResourceManager.GetString("ExSkipNotSupportedInCompiledQueries", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified expression is not MemberExpression.
         /// </summary>
         internal static string ExSpecifiedExpressionIsNotMemberExpression {
@@ -2111,6 +2138,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExTakeDoesNotSupportQueryProviderOfTypeX {
             get {
                 return ResourceManager.GetString("ExTakeDoesNotSupportQueryProviderOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;Take({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;Take(Func(int))&apos; instead.For example use &apos;Take(()=&gt;{0})&apos;..
+        /// </summary>
+        internal static string ExTakeNotSupportedInCompiledQueries {
+            get {
+                return ResourceManager.GetString("ExTakeNotSupportedInCompiledQueries", resourceCulture);
             }
         }
         
@@ -2593,17 +2629,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to translate &apos;ElementAtOrDefault({0})&apos;. Use &apos;ElementAtOrDefault(Func(int))&apos; instead of &apos;ElementAtOrDefault(int)&apos; in caching query environment (Query.Execute). For example use &apos;ElementAtOrDefault(()=&gt;{0})&apos;..
-        /// </summary>
-        internal static string ExUnableToTranslateElementAtOrDefaultXUseElementAtOrDefaultFuncIntInsteadOfElementAtOrDefaultIntInCachingQueryEnvironmentQueryExecuteForExampleUseElementAtOrDefaultX {
-            get {
-                return ResourceManager.GetString("ExUnableToTranslateElementAtOrDefaultXUseElementAtOrDefaultFuncIntInsteadOfElemen" +
-                        "tAtOrDefaultIntInCachingQueryEnvironmentQueryExecuteForExampleUseElementAtOrDefa" +
-                        "ultX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to translate lambda expression &apos;{0}&apos; because it requires to materialize entity of type &apos;{1}&apos;..
         /// </summary>
         internal static string ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX {
@@ -2613,7 +2638,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to translate &apos;{0}&apos; expression. See inner exception for details.
+        ///   Looks up a localized string similar to Unable to translate &apos;{0}&apos; expression. See inner exception for details..
         /// </summary>
         internal static string ExUnableToTranslateXExpressionSeeInnerExceptionForDetails {
             get {
@@ -2709,33 +2734,6 @@ namespace Xtensive.Storage.Resources {
         internal static string ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported {
             get {
                 return ResourceManager.GetString("ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to translate &apos;ElementAt({0})&apos;. Use &apos;ElementAt(Func(int))&apos; instead of &apos;ElementAt(int)&apos; in caching query environment (Query.Execute). For example use &apos;ElementAt(()=&gt;{0})&apos;..
-        /// </summary>
-        internal static string ExUseElementAtFuncIntInsteadOfElementAtIntInCachingQueryEnvironment {
-            get {
-                return ResourceManager.GetString("ExUseElementAtFuncIntInsteadOfElementAtIntInCachingQueryEnvironment", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to translate &apos;Skip({0})&apos;. Use &apos;Skip(Func(int))&apos; instead of &apos;Skip(int)&apos; in caching query environment (Query.Execute). For example use &apos;Skip(()=&gt;{0})&apos;..
-        /// </summary>
-        internal static string ExUseSkipFuncIntInsteadOfSkipIntInCachingQueryEnvironment {
-            get {
-                return ResourceManager.GetString("ExUseSkipFuncIntInsteadOfSkipIntInCachingQueryEnvironment", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to translate &apos;Take({0})&apos;. Use &apos;Take(Func(int))&apos; instead of &apos;Take(int)&apos; in caching query environment (Query.Execute). For example use &apos;Take(()=&gt;{0})&apos;..
-        /// </summary>
-        internal static string ExUseTakeFuncIntInsteadOfTakeIntInCachingQueryEnvironment {
-            get {
-                return ResourceManager.GetString("ExUseTakeFuncIntInsteadOfTakeIntInCachingQueryEnvironment", resourceCulture);
             }
         }
         

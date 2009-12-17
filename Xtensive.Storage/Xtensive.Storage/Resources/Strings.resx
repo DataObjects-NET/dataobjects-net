@@ -1281,7 +1281,7 @@ Actions:
     <value>Session '{0}'. Rolled back transaction.</value>
   </data>
   <data name="ExUnableToTranslateXExpressionSeeInnerExceptionForDetails" xml:space="preserve">
-    <value>Unable to translate '{0}' expression. See inner exception for details</value>
+    <value>Unable to translate '{0}' expression. See inner exception for details.</value>
   </data>
   <data name="ExExpressionDefinedOutsideOfCachingQueryClosure" xml:space="preserve">
     <value>Expression '{0}' defined outside of CachingQuery closure.</value>
@@ -1289,17 +1289,17 @@ Actions:
   <data name="ExExpressionXIsNotASequence" xml:space="preserve">
     <value>Expression '{0}' is not a sequence.</value>
   </data>
-  <data name="ExUseTakeFuncIntInsteadOfTakeIntInCachingQueryEnvironment" xml:space="preserve">
-    <value>Unable to translate 'Take({0})'. Use 'Take(Func(int))' instead of 'Take(int)' in caching query environment (Query.Execute). For example use 'Take(()=&gt;{0})'.</value>
+  <data name="ExTakeNotSupportedInCompiledQueries" xml:space="preserve">
+    <value>'Take({0})' not supported in compiled queries (Query.Execute). Use 'Take(Func(int))' instead.For example use 'Take(()=&gt;{0})'.</value>
   </data>
-  <data name="ExUseSkipFuncIntInsteadOfSkipIntInCachingQueryEnvironment" xml:space="preserve">
-    <value>Unable to translate 'Skip({0})'. Use 'Skip(Func(int))' instead of 'Skip(int)' in caching query environment (Query.Execute). For example use 'Skip(()=&gt;{0})'.</value>
+  <data name="ExSkipNotSupportedInCompiledQueries" xml:space="preserve">
+    <value>'Skip({0})' not supported in compiled queries (Query.Execute). Use 'Skip(Func(int))' instead.For example use 'Skip(()=&gt;{0})'.</value>
   </data>
-  <data name="ExUseElementAtFuncIntInsteadOfElementAtIntInCachingQueryEnvironment" xml:space="preserve">
-    <value>Unable to translate 'ElementAt({0})'. Use 'ElementAt(Func(int))' instead of 'ElementAt(int)' in caching query environment (Query.Execute). For example use 'ElementAt(()=&gt;{0})'.</value>
+  <data name="ExElementAtNotSupportedInCompiledQueries" xml:space="preserve">
+    <value>'ElementAt({0})' not supported in compiled queries (Query.Execute). Use 'ElementAt(Func(int))' instead.For example use 'ElementAt(()=&gt;{0})'.</value>
   </data>
-  <data name="ExUnableToTranslateElementAtOrDefaultXUseElementAtOrDefaultFuncIntInsteadOfElementAtOrDefaultIntInCachingQueryEnvironmentQueryExecuteForExampleUseElementAtOrDefaultX" xml:space="preserve">
-    <value>Unable to translate 'ElementAtOrDefault({0})'. Use 'ElementAtOrDefault(Func(int))' instead of 'ElementAtOrDefault(int)' in caching query environment (Query.Execute). For example use 'ElementAtOrDefault(()=&gt;{0})'.</value>
+  <data name="ExElementAtOrDefaultNotSupportedInCompiledQueries" xml:space="preserve">
+    <value>'ElementAtOrDefault({0})' not supported in compiled queries (Query.Execute). Use 'ElementAtOrDefault(Func(int))' instead.For example use 'ElementAtOrDefault(()=&gt;{0})'.</value>
   </data>
   <data name="ExCanNotPersistThereArePinnedEntities" xml:space="preserve">
     <value>Can not persist: there are pinned entities</value>

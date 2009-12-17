@@ -20,6 +20,21 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class SelectTest : NorthwindDOModelTest
   {
+    public class InstanceTestClass
+    {
+      public string Current
+      {
+        get { return ""; }
+      }
+    }
+    public static class StaticTestClass
+    {
+      public static InstanceTestClass Instance
+      {
+        get { return new InstanceTestClass(); }
+      }
+    }
+
     public class Context
     {
       public IQueryable<Order> Orders
@@ -31,6 +46,18 @@ namespace Xtensive.Storage.Tests.Linq
       {
         get { return Query.All<Customer>(); }
       }
+    }
+
+    [Test]
+    public void StaticPropertyTest()
+    {
+      var customers = Query.All<Customer>()
+        .Where(cutomer =>
+          cutomer
+            .Orders
+            .Select(order => order.ShipName)
+            .FirstOrDefault()==StaticTestClass.Instance.Current);
+      QueryDumper.Dump(customers);
     }
 
     [Test]
@@ -64,7 +91,7 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.AreEqual(expectedCount, actualCount);
       Assert.AreEqual(expectedCount, list.Count);
 
-      var result = context.Customers.Where(c => context.Orders.Count(o => o.Customer == c) > 5);
+      var result = context.Customers.Where(c => context.Orders.Count(o => o.Customer==c) > 5);
       Assert.Greater(result.ToList().Count, 0);
     }
 

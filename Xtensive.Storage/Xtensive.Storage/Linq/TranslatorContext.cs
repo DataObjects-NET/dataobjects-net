@@ -136,6 +136,11 @@ namespace Xtensive.Storage.Linq
     {
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
+
+      linqProcessors = domain.Services.GetAllInstances<ILinqProcessor>();
+      foreach (var processor in LinqProcessors)
+        query = processor.PreProcess(query);
+      
       this.query = EntitySetAccessRewriter.Rewrite(EqualityRewriter.Rewrite(ClosureAccessRewriter.Rewrite(query)));
 
       customCompilerProvider = domain.Handler.GetMemberCompilerProvider<Expression>();
@@ -147,7 +152,6 @@ namespace Xtensive.Storage.Linq
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();
       tupleParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
       boundItemProjectors = new Dictionary<ParameterExpression, ItemProjectorExpression>();
-      linqProcessors = domain.Services.GetAllInstances<ILinqProcessor>();
     }
   }
 }
