@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Operations
 {
   [Serializable]
   internal sealed class EntitySetItemOperation : EntitySetOperation,
-                                                 ISerializable
+    ISerializable
   {
     private Key ItemKey { get; set; }
 

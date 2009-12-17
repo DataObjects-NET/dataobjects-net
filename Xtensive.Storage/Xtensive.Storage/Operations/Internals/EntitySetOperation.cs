@@ -25,6 +25,7 @@ namespace Xtensive.Storage.Operations
       entitySet.Clear();
     }
 
+
     // Constructors
 
     /// <inheritdoc/>
