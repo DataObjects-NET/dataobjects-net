@@ -41,13 +41,15 @@ namespace Xtensive.Sql.Tests
     [Test]
     public void ProviderTest()
     {
-      SqlDriver driver;
-      driver = SqlDriver.Create(TestUrl.SqlServer2005);
+      TestProvider("sqlserver", TestConnectionString.SqlServer2005, TestUrl.SqlServer2005);
+      TestProvider("postgresql", TestConnectionString.PostgreSql84, TestUrl.PostgreSql84);
+      // TestProvider("oracle", TestConnectionString.Oracle11, TestUrl.Oracle11);
+    }
+    
+    private static void TestProvider(string providerName, string connectionString, string connectionUrl)
+    {
+      var driver = SqlDriver.Create(connectionUrl);
       Assert.IsNotNull(driver);
-      driver = SqlDriver.Create(TestUrl.PostgreSql83);
-      Assert.IsNotNull(driver);
-//      driver = SqlDriver.Create(TestUrl.Oracle11);
-//      Assert.IsNotNull(driver);
     }
   }
 }
