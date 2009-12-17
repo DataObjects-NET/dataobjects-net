@@ -290,8 +290,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void KeySimpleTest()
     {
-      var result = Query<Product>
-        .All
+      var result = Query
+        .All<Product>()
         .Select(p => p.Key);
       QueryDumper.Dump(result);
     }
@@ -577,7 +577,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectJustOuterParameterTest()
     {
-      var result = Query.All<Customer>.All.Select(c => Query<Supplier>().Select(s => c));
+      var result = Query.All<Customer>().Select(c => Query.All<Supplier>().Select(s => c));
       foreach (var i in result)
         i.ToList();
     }

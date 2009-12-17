@@ -15,6 +15,7 @@ using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.FullText;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions.Visitors;
@@ -39,8 +40,20 @@ namespace Xtensive.Storage
     /// of type <typeparamref name="T"/>.
     /// </summary>
     public static IQueryable<T> All<T>()
+      where T: class, IEntity
     {
       return new Queryable<T>();
+    }
+
+    /// <summary>
+    /// The "starting point" for full-text query.
+    /// </summary>
+    /// <param name="searchCriteria">The search criteria.</param>
+    /// <returns>A query returning <see cref="FullTextMatch{T}"/> instances.</returns>
+    public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria)
+      where T: class, IEntity
+    {
+      throw new NotImplementedException();
     }
 
     /// <summary>

@@ -5,6 +5,7 @@
 // Created:    2009.12.14
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage
 {
@@ -15,5 +16,23 @@ namespace Xtensive.Storage
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   public class FullTextAttribute : StorageAttribute
   {
+    /// <summary>
+    /// Gets or sets a value indicating whether content of the field marked by this
+    /// attribute must be analyzed or not. Analyzed implies it will be splat to a
+    /// sequence of words; otherwise it will be represented as a single word
+    /// in index.
+    /// </summary>
+    public bool Analyze { get; set; }
+
+    
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public FullTextAttribute()
+    {
+      Analyze = true;
+    }
   }
 }

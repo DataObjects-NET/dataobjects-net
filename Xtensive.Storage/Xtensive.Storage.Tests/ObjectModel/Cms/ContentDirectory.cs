@@ -56,12 +56,12 @@ namespace Xtensive.Storage.Tests.ObjectModel.Cms
 
     public ContentDirectory GetSubDirectory(string subDirectoryName)
     {
-      return Query<ContentDirectory>.All.Where(dir => dir.Name==subDirectoryName && dir.ParentDirectory==this).FirstOrDefault();
+      return Query.All<ContentDirectory>().Where(dir => dir.Name==subDirectoryName && dir.ParentDirectory==this).FirstOrDefault();
     }
 
     public ContentItem GetContentItem(string contentItemName)
     {
-      return Query<ContentItem>.All.Where(item => item.Name==contentItemName && item.ParentDirectory==this).FirstOrDefault();
+      return Query.All<ContentItem>().Where(item => item.Name==contentItemName && item.ParentDirectory==this).FirstOrDefault();
     }
 
     private void BuildPathRecursive(StringBuilder stringBuilder)

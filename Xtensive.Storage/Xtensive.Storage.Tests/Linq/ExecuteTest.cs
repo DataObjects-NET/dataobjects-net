@@ -4,9 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.15
 
-using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Linq;
@@ -20,23 +18,23 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void NonGenericTest()
     {
-      var query = Query<Order>.All.Where(o => o.Freight > 5);
-      var nonGenericQuery = (IQueryable)query;
+      var query = Query.All<Order>().Where(o => o.Freight > 5);
+      var nonGenericQuery = (IQueryable) query;
       foreach (var item in nonGenericQuery) {
         Assert.IsNotNull(item);
         var order = item as Order;
         Assert.IsNotNull(order);
       }
 
-      query = Query<Order>.All;
-      nonGenericQuery = (IQueryable)query;
+      query = Query.All<Order>();
+      nonGenericQuery = query;
       foreach (var item in nonGenericQuery) {
         Assert.IsNotNull(item);
         var order = item as Order;
         Assert.IsNotNull(order);
       }
 
-      var provider = (IQueryProvider)QueryProvider.Instance;
+      var provider = (IQueryProvider) QueryProvider.Instance;
       var result = provider.Execute(nonGenericQuery.Expression);
       var enumerable = (IEnumerable) result;
       foreach (var item in enumerable) {
@@ -45,11 +43,11 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.IsNotNull(order);
       }
 
-      query = Query<Order>.All.Where(o => o.Freight > 5);
-      nonGenericQuery = (IQueryable)query;
-      provider = (IQueryProvider)QueryProvider.Instance;
+      query = Query.All<Order>().Where(o => o.Freight > 5);
+      nonGenericQuery = (IQueryable) query;
+      provider = (IQueryProvider) QueryProvider.Instance;
       result = provider.Execute(nonGenericQuery.Expression);
-      enumerable = (IEnumerable)result;
+      enumerable = (IEnumerable) result;
       foreach (var item in enumerable) {
         Assert.IsNotNull(item);
         var order = item as Order;

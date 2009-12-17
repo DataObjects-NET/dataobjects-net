@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void LengthTest()
     {
-      var length = Query<Customer>.All
+      var length = Query.All<Customer>()
         .Select(customer => customer.ContactName)
         .FirstOrDefault()
         .Length;
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Length2Test()
     {
-      var customers = Query<Customer>.All
+      var customers = Query.All<Customer>()
         .Where(cutomer =>
           cutomer
             .Orders
@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Length3Test()
     {
-      var customers = Query<Customer>.All
+      var customers = Query.All<Customer>()
         .Where(cutomer =>
           cutomer
             .Orders
@@ -55,89 +55,89 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void FirstTest()
     {
-      var customer = Query<Customer>.All.First();
+      var customer = Query.All<Customer>().First();
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void FirstPredicateTest()
     {
-      var customer = Query<Customer>.All.First(c => c.Id=="ALFKI");
+      var customer = Query.All<Customer>().First(c => c.Id=="ALFKI");
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void WhereFirstTest()
     {
-      var customer = Query<Customer>.All.Where(c => c.Id=="ALFKI").First();
+      var customer = Query.All<Customer>().Where(c => c.Id=="ALFKI").First();
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void FirstOrDefaultTest()
     {
-      var customer = Query<Customer>.All.FirstOrDefault();
+      var customer = Query.All<Customer>().FirstOrDefault();
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void FirstOrDefaultPredicateTest()
     {
-      Query<Customer>.All.FirstOrDefault(c => c.Id=="ALFKI");
+      Query.All<Customer>().FirstOrDefault(c => c.Id=="ALFKI");
     }
 
     [Test]
     public void WhereFirstOrDefaultTest()
     {
-      var customer = Query<Customer>.All.Where(c => c.Id=="ALFKI").FirstOrDefault();
+      var customer = Query.All<Customer>().Where(c => c.Id=="ALFKI").FirstOrDefault();
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void SingleTest()
     {
-      AssertEx.ThrowsInvalidOperationException(() => Query<Customer>.All.Single());
+      AssertEx.ThrowsInvalidOperationException(() => Query.All<Customer>().Single());
     }
 
     [Test]
     public void SinglePredicateTest()
     {
-      var customer = Query<Customer>.All.Single(c => c.Id=="ALFKI");
+      var customer = Query.All<Customer>().Single(c => c.Id=="ALFKI");
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void WhereSingleTest()
     {
-      var customer = Query<Customer>.All.Where(c => c.Id=="ALFKI").Single();
+      var customer = Query.All<Customer>().Where(c => c.Id=="ALFKI").Single();
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void SingleOrDefaultTest()
     {
-      AssertEx.ThrowsInvalidOperationException(() => Query<Customer>.All.SingleOrDefault());
+      AssertEx.ThrowsInvalidOperationException(() => Query.All<Customer>().SingleOrDefault());
     }
 
     [Test]
     public void SingleOrDefaultPredicateTest()
     {
-      var customer = Query<Customer>.All.SingleOrDefault(c => c.Id=="ALFKI");
+      var customer = Query.All<Customer>().SingleOrDefault(c => c.Id=="ALFKI");
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void WhereSingleOrDefaultTest()
     {
-      var customer = Query<Customer>.All.Where(c => c.Id=="ALFKI").SingleOrDefault();
+      var customer = Query.All<Customer>().Where(c => c.Id=="ALFKI").SingleOrDefault();
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void SelectFirstTest()
     {
-      var products = Query<Product>.All;
-      var orderDetails = Query<OrderDetails>.All;
+      var products = Query.All<Product>();
+      var orderDetails = Query.All<OrderDetails>();
       var result = from p in products
       select new {
         Product = p,
@@ -155,8 +155,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryFirstTest()
     {
-      var customersCount = Query<Customer>.All.Count(c => c.Orders.Count > 0);
-      var result = Query<Customer>.All.Where(c => c.Orders.Count > 0).Select(c => c.Orders.First());
+      var customersCount = Query.All<Customer>().Count(c => c.Orders.Count > 0);
+      var result = Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.First());
       var list = result.ToList();
       Assert.AreEqual(customersCount, list.Count);
       QueryDumper.Dump(list, true);
@@ -165,15 +165,15 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryFirstExpectedExceptionTest()
     {
-      var result = Query<Customer>.All.Select(c => c.Orders.First());
+      var result = Query.All<Customer>().Select(c => c.Orders.First());
       AssertEx.ThrowsInvalidOperationException(() => result.ToList());
     }
 
     [Test]
     public void SubqueryFirstOrDefaultTest()
     {
-      var customersCount = Query<Customer>.All.Count();
-      var result = Query<Customer>.All.Select(c => c.Orders.FirstOrDefault());
+      var customersCount = Query.All<Customer>().Count();
+      var result = Query.All<Customer>().Select(c => c.Orders.FirstOrDefault());
       var list = result.ToList();
       Assert.AreEqual(customersCount, list.Count);
     }
@@ -181,8 +181,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubquerySingleTest()
     {
-      var customersCount = Query<Customer>.All.Count(c => c.Orders.Count > 0);
-      var result = Query<Customer>.All.Where(c => c.Orders.Count > 0).Select(c => c.Orders.Take(1).Single());
+      var customersCount = Query.All<Customer>().Count(c => c.Orders.Count > 0);
+      var result = Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.Take(1).Single());
       var list = result.ToList();
       Assert.AreEqual(customersCount, list.Count);
     }
@@ -190,7 +190,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubquerySingleExpectedException1Test()
     {
-      var result = Query<Customer>.All.Select(c => c.Orders.Take(1).Single());
+      var result = Query.All<Customer>().Select(c => c.Orders.Take(1).Single());
       AssertEx.ThrowsInvalidOperationException(() => result.ToList());
     }
 
@@ -198,7 +198,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void SubquerySingleExpectedException2Test()
     {
       bool exceptionThrown = false;
-      var result = Query<Customer>.All.Where(c => c.Orders.Count > 0).Select(c => c.Orders.Single());
+      var result = Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.Single());
       try {
         result.ToList();
       }
@@ -213,8 +213,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubquerySingleOrDefaultTest()
     {
-      var customersCount = Query<Customer>.All.Count();
-      var result = Query<Customer>.All.Select(c => c.Orders.Take(1).SingleOrDefault());
+      var customersCount = Query.All<Customer>().Count();
+      var result = Query.All<Customer>().Select(c => c.Orders.Take(1).SingleOrDefault());
       var list = result.ToList();
       Assert.AreEqual(customersCount, list.Count);
     }
@@ -222,8 +222,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexSubquerySingleOrDefaultTest()
     {
-      var categoriesCount = Query<Category>.All.Count();
-      var result = Query<Category>.All.Select(
+      var categoriesCount = Query.All<Category>().Count();
+      var result = Query.All<Category>().Select(
         c => new {
           Product = c.Products.Take(1).SingleOrDefault(),
           c.Products.Take(1).SingleOrDefault().ProductName,
@@ -236,8 +236,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexSubquerySelectSingleOrDefaultTest()
     {
-      var categoriesCount = Query<Category>.All.Count();
-      var result = Query<Category>.All.Select(c => c.Products.Take(1).SingleOrDefault()).Select(
+      var categoriesCount = Query.All<Category>().Count();
+      var result = Query.All<Category>().Select(c => c.Products.Take(1).SingleOrDefault()).Select(
         p => new {
           Product = p,
           p.ProductName,
@@ -251,8 +251,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexSubqueryFirstTest()
     {
-      var categoriesCount = Query<Category>.All.Count();
-      var result = Query<Category>.All.Select(
+      var categoriesCount = Query.All<Category>().Count();
+      var result = Query.All<Category>().Select(
         c => new {
           Product = c.Products.First(),
           c.Products.First().ProductName,

@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GetEntityTest()
     {
-      var xs = Query<Order>.All.Take(10).Select((order, index) =>
+      var xs = Query.All<Order>().Take(10).Select((order, index) =>
         new X {
           OrderKey = order.Key.ToTypedKey<Order>(),
           SomeInt = index
@@ -34,13 +34,13 @@ namespace Xtensive.Storage.Tests.Linq
         .ToList();
 
       var query =
-        from o in Query<Order>.All
+        from o in Query.All<Order>()
         from x in Query.Store(xs)
         where o==x.OrderKey.Entity
         select o;
 
       var expected = 
-        from o in Query<Order>.All.AsEnumerable()
+        from o in Query.All<Order>().AsEnumerable()
         from x in xs
         where o==x.OrderKey.Entity
         select o;
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GetEntity2Test()
     {
-      var xs = Query<Order>.All.Take(10).Select((order, index) =>
+      var xs = Query.All<Order>().Take(10).Select((order, index) =>
         new X {
           OrderKey = order.Key.ToTypedKey<Order>(),
           SomeInt = index
@@ -59,13 +59,13 @@ namespace Xtensive.Storage.Tests.Linq
         .ToList();
 
       var query =
-        from o in Query<Order>.All
+        from o in Query.All<Order>()
         from x in xs
         where o==x.OrderKey.Entity
         select o;
 
       var expected = 
-        from o in Query<Order>.All.AsEnumerable()
+        from o in Query.All<Order>().AsEnumerable()
         from x in xs
         where o==x.OrderKey.Entity
         select o;
@@ -76,10 +76,10 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void KeyTest()
     {
-      var keys = Query<Order>.All.Take(10).Select(order => order.Key).ToTyped<Order>().ToList();
-      var query = Query<Order>.All.Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
+      var keys = Query.All<Order>().Take(10).Select(order => order.Key).ToTyped<Order>().ToList();
+      var query = Query.All<Order>().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
       QueryDumper.Dump(query);
-      var expectedQuery = Query<Order>.All.AsEnumerable().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
+      var expectedQuery = Query.All<Order>().AsEnumerable().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }
   }

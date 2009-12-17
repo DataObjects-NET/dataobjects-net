@@ -212,9 +212,6 @@ namespace Xtensive.Storage.Building.Builders
         var versionAttribute = propertyInfo.GetAttribute<VersionAttribute>(AttributeSearchOptions.InheritAll);
         if (versionAttribute!=null)
           AttributeProcessor.Process(fieldDef, versionAttribute);
-        var fullTextAttribute = propertyInfo.GetAttribute<FullTextAttribute>(AttributeSearchOptions.InheritAll);
-        if (fullTextAttribute != null)
-          AttributeProcessor.Process(fieldDef, fullTextAttribute);
       }
 
       return fieldDef;

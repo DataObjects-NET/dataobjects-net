@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionRootModel
 
     public IEnumerable<Entity> GetVersionRoots()
     {
-      return Query.All<Owner1>.All.ToList().Cast<Entity>().Concat(Query<Owner2>().ToList().Cast<Entity>());
+      return Query.All<Owner1>().ToList().Cast<Entity>().Concat(Query.All<Owner2>().ToList().Cast<Entity>());
     }
   }
 }

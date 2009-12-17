@@ -178,7 +178,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectManyWithCastTest()
     {
-      var result = Query.All<Customer>.All.SelectMany(c => (IEnumerable<Order>) Query<Order>().Where(o => o.Customer==c)).ToList();
+      var result = Query.All<Customer>().SelectMany(c => (IEnumerable<Order>) Query.All<Order>().Where(o => o.Customer==c)).ToList();
       var expected = Query.All<Order>().ToList();
       Assert.IsTrue(result.Except(expected).IsNullOrEmpty());
     }
@@ -215,7 +215,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       int assertCount =
         Query.All<Order>().Count() +
-          Query.All<Customer>.All.Count(c => !Query<Order>().Any(o => o.Customer==c));
+          Query.All<Customer>().Count(c => !Query.All<Order>().Any(o => o.Customer==c));
       var result = from c in Query.All<Customer>()
       from o in Query.All<Order>().Where(o => o.Customer==c).Select(o => new {o.Id, c.CompanyName}).DefaultIfEmpty()
       select new {c.ContactName, o};
@@ -234,7 +234,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       int assertCount =
         Query.All<Order>().Count() +
-          Query.All<Customer>.All.Count(c => !Query<Order>().Any(o => o.Customer==c));
+          Query.All<Customer>().Count(c => !Query.All<Order>().Any(o => o.Customer==c));
       var result = from c in Query.All<Customer>()
       from o in Query.All<Order>().Where(o => o.Customer==c).Select(o => new {o.Id, c.CompanyName}).DefaultIfEmpty()
       select new {c.ContactName, o.Id};
@@ -249,7 +249,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       int assertCount =
         Query.All<Order>().Count() +
-          Query.All<Customer>.All.Count(c => !Query<Order>().Any(o => o.Customer==c));
+          Query.All<Customer>().Count(c => !Query.All<Order>().Any(o => o.Customer==c));
       var result = from c in Query.All<Customer>()
       from o in Query.All<Order>().Where(o => o.Customer==c).DefaultIfEmpty()
       select new {c.ContactName, o.OrderDate};
@@ -263,7 +263,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       int assertCount =
         Query.All<Order>().Count() +
-          Query.All<Customer>.All.Count(c => !Query<Order>().Any(o => o.Customer==c));
+          Query.All<Customer>().Count(c => !Query.All<Order>().Any(o => o.Customer==c));
       var result = from c in Query.All<Customer>()
       from o in Query.All<Order>().Where(o => o.Customer==c).Select(o => o.OrderDate).DefaultIfEmpty()
       select new {c.ContactName, o};
@@ -337,7 +337,7 @@ namespace Xtensive.Storage.Tests.Linq
       EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
       int expected = Query.All<Order>().Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query.All<Customer>()
-        .SelectMany(c => Query.All<Order>.All.Where(o => o.Customer==c).Intersect(Query<Order>())
+        .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c).Intersect(Query.All<Order>())
           .Where(o => o.Employee.FirstName.StartsWith("A")));
       Assert.AreEqual(expected, result.ToList().Count);
     }

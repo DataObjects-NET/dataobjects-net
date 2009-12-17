@@ -24,24 +24,7 @@ namespace Xtensive.Storage.Tests.Storage.FullText
       foreach (var document in result) {
         Assert.IsNotNull(document);
         Assert.IsNotNull(document.Key);
-        Assert.IsNotNull(document.Target);
-      }
-
-      result = Query.FreeText<Category>(c => c.CategoryName, "Dessert candy and coffe").ToList();
-      Assert.AreEqual(0, result.Count);
-
-      result = Query.FreeText<Category>(c => c.CategoryName, c => c.Description, "Dessert candy and coffe seafood").ToList();
-      Assert.AreEqual(3, result.Count);
-    }
-
-    [Test]
-    public void SelectTargetTest()
-    {
-      var result = Query.FreeText<Category>(c => c.Description, "Dessert candy and coffe seafood").Select(d => d.Target).ToList();
-      Assert.AreEqual(2, result.Count);
-      foreach (var category in result) {
-        Assert.IsNotNull(category);
-        Assert.IsNotNull(category.Key);
+        Assert.IsNotNull(document.Entity);
       }
     }
 

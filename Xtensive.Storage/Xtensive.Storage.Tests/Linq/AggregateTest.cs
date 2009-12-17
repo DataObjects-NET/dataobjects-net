@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void CountAfterFilterTest()
     {
       var result =
-        Query.All<Customer>.All.Where(c => Query<Order>()
+        Query.All<Customer>().Where(c => Query.All<Order>()
           .Where(o => o.Customer==c)
           .Count() > 10);
       var list = result.ToList();

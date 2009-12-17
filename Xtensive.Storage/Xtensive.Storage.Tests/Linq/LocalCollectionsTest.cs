@@ -358,10 +358,10 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof(TranslationException))]
     public void KeyTest()
     {
-      var keys = Query<Order>.All.Take(10).Select(order => order.Key).ToList();
-      var query = Query<Order>.All.Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
+      var keys = Query.All<Order>().Take(10).Select(order => order.Key).ToList();
+      var query = Query.All<Order>().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
       QueryDumper.Dump(query);
-      var expectedQuery = Query<Order>.All.AsEnumerable().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
+      var expectedQuery = Query.All<Order>().AsEnumerable().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }
 

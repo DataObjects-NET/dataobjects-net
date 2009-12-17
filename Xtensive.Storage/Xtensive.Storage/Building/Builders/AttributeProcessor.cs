@@ -83,13 +83,6 @@ namespace Xtensive.Storage.Building.Builders
       ProcessLazyLoad(fieldDef, attribute);
     }
 
-    public static void Process(FieldDef fieldDef, FullTextAttribute attribute)
-    {
-//      fieldDef.Attributes |= attribute.Analyzed 
-//        ? FieldAttributes.Analyzed 
-//        : FieldAttributes.FullText;
-    }
-
     public static void Process(FieldDef fieldDef, AssociationAttribute attribute)
     {
       if (fieldDef.IsPrimitive || fieldDef.IsStructure) {

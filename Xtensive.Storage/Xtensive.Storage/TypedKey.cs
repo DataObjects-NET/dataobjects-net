@@ -16,7 +16,7 @@ namespace Xtensive.Storage
 
     public T Entity
     {
-      get { return Query<T>.Single(Key); }
+      get { return Query.Single<T>(Key); }
     }
 
     #region Equiatable members
