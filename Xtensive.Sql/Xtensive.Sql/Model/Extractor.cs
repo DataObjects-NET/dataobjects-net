@@ -67,13 +67,13 @@ namespace Xtensive.Sql.Model
     {
       Connection = connection;
       var url = connection.Url;
-      Catalog = new Catalog(url.GetDatabase());
+      Catalog = new Catalog(Driver.ServerInfo.DatabaseName);
       Initialize();
     }
 
     /// <summary>
     /// Performs custom initialization.
-    /// Called within <see cref="Initialize(SqlConnection, DbTransaction)"/>.
+    /// Called within <see cref="Initialize(SqlConnection)"/>.
     /// </summary>
     protected virtual void Initialize()
     {

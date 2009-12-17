@@ -46,8 +46,6 @@ namespace Xtensive.Sql.Tests
       Assert.IsNotNull(driver);
       driver = SqlDriver.Create(TestUrl.PostgreSql83);
       Assert.IsNotNull(driver);
-      driver = SqlDriver.Create(TestUrl.VistaDb);
-      Assert.IsNotNull(driver);
 //      driver = SqlDriver.Create(TestUrl.Oracle11);
 //      Assert.IsNotNull(driver);
     }

@@ -85,7 +85,7 @@ namespace Xtensive.Sql
     public Schema ExtractDefaultSchema(SqlConnection connection)
     {
       var url = connection.Url;
-      return ExtractSchema(connection, GetDefaultSchemaName(url));
+      return ExtractSchema(connection, ServerInfo.DefaultSchemaName);
     }
 
     /// <summary>
@@ -150,15 +150,6 @@ namespace Xtensive.Sql
     /// </summary>
     /// <returns>Created data access handler.</returns>
     protected abstract TypeMapper CreateTypeMapper();
-
-    /// <summary>
-    /// Gets the name of the default schema.
-    /// </summary>
-    /// <param name="url">The URL.</param>
-    protected virtual string GetDefaultSchemaName(UrlInfo url)
-    {
-      return url.GetSchema(url.User);
-    }
 
     #region Private / internal methods
 

@@ -11,16 +11,9 @@ namespace Xtensive.Sql.SqlServer
 {
   internal abstract class Driver : SqlDriver
   {
-    private const string DefaultSchemaName = "dbo";
-
     public override SqlConnection CreateConnection(UrlInfo url)
     {
       return new Connection(this, url);
-    }
-
-    protected override string GetDefaultSchemaName(UrlInfo url)
-    {
-      return url.GetSchema(DefaultSchemaName);
     }
 
     // Constructors
