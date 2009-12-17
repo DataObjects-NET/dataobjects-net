@@ -13,11 +13,11 @@ namespace Xtensive.Sql.Tests
     public const string SqlServer2008 = @"sqlserver://localhost\Sql2008/DO40-Tests";
     public const string SqlServer2008Aw = @"sqlserver://localhost\Sql2008/AdventureWorks";
 
-    public const string PostgreSql80 = "postgresql://do4test:do4testpwd@127.0.0.1:8032/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";
-    public const string PostgreSql81 = "postgresql://do4test:do4testpwd@127.0.0.1:8132/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";
-    public const string PostgreSql82 = "postgresql://do4test:do4testpwd@127.0.0.1:8232/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";
-    public const string PostgreSql83 = "postgresql://do4test:do4testpwd@127.0.0.1:8332/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";
-    public const string PostgreSql84 = "postgresql://do4test:do4testpwd@127.0.0.1:8432/do40test?Encoding=ASCII&Pooling=on&MinPoolSize=1&MaxPoolSize=5";
+    public const string PostgreSql80 = "postgresql://do4test:do4testpwd@127.0.0.1:8032/do40test";
+    public const string PostgreSql81 = "postgresql://do4test:do4testpwd@127.0.0.1:8132/do40test";
+    public const string PostgreSql82 = "postgresql://do4test:do4testpwd@127.0.0.1:8232/do40test";
+    public const string PostgreSql83 = "postgresql://do4test:do4testpwd@127.0.0.1:8332/do40test";
+    public const string PostgreSql84 = "postgresql://do4test:do4testpwd@127.0.0.1:8432/do40test";
 
     public const string VistaDb = "vistadb://localhost/VistaDb/VDBTests.vdb3";
     public const string VistaDbAw = "vistadb://localhost/VistaDb/AdventureWorks.vdb3";

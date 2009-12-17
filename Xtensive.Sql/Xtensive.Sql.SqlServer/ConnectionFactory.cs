@@ -28,13 +28,15 @@ namespace Xtensive.Sql.SqlServer
       SqlHelper.ValidateConnectionUrl(url);
 
       var builder = new SqlConnectionStringBuilder();
-
-      builder.InitialCatalog = url.Resource ?? string.Empty;
-
+      
+      // host, port, database
       if (url.Port==0)
         builder.DataSource = url.Host;
       else
         builder.DataSource = url.Host + "," + url.Port;
+      builder.InitialCatalog = url.Resource ?? string.Empty;
+
+      // user, password
       if (!string.IsNullOrEmpty(url.User)) {
         builder.UserID = url.User;
         builder.Password = url.Password;
@@ -44,6 +46,7 @@ namespace Xtensive.Sql.SqlServer
         builder.PersistSecurityInfo = false;
       }
 
+      // custom options
       foreach (var param in url.Params)
         builder[param.Key] = param.Value;
 

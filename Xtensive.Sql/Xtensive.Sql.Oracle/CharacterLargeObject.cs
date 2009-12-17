@@ -12,9 +12,9 @@ namespace Xtensive.Sql.Oracle
 {
   internal sealed class CharacterLargeObject : ICharacterLargeObject
   {
+    private readonly OracleConnection connection;
     private OracleClob lob;
-    private OracleConnection connection;
-
+    
     public bool IsNull { get { return lob==null; } }
     public bool IsEmpty { get { return lob!=null && lob.IsEmpty; } }
 
@@ -69,9 +69,9 @@ namespace Xtensive.Sql.Oracle
 
     // Constructors
 
-    public CharacterLargeObject(DbConnection connection)
+    public CharacterLargeObject(OracleConnection connection)
     {
-      this.connection = (OracleConnection) connection;
+      this.connection = connection;
     }
   }
 }
