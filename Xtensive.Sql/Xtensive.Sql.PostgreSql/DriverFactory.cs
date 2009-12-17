@@ -20,19 +20,20 @@ namespace Xtensive.Sql.PostgreSql
     {
       using (var connection = ConnectionFactory.CreateConnection(url)) {
         connection.Open();
-        int major = connection.PostgreSqlVersion.Major;
-        int minor = connection.PostgreSqlVersion.Minor;
+        var version = connection.PostgreSqlVersion;
+        int major = version.Major;
+        int minor = version.Minor;
         if (major < 8)
           throw new NotSupportedException(Strings.ExPostgreSqlBelow80IsNotSupported);
         SqlDriver result;
         if (major==8 && minor==0)
-          result = new v8_0.Driver(connection);
+          result = new v8_0.Driver(connection, version);
         else if (major==8 && minor==1)
-          result = new v8_1.Driver(connection);
+          result = new v8_1.Driver(connection, version);
         else if (major==8 && minor==2)
-          result = new v8_2.Driver(connection);
+          result = new v8_2.Driver(connection, version);
         else
-          result = new v8_3.Driver(connection);
+          result = new v8_3.Driver(connection, version);
         connection.Close();
         return result;
       }

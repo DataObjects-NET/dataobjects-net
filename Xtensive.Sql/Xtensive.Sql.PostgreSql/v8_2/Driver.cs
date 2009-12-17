@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
+using System;
 using Npgsql;
 using Xtensive.Sql.Compiler;
 
@@ -28,8 +29,8 @@ namespace Xtensive.Sql.PostgreSql.v8_2
 
     // Constructors
 
-    public Driver(NpgsqlConnection connection)
-      : base(new ServerInfoProvider(connection))
+    public Driver(NpgsqlConnection connection, Version version)
+      : base(new ServerInfoProvider(connection, version))
     {
     }
   }

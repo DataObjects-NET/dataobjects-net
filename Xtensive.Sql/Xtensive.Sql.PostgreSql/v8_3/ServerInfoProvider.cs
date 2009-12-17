@@ -1,3 +1,4 @@
+using System;
 using Npgsql;
 using Xtensive.Sql.Info;
 
@@ -12,8 +13,8 @@ namespace Xtensive.Sql.PostgreSql.v8_3
 
     // Constructors
 
-    public ServerInfoProvider(NpgsqlConnection connection)
-      : base(connection)
+    public ServerInfoProvider(NpgsqlConnection connection, Version version)
+      : base(connection, version)
     {
     }
   }

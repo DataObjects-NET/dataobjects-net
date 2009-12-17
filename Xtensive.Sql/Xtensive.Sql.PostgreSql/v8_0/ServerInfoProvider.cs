@@ -10,7 +10,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     private const int maxTextLength = (int.MaxValue >> 1) - 1000;
     private const int maxCharLength = 10485760;
 
-    private readonly VersionInfo mVersionInfo;
+    private readonly VersionInfo versionInfo;
     private readonly ServerConfiguration serverConfig;
 
     protected virtual IndexFeatures GetIndexFeatures()
@@ -40,7 +40,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     public override VersionInfo GetVersionInfo()
     {
-      return mVersionInfo;
+      return versionInfo;
     }
 
     public override EntityInfo GetDatabaseInfo()
@@ -300,10 +300,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     // Constructors
 
-    public ServerInfoProvider(NpgsqlConnection connection)
+    public ServerInfoProvider(NpgsqlConnection connection, Version version)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, "conn");
-      mVersionInfo = new VersionInfo(connection.PostgreSqlVersion);
+      versionInfo = new VersionInfo(version);
       serverConfig = new ServerConfiguration(connection);
     }
   }
