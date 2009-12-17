@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses WHERE to find all customers in Seattle.")]
     public void LinqToEntities1()
     {
-      var query = from cust in Query<Customer>.All
+      var query = from cust in Query.All<Customer>()
       where cust.Address.City=="Seattle"
       select cust;
       QueryDumper.Dump(query);
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void LinqToEntities2()
     {
       DateTime dt = new DateTime(1994, 1, 1);
-      var query = from order in Query<Order>.All
+      var query = from order in Query.All<Order>()
       where order.OrderDate > dt
       select order;
 
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses WHERE to filter for Products that have stock below their reorder level and have a units on order of zero.")]
     public void LinqToEntities3()
     {
-      var query = from p in Query<Product>.All
+      var query = from p in Query.All<Product>()
       where p.UnitsInStock < p.ReorderLevel && p.UnitsOnOrder==0
       select p;
 
@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses WHERE to filter out Products that have a UnitPrice less than 10.")]
     public void LinqToEntities4()
     {
-      var query = from p in Query<Product>.All
+      var query = from p in Query.All<Product>()
       where p.UnitPrice < 10
       select p;
 
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses WHERE to get orders for Customers in Mexico.")]
     public void LinqToEntities5()
     {
-      var query = from o in Query<Order>.All
+      var query = from o in Query.All<Order>()
       where o.Customer.Address.Country=="Mexico"
       select o;
 
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses WHERE to get orders sold by employees in the UK.")]
     public void LinqToEntities6()
     {
-      var query = from o in Query<Order>.All
+      var query = from o in Query.All<Order>()
       where o.Employee.Address.Country=="UK"
       select o;
 
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses ANY to get employees have sold an order.")]
     public void LinqToEntities7()
     {
-      var query = from e in Query<Employee>.All
+      var query = from e in Query.All<Employee>()
       where e.Orders.Any(o => o!=null)
       select e;
 
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses ANY to check for any out-of-stock products.")]
     public void LinqToEntities8()
     {
-      var query = Query<Supplier>.All
+      var query = Query.All<Supplier>()
         .Where(s => s.Products
           .Any(p => p.UnitsInStock==0))
         .Select(s => s);
@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses WHERE and ANY to get employees who sold an order to any customer in Mexico.")]
     public void LinqToEntities9()
     {
-      var query = from e in Query<Employee>.All
+      var query = from e in Query.All<Employee>()
       where e.Orders.Any(o => o.Customer.Address.Country=="Mexico")
       select e;
 
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses ALL to get employees who sold orders only to customers not in Canada.")]
     public void LinqToEntities10()
     {
-      var query = from e in Query<Employee>.All
+      var query = from e in Query.All<Employee>()
       where e.Orders.All(o => o.Customer.Address.Country!="Canada")
       select e;
 
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This samples uses SELECT to get all Customers as Entity Objects.")]
     public void LinqToEntities11()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       select c;
 
       QueryDumper.Dump(query);
@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This samples uses SELECT to get all Customer Contact Names as Strings.")]
     public void LinqToEntities12()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       select c.ContactName;
 
       QueryDumper.Dump(query);
@@ -172,7 +172,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This samples uses SELECT to get all Customer Contact Names as an anonoymous type.")]
     public void LinqToEntities13()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       select new {c.ContactName};
 
       QueryDumper.Dump(query);
@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SELECT to get all Orders as anonymous type")]
     public void LinqToEntities14()
     {
-      var query = from o in Query<Order>.All
+      var query = from o in Query.All<Order>()
       select new {o};
 
       QueryDumper.Dump(query);
@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SELECT to get all Orders and associated Employees as anonymous type")]
     public void LinqToEntities15()
     {
-      var query = from o in Query<Order>.All
+      var query = from o in Query.All<Order>()
       select new {o, o.Employee};
 
       QueryDumper.Dump(query);
@@ -206,7 +206,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SELECT to get all Customers, and those Orders for each customer with a freight > 5")]
     public void LinqToEntities15a()
     {
-      var query = Query<Customer>.All.Select(c => new {Customer = c, Orders = c.Orders.Where(o => o.Freight > 5)});
+      var query = Query.All<Customer>().Select(c => new {Customer = c, Orders = c.Orders.Where(o => o.Freight > 5)});
 
       QueryDumper.Dump(query);
     }
@@ -217,7 +217,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SELECTMANY to get all Orders for a Customer as a flat result")]
     public void LinqToEntities16()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       where c.Id=="ALFKI"
       from o in c.Orders
       select o;
@@ -230,7 +230,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SELECTMANY to get all Orders for a Customer as a flat result using LINQ operators")]
     public void LinqToEntities17()
     {
-      var query = Query<Customer>.All.Where(cust => cust.Id=="ALFKI")
+      var query = Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
         .SelectMany(cust => cust.Orders);
 
       QueryDumper.Dump(query);
@@ -241,7 +241,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SELECTMANY to get all Orders for Customers in Denmark as a flat result")]
     public void LinqToEntities18()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       where c.Address.Country=="Denmark"
       from o in c.Orders
       select o;
@@ -254,7 +254,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SELECTMANY to get all Orders for Customers in Denmark as a flat result using LINQ operators")]
     public void LinqToEntities19()
     {
-      var query = Query<Customer>.All.Where(cust => cust.Address.Country=="Denmark")
+      var query = Query.All<Customer>().Where(cust => cust.Address.Country=="Denmark")
         .SelectMany(cust => cust.Orders);
 
       QueryDumper.Dump(query);
@@ -266,7 +266,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SELECTMANY to get all Orders for Customers in Denmark as a flat result")]
     public void LinqToEntities20()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       where c.Address.Country=="Denmark"
       from o in c.Orders
       where o.Freight > 5
@@ -280,7 +280,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SELECTMANY to get all Orders for Customers in Denmark as an anonymous type containing the Orders and Customer flat result")]
     public void LinqToEntities21()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       where c.Address.Country=="Denmark"
       from o in c.Orders
       where o.Freight > 5
@@ -294,7 +294,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SELECTMANY to get all Orders for Customers in Denmark as a flat result using LINQ opeartors")]
     public void LinqToEntities22()
     {
-      var query = Query<Customer>.All.Where(cust => cust.Address.Country=="Denmark")
+      var query = Query.All<Customer>().Where(cust => cust.Address.Country=="Denmark")
         .SelectMany(cust => cust.Orders.Where(o => o.Freight > 5));
 
       QueryDumper.Dump(query);
@@ -309,7 +309,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses COUNT to get the number of Orders.")]
     public void LinqToEntities23()
     {
-      var query = Query<Order>.All.Count();
+      var query = Query.All<Order>().Count();
 
       QueryDumper.Dump(query);
     }
@@ -320,7 +320,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses COUNT to get the number of Orders placed by Customers in Mexico.")]
     public void LinqToEntities24()
     {
-      var query = Query<Order>.All.Where(o => o.Customer.Address.Country=="Mexico").Count();
+      var query = Query.All<Order>().Where(o => o.Customer.Address.Country=="Mexico").Count();
 
       QueryDumper.Dump(query);
     }
@@ -330,7 +330,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses COUNT to get the number of Orders shipped to Mexico.")]
     public void LinqToEntities25()
     {
-      var query = Query<Order>.All
+      var query = Query.All<Order>()
         .Where(o => o.ShippingAddress.Country=="Mexico").Count();
 
       QueryDumper.Dump(query);
@@ -341,7 +341,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SUM to find the total freight over all Orders.")]
     public void LinqToEntities26()
     {
-      var query = Query<Order>.All.Select(o => o.Freight).Sum();
+      var query = Query.All<Order>().Select(o => o.Freight).Sum();
 
       QueryDumper.Dump(query);
     }
@@ -351,7 +351,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SUM to find the total number of units on order over all Products.")]
     public void LinqToEntities27()
     {
-      var query = Query<Product>.All.Sum(p => p.UnitsOnOrder);
+      var query = Query.All<Product>().Sum(p => p.UnitsOnOrder);
 
       QueryDumper.Dump(query);
     }
@@ -361,7 +361,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses SUM to find the total number of units on order over all Products out-of-stock.")]
     public void LinqToEntities28()
     {
-      var query = Query<Product>.All.Where(p => p.UnitsInStock==0).Sum(p => p.UnitsOnOrder);
+      var query = Query.All<Product>().Where(p => p.UnitsInStock==0).Sum(p => p.UnitsOnOrder);
 
       QueryDumper.Dump(query);
     }
@@ -372,7 +372,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses MIN to find the lowest unit price of any Product.")]
     public void LinqToEntities29()
     {
-      var query = Query<Product>.All.Select(p => p.UnitPrice).Min();
+      var query = Query.All<Product>().Select(p => p.UnitPrice).Min();
 
       QueryDumper.Dump(query);
     }
@@ -382,7 +382,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses MIN to find the lowest freight of any Order.")]
     public void LinqToEntities30()
     {
-      var query = Query<Order>.All.Min(o => o.Freight);
+      var query = Query.All<Order>().Min(o => o.Freight);
 
       QueryDumper.Dump(query);
     }
@@ -392,7 +392,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses MIN to find the lowest freight of any Order shipped to Mexico.")]
     public void LinqToEntities31()
     {
-      var query = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Mexico").Min(o => o.Freight);
+      var query = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Min(o => o.Freight);
 
       QueryDumper.Dump(query);
     }
@@ -403,7 +403,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Min to find the Products that have the lowest unit price in each category, and returns the result as an anonoymous type.")]
     public void LinqToEntities32()
     {
-      var query = Query<Product>.All
+      var query = Query.All<Product>()
         .GroupBy(p => p.Category)
         .Select(g => new {
         CategoryID = g.Key,
@@ -419,7 +419,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses MAX to find the latest hire date of any Employee.")]
     public void LinqToEntities33()
     {
-      var query = Query<Employee>.All.Select(e => e.HireDate).Max();
+      var query = Query.All<Employee>().Select(e => e.HireDate).Max();
 
       QueryDumper.Dump(query);
     }
@@ -429,7 +429,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses MAX to find the most units in stock of any Product.")]
     public void LinqToEntities34()
     {
-      var query = Query<Product>.All.Max(p => p.UnitsInStock);
+      var query = Query.All<Product>().Max(p => p.UnitsInStock);
 
       QueryDumper.Dump(query);
     }
@@ -439,7 +439,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses MAX to find the most units in stock of any Product with CategoryID = 1.")]
     public void LinqToEntities35()
     {
-      var query = Query<Product>.All.Where(p => p.Category.Id==1).Max(p => p.UnitsInStock);
+      var query = Query.All<Product>().Where(p => p.Category.Id==1).Max(p => p.UnitsInStock);
       QueryDumper.Dump(query);
     }
 
@@ -448,7 +448,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses MAX to find the Products that have the highest unit price in each category, and returns the result as an anonoymous type.")]
     public void LinqToEntities36()
     {
-      var query = from p in Query<Product>.All
+      var query = from p in Query.All<Product>()
       group p by p.Category
       into g
         select new {
@@ -467,7 +467,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses AVERAGE to find the average freight of all Orders.")]
     public void LinqToEntities37()
     {
-      var query = Query<Order>.All.Select(o => o.Freight).Average();
+      var query = Query.All<Order>().Select(o => o.Freight).Average();
 
       QueryDumper.Dump(query);
     }
@@ -477,7 +477,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses AVERAGE to find the average unit price of all Products.")]
     public void LinqToEntities38()
     {
-      var query = Query<Product>.All.Average(p => p.UnitPrice);
+      var query = Query.All<Product>().Average(p => p.UnitPrice);
 
       QueryDumper.Dump(query);
     }
@@ -487,7 +487,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses AVERAGE to find the average unit price of all Products with CategoryID = 1.")]
     public void LinqToEntities39()
     {
-      var query = Query<Product>.All.Where(p => p.Category.Id==1).Average(p => p.UnitPrice);
+      var query = Query.All<Product>().Where(p => p.Category.Id==1).Average(p => p.UnitPrice);
 
       QueryDumper.Dump(query);
     }
@@ -497,7 +497,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses AVERAGE to find the Products that have unit price higher than the average unit price of the category for each category.")]
     public void LinqToEntities40()
     {
-      var query = from p in Query<Product>.All
+      var query = from p in Query.All<Product>()
       group p by p.Category
       into g
         select new {
@@ -516,7 +516,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses AVERAGE to find the average unit price of each category.")]
     public void LinqToEntities41()
     {
-      var query = Query<Product>.All
+      var query = Query.All<Product>()
         .GroupBy(p => p.Category)
         .Select(g => new {
           g.Key,
@@ -535,7 +535,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses FIRST and WHERE to get the first (database order) order that is shipped to Seattle. The WHERE predicate is evaluated on the server.")]
     public void LinqToEntities42()
     {
-      var query = from o in Query<Order>.All
+      var query = from o in Query.All<Order>()
       where o.ShippingAddress.City=="Seattle"
       select o;
 
@@ -550,7 +550,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses FIRST to get the first (database order) order that is shipped to Seattle. The predicate is evaluated on the client.")]
     public void LinqToEntities43()
     {
-      var query = from o in Query<Order>.All
+      var query = from o in Query.All<Order>()
       select o;
 
       // Feb CTP requires AsEnumerable()
@@ -566,7 +566,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses FIRST, WHERE and ORDER BY to get the first order that is shipped to Seattle, ordered by date. The predicate is evaluated on the server.")]
     public void LinqToEntities44()
     {
-      var query = from o in Query<Order>.All
+      var query = from o in Query.All<Order>()
       where o.ShippingAddress.City=="Seattle"
       orderby o.OrderDate
       select o;
@@ -583,7 +583,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses DISTINCT to get all the categories of products.")]
     public void LinqToEntities45()
     {
-      var query = Query<Product>.All.Select(o => o.Category).Distinct();
+      var query = Query.All<Product>().Select(o => o.Category).Distinct();
 
       QueryDumper.Dump(query);
     }
@@ -593,8 +593,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses UNION to get all the orders where the shipping country was Mexico or Canada.")]
     public void LinqToEntities46()
     {
-      var mexico = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
-      var canada = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
+      var mexico = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
+      var canada = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
       var query = mexico.Union(canada);
 
       QueryDumper.Dump(query);
@@ -605,15 +605,15 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses UNION and DISTINCT to get all the employees from orders where the shipping country was Mexico or Canada.")]
     public void LinqToEntities47()
     {
-      var mexico = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
-      var canada = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
+      var mexico = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
+      var canada = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
       var union = mexico.Union(canada).Select(o => o.Employee);
 
       var query = union.Distinct();
 
-      var actualMexico = Query<Order>.All.ToList()
+      var actualMexico = Query.All<Order>().ToList()
         .Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
-      var actualCanada = Query<Order>.All.ToList()
+      var actualCanada = Query.All<Order>().ToList()
         .Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
       var actualUnion = actualMexico.Union(actualCanada).Select(o => o.Employee);
 
@@ -629,8 +629,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses CONCAT to get all orders where the shipping country was Mexico or Canada.")]
     public void LinqToEntities48()
     {
-      var mexico = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
-      var canada = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
+      var mexico = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
+      var canada = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
 
       var query = mexico.Concat(canada);
 
@@ -642,8 +642,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses INTERSECT to get common employees where an order was shipped to Mexico or Canada.")]
     public void LinqToEntities49()
     {
-      var mexico = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee);
-      var canada = Query<Order>.All.Where(o => o.ShippingAddress.Country=="Canada").Select(o => o.Employee);
+      var mexico = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee);
+      var canada = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o.Employee);
 
       var query = mexico.Intersect(canada);
 
@@ -655,10 +655,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses INTERSECT to get common employees where an order was shipped to Mexico or Canada in one consolidated query.")]
     public void LinqToEntities50()
     {
-      var query = Query<Order>.All
+      var query = Query.All<Order>()
         .Where(o => o.ShippingAddress.Country=="Mexico")
         .Select(o => o.Employee)
-        .Intersect(Query<Order>.All
+        .Intersect(Query.All<Order>()
           .Where(o => o.ShippingAddress.Country=="Canada")
           .Select(o => o.Employee));
 
@@ -670,10 +670,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses EXCEPT to get employees who shipped orders to Mexico but not Canada.")]
     public void LinqToEntities51()
     {
-      var query = Query<Order>.All
+      var query = Query.All<Order>()
         .Where(o => o.ShippingAddress.Country=="Mexico")
         .Select(o => o.Employee)
-        .Except(Query<Order>.All
+        .Except(Query.All<Order>()
           .Where(o => o.ShippingAddress.Country=="Canada")
           .Select(o => o.Employee));
 
@@ -685,8 +685,8 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses EXCEPT to get employees with no orders sent to Mexico.")]
     public void LinqToEntities52()
     {
-      var query = Query<Employee>.All.Select(e => e)
-        .Except(Query<Order>.All.Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee));
+      var query = Query.All<Employee>().Select(e => e)
+        .Except(Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee));
 
       QueryDumper.Dump(query);
     }
@@ -700,7 +700,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all customers ordered by ContactName.")]
     public void LinqToEntities53()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       orderby c.ContactName
       select c;
 
@@ -712,7 +712,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all customers ordered by ContactName descending.")]
     public void LinqToEntities54()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       orderby c.CompanyName descending
       select c;
 
@@ -724,7 +724,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select an anonoymous type with all product IDs ordered by UnitInStock.")]
     public void LinqToEntities55()
     {
-      var query = from p in Query<Product>.All
+      var query = from p in Query.All<Product>()
       orderby p.UnitsInStock
       select new {p.Id};
 
@@ -736,7 +736,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select an anonoymous type with all product IDs ordered by UnitInStock using LINQ operators.")]
     public void LinqToEntities56()
     {
-      var query = Query<Product>.All.OrderBy(p => p.UnitsInStock)
+      var query = Query.All<Product>().OrderBy(p => p.UnitsInStock)
         .Select(p2 => new {p2.Id});
 
       QueryDumper.Dump(query);
@@ -748,7 +748,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all customers ordered by the descending region.")]
     public void LinqToEntities57()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       orderby c.Address.Region descending
       select c;
 
@@ -760,7 +760,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all customers ordered by the descending region using LINQ operators.")]
     public void LinqToEntities58()
     {
-      var query = Query<Customer>.All.Select(c => c).OrderByDescending(c2 => c2.Address.Region);
+      var query = Query.All<Customer>().Select(c => c).OrderByDescending(c2 => c2.Address.Region);
 
       QueryDumper.Dump(query);
     }
@@ -770,7 +770,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all customers ordered by the region, then the contact name.")]
     public void LinqToEntities59()
     {
-      var query = Query<Customer>.All.Select(c => c).OrderBy(c => c.Address.Region).ThenBy(c => c.ContactName);
+      var query = Query.All<Customer>().Select(c => c).OrderBy(c => c.Address.Region).ThenBy(c => c.ContactName);
 
       QueryDumper.Dump(query);
     }
@@ -780,7 +780,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all customers ordered by the region in descending order, then the contact name.")]
     public void LinqToEntities60()
     {
-      var query = Query<Customer>.All.Select(c => c).OrderByDescending(c => c.Address.Region).ThenBy(c => c.ContactName);
+      var query = Query.All<Customer>().Select(c => c).OrderByDescending(c => c.Address.Region).ThenBy(c => c.ContactName);
 
       QueryDumper.Dump(query);
     }
@@ -790,7 +790,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all customers ordered by the region then the contact name in descending order.")]
     public void LinqToEntities61()
     {
-      var query = Query<Customer>.All.Select(c => c).OrderBy(c => c.Address.Region).ThenByDescending(c => c.ContactName);
+      var query = Query.All<Customer>().Select(c => c).OrderBy(c => c.Address.Region).ThenByDescending(c => c.ContactName);
 
       QueryDumper.Dump(query);
     }
@@ -801,7 +801,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all products ordered by the descending unit price.")]
     public void LinqToEntities62()
     {
-      var query = from p in Query<Product>.All
+      var query = from p in Query.All<Product>()
       orderby p.UnitPrice descending
       select p;
 
@@ -814,7 +814,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all orders for a customer ordered by date that the order was placed.")]
     public void LinqToEntities63()
     {
-      var query = Query<Customer>.All.Where(cust => cust.Id=="ALFKI")
+      var query = Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
         .SelectMany(c => c.Orders.Select(o => o))
         .OrderBy(o2 => o2.OrderDate);
 
@@ -828,7 +828,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Regions with a customer.")]
     public void LinqToEntities64()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       group c by c.Address.Region
       into regions
         select new {regions.Key};
@@ -841,7 +841,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all dates with orders placed.")]
     public void LinqToEntities65()
     {
-      var query = from o in Query<Order>.All
+      var query = from o in Query.All<Order>()
       group o by o.OrderDate
       into dates
         select new {dates.Key};
@@ -854,7 +854,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Regions and customer count for each region.")]
     public void LinqToEntities66()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       group c by c.Address.Region
       into regions
         select new {Region = regions.Key, Count = regions.Count()};
@@ -867,7 +867,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Regions and customer count for each region using LINQ operator.")]
     public void LinqToEntities67()
     {
-      var query = Query<Customer>.All.GroupBy(c => c.Address.Region).Select(r => new {region = r.Key, count = r.Count()});
+      var query = Query.All<Customer>().GroupBy(c => c.Address.Region).Select(r => new {region = r.Key, count = r.Count()});
 
       QueryDumper.Dump(query);
     }
@@ -877,10 +877,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Customer Regions with the total Freight on all orders for Customers in that Region.")]
     public void LinqToEntities68()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       group c by c.Address.Region
       into regions
-        join c2 in Query<Customer>.All on regions.Key equals c2.Address.Region
+        join c2 in Query.All<Customer>() on regions.Key equals c2.Address.Region
         select new {region = regions.Key, total = c2.Orders.Sum(o => o.Freight)};
 
       QueryDumper.Dump(query);
@@ -891,7 +891,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Customer Regions with the total Freight on all orders for Customers in that Region using LINQ operators.")]
     public void LinqToEntities69()
     {
-      var query = Query<Customer>.All.GroupBy(c => c.Address.Region)
+      var query = Query.All<Customer>().GroupBy(c => c.Address.Region)
         .Select(g => new {
           Region = g.Key, FreightTotal = g
             .SelectMany(c2 => c2.Orders)
@@ -910,7 +910,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select a sequence of all the orders for a customer using Select.")]
     public void LinqToEntities70()
     {
-      var query = Query<Customer>.All.Where(cust => cust.Id=="ALFKI")
+      var query = Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
         .Select(c => c.Orders.Select(o => o));
 
       foreach (var order in query) {
@@ -923,7 +923,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all the orders for a customer using SelectMany.")]
     public void LinqToEntities71()
     {
-      var query = Query<Customer>.All.Where(cust => cust.Id=="ALFKI").SelectMany(c => c.Orders);
+      var query = Query.All<Customer>().Where(cust => cust.Id=="ALFKI").SelectMany(c => c.Orders);
 
       QueryDumper.Dump(query);
     }
@@ -933,7 +933,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Employee IDs, and the count of the their orders.")]
     public void LinqToEntities72()
     {
-      var query = from e in Query<Employee>.All
+      var query = from e in Query.All<Employee>()
       select new {e, orders = e.Orders.Select(o => o)};
 
       QueryDumper.Dump(query);
@@ -945,7 +945,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         [Description("Select number of orders placed in 2002 for a customer.")]
         public void LinqToEntities74()
         {
-            var query = Query<Customer>.All
+            var query = Query.All<Customer>()
                 .Where(cust => cust.CustomerID == "ALFKI")
                 .SelectMany(c => c.Orders)
                 .Where(o => o.OrderDate.Year == 2002);
@@ -959,7 +959,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select a customer and the sum of the freight of thier orders.")]
     public void LinqToEntities73()
     {
-      var query = Query<Customer>.All.Where(cust => cust.Id=="ALFKI")
+      var query = Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
         .Select(c => c.Orders.Sum(o => o.Freight));
 
       QueryDumper.Dump(query);
@@ -970,7 +970,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select customers with an order where the shipping address is the same as the customers.")]
     public void LinqToEntities75()
     {
-      var query = Query<Customer>.All.Where(cust => cust.Orders.Any(o => o.ShippingAddress==cust.Address)).Select(c2 => c2);
+      var query = Query.All<Customer>().Where(cust => cust.Orders.Any(o => o.ShippingAddress==cust.Address)).Select(c2 => c2);
 
       QueryDumper.Dump(query);
     }
@@ -980,10 +980,10 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Selects all regions with a customer, and shows the sum of orders for customers for each region.")]
     public void LinqToEntities76()
     {
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       group c by c.Address.Region
       into regions
-        join c2 in Query<Customer>.All on regions.Key equals c2.Address.Region
+        join c2 in Query.All<Customer>() on regions.Key equals c2.Address.Region
         select new {region = regions.Key, total = c2.Orders.Sum(o => o.Freight)};
 
       QueryDumper.Dump(query);
@@ -998,7 +998,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all products, both active and discontinued products, and shows the type.")]
     public void LinqToEntities77()
     {
-      var query = Query<Product>.All
+      var query = Query.All<Product>()
         .Select(p => p);
 
       // we need AsEnumerable to force execution, as GetType is not defined in store
@@ -1015,7 +1015,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select only discontinued products.")]
     public void LinqToEntities78()
     {
-      var query = Query<Product>.All.OfType<DiscontinuedProduct>().Select(p => p);
+      var query = Query.All<Product>().OfType<DiscontinuedProduct>().Select(p => p);
 
       QueryDumper.Dump(query);
     }
@@ -1026,7 +1026,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select only products, which will reutrn all Products and subtypes of Products (DiscontinuedProducts and ActiveProducts).")]
     public void LinqToEntities79()
     {
-      var query = Query<Product>.All.OfType<Product>().Select(p => p);
+      var query = Query.All<Product>().OfType<Product>().Select(p => p);
 
       QueryDumper.Dump(query);
     }
@@ -1036,7 +1036,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select only active products.")]
     public void LinqToEntities80()
     {
-      var query = Query<Product>.All.OfType<ActiveProduct>();
+      var query = Query.All<Product>().OfType<ActiveProduct>();
 
       QueryDumper.Dump(query);
     }
@@ -1046,7 +1046,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select only discontinued products.")]
     public void LinqToEntities81()
     {
-      var query = Query<Product>.All.Where(p => p is DiscontinuedProduct);
+      var query = Query.All<Product>().Where(p => p is DiscontinuedProduct);
 
       QueryDumper.Dump(query);
     }
@@ -1060,7 +1060,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all contacts and show the type of each.")]
     public void LinqToEntities82()
     {
-      var query = Query<Person>.All.Select(c => c);
+      var query = Query.All<Person>().Select(c => c);
 
       // we need AsEnumerable to force execution, as GetType is not defined in store
       var query2 = query
@@ -1078,7 +1078,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Shipper contacts.")]
     public void LinqToEntities83()
     {
-      var query = Query<Person>.All.OfType<Customer>().Select(c => c);
+      var query = Query.All<Person>().OfType<Customer>().Select(c => c);
 
       QueryDumper.Dump(query);
     }
@@ -1091,7 +1091,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Full contacts, which includes suppliers, customers, and employees.")]
     public void LinqToEntities84()
     {
-      var query = Query<Person>.All.OfType<BusinessContact>().Select(c => c);
+      var query = Query.All<Person>().OfType<BusinessContact>().Select(c => c);
 
       QueryDumper.Dump(query);
     }
@@ -1122,7 +1122,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         [Description("Select all federated products and display thier types.")]
         public void LinqToEntities86()
         {
-            var query = Query<Product>.AllFedarated.ToList().Select(p => new { type = p.GetType().ToString(), p });
+            var query = Query.All<Product>()Fedarated.ToList().Select(p => new { type = p.GetType().ToString(), p });
 
             QueryDumper.Dump(query);
         }
@@ -1132,7 +1132,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         [Description("Select all discontinued federated products.")]
         public void LinqToEntities87()
         {
-            var query = Query<Product>.AllFedarated.OfType<DiscontinuedProductFedarated>().ToList().Select(p => new { type = p.GetType().ToString(), p });
+            var query = Query.All<Product>()Fedarated.OfType<DiscontinuedProductFedarated>().ToList().Select(p => new { type = p.GetType().ToString(), p });
 
             QueryDumper.Dump(query);
         }
@@ -1201,7 +1201,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     public void LinqToEntities91()
     {
       MyClass c = new MyClass();
-      var query = Query<Order>.All.Where(o => o.Freight > MyClass.Val).Select(o => new {o.Freight, o});
+      var query = Query.All<Order>().Where(o => o.Freight > MyClass.Val).Select(o => new {o.Freight, o});
 
       QueryDumper.Dump(query);
     }
@@ -1213,7 +1213,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       decimal x = 50;
 
-      var query = Query<Order>.All.Where(o => o.Freight > x).Select(o => new {o.Freight, o});
+      var query = Query.All<Order>().Where(o => o.Freight > x).Select(o => new {o.Freight, o});
 
       x = 100;
 
@@ -1227,7 +1227,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     {
       decimal x = 100;
 
-      var query = Query<Order>.All.Where(o => o.Freight > x).Select(o => new {o.Freight, o});
+      var query = Query.All<Order>().Where(o => o.Freight > x).Select(o => new {o.Freight, o});
 
       QueryDumper.Dump(x);
       QueryDumper.Dump(query);

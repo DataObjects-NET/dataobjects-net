@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Tests.Storage
       
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var customer = Query<Customer>.Single(customerKey);
+          var customer = Query.Single<Customer>(customerKey);
           customerVersion = customer.VersionInfo;
           transactionScope.Complete();
         }
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (VersionValidator.Attach(session, versionGetter)) {
           using (var transactionScope = Transaction.Open()) {
-            var customer = Query<Customer>.Single(customerKey);
+            var customer = Query.Single<Customer>(customerKey);
             customer.Name = "Customer3";
             transactionScope.Complete();
           }
@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Tests.Storage
       
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var customer = Query<Customer>.Single(customerKey);
+          var customer = Query.Single<Customer>(customerKey);
           customerVersion = customer.VersionInfo;
           transactionScope.Complete();
         }
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (VersionValidator.Attach(session, versionGetter)) {
           AssertEx.Throws<InvalidOperationException>(() => {
             using (var transactionScope = Transaction.Open()) {
-              var customer = Query<Customer>.Single(customerKey);
+              var customer = Query.Single<Customer>(customerKey);
               customer.Name = "Customer3";
               transactionScope.Complete();
             }
@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Tests.Storage
       
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var customer = Query<Customer>.Single(customerKey);
+          var customer = Query.Single<Customer>(customerKey);
           customerVersion = customer.VersionInfo;
           transactionScope.Complete();
         }
@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (VersionValidator.Attach(session, versionGetter)) {
           using (var transactionScope = Transaction.Open()) {
-            var customer = Query<Customer>.Single(customerKey);
+            var customer = Query.Single<Customer>(customerKey);
             customer.Remove();
             transactionScope.Complete();
           }
@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Tests.Storage
       
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var customer = Query<Customer>.Single(customerKey);
+          var customer = Query.Single<Customer>(customerKey);
           customerVersion = customer.VersionInfo;
           transactionScope.Complete();
         }
@@ -187,7 +187,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (VersionValidator.Attach(session, versionGetter)) {
           AssertEx.Throws<InvalidOperationException>(() => {
             using (var transactionScope = Transaction.Open()) {
-              var customer = Query<Customer>.Single(customerKey);
+              var customer = Query.Single<Customer>(customerKey);
               customer.Remove();
               transactionScope.Complete();
             }
@@ -200,7 +200,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var customer = Query<Customer>.Single(key);
+          var customer = Query.Single<Customer>(key);
           customer.Name = "Updated customer";
           transactionScope.Complete();
         }
@@ -211,7 +211,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var customer = Query<Customer>.Single(key);
+          var customer = Query.Single<Customer>(key);
           customer.Remove();
           transactionScope.Complete();
         }

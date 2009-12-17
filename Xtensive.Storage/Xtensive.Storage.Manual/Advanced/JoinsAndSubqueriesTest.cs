@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Manual.Advanced
       var domain = Domain.Build(config);
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {
-          var employees = Query<Employee>.All;
+          var employees = Query.All<Employee>();
           employees.ToList();
         }
       }
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Manual.Advanced
           var person1 = new Person {Name = "John"};
           var person2 = new Person {Name = "Susan"};
           session.Persist();
-          var query = Query<Person>.All.Select(employee=> new {employee,  Namesakes = Query<Person>.All.Where(person=>person.Name == employee.Name)});
+          var query = Query.All<Person>().Select(employee=> new {employee,  Namesakes = Query.All<Person>().Where(person=>person.Name == employee.Name)});
           // Enumerate query
           foreach (var employeeData in query) {
             // Enumerate each subquery element

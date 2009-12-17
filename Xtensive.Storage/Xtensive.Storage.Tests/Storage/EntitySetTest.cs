@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var tx = Transaction.Open()) {
-          var a = Query<Author>.Single(key);
+          var a = Query.Single<Author>(key);
           a.Books.ToList();
           var b = new Book();
           a.Books.Add(b);
@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var categories = Query<Category>.All;
+        var categories = Query.All<Category>();
         Assert.AreSame(categories.First().Products, categories.First().Products);
         var resultCount = categories.First().Products.Count();
         var set = categories.First().Products;
@@ -123,8 +123,8 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var employees = Query<Employee>.All;
-        var territories = Query<Territory>.All;
+        var employees = Query.All<Employee>();
+        var territories = Query.All<Territory>();
         var resultCount = employees.First().Territories.Count();
         var queryResult = employees.First().Territories.ToList().Count();
         Assert.AreEqual(queryResult, resultCount);
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          var category = Query<Category>.All.First();
+          var category = Query.All<Category>().First();
           var prodsuctCount = category.Products.Count;
           var product = new ActiveProduct();
           category.Products.Add(product);
@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
 
         using (var t = Transaction.Open()) {
-          var category = Query<Category>.All.First();
+          var category = Query.All<Category>().First();
           Assert.AreEqual(category.Products.Count, 0);
           var product = new ActiveProduct();
           category.Products.Add(product);
@@ -195,7 +195,7 @@ namespace Xtensive.Storage.Tests.Storage
         }
 
         using (var t = Transaction.Open()) {
-          var category = Query<Category>.All.First();
+          var category = Query.All<Category>().First();
           Assert.AreEqual(category.Products.Count, 1);
           t.Complete();
         }
@@ -245,10 +245,10 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var author0 = Query<Author>.Single(author0Key);
+        var author0 = Query.Single<Author>(author0Key);
         LoadEntitySetThenRemoveOwnerAndEnumerateIt(author0, author0.Books);
 
-        var author1 = Query<Author>.Single(author1Key);
+        var author1 = Query.Single<Author>(author1Key);
         LoadEntitySetThenRemoveOwnerAndEnumerateIt(author1, author1.Books);
       }
     }
@@ -262,10 +262,10 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var author0 = Query<Author>.Single(author0Key);
+        var author0 = Query.Single<Author>(author0Key);
         RemoveOwnerAndEnumerateEntitySet(author0, author0.Books);
 
-        var author1 = Query<Author>.Single(author1Key);
+        var author1 = Query.Single<Author>(author1Key);
         RemoveOwnerAndEnumerateEntitySet(author1, author1.Books);
       }
     }
@@ -279,7 +279,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var author0 = Query<Author>.Single(author0Key);
+        var author0 = Query.Single<Author>(author0Key);
         var books0 = author0.Books;
         author0.Remove();
         AssertEx.Throws<InvalidOperationException>(() =>
@@ -319,7 +319,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var author = Query<Author>.Single(key);
+        var author = Query.Single<Author>(key);
         author.Books.Add(new Book());
         EntitySetState setState;
         session.Handler.TryGetEntitySetState(key, booksField, out setState);
@@ -336,8 +336,8 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var author = Query<Author>.Single(key);
-        var booksToBeRemoved = Query<Book>.All.Where(b => b.Author.Key == key).Take(2).ToList();
+        var author = Query.Single<Author>(key);
+        var booksToBeRemoved = Query.All<Book>().Where(b => b.Author.Key == key).Take(2).ToList();
         var bookToBeRemoved0 = booksToBeRemoved[0];
         var bookToBeRemoved1 = booksToBeRemoved[1];
         author.Books.Remove(bookToBeRemoved0);
@@ -356,7 +356,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var author = Query<Author>.Single(key);
+        var author = Query.Single<Author>(key);
         author.Books.Add(new Book());
         EntitySetState setState;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(key, booksField, out setState));

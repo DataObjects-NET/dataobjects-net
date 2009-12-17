@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Linq
     {
       // TODO: Make the output readable?
       if (expression.NodeType==ExpressionType.Constant && ((ConstantExpression) expression).Value==this)
-        return string.Format("Query<{0}>.All", typeof (T).GetShortName());
+        return string.Format("Query.All<{0}>()", typeof (T).GetShortName());
       return expression.ToString();
     }
 

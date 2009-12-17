@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Tests.Issues
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Assert.IsNotNull(Query<PersonInfo>.All.First());
+          Assert.IsNotNull(Query.All<PersonInfo>().First());
         }
       }
     }

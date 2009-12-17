@@ -31,17 +31,17 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (Session.Open(domain)) {
         using (Transaction.Open()) {
-          Assert.AreEqual(4, Query<M2.Person>.All.Count());
-          Assert.AreEqual(2, Query<M2.Employee>.All.Count());
-          Assert.AreEqual(2, Query<M2.Customer>.All.Count());
+          Assert.AreEqual(4, Query.All<M2.Person>().Count());
+          Assert.AreEqual(2, Query.All<M2.Employee>().Count());
+          Assert.AreEqual(2, Query.All<M2.Customer>().Count());
 
-          Assert.AreEqual("Island Trading", Query<M2.Employee>.All
+          Assert.AreEqual("Island Trading", Query.All<M2.Employee>()
             .First(employee => employee.Name=="Nancy Davolio").CompanyName);
-          Assert.AreEqual("Cowes, UK", Query<M2.Customer>.All
+          Assert.AreEqual("Cowes, UK", Query.All<M2.Customer>()
             .First(customer => customer.Name=="Helen Bennett").Address);
           
-          Assert.AreEqual(4, Query<M2.Order>.All.Count());
-          Assert.AreEqual("Maxilaku", Query<M2.Order>.All.First(order =>
+          Assert.AreEqual(4, Query.All<M2.Order>().Count());
+          Assert.AreEqual("Maxilaku", Query.All<M2.Order>().First(order =>
             order.Employee.Name=="Michael Suyama" && order.Customer.Name=="Helen Bennett")
             .ProductName);
         }

@@ -244,7 +244,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var instance = Query<ItemWithAutoVersions>.Single(key);
+          var instance = Query.Single<ItemWithAutoVersions>(key);
           Assert.AreEqual(versionInfo, instance.VersionInfo);
           instance.Field = "New value";
           transactionScope.Complete();
@@ -253,7 +253,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var instance = Query<ItemWithAutoVersions>.Single(key);
+          var instance = Query.Single<ItemWithAutoVersions>(key);
           Assert.IsFalse(versionInfo==instance.VersionInfo);
           transactionScope.Complete();
         }
@@ -277,7 +277,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var instance = Query<ItemWithCustomVersions>.Single(key);
+          var instance = Query.Single<ItemWithCustomVersions>(key);
           Assert.AreEqual(versionInfo, instance.VersionInfo);
           instance.Field = "New value";
           transactionScope.Complete();
@@ -286,7 +286,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var instance = Query<ItemWithCustomVersions>.Single(key);
+          var instance = Query.Single<ItemWithCustomVersions>(key);
           Assert.IsFalse(versionInfo==instance.VersionInfo);
           transactionScope.Complete();
         }
@@ -310,7 +310,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var instance = Query<ItemWithStructureVersion>.Single(key);
+          var instance = Query.Single<ItemWithStructureVersion>(key);
           Assert.IsTrue(version == instance.VersionInfo);
           instance.Field = "NextValue";
           transactionScope.Complete();
@@ -319,7 +319,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var instance = Query<ItemWithStructureVersion>.Single(key);
+          var instance = Query.Single<ItemWithStructureVersion>(key);
           Assert.IsFalse(version == instance.VersionInfo);
           transactionScope.Complete();
         }
@@ -343,7 +343,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var instance = Query<ItemWithEntityVersion>.Single(key);
+          var instance = Query.Single<ItemWithEntityVersion>(key);
           Assert.IsTrue(version==instance.VersionInfo);
           instance.Field = "NextValue";
           transactionScope.Complete();
@@ -352,7 +352,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var instance = Query<ItemWithEntityVersion>.Single(key);
+          var instance = Query.Single<ItemWithEntityVersion>(key);
           Assert.IsFalse(version==instance.VersionInfo);
           transactionScope.Complete();
         }
@@ -388,7 +388,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var customer = Query<Person>.All.First(person => person.Name=="Customer1") as Customer;
+          var customer = Query.All<Person>().First(person => person.Name=="Customer1") as Customer;
           Assert.IsTrue(customerVersion==customer.VersionInfo);
           customer.Address = new Address("City2", "Region2");
           transactionScope.Complete();
@@ -396,7 +396,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var customer = Query<Person>.All.First(person => person.Name=="Customer1") as Customer;
+          var customer = Query.All<Person>().First(person => person.Name=="Customer1") as Customer;
           Assert.IsFalse(customerVersion==customer.VersionInfo);
           customerVersion = customer.VersionInfo;
           customer.Phone.Number = 0;
@@ -405,7 +405,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var customer = Query<Person>.All.First(person => person.Name=="Customer1") as Customer;
+          var customer = Query.All<Person>().First(person => person.Name=="Customer1") as Customer;
           Assert.IsFalse(customerVersion==customer.VersionInfo);
           transactionScope.Complete();
         }
@@ -442,7 +442,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Single property changed
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var author = Query<Author>.Single(authorKey);
+          var author = Query.Single<Author>(authorKey);
           Assert.IsTrue(authorVersion==author.VersionInfo);
           author.Name = "Author2";
           Assert.IsFalse(authorVersion==author.VersionInfo);
@@ -454,7 +454,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Structure field changed
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var author = Query<Author>.Single(authorKey);
+          var author = Query.Single<Author>(authorKey);
           author.Phone = new Phone{Code = 123, Number = 321};
           Assert.IsFalse(authorVersion==author.VersionInfo);
           authorVersion = author.VersionInfo;
@@ -463,7 +463,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var author = Query<Author>.Single(authorKey);
+          var author = Query.Single<Author>(authorKey);
           author.Phone.Code = 0;
           Assert.IsFalse(authorVersion==author.VersionInfo);
           authorVersion = author.VersionInfo;
@@ -474,8 +474,8 @@ namespace Xtensive.Storage.Tests.Storage
       // OneToMany EntitySet changed
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var comment = Query<Comment>.Single(commentKey);
-          var author = Query<Author>.Single(authorKey);
+          var comment = Query.Single<Comment>(commentKey);
+          var author = Query.Single<Author>(authorKey);
           comment.Author = null;
           Assert.IsFalse(authorVersion==author.VersionInfo);
           authorVersion = author.VersionInfo;
@@ -486,8 +486,8 @@ namespace Xtensive.Storage.Tests.Storage
       // ManyToMany EntitySet changed
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var book = Query<Book>.Single(bookKey);
-          var author = Query<Author>.Single(authorKey);
+          var book = Query.Single<Book>(bookKey);
+          var author = Query.Single<Author>(authorKey);
           Assert.IsTrue(bookVersion==book.VersionInfo);
           Assert.IsTrue(authorVersion==author.VersionInfo);
           book.Authors.Remove(author);

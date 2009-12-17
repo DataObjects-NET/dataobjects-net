@@ -20,8 +20,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnyWithSubqueryTest()
     {
-      var result = Query<Customer>.All
-        .Where(c => Query<Order>.All
+      var result = Query.All<Customer>()
+        .Where(c => Query.All<Order>()
           .Where(o => o.Customer==c)
           .Any(o => o.Freight > 0));
       var expected = Customers
@@ -35,8 +35,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnyWithSubqueryNoPredicateTest()
     {
-      var result = Query<Customer>.All
-        .Where(c => Query<Order>.All
+      var result = Query.All<Customer>()
+        .Where(c => Query.All<Order>()
           .Where(o => o.Customer==c)
           .Any());
       var expected = Customers
@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnyWithLocalCollectionTest()
     {
       var ids = new[] {"ABCDE", "ALFKI"};
-      var result = Query<Customer>.All.Where(c => ids.Any(id => c.Id==id));
+      var result = Query.All<Customer>().Where(c => ids.Any(id => c.Id==id));
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AnyTest()
     {
-      var result = Query<Customer>.All.Any();
+      var result = Query.All<Customer>().Any();
       var expected = Customers.Any();
       Assert.AreEqual(result, expected);
       Assert.IsTrue(result);
@@ -68,8 +68,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AllWithSubqueryTest()
     {
-      var result = Query<Customer>.All
-        .Where(c => Query<Order>.All
+      var result = Query.All<Customer>()
+        .Where(c => Query.All<Order>()
           .Where(o => o.Customer==c)
           .All(o => o.Freight > 0));
       var expected = Customers
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void AllWithLocalCollectionTest()
     {
       var patterns = new[] {"a", "e"};
-      var result = Query<Customer>.All.Where(c => patterns.All(p => c.ContactName.Contains(p)));
+      var result = Query.All<Customer>().Where(c => patterns.All(p => c.ContactName.Contains(p)));
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
     }
@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void AllTest()
     {
-      var result = Query<Customer>.All.All(c => c.ContactName.StartsWith("a"));
+      var result = Query.All<Customer>().All(c => c.ContactName.StartsWith("a"));
       var expected = Customers.All(c => c.ContactName.StartsWith("a"));
       Assert.AreEqual(expected, result);
       Assert.IsFalse(result);
@@ -101,8 +101,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ContainsWithSubqueryTest()
     {
-      var result = Query<Customer>.All
-        .Where(c => Query<Order>.All
+      var result = Query.All<Customer>()
+        .Where(c => Query.All<Order>()
           .Select(o => o.Customer)
           .Contains(c));
       var expected = Customers
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void ContainsWithLocalCollectionTest()
     {
       var customerIDs = new[] {"ALFKI", "ANATR", "AROUT", "BERGS"};
-      var orders = Query<Order>.All;
+      var orders = Query.All<Order>();
       var order = orders.Where(o => customerIDs.Contains(o.Customer.Id)).First();
       Assert.IsNotNull(order);
     }
@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ContainsTest()
     {
-      var result = Query<Customer>.All
+      var result = Query.All<Customer>()
         .Select(c => c.Id)
         .Contains("ALFKI");
       var expected = Customers
@@ -140,8 +140,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryAllStructureTest()
     {
-      var result = Query<Customer>.All
-        .Where(c => Query<Order>.All
+      var result = Query.All<Customer>()
+        .Where(c => Query.All<Order>()
           .Where(o => o.Customer==c)
           .All(o => o.ShippingAddress.City==c.Address.City));
       var expected = Customers
@@ -155,8 +155,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryAnyStructureTest()
     {
-      var result = Query<Customer>.All
-        .Where(c => Query<Order>.All
+      var result = Query.All<Customer>()
+        .Where(c => Query.All<Order>()
           .Where(o => o.Customer==c)
           .Any(o => o.ShippingAddress.City==c.Address.City));
       var expected = Customers
@@ -171,11 +171,11 @@ namespace Xtensive.Storage.Tests.Linq
     public void AllAndNotAllTest()
     {
       var result =
-        from o in Query<Order>.All
-        where Query<Customer>.All
+        from o in Query.All<Order>()
+        where Query.All<Customer>()
           .Where(c => c==o.Customer)
           .All(c => c.CompanyName.StartsWith("A"))
-            && !Query<Employee>.All
+            && !Query.All<Employee>()
               .Where(e => e==o.Employee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
@@ -197,11 +197,11 @@ namespace Xtensive.Storage.Tests.Linq
     public void AllOrAllTest()
     {
       var result =
-        from o in Query<Order>.All
-        where Query<Customer>.All
+        from o in Query.All<Order>()
+        where Query.All<Customer>()
           .Where(c => c==o.Customer)
           .All(c => c.CompanyName.StartsWith("A"))
-            || Query<Employee>.All
+            || Query.All<Employee>()
               .Where(e => e==o.Employee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
@@ -223,11 +223,11 @@ namespace Xtensive.Storage.Tests.Linq
     public void NotAnyAndAnyTest()
     {
       var result =
-        from o in Query<Order>.All
-        where !Query<Customer>.All
+        from o in Query.All<Order>()
+        where !Query.All<Customer>()
           .Where(c => c==o.Customer)
           .Any(c => c.CompanyName.StartsWith("A"))
-            && Query<Employee>.All
+            && Query.All<Employee>()
               .Where(e => e==o.Employee)
               .Any(e => e.FirstName.EndsWith("t"))
         select o;
@@ -248,11 +248,11 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnyOrAnyTest()
     {
       var result =
-        from o in Query<Order>.All
-        where Query<Customer>.All
+        from o in Query.All<Order>()
+        where Query.All<Customer>()
           .Where(c => c==o.Customer)
           .Any(c => c.CompanyName.StartsWith("A"))
-            || Query<Employee>.All
+            || Query.All<Employee>()
               .Where(e => e==o.Employee)
               .Any(e => e.FirstName.EndsWith("t"))
         select o;
@@ -273,11 +273,11 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnyAndNotAllTest()
     {
       var result =
-        from o in Query<Order>.All
-        where Query<Customer>.All
+        from o in Query.All<Order>()
+        where Query.All<Customer>()
           .Where(c => c==o.Customer)
           .Any(c => c.CompanyName.StartsWith("A"))
-            && !Query<Employee>.All
+            && !Query.All<Employee>()
               .Where(e => e==o.Employee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
@@ -298,11 +298,11 @@ namespace Xtensive.Storage.Tests.Linq
     public void NotAnyOrAllTest()
     {
       var result =
-        from o in Query<Order>.All
-        where !Query<Customer>.All
+        from o in Query.All<Order>()
+        where !Query.All<Customer>()
           .Where(c => c==o.Customer)
           .Any(c => c.CompanyName.StartsWith("A"))
-            || Query<Employee>.All
+            || Query.All<Employee>()
               .Where(e => e==o.Employee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
@@ -323,10 +323,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectAnyTest()
     {
       var result =
-        (from c in Query<Customer>.All
+        (from c in Query.All<Customer>()
         select new {
           Customer = c,
-          HasOrders = Query<Order>.All
+          HasOrders = Query.All<Order>()
             .Where(o => o.Customer==c)
             .Any()
         }).ToList();
@@ -346,10 +346,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectAllTest()
     {
       var result =
-        from c in Query<Customer>.All
+        from c in Query.All<Customer>()
         select new {
           Customer = c,
-          AllEmployeesAreCool = Query<Order>.All
+          AllEmployeesAreCool = Query.All<Order>()
             .Where(o => o.Customer==c)
             .All(o => o.Employee.FirstName=="Cool")
         };
@@ -369,10 +369,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void SelectContainsTest()
     {
       var result =
-        from c in Query<Customer>.All
+        from c in Query.All<Customer>()
         select new {
           Customer = c,
-          HasNewOrders = Query<Order>.All
+          HasNewOrders = Query.All<Order>()
             .Where(o => o.OrderDate > new DateTime(2001, 1, 1))
             .Select(o => o.Customer)
             .Contains(c)
@@ -393,7 +393,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetAnyTest()
     {
-      var result = Query<Customer>.All
+      var result = Query.All<Customer>()
         .Where(c => c.Orders.Any(o => o.Freight > 400));
       var expected = Customers
         .Where(c => c.Orders.Any(o => o.Freight > 400));
@@ -404,7 +404,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetAllTest()
     {
-      var result = Query<Customer>.All
+      var result = Query.All<Customer>()
         .Where(c => c.Orders.All(o => o.Employee.FirstName=="???"));
       var expected = Customers
         .Where(c => c.Orders.All(o => o.Employee.FirstName=="???"));
@@ -415,8 +415,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetContainsTest()
     {
-      var bestOrder = Query<Order>.All.OrderBy(o => o.Freight).First();
-      var result = Query<Customer>.All
+      var bestOrder = Query.All<Order>().OrderBy(o => o.Freight).First();
+      var result = Query.All<Customer>()
         .Where(c => Queryable.Contains(c.Orders, bestOrder));
       var expected = Customers
         .Where(c => Queryable.Contains(c.Orders, bestOrder));
@@ -427,7 +427,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetAllStructureTest()
     {
-      var result = Query<Customer>.All
+      var result = Query.All<Customer>()
         .Where(c => c.Orders.All(o => o.ShippingAddress.City==c.Address.City));
       var expected = Customers
         .Where(c => c.Orders.All(o => o.ShippingAddress.City==c.Address.City));
@@ -438,7 +438,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetAnyStructureTest()
     {
-      var result = Query<Customer>.All
+      var result = Query.All<Customer>()
         .Where(c => c.Orders.Any(o => o.ShippingAddress.City==c.Address.City));
       var expected = Customers
         .Where(c => c.Orders.Any(o => o.ShippingAddress.City==c.Address.City));

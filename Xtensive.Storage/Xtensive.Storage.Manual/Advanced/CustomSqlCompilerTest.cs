@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {
           AddPersons();
-          var thirdChars = Query<Person>.All.Select(p => p.Name.GetThirdChar());
+          var thirdChars = Query.All<Person>().Select(p => p.Name.GetThirdChar());
           var orderedThirdChars = thirdChars.OrderBy(c=>c).ToList();
           Assert.IsTrue(orderedThirdChars.SequenceEqual(new[]{'a','r'}));
         }
@@ -72,9 +72,9 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {
           AddPersons();
-          var addresses = Query<Person>.All.Select(p => CustomSqlCompilerStringExtensions.BuildAddressString(p.Address.Country, p.Address.City, p.Address.Building));
+          var addresses = Query.All<Person>().Select(p => CustomSqlCompilerStringExtensions.BuildAddressString(p.Address.Country, p.Address.City, p.Address.Building));
           var orderedAddresses = addresses.OrderBy(c=>c).ToList();
-          var addressesExpected = Query<Person>.All.AsEnumerable().Select(p => CustomSqlCompilerStringExtensions.BuildAddressString(p.Address.Country, p.Address.City, p.Address.Building)).OrderBy(a=>a);
+          var addressesExpected = Query.All<Person>().AsEnumerable().Select(p => CustomSqlCompilerStringExtensions.BuildAddressString(p.Address.Country, p.Address.City, p.Address.Building)).OrderBy(a=>a);
           Assert.IsTrue(orderedAddresses.SequenceEqual(addressesExpected));
         }
       }
@@ -91,10 +91,10 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {
           AddPersons();
-          var hashCodes = Query<Person>.All
+          var hashCodes = Query.All<Person>()
             .OrderBy(p=>p.Id)
             .Select(p => p.Address.Country.GetHashCode());
-          var expected = Query<Person>.All
+          var expected = Query.All<Person>()
             .OrderBy(p => p.Id)
             .Select(p => p.Address.Country)
             .ToList()

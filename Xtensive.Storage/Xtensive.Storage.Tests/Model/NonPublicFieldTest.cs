@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Model
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
 
-          var myEntity = Query<MyEntity>.Single(key);
+          var myEntity = Query.Single<MyEntity>(key);
           Assert.IsTrue(myEntity.ValidateState());
 
           t.Complete();

@@ -22,6 +22,7 @@ namespace Xtensive.Storage
   /// <typeparam name="T">The type of the content item of the data source. Must be assignable to 
   /// <see cref="Entity"/> or <see cref="IEntity"/> type.
   /// </typeparam>
+  [Obsolete("Query<T> is obsolete. Use Query class instead.")]
   public static class Query<T>
     where T : class, IEntity
   {
@@ -36,10 +37,10 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// The "starting point" for any full-text aware LINQ query.
+    /// Performs free text search.
     /// </summary>
     /// <param name="searchCriteria">The search criteria.</param>
-    /// <returns>Query of <see cref="FullTextMatch{T}"/> instances.</returns>
+    /// <returns>A query returning <see cref="FullTextMatch{T}"/> instances.</returns>
     public static IQueryable<FullTextMatch<T>> FreeText(string searchCriteria)
     {
       throw new NotImplementedException();

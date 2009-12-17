@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Tests.Interfaces
 
           Session.Current.Persist();
 
-          p = Query<IPerson>.All.First();
+          p = Query.All<IPerson>().First();
           Assert.AreEqual(3, p.Pets.Count);
 
           var first = p.Pets.First();
@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Tests.Interfaces
 
           p.Remove();
 
-          var animals = Query<IAnimal>.All;
+          var animals = Query.All<IAnimal>();
           Assert.AreEqual(5, animals.Count());
 
           t.Complete();

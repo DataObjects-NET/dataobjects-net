@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using Xtensive.Storage.Fulltext.Attributes;
+using Xtensive.Storage.FullText.Attributes;
 using Xtensive.Storage.Model;
 
 
@@ -190,7 +190,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     {
       get
       {
-        return Query<Order>.All.Where(o => o.ShipVia==this);
+        return Query.All<Order>().Where(o => o.ShipVia==this);
       }
     }
 
@@ -201,7 +201,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     {
       get
       {
-        return Query<Order>.All.Where(o => o.ShipVia==this).FirstOrDefault();
+        return Query.All<Order>().Where(o => o.ShipVia==this).FirstOrDefault();
       }
     }
   }

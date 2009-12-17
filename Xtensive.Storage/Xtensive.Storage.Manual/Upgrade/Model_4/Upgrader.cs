@@ -28,8 +28,8 @@ namespace Xtensive.Storage.Manual.Upgrade.Model_4
 
     public override void OnUpgrade()
     {
-      foreach (var order in Query<Order>.All) {
-        var product = Query<Product>.All
+      foreach (var order in Query.All<Order>()) {
+        var product = Query.All<Product>()
           .SingleOrDefault(p => p.Name==order.ProductName);
         if (product==null)
           product = new Product { Name = order.ProductName };

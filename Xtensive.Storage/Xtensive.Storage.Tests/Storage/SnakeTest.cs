@@ -282,7 +282,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (new Measurement("Fetching..."))
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Creature snake = Query<Creature>.SingleOrDefault(persistedKey);
+          Creature snake = Query.SingleOrDefault<Creature>(persistedKey);
           Assert.AreEqual(PersistenceState.Synchronized, snake.PersistenceState);
           Assert.IsNotNull(snake);
           Assert.AreEqual("Kaa", snake.Name);
@@ -294,7 +294,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (new Measurement("Fetching..."))
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake snake = Query<Snake>.SingleOrDefault(persistedKey);
+          Snake snake = Query.SingleOrDefault<Snake>(persistedKey);
           Assert.IsNotNull(snake);
           Assert.AreEqual("Kaa", snake.Name);
           Assert.AreEqual(32, snake.Length);
@@ -325,7 +325,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = Query<Snake>.SingleOrDefault(key);
+          Snake s = Query.SingleOrDefault<Snake>(key);
           Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
           Assert.AreEqual("Kaa", s.Name);
           s.Length = 32;
@@ -340,7 +340,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = Query<Snake>.SingleOrDefault(key);
+          Snake s = Query.SingleOrDefault<Snake>(key);
           s.Name = "Snake";
           t.Complete();
         }
@@ -348,7 +348,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = Query<Snake>.SingleOrDefault(key);
+          Snake s = Query.SingleOrDefault<Snake>(key);
           s.Length = 16;
           t.Complete();
         }
@@ -356,7 +356,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = Query<Snake>.SingleOrDefault(key);
+          Snake s = Query.SingleOrDefault<Snake>(key);
           s.Name = "Kaa";
           t.Complete();
         }
@@ -364,7 +364,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = Query<Snake>.SingleOrDefault(key);
+          Snake s = Query.SingleOrDefault<Snake>(key);
           s.Length = 32;
           t.Complete();
         }
@@ -372,7 +372,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Snake s = Query<Snake>.SingleOrDefault(key);
+          Snake s = Query.SingleOrDefault<Snake>(key);
           Assert.AreEqual(PersistenceState.Synchronized, s.PersistenceState);
           Assert.AreEqual("Kaa", s.Name);
           Assert.AreEqual(32, s.Length);
@@ -387,7 +387,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           try {
-            Query<Snake>.SingleOrDefault(key);
+            Query.SingleOrDefault<Snake>(key);
           }
           catch (InvalidOperationException) {
           }
@@ -773,7 +773,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Assert.AreEqual(0, Query<Snake>.All.Count());
+          Assert.AreEqual(0, Query.All<Snake>().Count());
           t.Complete();
         }
       }
@@ -854,17 +854,17 @@ namespace Xtensive.Storage.Tests.Storage
             }
           }
           
-          IEnumerable<Snake> snakes = Query<Snake>.All;
+          IEnumerable<Snake> snakes = Query.All<Snake>();
           Assert.AreEqual(snakesCount, snakes.Count());
-          IEnumerable<Creature> creatures = Query<Creature>.All;
+          IEnumerable<Creature> creatures = Query.All<Creature>();
           Assert.AreEqual(creaturesCount + snakesCount + lizardsCount, creatures.Count());
 
-          Snake snakeKaa53 = Query<Snake>.All
+          Snake snakeKaa53 = Query.All<Snake>()
             .Where(snake => snake.Name=="Kaa53")
             .First();
           Assert.AreEqual("Kaa53", snakeKaa53.Name);
 
-          var result = from s in Query<Snake>.All
+          var result = from s in Query.All<Snake>()
           where s.Length >= 500
           select s;
           Assert.AreEqual(500, result.Count());
@@ -1014,7 +1014,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < snakesCount; i++) {
-            Snake persistedSnake = Query<Snake>.SingleOrDefault(snakesDTO[i].GetValue<Key>(0));
+            Snake persistedSnake = Query.SingleOrDefault<Snake>(snakesDTO[i].GetValue<Key>(0));
             Assert.IsNotNull(persistedSnake);
             Assert.AreEqual(snakesDTO[i].GetValue<string>(1), persistedSnake.Name);
             Assert.AreEqual(snakesDTO[i].GetValue<int?>(2), persistedSnake.Length);

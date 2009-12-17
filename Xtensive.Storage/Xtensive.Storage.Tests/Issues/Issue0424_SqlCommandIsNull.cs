@@ -60,8 +60,8 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var parent = Query<TheParent>.All.Single();
-        var result = Query<TheChild>.All.Single(child => child.Value==parent.Child.Value);
+        var parent = Query.All<TheParent>().Single();
+        var result = Query.All<TheChild>().Single(child => child.Value==parent.Child.Value);
         t.Complete();
       }
     }

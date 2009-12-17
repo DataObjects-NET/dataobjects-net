@@ -64,9 +64,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key orderKey2;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        orderKey0 = Query<Order>.All.OrderBy(o => o.Id).First().Key;
-        orderKey1 = Query<Order>.All.OrderBy(o => o.Id).Skip(1).First().Key;
-        orderKey2 = Query<Order>.All.OrderBy(o => o.Id).Skip(2).First().Key;
+        orderKey0 = Query.All<Order>().OrderBy(o => o.Id).First().Key;
+        orderKey1 = Query.All<Order>().OrderBy(o => o.Id).Skip(1).First().Key;
+        orderKey2 = Query.All<Order>().OrderBy(o => o.Id).Skip(2).First().Key;
       }
 
       using (var session = Session.Open(Domain))
@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key[] orderDetailKeys;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var order = Query<Order>.All.OrderBy(c => c.Id).First();
+        var order = Query.All<Order>().OrderBy(c => c.Id).First();
         orderKey = order.Key;
         orderDetailKeys = order.Details.Select(detail => detail.Key).ToArray();
       }
@@ -387,7 +387,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       Key orderKey;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var order = Query<Order>.All.OrderBy(o => o.Id).First();
+        var order = Query.All<Order>().OrderBy(o => o.Id).First();
         var newOrder = new Order {Employee = null, Customer = order.Customer};
         orderKey = newOrder.Key;
         tx.Complete();
@@ -405,7 +405,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderKey.Type, session,
           field => IsFieldKeyOrSystem(field) || field == EmployeeField
             || field.Parent == EmployeeField);
-        Assert.IsNull(Query<Order>.Single(orderKey).Employee);
+        Assert.IsNull(Query.Single<Order>(orderKey).Employee);
       }
 
       using (var session = Session.Open(Domain))
@@ -628,7 +628,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var orderKey = GetFirstKey<Order>();
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        Query<Order>.Single(orderKey).Remove();
+        Query.Single<Order>(orderKey).Remove();
         tx.Complete();
       }
 
@@ -670,7 +670,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var title3 = new Title {Text = "text3", Language = "En"};
         title3Key = title3.Key;
         book3Key = new Book {Category = "e", Title = title3}.Key;
-        var order = Query<Order>.All.OrderBy(o => o.Key).First();
+        var order = Query.All<Order>().OrderBy(o => o.Key).First();
         orderKey = order.Key;
         customerKey = order.Customer.Key;
         tx.Complete();
@@ -724,15 +724,15 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> bookShopKeys;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        if (Query<Publisher>.All.Count() < 3) {
+        if (Query.All<Publisher>().Count() < 3) {
           Key stub;
           CreatePublishersAndBookShops(out stub, out stub, out stub, out stub, out stub, out stub,
             out stub, out stub);
         }
-        var publisher = Query<Publisher>.All.Where(p => p.Distributors.Count > 3).First();
+        var publisher = Query.All<Publisher>().Where(p => p.Distributors.Count > 3).First();
         publisherKey = publisher.Key;
         bookShopKeys = publisher.Distributors.Select(d => d.Key).ToList();
-        var order = Query<Order>.All.Where(o => o.Details.Count==4).First();
+        var order = Query.All<Order>().Where(o => o.Details.Count==4).First();
         orderKey = order.Key;
         tx.Complete();
       }
@@ -878,7 +878,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var intermediateOfferRealOfferLazyField = contaierKey.Type.Fields["IntermediateOffer.RealOffer.Lazy"];
         var realOfferField = contaierKey.Type.Fields["RealOffer"];
         var realOfferLazyField = contaierKey.Type.Fields["RealOffer.Lazy"];
-        var container = Query<OfferContainer>.Single(contaierKey);
+        var container = Query.Single<OfferContainer>(contaierKey);
 
         var conatinerPrimitiveFields = contaierKey.Type.Fields.Where(field => field.IsPrimitive);
         foreach (var fieldInfo in conatinerPrimitiveFields)
@@ -900,11 +900,11 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     {
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var order = Query<Order>.All.Prefetch(o => o.Details).First();
+        var order = Query.All<Order>().Prefetch(o => o.Details).First();
         var detail = order.Details.First();
         order.Details.Remove(detail);
         detail.Remove();
-        //Query<Order>.All.Prefetch(o => o.Details).First();
+        //Query.All<Order>().Prefetch(o => o.Details).First();
         t.Complete();
       }
     }
@@ -926,7 +926,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     private Key GetFirstKeyInCurrentSession<T>()
       where T : Entity
     {
-      return Query<T>.All.OrderBy(o => o.Key).First().Key;
+      return Query.All<T>().OrderBy(o => o.Key).First().Key;
     }
 
     private static void CreatePublishersAndBookShops(out Key publisherKey0, out Key bookShopKey0,

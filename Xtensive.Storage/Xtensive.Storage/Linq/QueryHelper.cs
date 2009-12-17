@@ -51,12 +51,11 @@ namespace Xtensive.Storage.Linq
 
     public static Expression CreateEntityQueryExpression(Type elementType)
     {
-      var query = typeof(Query<>)
-        .MakeGenericType(elementType)
-        .InvokeMember(QueryAllMethodName, 
-          BindingFlags.Default | 
-          BindingFlags.GetProperty, 
-          null, null, null);
+      var query = typeof(Query)
+        .GetMethod(QueryAllMethodName, 
+          BindingFlags.Default, null, null)
+        .MakeGenericMethod(elementType)
+        .Invoke(null, null);
       return Expression.Constant(query, typeof(IQueryable<>).MakeGenericType(elementType));
     }
 

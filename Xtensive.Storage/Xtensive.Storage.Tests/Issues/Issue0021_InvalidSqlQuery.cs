@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Tests.Issues
           t.Complete();
         }
         using (var t = Transaction.Open()) {
-          var all = Query<Child2>.All;
+          var all = Query.All<Child2>();
           foreach (var obj in all) {
             obj.Remove();
           }

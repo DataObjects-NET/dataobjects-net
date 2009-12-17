@@ -50,8 +50,8 @@ namespace Xtensive.Storage.Tests.Linq
 
       static DataContext()
       {
-        Orders = Query<Order>.All;
-        Customers = Query<Customer>.All;
+        Orders = Query.All<Order>();
+        Customers = Query.All<Customer>();
       }
     }
 
@@ -61,8 +61,8 @@ namespace Xtensive.Storage.Tests.Linq
       var result = from c in DataContext.Customers
       from o in DataContext.Orders
       select new {c, o};
-      var expected = from c in Query<Customer>.All.AsEnumerable()
-      from o in Query<Order>.All.AsEnumerable()
+      var expected = from c in Query.All<Customer>().AsEnumerable()
+      from o in Query.All<Order>().AsEnumerable()
       select new {c, o};
       Assert.AreEqual(0, expected.Except(result).Count());
     }

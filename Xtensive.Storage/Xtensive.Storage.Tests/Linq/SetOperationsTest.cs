@@ -19,8 +19,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleConcatTest()
     {
-      var customers = Query<Customer>.All;;
-      var result = customers.Where(c => c.Orders.Count <= 1).Concat(Query<Customer>.All.Where(c => c.Orders.Count > 1));
+      var customers = Query.All<Customer>();;
+      var result = customers.Where(c => c.Orders.Count <= 1).Concat(Query.All<Customer>().Where(c => c.Orders.Count > 1));
       QueryDumper.Dump(result);
       Assert.AreEqual(customers.Count(), result.Count());
     }
@@ -28,8 +28,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleUnionTest()
     {
-      var products = Query<Product>.All;
-      var customers = Query<Customer>.All;
+      var products = Query.All<Product>();
+      var customers = Query.All<Customer>();
       var productFirstChars =
           from p in products
           select p.ProductName.Substring(0, 1);
@@ -44,8 +44,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectTest()
     {
-      var products = Query<Product>.All;
-      var customers = Query<Customer>.All;
+      var products = Query.All<Product>();
+      var customers = Query.All<Customer>();
       var productFirstChars =
           from p in products
           select p.ProductName.Substring(0, 1);
@@ -60,9 +60,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleIntersectTest()
     {
-      var query = Query<Order>.All
+      var query = Query.All<Order>()
         .Select(o => o.Employee)
-        .Intersect(Query<Order>.All.Select(o => o.Employee));
+        .Intersect(Query.All<Order>().Select(o => o.Employee));
 
       QueryDumper.Dump(query);
     }
@@ -70,8 +70,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleExceptTest()
     {
-      var products = Query<Product>.All;
-      var customers = Query<Customer>.All;
+      var products = Query.All<Product>();
+      var customers = Query.All<Customer>();
       var productFirstChars =
           from p in products
           select p.ProductName.Substring(0, 1);
@@ -85,8 +85,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ConcatDifferentTest()
     {
-      var customers = Query<Customer>.All;
-      var employees = Query<Employee>.All;
+      var customers = Query.All<Customer>();
+      var employees = Query.All<Employee>();
       var result = (
                from c in customers
                select c.Phone
@@ -103,8 +103,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ConcatDifferentTest2()
     {
-      var customers = Query<Customer>.All;
-      var employees = Query<Employee>.All;
+      var customers = Query.All<Customer>();
+      var employees = Query.All<Employee>();
       var result = (
                from c in customers
                select new { Name = c.CompanyName, c.Phone }
@@ -118,8 +118,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionDifferentTest()
     {
-      var customers = Query<Customer>.All;
-      var employees = Query<Employee>.All;
+      var customers = Query.All<Customer>();
+      var employees = Query.All<Employee>();
       var result = (
                from c in customers
                select c.Address.Country
@@ -133,8 +133,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectDifferentTest()
     {
-      var customers = Query<Customer>.All;
-      var employees = Query<Employee>.All;
+      var customers = Query.All<Customer>();
+      var employees = Query.All<Employee>();
       var result = (
                from c in customers
                select c.Address.Country
@@ -148,8 +148,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ExceptDifferentTest()
     {
-      var customers = Query<Customer>.All;
-      var employees = Query<Employee>.All;
+      var customers = Query.All<Customer>();
+      var employees = Query.All<Employee>();
       var result = (
                from c in customers
                select c.Address.Country
@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionAnonymousTest()
     {
-      var customers = Query<Customer>.All;
+      var customers = Query.All<Customer>();
       var result = customers.Select(c => new {c.CompanyName, c.ContactName})
         .Take(10)
         .Union(customers.Select(c => new {c.CompanyName, c.ContactName}));
@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionAnonymous2Test()
     {
-      var customers = Query<Customer>.All;
+      var customers = Query.All<Customer>();
       var result = customers.Select(c => new { c.CompanyName, c.ContactName, c.Address })
         .Where(c => c.Address.StreetAddress.Length < 10)
         .Select(c => new {c.CompanyName, c.Address.City})
@@ -185,8 +185,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionAnonymous3Test()
     {
-      var customers = Query<Customer>.All;
-      var shipper = Query<Shipper>.All;
+      var customers = Query.All<Customer>();
+      var shipper = Query.All<Shipper>();
       var result = customers.Select(c => new { c.CompanyName, c.ContactName, c.Address })
         .Where(c => c.Address.StreetAddress.Length < 15)
         .Select(c => new { Name = c.CompanyName, Address = c.Address.City })
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnionStructureTest()
     {
-      var customers = Query<Customer>.All;
+      var customers = Query.All<Customer>();
       var result = customers.Select(c => c.Address)
         .Where(c => c.StreetAddress.Length > 0)
         .Union(customers.Select(c => c.Address))
@@ -211,12 +211,12 @@ namespace Xtensive.Storage.Tests.Linq
     public void IntersectWithoutOneOfSelect()
     {
       EnsureProtocolIs(StorageProtocol.Index | StorageProtocol.SqlServer);
-      var actual = from c in Query<Customer>.All
+      var actual = from c in Query.All<Customer>()
       from r in (c.Orders)
         .Intersect(c.Orders).Select(o => o.ShippedDate)
       orderby r
       select r;
-      var expected = from c in Query<Customer>.All.ToList()
+      var expected = from c in Query.All<Customer>().ToList()
       from r in (c.Orders)
         .Intersect(c.Orders).Select(o => o.ShippedDate)
       orderby r

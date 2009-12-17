@@ -63,13 +63,13 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
       using (Session.Open(Domain)) {
         using (Transaction.Open()) {
 
-          foreach (var item in Query<DT>.All) {
+          foreach (var item in Query.All<DT>()) {
             Console.WriteLine(item.Date);
             Console.WriteLine(item.Time);
           }
 
-          Assert.AreEqual(1, Query<DT>.All.Where(o => o.Date == date).Count());
-          Assert.AreEqual(1, Query<DT>.All.Where(o => o.Time == time).Count());
+          Assert.AreEqual(1, Query.All<DT>().Where(o => o.Date == date).Count());
+          Assert.AreEqual(1, Query.All<DT>().Where(o => o.Time == time).Count());
         }
       }
     }

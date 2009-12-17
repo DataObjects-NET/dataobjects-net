@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
 
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var result = Query<INamed>.All.ToList();
+        var result = Query.All<INamed>().ToList();
         Assert.Greater(result.Count, 0);
         foreach (var iNamed in result) {
           Assert.IsNotNull(iNamed);
@@ -120,10 +120,10 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
         }
         Assert.AreEqual(15 * EachCount, result.Count);
 
-        var filtered = Query<INamed>.All.Where(i => i.Name == "Name: O'0" || i.Name == "Name: A0" || i.Name == "Name: C0").ToList();
+        var filtered = Query.All<INamed>().Where(i => i.Name == "Name: O'0" || i.Name == "Name: A0" || i.Name == "Name: C0").ToList();
         Assert.AreEqual(3, filtered.Count);
 
-        var startsWith = Query<INamed>.All.Where(i => i.Name.StartsWith("Name: J'") || i.Name.StartsWith("Name: L'") || i.Name.StartsWith("Name: C'")).ToList();
+        var startsWith = Query.All<INamed>().Where(i => i.Name.StartsWith("Name: J'") || i.Name.StartsWith("Name: L'") || i.Name.StartsWith("Name: C'")).ToList();
         Assert.AreEqual(2 * EachCount, startsWith.Count);
 
         t.Complete();
@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
 
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var result = Query<ITagged>.All.ToList();
+        var result = Query.All<ITagged>().ToList();
         Assert.Greater(result.Count, 0);
         foreach (var iTagged in result) {
           Assert.IsNotNull(iTagged);
@@ -147,10 +147,10 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
         }
         Assert.AreEqual(12 * EachCount, result.Count);
 
-        var filtered = Query<ITagged>.All.Where(i => i.Tag == "Tag: C'0" || i.Tag == "Tag: D0" || i.Tag == "Tag: M'0").ToList();
+        var filtered = Query.All<ITagged>().Where(i => i.Tag == "Tag: C'0" || i.Tag == "Tag: D0" || i.Tag == "Tag: M'0").ToList();
         Assert.AreEqual(3, filtered.Count);
 
-        var startsWith = Query<ITagged>.All.Where(i => i.Tag.StartsWith("Tag: H'") || i.Tag.StartsWith("Tag: C'") || i.Tag.StartsWith("Tag: J'")).ToList();
+        var startsWith = Query.All<ITagged>().Where(i => i.Tag.StartsWith("Tag: H'") || i.Tag.StartsWith("Tag: C'") || i.Tag.StartsWith("Tag: J'")).ToList();
         Assert.AreEqual(2 * EachCount, startsWith.Count);
 
         t.Complete();
@@ -166,7 +166,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
 
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var result = Query<IComposite>.All.ToList();
+        var result = Query.All<IComposite>().ToList();
         Assert.Greater(result.Count, 0);
         foreach (var iComposite in result) {
           Assert.IsNotNull(iComposite);
@@ -176,10 +176,10 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
         }
         Assert.AreEqual(6 * EachCount, result.Count);
 
-        var filtered = Query<IComposite>.All.Where(i => i.First == "First: O'0" || i.Second == "Second: O0" || i.First == "First: E'0").ToList();
+        var filtered = Query.All<IComposite>().Where(i => i.First == "First: O'0" || i.Second == "Second: O0" || i.First == "First: E'0").ToList();
         Assert.AreEqual(2, filtered.Count);
 
-        var startsWith = Query<IComposite>.All.Where(i => i.First.StartsWith("First: O'") || i.Second.StartsWith("Second: O") || i.First.StartsWith("First: E'")).ToList();
+        var startsWith = Query.All<IComposite>().Where(i => i.First.StartsWith("First: O'") || i.Second.StartsWith("Second: O") || i.First.StartsWith("First: E'")).ToList();
         Assert.AreEqual(2 * EachCount, startsWith.Count);
 
         t.Complete();
@@ -191,10 +191,10 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     {
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var named = Query<INamed>.Single(33L);
+        var named = Query.Single<INamed>(33L);
         Assert.IsNotNull(named);
         Assert.AreEqual("Name: D'2", named.Name);
-        named = Query<INamed>.Single(Key.Create<INamed>(51L));
+        named = Query.Single<INamed>(Key.Create<INamed>(51L));
         Assert.IsNotNull(named);
         Assert.AreEqual("Name: F0", named.Name);
         t.Complete();
@@ -207,7 +207,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
       using (var t = Transaction.Open()) {
         for (long i = 1; i <= totalCount; i++) {
           var key = Key.Create<INamed>(i);
-          var named = Query<INamed>.Single(key);
+          var named = Query.Single<INamed>(key);
           Assert.IsNotNull(named);
           Assert.IsNotNull(named.Name);
           names.Add(named.Name);
@@ -217,7 +217,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
 
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var namedQuery = Query<INamed>.All
+        var namedQuery = Query.All<INamed>()
           .Select(i => i.Name)
           .OrderBy(i=>i)
           .ToList();

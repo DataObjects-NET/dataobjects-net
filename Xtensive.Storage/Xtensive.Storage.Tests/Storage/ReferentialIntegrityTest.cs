@@ -112,18 +112,18 @@ namespace Xtensive.Storage.Tests.Storage
           a.B = new B();
           a.C = new C();
           Session.Current.Persist();
-          Assert.AreEqual(1, Query<A>.All.Count());
-          Assert.AreEqual(1, Query<B>.All.Count());
-          Assert.AreEqual(1, Query<C>.All.Count());
+          Assert.AreEqual(1, Query.All<A>().Count());
+          Assert.AreEqual(1, Query.All<B>().Count());
+          Assert.AreEqual(1, Query.All<C>().Count());
 
           a.B.Remove();
           Assert.AreEqual(null, a.B);
           AssertEx.Throws<ReferentialIntegrityException>(a.C.Remove);
           a.Remove();
           // Session.Current.Persist();
-          Assert.AreEqual(0, Query<A>.All.Count());
-          Assert.AreEqual(0, Query<B>.All.Count());
-          Assert.AreEqual(0, Query<C>.All.Count());
+          Assert.AreEqual(0, Query.All<A>().Count());
+          Assert.AreEqual(0, Query.All<B>().Count());
+          Assert.AreEqual(0, Query.All<C>().Count());
 
           Master m = new Master();
           m.OneToMany.Add(new Slave());
@@ -217,9 +217,9 @@ namespace Xtensive.Storage.Tests.Storage
 
           c.Remove();
 
-          Assert.AreEqual(0, Query<Container>.All.Count());
-          Assert.AreEqual(0, Query<Package>.All.Count());
-          Assert.AreEqual(0, Query<PackageItem>.All.Count());
+          Assert.AreEqual(0, Query.All<Container>().Count());
+          Assert.AreEqual(0, Query.All<Package>().Count());
+          Assert.AreEqual(0, Query.All<PackageItem>().Count());
         }
       }
     }

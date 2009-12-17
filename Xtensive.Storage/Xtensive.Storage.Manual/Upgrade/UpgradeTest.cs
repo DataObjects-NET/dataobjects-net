@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Manual.Upgrade
       using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
 
-          var cheeseOrder = Query<Model_2.Order>.All.FirstOrDefault(o => o.ProductName == "Cheese");
+          var cheeseOrder = Query.All<Model_2.Order>().FirstOrDefault(o => o.ProductName == "Cheese");
 
           Assert.IsNotNull(cheeseOrder);
           Assert.AreEqual(10, cheeseOrder.Quantity);
@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Manual.Upgrade
           cheeseOrder.Customer = new Model_2.Customer {Name = "Michael"};
           
           var customer = new Model_2.Customer {Name = "Tony"};
-          foreach (var order in Query<Model_2.Order>.All)
+          foreach (var order in Query.All<Model_2.Order>())
             if (order.Customer==null)
               order.Customer = customer;
 
@@ -95,7 +95,7 @@ namespace Xtensive.Storage.Manual.Upgrade
       using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
 
-          var cheeseOrder = Query<Model_3.Order>.All.FirstOrDefault(o => o.ProductName == "Cheese");
+          var cheeseOrder = Query.All<Model_3.Order>().FirstOrDefault(o => o.ProductName == "Cheese");
 
           Assert.IsNotNull(cheeseOrder);
           Assert.AreEqual(10, cheeseOrder.Quantity);
@@ -116,10 +116,10 @@ namespace Xtensive.Storage.Manual.Upgrade
       using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
 
-          int productCount = Query<Model_4.Product>.All.Count();
+          int productCount = Query.All<Model_4.Product>().Count();
           Assert.AreEqual(2, productCount);
 
-          var order = Query<Model_4.Order>.All.First();
+          var order = Query.All<Model_4.Order>().First();
 
           AssertEx.Throws<Exception>(() => {
             var name = order.ProductName;

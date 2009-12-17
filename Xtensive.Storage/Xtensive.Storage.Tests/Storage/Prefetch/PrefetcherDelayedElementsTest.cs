@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        keys = Query<Person>.All.AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
+        keys = Query.All<Person>().AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
@@ -78,9 +78,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       int actualEmployeeCount;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        keys = Query<Customer>.All.Where(c => c.Name == "Customer1").AsEnumerable()
+        keys = Query.All<Customer>().Where(c => c.Name == "Customer1").AsEnumerable()
           .Select(p => Key.Create<Person>(p.Key.Value)).ToList();
-        actualEmployeeCount = Query<Employee>.All.Where(e => e.Name == "Employee1").Count();
+        actualEmployeeCount = Query.All<Employee>().Where(e => e.Name == "Employee1").Count();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        keys = Query<Customer>.All.AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
+        keys = Query.All<Customer>().AsEnumerable().Select(p => Key.Create<Person>(p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }
@@ -347,7 +347,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       List<Key> keys;
       using (Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        keys = Query<T>.All.Take(count).AsEnumerable().Select(p => Key.Create<T>(p.Key.Value)).ToList();
+        keys = Query.All<T>().Take(count).AsEnumerable().Select(p => Key.Create<T>(p.Key.Value)).ToList();
         Assert.IsTrue(keys.All(key => !key.HasExactType));
         Assert.Greater(keys.Count, 0);
       }

@@ -206,7 +206,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
       using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
-          var x = Query<X>.All.First();
+          var x = Query.All<X>().First();
           Assert.AreEqual(expectedValue, x[changedFieldName]);
         }
       }

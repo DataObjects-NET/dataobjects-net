@@ -258,7 +258,7 @@ namespace Xtensive.Storage.Tests.Storage
           minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
         }
         using (var t = Transaction.Open()) {
-          X x = Query<X>.SingleOrDefault(key);
+          X x = Query.SingleOrDefault<X>(key);
           Assert.AreEqual(false, x.FBool);
           Assert.AreEqual(0, x.FByte);
           Assert.AreEqual(null, x.FByteArray);

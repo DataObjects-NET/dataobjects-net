@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void LengthTest()
     {
-      var results = Query<X>.All.Select(x => new {
+      var results = Query.All<X>().Select(x => new {
         String = x.FString,
         Length = x.FString.Length
       }).ToList();
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void TrimSpaceTest()
     {
-      var results = Query<X>.All
+      var results = Query.All<X>()
         .Select(x => new {
           String = x.FString,
           StringTrim = x.FString.Trim(),
@@ -115,7 +115,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void TrimOtherCharTest()
     {
       EnsureProtocolIsNot(StorageProtocol.SqlServer);
-      var results = Query<X>.All
+      var results = Query.All<X>()
         .Select(x => new {
           String = x.FString,
           StringTrimLeadingLargePLetter = x.FString.TrimStart('P'),
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     public void TrimMultipleCharsTest()
     {
       EnsureProtocolIsNot(StorageProtocol.SqlServer | StorageProtocol.Oracle);
-      var results = Query<X>.All
+      var results = Query.All<X>()
         .Select(x => new {
           String = x.FString,
           StringTrimLeadingZeroAndOne = x.FString.TrimStart('0', '1'),
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void StartsWithTest()
     {
-      var result = Query<X>.All.Select(x => new {
+      var result = Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         StartsWithA = x.FString.StartsWith("A"),
@@ -173,7 +173,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void EndsWithTest()
     {
-      var result = Query<X>.All.Select(x => new {
+      var result = Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         EndsWithA = x.FString.EndsWith("A"),
@@ -196,7 +196,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void ContainsTest()
     {
-      var result = Query<X>.All.Select(x => new {
+      var result = Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         ContainsA = x.FString.Contains("A"),
@@ -223,7 +223,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void PaddingTest()
     {
-      var result = Query<X>.All.Select(x => new {
+      var result = Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         PadLeft = x.FString.PadLeft(10),

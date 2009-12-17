@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Tests.Issues
     public void MainTest()
     {
       var groupQuery =
-        from order in Query<Order>.All
+        from order in Query.All<Order>()
         group order by order.Customer.Key
         into siteGroup
           select new {

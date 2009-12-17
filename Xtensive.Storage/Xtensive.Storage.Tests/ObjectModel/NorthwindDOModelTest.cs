@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Customer> Customers {
       get {
         if (customers==null)
-          customers = Query<Customer>.All.ToList();
+          customers = Query.All<Customer>().ToList();
         return customers;
       }
     }
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Order> Orders {
       get {
         if (orders==null)
-          orders = Query<Order>.All.ToList();
+          orders = Query.All<Order>().ToList();
         return orders;
       }
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Employee> Employees {
       get {
         if (employees==null)
-          employees = Query<Employee>.All.ToList();
+          employees = Query.All<Employee>().ToList();
         return employees;
       }
     }
@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Product> Products {
       get {
         if (products==null)
-          products = Query<Product>.All.ToList();
+          products = Query.All<Product>().ToList();
         return products;
       }
     }
@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
     protected IEnumerable<Supplier> Suppliers {
       get {
         if (suppliers==null)
-          suppliers = Query<Supplier>.All.ToList();
+          suppliers = Query.All<Supplier>().ToList();
         return suppliers;
       }
     }
@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Tests.ObjectModel
       bool shouldFill = false;
       using (Session.Open(domain))
       using (var t = Transaction.Open()) {
-        var count = Query<Customer>.All.Count();
+        var count = Query.All<Customer>().Count();
         if (count == 0)
           shouldFill = true;
       }

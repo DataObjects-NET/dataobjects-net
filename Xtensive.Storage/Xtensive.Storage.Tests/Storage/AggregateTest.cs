@@ -49,82 +49,82 @@ namespace Xtensive.Storage.Tests.Storage
         x.FTimeSpan = new TimeSpan(i, 0, 0, 0);
       }
 
-      all = Query<X>.All.ToList();
+      all = Query.All<X>().ToList();
     }
     
     [Test]
     public void SumTest()
     {
-      Assert.AreEqual(all.Sum(x => x.FByte), Query<X>.All.Sum(x => x.FByte));
-      Assert.AreEqual(all.Sum(x => x.FSByte), Query<X>.All.Sum(x => x.FSByte));
+      Assert.AreEqual(all.Sum(x => x.FByte), Query.All<X>().Sum(x => x.FByte));
+      Assert.AreEqual(all.Sum(x => x.FSByte), Query.All<X>().Sum(x => x.FSByte));
 
-      Assert.AreEqual(all.Sum(x => x.FShort), Query<X>.All.Sum(x => x.FShort));
-      Assert.AreEqual(all.Sum(x => x.FUShort), Query<X>.All.Sum(x => x.FUShort));
+      Assert.AreEqual(all.Sum(x => x.FShort), Query.All<X>().Sum(x => x.FShort));
+      Assert.AreEqual(all.Sum(x => x.FUShort), Query.All<X>().Sum(x => x.FUShort));
 
-      Assert.AreEqual(all.Sum(x => x.FInt), Query<X>.All.Sum(x => x.FInt));
-      Assert.AreEqual(all.Sum(x => x.FUInt), Query<X>.All.Sum(x => x.FUInt));
+      Assert.AreEqual(all.Sum(x => x.FInt), Query.All<X>().Sum(x => x.FInt));
+      Assert.AreEqual(all.Sum(x => x.FUInt), Query.All<X>().Sum(x => x.FUInt));
 
-      Assert.AreEqual(all.Sum(x => x.FLong), Query<X>.All.Sum(x => x.FLong));
-      Assert.AreEqual(all.Sum(x => x.FFloat), Query<X>.All.Sum(x => x.FFloat));
-      Assert.AreEqual(all.Sum(x => x.FDecimal), Query<X>.All.Sum(x => x.FDecimal));
+      Assert.AreEqual(all.Sum(x => x.FLong), Query.All<X>().Sum(x => x.FLong));
+      Assert.AreEqual(all.Sum(x => x.FFloat), Query.All<X>().Sum(x => x.FFloat));
+      Assert.AreEqual(all.Sum(x => x.FDecimal), Query.All<X>().Sum(x => x.FDecimal));
     }
 
     [Test]
     public void AverageTest()
     {
-      Assert.AreEqual(all.Average(x => x.FByte), Query<X>.All.Average(x => x.FByte));
-      Assert.AreEqual(all.Average(x => x.FSByte), Query<X>.All.Average(x => x.FSByte));
+      Assert.AreEqual(all.Average(x => x.FByte), Query.All<X>().Average(x => x.FByte));
+      Assert.AreEqual(all.Average(x => x.FSByte), Query.All<X>().Average(x => x.FSByte));
 
-      Assert.AreEqual(all.Average(x => x.FShort), Query<X>.All.Average(x => x.FShort));
-      Assert.AreEqual(all.Average(x => x.FUShort), Query<X>.All.Average(x => x.FUShort));
+      Assert.AreEqual(all.Average(x => x.FShort), Query.All<X>().Average(x => x.FShort));
+      Assert.AreEqual(all.Average(x => x.FUShort), Query.All<X>().Average(x => x.FUShort));
 
-      Assert.AreEqual(all.Average(x => x.FInt), Query<X>.All.Average(x => x.FInt));
-      Assert.AreEqual(all.Average(x => x.FUInt), Query<X>.All.Average(x => x.FUInt));
+      Assert.AreEqual(all.Average(x => x.FInt), Query.All<X>().Average(x => x.FInt));
+      Assert.AreEqual(all.Average(x => x.FUInt), Query.All<X>().Average(x => x.FUInt));
 
-      Assert.AreEqual(all.Average(x => x.FLong), Query<X>.All.Average(x => x.FLong));
-      Assert.AreEqual(all.Average(x => x.FFloat), Query<X>.All.Average(x => x.FFloat));
-      Assert.AreEqual(all.Average(x => x.FDecimal), Query<X>.All.Average(x => x.FDecimal));
+      Assert.AreEqual(all.Average(x => x.FLong), Query.All<X>().Average(x => x.FLong));
+      Assert.AreEqual(all.Average(x => x.FFloat), Query.All<X>().Average(x => x.FFloat));
+      Assert.AreEqual(all.Average(x => x.FDecimal), Query.All<X>().Average(x => x.FDecimal));
     }
 
     [Test]
     public void MinTest()
     {
-      Assert.AreEqual(all.Min(x => x.FByte), Query<X>.All.Min(x => x.FByte));
-      Assert.AreEqual(all.Min(x => x.FSByte), Query<X>.All.Min(x => x.FSByte));
+      Assert.AreEqual(all.Min(x => x.FByte), Query.All<X>().Min(x => x.FByte));
+      Assert.AreEqual(all.Min(x => x.FSByte), Query.All<X>().Min(x => x.FSByte));
 
-      Assert.AreEqual(all.Min(x => x.FShort), Query<X>.All.Min(x => x.FShort));
-      Assert.AreEqual(all.Min(x => x.FUShort), Query<X>.All.Min(x => x.FUShort));
+      Assert.AreEqual(all.Min(x => x.FShort), Query.All<X>().Min(x => x.FShort));
+      Assert.AreEqual(all.Min(x => x.FUShort), Query.All<X>().Min(x => x.FUShort));
 
-      Assert.AreEqual(all.Min(x => x.FInt), Query<X>.All.Min(x => x.FInt));
-      Assert.AreEqual(all.Min(x => x.FUInt), Query<X>.All.Min(x => x.FUInt));
+      Assert.AreEqual(all.Min(x => x.FInt), Query.All<X>().Min(x => x.FInt));
+      Assert.AreEqual(all.Min(x => x.FUInt), Query.All<X>().Min(x => x.FUInt));
 
-      Assert.AreEqual(all.Min(x => x.FLong), Query<X>.All.Min(x => x.FLong));
-      Assert.AreEqual(all.Min(x => x.FFloat), Query<X>.All.Min(x => x.FFloat));
-      Assert.AreEqual(all.Min(x => x.FDecimal), Query<X>.All.Min(x => x.FDecimal));
+      Assert.AreEqual(all.Min(x => x.FLong), Query.All<X>().Min(x => x.FLong));
+      Assert.AreEqual(all.Min(x => x.FFloat), Query.All<X>().Min(x => x.FFloat));
+      Assert.AreEqual(all.Min(x => x.FDecimal), Query.All<X>().Min(x => x.FDecimal));
 
-      Assert.AreEqual(all.Min(x => x.FDateTime), Query<X>.All.Min(x => x.FDateTime));
-      Assert.AreEqual(all.Min(x => x.FTimeSpan), Query<X>.All.Min(x => x.FTimeSpan));
+      Assert.AreEqual(all.Min(x => x.FDateTime), Query.All<X>().Min(x => x.FDateTime));
+      Assert.AreEqual(all.Min(x => x.FTimeSpan), Query.All<X>().Min(x => x.FTimeSpan));
 
     }
 
     [Test]
     public void MaxTest()
     {
-      Assert.AreEqual(all.Max(x => x.FByte), Query<X>.All.Max(x => x.FByte));
-      Assert.AreEqual(all.Max(x => x.FSByte), Query<X>.All.Max(x => x.FSByte));
+      Assert.AreEqual(all.Max(x => x.FByte), Query.All<X>().Max(x => x.FByte));
+      Assert.AreEqual(all.Max(x => x.FSByte), Query.All<X>().Max(x => x.FSByte));
 
-      Assert.AreEqual(all.Max(x => x.FShort), Query<X>.All.Max(x => x.FShort));
-      Assert.AreEqual(all.Max(x => x.FUShort), Query<X>.All.Max(x => x.FUShort));
+      Assert.AreEqual(all.Max(x => x.FShort), Query.All<X>().Max(x => x.FShort));
+      Assert.AreEqual(all.Max(x => x.FUShort), Query.All<X>().Max(x => x.FUShort));
 
-      Assert.AreEqual(all.Max(x => x.FInt), Query<X>.All.Max(x => x.FInt));
-      Assert.AreEqual(all.Max(x => x.FUInt), Query<X>.All.Max(x => x.FUInt));
+      Assert.AreEqual(all.Max(x => x.FInt), Query.All<X>().Max(x => x.FInt));
+      Assert.AreEqual(all.Max(x => x.FUInt), Query.All<X>().Max(x => x.FUInt));
 
-      Assert.AreEqual(all.Max(x => x.FLong), Query<X>.All.Max(x => x.FLong));
-      Assert.AreEqual(all.Max(x => x.FFloat), Query<X>.All.Max(x => x.FFloat));
-      Assert.AreEqual(all.Max(x => x.FDecimal), Query<X>.All.Max(x => x.FDecimal));
+      Assert.AreEqual(all.Max(x => x.FLong), Query.All<X>().Max(x => x.FLong));
+      Assert.AreEqual(all.Max(x => x.FFloat), Query.All<X>().Max(x => x.FFloat));
+      Assert.AreEqual(all.Max(x => x.FDecimal), Query.All<X>().Max(x => x.FDecimal));
 
-      Assert.AreEqual(all.Max(x => x.FDateTime), Query<X>.All.Max(x => x.FDateTime));
-      Assert.AreEqual(all.Max(x => x.FTimeSpan), Query<X>.All.Max(x => x.FTimeSpan));
+      Assert.AreEqual(all.Max(x => x.FDateTime), Query.All<X>().Max(x => x.FDateTime));
+      Assert.AreEqual(all.Max(x => x.FTimeSpan), Query.All<X>().Max(x => x.FTimeSpan));
     }
   }
 }

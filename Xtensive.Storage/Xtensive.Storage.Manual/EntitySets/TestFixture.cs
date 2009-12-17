@@ -237,36 +237,36 @@ namespace Xtensive.Storage.Manual.EntitySets
           Assert.AreEqual(dmitriKey, anotherDimtriKey);
 
           // Materialization on fetch
-          var dmitri = Query<User>.Single(dmitriKey);
+          var dmitri = Query.Single<User>(dmitriKey);
           // Alternative way to do the same
-          var anotherDmitri = Query<User>.SingleOrDefault(dmitriKey);
+          var anotherDmitri = Query.SingleOrDefault<User>(dmitriKey);
           Assert.AreSame(dmitri, anotherDmitri);
           // Fetching by key value(s)
-          anotherDmitri = Query<User>.Single(dmitriId);
+          anotherDmitri = Query.Single<User>(dmitriId);
           Assert.AreSame(dmitri, anotherDmitri);
 
           // Querying the storage using regular LINQ query
           var query =
-            from user in Query<User>.All
+            from user in Query.All<User>()
             where user.Name=="Dmitri"
             select user;
           Assert.AreSame(dmitri, query.First());
 
           // Querying the storage using compiled query
           anotherDmitri = Query.Execute(() => // Default caching key is methodof( () => ... )
-            from user in Query<User>.All
+            from user in Query.All<User>()
             where user.Name=="Dmitri"
             select user).First();
           Assert.AreSame(dmitri, anotherDmitri);
 
           // Querying the storage using compiled future scalar query
           var delayedDmitry1 = Query.ExecuteFutureScalar(() => (
-            from user in Query<User>.All
+            from user in Query.All<User>()
             where user.Name=="Dmitri"
             select user
             ).FirstOrDefault());
           var delayedDmitry2 = Query.ExecuteFutureScalar(() => (
-            from user in Query<User>.All
+            from user in Query.All<User>()
             where user.Id==dmitriId
             select user
             ).First());

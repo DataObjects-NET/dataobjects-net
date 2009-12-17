@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Manual
         using (var transactionScope = Transaction.Open()) {
 
           var newPerson = new Person();
-          var fetchedPerson = Query<Person>.Single(personId);
+          var fetchedPerson = Query.Single<Person>(personId);
 
           Console.WriteLine("Our session is current: {0}", Session.Current==session);
           Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);

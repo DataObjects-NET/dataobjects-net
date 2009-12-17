@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
 
       using (Session.Open(Domain))
       using (Transaction.Open()) {
-        var trees = Query<Tree>.All.ToList();
+        var trees = Query.All<Tree>().ToList();
         long totalCount = 0;
         foreach (var tree in trees)
           totalCount += ValidateNodes(tree.Root) + 1;
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       try {
         using (var tx = isSettingUp ? null : Transaction.Open()) {
           parentNodeKey = nodesData[GetNodeIndex()].First;
-          var parentNode = Query<TreeNode>.Single(parentNodeKey);
+          var parentNode = Query.Single<TreeNode>(parentNodeKey);
           var newNode = new TreeNode();
           parentNode.Children.Add(newNode);
           newNodeKey = newNode.Key;
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
         using (var tx = Transaction.Open()) {
           removedNodeIndex = GetNodeIndex();
           removedNodeKey = nodesData[removedNodeIndex].First;
-          var removedNode = Query<TreeNode>.Single(removedNodeKey);
+          var removedNode = Query.Single<TreeNode>(removedNodeKey);
           if (removedNode.Parent == null)
             return;
           parentNodeKey = removedNode.Parent.Key;
@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
           entitySetCache.Clear();
           entitySetCache.AddRange(removedNode.Children.Select(n => n.Key));
           foreach (var key in entitySetCache)
-            removedNode.Parent.Children.Add(Query<TreeNode>.Single(key));
+            removedNode.Parent.Children.Add(Query.Single<TreeNode>(key));
           removedNode.Children.Clear();
           removedNode.Remove();
           ThrowOrCompleteTransaction(tx);
@@ -147,18 +147,18 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       Key newParentKey;
       try {
         using (var tx = Transaction.Open()) {
-          var treeCount = Query<Tree>.All.Count();
+          var treeCount = Query.All<Tree>().Count();
           if (nodesData.Count == 1 || treeCount == 1)
             return;
           var nodeIndex = GetNodeIndex();
           var nodeKey = nodesData[nodeIndex].First;
-          var node = Query<TreeNode>.Single(nodeKey);
+          var node = Query.Single<TreeNode>(nodeKey);
           if (node.Parent == null)
             return;
           var root = node;
           while (root.Tree == null)
             root = root.Parent;
-          var newParentNode =  Query<Tree>.All.Where(t => t != root.Tree)
+          var newParentNode =  Query.All<Tree>().Where(t => t != root.Tree)
             .Skip(randomProvider.Next(0, treeCount)).First().Root;
           newParentKey = newParentNode.Key;
           oldParentKey = node.Parent.Key;
@@ -196,11 +196,11 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       var treeNodeKeys = new List<Key>();
       try {
         using (var tx = Transaction.Open()) {
-          if (Query<Tree>.All.Count()==1)
+          if (Query.All<Tree>().Count()==1)
             return;
           var nodeIndex = GetNodeIndex();
           var nodeKey = nodesData[nodeIndex].First;
-          var node = Query<TreeNode>.Single(nodeKey);
+          var node = Query.Single<TreeNode>(nodeKey);
           while (node.Tree==null)
             node = node.Parent;
           treeNodeKeys.AddRange(node.Children.Flatten(n => n.Children, null, true).Select(n => n.Key));

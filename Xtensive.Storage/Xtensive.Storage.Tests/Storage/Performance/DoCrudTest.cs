@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement("Fetch & GetField", count)) {
             for (int i = 0; i < count; i++) {
               var key = Key.Create<Simplest>((long) i % instanceCount);
-              var o = Query<Simplest>.SingleOrDefault(key);
+              var o = Query.SingleOrDefault<Simplest>(key);
               sum -= o.Id;
             }
             ts.Complete();
@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement("Prefetch", count)) {
             foreach (var key in keys.Prefetch<Simplest, Key>(key => key)) {
               i++;
-              //var o = Query<Simplest>.SingleOrDefault(key);
+              //var o = Query.SingleOrDefault<Simplest>(key);
               //sum -= o.Id;
             }
             ts.Complete();
@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize", count)) {
             while (i < count)
-              foreach (var o in Query.Execute(() => Query<Simplest>.All)) {
+              foreach (var o in Query.Execute(() => Query.All<Simplest>())) {
                 if (++i >= count)
                   break;
               }
@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize anonymous type", count)) {
             while (i < count)
-              foreach (var o in Query.Execute(() => Query<Simplest>.All.Select(t => new {t.Id, t.Value}))) {
+              foreach (var o in Query.Execute(() => Query.All<Simplest>().Select(t => new {t.Id, t.Value}))) {
                 if (++i >= count)
                   break;
               }
@@ -223,7 +223,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Materialize & GetField", count)) {
             while (i < count)
-              foreach (var o in Query.Execute(() => Query<Simplest>.All)) {
+              foreach (var o in Query.Execute(() => Query.All<Simplest>())) {
                 sum += o.Id;
                 if (++i >= count)
                   break;
@@ -274,7 +274,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement(message, count)) {
             NonPairedSimplestContainerItem t = null;
             while (i < count)
-              foreach (var o in Query.Execute(() => Query<SimplestContainer>.All)) {
+              foreach (var o in Query.Execute(() => Query.All<SimplestContainer>())) {
                 t = ((IEnumerable<NonPairedSimplestContainerItem>) o.DistantItems).First();
                 if (++i >= count)
                   break;
@@ -298,7 +298,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement(message, count)) {
             PairedSimplestContainerItem t = null;
             while (i < count)
-              foreach (var o in Query.Execute(() => Query<SimplestContainer>.All)) {
+              foreach (var o in Query.Execute(() => Query.All<SimplestContainer>())) {
                 t = ((IEnumerable<PairedSimplestContainerItem>) o.Items).First();
                 if (++i >= count)
                   break;
@@ -340,7 +340,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         TestHelper.CollectGarbage();
         using (var ts = Transaction.Open()) {
-          var query = Query.Execute(() => Query<SimplestContainer>.All);
+          var query = Query.Execute(() => Query.All<SimplestContainer>());
           foreach (var o in query)
             o.Remove();
           ts.Complete();
@@ -358,7 +358,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement("Query", count)) {
             for (int i = 0; i < count; i++) {
               var id = i % instanceCount;
-              var query = Query<Simplest>.All.Where(o => o.Id == id);
+              var query = Query.All<Simplest>().Where(o => o.Id == id);
               foreach (var simplest in query) {
                 // Doing nothing, just enumerate
               }
@@ -376,7 +376,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         var s = ss;
         using (var ts = Transaction.Open()) {
           var id = 0;
-          var query = Query<Simplest>.All.Where(o => o.Id == id);
+          var query = Query.All<Simplest>().Where(o => o.Id == id);
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Single query expression", count)) {
             for (int i = 0; i < count; i++) {
@@ -402,7 +402,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
           using (warmup ? null : new Measurement("Cached query", count)) {
             for (int i = 0; i < count; i++) {
               id = i % instanceCount;
-              var query = Query.Execute(() => Query<Simplest>.All
+              var query = Query.Execute(() => Query.All<Simplest>()
                 .Where(o => o.Id == id));
               foreach (var simplest in query) {
                 // Doing nothing, just enumerate
@@ -474,7 +474,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update", instanceCount)) {
           using (var ts = Transaction.Open()) {
-            var query = Query.Execute(() => Query<Simplest>.All);
+            var query = Query.Execute(() => Query.All<Simplest>());
             foreach (var o in query)
               o.Value++;
             ts.Complete();
@@ -491,7 +491,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update (no batching)", instanceCount)) {
           using (var ts = Transaction.Open()) {
-            var query = Query.Execute(() => Query<Simplest>.All);
+            var query = Query.Execute(() => Query.All<Simplest>());
             foreach (var o in query) {
               o.Value = o.Value++;
               s.Persist();
@@ -510,7 +510,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update (like DML query)", instanceCount)) {
           using (var ts = Transaction.Open()) {
-            var query = Query.Execute(() => Query<Simplest>.All);
+            var query = Query.Execute(() => Query.All<Simplest>());
             foreach (var o in query) {
               var value = o.Value;
               if (value>=0)
@@ -530,7 +530,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Remove", instanceCount)) {
           using (var ts = Transaction.Open()) {
-            var query = Query.Execute(() => Query<Simplest>.All);
+            var query = Query.Execute(() => Query.All<Simplest>());
             foreach (var o in query)
               o.Remove();
             ts.Complete();

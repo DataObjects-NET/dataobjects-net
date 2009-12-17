@@ -252,8 +252,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexSubquerySelectFirstTest()
     {
-      var categoriesCount = Query<Category>.All.Count();
-      var result = Query<Category>.All.Select(c => c.Products.First()).Select(p => new {Product = p, p.ProductName, p.Supplier});
+      var categoriesCount = Query.All<Category>().Count();
+      var result = Query.All<Category>().Select(c => c.Products.First()).Select(p => new { Product = p, p.ProductName, p.Supplier });
       var list = result.ToList();
       Assert.AreEqual(categoriesCount, list.Count);
     }

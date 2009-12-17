@@ -70,9 +70,9 @@ namespace Xtensive.Storage.Tests.Rse
         Expression<Func<B, bool>> predicate = b => b.HierarchyField.GreaterThan("Random String 1")
           && b.ClassField < int.MinValue + 100000
             || b.HierarchyField.LessThanOrEqual("Random String 2") && b.ClassField > int.MinValue;
-        var entities = Query<B>.All.ToList();
-        var expected = Query<B>.All.ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
-        var query = Query<B>.All.Where(predicate).OrderBy(o => o.Id);
+        var entities = Query.All<B>().ToList();
+        var expected = Query.All<B>().ToList().Where(predicate.CachingCompile()).OrderBy(o => o.Id);
+        var query = Query.All<B>().Where(predicate).OrderBy(o => o.Id);
         var actual = query.ToList();
         var virtualIndex = Domain.Model.Types[typeof (B)].Indexes.GetIndex("HierarchyField");
         if (!ConcreteTableSchemaModifier.IsEnabled)

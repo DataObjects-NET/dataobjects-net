@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionRootModel
 
     public IEnumerable<Entity> GetVersionRoots()
     {
-      return Query<Owner1>.All.ToList().Cast<Entity>().Concat(Query<Owner2>.All.ToList().Cast<Entity>());
+      return Query.All<Owner1>.All.ToList().Cast<Entity>().Concat(Query<Owner2>().ToList().Cast<Entity>());
     }
   }
 }
@@ -144,8 +144,8 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var order = Query<Order>.Single(orderKey);
-          var orderItem = Query<OrderItem>.Single(orderItemKey);
+          var order = Query.Single<Order>(orderKey);
+          var orderItem = Query.Single<OrderItem>(orderItemKey);
           Assert.IsTrue(orderVersion==order.VersionInfo);
           Assert.IsTrue(orderItemVersion==orderItem.VersionInfo);
           orderItem.Quantity = 20;
@@ -179,8 +179,8 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var order = Query<Order>.Single(orderKey);
-          var orderItem = Query<AdvancedOrderItem>.Single(orderItemKey);
+          var order = Query.Single<Order>(orderKey);
+          var orderItem = Query.Single<AdvancedOrderItem>(orderItemKey);
           Assert.IsTrue(orderVersion==order.VersionInfo);
           Assert.IsTrue(orderItemVersion==orderItem.VersionInfo);
           orderItem.SupplierName = "Supplier2";
@@ -217,9 +217,9 @@ namespace Xtensive.Storage.Tests.Storage
       }
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var owner1 = Query<Owner1>.Single(owner1Key);
-          var owner2 = Query<Owner2>.Single(owner2Key);
-          var item = Query<Item>.Single(itemKey);
+          var owner1 = Query.Single<Owner1>(owner1Key);
+          var owner2 = Query.Single<Owner2>(owner2Key);
+          var item = Query.Single<Item>(itemKey);
           Assert.IsTrue(owner1Version==owner1.VersionInfo);
           Assert.IsTrue(owner2Version==owner2.VersionInfo);
           Assert.IsTrue(itemVersion==item.VersionInfo);

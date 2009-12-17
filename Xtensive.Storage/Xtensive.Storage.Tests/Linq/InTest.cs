@@ -22,16 +22,16 @@ namespace Xtensive.Storage.Tests.Linq
     public void StringContainsTest()
     {
       var list = new List<string> {"FISSA", "PARIS"};
-      var query1 = from c in Query<Customer>.All
+      var query1 = from c in Query.All<Customer>()
       where !c.Id.In(list)
       select c.Orders;
-      var query2 = from c in Query<Customer>.All
+      var query2 = from c in Query.All<Customer>()
       where !c.Id.In("FISSA", "PARIS")
       select c.Orders;
-      var expected1 = from c in Query<Customer>.All.AsEnumerable()
+      var expected1 = from c in Query.All<Customer>().AsEnumerable()
       where !list.Contains(c.Id)
       select c.Orders;
-      var expected2 = from c in Query<Customer>.All.AsEnumerable()
+      var expected2 = from c in Query.All<Customer>().AsEnumerable()
       where !c.Id.In(list)
       select c.Orders;
       Assert.AreEqual(0, expected1.Except(query1).Count());
@@ -47,10 +47,10 @@ namespace Xtensive.Storage.Tests.Linq
     {
       // casts int to decimal
       var list = new List<int> {7, 22, 46};
-      var query = from order in Query<Order>.All
+      var query = from order in Query.All<Order>()
       where !((int) order.Freight).In(list)
       select order;
-      var expected = from order in Query<Order>.All.AsEnumerable()
+      var expected = from order in Query.All<Order>().AsEnumerable()
       where !((int) order.Freight).In(list)
       select order;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -61,10 +61,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void SimpleIntContainsTest()
     {
       var list = new List<int> {7, 22, 46};
-      var query = from order in Query<Order>.All
+      var query = from order in Query.All<Order>()
       where order.Id.In(list)
       select order;
-      var expected = from order in Query<Order>.All.AsEnumerable()
+      var expected = from order in Query.All<Order>().AsEnumerable()
       where order.Id.In(list)
       select order;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -90,10 +90,10 @@ namespace Xtensive.Storage.Tests.Linq
     {
       // casts decimal to int
       var list = new List<decimal> {7, 22, 46};
-      var query = from order in Query<Order>.All
+      var query = from order in Query.All<Order>()
       where !((decimal) order.Id).In(list)
       select order;
-      var expected = from order in Query<Order>.All.AsEnumerable()
+      var expected = from order in Query.All<Order>().AsEnumerable()
       where !((decimal) order.Id).In(list)
       select order;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -103,11 +103,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntityContainsTest()
     {
-      var list = Query<Customer>.All.Take(5).ToList();
-      var query = from c in Query<Customer>.All
+      var list = Query.All<Customer>().Take(5).ToList();
+      var query = from c in Query.All<Customer>()
       where !c.In(list)
       select c.Orders;
-      var expected = from c in Query<Customer>.All.AsEnumerable()
+      var expected = from c in Query.All<Customer>().AsEnumerable()
       where !c.In(list)
       select c.Orders;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -117,11 +117,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void StructContainsTest()
     {
-      var list = Query<Customer>.All.Take(5).Select(c => c.Address).ToList();
-      var query = from c in Query<Customer>.All
+      var list = Query.All<Customer>().Take(5).Select(c => c.Address).ToList();
+      var query = from c in Query.All<Customer>()
       where !c.Address.In(list)
       select c.Orders;
-      var expected = from c in Query<Customer>.All.AsEnumerable()
+      var expected = from c in Query.All<Customer>().AsEnumerable()
       where !c.Address.In(list)
       select c.Orders;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -131,8 +131,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void StructSimpleContainsTest()
     {
-      var list = Query<Customer>.All.Take(5).Select(c => c.Address).ToList();
-      var query = Query<Customer>.All.Select(c => c.Address).Where(c => c.In(list));
+      var list = Query.All<Customer>().Take(5).Select(c => c.Address).ToList();
+      var query = Query.All<Customer>().Select(c => c.Address).Where(c => c.In(list));
       QueryDumper.Dump(query);
     }
 
@@ -140,8 +140,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnonimousContainsTest()
     {
       var list = new[] {new {Id = "FISSA"}, new {Id = "PARIS"}};
-      var query = Query<Customer>.All.Where(c => new {c.Id}.In(list)).Select(c => c.Orders);
-      var expected = Query<Customer>.All.AsEnumerable().Where(c => new {c.Id}.In(list)).Select(c => c.Orders);
+      var query = Query.All<Customer>().Where(c => new {c.Id}.In(list)).Select(c => c.Orders);
+      var expected = Query.All<Customer>().AsEnumerable().Where(c => new {c.Id}.In(list)).Select(c => c.Orders);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
     }
@@ -150,8 +150,8 @@ namespace Xtensive.Storage.Tests.Linq
     public void AnonimousContains2Test()
     {
       var list = new[] {new {Id1 = "FISSA", Id2 = "FISSA"}, new {Id1 = "PARIS", Id2 = "PARIS"}};
-      var query = Query<Customer>.All.Where(c => new {Id1 = c.Id, Id2 = c.Id}.In(list)).Select(c => c.Orders);
-      var expected = Query<Customer>.All.AsEnumerable().Where(c => new {Id1 = c.Id, Id2 = c.Id}.In(list)).Select(c => c.Orders);
+      var query = Query.All<Customer>().Where(c => new {Id1 = c.Id, Id2 = c.Id}.In(list)).Select(c => c.Orders);
+      var expected = Query.All<Customer>().AsEnumerable().Where(c => new {Id1 = c.Id, Id2 = c.Id}.In(list)).Select(c => c.Orders);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
     }
@@ -159,14 +159,14 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void QueryableDoubleContainsTest()
     {
-      var list = Query<Order>.All
+      var list = Query.All<Order>()
         .Select(o => o.Freight)
         .Distinct()
         .Take(10);
-      var query = from order in Query<Order>.All
+      var query = from order in Query.All<Order>()
       where !order.Freight.In(list)
       select order;
-      var expected = from order in Query<Order>.All.AsEnumerable()
+      var expected = from order in Query.All<Order>().AsEnumerable()
       where !order.Freight.In(list)
       select order;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -176,11 +176,11 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void QueryableEntityContainsTest()
     {
-      var list = Query<Customer>.All.Take(5);
-      var query = from c in Query<Customer>.All
+      var list = Query.All<Customer>().Take(5);
+      var query = from c in Query.All<Customer>()
       where !c.In(list)
       select c.Orders;
-      var expected = from c in Query<Customer>.All.AsEnumerable()
+      var expected = from c in Query.All<Customer>().AsEnumerable()
       where !c.In(list)
       select c.Orders;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -190,13 +190,13 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void QueryableStructContainsTest()
     {
-      var list = Query<Customer>.All
+      var list = Query.All<Customer>()
         .Take(5)
         .Select(c => c.Address);
-      var query = from c in Query<Customer>.All
+      var query = from c in Query.All<Customer>()
       where !c.Address.In(list)
       select c.Orders;
-      var expected = from c in Query<Customer>.All.AsEnumerable()
+      var expected = from c in Query.All<Customer>().AsEnumerable()
       where !c.Address.In(list)
       select c.Orders;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -206,9 +206,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void QueryableAnonimousContainsTest()
     {
-      var list = Query<Customer>.All.Take(10).Select(c => new {c.Id});
-      var query = Query<Customer>.All.Where(c => new {c.Id}.In(list)).Select(c => c.Orders);
-      var expected = Query<Customer>.All.AsEnumerable().Where(c => new {c.Id}.In(list)).Select(c => c.Orders);
+      var list = Query.All<Customer>().Take(10).Select(c => new {c.Id});
+      var query = Query.All<Customer>().Where(c => new {c.Id}.In(list)).Select(c => c.Orders);
+      var expected = Query.All<Customer>().AsEnumerable().Where(c => new {c.Id}.In(list)).Select(c => c.Orders);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
     }
@@ -216,7 +216,7 @@ namespace Xtensive.Storage.Tests.Linq
     private IEnumerable<Order> GetOrders(IEnumerable<int> ids)
     {
       return Query.Execute(() =>
-        from order in Query<Order>.All
+        from order in Query.All<Order>()
         where order.Id.In(ids)
         select order);
     }
@@ -226,10 +226,10 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var includeAlgorithm = IncludeAlgorithm.TemporaryTable;
       var list = new List<int> {7, 22, 46};
-      var query = from order in Query<Order>.All
+      var query = from order in Query.All<Order>()
       where order.Id.In(includeAlgorithm, list)
       select order;
-      var expected = from order in Query<Order>.All.AsEnumerable()
+      var expected = from order in Query.All<Order>().AsEnumerable()
       where order.Id.In(includeAlgorithm, list)
       select order;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -240,10 +240,10 @@ namespace Xtensive.Storage.Tests.Linq
     public void ComplexCondition2Test()
     {
       var includeAlgorithm = IncludeAlgorithm.TemporaryTable;
-      var query = from order in Query<Order>.All
+      var query = from order in Query.All<Order>()
       where order.Id.In(includeAlgorithm, 7, 22, 46)
       select order;
-      var expected = from order in Query<Order>.All.AsEnumerable()
+      var expected = from order in Query.All<Order>().AsEnumerable()
       where order.Id.In(includeAlgorithm, 7, 22, 46)
       select order;
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -269,7 +269,7 @@ namespace Xtensive.Storage.Tests.Linq
 
     private static IEnumerable<Customer> GetCustomers(params string[] customerIds)
     {
-      return Query.Execute(() => Query<Customer>.All.Where(customer => customer.Id.In(customerIds)));
+      return Query.Execute(() => Query.All<Customer>().Where(customer => customer.Id.In(customerIds)));
     }
   }
 }

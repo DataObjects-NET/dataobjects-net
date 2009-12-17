@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
       //  qr = q.Execute();
       //}
 
-      var qr = from link in Query<DocumentLink>.All
+      var qr = from link in Query.All<DocumentLink>()
                where link.LinkSemantic == LinkSemantic.GroupHeadToDocumentInGroup
                where link.LinkDestination == sourceDocument
                select link;

@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = Transaction.Open()) {
           var item1 = new Item();
           var item2 = new Item();
-          var result = Query<Item>.All.Where(item => Equals(item, item1));
+          var result = Query.All<Item>().Where(item => Equals(item, item1));
           QueryDumper.Dump(result);
           // Rollback
         }
@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = Transaction.Open()) {
           var item1 = new Item();
           var item2 = new Item();
-          var result = Query<Item>.All.Where(item => Item.Equals((object)item, (object)item1));
+          var result = Query.All<Item>().Where(item => Item.Equals((object)item, (object)item1));
           QueryDumper.Dump(result);
           // Rollback
         }
@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = Transaction.Open()) {
           var item1 = new Item();
           var item2 = new Item();
-          var result = Query<Item>.All.Where(item => Item.Equals(item, item1));
+          var result = Query.All<Item>().Where(item => Item.Equals(item, item1));
           QueryDumper.Dump(result);
           // Rollback
         }
@@ -106,7 +106,7 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = Transaction.Open()) {
           var item1 = new Item();
           var item2 = new Item();
-          var result = Query<Item>.All.Where(item => String.Equals(item.Name, item1.Name));
+          var result = Query.All<Item>().Where(item => String.Equals(item.Name, item1.Name));
           QueryDumper.Dump(result);
           // Rollback
         }
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = Transaction.Open()) {
           var item1 = new Item();
           var item2 = new Item();
-          var result = Query<Item>.All.Where(item => item.Equals(item1));
+          var result = Query.All<Item>().Where(item => item.Equals(item1));
           QueryDumper.Dump(result);
           // Rollback
         }

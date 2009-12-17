@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Manual.LazyLoading
   
       using (Session.Open(domain))
       using (var t = Transaction.Open()) {
-        var persons = Query<Person>.All
+        var persons = Query.All<Person>()
           .Prefetch(p => p.Avatar)
           .Prefetch(p => p.Photo)
           .Prefetch(p => p.Employees);

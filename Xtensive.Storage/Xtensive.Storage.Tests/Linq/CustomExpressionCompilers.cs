@@ -78,13 +78,13 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           Fill();
-          var expected1 = Query<Person>.All.AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
+          var expected1 = Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
           Assert.Greater(expected1.Count, 0);
-          var fullNames1 = Query<Person>.All.OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
+          var fullNames1 = Query.All<Person>().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
           Assert.IsTrue(expected1.SequenceEqual(fullNames1));
 
-          var expected2 = Query<Person>.All.AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
-          var fullNames2 = Query<Person>.All.OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
+          var expected2 = Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
+          var fullNames2 = Query.All<Person>().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
           Assert.IsTrue(expected2.SequenceEqual(fullNames2));
           // Rollback
         }

@@ -116,8 +116,8 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 
     private void ValidateEntities(int expectedCount)
     {
-      Assert.AreEqual(expectedCount, Query<X>.All.Count());
-      foreach (var item in Query<X>.All) {
+      Assert.AreEqual(expectedCount, Query.All<X>().Count());
+      foreach (var item in Query.All<X>()) {
         Assert.AreEqual(item.FString, "Hello Batcher");
         Assert.AreEqual(item.FInt, BatchSize);
       }

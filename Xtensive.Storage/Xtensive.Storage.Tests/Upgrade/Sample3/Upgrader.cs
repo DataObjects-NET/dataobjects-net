@@ -60,10 +60,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
 
     public override void OnUpgrade()
     {
-      var deps = Query<Employee>.All.ToList();
+      var deps = Query.All<Employee>().ToList();
       foreach (var employee in deps)
         employee.DepartmentName = employee.RcDepartment;
-      foreach (var order in Query<Order>.All)
+      foreach (var order in Query.All<Order>())
         order.Items.Add(new OrderItem(order) {
           Amount = order.Amount,
           ProductName = order.ProductName

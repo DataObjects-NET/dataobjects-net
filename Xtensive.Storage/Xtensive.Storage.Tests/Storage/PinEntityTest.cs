@@ -224,7 +224,7 @@ namespace Xtensive.Storage.Tests.Storage
     
     private void AssertNumberOfNodesInDatabaseIs(int expected)
     {
-      var actual = Query<Node>.All.Count();
+      var actual = Query.All<Node>().Count();
       Assert.AreEqual(expected, actual);
     }
 

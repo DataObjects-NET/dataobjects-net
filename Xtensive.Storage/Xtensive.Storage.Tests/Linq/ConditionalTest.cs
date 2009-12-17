@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Tests.Linq
           var b1 = new B();
           var r1 = new Root2() {Number = 123, Child1 = a1, Child2=b1};
           Session.Current.Persist();
-          var result = Query<Root2>.All.Select(r=> r.Number == 123 ? r.Child1 : r.Child2);
+          var result = Query.All<Root2>().Select(r=> r.Number == 123 ? r.Child1 : r.Child2);
           QueryDumper.Dump(result);
           // Rollback
         }

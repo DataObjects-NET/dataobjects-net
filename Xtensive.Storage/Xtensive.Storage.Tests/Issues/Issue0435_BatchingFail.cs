@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Issues
         Text = "Entity 2"
       }; // Nothing is sent to server yet
 
-      foreach (var e in Query<MyEntity>.All) // Batch is sent
+      foreach (var e in Query.All<MyEntity>()) // Batch is sent
         Console.WriteLine("Entity.Text: {0}", e.Text); 
     }
 
@@ -65,9 +65,9 @@ namespace Xtensive.Storage.Tests.Issues
           Text = "Entity 2"
       }; // Nothing is sent to server yet
 
-      var futureCount = Query.ExecuteFutureScalar(() => Query<MyEntity>.All.Count());
+      var futureCount = Query.ExecuteFutureScalar(() => Query.All<MyEntity>().Count());
 
-      foreach (var e in Query<MyEntity>.All) // Batch is sent
+      foreach (var e in Query.All<MyEntity>()) // Batch is sent
         Console.WriteLine("Entity.Text: {0}", e.Text); 
       Console.WriteLine("Count: {0}", futureCount.Value);
     }

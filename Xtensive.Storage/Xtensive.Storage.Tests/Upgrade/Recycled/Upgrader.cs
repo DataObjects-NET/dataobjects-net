@@ -62,9 +62,9 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
     {
       var customerMap = new Dictionary<int, Customer>();
       var employeeMap = new Dictionary<int, Employee>();
-      var rcCustomers = Query<RcCustomer>.All;
-      var rcEmployees = Query<RcEmployee>.All;
-      var orders = Query<Order>.All;
+      var rcCustomers = Query.All<RcCustomer>();
+      var rcEmployees = Query.All<RcEmployee>();
+      var orders = Query.All<Order>();
       foreach (var rcCustomer in rcCustomers) {
         var customer = new Customer() {
            Address = rcCustomer.Address,

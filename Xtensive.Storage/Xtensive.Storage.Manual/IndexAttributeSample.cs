@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Manual
     {
       // Filtering and ordering uses secondary index
       return
-        from person in Query<Person>.All
+        from person in Query.All<Person>()
         where person.Age > age
         orderby person.Age
         select person;
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Manual
     {
       // Filtering uses unique secondery index
       return (
-        from person in Query<Person>.All
+        from person in Query.All<Person>()
         where person.FirstName==firstName && person.LastName==lastName
         select person
         ).FirstOrDefault();

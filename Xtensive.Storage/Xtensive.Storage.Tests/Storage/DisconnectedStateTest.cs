@@ -130,8 +130,8 @@ namespace Xtensive.Storage.DisconnectedTests.Model
 
       public void Execute(OperationExecutionContext context)
       {
-        var p = Query<Product>.Single(productKey.Key);
-        var o = Query<Order>.Single(orderKey.Key);
+        var p = Query.Single<Product>(productKey.Key);
+        var o = Query.Single<Order>(orderKey.Key);
         var orderItem = new OrderDetail { Product = p, Order = o, Count = count };
       }
 
@@ -292,7 +292,7 @@ namespace Xtensive.Storage.Tests.Storage
 
             using (disconnectedState.Connect()) {
 
-              var objects = Query<Simple>.All.ToList();
+              var objects = Query.All<Simple>().ToList();
 
               Assert.IsTrue(sessionHandler.TransactionIsStarted);
             }
@@ -328,13 +328,13 @@ namespace Xtensive.Storage.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
-              Query<Simple>.All
+              Query.All<Simple>()
                 .Prefetch(item => item.Id)
                 .Prefetch(item => item.VersionId)
                 .Prefetch(item => item.Value)
                 .ToList();
             }
-          var simple = Query<Simple>.Single(key);
+          var simple = Query.Single<Simple>(key);
             Assert.IsNotNull(simple);  
             transactionScope.Complete();
           }
@@ -343,7 +343,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Change instance in DB
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var simple = Query<Simple>.Single(key);
+          var simple = Query.Single<Simple>(key);
           simple.Value = "new value";
           transactionScope.Complete();
         }
@@ -352,7 +352,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
-            var simple = Query<Simple>.Single(key);
+            var simple = Query.Single<Simple>(key);
             Assert.IsNotNull(simple);
             Assert.AreEqual("some value", simple.Value);
             transactionScope.Complete();
@@ -382,7 +382,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             List<Simple> list = null;
             using (state.Connect()) {
-              list = Query<Simple>.All.ToList();
+              list = Query.All<Simple>().ToList();
             }
             Assert.AreEqual(1, list.Count);
             transactionScope.Complete();
@@ -392,7 +392,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Change instance in DB
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var simple = Query<Simple>.Single(key);
+          var simple = Query.Single<Simple>(key);
           simple.Value = "new value";
           transactionScope.Complete();
         }
@@ -403,7 +403,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             List<Simple> list = null;
             using (state.Connect()) {
-              list = Query<Simple>.All.ToList();
+              list = Query.All<Simple>().ToList();
             }
             var simple = list.First();
             Assert.IsNotNull(simple);
@@ -432,7 +432,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             List<Simple> list = null;
             using (state.Connect()) {
-              list = Query<Simple>.All.OrderBy(simple => simple.Id).ToList();
+              list = Query.All<Simple>().OrderBy(simple => simple.Id).ToList();
             }
             Assert.AreEqual(2, list.Count);
             list[0].Remove();
@@ -446,7 +446,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             List<Simple> list = null;
             using (state.Connect()) {
-              list = Query<Simple>.All.OrderBy(simple => simple.Id).ToList();
+              list = Query.All<Simple>().OrderBy(simple => simple.Id).ToList();
             }
             Assert.AreEqual(2, list.Count);
             Assert.IsNull(list[0]);
@@ -479,11 +479,11 @@ namespace Xtensive.Storage.Tests.Storage
         using(state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
-              Query<Simple>.All.ToList();
+              Query.All<Simple>().ToList();
             }
-            var simple = Query<Simple>.Single(updatedKey);
+            var simple = Query.Single<Simple>(updatedKey);
             simple.Value = "New Value";
-            simple = Query<Simple>.Single(removedKey);
+            simple = Query.Single<Simple>(removedKey);
             simple.Remove();
             simple = new Simple {
               VersionId = 1,
@@ -498,13 +498,13 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
-            var simple = Query<Simple>.Single(updatedKey);
+            var simple = Query.Single<Simple>(updatedKey);
             Assert.AreEqual(1, simple.VersionId);
             Assert.AreEqual("New Value", simple.Value);
-            simple = Query<Simple>.Single(insertedKey);
+            simple = Query.Single<Simple>(insertedKey);
             Assert.AreEqual(1, simple.VersionId);
             Assert.AreEqual("Value3", simple.Value);
-            AssertEx.Throws<KeyNotFoundException>(() => Query<Simple>.Single(removedKey));
+            AssertEx.Throws<KeyNotFoundException>(() => Query.Single<Simple>(removedKey));
             transactionScope.Complete();
           }
         }
@@ -524,7 +524,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             List<Order> orders = null;
             using (state.Connect()) {
-              orders = Query<Order>.All
+              orders = Query.All<Order>()
                 .Prefetch(o => o.Customer)
                 .PrefetchMany(o => o.Details, set => set,
                   od => od.Prefetch(item => item.Product)).ToList();
@@ -542,7 +542,7 @@ namespace Xtensive.Storage.Tests.Storage
             Assert.AreEqual(2, order1.Details.Count);
             Product product3 = null;
             using (state.Connect()) {
-              product3 = Query<Product>.All.First(product => product.Name=="Product3");
+              product3 = Query.All<Product>().First(product => product.Name=="Product3");
             }
             new OrderDetail() {
               Product = product3,
@@ -573,12 +573,12 @@ namespace Xtensive.Storage.Tests.Storage
       
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          Order order1 = Query<Order>.Single(order1Key);
+          Order order1 = Query.Single<Order>(order1Key);
           var details = order1.Details.ToList();
           Assert.AreEqual(2, order1.Details.Count);
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
-          AssertEx.Throws<KeyNotFoundException>(() => Query<Customer>.Single(newCustomerKey));
+          AssertEx.Throws<KeyNotFoundException>(() => Query.Single<Customer>(newCustomerKey));
           transactionScope.Complete();
         }
       }
@@ -596,7 +596,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             List<Order> orders = null;
             using (state.Connect()) {
-              orders = Query<Order>.All
+              orders = Query.All<Order>()
                 .Prefetch(o => o.Customer)
                 .PrefetchMany(o => o.Details, set => set,
                   od => od.Prefetch(item => item.Product)).ToList();
@@ -606,7 +606,7 @@ namespace Xtensive.Storage.Tests.Storage
             order1Key = order1.Key;
             Product product3 = null;
             using (state.Connect()) {
-              product3 = Query<Product>.All.First(product => product.Name=="Product3");
+              product3 = Query.All<Product>().First(product => product.Name=="Product3");
             }
             new OrderDetail() {
               Product = product3,
@@ -621,7 +621,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
-            var order1 = Query<Order>.Single(order1Key);
+            var order1 = Query.Single<Order>(order1Key);
             order1.Number = 1000;
             var details = order1.Details.ToList();
             var detail3 = details.First(detail => detail.Count==250);
@@ -637,7 +637,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Check saved data
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          Order order1 = Query<Order>.Single(order1Key);
+          Order order1 = Query.Single<Order>(order1Key);
           Assert.AreEqual(1000, order1.Number);
           var details = order1.Details.ToList();
           Assert.AreEqual(3, order1.Details.Count);
@@ -666,7 +666,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (state.Attach(session))
       using (Transaction.Open()) {
-        var supplier = Query<Supplier>.Single(supplierKey);
+        var supplier = Query.Single<Supplier>(supplierKey);
         Assert.AreEqual(2, supplier.Products.Count);
         Assert.IsTrue(supplier.Products.State.IsFullyLoaded);
       }
@@ -691,8 +691,8 @@ namespace Xtensive.Storage.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
-              suppliers = Query<Supplier>.All.Prefetch(s => s.Products).ToList();
-              products = Query<Product>.All.Prefetch(p => p.Supplier).ToList();
+              suppliers = Query.All<Supplier>().Prefetch(s => s.Products).ToList();
+              products = Query.All<Product>().Prefetch(p => p.Supplier).ToList();
             }
             var supplier1 = suppliers.First(employee => employee.Name=="Supplier1");
             supplier1Key = supplier1.Key;
@@ -725,10 +725,10 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
 
             // Check previous changes
-            var newProduct1 = Query<Product>.SingleOrDefault(newProduct1Key);
-            var newProduct2 = Query<Product>.SingleOrDefault(newProduct2Key);
-            var product3 = Query<Product>.SingleOrDefault(product3Key);
-            var newSupplier = Query<Supplier>.SingleOrDefault(newSupplierKey);
+            var newProduct1 = Query.SingleOrDefault<Product>(newProduct1Key);
+            var newProduct2 = Query.SingleOrDefault<Product>(newProduct2Key);
+            var product3 = Query.SingleOrDefault<Product>(product3Key);
+            var newSupplier = Query.SingleOrDefault<Supplier>(newSupplierKey);
 
             Assert.IsNotNull(newProduct1);
             Assert.IsNotNull(newProduct1.Supplier);
@@ -766,10 +766,10 @@ namespace Xtensive.Storage.Tests.Storage
       // Check changes
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var newProduct1 = Query<Product>.SingleOrDefault(newProduct1Key);
-          var newProduct2 = Query<Product>.SingleOrDefault(newProduct2Key);
-          var product3 = Query<Product>.SingleOrDefault(product3Key);
-          var newSupplier = Query<Supplier>.SingleOrDefault(newSupplierKey);
+          var newProduct1 = Query.SingleOrDefault<Product>(newProduct1Key);
+          var newProduct2 = Query.SingleOrDefault<Product>(newProduct2Key);
+          var product3 = Query.SingleOrDefault<Product>(product3Key);
+          var newSupplier = Query.SingleOrDefault<Supplier>(newSupplierKey);
           Assert.IsNotNull(newSupplier);
           Assert.IsNotNull(newProduct1);
           Assert.IsNotNull(newProduct1.Supplier);
@@ -798,7 +798,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             Supplier supplier1 = null;
             using (state.Connect()) {
-              supplier1 = Query<Supplier>.All.First(employee => employee.Name=="Supplier1");
+              supplier1 = Query.All<Supplier>().First(employee => employee.Name=="Supplier1");
             }
             updatedSupplierKey = supplier1.Key;
             supplier1.Name = "UpdatedSupplier1";
@@ -814,7 +814,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
 
-            var supplier1 = Query<Supplier>.Single(updatedSupplierKey);
+            var supplier1 = Query.Single<Supplier>(updatedSupplierKey);
             supplier1.Name = "UpdatedSupplier2";
             var newSupplier = new Supplier {
               Name = "NewSupplier"
@@ -832,9 +832,9 @@ namespace Xtensive.Storage.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
 
-            var supplier1 = Query<Supplier>.Single(updatedSupplierKey);
+            var supplier1 = Query.Single<Supplier>(updatedSupplierKey);
             Assert.AreEqual("UpdatedSupplier1", supplier1.Name);
-            AssertEx.Throws<ConnectionRequiredException>(() => Query<Supplier>.Single(newSupplierKey));
+            AssertEx.Throws<ConnectionRequiredException>(() => Query.Single<Supplier>(newSupplierKey));
 
             transactionScope.Complete();
           }
@@ -874,7 +874,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (disconnectedState.Attach(session))
       using (Transaction.Open()) {
-        var customer = Query<Customer>.Single(customerKey);
+        var customer = Query.Single<Customer>(customerKey);
         var order = customer.Orders.AsEnumerable().Single();
         Assert.AreEqual(orderKey, order.Key);
       }
@@ -883,7 +883,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (disconnectedState.Attach(session))
       using (var outer = Transaction.Open()) {
-        var customer = Query<Customer>.Single(customerKey);
+        var customer = Query.Single<Customer>(customerKey);
         using (var inner = Transaction.Open(TransactionOpenMode.New)) {
           customer.Name = "Vasya";
           inner.Complete();
@@ -901,7 +901,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (disconnectedState.Attach(session))
       using (Transaction.Open()) {
-        var customer = Query<Customer>.Single(customerKey);
+        var customer = Query.Single<Customer>(customerKey);
         Assert.AreEqual(customer.Name, "Vasya");
       }
     }
@@ -913,7 +913,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key orderKey;
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          orderKey = Query<Order>.All.OrderBy(c => c.Id).First().Key;
+          orderKey = Query.All<Order>().OrderBy(c => c.Id).First().Key;
           transactionScope.Complete();
         }
       }
@@ -923,12 +923,12 @@ namespace Xtensive.Storage.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
-              Query<Order>.All.Prefetch(o => o.Details).ToList();
+              Query.All<Order>().Prefetch(o => o.Details).ToList();
             }
             transactionScope.Complete();
           }
           using (var transactionScope = Transaction.Open()) {
-            var order1 = Query<Order>.Single(orderKey);
+            var order1 = Query.Single<Order>(orderKey);
             foreach (var detail in order1.Details)
               Assert.IsNotNull(detail);
             transactionScope.Complete();
@@ -948,8 +948,8 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             List<Order> orders = null;
             using (state.Connect()) {
-              orders = Query<Order>.All.Prefetch(o => o.Details).ToList();
-              Query<Product>.All.ToList(); // Need for OrderDetails removing
+              orders = Query.All<Order>().Prefetch(o => o.Details).ToList();
+              Query.All<Product>().ToList(); // Need for OrderDetails removing
             }
             var order1 = orders.First(order => order.Number==1);
             order1Key = order1.Key;
@@ -972,8 +972,8 @@ namespace Xtensive.Storage.Tests.Storage
             transactionScope.Complete();
           }
           using (var transactionScope = Transaction.Open()) {
-            var order1 = Query<Order>.Single(order1Key);
-            var order2 = Query<Order>.Single(order2Key);
+            var order1 = Query.Single<Order>(order1Key);
+            var order2 = Query.Single<Order>(order2Key);
             Assert.AreEqual(1, order1.Details.Count);
             Assert.AreEqual(2, order2.Details.Count);
 
@@ -996,8 +996,8 @@ namespace Xtensive.Storage.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
-              authors = Query<Author>.All.Prefetch(a => a.Books).ToList();
-              books = Query<Book>.All.Prefetch(b => b.Authors).ToList();
+              authors = Query.All<Author>().Prefetch(a => a.Books).ToList();
+              books = Query.All<Book>().Prefetch(b => b.Authors).ToList();
             }
             var author1 = authors.First(author => author.Name=="Author1");
             var author2 = authors.First(author => author.Name=="Author2");
@@ -1037,7 +1037,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (OperationLogger.Attach(session, log))
         using (var transactionScope = Transaction.Open()) {
-          var orders = Query<Order>.All
+          var orders = Query.All<Order>()
             .Prefetch(o => o.Customer)
             .PrefetchMany(o => o.Details, set => set,
               od => od.Prefetch(item => item.Product)).ToList();
@@ -1052,13 +1052,13 @@ namespace Xtensive.Storage.Tests.Storage
           order1Key = order1.Key;
           Assert.AreEqual(2, order1.Details.Count);
           Product product3 = null;
-          product3 = Query<Product>.All.First(product => product.Name=="Product3");
+          product3 = Query.All<Product>().First(product => product.Name=="Product3");
           new OrderDetail() {
             Product = product3,
             Count = 250,
             Order = order1
           };
-          var product2 = Query<Product>.All.First(product => product.Name == "Product2");
+          var product2 = Query.All<Product>().First(product => product.Name == "Product2");
           var order1Detail1 = order1.Details.ToList().First(detail => detail.Product.Name=="Product1");
           order1Detail1.Product.Name = "Product1.New";
           order1Detail1.Count = 150;
@@ -1091,13 +1091,13 @@ namespace Xtensive.Storage.Tests.Storage
       
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          Order order1 = Query<Order>.Single(order1Key);
+          Order order1 = Query.Single<Order>(order1Key);
           var details = order1.Details.ToList();
           Assert.AreEqual(3, order1.Details.Count);
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product2" && detail.Count == 499));
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
-          AssertEx.Throws<KeyNotFoundException>(() => Query<Customer>.Single(newCustomerKey));
+          AssertEx.Throws<KeyNotFoundException>(() => Query.Single<Customer>(newCustomerKey));
           transactionScope.Complete();
         }
       }
@@ -1116,7 +1116,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             List<Order> orders = null;
             using (state.Connect()) {
-              orders = Query<Order>.All
+              orders = Query.All<Order>()
                 .Prefetch(o => o.Customer)
                 .PrefetchMany(o => o.Details, set => set,
                   od => od.Prefetch(item => item.Product)).ToList();
@@ -1135,7 +1135,7 @@ namespace Xtensive.Storage.Tests.Storage
             Assert.AreEqual(2, order1.Details.Count);
             Product product3 = null;
             using (state.Connect()) {
-              product3 = Query<Product>.All.First(product => product.Name=="Product3");
+              product3 = Query.All<Product>().First(product => product.Name=="Product3");
             }
             new OrderDetail() {
               Product = product3,
@@ -1165,7 +1165,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
-            var order1 = Query<Order>.Single(order1Key);
+            var order1 = Query.Single<Order>(order1Key);
             var details = order1.Details.ToList();
             Assert.AreEqual(2, order1.Details.Count);
             Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
@@ -1181,7 +1181,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Check data in DB
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var order1 = Query<Order>.Single(order1Key);
+          var order1 = Query.Single<Order>(order1Key);
           var details = order1.Details.ToList();
           Assert.AreEqual(2, order1.Details.Count);
           Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product1.New"));
@@ -1202,7 +1202,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
-              customer1Key = Query<Customer>.All.First(customer => customer.Name=="Customer1").Key;
+              customer1Key = Query.All<Customer>().First(customer => customer.Name=="Customer1").Key;
             }
             transactionScope.Complete();
           }
@@ -1212,7 +1212,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Modify instance in storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var customer1 = Query<Customer>.Single(customer1Key);
+          var customer1 = Query.Single<Customer>(customer1Key);
           customer1.Name = "NewName1";
           transactionScope.Complete();
         }
@@ -1222,7 +1222,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
-            var customer1 = Query<Customer>.Single(customer1Key);
+            var customer1 = Query.Single<Customer>(customer1Key);
             customer1.Name = "NewName2";
             transactionScope.Complete();
           }
@@ -1272,8 +1272,8 @@ namespace Xtensive.Storage.Tests.Storage
             Container container = null;
             Item item = null;
             using (state.Connect()) {
-              container = Query<Container>.Single(containerKey);
-              item = Query<Item>.Single(itemKey);
+              container = Query.Single<Container>(containerKey);
+              item = Query.Single<Item>(itemKey);
             }
             AssertEx.Throws<ReferentialIntegrityException>(() => container.Remove());
 
@@ -1298,7 +1298,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
 
           using (var transactionScope = Transaction.Open()) {
-            var newContainer = Query<Container>.Single(containerKey);
+            var newContainer = Query.Single<Container>(containerKey);
             AssertEx.Throws<ReferentialIntegrityException>(() => newContainer.Remove());
 
             transactionScope.Complete();
@@ -1330,8 +1330,8 @@ namespace Xtensive.Storage.Tests.Storage
             Container container = null;
             Item item = null;
             using (state.Connect()) {
-              container = Query<Container>.Single(containerKey);
-              item = Query<Item>.Single(itemKey);
+              container = Query.Single<Container>(containerKey);
+              item = Query.Single<Item>(itemKey);
             }
             AssertEx.Throws<ReferentialIntegrityException>(() => container.Remove());
 
@@ -1357,7 +1357,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
 
           using (var transactionScope = Transaction.Open()) {
-            var newContainer = Query<Container>.Single(containerKey);
+            var newContainer = Query.Single<Container>(containerKey);
             AssertEx.Throws<ReferentialIntegrityException>(() => newContainer.Remove());
 
             transactionScope.Complete();
@@ -1389,9 +1389,9 @@ namespace Xtensive.Storage.Tests.Storage
             Container container = null;
             Item item = null;
             using (state.Connect()) {
-              Query<Container>.All.Prefetch(c => c.ManyToZero).ToList();
-              container = Query<Container>.Single(containerKey);
-              item = Query<Item>.Single(itemKey);
+              Query.All<Container>().Prefetch(c => c.ManyToZero).ToList();
+              container = Query.Single<Container>(containerKey);
+              item = Query.Single<Item>(itemKey);
             }
             AssertEx.Throws<ReferentialIntegrityException>(() => item.Remove());
 
@@ -1417,7 +1417,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
 
           using (var transactionScope = Transaction.Open()) {
-            var item = Query<Item>.Single(itemKey);
+            var item = Query.Single<Item>(itemKey);
             AssertEx.Throws<ReferentialIntegrityException>(() => item.Remove());
 
             transactionScope.Complete();
@@ -1438,7 +1438,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             Author author1 = null;
             using (state.Connect()) {
-              author1 = Query<Author>.All
+              author1 = Query.All<Author>()
                 .Where(author => author.Name=="Author1")
                 .Prefetch(author => author.Books)
                 .First();
@@ -1471,7 +1471,7 @@ namespace Xtensive.Storage.Tests.Storage
           }
 
           using (var transactionScope = Transaction.Open()) {
-            var newCustomer = Query<Customer>.Single(customerKey);
+            var newCustomer = Query.Single<Customer>(customerKey);
             AssertEx.Throws<ReferentialIntegrityException>(newCustomer.Remove);
 
             transactionScope.Complete();
@@ -1489,8 +1489,8 @@ namespace Xtensive.Storage.Tests.Storage
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
-              Query<Order>.All.ToList();
-              Query<Order>.All.Prefetch(o => o.Customer).ToList();
+              Query.All<Order>().ToList();
+              Query.All<Order>().Prefetch(o => o.Customer).ToList();
             }
             transactionScope.Complete();
           }
@@ -1501,7 +1501,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             List<Customer> customers;
             using (state.Connect()) {
-              customers = Query<Customer>.All.Prefetch(c => c.Orders).ToList();
+              customers = Query.All<Customer>().Prefetch(c => c.Orders).ToList();
             }
             transactionScope.Complete();
           }
@@ -1536,8 +1536,8 @@ namespace Xtensive.Storage.Tests.Storage
             A a = null;
             List<B> list = null;
             using (state.Connect()) {
-              a = Query<A>.All.First();
-              list = Query<B>.All.ToList();
+              a = Query.All<A>().First();
+              list = Query.All<B>().ToList();
             }
             a.Remove();
             Assert.IsTrue(list.All(item => item.Root==null));
@@ -1549,7 +1549,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Add references to A in DB
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          var a = Query<A>.All.First();
+          var a = Query.All<A>().First();
           var b3 = new B();
           b3.Root = a;
           transactionScope.Complete();
@@ -1566,8 +1566,8 @@ namespace Xtensive.Storage.Tests.Storage
       // Check data
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
-          Assert.IsNull(Query<A>.All.FirstOrDefault());
-          Assert.IsTrue(Query<B>.All.All(item => item.Root==null));
+          Assert.IsNull(Query.All<A>().FirstOrDefault());
+          Assert.IsTrue(Query.All<B>().All(item => item.Root==null));
           transactionScope.Complete();
         }
       }
@@ -1598,7 +1598,7 @@ namespace Xtensive.Storage.Tests.Storage
           // Load data
           using (var transactionScope = Transaction.Open()) {
             using (state2.Connect()) {
-              Query<Simple>.All.ToList();
+              Query.All<Simple>().ToList();
             }
           }
         }
@@ -1610,9 +1610,9 @@ namespace Xtensive.Storage.Tests.Storage
         using (state1.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             using (state1.Connect()) {
-              Query<Simple>.All.ToList();
+              Query.All<Simple>().ToList();
             }
-            var simple = Query<Simple>.Single(key);
+            var simple = Query.Single<Simple>(key);
             simple.Value = "Value2";
             Assert.IsNotNull(simple);
             transactionScope.Complete();
@@ -1626,9 +1626,9 @@ namespace Xtensive.Storage.Tests.Storage
         using (state2.Attach(session)) {
           AssertEx.Throws<InvalidOperationException>(() => state2.Merge(state1, MergeMode.Strict));
           state2.Merge(state1, MergeMode.PreferTarget);
-          Assert.AreEqual("Value1", Query<Simple>.Single(key).Value);
+          Assert.AreEqual("Value1", Query.Single<Simple>(key).Value);
           state2.Merge(state1, MergeMode.PreferSource);
-          Assert.AreEqual("Value2", Query<Simple>.Single(key).Value);
+          Assert.AreEqual("Value2", Query.Single<Simple>(key).Value);
         }
       }
     }

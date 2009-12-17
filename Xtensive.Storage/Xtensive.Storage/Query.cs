@@ -34,6 +34,16 @@ namespace Xtensive.Storage
     private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
 
     /// <summary>
+    /// The "starting point" for any LINQ query -
+    /// a <see cref="IQueryable{T}"/> enumerating all the instances
+    /// of type <typeparamref name="T"/>.
+    /// </summary>
+    public static IQueryable<T> All<T>()
+    {
+      return new Queryable<T>();
+    }
+
+    /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
     /// in the current <see cref="Session"/>.
     /// </summary>
@@ -62,6 +72,64 @@ namespace Xtensive.Storage
     {
       var session = Session.Demand();
       return SingleOrDefault(session, key);
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <param name="key">The key to resolve.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// <see langword="null" />, if there is no such entity.
+    /// </returns>
+    public static T Single<T>(Key key)
+      where T : class, IEntity
+    {
+      return (T) (object) Single(key);
+    }
+    
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <param name="keyValues">Key values.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// <see langword="null" />, if there is no such entity.
+    /// </returns>
+    public static T Single<T>(params object[] keyValues)
+      where T : class, IEntity
+    {
+      return (T) (object) Single(GetKeyByValues<T>(keyValues));
+    }
+    
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <param name="key">The key to resolve.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// </returns>
+    public static T SingleOrDefault<T>(Key key)
+      where T : class, IEntity
+    {
+      return (T) (object) SingleOrDefault(key);
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <param name="keyValues">Key values.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// </returns>
+    public static T SingleOrDefault<T>(params object[] keyValues)
+      where T : class, IEntity
+    {
+      return (T) (object) SingleOrDefault(GetKeyByValues<T>(keyValues));
     }
 
     /// <summary>
@@ -295,6 +363,23 @@ namespace Xtensive.Storage
         transactionScope.Complete();
       }
       return result;
+    }
+
+    /// <exception cref="ArgumentException"><paramref name="keyValues"/> array is empty.</exception>
+    private static Key GetKeyByValues<T>(object[] keyValues)
+      where T : class, IEntity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(keyValues, "keyValues");
+      if (keyValues.Length==0)
+        throw new ArgumentException(Strings.ExKeyValuesArrayIsEmpty, "keyValues");
+      if (keyValues.Length==1) {
+        var keyValue = keyValues[0];
+        if (keyValue is Key)
+          return keyValue as Key;
+        if (keyValue is Entity)
+          return (keyValue as Entity).Key;
+      }
+      return Key.Create(typeof (T), keyValues);
     }
 
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>

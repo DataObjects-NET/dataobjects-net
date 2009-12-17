@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     [Test]
     public void QueryTest()
     {
-      var result = Query<IHasFreight>.All;
+      var result = Query.All<IHasFreight>();
       var list = result.ToList();
       Assert.AreEqual(830, list.Count);
       Assert.IsTrue(list.All(i => i != null));
@@ -26,8 +26,8 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
     [Test]
     public void QueryByInterfaceTest()
     {
-      var actual = Query<IHasFreight>.All.ToList();
-      var expected = Query<Order>.All.ToList();
+      var actual = Query.All<IHasFreight>().ToList();
+      var expected = Query.All<Order>().ToList();
       Assert.AreEqual(0, expected.Except(actual.Cast<Order>()).Count());
     }
   }

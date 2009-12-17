@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Tests.Issues
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
 
-          var root1 = Query<Node>.Single(key);
+          var root1 = Query.Single<Node>(key);
           Console.WriteLine("Direct query");
           var directQuery = Query<Node>
             .All

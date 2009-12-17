@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
       using (Session.Open(Domain)) {
         using (Transaction.Open()) {
-          Mouse mouse = Query<Mouse>.All.Where(m => m.ID==mouseId).First();
+          Mouse mouse = Query.All<Mouse>().Where(m => m.ID==mouseId).First();
         }
       }
       Assert.AreEqual(1, validationCallsCount); 

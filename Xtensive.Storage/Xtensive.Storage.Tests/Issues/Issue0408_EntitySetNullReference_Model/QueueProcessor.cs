@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     {
       string[] parts = key.Split('~');
       long id = Convert.ToInt64(parts[1]);
-      return (from p in Query<QueueProcessor>.All
+      return (from p in Query.All<QueueProcessor>()
               where p.Id == id
               select p).FirstOrDefault();
     }

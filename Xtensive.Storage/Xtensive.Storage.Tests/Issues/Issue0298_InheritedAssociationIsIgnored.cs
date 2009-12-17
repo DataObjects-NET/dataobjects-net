@@ -59,15 +59,15 @@ namespace Xtensive.Storage.Tests.Issues
           am.Tracks.Add(new MasterTrack());
           am.Tracks.Add(new MasterTrack());
 
-          Assert.AreEqual(1, Query<AudioMaster>.All.Count());
-          Assert.AreEqual(2, Query<MasterTrack>.All.Count());
+          Assert.AreEqual(1, Query.All<AudioMaster>().Count());
+          Assert.AreEqual(2, Query.All<MasterTrack>().Count());
 
           AssertEx.Throws<ReferentialIntegrityException>(() => am.Tracks.First().Remove());
 
           am.Remove();
 
-          Assert.AreEqual(0, Query<AudioMaster>.All.Count());
-          Assert.AreEqual(0, Query<MasterTrack>.All.Count());
+          Assert.AreEqual(0, Query.All<AudioMaster>().Count());
+          Assert.AreEqual(0, Query.All<MasterTrack>().Count());
           // Rollback
         }
       }

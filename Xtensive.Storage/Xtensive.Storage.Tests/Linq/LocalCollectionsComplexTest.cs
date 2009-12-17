@@ -149,9 +149,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session session = Session.Open(Domain)) {
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
-          var localItems = Query<EntityB>.All.Take(count / 2).ToArray();
-          var union = Query<EntityB>.All.Union(localItems);
-          var expected = Query<EntityB>.All.AsEnumerable().Union(localItems);
+          var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
+          var union = Query.All<EntityB>().Union(localItems);
+          var expected = Query.All<EntityB>().AsEnumerable().Union(localItems);
           Assert.AreEqual(0, expected.Except(union).Count());
         }
       }
@@ -163,9 +163,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session session = Session.Open(Domain)) {
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
-          var localItems = Query<EntityB>.All.Select(b => b.AdditionalInfo).Take(count / 2).ToArray();
-          var union = Query<EntityB>.All.Select(b => b.AdditionalInfo).Union(localItems);
-          var expected = Query<EntityB>.All.AsEnumerable().Select(b => b.AdditionalInfo).Union(localItems);
+          var localItems = Query.All<EntityB>().Select(b => b.AdditionalInfo).Take(count / 2).ToArray();
+          var union = Query.All<EntityB>().Select(b => b.AdditionalInfo).Union(localItems);
+          var expected = Query.All<EntityB>().AsEnumerable().Select(b => b.AdditionalInfo).Union(localItems);
           Assert.AreEqual(0, expected.Except(union).Count());
         }
       }
@@ -177,9 +177,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session session = Session.Open(Domain)) {
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
-          var localItems = Query<EntityB>.All.Select(b => b.Name).Take(count / 2).ToArray();
-          var union = Query<EntityB>.All.Select(b => b.Name).Union(localItems);
-          var expected = Query<EntityB>.All.AsEnumerable().Select(b => b.Name).Union(localItems);
+          var localItems = Query.All<EntityB>().Select(b => b.Name).Take(count / 2).ToArray();
+          var union = Query.All<EntityB>().Select(b => b.Name).Union(localItems);
+          var expected = Query.All<EntityB>().AsEnumerable().Select(b => b.Name).Union(localItems);
           Assert.AreEqual(0, expected.Except(union).Count());
         }
       }
@@ -191,9 +191,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session session = Session.Open(Domain)) {
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
-          var localItems = Query<EntityB>.All.Take(count / 2).ToArray();
-          var join = Query<EntityB>.All.Join(localItems, b => b, l => l, (b, l) => new {b, l});
-          var expected = Query<EntityB>.All.AsEnumerable().Join(localItems, b => b, l => l, (b, l) => new {b, l});
+          var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
+          var join = Query.All<EntityB>().Join(localItems, b => b, l => l, (b, l) => new {b, l});
+          var expected = Query.All<EntityB>().AsEnumerable().Join(localItems, b => b, l => l, (b, l) => new {b, l});
           Assert.AreEqual(0, expected.Except(join).Count());
         }
       }
@@ -206,9 +206,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session session = Session.Open(Domain)) {
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
-          var localItems = Query<EntityB>.All.Take(count / 2).ToArray();
-          var join = Query<EntityB>.All.Join(localItems, b => b.AdditionalInfo.A, l => l.AdditionalInfo.A, (b, l) => new {b, l});
-          var expected = Query<EntityB>.All.AsEnumerable().Join(localItems, b => b.AdditionalInfo.A, l => l.AdditionalInfo.A, (b, l) => new {b, l});
+          var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
+          var join = Query.All<EntityB>().Join(localItems, b => b.AdditionalInfo.A, l => l.AdditionalInfo.A, (b, l) => new {b, l});
+          var expected = Query.All<EntityB>().AsEnumerable().Join(localItems, b => b.AdditionalInfo.A, l => l.AdditionalInfo.A, (b, l) => new {b, l});
           Assert.AreEqual(0, expected.Except(join).Count());
         }
       }
@@ -220,9 +220,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session session = Session.Open(Domain)) {
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
-          var localItems = Query<EntityB>.All.Take(count / 2).ToArray();
-          var join = Query<EntityA>.All.Join(localItems, a => a, l => l.AdditionalInfo.A, (a, l) => new {a, l});
-          var expected = Query<EntityA>.All.AsEnumerable().Join(localItems, a => a, l => l.AdditionalInfo.A, (a, l) => new {a, l});
+          var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
+          var join = Query.All<EntityA>().Join(localItems, a => a, l => l.AdditionalInfo.A, (a, l) => new {a, l});
+          var expected = Query.All<EntityA>().AsEnumerable().Join(localItems, a => a, l => l.AdditionalInfo.A, (a, l) => new {a, l});
           Assert.AreEqual(0, expected.Except(join).Count());
         }
       }
@@ -234,11 +234,11 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session session = Session.Open(Domain)) {
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
-          var localStructure = Query<EntityB>.All.Select(b => b.AdditionalInfo).First();
-          var array = Query<EntityB>.All.Where(b => b.AdditionalInfo==localStructure).ToArray();
-          var localItems = Query<EntityB>.All.Select(b => b.AdditionalInfo).ToArray();
-          var join = Query<EntityB>.All.Select(b => b.AdditionalInfo).Join(localItems, b => b, l => l, (b, l) => new {b, l});
-          var expected = Query<EntityB>.All.AsEnumerable().Select(b => b.AdditionalInfo).Join(localItems, b => b, l => l, (b, l) => new {b, l});
+          var localStructure = Query.All<EntityB>().Select(b => b.AdditionalInfo).First();
+          var array = Query.All<EntityB>().Where(b => b.AdditionalInfo==localStructure).ToArray();
+          var localItems = Query.All<EntityB>().Select(b => b.AdditionalInfo).ToArray();
+          var join = Query.All<EntityB>().Select(b => b.AdditionalInfo).Join(localItems, b => b, l => l, (b, l) => new {b, l});
+          var expected = Query.All<EntityB>().AsEnumerable().Select(b => b.AdditionalInfo).Join(localItems, b => b, l => l, (b, l) => new {b, l});
           var except = expected.Except(join);
           var joinArray = join.ToArray();
           var expectedArray = expected.ToArray();
@@ -253,9 +253,9 @@ namespace Xtensive.Storage.Tests.Linq
       using (Session session = Session.Open(Domain)) {
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
-          var localItems = Query<EntityB>.All.Take(count / 2).ToArray();
-          var join = Query<EntityB>.All.Join(localItems, b => b.AdditionalInfo, l => l.AdditionalInfo, (b, l) => new {b, l});
-          var expected = Query<EntityB>.All.AsEnumerable().Join(localItems, b => b.AdditionalInfo, l => l.AdditionalInfo, (b, l) => new {b, l});
+          var localItems = Query.All<EntityB>().Take(count / 2).ToArray();
+          var join = Query.All<EntityB>().Join(localItems, b => b.AdditionalInfo, l => l.AdditionalInfo, (b, l) => new {b, l});
+          var expected = Query.All<EntityB>().AsEnumerable().Join(localItems, b => b.AdditionalInfo, l => l.AdditionalInfo, (b, l) => new {b, l});
           Assert.AreEqual(0, expected.Except(join).Count());
         }
       }
@@ -268,10 +268,10 @@ namespace Xtensive.Storage.Tests.Linq
         using (TransactionScope t = Transaction.Open()) {
           session.Persist();
           Poco2[] localItems = GetPocoCollection();
-          var join = Query<EntityB>.All.Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A});
+          var join = Query.All<EntityB>().Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A});
           var count = join.Count();
           Assert.IsTrue(count>0);
-          var expected = Query<EntityB>.All.AsEnumerable().Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A});
+          var expected = Query.All<EntityB>().AsEnumerable().Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A});
           var except = expected.Except(join).ToArray();
           Assert.AreEqual(0, except.Length);
         }
@@ -280,8 +280,8 @@ namespace Xtensive.Storage.Tests.Linq
 
     private Poco2[] GetPocoCollection()
     {
-      return Query<EntityB>.All
-        .Join(Query<EntityA>.All, b => 1, a => 1, (b, a) => new {a, b})
+      return Query.All<EntityB>()
+        .Join(Query.All<EntityA>(), b => 1, a => 1, (b, a) => new {a, b})
         .Take(count)
         .AsEnumerable()
         .Select((ab, i) => new Poco2 {

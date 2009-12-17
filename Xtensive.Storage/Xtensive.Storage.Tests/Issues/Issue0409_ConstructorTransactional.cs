@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Issues
         }
       }
       using (var s = Session.Open(Domain, sessionConfiguration)) {
-        var document = Query<Document>.Single(key);
+        var document = Query.Single<Document>(key);
       }
     }
 
