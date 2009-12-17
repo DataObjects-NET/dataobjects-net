@@ -424,9 +424,11 @@ namespace Xtensive.Storage
     {
       if (!Session.EntityEventBroker.HasSubscribers)
         return;
-      Func<FieldInfo, FieldInfo> rootFinder = null;
-      rootFinder = f => f.Parent == null ? f : rootFinder(f.Parent);
-      var rootField = rootFinder(field);
+
+      var rootField = field;
+      while (rootField.Parent != null)
+        rootField = rootField.Parent;
+
       var subscription = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
       if (subscription.Second != null)
         ((PropertyChangedEventHandler)subscription.Second)

@@ -57,6 +57,33 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void SessionActivationTest()
+    {
+      var session = Session.Open(Domain, false);
+
+      Author author;
+
+      TransactionScope transactionScope;
+
+      using (session.Activate()) {
+        using (transactionScope = Transaction.Open()) {
+          author = new Author();
+          transactionScope.Complete();
+        }
+
+        transactionScope = Transaction.Open();
+      }
+
+      foreach (var book in author.Books) {        
+      }
+
+      using (session.Activate()) {
+        transactionScope.Complete();
+        transactionScope.Dispose();
+      }
+    }
+
+    [Test]
     public void SimpleEntitySetPrefetchTest()
     {
       Key key;

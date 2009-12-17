@@ -552,8 +552,10 @@ namespace Xtensive.Storage
     
     private IEnumerable<IEntity> GetRealEntities()
     {
-      Session.Handler.FetchEntitySet(Owner.Key, Field, null);
-      return GetCachedEntities();
+      using (Session.Activate()) {
+        Session.Handler.FetchEntitySet(Owner.Key, Field, null);
+        return GetCachedEntities();
+      }
     }
 
     private bool Contains(Key key, PersistenceState? persistenceState)
