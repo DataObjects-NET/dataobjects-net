@@ -15,12 +15,12 @@ namespace Xtensive.Core
   /// </summary>
   public sealed class ConnectionInfo : IEquatable<ConnectionInfo>
   {
-    private const string ToStringFormat = "Provider Name={0};{1}";
+    private const string ToStringFormat = "[{0}] {1}";
 
     /// <summary>
     /// Gets the name of the provider.
     /// </summary>
-    public string ProviderName { get; private set; }
+    public string Provider { get; private set; }
 
     /// <summary>
     /// Gets the connection string.
@@ -37,7 +37,7 @@ namespace Xtensive.Core
     {
       return ConnectionUrl!=null
         ? ConnectionUrl.ToString()
-        : string.Format(ToStringFormat, ProviderName, ConnectionString);
+        : string.Format(ToStringFormat, Provider, ConnectionString);
     }
 
     #region GetHashCode, Equals, ==, !=
@@ -46,7 +46,7 @@ namespace Xtensive.Core
     public override int GetHashCode()
     {
       unchecked {
-        int result = (ProviderName!=null ? ProviderName.GetHashCode() : 0);
+        int result = (Provider!=null ? Provider.GetHashCode() : 0);
         result = (result * 397) ^ (ConnectionString!=null ? ConnectionString.GetHashCode() : 0);
         result = (result * 397) ^ (ConnectionUrl!=null ? ConnectionUrl.GetHashCode() : 0);
         return result;
@@ -70,7 +70,7 @@ namespace Xtensive.Core
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return Equals(other.ProviderName, ProviderName)
+      return Equals(other.Provider, Provider)
         && Equals(other.ConnectionString, ConnectionString)
         && Equals(other.ConnectionUrl, ConnectionUrl);
     }
@@ -95,15 +95,15 @@ namespace Xtensive.Core
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="providerName">A value for <see cref="ProviderName"/>.</param>
+    /// <param name="provider">A value for <see cref="Provider"/>.</param>
     /// <param name="connectionString">A value for <see cref="ConnectionString"/>.</param>
-    public ConnectionInfo(string providerName, string connectionString)
+    public ConnectionInfo(string provider, string connectionString)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(providerName, "providerName");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionString, "connectionString");
 
       ConnectionString = connectionString;
-      ProviderName = providerName.ToLowerInvariant();
+      Provider = provider.ToLowerInvariant();
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(connectionUrl, "connectionUrl");
 
       ConnectionUrl = connectionUrl;
-      ProviderName = connectionUrl.Protocol.ToLowerInvariant();
+      Provider = connectionUrl.Protocol.ToLowerInvariant();
     }
   }
 }
