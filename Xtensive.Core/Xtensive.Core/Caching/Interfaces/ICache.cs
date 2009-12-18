@@ -14,7 +14,8 @@ namespace Xtensive.Core.Caching
   /// </summary>
   /// <typeparam name="TKey">The type of the cache key.</typeparam>
   /// <typeparam name="TItem">The type of the item to cached.</typeparam>
-  public interface ICache<TKey, TItem> : ICountable<TItem>
+  public interface ICache<TKey, TItem> : IInvalidatable,
+    ICountable<TItem>
   {
     /// <summary>
     /// Gets the count of cached items.

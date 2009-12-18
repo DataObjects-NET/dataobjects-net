@@ -242,6 +242,12 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
+    public void Invalidate()
+    {
+      Clear();
+    }
+
+    /// <inheritdoc/>
     public virtual void CollectGarbage()
     {
       int count = items.Count;

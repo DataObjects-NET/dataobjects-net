@@ -21,11 +21,31 @@ namespace Xtensive.Storage.Internals
       return false;
     }
 
-    public static bool ContainsEmptyValues( this Tuple target, Segment<int> segment)
+    public static bool ContainsNonEmptyValues(this Tuple target)
+    {
+      for (int i = 0; i < target.Count; i++) {
+        var state = target.GetFieldState(i);
+        if (state.HasValue())
+          return true;
+      }
+      return false;
+    }
+
+    public static bool ContainsEmptyValues(this Tuple target, Segment<int> segment)
     {
       for (int i = segment.Offset; i < segment.EndOffset; i++) {
         var state = target.GetFieldState(i);
         if (!state.HasValue())
+          return true;
+      }
+      return false;
+    }
+
+    public static bool ContainsNonEmptyValues(this Tuple target, Segment<int> segment)
+    {
+      for (int i = segment.Offset; i < segment.EndOffset; i++) {
+        var state = target.GetFieldState(i);
+        if (state.HasValue())
           return true;
       }
       return false;

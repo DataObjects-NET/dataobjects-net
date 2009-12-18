@@ -332,6 +332,8 @@ namespace Xtensive.Storage
         break;
       }
       EntityChangeRegistry = new EntityChangeRegistry();
+      Cache = new SessionCache(this);
+
       // Etc...
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       CoreServices = new CoreServiceAccessor(this);

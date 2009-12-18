@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
           EntitySetState state;
           session.Handler.TryGetEntitySetState(key, ordersField, out state);
           Assert.IsTrue(state.IsFullyLoaded);
-          Assert.Greater(state.TotalItemsCount, 0);
+          Assert.Greater(state.TotalItemCount, 0);
           foreach (var orderKey in state) {
             expectedEmployeeCount++;
             var orderState = session.EntityStateCache[orderKey, true];

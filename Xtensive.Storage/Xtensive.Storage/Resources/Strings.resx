@@ -1316,4 +1316,7 @@ Actions:
   <data name="ExUnableToStoreUntypedKeyToStorage" xml:space="preserve">
     <value>Unable to store untyped 'Key' to storage. Use '{0}' instead of 'Key'.</value>
   </data>
+  <data name="ExFieldBelongsToADifferentType" xml:space="preserve">
+    <value>Field belongs to a different type.</value>
+  </data>
 </root>

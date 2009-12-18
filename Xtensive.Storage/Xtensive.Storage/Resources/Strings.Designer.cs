@@ -926,6 +926,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Field belongs to a different type..
+        /// </summary>
+        internal static string ExFieldBelongsToADifferentType {
+            get {
+                return ResourceManager.GetString("ExFieldBelongsToADifferentType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field &apos;{0}&apos; is not an Entity field in Type &apos;{1}&apos;..
         /// </summary>
         internal static string ExFieldIsNotAnEntityField {

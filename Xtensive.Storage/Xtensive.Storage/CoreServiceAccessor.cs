@@ -14,6 +14,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Provides access to core services bound to a <see cref="Session"/>.
   /// </summary>
+  [Infrastructure]
   public sealed class CoreServiceAccessor : SessionBound
   {
     /// <summary>
@@ -34,7 +35,6 @@ namespace Xtensive.Storage
     /// disposal will restore previous state of
     /// <see cref="Session.IsSystemLogicOnly"/> property.
     /// </returns>
-    [Infrastructure]
     public IDisposable OpenSystemLogicOnlyRegion()
     {
       var result = new Disposable<Session, bool>(Session, Session.IsSystemLogicOnly,
@@ -52,7 +52,6 @@ namespace Xtensive.Storage
     /// disposal will restore previous state of
     /// <see cref="Session.Handler"/> property.
     /// </returns>
-    [Infrastructure]
     public IDisposable ChangeSessionHandler(SessionHandler newHandler)
     {
       var result = new Disposable<Session, SessionHandler>(Session, Session.Handler,
@@ -66,7 +65,6 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <inheritdoc/>
-    [Infrastructure]
     public CoreServiceAccessor(Session session)
       : base(session)
     {

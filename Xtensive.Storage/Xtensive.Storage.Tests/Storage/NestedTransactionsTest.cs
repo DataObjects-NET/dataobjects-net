@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Tests.Storage
     private static void AssertStateIsValid(Entity entity, Transaction expectedStateTransaction)
     {
       Assert.IsTrue(CheckStateIsActual(entity));
-      Assert.AreSame(expectedStateTransaction, entity.State.StateTransaction);
+      Assert.AreSame(expectedStateTransaction, entity.State.Transaction);
     }
 
     private static void AssertStateIsInvalid(Entity entity)
@@ -159,7 +159,7 @@ namespace Xtensive.Storage.Tests.Storage
     
     private static bool CheckStateIsActual(Entity entity)
     {
-      var stateTransaction = entity.State.StateTransaction;
+      var stateTransaction = entity.State.Transaction;
       return stateTransaction!=null && stateTransaction.AreChangesVisibleTo(Transaction.Current);
     }
   }

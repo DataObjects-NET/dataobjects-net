@@ -97,10 +97,20 @@ namespace Xtensive.Storage
     internal string SavepointName { get; private set; }
     
     internal bool IsActuallyStarted { get; set; }
-  
-    #region Private / internal methods
-    
-    internal bool AreChangesVisibleTo(Transaction otherTransaction)
+
+    /// <summary>
+    /// Indicates whether changes made in this transaction are visible "as is"
+    /// in <paramref name="otherTransaction"/>. This implies <paramref name="otherTransaction"/>
+    /// and this transaction at least share the same <see cref="Outermost"/> transaction.
+    /// Please refer to the code of this method to clearly understand what it really does ;)
+    /// </summary>
+    /// <param name="otherTransaction">The other transaction.</param>
+    /// <returns>
+    /// <see langword="True"/> if changes made in this transaction are visible
+    /// "as is" in <paramref name="otherTransaction"/>;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool AreChangesVisibleTo(Transaction otherTransaction)
     {
       ArgumentValidator.EnsureArgumentNotNull(otherTransaction, "otherTransaction");
       if (Outermost!=otherTransaction.Outermost)
@@ -111,7 +121,9 @@ namespace Xtensive.Storage
         t = t.Outer;
       return t.State.IsActive();      
     }
-
+  
+    #region Private / internal methods
+    
     internal void Begin()
     {
       if (State!=TransactionState.NotActivated)

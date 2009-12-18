@@ -350,11 +350,11 @@ namespace Xtensive.Storage.Tests.Storage
         author.Books.Add(new Book());
         EntitySetState setState;
         session.Handler.TryGetEntitySetState(key, booksField, out setState);
-        Assert.IsNull(setState.TotalItemsCount);
+        Assert.IsNull(setState.TotalItemCount);
         Assert.AreEqual(itemCount + 1, author.Books.Count);
-        Assert.AreEqual(itemCount + 1, setState.TotalItemsCount);
+        Assert.AreEqual(itemCount + 1, setState.TotalItemCount);
         author.Books.Add(new Book());
-        Assert.AreEqual(itemCount + 2, setState.TotalItemsCount);
+        Assert.AreEqual(itemCount + 2, setState.TotalItemCount);
         t.Complete();
       }
     }
@@ -370,11 +370,11 @@ namespace Xtensive.Storage.Tests.Storage
         author.Books.Remove(bookToBeRemoved0);
         EntitySetState setState;
         session.Handler.TryGetEntitySetState(key, booksField, out setState);
-        Assert.IsNull(setState.TotalItemsCount);
+        Assert.IsNull(setState.TotalItemCount);
         Assert.AreEqual(itemCount - 1, author.Books.Count);
-        Assert.AreEqual(itemCount - 1, setState.TotalItemsCount);
+        Assert.AreEqual(itemCount - 1, setState.TotalItemCount);
         author.Books.Remove(bookToBeRemoved1);
-        Assert.AreEqual(itemCount - 2, setState.TotalItemsCount);
+        Assert.AreEqual(itemCount - 2, setState.TotalItemCount);
         t.Complete();
       }
     }
@@ -387,7 +387,7 @@ namespace Xtensive.Storage.Tests.Storage
         author.Books.Add(new Book());
         EntitySetState setState;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(key, booksField, out setState));
-        Assert.AreEqual(itemCount+1, setState.TotalItemsCount);
+        Assert.AreEqual(itemCount+1, setState.TotalItemCount);
       }
     }
 

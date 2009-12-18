@@ -21,6 +21,7 @@ namespace Xtensive.Storage
   /// Methods of any descendant of this typer must be processed by PostSharp 
   /// to ensure its <see cref="Session"/> is active inside method bodies.
   /// </summary>
+  [Infrastructure]
   public abstract class SessionBound : 
     ISessionBound
   {
@@ -29,7 +30,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets <see cref="Session"/> which current instance is bound to.
     /// </summary>
-    [Infrastructure]
     public Session Session {
       [DebuggerStepThrough]
       get { return session; }
@@ -68,7 +68,6 @@ namespace Xtensive.Storage
 
     #region IContextBound<Session> Members
 
-    [Infrastructure]
     Session IContextBound<Session>.Context {
       [DebuggerStepThrough]
       get { return session; }

@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         prefetchManager.ExecuteTasks();
         EntitySetState actualState;
         session.Handler.TryGetEntitySetState(orderKey, DetailsField, out actualState);
-        Assert.AreEqual(0, actualState.TotalItemsCount);
+        Assert.AreEqual(0, actualState.TotalItemCount);
         Assert.IsTrue(actualState.IsFullyLoaded);
       }
     }

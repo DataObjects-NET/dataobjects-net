@@ -122,6 +122,12 @@ namespace Xtensive.Core.Caching
       items.Clear();
     }
 
+    /// <inheritdoc/>
+    public void Invalidate()
+    {
+      Clear();
+    }
+
     #region IEnumerable methods
 
     /// <inheritdoc/>

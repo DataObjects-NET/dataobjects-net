@@ -207,5 +207,21 @@ namespace Xtensive.Storage
     {
       return GetSubscriber(key, null, eventKey);
     }
+
+    /// <summary>
+    /// Gets all the subscribers for the specified <paramref name="eventKey"/>.
+    /// </summary>
+    /// <param name="eventKey">The event key.</param>
+    /// <returns>
+    /// The sequence of subscribers for the specified <paramref name="eventKey"/>.
+    /// </returns>
+    public IEnumerable<Triplet<Key, FieldInfo, Delegate>> GetSubscribers(object eventKey)
+    {
+      foreach (var kvp in subscribers) {
+        var triplet = kvp.Key;
+        if (triplet.Third==eventKey)
+          yield return new Triplet<Key, FieldInfo, Delegate>(triplet.First, triplet.Second, kvp.Value);
+      }
+    }
   }
 }

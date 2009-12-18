@@ -444,8 +444,9 @@ namespace Xtensive.Core.Aspects.Helpers
     {
       if (IsInfrastructureMethod(method))
         return false;
-      foreach (var attribute in method.GetAttributes<SuppressActivationAttribute>(
-        AttributeSearchOptions.Default))
+      foreach (var attribute in 
+        method.GetAttributes<SuppressActivationAttribute>(AttributeSearchOptions.Default)
+        .Concat(method.DeclaringType.GetAttributes<SuppressActivationAttribute>(AttributeSearchOptions.InheritNone)))
         if (attribute.ContextType == typeof(TContext))
           return false;
 
@@ -534,7 +535,9 @@ namespace Xtensive.Core.Aspects.Helpers
     /// </returns>
     public static bool IsInfrastructureMethod(MethodBase method)
     {
-      return method.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritAll)!=null;
+      return 
+        method.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritAll)!=null ||
+        method.DeclaringType.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritNone)!=null;
     }
 
     public static Type GetSurrogateType(Module module)

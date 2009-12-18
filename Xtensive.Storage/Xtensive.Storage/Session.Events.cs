@@ -5,6 +5,8 @@
 // Created:    2009.06.29
 
 using System;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 
@@ -12,6 +14,32 @@ namespace Xtensive.Storage
 {
   public partial class Session
   {
+    /// <summary>
+    /// The manager of <see cref="Entity"/>'s events.
+    /// </summary>
+    public EntityEventBroker EntityEventBroker { get; private set; }
+
+    /// <summary>
+    /// Raises events on all <see cref="INotifyPropertyChanged"/> and
+    /// <see cref="INotifyCollectionChanged"/> subscribers stating that
+    /// all entities and collections are changed.
+    /// </summary>
+    public void NotifyChanged()
+    {
+      var subscribers = EntityEventBroker.GetSubscribers(EntityEventBroker.PropertyChangedEventKey);
+      foreach (var triplet in subscribers) {
+        if (triplet.Third != null)
+          ((PropertyChangedEventHandler)triplet.Third)
+            .Invoke(this, new PropertyChangedEventArgs(null));
+      }
+      subscribers = EntityEventBroker.GetSubscribers(EntityEventBroker.CollectionChangedEventKey);
+      foreach (var triplet in subscribers) {
+        if (triplet.Third != null)
+          ((NotifyCollectionChangedEventHandler) triplet.Third)
+            .Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+      }
+    }
+
     /// <summary>
     /// Occurs when <see cref="Session"/> is about to be disposed.
     /// </summary>
@@ -124,11 +152,6 @@ namespace Xtensive.Storage
     {
       return OperationCompleted != null;
     }
-    
-    /// <summary>
-    /// The manager of <see cref="Entity"/>'s events.
-    /// </summary>
-    public EntityEventBroker EntityEventBroker { get; private set; }
 
     private void NotifyDisposing()
     {

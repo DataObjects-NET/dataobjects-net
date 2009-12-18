@@ -253,7 +253,7 @@ namespace Xtensive.Storage
     
     private static IQueryable<TItem> GetItemsQuery(FieldInfo field)
     {
-      var owner = Expression.Property(Expression.Constant(OwnerParameter), OwnerParameter.GetType()
+      var owner = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
         .GetProperty("Value", typeof(Entity)));
       var queryExpression = QueryHelper.CreateEntitySetQueryExpression(owner, field);
       return new Queryable<TItem>(queryExpression);

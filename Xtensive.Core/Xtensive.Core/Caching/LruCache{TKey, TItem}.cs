@@ -198,6 +198,12 @@ namespace Xtensive.Core.Caching
       Cleared();
     }
 
+    /// <inheritdoc/>
+    public void Invalidate()
+    {
+      Clear();
+    }
+
     #endregion
 
     #region IEnumerable<...> methods

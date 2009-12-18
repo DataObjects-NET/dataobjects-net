@@ -21,7 +21,6 @@ using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Internals;
-using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
@@ -38,13 +37,14 @@ namespace Xtensive.Storage
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
-    private static readonly object EntitySetCachingRegion = new object();
-    private static readonly Parameter<Tuple> KeyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
-    internal static readonly Parameter<Entity> OwnerParameter = new Parameter<Entity>("Owner");
+    private static readonly object entitySetCachingRegion = new object();
+    private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
+    internal static readonly Parameter<Entity> ownerParameter = new Parameter<Entity>("Owner");
 
     private readonly Entity owner;
     private bool isInitialized;
-    
+    private EntitySetCache cache;
+
     internal EntitySetState State { get; private set; }
 
     /// <summary>
@@ -75,6 +75,18 @@ namespace Xtensive.Storage
     public FieldInfo Field { get; private set; }
 
     /// <summary>
+    /// Gets public API to <see cref="EntitySetBase"/> cache.
+    /// </summary>
+    [Infrastructure]
+    public EntitySetCache Cache {
+      get {
+        if (cache==null)
+          cache = new EntitySetCache(this);
+        return cache;
+      }
+    }
+
+    /// <summary>
     /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
     /// </summary>
     public long Count {
@@ -83,7 +95,7 @@ namespace Xtensive.Storage
         EnsureOwnerIsNotRemoved();
         EnsureIsLoaded();
         EnsureCountIsLoaded();
-        return (long) State.TotalItemsCount;
+        return (long) State.TotalItemCount;
       }
     }
 
@@ -520,7 +532,7 @@ namespace Xtensive.Storage
       if (State.IsLoaded)
         return;
       if (Owner.State.PersistenceState==PersistenceState.New) {
-        State.TotalItemsCount = State.CachedItemsCount;
+        State.TotalItemCount = State.CachedItemCount;
         State.IsLoaded = true;
       }
       else
@@ -529,12 +541,12 @@ namespace Xtensive.Storage
 
     private void EnsureCountIsLoaded()
     {
-      if (State.TotalItemsCount!=null)
+      if (State.TotalItemCount!=null)
         return;
       using (new ParameterContext().Activate()) {
-        OwnerParameter.Value = owner;
+        ownerParameter.Value = owner;
         var cachedState = GetEntitySetTypeState();
-        State.TotalItemsCount = Query.Execute(cachedState, cachedState.ItemCountQuery);
+        State.TotalItemCount = Query.Execute(cachedState, cachedState.ItemCountQuery);
       }
     }
 
@@ -576,7 +588,7 @@ namespace Xtensive.Storage
 
       bool foundInDatabase;
       using (new ParameterContext().Activate()) {
-        KeyParameter.Value = GetEntitySetTypeState().SeekTransform
+        keyParameter.Value = GetEntitySetTypeState().SeekTransform
           .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
         foundInDatabase = GetEntitySetTypeState().SeekRecordSet.FirstOrDefault()!=null;
       }
@@ -597,14 +609,14 @@ namespace Xtensive.Storage
     {
       EnsureOwnerIsNotRemoved();
       return (EntitySetTypeState) Session.Domain.GetCachedItem(
-        new Pair<object, FieldInfo>(EntitySetCachingRegion, Field), BuildEntitySetTypeState, this);
+        new Pair<object, FieldInfo>(entitySetCachingRegion, Field), BuildEntitySetTypeState, this);
     }
 
     private static EntitySetTypeState BuildEntitySetTypeState(object pair, object entitySetObj)
     {
       var field = ((Pair<object, FieldInfo>) pair).Second;
       var entitySet = (EntitySetBase) entitySetObj;
-      var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => KeyParameter.Value);
+      var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => keyParameter.Value);
       var seekTransform = new CombineTransform(true,
         field.Association.OwnerType.KeyProviderInfo.TupleDescriptor,
         field.Association.TargetType.KeyProviderInfo.TupleDescriptor);

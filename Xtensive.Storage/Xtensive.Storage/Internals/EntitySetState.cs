@@ -15,11 +15,12 @@ namespace Xtensive.Storage.Internals
   /// <summary>
   /// Describes cached state of <see cref="EntitySetBase"/>
   /// </summary>
+  [Infrastructure]
   public sealed class EntitySetState : TransactionalStateContainer<KeyCache>,
     IEnumerable<Key>
   {
     private bool isLoaded;
-    private long? totalItemsCount;
+    private long? totalItemCount;
 
     private KeyCache FetchedKeys {
       get { return State; }
@@ -29,28 +30,25 @@ namespace Xtensive.Storage.Internals
     /// <summary>
     /// Gets the total number of items.
     /// </summary>
-    [Infrastructure]
-    public long? TotalItemsCount {
+    public long? TotalItemCount {
       get {
-        EnsureStateIsActual();
-        return totalItemsCount;
+        EnsureIsActual();
+        return totalItemCount;
       }
       internal set {
-        totalItemsCount = value;
+        totalItemCount = value;
       }
     }
 
     /// <summary>
     /// Gets the number of cached items.
     /// </summary>
-    [Infrastructure]
-    public long CachedItemsCount { get { return FetchedKeys.Count; } }
+    public long CachedItemCount { get { return FetchedKeys.Count; } }
 
     /// <summary>
     /// Gets a value indicating whether state is fully loaded.
     /// </summary>
-    [Infrastructure]
-    public bool IsFullyLoaded { get { return TotalItemsCount==CachedItemsCount; } }
+    public bool IsFullyLoaded { get { return TotalItemCount==CachedItemCount; } }
     
     /// <summary>
     /// Gets or sets a value indicating whether this instance is loaded.
@@ -58,10 +56,9 @@ namespace Xtensive.Storage.Internals
     /// <value>
     /// <see langword="true"/> if this instance is preloaded; otherwise, <see langword="false"/>.
     /// </value>
-    [Infrastructure]
     public bool IsLoaded {
       get {
-        EnsureStateIsActual();
+        EnsureIsActual();
         return isLoaded;
       }
       internal set {
@@ -73,14 +70,13 @@ namespace Xtensive.Storage.Internals
     /// Sets cached keys to <paramref name="keys"/>.
     /// </summary>
     /// <param name="keys">The keys.</param>
-    [Infrastructure]
     public void Update(IEnumerable<Key> keys, long? count)
     {
       FetchedKeys.Clear();
-      TotalItemsCount = count;
+      TotalItemCount = count;
       foreach (var key in keys)
         FetchedKeys.Add(key);
-      MarkStateAsModified();
+      BindToCurrentTransaction();
     }
 
     /// <summary>
@@ -88,7 +84,6 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     /// <param name="key">The key.</param>
     /// <returns>Check result.</returns>
-    [Infrastructure]
     public bool Contains(Key key)
     {
       return FetchedKeys.ContainsKey(key);
@@ -98,7 +93,6 @@ namespace Xtensive.Storage.Internals
     /// Registers the specified fetched key in cached state.
     /// </summary>
     /// <param name="key">The key to register.</param>
-    [Infrastructure]
     public void Register(Key key)
     {
       FetchedKeys.Add(key);
@@ -108,38 +102,36 @@ namespace Xtensive.Storage.Internals
     /// Adds the specified key.
     /// </summary>
     /// <param name="key">The key to add.</param>
-    [Infrastructure]
     public void Add(Key key)
     {
       FetchedKeys.Add(key);
-      if (TotalItemsCount!=null)
-        TotalItemsCount++;
-      MarkStateAsModified();
+      if (TotalItemCount!=null)
+        TotalItemCount++;
+      BindToCurrentTransaction();
     }
 
     /// <summary>
     /// Removes the specified key.
     /// </summary>
     /// <param name="key">The key to remove.</param>
-    [Infrastructure]
     public void Remove(Key key)
     {
       FetchedKeys.RemoveKey(key);
-      if (TotalItemsCount!=null)
-        TotalItemsCount--;
-      MarkStateAsModified();
+      if (TotalItemCount!=null)
+        TotalItemCount--;
+      BindToCurrentTransaction();
     }
 
     /// <inheritdoc/>
-    protected override void ResetState()
+    protected override void Invalidate()
     {
-      TotalItemsCount = null;
+      TotalItemCount = null;
       IsLoaded = false;
-      base.ResetState();
+      base.Invalidate();
     }
 
     /// <inheritdoc/>
-    protected override void LoadState()
+    protected override void Refresh()
     {
       FetchedKeys = new LruCache<Key, Key>(WellKnown.EntitySetCacheSize, cachedKey => cachedKey);
     }
@@ -147,14 +139,12 @@ namespace Xtensive.Storage.Internals
     #region GetEnumerator<...> methods
 
     /// <inheritdoc/>
-    [Infrastructure]
     public IEnumerator<Key> GetEnumerator()
     {
       return FetchedKeys.GetEnumerator();
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

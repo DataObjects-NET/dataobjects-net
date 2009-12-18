@@ -17,13 +17,13 @@ namespace Xtensive.Storage.Disconnected
   /// and writing their sequence to <see cref="Operations"/> instance 
   /// (<see cref="IOperationSet"/>).
   /// </summary>
+  [Infrastructure]
   public sealed class OperationLogger : SessionBound, 
     IDisposable
   {
     /// <summary>
     /// Gets the operation set updated by this service.
     /// </summary>
-    [Infrastructure]
     public IOperationSet Operations { get; private set; }
 
     #region Session event handlers
@@ -86,7 +86,6 @@ namespace Xtensive.Storage.Disconnected
     // Dispose
     
     /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
-    [Infrastructure]
     public void Dispose()
     {
       DetachEventHandlers();

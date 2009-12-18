@@ -17,6 +17,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Provides access to low-level operations with <see cref="Persistent"/> descendants.
   /// </summary>
+  [Infrastructure]
   public sealed class PersistentAccessor : SessionBound
   {
     #region Entity/Structure-related methods
@@ -26,7 +27,6 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="entityType">The type of entity to create. Must be descendant of the <see cref="Entity"/> type.</param>
     /// <returnsCreated entity.</returns>
-    [Infrastructure]
     public Entity CreateEntity(Type entityType)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -47,7 +47,6 @@ namespace Xtensive.Storage
     /// <param name="entityType">The type of structure to create. Must be descendant of the <see cref="Entity"/> type.</param>
     /// <param name="tuple">The tuple with entity data.</param>
     /// <returns>Created entity.</returns>
-    [Infrastructure]
     public Entity CreateEntity(Type entityType, Tuple tuple)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -69,7 +68,6 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="key">The key.</param>
     /// <returns>Created entity.</returns>
-    [Infrastructure]
     public Entity CreateEntity(Key key)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion())
@@ -89,7 +87,6 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="structureType">The type of structure to create. Must be descendant of the <see cref="Structure"/> type.</param>
     /// <returns>Created structure.</returns>
-    [Infrastructure]
     public Structure CreateStructure(Type structureType)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -107,7 +104,6 @@ namespace Xtensive.Storage
     /// <param name="structureType">The type of structure to create. Must be descendant of the <see cref="Structure"/> type.</param>
     /// <param name="structureData">The structure data tuple.</param>
     /// <returns>Created structure.</returns>
-    [Infrastructure]
     public Structure CreateStructure(Type structureType, Tuple structureData)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -126,7 +122,6 @@ namespace Xtensive.Storage
     /// <param name="target">The target.</param>
     /// <param name="field">The field.</param>
     /// <returns></returns>
-    [Infrastructure]
     public T GetFieldValue<T>(Persistent target, FieldInfo field)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -142,7 +137,6 @@ namespace Xtensive.Storage
     /// <param name="target">The target persistent object.</param>
     /// <param name="field">The field to set value for.</param>
     /// <param name="value">The value to set.</param>
-    [Infrastructure]
     public void SetFieldValue<T>(Persistent target, FieldInfo field, T value)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -164,7 +158,6 @@ namespace Xtensive.Storage
     /// <see cref="Entity"/> descendant.</param>
     /// <returns>Referenced entity key.</returns>
     /// <exception cref="InvalidOperationException">Field is not a reference field.</exception>
-    [Infrastructure]
     public Key GetReferenceKey(Persistent target, FieldInfo field)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -177,7 +170,6 @@ namespace Xtensive.Storage
     /// Removes the specified entity.
     /// </summary>
     /// <param name="target">The entity to remove.</param>
-    [Infrastructure]
     public void Remove(Entity target)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {

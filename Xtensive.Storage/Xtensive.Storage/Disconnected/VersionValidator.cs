@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Disconnected
   /// <summary>
   /// An attachable service validating versions inside the specified <see cref="Session"/>.
   /// </summary>
+  [Infrastructure]
   public sealed class VersionValidator : SessionBound, 
     IDisposable
   {
@@ -42,7 +43,6 @@ namespace Xtensive.Storage.Disconnected
     /// <see langword="True"/>, if validation passes successfully;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    [Infrastructure]
     public bool ValidateVersion(Key key, VersionInfo version)
     {
       var expectedVersion = expectedVersionProvider.Invoke(key);
@@ -66,7 +66,6 @@ namespace Xtensive.Storage.Disconnected
     /// otherwise, <see langword="false"/>.
     /// </returns>
     /// <exception cref="InvalidOperationException">Version conflict is detected.</exception>
-    [Infrastructure]
     public bool ValidateVersion(Key key, VersionInfo version, bool throwOnFailure)
     {
       var result = ValidateVersion(key, version);
@@ -283,7 +282,6 @@ namespace Xtensive.Storage.Disconnected
     // Dispose
     
     /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
-    [Infrastructure]
     public void Dispose()
     {
       DetachEventHandlers();

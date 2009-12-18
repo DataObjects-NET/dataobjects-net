@@ -13,24 +13,24 @@ namespace Xtensive.Storage
   /// <summary>
   /// An abstract base class for objects having associated transactional state.
   /// </summary>
+  [Infrastructure]
   public abstract class TransactionalStateContainer<TState> : SessionBound
   {
     private TState state;
-    private bool stateIsLoaded;
+    private bool isActual;
 
     /// <summary>
     /// Gets the transaction where container's state was acquired.
     /// </summary>
-    [Infrastructure]
-    public Transaction StateTransaction { get; private set; }
+    public Transaction Transaction { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether base state is loaded or not.
     /// </summary>
-    public bool StateIsLoaded {
+    public bool IsActual {
       get {
-        EnsureStateIsActual();
-        return stateIsLoaded;
+        EnsureIsActual();
+        return isActual;
       }
     }
 
@@ -39,15 +39,15 @@ namespace Xtensive.Storage
     /// </summary>
     protected TState State {
       get {
-        EnsureStateIsActual();
-        if (!stateIsLoaded)
-          LoadState();
+        EnsureIsActual();
+        if (!isActual)
+          Refresh();
         return state;
       }
       set {
-        EnsureStateIsActual();
-        BindStateTransaction();
-        stateIsLoaded = true;
+        EnsureIsActual();
+        BindToCurrentTransaction(true);
+        isActual = true;
         state = value;
       }
     }
@@ -55,59 +55,61 @@ namespace Xtensive.Storage
     /// <summary>
     /// Ensures the state is actual. 
     /// If it really is now, this method does nothing.
-    /// Otherwise it calls <see cref="ResetState"/> method.
+    /// Otherwise it calls <see cref="Invalidate"/> method.
     /// </summary>
-    protected void EnsureStateIsActual()
+    protected void EnsureIsActual()
     {
-      if (!CheckStateIsActual())
-        ResetState();
+      if (!CheckIsActual())
+        Invalidate();
     }
 
     /// <summary>
     /// Resets the cached transactional state.
     /// </summary>
-    protected virtual void ResetState()
+    protected virtual void Invalidate()
     {
       state = default(TState);
-      stateIsLoaded = false;
-      StateTransaction = null;
+      isActual = false;
+      Transaction = null;
     }
 
     /// <summary>
-    /// Loads the state.
+    /// Loads\refreshes the state.
     /// </summary>
-    protected abstract void LoadState();
+    protected abstract void Refresh();
     
     /// <summary>
-    /// Marks the state as modified.
+    /// Binds the the state to the current transaction.
+    /// This method must be invoked on state update.
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// State is not loaded yet or it is not valid in current transaction.</exception>
-    protected void MarkStateAsModified()
+    protected void BindToCurrentTransaction()
     {
-      if (StateTransaction==null || !StateTransaction.AreChangesVisibleTo(Session.Transaction))
-        throw new InvalidOperationException(Strings.ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction);
-      BindStateTransaction();
+      BindToCurrentTransaction(false);
     }
 
     #region Private / internal methods
 
-    private bool CheckStateIsActual()
+    private bool CheckIsActual()
     {
-      if (StateTransaction==null)
+      if (Transaction==null)
         return false;
       var currentTransaction = Session.Transaction;
       if (currentTransaction==null)
         return false;
-      return StateTransaction.AreChangesVisibleTo(currentTransaction);
+      return Transaction.AreChangesVisibleTo(currentTransaction);
     }
 
-    private void BindStateTransaction()
+    private void BindToCurrentTransaction(bool skipValidation)
     {
       var currentTransaction = Session.Transaction;
       if (currentTransaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
-      StateTransaction = currentTransaction;
+      if (!skipValidation)
+        if (Transaction==null || !Transaction.AreChangesVisibleTo(currentTransaction))
+          throw new InvalidOperationException(Strings.ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction);
+      Transaction = currentTransaction;
     }
 
     #endregion

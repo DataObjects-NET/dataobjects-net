@@ -10,6 +10,7 @@ using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
+  [Infrastructure]
   internal class RemovalProcessor : SessionBound
   {
     private static readonly CascadeActionProcessor cascadeActionProcessor = new CascadeActionProcessor();
@@ -18,7 +19,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     internal readonly RemovalContext context;
 
-    [Infrastructure]
     public void Remove(Entity item)
     {
       if (context.IsEmpty) {
@@ -96,7 +96,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     // Constructors
 
-    [Infrastructure]
     public RemovalProcessor(Session session)
       : base(session)
     {

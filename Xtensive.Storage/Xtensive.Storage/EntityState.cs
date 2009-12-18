@@ -18,6 +18,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// The underlying state of the <see cref="Storage.Entity"/>.
   /// </summary>
+  [Infrastructure]
   [DebuggerDisplay("Key = {key}, Tuple = {state}, StateIsLoaded = {StateIsLoaded}, PersistenceState = {persistenceState}")]
   public sealed class EntityState : TransactionalStateContainer<Tuple>, 
     IEquatable<EntityState>
@@ -29,7 +30,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the key.
     /// </summary>
-    [Infrastructure]
     public Key Key {
       get { return key; }
     }
@@ -37,7 +37,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the entity type.
     /// </summary>
-    [Infrastructure]
     public TypeInfo Type
     {
       [DebuggerStepThrough]
@@ -47,7 +46,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the values as <see cref="Tuple"/>.
     /// </summary>
-    [Infrastructure]
     public Tuple Tuple {
       [DebuggerStepThrough]
       get { return State; }
@@ -59,7 +57,6 @@ namespace Xtensive.Storage
     /// Gets the values as <see cref="DifferentialTuple"/>.
     /// </summary>
     /// <returns>A <see cref="DifferentialTuple"/> corresponding to the current state.</returns>
-    [Infrastructure]
     public DifferentialTuple DifferentialTuple {
       get {
         var tuple = Tuple;
@@ -77,16 +74,14 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets a value indicating whether <see cref="Tuple"/> value is already loaded.
     /// </summary>
-    [Infrastructure]
     public bool IsTupleLoaded {
-      get { return StateIsLoaded; }
+      get { return IsActual; }
     }
 
     /// <summary>
     /// Gets the owner of this instance.
     /// </summary>
     /// <exception cref="NotSupportedException">Property value is already set.</exception>
-    [Infrastructure]
     public Entity Entity {
       get {
         var notAvailable = IsNotAvailable;
@@ -104,7 +99,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets or sets the persistence state.
     /// </summary>
-    [Infrastructure]
     public PersistenceState PersistenceState {
       get { return persistenceState; }
       set {
@@ -120,7 +114,7 @@ namespace Xtensive.Storage
           break;
         }
         Session.EntityChangeRegistry.Register(this);
-        MarkStateAsModified();
+        BindToCurrentTransaction();
       }
     }
 
@@ -129,7 +123,6 @@ namespace Xtensive.Storage
     /// Tuple does not exist, if there is no row corresponding to the <see cref="Entity"/>
     /// in the storage.
     /// </summary>
-    [Infrastructure]
     public bool IsNotAvailable {
       get {
         return Tuple==null;
@@ -140,7 +133,6 @@ namespace Xtensive.Storage
     /// Gets a value indicating whether the state is either <see cref="IsNotAvailable"/>
     /// or is marked as removed (see <see cref="PersistenceState"/>).
     /// </summary>
-    [Infrastructure]
     public bool IsNotAvailableOrMarkedAsRemoved {
       get { return Tuple==null || persistenceState==PersistenceState.Removed; }
     }
@@ -148,7 +140,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Reverts the state to the origin by discarding the difference.
     /// </summary>
-    [Infrastructure]
     public void RollbackDifference()
     {
       var dTuple = DifferentialTuple;
@@ -159,7 +150,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Commits the state difference to the origin.
     /// </summary>
-    [Infrastructure]
     public void CommitDifference()
     {
       var tuple = Tuple;
@@ -173,10 +163,9 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="update">The state change tuple, or a new state tuple. 
     /// If <see langword="null" />, the entity is considered as removed.</param>
-    [Infrastructure]
     public void Update(Tuple update)
     {
-      EnsureStateIsActual();
+      EnsureIsActual();
       if (update==null) // Entity is removed
         Tuple = null;
       else {
@@ -207,17 +196,15 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets or sets a value indicating whether version already updated.
     /// </summary>
-    [Infrastructure]
     internal bool IsVersionUpdated { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether this state is stale.
     /// </summary>
-    [Infrastructure]
     public bool IsStale { get; set; }
 
     /// <inheritdoc/>
-    protected override void LoadState()
+    protected override void Refresh()
     {
       persistenceState = PersistenceState.Synchronized;
       Tuple = null;
@@ -225,30 +212,27 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    protected override void ResetState()
+    protected override void Invalidate()
     {
       persistenceState = PersistenceState.Synchronized;
-      base.ResetState();
+      base.Invalidate();
     }
 
     #region Equality members
 
     /// <inheritdoc/>
-    [Infrastructure]
     public override bool Equals(object obj)
     {
       return ReferenceEquals(this, obj);
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public override int GetHashCode()
     {
       return Key.GetHashCode();
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public bool Equals(EntityState other)
     {
       return ReferenceEquals(this, other);
@@ -257,7 +241,6 @@ namespace Xtensive.Storage
     #endregion
 
     /// <inheritdoc/>
-    [Infrastructure]
     public override string ToString()
     {
       var tuple = IsTupleLoaded ? (Tuple==null ? Strings.Null : Tuple.ToString()) : Strings.NA;

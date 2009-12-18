@@ -16,6 +16,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Provides access to low-level operations with <see cref="EntitySetBase"/> descendants.
   /// </summary>
+  [Infrastructure]
   public sealed class EntitySetAccessor : SessionBound
   {
     /// <summary>
@@ -24,7 +25,6 @@ namespace Xtensive.Storage
     /// <param name="target">The target.</param>
     /// <param name="field">The field.</param>
     /// <returns></returns>
-    [Infrastructure]
     public EntitySetBase GetEntitySet(Entity target, FieldInfo field)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -33,14 +33,12 @@ namespace Xtensive.Storage
       }
     }
 
-//    [Infrastructure]
 //    public RecordSet GetRecordSet(EntitySetBase target)
 //    {
 //      ValidateArguments(target);
 //      return target.items;
 //    }
 //
-//    [Infrastructure]
 //    public RecordSet GetRecordSet(Entity target, FieldInfo field)
 //    {
 //      ValidateArguments(target, field);
@@ -56,7 +54,6 @@ namespace Xtensive.Storage
     /// <see langword="true"/>, if the item was added;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    [Infrastructure]
     public bool Add(EntitySetBase target, Entity item)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -75,7 +72,6 @@ namespace Xtensive.Storage
     /// <see langword="true"/>, if the item was added;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    [Infrastructure]
     public bool Add(Entity target, FieldInfo field, Entity item)
     {
       ValidateArguments(target, field, item);
@@ -91,7 +87,6 @@ namespace Xtensive.Storage
     /// <see langword="true"/>, if the item was added;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    [Infrastructure]
     public bool Remove(EntitySetBase target, Entity item)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -110,7 +105,6 @@ namespace Xtensive.Storage
     /// <see langword="true"/>, if the item was added;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    [Infrastructure]
     public bool Remove(Entity target, FieldInfo field, Entity item)
     {
       ValidateArguments(target, field, item);
@@ -121,7 +115,6 @@ namespace Xtensive.Storage
     /// Clears the specified target.
     /// </summary>
     /// <param name="target">The target.</param>
-    [Infrastructure]
     public void Clear(EntitySetBase target)
     {
       using (CoreServices.OpenSystemLogicOnlyRegion()) {
@@ -135,7 +128,6 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="target">The target.</param>
     /// <param name="field">The field.</param>
-    [Infrastructure]
     public void Clear(Entity target, FieldInfo field)
     {
       ValidateArguments(target, field);
@@ -182,7 +174,6 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="session">The session.</param>
-    [Infrastructure]
     public EntitySetAccessor(Session session)
       : base(session)
     {

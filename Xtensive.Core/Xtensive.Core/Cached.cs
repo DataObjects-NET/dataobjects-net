@@ -17,7 +17,7 @@ namespace Xtensive.Core
   /// </summary>
   /// <typeparam name="T">Type of the value to cache.</typeparam>
   [Serializable]
-  [DebuggerDisplay("{value}")]
+  [DebuggerDisplay("{cachedValue} (Cached: {isCached})")]
   public struct Cached<T> : 
     IEquatable<Cached<T>>,
     IComparable<Cached<T>>
@@ -121,11 +121,23 @@ namespace Xtensive.Core
       }
     }
 
+    /// <summary>
+    /// Implements the operator ==.
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>The result of the operator.</returns>
     public static bool operator ==(Cached<T> left, Cached<T> right)
     {
       return left.Equals(right);
     }
 
+    /// <summary>
+    /// Implements the operator !=.
+    /// </summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>The result of the operator.</returns>
     public static bool operator !=(Cached<T> left, Cached<T> right)
     {
       return !left.Equals(right);
