@@ -11,7 +11,8 @@ namespace Xtensive.Storage.Operations
   /// <summary>
   /// Declares public contract for operations container.
   /// </summary>
-  public interface IOperationSet : IEnumerable<IOperation>
+  public interface IOperationSet : Core.ObjectMapping.IOperationSet,
+    IEnumerable<IOperation>
   {
     /// <summary>
     /// Gets the keys to remap.

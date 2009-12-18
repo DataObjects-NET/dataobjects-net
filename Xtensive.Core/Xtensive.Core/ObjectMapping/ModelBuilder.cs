@@ -14,9 +14,9 @@ using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
-  internal sealed class MappingBuilder
+  internal sealed class ModelBuilder
   {
-    private static readonly Action<object, SourcePropertyDescription, object, TargetPropertyDescription>
+    internal static readonly Action<object, SourcePropertyDescription, object, TargetPropertyDescription>
       defaultPrimitiveConverter = (source, sourceProperty, target, targetProperty) =>
         targetProperty.SystemProperty
           .SetValue(target, sourceProperty.SystemProperty.GetValue(source, null), null);
@@ -36,6 +36,18 @@ namespace Xtensive.Core.ObjectMapping
       mappingDescription.Register(source, converter, target);
       if (source != null)
         propertyBindings.Add(target, source);
+      else
+        MarkPropertyAsImmutable(target);
+    }
+
+    public void MarkPropertyAsIgnored(PropertyInfo propertyInfo)
+    {
+      mappingDescription.MarkPropertyAsIgnored(propertyInfo);
+    }
+
+    public void MarkPropertyAsImmutable(PropertyInfo propertyInfo)
+    {
+      mappingDescription.MarkPropertyAsImmutable(propertyInfo);
     }
 
     public MappingDescription Build()
@@ -61,16 +73,25 @@ namespace Xtensive.Core.ObjectMapping
       for (var i = 0; i < properties.Length; i++) {
         var property = properties[i];
         if (!targetType.Properties.ContainsKey(property)) {
-          var propertyDesc = new TargetPropertyDescription(property, targetType) {IsCollection = false};
+          var propertyDesc = new TargetPropertyDescription(property, targetType);
           var sourceProperty = targetType.SourceType.Properties
             .Where(p => p.Key.Name==property.Name).Select(p => p.Value).Single();
           propertyDesc.SourceProperty = (SourcePropertyDescription) sourceProperty;
           if (!propertyDesc.IsPrimitive) {
-            if (!mappingDescription.TargetTypes.ContainsKey(propertyDesc.SystemProperty.PropertyType))
-              ThrowTypeHasNotBeenRegistered(propertyDesc);
+            var typeToBeValidated = propertyDesc.IsCollection
+              ? propertyDesc.ItemType
+              : propertyDesc.SystemProperty.PropertyType;
+            mappingDescription.GetMappedSourceType(typeToBeValidated);
           }
-          else
+          else {
+            var areCompatible = propertyDesc.SystemProperty.PropertyType
+              .IsAssignableFrom(sourceProperty.SystemProperty.PropertyType);
+            if (!areCompatible)
+              throw new InvalidOperationException(
+                String.Format(Strings.ExPropertiesXAndYHaveIncompatibleTypes, propertyDesc.SystemProperty,
+                  sourceProperty.SystemProperty));
             propertyDesc.Converter = defaultPrimitiveConverter;
+          }
           targetType.AddProperty(propertyDesc);
         }
       }
@@ -81,7 +102,7 @@ namespace Xtensive.Core.ObjectMapping
       foreach (var pair in targetType.Properties) {
         PropertyInfo sourceProperty;
         if (propertyBindings.TryGetValue(pair.Value.SystemProperty, out sourceProperty)) {
-          var sourceTypeDesc = mappingDescription.SourceTypes[sourceProperty.DeclaringType];
+          var sourceTypeDesc = mappingDescription.SourceTypes[sourceProperty.ReflectedType];
           ((TargetPropertyDescription) pair.Value).SourceProperty =
             (SourcePropertyDescription) sourceTypeDesc.Properties[sourceProperty];
         }
@@ -94,21 +115,19 @@ namespace Xtensive.Core.ObjectMapping
         var properties = sourceType.Key.GetProperties();
         for (var i = 0; i < properties.Length; i++) {
           var property = properties[i];
-          if (!sourceType.Value.Properties.ContainsKey(property)) {
-            var propertyDesc = new SourcePropertyDescription(property, sourceType.Value) {IsCollection = false};
-            if (!propertyDesc.IsPrimitive
-              && !mappingDescription.SourceTypes.ContainsKey(propertyDesc.SystemProperty.PropertyType))
-              ThrowTypeHasNotBeenRegistered(propertyDesc);
-            sourceType.Value.AddProperty(propertyDesc);
+          if (sourceType.Value.Properties.ContainsKey(property))
+            continue;
+          var propertyDesc = new SourcePropertyDescription(property, sourceType.Value);
+          if (!propertyDesc.IsPrimitive) {
+            var typeToValidate = propertyDesc.IsCollection
+              ? propertyDesc.ItemType
+              : propertyDesc.SystemProperty.PropertyType;
+            // TODO: HACK! Omit the validation for properties which have custom converters.
+            // mappingDescription.GetMappedTargetType(typeToValidate);
           }
+          sourceType.Value.AddProperty(propertyDesc);
         }
       }
-    }
-
-    private static void ThrowTypeHasNotBeenRegistered(PropertyDescription propertyDesc)
-    {
-      throw new InvalidOperationException(String.Format(Strings.ExTypeXHasNotBeenRegistered,
-        propertyDesc.SystemProperty.PropertyType.FullName));
     }
   }
 }

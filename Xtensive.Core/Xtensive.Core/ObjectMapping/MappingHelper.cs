@@ -47,6 +47,9 @@ namespace Xtensive.Core.ObjectMapping
           throw new ArgumentException(Strings.ExAccessedMemberIsNotProperty, paramName);
         else
           return false;
+      var parameterType = expression.Parameters[0].Type;
+      if (propertyInfo.ReflectedType != parameterType)
+        propertyInfo = parameterType.GetProperty(propertyInfo.Name);
       return true;
     }
   }

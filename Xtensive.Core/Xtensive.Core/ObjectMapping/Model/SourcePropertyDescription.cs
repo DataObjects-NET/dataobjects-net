@@ -12,15 +12,15 @@ namespace Xtensive.Core.ObjectMapping.Model
   [Serializable]
   public sealed class SourcePropertyDescription : PropertyDescription
   {
-    public new SourceTypeDescription DeclaringType {
-      get { return (SourceTypeDescription) base.DeclaringType; }
+    public new SourceTypeDescription ReflectedType {
+      get { return (SourceTypeDescription) base.ReflectedType; }
     }
 
 
     // Constructors
 
-    public SourcePropertyDescription(PropertyInfo systemProperty, SourceTypeDescription declaringType)
-      : base(systemProperty, declaringType)
+    public SourcePropertyDescription(PropertyInfo systemProperty, SourceTypeDescription reflectedType)
+      : base(systemProperty, reflectedType)
     {}
   }
 }

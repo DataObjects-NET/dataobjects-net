@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 
@@ -14,39 +13,30 @@ namespace Xtensive.Core.ObjectMapping
 {
   internal sealed class DefaultExistanceInfoProvider : IExistanceInfoProvider
   {
-    private ReadOnlyDictionary<object, object> modifiedObjects;
-    private ReadOnlyDictionary<object, object> originalObjects;
-
-    public IDisposable Open(ReadOnlyDictionary<object, object> modified,
-      ReadOnlyDictionary<object, object> original)
+    public void Get(ReadOnlyDictionary<object,object> modified, ReadOnlyDictionary<object,object> original,
+      out IEnumerable<object> created, out IEnumerable<object> removed)
     {
       ArgumentValidator.EnsureArgumentNotNull(modified, "modified");
       ArgumentValidator.EnsureArgumentNotNull(original, "original");
 
-      modifiedObjects = modified;
-      originalObjects = original;
-
-      return new Disposable<DefaultExistanceInfoProvider>(this, (isDisposing, _this) => _this.Clear());
+      created = GetCreatedObjects(modified, original);
+      removed = GetRemovedObjects(modified, original);
     }
 
-    public IEnumerable<object> GetCreatedObjects()
+    private static IEnumerable<object> GetCreatedObjects(ReadOnlyDictionary<object,object> modified,
+      IDictionary<object, object> original)
     {
-      foreach (var modifiedObjectPair in modifiedObjects)
-        if (!originalObjects.ContainsKey(modifiedObjectPair.Key))
+      foreach (var modifiedObjectPair in modified)
+        if (!original.ContainsKey(modifiedObjectPair.Key))
           yield return modifiedObjectPair.Value;
     }
 
-    public IEnumerable<object> GetRemovedObjects()
+    private static IEnumerable<object> GetRemovedObjects(IDictionary<object, object> modified,
+      ReadOnlyDictionary<object,object> original)
     {
-      foreach (var originalObjectPair in originalObjects)
-        if (!modifiedObjects.ContainsKey(originalObjectPair.Key))
+      foreach (var originalObjectPair in original)
+        if (!modified.ContainsKey(originalObjectPair.Key))
           yield return originalObjectPair.Value;
-    }
-
-    private void Clear()
-    {
-      modifiedObjects = null;
-      originalObjects = null;
     }
   }
 }

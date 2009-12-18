@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.12.08
 
+using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.ObjectMapping.Model;
 
@@ -27,10 +28,15 @@ namespace Xtensive.Core.ObjectMapping
           continue;
         resultContainer.Add(key, current);
         var description = mappingDescription.TargetTypes[current.GetType()];
-        foreach (var property in description.ComplexProperties.Keys) {
-          var value = property.GetValue(current, null);
-          if (value != null)
+        foreach (var property in description.ComplexProperties.Values) {
+          var value = property.SystemProperty.GetValue(current, null);
+          if (value==null)
+            continue;
+          if (!property.IsCollection)
             referencedObjects.Enqueue(value);
+          else
+            foreach (var obj in (IEnumerable) value)
+              referencedObjects.Enqueue(obj);
         }
       }
     }

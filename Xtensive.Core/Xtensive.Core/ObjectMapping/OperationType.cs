@@ -9,7 +9,7 @@ namespace Xtensive.Core.ObjectMapping
   /// <summary>
   /// Type of modification detected in an object graph.
   /// </summary>
-  public enum ModificationType
+  public enum OperationType
   {
     /// <summary>
     /// Creating an object.
@@ -22,9 +22,9 @@ namespace Xtensive.Core.ObjectMapping
     RemoveObject,
 
     /// <summary>
-    /// Changing a property value.
+    /// Setting a property value.
     /// </summary>
-    ChangeProperty,
+    SetProperty,
 
     /// <summary>
     /// Adding an item to a collection.

@@ -15,10 +15,12 @@ namespace Xtensive.Core.ObjectMapping.Model
   {
     private SourcePropertyDescription sourceProperty;
     private Action<object, SourcePropertyDescription, object, TargetPropertyDescription> converter;
+    private bool isImmutable;
+    private bool isIgnored;
 
-    public new TargetTypeDescription DeclaringType {
+    public new TargetTypeDescription ReflectedType {
       get {
-        return (TargetTypeDescription) base.DeclaringType;
+        return (TargetTypeDescription) base.ReflectedType;
       }
     }
 
@@ -28,6 +30,24 @@ namespace Xtensive.Core.ObjectMapping.Model
       set{
         this.EnsureNotLocked();
         sourceProperty = value;
+      }
+    }
+
+    public bool IsIgnored {
+      get { return isIgnored; }
+      internal set {
+        this.EnsureNotLocked();
+        isIgnored = value;
+      }
+    }
+
+    
+
+    public bool IsImmutable {
+      get { return isImmutable; }
+      internal set {
+        this.EnsureNotLocked();
+        isImmutable = value;
       }
     }
 
@@ -43,8 +63,8 @@ namespace Xtensive.Core.ObjectMapping.Model
     
     // Constructors
 
-    public TargetPropertyDescription(PropertyInfo systemProperty, TargetTypeDescription declaringType)
-      : base(systemProperty, declaringType)
+    public TargetPropertyDescription(PropertyInfo systemProperty, TargetTypeDescription reflectedType)
+      : base(systemProperty, reflectedType)
     {}
   }
 }

@@ -5,6 +5,7 @@
 // Created:    2009.12.10
 
 using System;
+using System.Collections.Generic;
 
 namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 {
@@ -51,5 +52,44 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
     public Guid Id { get; set; }
 
     public string Text { get; set; }
+  }
+
+  public class PetOwner : Person
+  {
+    public HashSet<Animal> Pets { get; private set; }
+
+    public PetOwner()
+    {
+      Pets = new HashSet<Animal>();
+    }
+  }
+
+  public class Animal
+  {
+    public Guid Id { get; private set; }
+
+    public string Name { get; set; }
+
+    public Animal()
+    {
+      Id = Guid.NewGuid();
+    }
+  }
+
+  public class Cat : Animal
+  {
+    public int Age { get; set; }
+  }
+
+  public class Spider : Animal
+  {
+    public int LegCount { get; set; }
+  }
+
+  public class Ignorable
+  {
+    public Guid Id { get; set; }
+
+    public string Ignored { get; set; }
   }
 }

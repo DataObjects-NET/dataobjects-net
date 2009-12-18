@@ -5,6 +5,8 @@
 // Created:    2009.12.10
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 {
@@ -18,7 +20,7 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
     public DateTime BirthDate { get; set; }
 
-    public object Clone()
+    public virtual object Clone()
     {
       return new PersonDto {BirthDate = BirthDate, FirstName = FirstName, Id = Id, LastName = LastName};
     }
@@ -26,7 +28,7 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
   public class OrderDto : ICloneable
   {
-    public Guid Id { get; set; }
+    public String Id { get; set; }
 
     public PersonDto Customer { get; set; }
 
@@ -78,5 +80,51 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
     {
       return new TitleDto {Id = Id, Text = Text};
     }
+  }
+
+  public class PetOwnerDto : PersonDto
+  {
+    public List<AnimalDto> Pets { get; set; }
+
+    public override object Clone()
+    {
+      var result = new PetOwnerDto
+      {
+        BirthDate = BirthDate, FirstName = FirstName, Id = Id, LastName = LastName,
+        Pets = new List<AnimalDto>(Pets.Select(a => (AnimalDto) a.Clone()))
+      };
+      return result;
+    }
+  }
+
+  public class AnimalDto : ICloneable
+  {
+    public Guid Id { get; set; }
+    
+    public string Name { get; set; }
+
+    public object Clone()
+    {
+      return new AnimalDto {Id = Id, Name = Name};
+    }
+  }
+
+  public class CatDto : AnimalDto
+  {
+    public int Age { get; set; }
+  }
+
+  public class SpiderDto : AnimalDto
+  {
+    public int LegCount { get; set; }
+  }
+
+  public class IgnorableDto
+  {
+    public Guid Id { get; set; }
+
+    public string Auxiliary { get; set; }
+
+    public string Ignored { get; set; }
   }
 }

@@ -22,6 +22,9 @@ namespace Xtensive.Storage.Operations
     private readonly List<SerializableKey> serializableKeys;
 
     /// <inheritdoc/>
+    public bool IsEmpty { get { return log==null || log.Count==0; } }
+
+    /// <inheritdoc/>
     public HashSet<Key> GetKeysToRemap()
     {
       return new HashSet<Key>(serializableKeys.Select(sk => sk.Key));
@@ -61,6 +64,12 @@ namespace Xtensive.Storage.Operations
 
       log.Clear();
       return new KeyMapping(operationContext.KeyMapping);
+    }
+
+    /// <inheritdoc/>
+    public void Apply()
+    {
+      Apply(Session.Demand());
     }
 
     #region IEnumerable implementation

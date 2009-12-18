@@ -5,30 +5,50 @@
 // Created:    2009.12.09
 
 using System;
+using System.Linq.Expressions;
+using System.Reflection;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Linq;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
-  public abstract class MapperBase : IMapper
+  /// <summary>
+  /// A base class for O2O-mapper implementations.
+  /// </summary>
+  public abstract class MapperBase : IMappingBuilder
   {
     private GraphTransformer transformer;
     private GraphComparer comparer;
 
+    /// <summary>
+    /// Gets the mapping description.
+    /// </summary>
     public MappingDescription MappingDescription { get; private set; }
 
-    internal MappingBuilder MappingBuilder { get; private set; }
+    internal ModelBuilder ModelBuilder { get; private set; }
 
     /// <inheritdoc/>
-    public MapperAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
-      Func<TSource, TKey> sourceKeyExtractor, Func<TTarget, TKey> targetKeyExtractor)
+    public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor)
     {
-      MappingBuilder.Register(typeof (TSource), source => sourceKeyExtractor.Invoke((TSource) source),
-        typeof (TTarget), target => targetKeyExtractor.Invoke((TTarget) target));
-
+      var compiledTargetKeyExtractor = targetKeyExtractor.CachingCompile();
+      PropertyInfo targetProperty;
+      var isPropertyExtracted = MappingHelper.TryExtractProperty(targetKeyExtractor, "targetKeyExtractor",
+        out targetProperty);
+      ModelBuilder.Register(typeof (TSource), source => sourceKeyExtractor.Invoke((TSource) source),
+        typeof (TTarget), target => compiledTargetKeyExtractor.Invoke((TTarget) target));
+      if (isPropertyExtracted)
+        ModelBuilder.Register(null, source => sourceKeyExtractor.Invoke((TSource) source), targetProperty);
       return new MapperAdapter<TSource, TTarget>(this);
     }
 
+    /// <summary>
+    /// Transforms an object of the source type to an object of the target type.
+    /// </summary>
+    /// <param name="source">The source object.</param>
+    /// <returns>The transformed object.</returns>
     public object Transform(object source)
     {
       if (MappingDescription == null)
@@ -36,19 +56,48 @@ namespace Xtensive.Core.ObjectMapping
       return transformer.Transform(source);
     }
 
-    public void Compare(object originalTarget, object modifiedTarget)
+    /// <summary>
+    /// Compares two object graphs of the target type and generates a set of operations
+    /// which may be used to apply found modifications to source objects.
+    /// </summary>
+    /// <param name="originalTarget">The original object graph.</param>
+    /// <param name="modifiedTarget">The modified object graph.</param>
+    /// <returns>The set of operations describing found changes.</returns>
+    public IOperationSet Compare(object originalTarget, object modifiedTarget)
     {
       if (MappingDescription == null)
         throw new InvalidOperationException(Strings.ExMappingConfigurationHasNotBeenCompleted);
+      InitializeComparison(originalTarget, modifiedTarget);
       comparer.Compare(originalTarget, modifiedTarget);
+      return GetComparisonResult(originalTarget, modifiedTarget);
     }
 
-    protected abstract void OnObjectModified(ModificationDescriptor descriptor);
+    /// <summary>
+    /// Called when a difference in object graphs has been found.
+    /// </summary>
+    /// <param name="descriptor">The descriptor of operation.</param>
+    protected abstract void OnObjectModified(OperationInfo descriptor);
+
+    /// <summary>
+    /// Initializes a comparison process.
+    /// </summary>
+    /// <param name="originalTarget">The original object graph.</param>
+    /// <param name="modifiedTarget">The modified object graph.</param>
+    protected abstract void InitializeComparison(object originalTarget, object modifiedTarget);
+
+    /// <summary>
+    /// Gets a set of operations that may be used to apply found modifications
+    /// to source objects.
+    /// </summary>
+    /// <param name="originalTarget">The original target.</param>
+    /// <param name="modifiedTarget">The modified target.</param>
+    /// <returns></returns>
+    protected abstract IOperationSet GetComparisonResult(object originalTarget, object modifiedTarget);
 
     internal void Complete()
     {
-      MappingDescription = MappingBuilder.Build();
-      MappingBuilder = null;
+      MappingDescription = ModelBuilder.Build();
+      ModelBuilder = null;
       transformer = new GraphTransformer(MappingDescription);
       comparer = new GraphComparer(MappingDescription, OnObjectModified, new DefaultExistanceInfoProvider());
     }
@@ -56,9 +105,12 @@ namespace Xtensive.Core.ObjectMapping
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
     protected MapperBase()
     {
-      MappingBuilder = new MappingBuilder();
+      ModelBuilder = new ModelBuilder();
     }
   }
 }

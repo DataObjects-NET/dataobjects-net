@@ -5,6 +5,7 @@
 // Created:    2009.12.09
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core.ObjectMapping.Model;
@@ -60,7 +61,7 @@ namespace Xtensive.Core.ObjectMapping
         while (sourceObjects.Count > 0) {
           var currentSource = sourceObjects.Dequeue();
           ResultDescriptor resultDescriptor;
-          var targetTypeDesc = mappingDescription.GetMappedType(currentSource.Value.GetType());
+          var targetTypeDesc = mappingDescription.GetMappedTargetType(currentSource.Value.GetType());
           if (transformedObjects.TryGetValue(currentSource.Key, out resultDescriptor)) {
             if (resultDescriptor.IsTransformationCompleted)
               continue;
@@ -104,33 +105,62 @@ namespace Xtensive.Core.ObjectMapping
 
     private void ConvertComplexProperties(object source, TargetTypeDescription targetDescription, object target)
     {
-      foreach (var targetPropertyDesc in targetDescription.ComplexProperties.Values) {
-        if (targetPropertyDesc.Converter != null)
-          targetPropertyDesc.Converter.Invoke(source, targetPropertyDesc.SourceProperty,
-            target, targetPropertyDesc);
+      foreach (var targetProperty in targetDescription.ComplexProperties.Values) {
+        if (targetProperty.Converter!=null)
+          targetProperty.Converter.Invoke(source, targetProperty.SourceProperty,
+            target, targetProperty);
+        else if (targetProperty.IsCollection)
+          ConvertCollection(source, targetProperty.SourceProperty, target, targetProperty);
         else
-          ExecuteDefaultConversionOfComplexProperty(source, targetPropertyDesc.SourceProperty.SystemProperty,
-            target, targetPropertyDesc.SystemProperty);
+          ConvertRegularComplexProperty(source, targetProperty.SourceProperty.SystemProperty,
+            target, targetProperty.SystemProperty);
       }
     }
 
-    private void ExecuteDefaultConversionOfComplexProperty(object source,
-      PropertyInfo sourceProperty, object target, PropertyInfo targetProperty)
+    private void ConvertRegularComplexProperty(object source, PropertyInfo sourceProperty, object target,
+      PropertyInfo targetProperty)
     {
       var sourceValue = sourceProperty.GetValue(source, null);
-      if (sourceValue == null)
-        targetProperty.SetValue(target, null, null);
-      else {
-        var key = mappingDescription.ExtractSourceKey(sourceValue);
-        ResultDescriptor resultDescriptor;
-        if (!transformedObjects.TryGetValue(key, out resultDescriptor)) {
-          var targetValue = CreateTargetObject(targetProperty.PropertyType);
-          resultDescriptor = new ResultDescriptor(targetValue);
-          transformedObjects.Add(key, resultDescriptor);
-          sourceObjects.Enqueue(new KeyValuePair<object, object>(key, sourceValue));
-        }
-        targetProperty.SetValue(target, resultDescriptor.Result, null);
+      targetProperty.SetValue(target, TransformObject(sourceValue), null);
+    }
+
+    private void ConvertCollection(object source, SourcePropertyDescription sourceProperty,
+      object target, TargetPropertyDescription targetProperty)
+    {
+      var sourceValue = sourceProperty.SystemProperty.GetValue(source, null);
+      var itemCount = (int) sourceProperty.CountProperty.GetValue(sourceValue, null);
+      object targetValue;
+      if (targetProperty.SystemProperty.PropertyType.IsArray) {
+        var array = Array.CreateInstance(targetProperty.ItemType, itemCount);
+        var index = 0;
+        foreach (var obj in (IEnumerable) sourceValue)
+          array.SetValue(TransformObject(obj), index++);
+        targetValue = array;
       }
+      else {
+        var collection = Activator.CreateInstance(targetProperty.SystemProperty.PropertyType);
+        var addMethod = targetProperty.AddMethod;
+        foreach (var obj in (IEnumerable) sourceValue)
+          addMethod.Invoke(collection, new[] {TransformObject(obj)});
+        targetValue = collection;
+      }
+      targetProperty.SystemProperty.SetValue(target, targetValue, null);
+    }
+
+    private object TransformObject(object source)
+    {
+      if (source==null)
+        return null;
+      var targetType = mappingDescription.GetMappedTargetType(source.GetType());
+      var key = mappingDescription.ExtractSourceKey(source);
+      ResultDescriptor resultDescriptor;
+      if (!transformedObjects.TryGetValue(key, out resultDescriptor)) {
+        var targetValue = CreateTargetObject(targetType.SystemType);
+        resultDescriptor = new ResultDescriptor(targetValue);
+        transformedObjects.Add(key, resultDescriptor);
+        sourceObjects.Enqueue(new KeyValuePair<object, object>(key, source));
+      }
+      return resultDescriptor.Result;
     }
 
 

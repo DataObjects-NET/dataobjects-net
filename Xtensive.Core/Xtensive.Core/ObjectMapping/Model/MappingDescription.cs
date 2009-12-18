@@ -46,13 +46,36 @@ namespace Xtensive.Core.ObjectMapping.Model
     public void Register(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
     {
       this.EnsureNotLocked();
-      var declaringType = targetTypes[target.DeclaringType];
-      var propertyDesc = new TargetPropertyDescription(target, declaringType) {
+      var targetType = targetTypes[target.ReflectedType];
+      var propertyDesc = new TargetPropertyDescription(target, targetType) {
         Converter = (sourceObj, sourceProperty, targetObj, targetProperty) =>
-          targetProperty.SystemProperty.SetValue(targetObj, converter.Invoke(sourceObj), null),
-        IsCollection = false
+          targetProperty.SystemProperty.SetValue(targetObj, converter.Invoke(sourceObj), null)
       };
-      declaringType.AddProperty(propertyDesc);
+      targetType.AddProperty(propertyDesc);
+    }
+
+    public void MarkPropertyAsIgnored(PropertyInfo propertyInfo)
+    {
+      this.EnsureNotLocked();
+      var targetType = targetTypes[propertyInfo.ReflectedType];
+      PropertyDescription propertyDescription;
+      if (!targetType.Properties.TryGetValue(propertyInfo, out propertyDescription)) {
+        propertyDescription = new TargetPropertyDescription(propertyInfo, targetType);
+        targetType.AddProperty((TargetPropertyDescription) propertyDescription);
+      }
+      ((TargetPropertyDescription) propertyDescription).IsIgnored = true;
+    }
+
+    public void MarkPropertyAsImmutable(PropertyInfo propertyInfo)
+    {
+      this.EnsureNotLocked();
+      var targetType = targetTypes[propertyInfo.ReflectedType];
+      PropertyDescription propertyDescription;
+      if (!targetType.Properties.TryGetValue(propertyInfo, out propertyDescription)) {
+        propertyDescription = new TargetPropertyDescription(propertyInfo, targetType);
+        targetType.AddProperty((TargetPropertyDescription) propertyDescription);
+      }
+      ((TargetPropertyDescription) propertyDescription).IsImmutable = true;
     }
 
     public override void Lock(bool recursive)
@@ -64,9 +87,20 @@ namespace Xtensive.Core.ObjectMapping.Model
       base.Lock(recursive);
     }
 
-    public TargetTypeDescription GetMappedType(Type sourceType)
+    public TargetTypeDescription GetMappedTargetType(Type sourceType)
     {
-      return sourceTypes[sourceType].TargetType;
+      SourceTypeDescription description;
+      if (!sourceTypes.TryGetValue(sourceType, out description))
+        ThrowTypeHasNotBeenRegistered(sourceType);
+      return description.TargetType;
+    }
+
+    public SourceTypeDescription GetMappedSourceType(Type targetType)
+    {
+      TargetTypeDescription description;
+      if (!targetTypes.TryGetValue(targetType, out description))
+        ThrowTypeHasNotBeenRegistered(targetType);
+      return description.SourceType;
     }
 
     public object ExtractTargetKey(object target)
@@ -77,6 +111,12 @@ namespace Xtensive.Core.ObjectMapping.Model
     public object ExtractSourceKey(object source)
     {
       return sourceTypes[source.GetType()].KeyExtractor.Invoke(source);
+    }
+
+    private static void ThrowTypeHasNotBeenRegistered(Type type)
+    {
+      throw new InvalidOperationException(String.Format(Strings.ExTypeXHasNotBeenRegistered,
+        type.FullName));
     }
 
 

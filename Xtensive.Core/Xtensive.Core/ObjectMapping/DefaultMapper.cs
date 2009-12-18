@@ -10,11 +10,22 @@ namespace Xtensive.Core.ObjectMapping
 {
   public class DefaultMapper : MapperBase
   {
-    public event Action<ModificationDescriptor> ObjectModified;
+    private DefaultModificationSet modificationSet;
 
-    protected override void OnObjectModified(ModificationDescriptor descriptor)
+    protected override void OnObjectModified(OperationInfo descriptor)
     {
-      ObjectModified.Invoke(descriptor);
+      modificationSet.Add(descriptor);
+    }
+
+    protected override void InitializeComparison(object originalTarget, object modifiedTarget)
+    {
+      modificationSet = new DefaultModificationSet();
+    }
+
+    protected override IOperationSet GetComparisonResult(object originalTarget, object modifiedTarget)
+    {
+      modificationSet.Lock();
+      return modificationSet;
     }
   }
 }

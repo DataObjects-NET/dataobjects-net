@@ -60,6 +60,12 @@ namespace Xtensive.Storage.Operations
         Value = value;
     }
 
+    public EntityFieldSetOperation(Key key, FieldInfo fieldInfo, Key valueKey)
+      : base(key, OperationType.SetEntityField, fieldInfo)
+    {
+      entityValueKey = valueKey;
+    }
+
     
     // Serialization
 

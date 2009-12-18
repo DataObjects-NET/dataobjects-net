@@ -7,33 +7,52 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 
 namespace Xtensive.Core.ObjectMapping
 {
-  public sealed class MapperAdapter<TSource, TTarget> : IMapper
+  internal sealed class MapperAdapter<TSource, TTarget> : IMappingBuilderAdapter<TSource, TTarget>
   {
     private readonly MapperBase realMapper;
 
-    public MapperAdapter<TSource, TTarget> Map<TValue>(Expression<Func<TSource, TValue>> source,
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<TSource, TTarget> Map<TValue>(Expression<Func<TSource, TValue>> source,
       Expression<Func<TTarget, TValue>> target)
     {
       PropertyInfo sourceProperty;
       MappingHelper.TryExtractProperty(source, "source", out sourceProperty);
       var targetProperty = MappingHelper.ExtractProperty(target, "target");
       var compliedSource = source.CachingCompile();
-      realMapper.MappingBuilder.Register(sourceProperty, obj => compliedSource.Invoke((TSource) obj),
+      realMapper.ModelBuilder.Register(sourceProperty, obj => compliedSource.Invoke((TSource) obj),
         targetProperty);
       return this;
     }
 
     /// <inheritdoc/>
-    public MapperAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
-      Func<TSource, TKey> sourceKeyExtractor, Func<TTarget, TKey> targetKeyExtractor)
+    public IMappingBuilderAdapter<TSource, TTarget> Ignore<TValue>(Expression<Func<TTarget, TValue>> target)
+    {
+      var propertyInfo = MappingHelper.ExtractProperty(target, "target");
+      realMapper.ModelBuilder.MarkPropertyAsIgnored(propertyInfo);
+      return this;
+    }
+
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<TSource, TTarget> Immutable<TValue>(Expression<Func<TTarget, TValue>> target)
+    {
+      var propertyInfo = MappingHelper.ExtractProperty(target, "target");
+      realMapper.ModelBuilder.MarkPropertyAsImmutable(propertyInfo);
+      return this;
+    }
+
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor)
     {
       return realMapper.MapType(sourceKeyExtractor, targetKeyExtractor);
     }
 
+    /// <inheritdoc/>
     public void Complete()
     {
       realMapper.Complete();
@@ -41,7 +60,11 @@ namespace Xtensive.Core.ObjectMapping
 
     // Constructors
 
-    internal MapperAdapter(MapperBase realMapper)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="realMapper">The real mapper.</param>
+    public MapperAdapter(MapperBase realMapper)
     {
       this.realMapper = realMapper;
     }
