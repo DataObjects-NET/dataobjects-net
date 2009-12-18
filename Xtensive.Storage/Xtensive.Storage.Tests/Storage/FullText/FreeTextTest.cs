@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Tests.Storage.FullText
     [Test]
     public void Test()
     {
-      var result = Query.FreeText<Category>("Dessert candy and coffe seafood").ToList();
+      var result = Query.AllText<Category>().FreeText(() => "Dessert candy and coffe seafood").ToList();
       Assert.AreEqual(3, result.Count);
       foreach (var document in result) {
         Assert.IsNotNull(document);
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.Storage.FullText
     public void JoinProductsTest()
     {
       var result = 
-        from c in Query.FreeText<Category>("Dessert candy and coffe")
+        from c in Query.AllText<Category>().FreeText(() => "Dessert candy and coffe")
         join p in Query.All<Product>() on c.Key equals p.Category.Key 
         select p;
       var list = result.ToList();

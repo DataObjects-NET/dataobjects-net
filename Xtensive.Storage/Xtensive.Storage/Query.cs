@@ -48,12 +48,11 @@ namespace Xtensive.Storage
     /// <summary>
     /// The "starting point" for full-text query.
     /// </summary>
-    /// <param name="searchCriteria">The search criteria.</param>
-    /// <returns>A query returning <see cref="FullTextMatch{T}"/> instances.</returns>
-    public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria)
-      where T: class, IEntity
+    /// <returns>A <see cref="FullTextQuery{T}"/> instance.</returns>
+    public static FullTextQuery<T> AllText<T>()
+      where T: Entity
     {
-      throw new NotImplementedException();
+      return new FullTextQuery<T>();
     }
 
     /// <summary>
