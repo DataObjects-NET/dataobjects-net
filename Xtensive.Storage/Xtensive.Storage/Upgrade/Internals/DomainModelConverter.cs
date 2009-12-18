@@ -225,7 +225,7 @@ namespace Xtensive.Storage.Upgrade
         return null;
       if (association.OwnerType.Hierarchy == null)
         return null;
-      if (association.TargetType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+      if (association.TargetType.Hierarchy.Schema == InheritanceSchema.ConcreteTable && !association.TargetType.IsLeaf)
         return null;
       if (association.OwnerType.Indexes.PrimaryIndex==null)
         return null;

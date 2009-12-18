@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Upgrade
           Schema.Tables["B"].ForeignKeys[0].PrimaryKey);
       }
       else
-        Assert.AreEqual(0, Schema.Tables["B"].ForeignKeys.Count);
+        Assert.AreEqual(1, Schema.Tables["B"].ForeignKeys.Count);
     }
 
     [Test]

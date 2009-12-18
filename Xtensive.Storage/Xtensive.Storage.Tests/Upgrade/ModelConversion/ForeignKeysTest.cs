@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       Assert.AreEqual(1, tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableB.PrimaryIndex));
       // OneToOnePaired (A -> C, C -> A)
       Assert.AreEqual(1, tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableC.PrimaryIndex));
-      Assert.AreEqual(1, tableC.ForeignKeys.Count(fk => fk.PrimaryKey==tableA.PrimaryIndex));
+      Assert.AreEqual(2, tableC.ForeignKeys.Count(fk => fk.PrimaryKey==tableA.PrimaryIndex));
       // ManyToOnePaired (A -> D)
       Assert.AreEqual(1, tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableD.PrimaryIndex));
       Assert.AreEqual(0, tableD.ForeignKeys.Count);
