@@ -51,12 +51,6 @@ namespace Xtensive.Storage.Linq
 
       var dataSource = prepared.ItemProjector.DataSource;
       
-      // Postprocess item expression
-      var itemExpression = prepared.ItemProjector.Item;
-      foreach (var linqProcessor in context.LinqProcessors.Reverse())
-        itemExpression = linqProcessor.PostProcess(itemExpression);
-      var postprocessedItemProjector = new ItemProjectorExpression(itemExpression, dataSource, context);
-      prepared = new ProjectionExpression(prepared.Type, postprocessedItemProjector, prepared.TupleParameterBindings, prepared.ResultType);
       
       // Build materializer
       var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
@@ -117,7 +111,13 @@ namespace Xtensive.Storage.Linq
         .MakeGenericMethod(elementType);
       var compileMaterializerMethod = MaterializationHelper.CompileItemMaterializerMethodInfo
         .MakeGenericMethod(elementType);
-      var itemMaterializer = compileMaterializerMethod.Invoke(null, new[] {materializationInfo.Expression});
+
+      // Postprocess item expression
+      Expression itemExpression = materializationInfo.Expression;
+      foreach (var linqProcessor in context.LinqProcessors.Reverse())
+        itemExpression = linqProcessor.PostProcess(itemExpression);
+
+      var itemMaterializer = compileMaterializerMethod.Invoke(null, new[] {itemExpression});
       var materializationContext = new MaterializationContext(materializationInfo.EntitiesInRow);
 
       Expression body = Expression.Call(
