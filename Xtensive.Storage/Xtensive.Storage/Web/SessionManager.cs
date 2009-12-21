@@ -191,8 +191,16 @@ namespace Xtensive.Storage.Web
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
     protected virtual void BeginRequest(object sender, EventArgs e)
     {
-      Current = this;
+      if (disposeOnEndRequest!=null) 
+        try {
+          Log.Error(Strings.LogSessionManagerEndRequestMethodWasNotInvoked);
+          EndRequest(null, null);
+        }
+        finally {
+          disposeOnEndRequest = null;
+        }
       HasErrors = false;
+      Current = this;
     }
     
     /// <summary>
@@ -212,12 +220,14 @@ namespace Xtensive.Storage.Web
     /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
     protected void EndRequest(object sender, EventArgs e)
     {
-      lock (provideSessionLock) {
-        var disposeOnEndRequestBackup = disposeOnEndRequest;
-        disposeOnEndRequest = null;
-        session = null;
-        disposeOnEndRequestBackup.DisposeSafely();
-      }
+      lock (provideSessionLock) 
+        try {
+          disposeOnEndRequest.DisposeSafely();
+        }
+        finally {
+          disposeOnEndRequest = null;
+          session = null;
+        }
     }
 
     /// <summary>
@@ -253,7 +263,7 @@ namespace Xtensive.Storage.Web
       context.Error += Error;
       
       if (Session.Resolver==null)
-        Session.Resolver = () => Session;
+        Session.Resolver = () => Current.Session;
     }
 
     /// <inheritdoc/>

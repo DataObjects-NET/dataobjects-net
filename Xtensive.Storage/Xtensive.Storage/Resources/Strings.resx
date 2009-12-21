@@ -1319,4 +1319,7 @@ Actions:
   <data name="ExFieldBelongsToADifferentType" xml:space="preserve">
     <value>Field belongs to a different type.</value>
   </data>
+  <data name="LogSessionManagerEndRequestMethodWasNotInvoked" xml:space="preserve">
+    <value>SessionManager.EndRequest method was not invoked during processing of the previous request to this module.</value>
+  </data>
 </root>

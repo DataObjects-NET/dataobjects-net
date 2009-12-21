@@ -3244,6 +3244,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SessionManager.EndRequest method was not invoked during processing of the previous request to this module..
+        /// </summary>
+        internal static string LogSessionManagerEndRequestMethodWasNotInvoked {
+            get {
+                return ResourceManager.GetString("LogSessionManagerEndRequestMethodWasNotInvoked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Session &apos;{0}&apos;. Begin transaction..
         /// </summary>
         internal static string LogSessionXBeginTransaction {
