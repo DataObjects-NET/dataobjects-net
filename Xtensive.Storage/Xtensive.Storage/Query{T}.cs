@@ -5,11 +5,8 @@
 // Created:    2008.11.25
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Storage.Fulltext;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Resources;
 
