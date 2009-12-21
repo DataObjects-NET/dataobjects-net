@@ -45,21 +45,6 @@ namespace Xtensive.Storage
     private bool isInitialized;
     private EntitySetCache cache;
 
-    internal EntitySetState State { get; private set; }
-
-    /// <summary>
-    /// Gets the entities contained in this <see cref="EntitySetBase"/>.
-    /// </summary>
-    protected internal IEnumerable<IEntity> Entities {
-      get {
-        EnsureOwnerIsNotRemoved();
-        EnsureIsLoaded();
-        return Owner.PersistenceState==PersistenceState.New || State.IsFullyLoaded
-          ? GetCachedEntities()
-          : GetRealEntities();
-      }
-    }
-    
     /// <summary>
     /// Gets the owner of this instance.
     /// </summary>
@@ -74,6 +59,23 @@ namespace Xtensive.Storage
     [Infrastructure]
     public FieldInfo Field { get; private set; }
 
+    internal EntitySetState State { get; private set; }
+
+    /// <summary>
+    /// Gets the entities contained in this <see cref="EntitySetBase"/>.
+    /// </summary>
+    protected internal IEnumerable<IEntity> Entities {
+      get {
+        Prefetch();
+        foreach (var key in State) {
+          Entity entity;
+          using (Session.Activate())
+            entity = Query.SingleOrDefault(Session, key);
+          yield return entity;
+        }
+      }
+    }
+    
     /// <summary>
     /// Gets public API to <see cref="EntitySetBase"/> cache.
     /// </summary>
@@ -87,13 +89,31 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Prefetches the entity set completely - i.e. ensures it is fully loaded.
+    /// </summary>
+    public void Prefetch()
+    {
+      Prefetch(null);
+    }
+
+    /// <summary>
+    /// Prefetches the entity set - i.e. ensures it is either completely or partially loaded.
+    /// </summary>
+    /// <param name="maxItemCount">The maximal count of items to try to load.</param>
+    public void Prefetch(int? maxItemCount)
+    {
+      EnsureOwnerIsNotRemoved();
+      EnsureIsLoaded(maxItemCount);
+    }
+
+    /// <summary>
     /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
     /// </summary>
     public long Count {
       [DebuggerStepThrough]
       get {
         EnsureOwnerIsNotRemoved();
-        EnsureIsLoaded();
+        EnsureIsLoaded(WellKnown.EntitySetPreloadCount);
         EnsureCountIsLoaded();
         return (long) State.TotalItemCount;
       }
@@ -527,7 +547,7 @@ namespace Xtensive.Storage
       return State;
     }
 
-    private void EnsureIsLoaded()
+    private void EnsureIsLoaded(int? maxItemCount)
     {
       if (State.IsLoaded)
         return;
@@ -535,8 +555,8 @@ namespace Xtensive.Storage
         State.TotalItemCount = State.CachedItemCount;
         State.IsLoaded = true;
       }
-      else
-        Session.Handler.FetchEntitySet(Owner.Key, Field, WellKnown.EntitySetPreloadCount);
+      else 
+        Session.Handler.FetchEntitySet(Owner.Key, Field, maxItemCount);
     }
 
     private void EnsureCountIsLoaded()
@@ -550,26 +570,6 @@ namespace Xtensive.Storage
       }
     }
 
-    private IEnumerable<IEntity> GetCachedEntities()
-    {
-      Entity entity;
-
-      foreach (Key key in State) {
-        using (Session.Activate()) {
-          entity = Query.SingleOrDefault(Session, key);
-        }
-        yield return entity;
-      }
-    }
-    
-    private IEnumerable<IEntity> GetRealEntities()
-    {
-      using (Session.Activate()) {
-        Session.Handler.FetchEntitySet(Owner.Key, Field, null);
-        return GetCachedEntities();
-      }
-    }
-
     private bool Contains(Key key, PersistenceState? persistenceState)
     {
       bool foundInCache = State.Contains(key);
@@ -578,7 +578,7 @@ namespace Xtensive.Storage
       if (persistenceState==PersistenceState.New || State.IsFullyLoaded)
         return false;
 
-      EnsureIsLoaded();
+      EnsureIsLoaded(WellKnown.EntitySetPreloadCount);
 
       foundInCache = State.Contains(key);
       if (foundInCache)
