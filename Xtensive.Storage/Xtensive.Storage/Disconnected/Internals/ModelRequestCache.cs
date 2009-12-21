@@ -149,7 +149,8 @@ namespace Xtensive.Storage.Disconnected
       if (!field.IsEntity)
         throw new InvalidOperationException();
 
-      var types = Session.Current.Domain.Model.Types;
+      var session = Session.Demand();
+      var types = session.Domain.Model.Types;
       var type = types[field.ValueType];
       if (tuple.ContainsEmptyValues(field.MappingInfo))
         return null;
@@ -164,7 +165,7 @@ namespace Xtensive.Storage.Disconnected
           // This may happen if referense is null
           exactType = false;
       }
-      var key = Key.Create(Domain.Demand(), type, exactType ? TypeReferenceAccuracy.ExactType : TypeReferenceAccuracy.BaseType, keyValue);
+      var key = Key.Create(session.Domain, type, exactType ? TypeReferenceAccuracy.ExactType : TypeReferenceAccuracy.BaseType, keyValue);
       return key;
     }
 

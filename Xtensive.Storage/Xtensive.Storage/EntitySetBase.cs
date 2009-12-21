@@ -556,7 +556,9 @@ namespace Xtensive.Storage
         State.IsLoaded = true;
       }
       else 
-        Session.Handler.FetchEntitySet(Owner.Key, Field, maxItemCount);
+        using (Session.Activate()) {
+          Session.Handler.FetchEntitySet(Owner.Key, Field, maxItemCount);
+        }
     }
 
     private void EnsureCountIsLoaded()

@@ -303,6 +303,39 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
+    [Test]
+    public void NestedCommitTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          new Customer {
+            Name = "1",
+            Orders = {
+              new Order {Number = 1}
+            }
+          };
+          transactionScope.Complete();
+        }
+      }
+
+      using (var session = Session.Open(Domain)) {
+        var disconnectedState = new DisconnectedState();
+        using (disconnectedState.Attach(session))
+        using (disconnectedState.Connect()) {
+
+          using (Transaction.Open()) {
+            var customer = Query.All<Customer>().First();
+            var order = customer.Orders.First();
+            using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+              order.Number = 2;
+              nestedScope.Complete();
+            }
+            Assert.AreEqual(order.Number, 2);
+          }
+        }
+      }     
+    }
+
 
     [Test]
     public void FetchFromCacheTest()
@@ -359,6 +392,32 @@ namespace Xtensive.Storage.Tests.Storage
           }
         }
       }
+    }
+
+    [Test]
+    public void NestedTransactionRollbackedTest()
+    {
+      try {
+        using (var session = Session.Open(Domain)) {
+          var disconnectedState = new DisconnectedState();
+          using (disconnectedState.Attach(session)) {
+            using (Transaction.Open()) {
+              using (disconnectedState.Connect()) {
+
+                var customer = new Customer();
+
+                session.TransactionRollbacked +=
+                  (sender, args) => customer.Orders.ToList(); // DisconnectedState fails here with NullReferenceException
+
+                using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+                  new Order {Customer = customer};
+                }
+              }
+            }
+          }
+        }
+      }
+      catch(InvalidOperationException) { }
     }
 
     [Test]

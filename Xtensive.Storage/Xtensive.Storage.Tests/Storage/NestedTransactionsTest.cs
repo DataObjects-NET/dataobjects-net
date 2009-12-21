@@ -54,6 +54,27 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void NestedTransactionRollbackedTest()
+    {
+      using (var session = Session.Open(Domain)) {
+        using (Transaction.Open()) {
+          var hexagon = new Hexagon { Kwanza = 1};
+
+          session.TransactionRollbacked +=
+            (sender, args) => {
+              if (args.Transaction.IsNested)
+                Assert.AreEqual(1, hexagon.Kwanza);
+            };
+          using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+            hexagon.Kwanza = 2;
+            // Rollback
+          }  
+          Assert.AreEqual(1, hexagon.Kwanza);
+        }
+      }
+    }
+
+    [Test]
     public void ModifiedStateIsValidInInnerTransactionTest()
     {
       using (var outerScope = Transaction.Open()) {
