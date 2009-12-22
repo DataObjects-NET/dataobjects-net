@@ -34,6 +34,28 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+
+    [Test]
+    public void IndexerTest()
+    {
+      object freight = Query
+        .All<Order>()
+        .First(order => order.Freight > 0)
+        .Freight;
+      var result = Query
+        .All<Order>()
+        .OrderBy(order=>order.Id)
+        .Where(order => order["Freight"] == order["Id"])
+        .ToList();
+      var expected = Query
+        .All<Order>()
+        .AsEnumerable()
+        .OrderBy(order => order.Id)
+        .Where(order => order.Freight==(decimal?) freight)
+        .ToList();
+      Assert.IsTrue(expected.SequenceEqual(result));
+    }
+
     [Test]
     public void ParameterTest()
     {

@@ -21,63 +21,31 @@ namespace Xtensive.Storage.Linq
 {
   internal sealed class TranslatorContext
   {
-    private readonly Expression query;
-    private readonly DomainModel model;
-    private readonly Translator translator;
-    private readonly ExpressionEvaluator evaluator;
-    private readonly ParameterExtractor parameterExtractor;
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
-    private readonly LinqBindingCollection bindings;
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
-    private readonly IMemberCompilerProvider<Expression> customCompilerProvider;
-    private readonly IEnumerable<ILinqProcessor> linqProcessors;
 
-    public IEnumerable<ILinqProcessor> LinqProcessors
-    {
-      get { return linqProcessors; }
-    }
+    public IEnumerable<IQueryPreProcessor> QueryPreProcessors { get; private set; }
 
-    public Expression Query
-    {
-      get { return query; }
-    }
+    public Expression Query { get; private set; }
 
-    public DomainModel Model
-    {
-      get { return model; }
-    }
+    public DomainModel Model { get; private set; }
 
-    public IMemberCompilerProvider<Expression> CustomCompilerProvider
-    {
-      get { return customCompilerProvider; }
-    }
+    public IMemberCompilerProvider<Expression> CustomCompilerProvider { get; private set; }
 
-    public Translator Translator
-    {
-      get { return translator; }
-    }
+    public Translator Translator { get; private set; }
 
-    public ExpressionEvaluator Evaluator
-    {
-      get { return evaluator; }
-    }
+    public ExpressionEvaluator Evaluator { get; private set; }
 
-    public ParameterExtractor ParameterExtractor
-    {
-      get { return parameterExtractor; }
-    }
+    public ParameterExtractor ParameterExtractor { get; private set; }
 
-    public LinqBindingCollection Bindings
-    {
-      get { return bindings; }
-    }
+    public LinqBindingCollection Bindings { get; private set; }
 
     public bool IsRoot(Expression expression)
     {
-      return query == expression;
+      return Query == expression;
     }
 
     public string GetNextAlias()
@@ -134,21 +102,26 @@ namespace Xtensive.Storage.Linq
 
     public TranslatorContext(Expression query, Domain domain)
     {
+      // Custom preprocessors
+      QueryPreProcessors = domain.Services.GetAllInstances<IQueryPreProcessor>();
+      foreach (var queryPreProcessor in QueryPreProcessors)
+        query = queryPreProcessor.Apply(query);
+
+      // built-in preprocessors
+      query = ClosureAccessRewriter.Rewrite(query);
+      query = EqualityRewriter.Rewrite(query);
+      query = EntitySetAccessRewriter.Rewrite(query);
+      query = PersistentIndexerRewriter.Rewrite(query);
+      Query = query;
+
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
-
-      linqProcessors = domain.Services.GetAllInstances<ILinqProcessor>();
-      foreach (var processor in LinqProcessors)
-        query = processor.PreProcess(query);
-      
-      this.query = EntitySetAccessRewriter.Rewrite(EqualityRewriter.Rewrite(ClosureAccessRewriter.Rewrite(query)));
-
-      customCompilerProvider = domain.Handler.GetMemberCompilerProvider<Expression>();
-      model = domain.Model;
-      translator = new Translator(this);
-      evaluator = new ExpressionEvaluator(this.query);
-      parameterExtractor = new ParameterExtractor(evaluator);
-      bindings = new LinqBindingCollection();
+      CustomCompilerProvider = domain.Handler.GetMemberCompilerProvider<Expression>();
+      Model = domain.Model;
+      Translator = new Translator(this);
+      Evaluator = new ExpressionEvaluator(this.Query);
+      ParameterExtractor = new ParameterExtractor(Evaluator);
+      Bindings = new LinqBindingCollection();
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();
       tupleParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
       boundItemProjectors = new Dictionary<ParameterExpression, ItemProjectorExpression>();

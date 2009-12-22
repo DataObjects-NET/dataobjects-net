@@ -9,9 +9,8 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
 {
-  public interface ILinqProcessor
+  public interface IQueryPreProcessor
   {
-    Expression PreProcess(Expression query);
-    Expression PostProcess(Expression itemExpression);
+    Expression Apply(Expression query);
   }
 }

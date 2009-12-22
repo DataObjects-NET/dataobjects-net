@@ -112,12 +112,7 @@ namespace Xtensive.Storage.Linq
       var compileMaterializerMethod = MaterializationHelper.CompileItemMaterializerMethodInfo
         .MakeGenericMethod(elementType);
 
-      // Postprocess item expression
-      Expression itemExpression = materializationInfo.Expression;
-      foreach (var linqProcessor in context.LinqProcessors.Reverse())
-        itemExpression = linqProcessor.PostProcess(itemExpression);
-
-      var itemMaterializer = compileMaterializerMethod.Invoke(null, new[] {itemExpression});
+      var itemMaterializer = compileMaterializerMethod.Invoke(null, new[] {materializationInfo.Expression});
       var materializationContext = new MaterializationContext(materializationInfo.EntitiesInRow);
 
       Expression body = Expression.Call(

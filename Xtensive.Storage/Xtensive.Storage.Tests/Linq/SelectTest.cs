@@ -49,6 +49,22 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void IndexerTest()
+    {
+      var result = Query
+        .All<Customer>()
+        .OrderBy(customer=>customer.Id)
+        .Select(customer => customer["Phone"])
+        .AsEnumerable();
+      var expected = Query
+        .All<Customer>()
+        .AsEnumerable()
+        .OrderBy(customer=>customer.Id)
+        .Select(customer => customer["Phone"]);
+      Assert.IsTrue(expected.SequenceEqual(result));
+    }
+
+    [Test]
     public void StaticPropertyTest()
     {
       var customers = Query.All<Customer>()
