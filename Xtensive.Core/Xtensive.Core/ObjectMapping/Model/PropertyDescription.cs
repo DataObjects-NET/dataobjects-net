@@ -66,6 +66,12 @@ namespace Xtensive.Core.ObjectMapping.Model
 
     public MethodInfo AddMethod { get; private set; }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return SystemProperty.ToString();
+    }
+
     internal static bool IsPropertyPrimitive(PropertyInfo propertyInfo)
     {
       return primitiveTypes.Contains(propertyInfo.PropertyType);

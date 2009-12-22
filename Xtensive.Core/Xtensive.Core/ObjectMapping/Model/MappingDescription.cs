@@ -113,6 +113,12 @@ namespace Xtensive.Core.ObjectMapping.Model
       return sourceTypes[source.GetType()].KeyExtractor.Invoke(source);
     }
 
+    internal void EnsureTargetTypeIsRegistered(Type targetType)
+    {
+      if (!targetTypes.ContainsKey(targetType))
+        ThrowTypeHasNotBeenRegistered(targetType);
+    }
+
     private static void ThrowTypeHasNotBeenRegistered(Type type)
     {
       throw new InvalidOperationException(String.Format(Strings.ExTypeXHasNotBeenRegistered,

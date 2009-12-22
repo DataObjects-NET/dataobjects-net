@@ -12,7 +12,7 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Core.ObjectMapping
 {
   [Serializable]
-  public sealed class DefaultModificationSet : LockableBase,
+  public sealed class DefaultOperationSet : LockableBase,
     IOperationSet,
     IEnumerable<OperationInfo>
   {

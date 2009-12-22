@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping;
@@ -67,7 +68,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
           break;
         }
       };
-      ((DefaultModificationSet) mapper.Compare(target, clone)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(target, clone)).Apply(validator);
       Assert.AreEqual(2, eventRaisingCount);
     }
 
@@ -96,7 +97,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         else
           Assert.Fail();
       };
-      ((DefaultModificationSet) mapper.Compare(target, clone)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(target, clone)).Apply(validator);
       Assert.AreEqual(2, eventRaisingCount);
     }
 
@@ -137,7 +138,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var mapper = GetPersonOrderMapper();
       Assert.IsNull(mapper.Transform(null));
       Action<OperationInfo> validator = descriptor => Assert.Fail();
-      ((DefaultModificationSet) mapper.Compare(null, null)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(null, null)).Apply(validator);
     }
 
     [Test]
@@ -174,7 +175,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         }
         eventRaisingCount++;
       };
-      ((DefaultModificationSet) mapper.Compare(null, target)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(null, target)).Apply(validator);
       Assert.AreEqual(7, eventRaisingCount);
       Assert.IsTrue(orderPropertyCounts.All(pair => pair.Value == 1));
       Assert.IsTrue(customerPropertyCounts.All(pair => pair.Value == 1));
@@ -200,7 +201,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         else
           Assert.Fail();
       };
-      ((DefaultModificationSet) mapper.Compare(target, null)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(target, null)).Apply(validator);
       Assert.AreEqual(2, eventRaisingCount);
       Assert.IsTrue(personCreated);
       Assert.IsTrue(orderCreated);
@@ -240,7 +241,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
-    public void BuildMappingWhenTypesHavePropertyWhichShouldBeIgnoredTest()
+    public void MappingBuildingWhenTypesHavePropertyWhichShouldBeIgnoredTest()
     {
       var mapper = GetIgnorableMapper();
       var auxiliaryProperty = GetTargetProperty(mapper, typeof (IgnorableDto), "Auxiliary");
@@ -249,6 +250,213 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Assert.IsTrue(auxiliaryProperty.IsIgnored);
       Assert.IsNull(ignoredTargetProperty.SourceProperty);
       Assert.IsTrue(ignoredTargetProperty.IsIgnored);
+    }
+
+    [Test]
+    public void TransformationWhenTypesHavePropertiesWhichShouldBeIgnoredTest()
+    {
+      var mapper = GetIgnorableMapper();
+      var source = GetIgnorableSource();
+      var target = (IgnorableDto) mapper.Transform(source);
+      Assert.IsNotNull(target);
+      Assert.AreEqual(source.Id, target.Id);
+      Assert.AreNotEqual(source.Ignored, target.Ignored);
+      Assert.IsNull(target.Ignored);
+      Assert.IsNull(target.Auxiliary);
+      Assert.AreEqual(source.IncludedReference.Id, target.IncludedReference.Id);
+      Assert.AreEqual(source.IncludedReference.Date, target.IncludedReference.Date);
+      Assert.IsNotNull(source.IgnoredReference);
+      Assert.IsNull(target.IgnoredReference);
+    }
+
+    [Test]
+    public void ComparisonWhenTypesHavePropertiesWhichShouldBeIgnoredTest()
+    {
+      var mapper = GetIgnorableMapper();
+      var source = GetIgnorableSource();
+      var original = (IgnorableDto) mapper.Transform(source);
+      original.Ignored = "I";
+      original.Auxiliary = "A";
+      original.IgnoredReference = new IgnorableSubordinateDto {Date = DateTime.Now, Id = Guid.NewGuid()};
+      var modified = (IgnorableDto) original.Clone();
+      modified.Ignored = "1";
+      modified.Auxiliary = "2";
+      modified.IgnoredReference = new IgnorableSubordinateDto {Date = DateTime.Now.AddDays(1),
+        Id = Guid.NewGuid()};
+      var operations = mapper.Compare(original, modified);
+      Assert.IsTrue(operations.IsEmpty);
+      var newDate = modified.IncludedReference.Date.AddYears(20);
+      modified.IncludedReference.Date = newDate;
+      operations = mapper.Compare(original, modified);
+      Assert.IsFalse(operations.IsEmpty);
+      var operation = ((DefaultOperationSet) operations).Single();
+      Assert.AreEqual(original.IncludedReference, operation.Object);
+      Assert.AreEqual("Date", operation.Property.SystemProperty.Name);
+      Assert.AreEqual(OperationType.SetProperty, operation.Type);
+      Assert.AreEqual(newDate, operation.Value);
+      Assert.AreNotEqual(original.IgnoredReference.Id, modified.IgnoredReference.Id);
+      Assert.AreNotEqual(original.IgnoredReference.Date, modified.IgnoredReference.Date);
+      Assert.AreNotEqual(original.Auxiliary, modified.Auxiliary);
+      Assert.AreNotEqual(original.Ignored, modified.Ignored);
+    }
+
+    [Test]
+    public void TransformationIncludingNullTest()
+    {
+      var mapper = GetPersonOrderMapper();
+      var sourceOrder = new Order {Id = Guid.NewGuid()};
+      var targetOrder = (OrderDto) mapper.Transform(sourceOrder);
+      Assert.IsNull(targetOrder.Customer);
+      sourceOrder = new Order {Id = Guid.NewGuid(), Customer = new Person {Id = 1}};
+      targetOrder = (OrderDto) mapper.Transform(sourceOrder);
+      Assert.IsNull(targetOrder.Customer.FirstName);
+      Assert.IsNull(targetOrder.Customer.LastName);
+
+      mapper = GetPetOwnerAnimalMapper();
+      var sourcePetOwner = new PetOwner(null) {Id = 1};
+      var targetPetOwner = (PetOwnerDto) mapper.Transform(sourcePetOwner);
+      Assert.IsNull(targetPetOwner.FirstName);
+      Assert.IsNull(targetPetOwner.LastName);
+      Assert.IsNull(targetPetOwner.Pets);
+
+      var pets = new HashSet<Animal> {new Animal()};
+      sourcePetOwner = new PetOwner(pets);
+      targetPetOwner = (PetOwnerDto) mapper.Transform(sourcePetOwner);
+      Assert.IsNull(targetPetOwner.Pets.Single().Name);
+
+      pets = new HashSet<Animal> {null};
+      sourcePetOwner = new PetOwner(pets);
+      targetPetOwner = (PetOwnerDto) mapper.Transform(sourcePetOwner);
+      Assert.IsNull(targetPetOwner.Pets.Single());
+    }
+
+    [Test]
+    public void ComparisonWhenOriginalReferencePropertyContainsNulTest()
+    {
+      var mapper = GetPersonOrderMapper();
+      var sourceOrder = GetSourceOrder();
+      var originalOrder = (OrderDto) mapper.Transform(sourceOrder);
+      var modifiedOrder = (OrderDto) originalOrder.Clone();
+      originalOrder.Customer = null;
+      var operations = (DefaultOperationSet) mapper.Compare(originalOrder, modifiedOrder);
+      Assert.AreEqual(5, operations.Count());
+      var createPersonOperation = operations.First();
+      Assert.AreSame(modifiedOrder.Customer, createPersonOperation.Object);
+      Assert.AreEqual(OperationType.CreateObject, createPersonOperation.Type);
+      Assert.IsNull(createPersonOperation.Property);
+      Assert.IsNull(createPersonOperation.Value);
+      var setPersonPropertiesOperations = operations.Skip(1).Take(3).ToList();
+      Assert.IsTrue(setPersonPropertiesOperations.All(o => ReferenceEquals(modifiedOrder.Customer, o.Object)));
+      Assert.IsTrue(setPersonPropertiesOperations.All(o => o.Type==OperationType.SetProperty));
+      var propertySettingCounts = new Dictionary<string, int> {
+        {"FirstName", 0}, {"LastName", 0}, {"BirthDate", 0}
+      };
+      setPersonPropertiesOperations.Apply(o => {
+        propertySettingCounts[o.Property.SystemProperty.Name] += 1;
+        switch (o.Property.SystemProperty.Name) {
+        case "FirstName":
+          Assert.AreEqual(modifiedOrder.Customer.FirstName, o.Value);
+          break;
+        case "LastName":
+          Assert.AreEqual(modifiedOrder.Customer.LastName, o.Value);
+          break;
+        case "BirthDate":
+          Assert.AreEqual(modifiedOrder.Customer.BirthDate, o.Value);
+          break;
+        default:
+          Assert.Fail();
+          break;
+        }
+      });
+      Assert.IsTrue(propertySettingCounts.All(pair => pair.Value == 1));
+      var customerSetOperation = operations.Skip(4).Single();
+      Assert.AreSame(originalOrder, customerSetOperation.Object);
+      Assert.AreEqual(OperationType.SetProperty, customerSetOperation.Type);
+      Assert.AreEqual("Customer", customerSetOperation.Property.SystemProperty.Name);
+      Assert.AreSame(modifiedOrder.Customer, customerSetOperation.Value);
+    }
+
+    [Test]
+    public void ComparisonWhenModifiedReferencePropertyContainsNullTest()
+    {
+      var mapper = GetPersonOrderMapper();
+      var sourceOrder = GetSourceOrder();
+      var originalOrder = (OrderDto) mapper.Transform(sourceOrder);
+      var modifiedOrder = (OrderDto) originalOrder.Clone();
+      modifiedOrder.Customer = null;
+      var operations = (DefaultOperationSet) mapper.Compare(originalOrder, modifiedOrder);
+      Assert.AreEqual(2, operations.Count());
+      var customerSettingOperation = operations.First();
+      Assert.AreSame(originalOrder, customerSettingOperation.Object);
+      Assert.AreEqual(null, customerSettingOperation.Value);
+      Assert.AreEqual("Customer", customerSettingOperation.Property.SystemProperty.Name);
+      Assert.AreEqual(OperationType.SetProperty, customerSettingOperation.Type);
+      var personRemovalOperation = operations.Skip(1).Single();
+      Assert.AreSame(originalOrder.Customer, personRemovalOperation.Object);
+      Assert.AreEqual(OperationType.RemoveObject, personRemovalOperation.Type);
+      Assert.IsNull(personRemovalOperation.Property);
+      Assert.IsNull(personRemovalOperation.Value);
+    }
+
+    [Test]
+    public void ComparisonWhenOriginalCollectionIsNullTest()
+    {
+      var mapper = GetPetOwnerAnimalMapper();
+      var source = new PetOwner(null) {Id = 1, BirthDate = DateTime.Now, FirstName = "A"};
+      var original = (PetOwnerDto) mapper.Transform(source);
+      var modified = (PetOwnerDto) original.Clone();
+      modified.Pets = new List<AnimalDto>();
+      var operations = (DefaultOperationSet) mapper.Compare(original, modified);
+      Assert.IsTrue(operations.IsEmpty);
+    }
+
+    [Test]
+    public void ComparisonWhenModifiedCollectionIsNullTest()
+    {
+      var mapper = GetPetOwnerAnimalMapper();
+      var animal = new Animal();
+      var pets = new HashSet<Animal> {animal};
+      var source = new PetOwner(pets) {Id = 1, BirthDate = DateTime.Now, FirstName = "A"};
+      var original = (PetOwnerDto) mapper.Transform(source);
+      var modified = (PetOwnerDto) original.Clone();
+      modified.Pets = null;
+      var operations = (DefaultOperationSet) mapper.Compare(original, modified);
+      Assert.AreEqual(2, operations.Count());
+      var itemRemovalOperation = operations.First();
+      Assert.AreEqual(original, itemRemovalOperation.Object);
+      Assert.AreEqual(OperationType.RemoveItem, itemRemovalOperation.Type);
+      Assert.AreEqual("Pets", itemRemovalOperation.Property.SystemProperty.Name);
+      var removedAnimal = original.Pets.Single();
+      Assert.AreEqual(removedAnimal, itemRemovalOperation.Value);
+      var animalRemovalOperation = operations.Skip(1).Single();
+      Assert.AreEqual(removedAnimal, animalRemovalOperation.Object);
+      Assert.AreEqual(OperationType.RemoveObject, animalRemovalOperation.Type);
+      Assert.IsNull(animalRemovalOperation.Property);
+      Assert.IsNull(animalRemovalOperation.Value);
+    }
+
+    [Test]
+    public void ComparisonWhenOriginalCollectionContainsNullTest()
+    {
+      var mapper = GetPetOwnerAnimalMapper();
+      var animal = new Animal();
+      var source = new PetOwner(new HashSet<Animal>{animal}) {
+        Id = 1, BirthDate = DateTime.Now, FirstName = "A"
+      };
+      var original = (PetOwnerDto) mapper.Transform(source);
+      var modified = (PetOwnerDto) original.Clone();
+      original.Pets = new List<AnimalDto> {null};
+      var createdAnimal = modified.Pets.Single();
+      var operations = (DefaultOperationSet) mapper.Compare(original, modified);
+      Assert.AreEqual(3, operations.Count());
+      var animalCreationOperation = operations.First();
+      ValidateObjectCreation(createdAnimal, animalCreationOperation);
+      var propertyInfo = typeof (AnimalDto).GetProperty("Name");
+      var nameSettingOperation = operations.Skip(1).First();
+      ValidatePropertySettingOperation(createdAnimal, nameSettingOperation, propertyInfo, createdAnimal.Name);
+      var petsProperty = typeof (PetOwnerDto).GetProperty("Pets");
+      var petAdditionOperation = operations.Skip(2).Single();
+      ValidateItemAdditionOperation(original, petAdditionOperation, petsProperty, createdAnimal);
     }
 
     private static void ValidateCollectionComparison(DefaultMapper mapper, PetOwnerDto original,
@@ -309,7 +517,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
           break;
         }
       };
-      ((DefaultModificationSet) mapper.Compare(original, modified)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(original, modified)).Apply(validator);
       Assert.AreEqual(7, eventRaisingCount);
       Assert.IsTrue(itemRemovalPublished0);
       Assert.IsTrue(itemRemovalPublished1);
@@ -374,7 +582,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         else
           Assert.Fail();
       };
-      ((DefaultModificationSet) mapper.Compare(target, clone)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(target, clone)).Apply(validator);
       Assert.AreEqual(7, eventRaisingCount);
       Assert.IsTrue(customerPropertyCounts.All(pair => pair.Value == 1));
       Assert.IsTrue(shipDateModified);
@@ -414,8 +622,9 @@ namespace Xtensive.Core.Tests.ObjectMapping
     private static DefaultMapper GetIgnorableMapper()
     {
       var result = new DefaultMapper();
-      result.MapType<Ignorable, IgnorableDto, Guid>(c => c.Id, c => c.Id)
-        .Ignore(c => c.Auxiliary).Ignore(c => c.Ignored).Complete();
+      result.MapType<Ignorable, IgnorableDto, Guid>(i => i.Id, i => i.Id)
+        .Ignore(i => i.Auxiliary).Ignore(i => i.Ignored).Ignore(i => i.IgnoredReference)
+        .MapType<IgnorableSubordinate, IgnorableSubordinateDto, Guid>(s => s.Id, s => s.Id).Complete();
       return result;
     }
 
@@ -452,6 +661,16 @@ namespace Xtensive.Core.Tests.ObjectMapping
       petOwner.Pets.Add(new Animal());
       return petOwner;
     }
+
+    private static Ignorable GetIgnorableSource()
+    {
+      var ignoredSubordinate = new IgnorableSubordinate {Id = Guid.NewGuid(), Date = DateTime.Now};
+      var includedSubordinate = new IgnorableSubordinate {Id = Guid.NewGuid(), Date = DateTime.Now.AddDays(10)};
+      return new Ignorable {
+        Id = Guid.NewGuid(), Ignored = "I", IgnoredReference = ignoredSubordinate,
+        IncludedReference = includedSubordinate
+      };
+    }
     
     private static void AssertAreEqual(Person source, PersonDto target)
     {
@@ -477,11 +696,39 @@ namespace Xtensive.Core.Tests.ObjectMapping
         .Properties[type.GetProperty(propertyName)];
     }
 
-    private static SourcePropertyDescription GetSourceProperty(MapperBase mapper, Type type,
-      string propertyName)
+    private static void ValidateObjectCreation(object obj, OperationInfo operationInfo)
     {
-      return (SourcePropertyDescription) mapper.MappingDescription.SourceTypes[type]
-        .Properties[type.GetProperty(propertyName)];
+      ValidateObjectOperation(obj, operationInfo, OperationType.CreateObject);
+    }
+
+    private static void ValidateObjectOperation(object obj, OperationInfo operationInfo,
+      OperationType operationType)
+    {
+      Assert.AreEqual(obj, operationInfo.Object);
+      Assert.AreEqual(operationType, operationInfo.Type);
+      Assert.IsNull(operationInfo.Property);
+      Assert.IsNull(operationInfo.Value);
+    }
+
+    private static void ValidateItemAdditionOperation(object obj, OperationInfo operationInfo,
+      PropertyInfo propertyInfo, object item)
+    {
+      ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.AddItem, item);
+    }
+
+    private static void ValidatePropertySettingOperation(object obj, OperationInfo operationInfo,
+      PropertyInfo propertyInfo, object value)
+    {
+      ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.SetProperty, value);
+    }
+
+    private static void ValidatePropertyOperation(object obj, OperationInfo operationInfo,
+      PropertyInfo propertyInfo, OperationType operationType, object value)
+    {
+      Assert.AreSame(obj, operationInfo.Object);
+      Assert.AreSame(value, operationInfo.Value);
+      Assert.AreEqual(propertyInfo, operationInfo.Property.SystemProperty);
+      Assert.AreEqual(operationType, operationInfo.Type);
     }
   }
 }

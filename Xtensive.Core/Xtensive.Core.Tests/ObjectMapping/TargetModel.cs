@@ -91,7 +91,9 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
       var result = new PetOwnerDto
       {
         BirthDate = BirthDate, FirstName = FirstName, Id = Id, LastName = LastName,
-        Pets = new List<AnimalDto>(Pets.Select(a => (AnimalDto) a.Clone()))
+        Pets = Pets != null
+          ? new List<AnimalDto>(Pets.Select(a => a != null ? (AnimalDto) a.Clone() : null))
+          :null
       };
       return result;
     }
@@ -119,12 +121,40 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
     public int LegCount { get; set; }
   }
 
-  public class IgnorableDto
+  public class IgnorableDto : ICloneable
   {
     public Guid Id { get; set; }
 
     public string Auxiliary { get; set; }
 
     public string Ignored { get; set; }
+
+    public IgnorableSubordinateDto IgnoredReference { get; set; }
+
+    public IgnorableSubordinateDto IncludedReference { get; set; }
+
+    public object Clone()
+    {
+      return new IgnorableDto {
+        Auxiliary = Auxiliary, Ignored = Ignored,
+        IgnoredReference = IgnoredReference != null ? (IgnorableSubordinateDto) IgnoredReference.Clone() : null,
+        IncludedReference = IncludedReference != null
+          ? (IgnorableSubordinateDto) IncludedReference.Clone()
+          : null,
+        Id = Id
+      };
+    }
+  }
+
+  public class IgnorableSubordinateDto : ICloneable
+  {
+    public Guid Id { get; set; }
+
+    public DateTime Date { get; set; }
+
+    public object Clone()
+    {
+      return new IgnorableSubordinateDto {Date = Date, Id = Id};
+    }
   }
 }

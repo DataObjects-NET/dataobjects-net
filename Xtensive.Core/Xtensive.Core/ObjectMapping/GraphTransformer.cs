@@ -128,6 +128,10 @@ namespace Xtensive.Core.ObjectMapping
       object target, TargetPropertyDescription targetProperty)
     {
       var sourceValue = sourceProperty.SystemProperty.GetValue(source, null);
+      if (sourceValue == null) {
+        targetProperty.SystemProperty.SetValue(target, null, null);
+        return;
+      }
       var itemCount = (int) sourceProperty.CountProperty.GetValue(sourceValue, null);
       object targetValue;
       if (targetProperty.SystemProperty.PropertyType.IsArray) {

@@ -46,13 +46,15 @@ namespace Xtensive.Core.ObjectMapping.Model
     public override void Lock(bool recursive)
     {
       var primitiveProperties = new Dictionary<PropertyInfo, TargetPropertyDescription>();
-      foreach (var pair in Properties.Where(p => p.Value.IsPrimitive))
-        primitiveProperties.Add(pair.Key, (TargetPropertyDescription) pair.Value);
+      var properties = Properties.Select(pair => pair.Value).Cast<TargetPropertyDescription>()
+        .Where(p => !p.IsIgnored);
+      foreach (var property in properties.Where(p => p.IsPrimitive))
+        primitiveProperties.Add(property.SystemProperty, property);
       PrimitiveProperties =
         new ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription>(primitiveProperties, false);
       var complexProperties = new Dictionary<PropertyInfo, TargetPropertyDescription>();
-      foreach (var pair in Properties.Where(p => !p.Value.IsPrimitive))
-        complexProperties.Add(pair.Key, (TargetPropertyDescription) pair.Value);
+      foreach (var property in properties.Where(p => !p.IsPrimitive))
+        complexProperties.Add(property.SystemProperty, property);
       ComplexProperties =
         new ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription>(complexProperties, false);
       base.Lock(recursive);

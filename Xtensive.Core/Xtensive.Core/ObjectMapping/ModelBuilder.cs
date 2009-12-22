@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
@@ -56,6 +55,8 @@ namespace Xtensive.Core.ObjectMapping
       BuildSourceDescriptions();
       BuildTargetDescriptions();
       mappingDescription.Lock(true);
+      var modelValidator = new ModelValidator();
+      modelValidator.Validate(mappingDescription);
       return mappingDescription;
     }
 
@@ -67,7 +68,7 @@ namespace Xtensive.Core.ObjectMapping
       }
     }
 
-    private void BuildTargetPropertyDescriptions(TargetTypeDescription targetType)
+    private static void BuildTargetPropertyDescriptions(TargetTypeDescription targetType)
     {
       var properties = targetType.SystemType.GetProperties();
       for (var i = 0; i < properties.Length; i++) {
@@ -77,21 +78,8 @@ namespace Xtensive.Core.ObjectMapping
           var sourceProperty = targetType.SourceType.Properties
             .Where(p => p.Key.Name==property.Name).Select(p => p.Value).Single();
           propertyDesc.SourceProperty = (SourcePropertyDescription) sourceProperty;
-          if (!propertyDesc.IsPrimitive) {
-            var typeToBeValidated = propertyDesc.IsCollection
-              ? propertyDesc.ItemType
-              : propertyDesc.SystemProperty.PropertyType;
-            mappingDescription.GetMappedSourceType(typeToBeValidated);
-          }
-          else {
-            var areCompatible = propertyDesc.SystemProperty.PropertyType
-              .IsAssignableFrom(sourceProperty.SystemProperty.PropertyType);
-            if (!areCompatible)
-              throw new InvalidOperationException(
-                String.Format(Strings.ExPropertiesXAndYHaveIncompatibleTypes, propertyDesc.SystemProperty,
-                  sourceProperty.SystemProperty));
+          if (propertyDesc.IsPrimitive)
             propertyDesc.Converter = defaultPrimitiveConverter;
-          }
           targetType.AddProperty(propertyDesc);
         }
       }
@@ -118,13 +106,6 @@ namespace Xtensive.Core.ObjectMapping
           if (sourceType.Value.Properties.ContainsKey(property))
             continue;
           var propertyDesc = new SourcePropertyDescription(property, sourceType.Value);
-          if (!propertyDesc.IsPrimitive) {
-            var typeToValidate = propertyDesc.IsCollection
-              ? propertyDesc.ItemType
-              : propertyDesc.SystemProperty.PropertyType;
-            // TODO: HACK! Omit the validation for properties which have custom converters.
-            // mappingDescription.GetMappedTargetType(typeToValidate);
-          }
           sourceType.Value.AddProperty(propertyDesc);
         }
       }

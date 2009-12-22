@@ -59,8 +59,12 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
     public HashSet<Animal> Pets { get; private set; }
 
     public PetOwner()
+      : this(new HashSet<Animal>())
+    {}
+
+    public PetOwner(HashSet<Animal> pets)
     {
-      Pets = new HashSet<Animal>();
+      Pets = pets;
     }
   }
 
@@ -91,5 +95,16 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
     public Guid Id { get; set; }
 
     public string Ignored { get; set; }
+
+    public IgnorableSubordinate IgnoredReference { get; set; }
+
+    public IgnorableSubordinate IncludedReference { get; set; }
+  }
+
+  public class IgnorableSubordinate
+  {
+    public Guid Id { get; set; }
+
+    public DateTime Date { get; set; }
   }
 }

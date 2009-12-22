@@ -23,6 +23,8 @@ namespace Xtensive.Core.ObjectMapping
       referencedObjects.Enqueue(source);
       while (referencedObjects.Count > 0) {
         var current = referencedObjects.Dequeue();
+        if (current == null)
+          continue;
         var key = mappingDescription.ExtractTargetKey(current);
         if (resultContainer.ContainsKey(key))
           continue;

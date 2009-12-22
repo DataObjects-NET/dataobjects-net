@@ -100,9 +100,8 @@ namespace Xtensive.Core.ObjectMapping
     private void CompareObjects(object original, object originalValue, object modifiedValue,
       TargetPropertyDescription property)
     {
-      if (modifiedValue == null)
-        subscriber.Invoke(new OperationInfo(original, OperationType.SetProperty,
-          property, null));
+      if (modifiedValue == null || originalValue == null)
+        NotifyAboutPropertySetting(original, property, modifiedValue);
       else {
         var modifiedKey = mappingDescription.ExtractTargetKey(modifiedValue);
         var originalKey = mappingDescription.ExtractTargetKey(originalValue);
@@ -141,8 +140,11 @@ namespace Xtensive.Core.ObjectMapping
     {
       if (collection == null)
         return;
-      foreach (var item in collection)
+      foreach (var item in collection) {
+        if (item==null)
+          continue;
         keyCache.Add(mappingDescription.ExtractTargetKey(item), item);
+      }
     }
 
     private void ComparePrimitiveProperties(object modified, object original, TargetTypeDescription description)

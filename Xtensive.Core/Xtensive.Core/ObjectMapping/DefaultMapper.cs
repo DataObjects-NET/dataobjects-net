@@ -4,28 +4,26 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.12.10
 
-using System;
-
 namespace Xtensive.Core.ObjectMapping
 {
   public class DefaultMapper : MapperBase
   {
-    private DefaultModificationSet modificationSet;
+    private DefaultOperationSet operationSet;
 
     protected override void OnObjectModified(OperationInfo descriptor)
     {
-      modificationSet.Add(descriptor);
+      operationSet.Add(descriptor);
     }
 
     protected override void InitializeComparison(object originalTarget, object modifiedTarget)
     {
-      modificationSet = new DefaultModificationSet();
+      operationSet = new DefaultOperationSet();
     }
 
     protected override IOperationSet GetComparisonResult(object originalTarget, object modifiedTarget)
     {
-      modificationSet.Lock();
-      return modificationSet;
+      operationSet.Lock();
+      return operationSet;
     }
   }
 }
