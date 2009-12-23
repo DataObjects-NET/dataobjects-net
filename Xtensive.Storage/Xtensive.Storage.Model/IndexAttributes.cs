@@ -14,7 +14,6 @@ namespace Xtensive.Storage.Model
     None =        0x0,
     Primary =     0x1,
     Unique =      0x2,
-    FullText =    0x4,
     Real =        0x8,
     Secondary =  0x10,
     Abstract =   0x20,

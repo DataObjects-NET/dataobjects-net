@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Building.Definitions
   {
     private readonly HierarchyDefCollection hierarchies;
     private readonly TypeDefCollection types;
+    private readonly FullTextIndexDefCollection fullTextIndexes;
 
     /// <summary>
     /// Gets the <see cref="TypeDef"/> instances contained in this instance.
@@ -37,6 +38,14 @@ namespace Xtensive.Storage.Building.Definitions
     public HierarchyDefCollection Hierarchies
     {
       get { return hierarchies; }
+    }
+
+    /// <summary>
+    /// Gets the collection of <see cref="FullTextIndexDef"/> instances contained in this instance.
+    /// </summary>
+    public FullTextIndexDefCollection FullTextIndexes
+    {
+      get { return fullTextIndexes; }
     }
 
     /// <summary>
@@ -122,6 +131,7 @@ namespace Xtensive.Storage.Building.Definitions
     {
       types = new TypeDefCollection();
       hierarchies = new HierarchyDefCollection();
+      fullTextIndexes = new FullTextIndexDefCollection();
 
       types.Removed += OnTypeRemoved;
       types.Cleared += OnTypesCleared;

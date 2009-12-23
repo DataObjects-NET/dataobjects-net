@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
@@ -14,7 +15,6 @@ using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
 {
-  [Serializable]
   internal static class ModelDefBuilder
   {
     public static void Run()
@@ -75,8 +75,37 @@ namespace Xtensive.Storage.Building.Builders
         }
         modelDef.Types.Add(typeDef);
 
+        ProcessFullText(typeDef);
+
         return typeDef;
       }
+    }
+
+    public static void ProcessFullText(TypeDef typeDef)
+    {
+      var fullTextIndexDef = new FullTextIndexDef(typeDef);
+      var modelDef = BuildingContext.Current.ModelDef;
+      var hierarchy = modelDef.FindHierarchy(typeDef);
+      if (hierarchy == null)
+        return;
+
+      foreach (var fieldDef in typeDef.Fields.Where(f => f.UnderlyingProperty != null)) {
+        var fullTextAttribute = fieldDef.UnderlyingProperty.GetAttribute<FullTextAttribute>(AttributeSearchOptions.InheritAll);
+        if (fullTextAttribute == null) 
+          continue;
+
+        if (fullTextAttribute.Analyze)
+          fullTextIndexDef.Fields.Add(fieldDef);
+        else
+          fullTextIndexDef.IncludedFields.Add(fieldDef);
+      }
+      var root = hierarchy.Root;
+      foreach (var keyField in hierarchy.KeyFields) {
+        var keyFieldDef = root.Fields[keyField.Name];
+        fullTextIndexDef.KeyFields.Add(keyFieldDef);
+      }
+      if (fullTextIndexDef.Fields.Count > 0 || fullTextIndexDef.IncludedFields.Count > 0)
+        modelDef.FullTextIndexes.Add(fullTextIndexDef);
     }
 
     public static void ProcessProperties(TypeDef typeDef, HierarchyDef hierarchyDef)

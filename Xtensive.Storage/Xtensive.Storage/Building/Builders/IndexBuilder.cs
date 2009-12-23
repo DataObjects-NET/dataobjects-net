@@ -38,6 +38,7 @@ namespace Xtensive.Storage.Building.Builders
         BuildInterfaceIndexes();
         CleanupTypedIndexes();
         BuildAffectedIndexes();
+        BuildFullTextIndexes();
       }
     }
 
@@ -482,7 +483,7 @@ namespace Xtensive.Storage.Building.Builders
         throw new InvalidOperationException();
       var nameBuilder = BuildingContext.Current.NameBuilder;
       var attributes = realIndex.Attributes
-        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.FullText)
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique)
         | IndexAttributes.Typed | IndexAttributes.Virtual;
       var result = new IndexInfo(reflectedType, attributes, realIndex, ArrayUtils<IndexInfo>.EmptyArray);
 
@@ -517,7 +518,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       var nameBuilder = BuildingContext.Current.NameBuilder;
       var attributes = indexToFilter.Attributes
-        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.FullText)
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique )
         | IndexAttributes.Filtered | IndexAttributes.Virtual;
       var result = new IndexInfo(reflectedType, attributes, indexToFilter, ArrayUtils<IndexInfo>.EmptyArray) {FilterByTypes = filterByTypes.ToList()};
 
@@ -548,7 +549,7 @@ namespace Xtensive.Storage.Building.Builders
       var firstIndex = indexesToJoin.First();
       var otherIndexes = indexesToJoin.Skip(1).ToArray();
       var attributes = firstIndex.Attributes
-        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.FullText)
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique )
         | IndexAttributes.Join | IndexAttributes.Virtual;
       var result = new IndexInfo(reflectedType, attributes, firstIndex, otherIndexes);
 
@@ -634,7 +635,7 @@ namespace Xtensive.Storage.Building.Builders
       var firstIndex = indexesToUnion.First();
       var otherIndexes = indexesToUnion.Skip(1).ToArray();
       var attributes = firstIndex.Attributes
-        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.FullText)
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique )
         | IndexAttributes.Union | IndexAttributes.Virtual;
       var result = new IndexInfo(reflectedType, attributes, firstIndex, otherIndexes);
 
@@ -667,7 +668,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       var nameBuilder = BuildingContext.Current.NameBuilder;
       var attributes = indexToApplyView.Attributes
-        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.FullText)
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique )
         | IndexAttributes.View | IndexAttributes.Virtual;
       var result = new IndexInfo(reflectedType, attributes, indexToApplyView, ArrayUtils<IndexInfo>.EmptyArray);
 

@@ -13,7 +13,12 @@ namespace Xtensive.Storage.Building.Builders
   {
     public static void BuildFullTextIndexes()
     {
-      
+      var context = BuildingContext.Current;
+      var modelDef = context.ModelDef;
+      var model = context.Model;
+      foreach (var fullTextIndex in modelDef.FullTextIndexes) {
+        
+      }
     }
   }
 }
