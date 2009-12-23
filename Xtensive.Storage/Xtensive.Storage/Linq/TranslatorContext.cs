@@ -111,7 +111,8 @@ namespace Xtensive.Storage.Linq
       query = ClosureAccessRewriter.Rewrite(query);
       query = EqualityRewriter.Rewrite(query);
       query = EntitySetAccessRewriter.Rewrite(query);
-      query = PersistentIndexerRewriter.Rewrite(query);
+      Evaluator = new ExpressionEvaluator(query);
+      query = PersistentIndexerRewriter.Rewrite(query, this);
       Query = query;
 
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
@@ -119,7 +120,6 @@ namespace Xtensive.Storage.Linq
       CustomCompilerProvider = domain.Handler.GetMemberCompilerProvider<Expression>();
       Model = domain.Model;
       Translator = new Translator(this);
-      Evaluator = new ExpressionEvaluator(this.Query);
       ParameterExtractor = new ParameterExtractor(Evaluator);
       Bindings = new LinqBindingCollection();
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();

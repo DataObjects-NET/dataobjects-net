@@ -13,6 +13,8 @@ namespace Xtensive.Storage.Linq.Rewriters
 {
   internal class PersistentIndexerRewriter : ExpressionVisitor
   {
+    private TranslatorContext context;
+
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
       if (binaryExpression.NodeType.In(ExpressionType.NotEqual, ExpressionType.Equal)) {
@@ -63,11 +65,11 @@ namespace Xtensive.Storage.Linq.Rewriters
 
     private MemberExpression GetMemberExpression(MethodCallExpression mc)
     {
-      var name = (string) ((ConstantExpression) mc.Arguments[0]).Value;
+      var name = (string)ExpressionEvaluator.Evaluate(mc.Arguments[0]).Value;
       var propertyInfo = mc.Object.Type.GetProperties().SingleOrDefault(property => property.Name==name);
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);
-      throw new InvalidOperationException(String.Format(Xtensive.Storage.Resources.Strings.ExFieldXNotFoundInTypeX, name, mc.Object.Type));
+      throw new InvalidOperationException(String.Format(Resources.Strings.ExFieldXNotFoundInTypeX, name, mc.Object.Type));
     }
 
     private bool IsIndexerAccessor(Expression expression)
@@ -78,16 +80,18 @@ namespace Xtensive.Storage.Linq.Rewriters
       return methodCallExpression.Object!=null
         && methodCallExpression.Method.Name=="get_Item"
           && methodCallExpression.Method.DeclaringType==typeof (Persistent)
-            && methodCallExpression.Arguments[0].NodeType==ExpressionType.Constant;
+        && context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
     }
 
-    public static Expression Rewrite(Expression query)
+    public static Expression Rewrite(Expression query, TranslatorContext context)
     {
-      return new PersistentIndexerRewriter().Visit(query);
+      return new PersistentIndexerRewriter(context).Visit(query);
     }
 
-    private PersistentIndexerRewriter()
+    private PersistentIndexerRewriter(TranslatorContext context)
     {
+      this.context = context;
     }
+
   }
 }
