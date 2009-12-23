@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query
         .All<Order>()
         .OrderBy(order=>order.Id)
-        .Where(order => order["Freight"] == order["Id"])
+        .Where(order => order["Freight"] == freight)
         .ToList();
       var expected = Query
         .All<Order>()

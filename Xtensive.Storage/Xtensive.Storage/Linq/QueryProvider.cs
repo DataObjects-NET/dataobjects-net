@@ -51,8 +51,8 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
-      var resultType = expression.Type.IsOfGenericInterface(typeof(IEnumerable<>))
-        ? typeof(IEnumerable<>).MakeGenericType(expression.Type.GetGenericArguments())
+      var resultType = expression.Type.IsOfGenericInterface(typeof (IEnumerable<>))
+        ? typeof (IEnumerable<>).MakeGenericType(expression.Type.GetGenericArguments())
         : expression.Type;
       var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
       return executeMethod.Invoke(this, new[] {expression});
@@ -67,12 +67,12 @@ namespace Xtensive.Storage.Linq
 
     internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
     {
-      var context = new TranslatorContext(expression, Domain.Demand());
       try {
+        var context = new TranslatorContext(expression, Domain.Demand());
         return context.Translator.Translate<TResult>();
       }
-      catch(Exception ex) {
-        throw new TranslationException(String.Format(Resources.Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);      
+      catch (Exception ex) {
+        throw new TranslationException(String.Format(Resources.Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
       }
     }
 

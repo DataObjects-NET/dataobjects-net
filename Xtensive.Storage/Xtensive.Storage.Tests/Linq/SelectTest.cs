@@ -65,6 +65,27 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(TranslationException))]
+    public void IndexerError1Test()
+    {
+      var result = Query
+        .All<Customer>()
+        .Select(customer => customer["Ph1one"])
+        .ToList();
+    }
+
+    [Test]
+    [ExpectedException(typeof(TranslationException))]
+    public void IndexerError2Test()
+    {
+      var result = Query
+        .All<Order>()
+        .Where(order => order["Freight"] == order["Id"])
+        .ToList();
+    }
+
+
+    [Test]
     public void StaticPropertyTest()
     {
       var customers = Query.All<Customer>()

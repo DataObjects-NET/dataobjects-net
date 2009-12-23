@@ -1322,4 +1322,10 @@ Actions:
   <data name="LogSessionManagerEndRequestMethodWasNotInvoked" xml:space="preserve">
     <value>SessionManager.EndRequest method was not invoked during processing of the previous request to this module.</value>
   </data>
+  <data name="ExBothPartsOfBinaryExpressionXAreOfTheDifferentType" xml:space="preserve">
+    <value>Both parts of binary expression '{0}' are of the different type. Use type cast.</value>
+  </data>
+  <data name="ExFieldXNotFoundInTypeX" xml:space="preserve">
+    <value>Field '{0}' not found in type '{1}'.</value>
+  </data>
 </root>

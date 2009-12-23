@@ -350,6 +350,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Both parts of binary expression &apos;{0}&apos; are of the different type. Use type cast..
+        /// </summary>
+        internal static string ExBothPartsOfBinaryExpressionXAreOfTheDifferentType {
+            get {
+                return ResourceManager.GetString("ExBothPartsOfBinaryExpressionXAreOfTheDifferentType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attempt to associate non-empty EntityState with Key of unknown type..
         /// </summary>
         internal static string ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType {
@@ -1084,6 +1093,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExFieldXIsNotPrimitive {
             get {
                 return ResourceManager.GetString("ExFieldXIsNotPrimitive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; not found in type &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExFieldXNotFoundInTypeX {
+            get {
+                return ResourceManager.GetString("ExFieldXNotFoundInTypeX", resourceCulture);
             }
         }
         

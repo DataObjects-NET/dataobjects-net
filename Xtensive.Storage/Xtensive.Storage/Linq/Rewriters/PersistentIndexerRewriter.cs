@@ -22,27 +22,27 @@ namespace Xtensive.Storage.Linq.Rewriters
           leftExpression = GetMemberExpression((MethodCallExpression) binaryExpression.Left);
         if (IsIndexerAccessor(binaryExpression.Right))
           rightExpression = GetMemberExpression((MethodCallExpression) binaryExpression.Right);
-        
-        if (leftExpression!=null 
-          && rightExpression!=null 
-          && rightExpression.Type!=leftExpression.Type)
-              throw new InvalidOperationException("Cast one of expressions to another.");
+
+        if (leftExpression!=null
+          && rightExpression!=null
+            && rightExpression.Type!=leftExpression.Type)
+          throw new InvalidOperationException(String.Format(Xtensive.Storage.Resources.Strings.ExBothPartsOfBinaryExpressionXAreOfTheDifferentType, binaryExpression));
 
         if (leftExpression!=null) {
           leftExpression = leftExpression;
           if (rightExpression==null)
             rightExpression = binaryExpression.Right;
-          if (leftExpression.Type!=rightExpression.Type) 
+          if (leftExpression.Type!=rightExpression.Type)
             rightExpression = Expression.Convert(rightExpression, leftExpression.Type);
         }
         else if (rightExpression!=null) {
-            leftExpression = binaryExpression.Left;
-          if (leftExpression.Type!=rightExpression.Type) 
+          leftExpression = binaryExpression.Left;
+          if (leftExpression.Type!=rightExpression.Type)
             leftExpression = Expression.Convert(leftExpression, rightExpression.Type);
         }
         else
           return base.VisitBinary(binaryExpression);
-        binaryExpression =  Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression, binaryExpression.IsLiftedToNull, binaryExpression.Method);
+        binaryExpression = Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression, binaryExpression.IsLiftedToNull, binaryExpression.Method);
       }
       return base.VisitBinary(binaryExpression);
     }
@@ -56,14 +56,18 @@ namespace Xtensive.Storage.Linq.Rewriters
       return base.VisitMethodCall(mc);
     }
 
+    protected override Expression VisitUnknown(Expression e)
+    {
+      return e;
+    }
+
     private MemberExpression GetMemberExpression(MethodCallExpression mc)
     {
       var name = (string) ((ConstantExpression) mc.Arguments[0]).Value;
       var propertyInfo = mc.Object.Type.GetProperties().SingleOrDefault(property => property.Name==name);
-      MemberExpression memberExpression = null;
       if (propertyInfo!=null)
-        memberExpression = Expression.MakeMemberAccess(mc.Object, propertyInfo);
-      return memberExpression;
+        return Expression.MakeMemberAccess(mc.Object, propertyInfo);
+      throw new InvalidOperationException(String.Format(Xtensive.Storage.Resources.Strings.ExFieldXNotFoundInTypeX, name, mc.Object.Type));
     }
 
     private bool IsIndexerAccessor(Expression expression)

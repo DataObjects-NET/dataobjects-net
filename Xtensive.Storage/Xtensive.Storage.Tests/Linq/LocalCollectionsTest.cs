@@ -682,7 +682,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
+    [ExpectedException(typeof(TranslationException))]
     public void ClosureCacheTest()
     {
       var localItems = GetLocalItems(100);

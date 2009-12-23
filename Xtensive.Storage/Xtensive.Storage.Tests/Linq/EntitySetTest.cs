@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -75,8 +76,8 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UnsupportedMethodsTest()
     {
-      AssertEx.ThrowsNotSupportedException(() => Query.All<Customer>().Where(c => c.Orders.Add(null)).ToList());
-      AssertEx.ThrowsNotSupportedException(() => Query.All<Customer>().Where(c => c.Orders.Remove(null)).ToList());
+      AssertEx.Throws<TranslationException>(() => Query.All<Customer>().Where(c => c.Orders.Add(null)).ToList());
+      AssertEx.Throws<TranslationException>(() => Query.All<Customer>().Where(c => c.Orders.Remove(null)).ToList());
     }
 
     [Test]
