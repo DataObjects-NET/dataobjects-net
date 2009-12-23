@@ -5,13 +5,13 @@
 // Created:    2009.11.02
 
 using System;
-using System.Linq;
 using NUnit.Framework;
-using System.Diagnostics;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.LazyLoading
 {
+  #region Model
+
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -59,14 +59,17 @@ namespace Xtensive.Storage.Manual.LazyLoading
     public string Country { get; set; }
   }
 
+  #endregion
+
   [TestFixture]
-  public class TestFixture
+  public class LazyLoadingTest
   {
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
-      config.UpgradeMode = DomainUpgradeMode.Recreate;
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
+        UpgradeMode = DomainUpgradeMode.Recreate
+      };
       config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       var domain = Domain.Build(config);
 

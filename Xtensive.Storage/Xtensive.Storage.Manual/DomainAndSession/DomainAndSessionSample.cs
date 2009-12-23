@@ -8,40 +8,37 @@ using System;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Manual.Upgrade;
 
-namespace Xtensive.Storage.Manual
+namespace Xtensive.Storage.Manual.DomainAndSession
 {
-  [HierarchyRoot]
-  public class Person : Entity
-  {
-    [Field, Key]
-    public int Id { get; private set; }
-
-    [Field]
-    public string Name { get; set; }
-  }
-
-  #region Domain sample
-
   [TestFixture]
   public class DomainAndSessionSample
   {
-    #region Connection URL examples
-    public const string PostrgeSqlUrl = "postgresql://user:password@127.0.0.1:8032/myDatabase?Encoding=Unicode";
-    public const string SqlServerUrl = "sqlserver://localhost/myDatabase";
-    public const string InMemoryUrl = "memory://localhost/myDatabase";
+    #region Model
+
+    [HierarchyRoot]
+    public class Person : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Name { get; set; }
+    }
+
     #endregion
 
-    public void Main()
+    [Test]
+    public void MainTest()
     {
-      var configuration = new DomainConfiguration("sqlserver://localhost/MyDatabase");
-
-      // Register all types in specified assembly and namespace
-      configuration.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
-      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-
-      var domain = Domain.Build(configuration);
+      // Creating new Domain configuration
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
+        UpgradeMode = DomainUpgradeMode.Recreate
+      };
+      // Registering all types in the specified assembly and namespace
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      // And finally building the domain
+      var domain = Domain.Build(config);
 
       using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
@@ -53,15 +50,18 @@ namespace Xtensive.Storage.Manual
         }
       }
     }
-    #endregion
 
+    [Test]
     public void CurrentSessionTest()
     {
-      var domainConfiguration = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
-      domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      domainConfiguration.Types.Register(typeof (Person));
-      domainConfiguration.ValidationMode = ValidationMode.OnDemand;
-      var domain = Domain.Build(domainConfiguration);
+      // Creating new Domain configuration
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
+        UpgradeMode = DomainUpgradeMode.Recreate
+      };
+      // Registering all types in the specified assembly and namespace
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      // And finally building the domain
+      var domain = Domain.Build(config);
 
       int personId;
       using (Session.Open(domain)) {
@@ -84,16 +84,25 @@ namespace Xtensive.Storage.Manual
           transactionScope.Complete();
         }
       }
+
+      using (Session.Open(domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          var person = new Person();
+          person.Name = "Barack Obama";
+
+          transactionScope.Complete();
+        }
+      }
     }
 
     [Test]
     public void SessionConfigurationTest()
     {
-      var domainConfig = DomainConfiguration.Load("TestDomain");
-      domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
-      domainConfig.Types.Register(typeof (Person));
-      domainConfig.ValidationMode = ValidationMode.OnDemand;
-      var domain = Domain.Build(domainConfig);
+      var config = DomainConfiguration.Load("SessionConfigurationTestDomain");
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
+      config.Types.Register(typeof (Person));
+      config.ValidationMode = ValidationMode.OnDemand;
+      var domain = Domain.Build(config);
 
       var sessionCongfigOne = new SessionConfiguration {
         BatchSize = 25,
@@ -102,7 +111,7 @@ namespace Xtensive.Storage.Manual
         Options = SessionOptions.AutoShortenTransactions
       };
 
-      var sessionConfigTwo = domainConfig.Sessions["TestSession"];
+      var sessionConfigTwo = config.Sessions["TestSession"];
 
       Assert.AreEqual(sessionConfigTwo.BatchSize, sessionCongfigOne.BatchSize);
       Assert.AreEqual(sessionConfigTwo.DefaultIsolationLevel, sessionCongfigOne.DefaultIsolationLevel);
@@ -113,21 +122,5 @@ namespace Xtensive.Storage.Manual
         // ...
       }
     }
-
-    #region Session sample
-    public void SessionSample(Domain domain)
-    {
-      using (Session.Open(domain)) {
-        using (var transactionScope = Transaction.Open()) {
-
-          var person = new Person();
-          person.Name = "Barack Obama";
-
-          transactionScope.Complete();
-        }
-      }
-    }
-    #endregion
-
   }
 }

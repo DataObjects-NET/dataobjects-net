@@ -21,7 +21,6 @@ using Xtensive.Storage.Linq;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Resources;
 using Activator=System.Activator;
-using Xtensive.Core.Linq;
 
 namespace Xtensive.Storage
 {

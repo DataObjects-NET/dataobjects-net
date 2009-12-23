@@ -5,13 +5,13 @@
 // Created:    2009.11.24
 
 using NUnit.Framework;
-using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTestModel;
 using System.Linq;
 
-namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTestModel
+namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
 {
+  #region Model
+
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -27,20 +27,18 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTestModel
     [Field]
     public decimal Salary { get; set; }
   }
-}
 
-namespace Xtensive.Storage.Manual.Advanced
-{
+  #endregion
+
   [TestFixture]
   public class JoinsAndSubqueriesTest
   {
+    private Domain existingDomain;
+
     [Test]
-    public void QueryInheritedEntityTest()
+    public void QueryForInheritedEntityTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
-      config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
-      var domain = Domain.Build(config);
+      var domain = GetDomain();
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {
           var employees = Query.All<Employee>();
@@ -50,22 +48,22 @@ namespace Xtensive.Storage.Manual.Advanced
     }
 
     [Test]
-    public void SubQueryInheritedEntityTest()
+    public void SubQueryForInheritedEntityTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
-      config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
-      var domain = Domain.Build(config);
+      var domain = GetDomain();
       using (var session = Session.Open(domain)) {
         using (Transaction.Open(session)) {
-          var person1 = new Person {Name = "John"};
-          var person2 = new Person {Name = "Susan"};
-          session.Persist();
-          var query = Query.All<Person>().Select(employee=> new {employee,  Namesakes = Query.All<Person>().Where(person=>person.Name == employee.Name)});
+          var query = Query.All<Person>().Select(employee => 
+            new {
+              employee, 
+              Namesakes = Query.All<Person>()
+                .Where(person => person.Name == employee.Name)
+            });
+
           // Enumerate query
           foreach (var employeeData in query) {
             // Enumerate each subquery element
-            foreach (Person namesake in employeeData.Namesakes) {
+            foreach (var namesake in employeeData.Namesakes) {
               // Do something with employee, namesake
             }
           }
@@ -73,5 +71,27 @@ namespace Xtensive.Storage.Manual.Advanced
       }
     }
 
+    private Domain GetDomain()
+    {
+      if (existingDomain==null) {
+        var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
+          UpgradeMode = DomainUpgradeMode.Recreate
+        };
+        config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
+        var domain = Domain.Build(config);
+
+        using (var session = Session.Open(domain)) {
+          using (var transactionScope = Transaction.Open(session)) {
+            // Creating initial content
+            new Person {Name = "John"};
+            new Person {Name = "Susan"};
+
+            transactionScope.Complete();
+          }
+        }
+        existingDomain = domain;
+      }
+      return existingDomain;
+    }
   }
 }
