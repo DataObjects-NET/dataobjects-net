@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -16,9 +17,13 @@ namespace Xtensive.Storage.Building.Builders
       var context = BuildingContext.Current;
       var modelDef = context.ModelDef;
       var model = context.Model;
-      foreach (var fullTextIndex in modelDef.FullTextIndexes) {
+      var indexLookup = modelDef.FullTextIndexes.ToLookup(fi => modelDef.FindHierarchy(fi.Type));
+      foreach (var hierarchyIndexes in indexLookup) {
         
       }
+//      foreach (var fullTextIndex in modelDef.FullTextIndexes.Select()) {
+        
+//      }
     }
   }
 }

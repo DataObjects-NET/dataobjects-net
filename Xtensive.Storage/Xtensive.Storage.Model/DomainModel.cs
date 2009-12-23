@@ -30,6 +30,11 @@ namespace Xtensive.Storage.Model
     public IndexInfoCollection RealIndexes { get; private set; }
 
     /// <summary>
+    /// Gets full-text indexes contained in this instance.
+    /// </summary>
+    public FullTextIndexInfoCollection FullTextIndexes { get; private set; }
+
+    /// <summary>
     /// Gets the hierarchies.
     /// </summary>
     public HierarchyInfoCollection Hierarchies { get; private set; }
@@ -68,6 +73,7 @@ namespace Xtensive.Storage.Model
       Types.Lock(true);
       RealIndexes.Lock(true);
       Associations.Lock(true);
+      FullTextIndexes.Lock(true);
     }
 
 
@@ -83,6 +89,7 @@ namespace Xtensive.Storage.Model
       Hierarchies = new HierarchyInfoCollection();
       Associations = new AssociationInfoCollection();
       KeyProviders = new NodeCollection<KeyProviderInfo>();
+      FullTextIndexes = new FullTextIndexInfoCollection();
     }
   }
 }
