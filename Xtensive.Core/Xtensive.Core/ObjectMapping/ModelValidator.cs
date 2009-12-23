@@ -40,7 +40,9 @@ namespace Xtensive.Core.ObjectMapping
       SourcePropertyDescription sourceProperty)
     {
       if (sourceProperty.IsPrimitive || sourceProperty.IsCollection)
-        throw new InvalidOperationException(String.Format("The reference property {0} is bound to the property {1} that isn't reference.", property, sourceProperty));
+        throw new InvalidOperationException(
+          String.Format(Strings.ExReferencePropertyXIsBoundToPropertyYThatIsNotReference, property,
+          sourceProperty));
       description.EnsureTargetTypeIsRegistered(property.SystemProperty.PropertyType);
     }
 
@@ -48,7 +50,9 @@ namespace Xtensive.Core.ObjectMapping
       SourcePropertyDescription sourceProperty)
     {
       if (!sourceProperty.IsCollection)
-        throw new InvalidOperationException(String.Format("The collection property {0} is bound to the property {1} that isn't collection.", property, sourceProperty));
+        throw new InvalidOperationException(
+          String.Format(Strings.ExCollectionPropertyXIsBoundToPropertyYThatIsNotCollection, property,
+          sourceProperty));
       description.EnsureTargetTypeIsRegistered(property.ItemType);
     }
 
@@ -56,7 +60,9 @@ namespace Xtensive.Core.ObjectMapping
       SourcePropertyDescription sourceProperty)
     {
       if (!sourceProperty.IsPrimitive)
-        throw new InvalidOperationException(String.Format("The primitive property {0} is bound to the property {1} that isn't primitive.", property, sourceProperty));
+        throw new InvalidOperationException(
+          String.Format(Strings.ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive, property,
+          sourceProperty));
       var areCompatible = property.SystemProperty.PropertyType
         .IsAssignableFrom(sourceProperty.SystemProperty.PropertyType);
       if (!areCompatible)

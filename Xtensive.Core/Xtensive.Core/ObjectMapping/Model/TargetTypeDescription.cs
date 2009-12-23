@@ -11,38 +11,57 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.ObjectMapping.Model
 {
+  /// <summary>
+  /// Description of target mapped type.
+  /// </summary>
   [Serializable]
   [DebuggerDisplay("SystemType = {SystemType}")]
   public sealed class TargetTypeDescription : TypeDescription
   {
     private SourceTypeDescription sourceType;
 
+    /// <summary>
+    /// Gets the corresponding source type.
+    /// </summary>
     public SourceTypeDescription SourceType
     {
       get { return sourceType; }
-      set{
+      internal set{
         this.EnsureNotLocked();
         sourceType = value;
       }
     }
 
+    /// <summary>
+    /// Gets the collection of primitive properties.
+    /// </summary>
     public ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription> PrimitiveProperties { get; private set; }
 
+    /// <summary>
+    /// Gets the collection of complex properties.
+    /// </summary>
     public ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription> ComplexProperties { get; private set; }
 
+    /// <inheritdoc/>
     public new TargetPropertyDescription GetProperty(PropertyInfo propertyInfo)
     {
       return (TargetPropertyDescription) base.GetProperty(propertyInfo);
     }
 
+    /// <summary>
+    /// Adds the property.
+    /// </summary>
+    /// <param name="property">The property.</param>
     public void AddProperty(TargetPropertyDescription property)
     {
       base.AddProperty(property);
     }
 
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       var primitiveProperties = new Dictionary<PropertyInfo, TargetPropertyDescription>();
@@ -63,6 +82,11 @@ namespace Xtensive.Core.ObjectMapping.Model
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="systemType">The system type.</param>
+    /// <param name="keyExtractor">The key extractor.</param>
     public TargetTypeDescription(Type systemType, Func<object, object> keyExtractor)
       : base(systemType, keyExtractor)
     {}

@@ -5,6 +5,8 @@
 // Created:    2009.12.11
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Resources;
@@ -24,6 +26,26 @@ namespace Xtensive.Core.ObjectMapping
       out PropertyInfo propertyInfo)
     {
       return TryExtractProperty(expression, paramName, false, out propertyInfo);
+    }
+
+    public static bool IsCollectionCandidate(Type type)
+    {
+      return type.IsGenericType && typeof (IEnumerable).IsAssignableFrom(type);
+    }
+
+    public static bool TryGetCollectionInterface(Type type, out Type interfaceType)
+    {
+      var interfaces = type.GetInterfaces();
+      for (var i = 0; i < interfaces.Length; i++) {
+        interfaceType = interfaces[i];
+        if (interfaceType.IsGenericType) {
+          var interfaceGenericDefinition = interfaceType.GetGenericTypeDefinition();
+          if (interfaceGenericDefinition==typeof (ICollection<>))
+            return true;
+        }
+      }
+      interfaceType = null;
+      return false;
     }
 
     private static bool TryExtractProperty(LambdaExpression expression, string paramName, bool throwIfFailed,

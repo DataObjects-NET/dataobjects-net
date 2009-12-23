@@ -5,15 +5,18 @@
 // Created:    2009.12.11
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.ObjectMapping.Model
 {
+  /// <summary>
+  /// Description of a property of a mapped class.
+  /// </summary>
   [Serializable]
   [DebuggerDisplay("{SystemProperty} in {ReflectedType.SystemType}")]
   public abstract class PropertyDescription : LockableBase
@@ -46,12 +49,24 @@ namespace Xtensive.Core.ObjectMapping.Model
 
     private bool isCollection;
 
+    /// <summary>
+    /// Indicates whether this instance is primitive property.
+    /// </summary>
     public readonly bool IsPrimitive;
 
+    /// <summary>
+    /// Gets the type that was used to obtain this description.
+    /// </summary>
     public TypeDescription ReflectedType { get; private set; }
 
+    /// <summary>
+    /// Gets the underlying system property.
+    /// </summary>
     public readonly PropertyInfo SystemProperty;
-    
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is collection property.
+    /// </summary>
     public bool IsCollection {
       get { return isCollection; }
       internal set{
@@ -60,10 +75,19 @@ namespace Xtensive.Core.ObjectMapping.Model
       }
     }
 
+    /// <summary>
+    /// Gets the type of a collection's item.
+    /// </summary>
     public Type ItemType { get; private set; }
 
+    /// <summary>
+    /// Gets the descriptor of the collection's "Count" property.
+    /// </summary>
     public PropertyInfo CountProperty { get; private set; }
 
+    /// <summary>
+    /// Gets the descriptor of the collection's "Add" method.
+    /// </summary>
     public MethodInfo AddMethod { get; private set; }
 
     /// <inheritdoc/>
@@ -72,23 +96,11 @@ namespace Xtensive.Core.ObjectMapping.Model
       return SystemProperty.ToString();
     }
 
+    #region Private / internal methods
+
     internal static bool IsPropertyPrimitive(PropertyInfo propertyInfo)
     {
       return primitiveTypes.Contains(propertyInfo.PropertyType);
-    }
-
-
-    // Constructors
-
-    protected PropertyDescription(PropertyInfo systemProperty, TypeDescription reflectedType)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(systemProperty, "systemProperty");
-      ArgumentValidator.EnsureArgumentNotNull(reflectedType, "reflectedType");
-
-      SystemProperty = systemProperty;
-      ReflectedType = reflectedType;
-      IsPrimitive = primitiveTypes.Contains(systemProperty.PropertyType);
-      AssignCollectionRelatedProperties(systemProperty);
     }
 
     private void AssignCollectionRelatedProperties(PropertyInfo systemProperty)
@@ -99,8 +111,7 @@ namespace Xtensive.Core.ObjectMapping.Model
         cacheItem = foundItem;
       else if (systemProperty.PropertyType.IsArray)
         cacheItem = GenerateArrayCacheItem(systemProperty);
-      else if (systemProperty.PropertyType.IsGenericType
-        && typeof (IEnumerable).IsAssignableFrom(systemProperty.PropertyType))
+      else if (MappingHelper.IsCollectionCandidate(systemProperty.PropertyType))
         cacheItem = GenerateCollectionCacheItem(systemProperty);
       if (cacheItem!=null) {
         IsCollection = true;
@@ -113,18 +124,10 @@ namespace Xtensive.Core.ObjectMapping.Model
     private static Pair<Type, MemberInfoCacheEntry>? GenerateCollectionCacheItem(PropertyInfo systemProperty)
     {
       Pair<Type, MemberInfoCacheEntry>? result = null;
-      var interfaces = systemProperty.PropertyType.GetInterfaces();
-      for (var i = 0; i < interfaces.Length; i++) {
-        var interfaceType = interfaces[i];
-        if (interfaceType.IsGenericType) {
-          var interfaceGenericDefinition = interfaceType.GetGenericTypeDefinition();
-          if (interfaceGenericDefinition==typeof (ICollection<>)) {
-            result = collectionTypes.GetValue(systemProperty.PropertyType,
-              GenerateCollectionTypesCacheItem, interfaceType);
-            break;
-          }
-        }
-      }
+      Type interfaceType;
+      if (MappingHelper.TryGetCollectionInterface(systemProperty.PropertyType, out interfaceType))
+        result = collectionTypes.GetValue(systemProperty.PropertyType, GenerateCollectionTypesCacheItem,
+          interfaceType);
       return result;
     }
 
@@ -143,6 +146,30 @@ namespace Xtensive.Core.ObjectMapping.Model
         new MemberInfoCacheEntry(interfaceType.GetProperty("Count"), interfaceType.GetMethod("Add")));
     }
 
+    #endregion
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="systemProperty">The system property.</param>
+    /// <param name="reflectedType">The the type that was used to obtain this description.</param>
+    protected PropertyDescription(PropertyInfo systemProperty, TypeDescription reflectedType)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(systemProperty, "systemProperty");
+      ArgumentValidator.EnsureArgumentNotNull(reflectedType, "reflectedType");
+
+      SystemProperty = systemProperty;
+      ReflectedType = reflectedType;
+      IsPrimitive = primitiveTypes.Contains(systemProperty.PropertyType);
+      AssignCollectionRelatedProperties(systemProperty);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.TypeInitializer" copy="true"/>
+    /// </summary>
     static PropertyDescription()
     {
       primitiveTypes = new HashSet<Type> {

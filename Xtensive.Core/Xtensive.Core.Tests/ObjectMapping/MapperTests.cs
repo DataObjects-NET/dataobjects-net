@@ -20,6 +20,22 @@ namespace Xtensive.Core.Tests.ObjectMapping
   [TestFixture]
   public sealed class MapperTests
   {
+    private PropertyInfo petsProperty;
+    private PropertyInfo customerProperty;
+    private PropertyInfo firstNameProperty;
+    private PropertyInfo lastNameProperty;
+    private PropertyInfo birthDateProperty;
+
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      petsProperty = typeof (PetOwnerDto).GetProperty("Pets");
+      customerProperty = typeof (OrderDto).GetProperty("Customer");
+      firstNameProperty = typeof (PersonDto).GetProperty("FirstName");
+      lastNameProperty = typeof (PersonDto).GetProperty("LastName");
+      birthDateProperty = typeof (PersonDto).GetProperty("BirthDate");
+    }
+
     [Test]
     public void DefaultTransformationOfPrimitivePropertiesTest()
     {
@@ -340,40 +356,18 @@ namespace Xtensive.Core.Tests.ObjectMapping
       originalOrder.Customer = null;
       var operations = (DefaultOperationSet) mapper.Compare(originalOrder, modifiedOrder);
       Assert.AreEqual(5, operations.Count());
-      var createPersonOperation = operations.First();
-      Assert.AreSame(modifiedOrder.Customer, createPersonOperation.Object);
-      Assert.AreEqual(OperationType.CreateObject, createPersonOperation.Type);
-      Assert.IsNull(createPersonOperation.Property);
-      Assert.IsNull(createPersonOperation.Value);
-      var setPersonPropertiesOperations = operations.Skip(1).Take(3).ToList();
-      Assert.IsTrue(setPersonPropertiesOperations.All(o => ReferenceEquals(modifiedOrder.Customer, o.Object)));
-      Assert.IsTrue(setPersonPropertiesOperations.All(o => o.Type==OperationType.SetProperty));
-      var propertySettingCounts = new Dictionary<string, int> {
-        {"FirstName", 0}, {"LastName", 0}, {"BirthDate", 0}
-      };
-      setPersonPropertiesOperations.Apply(o => {
-        propertySettingCounts[o.Property.SystemProperty.Name] += 1;
-        switch (o.Property.SystemProperty.Name) {
-        case "FirstName":
-          Assert.AreEqual(modifiedOrder.Customer.FirstName, o.Value);
-          break;
-        case "LastName":
-          Assert.AreEqual(modifiedOrder.Customer.LastName, o.Value);
-          break;
-        case "BirthDate":
-          Assert.AreEqual(modifiedOrder.Customer.BirthDate, o.Value);
-          break;
-        default:
-          Assert.Fail();
-          break;
-        }
-      });
-      Assert.IsTrue(propertySettingCounts.All(pair => pair.Value == 1));
-      var customerSetOperation = operations.Skip(4).Single();
-      Assert.AreSame(originalOrder, customerSetOperation.Object);
-      Assert.AreEqual(OperationType.SetProperty, customerSetOperation.Type);
-      Assert.AreEqual("Customer", customerSetOperation.Property.SystemProperty.Name);
-      Assert.AreSame(modifiedOrder.Customer, customerSetOperation.Value);
+      var personCreationOperation = operations.First();
+      var createdCustomer = modifiedOrder.Customer;
+      ValidateObjectCreation(createdCustomer, personCreationOperation);
+      ValidatePropertySettingOperation(createdCustomer, operations.Skip(1).First(),
+        typeof (PersonDto).GetProperty("FirstName"), createdCustomer.FirstName);
+      ValidatePropertySettingOperation(createdCustomer, operations.Skip(2).First(),
+        typeof (PersonDto).GetProperty("LastName"), createdCustomer.LastName);
+      ValidatePropertySettingOperation(createdCustomer, operations.Skip(3).First(),
+        typeof (PersonDto).GetProperty("BirthDate"), createdCustomer.BirthDate);
+      var customerSettingOperation = operations.Skip(4).Single();
+      ValidatePropertySettingOperation(originalOrder, customerSettingOperation, customerProperty,
+        createdCustomer);
     }
 
     [Test]
@@ -387,15 +381,9 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var operations = (DefaultOperationSet) mapper.Compare(originalOrder, modifiedOrder);
       Assert.AreEqual(2, operations.Count());
       var customerSettingOperation = operations.First();
-      Assert.AreSame(originalOrder, customerSettingOperation.Object);
-      Assert.AreEqual(null, customerSettingOperation.Value);
-      Assert.AreEqual("Customer", customerSettingOperation.Property.SystemProperty.Name);
-      Assert.AreEqual(OperationType.SetProperty, customerSettingOperation.Type);
+      ValidatePropertySettingOperation(originalOrder, customerSettingOperation, customerProperty, null);
       var personRemovalOperation = operations.Skip(1).Single();
-      Assert.AreSame(originalOrder.Customer, personRemovalOperation.Object);
-      Assert.AreEqual(OperationType.RemoveObject, personRemovalOperation.Type);
-      Assert.IsNull(personRemovalOperation.Property);
-      Assert.IsNull(personRemovalOperation.Value);
+      ValidateObjectRemoval(originalOrder.Customer, personRemovalOperation);
     }
 
     [Test]
@@ -422,17 +410,11 @@ namespace Xtensive.Core.Tests.ObjectMapping
       modified.Pets = null;
       var operations = (DefaultOperationSet) mapper.Compare(original, modified);
       Assert.AreEqual(2, operations.Count());
-      var itemRemovalOperation = operations.First();
-      Assert.AreEqual(original, itemRemovalOperation.Object);
-      Assert.AreEqual(OperationType.RemoveItem, itemRemovalOperation.Type);
-      Assert.AreEqual("Pets", itemRemovalOperation.Property.SystemProperty.Name);
       var removedAnimal = original.Pets.Single();
-      Assert.AreEqual(removedAnimal, itemRemovalOperation.Value);
+      var itemRemovalOperation = operations.First();
+      ValidateItemRemovalOperation(original, itemRemovalOperation, petsProperty, removedAnimal);
       var animalRemovalOperation = operations.Skip(1).Single();
-      Assert.AreEqual(removedAnimal, animalRemovalOperation.Object);
-      Assert.AreEqual(OperationType.RemoveObject, animalRemovalOperation.Type);
-      Assert.IsNull(animalRemovalOperation.Property);
-      Assert.IsNull(animalRemovalOperation.Value);
+      ValidateObjectRemoval(removedAnimal, animalRemovalOperation);
     }
 
     [Test]
@@ -454,9 +436,133 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var propertyInfo = typeof (AnimalDto).GetProperty("Name");
       var nameSettingOperation = operations.Skip(1).First();
       ValidatePropertySettingOperation(createdAnimal, nameSettingOperation, propertyInfo, createdAnimal.Name);
-      var petsProperty = typeof (PetOwnerDto).GetProperty("Pets");
       var petAdditionOperation = operations.Skip(2).Single();
       ValidateItemAdditionOperation(original, petAdditionOperation, petsProperty, createdAnimal);
+    }
+
+    [Test]
+    public void ComparisonWhenModifiedCollectionContainsNullTest()
+    {
+      var mapper = GetPetOwnerAnimalMapper();
+      var animal = new Animal();
+      var source = new PetOwner(new HashSet<Animal>{animal}) {
+        Id = 1, BirthDate = DateTime.Now, FirstName = "A"
+      };
+      var original = (PetOwnerDto) mapper.Transform(source);
+      var modified = (PetOwnerDto) original.Clone();
+      modified.Pets = null;
+      var operations = (DefaultOperationSet) mapper.Compare(original, modified);
+      Assert.AreEqual(2, operations.Count());
+      var removedAnimal = original.Pets.Single();
+      var itemRemovalOperation = operations.First();
+      ValidateItemRemovalOperation(original, itemRemovalOperation, petsProperty, removedAnimal);
+      var animalRemovalOperation = operations.Skip(1).Single();
+      ValidateObjectRemoval(removedAnimal, animalRemovalOperation);
+    }
+
+    [Test]
+    public void TransformationWhenGraphRootIsCollectionTest()
+    {
+      var mapper = GetAuthorBookMapper();
+      var source = new HashSet<Author>();
+      for (int i = 0; i < 5; i++) {
+        var author = GetSourceAuthor();
+        author.Name += i;
+        author.Book.Price += i * 100;
+        author.Book.Title.Text += i;
+        source.Add(author);
+      }
+      var transformedList = (List<object>) mapper.Transform(source);
+      var target = transformedList.Cast<AuthorDto>().ToList();
+      Assert.AreEqual(source.Count, target.Count);
+      target.Apply(ta => Assert.IsTrue(source.Any(sa => sa.Id == ta.Id && sa.Name + "!!!" == ta.Name
+        && sa.Book.ISBN == ta.Book.ISBN && sa.Book.Price == ta.Book.Price
+        && sa.Book.Title.Id == ta.Book.Title.Id && sa.Book.Title.Text == ta.Book.Title.Text
+        && sa.Book.Title.Text == ta.Book.TitleText)));
+    }
+
+    [Test]
+    public void ComparisonWhenGraphRootIsCollectionTest()
+    {
+      var mapper = GetAuthorBookMapper();
+      var source = new HashSet<Author>();
+      for (int i = 0; i < 5; i++) {
+        var author = GetSourceAuthor();
+        author.Name += i;
+        author.Book.Price += i * 100;
+        author.Book.Title.Text += i;
+        source.Add(author);
+      }
+      var transformedList = (List<object>) mapper.Transform(source);
+      var original = transformedList.Cast<AuthorDto>().ToList();
+      var modified = original.Select(a => a.Clone()).Cast<AuthorDto>().ToList();
+      var removedAuthor = original[1];
+      modified.RemoveAt(1);
+      var createdAuthor = (AuthorDto) mapper.Transform(GetSourceAuthor());
+      modified.Add(createdAuthor);
+      var operations = (DefaultOperationSet) mapper.Compare(original, modified);
+      Assert.AreEqual(9, operations.Count());
+      ValidateObjectCreation(createdAuthor, operations.First());
+      ValidateObjectCreation(createdAuthor.Book, operations.Skip(1).First());
+      ValidateObjectCreation(createdAuthor.Book.Title, operations.Skip(2).First());
+      ValidatePropertySettingOperation(createdAuthor, operations.Skip(3).First(),
+        typeof (AuthorDto).GetProperty("Book"), createdAuthor.Book);
+      ValidatePropertySettingOperation(createdAuthor.Book, operations.Skip(4).First(),
+        typeof (BookDto).GetProperty("Price"), createdAuthor.Book.Price);
+      ValidatePropertySettingOperation(createdAuthor.Book.Title, operations.Skip(5).First(),
+        typeof (TitleDto).GetProperty("Text"), createdAuthor.Book.Title.Text);
+      ValidateObjectRemoval(removedAuthor, operations.Skip(6).First());
+      ValidateObjectRemoval(removedAuthor.Book, operations.Skip(7).First());
+      ValidateObjectRemoval(removedAuthor.Book.Title, operations.Skip(8).First());
+    }
+
+    [Test]
+    public void ComparisonWhenOriginalIsCollectionButModifiedIsNotTest()
+    {
+      var mapper = GetPersonOrderMapper();
+      var source = new List<Person> {GetSourcePerson(1), GetSourcePerson(2)};
+      var original = (List<object>) mapper.Transform(source);
+      var modified = new PersonDto {BirthDate = DateTime.Now, Id = 3};
+      var operations = (DefaultOperationSet) mapper.Compare(original, modified);
+      Assert.AreEqual(6, operations.Count());
+      ValidateObjectCreation(modified, operations.First());
+      ValidatePropertySettingOperation(modified, operations.Skip(1).First(), firstNameProperty,
+        modified.FirstName);
+      ValidatePropertySettingOperation(modified, operations.Skip(2).First(), lastNameProperty,
+        modified.LastName);
+      ValidatePropertySettingOperation(modified, operations.Skip(3).First(), birthDateProperty,
+        modified.BirthDate);
+      ValidateObjectRemoval(original[0], operations.Skip(4).First());
+      ValidateObjectRemoval(original[1], operations.Skip(5).First());
+    }
+
+    [Test]
+    public void ComparisonWhenModifiedIsCollectionButOriginalIsNotTest()
+    {
+      var mapper = GetPersonOrderMapper();
+      var source = new Person {BirthDate = DateTime.Now, Id = 3};
+      var original = (PersonDto) mapper.Transform(source);
+      var modified = new List<PersonDto> {
+        new PersonDto {BirthDate = DateTime.Now, Id = 1, FirstName = "A"},
+        new PersonDto {BirthDate = DateTime.Now, Id = 2, FirstName = "B"}
+      };
+      var operations = (DefaultOperationSet) mapper.Compare(original, modified);
+      Assert.AreEqual(9, operations.Count());
+      ValidateObjectCreation(modified[0], operations.First());
+      ValidateObjectCreation(modified[1], operations.Skip(1).First());
+      ValidatePropertySettingOperation(modified[0], operations.Skip(2).First(), firstNameProperty,
+        modified[0].FirstName);
+      ValidatePropertySettingOperation(modified[0], operations.Skip(3).First(), lastNameProperty,
+        modified[0].LastName);
+      ValidatePropertySettingOperation(modified[0], operations.Skip(4).First(), birthDateProperty,
+        modified[0].BirthDate);
+      ValidatePropertySettingOperation(modified[1], operations.Skip(5).First(), firstNameProperty,
+        modified[1].FirstName);
+      ValidatePropertySettingOperation(modified[1], operations.Skip(6).First(), lastNameProperty,
+        modified[1].LastName);
+      ValidatePropertySettingOperation(modified[1], operations.Skip(7).First(), birthDateProperty,
+        modified[1].BirthDate);
+      ValidateObjectRemoval(original, operations.Skip(8).Single());
     }
 
     private static void ValidateCollectionComparison(DefaultMapper mapper, PetOwnerDto original,
@@ -630,15 +736,25 @@ namespace Xtensive.Core.Tests.ObjectMapping
 
     private static Person GetSourcePerson()
     {
+      return GetSourcePerson(3);
+    }
+
+    private static Person GetSourcePerson(int id)
+    {
       return new Person {
-        BirthDate = DateTime.Now.AddYears(-20), FirstName = "John", LastName = "Smith", Id = 3
+        BirthDate = DateTime.Now.AddYears(-20), FirstName = "John", LastName = "Smith", Id = id
       };
     }
 
     private static Order GetSourceOrder()
     {
+      return GetSourceOrder(3);
+    }
+
+    private static Order GetSourceOrder(int personId)
+    {
       return new Order {
-        Customer = GetSourcePerson(), Id = Guid.NewGuid(), ShipDate = DateTime.Today.AddMonths(3)
+        Customer = GetSourcePerson(personId), Id = Guid.NewGuid(), ShipDate = DateTime.Today.AddMonths(3)
       };
     }
 
@@ -701,6 +817,11 @@ namespace Xtensive.Core.Tests.ObjectMapping
       ValidateObjectOperation(obj, operationInfo, OperationType.CreateObject);
     }
 
+    private static void ValidateObjectRemoval(object obj, OperationInfo operationInfo)
+    {
+      ValidateObjectOperation(obj, operationInfo, OperationType.RemoveObject);
+    }
+
     private static void ValidateObjectOperation(object obj, OperationInfo operationInfo,
       OperationType operationType)
     {
@@ -716,6 +837,12 @@ namespace Xtensive.Core.Tests.ObjectMapping
       ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.AddItem, item);
     }
 
+    private static void ValidateItemRemovalOperation(object obj, OperationInfo operationInfo,
+      PropertyInfo propertyInfo, object item)
+    {
+      ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.RemoveItem, item);
+    }
+
     private static void ValidatePropertySettingOperation(object obj, OperationInfo operationInfo,
       PropertyInfo propertyInfo, object value)
     {
@@ -726,7 +853,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       PropertyInfo propertyInfo, OperationType operationType, object value)
     {
       Assert.AreSame(obj, operationInfo.Object);
-      Assert.AreSame(value, operationInfo.Value);
+      Assert.AreEqual(value, operationInfo.Value);
       Assert.AreEqual(propertyInfo, operationInfo.Property.SystemProperty);
       Assert.AreEqual(operationType, operationInfo.Type);
     }

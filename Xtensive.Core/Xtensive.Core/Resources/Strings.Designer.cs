@@ -385,6 +385,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The collection property {0} is bound to the property {1} that isn&apos;t collection..
+        /// </summary>
+        internal static string ExCollectionPropertyXIsBoundToPropertyYThatIsNotCollection {
+            get {
+                return ResourceManager.GetString("ExCollectionPropertyXIsBoundToPropertyYThatIsNotCollection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Compiler for {0} is already registered..
         /// </summary>
         internal static string ExCompilerForXIsAlreadyRegistered {
@@ -1132,6 +1141,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The primitive property {0} is bound to the property {1} that isn&apos;t primitive..
+        /// </summary>
+        internal static string ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive {
+            get {
+                return ResourceManager.GetString("ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The properties &quot;{0}&quot; and &quot;{1}&quot; have incompatible types..
         /// </summary>
         internal static string ExPropertiesXAndYHaveIncompatibleTypes {
@@ -1227,6 +1245,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExReferenceIsNull {
             get {
                 return ResourceManager.GetString("ExReferenceIsNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The reference property {0} is bound to the property {1} that isn&apos;t reference..
+        /// </summary>
+        internal static string ExReferencePropertyXIsBoundToPropertyYThatIsNotReference {
+            get {
+                return ResourceManager.GetString("ExReferencePropertyXIsBoundToPropertyYThatIsNotReference", resourceCulture);
             }
         }
         

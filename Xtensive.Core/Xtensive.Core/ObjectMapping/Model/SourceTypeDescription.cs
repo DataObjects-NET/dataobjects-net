@@ -8,29 +8,41 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.ObjectMapping.Model
 {
+  /// <summary>
+  /// Description of source mapped type.
+  /// </summary>
   [Serializable]
   [DebuggerDisplay("SystemType = {SystemType}")]
   public sealed class SourceTypeDescription : TypeDescription
   {
     private TargetTypeDescription targetType;
 
+    /// <summary>
+    /// Gets the corresponding target type.
+    /// </summary>
     public TargetTypeDescription TargetType
     {
       get { return targetType; }
-      set{
+      internal set{
         this.EnsureNotLocked();
         targetType = value;
       }
     }
 
+    /// <inheritdoc/>
     public new SourcePropertyDescription GetProperty(PropertyInfo propertyInfo)
     {
       return (SourcePropertyDescription) base.GetProperty(propertyInfo);
     }
 
+    /// <summary>
+    /// Adds the property.
+    /// </summary>
+    /// <param name="property">The property.</param>
     public void AddProperty(SourcePropertyDescription property)
     {
       base.AddProperty(property);
@@ -39,6 +51,11 @@ namespace Xtensive.Core.ObjectMapping.Model
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="systemType">The system type.</param>
+    /// <param name="keyExtractor">The key extractor.</param>
     public SourceTypeDescription(Type systemType, Func<object, object> keyExtractor)
       : base(systemType, keyExtractor)
     {}

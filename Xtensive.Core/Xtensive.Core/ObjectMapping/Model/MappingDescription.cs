@@ -105,18 +105,28 @@ namespace Xtensive.Core.ObjectMapping.Model
 
     public object ExtractTargetKey(object target)
     {
-      return targetTypes[target.GetType()].KeyExtractor.Invoke(target);
+      var type = target.GetType();
+      EnsureTargetTypeIsRegistered(type);
+      return targetTypes[type].KeyExtractor.Invoke(target);
     }
 
     public object ExtractSourceKey(object source)
     {
-      return sourceTypes[source.GetType()].KeyExtractor.Invoke(source);
+      var type = source.GetType();
+      EnsureSourceTypeIsRegistered(type);
+      return sourceTypes[type].KeyExtractor.Invoke(source);
     }
 
     internal void EnsureTargetTypeIsRegistered(Type targetType)
     {
       if (!targetTypes.ContainsKey(targetType))
         ThrowTypeHasNotBeenRegistered(targetType);
+    }
+
+    internal void EnsureSourceTypeIsRegistered(Type sourceType)
+    {
+      if (!sourceTypes.ContainsKey(sourceType))
+        ThrowTypeHasNotBeenRegistered(sourceType);
     }
 
     private static void ThrowTypeHasNotBeenRegistered(Type type)

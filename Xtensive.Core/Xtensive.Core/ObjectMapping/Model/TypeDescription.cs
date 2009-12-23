@@ -6,31 +6,49 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping.Model
 {
+  /// <summary>
+  /// Description of mapped type.
+  /// </summary>
   [Serializable]
   public abstract class TypeDescription : LockableBase
   {
     private readonly Dictionary<PropertyInfo, PropertyDescription> properties =
       new Dictionary<PropertyInfo, PropertyDescription>();
 
+    /// <summary>
+    /// Delegate that can be used to extract a key of an object.
+    /// </summary>
     public readonly Func<object, object> KeyExtractor;
 
+    /// <summary>
+    /// Collection of properties contained in the type.
+    /// </summary>
     public readonly ReadOnlyDictionary<PropertyInfo, PropertyDescription> Properties;
 
+    /// <summary>
+    /// Underlying system type.
+    /// </summary>
     public readonly Type SystemType;
 
+    /// <summary>
+    /// Gets the property.
+    /// </summary>
+    /// <param name="systemProperty">The system property.</param>
+    /// <returns>The <see cref="PropertyDescription"/> for the specified <see cref="PropertyInfo"/>.</returns>
     public PropertyDescription GetProperty(PropertyInfo systemProperty)
     {
       return properties[systemProperty];
     }
 
+    /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       foreach (var propertyDescription in Properties.Values)
@@ -38,6 +56,10 @@ namespace Xtensive.Core.ObjectMapping.Model
       base.Lock(recursive);
     }
 
+    /// <summary>
+    /// Adds the property.
+    /// </summary>
+    /// <param name="property">The property.</param>
     protected void AddProperty(PropertyDescription property)
     {
       this.EnsureNotLocked();
@@ -50,6 +72,11 @@ namespace Xtensive.Core.ObjectMapping.Model
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="systemType">The system type.</param>
+    /// <param name="keyExtractor">The key extractor.</param>
     protected TypeDescription(Type systemType, Func<object, object> keyExtractor)
     {
       ArgumentValidator.EnsureArgumentNotNull(systemType, "systemType");

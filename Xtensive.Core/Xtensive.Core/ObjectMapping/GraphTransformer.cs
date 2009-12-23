@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Reflection;
@@ -50,36 +51,78 @@ namespace Xtensive.Core.ObjectMapping
       new Dictionary<object, ResultDescriptor>();
     private readonly Queue<KeyValuePair<object, object>> sourceObjects =
       new Queue<KeyValuePair<object, object>>();
+    private readonly List<object> rootObjectKeys = new List<object>();
+    private bool isRootCollection;
 
     public object Transform(object source)
     {
       try {
         if (source==null)
           return null;
-        var rootKey = mappingDescription.ExtractSourceKey(source);
-        sourceObjects.Enqueue(new KeyValuePair<object, object>(rootKey, source));
-        while (sourceObjects.Count > 0) {
-          var currentSource = sourceObjects.Dequeue();
-          ResultDescriptor resultDescriptor;
-          var targetTypeDesc = mappingDescription.GetMappedTargetType(currentSource.Value.GetType());
-          if (transformedObjects.TryGetValue(currentSource.Key, out resultDescriptor)) {
-            if (resultDescriptor.IsTransformationCompleted)
-              continue;
-          }
-          else {
-            var target = CreateTargetObject(targetTypeDesc.SystemType);
-            resultDescriptor = new ResultDescriptor(target);
-            transformedObjects.Add(currentSource.Key, resultDescriptor);
-          }
-          ConvertProperties(currentSource.Value, targetTypeDesc, resultDescriptor.Result);
-          resultDescriptor.SetIsTransformationCompeleted();
-        }
-        return transformedObjects[rootKey].Result;
+        InitializeTransformation(source);
+        TransformObjects();
+        return CreateResult();
       }
       finally {
         transformedObjects.Clear();
         sourceObjects.Clear();
+        rootObjectKeys.Clear();
       }
+    }
+
+    #region Private \ internal methods
+
+    private void InitializeTransformation(object source)
+    {
+      var type = source.GetType();
+      Type interfaceType;
+      if (MappingHelper.IsCollectionCandidate(type)
+        && MappingHelper.TryGetCollectionInterface(type, out interfaceType)) {
+        isRootCollection = true;
+        foreach (var obj in (IEnumerable) source)
+          RegisterRootObject(obj);
+      }
+      else {
+        isRootCollection = false;
+        RegisterRootObject(source);
+      }
+    }
+
+    private void RegisterRootObject(object obj)
+    {
+      var key = mappingDescription.ExtractSourceKey(obj);
+      sourceObjects.Enqueue(new KeyValuePair<object, object>(key, obj));
+      rootObjectKeys.Add(key);
+    }
+
+    private void TransformObjects()
+    {
+      while (sourceObjects.Count > 0) {
+        var currentSource = sourceObjects.Dequeue();
+        ResultDescriptor resultDescriptor;
+        var targetTypeDesc = mappingDescription.GetMappedTargetType(currentSource.Value.GetType());
+        if (transformedObjects.TryGetValue(currentSource.Key, out resultDescriptor)) {
+          if (resultDescriptor.IsTransformationCompleted)
+            continue;
+        }
+        else {
+          var target = CreateTargetObject(targetTypeDesc.SystemType);
+          resultDescriptor = new ResultDescriptor(target);
+          transformedObjects.Add(currentSource.Key, resultDescriptor);
+        }
+        ConvertProperties(currentSource.Value, targetTypeDesc, resultDescriptor.Result);
+        resultDescriptor.SetIsTransformationCompeleted();
+      }
+    }
+
+    private object CreateResult()
+    {
+      if (isRootCollection) {
+        var result = new List<object>(rootObjectKeys.Count);
+        result.AddRange(rootObjectKeys.Select(k => transformedObjects[k].Result));
+        return result;
+      }
+      return transformedObjects[rootObjectKeys.Single()].Result;
     }
 
     private static object CreateTargetObject(Type type)
@@ -166,6 +209,8 @@ namespace Xtensive.Core.ObjectMapping
       }
       return resultDescriptor.Result;
     }
+
+    #endregion
 
 
     // Constructors

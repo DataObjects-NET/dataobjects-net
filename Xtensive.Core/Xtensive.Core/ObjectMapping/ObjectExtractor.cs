@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.12.08
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.ObjectMapping.Model;
@@ -15,12 +16,12 @@ namespace Xtensive.Core.ObjectMapping
     private readonly MappingDescription mappingDescription;
     private Queue<object> referencedObjects;
 
-    public void Extract(object source, Dictionary<object,object> resultContainer)
+    public void Extract(object root, Dictionary<object,object> resultContainer)
     {
-      if (source == null)
+      if (root == null)
         return;
       referencedObjects = new Queue<object>();
-      referencedObjects.Enqueue(source);
+      InitializeExtraction(root);
       while (referencedObjects.Count > 0) {
         var current = referencedObjects.Dequeue();
         if (current == null)
@@ -41,6 +42,18 @@ namespace Xtensive.Core.ObjectMapping
               referencedObjects.Enqueue(obj);
         }
       }
+    }
+
+    private void InitializeExtraction(object root)
+    {
+      var type = root.GetType();
+      Type interfaceType;
+      if (MappingHelper.IsCollectionCandidate(type)
+        && MappingHelper.TryGetCollectionInterface(type, out interfaceType))
+          foreach (var obj in (IEnumerable) root)
+            referencedObjects.Enqueue(obj);
+      else
+        referencedObjects.Enqueue(root);
     }
 
 

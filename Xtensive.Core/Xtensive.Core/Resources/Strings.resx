@@ -711,4 +711,13 @@
   <data name="ExPropertiesXAndYHaveIncompatibleTypes" xml:space="preserve">
     <value>The properties "{0}" and "{1}" have incompatible types.</value>
   </data>
+  <data name="ExReferencePropertyXIsBoundToPropertyYThatIsNotReference" xml:space="preserve">
+    <value>The reference property {0} is bound to the property {1} that isn't reference.</value>
+  </data>
+  <data name="ExCollectionPropertyXIsBoundToPropertyYThatIsNotCollection" xml:space="preserve">
+    <value>The collection property {0} is bound to the property {1} that isn't collection.</value>
+  </data>
+  <data name="ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive" xml:space="preserve">
+    <value>The primitive property {0} is bound to the property {1} that isn't primitive.</value>
+  </data>
 </root>
