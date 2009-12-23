@@ -11,38 +11,31 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.DomainAndSession
 {
+  #region Model
+
+  [HierarchyRoot]
+  public class Person : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Name { get; set; }
+  }
+
+  #endregion
+
   [TestFixture]
   public class DomainAndSessionSample
   {
-    #region Model
-
-    [HierarchyRoot]
-    public class Person : Entity
-    {
-      [Field, Key]
-      public int Id { get; private set; }
-
-      [Field]
-      public string Name { get; set; }
-    }
-
-    #endregion
+    private Domain existingDomain;
 
     [Test]
-    public void MainTest()
+    public void OpenSessionTest()
     {
-      // Creating new Domain configuration
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
-      // Registering all types in the specified assembly and namespace
-      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
-      // And finally building the domain
-      var domain = Domain.Build(config);
-
+      var domain = GetDomain();
       using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
-
           var person = new Person();
           person.Name = "Barack Obama";
 
@@ -54,41 +47,24 @@ namespace Xtensive.Storage.Manual.DomainAndSession
     [Test]
     public void CurrentSessionTest()
     {
-      // Creating new Domain configuration
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
-      // Registering all types in the specified assembly and namespace
-      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
-      // And finally building the domain
-      var domain = Domain.Build(config);
-
+      var domain = GetDomain();
       int personId;
       using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
           personId = new Person().Id;
+
           transactionScope.Complete();
         }
       }
 
       using (var session = Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
-
           var newPerson = new Person();
           var fetchedPerson = Query.Single<Person>(personId);
 
           Console.WriteLine("Our session is current: {0}", Session.Current==session);
           Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);
           Console.WriteLine("Fetched entity is bound to our session: {0}", fetchedPerson.Session==session);
-
-          transactionScope.Complete();
-        }
-      }
-
-      using (Session.Open(domain)) {
-        using (var transactionScope = Transaction.Open()) {
-          var person = new Person();
-          person.Name = "Barack Obama";
 
           transactionScope.Complete();
         }
@@ -121,6 +97,22 @@ namespace Xtensive.Storage.Manual.DomainAndSession
       using (Session.Open(domain, sessionConfigTwo)) {
         // ...
       }
+    }
+
+    private Domain GetDomain()
+    {
+      if (existingDomain==null) {
+        // Creating new Domain configuration
+        var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
+          UpgradeMode = DomainUpgradeMode.Recreate
+        };
+        // Registering all types in the specified assembly and namespace
+        config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+        // And finally building the domain
+        var domain = Domain.Build(config);
+        existingDomain = domain;
+      }
+      return existingDomain;
     }
   }
 }

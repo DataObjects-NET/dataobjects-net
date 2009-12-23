@@ -171,7 +171,6 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
       }
     }
 
-
     private Domain GetDomain()
     {
       if (existingDomain==null) {
