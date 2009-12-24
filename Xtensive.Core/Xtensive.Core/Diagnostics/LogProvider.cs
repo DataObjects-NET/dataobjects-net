@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Diagnostics
 {
@@ -36,6 +37,16 @@ namespace Xtensive.Core.Diagnostics
     public static ILog GetLog(string key)
     {
       return Instance.GetLog(key);
+    }
+
+    /// <summary>
+    /// Gets the <see cref="ILog"/> object for the specified <paramref name="type"/>.
+    /// </summary>
+    /// <param name="type">The type to get the log for.</param>
+    /// <returns>The <see cref="ILog"/> object.</returns>
+    public static ILog GetLog(Type type)
+    {
+      return Instance.GetLog(type.GetFullName());
     }
 
     /// <summary>
