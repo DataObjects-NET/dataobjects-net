@@ -4,6 +4,11 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.10
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
 {
   [HierarchyRoot]
@@ -79,10 +84,21 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public EntitySet<Product> Products { get; private set;}
   }
 
-  public class Employee : AdvancedPerson
+  public class Employee : AdvancedPerson,
+    IEnumerable<OrderDetail>
   {
     [Field, Association(PairTo = "Employee", OnTargetRemove = OnRemoveAction.Clear)]
     public EntitySet<Order> Orders { get; private set; }
+
+    public IEnumerator<OrderDetail> GetEnumerator()
+    {
+      return Orders.SelectMany(o => o.Details).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
   }
 
   [HierarchyRoot]

@@ -585,7 +585,7 @@ namespace Xtensive.Storage.Tests.Storage
             using (state.Connect()) {
               orders = Query.All<Order>()
                 .Prefetch(o => o.Customer)
-                .PrefetchMany(o => o.Details, set => set,
+                .Prefetch(o => o.Details,
                   od => od.Prefetch(item => item.Product)).ToList();
             }
             var newCustomer = new Customer {
@@ -657,7 +657,7 @@ namespace Xtensive.Storage.Tests.Storage
             using (state.Connect()) {
               orders = Query.All<Order>()
                 .Prefetch(o => o.Customer)
-                .PrefetchMany(o => o.Details, set => set,
+                .Prefetch(o => o.Details,
                   od => od.Prefetch(item => item.Product)).ToList();
             }
 
@@ -1098,7 +1098,7 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var orders = Query.All<Order>()
             .Prefetch(o => o.Customer)
-            .PrefetchMany(o => o.Details, set => set,
+            .Prefetch(o => o.Details,
               od => od.Prefetch(item => item.Product)).ToList();
           
           var newCustomer = new Customer {Name = "NewCustomer"};
@@ -1177,7 +1177,7 @@ namespace Xtensive.Storage.Tests.Storage
             using (state.Connect()) {
               orders = Query.All<Order>()
                 .Prefetch(o => o.Customer)
-                .PrefetchMany(o => o.Details, set => set,
+                .Prefetch(o => o.Details,
                   od => od.Prefetch(item => item.Product)).ToList();
             }
 

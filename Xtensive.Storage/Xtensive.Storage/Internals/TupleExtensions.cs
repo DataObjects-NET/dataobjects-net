@@ -50,5 +50,15 @@ namespace Xtensive.Storage.Internals
       }
       return false;
     }
+
+    public static bool AreAllColumnsLoaded(this Tuple target, Segment<int> segment)
+    {
+      for (int i = segment.Offset; i < segment.EndOffset; i++) {
+        var state = target.GetFieldState(i);
+        if (!state.IsAvailable())
+          return false;
+      }
+      return true;
+    }
   }
 }

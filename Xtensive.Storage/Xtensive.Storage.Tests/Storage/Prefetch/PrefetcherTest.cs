@@ -101,7 +101,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         var employeesField = typeof (Territory).GetTypeInfo().Fields["Employees"];
         var ordersField = typeof (Employee).GetTypeInfo().Fields["Orders"];
-        var prefetcher = Query.All<Territory>().PrefetchMany(t => t.Employees, employees => employees,
+        var prefetcher = Query.All<Territory>().Prefetch(t => t.Employees,
           employees => employees.Prefetch(e => e.Orders));
         foreach (var territory in prefetcher) {
           var entitySetState = GetFullyLoadedEntitySet(session, territory.Key, employeesField);
@@ -119,7 +119,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var tx = Transaction.Open()) {
         var detailsField = typeof (Order).GetTypeInfo().Fields["OrderDetails"];
         var productField = typeof (OrderDetails).GetTypeInfo().Fields["Product"];
-        var prefetcher = Query.All<Order>().Take(500).PrefetchMany(o => o.OrderDetails, details => details,
+        var prefetcher = Query.All<Order>().Take(500).Prefetch(o => o.OrderDetails)
+          .PrefetchMany(o => o.OrderDetails,
           details => details.Prefetch(d => d.Product));
         foreach (var order in prefetcher) {
           var entitySetState = GetFullyLoadedEntitySet(session, order.Key, detailsField);
@@ -147,9 +148,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var employeeType = typeof (Employee).GetTypeInfo();
         var employeeField = typeof (Order).GetTypeInfo().Fields["Employee"];
         var ordersField = typeof (Employee).GetTypeInfo().Fields["Orders"];
-        var prefetcher = keys.Prefetch<Order, Key>(key => key)
-          .PrefetchSingle(o => o.Employee, employee => employee,
-            employee => employee.Prefetch(e => e.Orders));
+        var prefetcher = keys.Prefetch<Order, Key>(key => key).Prefetch(o => o.Employee)
+          .PrefetchSingle(o => o.Employee, employee => employee.Prefetch(e => e.Orders));
         var count = 0;
         foreach (var orderKey in prefetcher) {
           Assert.AreEqual(keys[count], orderKey);
@@ -174,7 +174,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var expected = Query.All<Territory>().ToList();
-        var actual = expected.PrefetchMany(t => t.Employees, employees => employees,
+        var actual = expected./*Prefetch(t => t.Employees).*/PrefetchMany(t => t.Employees,
           employees => employees.Prefetch(e => e.Orders)).ToList();
         Assert.AreEqual(expected.Count, actual.Count);
         Assert.IsTrue(expected.SequenceEqual(actual));
@@ -187,7 +187,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var expected = Query.All<Order>().ToList();
-        var actual = expected.PrefetchMany(o => o.OrderDetails, details => details,
+        var actual = expected./*Prefetch(o => o.OrderDetails).*/PrefetchMany(o => o.OrderDetails,
           details => details.Prefetch(d => d.Product)).ToList();
         Assert.AreEqual(expected.Count, actual.Count);
         Assert.IsTrue(expected.SequenceEqual(actual));
@@ -200,7 +200,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var expected = Query.All<Order>().Take(53).ToList();
-        var actual = expected.PrefetchSingle(o => o.Employee, employee => employee,
+        var actual = expected./*Prefetch(o => o.Employee).*/PrefetchSingle(o => o.Employee,
           employee => employee.Prefetch(e => e.Orders)).ToList();
         Assert.AreEqual(expected.Count, actual.Count);
         Assert.IsTrue(expected.SequenceEqual(actual));
@@ -213,7 +213,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var expected = Query.All<Order>().ToList();
-        var actual = expected.PrefetchSingle(o => o.Employee, employee => employee,
+        var actual = expected./*Prefetch(o => o.Employee).*/PrefetchSingle(o => o.Employee,
           employee => employee.Prefetch(e => e.Orders)).ToList();
         Assert.AreEqual(expected.Count, actual.Count);
         Assert.IsTrue(expected.SequenceEqual(actual));

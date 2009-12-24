@@ -90,8 +90,9 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         var ordersField = customerType.Fields["Orders"];
         var employeeField = orderType.Fields["Employee"];
         var employeeType = typeof (Employee).GetTypeInfo();
-        var prefetcher = keys.Prefetch<Customer, Key>(key => key)
-          .PrefetchMany(c => c.Orders, orders => {
+        var prefetcher = keys.Prefetch<Customer, Key>(key => key).Prefetch(c => c.Orders)
+          .PrefetchMany(c => {
+            var orders = c.Orders;
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orders.Owner.Key, customerType,
               session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
             EntitySetState state;

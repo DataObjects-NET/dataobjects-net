@@ -59,12 +59,12 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// Registers the prefetch of the field specified by <paramref name="expression"/>.
     /// </summary>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
-    /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
+    /// <typeparam name="TItem">The type of a sequence item.</typeparam>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <param name="entitySetItemCountLimit">The limit of count of items to be loaded during the 
     /// prefetch of <see cref="EntitySet{TItem}"/>.</param>
     /// <returns><see langword="this"/></returns>
-    public Prefetcher<T, TElement> Prefetch<TFieldValue>(Expression<Func<T, TFieldValue>> expression,
+    public Prefetcher<T, TElement> Prefetch<TItem>(Expression<Func<T, IEnumerable<TItem>>> expression,
       int entitySetItemCountLimit)
     {
       Prefetch(expression, (int?) entitySetItemCountLimit);
@@ -72,76 +72,64 @@ namespace Xtensive.Storage.Internals.Prefetch
     }
 
     /// <summary>
-    /// Registers the prefetch of the field specified by <paramref name="expression"/> and 
-    /// registers the delegate prefetching fields of an object referenced by element of the source sequence.
+    /// Registers the prefetch of the field specified by <paramref name="expression"/> and
+    /// registers the delegate prefetching fields of an object referenced by element of
+    /// the sequence.
     /// </summary>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
-    /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
-    /// <typeparam name="TSelectorResult">The result's type of a referenced object's selector.</typeparam>
+    /// <typeparam name="TItem">The type of a sequence item.</typeparam>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
-    /// <param name="selector">The selector of a referenced object.</param>
-    /// <param name="prefetchManyFunc">The delegate prefetching fields of a referenced object.</param>
+    /// <param name="nestedPrefetcher">The delegate prefetching fields of a referenced object.</param>
     /// <returns><see langword="this"/></returns>
-    public Prefetcher<T, TElement> PrefetchMany<TFieldValue, TSelectorResult>(
-      Expression<Func<T, TFieldValue>> expression,
-      Func<TFieldValue,IEnumerable<TSelectorResult>> selector,
-      Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> prefetchManyFunc)
+    public Prefetcher<T, TElement> Prefetch<TItem>(Expression<Func<T, IEnumerable<TItem>>> expression,
+      Func<IEnumerable<TItem>, IEnumerable<TItem>> nestedPrefetcher)
     {
-      PrefetchMany(expression, null, selector, prefetchManyFunc);
+      Prefetch(expression, (int?) null);
+      RegisterPrefetchMany(expression.CachingCompile(), nestedPrefetcher);
       return this;
     }
 
     /// <summary>
-    /// Registers the prefetch of the field specified by <paramref name="expression"/> and 
-    /// registers the delegate prefetching fields of an object referenced by element of the source sequence.
+    /// Registers the delegate prefetching fields of an object referenced by element of
+    /// the sequence specified by <paramref name="selector"/>.
     /// </summary>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
-    /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
     /// <typeparam name="TSelectorResult">The result's type of a referenced object's selector.</typeparam>
-    /// <param name="expression">The expression specifying a field to be prefetched.</param>
-    /// <param name="entitySetItemCountLimit">The limit of count of items to be loaded during the 
-    /// prefetch of <see cref="EntitySet{TItem}"/>.</param>
-    /// <param name="selector">The selector of a referenced object.</param>
-    /// <param name="prefetchManyFunc">The delegate prefetching fields of a referenced object.</param>
+    /// <param name="selector">The selector of a sequence.</param>
+    /// <param name="nestedPrefetcher">The delegate prefetching fields of a referenced object.</param>
     /// <returns><see langword="this"/></returns>
-    public Prefetcher<T, TElement> PrefetchMany<TFieldValue, TSelectorResult>(
-      Expression<Func<T, TFieldValue>> expression, int entitySetItemCountLimit,
-      Func<TFieldValue, IEnumerable<TSelectorResult>> selector,
-      Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> prefetchManyFunc)
+    public Prefetcher<T, TElement> PrefetchMany<TSelectorResult>(
+      Func<T,IEnumerable<TSelectorResult>> selector,
+      Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher)
     {
-      PrefetchMany(expression, (int?) entitySetItemCountLimit, selector, prefetchManyFunc);
+      RegisterPrefetchMany(selector, nestedPrefetcher);
       return this;
     }
 
     /// <summary>
-    /// Creates <see cref="Prefetcher{T,TElement}"/> for the specified source, 
-    /// registers the prefetch of the field specified by <paramref name="expression"/> and 
-    /// registers the delegate prefetching fields of an object referenced by element of the source sequence.
+    /// Registers the delegate prefetching fields of an object referenced by the value
+    /// specified by <paramref name="selector"/>.
     /// </summary>
     /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
-    /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
     /// <typeparam name="TSelectorResult">The result's type of a referenced object's selector.</typeparam>
-    /// <param name="expression">The expression specifying a field to be prefetched.</param>
-    /// <param name="selector">The selector of a referenced object.</param>
-    /// <param name="prefetchManyFunc">The delegate prefetching fields of a referenced object.</param>
+    /// <param name="selector">The selector of a field value.</param>
+    /// <param name="nestedPrefetcher">The delegate prefetching fields of a referenced object.</param>
     /// <returns><see langword="this"/></returns>
     /// <remarks>This methods allows to select value of type which does not implement 
     /// <see cref="IEnumerable{T}"/>. The result of the <paramref name="selector"/> is transformed 
     /// to <see cref="IEnumerable{T}"/> by <see cref="EnumerableUtils.One{TItem}"/>.</remarks>
-    public Prefetcher<T, TElement> PrefetchSingle<TFieldValue, TSelectorResult>(
-      Expression<Func<T, TFieldValue>> expression, Func<TFieldValue,TSelectorResult> selector,
-      Func<IEnumerable<TSelectorResult>,IEnumerable<TSelectorResult>> prefetchManyFunc)
+    public Prefetcher<T, TElement> PrefetchSingle<TSelectorResult>(
+      Func<T,TSelectorResult> selector,
+      Func<IEnumerable<TSelectorResult>,IEnumerable<TSelectorResult>> nestedPrefetcher)
       where TSelectorResult : IEntity
     {
-      Prefetch(expression, null);
-      var compiledPropertyGetter = expression.CachingCompile();
       Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>> prefetchManyDelegate =
         (rootEnumerator, sessionHandler) => {
           Func<TElement, SessionHandler, IEnumerable<TSelectorResult>> childElementSelector =
-            (element, sh) => SelectChildElements(element, compiledPropertyGetter,
+            (element, sh) => SelectChildElements(element,
               fieldValue => EnumerableUtils.One(selector.Invoke(fieldValue)), sh);
           return new PrefetchManyProcessor<TElement, TSelectorResult>(rootEnumerator, childElementSelector,
-            prefetchManyFunc, sessionHandler);
+            nestedPrefetcher, sessionHandler);
         };
       prefetchManyProcessorCreators.Add(prefetchManyDelegate);
       return this;
@@ -176,31 +164,26 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     #region Private \ internal methods
 
-    private void PrefetchMany<TFieldValue, TSelectorResult>(
-      Expression<Func<T, TFieldValue>> expression, int? entitySetItemCountLimit,
-      Func<TFieldValue, IEnumerable<TSelectorResult>> selector,
-      Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> prefetchManyFunc)
+    private void RegisterPrefetchMany<TSelectorResult>(
+      Func<T, IEnumerable<TSelectorResult>> selector,
+      Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher)
     {
-      Prefetch(expression, entitySetItemCountLimit);
-      var compiledPropertyGetter = expression.CachingCompile();
       Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>> prefetchManyDelegate =
         (rootEnumerator, sessionHandler) => {
           Func<TElement, SessionHandler, IEnumerable<TSelectorResult>> childElementSelector =
-            (element, sh) => SelectChildElements(element, compiledPropertyGetter,
-              selector, sh);
+            (element, sh) => SelectChildElements(element, selector, sh);
           return new PrefetchManyProcessor<TElement, TSelectorResult>(rootEnumerator, childElementSelector,
-            prefetchManyFunc, sessionHandler);
+            nestedPrefetcher, sessionHandler);
         };
       prefetchManyProcessorCreators.Add(prefetchManyDelegate);
     }
 
-    private IEnumerable<TSelectorResult> SelectChildElements<TFieldValue, TSelectorResult>(
-      TElement element, Func<T, TFieldValue> propertyGetter,
-      Func<TFieldValue, IEnumerable<TSelectorResult>> selector, SessionHandler sessionHandler)
+    private IEnumerable<TSelectorResult> SelectChildElements<TSelectorResult>(
+      TElement element, Func<T, IEnumerable<TSelectorResult>> selector, SessionHandler sessionHandler)
     {
       EntityState state;
       sessionHandler.TryGetEntityState(keyExtractor.Invoke(element), out state);
-      return selector.Invoke(propertyGetter.Invoke((T) (object) state.Entity));
+      return selector.Invoke((T) (object) state.Entity);
     }
 
     private void Prefetch<TFieldValue>(Expression<Func<T, TFieldValue>> expression,

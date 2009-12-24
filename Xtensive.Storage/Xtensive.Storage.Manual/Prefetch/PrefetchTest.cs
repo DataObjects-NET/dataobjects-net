@@ -67,15 +67,18 @@ namespace Xtensive.Storage.Manual.Prefetch
         var persons = Query.All<Person>();
         var prefetchedPersons = persons
           .Prefetch(p => p.Photo) // Lazy load field
-          .PrefetchSingle(p => p.Manager, p => p.Manager, // 1-to-1 association
+          .Prefetch(p => p.Manager)
+          .PrefetchSingle(p => p.Manager, // 1-to-1 association
             managers => managers
               .Prefetch(p => p.Photo)
             );
         foreach (var person in prefetchedPersons) {
           Assert.IsTrue(person.GetFieldState("Photo")==PersistentFieldState.Loaded);
           Assert.IsTrue(person.GetFieldState("Manager")==PersistentFieldState.Loaded);
-          Assert.IsNotNull(session.Cache[person.ManagerKey]);
-          Assert.IsTrue(person.Manager.GetFieldState("Photo")==PersistentFieldState.Loaded);
+          if (person.ManagerKey != null) {
+            Assert.IsNotNull(session.Cache[person.ManagerKey]);
+            Assert.IsTrue(person.Manager.GetFieldState("Photo")==PersistentFieldState.Loaded);
+          }
           // some code here...
         }
         transactionScope.Complete();

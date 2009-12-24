@@ -85,8 +85,8 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
-        var prefetcher = keys.Prefetch<Person, Key>(key => key).PrefetchSingle(p => p.Name,
-          name => new Customer {Name = name}, customer => {
+        var prefetcher = keys.Prefetch<Person, Key>(key => key)/*.Prefetch(p => p.Name)*/
+          .PrefetchSingle(p => new Customer {Name = p.Name}, customer => {
             customer.First().Remove();
             CollectGarbadge();
             return customer;
