@@ -15,6 +15,8 @@ namespace Xtensive.Storage.Internals.Prefetch
   [Serializable]
   internal sealed class PrefetchManyProcessor<TElement, TSelectorResult> : IEnumerable<TElement>
   {
+    #region Nested classes
+
     private class RootElementContainer
     {
       public TElement RootElement { get; set; }
@@ -22,17 +24,19 @@ namespace Xtensive.Storage.Internals.Prefetch
       public int RemainingChildElementsCount { get; set; }
     }
 
+    #endregion
+
     private readonly LinkedList<RootElementContainer> remainingCountOfChildElements =
       new LinkedList<RootElementContainer>();
     private readonly Func<TElement, SessionHandler, IEnumerable<TSelectorResult>> childElementSelector;
-    private readonly Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> prefetchManyFunc;
+    private readonly Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher;
     private readonly IEnumerable<TElement> source;
     private readonly SessionHandler sessionHandler;
 
     public IEnumerator<TElement> GetEnumerator()
     {
       TElement result;
-      var prefetchedChildElements = prefetchManyFunc.Invoke(ExtractChildElements());
+      var prefetchedChildElements = nestedPrefetcher.Invoke(ExtractChildElements());
       foreach (var childElement in prefetchedChildElements) {
         if (remainingCountOfChildElements.Last.Value.RemainingChildElementsCount > 0)
           remainingCountOfChildElements.Last.Value.RemainingChildElementsCount--;
@@ -65,10 +69,12 @@ namespace Xtensive.Storage.Internals.Prefetch
         var currentNode = new LinkedListNode<RootElementContainer>(
           new RootElementContainer {RootElement = rootElement});
         remainingCountOfChildElements.AddFirst(currentNode);
-        var childElements = childElementSelector.Invoke(rootElement, sessionHandler);
-        foreach (var childElement in childElements) {
-          currentNode.Value.RemainingChildElementsCount++;
-          yield return childElement;
+        if (rootElement != null) {
+          var childElements = childElementSelector.Invoke(rootElement, sessionHandler);
+          foreach (var childElement in childElements) {
+            currentNode.Value.RemainingChildElementsCount++;
+            yield return childElement;
+          }
         }
       }
     }
@@ -78,17 +84,17 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public PrefetchManyProcessor(IEnumerable<TElement> source,
       Func<TElement, SessionHandler, IEnumerable<TSelectorResult>> childElementSelector,
-      Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> prefetchManyFunc,
+      Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher,
       SessionHandler sessionHandler)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(childElementSelector, "childElementSelector");
-      ArgumentValidator.EnsureArgumentNotNull(prefetchManyFunc, "prefetchManyFunc");
+      ArgumentValidator.EnsureArgumentNotNull(nestedPrefetcher, "nestedPrefetcher");
       ArgumentValidator.EnsureArgumentNotNull(sessionHandler, "sessionHandler");
 
       this.source = source;
       this.childElementSelector = childElementSelector;
-      this.prefetchManyFunc = prefetchManyFunc;
+      this.nestedPrefetcher = nestedPrefetcher;
       this.sessionHandler = sessionHandler;
     }
   }

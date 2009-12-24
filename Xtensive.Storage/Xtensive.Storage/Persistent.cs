@@ -210,10 +210,10 @@ namespace Xtensive.Storage
 
       PersistentFieldState state = 0;
       var tuple = Tuple;
-      if (tuple!=null && tuple.AreAllColumnsLoaded(mappingInfo))
+      if (tuple!=null && tuple.AreAllColumnsAvalilable(mappingInfo))
         state |= PersistentFieldState.Loaded;
       var diffTuple = tuple as DifferentialTuple;
-      if (diffTuple!=null && !diffTuple.Difference.AreAllColumnsLoaded(mappingInfo))
+      if (diffTuple!=null && !diffTuple.Difference.AreAllColumnsAvalilable(mappingInfo))
         state |= PersistentFieldState.Modified;
       return state;
     }

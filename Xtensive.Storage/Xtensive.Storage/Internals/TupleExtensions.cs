@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Internals
       return false;
     }
 
-    public static bool AreAllColumnsLoaded(this Tuple target, Segment<int> segment)
+    public static bool AreAllColumnsAvalilable(this Tuple target, Segment<int> segment)
     {
       for (int i = segment.Offset; i < segment.EndOffset; i++) {
         var state = target.GetFieldState(i);

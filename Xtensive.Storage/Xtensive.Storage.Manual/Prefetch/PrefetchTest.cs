@@ -67,11 +67,15 @@ namespace Xtensive.Storage.Manual.Prefetch
         var persons = Query.All<Person>();
         var prefetchedPersons = persons
           .Prefetch(p => p.Photo) // Lazy load field
-          .Prefetch(p => p.Manager)
+          .Prefetch(p => p.Employees, employees => employees.Prefetch(e => e.Photo)) // EntitySet and lazy load field of its items
+          .Prefetch(p => p.Manager) // Referenced entity
           .PrefetchSingle(p => p.Manager, // 1-to-1 association
             managers => managers
               .Prefetch(p => p.Photo)
-            );
+            )
+          .PrefetchMany(p => p.Employees, employees => employees.Prefetch(e => e.Photo)) // Lazy load field of EntitySet items
+          .Prefetch(p => p.Employees) // EntitySet
+          .Prefetch(p => p.Employees, 40); // EntitySet with the limited number of items to be loaded
         foreach (var person in prefetchedPersons) {
           Assert.IsTrue(person.GetFieldState("Photo")==PersistentFieldState.Loaded);
           Assert.IsTrue(person.GetFieldState("Manager")==PersistentFieldState.Loaded);

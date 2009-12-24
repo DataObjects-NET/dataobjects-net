@@ -45,7 +45,7 @@ namespace Xtensive.Storage
       this IEnumerable<TElement> source, Expression<Func<TElement, TFieldValue>> expression)
       where TElement : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element!=null ? element.Key : null)
+      return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .Prefetch(expression);
     }
 
@@ -65,7 +65,7 @@ namespace Xtensive.Storage
       Func<IEnumerable<TItem>, IEnumerable<TItem>> nestedPrefetcher)
       where TElement : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element!=null ? element.Key : null)
+      return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .Prefetch(expression, nestedPrefetcher);
     }
 
@@ -85,7 +85,7 @@ namespace Xtensive.Storage
       int entitySetItemCountLimit)
       where TElement : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element!=null ? element.Key : null)
+      return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .Prefetch(expression, entitySetItemCountLimit);
     }
 
@@ -105,7 +105,7 @@ namespace Xtensive.Storage
       Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher)
       where TElement : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element!=null ? element.Key : null)
+      return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .PrefetchMany(selector, nestedPrefetcher);
     }
 
@@ -129,7 +129,7 @@ namespace Xtensive.Storage
       where TElement : Entity
       where TSelectorResult : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element!=null ? element.Key : null)
+      return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .PrefetchSingle(selector, nestedPrefetcher);
     }
   }

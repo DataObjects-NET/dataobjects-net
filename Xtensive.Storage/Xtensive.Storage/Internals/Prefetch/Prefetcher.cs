@@ -168,6 +168,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       Func<T, IEnumerable<TSelectorResult>> selector,
       Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher)
     {
+      ArgumentValidator.EnsureArgumentNotNull(nestedPrefetcher, "nestedPrefetcher");
       Func<IEnumerable<TElement>, SessionHandler, IEnumerable<TElement>> prefetchManyDelegate =
         (rootEnumerator, sessionHandler) => {
           Func<TElement, SessionHandler, IEnumerable<TSelectorResult>> childElementSelector =
