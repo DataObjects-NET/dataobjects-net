@@ -40,18 +40,22 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public IEnumerator<T> GetEnumerator()
     {
+      if (source==null)
+        yield break;
       prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
       foreach (var element in source) {
-        var elementKey = keyExtractor.Invoke(element);
-        var type = RegisterPrefetch(element, elementKey);
+        var key = keyExtractor.Invoke(element);
+        if (key==null)
+          continue;
+        var type = RegisterPrefetch(element, key);
         if (prefetchTaskExecutionCount!=sessionHandler.PrefetchTaskExecutionCount) {
           blockingDelayedElement = null;
           ProcessFetchedElements(false);
         }
-        var pair = new Pair<Key, T>(elementKey, element);
+        var pair = new Pair<Key, T>(key, element);
         waitingElements.Enqueue(pair);
-        if (!elementKey.HasExactType)
-          delayedElements.Enqueue(new Triplet<Key, T, TypeInfo>(elementKey, element, type));
+        if (!key.HasExactType)
+          delayedElements.Enqueue(new Triplet<Key, T, TypeInfo>(key, element, type));
         prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
         if (processedElements.Count > 0)
           yield return processedElements.Dequeue();

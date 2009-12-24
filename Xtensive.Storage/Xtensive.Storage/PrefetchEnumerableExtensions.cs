@@ -45,7 +45,7 @@ namespace Xtensive.Storage
       this IEnumerable<TElement> source, Expression<Func<TElement, TFieldValue>> expression)
       where TElement : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key).Prefetch(expression);
+      return new Prefetcher<TElement, TElement>(source, element => element!=null ? element.Key : null).Prefetch(expression);
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ namespace Xtensive.Storage
       int entitySetItemCountLimit)
       where TElement : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+      return new Prefetcher<TElement, TElement>(source, element => element!=null ? element.Key : null)
         .Prefetch(expression, entitySetItemCountLimit);
     }
 
@@ -87,7 +87,7 @@ namespace Xtensive.Storage
       Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> prefetchManyFunc)
       where TElement : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+      return new Prefetcher<TElement, TElement>(source, element => element!=null ? element.Key : null)
         .PrefetchMany(expression, selector, prefetchManyFunc);
     }
 
@@ -112,7 +112,7 @@ namespace Xtensive.Storage
       Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> prefetchManyFunc)
       where TElement : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+      return new Prefetcher<TElement, TElement>(source, element => element!=null ? element.Key : null)
         .PrefetchMany(expression, entitySetItemCountLimit, selector, prefetchManyFunc);
     }
 
@@ -139,7 +139,7 @@ namespace Xtensive.Storage
       where TElement : Entity
       where TSelectorResult : Entity
     {
-      return new Prefetcher<TElement, TElement>(source, element => element.Key)
+      return new Prefetcher<TElement, TElement>(source, element => element!=null ? element.Key : null)
         .PrefetchSingle(expression, selector, prefetchManyFunc);
     }
   }
