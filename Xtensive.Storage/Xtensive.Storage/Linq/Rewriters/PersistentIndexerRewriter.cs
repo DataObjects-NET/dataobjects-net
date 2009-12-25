@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Linq.Rewriters
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private static MemberExpression GetMemberExpression(MethodCallExpression mc)
     {
-      var name = (string)ExpressionEvaluator.Evaluate(mc.Arguments[0]).Value;
+      var name = (string) ExpressionEvaluator.Evaluate(mc.Arguments[0]).Value;
       var propertyInfo = mc.Object.Type.GetProperties().SingleOrDefault(property => property.Name==name);
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Linq.Rewriters
       return methodCallExpression.Object!=null
         && methodCallExpression.Method.Name=="get_Item"
           && methodCallExpression.Method.DeclaringType==typeof (Persistent)
-        && context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
+            && context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
     }
 
     public static Expression Rewrite(Expression query, TranslatorContext context)
@@ -94,6 +94,5 @@ namespace Xtensive.Storage.Linq.Rewriters
     {
       this.context = context;
     }
-
   }
 }

@@ -91,7 +91,9 @@ namespace Xtensive.Storage.Linq
       case ExpressionType.Convert:
       case ExpressionType.ConvertChecked:
         if (u.GetMemberType()==MemberType.Entity) {
-          if (u.Type==u.Operand.Type || u.Type.IsAssignableFrom(u.Operand.Type))
+          if (u.Type==u.Operand.Type 
+            || u.Type.IsAssignableFrom(u.Operand.Type)
+            || !typeof(Entity).IsAssignableFrom(u.Operand.Type))
             return base.VisitUnary(u);
           throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
@@ -343,8 +345,8 @@ namespace Xtensive.Storage.Linq
           ? (Expression) binaryExpression
           : ExpressionEvaluator.Evaluate(binaryExpression);
 
-      Expression left = binaryExpression.Left.StripCasts();
-      Expression right = binaryExpression.Right.StripCasts();
+      Expression left = binaryExpression.Left.StripCasts().StripMarkers();
+      Expression right = binaryExpression.Right.StripCasts().StripMarkers();
 
       IList<Expression> leftExpressions;
       IList<Expression> rightExpressions;
@@ -541,7 +543,8 @@ namespace Xtensive.Storage.Linq
       else {
         ConstantExpression nullEntityExpression = Expression.Constant(null, expression.Type);
         BinaryExpression isNullExpression = Expression.Equal(expression, nullEntityExpression);
-
+        if (!typeof (IEntity).IsAssignableFrom(expression.Type))
+          expression = Expression.Convert(expression, typeof (IEntity));
         keyExpression = Expression.Condition(
           isNullExpression,
           Expression.Constant(null, typeof (Key)),

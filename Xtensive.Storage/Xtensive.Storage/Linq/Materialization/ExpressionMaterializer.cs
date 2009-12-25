@@ -61,6 +61,8 @@ namespace Xtensive.Storage.Linq.Materialization
       var target = expression.Target;
       var processedTarget = Visit(target);
       if (expression.MarkerType!=MarkerType.None && (expression.MarkerType & MarkerType.Default)==MarkerType.None) {
+        if (itemMaterializationContextParameter==null)
+          MaterializationHelper.ThrowSequenceException();
         var columns = ColumnGatherer.GetColumns(target, ColumnExtractionModes.Distinct | ColumnExtractionModes.Ordered).ToArray();
         var sequenceCheck = Expression.Call(MaterializationHelper.IsNullMethodInfo, tupleParameter, Expression.Constant(columns));
         var throwException = Expression.Convert(Expression.Call(MaterializationHelper.ThrowSequenceExceptionMethodInfo), target.Type);
@@ -82,7 +84,7 @@ namespace Xtensive.Storage.Linq.Materialization
       var keyMaterializer = Visit(groupingExpression.KeyExpression);
       var groupingCtor = typeof (Grouping<,>)
         .MakeGenericType(keyType, elementType)
-        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), typeof (Tuple), keyType, typeof(ItemMaterializationContext)});
+        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), typeof (Tuple), keyType, typeof (ItemMaterializationContext)});
 
       // 3. Create result expression.
       var resultExpression = Expression.New(
@@ -109,7 +111,7 @@ namespace Xtensive.Storage.Linq.Materialization
       // 2. Create constructor
       var subQueryCtor = typeof (SubQuery<>)
         .MakeGenericType(elementType)
-        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), typeof (Tuple), typeof(ItemMaterializationContext)});
+        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), typeof (Tuple), typeof (ItemMaterializationContext)});
 
       // 3. Create result expression.
       var resultExpression = Expression.New(
@@ -319,6 +321,8 @@ namespace Xtensive.Storage.Linq.Materialization
         return Visit(expression.Entity);
 
       var tupleExpression = GetTupleExpression(expression);
+      if (itemMaterializationContextParameter==null)
+        return tupleExpression.MakeTupleAccess(expression.Type, expression.Mapping.Offset);
       return CreateEntity(expression, tupleExpression);
     }
 
@@ -371,13 +375,13 @@ namespace Xtensive.Storage.Linq.Materialization
 
     #region Private Methods
 
-    private Expression MaterializeThroughOwner (Expression target, Expression tuple)
+    private Expression MaterializeThroughOwner(Expression target, Expression tuple)
     {
       return MaterializeThroughOwner(target, tuple, false);
     }
 
 
-    private Expression MaterializeThroughOwner (Expression target, Expression tuple, bool defaultIfEmpty)
+    private Expression MaterializeThroughOwner(Expression target, Expression tuple, bool defaultIfEmpty)
     {
       var field = target as FieldExpression;
       if (field!=null) {
@@ -395,7 +399,7 @@ namespace Xtensive.Storage.Linq.Materialization
       return CreateEntity((EntityExpression) target, tuple);
     }
 
-    private Expression GetTupleExpression (ParameterizedExpression expression)
+    private Expression GetTupleExpression(ParameterizedExpression expression)
     {
       if (expression.OuterParameter==null)
         return tupleParameter;
@@ -418,14 +422,14 @@ namespace Xtensive.Storage.Linq.Materialization
     }
 
     // ReSharper disable UnusedMember.Local
-    private static Tuple BuildPersistentTuple (Tuple tuple, Tuple tuplePrototype, int[] mapping)
+    private static Tuple BuildPersistentTuple(Tuple tuple, Tuple tuplePrototype, int[] mapping)
     {
       var result = tuplePrototype.CreateNew();
       tuple.CopyTo(result, mapping);
       return result;
     }
 
-    private static Tuple GetTupleSegment (Tuple tuple, Segment<int> segment)
+    private static Tuple GetTupleSegment(Tuple tuple, Segment<int> segment)
     {
       return tuple.GetSegment(segment).ToRegular();
     }

@@ -34,9 +34,21 @@ namespace Xtensive.Storage.Tests.Linq
       }
     }
 
+    [Test]
+    public void ReferenceFieldConditionTest()
+    {
+      var result = Query.All<Order>()
+        .Where(order => order.Customer!=null)
+        .ToList();
+
+//      var expected = Query.All<Order>()
+//        .AsEnumerable()
+//        .First(order => order.Customer!=null);
+//      Assert.AreEqual(expected.Customer, result.Customer);
+    }
 
     [Test]
-    public void IndexerTest()
+    public void IndexerSimpleFieldTest()
     {
       object freight = Query
         .All<Order>()
@@ -44,14 +56,98 @@ namespace Xtensive.Storage.Tests.Linq
         .Freight;
       var result = Query
         .All<Order>()
-        .OrderBy(order=>order.Id)
-        .Where(order => order["Freight"] == freight)
+        .OrderBy(order => order.Id)
+        .Where(order => order["Freight"]==freight)
         .ToList();
       var expected = Query
         .All<Order>()
         .AsEnumerable()
         .OrderBy(order => order.Id)
         .Where(order => order.Freight==(decimal?) freight)
+        .ToList();
+      Assert.IsTrue(expected.SequenceEqual(result));
+    }
+
+    [Test]
+    public void IndexerStructureTest()
+    {
+      object address = Query
+        .All<Customer>()
+        .First(customer => customer.Address.City.Length > 0)
+        .Address;
+      var result = Query
+        .All<Customer>()
+        .OrderBy(customer => customer.Id)
+        .Where(customer => customer["Address"]==address)
+        .ToList();
+      var expected = Query
+        .All<Customer>()
+        .AsEnumerable()
+        .OrderBy(customer => customer.Id)
+        .Where(customer => customer.Address==address)
+        .ToList();
+      Assert.IsTrue(expected.SequenceEqual(result));
+    }
+
+    [Test]
+    public void IndexerEntity1Test()
+    {
+      object customer = Query
+        .All<Order>()
+        .First(order => order.Customer!=null)
+        .Customer;
+      var result = Query
+        .All<Order>()
+        .OrderBy(order => order.Id)
+        .Where(order => order["Customer"]==customer)
+        .ToList();
+      var expected = Query
+        .All<Order>()
+        .AsEnumerable()
+        .OrderBy(order => order.Id)
+        .Where(order => order.Customer==customer)
+        .ToList();
+      Assert.IsTrue(expected.SequenceEqual(result));
+    }
+
+    [Test]
+    public void EntitySubqueryTest()
+    {
+      var result = Query.All<Order>()
+        .OrderBy(order => order.Id)
+        .Where(order => order.Customer==
+          Query.All<Order>()
+            .FirstOrDefault(order2 => order2.Customer!=null)
+            .Customer)
+        .ToList();
+      var expected = Query.All<Order>()
+        .AsEnumerable()
+        .OrderBy(order => order.Id)
+        .Where(order => order.Customer==
+          Query.All<Order>()
+            .First(order2 => order2.Customer!=null)
+            .Customer)
+        .ToList();
+      Assert.IsTrue(expected.SequenceEqual(result));
+    }
+
+    [Test]
+    public void EntitySubqueryIndexerTest()
+    {
+      var result = Query.All<Order>()
+        .OrderBy(order => order.Id)
+        .Where(order => order.Customer==
+          Query.All<Order>()
+            .FirstOrDefault(order2 => order2["Customer"]!=null)
+            .Customer)
+        .ToList();
+      var expected = Query.All<Order>()
+        .AsEnumerable()
+        .OrderBy(order => order.Id)
+        .Where(order => order.Customer==
+          Query.All<Order>()
+            .First(order2 => order2.Customer!=null)
+            .Customer)
         .ToList();
       Assert.IsTrue(expected.SequenceEqual(result));
     }

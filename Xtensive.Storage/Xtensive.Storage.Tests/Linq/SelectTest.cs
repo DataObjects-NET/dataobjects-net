@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    public void IndexerTest()
+    public void IndexerSimpleFieldTest()
     {
       var result = Query
         .All<Customer>()
@@ -61,6 +61,38 @@ namespace Xtensive.Storage.Tests.Linq
         .AsEnumerable()
         .OrderBy(customer=>customer.Id)
         .Select(customer => customer["Phone"]);
+      Assert.IsTrue(expected.SequenceEqual(result));
+    }
+
+    [Test]
+    public void IndexerEntityTest()
+    {
+      var result = Query
+        .All<Order>()
+        .OrderBy(order=>order.Id)
+        .Select(order => order["Customer"])
+        .AsEnumerable();
+      var expected = Query
+        .All<Order>()
+        .AsEnumerable()
+        .OrderBy(order=>order.Id)
+        .Select(order => order["Customer"]);
+      Assert.IsTrue(expected.SequenceEqual(result));
+    }
+
+    [Test]
+    public void IndexerStructureTest()
+    {
+      var result = Query
+        .All<Customer>()
+        .OrderBy(customer=>customer.Id)
+        .Select(customer => customer["Address"])
+        .AsEnumerable();
+      var expected = Query
+        .All<Customer>()
+        .AsEnumerable()
+        .OrderBy(customer=>customer.Id)
+        .Select(customer => customer["Address"]);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
