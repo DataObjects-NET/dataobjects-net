@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Tests.Rse
     private static void ResetState(EntityState state)
     {
       typeof (EntityState).InvokeMember(
-        "ResetState",
+        "Invalidate",
         BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod,
         null, state, new object[0]);
     }
