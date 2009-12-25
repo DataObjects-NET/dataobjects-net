@@ -5,6 +5,7 @@
 // Created:    2009.10.14
 
 using System.Data.Common;
+using System.Text;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -20,8 +21,16 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Human readable representation of the specified command.</returns>
     public static string ToHumanReadableString(this DbCommand command)
     {
-      // Does almost nothing for now
-      return command.CommandText.Trim();
+      var commandText = command.CommandText.Trim();
+      if (command.Parameters.Count==0)
+        return commandText;
+      var result = new StringBuilder(commandText);
+      result.Append(" [");
+      foreach (DbParameter parameter in command.Parameters)
+        result.AppendFormat("{0}='{1}';", parameter.ParameterName, parameter.Value);
+      result.Remove(result.Length - 1, 1);
+      result.Append("]");
+      return result.ToString();
     }
   }
 }
