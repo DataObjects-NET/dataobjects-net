@@ -17,7 +17,6 @@ namespace Xtensive.Storage.Building.Definitions
     public TypeDef Type { get; private set; }
     public NodeCollection<FieldDef> Fields { get; private set;}
     public NodeCollection<FieldDef> IncludedFields { get; private set; }
-    public NodeCollection<FieldDef> KeyFields { get; private set; }
 
 
     // Constructors
@@ -30,7 +29,6 @@ namespace Xtensive.Storage.Building.Definitions
       Type = type;
       Fields = new NodeCollection<FieldDef>();
       IncludedFields = new NodeCollection<FieldDef>();
-      KeyFields = new NodeCollection<FieldDef>();
     }
   }
 }

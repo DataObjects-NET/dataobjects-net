@@ -383,6 +383,17 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
+    /// Builds the name of the full-text index.
+    /// </summary>
+    /// <param name="typeInfo">The type info.</param>
+    /// <returns>Index name.</returns>
+    public virtual string BuildFullTextIndexName(TypeInfo typeInfo)
+    {
+      var result = string.Format("FT_{0}", typeInfo);
+      return ApplyNamingRules(result);
+    }
+
+    /// <summary>
     /// Builds the name for the <see cref="AssociationInfo"/>.
     /// </summary>
     /// <param name="target">The <see cref="AssociationInfo"/> instance to build name for.</param>

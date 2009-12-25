@@ -99,11 +99,6 @@ namespace Xtensive.Storage.Building.Builders
         else
           fullTextIndexDef.IncludedFields.Add(fieldDef);
       }
-      var root = hierarchy.Root;
-      foreach (var keyField in hierarchy.KeyFields) {
-        var keyFieldDef = root.Fields[keyField.Name];
-        fullTextIndexDef.KeyFields.Add(keyFieldDef);
-      }
       if (fullTextIndexDef.Fields.Count > 0 || fullTextIndexDef.IncludedFields.Count > 0)
         modelDef.FullTextIndexes.Add(fullTextIndexDef);
     }

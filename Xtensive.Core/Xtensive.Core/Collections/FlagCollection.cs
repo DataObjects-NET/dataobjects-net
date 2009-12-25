@@ -295,14 +295,14 @@ namespace Xtensive.Core.Collections
     #region GetEnumerator methods
 
     /// <inheritdoc/>
-    IEnumerator<KeyValuePair<TKey, TFlag>> IEnumerable<KeyValuePair<TKey, TFlag>>.GetEnumerator()
+    public IEnumerator<KeyValuePair<TKey, TFlag>> GetEnumerator()
     {
       for (int i = 0; i < keys.Count; i++)
         yield return new KeyValuePair<TKey, TFlag>(keys[i], converter.ConvertBackward(flags[1 << i]));
     }
 
     /// <inheritdoc/>
-    public IEnumerator GetEnumerator()
+    IEnumerator IEnumerable.GetEnumerator()
     {
       return ((IEnumerable<KeyValuePair<TKey, TFlag>>)this).GetEnumerator();
     }
