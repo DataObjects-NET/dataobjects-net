@@ -5,8 +5,10 @@
 // Created:    2008.12.13
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
@@ -14,6 +16,22 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
 namespace Xtensive.Storage.Tests.Linq
 {
+  public class TargetField
+  {
+    public TargetField(string name, object value)
+    {
+      if (string.IsNullOrEmpty(name))
+        throw new ArgumentException("Parameter 'name' cannot be null or empty.");
+
+      this.Name = name;
+      this.Value = value;
+    }
+
+    public string Name { get; private set; }
+
+    public object Value { get; private set; }
+  }
+
   [Category("Linq")]
   [TestFixture]
   public class WhereTest : NorthwindDOModelTest
@@ -32,6 +50,27 @@ namespace Xtensive.Storage.Tests.Linq
           categoryFirstKey = Query.All<Category>().First().Key;
         }
       }
+    }
+
+    [Test]
+    public void IndexerTest()
+    {
+      var query = Query.All<Order>();
+      var kvp = new Pair<string, object>("Customer", Query.All<Customer>().First());
+      query = query.Where(order => order[kvp.First]==kvp.Second);
+      var r = query.ToList();
+    }
+
+    [Test]
+    public void IndexerNullTest()
+    {
+      var query = Query.All<Order>();
+      var parameters = Query.All<Customer>().Take(1).Select(c => new TargetField("Customer", (Customer)null)).ToList();
+      foreach (var item in parameters) {
+        var field = item; // This is important to use local variable
+        query = query.Where(order => order[field.Name]==field.Value);
+      }
+      var result = query.ToList<Order>();
     }
 
     [Test]
@@ -117,7 +156,7 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
           Query.All<Order>()
-            .FirstOrDefault(order2 => order2.Customer!=null)
+            .First(order2 => order2.Customer!=null)
             .Customer)
         .ToList();
       var expected = Query.All<Order>()
@@ -138,7 +177,7 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
           Query.All<Order>()
-            .FirstOrDefault(order2 => order2["Customer"]!=null)
+            .First(order2 => order2["Customer"]!=null)
             .Customer)
         .ToList();
       var expected = Query.All<Order>()
@@ -1128,6 +1167,7 @@ namespace Xtensive.Storage.Tests.Linq
       var order = orders.Where(o => (o.Id | 1)==1 || o.Id > 0).First();
       Assert.IsNotNull(order);
     }
+
 
     [Test]
     public void IntBitwiseExclusiveOrTest()
