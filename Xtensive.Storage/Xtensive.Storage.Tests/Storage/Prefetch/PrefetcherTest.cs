@@ -256,6 +256,86 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
+    public void RootElementIsNullPrefetchTest()
+    {
+      RemoveAllBooks();
+      using (var session = Session.Open(Domain)) {
+        using (var tx = Transaction.Open()) {
+          new Model.Book {Title = new Model.Title {Text = "T0"}, Category = "1"};
+          tx.Complete();
+        }
+        using (var tx = Transaction.Open()) {
+          var prefetcher = Query.All<Model.Book>().AsEnumerable()
+            .Concat(EnumerableUtils.One<Model.Book>(null)).Prefetch(b => b.Title);
+          var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
+          var titleType = typeof (Model.Title).GetTypeInfo();
+          var count = 0;
+          foreach (var book in prefetcher) {
+            count++;
+            if (book != null) {
+              var titleKey = book.GetReferenceKey(titleField);
+              PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(titleKey, titleType, session);
+            }
+          }
+          Assert.AreEqual(2, count);
+        }
+      }
+    }
+
+    [Test]
+    public void NestedPrefetchWhenChildElementIsNullTest()
+    {
+      RemoveAllBooks();
+      using (var session = Session.Open(Domain)) {
+        using (var tx = Transaction.Open()) {
+          var book0 = new Model.Book {Title = new Model.Title {Text = "T0"}, Category = "1"};
+          var book1 = new Model.Book {Category = "2"};
+          tx.Complete();
+        }
+        using (var tx = Transaction.Open()) {
+          var prefetcher = Query.All<Model.Book>().Prefetch(b => b.Title)
+            .PrefetchSingle(b => b.Title, ts => ts.Prefetch(t => t.Book));
+          var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
+          var titleType = typeof (Model.Title).GetTypeInfo();
+          foreach (var book in prefetcher) {
+            var titleKey = book.GetReferenceKey(titleField);
+            if (titleKey != null)
+              PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(titleKey, titleType, session);
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void NestedPrefetchWhenRootElementIsNullTest()
+    {
+      RemoveAllBooks();
+      using (var session = Session.Open(Domain)) {
+        using (var tx = Transaction.Open()) {
+          var book = new Model.Book {Title = new Model.Title {Text = "T0"}, Category = "1"};
+          tx.Complete();
+        }
+        using (var tx = Transaction.Open()) {
+          var prefetcher = Query.All<Model.Book>().AsEnumerable()
+            .Concat(EnumerableUtils.One<Model.Book>(null)).Prefetch(b => b.Title)
+            .PrefetchSingle(b => b.Title, ts => ts.Prefetch(t => t.Book));
+          var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
+          var titleType = typeof (Model.Title).GetTypeInfo();
+          var count = 0;
+          foreach (var book in prefetcher) {
+            count++;
+            if (book!=null) {
+              var titleKey = book.GetReferenceKey(titleField);
+              if (titleKey != null)
+                PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(titleKey, titleType, session);
+            }
+          }
+          Assert.AreEqual(2, count);
+        }
+      }
+    }
+
+    [Test]
     public void StructureFieldsPrefetchTest()
     {
       Key containerKey;
@@ -299,7 +379,17 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         }
       }
     }
-    
+
+    private void RemoveAllBooks()
+    {
+      using (Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        foreach (var book in Query.All<Model.Book>())
+          book.Remove();
+        tx.Complete();
+      }
+    }
+
     private static EntitySetState GetFullyLoadedEntitySet(Session session, Key key,
       FieldInfo employeesField)
     {

@@ -43,7 +43,7 @@ namespace Xtensive.Storage
     /// <returns>A newly created <see cref="Prefetcher{T,TElement}"/>.</returns>
     public static Prefetcher<TElement, TElement> Prefetch<TElement, TFieldValue>(
       this IEnumerable<TElement> source, Expression<Func<TElement, TFieldValue>> expression)
-      where TElement : Entity
+      where TElement : IEntity
     {
       return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .Prefetch(expression);
@@ -63,7 +63,7 @@ namespace Xtensive.Storage
     public static Prefetcher<TElement, TElement> Prefetch<TElement, TItem>(
       this IEnumerable<TElement> source, Expression<Func<TElement, IEnumerable<TItem>>> expression,
       Func<IEnumerable<TItem>, IEnumerable<TItem>> nestedPrefetcher)
-      where TElement : Entity
+      where TElement : IEntity
     {
       return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .Prefetch(expression, nestedPrefetcher);
@@ -83,7 +83,7 @@ namespace Xtensive.Storage
     public static Prefetcher<TElement, TElement> Prefetch<TElement, TItem>(
       this IEnumerable<TElement> source, Expression<Func<TElement, IEnumerable<TItem>>> expression,
       int entitySetItemCountLimit)
-      where TElement : Entity
+      where TElement : IEntity
     {
       return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .Prefetch(expression, entitySetItemCountLimit);
@@ -103,7 +103,7 @@ namespace Xtensive.Storage
     public static Prefetcher<TElement, TElement> PrefetchMany<TElement, TSelectorResult>(
       this IEnumerable<TElement> source, Func<TElement,IEnumerable<TSelectorResult>> selector,
       Func<IEnumerable<TSelectorResult>, IEnumerable<TSelectorResult>> nestedPrefetcher)
-      where TElement : Entity
+      where TElement : IEntity
     {
       return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .PrefetchMany(selector, nestedPrefetcher);
@@ -126,8 +126,8 @@ namespace Xtensive.Storage
     public static Prefetcher<TElement, TElement> PrefetchSingle<TElement, TSelectorResult>(
       this IEnumerable<TElement> source, Func<TElement,TSelectorResult> selector,
       Func<IEnumerable<TSelectorResult>,IEnumerable<TSelectorResult>> nestedPrefetcher)
-      where TElement : Entity
-      where TSelectorResult : Entity
+      where TElement : IEntity
+      where TSelectorResult : IEntity
     {
       return new Prefetcher<TElement, TElement>(source, element => element.Key)
         .PrefetchSingle(selector, nestedPrefetcher);

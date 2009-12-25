@@ -44,8 +44,10 @@ namespace Xtensive.Storage.Internals.Prefetch
         yield break;
       prefetchTaskExecutionCount = sessionHandler.PrefetchTaskExecutionCount;
       foreach (var element in source) {
-        if (element==null)
+        if (element==null) {
+          yield return element;
           continue;
+        }
         var key = keyExtractor.Invoke(element);
         var type = RegisterPrefetch(element, key);
         if (prefetchTaskExecutionCount!=sessionHandler.PrefetchTaskExecutionCount) {
