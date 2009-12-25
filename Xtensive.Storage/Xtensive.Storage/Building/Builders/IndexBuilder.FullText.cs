@@ -4,12 +4,11 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.16
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using Xtensive.Core;
+using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -22,31 +21,127 @@ namespace Xtensive.Storage.Building.Builders
       var model = context.Model;
       var indexLookup = modelDef.FullTextIndexes.ToLookup(fi => model.Types[fi.Type.UnderlyingType].Hierarchy);
       foreach (var hierarchyIndexes in indexLookup) {
+        var root = hierarchyIndexes.Key.Root;
         switch(hierarchyIndexes.Key.Schema) {
           case InheritanceSchema.ClassTable:
+            BuildFullTextIndexesClassTable(root, hierarchyIndexes);
             break;
           case InheritanceSchema.SingleTable:
-            var root = hierarchyIndexes.Key.Root;
-            var primaryIndex = root.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
-            var index = new FullTextIndexInfo(primaryIndex, context.NameBuilder.BuildFullTextIndexName(root));
-            foreach (var pair in primaryIndex.KeyColumns)
-              index.KeyColumns.Add(pair.Key);
-            
-//            var keyColumns = new List<ColumnInfo>();
-//            var columns = new List<ColumnInfo>();
-//            var includedColumns = new List<ColumnInfo>();
-
-//            foreach (var fullTextIndexDef in hierarchyIndexes) {
-//              fullTextIndexDef.
-//            }
+            BuildFullTextIndexesSingleTable(root, hierarchyIndexes);
             break;
           case InheritanceSchema.ConcreteTable:
+            BuildFullTextIndexesConcreteTable(root, hierarchyIndexes);
             break;
         }
       }
-//      foreach (var fullTextIndex in modelDef.FullTextIndexes.Select()) {
-        
-//      }
     }
+
+    private static void BuildFullTextIndexesClassTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
+    {
+      var context = BuildingContext.Current;
+      var model = context.Model;
+      var indexDefs = GatherFullTextIndexDefinitons(root, hierarchyIndexes);
+
+      foreach (var typeIndexDef in indexDefs) {
+        var type = typeIndexDef.Key;
+        var fullTextIndexDefs = typeIndexDef.Value;
+        if (fullTextIndexDefs.Count > 1)
+          throw new DomainBuilderException(
+            string.Format(Strings.ExUnableToBuildFulltextIndexesForHierarchyWithInheritanceSchemaClassTable, root.Name));
+        var fullTextIndexDef = fullTextIndexDefs.First();
+        var primaryIndex = type.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
+        var name = context.NameBuilder.BuildFullTextIndexName(root);
+        var index = new FullTextIndexInfo(primaryIndex, name);
+        foreach (var pair in primaryIndex.KeyColumns)
+          index.KeyColumns.Add(pair.Key);
+        foreach (var typeColumn in fullTextIndexDef.Fields.Select(f => type.Fields[f.Name].Column))
+          index.Columns.Add(typeColumn);
+        foreach (var typeColumn in fullTextIndexDef.IncludedFields.Select(f => type.Fields[f.Name].Column))
+          index.IncludedColumns.Add(typeColumn);
+        model.FullTextIndexes.Add(type, index);
+      }
+    }
+
+    private static void BuildFullTextIndexesSingleTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
+    {
+      var context = BuildingContext.Current;
+      var model = context.Model;
+      var primaryIndex = root.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
+      var name = context.NameBuilder.BuildFullTextIndexName(root);
+      var index = new FullTextIndexInfo(primaryIndex, name);
+      foreach (var pair in primaryIndex.KeyColumns)
+        index.KeyColumns.Add(pair.Key);
+      var types = new HashSet<TypeInfo>();
+      foreach (var fullTextIndexDef in hierarchyIndexes) {
+        var type = model.Types[fullTextIndexDef.Type.UnderlyingType];
+        types.Add(type);
+        foreach (var descendant in type.GetDescendants(true))
+          types.Add(descendant);
+        foreach (var typeColumn in fullTextIndexDef.Fields.Select(f => type.Fields[f.Name].Column))
+          index.Columns.Add(typeColumn);
+        foreach (var typeColumn in fullTextIndexDef.IncludedFields.Select(f => type.Fields[f.Name].Column))
+          index.IncludedColumns.Add(typeColumn);
+      }
+      foreach (var type in types)
+        model.FullTextIndexes.Add(type, index);
+    }
+
+    private static void BuildFullTextIndexesConcreteTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
+    {
+      var context = BuildingContext.Current;
+      var model = context.Model;
+      var indexDefs = GatherFullTextIndexDefinitons(root, hierarchyIndexes);
+
+      foreach (var typeIndexDef in indexDefs) {
+        var type = typeIndexDef.Key;
+        var primaryIndex = type.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
+        var name = context.NameBuilder.BuildFullTextIndexName(root);
+        var index = new FullTextIndexInfo(primaryIndex, name);
+        foreach (var pair in primaryIndex.KeyColumns)
+          index.KeyColumns.Add(pair.Key);
+        foreach (var typeColumn in typeIndexDef.Value
+          .SelectMany(ftid => ftid.Fields.Select(f => type.Fields[f.Name].Column)))
+          index.Columns.Add(typeColumn);
+        foreach (var typeColumn in typeIndexDef.Value
+          .SelectMany(ftid => ftid.IncludedFields.Select(f => type.Fields[f.Name].Column)))
+          index.IncludedColumns.Add(typeColumn);
+        model.FullTextIndexes.Add(type, index);
+      }
+    }
+
+    private static Dictionary<TypeInfo, List<FullTextIndexDef>> GatherFullTextIndexDefinitons(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
+    {
+      var context = BuildingContext.Current;
+      var model = context.Model;
+      var processQueue = new Queue<TypeInfo>();
+      foreach (var type in root.GetDescendants())
+        processQueue.Enqueue(type);
+
+      var indexDefs = hierarchyIndexes.ToDictionary(
+        ftid => model.Types[ftid.Type.UnderlyingType],
+        ftid => new List<FullTextIndexDef>() {ftid});
+
+      while (processQueue.Count > 0) {
+        var type = processQueue.Dequeue();
+        List<FullTextIndexDef> indexes;
+        List<FullTextIndexDef> parentIndexes;
+        var typeHasIndexDef = indexDefs.TryGetValue(type, out indexes);
+        if (indexDefs.TryGetValue(type.GetAncestor(), out parentIndexes)) {
+          if (typeHasIndexDef)
+            indexes.AddRange(parentIndexes);
+          else {
+            indexes = new List<FullTextIndexDef>(parentIndexes);
+            indexDefs.Add(type, indexes);
+            typeHasIndexDef = true;
+          }
+        }
+        if (typeHasIndexDef)
+          foreach (var descendant in type.GetDescendants())
+            processQueue.Enqueue(descendant);
+      }
+      return indexDefs;
+    }
+
+
   }
 }
