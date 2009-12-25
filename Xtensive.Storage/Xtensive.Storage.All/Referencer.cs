@@ -8,7 +8,6 @@ using System;
 using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Rse;
-using Xtensive.TransactionLog.Providers.FileSystem;
 
 namespace Xtensive.Storage.All
 {
@@ -26,7 +25,6 @@ namespace Xtensive.Storage.All
       typeof (Providers.Index.Memory.DomainHandler),
       typeof (Providers.Sql.DomainHandler),
       typeof (RecordSet),
-      typeof (FileSystemLogProvider),
     };
 
 

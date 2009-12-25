@@ -13,8 +13,9 @@ namespace Xtensive.Storage.Linq.Rewriters
 {
   internal class PersistentIndexerRewriter : ExpressionVisitor
   {
-    private TranslatorContext context;
+    private readonly TranslatorContext context;
 
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
       if (binaryExpression.NodeType.In(ExpressionType.NotEqual, ExpressionType.Equal)) {
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Linq.Rewriters
         if (leftExpression!=null
           && rightExpression!=null
             && rightExpression.Type!=leftExpression.Type)
-          throw new InvalidOperationException(String.Format(Xtensive.Storage.Resources.Strings.ExBothPartsOfBinaryExpressionXAreOfTheDifferentType, binaryExpression));
+          throw new InvalidOperationException(String.Format(Resources.Strings.ExBothPartsOfBinaryExpressionXAreOfTheDifferentType, binaryExpression));
 
         if (leftExpression!=null) {
           leftExpression = leftExpression;
@@ -63,7 +64,8 @@ namespace Xtensive.Storage.Linq.Rewriters
       return e;
     }
 
-    private MemberExpression GetMemberExpression(MethodCallExpression mc)
+    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
+    private static MemberExpression GetMemberExpression(MethodCallExpression mc)
     {
       var name = (string)ExpressionEvaluator.Evaluate(mc.Arguments[0]).Value;
       var propertyInfo = mc.Object.Type.GetProperties().SingleOrDefault(property => property.Name==name);
