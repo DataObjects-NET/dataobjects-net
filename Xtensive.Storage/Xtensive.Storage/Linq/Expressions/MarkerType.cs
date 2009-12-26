@@ -13,7 +13,7 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     None = 0x0,
     First = 0x1,
-    Single = 0x3,
+    Single = 0x2,
     Default = 0x4
   }
 }

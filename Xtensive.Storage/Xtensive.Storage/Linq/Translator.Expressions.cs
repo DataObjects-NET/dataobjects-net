@@ -724,8 +724,9 @@ namespace Xtensive.Storage.Linq
         break;
       case ExtendedExpressionType.Field:
         var fieldExpression = (FieldExpression) expression;
+        if (isMarker && ((markerType & MarkerType.Single) == MarkerType.Single))
+          throw Exceptions.InternalError(String.Format("GetMember ('{0}') is incorrect on FieldExpression ('{1}') when you are using Single or SingleOrDefault.", member.Name, fieldExpression.Field.Name), Log.Instance);
         return Expression.MakeMemberAccess(expression, member);
-//        throw Exceptions.InternalError(String.Format("GetMember ('{0}') is incorrect on FieldExpression ('{1}').", member.Name, fieldExpression.Field.Name), Log.Instance);
       case ExtendedExpressionType.EntityField:
         var entityFieldExpression = (EntityFieldExpression) expression;
         result = entityFieldExpression.Fields.FirstOrDefault(propertyFilter);
