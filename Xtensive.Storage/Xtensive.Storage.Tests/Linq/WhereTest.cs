@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Tests.Linq
         query = query.Where(order => order[field.Name]==field.Value);
       }
       var result = query.ToList<Order>();
-    }
+      }
 
     [Test]
     public void ReferenceFieldConditionTest()

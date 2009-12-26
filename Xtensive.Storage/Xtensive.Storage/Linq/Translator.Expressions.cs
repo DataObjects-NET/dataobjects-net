@@ -91,9 +91,9 @@ namespace Xtensive.Storage.Linq
       case ExpressionType.Convert:
       case ExpressionType.ConvertChecked:
         if (u.GetMemberType()==MemberType.Entity) {
-          if (u.Type==u.Operand.Type 
+          if (u.Type==u.Operand.Type
             || u.Type.IsAssignableFrom(u.Operand.Type)
-            || !typeof(Entity).IsAssignableFrom(u.Operand.Type))
+              || !typeof (Entity).IsAssignableFrom(u.Operand.Type))
             return base.VisitUnary(u);
           throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
@@ -111,7 +111,9 @@ namespace Xtensive.Storage.Linq
         Expression body = Visit(le.Body);
         ParameterExpression parameter = le.Parameters[0];
         ProjectionExpression projection = context.Bindings[parameter];
-        if (body.NodeType!=ExpressionType.New && body.NodeType!=ExpressionType.MemberInit)
+        if (body.NodeType!=ExpressionType.New
+          && body.NodeType!=ExpressionType.MemberInit
+            && !(body.NodeType==ExpressionType.Constant && state.BuildingProjection))
           body = body.IsProjection()
             ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
             : ProcessProjectionElement(body);
@@ -226,7 +228,7 @@ namespace Xtensive.Storage.Linq
         return Visit(customCompiler.Invoke(mc.Object, mc.Arguments.ToArray()));
 
       // Constructing query root.
-      if (mc.Object==null && mc.Method.DeclaringType==typeof(Query)) {
+      if (mc.Object==null && mc.Method.DeclaringType==typeof (Query)) {
         if (typeof (IQueryable).IsAssignableFrom(mc.Type)) {
           Func<IQueryable> lambda = Expression.Lambda<Func<IQueryable>>(mc).CachingCompile();
           IQueryable rootPoint = lambda();
@@ -724,7 +726,7 @@ namespace Xtensive.Storage.Linq
         break;
       case ExtendedExpressionType.Field:
         var fieldExpression = (FieldExpression) expression;
-        if (isMarker && ((markerType & MarkerType.Single) == MarkerType.Single))
+        if (isMarker && ((markerType & MarkerType.Single)==MarkerType.Single))
           throw new InvalidOperationException(String.Format(Strings.ExUseMethodXOnFirstInsteadOfSingle, sourceExpression.ToString(true), member.Name));
         return Expression.MakeMemberAccess(expression, member);
       case ExtendedExpressionType.EntityField:
