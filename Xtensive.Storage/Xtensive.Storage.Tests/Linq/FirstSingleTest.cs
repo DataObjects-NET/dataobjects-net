@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -40,6 +41,7 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    [ExpectedException(typeof(TranslationException))]
     public void Length3Test()
     {
       var customers = Query.All<Customer>()

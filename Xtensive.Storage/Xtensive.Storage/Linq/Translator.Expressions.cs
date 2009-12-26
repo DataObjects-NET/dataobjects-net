@@ -215,7 +215,7 @@ namespace Xtensive.Storage.Linq
         state.BuildingProjection = false;
         source = Visit(ma.Expression);
       }
-      Expression result = GetMember(source, ma.Member);
+      Expression result = GetMember(source, ma.Member, ma);
       return result ?? base.VisitMemberAccess(ma);
     }
 
@@ -672,7 +672,7 @@ namespace Xtensive.Storage.Linq
     }
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
-    private Expression GetMember(Expression expression, MemberInfo member)
+    private Expression GetMember(Expression expression, MemberInfo member, Expression sourceExpression)
     {
       MarkerType markerType;
       expression = expression.StripCasts();
@@ -725,7 +725,7 @@ namespace Xtensive.Storage.Linq
       case ExtendedExpressionType.Field:
         var fieldExpression = (FieldExpression) expression;
         if (isMarker && ((markerType & MarkerType.Single) == MarkerType.Single))
-          throw Exceptions.InternalError(String.Format("GetMember ('{0}') is incorrect on FieldExpression ('{1}') when you are using Single or SingleOrDefault.", member.Name, fieldExpression.Field.Name), Log.Instance);
+          throw new InvalidOperationException(String.Format(Strings.ExUseMethodXOnFirstInsteadOfSingle, sourceExpression.ToString(true), member.Name));
         return Expression.MakeMemberAccess(expression, member);
       case ExtendedExpressionType.EntityField:
         var entityFieldExpression = (EntityFieldExpression) expression;
