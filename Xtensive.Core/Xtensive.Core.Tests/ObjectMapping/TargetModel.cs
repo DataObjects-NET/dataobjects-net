@@ -111,14 +111,45 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
     }
   }
 
-  public class CatDto : AnimalDto
+  public class CreatureDto
   {
-    public int Age { get; set; }
+    public Guid Id { get; set; }
+
+    public string Name { get; set; }
   }
 
-  public class SpiderDto : AnimalDto
+  public class InsectDto : CreatureDto
   {
-    public int LegCount { get; set; }
+    public int LegPairCount { get; set; }
+  }
+
+  public class FlyingInsectDto : InsectDto
+  {
+    public int WingPairCount { get; set; }
+  }
+
+  public class LongBeeDto : FlyingInsectDto
+  {
+    public int StripCount { get; set; }
+
+    public double Length { get; set; }
+  }
+
+  public class MammalDto : CreatureDto
+  {
+    public bool HasHair { get; set; }
+
+    public string Color { get; set; }
+  }
+
+  public class CatDto : MammalDto
+  {
+    public string Breed { get; set; }
+  }
+
+  public class DolphinDto : MammalDto
+  {
+    public string OceanAreal { get; set; }
   }
 
   public class IgnorableDto : ICloneable

@@ -1421,6 +1421,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The type {0} isn&apos;t a subclass of the type {1}..
+        /// </summary>
+        internal static string ExTypeXIsNotSubclassOfTypeY {
+            get {
+                return ResourceManager.GetString("ExTypeXIsNotSubclassOfTypeY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; must be non-abstract type..
         /// </summary>
         internal static string ExTypeXMustBeNonAbstractType {

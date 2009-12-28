@@ -24,7 +24,7 @@ namespace Xtensive.Core.ObjectMapping
     /// It may contain the access to a target property or an arbitrary delegate.</param>
     /// <param name="target">The target property's expression.</param>
     /// <returns><see langword="this" /></returns>
-    IMappingBuilderAdapter<TSource, TTarget> Map<TValue>(Expression<Func<TSource, TValue>> source,
+    IMappingBuilderAdapter<TSource, TTarget> MapProperty<TValue>(Expression<Func<TSource, TValue>> source,
       Expression<Func<TTarget, TValue>> target);
 
     /// <summary>
@@ -42,6 +42,17 @@ namespace Xtensive.Core.ObjectMapping
     /// <param name="target">The target property's expression.</param>
     /// <returns><see langword="this" /></returns>
     IMappingBuilderAdapter<TSource, TTarget> Immutable<TValue>(Expression<Func<TTarget, TValue>> target);
+
+    /// <summary>
+    /// Registers mapping from the <typeparamref name="THeirSource"/>
+    /// to the <typeparamref name="THeirTarget"/>.
+    /// </summary>
+    /// <typeparam name="TTargetBase">The ancestor of the <typeparamref name="THeirTarget"/>.</typeparam>
+    /// <typeparam name="THeirSource">The source type.</typeparam>
+    /// <typeparam name="THeirTarget">The target type.</typeparam>
+    /// <returns>A new instance of helper class.</returns>
+    IMappingBuilderAdapter<THeirSource, THeirTarget> Inherit<TTargetBase, THeirSource, THeirTarget>()
+      where THeirTarget: TTargetBase;
 
     /// <summary>
     /// Completes creation of the mapping.

@@ -13,6 +13,9 @@ using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping.Model
 {
+  /// <summary>
+  /// Description of a mapping.
+  /// </summary>
   [Serializable]
   public sealed class MappingDescription : LockableBase
   {
@@ -21,11 +24,85 @@ namespace Xtensive.Core.ObjectMapping.Model
     private readonly Dictionary<Type, SourceTypeDescription> sourceTypes =
       new Dictionary<Type, SourceTypeDescription>();
 
+    /// <summary>
+    /// Gets the target types.
+    /// </summary>
     public ReadOnlyDictionary<Type, TargetTypeDescription> TargetTypes { get; private set; }
 
+    /// <summary>
+    /// Gets the source types.
+    /// </summary>
     public ReadOnlyDictionary<Type, SourceTypeDescription> SourceTypes { get; private set; }
 
-    public void Register(Type source, Func<object, object> sourceKeyExtractor, Type target,
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      if (IsLocked)
+        return;
+      foreach (var type in sourceTypes)
+        type.Value.Lock(true);
+      foreach (var type in targetTypes)
+        type.Value.Lock(true);
+      base.Lock(recursive);
+    }
+
+    /// <summary>
+    /// Gets the target type corresponding to <paramref name="sourceType"/>.
+    /// </summary>
+    /// <param name="sourceType">The source type.</param>
+    /// <returns>The description of the target type.</returns>
+    public TargetTypeDescription GetMappedTargetType(Type sourceType)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(sourceType, "sourceType");
+      SourceTypeDescription description;
+      if (!sourceTypes.TryGetValue(sourceType, out description))
+        ThrowTypeHasNotBeenRegistered(sourceType);
+      return description.TargetType;
+    }
+
+    /// <summary>
+    /// Gets the source type corresponding to <paramref name="targetType"/>.
+    /// </summary>
+    /// <param name="targetType">The source type.</param>
+    /// <returns>The description of the source type.</returns>
+    public SourceTypeDescription GetMappedSourceType(Type targetType)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(targetType, "targetType");
+      TargetTypeDescription description;
+      if (!targetTypes.TryGetValue(targetType, out description))
+        ThrowTypeHasNotBeenRegistered(targetType);
+      return description.SourceType;
+    }
+
+    /// <summary>
+    /// Extracts a key from an object of a target type.
+    /// </summary>
+    /// <param name="target">The object of the target type.</param>
+    /// <returns>The extracted key.</returns>
+    public object ExtractTargetKey(object target)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      var type = target.GetType();
+      EnsureTargetTypeIsRegistered(type);
+      return targetTypes[type].KeyExtractor.Invoke(target);
+    }
+
+    /// <summary>
+    /// Extracts a key from an object of a source type.
+    /// </summary>
+    /// <param name="source">The object of the source type.</param>
+    /// <returns>The extracted key.</returns>
+    public object ExtractSourceKey(object source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      var type = source.GetType();
+      EnsureSourceTypeIsRegistered(type);
+      return sourceTypes[type].KeyExtractor.Invoke(source);
+    }
+
+    #region Private / internal methods
+
+    internal void Register(Type source, Func<object, object> sourceKeyExtractor, Type target,
       Func<object, object> targetKeyExtractor)
     {
       this.EnsureNotLocked();
@@ -43,7 +120,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       targetTypes.Add(target, targetDesc);
     }
 
-    public void Register(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
+    internal void Register(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
     {
       this.EnsureNotLocked();
       var targetType = targetTypes[target.ReflectedType];
@@ -54,7 +131,17 @@ namespace Xtensive.Core.ObjectMapping.Model
       targetType.AddProperty(propertyDesc);
     }
 
-    public void MarkPropertyAsIgnored(PropertyInfo propertyInfo)
+    internal void Register(PropertyInfo source,
+      Action<object, SourcePropertyDescription, object, TargetPropertyDescription> converter,
+      PropertyInfo target)
+    {
+      this.EnsureNotLocked();
+      var targetType = targetTypes[target.ReflectedType];
+      var propertyDesc = new TargetPropertyDescription(target, targetType) { Converter = converter };
+      targetType.AddProperty(propertyDesc);
+    }
+
+    internal void MarkPropertyAsIgnored(PropertyInfo propertyInfo)
     {
       this.EnsureNotLocked();
       var targetType = targetTypes[propertyInfo.ReflectedType];
@@ -66,7 +153,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       ((TargetPropertyDescription) propertyDescription).IsIgnored = true;
     }
 
-    public void MarkPropertyAsImmutable(PropertyInfo propertyInfo)
+    internal void MarkPropertyAsImmutable(PropertyInfo propertyInfo)
     {
       this.EnsureNotLocked();
       var targetType = targetTypes[propertyInfo.ReflectedType];
@@ -76,45 +163,6 @@ namespace Xtensive.Core.ObjectMapping.Model
         targetType.AddProperty((TargetPropertyDescription) propertyDescription);
       }
       ((TargetPropertyDescription) propertyDescription).IsImmutable = true;
-    }
-
-    public override void Lock(bool recursive)
-    {
-      foreach (var type in sourceTypes)
-        type.Value.Lock(true);
-      foreach (var type in targetTypes)
-        type.Value.Lock(true);
-      base.Lock(recursive);
-    }
-
-    public TargetTypeDescription GetMappedTargetType(Type sourceType)
-    {
-      SourceTypeDescription description;
-      if (!sourceTypes.TryGetValue(sourceType, out description))
-        ThrowTypeHasNotBeenRegistered(sourceType);
-      return description.TargetType;
-    }
-
-    public SourceTypeDescription GetMappedSourceType(Type targetType)
-    {
-      TargetTypeDescription description;
-      if (!targetTypes.TryGetValue(targetType, out description))
-        ThrowTypeHasNotBeenRegistered(targetType);
-      return description.SourceType;
-    }
-
-    public object ExtractTargetKey(object target)
-    {
-      var type = target.GetType();
-      EnsureTargetTypeIsRegistered(type);
-      return targetTypes[type].KeyExtractor.Invoke(target);
-    }
-
-    public object ExtractSourceKey(object source)
-    {
-      var type = source.GetType();
-      EnsureSourceTypeIsRegistered(type);
-      return sourceTypes[type].KeyExtractor.Invoke(source);
     }
 
     internal void EnsureTargetTypeIsRegistered(Type targetType)
@@ -135,10 +183,12 @@ namespace Xtensive.Core.ObjectMapping.Model
         type.FullName));
     }
 
+    #endregion
+
 
     // Constructor
 
-    public MappingDescription()
+    internal MappingDescription()
     {
       SourceTypes = new ReadOnlyDictionary<Type, SourceTypeDescription>(sourceTypes, false);
       TargetTypes = new ReadOnlyDictionary<Type, TargetTypeDescription>(targetTypes, false);

@@ -20,6 +20,9 @@ namespace Xtensive.Core.Tests.ObjectMapping
   [TestFixture]
   public sealed class MapperTests
   {
+    private const string inherited = "Inherited";
+    private const string inheritedFromMammal = "InheritedFromMammal";
+    private const string inheritedFlyingInsect = "InheritedFlyingInsect";
     private PropertyInfo petsProperty;
     private PropertyInfo customerProperty;
     private PropertyInfo firstNameProperty;
@@ -221,6 +224,14 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Assert.AreEqual(2, eventRaisingCount);
       Assert.IsTrue(personCreated);
       Assert.IsTrue(orderCreated);
+    }
+
+    [Test]
+    public void ComparisonWhenBothOfGraphRootsAreNullTest()
+    {
+      var mapper = GetPersonOrderMapper();
+      var operations = mapper.Compare(null, null);
+      Assert.IsTrue(operations.IsEmpty);
     }
 
     [Test]
@@ -565,6 +576,96 @@ namespace Xtensive.Core.Tests.ObjectMapping
       ValidateObjectRemoval(original, operations.Skip(8).Single());
     }
 
+    [Test]
+    public void InheritedPropertyConverterMappingTest()
+    {
+      var mapper = GetCreatureHeirsMapperWithCustomConverters();
+      var source = GetSourceCreatures();
+      var target = ((List<object>) mapper.Transform(source)).Cast<CreatureDto>().ToList();
+      Assert.AreEqual(source.Count, target.Count);
+      for (var i = 0; i < target.Count; i++) {
+        Assert.AreEqual(source[i].Id, target[i].Id);
+        if (typeof (Mammal).IsAssignableFrom(source[i].GetType()))
+          Assert.AreEqual(source[i].Name + inheritedFromMammal, target[i].Name);
+        else if (typeof (FlyingInsect).IsAssignableFrom(source[i].GetType()))
+          Assert.AreEqual(source[i].Name + inheritedFlyingInsect, target[i].Name);
+        else
+          Assert.AreEqual(source[i].Name + inherited, target[i].Name);
+      }
+      var sourceMammal = (Mammal) source[0];
+      var targetMammal = (MammalDto) target[0];
+      Assert.AreEqual(sourceMammal.Color, targetMammal.Color);
+      Assert.AreEqual(sourceMammal.HasHair, targetMammal.HasHair);
+      var sourceInsect = (Insect) source[1];
+      var targetInsect = (InsectDto) target[1];
+      Assert.AreEqual(sourceInsect.LegPairCount, targetInsect.LegPairCount);
+      var sourceFlyingInsect = (FlyingInsect) source[3];
+      var targetFlyingInsect = (FlyingInsectDto) target[3];
+      Assert.AreEqual(sourceFlyingInsect.LegPairCount, targetFlyingInsect.LegPairCount);
+      Assert.AreEqual(sourceFlyingInsect.WingPairCount, targetFlyingInsect.WingPairCount);
+      var sourceLongBee = (LongBee) source[4];
+      var targetLongBee = (LongBeeDto) target[4];
+      Assert.AreEqual(sourceLongBee.LegPairCount, targetLongBee.LegPairCount);
+      Assert.AreEqual(sourceLongBee.WingPairCount, targetLongBee.WingPairCount);
+      Assert.AreEqual(sourceLongBee.Length, targetLongBee.Length);
+      Assert.AreEqual(sourceLongBee.StripCount, targetLongBee.StripCount);
+      var sourceCat = (Cat) source[5];
+      var targetCat = (CatDto) target[5];
+      Assert.AreEqual(sourceCat.Breed, targetCat.Breed);
+      Assert.AreEqual(sourceCat.Color, targetCat.Color);
+      Assert.AreEqual(sourceCat.HasHair, targetCat.HasHair);
+      var sourceDolphin = (Dolphin) source[6];
+      var targetDolphin = (DolphinDto) target[6];
+      Assert.AreEqual(sourceDolphin.Color, targetDolphin.Color);
+      Assert.AreEqual(sourceDolphin.HasHair, targetDolphin.HasHair);
+      Assert.AreEqual(sourceDolphin.OceanAreal, targetDolphin.OceanAreal);
+    }
+
+    [Test]
+    public void InheritedPropertyAttributesModelBuildingTest()
+    {
+      var mapper = GetCreatureHeirsMapperWithAttributes();
+      var model = mapper.MappingDescription;
+      Func<Type, TargetPropertyDescription> namePropertyGetter =
+        type => (TargetPropertyDescription) model.TargetTypes[type].Properties[type.GetProperty("Name")];
+      Func<Type, TargetPropertyDescription> legPairCountPropertyGetter =
+        type => (TargetPropertyDescription) model.TargetTypes[type]
+          .Properties[type.GetProperty("LegPairCount")];
+      
+      var creatureDtoType = typeof (CreatureDto);
+      var namePropertyDescription = namePropertyGetter.Invoke(creatureDtoType);
+      Assert.IsFalse(namePropertyDescription.IsIgnored);
+      Assert.IsTrue(namePropertyDescription.IsImmutable);
+      var mammalDtoType = typeof (MammalDto);
+      namePropertyDescription = namePropertyGetter.Invoke(mammalDtoType);
+      Assert.IsTrue(namePropertyDescription.IsIgnored);
+      Assert.IsFalse(namePropertyDescription.IsImmutable);
+      namePropertyDescription = namePropertyGetter.Invoke(typeof (CatDto));
+      Assert.IsTrue(namePropertyDescription.IsIgnored);
+      Assert.IsFalse(namePropertyDescription.IsImmutable);
+      namePropertyDescription = namePropertyGetter.Invoke(typeof (DolphinDto));
+      Assert.IsTrue(namePropertyDescription.IsIgnored);
+      Assert.IsFalse(namePropertyDescription.IsImmutable);
+      namePropertyDescription = namePropertyGetter.Invoke(typeof (InsectDto));
+      Assert.IsFalse(namePropertyDescription.IsIgnored);
+      Assert.IsTrue(namePropertyDescription.IsImmutable);
+      namePropertyDescription = namePropertyGetter.Invoke(typeof (FlyingInsectDto));
+      Assert.IsFalse(namePropertyDescription.IsIgnored);
+      Assert.IsTrue(namePropertyDescription.IsImmutable);
+      namePropertyDescription = namePropertyGetter.Invoke(typeof (LongBeeDto));
+      Assert.IsFalse(namePropertyDescription.IsIgnored);
+      Assert.IsTrue(namePropertyDescription.IsImmutable);
+      var legPairCountPropertyDescription = legPairCountPropertyGetter.Invoke(typeof (InsectDto));
+      Assert.IsFalse(legPairCountPropertyDescription.IsIgnored);
+      Assert.IsTrue(legPairCountPropertyDescription.IsImmutable);
+      legPairCountPropertyDescription = legPairCountPropertyGetter.Invoke(typeof (FlyingInsectDto));
+      Assert.IsFalse(legPairCountPropertyDescription.IsIgnored);
+      Assert.IsTrue(legPairCountPropertyDescription.IsImmutable);
+      legPairCountPropertyDescription = legPairCountPropertyGetter.Invoke(typeof (LongBeeDto));
+      Assert.IsFalse(legPairCountPropertyDescription.IsIgnored);
+      Assert.IsTrue(legPairCountPropertyDescription.IsImmutable);
+    }
+    
     private static void ValidateCollectionComparison(DefaultMapper mapper, PetOwnerDto original,
       PetOwnerDto modified, AnimalDto newAnimal, AnimalDto removedAnimal0, AnimalDto removedAnimal1)
     {
@@ -700,7 +801,8 @@ namespace Xtensive.Core.Tests.ObjectMapping
     private static DefaultMapper GetPersonOrderMapper()
     {
       var result = new DefaultMapper();
-      result.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
+      result
+        .MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
         .MapType<Order, OrderDto, String>(o => o.Id.ToString(), o => o.Id).Complete();
       return result;
     }
@@ -709,10 +811,10 @@ namespace Xtensive.Core.Tests.ObjectMapping
     {
       var result = new DefaultMapper();
       result.MapType<Author, AuthorDto, Guid>(a => a.Id, a => a.Id)
-          .Map(a => a.Name + "!!!", a => a.Name)
+          .MapProperty(a => a.Name + "!!!", a => a.Name)
         .MapType<Book, BookDto, string>(b => b.ISBN, b => b.ISBN)
-          .Map(b => b.Title.Text, b => b.TitleText)
-          .Map(b => new TitleDto {Id = b.Title.Id, Text = b.Title.Text}, b => b.Title)
+          .MapProperty(b => b.Title.Text, b => b.TitleText)
+          .MapProperty(b => new TitleDto {Id = b.Title.Id, Text = b.Title.Text}, b => b.Title)
         .MapType<Title, TitleDto, Guid>(t => t.Id, t => t.Id).Complete();
       return result;
     }
@@ -731,6 +833,38 @@ namespace Xtensive.Core.Tests.ObjectMapping
       result.MapType<Ignorable, IgnorableDto, Guid>(i => i.Id, i => i.Id)
         .Ignore(i => i.Auxiliary).Ignore(i => i.Ignored).Ignore(i => i.IgnoredReference)
         .MapType<IgnorableSubordinate, IgnorableSubordinateDto, Guid>(s => s.Id, s => s.Id).Complete();
+      return result;
+    }
+
+    private static DefaultMapper GetCreatureHeirsMapperWithCustomConverters()
+    {
+      var result = new DefaultMapper();
+      result.MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
+          .MapProperty(c => c.Name + inherited, c => c.Name)
+        .MapType<Insect, InsectDto, Guid>(i => i.Id, i => i.Id)
+        .Inherit<InsectDto, LongBee, LongBeeDto>()
+        .MapType<FlyingInsect, FlyingInsectDto, Guid>(f => f.Id, f => f.Id)
+          .MapProperty(f => f.Name + inheritedFlyingInsect, f => f.Name)
+        .MapType<Mammal, MammalDto, Guid>(m => m.Id, m => m.Id)
+          .MapProperty(m => m.Name + inheritedFromMammal, m => m.Name)
+        .Inherit<MammalDto, Cat, CatDto>()
+        .Inherit<MammalDto, Dolphin, DolphinDto>().Complete();
+      return result;
+    }
+
+    private static DefaultMapper GetCreatureHeirsMapperWithAttributes()
+    {
+      var result = new DefaultMapper();
+      result.MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
+          .MapProperty(c => c.Name + inherited, c => c.Name)
+        .MapType<Insect, InsectDto, Guid>(i => i.Id, i => i.Id)
+          .Immutable(i => i.LegPairCount)
+        .Inherit<InsectDto, LongBee, LongBeeDto>()
+        .MapType<FlyingInsect, FlyingInsectDto, Guid>(f => f.Id, f => f.Id)
+        .MapType<Mammal, MammalDto, Guid>(m => m.Id, m => m.Id)
+          .Ignore(m => m.Name)
+        .Inherit<MammalDto, Cat, CatDto>()
+        .Inherit<MammalDto, Dolphin, DolphinDto>().Complete();
       return result;
     }
 
@@ -786,6 +920,19 @@ namespace Xtensive.Core.Tests.ObjectMapping
         Id = Guid.NewGuid(), Ignored = "I", IgnoredReference = ignoredSubordinate,
         IncludedReference = includedSubordinate
       };
+    }
+
+    private static List<Creature> GetSourceCreatures()
+    {
+      var result = new List<Creature>();
+      result.Add(new Mammal {Color = "Green", Name = "A"});
+      result.Add(new Insect {LegPairCount = 3, Name = "B"});
+      result.Add(new Creature {Name = "C"});
+      result.Add(new FlyingInsect {LegPairCount = 2, Name = "IA"});
+      result.Add(new LongBee {Length = 1, Name = "IB", StripCount = 3});
+      result.Add(new Cat {Breed = "Siam", HasHair = true});
+      result.Add(new Dolphin {Color = "Grey", OceanAreal = "Pacific", HasHair = false});
+      return result;
     }
     
     private static void AssertAreEqual(Person source, PersonDto target)

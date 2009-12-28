@@ -173,9 +173,10 @@ namespace Xtensive.Core.ObjectMapping.Model
     static PropertyDescription()
     {
       primitiveTypes = new HashSet<Type> {
-        typeof (Int16), typeof (Int32), typeof (Int64), typeof (Byte), typeof (UInt16), typeof (UInt32),
-        typeof (UInt64), typeof(Guid), typeof (Byte), typeof (Char), typeof (String), typeof (Decimal),
-        typeof (Single), typeof (Double), typeof (DateTime), typeof (TimeSpan), typeof (DateTimeOffset)
+        typeof (Boolean), typeof (Int16), typeof (Int32), typeof (Int64), typeof (Byte), typeof (UInt16),
+        typeof (UInt32), typeof (UInt64), typeof(Guid), typeof (Byte), typeof (Char), typeof (String),
+        typeof (Decimal), typeof (Single), typeof (Double), typeof (DateTime), typeof (TimeSpan),
+        typeof (DateTimeOffset)
       };
     }
   }

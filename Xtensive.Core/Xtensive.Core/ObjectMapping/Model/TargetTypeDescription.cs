@@ -23,6 +23,8 @@ namespace Xtensive.Core.ObjectMapping.Model
   public sealed class TargetTypeDescription : TypeDescription
   {
     private SourceTypeDescription sourceType;
+    private HashSet<TargetTypeDescription> directDescendants;
+    private TargetTypeDescription ancestor;
 
     /// <summary>
     /// Gets the corresponding source type.
@@ -45,6 +47,24 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// Gets the collection of complex properties.
     /// </summary>
     public ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription> ComplexProperties { get; private set; }
+
+    /// <summary>
+    /// Gets direct descendants.
+    /// </summary>
+    public ReadOnlyCollection<TargetTypeDescription> DirectDescendants { get; private set; }
+
+    /// <summary>
+    /// Gets the ancestor.
+    /// </summary>
+    public TargetTypeDescription Ancestor {
+      get { return ancestor; }
+      internal set {
+        this.EnsureNotLocked();
+        if (ancestor != null)
+          throw Exceptions.AlreadyInitialized("Ancestor");
+        ancestor = value;
+      }
+    }
 
     /// <inheritdoc/>
     public new TargetPropertyDescription GetProperty(PropertyInfo propertyInfo)
@@ -77,6 +97,17 @@ namespace Xtensive.Core.ObjectMapping.Model
       ComplexProperties =
         new ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription>(complexProperties, false);
       base.Lock(recursive);
+    }
+
+    internal void AddDirectDescendant(TargetTypeDescription descendant)
+    {
+      this.EnsureNotLocked();
+      if (directDescendants == null) {
+        directDescendants = new HashSet<TargetTypeDescription>();
+        DirectDescendants = new ReadOnlyCollection<TargetTypeDescription>(directDescendants, false);
+      }
+      descendant.Ancestor = this;
+      directDescendants.Add(descendant);
     }
 
 

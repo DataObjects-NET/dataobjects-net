@@ -80,14 +80,50 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
     }
   }
 
-  public class Cat : Animal
+  public class Creature
   {
-    public int Age { get; set; }
+    public Guid Id { get; private set; }
+
+    public string Name { get; set; }
+
+    public Creature()
+    {
+      Id = Guid.NewGuid();
+    }
   }
 
-  public class Spider : Animal
+  public class Insect : Creature
   {
-    public int LegCount { get; set; }
+    public int LegPairCount { get; set; }
+  }
+
+  public class FlyingInsect : Insect
+  {
+    public int WingPairCount { get; set; }
+  }
+
+  public class LongBee : FlyingInsect
+  {
+    public int StripCount { get; set; }
+
+    public double Length { get; set; }
+  }
+
+  public class Mammal : Creature
+  {
+    public bool HasHair { get; set; }
+
+    public string Color { get; set; }
+  }
+
+  public class Cat : Mammal
+  {
+    public string Breed { get; set; }
+  }
+
+  public class Dolphin : Mammal
+  {
+    public string OceanAreal { get; set; }
   }
 
   public class Ignorable

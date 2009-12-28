@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
@@ -39,6 +40,18 @@ namespace Xtensive.Core.ObjectMapping
         MarkPropertyAsImmutable(target);
     }
 
+    public void RegisterHeir(Type targetBase, Type source, Type target)
+    {
+      mappingDescription.EnsureTargetTypeIsRegistered(targetBase);
+      var targetBaseDescription = mappingDescription.TargetTypes[targetBase];
+      if (!targetBaseDescription.SourceType.SystemType.IsAssignableFrom(source))
+        throw new ArgumentException(String.Format(Strings.ExTypeXIsNotSubclassOfTypeY, source,
+          targetBaseDescription.SourceType.SystemType));
+      mappingDescription.Register(source, targetBaseDescription.SourceType.KeyExtractor, target,
+        targetBaseDescription.KeyExtractor);
+      var targetDescription = mappingDescription.TargetTypes[target];
+    }
+
     public void MarkPropertyAsIgnored(PropertyInfo propertyInfo)
     {
       mappingDescription.MarkPropertyAsIgnored(propertyInfo);
@@ -52,12 +65,74 @@ namespace Xtensive.Core.ObjectMapping
     public MappingDescription Build()
     {
       mappingDescription.EnsureNotLocked();
+      BindHierarchies();
       BuildSourceDescriptions();
       BuildTargetDescriptions();
       mappingDescription.Lock(true);
       var modelValidator = new ModelValidator();
       modelValidator.Validate(mappingDescription);
       return mappingDescription;
+    }
+
+    #region Private / internal methods
+
+    private void BindHierarchies()
+    {
+      var roots = GetHierarchies();
+      BindHierarchy(roots);
+    }
+
+    private List<TargetTypeDescription> GetHierarchies()
+    {
+      var result = new List<TargetTypeDescription>();
+      foreach (var type in mappingDescription.TargetTypes.Values) {
+        var ancestor = type.SystemType.BaseType;
+        while (true) {
+          if (ancestor==typeof (object)) {
+            result.Add(type);
+            break;
+          }
+          TargetTypeDescription ancestorDescription;
+          if (mappingDescription.TargetTypes.TryGetValue(ancestor, out ancestorDescription)) {
+            ancestorDescription.AddDirectDescendant(type);
+            break;
+          }
+          ancestor = ancestor.BaseType;
+        }
+      }
+      return result;
+    }
+
+    private void BindHierarchy(IEnumerable<TargetTypeDescription> ancestors)
+    {
+      foreach (var ancestor in ancestors) {
+        var directDescendants = ancestor.DirectDescendants;
+        if (directDescendants == null)
+          continue;
+        foreach (var descendant in directDescendants)
+          InheritProperties(ancestor, descendant);
+        BindHierarchy(directDescendants);
+      }
+    }
+
+    private void InheritProperties(TargetTypeDescription ancestor, TargetTypeDescription descendant)
+    {
+      foreach (var property in ancestor.Properties.Values.Cast<TargetPropertyDescription>()) {
+        var descendantSystemProperty = descendant.SystemType.GetProperty(property.SystemProperty.Name);
+        if (descendant.Properties.ContainsKey(descendantSystemProperty))
+          continue;
+        if (property.Converter!=null) {
+          PropertyInfo sourceSystemProperty = null;
+          if (property.SourceProperty!=null)
+            sourceSystemProperty = descendant.SourceType.SystemType
+              .GetProperty(property.SourceProperty.SystemProperty.Name);
+          mappingDescription.Register(sourceSystemProperty, property.Converter, descendantSystemProperty);
+        }
+        if (property.IsIgnored)
+          mappingDescription.MarkPropertyAsIgnored(descendantSystemProperty);
+        if (property.IsImmutable)
+          mappingDescription.MarkPropertyAsImmutable(descendantSystemProperty);
+      }
     }
 
     private void BuildTargetDescriptions()
@@ -110,5 +185,7 @@ namespace Xtensive.Core.ObjectMapping
         }
       }
     }
+
+    #endregion
   }
 }

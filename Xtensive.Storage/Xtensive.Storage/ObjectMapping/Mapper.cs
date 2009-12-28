@@ -12,6 +12,9 @@ using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage.ObjectMapping
 {
+  /// <summary>
+  /// The O2O-mapper.
+  /// </summary>
   public sealed class Mapper : MapperBase
   {
     private OperationSet comparisonResult;

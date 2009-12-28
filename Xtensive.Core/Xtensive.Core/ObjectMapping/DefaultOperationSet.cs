@@ -11,6 +11,9 @@ using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.ObjectMapping
 {
+  /// <summary>
+  /// Default implementation of <see cref="IOperationSet"/>.
+  /// </summary>
   [Serializable]
   public sealed class DefaultOperationSet : LockableBase,
     IOperationSet,
@@ -18,24 +21,32 @@ namespace Xtensive.Core.ObjectMapping
   {
     private readonly List<OperationInfo> descriptors = new List<OperationInfo>();
 
+    /// <inheritdoc/>
     public bool IsEmpty { get { return descriptors.Count==0; } }
 
+    /// <inheritdoc/>
     public void Apply()
     {
       throw new NotImplementedException();
     }
 
-    public void Add(OperationInfo descriptor)
+    /// <summary>
+    /// Adds the specified operation.
+    /// </summary>
+    /// <param name="operation">The operation.</param>
+    public void Add(OperationInfo operation)
     {
       this.EnsureNotLocked();
-      descriptors.Add(descriptor);
+      descriptors.Add(operation);
     }
 
+    /// <inheritdoc/>
     public IEnumerator<OperationInfo> GetEnumerator()
     {
       return descriptors.GetEnumerator();
     }
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();

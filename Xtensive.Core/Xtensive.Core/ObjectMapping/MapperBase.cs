@@ -33,6 +33,8 @@ namespace Xtensive.Core.ObjectMapping
     public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
       Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor)
     {
+      ArgumentValidator.EnsureArgumentNotNull(sourceKeyExtractor, "sourceKeyExtractor");
+      ArgumentValidator.EnsureArgumentNotNull(targetKeyExtractor, "targetKeyExtractor");
       var compiledTargetKeyExtractor = targetKeyExtractor.CachingCompile();
       PropertyInfo targetProperty;
       var isPropertyExtracted = MappingHelper.TryExtractProperty(targetKeyExtractor, "targetKeyExtractor",
@@ -79,7 +81,7 @@ namespace Xtensive.Core.ObjectMapping
     protected abstract void OnObjectModified(OperationInfo descriptor);
 
     /// <summary>
-    /// Initializes a comparison process.
+    /// Initializes comparison process.
     /// </summary>
     /// <param name="originalTarget">The original object graph.</param>
     /// <param name="modifiedTarget">The modified object graph.</param>

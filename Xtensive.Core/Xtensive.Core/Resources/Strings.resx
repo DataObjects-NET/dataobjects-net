@@ -720,4 +720,7 @@
   <data name="ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive" xml:space="preserve">
     <value>The primitive property {0} is bound to the property {1} that isn't primitive.</value>
   </data>
+  <data name="ExTypeXIsNotSubclassOfTypeY" xml:space="preserve">
+    <value>The type {0} isn't a subclass of the type {1}.</value>
+  </data>
 </root>

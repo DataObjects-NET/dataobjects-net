@@ -12,7 +12,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
@@ -85,7 +84,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       Func<IEnumerable<TItem>, IEnumerable<TItem>> nestedPrefetcher)
     {
       Prefetch(expression, (int?) null);
-      RegisterPrefetchMany(expression.CachingCompile(), nestedPrefetcher);
+      RegisterPrefetchMany(expression.Compile(), nestedPrefetcher);
       return this;
     }
 
