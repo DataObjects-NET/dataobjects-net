@@ -12,6 +12,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
+using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
@@ -211,6 +212,14 @@ namespace Xtensive.Storage.Upgrade
       var defaultValue = !column.IsNullable && originalType.IsValueType
         ? Activator.CreateInstance(originalType)
         : null;
+
+      if (column.IsSystem && column.Field.IsTypeId) {
+        var type = column.Field.ReflectedType;
+        if (type.IsEntity && type == type.Hierarchy.Root) {
+          var context = BuildingContext.Demand();
+          defaultValue = context.BuilderConfiguration.TypeIdProvider(type.UnderlyingType);
+        }
+      }
 
       return new ColumnInfo(CurrentTable, column.Name, storageTypeInfo) {
         DefaultValue = defaultValue,

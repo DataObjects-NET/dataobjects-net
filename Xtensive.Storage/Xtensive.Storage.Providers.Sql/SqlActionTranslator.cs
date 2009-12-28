@@ -357,6 +357,8 @@ namespace Xtensive.Storage.Providers.Sql
         return;
       
       var column = CreateColumn(columnInfo, table);
+      if (columnInfo.DefaultValue != null)
+        column.DefaultValue = SqlDml.Literal(columnInfo.DefaultValue);
       RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddColumn(column)));
     }
 

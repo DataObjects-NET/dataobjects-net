@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade.Model2
+namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade.Model
 {
   [HierarchyRoot]
   public class Person : Entity

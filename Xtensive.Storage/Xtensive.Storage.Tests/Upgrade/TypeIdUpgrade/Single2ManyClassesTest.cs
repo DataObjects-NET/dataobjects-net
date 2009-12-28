@@ -17,12 +17,12 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(Model1.Person));
+      configuration.Types.Register(typeof(Model.Person));
       var domain = Domain.Build(configuration);
 
       using (Session.Open(domain))
       using (var t = Transaction.Open()) {
-        var person = new Model1.Person() {
+        var person = new Model.Person() {
                        FirstName = "Alex", LastName = "Kochetov"
                      };
         t.Complete();
@@ -30,20 +30,24 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
 
       configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
-      configuration.Types.Register(typeof(Model2.Person));
-      configuration.Types.Register(typeof(Model2.Employee));
+      configuration.Types.Register(typeof(Model.Person));
+      configuration.Types.Register(typeof(Model.Employee));
       domain = Domain.Build(configuration);
 
       using (Session.Open(domain))
       using (var t = Transaction.Open()) {
-        var person = new Model2.Person() {
+        var person = new Model.Person() {
                        FirstName = "Alex", LastName = "Gamzov"
                      };
-        var employee = new Model2.Employee() {
+        var employee = new Model.Employee() {
                          FirstName = "Dmitri", LastName = "Maximov"
                        };
-        var count = Query.All<Model2.Person>().Count();
+        var count = Query.All<Model.Person>().Count();
         Assert.AreEqual(3, count);
+        var list = Query.All<Model.Person>().ToList();
+        Assert.AreEqual(3, list.Count);
+        foreach (var item in list)
+          Assert.IsNotNull(item);
         t.Complete();
       }
     }
