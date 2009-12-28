@@ -1,0 +1,24 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexis Kochetov
+// Created:    2009.12.28
+
+using System;
+using System.Diagnostics;
+
+namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade.Model1
+{
+  [HierarchyRoot]
+  public class Person : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
+
+    [Field]
+    public string FirstName { get; set; }
+
+    [Field]
+    public string LastName { get; set; }
+  }
+}
