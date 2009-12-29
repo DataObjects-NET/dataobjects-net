@@ -55,7 +55,8 @@ namespace Xtensive.Storage.Upgrade
 
       var moveFieldHints = proccessedHints.OfType<MoveFieldHint>().ToArray();
       proccessedHints.AddRange(TransalateMoveFieldHints(moveFieldHints));
-
+      proccessedHints.AddRange(GenerateTypeIdRemovalHints());
+      
       var removeFieldHints = proccessedHints.OfType<RemoveFieldHint>().ToArray();
       ValidateRemoveFieldHints(removeFieldHints);
       UpdateRemoveFieldHints(removeFieldHints);
@@ -506,6 +507,29 @@ namespace Xtensive.Storage.Upgrade
     #endregion
     
     #region Hint generation
+
+    private IEnumerable<UpgradeHint> GenerateTypeIdRemovalHints()
+    {
+      var result = new List<UpgradeHint>();
+      var types = 
+        from p in typeMapping
+        let sourceHierarchy = p.Key.Hierarchy
+        let targetHierarchy = p.Value.Hierarchy
+        where
+          targetHierarchy != null && sourceHierarchy != null &&
+          targetHierarchy.Schema == InheritanceSchema.ConcreteTable &&
+          sourceHierarchy.Schema != InheritanceSchema.ConcreteTable &&
+          targetHierarchy.Types.Length == 1
+        select p.Key;
+      foreach (var type in types) {
+        var typeIdField = type.Fields.Single(f => f.IsTypeId);
+        if (!extractedModel.Tables[type.MappingName].Columns.Contains(typeIdField.MappingName)) 
+          continue;
+        var hint = new RemoveFieldHint(type.UnderlyingType, typeIdField.Name);
+        result.Add(hint);
+      }
+      return result;
+    }
 
     private void GenerateRenameTableHints()
     {
