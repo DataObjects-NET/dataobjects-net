@@ -117,8 +117,13 @@ namespace Xtensive.Storage.Linq.Expressions
         entityExpression.Remap(offset, new Dictionary<Expression, Expression>());
       }
       var typeInfo = entityExpression.PersistentType;
-      foreach (var nestedField in typeInfo.Fields.Except(entityExpression.Fields.OfType<FieldExpression>().Select(field=>field.Field)))
-        entityExpression.fields.Add(BuildNestedFieldExpression(nestedField, offset));
+      foreach (var nestedField in typeInfo.Fields.Except(entityExpression.Fields.OfType<FieldExpression>().Select(field=>field.Field))) {
+        var nestedFieldExpression = BuildNestedFieldExpression(nestedField, offset);
+        var fieldExpression = nestedFieldExpression as FieldExpression;
+        if (fieldExpression!=null)
+          fieldExpression.Owner = entityExpression;
+        entityExpression.fields.Add(nestedFieldExpression);
+      }
     }
 
     public static EntityExpression Create(TypeInfo typeInfo, int offset, bool keyFieldsOnly)

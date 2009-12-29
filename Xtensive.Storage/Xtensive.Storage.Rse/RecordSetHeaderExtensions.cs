@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.12
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -28,7 +29,7 @@ namespace Xtensive.Storage.Rse
     public static int IndexOf(this RecordSetHeader header, string columnName)
     {
       var column = (MappedColumn) header.Columns[columnName];
-      return column==null? -1 : column.Index;
+      return column==null ? -1 : column.Index;
     }
 
     /// <summary>
@@ -42,19 +43,22 @@ namespace Xtensive.Storage.Rse
     }
 
     /// <summary>
-    /// Gets the <see cref="RecordSetHeader"/> object for the specified <paramref name="fullTextIndexInfo"/>.
+    /// Gets the <see cref="RecordSetHeader"/> for the specified <paramref name="fullTextIndexInfo"/>.
     /// </summary>
     /// <param name="fullTextIndexInfo">The full-text index info to get the header for.</param>
     /// <returns>The <see cref="RecordSetHeader"/> object.</returns>
     public static RecordSetHeader GetRecordSetHeader(this FullTextIndexInfo fullTextIndexInfo)
     {
-      TupleDescriptor resultTupleDescriptor = TupleDescriptor.Create(
-        fullTextIndexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
-      var resultColumns = fullTextIndexInfo.Columns.Select((c,i) => (Column) new MappedColumn(c,i,c.ValueType));
-
-      return new RecordSetHeader(
-        resultTupleDescriptor, 
-        resultColumns);
+      var fieldTypes = fullTextIndexInfo
+        .KeyColumns
+        .Select(columnInfo => columnInfo.ValueType)
+        .AddOne(typeof (double));
+      TupleDescriptor tupleDescriptor = TupleDescriptor.Create(fieldTypes);
+      var columns = fullTextIndexInfo
+        .KeyColumns
+        .Select((c, i) => (Column) new MappedColumn(c, i, c.ValueType))
+        .AddOne(new MappedColumn("Rank", tupleDescriptor.Count, typeof (double)));
+      return new RecordSetHeader(tupleDescriptor, columns);
     }
   }
 }

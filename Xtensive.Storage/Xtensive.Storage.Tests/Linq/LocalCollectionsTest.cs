@@ -165,6 +165,19 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void JoinWithLazyLoadFieldTest()
+    {
+      // Category.Picture is LazyLoad field.
+      var categories = Query.All<Category>().Take(10).ToList();
+      var result =
+        (from c1 in Query.All<Product>().Select(p=>p.Category)
+        join c2 in categories on c1 equals c2
+        select new {c1, c2})
+          .Take(10);
+      var list = result.ToList();
+    }
+
+    [Test]
     public void ListContainsTest()
     {
       var list = new List<string>(){"FISSA", "PARIS"};
