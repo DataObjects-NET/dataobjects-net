@@ -15,11 +15,11 @@ using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Compiler
 {
-  public class SqlCompiler : ISqlVisitor
+  public class SqlCompiler : SqlDriverBound,
+    ISqlVisitor
   {
     protected readonly SqlValueType decimalType;
     protected readonly SqlTranslator translator;
-    protected readonly SqlDriver driver;
     
     protected SqlCompilerConfiguration configuration;
     protected SqlCompilerContext context;
@@ -419,20 +419,20 @@ namespace Xtensive.Sql.Compiler
           foreach (var item in node.Index.Columns) {
             if (!context.IsEmpty)
               context.Output.AppendDelimiter(translator.ColumnDelimiter);
-            if (!item.Expression.IsNullReference() && driver.ServerInfo.Index.Features.Supports(IndexFeatures.Expressions))
+            if (!item.Expression.IsNullReference() && Driver.ServerInfo.Index.Features.Supports(IndexFeatures.Expressions))
               using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
                 item.Expression.AcceptVisitor(this);
               }
             else {
               context.Output.AppendText(translator.QuoteIdentifier(item.Column.Name));
-              if (driver.ServerInfo.Index.Features.Supports(IndexFeatures.SortOrder))
+              if (Driver.ServerInfo.Index.Features.Supports(IndexFeatures.SortOrder))
                 context.Output.AppendText(translator.TranslateSortOrder(item.Ascending));
             }
           }
         }
         context.Output.AppendText(translator.Translate(context, node, CreateIndexSection.ColumnsExit));
       }
-      if (node.Index.NonkeyColumns != null && node.Index.NonkeyColumns.Count != 0 && driver.ServerInfo.Index.Features.Supports(IndexFeatures.NonKeyColumns)) {
+      if (node.Index.NonkeyColumns != null && node.Index.NonkeyColumns.Count != 0 && Driver.ServerInfo.Index.Features.Supports(IndexFeatures.NonKeyColumns)) {
         context.Output.AppendText(translator.Translate(context, node, CreateIndexSection.NonkeyColumnsEnter));
         using (context.EnterCollectionScope()) {
           foreach (var item in node.Index.NonkeyColumns) {
@@ -446,7 +446,7 @@ namespace Xtensive.Sql.Compiler
 
       context.Output.AppendText(translator.Translate(context, node, CreateIndexSection.StorageOptions));
 
-      if (!node.Index.Where.IsNullReference() && driver.ServerInfo.Index.Features.Supports(IndexFeatures.Filtered)) {
+      if (!node.Index.Where.IsNullReference() && Driver.ServerInfo.Index.Features.Supports(IndexFeatures.Filtered)) {
         context.Output.AppendText(translator.Translate(context, node, CreateIndexSection.Where));
         using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
           node.Index.Where.AcceptVisitor(this);
@@ -584,7 +584,7 @@ namespace Xtensive.Sql.Compiler
           using (context.EnterCollectionScope()) {
             foreach (TableColumn c in node.Table.Columns) {
               // Skipping computed columns
-              if (!c.Expression.IsNullReference() && !driver.ServerInfo.Column.Features.Supports(ColumnFeatures.Computed))
+              if (!c.Expression.IsNullReference() && !Driver.ServerInfo.Column.Features.Supports(ColumnFeatures.Computed))
                 continue;
               if (firstWasProcessed)
                 context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
@@ -763,7 +763,7 @@ namespace Xtensive.Sql.Compiler
         TranslateDynamicFilterViaInOperator(node);
         break;
       default:
-        if (driver.ServerInfo.Query.Features.Supports(QueryFeatures.MulticolumnIn))
+        if (Driver.ServerInfo.Query.Features.Supports(QueryFeatures.MulticolumnIn))
           TranslateDynamicFilterViaInOperator(node);
         else
           TranslateDynamicFilterViaMultipleComparisons(node);
@@ -1494,11 +1494,10 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="driver">The driver.</param>
     protected SqlCompiler(SqlDriver driver)
+      : base(driver)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
       translator = driver.Translator;
       decimalType = driver.TypeMappings.Decimal.BuildSqlType();
-      this.driver = driver;
     }
   }
 }

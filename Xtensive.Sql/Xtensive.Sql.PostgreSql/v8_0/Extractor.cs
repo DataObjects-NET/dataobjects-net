@@ -40,7 +40,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     
     protected override void Initialize()
     {
-      catalog = new Catalog(Driver.ServerInfo.DatabaseName);
+      catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
 
       PgCatalogSchema = pgCatalogs.GetValue(GetType(), CreatePgCatalogSchema);
 
@@ -277,7 +277,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     protected void ExtractUsers()
     {
       mUserLookup.Clear();
-      string me = Connection.Url.User;
+      string me;
+      using (var command = Connection.CreateCommand("SELECT user"))
+        me = (string) command.ExecuteScalar();
       using (DbCommand cmd = Connection.CreateCommand("SELECT usename, usesysid FROM pg_user")) {
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
@@ -866,14 +868,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     /// </summary>
     protected int GetMyUserSysId()
     {
-      if (mUserSysId < 0) {
-        string user = Connection.Url.User;
-        using (var cmd = (NpgsqlCommand) Connection.CreateCommand()) {
-          cmd.CommandText = @"SELECT usesysid FROM pg_user WHERE usename = @name";
-          cmd.Parameters.Add("@name", user);
+      if (mUserSysId < 0)
+        using (var cmd = Connection.CreateCommand("SELECT usesysid FROM pg_user WHERE usename = user"))
           mUserSysId = Convert.ToInt32(cmd.ExecuteScalar());
-        }
-      }
       return mUserSysId;
     }
     

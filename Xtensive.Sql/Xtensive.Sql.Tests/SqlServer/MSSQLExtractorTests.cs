@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Tests.SqlServer
     protected SqlConnection CreateConnection()
     {
       var driver = SqlDriver.Create(connectionUrl);
-      var connection = driver.CreateConnection(connectionUrl);
+      var connection = driver.CreateConnection();
       connection.Open();
       return connection;
     }
@@ -73,7 +73,7 @@ namespace Xtensive.Sql.Tests.SqlServer
     protected virtual Catalog ExtractModel()
     {
       var driver = SqlDriver.Create(connectionUrl);
-      using (var connection = driver.CreateConnection(connectionUrl)) {
+      using (var connection = driver.CreateConnection()) {
         connection.Open();
         try {
           connection.BeginTransaction();

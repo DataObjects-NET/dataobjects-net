@@ -28,12 +28,11 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
     {
       Driver = SqlDriver.Create(Url);
       CreateModel();
-      Connection = Driver.CreateConnection(Url);
+      Connection = Driver.CreateConnection();
       try {
         Connection.Open();
       }
       catch (SystemException e) {
-        Console.WriteLine(Connection.Url);
         Console.WriteLine(e);
       }
     }
@@ -926,6 +925,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
             batch.Add(SqlDdl.Create(sch));
           }
           cmd.CommandText = Driver.Compile(batch).GetCommandText();
+          Console.WriteLine(cmd.CommandText);
           cmd.ExecuteNonQuery();
         }
 
@@ -1376,16 +1376,7 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_0
       q.Columns.Add(SqlDml.Case(SqlDml.And(true, false)).Add(false, SqlDml.CharLength(SqlDml.Concat("abc", "def"))==6));
 
       #endregion
-
-      #region Users
-
-      q.Columns.Add(SqlDml.SessionUser()==Connection.Url.User, "session_user");
-      q.Columns.Add(SqlDml.CurrentUser()==Connection.Url.User, "current_user");
-      q.Columns.Add(SqlDml.User()==Connection.Url.User, "user");
-      //q.Columns.Add(Sql.SystemUser());
-
-      #endregion
-
+      
       #region Other functions, oparators
 
       q.Columns.Add(SqlDml.Coalesce(SqlDml.Null, 3)==3, "coalesce1");

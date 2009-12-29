@@ -81,14 +81,13 @@ namespace Xtensive.Sql.Tests.VistaDb
     {
       base.SetUp();
       SqlDriver = SqlDriver.Create(TestUrl.VistaDbAw);
-      sqlConnection = SqlDriver.CreateConnection(TestUrl.VistaDbAw);
+      sqlConnection = SqlDriver.CreateConnection();
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
       try {
         sqlConnection.Open();
       }
       catch (SystemException e) {
-        Console.WriteLine(sqlConnection.Url);
         Console.WriteLine(e);
       }
     }
@@ -3169,7 +3168,7 @@ namespace Xtensive.Sql.Tests.VistaDb
 
       SqlConnection conn = null;
       try {
-        conn = SqlDriver.CreateConnection(TestUrl.VistaDb);
+        conn = SqlDriver.CreateConnection();
         conn.Open();
         conn.BeginTransaction();
 

@@ -37,9 +37,7 @@ namespace Xtensive.Sql.Tests.PostgreSql
       //The created model does not assign Owner, it is assigned by PgSql implicitly
       //Assert.IsNotNull(s1.Owner);
       Assert.IsNotNull(s2.Owner);
-      Assert.AreEqual(mConnection.Url.User, s2.Owner);
-
-
+      
       Assert.AreEqual(s1.Domains.Count, s2.Domains.Count);
       Assert.AreEqual(s1.Sequences.Count, s2.Sequences.Count);
       Assert.AreEqual(s1.Tables.Count, s2.Tables.Count);
@@ -186,7 +184,7 @@ namespace Xtensive.Sql.Tests.PostgreSql
       Assert.AreEqual(i1.DataTable.Name, i2.DataTable.Name);
       Assert.AreEqual(i1.Filegroup, i2.Filegroup);
 
-      Version ver = mConnection.Driver.ServerInfo.Version.ProductVersion;
+      Version ver = mConnection.Driver.CoreServerInfo.ServerVersion;
       if (ver.Major * 100 + ver.Minor >= 802) {
         if (i1.FillFactor!=null)
           Assert.AreEqual(i1.FillFactor, i2.FillFactor);

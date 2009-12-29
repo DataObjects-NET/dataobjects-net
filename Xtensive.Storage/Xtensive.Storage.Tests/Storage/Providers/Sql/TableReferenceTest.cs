@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -156,13 +157,13 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql {
     {
       var domain = base.BuildDomain(configuration);
       // Get current SQL model
-      var domainHandler = domain.Handlers.DomainHandler;
-      var driver = ((DomainHandler) domainHandler).Driver;
-      using (var connection = driver.CreateConnection(null, configuration.ConnectionInfo)) {
+
+      var driver = SqlDriver.Create(domain.Configuration.ConnectionInfo);
+      using (var connection = driver.CreateConnection()) {
         connection.Open();
         try {
           connection.BeginTransaction();
-          existingSchema = driver.ExtractSchema(connection);
+          existingSchema = driver.ExtractDefaultSchema(connection);
         }
         finally {
           connection.Rollback();

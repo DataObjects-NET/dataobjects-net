@@ -14,8 +14,7 @@ namespace Xtensive.Sql.Oracle.v09
   {
     private const int MaxIdentifierLength = 30;
     private const int DoNotKnow = int.MaxValue;
-
-    private readonly VersionInfo versionInfo;
+    
     private readonly string databaseName;
     private readonly string defaultSchemaName;
 
@@ -225,11 +224,6 @@ namespace Xtensive.Sql.Oracle.v09
       return types;
     }
 
-    public override VersionInfo GetVersionInfo()
-    {
-      return versionInfo;
-    }
-
     public override IsolationLevels GetIsolationLevels()
     {
       return IsolationLevels.ReadCommitted | IsolationLevels.Serializable;
@@ -255,25 +249,11 @@ namespace Xtensive.Sql.Oracle.v09
       return true;
     }
 
-    public override string GetDatabaseName()
-    {
-      return databaseName;
-    }
-
-    public override string GetDefaultSchemaName()
-    {
-      return defaultSchemaName;
-    }
-
-
     // Constructors
 
-    public ServerInfoProvider(OracleConnection connection, Version version)
+    public ServerInfoProvider(SqlDriver driver)
+      : base(driver)
     {
-      versionInfo = new VersionInfo(version);
-      SqlHelper.ReadDatabaseAndSchema(connection,
-        "select sys_context('USERENV', 'DB_NAME'), sys_context('USERENV', 'CURRENT_SCHEMA') from dual",
-        out databaseName, out defaultSchemaName);
     }
   }
 }

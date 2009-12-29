@@ -1,5 +1,3 @@
-using System;
-using Npgsql;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.PostgreSql.v8_2
@@ -10,11 +8,11 @@ namespace Xtensive.Sql.PostgreSql.v8_2
     {
       return base.GetIndexFeatures() | IndexFeatures.FillFactor;
     }
-
+    
     // Constructors
 
-    public ServerInfoProvider(NpgsqlConnection connection, Version version)
-      : base(connection, version)
+    public ServerInfoProvider(SqlDriver driver)
+      : base(driver)
     {
     }
   }

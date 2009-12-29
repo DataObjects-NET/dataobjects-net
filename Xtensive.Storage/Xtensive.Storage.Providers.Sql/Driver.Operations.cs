@@ -15,14 +15,15 @@ namespace Xtensive.Storage.Providers.Sql
 {
   partial class Driver
   {
-    public SqlConnection CreateConnection(Session session, UrlInfo urlInfo)
+    public SqlConnection CreateConnection(Session session)
     {
       try {
         if (IsDebugLoggingEnabled) {
-          Log.Debug(Strings.LogSessionXCreatingConnectionY, 
-            session.GetFullNameSafely(), urlInfo);
+          Log.Debug(Strings.LogSessionXCreatingConnectionY,
+            session.GetFullNameSafely(),
+            session.Domain.Configuration.ConnectionInfo);
         }
-        return underlyingDriver.CreateConnection(urlInfo);
+        return underlyingDriver.CreateConnection();
       }
       catch (Exception exception) {
         throw TranslateException(null, exception);
@@ -33,8 +34,9 @@ namespace Xtensive.Storage.Providers.Sql
     {
       try {
         if (IsDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXOpeningConnectionY, 
-            session.GetFullNameSafely(), connection.Url);
+          Log.Debug(Strings.LogSessionXOpeningConnectionY,
+            session.GetFullNameSafely(),
+            session.Domain.Configuration.ConnectionInfo);
         connection.Open();
       }
       catch (Exception exception) {
@@ -47,7 +49,8 @@ namespace Xtensive.Storage.Providers.Sql
       try {
         if (IsDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXClosingConnectionY, 
-            session.GetFullNameSafely(), connection.Url);
+            session.GetFullNameSafely(),
+            session.Domain.Configuration.ConnectionInfo);
         if (connection.State==ConnectionState.Open)
           connection.Close();
         connection.Dispose();

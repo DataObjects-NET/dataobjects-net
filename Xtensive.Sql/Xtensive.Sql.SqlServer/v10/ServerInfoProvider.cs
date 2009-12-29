@@ -37,8 +37,8 @@ namespace Xtensive.Sql.SqlServer.v10
 
     // Constructors
 
-    public ServerInfoProvider(SqlServerConnection connection, Version version)
-      : base(connection, version)
+    public ServerInfoProvider(SqlDriver driver)
+      : base(driver)
     {
     }
   }

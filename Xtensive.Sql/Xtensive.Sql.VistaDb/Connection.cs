@@ -51,8 +51,8 @@ namespace Xtensive.Sql.VistaDb
 
     // Constructors
 
-    public Connection(SqlDriver driver, UrlInfo url)
-      : base(driver, url)
+    public Connection(SqlDriver driver)
+      : base(driver)
     {
     }
   }

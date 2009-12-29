@@ -4,7 +4,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
@@ -18,6 +17,11 @@ namespace Xtensive.Sql
   /// </summary>
   public abstract partial class SqlDriver
   {
+    /// <summary>
+    /// Gets an instance that provides the most essential information about underlying RDBMS.
+    /// </summary>
+    public CoreServerInfo CoreServerInfo { get; private set; }
+
     /// <summary>
     /// Gets an instance that provides complete information about underlying RDBMS.
     /// <seealso cref="ServerInfo"/>
@@ -33,11 +37,6 @@ namespace Xtensive.Sql
     /// Gets the <see cref="SqlTranslator"/>.
     /// </summary>
     public SqlTranslator Translator { get; private set; }
-
-    /// <summary>
-    /// Gets the data access handler.
-    /// </summary>
-    public TypeMapper TypeMapper { get; private set; }
 
     /// <summary>
     /// Compiles the specified statement into SQL command representation.
@@ -84,8 +83,7 @@ namespace Xtensive.Sql
     /// </returns>
     public Schema ExtractDefaultSchema(SqlConnection connection)
     {
-      var url = connection.Url;
-      return ExtractSchema(connection, ServerInfo.DefaultSchemaName);
+      return BuildExtractor(connection).ExtractSchema(CoreServerInfo.DefaultSchemaName);
     }
 
     /// <summary>
@@ -101,21 +99,9 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Creates the connection from the specified connection info.
+    /// Creates the connection.
     /// </summary>
-    /// <param name="url">The connection url.</param>
-    /// <returns>Created connection.</returns>
-    public abstract SqlConnection CreateConnection(UrlInfo url);
-
-    /// <summary>
-    /// Creates the connection from the specified url.
-    /// </summary>
-    /// <param name="url">The connection url.</param>
-    /// <returns>Created connection</returns>
-    public SqlConnection CreateConnection(string url)
-    {
-      return CreateConnection(UrlInfo.Parse(url));
-    }
+    public abstract SqlConnection CreateConnection();
 
     /// <summary>
     /// Gets the type of the exception.
@@ -146,28 +132,36 @@ namespace Xtensive.Sql
     protected abstract Extractor CreateExtractor();
 
     /// <summary>
-    /// Creates the data access handler.
+    /// Creates the type mapper.
     /// </summary>
-    /// <returns>Created data access handler.</returns>
+    /// <returns>Created type mapper.</returns>
     protected abstract TypeMapper CreateTypeMapper();
+
+    /// <summary>
+    /// Creates the server info provider.
+    /// </summary>
+    /// <returns>Created server info provider.</returns>
+    protected abstract ServerInfoProvider CreateServerInfoProvider();
 
     #region Private / internal methods
 
     private void Initialize()
     {
+      var serverInfoProvider = CreateServerInfoProvider();
+      ServerInfo = ServerInfo.Build(serverInfoProvider);
+
+      var typeMapper = CreateTypeMapper();
+      typeMapper.Initialize();
+      TypeMappings = new TypeMappingCollection(typeMapper);
+
       Translator = CreateTranslator();
       Translator.Initialize();
-
-      TypeMapper = CreateTypeMapper();
-      TypeMapper.Initialize();
-
-      TypeMappings = new TypeMappingCollection(TypeMapper);
     }
 
     private Extractor BuildExtractor(SqlConnection connection)
     {
       ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-      if (connection.Driver != this)
+      if (connection.Driver!=this)
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
       var extractor = CreateExtractor();
       extractor.Initialize(connection);
@@ -176,17 +170,10 @@ namespace Xtensive.Sql
 
     #endregion
 
-    
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="serverInfoProvider">The server info provider.</param>
-    protected SqlDriver(ServerInfoProvider serverInfoProvider)
+    protected SqlDriver(CoreServerInfo coreServerInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(serverInfoProvider, "serverInfoProvider");
-      ServerInfo = ServerInfo.Build(serverInfoProvider);
+      coreServerInfo.Lock();
+      CoreServerInfo = coreServerInfo;
     }
   }
 }

@@ -35,7 +35,7 @@ namespace Xtensive.Sql.Tests
     public void ServerInfoTest()
     {
       var driver = SqlDriver.Create(TestUrl.SqlServer2005);
-      Assert.Greater(driver.ServerInfo.Version.ProductVersion.Major, 8);
+      Assert.Greater(driver.CoreServerInfo.ServerVersion.Major, 8);
     }
 
     [Test]
@@ -48,8 +48,8 @@ namespace Xtensive.Sql.Tests
     
     private static void TestProvider(string providerName, string connectionString, string connectionUrl)
     {
-      var driver = SqlDriver.Create(connectionUrl);
-      Assert.IsNotNull(driver);
+      Assert.IsNotNull(SqlDriver.Create(connectionUrl));
+      Assert.IsNotNull(SqlDriver.Create(providerName, connectionString));
     }
   }
 }

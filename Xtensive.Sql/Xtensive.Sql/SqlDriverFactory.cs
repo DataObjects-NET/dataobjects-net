@@ -9,15 +9,15 @@ using Xtensive.Core;
 namespace Xtensive.Sql
 {
   /// <summary>
-  /// Creates drivers from the specified connection URLs.
+  /// Creates drivers from the specified connection info.
   /// </summary>
   public abstract class SqlDriverFactory
   {
     /// <summary>
-    /// Creates the driver from the specified <see cref="UrlInfo"/>.
+    /// Creates the driver from the specified <see cref="ConnectionInfo"/>.
     /// </summary>
-    /// <param name="connectionUrl">The connection url to create driver from.</param>
+    /// <param name="connectionInfo">The connection info to create driver from.</param>
     /// <returns>Created driver.</returns>
-    public abstract SqlDriver CreateDriver(UrlInfo connectionUrl);
+    public abstract SqlDriver CreateDriver(ConnectionInfo connectionInfo);
   }
 }

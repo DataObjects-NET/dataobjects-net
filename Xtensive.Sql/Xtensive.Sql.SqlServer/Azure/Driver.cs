@@ -4,18 +4,22 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
-using System;
+using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer.Azure
 {
   internal class Driver : v10.Driver
   {
+    protected override Info.ServerInfoProvider CreateServerInfoProvider()
+    {
+      return new ServerInfoProvider(this);
+    }
 
     // Constructors
 
-    public Driver(SqlServerConnection connection, Version version)
-      : base(new ServerInfoProvider(connection, version))
+    public Driver(CoreServerInfo coreServerInfo)
+      : base(coreServerInfo)
     {
     }
   }

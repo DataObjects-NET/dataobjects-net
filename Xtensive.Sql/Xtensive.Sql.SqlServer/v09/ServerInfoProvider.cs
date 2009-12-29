@@ -12,7 +12,6 @@ namespace Xtensive.Sql.SqlServer.v09
   {
     private const int MaxIdentifierLength = 128;
 
-    private readonly VersionInfo versionInfo;
     private readonly string databaseName;
     private readonly string defaultSchemaName;
 
@@ -247,11 +246,6 @@ namespace Xtensive.Sql.SqlServer.v09
       return types;
     }
 
-    public override VersionInfo GetVersionInfo()
-    {
-      return versionInfo;
-    }
-
     public override IsolationLevels GetIsolationLevels()
     {
       var levels =
@@ -289,25 +283,12 @@ namespace Xtensive.Sql.SqlServer.v09
       return true;
     }
 
-    public override string GetDatabaseName()
-    {
-      return databaseName;
-    }
-
-    public override string GetDefaultSchemaName()
-    {
-      return defaultSchemaName;
-    }
-
 
     // Constructors
 
-    public ServerInfoProvider(SqlServerConnection connection, Version version)
+    public ServerInfoProvider(SqlDriver driver)
+      : base(driver)
     {
-      versionInfo = new VersionInfo(version);
-      SqlHelper.ReadDatabaseAndSchema(connection,
-        "select db_name(), default_schema_name from sys.database_principals where name=user", 
-        out databaseName, out defaultSchemaName);
     }
   }
 }

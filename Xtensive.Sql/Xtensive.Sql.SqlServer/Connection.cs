@@ -7,14 +7,13 @@
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
-using Xtensive.Core;
-using SqlClientConnection = System.Data.SqlClient.SqlConnection;
+using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer
 {
   internal class Connection : SqlConnection
   {
-    private SqlClientConnection underlyingConnection;
+    private SqlServerConnection underlyingConnection;
     private SqlTransaction activeTransaction;
 
     /// <inheritdoc/>
@@ -73,10 +72,10 @@ namespace Xtensive.Sql.SqlServer
 
     // Constructors
 
-    public Connection(SqlDriver driver, UrlInfo url)
-      : base(driver, url)
+    public Connection(SqlDriver driver)
+      : base(driver)
     {
-      underlyingConnection = ConnectionFactory.CreateConnection(driver, url);
+      underlyingConnection = new SqlServerConnection(driver.CoreServerInfo.ConnectionString);
     }
   }
 }

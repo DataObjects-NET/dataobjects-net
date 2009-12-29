@@ -13,11 +13,6 @@ namespace Xtensive.Sql.Info
   public class ServerInfo : LockableBase
   {
     /// <summary>
-    /// Underlying RDBMS version.
-    /// </summary>
-    public VersionInfo Version { get; private set; }
-
-    /// <summary>
     /// Gets the server supported isolation levels.
     /// </summary>
     public IsolationLevels IsolationLevels { get; private set; }
@@ -151,7 +146,6 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Gets the data types.
     /// </summary>
-    /// <value>The data types.</value>
     public DataTypeCollection DataTypes { get; private set; }
 
     /// <summary>
@@ -164,17 +158,7 @@ namespace Xtensive.Sql.Info
     /// Gets a value indicating whether multiple active result sets are supported.
     /// </summary>
     public bool MultipleActiveResultSets { get; private set; }
-
-    /// <summary>
-    /// Gets the name of the database.
-    /// </summary>
-    public string DatabaseName { get; private set; }
-
-    /// <summary>
-    /// Gets the default schema for current user.
-    /// </summary>
-    public string DefaultSchemaName { get; private set; }
-
+    
     /// <summary>
     /// Builds the server info using specified <see cref="ServerInfoProvider"/>.
     /// </summary>
@@ -184,7 +168,6 @@ namespace Xtensive.Sql.Info
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       var info = new ServerInfo();
 
-      info.Version = provider.GetVersionInfo();
       info.Assertion = provider.GetAssertionInfo();
       info.CharacterSet = provider.GetCharacterSetInfo();
       info.CheckConstraint = provider.GetCheckConstraintInfo();
@@ -210,8 +193,6 @@ namespace Xtensive.Sql.Info
       info.View = provider.GetViewInfo();
       info.StringIndexingBase = provider.GetStringIndexingBase();
       info.MultipleActiveResultSets = provider.GetMultipleActiveResultSets();
-      info.DatabaseName = provider.GetDatabaseName();
-      info.DefaultSchemaName = provider.GetDefaultSchemaName();
 
       info.Lock(true);
 

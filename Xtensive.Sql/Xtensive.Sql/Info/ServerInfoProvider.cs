@@ -2,6 +2,8 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using Xtensive.Core.Internals.DocTemplates;
+
 namespace Xtensive.Sql.Info
 {
   /// <summary>
@@ -9,6 +11,11 @@ namespace Xtensive.Sql.Info
   /// </summary>
   public abstract class ServerInfoProvider
   {
+    /// <summary>
+    /// Gets the driver.
+    /// </summary>
+    public SqlDriver Driver { get; private set; }
+
     /// <summary>
     /// Gets the collation info.
     /// </summary>
@@ -110,11 +117,6 @@ namespace Xtensive.Sql.Info
     public abstract DataTypeCollection GetDataTypesInfo();
 
     /// <summary>
-    /// Gets the version.
-    /// </summary>
-    public abstract VersionInfo GetVersionInfo();
-
-    /// <summary>
     /// Gets the supported isolation levels.
     /// </summary>
     public abstract IsolationLevels GetIsolationLevels();
@@ -140,15 +142,12 @@ namespace Xtensive.Sql.Info
     public abstract bool GetMultipleActiveResultSets();
 
     /// <summary>
-    /// Gets the name of the database.
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <returns>Name of the database.</returns>
-    public abstract string GetDatabaseName();
-
-    /// <summary>
-    /// Gets the default name of the schema for current user.
-    /// </summary>
-    /// <returns>Name of the database.</returns>
-    public abstract string GetDefaultSchemaName();
+    /// <param name="driver">The driver.</param>
+    protected ServerInfoProvider(SqlDriver driver)
+    {
+      Driver = driver;
+    }
   }
 }

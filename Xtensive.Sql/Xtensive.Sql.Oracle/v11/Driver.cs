@@ -7,6 +7,7 @@
 using System;
 using Oracle.DataAccess.Client;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Oracle.v11
 {
@@ -27,10 +28,16 @@ namespace Xtensive.Sql.Oracle.v11
       return new Extractor(this);
     }
 
+    protected override Info.ServerInfoProvider CreateServerInfoProvider()
+    {
+      return new ServerInfoProvider(this);
+    }
+
+
     // Constructors
 
-    public Driver(OracleConnection connection, Version version)
-      : base(new ServerInfoProvider(connection, version))
+    public Driver(CoreServerInfo coreServerInfo)
+      : base(coreServerInfo)
     {
     }
  }

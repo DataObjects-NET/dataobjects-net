@@ -4,16 +4,15 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using Xtensive.Core;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Oracle
 {
   internal abstract class Driver : SqlDriver
   {
-    public override SqlConnection CreateConnection(UrlInfo url)
+    public override SqlConnection CreateConnection()
     {
-      return new Connection(this, url);
+      return new Connection(this);
     }
 
     protected override ValueTypeMapping.TypeMapper CreateTypeMapper()
@@ -23,8 +22,8 @@ namespace Xtensive.Sql.Oracle
 
     // Constructors
 
-    protected Driver(ServerInfoProvider serverInfoProvider)
-      : base(serverInfoProvider)
+    protected Driver(CoreServerInfo coreServerInfo)
+      : base(coreServerInfo)
     {
     }
   }

@@ -7,6 +7,7 @@
 using System;
 using Npgsql;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.PostgreSql.v8_1
@@ -28,10 +29,15 @@ namespace Xtensive.Sql.PostgreSql.v8_1
       return new Translator(this);
     }
 
+    protected override Info.ServerInfoProvider CreateServerInfoProvider()
+    {
+      return new ServerInfoProvider(this);
+    }
+
     // Constructors
 
-    public Driver(NpgsqlConnection connection, Version version)
-      : base(new ServerInfoProvider(connection, version))
+    public Driver(CoreServerInfo coreServerInfo)
+      : base(coreServerInfo)
     {
     }
   }

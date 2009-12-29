@@ -1,17 +1,16 @@
-using System;
-using Npgsql;
-using Xtensive.Core;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.PostgreSql.v8_0
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
+    // These two options are actually compile-time configurable.
+    private const int MaxIdentifierLength = 63;
+    private const int MaxIndexKeys = 32;
+
     private const int MaxTextLength = (int.MaxValue >> 1) - 1000;
     private const int MaxCharLength = 10485760;
 
-    private readonly VersionInfo versionInfo;
-    private readonly ServerConfiguration serverConfig;
     private readonly string defaultSchemaName;
     private readonly string databaseName;
 
@@ -30,26 +29,17 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return MaxCharLength;
     }
     
-    public virtual ServerConfiguration GetServerConfig()
-    {
-      return serverConfig;
-    }
-
     public virtual short GetMaxDateTimePrecision()
     {
       return 6;
     }
 
-    public override VersionInfo GetVersionInfo()
-    {
-      return versionInfo;
-    }
 
     public override EntityInfo GetDatabaseInfo()
     {
       var info = new EntityInfo();
       info.AllowedDdlStatements = DdlStatements.All;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -57,7 +47,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       var info = new EntityInfo();
       info.AllowedDdlStatements = DdlStatements.All;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -65,7 +55,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       var info = new TableInfo();
       info.AllowedDdlStatements = DdlStatements.All;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       info.PartitionMethods = PartitionMethods.None;
       return info;
     }
@@ -77,7 +67,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       info.Features = TemporaryTableFeatures.Local
         | TemporaryTableFeatures.DeleteRowsOnCommit
         | TemporaryTableFeatures.PreserveRowsOnCommit;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -86,8 +76,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       var info = new IndexInfo();
       info.AllowedDdlStatements = DdlStatements.All;
       info.Features = GetIndexFeatures();
-      info.MaxNumberOfColumns = serverConfig.MaxIndexKeys;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxNumberOfColumns = MaxIndexKeys;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       // Pg 8.2: 8191 byte
       info.MaxLength = 2000;
       return info;
@@ -98,7 +88,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       var info = new ColumnInfo();
       info.AllowedDdlStatements = DdlStatements.All;
       info.Features = ColumnFeatures.None;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -106,7 +96,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       var info = new CheckConstraintInfo();
       info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       info.Features = CheckConstraintFeatures.None;
       // TODO: more exactly
       info.MaxExpressionLength = GetMaxTextLength(); 
@@ -118,7 +108,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       var info = new PrimaryKeyConstraintInfo();
       info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
       info.Features = PrimaryKeyConstraintFeatures.Clustered;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -127,7 +117,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       var info = new UniqueConstraintInfo();
       info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
       info.Features = UniqueConstraintFeatures.Nullable | UniqueConstraintFeatures.Clustered;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -142,7 +132,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         ForeignKeyConstraintActions.SetNull;
       info.AllowedDdlStatements = DdlStatements.Create | DdlStatements.Drop;
       info.Features = ForeignKeyConstraintFeatures.Deferrable;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -150,7 +140,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       var info = new EntityInfo();
       info.AllowedDdlStatements = DdlStatements.All;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -210,7 +200,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       var info = new EntityInfo();
       info.AllowedDdlStatements = DdlStatements.All;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -219,7 +209,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       var info = new SequenceInfo();
       info.AllowedDdlStatements = DdlStatements.All;
       info.Features = SequenceFeatures.Cache;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -227,7 +217,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       EntityInfo info = new EntityInfo();
       info.AllowedDdlStatements = DdlStatements.All;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -235,7 +225,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     {
       EntityInfo info = new EntityInfo();
       info.AllowedDdlStatements = DdlStatements.All;
-      info.MaxIdentifierLength = serverConfig.MaxIdentifierLength;
+      info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
@@ -299,26 +289,12 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return false;
     }
 
-    public override string GetDatabaseName()
-    {
-      return databaseName;
-    }
-
-    public override string GetDefaultSchemaName()
-    {
-      return defaultSchemaName;
-    }
-
 
     // Constructors
 
-    public ServerInfoProvider(NpgsqlConnection connection, Version version)
+    public ServerInfoProvider(SqlDriver driver)
+      : base(driver)
     {
-      versionInfo = new VersionInfo(version);
-      serverConfig = new ServerConfiguration(connection);
-      SqlHelper.ReadDatabaseAndSchema(connection,
-        "select current_database(), current_schema()",
-        out databaseName, out defaultSchemaName);
     }
   }
 }

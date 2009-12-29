@@ -6,30 +6,38 @@
 
 using System;
 using System.Linq;
+using Oracle.DataAccess.Client;
 using Xtensive.Core;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Oracle.Resources;
 
 namespace Xtensive.Sql.Oracle
 {
   /// <summary>
-  /// A <see cref="SqlDriverFactory"/> for Oracle.
+  /// A <see cref="SqlDriver"/> factory for Oracle.
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
-    public override SqlDriver CreateDriver(UrlInfo url)
+    private const string DatabaseAndSchemaQuery =
+      "select sys_context('USERENV', 'DB_NAME'), sys_context('USERENV', 'CURRENT_SCHEMA') from dual";
+
+    public override SqlDriver CreateDriver(ConnectionInfo connectionInfo)
     {
-      using (var connection = ConnectionFactory.CreateConnection(url)) {
+      var connectionString = ConnectionStringBuilder.Build(connectionInfo);
+      using (var connection = new OracleConnection(connectionString)) {
         connection.Open();
         var version = ParseVersion(connection.ServerVersion);
+        var coreServerInfo = new CoreServerInfo {ConnectionString = connectionString, ServerVersion = version};
+        SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
         if (version.Major < 9 || version.Major==9 && version.Minor < 2)
           throw new NotSupportedException(Strings.ExOracleBelow9i2IsNotSupported);
         SqlDriver result;
         if (version.Major==9)
-          result = new v09.Driver(connection, version);
+          result = new v09.Driver(coreServerInfo);
         else if (version.Major==10)
-          result = new v10.Driver(connection, version);
+          result = new v10.Driver(coreServerInfo);
         else
-          result = new v11.Driver(connection, version);
+          result = new v11.Driver(coreServerInfo);
         connection.Close();
         return result;
       }

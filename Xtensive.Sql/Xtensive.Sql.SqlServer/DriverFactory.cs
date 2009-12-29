@@ -6,7 +6,9 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.SqlServer.Resources;
+using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer
 {
@@ -15,32 +17,36 @@ namespace Xtensive.Sql.SqlServer
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
+    private const string DatabaseAndSchemaQuery =
+      "select db_name(), default_schema_name from sys.database_principals where name=user";
+
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(UrlInfo url)
+    public override SqlDriver CreateDriver(ConnectionInfo connectionInfo)
     {
-      using (var connection = ConnectionFactory.CreateConnection(url)) {
+      var connectionString = ConnectionStringBuilder.Build(connectionInfo);
+      using (var connection = new SqlServerConnection(connectionString)) {
         connection.Open();
         var version = new Version(connection.ServerVersion);
-        SqlDriver driver;
+        var coreServerInfo = new CoreServerInfo {ConnectionString = connectionString, ServerVersion = version};
+        SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
+        SqlDriver result;
         switch (version.Major) {
-          case 9:
-            driver = new v09.Driver(connection, version);
-            break;
-          case 10:
-            using (var command = connection.CreateCommand()) {
-              command.CommandText = "SELECT @@VERSION";
-              string result = command.ExecuteScalar() as string;
-              if (result!=null && result.Contains("Azure"))
-                driver = new Azure.Driver(connection, version);
-              else
-                driver = new v10.Driver(connection, version);
-            }
-            break;
-          default:
-            throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
+        case 9:
+          result = new v09.Driver(coreServerInfo);
+          break;
+        case 10:
+          using (var command = connection.CreateCommand()) {
+            command.CommandText = "SELECT @@VERSION";
+            result = ((string) command.ExecuteScalar()).Contains("Azure")
+              ? new Azure.Driver(coreServerInfo)
+              : new v10.Driver(coreServerInfo);
+          }
+          break;
+        default:
+          throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
         }
         connection.Close();
-        return driver;
+        return result;
       }
     }
   }

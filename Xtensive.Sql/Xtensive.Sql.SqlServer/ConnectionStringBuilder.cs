@@ -8,23 +8,14 @@ using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer
 {
-  internal static class ConnectionFactory
+  internal static class ConnectionStringBuilder
   {
-    public static SqlServerConnection CreateConnection(UrlInfo url)
+    public static string Build(ConnectionInfo connectionInfo)
     {
-      var builder = GetBuilder(url);
-      return new SqlServerConnection(builder.ToString());
-    }
+      if (!string.IsNullOrEmpty(connectionInfo.ConnectionString))
+        return connectionInfo.ConnectionString;
+      var url = connectionInfo.ConnectionUrl;
 
-    public static SqlServerConnection CreateConnection(SqlDriver driver, UrlInfo url)
-    {
-      var builder = GetBuilder(url);
-      builder.MultipleActiveResultSets = driver.ServerInfo.MultipleActiveResultSets;
-      return new SqlServerConnection(builder.ToString());
-    }
-
-    private static SqlConnectionStringBuilder GetBuilder(UrlInfo url)
-    {
       SqlHelper.ValidateConnectionUrl(url);
 
       var builder = new SqlConnectionStringBuilder();
@@ -50,7 +41,7 @@ namespace Xtensive.Sql.SqlServer
       foreach (var param in url.Params)
         builder[param.Key] = param.Value;
 
-      return builder;
+      return builder.ToString();
     }
   }
 }

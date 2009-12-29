@@ -30,6 +30,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public ProviderInfo BuildProviderInfo()
     {
+      var csi = underlyingDriver.CoreServerInfo;
       var si = underlyingDriver.ServerInfo;
       var queryFeatures = si.Query.Features;
       var indexFeatures = si.Index.Features;
@@ -82,7 +83,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (stringTypeInfo!=null && stringTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull))
         f |= ProviderFeatures.TreatEmptyStringAsNull;
 
-      var storageVersion = (Version) si.Version.ProductVersion.Clone();
+      var storageVersion = csi.ServerVersion;
       var maxIdentifierLength = new EntityInfo[] {si.Column, si.ForeignKey, si.Index, si.PrimaryKey, si.Sequence, si.Table, si.TemporaryTable, si.UniqueConstraint}.Select(e => e == null ? int.MaxValue : e.MaxIdentifierLength).Min();
       return new ProviderInfo(storageVersion, f, maxIdentifierLength);
     }

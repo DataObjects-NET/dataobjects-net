@@ -25,7 +25,7 @@ namespace Xtensive.Sql.SqlServer.v09
 
     protected override void Initialize()
     {
-      catalog = new Catalog(Driver.ServerInfo.DatabaseName);
+      catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
     public override Catalog ExtractCatalog()

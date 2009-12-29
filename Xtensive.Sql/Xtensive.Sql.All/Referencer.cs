@@ -20,7 +20,6 @@ namespace Xtensive.Sql.All
       typeof (SqlServer.DriverFactory),
       typeof (PostgreSql.DriverFactory),
       typeof (Oracle.DriverFactory),
-      typeof (VistaDb.DriverFactory),
     };
 
 

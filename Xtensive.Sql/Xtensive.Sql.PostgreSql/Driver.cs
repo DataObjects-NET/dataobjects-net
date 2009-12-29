@@ -1,4 +1,3 @@
-using Xtensive.Core;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.PostgreSql
@@ -10,15 +9,15 @@ namespace Xtensive.Sql.PostgreSql
       return new TypeMapper(this);
     }
 
-    public override SqlConnection CreateConnection(UrlInfo url)
+    public override SqlConnection CreateConnection()
     {
-      return new Connection(this, url);
+      return new Connection(this);
     }
 
     // Constructors
 
-    protected Driver(ServerInfoProvider serverInfoProvider)
-      : base(serverInfoProvider)
+    protected Driver(CoreServerInfo coreServerInfo)
+      : base(coreServerInfo)
     {
     }
   }

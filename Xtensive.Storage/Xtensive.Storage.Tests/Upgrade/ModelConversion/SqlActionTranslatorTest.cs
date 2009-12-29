@@ -182,7 +182,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       var parsedUrl = UrlInfo.Parse(Url);
       var driver = new Driver(parsedUrl);
       
-      using (var connection = driver.CreateConnection(null, parsedUrl)) {
+      using (var connection = driver.CreateConnection(null)) {
         connection.Open();
         try {
           connection.BeginTransaction();
@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       Schema schema;
       var parsedUrl = UrlInfo.Parse(Url);
       var driver = new Driver(parsedUrl);
-      using (var connection = driver.CreateConnection(null, parsedUrl)) {
+      using (var connection = driver.CreateConnection(null)) {
         connection.Open();
         try {
           connection.BeginTransaction();

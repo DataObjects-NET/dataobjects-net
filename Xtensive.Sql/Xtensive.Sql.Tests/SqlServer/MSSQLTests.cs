@@ -84,8 +84,7 @@ namespace Xtensive.Sql.Tests.SqlServer
     public override void SetUp()
     {
       sqlDriver = SqlDriver.Create(TestUrl.SqlServer2005Aw);
-//      sqlConnection = sqlDriver.CreateConnection("sql2005://MES/Belov_Pocoloco_1.19.2");
-      sqlConnection = sqlDriver.CreateConnection(TestUrl.SqlServer2005Aw);
+      sqlConnection = sqlDriver.CreateConnection();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
@@ -93,7 +92,6 @@ namespace Xtensive.Sql.Tests.SqlServer
         sqlConnection.Open();
       }
       catch (SystemException e) {
-        Console.WriteLine(sqlConnection.Url);
         Console.WriteLine(e);
       }
 

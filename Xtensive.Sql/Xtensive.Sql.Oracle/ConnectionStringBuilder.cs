@@ -9,20 +9,18 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Oracle
 {
-  internal static class ConnectionFactory
+  internal static class ConnectionStringBuilder
   {
     private const int DefaultPort = 1521;
     private const string DataSourceFormat =
       "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={0})(PORT={1}))(CONNECT_DATA=(SERVICE_NAME={2})))";
 
-    public static OracleConnection CreateConnection(UrlInfo url)
+    public static string Build(ConnectionInfo connectionInfo)
     {
-      var connectionString = BuildConnectionString(url);
-      return new OracleConnection(connectionString);
-    }
+      if (!string.IsNullOrEmpty(connectionInfo.ConnectionString))
+        return connectionInfo.ConnectionString;
+      var url = connectionInfo.ConnectionUrl;
 
-    private static string BuildConnectionString(UrlInfo url)
-    {
       SqlHelper.ValidateConnectionUrl(url);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(url.Resource, "url.Resource");
 

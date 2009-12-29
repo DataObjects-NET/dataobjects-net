@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.11.09
 
-using System;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer.Azure
@@ -18,8 +17,8 @@ namespace Xtensive.Sql.SqlServer.Azure
 
     // Constructors
 
-    public ServerInfoProvider(SqlServerConnection connection, Version version)
-      : base(connection, version)
+    public ServerInfoProvider(SqlDriver driver)
+      : base(driver)
     {
     }
   }

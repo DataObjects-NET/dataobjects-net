@@ -4,17 +4,14 @@
 // Created by: Denis Kryuchkov
 // Created:    2009.07.07
 
-using System;
-using Npgsql;
-
 namespace Xtensive.Sql.PostgreSql.v8_4
 {
   internal class ServerInfoProvider : v8_3.ServerInfoProvider
   {
     // Constructors
 
-    public ServerInfoProvider(NpgsqlConnection connection, Version version)
-      : base(connection, version)
+    public ServerInfoProvider(SqlDriver driver)
+      : base(driver)
     {
     }
   }

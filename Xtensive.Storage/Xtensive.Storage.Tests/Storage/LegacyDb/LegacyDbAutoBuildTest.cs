@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     private void PrepareDb(DomainConfiguration config)
     {
       var driver = SqlDriver.Create(config.ConnectionInfo);
-      var connection = driver.CreateConnection(config.ConnectionInfo);
+      var connection = driver.CreateConnection();
       connection.Open();
       try {
         using (var cmd = connection.CreateCommand()) {

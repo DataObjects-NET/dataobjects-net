@@ -22,13 +22,12 @@ namespace Xtensive.Sql.Tests.SqlServer
       base.SetUp();
 
       sqlDriver = SqlDriver.Create(TestUrl.SqlServer2005Aw);
-      sqlConnection = sqlDriver.CreateConnection(TestUrl.SqlServer2005Aw);
+      sqlConnection = sqlDriver.CreateConnection();
       sqlCommand = sqlConnection.CreateCommand();
       try {
         sqlConnection.Open();
       }
       catch (SystemException e) {
-        Console.WriteLine(sqlConnection.Url);
         Console.WriteLine(e);
       }
     }

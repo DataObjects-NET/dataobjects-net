@@ -5,7 +5,9 @@
 // Created:    2009.06.23
 
 using System;
+using Npgsql;
 using Xtensive.Core;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.PostgreSql.Resources;
 
 namespace Xtensive.Sql.PostgreSql
@@ -15,27 +17,30 @@ namespace Xtensive.Sql.PostgreSql
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
+    private const string DatabaseAndSchemaQuery = "select current_database(), current_schema()";
+
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(UrlInfo url)
+    public override SqlDriver CreateDriver(ConnectionInfo connectionInfo)
     {
-      using (var connection = ConnectionFactory.CreateConnection(url)) {
+      var connectionString = ConnectionStringBuilder.Build(connectionInfo);
+      using (var connection = new NpgsqlConnection(connectionString)) {
         connection.Open();
         var version = connection.PostgreSqlVersion;
-        int major = version.Major;
-        int minor = version.Minor;
-        if (major < 8)
+        var coreServerInfo = new CoreServerInfo {ConnectionString = connectionString, ServerVersion = version};
+        SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
+        if (version.Major < 8)
           throw new NotSupportedException(Strings.ExPostgreSqlBelow80IsNotSupported);
         SqlDriver result;
-        if (major==8 && minor==0)
-          result = new v8_0.Driver(connection, version);
-        else if (major==8 && minor==1)
-          result = new v8_1.Driver(connection, version);
-        else if (major==8 && minor==2)
-          result = new v8_2.Driver(connection, version);
-        else if (major==8 && minor==3)
-          result = new v8_3.Driver(connection, version);
+        if (version.Major==8 && version.Minor==0)
+          result = new v8_0.Driver(coreServerInfo);
+        else if (version.Major==8 && version.Minor==1)
+          result = new v8_1.Driver(coreServerInfo);
+        else if (version.Major==8 && version.Minor==2)
+          result = new v8_2.Driver(coreServerInfo);
+        else if (version.Major==8 && version.Minor==3)
+          result = new v8_3.Driver(coreServerInfo);
         else
-          result = new v8_4.Driver(connection, version);
+          result = new v8_4.Driver(coreServerInfo);
         connection.Close();
         return result;
       }

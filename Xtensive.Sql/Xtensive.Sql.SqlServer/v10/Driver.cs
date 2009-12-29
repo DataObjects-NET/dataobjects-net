@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.SqlServer.v10
@@ -32,15 +33,17 @@ namespace Xtensive.Sql.SqlServer.v10
       return new TypeMapper(this);
     }
 
-    // Constructors
-
-    public Driver(SqlServerConnection connection, Version version)
-      : base(new ServerInfoProvider(connection, version))
+    protected override Info.ServerInfoProvider CreateServerInfoProvider()
     {
+      return new ServerInfoProvider(this);
     }
 
-    protected Driver(ServerInfoProvider serverInfoProvider)
-      : base(serverInfoProvider)
-    {}
+
+    // Constructors
+
+    public Driver(CoreServerInfo coreServerInfo)
+      : base(coreServerInfo)
+    {
+    }
   }
 }

@@ -4,22 +4,21 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
-using Xtensive.Core;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.SqlServer
 {
   internal abstract class Driver : SqlDriver
   {
-    public override SqlConnection CreateConnection(UrlInfo url)
+    public override SqlConnection CreateConnection()
     {
-      return new Connection(this, url);
+      return new Connection(this);
     }
 
     // Constructors
 
-    protected Driver(ServerInfoProvider serverInfoProvider)
-      : base(serverInfoProvider)
+    protected Driver(CoreServerInfo coreServerInfo)
+      : base(coreServerInfo)
     {
     }
   }

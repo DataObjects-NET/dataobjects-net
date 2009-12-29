@@ -13,18 +13,9 @@ namespace Xtensive.Sql
   /// <summary>
   /// A connection to a database.
   /// </summary>
-  public abstract class SqlConnection : IDisposable
+  public abstract class SqlConnection : SqlDriverBound,
+    IDisposable
   {
-    /// <summary>
-    /// Gets a <see cref="SqlDriver">RDBMS driver</see> the connection is working through.
-    /// </summary>
-    public SqlDriver Driver { get; private set; }
-
-    /// <summary>
-    /// Gets the connection info.
-    /// </summary>
-    public UrlInfo Url { get; private set; }
-
     /// <summary>
     /// Gets the underlying connection.
     /// </summary>
@@ -243,10 +234,9 @@ namespace Xtensive.Sql
 
     // Constructors
 
-    protected SqlConnection(SqlDriver driver, UrlInfo url)
+    protected SqlConnection(SqlDriver driver)
+      : base(driver)
     {
-      Driver = driver;
-      Url = url;
     }
   }
 }

@@ -3,16 +3,14 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.PostgreSql
 {
-  internal static class ConnectionFactory
+  internal static class ConnectionStringBuilder
   {
-    public static NpgsqlConnection CreateConnection(UrlInfo url)
+    public static string Build(ConnectionInfo connectionInfo)
     {
-      var connectionString = BuildConnectionString(url);
-      return new NpgsqlConnection(connectionString);
-    }
+      if (!string.IsNullOrEmpty(connectionInfo.ConnectionString))
+        return connectionInfo.ConnectionString;
+      var url = connectionInfo.ConnectionUrl;
 
-    private static string BuildConnectionString(UrlInfo url)
-    {
       SqlHelper.ValidateConnectionUrl(url);
 
       var builder = new NpgsqlConnectionStringBuilder();

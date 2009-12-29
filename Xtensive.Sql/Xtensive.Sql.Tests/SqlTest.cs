@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Tests
     {
       var parsedUrl = new UrlInfo(Url);
       Driver = SqlDriver.Create(parsedUrl);
-      Connection = Driver.CreateConnection(parsedUrl);
+      Connection = Driver.CreateConnection();
       Connection.Open();
     }
 

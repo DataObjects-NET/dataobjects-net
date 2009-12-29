@@ -7,7 +7,6 @@
 using Npgsql;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Core;
 
 namespace Xtensive.Sql.PostgreSql
 {
@@ -78,10 +77,10 @@ namespace Xtensive.Sql.PostgreSql
 
     // Constructors
 
-    public Connection(SqlDriver driver, UrlInfo url)
-      : base(driver, url)
+    public Connection(SqlDriver driver)
+      : base(driver)
     {
-      underlyingConnection = ConnectionFactory.CreateConnection(url);
+      underlyingConnection = new NpgsqlConnection(driver.CoreServerInfo.ConnectionString);
     }
   }
 }

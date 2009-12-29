@@ -16,7 +16,7 @@ using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Compiler
 {
-  public abstract class SqlTranslator
+  public abstract class SqlTranslator : SqlDriverBound
   {
     public DateTimeFormatInfo DateTimeFormat { get; private set; }
     public NumberFormatInfo IntegerNumberFormat { get; private set; }
@@ -70,11 +70,6 @@ namespace Xtensive.Sql.Compiler
     /// Gets the parameter prefix.
     /// </summary>
     public string ParameterPrefix { get; private set; }
-
-    /// <summary>
-    /// Gets the driver.
-    /// </summary>
-    protected SqlDriver Driver { get; private set; }
 
     /// <summary>
     /// Initializes this instance.
@@ -1775,8 +1770,8 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="driver">The driver.</param>
     protected SqlTranslator(SqlDriver driver)
+      : base(driver)
     {
-      Driver = driver;
     }
   }
 }

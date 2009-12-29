@@ -4,10 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using Oracle.DataAccess.Client;
-using System;
-using Xtensive.Core;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Oracle.v09
 {
@@ -28,10 +26,16 @@ namespace Xtensive.Sql.Oracle.v09
       return new Extractor(this);
     }
 
+    protected override Info.ServerInfoProvider CreateServerInfoProvider()
+    {
+      return new ServerInfoProvider(this);
+    }
+
+
     // Constructors
 
-    public Driver(OracleConnection connection, Version version)
-      : base(new ServerInfoProvider(connection, version))
+    public Driver(CoreServerInfo coreServerInfo)
+      : base(coreServerInfo)
     {
     }
  }

@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Oracle.v09
     protected override void Initialize()
     {
       dataDictionary = dataDictionaryCached.GetValue(BuildDataDictionary);
-      theCatalog = new Catalog(Driver.ServerInfo.DatabaseName);
+      theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
     public override Catalog ExtractCatalog()
@@ -83,7 +83,7 @@ namespace Xtensive.Sql.Oracle.v09
         }
       }
       // choosing the default schema
-      var defaultSchemaName = Driver.ServerInfo.DefaultSchemaName.ToUpperInvariant();
+      var defaultSchemaName = Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant();
       var defaultSchema = theCatalog.Schemas[defaultSchemaName];
       theCatalog.DefaultSchema = defaultSchema;
     }

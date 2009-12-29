@@ -270,7 +270,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       if (connection!=null)
         return;
-      connection = driver.CreateConnection(Session, Handlers.Domain.Configuration.ConnectionInfo);
+      connection = driver.CreateConnection(Session);
       driver.OpenConnection(Session, connection);
       commandProcessor = domainHandler.CommandProcessorFactory.CreateCommandProcessor(Session, Connection);
     }
