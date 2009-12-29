@@ -216,6 +216,18 @@ namespace Xtensive.Sql.SqlServer.v09
       return result;
     }
 
+    public override void Visit(SqlFreeTextTable node)
+    {
+      string columns;
+      if (node.TargetColumns.Count == 1)
+        columns = node.TargetColumns[0].Name;
+      else
+        columns = string.Join(", ", node.TargetColumns.Select(c => c.Name).ToArray());
+      context.Output.AppendText(string.Format("FREETEXTTABLE({0}, {1}, ", translator.Translate(node.TargetTable.DataTable), columns));
+      node.FreeText.AcceptVisitor(this);
+      context.Output.AppendText(") ");
+    }
+
     #region Static helpers
 
     private static SqlCast CastToLong(SqlExpression arg)

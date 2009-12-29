@@ -432,6 +432,7 @@ namespace Xtensive.Sql.SqlServer.v09
       return collation.DbName;
     }
 
+
     // Constructors
 
     /// <summary>

@@ -10,6 +10,7 @@ namespace Xtensive.Sql.Tests
   {
     public const string SqlServer2005 = "sqlserver://localhost/DO40-Tests";
     public const string SqlServer2005Aw = "sqlserver://localhost/AdventureWorks";
+    public const string SqlServer2005Northwind = "sqlserver://localhost/Northwind";
     public const string SqlServer2008 = @"sqlserver://localhost\Sql2008/DO40-Tests";
     public const string SqlServer2008Aw = @"sqlserver://localhost\Sql2008/AdventureWorks";
 

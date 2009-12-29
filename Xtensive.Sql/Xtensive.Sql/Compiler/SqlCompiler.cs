@@ -790,6 +790,10 @@ namespace Xtensive.Sql.Compiler
       // nothing
     }
 
+    public virtual void Visit(SqlFreeTextTable node)
+    {
+    }
+
     public virtual void Visit(SqlFunctionCall node)
     {
       using (context.EnterScope(node)) {

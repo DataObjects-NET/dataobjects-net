@@ -1720,6 +1720,21 @@ namespace Xtensive.Sql
       return new SqlColumnStub(column);
     }
 
+    public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
+      ArgumentValidator.EnsureArgumentNotNull(freeText, "freeText");
+      return new SqlFreeTextTable(dataTable, freeText);
+    }
+
+    public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
+      ArgumentValidator.EnsureArgumentNotNull(freeText, "freeText");
+      ArgumentValidator.EnsureArgumentNotNull(columnNames, "columnNames");
+      return new SqlFreeTextTable(dataTable, freeText, columnNames.ToArray());
+    }
+
     public static SqlTableRef TableRef(DataTable dataTable)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");

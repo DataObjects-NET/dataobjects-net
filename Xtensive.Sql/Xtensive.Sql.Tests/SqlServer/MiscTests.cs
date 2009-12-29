@@ -351,5 +351,14 @@ namespace Xtensive.Sql.Tests.SqlServer
       Console.WriteLine(sqlDriver.Compile(SqlDml.ExceptAll(s1.ExceptAll(s2), s1.ExceptAll(s2))).GetCommandText());
     }
 
+    [Test]
+    public void FreeTextTetst()
+    {
+      SqlSelect select = SqlDml.Select();
+      select.Columns.Add(SqlDml.Asterisk);
+      select.From = SqlDml.FreeTextTable(Catalog.Schemas["Person"].Tables["Address"], "How can I make my own beers and ales?");
+      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+    }
+
   }
 }
