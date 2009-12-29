@@ -215,6 +215,13 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         columns.AddRange(expressionColumns);
     }
 
+    protected override Expression VisitFreeTextExpression(FreeTextExpression expression)
+    {
+      VisitEntityExpression(expression.EntityExpression);
+      VisitColumnExpression(expression.RankExpression);
+      return expression;
+    }
+
     // Constructors
 
     private ColumnGatherer(ColumnExtractionModes columnExtractionModes)

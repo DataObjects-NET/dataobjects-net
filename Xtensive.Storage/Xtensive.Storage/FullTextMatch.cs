@@ -23,11 +23,6 @@ namespace Xtensive.Storage.FullText
     public double Rank { get; private set; }
 
     /// <summary>
-    /// Gets the key of the full-text document and <see cref="Entity"/> entity.
-    /// </summary>
-    public Key Key { get; private set; }
-
-    /// <summary>
     /// Gets the target entity.
     /// </summary>
     public T Entity { get; private set; }
@@ -38,13 +33,11 @@ namespace Xtensive.Storage.FullText
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="key">The <see cref="Key"/> property value.</param>
     /// <param name="rank">The <see cref="Rank"/> property value.</param>
     /// <param name="target">The <see cref="Entity"/> property value.</param>
-    public FullTextMatch(double rank, Key key, T target)
+    internal FullTextMatch(double rank, T target)
     {
       Rank = rank;
-      Key = key;
       Entity = target;
     }
   }

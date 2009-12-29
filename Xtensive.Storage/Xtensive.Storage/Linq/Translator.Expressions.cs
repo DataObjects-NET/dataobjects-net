@@ -634,7 +634,9 @@ namespace Xtensive.Storage.Linq
         var fullTextIndex = type.FullTextIndex;
         if (fullTextIndex==null)
           throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHasFullTextIndex, elementType.FullName));
-        var freeTextExpression = new FreeTextExpression(fullTextIndex);
+        var entityExpression = EntityExpression.Create(type, 0, true);
+        var rankExpression = ColumnExpression.Create(typeof (double), entityExpression.Key.Mapping.Length);
+        var freeTextExpression = new FreeTextExpression(fullTextIndex, entityExpression, rankExpression, null);
         var dataSource = new FreeTextProvider(fullTextIndex).Result;
         var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
         return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(rootPoint.ElementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
@@ -697,8 +699,6 @@ namespace Xtensive.Storage.Linq
       bool isMarker = expression.TryGetMarker(out markerType);
       expression = expression.StripMarkers();
       expression = expression.StripCasts();
-      if (expression.IsGroupingExpression() && member.Name=="Key")
-        return ((GroupingExpression) expression).KeyExpression;
       if (expression.IsAnonymousConstructor()) {
         var newExpression = (NewExpression) expression;
         if (member.MemberType==MemberTypes.Property)
@@ -719,6 +719,18 @@ namespace Xtensive.Storage.Linq
       Expression result = null;
       Func<PersistentFieldExpression, bool> propertyFilter = f => f.Name==member.Name;
       switch (extendedExpression.ExtendedType) {
+      case ExtendedExpressionType.FreeText:
+        switch (member.Name) {
+        case "Rank":
+          return ((FreeTextExpression) expression).RankExpression;
+        case "Entity":
+          return ((FreeTextExpression) expression).EntityExpression;
+        }
+        break;
+      case ExtendedExpressionType.Grouping:
+        if (member.Name=="Key")
+          return ((GroupingExpression) expression).KeyExpression;
+        break;
       case ExtendedExpressionType.Constructor:
         if (!((ConstructorExpression) extendedExpression).Bindings.TryGetValue(member, out result))
           throw new InvalidOperationException(String.Format(Strings.ExMemberXOfTypeXIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer, member.Name, member.ReflectedType.Name));

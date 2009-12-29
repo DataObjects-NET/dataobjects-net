@@ -13,6 +13,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Storage.FullText;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Rewriters;
@@ -55,6 +56,20 @@ namespace Xtensive.Storage.Linq.Materialization
     #endregion
 
     #region Visitor methods overrsides
+
+    protected override Expression VisitFreeTextExpression(FreeTextExpression expression)
+    {
+      var rankMaterializer = Visit(expression.RankExpression);
+      var entityMaterializer = Visit(expression.EntityExpression);
+      var constructorInfo = typeof (FullTextMatch<>)
+        .MakeGenericType(expression.EntityExpression.Type)
+        .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new[] {typeof (double), expression.EntityExpression.Type});
+
+      return Expression.New(
+        constructorInfo,
+        rankMaterializer,
+        entityMaterializer);
+    }
 
     protected override Expression VisitMarker(MarkerExpression expression)
     {
