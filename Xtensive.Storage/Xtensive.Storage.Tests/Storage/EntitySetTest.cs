@@ -347,6 +347,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var author = Query.Single<Author>(key);
+        FetchEntitySet(author.Books);
         author.Books.Add(new Book());
         EntitySetState setState;
         session.Handler.TryGetEntitySetState(key, booksField, out setState);
@@ -364,6 +365,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var author = Query.Single<Author>(key);
+        FetchEntitySet(author.Books);
         var booksToBeRemoved = Query.All<Book>().Where(b => b.Author.Key == key).Take(2).ToList();
         var bookToBeRemoved0 = booksToBeRemoved[0];
         var bookToBeRemoved1 = booksToBeRemoved[1];
@@ -384,6 +386,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var author = Query.Single<Author>(key);
+        FetchEntitySet(author.Books);
         author.Books.Add(new Book());
         EntitySetState setState;
         Assert.IsTrue(session.Handler.TryGetEntitySetState(key, booksField, out setState));
@@ -429,6 +432,12 @@ namespace Xtensive.Storage.Tests.Storage
       for (int i = 0; i < count; i++)
         result.Add(new Order());
       return result;
+    }
+
+    private void FetchEntitySet<T>(EntitySet<T> books) where T : IEntity
+    {
+      // fancy trick to force loading at most N items (currently N = 32)
+      books.Contains(Key.Create(typeof (T), -77));
     }
   }
 }
