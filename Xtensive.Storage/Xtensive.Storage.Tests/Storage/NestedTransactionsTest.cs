@@ -54,27 +54,6 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void NestedTransactionRollbackedTest()
-    {
-      using (var session = Session.Open(Domain)) {
-        using (Transaction.Open()) {
-          var hexagon = new Hexagon { Kwanza = 1};
-
-          session.TransactionRollbacked +=
-            (sender, args) => {
-              if (args.Transaction.IsNested)
-                Assert.AreEqual(1, hexagon.Kwanza);
-            };
-          using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
-            hexagon.Kwanza = 2;
-            // Rollback
-          }  
-          Assert.AreEqual(1, hexagon.Kwanza);
-        }
-      }
-    }
-
-    [Test]
     public void ModifiedStateIsValidInInnerTransactionTest()
     {
       using (var outerScope = Transaction.Open()) {
@@ -153,18 +132,13 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void WrongNestedTransactionUsageTest()
     {
-      try {
-        using (var outerScope = Transaction.Open()) {
-          using (var innerScope = Transaction.Open(TransactionOpenMode.New)) {
-            outerScope.Complete();
-            AssertEx.ThrowsInvalidOperationException(outerScope.Dispose);
-          }
-        }
+      using (var outerScope = Transaction.Open())
+      using (var innerScope = Transaction.Open(TransactionOpenMode.New)) {
+        outerScope.Complete();
+        AssertEx.ThrowsInvalidOperationException(outerScope.Dispose);
       }
-      finally {
-        Assert.IsNull(Session.Current.Transaction);
-        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
-      }
+      Assert.IsNull(Session.Current.Transaction);
+      Assert.IsNull(StorageTestHelper.GetNativeTransaction());
     }
 
     private static void AssertStateIsValid(Entity entity, Transaction expectedStateTransaction)

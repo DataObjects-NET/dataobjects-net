@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Disconnected
       OnEntityChanging(e.Entity);
     }
 
-    private void OnTransactionOpen(object sender, TransactionEventArgs e)
+    private void OnTransactionOpened(object sender, TransactionEventArgs e)
     {
       processed = new HashSet<Key>();
       knownVersions = new Dictionary<Key, VersionInfo>();
@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Disconnected
       try {
         Session.Persisting += OnPersisting;
         Session.Persisted += OnPersisted;
-        Session.TransactionOpen += OnTransactionOpen;
+        Session.TransactionOpened += OnTransactionOpened;
         Session.EntityFieldValueSetting += OnEntityFieldValueSetting;
         Session.EntitySetItemAdding += OnEntitySetItemAdding;
         Session.EntitySetItemRemoving += OnEntitySetItemRemoving;
@@ -238,7 +238,7 @@ namespace Xtensive.Storage.Disconnected
         isAttached = false;
         Session.Persisting -= OnPersisting;
         Session.Persisted -= OnPersisted;
-        Session.TransactionOpen -= OnTransactionOpen;
+        Session.TransactionOpened -= OnTransactionOpened;
         Session.EntityFieldValueSetting -= OnEntityFieldValueSetting;
         Session.EntitySetItemAdding -= OnEntitySetItemAdding;
         Session.EntitySetItemRemoving -= OnEntitySetItemRemoving;

@@ -395,32 +395,6 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void NestedTransactionRollbackedTest()
-    {
-      try {
-        using (var session = Session.Open(Domain)) {
-          var disconnectedState = new DisconnectedState();
-          using (disconnectedState.Attach(session)) {
-            using (Transaction.Open()) {
-              using (disconnectedState.Connect()) {
-
-                var customer = new Customer();
-
-                session.TransactionRollbacked +=
-                  (sender, args) => customer.Orders.ToList(); // DisconnectedState fails here with NullReferenceException
-
-                using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
-                  new Order {Customer = customer};
-                }
-              }
-            }
-          }
-        }
-      }
-      catch(InvalidOperationException) { }
-    }
-
-    [Test]
     public void QueryFromCacheTest()
     {
       Key key;

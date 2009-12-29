@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Session.Open(Domain)) {
 
-        session.TransactionOpen += (sender, e) => transactionOpenArgs = e;
+        session.TransactionOpening += (sender, e) => transactionOpenArgs = e;
 
         session.TransactionCommitting += (sender, e) => {
           transactionCommitingArgs = e;

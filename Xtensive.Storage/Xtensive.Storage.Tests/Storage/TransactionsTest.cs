@@ -162,5 +162,38 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
+
+    [Test]
+    public void TransactionEventsTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (Transaction.Open()) {
+        var hexagon = new Hexagon {Kwanza = 1};
+
+        session.TransactionOpened +=
+          (sender, args) => Assert.AreEqual(Transaction.Current, args.Transaction);
+        session.TransactionCommitting +=
+          (sender, args) => Assert.AreEqual(Transaction.Current, args.Transaction);
+        session.TransactionRollbacking +=
+          (sender, args) => Assert.AreEqual(Transaction.Current, args.Transaction);
+
+        session.TransactionOpening +=
+          (sender, args) => Assert.AreNotEqual(Transaction.Current, args.Transaction);
+        session.TransactionCommitted +=
+          (sender, args) => Assert.AreNotEqual(Transaction.Current, args.Transaction);
+        session.TransactionRollbacked +=
+          (sender, args) => Assert.AreNotEqual(Transaction.Current, args.Transaction);
+
+        using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+          hexagon.Kwanza = 2;
+          // Rollback
+        }
+
+        using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+          hexagon.Kwanza = 2;
+          nestedScope.Complete();
+        }
+      }
+    }
   }
 }

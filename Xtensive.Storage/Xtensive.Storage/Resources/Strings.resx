@@ -1265,8 +1265,8 @@ Actions:
   <data name="ExCantMergeState" xml:space="preserve">
     <value>Can't merge state.</value>
   </data>
-  <data name="LogSessionXBeginTransaction" xml:space="preserve">
-    <value>Session '{0}'. Begin transaction.</value>
+  <data name="LogSessionXOpeningTransaction" xml:space="preserve">
+    <value>Session '{0}'. Opening transaction.</value>
   </data>
   <data name="LogSessionXCommittingTransaction" xml:space="preserve">
     <value>Session '{0}'. Committing transaction.</value>
@@ -1333,6 +1333,9 @@ Actions:
   </data>
   <data name="ExUseMethodXOnFirstInsteadOfSingle" xml:space="preserve">
     <value>Unable to translate '{0}'. Use method ('{1}') on First/FirstOrDefault instead of Single/SingleOrDefault.</value>
+  </data>
+  <data name="LogSessionXOpenedTransaction" xml:space="preserve">
+    <value>Session '{0}'. Opened transaction.</value>
   </data>
   <data name="ExUnknownInSyntax" xml:space="preserve">
     <value>Unable to translate '{0}' expression. Unknown "In" syntax</value>

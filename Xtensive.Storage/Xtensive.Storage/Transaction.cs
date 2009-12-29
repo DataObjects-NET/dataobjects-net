@@ -126,91 +126,63 @@ namespace Xtensive.Storage
     
     internal void Begin()
     {
-      if (State!=TransactionState.NotActivated)
-        throw new InvalidOperationException(Strings.ExTransactionShouldNotBeActive);
-      try {
-        PerformBegin();
-      }
-      catch {
-        ClearReferences();
-        throw;
-      }
+      BeginValidation();
+      Session.BeginTransaction(this);
+      if (Outer!=null)
+        Outer.inner = this;
       State = TransactionState.Active;
     }
 
     internal void Commit()
     {
-      EnsureTransactionIsActive();
+      EnsureIsActive();
       State = TransactionState.Committing;
-      try {
-        PerformCommit();
-        State = TransactionState.Committed;
-      }
-      catch {
-        State = TransactionState.RolledBack;
-        throw;
-      }
-      finally {
-        ClearReferences();
-      }
-    }
-
-    internal void Rollback()
-    {
-      EnsureTransactionIsActive();
-      State = TransactionState.RollingBack;
-      try {
-        PerformRollback();
-      }
-      finally {
-        State = TransactionState.RolledBack;
-        ClearReferences();
-      }
-    }
-
-    private void EnsureTransactionIsActive()
-    {
-      if (State!=TransactionState.Active)
-        throw new InvalidOperationException(Strings.ExTransactionIsNotActive);
-    }
-
-    private void PerformBegin()
-    {
-      BeginValidation();
-      Session.BeginTransaction(this);
-    }
-
-    private void PerformCommit()
-    {
       try {
         if (inner!=null)
           throw new InvalidOperationException(
             Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
         CompleteValidation();
+        Session.CommitTransaction(this);
       }
       catch {
-        PerformRollback();
+        Rollback();
         throw;
       }
-      Session.CommitTransaction(this);
+      State = TransactionState.Committed;
+      EndTransaction();
     }
 
-    private void PerformRollback()
+    internal void Rollback()
     {
+      EnsureIsActive();
+      State = TransactionState.RollingBack;
       try {
-        if (inner!=null)
-          inner.Rollback();
-        AbortValidation();
+        try {
+          if (inner!=null)
+            inner.Rollback();
+        }
+        finally {
+          AbortValidation();
+          Session.RollbackTransaction(this);
+        }
       }
       finally {
-        Session.RollbackTransaction(this);
+        State = TransactionState.RolledBack;
+        EndTransaction();
       }
     }
 
-    private void ClearReferences()
+    private void EndTransaction()
     {
       if (Outer!=null)
         Outer.inner = null;
+      Session.CompleteTransaction(this);
+    }
+
+    private void EnsureIsActive()
+    {
+      if (!State.IsActive())
+        throw new InvalidOperationException(Strings.ExTransactionIsNotActive);
     }
 
     #endregion
@@ -225,6 +197,7 @@ namespace Xtensive.Storage
 
     internal Transaction(Session session, IsolationLevel isolationLevel, Transaction outer, string savepointName)
     {
+      State = TransactionState.NotActivated;
       Session = session;
       IsolationLevel = isolationLevel;
       TimeStamp = DateTime.Now;
@@ -232,9 +205,6 @@ namespace Xtensive.Storage
       ValidationContext = new ValidationContext();
       
       if (outer!=null) {
-        if (outer.inner!=null)
-          throw new InvalidOperationException(Strings.ExCanNotOpenMoreThanOneInnerTransaction);
-        outer.inner = this;
         Outer = outer;
         Outermost = outer.Outermost;
         SavepointName = savepointName;

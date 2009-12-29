@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Disposing;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
@@ -30,7 +31,8 @@ namespace Xtensive.Storage
 
         if (inconsistentRegion!=null) {
           inconsistentRegion.Complete();
-          inconsistentRegion.DisposeSafely();
+          inconsistentRegion.Dispose();
+          inconsistentRegion = null;
         }
       }
       catch (AggregateException exception) {

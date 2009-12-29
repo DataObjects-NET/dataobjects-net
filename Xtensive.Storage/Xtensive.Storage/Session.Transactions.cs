@@ -7,6 +7,7 @@
 using System;
 using System.Transactions;
 using Xtensive.Core.Disposing;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 
@@ -25,9 +26,14 @@ namespace Xtensive.Storage
     public Transaction Transaction { get; private set; }
 
     /// <summary>
-    /// Occurs on <see cref="Transaction"/> opening.
+    /// Occurs when <see cref="Transaction"/> is about to be opened.
     /// </summary>
-    public event EventHandler<TransactionEventArgs> TransactionOpen;
+    public event EventHandler<TransactionEventArgs> TransactionOpening;
+
+    /// <summary>
+    /// Occurs when <see cref="Transaction"/> is opened.
+    /// </summary>
+    public event EventHandler<TransactionEventArgs> TransactionOpened;
 
     /// <summary>
     /// Occurs when <see cref="Transaction"/> is about to be committed.
@@ -103,32 +109,22 @@ namespace Xtensive.Storage
     {
       if (!Configuration.UsesAutoshortenedTransactions)
         StartTransaction(transaction);
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXBeginTransaction, this);
-      NotifyTransactionOpen(transaction);
     }
 
     internal void CommitTransaction(Transaction transaction)
     {
-      try {
-        Persist(PersistReason.Commit);
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXCommittingTransaction, this);
-        NotifyTransactionCommitting(transaction);
-        if (transaction.IsActuallyStarted)
-          if (transaction.IsNested)
-            Handler.ReleaseSavepoint(transaction.SavepointName);
-          else
-            Handler.CommitTransaction();
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXCommittedTransaction, this);
-        NotifyTransactionCommitted(transaction);
-        CompleteTransaction(transaction);
-      }
-      catch {
-        RollbackTransaction(transaction);
-        throw;
-      }
+      Persist(PersistReason.Commit);
+
+      if (IsDebugEventLoggingEnabled)
+        Log.Debug(Strings.LogSessionXCommittingTransaction, this);
+      NotifyTransactionCommitting(transaction);
+
+      if (!transaction.IsActuallyStarted)
+        return;
+      if (transaction.IsNested)
+        Handler.ReleaseSavepoint(transaction.SavepointName);
+      else
+        Handler.CommitTransaction();
     }
 
     internal void RollbackTransaction(Transaction transaction)
@@ -137,18 +133,37 @@ namespace Xtensive.Storage
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXRollingBackTransaction, this);
         NotifyTransactionRollbacking(transaction);
+      }
+      finally {
         if (transaction.IsActuallyStarted)
           if (transaction.IsNested)
             Handler.RollbackToSavepoint(transaction.SavepointName);
           else
             Handler.RollbackTransaction();
+        ClearChangeRegistry();
+      }
+    }
+
+    internal void CompleteTransaction(Transaction transaction)
+    {
+      queryTasks.Clear();
+      pinner.ClearRoots();
+
+      Transaction = transaction.Outer;
+
+      switch (transaction.State) {
+      case TransactionState.Committed:
+        if (IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXCommittedTransaction, this);
+        NotifyTransactionCommitted(transaction);
+        break;
+      case TransactionState.RolledBack:
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXRolledBackTransaction, this);
         NotifyTransactionRollbacked(transaction);
-      }
-      finally {
-        ClearChangeRegistry();
-        CompleteTransaction(transaction);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("transaction.State");
       }
     }
 
@@ -171,15 +186,6 @@ namespace Xtensive.Storage
       }
       else
         Handler.BeginTransaction(transaction.IsolationLevel);
-
-    }
-
-    private void CompleteTransaction(Transaction transaction)
-    {
-      queryTasks.Clear();
-      pinner.ClearRoots();
-
-      Transaction = transaction.Outer;
     }
     
     private void ClearChangeRegistry()
@@ -219,19 +225,34 @@ namespace Xtensive.Storage
 
     private TransactionScope OpenTransactionScope(Transaction transaction)
     {
+      if (IsDebugEventLoggingEnabled)
+        Log.Debug(Strings.LogSessionXOpeningTransaction, this);
+      NotifyTransactionOpening(transaction);
+
       transaction.Begin();
       Transaction = transaction;
+
+      if (IsDebugEventLoggingEnabled)
+        Log.Debug(Strings.LogSessionXOpenedTransaction, this);
+      NotifyTransactionOpened(transaction);
+
       return new TransactionScope(transaction);
     }
 
     #region NotifyXxx methods
 
-    private void NotifyTransactionOpen(Transaction transaction)
+    private void NotifyTransactionOpening(Transaction transaction)
     {
-      if (TransactionOpen!=null)
-        TransactionOpen(this, new TransactionEventArgs(transaction));
+      if (TransactionOpening!=null)
+        TransactionOpening(this, new TransactionEventArgs(transaction));
     }
 
+    private void NotifyTransactionOpened(Transaction transaction)
+    {
+      if (TransactionOpened!=null)
+        TransactionOpened(this, new TransactionEventArgs(transaction));
+    }
+    
     private void NotifyTransactionCommitting(Transaction transaction)
     {
       if (TransactionCommitting!=null)
