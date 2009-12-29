@@ -818,6 +818,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entity of type &apos;{0}&apos; does not has full-text index..
+        /// </summary>
+        internal static string ExEntityDoesNotHasFullTextIndex {
+            get {
+                return ResourceManager.GetString("ExEntityDoesNotHasFullTextIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Entity is in inconsistent state..
         /// </summary>
         internal static string ExEntityIsInInconsistentState {
@@ -976,6 +985,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExFieldMustBeOfEntitySetType {
             get {
                 return ResourceManager.GetString("ExFieldMustBeOfEntitySetType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; must be persistent (marked by [Field] attribute)..
+        /// </summary>
+        internal static string ExFieldMustBePersistent {
+            get {
+                return ResourceManager.GetString("ExFieldMustBePersistent", resourceCulture);
             }
         }
         
@@ -2734,6 +2752,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExUnknownExpressionType {
             get {
                 return ResourceManager.GetString("ExUnknownExpressionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to translate &apos;{0}&apos; expression. Unknown &quot;In&quot; syntax.
+        /// </summary>
+        internal static string ExUnknownInSyntax {
+            get {
+                return ResourceManager.GetString("ExUnknownInSyntax", resourceCulture);
             }
         }
         

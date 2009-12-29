@@ -4,6 +4,11 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.12
 
+using System.Collections.Generic;
+using System.Linq;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Rse
@@ -34,6 +39,22 @@ namespace Xtensive.Storage.Rse
     public static RecordSetHeader GetRecordSetHeader(this IndexInfo indexInfo)
     {
       return RecordSetHeader.GetHeader(indexInfo);
+    }
+
+    /// <summary>
+    /// Gets the <see cref="RecordSetHeader"/> object for the specified <paramref name="fullTextIndexInfo"/>.
+    /// </summary>
+    /// <param name="fullTextIndexInfo">The full-text index info to get the header for.</param>
+    /// <returns>The <see cref="RecordSetHeader"/> object.</returns>
+    public static RecordSetHeader GetRecordSetHeader(this FullTextIndexInfo fullTextIndexInfo)
+    {
+      TupleDescriptor resultTupleDescriptor = TupleDescriptor.Create(
+        fullTextIndexInfo.Columns.Select(columnInfo => columnInfo.ValueType));
+      var resultColumns = fullTextIndexInfo.Columns.Select((c,i) => (Column) new MappedColumn(c,i,c.ValueType));
+
+      return new RecordSetHeader(
+        resultTupleDescriptor, 
+        resultColumns);
     }
   }
 }

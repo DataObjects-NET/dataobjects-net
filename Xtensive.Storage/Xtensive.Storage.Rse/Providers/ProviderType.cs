@@ -36,5 +36,6 @@ namespace Xtensive.Storage.Rse.Providers
     Union,
     Lock,
     Include,
+    FreeText,
   }
 }

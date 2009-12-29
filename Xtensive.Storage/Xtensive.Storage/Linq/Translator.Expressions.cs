@@ -15,6 +15,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.FullText;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Materialization;
@@ -105,9 +106,6 @@ namespace Xtensive.Storage.Linq
     protected override Expression VisitLambda(LambdaExpression le)
     {
       using (state.CreateLambdaScope(le)) {
-//        if (!state.BuildingProjection && le.Parameters.Count > 1)
-//          throw new InvalidOperationException(String.Format(Strings.ExLambdaXMustHaveOnlyOneParameter, le.ToString(true)));
-
         Expression body = Visit(le.Body);
         ParameterExpression parameter = le.Parameters[0];
         ProjectionExpression projection = context.Bindings[parameter];
@@ -211,7 +209,7 @@ namespace Xtensive.Storage.Linq
       }
       else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key")
         if (!context.Model.Types[ma.Expression.Type].Fields.Contains(ma.Member.Name))
-          throw new NotSupportedException(String.Format("Field '{0}' must be persistent (marked by [Field] attribute).", ma.ToString(true)));
+          throw new NotSupportedException(String.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
       Expression source;
       using (state.CreateScope()) {
         state.BuildingProjection = false;
@@ -285,7 +283,7 @@ namespace Xtensive.Storage.Linq
         algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
         break;
       default:
-        Exceptions.InternalError("Unknown \"In\" syntax", Log.Instance);
+        Exceptions.InternalError(String.Format(Strings.ExUnknownInSyntax, mc.ToString(true)), Log.Instance);
         break;
       }
       using (state.CreateScope()) {
@@ -610,9 +608,9 @@ namespace Xtensive.Storage.Linq
 
     private Expression ConstructQueryable(IQueryable rootPoint)
     {
+      // Special case. Constructing Queryable<T>.
       var constExpression = rootPoint.Expression as ConstantExpression;
       if (constExpression!=null && constExpression.Value==rootPoint) {
-        // Special case. Constructing Queryable<T>.
         Type elementType = rootPoint.ElementType;
         TypeInfo type;
         if (!context.Model.Types.TryGetValue(elementType, out type))
@@ -622,6 +620,24 @@ namespace Xtensive.Storage.Linq
         EntityExpression entityExpression = EntityExpression.Create(type, 0, false);
         var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
         return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      }
+
+      // Special case. Constructing FreeText query root (IQueryable<FullTextMatch<T>>)
+      var methodCall = rootPoint.Expression as MethodCallExpression;
+      if (methodCall!=null
+        && methodCall.Method.IsGenericMethod
+          && methodCall.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.FreeText) {
+        Type elementType = rootPoint.ElementType.GetGenericArguments()[0];
+        TypeInfo type;
+        if (!context.Model.Types.TryGetValue(elementType, out type))
+          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+        var fullTextIndex = type.FullTextIndex;
+        if (fullTextIndex==null)
+          throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHasFullTextIndex, elementType.FullName));
+        var freeTextExpression = new FreeTextExpression(fullTextIndex);
+        var dataSource = new FreeTextProvider(fullTextIndex).Result;
+        var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
+        return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(rootPoint.ElementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }
       return VisitSequence(rootPoint.Expression);
     }
@@ -821,10 +837,10 @@ namespace Xtensive.Storage.Linq
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
         .ToArray();
       int offset = itemProjector.DataSource.Header.Length;
-      if (leftJoin)
-        itemProjector.DataSource = itemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
-      else
-        itemProjector.DataSource = itemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+      itemProjector.DataSource =
+        leftJoin
+          ? itemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs)
+          : itemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       EntityExpression.Fill(entityExpression, offset);
     }
 

@@ -1334,4 +1334,13 @@ Actions:
   <data name="ExUseMethodXOnFirstInsteadOfSingle" xml:space="preserve">
     <value>Unable to translate '{0}'. Use method ('{1}') on First/FirstOrDefault instead of Single/SingleOrDefault.</value>
   </data>
+  <data name="ExUnknownInSyntax" xml:space="preserve">
+    <value>Unable to translate '{0}' expression. Unknown "In" syntax</value>
+  </data>
+  <data name="ExFieldMustBePersistent" xml:space="preserve">
+    <value>Field '{0}' must be persistent (marked by [Field] attribute).</value>
+  </data>
+  <data name="ExEntityDoesNotHasFullTextIndex" xml:space="preserve">
+    <value>Entity of type '{0}' does not has full-text index.</value>
+  </data>
 </root>

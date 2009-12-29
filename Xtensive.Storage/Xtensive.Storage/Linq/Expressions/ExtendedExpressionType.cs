@@ -26,5 +26,6 @@ namespace Xtensive.Storage.Linq.Expressions
     LocalCollection,
     Structure,
     Constructor,
+    FreeText
   }
 }

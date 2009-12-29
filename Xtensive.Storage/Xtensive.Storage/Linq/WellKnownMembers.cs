@@ -21,10 +21,12 @@ namespace Xtensive.Storage.Linq
     public static class Query
     {
       public static readonly MethodInfo All;
+      public static readonly MethodInfo FreeText;
 
       static Query()
       {
         All = typeof(Storage.Query).GetMethod("All");
+        FreeText = typeof(Storage.Query).GetMethod("FreeText");
       }
     }
 

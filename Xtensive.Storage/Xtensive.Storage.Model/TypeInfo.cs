@@ -61,6 +61,20 @@ namespace Xtensive.Storage.Model
     private Dictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
 
     /// <summary>
+    /// Gets full-text index if any, otherwise gets <see langword="null"/>.
+    /// </summary>
+    public FullTextIndexInfo FullTextIndex
+    {
+      [DebuggerStepThrough]
+      get
+      {
+        FullTextIndexInfo fullTextIndexInfo;
+        model.FullTextIndexes.TryGetValue(this, out fullTextIndexInfo);
+        return fullTextIndexInfo;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this instance is entity.
     /// </summary>
     public bool IsEntity

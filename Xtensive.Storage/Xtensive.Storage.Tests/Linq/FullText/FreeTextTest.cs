@@ -11,7 +11,7 @@ using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
 
-namespace Xtensive.Storage.Tests.Storage.FullText
+namespace Xtensive.Storage.Tests.Linq.FullText
 {
   [Serializable]
   public class FreeTextTest : NorthwindDOModelTest
@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Tests.Storage.FullText
     [Test]
     public void Test()
     {
-      var result = Query.AllText<Category>().FreeText(() => "Dessert candy and coffe seafood").ToList();
+      var result = Query.FreeText<Category>(() => "Dessert candy and coffee seafood").ToList();
       Assert.AreEqual(3, result.Count);
       foreach (var document in result) {
         Assert.IsNotNull(document);
@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.Storage.FullText
     public void JoinProductsTest()
     {
       var result = 
-        from c in Query.AllText<Category>().FreeText(() => "Dessert candy and coffe")
+        from c in Query.FreeText<Category>(() => "Dessert candy and coffee")
         join p in Query.All<Product>() on c.Key equals p.Category.Key 
         select p;
       var list = result.ToList();
@@ -40,6 +40,35 @@ namespace Xtensive.Storage.Tests.Storage.FullText
       foreach (var product in result) {
         Assert.IsNotNull(product);
         Assert.IsNotNull(product.Key);
+      }
+    }
+
+    [Test]
+    public void JoinProductsWithRanks1Test()
+    {
+      var result =
+        (from c in Query.FreeText<Category>(() => "Dessert candy and coffee")
+        orderby c.Rank
+        select new {c.Entity, c.Rank})
+          .Take(10);
+      var list = result.ToList();
+      Assert.AreEqual(25, list.Count);
+      foreach (var product in result) {
+        Assert.IsNotNull(product);
+      }
+    }
+
+    [Test]
+    public void JoinProductsWithRanks2Test()
+    {
+      var result = Query.FreeText<Category>(() => "Dessert candy and coffee")
+        .OrderBy(c => c.Rank)
+        .Take(10)
+        .Select(x => x.Entity);
+      var list = result.ToList();
+      Assert.AreEqual(25, list.Count);
+      foreach (var product in result) {
+        Assert.IsNotNull(product);
       }
     }
   }

@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
+using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -44,15 +45,14 @@ namespace Xtensive.Storage
       return new Queryable<T>();
     }
 
-    /// <summary>
-    /// The "starting point" for full-text query.
-    /// </summary>
-    /// <returns>A <see cref="FullTextQuery{T}"/> instance.</returns>
-    public static FullTextQuery<T> AllText<T>()
-      where T: Entity
+    public static IQueryable<FullTextMatch<T>> FreeText<T>(Func<string> searchCriteria) where T:Entity
     {
-      return new FullTextQuery<T>();
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      Expression<Func<Func<string>,IQueryable<FullTextMatch<T>>>> lambda = func => FreeText<T>(func);
+      var expression = lambda.BindParameters(Expression.Constant(searchCriteria, typeof (Func<string>)));
+      return new Queryable<FullTextMatch<T>>(expression);
     }
+
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>

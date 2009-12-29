@@ -57,6 +57,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     public Expression<Func<IEnumerable<Tuple>>> FilterDataSource { get; private set; }
 
     public MapTransform FilteredColumnsExtractionTransform { get; private set; }
+
     public CombineTransform ResultTransform { get; private set; }
 
     /// <inheritdoc/>
