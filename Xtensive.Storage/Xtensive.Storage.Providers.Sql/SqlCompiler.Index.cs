@@ -17,6 +17,11 @@ namespace Xtensive.Storage.Providers.Sql
 {
   partial class SqlCompiler 
   {
+    protected override SqlProvider VisitFreeText(FreeTextProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
     /// <inheritdoc/>
     protected override SqlProvider VisitIndex(IndexProvider provider)
     {

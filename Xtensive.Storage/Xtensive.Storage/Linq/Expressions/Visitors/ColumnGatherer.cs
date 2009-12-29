@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse.Providers;
 
@@ -16,7 +17,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
   internal class ColumnGatherer : PersistentExpressionVisitor
   {
     private readonly ColumnExtractionModes columnExtractionModes;
-    private readonly List<int> columns = new List<int>();
+    private readonly List<Pair<int, Expression>> columns = new List<Pair<int, Expression>>();
     private SubQueryExpression topSubquery;
 
     private bool TreatEntityAsKey
@@ -44,13 +45,26 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       get { return (columnExtractionModes & ColumnExtractionModes.OmitLazyLoad)!=ColumnExtractionModes.Default; }
     }
 
-    public static List<int> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
+    public static List<Pair<int, Expression>> GetColumnsAndExpressions(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
       var distinct = gatherer.DistinctValues
         ? gatherer.columns.Distinct()
         : gatherer.columns;
+      var ordered = gatherer.OrderedValues
+        ? distinct.OrderBy(i => i)
+        : distinct;
+      return ordered.ToList();
+    }
+    
+    public static List<int> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
+    {
+      var gatherer = new ColumnGatherer(columnExtractionModes);
+      gatherer.Visit(expression);
+      var distinct = gatherer.DistinctValues
+        ? gatherer.columns.Select(p=>p.First).Distinct()
+        : gatherer.columns.Select(p=>p.First);
       var ordered = gatherer.OrderedValues
         ? distinct.OrderBy(i => i)
         : distinct;
@@ -153,7 +167,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 
       Visit(subQueryExpression.ProjectionExpression.ItemProjector.Item);
       var visitor = new ApplyParameterAccessVisitor(topSubquery.ApplyParameter, (mc, index) => {
-        columns.Add(index);
+        columns.Add(new Pair<int, Expression>(index, mc));
         return mc;
       });
       var providerVisitor = new CompilableProviderVisitor((provider, expression) => visitor.Visit(expression));
@@ -212,7 +226,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       var isNotParametrized = topSubquery==null && parameterizedExpression.OuterParameter==null;
 
       if (isSubqueryParameter || isNotParametrized)
-        columns.AddRange(expressionColumns);
+        columns.AddRange(expressionColumns.Select(i=>new Pair<int, Expression>(i, parameterizedExpression)));
     }
 
     protected override Expression VisitFreeTextExpression(FreeTextExpression expression)

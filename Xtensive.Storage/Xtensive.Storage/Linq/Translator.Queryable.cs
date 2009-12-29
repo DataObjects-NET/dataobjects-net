@@ -170,7 +170,8 @@ namespace Xtensive.Storage.Linq
             mc.Arguments[2].StripQuotes(),
             mc.Arguments[3].StripQuotes(),
             mc.Arguments[4].StripQuotes(),
-            false);
+            false,
+            mc);
         case QueryableMethodKind.OrderBy:
           state.BuildingProjection = false;
           return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
@@ -183,12 +184,14 @@ namespace Xtensive.Storage.Linq
           if (mc.Arguments.Count==2) {
             return VisitSelectMany(mc.Arguments[0],
               mc.Arguments[1].StripQuotes(),
-              null);
+              null,
+              mc);
           }
           if (mc.Arguments.Count==3) {
             return VisitSelectMany(mc.Arguments[0],
               mc.Arguments[1].StripQuotes(),
-              mc.Arguments[2].StripQuotes());
+              mc.Arguments[2].StripQuotes(),
+              mc);
           }
           break;
         case QueryableMethodKind.LongCount:
@@ -238,7 +241,8 @@ namespace Xtensive.Storage.Linq
         mc.Arguments[2].StripQuotes(),
         mc.Arguments[3].StripQuotes(),
         mc.Arguments[4].StripQuotes(),
-        true);
+        true,
+        mc);
     }
 
     private Expression VisitLock(MethodCallExpression expression)
@@ -741,7 +745,7 @@ namespace Xtensive.Storage.Linq
       }
     }
 
-    private ProjectionExpression VisitJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, bool isLeftJoin)
+    private ProjectionExpression VisitJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, bool isLeftJoin, Expression expressionPart)
     {
       var outerParameter = outerKey.Parameters[0];
       var innerParameter = innerKey.Parameters[0];
@@ -758,9 +762,20 @@ namespace Xtensive.Storage.Linq
         }
 
         // Default
-        var outerColumns = outerKeyProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
-        var innerColumns = innerKeyProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
-        var keyPairs = outerColumns.Zip(innerColumns, (o, i) => new Pair<int>(o, i)).ToArray();
+        var outerColumns = ColumnGatherer.GetColumnsAndExpressions(outerKeyProjector.Item, ColumnExtractionModes.TreatEntityAsKey);
+        var innerColumns = ColumnGatherer.GetColumnsAndExpressions(innerKeyProjector.Item, ColumnExtractionModes.TreatEntityAsKey);
+
+        if (outerColumns.Count!=innerColumns.Count)
+          throw new InvalidOperationException(String.Format(Strings.JoinKeysLengthMismatch, expressionPart.ToString(true)));
+
+        for (int i = 0; i < outerColumns.Count; i++) {
+          var outerColumnKeyExpression = outerColumns[i].Second as KeyExpression;
+          var innerColumnKeyExpression = innerColumns[i].Second as KeyExpression;
+          if (outerColumnKeyExpression!=null && innerColumnKeyExpression!=null && outerColumnKeyExpression.EntityType.Hierarchy!=innerColumnKeyExpression.EntityType.Hierarchy)
+            throw new InvalidOperationException(String.Format(Strings.ExEntitiesXAndXBelongToDifferentHierarchies, expressionPart, outerColumnKeyExpression.EntityType, innerColumnKeyExpression.EntityType));
+        }
+
+        var keyPairs = outerColumns.Zip(innerColumns, (o, i) => new Pair<int>(o.First, i.First)).ToArray();
 
         var outer = context.Bindings[outerParameter];
         var inner = context.Bindings[innerParameter];
@@ -812,11 +827,11 @@ namespace Xtensive.Storage.Linq
         Expression.Convert(groupingJoinParameter, groupingType)
         , groupingKeyPropertyInfo);
       var lambda = FastExpression.Lambda(groupingKeyExpression, groupingJoinParameter);
-      var joinedResult = VisitJoin(visitedOuterSource, innerGrouping, outerKey, lambda, resultSelector, true);
+      var joinedResult = VisitJoin(visitedOuterSource, innerGrouping, outerKey, lambda, resultSelector, true, expressionPart);
       return joinedResult;
     }
 
-    private ProjectionExpression VisitSelectMany(Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
+    private ProjectionExpression VisitSelectMany(Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector, Expression expressionPart)
     {
       var outerParameter = collectionSelector.Parameters[0];
       var visitedSource = Visit(source);
@@ -865,7 +880,9 @@ namespace Xtensive.Storage.Linq
                   selectManyInfo.GroupJoinInnerProjection,
                   selectManyInfo.GroupJoinOuterKeySelector,
                   selectManyInfo.GroupJoinInnerKeySelector,
-                  newResultSelector, isOuter);
+                  newResultSelector, 
+                  isOuter,
+                  expressionPart);
             }
             else
               return selectManyInfo.GroupByProjection;

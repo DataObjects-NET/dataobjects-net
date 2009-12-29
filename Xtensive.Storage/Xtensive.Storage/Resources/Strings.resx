@@ -1346,4 +1346,10 @@ Actions:
   <data name="ExEntityDoesNotHasFullTextIndex" xml:space="preserve">
     <value>Entity of type '{0}' does not has full-text index.</value>
   </data>
+  <data name="ExEntitiesXAndXBelongToDifferentHierarchies" xml:space="preserve">
+    <value>Unable to translate '{0}'. Entities '{1}' and '{2}' belong to different hierarchies.</value>
+  </data>
+  <data name="JoinKeysLengthMismatch" xml:space="preserve">
+    <value>Unable to translate '{0}'. Join keys length mismatch.</value>
+  </data>
 </root>

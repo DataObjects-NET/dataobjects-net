@@ -252,6 +252,12 @@ namespace Xtensive.Storage.Rse.Providers
     }
 
     /// <inheritdoc/>
+    protected override Provider VisitFreeText(FreeTextProvider provider)
+    {
+      return provider;
+    }
+
+    /// <inheritdoc/>
     protected override Provider VisitReindex(ReindexProvider provider)
     {
       OnRecursionEntrance(provider);

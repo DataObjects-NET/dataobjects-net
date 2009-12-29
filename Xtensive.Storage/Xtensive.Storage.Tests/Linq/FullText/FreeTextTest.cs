@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
@@ -48,21 +49,6 @@ namespace Xtensive.Storage.Tests.Linq.FullText
       var result = 
         from c in Query.FreeText<Category>(() => "Dessert candy and coffee")
         join p in Query.All<Product>() on c.Entity equals p.Category 
-        select p;
-      var list = result.ToList();
-      Assert.AreEqual(25, list.Count);
-      foreach (var product in result) {
-        Assert.IsNotNull(product);
-        Assert.IsNotNull(product.Key);
-      }
-    }
-
-    [Test]
-    public void JoinProducts3Test()
-    {
-      var result = 
-        from c in Query.FreeText<Category>(() => "Dessert candy and coffee")
-        join p in Query.All<Product>() on c.Entity.Key equals p.Key // Wrong join
         select p;
       var list = result.ToList();
       Assert.AreEqual(25, list.Count);

@@ -22,6 +22,18 @@ namespace Xtensive.Storage.Tests.Linq
   public class JoinTest : NorthwindDOModelTest
   {
     [Test]
+    [ExpectedException(typeof(TranslationException))]
+    public void JoinWrongKeysTest()
+    {
+      var result = 
+        from c in Query.All<Category>()
+        join p in Query.All<Product>() on c.Key equals p.Key // Wrong join
+        select p;
+      var list = result.ToList();
+    }
+
+
+    [Test]
     public void GroupJoinAggregateTest()
     {
       var result =

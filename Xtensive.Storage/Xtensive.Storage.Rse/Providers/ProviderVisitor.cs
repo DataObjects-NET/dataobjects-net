@@ -112,6 +112,9 @@ namespace Xtensive.Storage.Rse.Providers
         case ProviderType.Include:
           result = VisitInclude((IncludeProvider) cp);
           break;
+        case ProviderType.FreeText:
+          result = VisitFreeText((FreeTextProvider) cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -293,5 +296,12 @@ namespace Xtensive.Storage.Rse.Providers
     /// <param name="provider">Include provider.</param>
     /// <returns></returns>
     protected abstract Provider VisitInclude(IncludeProvider provider);
+
+    /// <summary>
+    /// Visits the <see cref="FreeTextProvider"/>.
+    /// </summary>
+    /// <param name="provider">FreeText provider.</param>
+    /// <returns></returns>
+    protected abstract Provider VisitFreeText(FreeTextProvider provider);
   }
 }

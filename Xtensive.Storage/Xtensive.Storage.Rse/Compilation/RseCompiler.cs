@@ -346,6 +346,10 @@ namespace Xtensive.Storage.Rse.Compilation
       return Compile(provider.Source);
     }
 
+    protected override ExecutableProvider VisitFreeText(FreeTextProvider provider)
+    {
+      throw new NotSupportedException();
+    }
 
     // Constructors
 

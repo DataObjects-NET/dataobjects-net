@@ -143,6 +143,9 @@ namespace Xtensive.Storage.Rse.Compilation
         case ProviderType.Include:
           result = VisitInclude((IncludeProvider) cp);
           break;
+        case ProviderType.FreeText:
+          result = VisitFreeText((FreeTextProvider) cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -320,6 +323,12 @@ namespace Xtensive.Storage.Rse.Compilation
     /// </summary>
     /// <param name="provider">Include provider.</param>
     protected abstract TResult VisitInclude(IncludeProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="FreeTextProvider"/>.
+    /// </summary>
+    /// <param name="provider">FreeText provider.</param>
+    protected abstract TResult VisitFreeText(FreeTextProvider provider);
 
 
     // Constructors

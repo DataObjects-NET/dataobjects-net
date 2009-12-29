@@ -357,7 +357,11 @@ namespace Xtensive.Storage.Linq
         var leftKeyExpression = left as KeyExpression;
         var rightKeyExpression = right as KeyExpression;
         if (leftKeyExpression==null && rightKeyExpression==null)
-          throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, binaryExpression));
+          throw new InvalidOperationException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, binaryExpression));
+        if (leftKeyExpression!=null
+          && rightKeyExpression!=null
+            && leftKeyExpression.EntityType.Hierarchy!=rightKeyExpression.EntityType.Hierarchy)
+          throw new InvalidOperationException(String.Format(Strings.ExEntitiesXAndXBelongToDifferentHierarchies, binaryExpression, leftKeyExpression.EntityType, rightKeyExpression.EntityType));
         // Key split to it's fields.
         IEnumerable<Type> keyFields = (leftKeyExpression ?? rightKeyExpression)
           .KeyFields
