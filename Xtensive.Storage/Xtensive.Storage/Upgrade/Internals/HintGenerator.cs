@@ -518,11 +518,14 @@ namespace Xtensive.Storage.Upgrade
         where
           targetHierarchy != null && sourceHierarchy != null &&
           targetHierarchy.Schema == InheritanceSchema.ConcreteTable &&
-          sourceHierarchy.Schema != InheritanceSchema.ConcreteTable &&
           targetHierarchy.Types.Length == 1
         select p.Key;
       foreach (var type in types) {
         var typeIdField = type.Fields.Single(f => f.IsTypeId);
+        var targetType = typeMapping[type];
+        var targetTypeIdField = targetType.Fields.Single(f => f.IsTypeId);
+        if (targetTypeIdField.IsPrimaryKey)
+          continue;
         if (!extractedModel.Tables[type.MappingName].Columns.Contains(typeIdField.MappingName)) 
           continue;
         var hint = new RemoveFieldHint(type.UnderlyingType, typeIdField.Name);
