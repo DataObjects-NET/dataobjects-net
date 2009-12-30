@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Linq
       if (!field.UnderlyingProperty.PropertyType.IsOfGenericType(typeof(EntitySet<>)))
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, Log.Instance);
 
-      var elementType = field.UnderlyingProperty.PropertyType.GetGenericArguments()[0];
+      var elementType = field.ItemType;
       var association = field.Association;
       if (association.Multiplicity == Multiplicity.OneToMany) {
         var whereParameter = Expression.Parameter(elementType, "p");
