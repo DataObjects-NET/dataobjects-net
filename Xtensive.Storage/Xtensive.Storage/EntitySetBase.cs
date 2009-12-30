@@ -610,8 +610,9 @@ namespace Xtensive.Storage
     private EntitySetTypeState GetEntitySetTypeState()
     {
       EnsureOwnerIsNotRemoved();
-      return (EntitySetTypeState) Session.Domain.GetCachedItem(
-        new Pair<object, FieldInfo>(entitySetCachingRegion, Field), BuildEntitySetTypeState, this);
+      object key = new Pair<object, FieldInfo>(entitySetCachingRegion, Field);
+      Func<object, EntitySetBase, object> generator = BuildEntitySetTypeState;
+      return (EntitySetTypeState) Session.Domain.Cache.GetValue(key, generator, this);
     }
 
     private static EntitySetTypeState BuildEntitySetTypeState(object pair, object entitySetObj)

@@ -33,24 +33,19 @@ namespace Xtensive.Storage
   /// <sample>
   /// <code source="..\..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
-  public sealed class Domain : CriticalFinalizerObject,
+  public sealed class Domain :
     IDisposableContainer,
     IHasExtensions
   {
-    private ExtensionCollection extensions;
+    private readonly object _lock = new object();
 
-    internal readonly ThreadSafeIntDictionary<GenericKeyTypeInfo> genericKeyTypes = 
-      ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
-
-    internal readonly ThreadSafeDictionary<object, object> cache =
-      ThreadSafeDictionary<object, object>.Create(new object());
-
-    private DomainServiceLocator serviceLocator;
-
+    private volatile ExtensionCollection extensions;
+    private volatile DomainServiceLocator serviceLocator;
+    
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
     /// </summary>
-    /// <seealso cref="OpenSession()"/>
+    /// <seealso cref="Session.Open(Xtensive.Storage.Domain)"/>
     public event EventHandler<SessionEventArgs> SessionOpen;
 
     /// <summary>
@@ -68,7 +63,7 @@ namespace Xtensive.Storage
         var session = Session.Current;
         return session!=null ? session.Domain : null;
       }
-    }    
+    }
 
     /// <summary>
     /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>, or throws <see cref="InvalidOperationException"/>, 
@@ -79,8 +74,7 @@ namespace Xtensive.Storage
     /// <seealso cref="Session.Demand">Session.Current property</seealso>
     public static Domain Demand()
     {
-      var session = Session.Demand();
-      return session.Domain;
+      return Session.Demand().Domain;
     }    
     
     /// <summary>
@@ -145,10 +139,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the information about provider's capabilities.
     /// </summary>
-    public ProviderInfo StorageProviderInfo
-    {
-      get { return Handler.ProviderInfo;}
-    }
+    public ProviderInfo StorageProviderInfo { get { return Handler.ProviderInfo; } }
 
     /// <summary>
     /// Gets the collection of extension modules.
@@ -156,57 +147,11 @@ namespace Xtensive.Storage
     public ModuleProvider Modules { get; private set; }
 
     /// <summary>
-    /// Gets the cached item or generates it using specified <paramref name="generator"/> and 
-    /// adds it to the cache.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="generator">The item generator.</param>
-    /// <returns>Found or generated value.</returns>
-    internal object GetCachedItem(object key, Func<object, object> generator)
-    {
-      return cache.GetValue(key, generator);
-    }
-
-    /// <summary>
-    /// Gets the cached item or generates it using specified <paramref name="generator"/> and 
-    /// adds it to the cache.
-    /// </summary>
-    /// <typeparam name="T">The type of the <paramref name="argument"/> to pass 
-    /// to the <paramref name="generator"/>.</typeparam>
-    /// <param name="key">The key.</param>
-    /// <param name="generator">The argument to pass to the <paramref name="generator"/>.</param>
-    /// <param name="argument">The argument of the <see cref="generator"/>.</param>
-    /// <returns>Found or generated value.</returns>
-    internal object GetCachedItem<T>(object key, Func<object, T, object> generator, T argument)
-    {
-      return cache.GetValue(key, generator, argument);
-    }
-
-    /// <summary>
-    /// Gets the cached item or generates it using specified <paramref name="generator"/> and 
-    /// adds it to the cache.
-    /// </summary>
-    /// <typeparam name="T1">The type of the <paramref name="argument1"/> to pass 
-    /// to the <paramref name="generator"/>.</typeparam>
-    /// <typeparam name="T2">The type of the <paramref name="argument2"/> to pass 
-    /// to the <paramref name="generator"/>.</typeparam>
-    /// <param name="key">The key.</param>
-    /// <param name="generator">The argument to pass to the <paramref name="generator"/>.</param>
-    /// <param name="argument1">The first argument to pass to the <paramref name="generator"/>.</param>
-    /// <param name="argument2">The second argument to pass to the <paramref name="generator"/>.</param>
-    /// <returns>Found or generated value.</returns>
-    internal object GetCachedItem<T1, T2>(object key, Func<object, T1, T2, object> generator,
-      T1 argument1, T2 argument2)
-    {
-      return cache.GetValue(key, generator, argument1, argument2);
-    }
-
-    /// <summary>
     /// Gets the domain service provider.
     /// </summary>
     public DomainServiceLocator Services {
       get {
-        if (serviceLocator==null){
+        if (serviceLocator==null) lock (_lock) if (serviceLocator==null) {
           serviceLocator = new DomainServiceLocator();
           var container = new ServiceContainer();
           serviceLocator.SetLocatorProvider(() => new ServiceLocatorAdapter(container));
@@ -215,7 +160,7 @@ namespace Xtensive.Storage
       }
     }
 
-    #region Private \ internal members
+    #region Private / internal members
 
     internal DomainHandler Handler {
       [DebuggerStepThrough]
@@ -224,21 +169,22 @@ namespace Xtensive.Storage
 
     internal HandlerAccessor Handlers { get; private set; }
 
-    internal Registry<KeyProviderInfo, KeyGenerator> KeyGenerators { get; private set; }
+    internal ThreadSafeIntDictionary<GenericKeyTypeInfo> GenericKeyTypes { get; private set; }
 
+    internal Registry<KeyProviderInfo, KeyGenerator> KeyGenerators { get; private set; }
     internal Registry<KeyProviderInfo, KeyGenerator> LocalKeyGenerators { get; private set; }
 
+    internal ThreadSafeDictionary<object, object> Cache { get; private set; }
     internal ICache<Key, Key> KeyCache { get; private set; }
-
     internal ICache<object, Pair<object, TranslatedQuery>> QueryCache { get; private set; }
-
-    private void OnSessionOpen(Session session)
+    
+    private void NotifySessionOpen(Session session)
     {
       if (SessionOpen!=null)
         SessionOpen(this, new SessionEventArgs(session));
     }
 
-    private void OnDisposing()
+    private void NotifyDisposing()
     {
       if (Disposing!=null)
         Disposing(this, EventArgs.Empty);
@@ -257,7 +203,7 @@ namespace Xtensive.Storage
         Log.Debug(Strings.LogOpeningSessionX, configuration);
 
       var session = new Session(this, configuration, activate);
-      OnSessionOpen(session);
+      NotifySessionOpen(session);
       return session;
     }
 
@@ -268,18 +214,12 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public IExtensionCollection Extensions {
       get {
-        if (extensions != null)
-          return extensions;
-
-        lock (this) {
-          if (extensions == null)
-            extensions = new ExtensionCollection();
-        }
-
+        if (extensions==null) lock (_lock) if (extensions==null)
+          extensions = new ExtensionCollection();
         return extensions;
       }
     }
-
+    
     #endregion
 
     /// <summary>
@@ -299,11 +239,14 @@ namespace Xtensive.Storage
     {
       IsDebugEventLoggingEnabled = 
         Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
+      GenericKeyTypes = ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
       RecordSetReader = new RecordSetReader(this);
       KeyGenerators = new Registry<KeyProviderInfo, KeyGenerator>();
       LocalKeyGenerators = new Registry<KeyProviderInfo, KeyGenerator>();
+      Cache = ThreadSafeDictionary<object, object>.Create(new object());
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(
         Configuration.QueryCacheSize, k => k.First);
@@ -314,34 +257,19 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void Dispose()
     {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
-
-    ~Domain()
-    {
-      Dispose(false);
-    }
-
-    private void Dispose(bool isDisposing)
-    {
-      if (DisposingState==DisposingState.None)
-        lock (this)
-          if (DisposingState==DisposingState.None) {
-            DisposingState = DisposingState.Disposing;
-            try {
-              if (IsDebugEventLoggingEnabled)
-                Log.Debug(isDisposing ? 
-                  Strings.LogDomainIsDisposing : 
-                  Strings.LogDomainIsDisposingByAFinalizer);
-              OnDisposing();
-              KeyGenerators.DisposeSafely();
-              LocalKeyGenerators.DisposeSafely();
-            }
-            finally {
-              DisposingState = DisposingState.Disposed;
-            }
-          }
+      if (DisposingState==DisposingState.None) lock (_lock) if (DisposingState==DisposingState.None) {
+        DisposingState = DisposingState.Disposing;
+        try {
+          if (IsDebugEventLoggingEnabled)
+            Log.Debug(Strings.LogDomainIsDisposing);
+          NotifyDisposing();
+          KeyGenerators.DisposeSafely();
+          LocalKeyGenerators.DisposeSafely();
+        }
+        finally {
+          DisposingState = DisposingState.Disposed;
+        }
+      }
     }
   }
 }

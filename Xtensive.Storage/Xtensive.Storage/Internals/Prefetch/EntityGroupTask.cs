@@ -114,8 +114,9 @@ namespace Xtensive.Storage.Internals.Prefetch
       var parameterContext = new ParameterContext();
       using (parameterContext.Activate()) {
         includeParameter.Value = currentKeySet;
-        RecordSet = (RecordSet) manager.Owner.Session.Domain.GetCachedItem(
-          new Pair<object, EntityGroupTask>(recordSetCachingRegion, this), CreateRecordSet);
+        object key = new Pair<object, EntityGroupTask>(recordSetCachingRegion, this);
+        Func<object, object> generator = CreateRecordSet;
+        RecordSet = (RecordSet) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);
         return new QueryTask(executableProvider, parameterContext);
       }

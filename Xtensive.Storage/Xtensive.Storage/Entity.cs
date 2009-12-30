@@ -249,13 +249,13 @@ namespace Xtensive.Storage
     {
       using (new ParameterContext().Activate()) {
         keyParameter.Value = Key.Value;
-        var recordSet = (RecordSet) Session.Domain.GetCachedItem(
-          new Triplet<TypeInfo, LockMode, LockBehavior>(Type, lockMode, lockBehavior),
-          tripletObj => {
-            var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
-            return IndexProvider.Get(triplet.First.Indexes.PrimaryIndex).Result.Seek(keyParameter.Value)
-              .Lock(() => triplet.Second, () => triplet.Third).Select();
-          });
+        object key = new Triplet<TypeInfo, LockMode, LockBehavior>(Type, lockMode, lockBehavior);
+        Func<object, object> generator = tripletObj => {
+          var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
+          return IndexProvider.Get(triplet.First.Indexes.PrimaryIndex).Result.Seek(keyParameter.Value)
+            .Lock(() => triplet.Second, () => triplet.Third).Select();
+        };
+        var recordSet = (RecordSet) Session.Domain.Cache.GetValue(key, generator);
         recordSet.First();
       }
     }

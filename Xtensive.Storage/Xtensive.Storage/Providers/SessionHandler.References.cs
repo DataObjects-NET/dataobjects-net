@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.19
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -28,9 +29,9 @@ namespace Xtensive.Storage.Providers
     {
       var result = new List<ReferenceInfo>();
       using (new ParameterContext().Activate()) {
-        var pair = (Pair<RecordSet, Parameter<Tuple>>)Session.Domain.GetCachedItem(
-          new Pair<object, AssociationInfo>(CachingRegion, association),
-          p => BuildReferencingQuery(((Pair<object, AssociationInfo>)p).Second));
+        object key = new Pair<object, AssociationInfo>(CachingRegion, association);
+        Func<object, object> generator = p => BuildReferencingQuery(((Pair<object, AssociationInfo>)p).Second);
+        var pair = (Pair<RecordSet, Parameter<Tuple>>)Session.Domain.Cache.GetValue(key, generator);
         var recordSet = pair.First;
         var parameter = pair.Second;
         parameter.Value = target.Key.Value;

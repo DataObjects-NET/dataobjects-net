@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Internals
     private static Key CreateGenericKey(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy,
       Tuple tuple, int[] keyIndexes)
     {
-      var keyTypeInfo = domain.genericKeyTypes.GetValue(type.TypeId, BuildGenericKeyTypeInfo, type);
+      var keyTypeInfo = domain.GenericKeyTypes.GetValue(type.TypeId, BuildGenericKeyTypeInfo, type);
       if (keyIndexes==null)
         return keyTypeInfo.DefaultConstructor(type, tuple, accuracy);
       return keyTypeInfo.KeyIndexBasedConstructor(type, tuple, accuracy, keyIndexes);

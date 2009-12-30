@@ -137,8 +137,9 @@ namespace Xtensive.Storage.Internals.Prefetch
         ownerParameter.Value = ownerKey.Value;
         if (ItemCountLimit != null)
           itemCountLimitParameter.Value = ItemCountLimit.Value;
-        RecordSet = (RecordSet) manager.Owner.Session.Domain.GetCachedItem(
-          new Pair<object, EntitySetTask>(itemsQueryCachingRegion, this), CreateRecordSetLoadingItems);
+        object key = new Pair<object, EntitySetTask>(itemsQueryCachingRegion, this);
+        Func<object, object> generator = CreateRecordSetLoadingItems;
+        RecordSet = (RecordSet) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
         var executableProvider = CompilationContext.Current.Compile(RecordSet.Provider);
         return new QueryTask(executableProvider, parameterContext);
       }

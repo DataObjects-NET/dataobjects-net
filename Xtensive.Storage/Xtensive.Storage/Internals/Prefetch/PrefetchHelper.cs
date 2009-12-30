@@ -31,9 +31,9 @@ namespace Xtensive.Storage.Internals.Prefetch
     public static FieldDescriptorCollection GetCachedDescriptorsForFieldsLoadedByDefault(Domain domain,
       TypeInfo type)
     {
-      return (FieldDescriptorCollection) domain
-        .GetCachedItem(new Pair<object, TypeInfo>(descriptorArraysCachingRegion, type),
-          pair => CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second));
+      object key = new Pair<object, TypeInfo>(descriptorArraysCachingRegion, type);
+      Func<object, object> generator = pair => CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second);
+      return (FieldDescriptorCollection) domain.Cache.GetValue(key, generator);
     }
 
     public static bool? TryGetExactKeyType(Key key, PrefetchManager manager, out TypeInfo type)

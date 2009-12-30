@@ -14,7 +14,6 @@ namespace Xtensive.Storage
   public class Registry<TKey, TValue> : LockableBase,
     IDisposable
   {
-    private readonly object _lock = new object();
     private bool isDisposed;
     private readonly Dictionary<TKey, TValue> map = new Dictionary<TKey, TValue>();
 
@@ -39,16 +38,16 @@ namespace Xtensive.Storage
 
     public void Dispose()
     {
-      if (!isDisposed) lock (_lock) if (!isDisposed) {
-        try {
-          foreach (var pair in map) {
-            var disposable = pair.Value as IDisposable;
-            disposable.DisposeSafely();
-          }
+      if (isDisposed)
+        return;
+      try {
+        foreach (var pair in map) {
+          var disposable = pair.Value as IDisposable;
+          disposable.DisposeSafely();
         }
-        finally {
-          isDisposed = true;
-        }
+      }
+      finally {
+        isDisposed = true;
       }
     }
   }
