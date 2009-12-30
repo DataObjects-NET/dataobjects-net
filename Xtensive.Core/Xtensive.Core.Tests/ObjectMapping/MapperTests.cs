@@ -12,6 +12,7 @@ using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.Core.Testing;
 using Xtensive.Core.Tests.ObjectMapping.SourceModel;
 using Xtensive.Core.Tests.ObjectMapping.TargetModel;
 
@@ -358,6 +359,19 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
+    public void TransformationWhenGraphRootIsCollectionAndContainsNullsTest()
+    {
+      var mapper = GetPersonOrderMapper();
+      var source = new List<Order> {GetSourceOrder(1), null, GetSourceOrder(2), null, null};
+      var target = ((List<object>) mapper.Transform(source)).Cast<OrderDto>().ToList();
+      Assert.IsNotNull(target[0]);
+      Assert.IsNull(target[1]);
+      Assert.IsNotNull(target[2]);
+      Assert.IsNull(target[3]);
+      Assert.IsNull(target[4]);
+    }
+
+    [Test]
     public void ComparisonWhenOriginalReferencePropertyContainsNulTest()
     {
       var mapper = GetPersonOrderMapper();
@@ -624,7 +638,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     [Test]
     public void InheritedPropertyAttributesModelBuildingTest()
     {
-      var mapper = GetCreatureHeirsMapperWithAttributes();
+      var mapper = GetCreatureHeirsMapperWithAttributesMapper();
       var model = mapper.MappingDescription;
       Func<Type, TargetPropertyDescription> namePropertyGetter =
         type => (TargetPropertyDescription) model.TargetTypes[type].Properties[type.GetProperty("Name")];
@@ -664,6 +678,66 @@ namespace Xtensive.Core.Tests.ObjectMapping
       legPairCountPropertyDescription = legPairCountPropertyGetter.Invoke(typeof (LongBeeDto));
       Assert.IsFalse(legPairCountPropertyDescription.IsIgnored);
       Assert.IsTrue(legPairCountPropertyDescription.IsImmutable);
+    }
+
+    [Test]
+    public void ThrowWhenLimitOfGraphDepthHasBeenExceededTest()
+    {
+      const int depthLimit = 2;
+      var mapper = GetRecursiveCompositionMapperWithGraphDepthLimit(depthLimit, GraphTruncationType.Throw);
+      var source = new RecursiveComposition();
+      source.Compose(3);
+      AssertEx.ThrowsInvalidOperationException(() => mapper.Transform(source));
+      source = new RecursiveComposition();
+      source.Compose(2);
+      var target = (RecursiveCompositionDto) mapper.Transform(source);
+      Assert.AreEqual(source.Id, target.Id);
+      Assert.AreEqual(source.Level, target.Level);
+      Assert.AreEqual(source.Child.Id, target.Child.Id);
+      Assert.AreEqual(source.Child.Level, target.Child.Level);
+      Assert.AreEqual(source.Child.Child.Id, target.Child.Child.Id);
+      Assert.AreEqual(source.Child.Child.Level, target.Child.Child.Level);
+
+      mapper = GetRecursiveCompositionMapperWithGraphDepthLimit(0, GraphTruncationType.Throw);
+      source = new RecursiveComposition();
+      source.Compose(0);
+      target = (RecursiveCompositionDto) mapper.Transform(source);
+      Assert.AreEqual(source.Id, target.Id);
+      Assert.AreEqual(source.Level, target.Level);
+      Assert.AreEqual(source.Child, target.Child);
+    }
+
+    [Test]
+    public void SetNullWhenLimitOfGraphDepthHasBeenExceededTest()
+    {
+      const int depthLimit = 2;
+      var mapper = GetRecursiveCompositionMapperWithGraphDepthLimit(depthLimit, GraphTruncationType.SetNull);
+      var source = new RecursiveComposition();
+      source.Compose(3);
+      var target = (RecursiveCompositionDto) mapper.Transform(source);
+      Assert.IsNotNull(source.Child.Child.Child);
+      Assert.IsNull(target.Child.Child.Child);
+    }
+
+    [Test]
+    public void HandleChangeOfImmutablePropertyTest()
+    {
+      var mapper = new DefaultMapper();
+      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).Immutable(p => p.FirstName).Complete();
+      var source = GetSourcePerson(1);
+      var target = (PersonDto) mapper.Transform(source);
+      var modified = (PersonDto) target.Clone();
+      modified.FirstName += "!";
+      AssertEx.ThrowsInvalidOperationException(() => mapper.Compare(target, modified));
+
+      mapper = new DefaultMapper();
+      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).Immutable(p => p.FirstName)
+        .Ignore(p => p.FirstName).Complete();
+      target = (PersonDto) mapper.Transform(source);
+      modified = (PersonDto) target.Clone();
+      modified.FirstName += "!";
+      var operations = mapper.Compare(target, modified);
+      Assert.IsTrue(operations.IsEmpty);
     }
     
     private static void ValidateCollectionComparison(DefaultMapper mapper, PetOwnerDto original,
@@ -852,7 +926,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       return result;
     }
 
-    private static DefaultMapper GetCreatureHeirsMapperWithAttributes()
+    private static DefaultMapper GetCreatureHeirsMapperWithAttributesMapper()
     {
       var result = new DefaultMapper();
       result.MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
@@ -865,6 +939,15 @@ namespace Xtensive.Core.Tests.ObjectMapping
           .Ignore(m => m.Name)
         .Inherit<MammalDto, Cat, CatDto>()
         .Inherit<MammalDto, Dolphin, DolphinDto>().Complete();
+      return result;
+    }
+
+    private static DefaultMapper GetRecursiveCompositionMapperWithGraphDepthLimit(
+      int depthLimit, GraphTruncationType action)
+    {
+      var mapperSettings = new MapperSettings {GraphTruncationType = action, GraphDepthLimit = depthLimit};
+      var result = new DefaultMapper(mapperSettings);
+      result.MapType<RecursiveComposition, RecursiveCompositionDto, Guid>(r => r.Id, r => r.Id).Complete();
       return result;
     }
 

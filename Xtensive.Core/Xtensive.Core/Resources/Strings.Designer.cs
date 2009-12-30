@@ -934,11 +934,29 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The limit of the graph depth is exceeded..
+        /// </summary>
+        internal static string ExLimitOfGraphDepthIsExceeded {
+            get {
+                return ResourceManager.GetString("ExLimitOfGraphDepthIsExceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Linked operation for property {0} missing..
         /// </summary>
         internal static string ExLinkedOperationMissingFormat {
             get {
                 return ResourceManager.GetString("ExLinkedOperationMissingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The mapping configuration has been already completed..
+        /// </summary>
+        internal static string ExMappingConfigurationHasBeenAlreadyCompleted {
+            get {
+                return ResourceManager.GetString("ExMappingConfigurationHasBeenAlreadyCompleted", resourceCulture);
             }
         }
         

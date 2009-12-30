@@ -125,14 +125,13 @@ namespace Xtensive.Core.ObjectMapping.Model
       this.EnsureNotLocked();
       var targetType = targetTypes[target.ReflectedType];
       var propertyDesc = new TargetPropertyDescription(target, targetType) {
-        Converter = (sourceObj, sourceProperty, targetObj, targetProperty) =>
-          targetProperty.SystemProperty.SetValue(targetObj, converter.Invoke(sourceObj), null)
+        Converter = (sourceObj, sourceProperty) => converter.Invoke(sourceObj)
       };
       targetType.AddProperty(propertyDesc);
     }
 
     internal void Register(PropertyInfo source,
-      Action<object, SourcePropertyDescription, object, TargetPropertyDescription> converter,
+      Func<object, SourcePropertyDescription, object> converter,
       PropertyInfo target)
     {
       this.EnsureNotLocked();

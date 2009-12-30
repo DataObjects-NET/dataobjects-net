@@ -188,4 +188,13 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
       return new IgnorableSubordinateDto {Date = Date, Id = Id};
     }
   }
+
+  public class RecursiveCompositionDto
+  {
+    public Guid Id { get; set; }
+
+    public int Level { get; private set; }
+
+    public RecursiveCompositionDto Child { get; private set; }
+  }
 }

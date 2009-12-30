@@ -4,6 +4,8 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.12.10
 
+using Xtensive.Core.Internals.DocTemplates;
+
 namespace Xtensive.Core.ObjectMapping
 {
   /// <summary>
@@ -31,5 +33,19 @@ namespace Xtensive.Core.ObjectMapping
       operationSet.Lock();
       return operationSet;
     }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public DefaultMapper()
+    {}
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="settings">The mapper settings.</param>
+    public DefaultMapper(MapperSettings settings)
+      : base(settings)
+    {}
   }
 }

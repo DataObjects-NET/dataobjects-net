@@ -723,4 +723,10 @@
   <data name="ExTypeXIsNotSubclassOfTypeY" xml:space="preserve">
     <value>The type {0} isn't a subclass of the type {1}.</value>
   </data>
+  <data name="ExLimitOfGraphDepthIsExceeded" xml:space="preserve">
+    <value>The limit of the graph depth is exceeded.</value>
+  </data>
+  <data name="ExMappingConfigurationHasBeenAlreadyCompleted" xml:space="preserve">
+    <value>The mapping configuration has been already completed.</value>
+  </data>
 </root>

@@ -18,7 +18,7 @@ namespace Xtensive.Core.ObjectMapping.Model
   public sealed class TargetPropertyDescription : PropertyDescription
   {
     private SourcePropertyDescription sourceProperty;
-    private Action<object, SourcePropertyDescription, object, TargetPropertyDescription> converter;
+    private Func<object, SourcePropertyDescription, object> converter;
     private bool isImmutable;
     private bool isIgnored;
 
@@ -63,7 +63,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       }
     }
 
-    internal Action<object, SourcePropertyDescription, object, TargetPropertyDescription> Converter
+    internal Func<object, SourcePropertyDescription, object> Converter
     {
       get { return converter; }
       set{

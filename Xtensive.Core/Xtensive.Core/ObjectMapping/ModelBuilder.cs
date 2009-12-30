@@ -16,10 +16,9 @@ namespace Xtensive.Core.ObjectMapping
 {
   internal sealed class ModelBuilder
   {
-    internal static readonly Action<object, SourcePropertyDescription, object, TargetPropertyDescription>
-      defaultPrimitiveConverter = (source, sourceProperty, target, targetProperty) =>
-        targetProperty.SystemProperty
-          .SetValue(target, sourceProperty.SystemProperty.GetValue(source, null), null);
+    public static readonly Func<object, SourcePropertyDescription, object>
+      DefaultPrimitiveConverter = (source, sourceProperty) =>
+        sourceProperty.SystemProperty.GetValue(source, null);
     private readonly Dictionary<PropertyInfo, PropertyInfo> propertyBindings =
       new Dictionary<PropertyInfo, PropertyInfo>();
 
@@ -148,15 +147,26 @@ namespace Xtensive.Core.ObjectMapping
       var properties = targetType.SystemType.GetProperties();
       for (var i = 0; i < properties.Length; i++) {
         var property = properties[i];
-        if (!targetType.Properties.ContainsKey(property)) {
-          var propertyDesc = new TargetPropertyDescription(property, targetType);
-          var sourceProperty = targetType.SourceType.Properties
-            .Where(p => p.Key.Name==property.Name).Select(p => p.Value).Single();
-          propertyDesc.SourceProperty = (SourcePropertyDescription) sourceProperty;
-          if (propertyDesc.IsPrimitive)
-            propertyDesc.Converter = defaultPrimitiveConverter;
-          targetType.AddProperty(propertyDesc);
+        PropertyDescription existingProperty;
+        if (targetType.Properties.TryGetValue(property, out existingProperty))
+          SetPropertyConverter(targetType, (TargetPropertyDescription) existingProperty);
+        else {
+          var newProperty = new TargetPropertyDescription(property, targetType);
+          SetPropertyConverter(targetType, newProperty);
+          targetType.AddProperty(newProperty);
         }
+      }
+    }
+
+    private static void SetPropertyConverter(TargetTypeDescription targetType,
+      TargetPropertyDescription propertyDescription)
+    {
+      if (propertyDescription.Converter == null && !propertyDescription.IsIgnored) {
+        var sourceProperty = targetType.SourceType.Properties
+          .Where(p => p.Key.Name==propertyDescription.SystemProperty.Name).Select(p => p.Value).Single();
+        propertyDescription.SourceProperty = (SourcePropertyDescription) sourceProperty;
+        if (propertyDescription.IsPrimitive)
+          propertyDescription.Converter = DefaultPrimitiveConverter;
       }
     }
 

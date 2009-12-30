@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 using Xtensive.Core.ObjectMapping.Model;
@@ -21,13 +22,27 @@ namespace Xtensive.Core.ObjectMapping
   {
     private GraphTransformer transformer;
     private GraphComparer comparer;
+    private ModelBuilder modelBuilder;
 
     /// <summary>
     /// Gets the mapping description.
     /// </summary>
     public MappingDescription MappingDescription { get; private set; }
 
-    internal ModelBuilder ModelBuilder { get; private set; }
+    /// <summary>
+    /// Gets or sets the mapper settings.
+    /// </summary>
+    public MapperSettings Settings { get; private set; }
+
+    internal ModelBuilder ModelBuilder
+    {
+      get {
+        if (modelBuilder==null)
+          throw new InvalidOperationException(Strings.ExMappingConfigurationHasBeenAlreadyCompleted);
+        return modelBuilder;
+      }
+      private set { modelBuilder = value; }
+    }
 
     /// <inheritdoc/>
     public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
@@ -100,7 +115,7 @@ namespace Xtensive.Core.ObjectMapping
     {
       MappingDescription = ModelBuilder.Build();
       ModelBuilder = null;
-      transformer = new GraphTransformer(MappingDescription);
+      transformer = new GraphTransformer(MappingDescription, Settings);
       comparer = new GraphComparer(MappingDescription, OnObjectModified, new DefaultExistanceInfoProvider());
     }
 
@@ -111,8 +126,19 @@ namespace Xtensive.Core.ObjectMapping
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     protected MapperBase()
+      : this(new MapperSettings())
+    {}
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="settings">The mapper settings.</param>
+    protected MapperBase(MapperSettings settings)
     {
+      ArgumentValidator.EnsureArgumentNotNull(settings, "settings");
       ModelBuilder = new ModelBuilder();
+      settings.Lock();
+      Settings = settings;
     }
   }
 }

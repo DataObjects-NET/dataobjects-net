@@ -143,4 +143,27 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 
     public DateTime Date { get; set; }
   }
+
+  public class RecursiveComposition
+  {
+    public Guid Id { get; set; }
+
+    public int Level { get; private set; }
+
+    public RecursiveComposition Child { get; private set; }
+
+    public void Compose(int levelCount)
+    {
+      var current = this;
+      for (var i = 0; i < levelCount; i++) {
+        current.Child = new RecursiveComposition {Level = Level + i + 1};
+        current = current.Child;
+      }
+    }
+
+    public RecursiveComposition()
+    {
+      Id = Guid.NewGuid();
+    }
+  }
 }
