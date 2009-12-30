@@ -739,6 +739,38 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var operations = mapper.Compare(target, modified);
       Assert.IsTrue(operations.IsEmpty);
     }
+
+    [Test]
+    public void TransformationOfPrimitiveCustomCollectionTest()
+    {
+      var mapper = new DefaultMapper();
+      mapper.MapType<PrimitiveCollectionContainer, PrimitiveCollectionContainerDto, Guid>(c => c.Id, c => c.Id)
+        .Complete();
+      var source = new PrimitiveCollectionContainer();
+      source.Collection.Add(3);
+      source.Collection.Add(2);
+      source.Collection.Add(1);
+      var target = (PrimitiveCollectionContainerDto) mapper.Transform(source);
+      Assert.AreEqual(3, target.Collection[0]);
+      Assert.AreEqual(2, target.Collection[1]);
+      Assert.AreEqual(1, target.Collection[2]);
+    }
+
+    [Test]
+    public void TransformationOfComplexCustomCollectionTest()
+    {
+      var mapper = new DefaultMapper();
+      mapper.MapType<ComplexCollectionContainer, ComplexCollectionContainerDto, Guid>(c => c.Id, c => c.Id)
+        .MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).Complete();
+      var source = new ComplexCollectionContainer();
+      source.Collection.Add(GetSourcePerson(3));
+      source.Collection.Add(GetSourcePerson(2));
+      source.Collection.Add(GetSourcePerson(1));
+      var target = (ComplexCollectionContainerDto) mapper.Transform(source);
+      Assert.AreEqual(3, target.Collection[0].Id);
+      Assert.AreEqual(2, target.Collection[1].Id);
+      Assert.AreEqual(1, target.Collection[2].Id);
+    }
     
     private static void ValidateCollectionComparison(DefaultMapper mapper, PetOwnerDto original,
       PetOwnerDto modified, AnimalDto newAnimal, AnimalDto removedAnimal0, AnimalDto removedAnimal1)

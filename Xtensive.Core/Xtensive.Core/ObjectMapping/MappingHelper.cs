@@ -15,6 +15,8 @@ namespace Xtensive.Core.ObjectMapping
 {
   internal static class MappingHelper
   {
+    private static readonly HashSet<Type> primitiveTypes;
+
     public static PropertyInfo ExtractProperty(LambdaExpression expression, string paramName)
     {
       PropertyInfo result;
@@ -48,6 +50,11 @@ namespace Xtensive.Core.ObjectMapping
       return false;
     }
 
+    public static bool IsTypePrimitive(Type type)
+    {
+      return primitiveTypes.Contains(type);
+    }
+
     private static bool TryExtractProperty(LambdaExpression expression, string paramName, bool throwIfFailed,
       out PropertyInfo propertyInfo)
     {
@@ -73,6 +80,19 @@ namespace Xtensive.Core.ObjectMapping
       if (propertyInfo.ReflectedType != parameterType)
         propertyInfo = parameterType.GetProperty(propertyInfo.Name);
       return true;
+    }
+    
+    
+    // Constructors
+
+    static MappingHelper()
+    {
+      primitiveTypes = new HashSet<Type> {
+        typeof (Boolean), typeof (Int16), typeof (Int32), typeof (Int64), typeof (Byte), typeof (UInt16),
+        typeof (UInt32), typeof (UInt64), typeof(Guid), typeof (Byte), typeof (Char), typeof (String),
+        typeof (Decimal), typeof (Single), typeof (Double), typeof (DateTime), typeof (TimeSpan),
+        typeof (DateTimeOffset)
+      };
     }
   }
 }

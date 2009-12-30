@@ -213,18 +213,23 @@ namespace Xtensive.Core.ObjectMapping
         return null;
       var itemCount = (int) sourceProperty.CountProperty.GetValue(sourceValue, null);
       object targetValue;
+      var isItemTypePrimitive = MappingHelper.IsTypePrimitive(targetProperty.ItemType);
       if (targetProperty.SystemProperty.PropertyType.IsArray) {
         var array = Array.CreateInstance(targetProperty.ItemType, itemCount);
         var index = 0;
-        foreach (var obj in (IEnumerable) sourceValue)
-          array.SetValue(TransformObject(obj, target.Level), index++);
+        foreach (var obj in (IEnumerable) sourceValue) {
+          var value = isItemTypePrimitive ? obj : TransformObject(obj, target.Level);
+          array.SetValue(value, index++);
+        }
         targetValue = array;
       }
       else {
         var collection = Activator.CreateInstance(targetProperty.SystemProperty.PropertyType);
         var addMethod = targetProperty.AddMethod;
-        foreach (var obj in (IEnumerable) sourceValue)
-          addMethod.Invoke(collection, new[] {TransformObject(obj, target.Level)});
+        foreach (var obj in (IEnumerable) sourceValue) {
+          var value = isItemTypePrimitive ? obj : TransformObject(obj, target.Level);
+          addMethod.Invoke(collection, new[] {value});
+        }
         targetValue = collection;
       }
       return targetValue;

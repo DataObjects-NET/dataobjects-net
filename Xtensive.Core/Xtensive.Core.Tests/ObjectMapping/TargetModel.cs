@@ -206,4 +206,18 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
     public SimplestDto Value { get; set; }
   }
+
+  public class PrimitiveCollectionContainerDto
+  {
+    public Guid Id { get; set; }
+
+    public List<int> Collection { get; set; }
+  }
+
+  public class ComplexCollectionContainerDto
+  {
+    public Guid Id { get; set; }
+
+    public List<PersonDto> Collection { get; set; }
+  }
 }

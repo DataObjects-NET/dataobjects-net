@@ -180,4 +180,42 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
       Id = Guid.NewGuid();
     }
   }
+
+  public class PrimitiveCollectionContainer
+  {
+    private PrimitiveCollection collection;
+
+    public Guid Id { get; private set; }
+
+    public PrimitiveCollection Collection
+    {
+      get {
+        if (collection==null)
+          collection = new PrimitiveCollection();
+        return collection;
+      }
+    }
+  }
+
+  public class PrimitiveCollection : List<int>
+  {}
+
+  public class ComplexCollectionContainer
+  {
+    private ComplexCollection collection;
+
+    public Guid Id { get; private set; }
+
+    public ComplexCollection Collection
+    {
+      get {
+        if (collection==null)
+          collection = new ComplexCollection();
+        return collection;
+      }
+    }
+  }
+
+  public class ComplexCollection : List<Person>
+  {}
 }

@@ -53,7 +53,8 @@ namespace Xtensive.Core.ObjectMapping
         throw new InvalidOperationException(
           String.Format(Strings.ExCollectionPropertyXIsBoundToPropertyYThatIsNotCollection, property,
           sourceProperty));
-      description.EnsureTargetTypeIsRegistered(property.ItemType);
+      if (!MappingHelper.IsTypePrimitive(property.ItemType))
+        description.EnsureTargetTypeIsRegistered(property.ItemType);
     }
 
     private void ValidatePrimitiveProperty(TargetPropertyDescription property,

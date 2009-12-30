@@ -5,7 +5,6 @@
 // Created:    2009.12.11
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Helpers;
@@ -41,7 +40,6 @@ namespace Xtensive.Core.ObjectMapping.Model
 
     #endregion
 
-    private static readonly HashSet<Type> primitiveTypes;
     private static readonly ThreadSafeDictionary<Type, Pair<Type, MemberInfoCacheEntry>> collectionTypes =
       ThreadSafeDictionary<Type, Pair<Type, MemberInfoCacheEntry>>.Create(new object());
     private static readonly MemberInfoCacheEntry arrayCacheEntry =
@@ -97,11 +95,6 @@ namespace Xtensive.Core.ObjectMapping.Model
     }
 
     #region Private / internal methods
-
-    internal static bool IsPropertyPrimitive(PropertyInfo propertyInfo)
-    {
-      return primitiveTypes.Contains(propertyInfo.PropertyType);
-    }
 
     private void AssignCollectionRelatedProperties(PropertyInfo systemProperty)
     {
@@ -163,21 +156,8 @@ namespace Xtensive.Core.ObjectMapping.Model
 
       SystemProperty = systemProperty;
       ReflectedType = reflectedType;
-      IsPrimitive = primitiveTypes.Contains(systemProperty.PropertyType);
+      IsPrimitive = MappingHelper.IsTypePrimitive(systemProperty.PropertyType);
       AssignCollectionRelatedProperties(systemProperty);
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.TypeInitializer" copy="true"/>
-    /// </summary>
-    static PropertyDescription()
-    {
-      primitiveTypes = new HashSet<Type> {
-        typeof (Boolean), typeof (Int16), typeof (Int32), typeof (Int64), typeof (Byte), typeof (UInt16),
-        typeof (UInt32), typeof (UInt64), typeof(Guid), typeof (Byte), typeof (Char), typeof (String),
-        typeof (Decimal), typeof (Single), typeof (Double), typeof (DateTime), typeof (TimeSpan),
-        typeof (DateTimeOffset)
-      };
     }
   }
 }
