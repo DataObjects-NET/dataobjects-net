@@ -16,6 +16,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.FullText;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Materialization;
@@ -630,7 +631,7 @@ namespace Xtensive.Storage.Linq
       var methodCall = rootPoint.Expression as MethodCallExpression;
       if (methodCall!=null
         && methodCall.Method.IsGenericMethod
-          && methodCall.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.FreeText) {
+          && methodCall.Method.GetGenericMethodDefinition().Name=="FreeText") {
         Type elementType = rootPoint.ElementType.GetGenericArguments()[0];
         TypeInfo type;
         if (!context.Model.Types.TryGetValue(elementType, out type))
@@ -638,10 +639,19 @@ namespace Xtensive.Storage.Linq
         var fullTextIndex = type.FullTextIndex;
         if (fullTextIndex==null)
           throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHasFullTextIndex, elementType.FullName));
+
+
+        // Prepare parameter
+        var searchCriteria = methodCall.Arguments[0];
+        if (searchCriteria.NodeType!=ExpressionType.Constant
+            || searchCriteria.Type!=typeof (Func<string>)) {
+          throw new InvalidOperationException("Invalid freetext parameter"); // TODO: Make 2 methods - FreeText(string) and FreeText(Expression? <Func<string>>>()
+        }
+
         var entityExpression = EntityExpression.Create(type, 0, true);
         var rankExpression = ColumnExpression.Create(typeof (double), entityExpression.Key.Mapping.Length);
         var freeTextExpression = new FreeTextExpression(fullTextIndex, entityExpression, rankExpression, null);
-        var dataSource = new FreeTextProvider(fullTextIndex).Result;
+        var dataSource = new FreeTextProvider(fullTextIndex, (Func<string>) ((ConstantExpression)searchCriteria).Value).Result;
         var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
         return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(rootPoint.ElementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }

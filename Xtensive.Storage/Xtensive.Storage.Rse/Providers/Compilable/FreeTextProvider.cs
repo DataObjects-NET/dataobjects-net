@@ -16,20 +16,26 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
   {
     private readonly RecordSetHeader indexHeader;
 
+    public Func<string> SearchCriteria { get; private set; }
+
+    public IndexInfoRef PrimaryIndex { get; private set; }
+
     protected override RecordSetHeader BuildHeader()
     {
       return indexHeader;
-    } 
+    }
 
     protected override DirectionCollection<int> CreateExpectedColumnsOrdering()
     {
       return EmptyOrder;
     }
 
-    public FreeTextProvider(FullTextIndexInfo index)
+    public FreeTextProvider(FullTextIndexInfo index, Func<string> searchCriteria)
       : base(ProviderType.FreeText)
     {
+      SearchCriteria = searchCriteria;
       indexHeader = index.GetRecordSetHeader();
+      PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
     }
   }
 }
