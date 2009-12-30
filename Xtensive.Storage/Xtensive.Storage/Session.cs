@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
@@ -66,7 +65,6 @@ namespace Xtensive.Storage
     private const int EntityChangeRegistrySizeLimit = 250; // TODO: -> SessionConfiguration
     private ExtensionCollection extensions;
 
-    private readonly object _lock = new object();
     private readonly Pinner pinner = new Pinner();
     private readonly bool persistRequiresTopologicalSort;
     
@@ -102,10 +100,9 @@ namespace Xtensive.Storage
     public string FullName {
       get {
         string name = Name;
-        if (name.IsNullOrEmpty())
-          return string.Format(IdentifierFormat, Identifier);
-        else
-          return string.Format(FullNameFormat, name, Identifier);
+        return name.IsNullOrEmpty()
+          ? string.Format(IdentifierFormat, Identifier)
+          : string.Format(FullNameFormat, name, Identifier);
       }
     }
 
@@ -134,14 +131,12 @@ namespace Xtensive.Storage
     /// assigned resolver can not be changed.
     /// </remarks>
     /// <exception cref="NotSupportedException">Resolver is already assigned.</exception>
-    public static Func<Session> Resolver
-    {
+    public static Func<Session> Resolver {
       [DebuggerStepThrough]
       get {
         return resolver;
       }
-      set
-      {
+      set {
         resolver = value;
         if (value==null)
           Rse.Compilation.CompilationContext.Resolver = null;
@@ -206,14 +201,11 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the current active <see cref="Session"/> instance.
     /// </summary>
-    public static Session Current
-    {
+    public static Session Current {
       [DebuggerStepThrough]
-      get
-      {
-        return 
-          SessionScope.CurrentSession ?? 
-          (resolver==null ? null : resolver.Invoke());
+      get {
+        return
+          SessionScope.CurrentSession ?? (resolver==null ? null : resolver.Invoke());
       }
     }
 
@@ -233,23 +225,20 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    public bool IsActive { get { return Current==this; } }
+
+    /// <inheritdoc/>
     public SessionScope Activate()
     {
-      if (SessionScope.CurrentSession==this)
-        return null;
-      return new SessionScope(this);
+      return SessionScope.CurrentSession==this
+        ? null
+        : new SessionScope(this);
     }
 
     /// <inheritdoc/>
     IDisposable IContext.Activate()
     {
       return Activate();
-    }
-
-    /// <inheritdoc/>
-    public bool IsActive
-    {
-      get { return Current==this; }
     }
 
     #endregion
@@ -259,25 +248,38 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public IExtensionCollection Extensions {
       get {
-        if (extensions != null)
-          return extensions;
-
-        lock (this) {
-          if (extensions == null)
-            extensions = new ExtensionCollection();
-        }
-
+        if (extensions==null)
+          extensions = new ExtensionCollection();
         return extensions;
       }
     }
 
     #endregion
 
-    /// <inheritdoc/>
-    public override string ToString()
+
+    #region IDisposable members
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
+    public void Dispose()
     {
-      return FullName;
+      if (isDisposed)
+        return;
+      try {
+        if (IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXDisposing, this);
+        NotifyDisposing();
+        Handler.DisposeSafely();
+        sessionScope.DisposeSafely();
+        sessionScope = null;
+      }
+      finally {
+        isDisposed = true;
+      }
     }
+
+    #endregion
 
     /// <summary>
     /// Pins the specified <see cref="IEntity"/>.
@@ -300,14 +302,19 @@ namespace Xtensive.Storage
       return pinner.RegisterRoot(targetEntity.State);
     }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return FullName;
+    }
+
 
     // Constructors
 
     internal Session(Domain domain, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
-      IsDebugEventLoggingEnabled = 
-        Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      IsDebugEventLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
 
       // Both Domain and Configuration are valid references here;
       // Configuration is already locked
@@ -322,15 +329,7 @@ namespace Xtensive.Storage
       Handler.Initialize();
 
       // Caches, registry
-      switch (configuration.CacheType) {
-      case SessionCacheType.Infinite:
-        EntityStateCache = new InfiniteCache<Key, EntityState>(configuration.CacheSize, i => i.Key);
-        break;
-      default:
-        EntityStateCache = new LruCache<Key, EntityState>(configuration.CacheSize, i => i.Key,
-          new WeakCache<Key, EntityState>(false, i => i.Key));
-        break;
-      }
+      EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry();
       Cache = new SessionCache(this);
 
@@ -344,47 +343,5 @@ namespace Xtensive.Storage
         sessionScope = new SessionScope(this);
       CurrentOperationContext = OperationContext.Default;
     }
-
-    #region Dispose pattern
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
-    /// </summary>
-    public void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Dtor" copy="true"/>
-    /// </summary>
-    ~Session()
-    {
-      Dispose(false);
-    }
-
-    private void Dispose(bool disposing)
-    {
-      if (isDisposed)
-        return;
-      lock (_lock) {
-        if (isDisposed)
-          return;
-        try {
-          if (IsDebugEventLoggingEnabled)
-            Log.Debug(Strings.LogSessionXDisposing, this);
-          NotifyDisposing();
-          Handler.DisposeSafely();
-          sessionScope.DisposeSafely();
-          sessionScope = null;
-        }
-        finally {
-          isDisposed = true;
-        }
-      }
-    }
-
-    #endregion
   }
 }

@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
@@ -111,6 +112,17 @@ namespace Xtensive.Storage
       if (IsDebugEventLoggingEnabled)
         Log.Debug(Strings.SessionXCachingY, this, result);
       return result;
+    }
+
+    private static ICache<Key,EntityState> CreateSessionCache(SessionConfiguration configuration)
+    {
+      switch (configuration.CacheType) {
+      case SessionCacheType.Infinite:
+        return new InfiniteCache<Key, EntityState>(configuration.CacheSize, i => i.Key);
+      default:
+        return new LruCache<Key, EntityState>(configuration.CacheSize, i => i.Key,
+          new WeakCache<Key, EntityState>(false, i => i.Key));
+      }
     }
   }
 }
