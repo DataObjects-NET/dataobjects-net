@@ -54,9 +54,10 @@ namespace Xtensive.Storage.Rse
         .Select(columnInfo => columnInfo.ValueType)
         .AddOne(typeof (double));
       TupleDescriptor tupleDescriptor = TupleDescriptor.Create(fieldTypes);
+      // TODO: Make correct columns
       var columns = fullTextIndexInfo
         .KeyColumns
-        .Select((c, i) => (Column) new MappedColumn(c, i, c.ValueType))
+        .Select((c, i) => (Column) new MappedColumn("Key" /* for MS SQL */, i, c.ValueType))
         .AddOne(new MappedColumn("Rank", tupleDescriptor.Count, typeof (double)));
       return new RecordSetHeader(tupleDescriptor, columns);
     }
