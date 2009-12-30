@@ -18,13 +18,16 @@ namespace Xtensive.Integrity.Aspects.Constraints
     /// <inheritdoc/>
     public override bool CheckValue(object value)
     {
+      if (value==null)
+        return true;
       return (DateTime) value > DateTime.Now;
     }
 
     /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
-      return valueType == typeof (DateTime);
+      return valueType == typeof (DateTime)
+        || valueType == typeof (DateTime?);
     }
 
     /// <inheritdoc/>
