@@ -225,7 +225,7 @@ namespace Xtensive.Storage.Building.Builders
         // Let's clear the schema if mode is Recreate
         if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
           var emptySchema = new StorageInfo();
-          result = SchemaComparer.Compare(extractedSchema, emptySchema, null, false, context.Model);
+          result = SchemaComparer.Compare(extractedSchema, emptySchema, null, schemaUpgradeMode, context.Model);
           if (result.Status!=SchemaComparisonStatus.Equal || result.HasTypeChanges) {
             if (Log.IsLogged(LogEventTypes.Info))
               Log.Info(Strings.LogClearingComparisonResultX, result);
@@ -235,8 +235,7 @@ namespace Xtensive.Storage.Building.Builders
           }
         }
 
-        result = SchemaComparer.Compare(extractedSchema, targetSchema, hints, 
-          schemaUpgradeMode==SchemaUpgradeMode.ValidateLegacy, context.Model);
+        result = SchemaComparer.Compare(extractedSchema, targetSchema, hints, schemaUpgradeMode, context.Model);
         if (Log.IsLogged(LogEventTypes.Info))
           Log.Info(Strings.LogComparisonResultX, result);
         if (context.BuilderConfiguration.UpgradeActionsReadyHandler!=null)

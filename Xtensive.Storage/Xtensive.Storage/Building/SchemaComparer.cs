@@ -34,8 +34,8 @@ namespace Xtensive.Storage.Building
     /// <param name="targetSchema">The target schema.</param>
     /// <param name="hints">The upgrade hints.</param>
     /// <returns>Comparison result.</returns>
-    public static SchemaComparisonResult Compare(StorageInfo sourceSchema,
-      StorageInfo targetSchema, HintSet hints, bool legacyUpgrade, DomainModel model)
+    public static SchemaComparisonResult Compare(StorageInfo sourceSchema, StorageInfo targetSchema, 
+      HintSet hints, SchemaUpgradeMode schemaUpgradeMode, DomainModel model)
     {
       if (hints == null)
         hints = new HintSet(sourceSchema, targetSchema);
@@ -46,11 +46,11 @@ namespace Xtensive.Storage.Building
         ? EnumerableUtils<NodeAction>.Empty 
         : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
       };
-      var status = GetComparisonStatus(actions);
+      var status = GetComparisonStatus(actions, schemaUpgradeMode);
       var unsafeActions = GetUnsafeActions(actions);
       var typeChanges = GetTypeChangeActions(actions);
       
-      if (!legacyUpgrade)
+      if (schemaUpgradeMode != SchemaUpgradeMode.ValidateLegacy)
         return new SchemaComparisonResult(status, hints, difference, actions, typeChanges.Any(), unsafeActions, true);
 
       var systemTables = model.Types.Where(type => type.IsSystem)
@@ -175,19 +175,22 @@ namespace Xtensive.Storage.Building
         .Where(isTableAction);
     }
 
-    private static SchemaComparisonStatus GetComparisonStatus(ActionSequence upgradeActions)
+    private static SchemaComparisonStatus GetComparisonStatus(ActionSequence actions, SchemaUpgradeMode schemaUpgradeMode)
     {
-      var actions = upgradeActions.Flatten().ToList();
+      var actionList = actions.Flatten().ToList();
       
-      var hasCreateActions = actions
+      var filter = schemaUpgradeMode != SchemaUpgradeMode.ValidateCompatible
+        ? (Func<Type, bool>) (targetType => true)
+        : targetType => targetType.In(typeof(TableInfo), typeof(ColumnInfo));
+      var hasCreateActions = actionList
         .OfType<CreateNodeAction>()
-        .Any();
-      var hasRemoveActions = actions
+        .Select(action => action.Difference.Target.GetType())
+        .Any(filter);
+      var hasRemoveActions = actionList
         .OfType<RemoveNodeAction>()
-        .Any(action => action.Difference.Source is TableInfo
-          || action.Difference.Source is ColumnInfo);
+        .Select(action => action.Difference.Source.GetType())
+        .Any(sourceType => sourceType.In(typeof(TableInfo), typeof(ColumnInfo)));
       
-
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;
       if (hasCreateActions)
