@@ -150,6 +150,8 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 
     public int Level { get; private set; }
 
+    public Simplest AuxReference { get; set; }
+
     public RecursiveComposition Child { get; private set; }
 
     public void Compose(int levelCount)
@@ -162,6 +164,18 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
     }
 
     public RecursiveComposition()
+    {
+      Id = Guid.NewGuid();
+    }
+  }
+
+  public class Simplest
+  {
+    public Guid Id { get; private set; }
+
+    public Simplest Value { get; set; }
+
+    public Simplest()
     {
       Id = Guid.NewGuid();
     }

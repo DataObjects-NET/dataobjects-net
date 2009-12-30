@@ -4,6 +4,8 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.10
 
+using Xtensive.Storage.Model;
+
 namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 {
   [HierarchyRoot]
@@ -353,5 +355,22 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
   {
     [Field, Key]
     public int Id { get; private set; }
+  }
+
+  [HierarchyRoot]
+  public class AnotherBookShop : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public PublisherSet Suppliers { get; private set; }
+  }
+
+  public class PublisherSet : EntitySet<Publisher>
+  {
+    public PublisherSet(Entity owner, FieldInfo field)
+      : base(owner, field)
+    {}
   }
 }

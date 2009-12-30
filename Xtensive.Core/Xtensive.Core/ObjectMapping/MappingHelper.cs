@@ -30,7 +30,7 @@ namespace Xtensive.Core.ObjectMapping
 
     public static bool IsCollectionCandidate(Type type)
     {
-      return type.IsGenericType && typeof (IEnumerable).IsAssignableFrom(type);
+      return typeof (IEnumerable).IsAssignableFrom(type);
     }
 
     public static bool TryGetCollectionInterface(Type type, out Type interfaceType)

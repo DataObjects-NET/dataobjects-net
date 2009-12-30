@@ -129,6 +129,53 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       }
     }
 
+    [Test]
+    [Explicit]
+    public void CustomEntitySetMappingTest()
+    {
+      var mapper = new Mapper();
+      mapper.MapType<AnotherBookShop, BookShopDto, string>(abs => abs.Key.Format(), bs => bs.Key)
+          .Ignore(bs => bs.Name).Ignore(bs => bs.Url)
+        .MapType<Publisher, PublisherDto, string>(p => p.Key.Format(), p => p.Key)
+          .Ignore(p => p.Distributors).Complete();
+      BookShopDto bookShopDto;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        foreach (var publisher in Query.All<Publisher>())
+          publisher.Remove();
+        foreach (var bookShop in Query.All<BookShop>())
+          bookShop.Remove();
+        var anotherBookShop = new AnotherBookShop();
+        anotherBookShop.Suppliers.Add(new Publisher {Trademark = "A"});
+        anotherBookShop.Suppliers.Add(new Publisher {Trademark = "B"});
+        anotherBookShop.Suppliers.Add(new Publisher {Trademark = "C"});
+        bookShopDto = (BookShopDto) mapper.Transform(anotherBookShop);
+        tx.Complete();
+      }
+
+      Assert.IsNotNull(bookShopDto);
+      Assert.IsTrue(bookShopDto.Suppliers.Any(s => s.Trademark=="A"));
+      Assert.IsTrue(bookShopDto.Suppliers.Any(s => s.Trademark=="B"));
+      Assert.IsTrue(bookShopDto.Suppliers.Any(s => s.Trademark=="C"));
+      var modifiedBookShopDto = Clone(bookShopDto);
+      var newPublisherDto = new PublisherDto {Key = Guid.NewGuid().ToString(), Trademark = "D"};
+      var newSuppliers = new PublisherDto[4];
+      Array.Copy(modifiedBookShopDto.Suppliers, newSuppliers, modifiedBookShopDto.Suppliers.Length);
+      modifiedBookShopDto.Suppliers = newSuppliers;
+      modifiedBookShopDto.Suppliers[3] = newPublisherDto;
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var operations = mapper.Compare(bookShopDto, modifiedBookShopDto);
+        operations.Apply();
+        var newPublisher = Query.All<Publisher>().Where(p => p.Trademark==newPublisherDto.Trademark).Single();
+        Assert.AreEqual("D", newPublisher.Trademark);
+        var bookShop = Query.All<AnotherBookShop>().Single();
+        Assert.AreEqual(4, bookShop.Suppliers.Count());
+        tx.Complete();
+      }
+    }
+
     private static T Clone<T>(T obj)
     {
       var serializer = new BinaryFormatter();

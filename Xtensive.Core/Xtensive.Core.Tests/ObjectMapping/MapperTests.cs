@@ -947,7 +947,8 @@ namespace Xtensive.Core.Tests.ObjectMapping
     {
       var mapperSettings = new MapperSettings {GraphTruncationType = action, GraphDepthLimit = depthLimit};
       var result = new DefaultMapper(mapperSettings);
-      result.MapType<RecursiveComposition, RecursiveCompositionDto, Guid>(r => r.Id, r => r.Id).Complete();
+      result.MapType<RecursiveComposition, RecursiveCompositionDto, Guid>(r => r.Id, r => r.Id)
+        .MapType<Simplest, SimplestDto, Guid>(s => s.Id, s => s.Id).Complete();
       return result;
     }
 

@@ -195,6 +195,15 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
     public int Level { get; private set; }
 
+    public SimplestDto AuxReference { get; set; }
+
     public RecursiveCompositionDto Child { get; private set; }
+  }
+
+  public class SimplestDto
+  {
+    public Guid Id { get; set; }
+
+    public SimplestDto Value { get; set; }
   }
 }
