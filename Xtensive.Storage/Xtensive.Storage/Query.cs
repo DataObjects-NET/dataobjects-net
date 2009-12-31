@@ -214,7 +214,8 @@ namespace Xtensive.Storage
         using (var queryCachingScope = new QueryCachingScope(queryParameter, replacer)) {
           TResult result;
           using (new ParameterContext().Activate()) {
-            queryParameter.Value = target;
+            if (queryParameter!=null)
+              queryParameter.Value = target;
             result = query.Invoke();
           }
           parameterizedQuery = (ParameterizedQuery<TResult>) queryCachingScope.ParameterizedQuery;

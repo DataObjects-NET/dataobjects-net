@@ -7,7 +7,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage
@@ -17,20 +16,26 @@ namespace Xtensive.Storage
   /// (see <see cref="EntitySetBase.Cache">EntitySetBase.Cache</see>).
   /// </summary>
   [DebuggerDisplay("Count = {Count}")]
-  public class EntitySetCache : SessionBound,
-    ICountable<Key>
+  public struct EntitySetCacheAccessor : ICountable<Key>
   {
+    private EntitySetBase entitySet;
+
     /// <summary>
     /// Gets the entity set this cache is bound to.
     /// </summary>
-    [Infrastructure]
-    public EntitySetBase EntitySet { get; private set; }
+    public EntitySetBase EntitySet
+    {
+      get { return entitySet; }
+    }
 
     /// <summary>
     /// Gets the number of cached items.
     /// </summary>
     public long Count {
-      get { return EntitySet.State.CachedItemCount; }
+      get {
+        var state = EntitySet.State;
+        return state==null ? 0 : state.CachedItemCount;
+      }
     }
 
     /// <summary>
@@ -38,7 +43,10 @@ namespace Xtensive.Storage
     /// <see cref="EntitySetBase.Count"/> won't hit the database.
     /// </summary>
     public bool IsCountAvailable {
-      get { return EntitySet.State.TotalItemCount.HasValue; }
+      get {
+        var state = EntitySet.State;
+        return state==null ? false : state.TotalItemCount.HasValue;
+      }
     }
 
     /// <summary>
@@ -46,7 +54,10 @@ namespace Xtensive.Storage
     /// so any read request to it won't hit the database.
     /// </summary>
     public bool IsFullyLoaded {
-      get { return EntitySet.State.IsFullyLoaded; }
+      get {
+        var state = EntitySet.State;
+        return state==null ? false : state.IsFullyLoaded;
+      }
     }
 
     /// <summary>
@@ -57,30 +68,31 @@ namespace Xtensive.Storage
     /// <see langword="true"/> if the specified key is cached; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    public bool Contains(Key key) 
+    public bool Contains(Key key)
     {
-      return EntitySet.State.Contains(key);
+      var state = EntitySet.State;
+      return state==null ? false : state.Contains(key);
     }
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return EntitySet.State.GetEnumerator();
+      return GetEnumerator();
     }
 
     /// <inheritdoc/>
     public IEnumerator<Key> GetEnumerator()
     {
-      return EntitySet.State.GetEnumerator();
+      var state = EntitySet.State;
+      return state==null ? EnumerableUtils<Key>.EmptyEnumerator : state.GetEnumerator();
     }
 
 
     // Constructors
 
-    [Infrastructure]
-    internal EntitySetCache(EntitySetBase entitySet)
-      : base(entitySet.Session)
+    internal EntitySetCacheAccessor(EntitySetBase entitySet)
     {
+      this.entitySet = entitySet;
     }
   }
 }

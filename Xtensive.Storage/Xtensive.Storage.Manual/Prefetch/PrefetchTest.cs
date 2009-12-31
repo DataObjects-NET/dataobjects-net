@@ -7,6 +7,8 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using System.Linq;
+using Xtensive.Storage.Internals.Prefetch;
 
 namespace Xtensive.Storage.Manual.Prefetch
 {
@@ -28,7 +30,7 @@ namespace Xtensive.Storage.Manual.Prefetch
     public byte[] Photo { get; set; }
 
     [Field]
-    public Person Manager { get; private set; }
+    public Person Manager { get; set; }
 
     [Field]
     [Association(PairTo = "Manager")]
@@ -67,23 +69,103 @@ namespace Xtensive.Storage.Manual.Prefetch
         var persons = Query.All<Person>();
         var prefetchedPersons = persons
           .Prefetch(p => p.Photo) // Lazy load field
-          .Prefetch(p => p.Employees, employees => employees.Prefetch(e => e.Photo)) // EntitySet and lazy load field of its items
+          .Prefetch(p => p.Employees, // EntitySet Employees
+            employees => employees
+              .Prefetch(e => e.Photo)) // and lazy load field of each of its items
+          .Prefetch(p => p.Manager); // Referenced entity
+        foreach (var person in prefetchedPersons) {
+          // some code here...
+        }
+        transactionScope.Complete();
+      }
+
+      using (var session = Session.Open(domain))
+      using (var transactionScope = Transaction.Open()) {
+        var personIds = Query.All<Person>().Select(p => p.Id);
+        var prefetchedPersons = personIds.Prefetch<Person, int>(id => Key.Create<Person>(id))
+          .Prefetch(p => p.Photo) // Lazy load field
+          .Prefetch(p => p.Employees, // EntitySet Employees
+            employees => employees
+              .Prefetch(e => e.Photo)) // and lazy load field of each of its items
+          .Prefetch(p => p.Manager); // Referenced entity
+        foreach (var person in prefetchedPersons) {
+          // some code here...
+        }
+        transactionScope.Complete();
+      }
+
+      using (var session = Session.Open(domain))
+      using (var transactionScope = Transaction.Open()) {
+        var persons = Query.All<Person>();
+        var prefetchedPersons = persons
+          .Prefetch(p => p.Photo) // Lazy load field
+          .Prefetch(p => p.Employees, // EntitySet Employees
+            employees => employees
+              .Prefetch(e => e.Photo)) // and lazy load field of each of its items
           .Prefetch(p => p.Manager) // Referenced entity
           .PrefetchSingle(p => p.Manager, // 1-to-1 association
             managers => managers
-              .Prefetch(p => p.Photo)
-            )
-          .PrefetchMany(p => p.Employees, employees => employees.Prefetch(e => e.Photo)) // Lazy load field of EntitySet items
-          .Prefetch(p => p.Employees) // EntitySet
-          .Prefetch(p => p.Employees, 40); // EntitySet with the limited number of items to be loaded
+              .Prefetch(p => p.Photo)) // And lazy load field of each of its items
+          .PrefetchMany(p => p.Employees, // Again, EntitySet
+            employees => employees
+              .Prefetch(e => e.Photo)) // and lazy load field of each of its items
+          .Prefetch(p => p.Employees, 40); // EntitySet with the limit on number of items to be loaded
         foreach (var person in prefetchedPersons) {
-          Assert.IsTrue(person.GetFieldState("Photo")==PersistentFieldState.Loaded);
-          Assert.IsTrue(person.GetFieldState("Manager")==PersistentFieldState.Loaded);
+          Assert.IsTrue(person.Cache.GetFieldState("Photo")==PersistentFieldState.Loaded);
+          Assert.IsTrue(person.Cache.GetFieldState("Manager")==PersistentFieldState.Loaded);
           if (person.ManagerKey != null) {
             Assert.IsNotNull(session.Cache[person.ManagerKey]);
-            Assert.IsTrue(person.Manager.GetFieldState("Photo")==PersistentFieldState.Loaded);
+            Assert.IsTrue(person.Manager.Cache.GetFieldState("Photo")==PersistentFieldState.Loaded);
           }
           // some code here...
+        }
+        transactionScope.Complete();
+      }
+    }
+
+    [Test]
+    public void MultipleBatchesTest()
+    {
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
+        UpgradeMode = DomainUpgradeMode.Recreate
+      };
+      config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+      var domain = Domain.Build(config);
+
+      int count = 1000;
+
+      using (Session.Open(domain))
+      using (var transactionScope = Transaction.Open()) {
+        var random = new Random(10);
+        for (int i = 0; i < count; i++)
+          new Person {Name = i.ToString(), Photo = new[] {(byte) (i % 256)}};
+        var persons = Query.All<Person>().OrderBy(p => p.Id).ToArray();
+        for (int i = 0; i<count; i++) {
+          var person = persons[i];
+          if (random.Next(5)>0)
+            person.Manager = persons[random.Next(count)];
+        }
+        transactionScope.Complete();
+      }
+
+      using (var session = Session.Open(domain))
+      using (var transactionScope = Transaction.Open()) {
+        var persons =
+          from person in Query.All<Person>()
+          orderby person.Name
+          select person;
+        var prefetchedPersons = persons.Take(100)
+          .Prefetch(p => p.Photo) // Lazy load field
+          .Prefetch(p => p.Employees, // EntitySet Employees
+            employees => employees
+              .Prefetch(e => e.Photo)) // and lazy load field of each of its items
+          .Prefetch(p => p.Manager); // Referenced entity
+        foreach (var person in prefetchedPersons) {
+          Assert.IsTrue(person.Cache.GetFieldState("Photo")==PersistentFieldState.Loaded);
+          Assert.IsTrue(person.Cache.GetFieldState("Manager")==PersistentFieldState.Loaded);
+          Assert.IsTrue(person.Employees.Cache.IsFullyLoaded);
+          foreach (var employee in person.Employees)
+            Assert.IsTrue(employee.Cache.GetFieldState("Photo")==PersistentFieldState.Loaded);
         }
         transactionScope.Complete();
       }

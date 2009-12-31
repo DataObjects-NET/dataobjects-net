@@ -43,7 +43,6 @@ namespace Xtensive.Storage
 
     private readonly Entity owner;
     private bool isInitialized;
-    private EntitySetCache cache;
 
     /// <summary>
     /// Gets the owner of this instance.
@@ -77,14 +76,12 @@ namespace Xtensive.Storage
     }
     
     /// <summary>
-    /// Gets public API to <see cref="EntitySetBase"/> cache.
+    /// Gets public accessor to <see cref="EntitySetBase"/> cache.
     /// </summary>
     [Infrastructure]
-    public EntitySetCache Cache {
+    public EntitySetCacheAccessor Cache {
       get {
-        if (cache==null)
-          cache = new EntitySetCache(this);
-        return cache;
+        return new EntitySetCacheAccessor(this);
       }
     }
 
