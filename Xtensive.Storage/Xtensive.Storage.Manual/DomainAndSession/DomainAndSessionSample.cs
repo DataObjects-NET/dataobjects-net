@@ -28,26 +28,59 @@ namespace Xtensive.Storage.Manual.DomainAndSession
   [TestFixture]
   public class DomainAndSessionSample
   {
-    private Domain existingDomain;
+    #region Connection URL examples
+    
+    public const string SqlServerUrl1  = "sqlserver://localhost/MyDatabase";
+    public const string SqlServerUrl2  = "sqlserver://dbServer\MSSQL2008/Production";
+    public const string OracleUrl1     = "oracle://user:password@localhost/MyDatabase";
+    public const string OracleUrl2     = "oracle://user:password@dbServer:5511/MyDatabase";
+    public const string PostrgeSqlUrl1 = "postgresql://user:password@127.0.0.1:8032/MyDatabase?Encoding=Unicode";
+    public const string PostrgeSqlUrl2 = "postgresql://user:password@dbServer/MyDatabase?Pooling=on&MinPoolSize=1&MaxPoolSize=5";
+    public const string InMemoryUrl    = "memory://localhost/MyDatabase";
+    
+    #endregion
 
     [Test]
     public void OpenSessionTest()
     {
-      var domain = GetDomain();
+      #region Domain sample
+
+      // Creating new Domain configuration
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
+        UpgradeMode = DomainUpgradeMode.Recreate
+      };
+      // Registering all types in the specified assembly and namespace
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      // And finally building the domain
+      var domain = Domain.Build(config);
+
       using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
+
           var person = new Person();
           person.Name = "Barack Obama";
 
           transactionScope.Complete();
         }
       }
+
+      #endregion
     }
 
     [Test]
     public void CurrentSessionTest()
     {
-      var domain = GetDomain();
+      #region Session sample
+
+      // Creating new Domain configuration
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
+        UpgradeMode = DomainUpgradeMode.Recreate
+      };
+      // Registering all types in the specified assembly and namespace
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      // And finally building the domain
+      var domain = Domain.Build(config);
+
       int personId;
       using (Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
@@ -59,6 +92,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
 
       using (var session = Session.Open(domain)) {
         using (var transactionScope = Transaction.Open()) {
+
           var newPerson = new Person();
           var fetchedPerson = Query.Single<Person>(personId);
 
@@ -69,17 +103,34 @@ namespace Xtensive.Storage.Manual.DomainAndSession
           transactionScope.Complete();
         }
       }
+
+      #endregion
+
+      using (Session.Open(domain)) {
+        using (var transactionScope = Transaction.Open()) {
+
+          var person = new Person();
+          person.Name = "Barack Obama";
+
+          transactionScope.Complete();
+        }
+      }
     }
 
     [Test]
     public void SessionConfigurationTest()
     {
-      var config = DomainConfiguration.Load("SessionConfigurationTestDomain");
-      config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof (Person));
-      config.ValidationMode = ValidationMode.OnDemand;
+      // Creating new Domain configuration
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
+        UpgradeMode = DomainUpgradeMode.Recreate,
+        ValidationMode = ValidationMode.OnDemand
+      };
+      // Registering all types in the specified assembly and namespace
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      // And finally building the domain
       var domain = Domain.Build(config);
 
+      // First named Session configuration
       var sessionCongfigOne = new SessionConfiguration {
         BatchSize = 25,
         DefaultIsolationLevel = IsolationLevel.ReadCommitted,
@@ -87,6 +138,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
         Options = SessionOptions.AutoShortenTransactions
       };
 
+      // Second named Session configuration
       var sessionConfigTwo = config.Sessions["TestSession"];
 
       Assert.AreEqual(sessionConfigTwo.BatchSize, sessionCongfigOne.BatchSize);
@@ -97,22 +149,6 @@ namespace Xtensive.Storage.Manual.DomainAndSession
       using (Session.Open(domain, sessionConfigTwo)) {
         // ...
       }
-    }
-
-    private Domain GetDomain()
-    {
-      if (existingDomain==null) {
-        // Creating new Domain configuration
-        var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-          UpgradeMode = DomainUpgradeMode.Recreate
-        };
-        // Registering all types in the specified assembly and namespace
-        config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
-        // And finally building the domain
-        var domain = Domain.Build(config);
-        existingDomain = domain;
-      }
-      return existingDomain;
     }
   }
 }

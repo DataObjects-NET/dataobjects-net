@@ -11,6 +11,8 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.Indexes
 {
+  #region Model
+  
   [HierarchyRoot]
   public class Pet : Entity
   {
@@ -42,10 +44,9 @@ namespace Xtensive.Storage.Manual.Indexes
     [Field]
     public string LastName { get; set; }
   }
-}
 
-namespace Xtensive.Storage.Manual.Indexes
-{
+  #endregion
+
   [TestFixture]
   public class TestFixture
   {
@@ -59,7 +60,7 @@ namespace Xtensive.Storage.Manual.Indexes
 
       using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
-
+          // ...
         }
       }
     }
