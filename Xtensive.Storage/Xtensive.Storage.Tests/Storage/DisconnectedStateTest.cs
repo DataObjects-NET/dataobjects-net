@@ -51,6 +51,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
   }
 
   [HierarchyRoot]
+  [Index("Name", Unique = true)]
   public class Author : Entity
   {
     [Key, Field]
@@ -392,6 +393,71 @@ namespace Xtensive.Storage.Tests.Storage
           }
         }
       }
+    }
+
+    [Test]
+    public void InvalidChangesTest()
+    {
+      using (Session.Open(Domain)) {
+        using (var transactionScope = Transaction.Open()) {
+          new Author {
+            Name = "Peter"
+          };
+          transactionScope.Complete();
+        }
+      }
+
+      using (var session = Session.Open(Domain)) {
+        var disconnectedState = new DisconnectedState();
+        using (disconnectedState.Attach(session))
+        using (disconnectedState.Connect()) {
+
+          Author author;
+
+          using (var transactionScope = Transaction.Open()) {
+
+            var firstAuthor = Query.All<Author>().First();
+
+            // violating unique index
+            author = new Author { Name = firstAuthor.Name };
+
+            transactionScope.Complete();
+          }
+
+          // try to save incorrect value twice, two similar errors are expected
+
+          Exception firstError = null;
+          Exception secondError = null;
+
+          try {
+            disconnectedState.SaveChanges();
+          }
+          catch (Exception exception) {
+            firstError = exception;
+          }
+          Assert.IsNotNull(firstError);
+
+          try {
+            disconnectedState.SaveChanges();
+          }
+          catch (Exception exception) {
+            secondError = exception;
+          }
+
+          Assert.IsNotNull(secondError);
+          Assert.AreEqual(firstError.Message, secondError.Message);
+
+          // Correct value
+          using (var transactionScope = Transaction.Open()) {
+
+            author.Name += " the Second";
+
+            transactionScope.Complete();
+          }
+
+          disconnectedState.SaveChanges();
+        }
+      }     
     }
 
     [Test]
