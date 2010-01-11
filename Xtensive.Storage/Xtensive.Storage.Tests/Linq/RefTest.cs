@@ -14,21 +14,20 @@ namespace Xtensive.Storage.Tests.Linq
 {
   [TestFixture]
   [Ignore]
-  public class TypedKeyTest : NorthwindDOModelTest
+  public class RefTest : NorthwindDOModelTest
   {
     private class X
     {
-      public TypedKey<Order> OrderKey;
+      public Ref<Order> OrderRef;
       public int SomeInt;
     }
-
 
     [Test]
     public void GetEntityTest()
     {
-      var xs = Query.All<Order>().Take(10).Select((order, index) =>
+      var xs = Query.All<Order>().OrderBy(o => o.Id).Take(10).Select((order, index) =>
         new X {
-          OrderKey = order.Key.ToTypedKey<Order>(),
+          OrderRef = (Ref<Order>) order.Key,
           SomeInt = index
         })
         .ToList();
@@ -36,13 +35,13 @@ namespace Xtensive.Storage.Tests.Linq
       var query =
         from o in Query.All<Order>()
         from x in Query.Store(xs)
-        where o==x.OrderKey.Entity
+        where o==x.OrderRef.Value
         select o;
 
       var expected = 
         from o in Query.All<Order>().AsEnumerable()
         from x in xs
-        where o==x.OrderKey.Entity
+        where o==x.OrderRef.Value
         select o;
 
       Assert.AreEqual(0 , expected.Except(query).Count());
@@ -51,9 +50,9 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GetEntity2Test()
     {
-      var xs = Query.All<Order>().Take(10).Select((order, index) =>
+      var xs = Query.All<Order>().OrderBy(o => o.Id).Take(10).Select((order, index) =>
         new X {
-          OrderKey = order.Key.ToTypedKey<Order>(),
+          OrderRef = (Ref<Order>) order.Key,
           SomeInt = index
         })
         .ToList();
@@ -61,13 +60,13 @@ namespace Xtensive.Storage.Tests.Linq
       var query =
         from o in Query.All<Order>()
         from x in xs
-        where o==x.OrderKey.Entity
+        where o==x.OrderRef.Value
         select o;
 
       var expected = 
         from o in Query.All<Order>().AsEnumerable()
         from x in xs
-        where o==x.OrderKey.Entity
+        where o==x.OrderRef.Value
         select o;
 
       Assert.AreEqual(0 , expected.Except(query).Count());
@@ -76,10 +75,12 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void KeyTest()
     {
-      var keys = Query.All<Order>().Take(10).Select(order => order.Key).ToTyped<Order>().ToList();
-      var query = Query.All<Order>().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
+      var refs = Query.All<Order>().Take(10).Select(order => (Ref<Order>) order).ToList();
+      var query = Query.All<Order>()
+        .Join(refs, order => order.Key, @ref => @ref.Key, (order, key) => new {order, key});
       QueryDumper.Dump(query);
-      var expectedQuery = Query.All<Order>().AsEnumerable().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
+      var expectedQuery = Query.All<Order>().AsEnumerable()
+        .Join(refs, order => order.Key, @ref => @ref.Key, (order, key) => new {order, key});
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }
   }

@@ -16,13 +16,5 @@ namespace Xtensive.Storage
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   public sealed class TypeDiscriminatorAttribute : StorageAttribute
   {
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public TypeDiscriminatorAttribute()
-    {
-    }
   }
 }

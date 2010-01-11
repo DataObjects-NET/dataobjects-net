@@ -45,6 +45,13 @@ namespace Xtensive.Storage
       return new Queryable<T>();
     }
 
+    /// <summary>
+    /// Performs full-text query for the text specified in free text form.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">The search criteria in free text form.</param>
+    /// <returns>An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.</returns>
     public static IQueryable<FullTextMatch<T>> FreeText<T>(Func<string> searchCriteria) where T:Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
@@ -65,9 +72,7 @@ namespace Xtensive.Storage
     /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
     public static Entity Single(Key key)
     {
-      var session = Session.Demand();
-      var result = Single(session, key);
-      return result;
+      return Single(Session.Demand(), key);
     }
 
     /// <summary>
@@ -81,8 +86,7 @@ namespace Xtensive.Storage
     /// </returns>
     public static Entity SingleOrDefault(Key key)
     {
-      var session = Session.Demand();
-      return SingleOrDefault(session, key);
+      return SingleOrDefault(Session.Demand(), key);
     }
 
     /// <summary>
@@ -336,6 +340,8 @@ namespace Xtensive.Storage
     /// </returns>
     internal static Entity Single(Session session, Key key)
     {
+      if (key==null)
+        return null;
       var result = SingleOrDefault(session, key);
       if (result == null)
         throw new KeyNotFoundException(string.Format(
@@ -353,7 +359,8 @@ namespace Xtensive.Storage
     /// </returns>
     internal static Entity SingleOrDefault(Session session, Key key)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      if (key==null)
+        return null;
       Entity result;
       using (var transactionScope = Transaction.Open(session)) {
         var cache = session.EntityStateCache;

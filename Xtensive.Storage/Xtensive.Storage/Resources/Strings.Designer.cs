@@ -3568,6 +3568,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ref&lt;{0}&gt;({1}).
+        /// </summary>
+        internal static string RefFormat {
+            get {
+                return ResourceManager.GetString("RefFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Status: {0}
         ///Hints:
         ///{1}

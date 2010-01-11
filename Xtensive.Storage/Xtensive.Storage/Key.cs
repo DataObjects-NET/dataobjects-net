@@ -31,11 +31,8 @@ namespace Xtensive.Storage
     private const char KeyFormatEscape    = '\\';
     private const char KeyFormatDelimiter = ':';
     protected Tuple value;
-
     private int? hashCode;
-    
     internal TypeReference TypeRef;
-
     private string cachedFormatResult;
 
     /// <summary>
@@ -250,6 +247,8 @@ namespace Xtensive.Storage
 
     #endregion
 
+    #region ToString() method
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -262,6 +261,8 @@ namespace Xtensive.Storage
           TypeRef.Type.UnderlyingType.GetShortName(),
           Value.ToRegular());
     }
+
+    #endregion
 
     #region Create next key methods
 
@@ -469,13 +470,14 @@ namespace Xtensive.Storage
 
     #endregion
 
-    public TypedKey<T> ToTypedKey<T>() where T : Entity
-    {
-      return (TypedKey<T>)this;
-    }
-
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="accuracy">The typre reference accuracy.</param>
+    /// <param name="value">The value.</param>
     protected Key(TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
     {
       TypeRef = new TypeReference(type, accuracy);

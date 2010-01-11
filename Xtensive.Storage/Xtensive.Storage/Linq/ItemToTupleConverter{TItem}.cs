@@ -50,8 +50,8 @@ namespace Xtensive.Storage.Linq
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
       }
-      if (type.IsOfGenericType(typeof (TypedKey<>))) {
-        var entityType = type.GetGenericType(typeof (TypedKey<>)).GetGenericArguments()[0];
+      if (type.IsOfGenericType(typeof (Ref<>))) {
+        var entityType = type.GetGenericType(typeof (Ref<>)).GetGenericArguments()[0];
         if (!model.Types.Contains(entityType))
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Linq
     private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, ref IEnumerable<Type> types)
     {
       if (type.IsAssignableFrom(typeof (Key)))
-        throw new InvalidOperationException(String.Format(Strings.ExUnableToStoreUntypedKeyToStorage, typeof (TypedKey<>).GetShortName()));
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToStoreUntypedKeyToStorage, typeof (Ref<>).GetShortName()));
       if (!processedTypes.Add(type))
         throw new InvalidOperationException(String.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
 
@@ -149,8 +149,8 @@ namespace Xtensive.Storage.Linq
 
     private IMappedExpression BuildField(Type type, ref int index, ref IEnumerable<Type> types)
     {
-//      if (type.IsOfGenericType(typeof (TypedKey<>))) {
-//        var entityType = type.GetGenericType(typeof (TypedKey<>)).GetGenericArguments()[0];
+//      if (type.IsOfGenericType(typeof (Ref<>))) {
+//        var entityType = type.GetGenericType(typeof (Ref<>)).GetGenericArguments()[0];
 //        TypeInfo typeInfo = model.Types[entityType];
 //        KeyProviderInfo keyProviderInfo = typeInfo.KeyProviderInfo;
 //        TupleDescriptor keyTupleDescriptor = keyProviderInfo.TupleDescriptor;

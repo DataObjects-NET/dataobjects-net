@@ -21,11 +21,14 @@ namespace Xtensive.Storage
   /// </summary>
   public static class QueryableExtensions
   {
-    public static IEnumerable<TypedKey<TEntity>> ToTyped<TEntity>(this IEnumerable<Key> keys) where TEntity:Entity
-    {
-      return keys.Select(key => key.ToTypedKey<TEntity>());
-    }
-
+    /// <summary>
+    /// Version of <see cref="Queryable.Take{TSource}"/>, where <paramref name="count"/> is specified as 
+    /// <see cref="Expression"/>.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="count">The count of items to take.</param>
+    /// <returns>The same result as its original version.</returns>
     public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
@@ -41,12 +44,20 @@ namespace Xtensive.Storage
       return source.Provider.CreateQuery<TSource>(expression);
     }
 
+    /// <summary>
+    /// Version of <see cref="Queryable.Skip{TSource}"/>, where <paramref name="count"/> is specified as 
+    /// <see cref="Expression"/>.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="count">The count of items to skip.</param>
+    /// <returns>The same result as its original version.</returns>
     public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(count, "count");
 
-      var errorMessage = Resources.Strings.ExSkipDoesNotSupportQueryProviderOfTypeX;
+      var errorMessage = Strings.ExSkipDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
@@ -56,6 +67,14 @@ namespace Xtensive.Storage
       return source.Provider.CreateQuery<TSource>(expression);
     }
 
+    /// <summary>
+    /// Version of <see cref="Queryable.ElementAt{TSource}"/>, where <paramref name="index"/> is specified as
+    /// <see cref="Expression"/>.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="index">The index of element to take.</param>
+    /// <returns>The same result as its original version.</returns>
     public static TSource ElementAt<TSource>(this IQueryable<TSource> source, Expression<Func<int>> index)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
@@ -71,6 +90,14 @@ namespace Xtensive.Storage
       return source.Provider.Execute<TSource>(expression);
     }
 
+    /// <summary>
+    /// Version of <see cref="Queryable.ElementAtOrDefault{TSource}"/>, where <paramref name="index"/> is specified as
+    /// <see cref="Expression"/>.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="index">The index of element to take.</param>
+    /// <returns>The same result as its original version.</returns>
     public static TSource ElementAtOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<int>> index)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
@@ -86,12 +113,20 @@ namespace Xtensive.Storage
       return source.Provider.Execute<TSource>(expression);
     }
 
+    /// <summary>
+    /// Applies locks to the specified source queryable.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="lockMode">The lock mode.</param>
+    /// <param name="lockBehavior">The lock behavior.</param>
+    /// <returns>The same sequence, but with "apply lock" hint.</returns>
     public static IQueryable<TSource> Lock<TSource>(this IQueryable<TSource> source, LockMode lockMode, LockBehavior lockBehavior)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(lockMode, "lockMode");
       ArgumentValidator.EnsureArgumentNotNull(lockBehavior, "lockBehavior");
-      var errorMessage = Resources.Strings.ExLockDoesNotSupportQueryProviderOfTypeX;
+      var errorMessage = Strings.ExLockDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
@@ -192,6 +227,8 @@ namespace Xtensive.Storage
       return outer.Provider.CreateQuery<TResult>(expression);
     }
 
+    #region Private \ internal members
+
     /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Storage.Linq"/> query.</exception>
 // ReSharper disable UnusedMember.Local
     private static IQueryable<TSource> CallTranslator<TSource>(MethodInfo methodInfo, IQueryable source, Expression fieldSelector, string errorMessage)
@@ -213,5 +250,7 @@ namespace Xtensive.Storage
         return queryable.Expression;
       return Expression.Constant(source, typeof (IEnumerable<TSource>));
     }
+
+    #endregion
   }
 }
