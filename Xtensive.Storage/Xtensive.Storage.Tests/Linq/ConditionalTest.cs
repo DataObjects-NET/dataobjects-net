@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.04.21
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Linq.ConditionalTestModel;
@@ -12,6 +13,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Tests.Linq.ConditionalTestModel
 {
+  [Serializable]
   [KeyGenerator(typeof(DualIntKeyGenerator))]
   [HierarchyRoot]
   public class Root1 : Entity
@@ -23,18 +25,21 @@ namespace Xtensive.Storage.Tests.Linq.ConditionalTestModel
     public int Id2 { get; private set; }
   }
 
+  [Serializable]
   public class A : Root1
   {
     [Field]
     public int FieldA { get; private set; }
   }
 
+  [Serializable]
   public class B : Root1
   {
     [Field]
     public int FieldB { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Root2 : Entity
   {

@@ -4,12 +4,13 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.20
 
+using System;
 using NUnit.Framework;
-using Xtensive.Storage.Tests.Issues.Issue0013_Model;
 using Xtensive.Storage.Tests.Issues.Issue0013_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0013_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class SqlTaskEntity : Entity
   {

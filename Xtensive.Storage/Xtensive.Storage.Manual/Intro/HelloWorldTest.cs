@@ -13,6 +13,7 @@ namespace Xtensive.Storage.Manual.Intro.HelloWorld
 {
   #region Model
 
+  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

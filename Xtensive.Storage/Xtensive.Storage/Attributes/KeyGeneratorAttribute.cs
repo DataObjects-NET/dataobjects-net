@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-  public class KeyGeneratorAttribute : StorageAttribute
+  public sealed class KeyGeneratorAttribute : StorageAttribute
   {
     internal int? cacheSize;
 

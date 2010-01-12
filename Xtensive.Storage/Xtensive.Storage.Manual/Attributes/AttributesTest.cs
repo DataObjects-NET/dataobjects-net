@@ -35,6 +35,7 @@ namespace Xtensive.Storage.Manual.Attributes
 
   #region Model
 
+  [Serializable]
   // All descendant entities will be placed in the same table.
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
   // Index on field "ISBN" that includes additiona "Title" field along with keyfield.
@@ -67,6 +68,7 @@ namespace Xtensive.Storage.Manual.Attributes
     public Author Author { get; set; }
   }
 
+  [Serializable]
   // If "BookType" field contains "true" value, the entity is "SciFi"
   [TypeDiscriminatorValue(true)]
   // Index on field "SciFiDescription" that includes additional "SciFiDescriptionDate" field along with keyfield.
@@ -80,12 +82,14 @@ namespace Xtensive.Storage.Manual.Attributes
     public DateTime SciFiDescriptionDate { get; set; }
   }
 
+  [Serializable]
   // If "BookType" field contains "false" value, the entity is "Horror"
   [TypeDiscriminatorValue(false)]
   public class Horror : Book
   {
   }
 
+  [Serializable]
   // Entity "Author" will be mapped to "Persons" table.
   [TableMapping("Persons")]
   // Key will include "TypeId" field.

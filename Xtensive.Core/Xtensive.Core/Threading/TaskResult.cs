@@ -5,7 +5,6 @@
 // Created:    2009.08.12
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace Xtensive.Core.Threading
@@ -15,39 +14,52 @@ namespace Xtensive.Core.Threading
   /// </summary>
   /// <typeparam name="T">The type of a result.</typeparam>
   [Serializable]
-  public sealed class TaskResult<T> : ITaskResult
+  public sealed class TaskResult<T>
   {
+    private bool isResultReady; // Prevents possible attempt to set the result twice
     private T result;
     private Exception exception;
-    private volatile bool isResultReady;
+    private readonly ManualResetEvent resultReadyEvent = new ManualResetEvent(false);
 
     /// <summary>
     /// Gets the result of a task.
     /// </summary>
+    /// <exception cref="Exception">An <see cref="Exception"/>, if it was caught during the
+    /// asynchronous task execution.</exception>
     public T Result {
       get {
-        while (!isResultReady)
-          Thread.Sleep(10);
-        if (Exception != null)
-          throw Exception;
-        return result;
-      }
-      internal set {
-        result = value;
-        isResultReady = true;
+        resultReadyEvent.WaitOne();
+        lock (this) { 
+          // To ensure CPU cache sync 
+          if (exception!=null)
+            throw exception;
+          return result;
+        }
       }
     }
 
-    internal Exception Exception {
-      get {
-        return exception;
-      }
-    }
-
-    void ITaskResult.SetException(Exception exception)
+    internal void SetResult(T result)
     {
-      this.exception = exception;
-      isResultReady = true;
+      lock (this) {
+        // To ensure CPU cache sync
+        if (isResultReady)
+          return;
+        isResultReady = true;
+        this.result = result;
+      }
+      resultReadyEvent.Set();
+    }
+
+    internal void SetException(Exception exception)
+    {
+      lock (this) {
+        // To ensure CPU cache sync
+        if (isResultReady)
+          return;
+        isResultReady = true;
+        this.exception = exception;
+      }
+      resultReadyEvent.Set();
     }
   }
 }

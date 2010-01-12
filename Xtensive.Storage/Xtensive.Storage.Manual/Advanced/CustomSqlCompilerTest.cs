@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.11
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core.Linq;
 using Xtensive.Sql;
@@ -15,6 +16,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
 {
   #region Model
 
+  [Serializable]
   public class Address : Structure
   {
     [Field(Length = 200)]
@@ -30,6 +32,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
     public string Building { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

@@ -4,10 +4,12 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.10
 
+using System;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Simple : Entity
   {
@@ -21,6 +23,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public string Value { get; set;}
   }
 
+  [Serializable]
   [HierarchyRoot]
   public abstract class Person : Entity
   {
@@ -41,6 +44,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     {}
   }
 
+  [Serializable]
   public abstract class AdvancedPerson : Person
   {
     [Field]
@@ -56,6 +60,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     {}
   }
 
+  [Serializable]
   public class Customer : AdvancedPerson
   {
     [Field, Association(PairTo = "Customer", OnTargetRemove = OnRemoveAction.Clear)]
@@ -75,18 +80,21 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     {}
   }
 
+  [Serializable]
   public class Supplier : AdvancedPerson
   {
     [Field, Association(PairTo = "Supplier")]
     public EntitySet<Product> Products { get; private set;}
   }
 
+  [Serializable]
   public class Employee : AdvancedPerson
   {
     [Field]
     public string Position { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -106,6 +114,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public EntitySet<OrderDetail> Details { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class OrderDetail : Entity
   {
@@ -122,6 +131,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public int Count { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public abstract class AbstractProduct : Entity
   {
@@ -132,6 +142,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public string Name { get; set; }
   }
 
+  [Serializable]
   public class Product : AbstractProduct
   {
     [Field]
@@ -144,12 +155,14 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     string Category { get; set; }
   }
 
+  [Serializable]
   public class PersonalProduct : AbstractProduct
   {
     [Field]
     public Employee Employee { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Book : Entity,
     IHasCategory
@@ -171,6 +184,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public EntitySet<ITitle> TranslationTitles { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Author : Entity
   {
@@ -195,6 +209,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     Book Book { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Title : Entity,
     ITitle
@@ -210,6 +225,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public string Language { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class AnotherTitle : Entity,
     ITitle
@@ -231,6 +247,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     EntitySet<IBookShop> Distributors { get; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Publisher : Entity,
     IPublisher
@@ -257,6 +274,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     EntitySet<IPublisher> Suppliers { get; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class BookShop : Entity,
     IBookShop
@@ -278,6 +296,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     IReferenceToSelf Reference { get; set; }
   }
   
+  [Serializable]
   [HierarchyRoot]
   public class ReferenceToSelf : Entity,
     IReferenceToSelf
@@ -291,6 +310,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public IReferenceToSelf Reference { get; set; }
   }
 
+  [Serializable]
   public class Offer : Structure
   {
     [Field]
@@ -306,6 +326,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public int Lazy { get; set; }
   }
 
+  [Serializable]
   public class IntermediateOffer : Structure
   {
     [Field]
@@ -318,6 +339,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public Offer RealOffer { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class OfferContainer : Entity
   {
@@ -337,6 +359,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public int Lazy { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class LazyClass : Entity
   {
@@ -350,6 +373,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public int LazyInt { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class IdOnly : Entity
   {
@@ -357,6 +381,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public int Id { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class AnotherBookShop : Entity
   {

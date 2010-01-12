@@ -4,15 +4,16 @@
 // Created by: Alex Kofman
 // Created:    2009.06.08
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Integrity.Aspects.Constraints;
-using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Company : Entity
   {
@@ -24,6 +25,7 @@ namespace Xtensive.Storage.Tests.Storage.ValidationReferentialTestModel
 
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Contact : Entity
   {

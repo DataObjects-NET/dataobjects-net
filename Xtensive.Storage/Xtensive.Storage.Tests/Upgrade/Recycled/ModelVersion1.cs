@@ -4,8 +4,11 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
+using System;
+
 namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1
 {
+  [Serializable]
   [HierarchyRoot]
   public class Customer : Entity
   {
@@ -22,6 +25,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1
     public string Name{ get; set;}
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Employee : Entity
   {
@@ -35,6 +39,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1
     public string Name { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {

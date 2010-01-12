@@ -4,15 +4,16 @@
 // Created by: Dmitri Maximov
 // Created:    2008.10.16
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0001_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0001_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class X : Entity
   {
@@ -20,6 +21,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0001_Model
     public int ID { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Y : X
   {

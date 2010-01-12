@@ -14,7 +14,7 @@ namespace Xtensive.Core.Linq
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-  public class CompilerContainerAttribute : Attribute
+  public sealed class CompilerContainerAttribute : Attribute
   {
     /// <summary>
     /// Gets the type value.

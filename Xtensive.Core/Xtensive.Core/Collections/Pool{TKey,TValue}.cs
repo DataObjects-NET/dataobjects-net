@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
-using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.Collections
 {

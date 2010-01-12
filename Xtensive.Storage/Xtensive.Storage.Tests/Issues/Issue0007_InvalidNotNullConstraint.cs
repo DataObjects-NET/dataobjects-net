@@ -4,12 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.25
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.Issues.Issue0007_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0007_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -23,6 +25,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0007_Model
     public City City { get; set; }
   }
 
+  [Serializable]
   public class Address : Structure
   {
     [Field]
@@ -32,6 +35,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0007_Model
     public int House { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class City : Entity
   {

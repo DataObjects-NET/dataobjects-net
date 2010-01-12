@@ -4,6 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.10.06
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
@@ -16,6 +17,7 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Tests.Storage.VersionRootModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -29,12 +31,14 @@ namespace Xtensive.Storage.Tests.Storage.VersionRootModel
     public int Number { get; set; }
   }
 
+  [Serializable]
   public class AdvancedOrder : Order
   {
     [Field]
     public string CustomerName { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class OrderItem : Entity,
     IHasVersionRoots
@@ -60,12 +64,14 @@ namespace Xtensive.Storage.Tests.Storage.VersionRootModel
     }
   }
 
+  [Serializable]
   public class AdvancedOrderItem : OrderItem
   {
     [Field]
     public string SupplierName { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Owner1 : Entity
   {
@@ -76,6 +82,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionRootModel
     public long Version { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Owner2 : Entity
   {
@@ -89,6 +96,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionRootModel
     internal ushort Version2 { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Item : Entity,
     IHasVersionRoots

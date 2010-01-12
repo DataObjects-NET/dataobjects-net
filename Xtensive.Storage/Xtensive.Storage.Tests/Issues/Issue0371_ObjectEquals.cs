@@ -14,6 +14,7 @@ using Xtensive.Storage.Tests.Linq;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0371_ObjectEquals_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Item : Entity
   {

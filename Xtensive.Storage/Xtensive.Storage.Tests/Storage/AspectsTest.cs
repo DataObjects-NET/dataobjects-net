@@ -15,6 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
 {
   public class AspectsTest : AutoBuildTest
   {
+    [Serializable]
     [Persistent]
     [HierarchyRoot]
     public class BusinessObject : Entity
@@ -67,6 +68,7 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
       }
     }
 
+    [Serializable]
     [HierarchyRoot]
     public class MasterEntity : Entity
     {
@@ -80,6 +82,7 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
       public SlaveEntity PrimarySlave { get; set; }
     }
 
+    [Serializable]
     [HierarchyRoot]
     public class SlaveEntity : Entity
     {

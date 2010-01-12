@@ -12,6 +12,7 @@ using Xtensive.Storage.Tests.Issues.Issue0082_ReferentialManagerProblem_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0082_ReferentialManagerProblem_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Ancestor : Entity
   {
@@ -19,6 +20,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0082_ReferentialManagerProblem_Mode
     public int Id { get; private set; }
   }
 
+  [Serializable]
   public class Descendant : Ancestor
   {
     [Field]

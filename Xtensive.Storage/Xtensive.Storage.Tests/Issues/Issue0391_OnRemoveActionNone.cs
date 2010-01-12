@@ -4,13 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2009.09.21
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Issues.Issue0391_OnRemoveActionNone_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0391_OnRemoveActionNone_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Customer : Entity
   {
@@ -18,6 +19,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0391_OnRemoveActionNone_Model
     public int Id { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {

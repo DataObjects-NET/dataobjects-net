@@ -12,6 +12,7 @@ using Xtensive.Storage.Tests.Issues.Issue0296_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0296_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class TheParent : Entity
   {
@@ -22,6 +23,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0296_Model
     public TheChild Child { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class TheChild : Entity
   {

@@ -11,6 +11,7 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Tests.Storage.Randomized
 {
+  [Serializable]
   [HierarchyRoot]
   public sealed class Tree : Entity,
     IEnumerable<TreeNode>

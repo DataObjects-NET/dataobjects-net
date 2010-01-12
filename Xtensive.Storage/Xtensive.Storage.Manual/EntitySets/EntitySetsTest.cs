@@ -15,6 +15,7 @@ namespace Xtensive.Storage.Manual.EntitySets
 {
   #region Model
 
+  [Serializable]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -49,6 +50,7 @@ namespace Xtensive.Storage.Manual.EntitySets
     public EntitySet<Meeting> Meetings { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class WebPage : Entity
   {
@@ -62,6 +64,7 @@ namespace Xtensive.Storage.Manual.EntitySets
     public string Url { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class BlogPost : Entity
   {
@@ -78,6 +81,7 @@ namespace Xtensive.Storage.Manual.EntitySets
     public User Author { get; set;}
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Meeting : Entity
   {
@@ -94,6 +98,7 @@ namespace Xtensive.Storage.Manual.EntitySets
     public EntitySet<User> Participants { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Account : Entity
   {

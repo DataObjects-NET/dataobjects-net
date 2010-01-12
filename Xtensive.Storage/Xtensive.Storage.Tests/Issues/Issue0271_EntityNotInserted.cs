@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.07.07
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.Issues.Issue0271_Model;
@@ -11,6 +12,7 @@ using Xtensive.Storage.Tests.Issues.Issue0271_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0271_Model
 {
+    [Serializable]
     [HierarchyRoot]
     public class Address : Entity
     {
@@ -18,6 +20,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0271_Model
       public long Id { get; private set; }
     }
 
+    [Serializable]
     [HierarchyRoot]
     public class User : Entity
     {
@@ -31,6 +34,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0271_Model
       public Account Account { get; set; }
     }
 
+    [Serializable]
     [HierarchyRoot]
     public class Account : Entity
     {

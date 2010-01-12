@@ -10,6 +10,7 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.LegacyDb
 {
+  [Serializable]
   [HierarchyRoot]
   public sealed class Fake : Entity
   {

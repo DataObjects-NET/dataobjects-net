@@ -14,6 +14,7 @@ namespace Xtensive.Storage.Manual.Intro.CheatSheet
 {
   #region Model
 
+  [Serializable]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -41,6 +42,7 @@ namespace Xtensive.Storage.Manual.Intro.CheatSheet
     public EntitySet<User> Friends { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class WebPage : Entity
   {
@@ -54,6 +56,7 @@ namespace Xtensive.Storage.Manual.Intro.CheatSheet
     public string Url { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class BlogPost : Entity
   {

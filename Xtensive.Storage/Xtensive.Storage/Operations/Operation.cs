@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.11.19
 
+using System;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using Xtensive.Core.Internals.DocTemplates;
@@ -13,8 +14,9 @@ namespace Xtensive.Storage.Operations
   /// <summary>
   /// Base abstract class for all <see cref="IOperation"/> implementors.
   /// </summary>
+  [Serializable]
   public abstract class Operation : IOperation, 
-                                    ISerializable
+    ISerializable
   {
     /// <summary>
     /// Gets or sets the operation type.

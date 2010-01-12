@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Aspects
   [Obsolete("Use TransactionalAttribute and ActivateSessionAttribute instead.")]
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor, 
     AllowMultiple = false, Inherited = true)]
-  public class AspectBehaviorAttribute : StorageAttribute
+  public sealed class AspectBehaviorAttribute : StorageAttribute
   {
     private bool openSession = true;
     private bool openTransaction = true;

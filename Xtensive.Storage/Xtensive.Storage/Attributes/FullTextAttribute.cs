@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-  public class FullTextAttribute : StorageAttribute
+  public sealed class FullTextAttribute : StorageAttribute
   {
     /// <summary>
     /// Gets or sets a value indicating whether content of the field marked by this

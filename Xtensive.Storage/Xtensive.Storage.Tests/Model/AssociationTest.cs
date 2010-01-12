@@ -16,6 +16,7 @@ using System;
 
 namespace Xtensive.Storage.Tests.Model.Association
 {
+  [Serializable]
   [HierarchyRoot]
   public abstract class Root : Entity
   {
@@ -23,6 +24,7 @@ namespace Xtensive.Storage.Tests.Model.Association
     public int Id { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public abstract class Root2 : Entity
   {
@@ -30,6 +32,7 @@ namespace Xtensive.Storage.Tests.Model.Association
     public Guid Id { get; private set; }
   }
 
+  [Serializable]
   public class A : Root
   {
     [Field]
@@ -54,10 +57,12 @@ namespace Xtensive.Storage.Tests.Model.Association
     public IntermediateStructure1 IndirectA { get; set; }
   }
 
+  [Serializable]
   public class B : Root2
   {
   }
 
+  [Serializable]
   public class C : Root2
   {
     [Field, Association(PairTo = "OneToOneMaster")]
@@ -67,28 +72,33 @@ namespace Xtensive.Storage.Tests.Model.Association
     public IntermediateStructure1 IndirectA { get; set; }
   }
 
+  [Serializable]
   public class D : Root2
   {
     [Field, Association(PairTo = "ManyToOneMaster")]
     public EntitySet<A> OneToManyPaired { get; private set; }
   }
 
+  [Serializable]
   public class E : Root2
   {
   }
 
+  [Serializable]
   public class F : Root2
   {
     [Field, Association(PairTo = "OneToManyMaster")]
     public A ManyToOnePaired { get; set; }
   }
 
+  [Serializable]
   public class G : Root2
   {
     [Field, Association(PairTo = "ManyToManyMaster")]
     public EntitySet<A> ManytoManyPaired { get; private set; }
   }
 
+  [Serializable]
   public class H : Root2
   {
     [Field]
@@ -98,12 +108,14 @@ namespace Xtensive.Storage.Tests.Model.Association
     public EntitySet<H> Children { get; private set; }
   }
 
+  [Serializable]
   public class IntermediateStructure1 : Structure
   {
     [Field]
     public IntermediateStructure2 IntermediateStructure2 { get; set; }
   }
 
+  [Serializable]
   public class IntermediateStructure2 : Structure
   {
     [Field]

@@ -14,6 +14,7 @@ namespace Xtensive.Storage.Manual.Prefetch
 {
   #region Model
 
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

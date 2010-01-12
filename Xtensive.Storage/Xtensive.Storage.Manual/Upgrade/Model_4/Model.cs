@@ -9,6 +9,7 @@ using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Manual.Upgrade.Model_4
 {
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -30,6 +31,7 @@ namespace Xtensive.Storage.Manual.Upgrade.Model_4
     public Person Customer { get; set;}
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Product : Entity
   {
@@ -40,6 +42,7 @@ namespace Xtensive.Storage.Manual.Upgrade.Model_4
     public string Name { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

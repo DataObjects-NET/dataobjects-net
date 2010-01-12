@@ -15,6 +15,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
   #region Model
 
+  [Serializable]
   [TableMapping("Categories")]
   [HierarchyRoot]
   public class Category : Entity
@@ -32,6 +33,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public byte[] Picture { get; set; }
   }
 
+  [Serializable]
   [TableMapping("Customers")]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
@@ -78,6 +80,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Region : Entity
   {
@@ -88,6 +91,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public string RegionDescription { get; set; }
   }
 
+  [Serializable]
   [TableMapping("Suppliers")]
   [HierarchyRoot]
   public class Supplier : Entity
@@ -129,6 +133,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public string HomePage { get; set; }
   }
 
+  [Serializable]
   [TableMapping("Shippers")]
   [HierarchyRoot]
   public class Shipper : Entity
@@ -143,6 +148,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public string Phone { get; set; }
   }
 
+  [Serializable]
   [TableMapping("Products")]
   [HierarchyRoot]
   public class Product : Entity
@@ -178,6 +184,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public bool Discontinued { get; set; }
   }
 
+  [Serializable]
   [TableMapping("Employees")]
   [HierarchyRoot]
   public class Employee : Entity
@@ -240,6 +247,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public EntitySet<Territory> Territories { get; private set; }
   }
 
+  [Serializable]
   [TableMapping("Territories")]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
@@ -265,6 +273,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     }
   }
 
+  [Serializable]
   [TableMapping("Orders")]
   [HierarchyRoot]
   public class Order : Entity
@@ -312,6 +321,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
     public string ShipCountry { get; set; }
   }
 
+  [Serializable]
   [TableMapping("OrderDetails")]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]

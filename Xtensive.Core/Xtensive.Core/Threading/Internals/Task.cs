@@ -9,24 +9,26 @@ using System;
 namespace Xtensive.Core.Threading
 {
   [Serializable]
-  internal sealed class Task : ITask
+  internal class Task : ITask
   {
-    private readonly Action taskDelegate;
+    private readonly Action implementation;
 
     public void Execute()
     {
-      taskDelegate.Invoke();
+      implementation.Invoke();
     }
 
-    public void RegisterException(Exception exception)
-    {}
+    public void Terminate(Exception exception)
+    {
+      return;
+    }
 
 
     // Constructors
     
-    public Task(Action taskDelegate)
+    public Task(Action implementation)
     {
-      this.taskDelegate = taskDelegate;
+      this.implementation = implementation;
     }
   }
 }

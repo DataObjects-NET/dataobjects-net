@@ -4,6 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.06.09
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
@@ -12,6 +13,7 @@ using Xtensive.Storage.Building;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0096_NumerousSchemaExtraction_Model
 {
+  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
   public class Ancestor : Entity
   {

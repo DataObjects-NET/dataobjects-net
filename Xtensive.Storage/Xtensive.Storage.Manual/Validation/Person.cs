@@ -10,6 +10,7 @@ using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Storage.Manual.Validation
 {
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

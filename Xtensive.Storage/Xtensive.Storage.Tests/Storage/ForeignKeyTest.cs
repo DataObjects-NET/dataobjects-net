@@ -4,13 +4,14 @@
 // Created by: Alexey Gamzov
 // Created:    2009.03.11
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
-using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.ForeignKeys
 {
+  [Serializable]
   [KeyGenerator(typeof(DualIntKeyGenerator))]
   [HierarchyRoot]
   public class User : Entity
@@ -35,6 +36,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     public EntitySet<Project> Projects { get; private set; }
   }
 
+  [Serializable]
   [KeyGenerator(typeof(DualIntKeyGenerator))]
   [HierarchyRoot]
   public class Company : Entity
@@ -52,7 +54,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     public User Director { get; set; }
   }
 
-
+  [Serializable]
   [KeyGenerator(typeof(DualIntKeyGenerator))]
   [HierarchyRoot]
   public class Project : Entity
@@ -70,6 +72,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     public EntitySet<User> Users { get; private set; }
   }
 
+  [Serializable]
   public class ForeignUser : User
   {
     [Field]

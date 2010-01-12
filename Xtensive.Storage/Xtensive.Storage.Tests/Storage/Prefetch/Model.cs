@@ -11,6 +11,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Simple : Entity
   {
@@ -24,6 +25,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public string Value { get; set;}
   }
 
+  [Serializable]
   [HierarchyRoot]
   public abstract class Person : Entity
   {
@@ -44,6 +46,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     {}
   }
 
+  [Serializable]
   public abstract class AdvancedPerson : Person
   {
     [Field]
@@ -59,6 +62,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     {}
   }
 
+  [Serializable]
   public class Customer : AdvancedPerson
   {
     [Field, Association(PairTo = "Customer", OnTargetRemove = OnRemoveAction.Clear)]
@@ -78,12 +82,14 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     {}
   }
 
+  [Serializable]
   public class Supplier : AdvancedPerson
   {
     [Field, Association(PairTo = "Supplier")]
     public EntitySet<Product> Products { get; private set;}
   }
 
+  [Serializable]
   public class Employee : AdvancedPerson,
     IEnumerable<OrderDetail>
   {
@@ -101,6 +107,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -120,6 +127,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public EntitySet<OrderDetail> Details { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class OrderDetail : Entity
   {
@@ -136,6 +144,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public int Count { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public abstract class AbstractProduct : Entity
   {
@@ -146,6 +155,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public string Name { get; set; }
   }
 
+  [Serializable]
   public class Product : AbstractProduct
   {
     [Field]
@@ -158,12 +168,14 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     string Category { get; set; }
   }
 
+  [Serializable]
   public class PersonalProduct : AbstractProduct
   {
     [Field]
     public Employee Employee { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Book : Entity,
     IHasCategory
@@ -185,6 +197,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public EntitySet<ITitle> TranslationTitles { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Author : Entity
   {
@@ -209,6 +222,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     Book Book { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Title : Entity,
     ITitle
@@ -224,6 +238,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public string Language { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class AnotherTitle : Entity,
     ITitle
@@ -245,6 +260,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     EntitySet<IBookShop> Distributors { get; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Publisher : Entity,
     IPublisher
@@ -271,6 +287,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     EntitySet<IPublisher> Suppliers { get; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class BookShop : Entity,
     IBookShop
@@ -292,6 +309,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     IReferenceToSelf Reference { get; set; }
   }
   
+  [Serializable]
   [HierarchyRoot]
   public class ReferenceToSelf : Entity,
     IReferenceToSelf
@@ -305,6 +323,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public IReferenceToSelf Reference { get; set; }
   }
 
+  [Serializable]
   public class Offer : Structure
   {
     [Field]
@@ -320,6 +339,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public int Lazy { get; set; }
   }
 
+  [Serializable]
   public class IntermediateOffer : Structure
   {
     [Field]
@@ -332,6 +352,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public Offer RealOffer { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class OfferContainer : Entity
   {
@@ -351,6 +372,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public int Lazy { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class LazyClass : Entity
   {
@@ -364,6 +386,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch.Model
     public int LazyInt { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class IdOnly : Entity
   {

@@ -4,6 +4,7 @@
 // Created by: Nick Svetlov
 // Created:    2008.06.11
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
@@ -12,6 +13,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.ActivatorModel
 {
+  [Serializable]
   [HierarchyRoot]
   public abstract class Ancestor : Entity
   {
@@ -19,12 +21,14 @@ namespace Xtensive.Storage.Tests.Storage.ActivatorModel
     public int ID { get; private set; }
   }
 
+  [Serializable]
   public class Descendant : Ancestor
   {
     [Field]
     public int Number { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class InitializebleClass : Entity
   {

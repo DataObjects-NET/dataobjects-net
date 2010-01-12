@@ -23,7 +23,7 @@ namespace Xtensive.Core.Conversion
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
   /// </remarks>
   [Serializable]
-  public class AdvancedConverter<TFrom, TTo> : MethodCacheBase<IAdvancedConverter<TFrom, TTo>>
+  public sealed class AdvancedConverter<TFrom, TTo> : MethodCacheBase<IAdvancedConverter<TFrom, TTo>>
   {
     private static ThreadSafeCached<AdvancedConverter<TFrom, TTo>> cachedConverter =
       ThreadSafeCached<AdvancedConverter<TFrom, TTo>>.Create(new object());

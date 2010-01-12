@@ -4,8 +4,11 @@
 // Created by: Alex Kofman
 // Created:    2009.11.12
 
+using System;
+
 namespace Xtensive.Storage.Manual.Upgrade.Model_3
 {
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -24,6 +27,7 @@ namespace Xtensive.Storage.Manual.Upgrade.Model_3
     public Person Customer { get; set;}
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

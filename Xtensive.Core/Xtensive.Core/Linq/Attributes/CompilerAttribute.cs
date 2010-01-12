@@ -17,7 +17,7 @@ namespace Xtensive.Core.Linq
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-  public class CompilerAttribute: Attribute
+  public sealed class CompilerAttribute: Attribute
   {
     /// <summary>
     /// Gets or sets the type of the target.

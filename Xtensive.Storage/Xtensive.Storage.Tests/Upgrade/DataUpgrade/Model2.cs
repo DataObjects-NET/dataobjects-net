@@ -5,8 +5,6 @@
 // Created:    2009.05.30
 
 using System;
-using System.Diagnostics;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version2
 {
@@ -18,12 +16,14 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version2
     public int Id { get; private set; }
   }
 
+  [Serializable]
   public class C : A
   {
     [Field]
     public A RefA { get; set; }
   }
 
+  [Serializable]
   public class D : A
   {
     [Field]

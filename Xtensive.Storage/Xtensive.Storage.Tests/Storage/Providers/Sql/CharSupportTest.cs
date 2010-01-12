@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.20
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
@@ -12,6 +13,7 @@ using Xtensive.Storage.Tests.Storage.Providers.Sql.CharSupportTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql.CharSupportTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   class MyEntity : Entity
   {

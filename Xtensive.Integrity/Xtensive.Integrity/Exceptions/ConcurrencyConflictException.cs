@@ -36,6 +36,8 @@ namespace Xtensive.Integrity
     {
     }
 
+    // Serialization
+
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
     protected ConcurrencyConflictException(SerializationInfo info, StreamingContext context)
       : base(info, context)

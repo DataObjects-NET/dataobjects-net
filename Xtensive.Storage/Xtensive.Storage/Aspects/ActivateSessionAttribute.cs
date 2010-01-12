@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Aspects
   [Serializable]
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, 
     AllowMultiple = false, Inherited = true)]
-  public class ActivateSessionAttribute : StorageAttribute
+  public sealed class ActivateSessionAttribute : StorageAttribute
   {
     /// <summary>
     /// Gets a value indicating whether a session should be activated on the method boundaries

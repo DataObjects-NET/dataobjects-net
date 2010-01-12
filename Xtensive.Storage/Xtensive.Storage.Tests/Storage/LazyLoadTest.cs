@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.06.26
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Tuples;
@@ -12,6 +13,7 @@ using Xtensive.Storage.Tests.Storage.BookAuthorModel;
 
 namespace Xtensive.Storage.Tests.Storage.BookAuthorModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -28,6 +30,7 @@ namespace Xtensive.Storage.Tests.Storage.BookAuthorModel
     public Author Author { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Author : Entity
   {

@@ -4,8 +4,11 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
+using System;
+
 namespace Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1
 {
+  [Serializable]
   [HierarchyRoot]
   public abstract class Person : Entity
   {
@@ -24,6 +27,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1
     public string ContactPhone { get; set; }
   }
 
+  [Serializable]
   public class Employee : Person
   {
     [Field]
@@ -38,6 +42,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version1
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {

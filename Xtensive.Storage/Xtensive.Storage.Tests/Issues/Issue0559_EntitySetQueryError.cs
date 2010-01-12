@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.23
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
@@ -13,6 +14,7 @@ namespace Xtensive.Storage.Tests.Issues
 {
   namespace Issue0559_EntitySetQueryError_Model
   {
+    [Serializable]
     [HierarchyRoot]
     [Index("Name")]
     public class Topic : Entity
@@ -27,6 +29,7 @@ namespace Xtensive.Storage.Tests.Issues
       public EntitySet<Subscription> Subscriptions { get; private set; }
     }
 
+    [Serializable]
     [HierarchyRoot]
     [KeyGenerator(KeyGeneratorKind.None)]
     [Index("ApplicationName")]

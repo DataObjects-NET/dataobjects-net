@@ -15,7 +15,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures that email address is in correct format.
   /// </summary>
   [Serializable]
-  public class EmailConstraint : PropertyConstraintAspect
+  public sealed class EmailConstraint : PropertyConstraintAspect
   {
     private const string EmailPattern = @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
     private Regex emailRegex;

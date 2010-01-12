@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -15,30 +14,29 @@ namespace Xtensive.Core.Threading
   /// <summary>
   /// Executes provided delegates at separate thread.
   /// </summary>
-  public sealed class AsyncProcessor :
-    IDisposable
+  public sealed class AsyncProcessor : IDisposable
   {
-    private readonly Thread thread;
-    private volatile Exception interceptedException;
+    private volatile bool isRunning = true;
+    private volatile Exception error;
     private readonly Queue<ITask> tasks = new Queue<ITask>();
-    private readonly ManualResetEvent completionEvent = new ManualResetEvent(true);
-    private volatile bool isStarted = true;
+    private readonly ManualResetEvent executionCompletedEvent = new ManualResetEvent(true);
+    private readonly AutoResetEvent taskAddedEvent = new AutoResetEvent(false);
     
     /// <summary>
     /// Gets the exception intercepted during a task's execution.
     /// </summary>
-    public Exception InterceptedException { get { return interceptedException;} }
+    public Exception Error { get { return error;} }
 
     /// <summary>
     /// Gets a value indicating whether this instance has an intercepted exception.
     /// </summary>
-    public bool HasError { get { return interceptedException!=null;} }
+    public bool HasError { get { return error!=null;} }
 
     /// <summary>
     /// Gets or sets a value indicating whether this instance executes 
-    /// a task at the thread that queued it.
+    /// a task at the thread that queued it (i.e. synchronously).
     /// </summary>
-    public bool IsModeSynchronous { get; set; }
+    public bool IsSynchronous { get; set; }
 
     /// <summary>
     /// Enqueue the specified delegate for the execution at another thread 
@@ -46,19 +44,18 @@ namespace Xtensive.Core.Threading
     /// </summary>
     /// <typeparam name="T">The result type.</typeparam>
     /// <param name="function">The delegate to be executed.</param>
-    /// <param name="invokeSynchronously">if set to <see langword="true"/> 
+    /// <param name="synchronously">if set to <see langword="true"/> 
     /// then the delegate is executed at the calling thread; otherwise it is queued 
-    /// to be executed at another thread.</param>
+    /// to be executed in <see cref="AsyncProcessor"/>'s thread.</param>
     /// <returns>The <see cref="TaskResult{T}"/> that should be used to obtain 
     /// a result of delegate's execution.</returns>
-    public TaskResult<T> Execute<T>(Func<T> function, bool invokeSynchronously)
+    public TaskResult<T> Execute<T>(Func<T> function, bool synchronously)
     {
       ArgumentValidator.EnsureArgumentNotNull(function, "function");
       EnsureHasNotError();
-      var taskResult = new TaskResult<T>();
-      var task = new Task<T>(function, taskResult);
-      ProcessTask(task, invokeSynchronously);
-      return taskResult;
+      var task = new Task<T>(function);
+      ExecuteTask(task, synchronously);
+      return task.Result;
     }
 
     /// <summary>
@@ -66,15 +63,15 @@ namespace Xtensive.Core.Threading
     /// or executes it at the calling thread.
     /// </summary>
     /// <param name="action">The delegate to be executed.</param>
-    /// <param name="invokeSynchronously">if set to <see langword="true"/> 
+    /// <param name="synchronously">if set to <see langword="true"/> 
     /// then the delegate is executed at the calling thread; otherwise it is queued 
-    /// to be executed at another thread.</param>
-    public void Execute(Action action, bool invokeSynchronously)
+    /// to be executed in <see cref="AsyncProcessor"/>'s thread.</param>
+    public void Execute(Action action, bool synchronously)
     {
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
       EnsureHasNotError();
       var task = new Task(action);
-      ProcessTask(task, invokeSynchronously);
+      ExecuteTask(task, synchronously);
     }
 
     /// <summary>
@@ -82,24 +79,24 @@ namespace Xtensive.Core.Threading
     /// </summary>
     public void ResetError()
     {
-      interceptedException = null;
+      error = null;
     }
 
     /// <summary>
     /// Waits for the completion of all queued tasks.
     /// </summary>
-    public void WaitForCompletionOfAllTasks()
+    public void WaitForCompletion()
     {
-      completionEvent.WaitOne();
+      executionCompletedEvent.WaitOne();
     }
 
     #region Private / internal members
 
-    private void ProcessTask(ITask task, bool invokeSynchronously)
+    private void ExecuteTask(ITask task, bool synchronously)
     {
-      if (IsModeSynchronous || invokeSynchronously) {
-        WaitForCompletionOfAllTasks();
-        InvokeTaskDelegate(task);
+      if (IsSynchronous || synchronously) {
+        WaitForCompletion();
+        ExecuteTask(task);
       }
       else
         EnqueueTask(task);
@@ -107,48 +104,46 @@ namespace Xtensive.Core.Threading
     
     private void EnqueueTask(ITask task)
     {
-      lock (tasks) {
+      lock (tasks)
         tasks.Enqueue(task);
-        completionEvent.Reset();
-      }
+      executionCompletedEvent.Reset();
+      taskAddedEvent.Set();
     }
 
     private void Execute()
     {
-      while (isStarted) {
-        ITask task;
-        lock (tasks) {
-          task = tasks.Count > 0 ? tasks.Dequeue() : null;
-          if (task == null)
-            completionEvent.Set();
-        }
-        if (task !=null)
-          InvokeTaskDelegate(task);
-        else
-          Thread.Sleep(10);
+      while (isRunning) {
+        ITask task = null;
+        do {
+          if (task!=null)
+            ExecuteTask(task);
+          lock (tasks)
+            task = tasks.Count > 0 ? tasks.Dequeue() : null;
+        } while (task!=null);
+        executionCompletedEvent.Set();
+        taskAddedEvent.WaitOne();
       }
     }
 
-    private void InvokeTaskDelegate(ITask task)
+    private void ExecuteTask(ITask task)
     {
       try {
         task.Execute();
       }
-      catch(Exception e) {
-        interceptedException = e;
+      catch (Exception e) {
+        error = e;
         lock (tasks) {
           while (tasks.Count > 0)
-            tasks.Dequeue().RegisterException(new TaskExecutionException(e));
-          completionEvent.Set();
+            tasks.Dequeue().Terminate(new TaskExecutionException(e));
+          executionCompletedEvent.Set();
         }
       }
     }
 
     private void EnsureHasNotError()
     {
-      if (HasError) {
-        throw new TaskExecutionException(interceptedException);
-      }
+      if (HasError)
+        throw new TaskExecutionException(error);
     }
 
     #endregion
@@ -161,8 +156,7 @@ namespace Xtensive.Core.Threading
     /// </summary>
     public AsyncProcessor()
     {
-      thread = new Thread(Execute);
-      thread.Start();
+      ThreadPool.QueueUserWorkItem(_ => Execute());
     }
     
     // IDisposable methods
@@ -177,7 +171,7 @@ namespace Xtensive.Core.Threading
 
     private void Dispose(bool disposing)
     {
-      isStarted = false;
+      isRunning = false;
       if (disposing)
         GC.SuppressFinalize(this);
     }

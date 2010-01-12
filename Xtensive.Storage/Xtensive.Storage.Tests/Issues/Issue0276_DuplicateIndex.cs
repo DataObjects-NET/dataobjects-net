@@ -4,13 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2009.09.29
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Issues.Issue0276_DuplicateIndex_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0276_DuplicateIndex_Model
 {
+  [Serializable]
   [HierarchyRoot]
   [Index("Id", Unique = true, Name = "IX_Id")]
   [Index("Left", Unique = true, Name = "IX_L")]
@@ -27,6 +28,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0276_DuplicateIndex_Model
     public Key Right { get; set; }
   }
 
+  [Serializable]
   [KeyGenerator(null)]
   [HierarchyRoot]
   [Index("Target", Unique = true)]

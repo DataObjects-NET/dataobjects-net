@@ -4,12 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2009.07.10
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0282_EntitySetContains_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0282_EntitySetContains_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public abstract class Parent : Entity
   {
@@ -20,10 +22,12 @@ namespace Xtensive.Storage.Tests.Issues.Issue0282_EntitySetContains_Model
     public EntitySet<Item> Items { get; private set; }
   }
 
+  [Serializable]
   public class Child : Parent
   {
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Item : Entity
   {

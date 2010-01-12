@@ -4,6 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.06.09
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -11,6 +12,7 @@ using Xtensive.Storage.Tests.Issues.Issue0167_SingleTableProblem_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0167_SingleTableProblem_Model
 {
+  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
   public class Ancestor : Entity
   {
@@ -18,6 +20,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0167_SingleTableProblem_Model
     public int Id { get; private set; }
   }
 
+  [Serializable]
   public class Descendant : Ancestor
   {
     [Field]

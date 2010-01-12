@@ -13,8 +13,8 @@ namespace Xtensive.Core
   /// An object having <see cref="Exceptions"/> property.
   /// </summary>
   /// <typeparam name="TException">The type of the exception.</typeparam>
-  public interface IHasExceptions<TException>: IHasExceptions
-    where TException: Exception
+  public interface IHasExceptions<TException> : IHasExceptions
+    where TException : Exception
   {
     /// <summary>
     /// Gets the enumerable of exceptions related to this object.

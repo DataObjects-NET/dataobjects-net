@@ -5,6 +5,7 @@
 // Created:    2008.11.26
 
 
+using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -13,6 +14,7 @@ using Xtensive.Storage.Tests.Issues.Issue0014_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0014_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

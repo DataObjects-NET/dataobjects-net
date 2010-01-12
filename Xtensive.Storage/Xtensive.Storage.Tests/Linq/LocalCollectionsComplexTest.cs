@@ -37,6 +37,7 @@ namespace Xtensive.Storage.Tests.Linq.LocalCollectionsComplexTestModel
     public ComplexStructure ComplexStructure { get; set; }
   }
 
+  [Serializable]
   public class EntityStructure : Structure
   {
     [Field]
@@ -49,6 +50,7 @@ namespace Xtensive.Storage.Tests.Linq.LocalCollectionsComplexTestModel
     public DateTime StructureAge { get; set; }
   }
 
+  [Serializable]
   public class ComplexStructure : Structure
   {
     [Field]
@@ -64,6 +66,7 @@ namespace Xtensive.Storage.Tests.Linq.LocalCollectionsComplexTestModel
     public EntityStructure EntityStructure { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class EntityA : Entity
   {
@@ -78,6 +81,7 @@ namespace Xtensive.Storage.Tests.Linq.LocalCollectionsComplexTestModel
     public DateTime Age { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class EntityB : Entity
   {

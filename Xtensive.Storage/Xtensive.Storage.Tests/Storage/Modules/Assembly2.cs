@@ -16,6 +16,7 @@ using Xtensive.Storage.Aspects;
 
 namespace Modules.Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Simple2 : Entity
   {

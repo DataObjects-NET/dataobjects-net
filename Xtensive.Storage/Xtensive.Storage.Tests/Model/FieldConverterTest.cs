@@ -11,6 +11,7 @@ using Xtensive.Storage.Tests.Model.FieldConverterTestModel;
 
 namespace Xtensive.Storage.Tests.Model.FieldConverterTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

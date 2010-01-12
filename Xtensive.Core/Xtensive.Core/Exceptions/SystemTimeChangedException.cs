@@ -36,6 +36,8 @@ namespace Xtensive.Core
     {
     }
 
+    // Serialization
+
     /// <summary>
     /// Deserialization constructor.
     /// </summary>

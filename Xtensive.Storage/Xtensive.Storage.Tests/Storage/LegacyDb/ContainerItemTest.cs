@@ -4,12 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2009.11.26
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.LegacyDb.ContainerItemModel;
 
 namespace Xtensive.Storage.Tests.Storage.LegacyDb.ContainerItemModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Container : Entity
   {
@@ -25,6 +27,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.ContainerItemModel
     public EntitySet<Option> Options { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Item : Entity
   {
@@ -45,6 +48,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.ContainerItemModel
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Option : Entity
   {
@@ -60,6 +64,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.ContainerItemModel
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class ItemOption : Entity
   {

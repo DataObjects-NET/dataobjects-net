@@ -13,6 +13,7 @@ using Xtensive.Storage.Tests.Issues.Issue0245_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0245_Model
 {
+  [Serializable]
   public class Point : Structure
   {
     [Field]
@@ -30,6 +31,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0245_Model
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Range : Entity
   {

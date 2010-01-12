@@ -15,6 +15,7 @@ namespace Xtensive.Storage.Manual.FutureQueries
 {
   #region Model
 
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

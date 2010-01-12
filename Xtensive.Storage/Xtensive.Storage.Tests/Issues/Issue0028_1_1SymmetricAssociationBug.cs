@@ -4,12 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2009.02.12
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class First : Entity
   {
@@ -25,6 +27,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Mod
     public Second APair { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Second : Entity
   {

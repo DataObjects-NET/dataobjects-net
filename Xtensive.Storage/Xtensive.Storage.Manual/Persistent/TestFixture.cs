@@ -11,6 +11,7 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.Persistent
 {
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

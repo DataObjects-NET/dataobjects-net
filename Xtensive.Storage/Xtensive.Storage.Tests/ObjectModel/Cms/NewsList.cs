@@ -4,10 +4,11 @@
 // Created by: Alex Ilyin
 // Created:    2009.12.14
 
-using Xtensive.Storage;
+using System;
 
 namespace Xtensive.Storage.Tests.ObjectModel.Cms
 {
+  [Serializable]
   public class NewsList
     : ContentItem
   {

@@ -13,7 +13,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures that date value is in the future.
   /// </summary>
   [Serializable]
-  public class FutureConstraint : PropertyConstraintAspect
+  public sealed class FutureConstraint : PropertyConstraintAspect
   {
     /// <inheritdoc/>
     public override bool CheckValue(object value)

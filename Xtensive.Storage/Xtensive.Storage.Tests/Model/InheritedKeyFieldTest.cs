@@ -4,18 +4,21 @@
 // Created by: Dmitri Maximov
 // Created:    2008.12.12
 
+using System;
 using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 using InheritedKeyFieldModel;
 
 namespace InheritedKeyFieldModel
 {
+  [Serializable]
   public class H0 : Entity
   {
     [Field]
     public virtual int Id { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class H1 : H0
   {
@@ -29,6 +32,7 @@ namespace InheritedKeyFieldModel
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class H2 : H0
   {

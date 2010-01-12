@@ -5,10 +5,10 @@
 // Created:    2009.09.16
 
 using System;
-using Xtensive.Storage;
 
 namespace Xtensive.Storage.Tests.ObjectModel.Cms
 {
+  [Serializable]
   public class AscxTemplate
     : ContentItem
   {

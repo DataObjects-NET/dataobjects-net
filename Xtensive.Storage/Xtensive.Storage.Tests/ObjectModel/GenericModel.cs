@@ -5,10 +5,10 @@
 // Created:    2009.10.07
 
 using System;
-using System.Diagnostics;
 
 namespace Xtensive.Storage.Tests.ObjectModel.GenericModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class A<T> : Entity 
     where T : A<T>
@@ -17,11 +17,13 @@ namespace Xtensive.Storage.Tests.ObjectModel.GenericModel
     public T Generic { get; private set; }
   }
 
+  [Serializable]
   public class B : A<B>
   {
     
   }
 
+  [Serializable]
   public class C<T> : A<T>
     where T : A<T>
   {

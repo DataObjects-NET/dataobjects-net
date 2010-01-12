@@ -9,37 +9,40 @@ using System;
 namespace Xtensive.Core.Threading
 {
   [Serializable]
-  internal sealed class Task<T> :
-    ITask
+  internal sealed class Task<T> : ITask
   {
-    private readonly Func<T> taskDelegate;
+    private readonly Func<T> implementation;
+    private readonly TaskResult<T> result;
 
-    private readonly TaskResult<T> taskResult;
+    public TaskResult<T> Result
+    {
+      get { return result; }
+    }
 
     public void Execute()
     {
       try {
-        var result = taskDelegate.Invoke();
-        taskResult.Result = result;
+        var r = implementation.Invoke();
+        result.SetResult(r);
       }
-      catch(Exception e) {
-        RegisterException(e);
+      catch (Exception e) {
+        Terminate(e);
         throw;
       }
     }
 
-    public void RegisterException(Exception exception)
+    public void Terminate(Exception exception)
     {
-      ((ITaskResult)taskResult).SetException(exception);
+      result.SetException(exception);
     }
 
 
     // Constructors
     
-    public Task(Func<T> taskDelegate, TaskResult<T> taskResult)
+    public Task(Func<T> implementation)
     {
-      this.taskDelegate = taskDelegate;
-      this.taskResult = taskResult;
+      result = new TaskResult<T>();
+      this.implementation = implementation;
     }
   }
 }

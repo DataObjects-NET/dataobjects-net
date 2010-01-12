@@ -12,6 +12,7 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.Atomicity
 {
+  [Serializable]
   [HierarchyRoot]
   public class Cake : Entity
   {

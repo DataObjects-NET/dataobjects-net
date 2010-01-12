@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.24
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
 {
   #region Model
 
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -22,6 +24,7 @@ namespace Xtensive.Storage.Manual.Advanced.JoinsAndSubqueriesTest
     public string Name { get; set; }
   }
 
+  [Serializable]
   public class Employee : Person
   {
     [Field]

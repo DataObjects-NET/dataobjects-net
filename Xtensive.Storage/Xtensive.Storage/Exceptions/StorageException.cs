@@ -5,6 +5,7 @@
 // Created:    2009.08.17
 
 using System;
+using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage
@@ -13,7 +14,7 @@ namespace Xtensive.Storage
   /// Base class for any storage-level exception.
   /// </summary>
   [Serializable]
-  public class StorageException: Exception
+  public class StorageException : Exception
   {
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -31,6 +32,14 @@ namespace Xtensive.Storage
     /// <param name="innerException">The inner exception.</param>
     public StorageException(string message, Exception innerException)
       : base(message, innerException)
+    {
+    }
+
+    // Serialization
+
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    protected StorageException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
     {
     }
   }

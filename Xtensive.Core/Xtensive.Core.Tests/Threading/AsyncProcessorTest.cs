@@ -77,7 +77,7 @@ namespace Xtensive.Core.Tests.Threading
         processor.Execute(() => { completedTaskCount++; }, false);
         results.Add(processor.Execute(() => ++completedTaskCount, false));
         startEvent.Set();
-        processor.WaitForCompletionOfAllTasks();
+        processor.WaitForCompletion();
         Assert.AreEqual(3, results.Count);
         Assert.AreEqual(2, completedTaskCount);
         Assert.AreEqual(2, results[0].Result);
@@ -108,7 +108,7 @@ namespace Xtensive.Core.Tests.Threading
         processor.Execute(() => { completedTaskCount++; }, false);
         results.Add(processor.Execute(() => ++completedTaskCount, false));
         startEvent.Set();
-        processor.WaitForCompletionOfAllTasks();
+        processor.WaitForCompletion();
         Assert.AreEqual(2, results.Count);
         Assert.AreEqual(2, completedTaskCount);
         Assert.AreEqual(2, results[0].Result);
@@ -141,7 +141,7 @@ namespace Xtensive.Core.Tests.Threading
 
     private static void TestExecution(bool syncMode, bool invokeSynchrounously)
     {
-      using (var processor = new AsyncProcessor {IsModeSynchronous = syncMode}) {
+      using (var processor = new AsyncProcessor {IsSynchronous = syncMode}) {
         int completedActionCount = 0;
         int completedFuncCount = 0;
         const int taskCount = 5;
@@ -178,7 +178,7 @@ namespace Xtensive.Core.Tests.Threading
           funcEvent.Set();
           for (int i = 0; i < results.Count; i++)
             Assert.AreEqual(i + 1, results[i].Result);
-          processor.WaitForCompletionOfAllTasks();
+          processor.WaitForCompletion();
           Assert.AreEqual(taskCount, completedActionCount);
           Assert.AreEqual(taskCount, completedFuncCount);
         }
@@ -187,7 +187,7 @@ namespace Xtensive.Core.Tests.Threading
           Assert.AreEqual(taskCount, completedFuncCount);
           for (int i = 0; i < results.Count; i++)
             Assert.AreEqual(i + 1, results[i].Result);
-          processor.WaitForCompletionOfAllTasks();
+          processor.WaitForCompletion();
         }
       }
     }
@@ -219,7 +219,7 @@ namespace Xtensive.Core.Tests.Threading
     private void TestSyncInterceptionOfExceptionFromFunc(bool syncMode)
     {
       using (var processor = new AsyncProcessor()) {
-        processor.IsModeSynchronous = syncMode;
+        processor.IsSynchronous = syncMode;
         int completedTaskCount = 0;
         TaskResult<int> result = processor.Execute(() => {
           throw new AssertionException(string.Empty);
@@ -241,7 +241,7 @@ namespace Xtensive.Core.Tests.Threading
     private void TestSyncInterceptionOfExceptionFromAction(bool syncMode)
     {
       using (var processor = new AsyncProcessor()) {
-        processor.IsModeSynchronous = syncMode;
+        processor.IsSynchronous = syncMode;
         int completedTaskCount = 0;
         processor.Execute(() => {
           throw new AssertionException(string.Empty);
@@ -271,14 +271,14 @@ namespace Xtensive.Core.Tests.Threading
             completedTaskCount++;
         }, false);
         var result = processor.Execute(() => ++completedTaskCount, false);
-        processor.IsModeSynchronous = syncMode;
+        processor.IsSynchronous = syncMode;
         startEvent.Set();
         processor.Execute(() => {
           Assert.AreEqual(2, completedTaskCount++);
           Assert.AreEqual(2, result.Result);
         }, !syncMode);
         if (processor.HasError)
-          throw processor.InterceptedException;
+          throw processor.Error;
         Assert.AreEqual(3, completedTaskCount);
       }
     }

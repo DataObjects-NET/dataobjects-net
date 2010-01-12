@@ -12,6 +12,7 @@ using Xtensive.Storage.Tests.Issues.Issue0402_WrongEntitySetQuery_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0402_WrongEntitySetQuery_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Node : Entity
   {

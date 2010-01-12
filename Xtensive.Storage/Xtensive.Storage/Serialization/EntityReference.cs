@@ -14,7 +14,8 @@ namespace Xtensive.Storage.Serialization
   /// Object to be serialized instead of <see cref="Entity"/> when serialization <see cref="SerializationKind.ByReference"/> is used.
   /// </summary>
   [Serializable]
-  internal sealed class EntityReference : IObjectReference, ISerializable
+  internal sealed class EntityReference : IObjectReference, 
+    ISerializable
   {
     private const string KeyValueName = WellKnown.KeyFieldName;
     private readonly Entity entity;

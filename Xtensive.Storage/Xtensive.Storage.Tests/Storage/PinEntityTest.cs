@@ -14,6 +14,7 @@ using Xtensive.Storage.Tests.Storage.PinEntityTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.PinEntityTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Killer : Entity
   {
@@ -33,6 +34,7 @@ namespace Xtensive.Storage.Tests.Storage.PinEntityTestModel
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Victim : Entity
   {
@@ -61,6 +63,7 @@ namespace Xtensive.Storage.Tests.Storage.PinEntityTestModel
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Node : Entity
   {

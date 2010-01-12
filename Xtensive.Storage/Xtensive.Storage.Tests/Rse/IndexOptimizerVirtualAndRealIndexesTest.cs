@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Tests.Rse
   #region Domain model
   namespace VirtualAndRealIndexesModel
   {
+    [Serializable]
     [HierarchyRoot]
     [Index("HierarchyField")]
     public class A : Entity
@@ -31,6 +32,7 @@ namespace Xtensive.Storage.Tests.Rse
       public string HierarchyField { get; set; }
     }
 
+    [Serializable]
     [Index("ClassField")]
     public class B : A
     {

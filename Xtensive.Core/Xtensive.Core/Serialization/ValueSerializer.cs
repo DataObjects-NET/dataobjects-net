@@ -22,7 +22,7 @@ namespace Xtensive.Core.Serialization
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
   /// </remarks>
   [Serializable]
-  public class ValueSerializer<T> : MethodCacheBase<IValueSerializer<T>>
+  public sealed class ValueSerializer<T> : MethodCacheBase<IValueSerializer<T>>
   {
     internal const string AssociateName = "ValueSerializer";
     private static ThreadSafeCached<ValueSerializer<T>> cachedSerializer =

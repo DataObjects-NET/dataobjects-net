@@ -4,6 +4,7 @@
 // Created by: Elena Vakhtina
 // Created:    2008.11.26
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -13,6 +14,7 @@ using Xtensive.Storage.Tests.Issue0004_Model;
 
 namespace Xtensive.Storage.Tests.Issue0004_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -26,6 +28,7 @@ namespace Xtensive.Storage.Tests.Issue0004_Model
     public EntitySet<Notification> Notifications { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Notification : Entity
   {

@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.12.12
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Storage.Configuration;
@@ -11,6 +12,7 @@ using Xtensive.Storage.Tests.Model.SelfContainedStructureModel;
 
 namespace Xtensive.Storage.Tests.Model.SelfContainedStructureModel
 {
+  [Serializable]
   public class SelfContained : Structure
   {
     [Field]

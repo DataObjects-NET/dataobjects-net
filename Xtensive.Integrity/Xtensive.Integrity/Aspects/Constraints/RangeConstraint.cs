@@ -19,7 +19,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures field value fits in the specified range.
   /// </summary>
   [Serializable]
-  public class RangeConstraint : PropertyConstraintAspect, IDeserializationCallback
+  public sealed class RangeConstraint : PropertyConstraintAspect, IDeserializationCallback
   {
     private const string MinParameter = "Min";
     private const string MaxParameter = "Max";

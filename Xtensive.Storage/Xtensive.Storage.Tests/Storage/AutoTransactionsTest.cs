@@ -14,6 +14,7 @@ using Xtensive.Storage.Tests.Storage.AutoTransactionsTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.AutoTransactionsTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

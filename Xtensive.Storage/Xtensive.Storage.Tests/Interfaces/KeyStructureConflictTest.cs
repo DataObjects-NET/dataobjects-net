@@ -15,6 +15,7 @@ namespace Xtensive.Storage.Tests.Interfaces.KeyStructureConflictTestModel
   {
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Root1 : Entity
   {
@@ -22,11 +23,13 @@ namespace Xtensive.Storage.Tests.Interfaces.KeyStructureConflictTestModel
     public int Id { get; private set; }
   }
 
+  [Serializable]
   public class Child1 : Root1, IChild
   {
     
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Root2 : Entity
   {
@@ -34,9 +37,9 @@ namespace Xtensive.Storage.Tests.Interfaces.KeyStructureConflictTestModel
     public Guid Id { get; private set; }
   }
 
+  [Serializable]
   public class Child2 : Root2, IChild
   {
-    
   }
 }
 

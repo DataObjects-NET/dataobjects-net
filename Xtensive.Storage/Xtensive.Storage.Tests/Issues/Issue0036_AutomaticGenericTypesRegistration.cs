@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:  2009.05.13
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0036_Model;
@@ -14,6 +15,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
   {
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -21,6 +23,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
     public int Id { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class User : Entity, ISecurable
   {
@@ -28,6 +31,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
     public int Id { get; private set; }
   }
 
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class SyncInfo<TEntity> : Entity where TEntity : Entity
@@ -41,6 +45,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
     }
   }
 
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class SecurityInfo<TEntity> : Entity where TEntity : Entity, ISecurable

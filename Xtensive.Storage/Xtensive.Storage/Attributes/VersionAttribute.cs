@@ -15,6 +15,5 @@ namespace Xtensive.Storage
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   public sealed class VersionAttribute : StorageAttribute
   {
-    
   }
 }

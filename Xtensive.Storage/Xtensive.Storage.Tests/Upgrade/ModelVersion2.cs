@@ -33,6 +33,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   
   #region Address, BusinessContact, Person, Employee, Order
 
+  [Serializable]
   public class Address : Structure
   {
     [Field(Length = 15)]
@@ -42,8 +43,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public string Country { get; set; }
   }
 
-  
-
+  [Serializable]
   [Index("FirstName")]
   [HierarchyRoot]
   public class BusinessContact : Entity
@@ -67,6 +67,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public string FirstName { get; set; }
   }
   
+  [Serializable]
   [Index("CompanyName")]
   public class Person : BusinessContact
   {
@@ -77,6 +78,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public string ContactName { get; set; }
   }
 
+  [Serializable]
   [Index("HireDate")]
   public class Employee : BusinessContact
   {
@@ -95,6 +97,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public string FullName { get { return FirstName + " " + LastName; } }
   }
 
+  [Serializable]
   [Index("OrderDate")]
   [Index("Freight")]
   [HierarchyRoot]
@@ -135,6 +138,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 
   #region GenericTypes
 
+  [Serializable]
   [HierarchyRoot]
   public class NewSync<T> : Entity
     where T : Entity
@@ -150,6 +154,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 
   #region ProductGroup, Product
 
+  [Serializable]
   [HierarchyRoot]
   public class ProductGroup : Entity
   {
@@ -163,6 +168,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public EntitySet<Product> Products { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Product : Entity
   {
@@ -183,6 +189,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 
   #region Boy, Girl
 
+  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Boy : Entity
@@ -199,6 +206,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Girl : Entity
@@ -219,6 +227,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
   
   #region Crazy association nesting
   
+  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity1 : Entity
@@ -232,6 +241,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity2 : Entity
@@ -248,6 +258,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity3 : Entity
@@ -264,6 +275,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity4 : Entity
@@ -280,12 +292,14 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     }
   }
   
+  [Serializable]
   public class Structure1 : Structure
   {
     [Field]
     public Entity1 MyE1 { get; set; }
   }
 
+  [Serializable]
   public class Structure2 : Structure
   {
     [Field]
@@ -295,6 +309,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public Entity2 MyE2 { get; set; }
   }
 
+  [Serializable]
   public class Structure3 : Structure
   {
     [Field]
@@ -304,6 +319,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public Entity3 MyE3 { get; set; }
   }
 
+  [Serializable]
   public class Structure4 : Structure
   {
     [Field]
@@ -313,6 +329,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public Entity4 MyE4 { get; set; }
   }
   
+  [Serializable]
   [HierarchyRoot]
   public class StructureContainer1 : Entity
   {
@@ -323,6 +340,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public Structure1 S1 { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class StructureContainer2 : Entity
   {
@@ -333,6 +351,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public Structure2 S2 { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class StructureContainer3 : Entity
   {
@@ -343,6 +362,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     public Structure3 S3 { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class StructureContainer4 : Entity
   {
@@ -357,6 +377,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
 
   #region Complex field copy
 
+  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class MyStructureOwner : Entity
@@ -373,6 +394,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.Version2
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class ReferencedEntity : Entity

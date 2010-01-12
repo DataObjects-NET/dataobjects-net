@@ -34,6 +34,8 @@ namespace Xtensive.Storage.Disconnected
     {
     }
 
+    // Serialization
+
     /// <summary>
     /// Deserialization constructor.
     /// </summary>
@@ -43,6 +45,5 @@ namespace Xtensive.Storage.Disconnected
       : base(info, context)
     {
     }
-
   }
 }

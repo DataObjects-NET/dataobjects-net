@@ -95,6 +95,7 @@ namespace Xtensive.Storage.Tests.SerializationTestModel
     }
   }
     
+  [Serializable]
   public class Address : Structure
   {
     [Field]

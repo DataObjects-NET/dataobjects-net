@@ -7,13 +7,12 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model;
-using Xtensive.Storage.Tests.Linq;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Image : Entity
   {
@@ -21,6 +20,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public Guid Id { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class SitePage : Entity
   {
@@ -30,6 +30,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public string Url { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -37,6 +38,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public Guid Id { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Category : Entity
   {
@@ -44,6 +46,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public Guid Id { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public abstract class AbstractObject : Entity
   {
@@ -57,6 +60,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public Person CreatedBy{ get; set;}
   }
 
+  [Serializable]
   public abstract class BlogPost : AbstractObject
   {
     [Field]
@@ -75,10 +79,12 @@ namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
     public SitePage SitePage { get; set; }
   }
 
+  [Serializable]
   public sealed class Article : BlogPost
   {
   }
 
+  [Serializable]
   public sealed class Article2 : BlogPost
   {
     

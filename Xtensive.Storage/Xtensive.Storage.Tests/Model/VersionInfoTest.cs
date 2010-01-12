@@ -15,6 +15,7 @@ using System;
 
 namespace Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel1
 {
+  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -25,6 +26,7 @@ namespace Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel1
     public string ParentVersionField { get; set; }
   }
 
+  [Serializable]
   public class Child : Parent
   {
     [Field, Version]
@@ -34,6 +36,7 @@ namespace Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel1
 
 namespace Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel2
 {
+  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -44,6 +47,7 @@ namespace Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel2
 
 namespace Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel3
 {
+  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -57,6 +61,7 @@ namespace Xtensive.Storage.Tests.Model.VersionInfoTests.InvalidModel3
 
 namespace Xtensive.Storage.Tests.Model.VersionInfoTests.ValidModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -70,12 +75,14 @@ namespace Xtensive.Storage.Tests.Model.VersionInfoTests.ValidModel
     public string ParentNonVersionField { get; set; }
   }
 
+  [Serializable]
   public class Child : Parent
   {
     [Field]
     public string ChildNonVersionField { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Simple : Entity
   {
@@ -104,6 +111,7 @@ namespace Xtensive.Storage.Tests.Model.VersionInfoTests.ValidModel
     public byte[] ByteArrayField { get; set; }
   }
 
+  [Serializable]
   public class SimpleStructure : Structure
   {
     [Field]

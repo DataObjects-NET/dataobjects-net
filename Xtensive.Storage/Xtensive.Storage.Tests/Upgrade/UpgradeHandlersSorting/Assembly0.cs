@@ -15,6 +15,7 @@ using Xtensive.Storage.Aspects;
 
 namespace UpgradeHandlersSorting.Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Simple0 : Entity
   {

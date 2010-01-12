@@ -4,13 +4,15 @@
 // Created by: Dmitri Maximov
 // Created:    2009.06.12
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0188_ModelBuilderError_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0188_ModelBuilderError_Model
 {
-[HierarchyRoot]
+  [Serializable]
+  [HierarchyRoot]
   public class A : Entity
   {
     [Field, Key]
@@ -20,6 +22,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0188_ModelBuilderError_Model
     public B B { get; set; }
   }
 
+  [Serializable]
   public class B : A
   {
   }

@@ -12,6 +12,7 @@ using Xtensive.Storage.Tests.Issues.Issue0021_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0021_Model
 {
+  [Serializable]
   [HierarchyRoot(InheritanceSchema.ClassTable)]
   public class Root : Entity
   {
@@ -22,6 +23,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0021_Model
     public string StringField { get; set; }
   }
 
+  [Serializable]
   public class Child1 : Root
   {
     [Field]
@@ -29,6 +31,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0021_Model
 
   }
 
+  [Serializable]
   public class Child2 : Child1
   {
     [Field]

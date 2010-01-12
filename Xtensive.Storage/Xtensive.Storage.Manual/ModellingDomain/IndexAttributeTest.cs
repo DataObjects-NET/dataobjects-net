@@ -4,6 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2009.06.17
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -14,6 +15,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain
 {
   #region Model
 
+  [Serializable]
   [Index("FirstName", "LastName", Unique = true)]
   [Index("Age")]
   [HierarchyRoot]

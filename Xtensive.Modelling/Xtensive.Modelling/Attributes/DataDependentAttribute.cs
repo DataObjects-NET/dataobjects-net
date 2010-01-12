@@ -5,7 +5,6 @@
 // Created:    2009.03.18
 
 using System;
-using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Attributes
 {
@@ -14,16 +13,7 @@ namespace Xtensive.Modelling.Attributes
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-  public class DataDependentAttribute : Attribute
+  public sealed class DataDependentAttribute : Attribute
   {
-
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public DataDependentAttribute()
-    {
-    }
   }
 }

@@ -15,6 +15,7 @@ namespace Xtensive.Storage.Metadata
   /// <summary>
   /// Abstract base class for any metadata type.
   /// </summary>
+  [Serializable]
   public abstract class MetadataBase : Entity
   {
     #region Event handlers

@@ -11,6 +11,7 @@ using Xtensive.Storage.Tests.Issues.Issue0435_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0435_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     string Second { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot(InheritanceSchema.ClassTable)]
   public class A : Entity, INamed
   {
@@ -42,6 +43,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Name { get; set; }
   }
 
+  [Serializable]
   public class B : A, INamed, ITagged
   {
     string INamed.Name
@@ -52,6 +54,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Tag { get; set; }
   }
 
+  [Serializable]
   public class C : A, ITagged
   {
     string ITagged.Tag
@@ -61,6 +64,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     }
   }
 
+  [Serializable]
   public class D : B, INamed, IComposite
   {
     string INamed.Name
@@ -72,6 +76,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Second { get; set;}
   }
 
+  [Serializable]
   public class E : D, IComposite
   {
     string IComposite.First
@@ -81,6 +86,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     }
   }
 
+  [Serializable]
   [HierarchyRoot(InheritanceSchema.ConcreteTable)]
   public class F : Entity, INamed
   {
@@ -89,6 +95,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Name { get; set; }
   }
 
+  [Serializable]
   public class  G : F, INamed, ITagged
   {
     string INamed.Name
@@ -99,6 +106,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Tag { get; set; }
   }
 
+  [Serializable]
   public class H : F, ITagged
   {
     string ITagged.Tag
@@ -108,6 +116,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     }
   }
 
+  [Serializable]
   public class I : G, INamed, IComposite
   {
     string INamed.Name
@@ -119,6 +128,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Second { get; set; }
   }
 
+  [Serializable]
   public class J : I, IComposite
   {
     string IComposite.First
@@ -128,6 +138,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     }
   }
 
+  [Serializable]
   [HierarchyRoot(InheritanceSchema.SingleTable)]
   public class K : Entity, INamed
   {
@@ -136,6 +147,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Name { get; set; }
   }
 
+  [Serializable]
   public class L : K, INamed, ITagged
   {
     string INamed.Name
@@ -146,6 +158,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Tag { get; set; }
   }
 
+  [Serializable]
   public class M : K, ITagged
   {
     string ITagged.Tag
@@ -155,6 +168,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     }
   }
 
+  [Serializable]
   public class N : L, INamed, IComposite
   {
     string INamed.Name
@@ -166,6 +180,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Second { get; set; }
   }
 
+  [Serializable]
   public class O : N, IComposite
   {
     string IComposite.First
@@ -175,6 +190,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     }
   }
 
+  [Serializable]
   [HierarchyRoot(InheritanceSchema.ClassTable)]
   [TypeDiscriminatorValue(0, Default = true)]
   public class P : Entity, INamed
@@ -188,6 +204,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Name { get; set; }
   }
 
+  [Serializable]
   [TypeDiscriminatorValue(1)]
   public class Q : P, INamed, ITagged
   {
@@ -199,6 +216,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Tag { get; set; }
   }
 
+  [Serializable]
   [TypeDiscriminatorValue(2)]
   public class R : P, ITagged
   {
@@ -209,6 +227,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     }
   }
 
+  [Serializable]
   [TypeDiscriminatorValue(3)]
   public class S : Q, INamed, IComposite
   {
@@ -221,6 +240,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Second { get; set; }
   }
 
+  [Serializable]
   [TypeDiscriminatorValue(4)]
   public class T : S, IComposite
   {
@@ -231,6 +251,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     }
   }
 
+  [Serializable]
   [HierarchyRoot(InheritanceSchema.SingleTable)]
   [TypeDiscriminatorValue(0, Default = true)]
   public class U : Entity, INamed
@@ -244,6 +265,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Name { get; set; }
   }
 
+  [Serializable]
   [TypeDiscriminatorValue(1)]
   public class V : U, INamed, ITagged
   {
@@ -255,6 +277,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Tag { get; set; }
   }
 
+  [Serializable]
   [TypeDiscriminatorValue(2)]
   public class W : U, ITagged
   {
@@ -265,6 +288,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     }
   }
 
+  [Serializable]
   [TypeDiscriminatorValue(3)]
   public class X : V, INamed, IComposite
   {
@@ -277,6 +301,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
     public string Second { get; set; }
   }
 
+  [Serializable]
   [TypeDiscriminatorValue(4)]
   public class Y : X, IComposite
   {

@@ -2,6 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -38,6 +39,7 @@ using Xtensive.Core.Aspects;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
+[assembly: CLSCompliant(true)]
 
 // This ensures the RecordSetProvider & its ancestors will be "initializable"
 [assembly:Initializable(AttributeTargetTypes = "*")]

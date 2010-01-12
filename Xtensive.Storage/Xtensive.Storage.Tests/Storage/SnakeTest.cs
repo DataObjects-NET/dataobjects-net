@@ -45,6 +45,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
     string AlsoKnownAs { get; set; }
   }
 
+  [Serializable]
   [DebuggerDisplay("Name = '{Name}'")]
   [Index("Name")]
   [Index("Name", "AlsoKnownAs")]
@@ -67,6 +68,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
     public TimeSpan LifeDuration { get; set; }
   }
 
+  [Serializable]
   [DebuggerDisplay("Name = '{Name}'; Length = {Length}")]
   public class Snake : Creature
   {
@@ -74,6 +76,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
     public int? Length { get; set; }
   }
 
+  [Serializable]
   [DebuggerDisplay("Name = '{Name}'; Color = {Color}")]
   public class Lizard : Creature
   {
@@ -81,6 +84,7 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
     public string Color { get; set; }
   }
 
+  [Serializable]
   [DebuggerDisplay("Name = '{Name}'; Length = {Length}")]
   [Index("Length", "Description")]
   public class ClearSnake : Creature

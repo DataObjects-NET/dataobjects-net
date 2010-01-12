@@ -12,6 +12,7 @@ namespace Xtensive.Core.Internals.DocTemplates
   /// <summary>
   /// Serializable type documentation template.
   /// </summary>
+  [Serializable]
   public class SerializableDocTemplate: ISerializable, IDeserializationCallback
   {
     /// <summary>

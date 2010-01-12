@@ -4,8 +4,11 @@
 // Created by: Alex Ilyin
 // Created:    2009.12.14
 
+using System;
+
 namespace Xtensive.Storage.Tests.ObjectModel.Cms
 {
+  [Serializable]
   public class NewsDirectory
     : ContentDirectory
   {

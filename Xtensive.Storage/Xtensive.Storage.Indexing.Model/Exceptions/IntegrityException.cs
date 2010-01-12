@@ -40,7 +40,9 @@ namespace Xtensive.Storage.Indexing.Model
       NodePath = nodePath;
     }
 
-    /// <inheritdoc/>
+    // Serialization
+
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
     public IntegrityException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

@@ -11,6 +11,7 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.LegacyDb
 {
+  [Serializable]
   [HierarchyRoot]
   public class DT : Entity
   {

@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
-  public class FieldMappingAttribute : StorageAttribute
+  public sealed class FieldMappingAttribute : StorageAttribute
   {
     /// <summary>
     /// Gets the base part of the field's related column name.

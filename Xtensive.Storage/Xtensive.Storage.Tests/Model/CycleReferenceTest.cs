@@ -4,11 +4,13 @@
 // Created by: Alexey Gamzov
 // Created:    2009.04.16
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 
 namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -22,10 +24,12 @@ namespace Xtensive.Storage.Tests.Model.CycleReferenceTestModel
     public Neighbor Neighbor { get; set; }
   }
 
+  [Serializable]
   public class Child : Parent
   {
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Neighbor : Entity
   {

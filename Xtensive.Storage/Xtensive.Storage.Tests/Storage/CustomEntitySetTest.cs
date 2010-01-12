@@ -4,12 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.07
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Storage.CustomEntitySetModel;
 
 namespace Xtensive.Storage.Tests.Storage.CustomEntitySetModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Root : Entity
   {
@@ -17,6 +19,7 @@ namespace Xtensive.Storage.Tests.Storage.CustomEntitySetModel
     public int Id { get; private set; }
   }
 
+  [Serializable]
   public class Master : Root
   {
     [Field]
@@ -29,6 +32,7 @@ namespace Xtensive.Storage.Tests.Storage.CustomEntitySetModel
     public CustomEntitySet<Slave> ManyToMany { get; private set; }
   }
 
+  [Serializable]
   public class Slave : Root
   {
     [Field, Association(PairTo = "OneToMany")]

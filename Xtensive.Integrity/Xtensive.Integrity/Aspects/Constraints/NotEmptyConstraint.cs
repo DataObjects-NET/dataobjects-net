@@ -13,7 +13,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures that property value is not <see cref="string.Empty"/>.
   /// </summary>
   [Serializable]
-  public class NotEmptyConstraint : PropertyConstraintAspect
+  public sealed class NotEmptyConstraint : PropertyConstraintAspect
   {
     /// <inheritdoc/>
     public override bool CheckValue(object value)

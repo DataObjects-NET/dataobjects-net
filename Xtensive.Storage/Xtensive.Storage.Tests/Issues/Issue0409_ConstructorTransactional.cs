@@ -6,12 +6,12 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0409_ConstructorTransactional_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0409_ConstructorTransactional_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Document : Entity
   {

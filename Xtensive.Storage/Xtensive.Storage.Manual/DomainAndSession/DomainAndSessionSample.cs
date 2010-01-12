@@ -13,6 +13,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
 {
   #region Model
 
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

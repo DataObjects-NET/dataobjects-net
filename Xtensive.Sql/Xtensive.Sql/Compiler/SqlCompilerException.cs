@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Sql.Compiler
@@ -10,6 +11,7 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// A <see cref="SqlCompiler"/> exception
   /// </summary>
+  [Serializable]
   public class SqlCompilerException : Exception
   {
     /// <summary>
@@ -18,6 +20,14 @@ namespace Xtensive.Sql.Compiler
     /// <param name="message">The message.</param>
     public SqlCompilerException(string message)
       : base(message)
+    {
+    }
+
+    // Serialization
+
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    protected SqlCompilerException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
     {
     }
   }

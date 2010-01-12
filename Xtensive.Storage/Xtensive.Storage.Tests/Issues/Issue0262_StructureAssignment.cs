@@ -11,6 +11,7 @@ using Xtensive.Storage.Tests.Issues.Issue0262_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0262_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Container : Entity
   {
@@ -21,6 +22,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0262_Model
     public Pair Value { get; set; }
   }
 
+  [Serializable]
   public class Pair : Structure
   {
     [Field]
@@ -40,6 +42,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0262_Model
     }
   }
 
+  [Serializable]
   public class Triple : Pair
   {
     [Field]

@@ -4,8 +4,11 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.08.03
 
+using System;
+
 namespace Xtensive.Storage.Tests.Storage.Performance.CrudModel
 {
+  [Serializable]
   [HierarchyRoot]
   public sealed class SimplestContainer : Entity
   {

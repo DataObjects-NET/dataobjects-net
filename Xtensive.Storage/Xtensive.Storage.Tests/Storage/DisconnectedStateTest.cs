@@ -24,6 +24,7 @@ using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage.DisconnectedTests.Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Simple : Entity
   {
@@ -37,6 +38,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public string Value { get; set;}
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -50,6 +52,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public EntitySet<Author> Authors { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   [Index("Name", Unique = true)]
   public class Author : Entity
@@ -64,6 +67,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public EntitySet<Book> Books { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public abstract class Person : Entity
   {
@@ -74,30 +78,35 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public string Name { get; set; }
   }
 
+  [Serializable]
   public class Customer : Person
   {
     [Field, Association(PairTo = "Customer")]
     public EntitySet<Order> Orders { get; private set; }
   }
 
+  [Serializable]
   public class AdvancedCustomer : Customer
   {
     [Field]
     public float Discount { get; set; }
   }
 
+  [Serializable]
   public class Supplier : Person
   {
     [Field, Association(PairTo = "Supplier")]
     public EntitySet<Product> Products { get; private set;}
   }
 
+  [Serializable]
   public class Employee : Person
   {
     [Field, Association(PairTo = "Employee")]
     public EntitySet<Order> Orders { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -158,6 +167,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class OrderDetail : Entity
   {
@@ -174,6 +184,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public int Count { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Product : Entity
   {
@@ -187,6 +198,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public Supplier Supplier { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Container : Entity
   {
@@ -203,6 +215,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public EntitySet<Item> ManyToMany { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Item : Entity
   {
@@ -219,6 +232,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public Container ManyToMany { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class A : Entity
   {
@@ -229,6 +243,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public int Number { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class B : Entity
   {

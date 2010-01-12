@@ -14,6 +14,7 @@ using Xtensive.Storage.Tests.Storage.Providers.Sql.BooleanHandlingTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql.BooleanHandlingTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

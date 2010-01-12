@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     Discontinued
   }
 
+  [Serializable]
   public class Address : Structure
   {
     [Field(Length = 60)]
@@ -46,6 +47,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public string JustAProperty { get; set; }
   }
 
+  [Serializable]
   public abstract class Person : Entity
   {
     [Field]
@@ -74,6 +76,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
+  [Serializable]
   [Index("CompanyName")]
   public abstract class BusinessContact : Person
   {
@@ -103,6 +106,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
+  [Serializable]
   [TableMapping("Categories")]
   [HierarchyRoot]
   [Index("CategoryName")]
@@ -126,6 +130,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public EntitySet<Product> Products { get; private set; }
   }
 
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("Customers")]
   [HierarchyRoot]
@@ -145,6 +150,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Region : Entity
   {
@@ -155,6 +161,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public string RegionDescription { get; set; }
   }
 
+  [Serializable]
   [TableMapping("Suppliers")]
   [HierarchyRoot]
   public class Supplier : BusinessContact
@@ -169,6 +176,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public EntitySet<Product> Products { get; private set; }
   }
 
+  [Serializable]
   [TableMapping("Shippers")]
   [HierarchyRoot]
   public class Shipper : Entity
@@ -205,6 +213,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
+  [Serializable]
   [TableMapping("Products")]
   [HierarchyRoot(InheritanceSchema.SingleTable)]
   [Index("UnitPrice")]
@@ -244,12 +253,14 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   /// <summary>
   /// Just for Linq type inheritance tests.
   /// </summary>
+  [Serializable]
   public abstract class IntermediateProduct : Product
   {
     [Field(Length = 20)]
     public string QuantityPerUnit { get; set; }
   }
 
+  [Serializable]
   public class ActiveProduct : IntermediateProduct
   {
     public ActiveProduct()
@@ -258,6 +269,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
+  [Serializable]
   public class DiscontinuedProduct : IntermediateProduct
   {
     public DiscontinuedProduct()
@@ -266,6 +278,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
+  [Serializable]
   [TableMapping("Employees")]
   [HierarchyRoot]
   [Index("FirstName")]
@@ -325,6 +338,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public string FullName { get { return FirstName + " " + LastName; } }
   }
 
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("Territories")]
   [HierarchyRoot]
@@ -350,6 +364,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
+  [Serializable]
   [Index("OrderDate")]
   [Index("ShipName")]
   [Index("Freight")]
@@ -399,6 +414,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     }
   }
 
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("OrderDetails")]
   [HierarchyRoot]

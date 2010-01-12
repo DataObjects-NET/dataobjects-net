@@ -5,17 +5,15 @@
 // Created:    2009.03.18
 
 using System;
-using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Attributes
 {
   /// <summary>
   /// Node property marker.
   /// </summary>
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public class PropertyAttribute : Attribute
+  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+  public sealed class PropertyAttribute : Attribute
   {
     /// <summary>
     /// Gets or sets the comparison \ modification priority.
@@ -44,15 +42,5 @@ namespace Xtensive.Modelling.Attributes
     /// Gets or sets the dependency root type.
     /// </summary>
     public Type DependencyRootType { get; set; }
-
-    
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public PropertyAttribute()
-    {
-    }
   }
 }

@@ -6,10 +6,10 @@
 
 using System;
 using Xtensive.Integrity.Aspects.Constraints;
-using Xtensive.Storage;
 
 namespace Xtensive.Storage.Tests.ObjectModel.Cms
 {
+  [Serializable]
   [HierarchyRoot]
   public class WebSiteUrl
     : Entity

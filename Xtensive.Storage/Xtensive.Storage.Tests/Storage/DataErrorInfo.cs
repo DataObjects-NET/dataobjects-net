@@ -4,6 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2009.09.17
 
+using System;
 using System.ComponentModel;
 using NUnit.Framework;
 using Xtensive.Integrity.Aspects.Constraints;
@@ -12,6 +13,7 @@ using Xtensive.Storage.Tests.Storage.DataErrorInfoTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.DataErrorInfoTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

@@ -21,7 +21,8 @@ namespace Xtensive.Core.Arithmetic
   /// <remarks>
   /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
   /// </remarks>
-  public class Arithmetic<T> : MethodCacheBase<IArithmetic<T>>
+  [Serializable]
+  public sealed class Arithmetic<T> : MethodCacheBase<IArithmetic<T>>
   {
     private static ThreadSafeCached<Arithmetic<T>> cached =
       ThreadSafeCached<Arithmetic<T>>.Create(new object());

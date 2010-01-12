@@ -10,6 +10,7 @@ using System.Text;
 
 namespace Xtensive.Storage.Tests.ObjectModel.Cms
 {  
+  [Serializable]
   [HierarchyRoot]
   public class ContentDirectory
     : Entity

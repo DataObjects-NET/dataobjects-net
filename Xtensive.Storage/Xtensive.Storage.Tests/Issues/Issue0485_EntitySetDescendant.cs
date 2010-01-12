@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.26
 
+using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
@@ -13,6 +14,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0485_EntitySetDescendant_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Company : Entity
   {
@@ -26,6 +28,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0485_EntitySetDescendant_Model
     public EntitySetDescendant<Employee> Employees{ get; private set;}
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Employee : Entity
   {

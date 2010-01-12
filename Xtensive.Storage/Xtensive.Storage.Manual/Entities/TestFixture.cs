@@ -14,6 +14,7 @@ namespace Xtensive.Storage.Manual.Entities
   [TestFixture]
   public class TestFixture
   {
+    [Serializable]
     [HierarchyRoot]
     public abstract class Document : Entity 
     {
@@ -27,6 +28,7 @@ namespace Xtensive.Storage.Manual.Entities
       public int Number { get; set; }
     }
 
+    [Serializable]
     public class Order : Document 
     {
       [Field]
@@ -39,6 +41,7 @@ namespace Xtensive.Storage.Manual.Entities
       public double Amount { get; set; }
     }
 
+    [Serializable]
     [HierarchyRoot]
     public class Product : Entity
     {

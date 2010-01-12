@@ -13,7 +13,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures that date value is in the past.
   /// </summary>
   [Serializable]
-  public class PastConstraint : PropertyConstraintAspect
+  public sealed class PastConstraint : PropertyConstraintAspect
   {
     /// <inheritdoc/>
     public override bool CheckValue(object value)

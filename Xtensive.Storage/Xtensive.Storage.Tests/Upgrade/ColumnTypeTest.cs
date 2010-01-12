@@ -318,6 +318,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class X : Entity
   {

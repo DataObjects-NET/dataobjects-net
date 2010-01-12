@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.09.03
 
+using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
@@ -12,6 +13,7 @@ using Xtensive.Storage.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_Mode
 
 namespace Xtensive.Storage.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Container : Entity
   {
@@ -22,6 +24,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_
     public ContainerItemSet Items { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class ContainerItem : Entity
   {

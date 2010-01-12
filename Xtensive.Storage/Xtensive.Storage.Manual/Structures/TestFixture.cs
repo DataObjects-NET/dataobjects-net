@@ -11,6 +11,7 @@ using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.Structures
 {
+  [Serializable]
   public class Point : Structure
   {
     [Field]
@@ -28,6 +29,7 @@ namespace Xtensive.Storage.Manual.Structures
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Range : Entity
   {

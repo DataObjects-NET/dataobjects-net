@@ -18,6 +18,7 @@ using Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel
 {
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class ABase: Entity
@@ -32,6 +33,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel
     public Guid Id3A { get; private set; }
   }
 
+  [Serializable]
   [Index("JustField1", "JustField2")]
   [Index("JustField3")]
   public class A : ABase
@@ -66,6 +68,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel
     public B ManyToOne { get; set; }
   }
 
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class BBase:Entity
@@ -77,6 +80,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel
     public byte Id2 { get; private set; }
   }
 
+  [Serializable]
   public class B : BBase
   {
 
@@ -102,6 +106,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql.TableReferenceTestModel
   /// <summary>
   /// Self-references
   /// </summary>
+  [Serializable]
   [HierarchyRoot]
   public class C : Entity
   {

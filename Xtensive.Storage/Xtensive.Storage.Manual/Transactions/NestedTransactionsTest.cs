@@ -14,6 +14,7 @@ namespace Xtensive.Storage.Manual.Transactions
 {
   #region Model
 
+  [Serializable]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -48,6 +49,7 @@ namespace Xtensive.Storage.Manual.Transactions
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class WebPage : Entity
   {
@@ -61,6 +63,7 @@ namespace Xtensive.Storage.Manual.Transactions
     public string Url { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class BlogPost : Entity
   {

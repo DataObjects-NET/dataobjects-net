@@ -4,10 +4,12 @@
 // Created by: Alex Yakunin
 // Created:    2008.09.23
 
+using System;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Tests.Storage.Performance.CrudModel
 {
+  [Serializable]
   [HierarchyRoot]
   [Index("Value")]
   public class Simplest : Entity

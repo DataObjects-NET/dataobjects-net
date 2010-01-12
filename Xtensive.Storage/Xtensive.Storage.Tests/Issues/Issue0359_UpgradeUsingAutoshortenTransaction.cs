@@ -4,12 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2009.08.24
 
+using System;
 using System.Transactions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0359_CustomSessionConfigurationProblem_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0359_CustomSessionConfigurationProblem_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Class1 : Entity
   {

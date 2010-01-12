@@ -13,6 +13,7 @@ namespace Xtensive.Storage.Manual.Indexes
 {
   #region Model
   
+  [Serializable]
   [HierarchyRoot]
   public class Pet : Entity
   {
@@ -23,6 +24,7 @@ namespace Xtensive.Storage.Manual.Indexes
     public Person Owner { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   [Index("Email", Unique = true)]
   [Index("FirstName", "LastName")]

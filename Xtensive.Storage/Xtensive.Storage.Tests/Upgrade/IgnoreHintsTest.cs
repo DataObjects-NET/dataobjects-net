@@ -134,6 +134,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
 namespace Xtensive.Storage.Tests.Upgrade.IgnoreHints.Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class A : Entity
   {
@@ -147,6 +148,7 @@ namespace Xtensive.Storage.Tests.Upgrade.IgnoreHints.Model
     public string Y { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class B : Entity
   {

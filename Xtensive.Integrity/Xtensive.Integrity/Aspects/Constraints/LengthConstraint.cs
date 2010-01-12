@@ -17,7 +17,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures field length (or item count) fits in specified range.
   /// </summary>
   [Serializable]
-  public class LengthConstraint : PropertyConstraintAspect
+  public sealed class LengthConstraint : PropertyConstraintAspect
   {
     private const string MinParameter = "Min";
     private const string MaxParameter = "Max";

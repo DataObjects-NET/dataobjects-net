@@ -22,6 +22,7 @@ using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage.Tests.Model.LibraryModel
 {
+  [Serializable]
   public class IdentityCard : Structure
   {
     [Field(Length = 64)]
@@ -34,6 +35,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public string LastName { get; set; }
   }
 
+  [Serializable]
   public class Passport : Structure
   {
     [Field]
@@ -43,6 +45,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public IdentityCard Card { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -66,6 +69,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public EntitySet<BookReview> Reviews { get; private set; }
   }
 
+  [Serializable]
   [Index("PenName:DESC", Name = "IX_PENNAME")]
   public class Author : Person
   {
@@ -76,6 +80,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     public EntitySet<Book> Books { get; private set; }
   }
 
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   [Index("Title:ASC")]
@@ -105,6 +110,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     }*/
   }
 
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class BookReview : Entity

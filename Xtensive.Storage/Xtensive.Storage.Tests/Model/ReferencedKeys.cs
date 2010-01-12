@@ -4,12 +4,14 @@
 // Created by: Alex Kofman
 // Created:    2009.04.01
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Model.ReferencedKeysModel;
 
 namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
 {
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class Country : Entity
@@ -26,6 +28,7 @@ namespace Xtensive.Storage.Tests.Model.ReferencedKeysModel
     }
   }
 
+  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class City : Entity

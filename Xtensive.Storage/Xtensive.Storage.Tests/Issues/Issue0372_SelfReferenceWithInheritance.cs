@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.09.03
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0372_SelfReferenceWithInheritance_Model;
@@ -25,6 +26,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0372_SelfReferenceWithInheritance_M
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Item
     : Entity
@@ -39,6 +41,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0372_SelfReferenceWithInheritance_M
     public WebSite WebSite2 { get; set; }
   }
 
+  [Serializable]
   public class WebSite
     : Item
   {

@@ -12,6 +12,7 @@ using Xtensive.Storage.Tests.Storage.SessionEventsTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.SessionEventsTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class MegaEntity : Entity
   {

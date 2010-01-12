@@ -14,7 +14,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// <see langword="null" /> or <see cref="string.Empty"/>.
   /// </summary>
   [Serializable]
-  public class NotNullOrEmptyConstraint : PropertyConstraintAspect
+  public sealed class NotNullOrEmptyConstraint : PropertyConstraintAspect
   {
     /// <inheritdoc/>
     public override bool CheckValue(object value)

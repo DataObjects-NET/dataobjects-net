@@ -56,6 +56,7 @@ namespace Xtensive.Storage
   /// </example>
   /// <seealso cref="Structure">Structure class</seealso>
   /// <seealso cref="EntitySet{TItem}"><c>EntitySet</c> class</seealso>
+  [Serializable]
   [SystemType]
   [DebuggerDisplay("{Key}")]
   public abstract class Entity : Persistent,

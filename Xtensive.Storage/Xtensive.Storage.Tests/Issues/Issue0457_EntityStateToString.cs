@@ -12,6 +12,7 @@ using Xtensive.Storage.Tests.Issues.Issue0457_EntityStateToStringModel;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0457_EntityStateToStringModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class BuggyEntity : Entity
   {

@@ -6,6 +6,7 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Integrity
@@ -45,6 +46,14 @@ namespace Xtensive.Integrity
       TargetType = type;
       TargetProperty = property;
       PropertyValue = value == null ? "null" : value.ToString();
+    }
+
+    // Serialization
+
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    protected ConstraintViolationException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
     }
   }
 }

@@ -4,12 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2009.09.14
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Model.NonPublicFieldTestModel;
 
 namespace Xtensive.Storage.Tests.Model.NonPublicFieldTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

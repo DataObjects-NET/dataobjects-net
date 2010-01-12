@@ -4,12 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2009.08.24
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0351_NameBuilderProblem_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0351_NameBuilderProblem_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class Master : Entity
   {
@@ -20,6 +22,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0351_NameBuilderProblem_Model
     public EntitySet<Slave> Slaves { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Slave : Entity
   {

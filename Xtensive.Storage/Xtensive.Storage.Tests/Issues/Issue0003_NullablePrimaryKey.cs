@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.10.16
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -12,6 +13,7 @@ using Xtensive.Storage.Tests.Issues.Issue0003_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0003_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class X : Entity
   {

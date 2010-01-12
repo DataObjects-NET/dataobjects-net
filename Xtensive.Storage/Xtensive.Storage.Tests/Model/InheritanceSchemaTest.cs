@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2007.11.30
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
@@ -33,6 +34,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   {
   }
 
+  [Serializable]
   [TableMapping("A-Root")]
   [HierarchyRoot]
   public class A : Entity
@@ -41,6 +43,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public long ID { get; private set; }
   }
 
+  [Serializable]
   [Index("Tag")]
 //  [Index("Name")]
   // TODO: Alex Kochetov: Log error if duplicate index is specified.
@@ -52,6 +55,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public int Tag { get; set; }
   }
 
+  [Serializable]
   [Index("Age")]
   public class C : A
   {
@@ -59,6 +63,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public int Age { get; set; }
   }
 
+  [Serializable]
   [Index("Tag")]
   public class D : C, ICreature
   {
@@ -68,10 +73,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public virtual string Tag { get; set; }
   }
 
+  [Serializable]
   public class E : D
   {
   }
 
+  [Serializable]
   public class F : A, ICreature, IHasName2
   {
     string IHasName.Name
@@ -83,6 +90,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public string Name { get; set; }
   }
 
+  [Serializable]
   //  [Index("Name")]
   // TODO: Alex Kochetov: Log error if duplicate index is specified.
   [HierarchyRoot]
@@ -94,10 +102,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public string Name { get; set; }
   }
 
+  [Serializable]
   public class Y : X
   {
   }
 
+  [Serializable]
   public class Z : Y
   {
   }

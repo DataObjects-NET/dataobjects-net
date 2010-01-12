@@ -39,7 +39,7 @@ namespace Xtensive.Storage
   /// </example>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-  public class HierarchyRootAttribute : StorageAttribute
+  public sealed class HierarchyRootAttribute : StorageAttribute
   {
     /// <summary>
     /// Gets the inheritance schema for this hierarchy.

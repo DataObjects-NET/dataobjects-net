@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.08
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
@@ -14,18 +15,22 @@ using Xtensive.Storage.Tests.RegistryModel1;
 
 namespace Xtensive.Storage.Tests.RegistryModel1
 {
+  [Serializable]
   public class A : Entity
   {
   }
 
+  [Serializable]
   public class B : A
   {
   }
 
+  [Serializable]
   public class C
   {
   }
 
+  [Serializable]
   public class D : A
   {
   }
@@ -33,18 +38,22 @@ namespace Xtensive.Storage.Tests.RegistryModel1
 
 namespace Xtensive.Storage.Tests.RegistryModel2
 {
+  [Serializable]
   public class A : Entity
   {
   }
 
+  [Serializable]
   public class B : A
   {
   }
 
+  [Serializable]
   public class C
   {
   }
 
+  [Serializable]
   public class D : A
   {
   }

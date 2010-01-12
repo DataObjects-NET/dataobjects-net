@@ -20,6 +20,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [ThreadStatic]
     private static int validationCallsCount;
 
+    [Serializable]
     [HierarchyRoot]
     public class Mouse : Entity
     {
@@ -52,6 +53,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       }
     }
 
+    [Serializable]
     public class Led : Structure
     {
       [Field]

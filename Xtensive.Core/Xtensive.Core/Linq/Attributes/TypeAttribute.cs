@@ -15,7 +15,7 @@ namespace Xtensive.Core.Linq
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue, AllowMultiple = false, Inherited = false)]
-  public class TypeAttribute : Attribute
+  public sealed class TypeAttribute : Attribute
   {
     /// <summary>
     /// Gets or sets the value.

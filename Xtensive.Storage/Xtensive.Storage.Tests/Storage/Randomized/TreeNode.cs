@@ -4,10 +4,12 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.11.26
 
+using System;
 using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Storage.Randomized
 {
+  [Serializable]
   [HierarchyRoot]
   public sealed class TreeNode : Entity
   {

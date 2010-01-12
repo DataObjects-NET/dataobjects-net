@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
-  public class TableMappingAttribute : StorageAttribute
+  public sealed class TableMappingAttribute : StorageAttribute
   {
     /// <summary>
     /// Gets the base part of the field's related column name 

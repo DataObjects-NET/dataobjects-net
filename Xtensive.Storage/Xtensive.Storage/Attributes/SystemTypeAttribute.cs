@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// </summary>
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, 
     AllowMultiple = false, Inherited = true)]
-  internal class SystemTypeAttribute : StorageAttribute
+  internal sealed class SystemTypeAttribute : StorageAttribute
   {
     /// <summary>
     /// Type identifier to preserve for it.

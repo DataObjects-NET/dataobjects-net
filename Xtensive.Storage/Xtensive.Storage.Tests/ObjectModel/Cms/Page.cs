@@ -5,10 +5,10 @@
 // Created:    2009.08.31
 
 using System;
-using Xtensive.Storage;
 
 namespace Xtensive.Storage.Tests.ObjectModel.Cms
 {
+  [Serializable]
   public class Page
     : HtmlContentItem
   {

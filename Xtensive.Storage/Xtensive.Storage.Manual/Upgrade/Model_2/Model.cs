@@ -9,6 +9,7 @@ using System.Diagnostics;
 
 namespace Xtensive.Storage.Manual.Upgrade.Model_2
 {
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -25,6 +26,7 @@ namespace Xtensive.Storage.Manual.Upgrade.Model_2
     public int Quantity { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Customer : Entity
   {

@@ -4,12 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2008.10.09
 
+using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Tests.PairModel;
 
 namespace Xtensive.Storage.Tests.PairModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Master : Entity
   {
@@ -20,6 +22,7 @@ namespace Xtensive.Storage.Tests.PairModel
     public Slave Slave { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Slave : Entity
   {

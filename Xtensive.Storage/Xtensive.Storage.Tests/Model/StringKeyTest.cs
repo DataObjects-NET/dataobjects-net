@@ -4,12 +4,14 @@
 // Created by: Alex Kofman
 // Created:    2009.06.25
 
+using System;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Model.StringKeyTestModel;
 
 namespace Xtensive.Storage.Tests.Model.StringKeyTestModel
 {
+  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Product : Entity

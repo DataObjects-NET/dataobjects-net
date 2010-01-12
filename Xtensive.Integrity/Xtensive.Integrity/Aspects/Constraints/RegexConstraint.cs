@@ -16,7 +16,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures property value matches specified regular expression.
   /// </summary>
   [Serializable]
-  public class RegexConstraint : PropertyConstraintAspect
+  public sealed class RegexConstraint : PropertyConstraintAspect
   {
     private const string PatternParameter = "Pattern";
     private Regex regex;

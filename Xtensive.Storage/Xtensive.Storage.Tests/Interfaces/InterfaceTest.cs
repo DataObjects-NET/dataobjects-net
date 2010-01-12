@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.09.08
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
@@ -33,6 +34,7 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
     IPerson Owner { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Person1 : Entity, IPerson
   {
@@ -46,6 +48,7 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
     public IAnimal Favorite { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Person2 : Entity, IPerson
   {
@@ -59,6 +62,7 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
     public IAnimal Favorite { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Animal1 : Entity, IAnimal
   {
@@ -70,6 +74,7 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
     public IPerson Owner { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Animal2 : Entity, IAnimal
   {

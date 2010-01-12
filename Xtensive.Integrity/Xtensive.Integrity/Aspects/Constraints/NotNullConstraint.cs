@@ -13,7 +13,7 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures property value is not <see langword="null" />.
   /// </summary>
   [Serializable]
-  public class NotNullConstraint : PropertyConstraintAspect
+  public sealed class NotNullConstraint : PropertyConstraintAspect
   {
     /// <inheritdoc/>
     public override bool CheckValue(object value)

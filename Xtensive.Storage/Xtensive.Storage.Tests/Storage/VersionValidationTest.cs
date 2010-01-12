@@ -16,6 +16,7 @@ using Xtensive.Storage.Disconnected;
 
 namespace Xtensive.Storage.Tests.Storage.VersionValidationModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Customer : Entity
   {
@@ -29,6 +30,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionValidationModel
     public string Name { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {

@@ -15,6 +15,7 @@ namespace Xtensive.Storage.Tests.Interfaces.TypeIdModeConflictTestModel
   {
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Root1 : Entity, IRoot
   {
@@ -22,6 +23,7 @@ namespace Xtensive.Storage.Tests.Interfaces.TypeIdModeConflictTestModel
     public int Id { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot(IncludeTypeId = true)]
   public class Root2 : Entity, IRoot
   {

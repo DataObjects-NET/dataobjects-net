@@ -13,6 +13,7 @@ using Xtensive.Storage.Tests.Storage.StructureModel;
 
 namespace Xtensive.Storage.Tests.Storage.StructureModel
 {
+  [Serializable]
   public class Point : Structure
   {
     [Field]
@@ -32,6 +33,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
     }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Ray : Entity
   {

@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.06.16
 
+using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -14,18 +15,21 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
 {
   #region Cyclic referenced structures
 
+  [Serializable]
   public class S1 : Structure
   {
     [Field]
     public S2 Value { get; set; }
   }
 
+  [Serializable]
   public class S2 : Structure
   {
     [Field]
     public S3 Value { get; set; }
   }
 
+  [Serializable]
   public class S3 : Structure
   {
     [Field]
@@ -36,12 +40,14 @@ namespace Xtensive.Storage.Tests.Model.ReferenceTestModel
 
   #region Cyclic contained structures with inheritance
 
+  [Serializable]
   public class Parent : Structure
   {
     [Field]
     public Child Value { get; set; }
   }
 
+  [Serializable]
   public class Child : Parent
   {
   }

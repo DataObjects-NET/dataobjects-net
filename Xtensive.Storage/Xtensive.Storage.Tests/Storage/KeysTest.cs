@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
   {
     #region Model
 
+    [Serializable]
     [KeyGenerator(KeyGeneratorKind.None)]
     [HierarchyRoot]
     public abstract class Fruit : Entity
@@ -30,18 +31,21 @@ namespace Xtensive.Storage.Tests.Storage.Keys
         : base(tag) {}
     }
 
+    [Serializable]
     public class Banana : Fruit
     {
       public Banana(string tag)
         : base(tag) {}
     }
 
+    [Serializable]
     public class Apple : Fruit
     {
       public Apple(string tag)
         : base(tag) {}
     }
 
+    [Serializable]
     [KeyGenerator(KeyGeneratorKind.None)]
     [HierarchyRoot]
     public class Test : Entity
@@ -78,6 +82,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
       public TimeSpan Key15 { get; private set; }
     }
 
+    [Serializable]
     [HierarchyRoot]
     public class Container : Entity
     {

@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.20
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
@@ -12,6 +13,7 @@ using Xtensive.Storage.Tests.Issues.Issue0012_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0012_Model
 {
+  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

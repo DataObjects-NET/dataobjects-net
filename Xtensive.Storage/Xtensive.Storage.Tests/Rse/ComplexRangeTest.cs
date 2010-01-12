@@ -21,6 +21,7 @@ using Xtensive.Storage.Tests.Rse.AnimalModel;
 
 namespace Xtensive.Storage.Tests.Rse.AnimalModel
 {
+  [Serializable]
   [DebuggerDisplay("Name = '{Name}'")]
   [KeyGenerator(CacheSize = 16)]
   [HierarchyRoot]
@@ -34,12 +35,14 @@ namespace Xtensive.Storage.Tests.Rse.AnimalModel
     public int Name { get; set; }
   }
 
+  [Serializable]
   [DebuggerDisplay("Name = '{Name}'")]
   public class Cat : Animal
   {
   }
 
 
+  [Serializable]
   [DebuggerDisplay("Name = '{Name}'; TailLength = {TailLength}")]
   [Index("Name", "TailLength")]
   public class Dog : Animal
@@ -48,6 +51,7 @@ namespace Xtensive.Storage.Tests.Rse.AnimalModel
     public int? TailLength { get; set; }
   }
 
+  [Serializable]
   [DebuggerDisplay("Name = '{Name}'; Airspeed = {Airspeed}; Lifetime = {Lifetime}")]
   [Index("Name", "Airspeed", "Lifetime")]
   public class Bird : Animal

@@ -56,14 +56,14 @@ namespace Xtensive.Storage.Indexing.Model
 
     #region Serializing members
 
-    /// <inheritdoc/>
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
     protected ValidationException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
       NodePath = info.GetString("NodePath");
     }
 
-    /// <inheritdoc/>
+    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("NodePath", NodePath);

@@ -18,6 +18,7 @@ using Xtensive.Storage.Tests.Storage.EntitySetModel;
 
 namespace Xtensive.Storage.Tests.Storage.EntitySetModel
 {
+  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -31,6 +32,7 @@ namespace Xtensive.Storage.Tests.Storage.EntitySetModel
     public Author Author { get; private set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class Author : Entity
   {

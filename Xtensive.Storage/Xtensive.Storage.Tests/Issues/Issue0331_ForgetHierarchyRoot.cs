@@ -4,13 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2009.08.03
 
-using NUnit.Framework;
+using System;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0331_ForgetHierarchyRoot_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0331_ForgetHierarchyRoot_Model
 {
+    [Serializable]
     [HierarchyRoot]
     public class Cell : Entity
     {
@@ -27,6 +28,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0331_ForgetHierarchyRoot_Model
         public Creature Creature { get; set; }
     }
 
+    [Serializable]
     public class Creature : Entity
     {
         [Key, Field]

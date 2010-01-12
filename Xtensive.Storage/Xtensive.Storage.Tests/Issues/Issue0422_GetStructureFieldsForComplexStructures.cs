@@ -13,6 +13,7 @@ using Xtensive.Storage.Tests.Issues.Issue0422_GetStructureFieldsForComplexStruct
 
 namespace Xtensive.Storage.Tests.Issues.Issue0422_GetStructureFieldsForComplexStructures_Model
 {
+  [Serializable]
   public class EntityStructure : Structure
   {
     [Field]
@@ -25,6 +26,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0422_GetStructureFieldsForComplexSt
     public DateTime StructureAge { get; set; }
   }
 
+  [Serializable]
   public class ComplexStructure : Structure
   {
     [Field]
@@ -37,6 +39,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0422_GetStructureFieldsForComplexSt
     public EntityStructure EntityStructure { get; set; }
   }
 
+  [Serializable]
   [HierarchyRoot]
   public class EntityB : Entity
   {

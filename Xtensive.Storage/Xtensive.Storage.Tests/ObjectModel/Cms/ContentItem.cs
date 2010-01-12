@@ -6,10 +6,10 @@
 
 
 using System;
-using Xtensive.Storage;
 
 namespace Xtensive.Storage.Tests.ObjectModel.Cms
 {
+  [Serializable]
   [HierarchyRoot]
   public class ContentItem
     : Entity

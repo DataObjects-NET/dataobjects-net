@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Aspects
   [Serializable]
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Constructor, 
     AllowMultiple = false, Inherited = true)]
-  public class TransactionalAttribute : StorageAttribute
+  public sealed class TransactionalAttribute : StorageAttribute
   {
     /// <summary>
     /// Gets the transaction opening mode.

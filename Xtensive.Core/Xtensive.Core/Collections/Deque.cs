@@ -44,9 +44,9 @@ namespace Xtensive.Core.Collections
   /// </remarks>
   [Serializable]
   [DebuggerDisplay("Count = {Count}")]
-  public class Deque<T>
-    : IDeque<T>, ISerializable,
-      ICloneable
+  public class Deque<T> : IDeque<T>, 
+    ISerializable,
+    ICloneable
   {
     private const int minimalCapacity = 16;
     private const float defaultGrowFactor = 1.4f;
