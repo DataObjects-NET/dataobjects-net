@@ -29,8 +29,9 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       var index = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
       var table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
       var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference, provider.Header.Columns.Select(column=>column.Name).ToList());
-      select.Columns.AddRange(fromTable.Columns);
-      select.From = fromTable;
+      var fromTableRef = SqlDml.QueryRef(fromTable);
+      select.Columns.AddRange(fromTableRef.Columns);
+      select.From = fromTableRef;
       return CreateProvider(select, binding, provider);
     }
 
