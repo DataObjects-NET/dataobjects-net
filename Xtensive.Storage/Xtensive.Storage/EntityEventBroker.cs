@@ -217,10 +217,13 @@ namespace Xtensive.Storage
     /// </returns>
     public IEnumerable<Triplet<Key, FieldInfo, Delegate>> GetSubscribers(object eventKey)
     {
-      foreach (var kvp in subscribers) {
-        var triplet = kvp.Key;
+      if (subscribers==null)
+        yield break;
+
+      foreach (var keyValuePair in subscribers) {
+        var triplet = keyValuePair.Key;
         if (triplet.Third==eventKey)
-          yield return new Triplet<Key, FieldInfo, Delegate>(triplet.First, triplet.Second, kvp.Value);
+          yield return new Triplet<Key, FieldInfo, Delegate>(triplet.First, triplet.Second, keyValuePair.Value);
       }
     }
   }
