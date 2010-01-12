@@ -10,11 +10,30 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using System.Linq;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
 {
   internal class SqlCompiler : ManualPagingSqlCompiler
   {
+    protected override SqlProvider VisitFreeText(FreeTextProvider provider)
+    {
+      var domainHandler = (DomainHandler) Handlers.DomainHandler;
+      var stringTypeMapping = domainHandler.Driver.GetTypeMapping(typeof (string));
+      var binding = new QueryParameterBinding(
+        provider.SearchCriteria.Invoke,
+        stringTypeMapping,
+        QueryParameterBindingType.Regular);
+
+      SqlSelect select = SqlDml.Select();
+      var index = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
+      var table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
+      var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference, provider.Header.Columns.Select(column=>column.Name).ToList());
+      select.Columns.AddRange(fromTable.Columns);
+      select.From = fromTable;
+      return CreateProvider(select, binding, provider);
+    }
+
     protected override SqlProvider VisitTake(TakeProvider provider)
     {
       var compiledSource = Compile(provider.Source);

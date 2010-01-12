@@ -21,6 +21,7 @@ using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Materialization;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -648,10 +649,11 @@ namespace Xtensive.Storage.Linq
           throw new InvalidOperationException("Invalid freetext parameter"); // TODO: Make 2 methods - FreeText(string) and FreeText(Expression? <Func<string>>>()
         }
 
-        var entityExpression = EntityExpression.Create(type, 0, true);
+        var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
+        var entityExpression = EntityExpression.Create(type, 0, fullFeatured);
         var rankExpression = ColumnExpression.Create(typeof (double), entityExpression.Key.Mapping.Length);
         var freeTextExpression = new FreeTextExpression(fullTextIndex, entityExpression, rankExpression, null);
-        var dataSource = new FreeTextProvider(fullTextIndex, (Func<string>) ((ConstantExpression)searchCriteria).Value).Result;
+        var dataSource = new FreeTextProvider(fullTextIndex, (Func<string>) ((ConstantExpression)searchCriteria).Value, context.GetNextColumnAlias(), fullFeatured).Result;
         var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
         return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(rootPoint.ElementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
       }

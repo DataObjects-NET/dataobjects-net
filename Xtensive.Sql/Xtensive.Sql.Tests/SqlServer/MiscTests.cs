@@ -3,9 +3,11 @@ using System.Data;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using System.Data.Common;
+using System.Linq;
 
 namespace Xtensive.Sql.Tests.SqlServer
 {
@@ -352,11 +354,11 @@ namespace Xtensive.Sql.Tests.SqlServer
     }
 
     [Test]
-    public void FreeTextTetst()
+    public void FreeTextTest()
     {
       SqlSelect select = SqlDml.Select();
       select.Columns.Add(SqlDml.Asterisk);
-      select.From = SqlDml.FreeTextTable(Catalog.Schemas["Person"].Tables["Address"], "How can I make my own beers and ales?");
+      select.From = SqlDml.FreeTextTable(Catalog.Schemas["Person"].Tables["Address"], "How can I make my own beers and ales?", EnumerableUtils.One(Catalog.Schemas["Person"].Tables["Address"].Columns[0].Name).ToList());
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 

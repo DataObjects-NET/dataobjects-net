@@ -41,25 +41,5 @@ namespace Xtensive.Storage.Rse
     {
       return RecordSetHeader.GetHeader(indexInfo);
     }
-
-    /// <summary>
-    /// Gets the <see cref="RecordSetHeader"/> for the specified <paramref name="fullTextIndexInfo"/>.
-    /// </summary>
-    /// <param name="fullTextIndexInfo">The full-text index info to get the header for.</param>
-    /// <returns>The <see cref="RecordSetHeader"/> object.</returns>
-    public static RecordSetHeader GetRecordSetHeader(this FullTextIndexInfo fullTextIndexInfo)
-    {
-      var fieldTypes = fullTextIndexInfo
-        .KeyColumns
-        .Select(columnInfo => columnInfo.ValueType)
-        .AddOne(typeof (double));
-      TupleDescriptor tupleDescriptor = TupleDescriptor.Create(fieldTypes);
-      // TODO: Make correct columns
-      var columns = fullTextIndexInfo
-        .KeyColumns
-        .Select((c, i) => (Column) new MappedColumn("Key" /* for MS SQL */, i, c.ValueType))
-        .AddOne(new MappedColumn("Rank", tupleDescriptor.Count, typeof (double)));
-      return new RecordSetHeader(tupleDescriptor, columns);
-    }
   }
 }

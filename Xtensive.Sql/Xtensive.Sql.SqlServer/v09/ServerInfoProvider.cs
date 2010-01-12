@@ -170,6 +170,11 @@ namespace Xtensive.Sql.SqlServer.v09
       return referenceConstraintInfo;
     }
 
+    public override FullTextInfo GetFullTextInfo()
+    {
+      return FullTextInfo.SingleKeyRankTable;
+    }
+
     public override QueryInfo GetQueryInfo()
     {
       var queryInfo = new QueryInfo();

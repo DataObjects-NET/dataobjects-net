@@ -178,6 +178,7 @@ namespace Xtensive.Storage.Providers.Sql
     private static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
     {
       var sourceSelect = compiledSource.Request.SelectStatement;
+
       var calculatedColumnIndexes = sourceSelect.Columns
         .Select((c, i) => IsCalculatedColumn(c) ? i : -1)
         .Where(i => i >= 0)

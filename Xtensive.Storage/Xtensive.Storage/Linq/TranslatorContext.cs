@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.10
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core.Helpers;
@@ -13,6 +14,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Rewriters;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Core.Reflection;
@@ -26,6 +28,8 @@ namespace Xtensive.Storage.Linq
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
+
+    public ProviderInfo ProviderInfo { get; private set; }
 
     public IEnumerable<IQueryPreProcessor> QueryPreProcessors { get; private set; }
 
@@ -119,6 +123,7 @@ namespace Xtensive.Storage.Linq
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});
       CustomCompilerProvider = domain.Handler.GetMemberCompilerProvider<Expression>();
       Model = domain.Model;
+      ProviderInfo = domain.Handler.ProviderInfo;
       Translator = new Translator(this);
       ParameterExtractor = new ParameterExtractor(Evaluator);
       Bindings = new LinqBindingCollection();

@@ -136,6 +136,11 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return info;
     }
 
+    public override FullTextInfo GetFullTextInfo()
+    {
+      return FullTextInfo.Full;
+    }
+
     public override EntityInfo GetViewInfo()
     {
       var info = new EntityInfo();

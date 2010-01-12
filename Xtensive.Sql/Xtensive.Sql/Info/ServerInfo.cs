@@ -18,6 +18,11 @@ namespace Xtensive.Sql.Info
     public IsolationLevels IsolationLevels { get; private set; }
 
     /// <summary>
+    /// Gets the server supported isolation levels.
+    /// </summary>
+    public FullTextInfo FullText { get; private set; }
+
+    /// <summary>
     /// Gets the assertion constraint info.
     /// </summary>
     /// <value>The assertion constraint info.</value>
@@ -166,33 +171,34 @@ namespace Xtensive.Sql.Info
     public static ServerInfo Build(ServerInfoProvider provider)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      var info = new ServerInfo();
-
-      info.Assertion = provider.GetAssertionInfo();
-      info.CharacterSet = provider.GetCharacterSetInfo();
-      info.CheckConstraint = provider.GetCheckConstraintInfo();
-      info.Collation = provider.GetCollationInfo();
-      info.Column = provider.GetColumnInfo();
-      info.DataTypes = provider.GetDataTypesInfo();
-      info.Database = provider.GetDatabaseInfo();
-      info.Domain = provider.GetDomainInfo();
-      info.ForeignKey = provider.GetForeignKeyConstraintInfo();
-      info.Identity = provider.GetIdentityInfo();
-      info.Index = provider.GetIndexInfo();
-      info.IsolationLevels = provider.GetIsolationLevels();
-      info.PrimaryKey = provider.GetPrimaryKeyInfo();
-      info.Query = provider.GetQueryInfo();
-      info.Schema = provider.GetSchemaInfo();
-      info.Sequence = provider.GetSequenceInfo();
-      info.StoredProcedure = provider.GetStoredProcedureInfo();
-      info.Table = provider.GetTableInfo();
-      info.TemporaryTable = provider.GetTemporaryTableInfo();
-      info.Translation = provider.GetTranslationInfo();
-      info.Trigger = provider.GetTriggerInfo();
-      info.UniqueConstraint = provider.GetUniqueConstraintInfo();
-      info.View = provider.GetViewInfo();
-      info.StringIndexingBase = provider.GetStringIndexingBase();
-      info.MultipleActiveResultSets = provider.GetMultipleActiveResultSets();
+      var info = new ServerInfo {
+        Assertion = provider.GetAssertionInfo(), 
+        CharacterSet = provider.GetCharacterSetInfo(), 
+        CheckConstraint = provider.GetCheckConstraintInfo(), 
+        Collation = provider.GetCollationInfo(), 
+        Column = provider.GetColumnInfo(), 
+        DataTypes = provider.GetDataTypesInfo(), 
+        Database = provider.GetDatabaseInfo(), 
+        Domain = provider.GetDomainInfo(), 
+        ForeignKey = provider.GetForeignKeyConstraintInfo(), 
+        FullText = provider.GetFullTextInfo(), 
+        Identity = provider.GetIdentityInfo(), 
+        Index = provider.GetIndexInfo(), 
+        IsolationLevels = provider.GetIsolationLevels(), 
+        PrimaryKey = provider.GetPrimaryKeyInfo(), 
+        Query = provider.GetQueryInfo(), 
+        Schema = provider.GetSchemaInfo(), 
+        Sequence = provider.GetSequenceInfo(), 
+        StoredProcedure = provider.GetStoredProcedureInfo(), 
+        Table = provider.GetTableInfo(), 
+        TemporaryTable = provider.GetTemporaryTableInfo(), 
+        Translation = provider.GetTranslationInfo(), 
+        Trigger = provider.GetTriggerInfo(), 
+        UniqueConstraint = provider.GetUniqueConstraintInfo(), 
+        View = provider.GetViewInfo(), 
+        StringIndexingBase = provider.GetStringIndexingBase(), 
+        MultipleActiveResultSets = provider.GetMultipleActiveResultSets()
+      };
 
       info.Lock(true);
 

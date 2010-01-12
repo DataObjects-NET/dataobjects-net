@@ -5,7 +5,6 @@
 // Created:    2009.12.23
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Model
@@ -17,7 +16,6 @@ namespace Xtensive.Storage.Model
   public class FullTextIndexInfo : Node 
   {
     private readonly IndexInfo primaryIndex;
-    private readonly ColumnInfoCollection keyColumns = new ColumnInfoCollection();
     private readonly ColumnInfoCollection columns = new ColumnInfoCollection();
     private readonly ColumnInfoCollection includedColumns = new ColumnInfoCollection();
 
@@ -27,14 +25,6 @@ namespace Xtensive.Storage.Model
     public IndexInfo PrimaryIndex
     {
       get { return primaryIndex; }
-    }
-
-    /// <summary>
-    /// Gets the key columns.
-    /// </summary>
-    public ColumnInfoCollection KeyColumns
-    {
-      get { return keyColumns; }
     }
 
     /// <summary>
@@ -59,7 +49,6 @@ namespace Xtensive.Storage.Model
       base.Lock(recursive);
       if (!recursive)
         return;
-      KeyColumns.Lock(true);
       Columns.Lock(true);
       IncludedColumns.Lock(true);
     }

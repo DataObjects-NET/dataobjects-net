@@ -21,20 +21,7 @@ namespace Xtensive.Storage.Providers.Sql
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
-      var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      var stringTypeMapping = domainHandler.Driver.GetTypeMapping(typeof (string));
-      var binding = new QueryParameterBinding(
-        provider.SearchCriteria.Invoke,
-        stringTypeMapping,
-        QueryParameterBindingType.Regular);
-
-      SqlSelect select = SqlDml.Select();
-      select.Columns.Add(SqlDml.Asterisk);
-      var index = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
-      var table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
-      select.From = SqlDml.FreeTextTable(table, binding.ParameterReference);
-
-      return CreateProvider(select, binding, provider);
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>

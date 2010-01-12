@@ -31,25 +31,26 @@ namespace Xtensive.Sql.Dml
       visitor.Visit(this);
     }
 
-
     // Constructors
 
-    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText)
-      : this(dataTable, freeText, ArrayUtils<string>.EmptyArray)
+    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames)
+      : this(dataTable, freeText, columnNames, ArrayUtils<string>.EmptyArray)
     {
     }
 
-    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, params string[] columnNames)
+    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames, ICollection<string> targetColumnNames)
       : base(string.Empty)
     {
       TargetTable = SqlDml.TableRef(dataTable);
       FreeText = freeText;
-      var tableColumns = new List<SqlTableColumn>();
-      if (columnNames.Length == 0)
-        tableColumns.Add(Asterisk);
+      var targetColumns = new List<SqlTableColumn>();
+      if (targetColumnNames.Count == 0)
+        targetColumns.Add(Asterisk);
       else
-        tableColumns = columnNames.Select(cn => SqlDml.TableColumn(this, cn)).ToList();
-      TargetColumns = new SqlTableColumnCollection(tableColumns);
+        targetColumns = targetColumnNames.Select(cn => SqlDml.TableColumn(this, cn)).ToList();
+      TargetColumns = new SqlTableColumnCollection(targetColumns);
+
+      this.columns = new SqlTableColumnCollection(columnNames.Select(column=>SqlDml.TableColumn(this, column)).ToList());
     }
   }
 }

@@ -52,8 +52,6 @@ namespace Xtensive.Storage.Building.Builders
         var primaryIndex = type.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
         var name = context.NameBuilder.BuildFullTextIndexName(root);
         var index = new FullTextIndexInfo(primaryIndex, name);
-        foreach (var pair in primaryIndex.KeyColumns)
-          index.KeyColumns.Add(pair.Key);
         foreach (var typeColumn in fullTextIndexDef.Fields.Select(f => type.Fields[f.Name].Column))
           index.Columns.Add(typeColumn);
         foreach (var typeColumn in fullTextIndexDef.IncludedFields.Select(f => type.Fields[f.Name].Column))
@@ -69,8 +67,6 @@ namespace Xtensive.Storage.Building.Builders
       var primaryIndex = root.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
       var name = context.NameBuilder.BuildFullTextIndexName(root);
       var index = new FullTextIndexInfo(primaryIndex, name);
-      foreach (var pair in primaryIndex.KeyColumns)
-        index.KeyColumns.Add(pair.Key);
       var types = new HashSet<TypeInfo>();
       foreach (var fullTextIndexDef in hierarchyIndexes) {
         var type = model.Types[fullTextIndexDef.Type.UnderlyingType];
@@ -97,8 +93,6 @@ namespace Xtensive.Storage.Building.Builders
         var primaryIndex = type.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
         var name = context.NameBuilder.BuildFullTextIndexName(root);
         var index = new FullTextIndexInfo(primaryIndex, name);
-        foreach (var pair in primaryIndex.KeyColumns)
-          index.KeyColumns.Add(pair.Key);
         foreach (var typeColumn in typeIndexDef.Value
           .SelectMany(ftid => ftid.Fields.Select(f => type.Fields[f.Name].Column)))
           index.Columns.Add(typeColumn);

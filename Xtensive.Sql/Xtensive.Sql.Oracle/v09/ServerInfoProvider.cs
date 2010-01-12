@@ -173,6 +173,11 @@ namespace Xtensive.Sql.Oracle.v09
       return foreignKeyConstraintInfo;
     }
 
+    public override FullTextInfo GetFullTextInfo()
+    {
+      return FullTextInfo.Full;
+    }
+
     public override QueryInfo GetQueryInfo()
     {
       var queryInfo = new QueryInfo();

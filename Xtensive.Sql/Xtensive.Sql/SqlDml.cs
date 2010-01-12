@@ -1,4 +1,5 @@
 // Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2007 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
@@ -1720,19 +1721,19 @@ namespace Xtensive.Sql
       return new SqlColumnStub(column);
     }
 
-    public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText)
+    public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IList<string> columnNames)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
       ArgumentValidator.EnsureArgumentNotNull(freeText, "freeText");
-      return new SqlFreeTextTable(dataTable, freeText);
+      return new SqlFreeTextTable(dataTable, freeText, columnNames);
     }
 
-    public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames)
+    public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IList<string> columnNames, IList<string> targetColumnNames)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
       ArgumentValidator.EnsureArgumentNotNull(freeText, "freeText");
       ArgumentValidator.EnsureArgumentNotNull(columnNames, "columnNames");
-      return new SqlFreeTextTable(dataTable, freeText, columnNames.ToArray());
+      return new SqlFreeTextTable(dataTable, freeText, columnNames, targetColumnNames);
     }
 
     public static SqlTableRef TableRef(DataTable dataTable)

@@ -33,6 +33,9 @@ namespace Xtensive.Storage.Providers
     Offset = 0x40000,
     MultipleActiveResultSets = 0x80000,
     MultipleResultsViaCursorParameters = 0x100000,
+    FullFeaturedFullText  = 0x200000,
+    SingleKeyRankTableFullText  = 0x400000,
+    FullText = FullFeaturedFullText & SingleKeyRankTableFullText,
     Paging = Limit | Offset,
     Batches = DdlBatches | DmlBatches,
   }
