@@ -357,8 +357,9 @@ namespace Xtensive.Sql.Tests.SqlServer
     public void FreeTextTest()
     {
       SqlSelect select = SqlDml.Select();
-      select.Columns.Add(SqlDml.Asterisk);
-      select.From = SqlDml.FreeTextTable(Catalog.Schemas["Person"].Tables["Address"], "How can I make my own beers and ales?", EnumerableUtils.One(Catalog.Schemas["Person"].Tables["Address"].Columns[0].Name).ToList());
+      var table = Catalog.Schemas["Person"].Tables["Address"];
+      select.From = SqlDml.QueryRef(SqlDml.FreeTextTable(table, "How can I make my own beers and ales?", EnumerableUtils.One(table.Columns[0].Name).ToList(), EnumerableUtils.One(table.Columns[0].Name).ToList()));
+      select.Columns.Add(select.From.Asterisk);
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 

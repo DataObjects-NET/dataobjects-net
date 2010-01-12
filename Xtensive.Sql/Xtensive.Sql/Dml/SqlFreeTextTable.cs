@@ -13,7 +13,7 @@ using Xtensive.Sql.Model;
 namespace Xtensive.Sql.Dml
 {
   [Serializable]
-  public class SqlFreeTextTable : SqlTable
+  public class SqlFreeTextTable : SqlTable, ISqlQueryExpression
   {
     public SqlTableRef TargetTable { get; private set; }
 
@@ -30,6 +30,42 @@ namespace Xtensive.Sql.Dml
     {
       visitor.Visit(this);
     }
+
+    public IEnumerator<ISqlQueryExpression> GetEnumerator()
+    {
+      yield return this;
+    }
+
+    public SqlQueryExpression Except(ISqlQueryExpression operand)
+    {
+      throw new NotImplementedException();
+    }
+
+    public SqlQueryExpression ExceptAll(ISqlQueryExpression operand)
+    {
+      throw new NotImplementedException();
+    }
+
+    public SqlQueryExpression Intersect(ISqlQueryExpression operand)
+    {
+      throw new NotImplementedException();
+    }
+
+    public SqlQueryExpression IntersectAll(ISqlQueryExpression operand)
+    {
+      throw new NotImplementedException();
+    }
+
+    public SqlQueryExpression Union(ISqlQueryExpression operand)
+    {
+      throw new NotImplementedException();
+    }
+
+    public SqlQueryExpression UnionAll(ISqlQueryExpression operand)
+    {
+      throw new NotImplementedException();
+    }
+
 
     // Constructors
 
@@ -50,7 +86,7 @@ namespace Xtensive.Sql.Dml
         targetColumns = targetColumnNames.Select(cn => SqlDml.TableColumn(this, cn)).ToList();
       TargetColumns = new SqlTableColumnCollection(targetColumns);
 
-      this.columns = new SqlTableColumnCollection(columnNames.Select(column=>SqlDml.TableColumn(this, column)).ToList());
+      columns = new SqlTableColumnCollection(columnNames.Select(column=>SqlDml.TableColumn(this, column)).ToList());
     }
   }
 }
