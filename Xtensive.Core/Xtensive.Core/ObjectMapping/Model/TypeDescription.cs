@@ -78,12 +78,22 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// <param name="systemType">The system type.</param>
     /// <param name="keyExtractor">The key extractor.</param>
     protected TypeDescription(Type systemType, Func<object, object> keyExtractor)
+      : this(systemType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(systemType, "systemType");
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
 
-      SystemType = systemType;
       KeyExtractor = keyExtractor;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="systemType">The system type.</param>
+    protected TypeDescription(Type systemType)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(systemType, "systemType");
+
+      SystemType = systemType;
       Properties = new ReadOnlyDictionary<PropertyInfo, PropertyDescription>(properties, false);
     }
   }

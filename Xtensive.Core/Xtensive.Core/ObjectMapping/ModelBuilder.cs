@@ -30,9 +30,14 @@ namespace Xtensive.Core.ObjectMapping
       mappingDescription.Register(source, sourceKeyExtractor, target, targetKeyExtractor);
     }
 
-    public void Register(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
+    public void RegisterStructure(Type source, Type target)
     {
-      mappingDescription.Register(source, converter, target);
+      mappingDescription.RegisterStructure(source, target);
+    }
+
+    public void RegisterProperty(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
+    {
+      mappingDescription.RegisterProperty(source, converter, target);
       if (source != null)
         propertyBindings.Add(target, source);
       else
@@ -125,7 +130,8 @@ namespace Xtensive.Core.ObjectMapping
           if (property.SourceProperty!=null)
             sourceSystemProperty = descendant.SourceType.SystemType
               .GetProperty(property.SourceProperty.SystemProperty.Name);
-          mappingDescription.Register(sourceSystemProperty, property.Converter, descendantSystemProperty);
+          mappingDescription.RegisterInherited(sourceSystemProperty, property.Converter,
+            descendantSystemProperty);
         }
         if (property.IsIgnored)
           mappingDescription.MarkPropertyAsIgnored(descendantSystemProperty);

@@ -218,4 +218,53 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 
   public class ComplexCollection : List<Person>
   {}
+
+  public class StructureContainer
+  {
+    public Guid Id { get; set; }
+
+    public string AuxString { get; set; }
+
+    public Structure Structure { get; set; }
+
+    public CompositeStructure0 CompositeStructure { get; set; }
+
+
+    // Constructors
+
+    public StructureContainer()
+    {
+      Id = Guid.NewGuid();
+    }
+  }
+
+  public class Structure
+  {
+    public int Int { get; set; }
+
+    public string String { get; set; }
+
+    public DateTime DateTime { get; set; }
+  }
+
+  public class CompositeStructure0
+  {
+    public int AuxInt { get; set; }
+
+    public CompositeStructure1 Structure { get; set; }
+  }
+
+  public class CompositeStructure1
+  {
+    public double AuxDouble { get; set; }
+
+    public CompositeStructure2 Structure { get; set; }
+  }
+
+  public class CompositeStructure2
+  {
+    public int AuxInt { get; set; }
+
+    public StructureContainer StructureContainer { get; set; }
+  }
 }

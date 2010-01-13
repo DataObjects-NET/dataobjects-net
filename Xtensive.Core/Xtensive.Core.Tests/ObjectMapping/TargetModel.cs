@@ -220,4 +220,50 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
     public List<PersonDto> Collection { get; set; }
   }
+
+  [Serializable]
+  public class StructureContainerDto
+  {
+    public Guid Id { get; set; }
+
+    public string AuxString { get; set; }
+
+    public StructureDto Structure { get; set; }
+
+    public CompositeStructure0Dto CompositeStructure { get; set; }
+  }
+
+  [Serializable]
+  public struct StructureDto
+  {
+    public int Int { get; set; }
+
+    public string String { get; set; }
+
+    public DateTime DateTime { get; set; }
+  }
+
+  [Serializable]
+  public struct CompositeStructure0Dto
+  {
+    public int AuxInt { get; set; }
+
+    public CompositeStructure1Dto Structure { get; set; }
+  }
+
+  [Serializable]
+  public struct CompositeStructure1Dto
+  {
+    public int AuxInt { get; set; }
+
+    public CompositeStructure2Dto Structure { get; set; }
+  }
+
+  [Serializable]
+  public struct CompositeStructure2Dto
+  {
+    public int AuxInt { get; set; }
+
+    public StructureContainerDto StructureContainer { get; set; }
+  }
 }

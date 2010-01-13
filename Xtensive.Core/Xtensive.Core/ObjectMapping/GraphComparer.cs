@@ -22,6 +22,9 @@ namespace Xtensive.Core.ObjectMapping
     private readonly ObjectExtractor objectExtractor;
     private Dictionary<object, object> originalKeyCache;
     private Dictionary<object, object> modifiedKeyCache;
+    private object structureOwner;
+    private TargetPropertyDescription[] structurePath;
+    private Queue<Triplet<object, object, TargetPropertyDescription[]>> structureLevels;
     
     public void Compare(object original, object modified)
     {
@@ -78,12 +81,14 @@ namespace Xtensive.Core.ObjectMapping
         if (!originalObjects.TryGetValue(modifiedObjectPair.Key, out originalObject))
           continue;
         var description = mappingDescription.TargetTypes[modifiedObjectPair.Value.GetType()];
-        CompareComplexProperties(modifiedObjectPair.Value, originalObject, description);
+        // TODO: Place the comparer in the field.
+        CompareComplexProperties(modifiedObjectPair.Value, originalObject, description, CompareUserStructure);
         ComparePrimitiveProperties(modifiedObjectPair.Value, originalObject, description);
       }
     }
 
-    private void CompareComplexProperties(object modified, object original, TargetTypeDescription description)
+    private void CompareComplexProperties(object modified, object original, TargetTypeDescription description,
+      Action<object, object, object,TargetPropertyDescription> structureComparer)
     {
       foreach (var property in description.ComplexProperties.Values) {
         var modifiedValue = property.SystemProperty.GetValue(modified, null);
@@ -92,6 +97,8 @@ namespace Xtensive.Core.ObjectMapping
           continue;
         if (property.IsCollection)
           CompareCollections(original, originalValue, modifiedValue, property);
+        else if (property.IsUserStructure)
+          structureComparer.Invoke(original, originalValue, modifiedValue, property);
         else
           CompareObjects(original, originalValue, modifiedValue, property);
       }
@@ -122,6 +129,47 @@ namespace Xtensive.Core.ObjectMapping
       foreach (var objPair in originalKeyCache)
         if (!modifiedKeyCache.ContainsKey(objPair.Key))
           NotifyAboutCollectionModification(original, property, false, objPair.Value);
+    }
+
+    private void CompareUserStructure(object original, object originalValue, object modifiedValue,
+      TargetPropertyDescription property)
+    {
+      try {
+        structureOwner = original;
+        if (structureLevels==null)
+          structureLevels = new Queue<Triplet<object, object, TargetPropertyDescription[]>>();
+        else
+          structureLevels.Clear();
+        structureLevels.Enqueue(new Triplet<object, object, TargetPropertyDescription[]>(modifiedValue,
+          originalValue, new[] {property}));
+        while (structureLevels.Count > 0)
+          WalkThroughStructureTree(structureLevels.Dequeue());
+      }
+      finally {
+        structureOwner = null;
+        structurePath = null;
+      }
+    }
+
+    private void WalkThroughStructureTree(Triplet<object, object, TargetPropertyDescription[]> level)
+    {
+      var modifiedValue = level.First;
+      var originalValue = level.Second;
+      structurePath = level.Third;
+      var structureSystemType = structurePath[structurePath.Length - 1].SystemProperty.PropertyType;
+      var structureType = mappingDescription.TargetTypes[structureSystemType];
+      ComparePrimitiveProperties(modifiedValue, originalValue, structureType);
+      CompareComplexProperties(modifiedValue, originalValue, structureType, RegisterStructureLevel);
+    }
+
+    private void RegisterStructureLevel(object original, object modifiedValue, object originalValue,
+      TargetPropertyDescription property)
+    {
+      var newPath = new TargetPropertyDescription[structurePath.Length + 1];
+      Array.Copy(structurePath, newPath, structurePath.Length);
+      newPath[newPath.Length - 1] = property;
+      structureLevels.Enqueue(
+        new Triplet<object, object, TargetPropertyDescription[]>(modifiedValue, originalValue, newPath));
     }
 
     private void InitializeKeyCaches()
@@ -161,15 +209,34 @@ namespace Xtensive.Core.ObjectMapping
     private void NotifyAboutPropertySetting(object obj, TargetPropertyDescription property, object value)
     {
       EnsurePropertyIsMutable(property);
-      subscriber.Invoke(new OperationInfo(obj, OperationType.SetProperty, property, value));
+      object target;
+      TargetPropertyDescription[] path;
+      GetTargetAndPath(obj, property, out target, out path);
+      subscriber.Invoke(new OperationInfo(target, OperationType.SetProperty, path, value));
     }
 
     private void NotifyAboutCollectionModification(object obj, TargetPropertyDescription property,
       bool adding, object item)
     {
       EnsurePropertyIsMutable(property);
-      subscriber.Invoke(new OperationInfo(obj, adding ? OperationType.AddItem : OperationType.RemoveItem,
-            property, item));
+      object target;
+      TargetPropertyDescription[] path;
+      GetTargetAndPath(obj, property, out target, out path);
+      subscriber.Invoke(new OperationInfo(target, adding ? OperationType.AddItem : OperationType.RemoveItem,
+        path, item));
+    }
+
+    private void GetTargetAndPath(object obj, TargetPropertyDescription property, out object target,
+      out TargetPropertyDescription[] propertyPath)
+    {
+      target = structureOwner ?? obj;
+      if (structurePath != null) {
+        propertyPath = new TargetPropertyDescription[structurePath.Length + 1];
+        Array.Copy(structurePath, propertyPath, structurePath.Length);
+        propertyPath[propertyPath.Length - 1] = property;
+      }
+      else
+        propertyPath = new[] {property};
     }
 
     private static void EnsurePropertyIsMutable(TargetPropertyDescription property)

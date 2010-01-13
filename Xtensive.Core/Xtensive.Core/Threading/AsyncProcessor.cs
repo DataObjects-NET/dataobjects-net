@@ -172,8 +172,10 @@ namespace Xtensive.Core.Threading
     private void Dispose(bool disposing)
     {
       isRunning = false;
-      if (disposing)
+      if (disposing) {
         GC.SuppressFinalize(this);
+        taskAddedEvent.Set();
+      }
     }
 
     // Finalizer

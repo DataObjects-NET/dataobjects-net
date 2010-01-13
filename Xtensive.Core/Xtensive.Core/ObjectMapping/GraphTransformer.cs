@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
@@ -15,7 +16,10 @@ using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
-  internal sealed class GraphTransformer
+  /// <summary>
+  /// Object graph transformer.
+  /// </summary>
+  internal class GraphTransformer
   {
 
     #region Nested classes
@@ -56,13 +60,18 @@ namespace Xtensive.Core.ObjectMapping
     private readonly List<object> rootObjectKeys = new List<object>();
     private bool isRootCollection;
     private readonly MapperSettings mapperSettings;
-    private readonly Func<object, ResultDescriptor, TargetPropertyDescription, object>
+    private readonly Func<object, int, TargetPropertyDescription, object>
       transformerForComplexPropertyHavingConverter;
-    private readonly Func<object, ResultDescriptor, TargetPropertyDescription, object>
+    private readonly Func<object, int, TargetPropertyDescription, object>
       transformerForCollection;
-    private readonly Func<object, ResultDescriptor, TargetPropertyDescription, object>
+    private readonly Func<object, int, TargetPropertyDescription, object>
       transformerForRegularComplexProperty;
 
+    /// <summary>
+    /// Transforms an object graph.
+    /// </summary>
+    /// <param name="source">The source graph.</param>
+    /// <returns>The transformed graph.</returns>
     public object Transform(object source)
     {
       try {
@@ -131,8 +140,11 @@ namespace Xtensive.Core.ObjectMapping
 
     private static object CreateTargetObject(Type type)
     {
-      var constructor = constructors.GetValue(type, DelegateHelper.CreateConstructorDelegate<Func<object>>);
-      return constructor.Invoke();
+      if (!type.IsValueType) {
+        var constructor = constructors.GetValue(type, DelegateHelper.CreateConstructorDelegate<Func<object>>);
+        return constructor.Invoke();
+      }
+      return Activator.CreateInstance(type, true);
     }
 
     private void TransformProperties(object source, TargetTypeDescription targetDescription,
@@ -142,12 +154,12 @@ namespace Xtensive.Core.ObjectMapping
       TransformComplexProperties(source, targetDescription, target);
     }
 
-    private static void TransformPrimitiveProperties(object source, TargetTypeDescription targetDescription,
+    private static void TransformPrimitiveProperties(object source, TargetTypeDescription targetType,
       object target)
     {
-      foreach (var targetPropertyDesc in targetDescription.PrimitiveProperties.Values) {
-        var propertyValue = targetPropertyDesc.Converter.Invoke(source, targetPropertyDesc.SourceProperty);
-        targetPropertyDesc.SystemProperty.SetValue(target, propertyValue, null);
+      foreach (var targetProperty in targetType.PrimitiveProperties.Values) {
+        var propertyValue = targetProperty.Converter.Invoke(source, targetProperty.SourceProperty);
+        targetProperty.SystemProperty.SetValue(target, propertyValue, null);
       }
     }
 
@@ -160,6 +172,8 @@ namespace Xtensive.Core.ObjectMapping
             transformerForComplexPropertyHavingConverter);
         else if (targetProperty.IsCollection)
           SetComplexTargetProperty(source, target, targetProperty, transformerForCollection);
+        else if (targetProperty.IsUserStructure)
+          TransformUserStructure(source, target, targetProperty);
         else
           SetComplexTargetProperty(source, target, targetProperty, transformerForRegularComplexProperty);
       }
@@ -167,9 +181,9 @@ namespace Xtensive.Core.ObjectMapping
 
     private void SetComplexTargetProperty(object source, ResultDescriptor target,
       TargetPropertyDescription targetProperty,
-      Func<object, ResultDescriptor, TargetPropertyDescription, object> transformer)
+      Func<object, int, TargetPropertyDescription, object> transformer)
     {
-      var transformedValue = transformer.Invoke(source, target, targetProperty);
+      var transformedValue = transformer.Invoke(source, target.Level, targetProperty);
       if (transformedValue == null || !HandleExceedingOfGraphDepthLimit(target, targetProperty))
             targetProperty.SystemProperty.SetValue(target.Result, transformedValue, null);
     }
@@ -181,7 +195,7 @@ namespace Xtensive.Core.ObjectMapping
         switch (mapperSettings.GraphTruncationType) {
         case GraphTruncationType.Throw:
           throw new InvalidOperationException(Strings.ExLimitOfGraphDepthIsExceeded);
-        case GraphTruncationType.SetNull:
+        case GraphTruncationType.SetDefaultValue:
           targetProperty.SystemProperty.SetValue(owner.Result, null, null);
           return true;
         default:
@@ -191,20 +205,41 @@ namespace Xtensive.Core.ObjectMapping
       return false;
     }
 
-    private static object TransformComplexPropertyHavingConverter(object source, ResultDescriptor target,
+    /// <summary>
+    /// Transforms the complex property having converter.
+    /// </summary>
+    /// <param name="source">The source object.</param>
+    /// <param name="targetLevel">The level of the target object in the graph.</param>
+    /// <param name="targetProperty">The target property.</param>
+    /// <returns>The transformed property value.</returns>
+    private static object TransformComplexPropertyHavingConverter(object source, int targetLevel,
       TargetPropertyDescription targetProperty)
     {
       return targetProperty.Converter.Invoke(source, targetProperty.SourceProperty);
     }
 
-    private object TransformRegularComplexProperty(object source, ResultDescriptor target,
+    /// <summary>
+    /// Transforms the regular complex property.
+    /// </summary>
+    /// <param name="source">The source object.</param>
+    /// <param name="targetLevel">The level of the target object in the graph.</param>
+    /// <param name="targetProperty">The target property.</param>
+    /// <returns>The transformed property value.</returns>
+    private object TransformRegularComplexProperty(object source, int targetLevel,
       TargetPropertyDescription targetProperty)
     {
       var sourceValue = targetProperty.SourceProperty.SystemProperty.GetValue(source, null);
-      return TransformObject(sourceValue, target.Level);
+      return TransformObject(sourceValue, targetLevel);
     }
 
-    private object TransformCollection(object source, ResultDescriptor target,
+    /// <summary>
+    /// Transforms the collection.
+    /// </summary>
+    /// <param name="source">The source object.</param>
+    /// <param name="targetLevel">The level of the target object in the graph.</param>
+    /// <param name="targetProperty">The target property.</param>
+    /// <returns>The transformed property value.</returns>
+    private object TransformCollection(object source, int targetLevel,
       TargetPropertyDescription targetProperty)
     {
       var sourceProperty = targetProperty.SourceProperty;
@@ -218,7 +253,7 @@ namespace Xtensive.Core.ObjectMapping
         var array = Array.CreateInstance(targetProperty.ItemType, itemCount);
         var index = 0;
         foreach (var obj in (IEnumerable) sourceValue) {
-          var value = isItemTypePrimitive ? obj : TransformObject(obj, target.Level);
+          var value = isItemTypePrimitive ? obj : TransformObject(obj, targetLevel);
           array.SetValue(value, index++);
         }
         targetValue = array;
@@ -227,12 +262,35 @@ namespace Xtensive.Core.ObjectMapping
         var collection = Activator.CreateInstance(targetProperty.SystemProperty.PropertyType);
         var addMethod = targetProperty.AddMethod;
         foreach (var obj in (IEnumerable) sourceValue) {
-          var value = isItemTypePrimitive ? obj : TransformObject(obj, target.Level);
+          var value = isItemTypePrimitive ? obj : TransformObject(obj, targetLevel);
           addMethod.Invoke(collection, new[] {value});
         }
         targetValue = collection;
       }
       return targetValue;
+    }
+
+    private void TransformUserStructure(object source, ResultDescriptor target,
+      TargetPropertyDescription targetProperty)
+    {
+      var targetValueType = mappingDescription.TargetTypes[targetProperty.SystemProperty.PropertyType];
+      object targetValue;
+      if (targetProperty.Converter != null) {
+        targetValue = targetProperty.Converter.Invoke(source, targetProperty.SourceProperty);
+        if (targetValue==null || !HandleExceedingOfGraphDepthLimit(target, targetProperty))
+          targetProperty.SystemProperty.SetValue(target.Result, targetValue, null);
+      }
+      else {
+        var sourceValue = targetProperty.SourceProperty.SystemProperty.GetValue(source, null);
+        if (sourceValue == null)
+          targetProperty.SystemProperty.SetValue(target.Result, null, null);
+        else if (!HandleExceedingOfGraphDepthLimit(target, targetProperty)) {
+          targetValue = CreateTargetObject(targetValueType.SystemType);
+          TransformProperties(sourceValue, targetValueType,
+            new ResultDescriptor(targetValue) {Level = target.Level + 1}); 
+          targetProperty.SystemProperty.SetValue(target.Result, targetValue, null);
+        }
+      }
     }
 
     private object TransformObject(object source, int levelOfOwner)
@@ -264,6 +322,11 @@ namespace Xtensive.Core.ObjectMapping
 
     // Constructors
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="mappingDescription">The mapping description.</param>
+    /// <param name="mapperSettings">The mapper settings.</param>
     public GraphTransformer(MappingDescription mappingDescription,
       MapperSettings mapperSettings)
     {

@@ -59,5 +59,13 @@ namespace Xtensive.Core.ObjectMapping.Model
     public SourceTypeDescription(Type systemType, Func<object, object> keyExtractor)
       : base(systemType, keyExtractor)
     {}
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="systemType">The system type.</param>
+    public SourceTypeDescription(Type systemType)
+      : base(systemType)
+    {}
   }
 }

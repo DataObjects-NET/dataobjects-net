@@ -23,8 +23,8 @@ namespace Xtensive.Core.ObjectMapping
     Throw = 0,
 
     /// <summary>
-    /// Set <see langword="null" /> to a property whose value exceeds a graph depth limit.
+    /// Set the default value to a property whose value exceeds a graph depth limit.
     /// </summary>
-    SetNull = 1
+    SetDefaultValue = 1
   }
 }

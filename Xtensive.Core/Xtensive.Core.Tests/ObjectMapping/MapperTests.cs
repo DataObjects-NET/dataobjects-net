@@ -6,8 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping;
@@ -76,7 +79,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var eventRaisingCount = 0;
       Action<OperationInfo> validator = descriptor => {
         eventRaisingCount++;
-        switch (descriptor.Property.SystemProperty.Name) {
+        switch (descriptor.PropertyPath[0].SystemProperty.Name) {
         case "BirthDate":
           Assert.AreEqual(modifiedDate, descriptor.Value);
           break;
@@ -107,11 +110,11 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Action<OperationInfo> validator = descriptor => {
         eventRaisingCount++;
         if (ReferenceEquals(target, descriptor.Object)) {
-          Assert.AreEqual("ShipDate", descriptor.Property.SystemProperty.Name);
+          Assert.AreEqual("ShipDate", descriptor.PropertyPath[0].SystemProperty.Name);
           Assert.AreEqual(modifiedShipDate, descriptor.Value);
         }
         else if (ReferenceEquals(target.Customer, descriptor.Object)) {
-          Assert.AreEqual("FirstName", descriptor.Property.SystemProperty.Name);
+          Assert.AreEqual("FirstName", descriptor.PropertyPath[0].SystemProperty.Name);
           Assert.AreEqual(modifiedFirstName, descriptor.Value);
         }
         else
@@ -183,9 +186,9 @@ namespace Xtensive.Core.Tests.ObjectMapping
           break;
         case OperationType.SetProperty:
             if (ReferenceEquals(target, descriptor.Object))
-              orderPropertyCounts[descriptor.Property.SystemProperty.Name] += 1;
+              orderPropertyCounts[descriptor.PropertyPath[0].SystemProperty.Name] += 1;
           else if (ReferenceEquals(target.Customer, descriptor.Object))
-              customerPropertyCounts[descriptor.Property.SystemProperty.Name] += 1;
+              customerPropertyCounts[descriptor.PropertyPath[0].SystemProperty.Name] += 1;
           else
             Assert.Fail();
           break;
@@ -319,7 +322,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Assert.IsFalse(operations.IsEmpty);
       var operation = ((DefaultOperationSet) operations).Single();
       Assert.AreEqual(original.IncludedReference, operation.Object);
-      Assert.AreEqual("Date", operation.Property.SystemProperty.Name);
+      Assert.AreEqual("Date", operation.PropertyPath[0].SystemProperty.Name);
       Assert.AreEqual(OperationType.SetProperty, operation.Type);
       Assert.AreEqual(newDate, operation.Value);
       Assert.AreNotEqual(original.IgnoredReference.Id, modified.IgnoredReference.Id);
@@ -708,10 +711,11 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
-    public void SetNullWhenLimitOfGraphDepthHasBeenExceededTest()
+    public void SetDefaultValueWhenLimitOfGraphDepthHasBeenExceededTest()
     {
       const int depthLimit = 2;
-      var mapper = GetRecursiveCompositionMapperWithGraphDepthLimit(depthLimit, GraphTruncationType.SetNull);
+      var mapper = GetRecursiveCompositionMapperWithGraphDepthLimit(depthLimit,
+        GraphTruncationType.SetDefaultValue);
       var source = new RecursiveComposition();
       source.Compose(3);
       var target = (RecursiveCompositionDto) mapper.Transform(source);
@@ -771,6 +775,119 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Assert.AreEqual(2, target.Collection[1].Id);
       Assert.AreEqual(1, target.Collection[2].Id);
     }
+
+    [Test]
+    public void StructureTransformationTest()
+    {
+      var mapper = GetStructureContainerMapper();
+      var source = GetSourceStructureContaier();
+      var target = (StructureContainerDto) mapper.Transform(source);
+      Assert.AreEqual(source.Id, target.Id);
+      Assert.AreEqual(source.AuxString, target.AuxString);
+      Assert.AreEqual(source.Structure.String, target.Structure.String);
+      Assert.AreEqual(source.Structure.Int, target.Structure.Int);
+      Assert.AreEqual(source.Structure.DateTime, target.Structure.DateTime);
+      Assert.AreEqual(source.CompositeStructure.AuxInt, target.CompositeStructure.AuxInt);
+      Assert.AreEqual((int) source.CompositeStructure.Structure.AuxDouble,
+        target.CompositeStructure.Structure.AuxInt);
+      Assert.AreEqual(source.CompositeStructure.Structure.Structure.AuxInt,
+        target.CompositeStructure.Structure.Structure.AuxInt);
+      Assert.AreEqual(source.CompositeStructure.Structure.Structure.StructureContainer.Id,
+        target.CompositeStructure.Structure.Structure.StructureContainer.Id);
+      Assert.AreEqual(source.CompositeStructure.Structure.Structure.StructureContainer.Structure.DateTime,
+        target.CompositeStructure.Structure.Structure.StructureContainer.Structure.DateTime);
+      Assert.AreEqual(source.CompositeStructure.Structure.Structure.StructureContainer.Structure.Int,
+        target.CompositeStructure.Structure.Structure.StructureContainer.Structure.Int);
+      Assert.AreEqual(source.CompositeStructure.Structure.Structure.StructureContainer.Structure.String,
+        target.CompositeStructure.Structure.Structure.StructureContainer.Structure.String);
+    }
+
+    [Test]
+    public void StructureComparisonTest()
+    {
+      var mapper = GetStructureContainerMapper();
+      var source = GetSourceStructureContaier();
+      var original = (StructureContainerDto) mapper.Transform(source);
+      var modified = Clone(original);
+      var newStructureString = modified.Structure.String + "M";
+      modified.Structure = new StructureDto {
+        DateTime = modified.Structure.DateTime, Int = modified.Structure.Int,
+        String = newStructureString
+      };
+      var newCompositeStructureStructureStructure = new CompositeStructure2Dto {
+        AuxInt = 11, StructureContainer = modified.CompositeStructure.Structure.Structure.StructureContainer
+      };
+      newCompositeStructureStructureStructure.StructureContainer.AuxString += "A";
+      var newCompositeStructureStructure = new CompositeStructure1Dto {
+        AuxInt = modified.CompositeStructure.Structure.AuxInt,
+        Structure = newCompositeStructureStructureStructure
+      };
+      var newCompositeStructure = new CompositeStructure0Dto {
+        AuxInt = modified.CompositeStructure.AuxInt, Structure = newCompositeStructureStructure
+      };
+      modified.CompositeStructure = newCompositeStructure;
+      var operations = ((DefaultOperationSet) mapper.Compare(original, modified)).ToList();
+      Assert.AreEqual(3, operations.Count);
+      ValidatePropertyOperation<StructureContainerDto>(original, operations[0], sc => sc.Structure.String,
+        newStructureString, OperationType.SetProperty);
+      ValidatePropertyOperation<StructureContainerDto>(original, operations[1],
+        sc => sc.CompositeStructure.Structure.Structure.AuxInt, newCompositeStructureStructureStructure.AuxInt,
+        OperationType.SetProperty);
+      ValidatePropertyOperation<StructureContainerDto>(
+        original.CompositeStructure.Structure.Structure.StructureContainer, operations[2], sc => sc.AuxString,
+        modified.CompositeStructure.Structure.Structure.StructureContainer.AuxString,
+        OperationType.SetProperty);
+    }
+
+    [Test]
+    public void ModifyReferencePropertyOfStructureTest()
+    {
+      var mapper = GetStructureContainerMapper();
+      var source = GetSourceStructureContaier();
+      var original = (StructureContainerDto) mapper.Transform(source);
+      var modified = Clone(original);
+      var newStructureContainer = new StructureContainerDto {AuxString = "NEW"};
+      var newCs2 = new CompositeStructure2Dto {
+        AuxInt = modified.CompositeStructure.Structure.Structure.AuxInt,
+        StructureContainer = newStructureContainer
+      };
+      var newCs1 = new CompositeStructure1Dto
+      {
+        AuxInt = modified.CompositeStructure.Structure.AuxInt,
+        Structure = newCs2
+      };
+      modified.CompositeStructure = new CompositeStructure0Dto {
+        AuxInt = modified.CompositeStructure.AuxInt,
+        Structure = newCs1
+      };
+      var operations = ((DefaultOperationSet) mapper.Compare(original, modified)).ToList();
+      Assert.AreEqual(6, operations.Count);
+      ValidateObjectCreation(newStructureContainer, operations[0]);
+      ValidateObjectRemoval(original.CompositeStructure.Structure.Structure.StructureContainer, operations[5]);
+    }
+
+    [Test]
+    public void LimitDepthOfGraphContainingStructureTest()
+    {
+      var mapper = GetStructureContainerMapper(2, GraphTruncationType.Throw);
+      var source = GetSourceStructureContaier();
+      AssertEx.ThrowsInvalidOperationException(() => mapper.Transform(source));
+      mapper = GetStructureContainerMapper(5, GraphTruncationType.Throw);
+      mapper.Transform(source);
+      mapper = GetStructureContainerMapper(2, GraphTruncationType.SetDefaultValue);
+      var target = (StructureContainerDto) mapper.Transform(source);
+      Assert.AreEqual(source.Structure.DateTime, target.Structure.DateTime);
+      Assert.AreEqual(default (CompositeStructure2Dto), target.CompositeStructure.Structure.Structure);
+      mapper = GetStructureContainerMapper(1, GraphTruncationType.SetDefaultValue);
+      target = (StructureContainerDto) mapper.Transform(source);
+      Assert.AreEqual(source.Structure.DateTime, target.Structure.DateTime);
+      Assert.AreEqual(default (CompositeStructure1Dto), target.CompositeStructure.Structure);
+      mapper = GetStructureContainerMapper(3, GraphTruncationType.SetDefaultValue);
+      target = (StructureContainerDto) mapper.Transform(source);
+      Assert.AreEqual(source.CompositeStructure.Structure.Structure.AuxInt,
+        target.CompositeStructure.Structure.Structure.AuxInt);
+      Assert.IsNull(target.CompositeStructure.Structure.Structure.StructureContainer);
+    }
     
     private static void ValidateCollectionComparison(DefaultMapper mapper, PetOwnerDto original,
       PetOwnerDto modified, AnimalDto newAnimal, AnimalDto removedAnimal0, AnimalDto removedAnimal1)
@@ -789,7 +906,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         switch (descriptor.Type) {
         case OperationType.AddItem:
           Assert.AreEqual(original, descriptor.Object);
-          Assert.AreEqual(petsName, descriptor.Property.SystemProperty.Name);
+          Assert.AreEqual(petsName, descriptor.PropertyPath[0].SystemProperty.Name);
           Assert.AreEqual(newAnimal, descriptor.Value);
           additionPublished = true;
           break;
@@ -800,13 +917,13 @@ namespace Xtensive.Core.Tests.ObjectMapping
             itemRemovalPublished1 = true;
           else
             Assert.Fail();
-          Assert.AreEqual(petsName, descriptor.Property.SystemProperty.Name);
+          Assert.AreEqual(petsName, descriptor.PropertyPath[0].SystemProperty.Name);
           Assert.AreEqual(original, descriptor.Object);
           break;
         case OperationType.CreateObject:
           creationPublished = true;
           Assert.AreEqual(newAnimal, descriptor.Object);
-          Assert.IsNull(descriptor.Property);
+          Assert.IsNull(descriptor.PropertyPath);
           Assert.IsNull(descriptor.Value);
           break;
         case OperationType.RemoveObject:
@@ -816,13 +933,13 @@ namespace Xtensive.Core.Tests.ObjectMapping
             removalPublished1 = true;
           else
             Assert.Fail();
-          Assert.IsNull(descriptor.Property);
+          Assert.IsNull(descriptor.PropertyPath);
           Assert.IsNull(descriptor.Value);
           break;
         case OperationType.SetProperty:
-          petPropertyCounts[descriptor.Property.SystemProperty.Name] += 1;
+          petPropertyCounts[descriptor.PropertyPath[0].SystemProperty.Name] += 1;
           Assert.AreSame(newAnimal, descriptor.Object);
-          var expectedValue = descriptor.Property.SystemProperty.GetValue(newAnimal, null);
+          var expectedValue = descriptor.PropertyPath[0].SystemProperty.GetValue(newAnimal, null);
           Assert.AreEqual(expectedValue, descriptor.Value);
           break;
         default:
@@ -853,7 +970,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         eventRaisingCount++;
         if (ReferenceEquals(target, descriptor.Object)) {
           Assert.AreSame(target, descriptor.Object);
-          switch (descriptor.Property.SystemProperty.Name) {
+          switch (descriptor.PropertyPath[0].SystemProperty.Name) {
           case "ShipDate":
             shipDateModified = true;
             Assert.AreEqual(modifiedShipDate, descriptor.Value);
@@ -876,12 +993,12 @@ namespace Xtensive.Core.Tests.ObjectMapping
           if (!newCustomerCreated) {
             newCustomerCreated = true;
             Assert.AreEqual(OperationType.CreateObject, descriptor.Type);
-            Assert.IsNull(descriptor.Property);
+            Assert.IsNull(descriptor.PropertyPath);
             Assert.IsNull(descriptor.Value);
           }
           else {
-            customerPropertyCounts[descriptor.Property.SystemProperty.Name] += 1;
-            var expectedValue = descriptor.Property.SystemProperty.GetValue(modifiedCustomer, null);
+            customerPropertyCounts[descriptor.PropertyPath[0].SystemProperty.Name] += 1;
+            var expectedValue = descriptor.PropertyPath[0].SystemProperty.GetValue(modifiedCustomer, null);
             Assert.AreEqual(expectedValue, descriptor.Value);
             Assert.AreEqual(OperationType.SetProperty, descriptor.Type);
           }
@@ -889,7 +1006,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         else if (ReferenceEquals(target.Customer, descriptor.Object)) {
           oldCustomerRemoved = true;
           Assert.AreEqual(OperationType.RemoveObject, descriptor.Type);
-          Assert.IsNull(descriptor.Property);
+          Assert.IsNull(descriptor.PropertyPath);
           Assert.IsNull(descriptor.Value);
         }
         else
@@ -984,6 +1101,28 @@ namespace Xtensive.Core.Tests.ObjectMapping
       return result;
     }
 
+    private static DefaultMapper GetStructureContainerMapper(int? graphDepthLimit,
+      GraphTruncationType truncationType)
+    {
+      var settings = new MapperSettings {
+        GraphDepthLimit = graphDepthLimit, GraphTruncationType = truncationType
+      };
+      var result = new DefaultMapper(settings);
+      result
+        .MapStructure<Structure, StructureDto>()
+        .MapType<StructureContainer, StructureContainerDto, Guid>(s => s.Id, s => s.Id)
+        .MapStructure<CompositeStructure0, CompositeStructure0Dto>()
+        .MapStructure<CompositeStructure1, CompositeStructure1Dto>()
+          .MapProperty(c => (int) c.AuxDouble, c => c.AuxInt)
+        .MapStructure<CompositeStructure2, CompositeStructure2Dto>().Complete();
+      return result;
+    }
+
+    private static DefaultMapper GetStructureContainerMapper()
+    {
+      return GetStructureContainerMapper(null, GraphTruncationType.Default);
+    }
+
     private static Person GetSourcePerson()
     {
       return GetSourcePerson(3);
@@ -1050,6 +1189,25 @@ namespace Xtensive.Core.Tests.ObjectMapping
       result.Add(new Dolphin {Color = "Grey", OceanAreal = "Pacific", HasHair = false});
       return result;
     }
+
+    private static StructureContainer GetSourceStructureContaier()
+    {
+      var compositeStructure = new CompositeStructure0 {
+        AuxInt = 1, Structure = new CompositeStructure1 {
+          AuxDouble = 2, Structure = new CompositeStructure2 {
+            AuxInt = 3, StructureContainer = new StructureContainer {
+              AuxString = "S1", Structure = new Structure {DateTime = DateTime.Now}
+            }
+          }
+        }
+      };
+      var result = new StructureContainer {
+        AuxString = "1",
+        Structure = new Structure {DateTime = DateTime.Now, Int = 2, String = "3"},
+        CompositeStructure = compositeStructure
+      };
+      return result;
+    }
     
     private static void AssertAreEqual(Person source, PersonDto target)
     {
@@ -1090,7 +1248,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     {
       Assert.AreEqual(obj, operationInfo.Object);
       Assert.AreEqual(operationType, operationInfo.Type);
-      Assert.IsNull(operationInfo.Property);
+      Assert.IsNull(operationInfo.PropertyPath);
       Assert.IsNull(operationInfo.Value);
     }
 
@@ -1112,13 +1270,43 @@ namespace Xtensive.Core.Tests.ObjectMapping
       ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.SetProperty, value);
     }
 
+    private static void ValidatePropertyOperation<T>(object obj, OperationInfo operationInfo,
+      Expression<Func<T, object>> propertyPath, object value, OperationType operationType)
+    {
+      var expression = propertyPath.Body;
+      if (expression.NodeType == ExpressionType.Convert)
+        expression = ((UnaryExpression) expression).Operand;
+      var properties = new Stack<PropertyInfo>();
+      while (expression.NodeType == ExpressionType.MemberAccess) {
+        var propertyExpression = (MemberExpression) expression;
+        properties.Push((PropertyInfo) propertyExpression.Member);
+        expression = propertyExpression.Expression;
+      }
+      var i = 0;
+      foreach (var property in properties)
+        Assert.AreEqual(property, operationInfo.PropertyPath[i++].SystemProperty);
+      Assert.AreEqual(i, operationInfo.PropertyPath.Count);
+      ValidatePropertyOperation(obj, operationInfo, operationInfo.PropertyPath[0].SystemProperty,
+        operationType, value);
+    }
+
     private static void ValidatePropertyOperation(object obj, OperationInfo operationInfo,
       PropertyInfo propertyInfo, OperationType operationType, object value)
     {
       Assert.AreSame(obj, operationInfo.Object);
       Assert.AreEqual(value, operationInfo.Value);
-      Assert.AreEqual(propertyInfo, operationInfo.Property.SystemProperty);
+      Assert.AreEqual(propertyInfo, operationInfo.PropertyPath[0].SystemProperty);
       Assert.AreEqual(operationType, operationInfo.Type);
+    }
+
+    private static T Clone<T>(T source)
+    {
+      using (var stream = new MemoryStream()) {
+        var serializer = new BinaryFormatter();
+        serializer.Serialize(stream, source);
+        stream.Seek(0, SeekOrigin.Begin);
+        return (T) serializer.Deserialize(stream);
+      }
     }
   }
 }

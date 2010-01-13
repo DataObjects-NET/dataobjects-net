@@ -26,11 +26,14 @@ namespace Xtensive.Core.ObjectMapping
         var current = referencedObjects.Dequeue();
         if (current == null)
           continue;
-        var key = mappingDescription.ExtractTargetKey(current);
-        if (resultContainer.ContainsKey(key))
-          continue;
-        resultContainer.Add(key, current);
-        var description = mappingDescription.TargetTypes[current.GetType()];
+        var currentType = current.GetType();
+        if (!currentType.IsValueType) {
+          var key = mappingDescription.ExtractTargetKey(current);
+          if (resultContainer.ContainsKey(key))
+            continue;
+          resultContainer.Add(key, current);
+        }
+        var description = mappingDescription.TargetTypes[currentType];
         foreach (var property in description.ComplexProperties.Values) {
           var value = property.SystemProperty.GetValue(current, null);
           if (value==null)

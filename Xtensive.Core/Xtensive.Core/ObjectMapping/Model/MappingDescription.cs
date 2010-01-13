@@ -106,21 +106,13 @@ namespace Xtensive.Core.ObjectMapping.Model
       Func<object, object> targetKeyExtractor)
     {
       this.EnsureNotLocked();
-      if (sourceTypes.ContainsKey(source))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeXHasAlreadyBeenRegistered,
-          target.FullName));
-      if (targetTypes.ContainsKey(target))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeXHasAlreadyBeenRegistered,
-          target.FullName));
+      EnsureTypesAreNotRegistered(source, target);
       var sourceDesc = new SourceTypeDescription(source, sourceKeyExtractor);
       var targetDesc = new TargetTypeDescription(target, targetKeyExtractor);
-      sourceDesc.TargetType = targetDesc;
-      targetDesc.SourceType = sourceDesc;
-      sourceTypes.Add(source, sourceDesc);
-      targetTypes.Add(target, targetDesc);
+      BindTypes(source, sourceDesc, target, targetDesc);
     }
 
-    internal void Register(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
+    internal void RegisterProperty(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
     {
       this.EnsureNotLocked();
       var targetType = targetTypes[target.ReflectedType];
@@ -130,8 +122,16 @@ namespace Xtensive.Core.ObjectMapping.Model
       targetType.AddProperty(propertyDesc);
     }
 
-    internal void Register(PropertyInfo source,
-      Func<object, SourcePropertyDescription, object> converter,
+    internal void RegisterStructure(Type source, Type target)
+    {
+      this.EnsureNotLocked();
+      EnsureTypesAreNotRegistered(source, target);
+      var sourceDesc = new SourceTypeDescription(source);
+      var targetDesc = new TargetTypeDescription(target);
+      BindTypes(source, sourceDesc, target, targetDesc);
+    }
+
+    internal void RegisterInherited(PropertyInfo source, Func<object, SourcePropertyDescription, object> converter,
       PropertyInfo target)
     {
       this.EnsureNotLocked();
@@ -180,6 +180,25 @@ namespace Xtensive.Core.ObjectMapping.Model
     {
       throw new InvalidOperationException(String.Format(Strings.ExTypeXHasNotBeenRegistered,
         type.FullName));
+    }
+
+    private void EnsureTypesAreNotRegistered(Type source, Type target)
+    {
+      if (sourceTypes.ContainsKey(source))
+        throw new InvalidOperationException(String.Format(Strings.ExTypeXHasAlreadyBeenRegistered,
+          target.FullName));
+      if (targetTypes.ContainsKey(target))
+        throw new InvalidOperationException(String.Format(Strings.ExTypeXHasAlreadyBeenRegistered,
+          target.FullName));
+    }
+
+    private void BindTypes(Type source, SourceTypeDescription sourceDesc, Type target,
+      TargetTypeDescription targetDesc)
+    {
+      sourceDesc.TargetType = targetDesc;
+      targetDesc.SourceType = sourceDesc;
+      sourceTypes.Add(source, sourceDesc);
+      targetTypes.Add(target, targetDesc);
     }
 
     #endregion

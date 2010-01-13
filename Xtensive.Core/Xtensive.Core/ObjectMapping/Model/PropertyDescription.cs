@@ -53,6 +53,11 @@ namespace Xtensive.Core.ObjectMapping.Model
     public readonly bool IsPrimitive;
 
     /// <summary>
+    /// Indicates whether this instance is structure property.
+    /// </summary>
+    public readonly bool IsUserStructure;
+
+    /// <summary>
     /// Gets the type that was used to obtain this description.
     /// </summary>
     public TypeDescription ReflectedType { get; private set; }
@@ -157,6 +162,8 @@ namespace Xtensive.Core.ObjectMapping.Model
       SystemProperty = systemProperty;
       ReflectedType = reflectedType;
       IsPrimitive = MappingHelper.IsTypePrimitive(systemProperty.PropertyType);
+      if (!IsPrimitive)
+        IsUserStructure = systemProperty.PropertyType.IsValueType;
       AssignCollectionRelatedProperties(systemProperty);
     }
   }

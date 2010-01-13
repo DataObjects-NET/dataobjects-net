@@ -7,7 +7,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 using Xtensive.Core.ObjectMapping.Model;
@@ -57,7 +56,15 @@ namespace Xtensive.Core.ObjectMapping
       ModelBuilder.Register(typeof (TSource), source => sourceKeyExtractor.Invoke((TSource) source),
         typeof (TTarget), target => compiledTargetKeyExtractor.Invoke((TTarget) target));
       if (isPropertyExtracted)
-        ModelBuilder.Register(null, source => sourceKeyExtractor.Invoke((TSource) source), targetProperty);
+        ModelBuilder.RegisterProperty(null, source => sourceKeyExtractor.Invoke((TSource) source), targetProperty);
+      return new MapperAdapter<TSource, TTarget>(this);
+    }
+
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<TSource, TTarget> MapStructure<TSource, TTarget>()
+      where TTarget : struct
+    {
+      ModelBuilder.RegisterStructure(typeof (TSource), typeof (TTarget));
       return new MapperAdapter<TSource, TTarget>(this);
     }
 

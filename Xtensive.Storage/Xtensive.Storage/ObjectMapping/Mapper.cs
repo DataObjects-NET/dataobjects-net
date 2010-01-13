@@ -45,7 +45,7 @@ namespace Xtensive.Storage.ObjectMapping
         break;
       case Core.ObjectMapping.OperationType.SetProperty:
         var fieldInfo = ExtractFieldInfo(operationInfo);
-        if (operationInfo.Value != null && !operationInfo.Property.IsPrimitive) {
+        if (operationInfo.Value != null && !operationInfo.PropertyPath[0].IsPrimitive) {
           var newDtoKey = MappingDescription.ExtractTargetKey(operationInfo.Value);
           operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
             keyMapping[newDtoKey]);
@@ -105,9 +105,9 @@ namespace Xtensive.Storage.ObjectMapping
     private FieldInfo ExtractFieldInfo(OperationInfo operationInfo)
     {
       var sourceType = MappingDescription
-        .GetMappedSourceType(operationInfo.Property.SystemProperty.ReflectedType);
+        .GetMappedSourceType(operationInfo.PropertyPath[0].SystemProperty.ReflectedType);
       return session.Domain.Model.Types[sourceType.SystemType]
-        .Fields[operationInfo.Property.SystemProperty.Name];
+        .Fields[operationInfo.PropertyPath[0].SystemProperty.Name];
     }
 
     #endregion

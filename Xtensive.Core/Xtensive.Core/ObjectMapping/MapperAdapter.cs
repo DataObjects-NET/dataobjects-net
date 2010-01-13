@@ -23,7 +23,7 @@ namespace Xtensive.Core.ObjectMapping
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var targetProperty = MappingHelper.ExtractProperty(target, "target");
       var compliedSource = source.CachingCompile();
-      realMapper.ModelBuilder.Register(null, obj => compliedSource.Invoke((TSource) obj),
+      realMapper.ModelBuilder.RegisterProperty(null, obj => compliedSource.Invoke((TSource) obj),
         targetProperty);
       return this;
     }
@@ -51,6 +51,13 @@ namespace Xtensive.Core.ObjectMapping
       Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor)
     {
       return realMapper.MapType(sourceKeyExtractor, targetKeyExtractor);
+    }
+
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<TSource, TTarget> MapStructure<TSource, TTarget>()
+      where TTarget : struct
+    {
+      return realMapper.MapStructure<TSource, TTarget>();
     }
 
     /// <inheritdoc/>

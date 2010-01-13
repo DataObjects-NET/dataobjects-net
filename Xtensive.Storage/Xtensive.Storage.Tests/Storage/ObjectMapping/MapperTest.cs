@@ -130,7 +130,6 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     }
 
     [Test]
-    [Explicit]
     public void CustomEntitySetMappingTest()
     {
       var mapper = new Mapper();
