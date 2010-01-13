@@ -320,6 +320,30 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void ResolvingRollbackedEntityKeyTest()
+    {
+      var disconnectedState = new DisconnectedState();
+
+      using (var session = Session.Open(Domain))
+      using (disconnectedState.Attach(session))
+      using (disconnectedState.Connect())
+      using (Transaction.Open()) {
+
+        Key key;
+
+        using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
+
+          var order = new Order();
+          session.Persist();
+          key = order.Key;
+        }
+
+        AssertEx.Throws<KeyNotFoundException>(() =>
+          Query.Single(key));
+      }
+    }
+
+    [Test]
     public void NestedCommitTest()
     {
       using (Session.Open(Domain)) {
