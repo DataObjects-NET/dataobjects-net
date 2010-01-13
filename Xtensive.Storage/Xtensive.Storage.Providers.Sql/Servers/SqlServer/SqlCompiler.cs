@@ -30,7 +30,8 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
       var table = domainHandler.Schema.Tables[index.ReflectedType.MappingName];
       var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference, provider.Header.Columns.Select(column=>column.Name).ToList());
       var fromTableRef = SqlDml.QueryRef(fromTable);
-      select.Columns.AddRange(fromTableRef.Columns);
+      select.Columns.Add(fromTableRef.Columns[0]);
+      select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[1], SqlType.Double), "RANK");
       select.From = fromTableRef;
       return CreateProvider(select, binding, provider);
     }
