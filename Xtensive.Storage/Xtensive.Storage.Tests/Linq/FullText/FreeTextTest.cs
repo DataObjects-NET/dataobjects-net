@@ -64,10 +64,9 @@ namespace Xtensive.Storage.Tests.Linq.FullText
       var result =
         (from c in Query.FreeText<Category>(() => "Dessert candy and coffee")
         orderby c.Rank
-        select new {c.Entity, c.Rank})
-          .Take(10);
+        select new {c.Entity, c.Rank});
       var list = result.ToList();
-      Assert.AreEqual(25, list.Count);
+      Assert.AreEqual(2, list.Count);
       foreach (var product in result) {
         Assert.IsNotNull(product);
       }
@@ -78,10 +77,9 @@ namespace Xtensive.Storage.Tests.Linq.FullText
     {
       var result = Query.FreeText<Category>(() => "Dessert candy and coffee")
         .OrderBy(c => c.Rank)
-        .Take(10)
         .Select(x => x.Entity);
       var list = result.ToList();
-      Assert.AreEqual(25, list.Count);
+      Assert.AreEqual(2, list.Count);
       foreach (var product in result) {
         Assert.IsNotNull(product);
       }

@@ -650,7 +650,7 @@ namespace Xtensive.Storage.Linq
         }
 
         var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
-        var entityExpression = EntityExpression.Create(type, 0, fullFeatured);
+        var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
         var rankExpression = ColumnExpression.Create(typeof (double), entityExpression.Key.Mapping.Length);
         var freeTextExpression = new FreeTextExpression(fullTextIndex, entityExpression, rankExpression, null);
         var dataSource = new FreeTextProvider(fullTextIndex, (Func<string>) ((ConstantExpression)searchCriteria).Value, context.GetNextColumnAlias(), fullFeatured).Result;

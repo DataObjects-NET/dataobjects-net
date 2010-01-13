@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 
     protected override Expression Visit(Expression e)
     {
-      if (e == null)
+      if (e==null)
         return null;
       var result = replaceDelegate(e);
       return result ?? base.Visit(e);
@@ -30,25 +30,25 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 
     protected override Expression VisitProjectionExpression(ProjectionExpression projectionExpression)
     {
-        var item = Visit(projectionExpression.ItemProjector.Item);
-        var provider = providerVisitor.VisitCompilable(projectionExpression.ItemProjector.DataSource.Provider);
-        var providerChanged = provider != projectionExpression.ItemProjector.DataSource.Provider;
-        var itemChanged = item != projectionExpression.ItemProjector.Item;
-        if (providerChanged || itemChanged) {
-          var itemProjector = new ItemProjectorExpression(item, provider.Result, projectionExpression.ItemProjector.Context);
-          return new ProjectionExpression(
-            projectionExpression.Type, 
-            itemProjector, 
-            projectionExpression.TupleParameterBindings, 
-            projectionExpression.ResultType);
-        }
-        return projectionExpression;
+      var item = Visit(projectionExpression.ItemProjector.Item);
+      var provider = providerVisitor.VisitCompilable(projectionExpression.ItemProjector.DataSource.Provider);
+      var providerChanged = provider!=projectionExpression.ItemProjector.DataSource.Provider;
+      var itemChanged = item!=projectionExpression.ItemProjector.Item;
+      if (providerChanged || itemChanged) {
+        var itemProjector = new ItemProjectorExpression(item, provider.Result, projectionExpression.ItemProjector.Context);
+        return new ProjectionExpression(
+          projectionExpression.Type,
+          itemProjector,
+          projectionExpression.TupleParameterBindings,
+          projectionExpression.ResultType);
+      }
+      return projectionExpression;
     }
 
     protected override Expression VisitGroupingExpression(GroupingExpression expression)
     {
       var keyExpression = Visit(expression.KeyExpression);
-      if (keyExpression != expression.KeyExpression)
+      if (keyExpression!=expression.KeyExpression)
         return new GroupingExpression(
           expression.Type,
           expression.OuterParameter,
@@ -57,6 +57,15 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
           expression.ApplyParameter,
           keyExpression,
           expression.SelectManyInfo);
+      return expression;
+    }
+
+    protected override Expression VisitFreeTextExpression(FreeTextExpression expression)
+    {
+      var rankExpression = (ColumnExpression) Visit(expression.RankExpression);
+      var entityExpression = (EntityExpression) Visit(expression.EntityExpression);
+      if (rankExpression!=expression.RankExpression || entityExpression!=expression.EntityExpression)
+        return new FreeTextExpression(expression.FullTextIndex, entityExpression, rankExpression, expression.OuterParameter);
       return expression;
     }
 
@@ -108,7 +117,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 
     // Constructors
 
-    public ExtendedExpressionReplacer(Func<Expression,Expression> replaceDelegate)
+    public ExtendedExpressionReplacer(Func<Expression, Expression> replaceDelegate)
     {
       this.replaceDelegate = replaceDelegate;
       providerVisitor = new CompilableProviderVisitor(ExpressionTranslator);
