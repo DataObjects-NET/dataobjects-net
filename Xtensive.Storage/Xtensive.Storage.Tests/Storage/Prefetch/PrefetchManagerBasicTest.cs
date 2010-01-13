@@ -125,6 +125,28 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     }
 
     [Test]
+    public void GetCachedEntityStateTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (Transaction.Open()) {
+        
+        Key orderKey;
+
+        using (Transaction.Open())
+        {
+          var order = new Order();
+          orderKey = order.Key;
+        }
+        bool isRemoved;
+
+        var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
+        prefetchManager.GetCachedEntityState(ref orderKey, out isRemoved);
+
+        Assert.IsTrue(isRemoved);
+      }
+    }
+
+    [Test]
     public void DirectEntitySetTypePrefetchTest()
     {
       Key orderKey;
