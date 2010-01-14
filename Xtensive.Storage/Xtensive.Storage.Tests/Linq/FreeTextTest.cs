@@ -4,21 +4,39 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.14
 
-using System;
+using System.Collections.Generic;
 using NUnit.Framework;
+using Xtensive.Storage.FullText;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
 
-namespace Xtensive.Storage.Tests.Linq.FullText
+namespace Xtensive.Storage.Tests.Linq
 {
-  [Serializable]
-  [Explicit]
   public class FreeTextTest : NorthwindDOModelTest
   {
     [Test]
-    public void Test()
+    [ExpectedException(typeof (TranslationException))]
+    public void ReuseFreeText1Test()
+    {
+      var result1 = TakeMatchesIncorrect("Dessert candy and coffee seafood").Count();
+      Assert.AreEqual(3, result1);
+      var result2 = TakeMatchesIncorrect("1212erddfr324324rwefrtb43543543").Count();
+      Assert.AreEqual(0, result2);
+    }
+
+    [Test]
+    public void ReuseFreeText2Test()
+    {
+      var result1 = TakeMatchesCorrect("Dessert candy and coffee seafood").Count();
+      Assert.AreEqual(3, result1);
+      var result2 = TakeMatchesCorrect("1212erddfr324324rwefrtb43543543").Count();
+      Assert.AreEqual(0, result2);
+    }
+
+    [Test]
+    public void Test1()
     {
       var result = Query.FreeText<Category>(() => "Dessert candy and coffee seafood").ToList();
       Assert.AreEqual(3, result.Count);
@@ -26,6 +44,13 @@ namespace Xtensive.Storage.Tests.Linq.FullText
         Assert.IsNotNull(document);
         Assert.IsNotNull(document.Entity);
       }
+    }
+
+    [Test]
+    public void Test2()
+    {
+      var result = from c in Query.FreeText<Category>("Dessert candy and coffee seafood") select c.Rank;
+      Assert.AreEqual(3, result.ToList().Count);
     }
 
     [Test]
@@ -83,6 +108,15 @@ namespace Xtensive.Storage.Tests.Linq.FullText
       foreach (var product in result) {
         Assert.IsNotNull(product);
       }
+    }
+    private IEnumerable<FullTextMatch<Category>> TakeMatchesIncorrect(string searchCriteria)
+    {
+      return Query.Execute(() => Query.FreeText<Category>(searchCriteria));
+    }
+
+    private IEnumerable<FullTextMatch<Category>> TakeMatchesCorrect(string searchCriteria)
+    {
+      return Query.Execute(() => Query.FreeText<Category>(() => searchCriteria));
     }
   }
 }

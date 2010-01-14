@@ -1290,16 +1290,16 @@ Actions:
     <value>Expression '{0}' is not a sequence.</value>
   </data>
   <data name="ExTakeNotSupportedInCompiledQueries" xml:space="preserve">
-    <value>'Take({0})' not supported in compiled queries (Query.Execute). Use 'Take(Func(int))' instead.For example use 'Take(()=&gt;{0})'.</value>
+    <value>'Take({0})' not supported in compiled queries (Query.Execute). Use 'Take(Expression&lt;Func&lt;int&gt;&gt;)' instead.For example use 'Take(()=&gt;{0})'.</value>
   </data>
   <data name="ExSkipNotSupportedInCompiledQueries" xml:space="preserve">
-    <value>'Skip({0})' not supported in compiled queries (Query.Execute). Use 'Skip(Func(int))' instead.For example use 'Skip(()=&gt;{0})'.</value>
+    <value>'Skip({0})' not supported in compiled queries (Query.Execute). Use 'Skip(Expression&lt;Func&lt;int&gt;&gt;)' instead.For example use 'Skip(()=&gt;{0})'.</value>
   </data>
   <data name="ExElementAtNotSupportedInCompiledQueries" xml:space="preserve">
-    <value>'ElementAt({0})' not supported in compiled queries (Query.Execute). Use 'ElementAt(Func(int))' instead.For example use 'ElementAt(()=&gt;{0})'.</value>
+    <value>'ElementAt({0})' not supported in compiled queries (Query.Execute). Use 'ElementAt(Expression&lt;Func&lt;int&gt;&gt;)' instead.For example use 'ElementAt(()=&gt;{0})'.</value>
   </data>
   <data name="ExElementAtOrDefaultNotSupportedInCompiledQueries" xml:space="preserve">
-    <value>'ElementAtOrDefault({0})' not supported in compiled queries (Query.Execute). Use 'ElementAtOrDefault(Func(int))' instead.For example use 'ElementAtOrDefault(()=&gt;{0})'.</value>
+    <value>'ElementAtOrDefault({0})' not supported in compiled queries (Query.Execute). Use 'ElementAtOrDefault(Expression&lt;Func&lt;int&gt;&gt;)' instead.For example use 'ElementAtOrDefault(()=&gt;{0})'.</value>
   </data>
   <data name="ExCanNotPersistThereArePinnedEntities" xml:space="preserve">
     <value>Can not persist: there are pinned entities</value>
@@ -1354,5 +1354,8 @@ Actions:
   </data>
   <data name="RefFormat" xml:space="preserve">
     <value>Ref&lt;{0}&gt;({1})</value>
+  </data>
+  <data name="ExFreeTextNotSupportedInCompiledQueries" xml:space="preserve">
+    <value>'FreeText&lt;T&gt;({0})' not supported in compiled queries (Query.Execute). Use 'FreeText&lt;T&gt;(Expression&lt;Func&lt;int&gt;&gt;)' instead.For example use 'FreeText&lt;T&gt;(()=&gt;{0})'.</value>
   </data>
 </root>

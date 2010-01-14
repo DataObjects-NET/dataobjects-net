@@ -52,12 +52,27 @@ namespace Xtensive.Storage
     /// <param name="searchCriteria">The search criteria in free text form.</param>
     /// <returns>An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.</returns>
-    public static IQueryable<FullTextMatch<T>> FreeText<T>(Func<string> searchCriteria) where T:Entity
+    public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria) where T:Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      Expression<Func<Func<string>,IQueryable<FullTextMatch<T>>>> lambda = func => FreeText<T>(func);
-      var expression = lambda.BindParameters(Expression.Constant(searchCriteria, typeof (Func<string>)));
-      return new Queryable<FullTextMatch<T>>(expression);
+      var method = WellKnownMembers.Query.FreeTextString.MakeGenericMethod(typeof (T));
+      var expression = Expression.Call(method, Expression.Constant(searchCriteria));
+      return ((IQueryProvider) Session.Demand().Handler.Provider).CreateQuery<FullTextMatch<T>>(expression);
+    }
+
+    /// <summary>
+    /// Performs full-text query for the text specified in free text form.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">The search criteria in free text form.</param>
+    /// <returns>An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.</returns>
+    public static IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria) where T:Entity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      var method = WellKnownMembers.Query.FreeTextExpression.MakeGenericMethod(typeof (T));
+      var expression = Expression.Call(null, method, new[] {searchCriteria});
+      return ((IQueryProvider) Session.Demand().Handler.Provider).CreateQuery<FullTextMatch<T>>(expression);
     }
 
 

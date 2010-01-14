@@ -393,17 +393,16 @@ namespace Xtensive.Storage.Linq
         index = index.StripQuotes();
       RecordSet rs;
       if (index.Type==typeof (Func<int>)) {
-        Expression<Func<int>> skipIndex;
+        Expression<Func<int>> elementAtIndex;
         if (QueryCachingScope.Current==null) {
-          skipIndex = (Expression<Func<int>>) index;
+          elementAtIndex = (Expression<Func<int>>) index;
         }
         else {
           var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-          var queryParameter = QueryCachingScope.Current.QueryParameter;
-          skipIndex = (Expression<Func<int>>) replacer.Replace(index);
+          elementAtIndex = (Expression<Func<int>>) replacer.Replace(index);
         }
-        compiledParameter = skipIndex.CachingCompile();
-        var skipComparison = Expression.LessThan(skipIndex.Body, Expression.Constant(0));
+        compiledParameter = elementAtIndex.CachingCompile();
+        var skipComparison = Expression.LessThan(elementAtIndex.Body, Expression.Constant(0));
         var condition = Expression.Condition(skipComparison, Expression.Constant(0), Expression.Constant(1));
         var takeParameter = Expression.Lambda<Func<int>>(condition);
         rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(takeParameter.CachingCompile());
@@ -458,7 +457,6 @@ namespace Xtensive.Storage.Linq
           compiledParameter = ((Expression<Func<int>>) take).CachingCompile();
         else {
           var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-          var queryParameter = QueryCachingScope.Current.QueryParameter;
           var newTake = replacer.Replace(take);
           compiledParameter = ((Expression<Func<int>>) newTake).CachingCompile();
         }
@@ -487,7 +485,6 @@ namespace Xtensive.Storage.Linq
           compiledParameter = ((Expression<Func<int>>) skip).CachingCompile();
         else {
           var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-          var queryParameter = QueryCachingScope.Current.QueryParameter;
           var newTake = replacer.Replace(skip);
           compiledParameter = ((Expression<Func<int>>) newTake).CachingCompile();
         }

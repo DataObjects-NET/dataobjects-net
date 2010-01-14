@@ -19,7 +19,6 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class SkipTakeElementAtTest : NorthwindDOModelTest
   {
-
     [Test]
     [ExpectedException(typeof (TranslationException))]
     public void ReuseTake1Test()

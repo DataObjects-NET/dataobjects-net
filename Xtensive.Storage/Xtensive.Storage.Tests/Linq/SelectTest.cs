@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Tests.Linq
         get { return ""; }
       }
     }
+
     public static class StaticTestClass
     {
       public static InstanceTestClass Instance
@@ -53,13 +54,13 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query
         .All<Customer>()
-        .OrderBy(customer=>customer.Id)
+        .OrderBy(customer => customer.Id)
         .Select(customer => customer["Phone"])
         .AsEnumerable();
       var expected = Query
         .All<Customer>()
         .AsEnumerable()
-        .OrderBy(customer=>customer.Id)
+        .OrderBy(customer => customer.Id)
         .Select(customer => customer["Phone"]);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
@@ -69,13 +70,13 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query
         .All<Order>()
-        .OrderBy(order=>order.Id)
+        .OrderBy(order => order.Id)
         .Select(order => order["Customer"])
         .AsEnumerable();
       var expected = Query
         .All<Order>()
         .AsEnumerable()
-        .OrderBy(order=>order.Id)
+        .OrderBy(order => order.Id)
         .Select(order => order["Customer"]);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
@@ -85,19 +86,19 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var result = Query
         .All<Customer>()
-        .OrderBy(customer=>customer.Id)
+        .OrderBy(customer => customer.Id)
         .Select(customer => customer["Address"])
         .AsEnumerable();
       var expected = Query
         .All<Customer>()
         .AsEnumerable()
-        .OrderBy(customer=>customer.Id)
+        .OrderBy(customer => customer.Id)
         .Select(customer => customer["Address"]);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof (TranslationException))]
     public void IndexerError1Test()
     {
       var result = Query
@@ -107,12 +108,12 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(TranslationException))]
+    [ExpectedException(typeof (TranslationException))]
     public void IndexerError2Test()
     {
       var result = Query
         .All<Order>()
-        .Where(order => order["Freight"] == order["Id"])
+        .Where(order => order["Freight"]==order["Id"])
         .ToList();
     }
 
@@ -913,6 +914,63 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.AreEqual(item.String.Substring(2), item.FromTwo);
         Assert.AreEqual(item.String.Substring(3, 1), item.FromThreeTakeOne);
       }
+    }
+
+    [Test]
+    public void ExternalPropertyCall()
+    {
+      var query = Query.All<Customer>().Select(c => Customers.Single(c2 => c2==c)).ToList();
+    }
+
+    [Test]
+    public void ExternalMethodCall()
+    {
+      var query = Query.All<Customer>()
+        .Select(c => GetCustomers().Single(c2 => c2==c));
+      var expected = Query.All<Customer>()
+        .AsEnumerable()
+        .Select(c => GetCustomers().AsEnumerable().Single(c2 => c2==c));
+      Assert.AreEqual(0, expected.Except(query).Count());
+    }
+
+    [Test]
+    public void ExternalMethodWithCorrectParams1Call()
+    {
+      var query = Query.All<Customer>()
+        .Select(c => GetCustomers(1).Single(c2 => c2==c));
+      var expected = Query.All<Customer>()
+        .AsEnumerable()
+        .Select(c => GetCustomers(1).AsEnumerable().Single(c2 => c2==c));
+      Assert.AreEqual(0, expected.Except(query).Count());
+    }
+
+    [Test]
+    public void ExternalMethodWithCorrectParams2Call()
+    {
+      int count = 1;
+      var query = Query.All<Customer>()
+        .Select(c => GetCustomers(count).Single(c2 => c2==c));
+      var expected = Query.All<Customer>()
+        .AsEnumerable()
+        .Select(c => GetCustomers(count).AsEnumerable().Single(c2 => c2==c));
+      Assert.AreEqual(0, expected.Except(query).Count());
+    }
+
+    [Test]
+    [ExpectedException(typeof(TranslationException))]
+    public void ExternalMethodWithIncorrectParamsCall()
+    {
+      var query = Query.All<Customer>().Select(c => GetCustomers(c.Orders.Count()).Single(c2 => c2==c)).ToList();
+    }
+
+    public IQueryable<Customer> GetCustomers()
+    {
+      return Query.All<Customer>();
+    }
+
+    public IQueryable<Customer> GetCustomers(int count)
+    {
+      return Query.All<Customer>();
     }
   }
 }

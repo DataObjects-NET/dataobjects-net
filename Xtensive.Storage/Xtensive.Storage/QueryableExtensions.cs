@@ -34,7 +34,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(count, "count");
 
-      var errorMessage = Resources.Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
+      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));

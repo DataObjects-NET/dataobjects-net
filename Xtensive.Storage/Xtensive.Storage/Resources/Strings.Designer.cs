@@ -773,7 +773,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;ElementAt({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;ElementAt(Func(int))&apos; instead.For example use &apos;ElementAt(()=&gt;{0})&apos;..
+        ///   Looks up a localized string similar to &apos;ElementAt({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;ElementAt(Expression&lt;Func&lt;int&gt;&gt;)&apos; instead.For example use &apos;ElementAt(()=&gt;{0})&apos;..
         /// </summary>
         internal static string ExElementAtNotSupportedInCompiledQueries {
             get {
@@ -791,7 +791,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;ElementAtOrDefault({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;ElementAtOrDefault(Func(int))&apos; instead.For example use &apos;ElementAtOrDefault(()=&gt;{0})&apos;..
+        ///   Looks up a localized string similar to &apos;ElementAtOrDefault({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;ElementAtOrDefault(Expression&lt;Func&lt;int&gt;&gt;)&apos; instead.For example use &apos;ElementAtOrDefault(()=&gt;{0})&apos;..
         /// </summary>
         internal static string ExElementAtOrDefaultNotSupportedInCompiledQueries {
             get {
@@ -1147,6 +1147,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExForeignKeyValueHaveNotBeenLoaded {
             get {
                 return ResourceManager.GetString("ExForeignKeyValueHaveNotBeenLoaded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;FreeText&lt;T&gt;({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;FreeText&lt;T&gt;(Expression&lt;Func&lt;int&gt;&gt;)&apos; instead.For example use &apos;FreeText&lt;T&gt;(()=&gt;{0})&apos;..
+        /// </summary>
+        internal static string ExFreeTextNotSupportedInCompiledQueries {
+            get {
+                return ResourceManager.GetString("ExFreeTextNotSupportedInCompiledQueries", resourceCulture);
             }
         }
         
@@ -2061,7 +2070,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;Skip({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;Skip(Func(int))&apos; instead.For example use &apos;Skip(()=&gt;{0})&apos;..
+        ///   Looks up a localized string similar to &apos;Skip({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;Skip(Expression&lt;Func&lt;int&gt;&gt;)&apos; instead.For example use &apos;Skip(()=&gt;{0})&apos;..
         /// </summary>
         internal static string ExSkipNotSupportedInCompiledQueries {
             get {
@@ -2196,7 +2205,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;Take({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;Take(Func(int))&apos; instead.For example use &apos;Take(()=&gt;{0})&apos;..
+        ///   Looks up a localized string similar to &apos;Take({0})&apos; not supported in compiled queries (Query.Execute). Use &apos;Take(Expression&lt;Func&lt;int&gt;&gt;)&apos; instead.For example use &apos;Take(()=&gt;{0})&apos;..
         /// </summary>
         internal static string ExTakeNotSupportedInCompiledQueries {
             get {
