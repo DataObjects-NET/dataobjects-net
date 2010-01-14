@@ -13,15 +13,15 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// Public API to <see cref="EntitySet{TItem}"/> cache 
-  /// (see <see cref="EntitySetBase.Cache">EntitySetBase.Cache</see>).
+  /// (see <see cref="CachedStateAccessor"/>).
   /// </summary>
   [DebuggerDisplay("Count = {Count}")]
   public struct EntitySetCacheAccessor : ICountable<Key>
   {
-    private EntitySetBase entitySet;
+    private readonly EntitySetBase entitySet;
 
     /// <summary>
-    /// Gets the entity set this cache is bound to.
+    /// Gets the entity set this accessor is bound to.
     /// </summary>
     public EntitySetBase EntitySet
     {

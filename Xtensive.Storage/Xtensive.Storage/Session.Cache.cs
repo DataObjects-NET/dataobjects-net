@@ -20,11 +20,6 @@ namespace Xtensive.Storage
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
 
-    /// <summary>
-    /// Gets public API to session cache.
-    /// </summary>
-    public SessionCache Cache { get; private set; }
-
     internal void EnforceChangeRegistrySizeLimit()
     {
       if (EntityChangeRegistry.Count>=EntityChangeRegistrySizeLimit)

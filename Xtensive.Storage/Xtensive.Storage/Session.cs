@@ -331,7 +331,6 @@ namespace Xtensive.Storage
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry();
-      Cache = new SessionCache(this);
 
       // Etc...
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);

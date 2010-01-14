@@ -112,11 +112,11 @@ namespace Xtensive.Storage.Manual.Prefetch
               .Prefetch(e => e.Photo)) // and lazy load field of each of its items
           .Prefetch(p => p.Employees, 40); // EntitySet with the limit on number of items to be loaded
         foreach (var person in prefetchedPersons) {
-          Assert.IsTrue(person.Cache.GetFieldState("Photo")==PersistentFieldState.Loaded);
-          Assert.IsTrue(person.Cache.GetFieldState("Manager")==PersistentFieldState.Loaded);
+          Assert.IsTrue(CachedStateAccessor.Get(person).GetFieldState("Photo")==PersistentFieldState.Loaded);
+          Assert.IsTrue(CachedStateAccessor.Get(person).GetFieldState("Manager")==PersistentFieldState.Loaded);
           if (person.ManagerKey != null) {
-            Assert.IsNotNull(session.Cache[person.ManagerKey]);
-            Assert.IsTrue(person.Manager.Cache.GetFieldState("Photo")==PersistentFieldState.Loaded);
+            Assert.IsNotNull(CachedStateAccessor.Get(session)[person.ManagerKey]);
+            Assert.IsTrue(CachedStateAccessor.Get(person.Manager).GetFieldState("Photo")==PersistentFieldState.Loaded);
           }
           // some code here...
         }
@@ -162,11 +162,11 @@ namespace Xtensive.Storage.Manual.Prefetch
               .Prefetch(e => e.Photo)) // and lazy load field of each of its items
           .Prefetch(p => p.Manager); // Referenced entity
         foreach (var person in prefetchedPersons) {
-          Assert.IsTrue(person.Cache.GetFieldState("Photo")==PersistentFieldState.Loaded);
-          Assert.IsTrue(person.Cache.GetFieldState("Manager")==PersistentFieldState.Loaded);
-          Assert.IsTrue(person.Employees.Cache.IsFullyLoaded);
+          Assert.IsTrue(CachedStateAccessor.Get(person).GetFieldState("Photo")==PersistentFieldState.Loaded);
+          Assert.IsTrue(CachedStateAccessor.Get(person).GetFieldState("Manager")==PersistentFieldState.Loaded);
+          Assert.IsTrue(CachedStateAccessor.Get(person.Employees).IsFullyLoaded);
           foreach (var employee in person.Employees)
-            Assert.IsTrue(employee.Cache.GetFieldState("Photo")==PersistentFieldState.Loaded);
+            Assert.IsTrue(CachedStateAccessor.Get(employee).GetFieldState("Photo")==PersistentFieldState.Loaded);
         }
         transactionScope.Complete();
       }

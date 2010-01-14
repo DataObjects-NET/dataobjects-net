@@ -76,16 +76,6 @@ namespace Xtensive.Storage
     }
     
     /// <summary>
-    /// Gets public accessor to <see cref="EntitySetBase"/> cache.
-    /// </summary>
-    [Infrastructure]
-    public EntitySetCacheAccessor Cache {
-      get {
-        return new EntitySetCacheAccessor(this);
-      }
-    }
-
-    /// <summary>
     /// Prefetches the entity set completely - i.e. ensures it is fully loaded.
     /// </summary>
     public void Prefetch()

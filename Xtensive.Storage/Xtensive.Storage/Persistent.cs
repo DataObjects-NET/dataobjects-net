@@ -45,16 +45,6 @@ namespace Xtensive.Storage
     public abstract TypeInfo Type { get; }
 
     /// <summary>
-    /// Gets public accessor to <see cref="Persistent"/> instance cache.
-    /// </summary>
-    [Infrastructure]
-    public PersistentCacheAccessor Cache {
-      get {
-        return new PersistentCacheAccessor(this);
-      }
-    }
-
-    /// <summary>
     /// Gets the underlying tuple.
     /// </summary>
     [Infrastructure]

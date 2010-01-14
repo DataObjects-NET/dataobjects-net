@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.12.18
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -17,14 +16,19 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// Public API to <see cref="Session"/> cache 
-  /// (see <see cref="Session.Cache">Session.Cache</see>).
+  /// (see <see cref="CachedStateAccessor"/>).
   /// </summary>
   [DebuggerDisplay("Count = {Count}")]
-  public class SessionCache : SessionBound, 
-    ICountable<Entity>
+  public struct SessionStateAccessor : ICountable<Entity>
   {
-    private ICache<Key, EntityState> RealCache { 
-      get { return Session.EntityStateCache; }}
+    private readonly Session session;
+
+    /// <summary>
+    /// Gets the <see cref="Session"/> instance this accessor is bound to.
+    /// </summary>
+    public Session Session {
+      get { return session; }
+    }
 
     /// <summary>
     /// Gets the number of cached entities.
@@ -34,7 +38,7 @@ namespace Xtensive.Storage
     /// </summary>
     [Infrastructure]
     public int Count {
-      get { return RealCache.Count; }
+      get { return EntityStateCache.Count; }
     }
 
     /// <summary>
@@ -45,7 +49,7 @@ namespace Xtensive.Storage
     /// </summary>
     [Infrastructure]
     long ICountable.Count {
-      get { return RealCache.Count; }
+      get { return EntityStateCache.Count; }
     }
 
     /// <summary>
@@ -53,7 +57,7 @@ namespace Xtensive.Storage
     /// </summary>
     public Entity this[Key key] {
       get {
-        var state = RealCache[key, true];
+        var state = EntityStateCache[key, true];
         var entity = state.Entity; // May create it!
         return entity;
       }
@@ -63,7 +67,7 @@ namespace Xtensive.Storage
     IEnumerator IEnumerable.GetEnumerator()
     {
       var allCached = 
-        from state in RealCache
+        from state in EntityStateCache
         let entity = state.Entity
         where entity!=null
         select entity;
@@ -74,20 +78,26 @@ namespace Xtensive.Storage
     public IEnumerator<Entity> GetEnumerator()
     {
       var allCached = 
-        from state in RealCache
+        from state in EntityStateCache
         let entity = state.Entity
         where entity!=null
         select entity;
       return allCached.GetEnumerator();
     }
 
+    #region Private \ internal members
+
+    private ICache<Key, EntityState> EntityStateCache { 
+      get { return session.EntityStateCache; }}
+
+    #endregion
+
     
     // Constructors
 
-    [Infrastructure]
-    internal SessionCache(Session session)
-      : base(session)
+    internal SessionStateAccessor(Session session)
     {
+      this.session = session;
     }
   }
 }

@@ -11,14 +11,14 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// Public API to <see cref="Persistent"/> instance cache 
-  /// (see <see cref="Persistent.Cache">Persistent.Cache</see>).
+  /// (see <see cref="CachedStateAccessor"/>).
   /// </summary>
   public struct PersistentCacheAccessor
   {
-    private Persistent persistent;
+    private readonly Persistent persistent;
 
     /// <summary>
-    /// Gets the <see cref="Persistent"/> instance this cache is bound to.
+    /// Gets the <see cref="Persistent"/> instance this accessor is bound to.
     /// </summary>
     public Persistent Persistent
     {
