@@ -175,6 +175,10 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       }
     }
 
+    [Test]
+    public void StructureMappingTest()
+    {}
+
     private static T Clone<T>(T obj)
     {
       var serializer = new BinaryFormatter();

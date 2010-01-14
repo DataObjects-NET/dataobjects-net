@@ -49,7 +49,7 @@ namespace Xtensive.Core.ObjectMapping
     {
       ArgumentValidator.EnsureArgumentNotNull(sourceKeyExtractor, "sourceKeyExtractor");
       ArgumentValidator.EnsureArgumentNotNull(targetKeyExtractor, "targetKeyExtractor");
-      var compiledTargetKeyExtractor = targetKeyExtractor.CachingCompile();
+      var compiledTargetKeyExtractor = targetKeyExtractor.Compile();
       PropertyInfo targetProperty;
       var isPropertyExtracted = MappingHelper.TryExtractProperty(targetKeyExtractor, "targetKeyExtractor",
         out targetProperty);

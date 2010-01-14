@@ -25,6 +25,8 @@ namespace Xtensive.Core.ObjectMapping
     private object structureOwner;
     private TargetPropertyDescription[] structurePath;
     private Queue<Triplet<object, object, TargetPropertyDescription[]>> structureLevels;
+    private readonly Action<object, object, object, TargetPropertyDescription> userStructureComparer;
+    private readonly Action<object, object, object, TargetPropertyDescription> structureLevelsRegistrator;
     
     public void Compare(object original, object modified)
     {
@@ -81,8 +83,8 @@ namespace Xtensive.Core.ObjectMapping
         if (!originalObjects.TryGetValue(modifiedObjectPair.Key, out originalObject))
           continue;
         var description = mappingDescription.TargetTypes[modifiedObjectPair.Value.GetType()];
-        // TODO: Place the comparer in the field.
-        CompareComplexProperties(modifiedObjectPair.Value, originalObject, description, CompareUserStructure);
+        CompareComplexProperties(modifiedObjectPair.Value, originalObject, description,
+          userStructureComparer);
         ComparePrimitiveProperties(modifiedObjectPair.Value, originalObject, description);
       }
     }
@@ -159,10 +161,10 @@ namespace Xtensive.Core.ObjectMapping
       var structureSystemType = structurePath[structurePath.Length - 1].SystemProperty.PropertyType;
       var structureType = mappingDescription.TargetTypes[structureSystemType];
       ComparePrimitiveProperties(modifiedValue, originalValue, structureType);
-      CompareComplexProperties(modifiedValue, originalValue, structureType, RegisterStructureLevel);
+      CompareComplexProperties(modifiedValue, originalValue, structureType, structureLevelsRegistrator);
     }
 
-    private void RegisterStructureLevel(object original, object modifiedValue, object originalValue,
+    private void RegisterStructureLevels(object original, object modifiedValue, object originalValue,
       TargetPropertyDescription property)
     {
       var newPath = new TargetPropertyDescription[structurePath.Length + 1];
@@ -262,6 +264,8 @@ namespace Xtensive.Core.ObjectMapping
       this.subscriber = subscriber;
       this.existanceInfoProvider = existanceInfoProvider;
       objectExtractor = new ObjectExtractor(mappingDescription);
+      userStructureComparer = CompareUserStructure;
+      structureLevelsRegistrator = RegisterStructureLevels;
     }
   }
 }

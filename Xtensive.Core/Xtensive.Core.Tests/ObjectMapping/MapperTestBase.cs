@@ -1,0 +1,333 @@
+// Copyright (C) 2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexander Nikolaev
+// Created:    2010.01.13
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+using NUnit.Framework;
+using Xtensive.Core.Collections;
+using Xtensive.Core.ObjectMapping;
+using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.Core.Tests.ObjectMapping.SourceModel;
+using Xtensive.Core.Tests.ObjectMapping.TargetModel;
+
+namespace Xtensive.Core.Tests.ObjectMapping
+{
+  public class MapperTestBase
+  {
+    protected const string inherited = "Inherited";
+    protected const string inheritedFromMammal = "InheritedFromMammal";
+    protected const string inheritedFlyingInsect = "InheritedFlyingInsect";
+
+    protected PropertyInfo PetsProperty;
+    protected PropertyInfo CustomerProperty;
+    protected PropertyInfo FirstNameProperty;
+    protected PropertyInfo LastNameProperty;
+    protected PropertyInfo BirthDateProperty;
+
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      PetsProperty = typeof (PetOwnerDto).GetProperty("Pets");
+      CustomerProperty = typeof (OrderDto).GetProperty("Customer");
+      FirstNameProperty = typeof (PersonDto).GetProperty("FirstName");
+      LastNameProperty = typeof (PersonDto).GetProperty("LastName");
+      BirthDateProperty = typeof (PersonDto).GetProperty("BirthDate");
+    }
+
+    protected static DefaultMapper GetPersonOrderMapper()
+    {
+      var result = new DefaultMapper();
+      result
+        .MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
+        .MapType<Order, OrderDto, String>(o => o.Id.ToString(), o => o.Id).Complete();
+      return result;
+    }
+
+    protected static DefaultMapper GetPetOwnerAnimalMapper()
+    {
+      var result = new DefaultMapper();
+      result.MapType<PetOwner, PetOwnerDto, int>(o => o.Id, o => o.Id)
+        .MapType<Animal, AnimalDto, Guid>(a => a.Id, a => a.Id).Complete();
+      return result;
+    }
+
+    protected static DefaultMapper GetAuthorBookMapper()
+    {
+      var result = new DefaultMapper();
+      result.MapType<Author, AuthorDto, Guid>(a => a.Id, a => a.Id)
+          .MapProperty(a => a.Name + "!!!", a => a.Name)
+        .MapType<Book, BookDto, string>(b => b.ISBN, b => b.ISBN)
+          .MapProperty(b => b.Title.Text, b => b.TitleText)
+          .MapProperty(b => new TitleDto {Id = b.Title.Id, Text = b.Title.Text}, b => b.Title)
+        .MapType<Title, TitleDto, Guid>(t => t.Id, t => t.Id).Complete();
+      return result;
+    }
+
+    protected static DefaultMapper GetIgnorableMapper()
+    {
+      var result = new DefaultMapper();
+      result.MapType<Ignorable, IgnorableDto, Guid>(i => i.Id, i => i.Id)
+        .Ignore(i => i.Auxiliary).Ignore(i => i.Ignored).Ignore(i => i.IgnoredReference)
+        .MapType<IgnorableSubordinate, IgnorableSubordinateDto, Guid>(s => s.Id, s => s.Id).Complete();
+      return result;
+    }
+
+    protected static DefaultMapper GetCreatureHeirsMapperWithCustomConverters()
+    {
+      var result = new DefaultMapper();
+      result.MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
+          .MapProperty(c => c.Name + inherited, c => c.Name)
+        .MapType<Insect, InsectDto, Guid>(i => i.Id, i => i.Id)
+        .Inherit<InsectDto, LongBee, LongBeeDto>()
+        .MapType<FlyingInsect, FlyingInsectDto, Guid>(f => f.Id, f => f.Id)
+          .MapProperty(f => f.Name + inheritedFlyingInsect, f => f.Name)
+        .MapType<Mammal, MammalDto, Guid>(m => m.Id, m => m.Id)
+          .MapProperty(m => m.Name + inheritedFromMammal, m => m.Name)
+        .Inherit<MammalDto, Cat, CatDto>()
+        .Inherit<MammalDto, Dolphin, DolphinDto>().Complete();
+      return result;
+    }
+
+    protected static DefaultMapper GetCreatureHeirsMapperWithAttributesMapper()
+    {
+      var result = new DefaultMapper();
+      result.MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
+          .MapProperty(c => c.Name + inherited, c => c.Name)
+        .MapType<Insect, InsectDto, Guid>(i => i.Id, i => i.Id)
+          .Immutable(i => i.LegPairCount)
+        .Inherit<InsectDto, LongBee, LongBeeDto>()
+        .MapType<FlyingInsect, FlyingInsectDto, Guid>(f => f.Id, f => f.Id)
+        .MapType<Mammal, MammalDto, Guid>(m => m.Id, m => m.Id)
+          .Ignore(m => m.Name)
+        .Inherit<MammalDto, Cat, CatDto>()
+        .Inherit<MammalDto, Dolphin, DolphinDto>().Complete();
+      return result;
+    }
+
+    protected static DefaultMapper GetRecursiveCompositionMapperWithGraphDepthLimit(
+      int depthLimit, GraphTruncationType action)
+    {
+      var mapperSettings = new MapperSettings {GraphTruncationType = action, GraphDepthLimit = depthLimit};
+      var result = new DefaultMapper(mapperSettings);
+      result.MapType<RecursiveComposition, RecursiveCompositionDto, Guid>(r => r.Id, r => r.Id)
+        .MapType<Simplest, SimplestDto, Guid>(s => s.Id, s => s.Id).Complete();
+      return result;
+    }
+
+    protected static DefaultMapper GetStructureContainerMapper(int? graphDepthLimit,
+      GraphTruncationType truncationType)
+    {
+      var settings = new MapperSettings {
+        GraphDepthLimit = graphDepthLimit, GraphTruncationType = truncationType
+      };
+      var result = new DefaultMapper(settings);
+      result
+        .MapStructure<Structure, StructureDto>()
+        .MapType<StructureContainer, StructureContainerDto, Guid>(s => s.Id, s => s.Id)
+        .MapStructure<CompositeStructure0, CompositeStructure0Dto>()
+        .MapStructure<CompositeStructure1, CompositeStructure1Dto>()
+          .MapProperty(c => (int) c.AuxDouble, c => c.AuxInt)
+        .MapStructure<CompositeStructure2, CompositeStructure2Dto>().Complete();
+      return result;
+    }
+
+    protected static DefaultMapper GetStructureContainerMapper()
+    {
+      return GetStructureContainerMapper(null, GraphTruncationType.Default);
+    }
+
+    protected static Person GetSourcePerson()
+    {
+      return GetSourcePerson(3);
+    }
+
+    protected static Person GetSourcePerson(int id)
+    {
+      return new Person {
+        BirthDate = DateTime.Now.AddYears(-20), FirstName = "John", LastName = "Smith", Id = id
+      };
+    }
+
+    protected static Order GetSourceOrder()
+    {
+      return GetSourceOrder(3);
+    }
+
+    protected static Order GetSourceOrder(int personId)
+    {
+      return new Order {
+        Customer = GetSourcePerson(personId), Id = Guid.NewGuid(), ShipDate = DateTime.Today.AddMonths(3)
+      };
+    }
+
+    protected static Author GetSourceAuthor()
+    {
+      var title = new Title {Id = Guid.NewGuid(), Text = "T"};
+      var book = new Book {ISBN = Guid.NewGuid().ToString(), Price = 25.0, Title = title};
+      return new Author {Book = book, Id = Guid.NewGuid(), Name = "A"};
+    }
+
+    protected static PetOwner GetSourcePetOwner()
+    {
+      var petOwner = new PetOwner {
+        BirthDate = DateTime.Now.AddYears(20), FirstName = "A", Id = 10, LastName = "B"
+      };
+      petOwner.Pets.Add(new Animal());
+      petOwner.Pets.Add(new Animal());
+      petOwner.Pets.Add(new Animal());
+      petOwner.Pets.Add(new Animal());
+      petOwner.Pets.Add(new Animal());
+      return petOwner;
+    }
+
+    protected static Ignorable GetIgnorableSource()
+    {
+      var ignoredSubordinate = new IgnorableSubordinate {Id = Guid.NewGuid(), Date = DateTime.Now};
+      var includedSubordinate = new IgnorableSubordinate {Id = Guid.NewGuid(), Date = DateTime.Now.AddDays(10)};
+      return new Ignorable {
+        Id = Guid.NewGuid(), Ignored = "I", IgnoredReference = ignoredSubordinate,
+        IncludedReference = includedSubordinate
+      };
+    }
+
+    protected static List<Creature> GetSourceCreatures()
+    {
+      var result = new List<Creature>();
+      result.Add(new Mammal {Color = "Green", Name = "A"});
+      result.Add(new Insect {LegPairCount = 3, Name = "B"});
+      result.Add(new Creature {Name = "C"});
+      result.Add(new FlyingInsect {LegPairCount = 2, Name = "IA"});
+      result.Add(new LongBee {Length = 1, Name = "IB", StripCount = 3});
+      result.Add(new Cat {Breed = "Siam", HasHair = true});
+      result.Add(new Dolphin {Color = "Grey", OceanAreal = "Pacific", HasHair = false});
+      return result;
+    }
+
+    protected static StructureContainer GetSourceStructureContainer()
+    {
+      var compositeStructure = new CompositeStructure0 {
+        AuxInt = 1, Structure = new CompositeStructure1 {
+          AuxDouble = 2, Structure = new CompositeStructure2 {
+            AuxInt = 3, StructureContainer = new StructureContainer {
+              AuxString = "S1", Structure = new Structure {DateTime = DateTime.Now}
+            }
+          }
+        }
+      };
+      var result = new StructureContainer {
+        AuxString = "1",
+        Structure = new Structure {DateTime = DateTime.Now, Int = 2, String = "3"},
+        CompositeStructure = compositeStructure
+      };
+      return result;
+    }
+
+    protected static Dictionary<string, int> CreateCountsForMutableProperties(Type type, DefaultMapper mapper)
+    {
+      var result = new Dictionary<string, int>();
+      mapper.MappingDescription.TargetTypes[type].Properties.Select(pair => pair.Value)
+        .Cast<TargetPropertyDescription>().Where(p => !p.IsImmutable)
+        .Apply(p => result.Add(p.SystemProperty.Name, 0));
+      return result;
+    }
+
+    protected static void ValidatePropertyOperation(object obj, OperationInfo operationInfo,
+      PropertyInfo propertyInfo, OperationType operationType, object value)
+    {
+      Assert.AreSame(obj, operationInfo.Object);
+      Assert.AreEqual(value, operationInfo.Value);
+      Assert.AreEqual(propertyInfo, operationInfo.PropertyPath[0].SystemProperty);
+      Assert.AreEqual(operationType, operationInfo.Type);
+    }
+
+    protected static void ValidateObjectRemoval(object obj, OperationInfo operationInfo)
+    {
+      ValidateObjectOperation(obj, operationInfo, OperationType.RemoveObject);
+    }
+
+    protected static void ValidateObjectOperation(object obj, OperationInfo operationInfo,
+      OperationType operationType)
+    {
+      Assert.AreEqual(obj, operationInfo.Object);
+      Assert.AreEqual(operationType, operationInfo.Type);
+      Assert.IsNull(operationInfo.PropertyPath);
+      Assert.IsNull(operationInfo.Value);
+    }
+
+    protected static void ValidateObjectCreation(object obj, OperationInfo operationInfo)
+    {
+      ValidateObjectOperation(obj, operationInfo, OperationType.CreateObject);
+    }
+
+    protected static void ValidatePropertySettingOperation(object obj, OperationInfo operationInfo,
+      PropertyInfo propertyInfo, object value)
+    {
+      ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.SetProperty, value);
+    }
+
+    protected static void ValidateItemAdditionOperation(object obj, OperationInfo operationInfo,
+      PropertyInfo propertyInfo, object item)
+    {
+      ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.AddItem, item);
+    }
+
+    protected static void ValidateItemRemovalOperation(object obj, OperationInfo operationInfo,
+      PropertyInfo propertyInfo, object item)
+    {
+      ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.RemoveItem, item);
+    }
+
+    protected static void AssertAreEqual(Person source, PersonDto target)
+    {
+      Assert.AreEqual(source.BirthDate, target.BirthDate);
+      Assert.AreEqual(source.FirstName, target.FirstName);
+      Assert.AreEqual(source.Id, target.Id);
+      Assert.AreEqual(source.LastName, target.LastName);
+    }
+
+    protected static TargetPropertyDescription GetTargetProperty(MapperBase mapper, Type type,
+      string propertyName)
+    {
+      return (TargetPropertyDescription) mapper.MappingDescription.TargetTypes[type]
+        .Properties[type.GetProperty(propertyName)];
+    }
+
+    protected static void ValidatePropertyOperation<T>(object obj, OperationInfo operationInfo,
+      Expression<Func<T, object>> propertyPath, object value, OperationType operationType)
+    {
+      var expression = propertyPath.Body;
+      if (expression.NodeType == ExpressionType.Convert)
+        expression = ((UnaryExpression) expression).Operand;
+      var properties = new Stack<PropertyInfo>();
+      while (expression.NodeType == ExpressionType.MemberAccess) {
+        var propertyExpression = (MemberExpression) expression;
+        properties.Push((PropertyInfo) propertyExpression.Member);
+        expression = propertyExpression.Expression;
+      }
+      var i = 0;
+      foreach (var property in properties)
+        Assert.AreEqual(property, operationInfo.PropertyPath[i++].SystemProperty);
+      Assert.AreEqual(i, operationInfo.PropertyPath.Count);
+      ValidatePropertyOperation(obj, operationInfo, operationInfo.PropertyPath[0].SystemProperty,
+        operationType, value);
+    }
+
+    protected static T Clone<T>(T source)
+    {
+      using (var stream = new MemoryStream()) {
+        var serializer = new BinaryFormatter();
+        serializer.Serialize(stream, source);
+        stream.Seek(0, SeekOrigin.Begin);
+        return (T) serializer.Deserialize(stream);
+      }
+    }
+  }
+}

@@ -13,6 +13,8 @@ using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Tests.ObjectMapping.SourceModel;
+using Xtensive.Core.Tests.ObjectMapping.TargetModel;
 
 namespace Xtensive.Core.Tests.Linq
 {
@@ -24,6 +26,14 @@ namespace Xtensive.Core.Tests.Linq
     {
       Expression<Func<int, IEnumerable>> lambda = n => Enumerable.Range(1, n);
       lambda.CachingCompile();
+    }
+
+    [Test]
+    public void NewExpressionForStructureCompileTest()
+    {
+      Expression<Func<CompositeStructure1, CompositeStructure2Dto>> expression =
+        c => new CompositeStructure2Dto {AuxInt = c.Structure.AuxInt};
+      expression.CachingCompile();
     }
 
     #region Performance testing

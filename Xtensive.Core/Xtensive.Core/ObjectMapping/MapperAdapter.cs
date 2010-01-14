@@ -22,7 +22,7 @@ namespace Xtensive.Core.ObjectMapping
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var targetProperty = MappingHelper.ExtractProperty(target, "target");
-      var compliedSource = source.CachingCompile();
+      var compliedSource = source.Compile();
       realMapper.ModelBuilder.RegisterProperty(null, obj => compliedSource.Invoke((TSource) obj),
         targetProperty);
       return this;

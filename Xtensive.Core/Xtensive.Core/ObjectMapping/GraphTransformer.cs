@@ -205,26 +205,12 @@ namespace Xtensive.Core.ObjectMapping
       return false;
     }
 
-    /// <summary>
-    /// Transforms the complex property having converter.
-    /// </summary>
-    /// <param name="source">The source object.</param>
-    /// <param name="targetLevel">The level of the target object in the graph.</param>
-    /// <param name="targetProperty">The target property.</param>
-    /// <returns>The transformed property value.</returns>
     private static object TransformComplexPropertyHavingConverter(object source, int targetLevel,
       TargetPropertyDescription targetProperty)
     {
       return targetProperty.Converter.Invoke(source, targetProperty.SourceProperty);
     }
 
-    /// <summary>
-    /// Transforms the regular complex property.
-    /// </summary>
-    /// <param name="source">The source object.</param>
-    /// <param name="targetLevel">The level of the target object in the graph.</param>
-    /// <param name="targetProperty">The target property.</param>
-    /// <returns>The transformed property value.</returns>
     private object TransformRegularComplexProperty(object source, int targetLevel,
       TargetPropertyDescription targetProperty)
     {
@@ -232,13 +218,6 @@ namespace Xtensive.Core.ObjectMapping
       return TransformObject(sourceValue, targetLevel);
     }
 
-    /// <summary>
-    /// Transforms the collection.
-    /// </summary>
-    /// <param name="source">The source object.</param>
-    /// <param name="targetLevel">The level of the target object in the graph.</param>
-    /// <param name="targetProperty">The target property.</param>
-    /// <returns>The transformed property value.</returns>
     private object TransformCollection(object source, int targetLevel,
       TargetPropertyDescription targetProperty)
     {
