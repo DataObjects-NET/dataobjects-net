@@ -17,6 +17,8 @@ namespace Xtensive.Sql.Oracle.v09
 {
   internal class Translator : SqlTranslator
   {
+    public override string NewLine { get { return "\n"; } }
+
     public override string BatchBegin { get { return "BEGIN\n"; } }
     public override string BatchEnd { get { return "END;\n"; } }
     
