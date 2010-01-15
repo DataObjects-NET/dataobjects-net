@@ -233,5 +233,21 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
+
+    [Test]
+    public void CascadeRemoveTest()
+    {
+      using (var session = Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          var c = new Container();
+          c.Package1 = new Package();
+          var item = new PackageItem();
+          c.Package1.Items.Add(item);
+          session.Persist();
+          c.Remove();
+          session.Persist();
+        }
+      }
+    }
   }
 }

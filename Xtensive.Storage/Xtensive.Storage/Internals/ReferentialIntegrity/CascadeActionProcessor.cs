@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.01
 
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.ReferentialIntegrity
@@ -12,8 +13,17 @@ namespace Xtensive.Storage.ReferentialIntegrity
   {
     public override void Process(RemovalContext context, AssociationInfo association, Entity removingObject, Entity target, Entity referencingObject, Entity referencedObject)
     {
-      if (!context.Items.Contains(target))
-        target.Remove();
+      if (context.Items.Contains(target))
+        return;
+
+      switch (association.Multiplicity) {
+      case Multiplicity.ZeroToMany:
+      case Multiplicity.OneToMany:
+      case Multiplicity.ManyToMany:
+        AssociationActionProvider.RemoveReferenceAction(association, referencingObject, referencedObject);
+        break;
+      }
+      target.Remove();
     }
   }
 }
