@@ -177,7 +177,50 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
     [Test]
     public void StructureMappingTest()
-    {}
+    {
+      var mapper = new Mapper();
+      mapper.MapType<SimplePerson, SimplePersonDto, string>(p => p.Key.Format(), p => p.Key)
+        .MapType<Apartment, ApartmentDto, string>(a => a.Key.Format(), a => a.Key)
+        .MapStructure<Address, AddressDto>().Complete();
+      Key apartment0Key;
+      Key apartment1Key;
+      ApartmentDto originalApartmentDto0;
+      ApartmentDto originalApartmentDto1;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var person0 = new SimplePerson {Name = "Name0"};
+        var address0 = new Address {
+          Building = 1, City = "City0", Country = "Country0", Office = 10, Street = "Street0"
+        };
+        var apartment0 = new Apartment {Address = address0, Person = person0};
+        apartment0Key = apartment0.Key;
+        var person1 = new SimplePerson {Name = "Name1"};
+        var address1 = new Address {
+          Building = 2, City = "City1", Country = "Country1", Office = 11, Street = "Street1"
+        };
+        var apartment1 = new Apartment {Address = address1, Person = person1};
+        apartment1Key = apartment1.Key;
+        originalApartmentDto0 = (ApartmentDto) mapper.Transform(apartment0);
+        originalApartmentDto1 = (ApartmentDto) mapper.Transform(apartment1);
+        tx.Complete();
+      }
+      var modifiedApartmentDto1 = Clone(originalApartmentDto1);
+      var currentAddress = originalApartmentDto1.Address;
+      modifiedApartmentDto1.Address = new AddressDto {Building = currentAddress.Building,
+        City = currentAddress.City + "Modified", Country = currentAddress.Country,
+        Office = currentAddress.Office, Street = currentAddress.Street};
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var operations = mapper.Compare(originalApartmentDto1, modifiedApartmentDto1);
+        operations.Apply();
+        var apartment1 = Query.Single<Apartment>(apartment1Key);
+        //var apparment0 = Query.Single(apartment0Key);
+        Assert.AreEqual(modifiedApartmentDto1.Person.Key, apartment1.Person.Key.Format());
+        Assert.AreEqual(modifiedApartmentDto1.Address.Building, apartment1.Address.Building);
+        Assert.AreEqual(modifiedApartmentDto1.Address.Country, apartment1.Address.Country);
+        Assert.AreEqual(modifiedApartmentDto1.Address.City, apartment1.Address.City);
+      }
+    }
 
     private static T Clone<T>(T obj)
     {

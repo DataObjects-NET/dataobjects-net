@@ -6,9 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Text;
 using Xtensive.Core.ObjectMapping;
-using Xtensive.Storage.Model;
+using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Storage.Operations;
+using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.ObjectMapping
 {
@@ -33,7 +36,7 @@ namespace Xtensive.Storage.ObjectMapping
         operation = CreateEntitySetItemOperation(operationInfo, Operations.OperationType.RemoveEntitySetItem);
         break;
       case Core.ObjectMapping.OperationType.CreateObject:
-        if (keyMapping == null)
+        if (keyMapping==null)
           keyMapping = new Dictionary<object, Key>();
         var newKey = CreateKey(operationInfo.Object.GetType());
         var dtoKey = MappingDescription.ExtractTargetKey(operationInfo.Object);
@@ -45,17 +48,19 @@ namespace Xtensive.Storage.ObjectMapping
         break;
       case Core.ObjectMapping.OperationType.SetProperty:
         var fieldInfo = ExtractFieldInfo(operationInfo);
-        if (operationInfo.Value != null && !operationInfo.PropertyPath[0].IsPrimitive) {
+        var lastProperty = operationInfo.PropertyPath[operationInfo.PropertyPath.Count - 1];
+        if (operationInfo.Value==null || lastProperty.IsPrimitive || lastProperty.IsUserStructure) {
+          operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
+            operationInfo.Value);
+        }
+        else {
           var newDtoKey = MappingDescription.ExtractTargetKey(operationInfo.Value);
           operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
             keyMapping[newDtoKey]);
         }
-        else
-          operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
-            operationInfo.Value);
         break;
       default:
-          throw new ArgumentOutOfRangeException("operationInfo.Type");
+        throw new ArgumentOutOfRangeException("operationInfo.Type");
       }
       comparisonResult.Register(operation);
     }
@@ -106,8 +111,21 @@ namespace Xtensive.Storage.ObjectMapping
     {
       var sourceType = MappingDescription
         .GetMappedSourceType(operationInfo.PropertyPath[0].SystemProperty.ReflectedType);
-      return session.Domain.Model.Types[sourceType.SystemType]
-        .Fields[operationInfo.PropertyPath[0].SystemProperty.Name];
+      var sourceTypeInfo = session.Domain.Model.Types[sourceType.SystemType];
+      var lastIndex = operationInfo.PropertyPath.Count - 1;
+      var fieldName = MakeFieldName(operationInfo.PropertyPath);
+      return session.Domain.Model.Types[sourceType.SystemType].Fields[fieldName];
+    }
+
+    private static string MakeFieldName(ReadOnlyCollection<TargetPropertyDescription> propertyPath)
+    {
+      var stringBuidler = new StringBuilder();
+      for (var i = 0; i < propertyPath.Count; i++) {
+        if (i != 0)
+          stringBuidler.Append(".");
+        stringBuidler.Append(propertyPath[i].SystemProperty.Name);
+      }
+      return stringBuidler.ToString();
     }
 
     #endregion

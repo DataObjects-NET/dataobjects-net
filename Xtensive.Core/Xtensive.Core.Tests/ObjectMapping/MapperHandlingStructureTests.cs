@@ -88,7 +88,8 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var source = GetSourceStructureContainer();
       var original = (StructureContainerDto) mapper.Transform(source);
       var modified = Clone(original);
-      var newStructureContainer = new StructureContainerDto {AuxString = "NEW"};
+      var newStructureContainer = new StructureContainerDto {AuxString = "NEW",
+        CompositeStructure = new CompositeStructure0Dto {AuxInt = 999}};
       var newCs2 = new CompositeStructure2Dto {
         AuxInt = modified.CompositeStructure.Structure.Structure.AuxInt,
         StructureContainer = newStructureContainer
@@ -103,9 +104,29 @@ namespace Xtensive.Core.Tests.ObjectMapping
         Structure = newCs1
       };
       var operations = ((DefaultOperationSet) mapper.Compare(original, modified)).ToList();
-      Assert.AreEqual(6, operations.Count);
+      Assert.AreEqual(8, operations.Count);
       ValidateObjectCreation(newStructureContainer, operations[0]);
-      ValidateObjectRemoval(original.CompositeStructure.Structure.Structure.StructureContainer, operations[5]);
+      ValidatePropertyOperation<StructureContainerDto>(
+        newStructureContainer,
+        operations[1], sc => sc.AuxString, newStructureContainer.AuxString, OperationType.SetProperty);
+      ValidatePropertyOperation<StructureContainerDto>(
+        newStructureContainer,
+        operations[2], sc => sc.Structure.Int, default (int), OperationType.SetProperty);
+      ValidatePropertyOperation<StructureContainerDto>(
+        newStructureContainer,
+        operations[3], sc => sc.Structure.String, default (string), OperationType.SetProperty);
+      ValidatePropertyOperation<StructureContainerDto>(
+        newStructureContainer,
+        operations[4], sc => sc.Structure.DateTime, default (DateTime), OperationType.SetProperty);
+      ValidatePropertyOperation<StructureContainerDto>(
+        newStructureContainer,
+        operations[5], sc => sc.CompositeStructure.AuxInt, newStructureContainer.CompositeStructure.AuxInt,
+        OperationType.SetProperty);
+      ValidatePropertyOperation<StructureContainerDto>(
+        original,
+        operations[6], sc => sc.CompositeStructure.Structure.Structure.StructureContainer,
+        newStructureContainer, OperationType.SetProperty);
+      ValidateObjectRemoval(original.CompositeStructure.Structure.Structure.StructureContainer, operations[7]);
     }
 
     [Test]
@@ -140,6 +161,19 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Assert.AreEqual(source.CompositeStructure.Structure.Structure.AuxInt,
         target.CompositeStructure.Structure.Structure.AuxInt);
       Assert.IsNull(target.CompositeStructure.Structure.Structure.StructureContainer);
+      Assert.AreEqual(source.CompositeStructure.Structure.Structure.AuxInt,
+        target.CompositeStructure.Structure.Structure.AuxInt);
+    }
+
+    [Test]
+    public void LimitDepthOfGraphContainingStructureWithConverterTest()
+    {
+      var mapper = GetStructureContainerMapperWithStructureConverter(2, GraphTruncationType.Throw);
+      var source = GetSourceStructureContainer();
+      AssertEx.ThrowsInvalidOperationException(() => mapper.Transform(source));
+      mapper = GetStructureContainerMapperWithStructureConverter(2, GraphTruncationType.SetDefaultValue);
+      var target = (StructureContainerDto) mapper.Transform(source);
+      Assert.AreEqual(default (CompositeStructure2Dto), target.CompositeStructure.Structure.Structure);
     }
 
     private static DefaultMapper GetStructureContainerMapperWithStructureConverter(int? graphDepthLimit,

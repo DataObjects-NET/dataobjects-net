@@ -398,4 +398,40 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
       : base(owner, field)
     {}
   }
+
+  [Serializable]
+  public class SimplePerson : Person
+  {}
+
+  [Serializable]
+  [HierarchyRoot]
+  public class Apartment : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public SimplePerson Person { get; set; }
+
+    [Field]
+    public Address Address { get; set; }
+  }
+
+  public class Address : Structure
+  {
+    [Field]
+    public string Country { get; set; }
+
+    [Field]
+    public string City { get; set; }
+
+    [Field]
+    public string Street { get; set; }
+
+    [Field]
+    public int Building { get; set; }
+
+    [Field]
+    public int Office { get; set; }
+  }
 }

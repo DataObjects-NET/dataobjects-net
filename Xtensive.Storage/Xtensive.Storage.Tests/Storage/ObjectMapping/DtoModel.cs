@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     }
   }
 
+  [Serializable]
   public abstract class PersonDto
   {
     public string Key { get; set; }
@@ -72,5 +73,33 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public string Name { get; set; }
 
     public PublisherDto[] Suppliers { get; set; }
+  }
+
+  [Serializable]
+  public class SimplePersonDto : PersonDto
+  {}
+
+  [Serializable]
+  public class ApartmentDto
+  {
+    public string Key { get; set; }
+
+    public SimplePersonDto Person { get; set; }
+
+    public AddressDto Address { get; set; }
+  }
+
+  [Serializable]
+  public struct AddressDto
+  {
+    public string Country { get; set; }
+
+    public string City { get; set; }
+
+    public string Street { get; set; }
+
+    public int Building { get; set; }
+
+    public int Office { get; set; }
   }
 }

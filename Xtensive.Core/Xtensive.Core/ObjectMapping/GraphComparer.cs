@@ -53,19 +53,47 @@ namespace Xtensive.Core.ObjectMapping
         null, null)));
       foreach (var createdObject in createdObjects) {
         var type = mappingDescription.TargetTypes[createdObject.GetType()];
-        var properties = type.Properties.Select(pair => pair.Value).Cast<TargetPropertyDescription>()
-          .Where(p => !p.IsImmutable);
-        foreach (var property in properties) {
-          var value = property.SystemProperty.GetValue(createdObject, null);
-          if (property.IsCollection) {
-            InitializeKeyCaches();
-            ExtractKeys((IEnumerable) value, originalKeyCache);
-            originalKeyCache.Apply(pair =>
-              NotifyAboutCollectionModification(createdObject, property, true, pair.Value));
-          }
-          else
-            NotifyAboutPropertySetting(createdObject, property, value);
+        var properties = GetMutableProperties(type);
+        NotifyAboutValuesOfPropertiesOfCreatedObject(createdObject, properties);
+      }
+    }
+
+    private static IEnumerable<TargetPropertyDescription> GetMutableProperties(TargetTypeDescription type)
+    {
+      return type.Properties.Select(pair => pair.Value).Cast<TargetPropertyDescription>()
+        .Where(p => !p.IsImmutable);
+    }
+
+    private static IEnumerable<TargetPropertyDescription> GetMutableNonStructureProperties(
+      TargetTypeDescription type)
+    {
+      return GetMutableProperties(type).Where(p => !p.IsUserStructure);
+    }
+
+    private void NotifyAboutValuesOfPropertiesOfCreatedObject(object createdObject,
+      IEnumerable<TargetPropertyDescription> properties)
+    {
+      foreach (var property in properties) {
+        var value = property.SystemProperty.GetValue(createdObject, null);
+        if (property.IsCollection) {
+          InitializeKeyCaches();
+          ExtractKeys((IEnumerable) value, originalKeyCache);
+          originalKeyCache.Apply(pair =>
+            NotifyAboutCollectionModification(createdObject, property, true, pair.Value));
         }
+        else if (property.IsUserStructure) {
+          var structureType = mappingDescription.TargetTypes[property.SystemProperty.PropertyType];
+          var previousStructurePath = structurePath;
+          var previousStructureOwner = structureOwner;
+          structurePath = structurePath==null ? new[] {property} : AddToStructurePath(property);
+          if (structureOwner==null)
+            structureOwner = createdObject;
+          NotifyAboutValuesOfPropertiesOfCreatedObject(value, GetMutableNonStructureProperties(structureType));
+          structureOwner = previousStructureOwner;
+          structurePath = previousStructurePath;
+        }
+        else
+          NotifyAboutPropertySetting(createdObject, property, value);
       }
     }
 
@@ -167,11 +195,17 @@ namespace Xtensive.Core.ObjectMapping
     private void RegisterStructureLevels(object original, object modifiedValue, object originalValue,
       TargetPropertyDescription property)
     {
-      var newPath = new TargetPropertyDescription[structurePath.Length + 1];
-      Array.Copy(structurePath, newPath, structurePath.Length);
-      newPath[newPath.Length - 1] = property;
+      var newPath = AddToStructurePath(property);
       structureLevels.Enqueue(
         new Triplet<object, object, TargetPropertyDescription[]>(modifiedValue, originalValue, newPath));
+    }
+
+    private TargetPropertyDescription[] AddToStructurePath(TargetPropertyDescription property)
+    {
+      var result = new TargetPropertyDescription[structurePath.Length + 1];
+      Array.Copy(structurePath, result, structurePath.Length);
+      result[result.Length - 1] = property;
+      return result;
     }
 
     private void InitializeKeyCaches()
