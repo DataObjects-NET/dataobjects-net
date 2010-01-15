@@ -233,7 +233,12 @@ namespace Xtensive.Storage.Linq
         if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.Query.FreeTextString, WellKnownMembers.Query.FreeTextExpression))
           return CosntructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
         // Query.All<T>
-        if (mc.Method.Name==WellKnownMembers.Query.All.Name) {
+        if (mc.Method==WellKnownMembers.Query.All) {
+          var rootPoint = (IQueryable)mc.Method.Invoke(null, new object[0]);
+          return ConstructQueryable(rootPoint);
+        }
+        // Query.Single<T>
+        if (mc.Method==WellKnownMembers.Query.All) {
           var rootPoint = (IQueryable)mc.Method.Invoke(null, new object[0]);
           return ConstructQueryable(rootPoint);
         }
