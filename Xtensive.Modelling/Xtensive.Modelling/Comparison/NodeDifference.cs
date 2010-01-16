@@ -94,8 +94,10 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public override bool HasChanges {
       get { 
-        return (MovementInfo & MovementInfo.Changed)!=0 
-        || PropertyChanges.Count!=0 || IsDataChanged; 
+        return 
+          (MovementInfo & MovementInfo.Changed)!=0 || 
+          PropertyChanges.Count!=0 || 
+          IsDataChanged; 
       }
     }
 

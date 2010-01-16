@@ -46,6 +46,10 @@ namespace Xtensive.Storage.Building
         ? EnumerableUtils<NodeAction>.Empty 
         : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
       };
+      if (schemaUpgradeMode != SchemaUpgradeMode.ValidateCompatible) {
+        Upgrade.Log.Info("Difference: \r\n{0}", difference);
+        Upgrade.Log.Info("Actions: \r\n{0}", actions);
+      }
       var status = GetComparisonStatus(actions, schemaUpgradeMode);
       var unsafeActions = GetUnsafeActions(actions);
       var typeChanges = GetTypeChangeActions(actions);

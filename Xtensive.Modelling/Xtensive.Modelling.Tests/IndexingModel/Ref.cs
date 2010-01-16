@@ -34,8 +34,8 @@ namespace Xtensive.Modelling.Tests.IndexingModel
       get { return value; }
       set
       {
-        if (this.value!=null)
-          throw Exceptions.AlreadyInitialized("Value");
+//        if (this.value!=null)
+//          throw Exceptions.AlreadyInitialized("Value");
         EnsureIsEditable();
         using (var scope = LogPropertyChange("Value", value)) {
           this.value = value;

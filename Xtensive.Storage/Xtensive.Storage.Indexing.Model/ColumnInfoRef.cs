@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Indexing.Model
   /// </summary>
   [Serializable]
   public abstract class ColumnInfoRef<TParent> : Ref<ColumnInfo, TParent>
-    where TParent: IndexInfo
+    where TParent: NodeBase<TableInfo>
   {
     // Constructors
 

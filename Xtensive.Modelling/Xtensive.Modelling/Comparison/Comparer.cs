@@ -231,9 +231,11 @@ namespace Xtensive.Modelling.Comparison
         var parentDifference = (NodeDifference) pdc.Difference;
         if (source.Parent!=parentDifference.Source || target.Parent!=parentDifference.Target)
           movementInfo |= MovementInfo.ParentChanged;
-        var parentMi = parentDifference.MovementInfo;
-        if ((parentMi & MovementInfo.Relocated)!=0)
+        var parentMovementInfo = parentDifference.MovementInfo;
+        if ((parentMovementInfo & MovementInfo.Relocated)!=0)
           movementInfo |= MovementInfo.ParentRelocated;
+//        if ((parentMovementInfo & MovementInfo.NameChanged) != 0 /*&& target.Parent*/)
+//          movementInfo |= MovementInfo.ParentRelocated;
       }
       return movementInfo;
     }
@@ -304,9 +306,10 @@ namespace Xtensive.Modelling.Comparison
     {
       if (targetValue!=null && sourceValue!=null) {
         var isDataDependent = IsDependOnData(target);
+        var isImmutable = IsImmutable(target);
         Difference referencedPropertyDifference = null;
         if (Results.TryGetValue(targetValue, out referencedPropertyDifference))
-          return HasChanges(referencedPropertyDifference, isDataDependent) 
+          return HasChanges(referencedPropertyDifference, isDataDependent, isImmutable) 
             ? new ValueDifference(sourceValue, targetValue) 
             : null;
 
@@ -353,8 +356,8 @@ namespace Xtensive.Modelling.Comparison
         difference.ItemChanges.Clear();
 
         // Inlining 2 below lines leads to error in PEVerify.exe!
-		// (well-known issue with null coalescing operator + cast)
-		var sourceAsCountable = (ICountable) source;
+        // (well-known issue with null coalescing operator + cast)
+        var sourceAsCountable = (ICountable) source;
         var targetAsCountable = (ICountable) target;
         var src = sourceAsCountable ?? new ReadOnlyList<Node>(new Node[] {});
         var tgt = targetAsCountable ?? new ReadOnlyList<Node>(new Node[] {});
@@ -494,34 +497,35 @@ namespace Xtensive.Modelling.Comparison
     /// with <see cref="MovementInfo"/> equals to <see cref="MovementInfo.Changed"/>.
     /// </summary>
     /// <param name="difference">The difference.</param>
+    /// <param name="isDataDependent"></param>
+    /// <param name="propertyOwnerIsImmutable"></param>
     /// <returns>
     /// <see langword="true"/> if difference contains changed node properties; otherwise, <see langword="false"/>.
     /// </returns>
-    protected virtual bool HasChanges(Difference difference, bool isDataDependent)
+    protected virtual bool HasChanges(Difference difference, bool isDataDependent, bool propertyOwnerIsImmutable)
     {
       if (difference is ValueDifference)
         return true;
 
       var nodeDifference = difference as NodeDifference;
       if (nodeDifference!=null) {
-        if ((nodeDifference.MovementInfo & MovementInfo.Relocated)!=0 
-          || (nodeDifference.MovementInfo & MovementInfo.Changed)!=0 
-          || nodeDifference.PropertyChanges.Count!=0 
-          || (isDataDependent && nodeDifference.IsDataChanged))
+        if (nodeDifference.MovementInfo != MovementInfo.NameChanged) {
+          if ((nodeDifference.MovementInfo & MovementInfo.Relocated)!=0 || 
+            (nodeDifference.MovementInfo & MovementInfo.Changed)!=0 || 
+            (nodeDifference.PropertyChanges.Count!=0) || 
+            (isDataDependent && nodeDifference.IsDataChanged))
           return true;
-        
-        foreach (var pair in nodeDifference.PropertyChanges)
-          if (HasChangedNodeProperties(pair.Value))
-            return true;
+        }
+        else if (propertyOwnerIsImmutable)
+          return true;
+
+        if (nodeDifference.PropertyChanges.Select(pair => pair.Value).Any(HasChangedNodeProperties))
+          return true;
       }
 
       var nodeCollectionDifference = difference as NodeCollectionDifference;
-      if (nodeCollectionDifference!=null)
-        foreach (var itemChange in nodeCollectionDifference.ItemChanges)
-          if (HasChangedNodeProperties(itemChange))
-            return true;
-      
-      return false;
+      return nodeCollectionDifference!=null && 
+        nodeCollectionDifference.ItemChanges.Any(HasChangedNodeProperties);
     }
 
     /// <summary>
@@ -538,6 +542,22 @@ namespace Xtensive.Modelling.Comparison
       if (node.Parent==null)
         return false;
       return IsDependOnData(node.Parent);
+    }
+
+    /// <summary>
+    /// Determines whether specified node is immutable.
+    /// </summary>
+    /// <returns><see langword="true"/> if the specified node is immutable; 
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    protected virtual bool IsImmutable(Node node)
+    {
+      var parent = node.Parent;
+      if (parent == null)
+        return true;
+      var propertyName = node.Nesting.EscapedPropertyName;
+      var propertyAccessor = parent.PropertyAccessors[propertyName];
+      return propertyAccessor.IsImmutable;
     }
     
     /// <summary>

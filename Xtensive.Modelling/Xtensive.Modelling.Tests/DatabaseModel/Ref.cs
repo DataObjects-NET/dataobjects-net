@@ -19,7 +19,7 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
   {
     private TTarget value;
 
-    [Property]
+    [Property(IsImmutable = true)]
     public TTarget Value {
       get { return value; }
       set {

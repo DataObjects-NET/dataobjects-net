@@ -5,7 +5,9 @@
 // Created:    2009.03.24
 
 using System;
+using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
+using System.Collections.Generic;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
@@ -16,6 +18,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   public sealed class TableInfo : NodeBase<StorageInfo>
   {
     private PrimaryIndexInfo primaryIndex;
+    private FullTextIndexInfo fullTextIndex;
 
     /// <summary>
     /// Gets columns.
@@ -47,9 +50,39 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets foreign keys.
     /// </summary>
-    [Property(Priority = -1000,
-      IsImmutable = true, DependencyRootType = typeof(TableInfoCollection))]
+    [Property(Priority = -1000, IsImmutable = true, DependencyRootType = typeof (TableInfoCollection))]
     public ForeignKeyCollection ForeignKeys { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the full-text index.
+    /// </summary>
+    [Property(Priority = -900/*, IsMutable = true*/)]
+    public FullTextIndexInfo FullTextIndex
+    {
+      get { return fullTextIndex; }
+      set
+      {
+        EnsureIsEditable();
+        using (var scope = LogPropertyChange("FullTextIndex", value)) {
+          fullTextIndex = value;
+          scope.Commit();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Gets all indexes belongs to the table.
+    /// </summary>
+    /// <returns><see cref="IndexInfo"/> iterator.</returns>
+    public IEnumerable<IndexInfo> AllIndexes
+    {
+      get
+      {
+        yield return PrimaryIndex;
+        foreach (var indexInfo in SecondaryIndexes)
+          yield return indexInfo;
+      }
+    }
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()

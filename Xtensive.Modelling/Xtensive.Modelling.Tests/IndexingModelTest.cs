@@ -182,10 +182,6 @@ namespace Xtensive.Modelling.Tests
       storage.Dump();
 
       TestUpdate(storage, (s1, s2, hs) => {
-        var t1 = (TableInfo) s1.Resolve("Tables/Types");
-        t1.Remove();
-        var fk1 = (ForeignKeyInfo) s1.Resolve("Tables/Objects/ForeignKeys/FK_TypeId");
-        fk1.Remove();
         var o2 = (TableInfo) s2.Resolve("Tables/Objects");
         string o2OldPath = o2.Path;
         o2.Name = "NewObjects";
@@ -200,19 +196,20 @@ namespace Xtensive.Modelling.Tests
       var storage = CreateSimpleStorageModel();
       storage.Dump();
 
-      TestUpdate(storage, (s1, s2, hs) => {
-        var t2 = (TableInfo) s2.Resolve("Tables/Types");
-        string t2OldPath = t2.Path;
-        t2.Name = "NewTypes";
-        hs.Add(new RenameHint(t2OldPath, t2.Path));
+      TestUpdate(storage, (source, target, hs) => {
+        var type = (TableInfo)target.Resolve("Tables/Types");
+        var typeOldPath = type.Path;
+        var pkType = type.PrimaryIndex;
+        var pkOldPath = pkType.Path;
+
+        pkType.Name = "PK_NewTypes";
+        type.Name = "NewTypes";
+
+        hs.Add(new RenameHint(typeOldPath, type.Path));
       },
       (diff, actions) => {
-        var query =
-          from a in actions.Flatten()
-          let cna = a as CreateNodeAction
-          where cna!=null && cna.Name=="FK_TypeId"
-          select a;
-        Assert.IsTrue(query.Any());
+        var flatten = actions.Flatten().ToList();
+        Assert.AreEqual(15, flatten.Count);
       });
     }
 
@@ -230,15 +227,12 @@ namespace Xtensive.Modelling.Tests
         hs.Add(new RenameHint(t2OldPath, t2.Path));
       },
       (diff, actions) => {
-        var query =
-          from a in actions.Flatten()
-          let cna = a as CreateNodeAction
-          where cna!=null && cna.Name=="FK_TypeId"
-          select a;
-        Assert.IsTrue(query.Any());
+        var flatten = actions.Flatten().ToList();
+        Assert.AreEqual(1, flatten.Count);
+        Assert.IsTrue(flatten.All(a => a is MoveNodeAction));
       });
     }
-
+    
     [Test]
     public void RenameTest4()
     {
@@ -253,6 +247,29 @@ namespace Xtensive.Modelling.Tests
         hs.Add(new RenameHint("Tables/Employee", "Tables/RcEmployee"));
       },
       (diff, actions) => {
+      });
+    }
+
+    [Test]
+    public void ChangeFullTextIndexTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      storage.Dump();
+
+      TestUpdate(storage, (source, target, hs) => {
+        var type = (TableInfo) target.Resolve("Tables/Types");
+        var ftIndex = type.FullTextIndex;
+        var valueColumn = type.Columns["Value"];
+        var oldPath = valueColumn.Path;
+        valueColumn.Name = "StringValue";
+        var dataColumn = type.Columns["Data"];
+        new FullTextColumnRef(ftIndex, dataColumn);
+        hs.Add(new RenameHint(oldPath, valueColumn.Path));
+      },
+      (diff, actions) => {
+//        var flatten = actions.Flatten().ToList();
+//        Assert.AreEqual(1, flatten.Count);
+//        Assert.IsTrue(flatten.All(a => a is MoveNodeAction));
       });
     }
 
@@ -406,6 +423,9 @@ namespace Xtensive.Modelling.Tests
       var tiValue = new SecondaryIndexInfo(t, "IX_Value");
       new KeyColumnRef(tiValue, tValue);
       tiValue.PopulatePrimaryKeyColumns();
+
+      var tiFt = new FullTextIndexInfo(t, "FT_Index");
+      new FullTextColumnRef(tiFt, tValue);
 
       // Objects table
       var o = new TableInfo(storage, "Objects");

@@ -14,7 +14,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
   /// </summary>
   [Serializable]
   public abstract class ColumnInfoRef<TParent>: Ref<ColumnInfo, TParent>
-    where TParent: IndexInfo
+    where TParent: Node
   {
     // Constructors
 

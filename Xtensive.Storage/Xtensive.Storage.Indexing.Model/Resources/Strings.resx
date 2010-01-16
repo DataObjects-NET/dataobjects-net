@@ -195,4 +195,7 @@
   <data name="ExUndefinedTypeOfSequenceX" xml:space="preserve">
     <value>Type of sequence "{0}" is undefined.</value>
   </data>
+  <data name="ExEmptyColumnsCollection" xml:space="preserve">
+    <value>Columns collection is empty.</value>
+  </data>
 </root>

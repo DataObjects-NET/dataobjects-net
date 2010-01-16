@@ -20,8 +20,13 @@ namespace Xtensive.Modelling.Comparison
     /// The source node is changed.
     /// </summary>
     Changed = 
-      Created | Removed | Copied | 
-      NameChanged | IndexChanged | ParentChanged,
+      Created | 
+      Removed | 
+      Copied | 
+      NameChanged | 
+      IndexChanged | 
+      ParentRelocated |
+      ParentChanged,
 
     /// <summary>
     /// The source node is relocated.
@@ -29,7 +34,8 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     Relocated = 
       Copied | 
-      NameChanged | IndexChanged | ParentChanged |
+      IndexChanged | 
+      ParentChanged | 
       ParentRelocated,
 
     /// <summary>
