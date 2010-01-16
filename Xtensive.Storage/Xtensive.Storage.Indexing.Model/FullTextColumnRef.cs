@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Indexing.Model
     public string Language { get; set; }
 
     [Property(Priority = -1200)]
-    public string Type { get; set; }
+    public ValueColumnRef TypeColumn { get; set; }
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
@@ -51,11 +51,11 @@ namespace Xtensive.Storage.Indexing.Model
     }
 
     /// <inheritdoc/>
-    public FullTextColumnRef(FullTextIndexInfo parent, ColumnInfo column, string language, string type)
+    public FullTextColumnRef(FullTextIndexInfo parent, ColumnInfo column, string language, ValueColumnRef typeColumn)
       : base(parent, column)
     {
       Language = language;
-      Type = type;
+      TypeColumn = typeColumn;
     }
   }
 }
