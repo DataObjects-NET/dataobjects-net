@@ -24,12 +24,22 @@ namespace Xtensive.Storage.Linq
       public static readonly MethodInfo All;
       public static readonly MethodInfo FreeTextString;
       public static readonly MethodInfo FreeTextExpression;
+      public static readonly MethodInfo SingleKey;
+      public static readonly MethodInfo SingleArray;
+      public static readonly MethodInfo SingleOrDefaultKey;
+      public static readonly MethodInfo SingleOrDefaultArray;
 
       static Query()
       {
         All = typeof(Storage.Query).GetMethod("All");
         FreeTextString = typeof (Storage.Query).GetMethods().Where(m => m.Name=="FreeText").Single(ft => ft.GetParameterTypes()[0]==typeof (string));
         FreeTextExpression = typeof (Storage.Query).GetMethods().Where(m => m.Name=="FreeText").Single(ft => ft.GetParameterTypes()[0]==typeof (Expression<Func<string>>));
+        var singleMethods = typeof (Storage.Query).GetMethods().Where(m => m.Name=="Single" && m.IsGenericMethod);
+        SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Storage.Key));
+        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
+        var singleOrDefaultMethods = typeof (Storage.Query).GetMethods().Where(m => m.Name=="SingleOrDefault" && m.IsGenericMethod);
+        SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Storage.Key));
+        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
       }
     }
 

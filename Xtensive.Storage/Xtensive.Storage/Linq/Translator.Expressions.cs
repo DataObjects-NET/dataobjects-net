@@ -232,16 +232,11 @@ namespace Xtensive.Storage.Linq
         // Query.FreeText<T>
         if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.Query.FreeTextString, WellKnownMembers.Query.FreeTextExpression))
           return CosntructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
-        // Query.All<T>
-        if (mc.Method==WellKnownMembers.Query.All) {
-          var rootPoint = (IQueryable)mc.Method.Invoke(null, new object[0]);
-          return ConstructQueryable(rootPoint);
-        }
-        // Query.Single<T>
-        if (mc.Method==WellKnownMembers.Query.All) {
-          var rootPoint = (IQueryable)mc.Method.Invoke(null, new object[0]);
-          return ConstructQueryable(rootPoint);
-        }
+        // Query.Single<T> & Query.SingleOrDefault<T>
+        if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
+          WellKnownMembers.Query.SingleKey,
+          WellKnownMembers.Query.SingleOrDefaultKey))
+          return VisitQuerySingle(mc);
         throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
       }
 
@@ -279,46 +274,46 @@ namespace Xtensive.Storage.Linq
 
     private Expression CosntructFreeTextQueryRoot(Type elementType, Expression searchCriteria)
     {
-        TypeInfo type;
-        if (!context.Model.Types.TryGetValue(elementType, out type))
-          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
-        var fullTextIndex = type.FullTextIndex;
-        if (fullTextIndex==null)
-          throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHasFullTextIndex, elementType.FullName));
+      TypeInfo type;
+      if (!context.Model.Types.TryGetValue(elementType, out type))
+        throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+      var fullTextIndex = type.FullTextIndex;
+      if (fullTextIndex==null)
+        throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHasFullTextIndex, elementType.FullName));
 
-        if (QueryCachingScope.Current!=null
-          && searchCriteria.NodeType==ExpressionType.Constant
-            && searchCriteria.Type==typeof (string))
-          throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
+      if (QueryCachingScope.Current!=null
+        && searchCriteria.NodeType==ExpressionType.Constant
+          && searchCriteria.Type==typeof (string))
+        throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
 
 
-        // Prepare parameter
+      // Prepare parameter
 
-        Func<string> compiledParameter;
-        if (searchCriteria.NodeType==ExpressionType.Quote)
-          searchCriteria = searchCriteria.StripQuotes();
-        if (searchCriteria.Type==typeof (Func<string>)) {
-          if (QueryCachingScope.Current==null)
-            compiledParameter = ((Expression<Func<string>>) searchCriteria).CachingCompile();
-          else {
-            var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-            var queryParameter = QueryCachingScope.Current.QueryParameter;
-            var newSearchCriteria = replacer.Replace(searchCriteria);
-            compiledParameter = ((Expression<Func<string>>) newSearchCriteria).CachingCompile();
-          }
-        }
+      Func<string> compiledParameter;
+      if (searchCriteria.NodeType==ExpressionType.Quote)
+        searchCriteria = searchCriteria.StripQuotes();
+      if (searchCriteria.Type==typeof (Func<string>)) {
+        if (QueryCachingScope.Current==null)
+          compiledParameter = ((Expression<Func<string>>) searchCriteria).CachingCompile();
         else {
-          Expression<Func<string>> parameter = context.ParameterExtractor.ExtractParameter<string>(searchCriteria);
-          compiledParameter = parameter.CachingCompile();
+          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+          var queryParameter = QueryCachingScope.Current.QueryParameter;
+          var newSearchCriteria = replacer.Replace(searchCriteria);
+          compiledParameter = ((Expression<Func<string>>) newSearchCriteria).CachingCompile();
         }
+      }
+      else {
+        Expression<Func<string>> parameter = context.ParameterExtractor.ExtractParameter<string>(searchCriteria);
+        compiledParameter = parameter.CachingCompile();
+      }
 
-        var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
-        var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
-        var rankExpression = ColumnExpression.Create(typeof (double), entityExpression.Key.Mapping.Length);
-        var freeTextExpression = new FreeTextExpression(fullTextIndex, entityExpression, rankExpression, null);
-        var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured).Result;
-        var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
-        return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
+      var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
+      var rankExpression = ColumnExpression.Create(typeof (double), entityExpression.Key.Mapping.Length);
+      var freeTextExpression = new FreeTextExpression(fullTextIndex, entityExpression, rankExpression, null);
+      var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured).Result;
+      var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
+      return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 
     private Expression VisitIn(MethodCallExpression mc)

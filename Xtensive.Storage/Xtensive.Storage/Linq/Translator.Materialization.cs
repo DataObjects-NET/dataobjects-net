@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -194,6 +195,20 @@ namespace Xtensive.Storage.Linq
         return indexProjectionExpression;
       }
       return null;
+    }
+
+    private Expression VisitQuerySingle(MethodCallExpression mc)
+    {
+      var returnType = mc.Method.ReturnType;
+
+      var argument = mc.Arguments[0];
+      var queryable = (IQueryable)WellKnownMembers.Query.All.MakeGenericMethod(returnType).Invoke(null, new object[0]);
+      var source = ConstructQueryable(queryable);
+      var parameter = Expression.Parameter(returnType, "entity");
+      var keyAccessor = Expression.MakeMemberAccess(parameter, WellKnownMembers.IEntityKey);
+      var equility = Expression.Equal(keyAccessor, argument);
+      var lambda = FastExpression.Lambda(equility, parameter);
+      return VisitFirstSingle(source, lambda, mc.Method, false);
     }
   }
 }
