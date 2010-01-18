@@ -5,6 +5,7 @@
 // Created:    2009.12.21
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
@@ -15,9 +16,7 @@ namespace Xtensive.Storage.Building.Definitions
   public sealed class FullTextIndexDef : Node
   {
     public TypeDef Type { get; private set; }
-    public NodeCollection<FieldDef> Fields { get; private set;}
-    public NodeCollection<FieldDef> IncludedFields { get; private set; }
-
+    public List<FullTextFieldDef> Fields { get; private set; }
 
     // Constructors
 
@@ -27,8 +26,7 @@ namespace Xtensive.Storage.Building.Definitions
     public FullTextIndexDef(TypeDef type)
     {
       Type = type;
-      Fields = new NodeCollection<FieldDef>();
-      IncludedFields = new NodeCollection<FieldDef>();
+      Fields = new List<FullTextFieldDef>();
     }
   }
 }

@@ -1,0 +1,46 @@
+// Copyright (C) 2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexis Kochetov
+// Created:    2010.01.18
+
+using System;
+using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Model;
+
+namespace Xtensive.Storage.Building.Definitions
+{
+  [Serializable]
+  [DebuggerDisplay("{Name}")]
+  public class FullTextFieldDef : Node
+  {
+    /// <summary>
+    /// Gets or sets the language for word-breaker and stemmer.
+    /// </summary>
+    /// <value>The language.</value>
+    public string Language { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name of the type field.
+    /// </summary>
+    public string TypeFieldName { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this field is analyzed by stemmer.
+    /// </summary>
+    public bool IsAnalyzed { get; set; }
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public FullTextFieldDef(string fieldName, bool isAnalyzed)
+      : base(fieldName)
+    {
+      IsAnalyzed = isAnalyzed;
+    }
+  }
+}

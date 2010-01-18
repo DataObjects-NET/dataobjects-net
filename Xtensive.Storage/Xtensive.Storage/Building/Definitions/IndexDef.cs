@@ -1,7 +1,7 @@
 // Copyright (C) 2007 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: 
+// Created by: Alexis Kochetov
 // Created:    2007.09.29
 
 using System;

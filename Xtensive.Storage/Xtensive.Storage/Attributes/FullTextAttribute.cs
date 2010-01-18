@@ -24,6 +24,16 @@ namespace Xtensive.Storage
     /// </summary>
     public bool Analyze { get; set; }
 
+    /// <summary>
+    /// Gets or sets the language for word-breaker and stemmer. 
+    /// </summary>
+    public string Language { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name of the type column.
+    /// </summary>
+    public string TypeColumnName { get; set; } 
+
     
     // Constructors
 

@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.16
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Storage.Building.Definitions;
@@ -52,10 +53,10 @@ namespace Xtensive.Storage.Building.Builders
         var primaryIndex = type.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
         var name = context.NameBuilder.BuildFullTextIndexName(root);
         var index = new FullTextIndexInfo(primaryIndex, name);
-        foreach (var typeColumn in fullTextIndexDef.Fields.Select(f => type.Fields[f.Name].Column))
-          index.Columns.Add(typeColumn);
-        foreach (var typeColumn in fullTextIndexDef.IncludedFields.Select(f => type.Fields[f.Name].Column))
-          index.IncludedColumns.Add(typeColumn);
+        foreach (var fullTextFieldDef in fullTextIndexDef.Fields) {
+          var fullTextColumn = GetFullTextColumn(type, fullTextFieldDef);
+          index.Columns.Add(fullTextColumn);
+        }
         model.FullTextIndexes.Add(type, index);
       }
     }
@@ -73,10 +74,10 @@ namespace Xtensive.Storage.Building.Builders
         types.Add(type);
         foreach (var descendant in type.GetDescendants(true))
           types.Add(descendant);
-        foreach (var typeColumn in fullTextIndexDef.Fields.Select(f => type.Fields[f.Name].Column))
-          index.Columns.Add(typeColumn);
-        foreach (var typeColumn in fullTextIndexDef.IncludedFields.Select(f => type.Fields[f.Name].Column))
-          index.IncludedColumns.Add(typeColumn);
+        foreach (var fullTextFieldDef in fullTextIndexDef.Fields) {
+          var fullTextColumn = GetFullTextColumn(type, fullTextFieldDef);
+          index.Columns.Add(fullTextColumn);
+        }
       }
       foreach (var type in types)
         model.FullTextIndexes.Add(type, index);
@@ -93,14 +94,25 @@ namespace Xtensive.Storage.Building.Builders
         var primaryIndex = type.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
         var name = context.NameBuilder.BuildFullTextIndexName(root);
         var index = new FullTextIndexInfo(primaryIndex, name);
-        foreach (var typeColumn in typeIndexDef.Value
-          .SelectMany(ftid => ftid.Fields.Select(f => type.Fields[f.Name].Column)))
-          index.Columns.Add(typeColumn);
-        foreach (var typeColumn in typeIndexDef.Value
-          .SelectMany(ftid => ftid.IncludedFields.Select(f => type.Fields[f.Name].Column)))
-          index.IncludedColumns.Add(typeColumn);
+        foreach (var fullTextFieldDef in typeIndexDef.Value.SelectMany(def => def.Fields)) {
+          var fullTextColumn = GetFullTextColumn(type, fullTextFieldDef);
+          index.Columns.Add(fullTextColumn);
+        }
         model.FullTextIndexes.Add(type, index);
       }
+    }
+
+    private static FullTextColumnInfo GetFullTextColumn(TypeInfo type, FullTextFieldDef fullTextFieldDef)
+    {
+      var column = type.Fields[fullTextFieldDef.Name].Column;
+      var typeColumn = fullTextFieldDef.TypeFieldName == null
+        ? null
+        : type.Fields[fullTextFieldDef.TypeFieldName].Column;
+      return new FullTextColumnInfo(column) {
+        IsAnalyzed = fullTextFieldDef.IsAnalyzed, 
+        Language = fullTextFieldDef.Language, 
+        TypeColumn = typeColumn
+      };
     }
 
     private static Dictionary<TypeInfo, List<FullTextIndexDef>> GatherFullTextIndexDefinitons(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)

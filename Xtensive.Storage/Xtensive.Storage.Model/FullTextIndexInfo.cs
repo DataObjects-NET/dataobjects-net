@@ -16,8 +16,7 @@ namespace Xtensive.Storage.Model
   public class FullTextIndexInfo : Node 
   {
     private readonly IndexInfo primaryIndex;
-    private readonly ColumnInfoCollection columns = new ColumnInfoCollection();
-    private readonly ColumnInfoCollection includedColumns = new ColumnInfoCollection();
+    private readonly FullTextColumnInfoCollection columns = new FullTextColumnInfoCollection();
 
     /// <summary>
     /// Gets the primary index.
@@ -28,19 +27,11 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets the index columns.
+    /// Gets the full-text index columns.
     /// </summary>
-    public ColumnInfoCollection Columns
+    public FullTextColumnInfoCollection Columns
     {
       get { return columns; }
-    }
-
-    /// <summary>
-    /// Gets the included columns.
-    /// </summary>
-    public ColumnInfoCollection IncludedColumns
-    {
-      get { return includedColumns; }
     }
 
     /// <inheritdoc/>
@@ -50,7 +41,6 @@ namespace Xtensive.Storage.Model
       if (!recursive)
         return;
       Columns.Lock(true);
-      IncludedColumns.Lock(true);
     }
 
 

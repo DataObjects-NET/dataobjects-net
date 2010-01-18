@@ -90,16 +90,15 @@ namespace Xtensive.Storage.Building.Builders
         return;
 
       foreach (var fieldDef in typeDef.Fields.Where(f => f.UnderlyingProperty != null)) {
-        var fullTextAttribute = fieldDef.UnderlyingProperty.GetAttribute<FullTextAttribute>(AttributeSearchOptions.InheritAll);
+        var fullTextAttribute = fieldDef.UnderlyingProperty
+          .GetAttribute<FullTextAttribute>(AttributeSearchOptions.InheritAll);
         if (fullTextAttribute == null) 
           continue;
 
-        if (fullTextAttribute.Analyze)
-          fullTextIndexDef.Fields.Add(fieldDef);
-        else
-          fullTextIndexDef.IncludedFields.Add(fieldDef);
+        var fullTextField = new FullTextFieldDef(fieldDef.Name, fullTextAttribute.Analyze);
+        fullTextIndexDef.Fields.Add(fullTextField);
       }
-      if (fullTextIndexDef.Fields.Count > 0 || fullTextIndexDef.IncludedFields.Count > 0)
+      if (fullTextIndexDef.Fields.Count > 0)
         modelDef.FullTextIndexes.Add(fullTextIndexDef);
     }
 
