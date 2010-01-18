@@ -50,6 +50,9 @@ namespace Xtensive.Storage.Model
       var index = node as IndexInfo;
       if (index != null)
         return VisitIndexInfo(index);
+      var fullTextIndex = node as FullTextIndexInfo;
+      if (fullTextIndex != null)
+        return VisitFullTextIndexInfo(fullTextIndex);
 
       throw new ArgumentException(Resources.Strings.ExNodeTypeIsUnknown, "node");
     }
@@ -116,6 +119,11 @@ namespace Xtensive.Storage.Model
     /// <param name="domainModel">The domain model.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitDomainModel(DomainModel domainModel);
-    
+
+    /// <summary>
+    /// Visits the full text index info.
+    /// </summary>
+    /// <param name="fullTextIndex">Full index of the text.</param>
+    protected abstract TResult VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex);
   }
 }
