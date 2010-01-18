@@ -87,6 +87,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public SimplePersonDto Person { get; set; }
 
     public AddressDto Address { get; set; }
+
+    public ApartmentDescriptionDto Description { get; set; }
   }
 
   [Serializable]
@@ -101,5 +103,15 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public int Building { get; set; }
 
     public int Office { get; set; }
+  }
+
+  [Serializable]
+  public struct ApartmentDescriptionDto
+  {
+    public double RentalFee { get; set; }
+
+    public double Area { get; set; }
+
+    public SimplePersonDto Manager { get; set; }
   }
 }

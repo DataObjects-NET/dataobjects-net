@@ -68,7 +68,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
           break;
         }
       };
-      ((DefaultOperationSet) mapper.Compare(target, clone)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(target, clone).First).Apply(validator);
       Assert.AreEqual(2, eventRaisingCount);
     }
 
@@ -97,7 +97,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         else
           Assert.Fail();
       };
-      ((DefaultOperationSet) mapper.Compare(target, clone)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(target, clone).First).Apply(validator);
       Assert.AreEqual(2, eventRaisingCount);
     }
 
@@ -175,11 +175,11 @@ namespace Xtensive.Core.Tests.ObjectMapping
       modified.Auxiliary = "2";
       modified.IgnoredReference = new IgnorableSubordinateDto {Date = DateTime.Now.AddDays(1),
         Id = Guid.NewGuid()};
-      var operations = mapper.Compare(original, modified);
+      var operations = mapper.Compare(original, modified).First;
       Assert.IsTrue(operations.IsEmpty);
       var newDate = modified.IncludedReference.Date.AddYears(20);
       modified.IncludedReference.Date = newDate;
-      operations = mapper.Compare(original, modified);
+      operations = mapper.Compare(original, modified).First;
       Assert.IsFalse(operations.IsEmpty);
       var operation = ((DefaultOperationSet) operations).Single();
       Assert.AreEqual(original.IncludedReference, operation.Object);
@@ -232,7 +232,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       modified.RemoveAt(1);
       var createdAuthor = (AuthorDto) mapper.Transform(GetSourceAuthor());
       modified.Add(createdAuthor);
-      var operations = (DefaultOperationSet) mapper.Compare(original, modified);
+      var operations = (DefaultOperationSet) mapper.Compare(original, modified).First;
       Assert.AreEqual(9, operations.Count());
       ValidateObjectCreation(createdAuthor, operations.First());
       ValidateObjectCreation(createdAuthor.Book, operations.Skip(1).First());
@@ -255,7 +255,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var source = new List<Person> {GetSourcePerson(1), GetSourcePerson(2)};
       var original = (List<object>) mapper.Transform(source);
       var modified = new PersonDto {BirthDate = DateTime.Now, Id = 3};
-      var operations = (DefaultOperationSet) mapper.Compare(original, modified);
+      var operations = (DefaultOperationSet) mapper.Compare(original, modified).First;
       Assert.AreEqual(6, operations.Count());
       ValidateObjectCreation(modified, operations.First());
       ValidatePropertySettingOperation(modified, operations.Skip(1).First(), FirstNameProperty,
@@ -278,7 +278,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         new PersonDto {BirthDate = DateTime.Now, Id = 1, FirstName = "A"},
         new PersonDto {BirthDate = DateTime.Now, Id = 2, FirstName = "B"}
       };
-      var operations = (DefaultOperationSet) mapper.Compare(original, modified);
+      var operations = (DefaultOperationSet) mapper.Compare(original, modified).First;
       Assert.AreEqual(9, operations.Count());
       ValidateObjectCreation(modified[0], operations.First());
       ValidateObjectCreation(modified[1], operations.Skip(1).First());
@@ -444,10 +444,27 @@ namespace Xtensive.Core.Tests.ObjectMapping
       target = (PersonDto) mapper.Transform(source);
       modified = (PersonDto) target.Clone();
       modified.FirstName += "!";
-      var operations = mapper.Compare(target, modified);
+      var operations = mapper.Compare(target, modified).First;
       Assert.IsTrue(operations.IsEmpty);
     }
 
+    [Test]
+    public void SkipSettingIgnoredPropertiesWhenObjectHasBeenCreatedTest()
+    {
+      var mapper = new DefaultMapper();
+      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).Ignore(p => p.FirstName).Complete();
+      var createdObject = new PersonDto {
+        BirthDate = DateTime.Now, FirstName = "FirstName", LastName = "LastName"
+      };
+      var operations = ((DefaultOperationSet) mapper.Compare(null, createdObject).First).ToList();
+      Assert.AreEqual(3, operations.Count);
+      ValidateObjectCreation(createdObject, operations[0]);
+      ValidatePropertyOperation<PersonDto>(createdObject, operations[1], p => p.LastName,
+        createdObject.LastName, OperationType.SetProperty);
+      ValidatePropertyOperation<PersonDto>(createdObject, operations[2], p => p.BirthDate,
+        createdObject.BirthDate, OperationType.SetProperty);
+    }
+    
     private static void ValidateComparisonOfObjectsWhenReferencedObjectHasBeenReplaced(DefaultMapper mapper,
       OrderDto target, OrderDto clone, DateTime modifiedShipDate, PersonDto modifiedCustomer)
     {
@@ -503,7 +520,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         else
           Assert.Fail();
       };
-      ((DefaultOperationSet) mapper.Compare(target, clone)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(target, clone).First).Apply(validator);
       Assert.AreEqual(7, eventRaisingCount);
       Assert.IsTrue(customerPropertyCounts.All(pair => pair.Value == 1));
       Assert.IsTrue(shipDateModified);

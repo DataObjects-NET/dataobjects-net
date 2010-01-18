@@ -415,6 +415,9 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 
     [Field]
     public Address Address { get; set; }
+
+    [Field]
+    public ApartmentDescription Description { get; set; }
   }
 
   public class Address : Structure
@@ -433,5 +436,17 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 
     [Field]
     public int Office { get; set; }
+  }
+
+  public class ApartmentDescription : Structure
+  {
+    [Field]
+    public double RentalFee { get; set; }
+
+    [Field]
+    public double Area { get; set; }
+
+    [Field]
+    public SimplePerson Manager { get; set; }
   }
 }

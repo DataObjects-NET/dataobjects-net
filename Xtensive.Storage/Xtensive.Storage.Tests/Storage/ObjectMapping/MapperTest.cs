@@ -5,6 +5,7 @@
 // Created:    2009.12.16
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -53,7 +54,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var modificationSet = mapper.Compare(productDto, modifiedProductDto);
+        var modificationSet = mapper.Compare(productDto, modifiedProductDto).First;
         modificationSet.Apply();
         tx.Complete();
       }
@@ -103,7 +104,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var modifications = mapper.Compare(publisherDto, modifiedPublisherDto);
+        var modifications = mapper.Compare(publisherDto, modifiedPublisherDto).First;
         modifications.Apply();
         tx.Complete();
       }
@@ -165,7 +166,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var operations = mapper.Compare(bookShopDto, modifiedBookShopDto);
+        var operations = mapper.Compare(bookShopDto, modifiedBookShopDto).First;
         operations.Apply();
         var newPublisher = Query.All<Publisher>().Where(p => p.Trademark==newPublisherDto.Trademark).Single();
         Assert.AreEqual("D", newPublisher.Trademark);
@@ -181,7 +182,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       var mapper = new Mapper();
       mapper.MapType<SimplePerson, SimplePersonDto, string>(p => p.Key.Format(), p => p.Key)
         .MapType<Apartment, ApartmentDto, string>(a => a.Key.Format(), a => a.Key)
-        .MapStructure<Address, AddressDto>().Complete();
+        .MapStructure<Address, AddressDto>()
+        .MapStructure<ApartmentDescription, ApartmentDescriptionDto>().Complete();
       Key apartment0Key;
       Key apartment1Key;
       ApartmentDto originalApartmentDto0;
@@ -192,7 +194,12 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         var address0 = new Address {
           Building = 1, City = "City0", Country = "Country0", Office = 10, Street = "Street0"
         };
-        var apartment0 = new Apartment {Address = address0, Person = person0};
+        var apartmentDescription0 = new ApartmentDescription {
+          Area = 123.57, RentalFee = 10.5, Manager = new SimplePerson {Name = "Manager0"}
+        };
+        var apartment0 = new Apartment {
+          Address = address0, Person = person0, Description = apartmentDescription0
+        };
         apartment0Key = apartment0.Key;
         var person1 = new SimplePerson {Name = "Name1"};
         var address1 = new Address {
@@ -204,22 +211,87 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         originalApartmentDto1 = (ApartmentDto) mapper.Transform(apartment1);
         tx.Complete();
       }
+      var modifiedApartmentDto0 = Clone(originalApartmentDto0);
+      var newDescription0 = new ApartmentDescriptionDto {
+        Area = modifiedApartmentDto0.Description.Area,
+        RentalFee = modifiedApartmentDto0.Description.RentalFee + 10,
+        Manager = modifiedApartmentDto0.Description.Manager
+      };
+      modifiedApartmentDto0.Description = newDescription0;
+      newDescription0.Manager.Name += "Modified0";
       var modifiedApartmentDto1 = Clone(originalApartmentDto1);
       var currentAddress = originalApartmentDto1.Address;
       modifiedApartmentDto1.Address = new AddressDto {Building = currentAddress.Building,
-        City = currentAddress.City + "Modified", Country = currentAddress.Country,
+        City = currentAddress.City + "Modified1", Country = currentAddress.Country,
         Office = currentAddress.Office, Street = currentAddress.Street};
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var operations = mapper.Compare(originalApartmentDto1, modifiedApartmentDto1);
+        var operations = mapper.Compare(new[] {originalApartmentDto0, originalApartmentDto1},
+          new[] {modifiedApartmentDto1, modifiedApartmentDto0}).First;
         operations.Apply();
+        var apartment0 = Query.Single<Apartment>(apartment0Key);
+        ValidateApartment(modifiedApartmentDto0, apartment0);
+        Assert.AreEqual(modifiedApartmentDto0.Description.Manager.Key,
+          apartment0.Description.Manager.Key.Format());
+        Assert.AreEqual(modifiedApartmentDto0.Description.Manager.Name,
+          apartment0.Description.Manager.Name);
         var apartment1 = Query.Single<Apartment>(apartment1Key);
-        //var apparment0 = Query.Single(apartment0Key);
-        Assert.AreEqual(modifiedApartmentDto1.Person.Key, apartment1.Person.Key.Format());
-        Assert.AreEqual(modifiedApartmentDto1.Address.Building, apartment1.Address.Building);
-        Assert.AreEqual(modifiedApartmentDto1.Address.Country, apartment1.Address.Country);
-        Assert.AreEqual(modifiedApartmentDto1.Address.City, apartment1.Address.City);
+        ValidateApartment(modifiedApartmentDto1, apartment1);
       }
+    }
+
+    [Test]
+    public void NewObjectKeysMappingTest()
+    {
+      var mapper = new Mapper();
+      mapper.MapType<SimplePerson, SimplePersonDto, string>(sp => sp.Key.Format(), sp => sp.Key).Complete();
+      Key existingKey0;
+      Key existingKey1;
+      List<object> original;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var person0 = new SimplePerson {Name = "Person0"};
+        var person1 = new SimplePerson {Name = "Person1"};
+        original = (List<object>) mapper.Transform(new[] {person0, person1});
+        tx.Complete();
+      }
+      var modified = Clone(original);
+      var personDto2 = new SimplePersonDto {Key = Guid.NewGuid().ToString(), Name = "Person2"};
+      modified.Add(personDto2);
+      var personDto3 = new SimplePersonDto {Key = Guid.NewGuid().ToString(), Name = "Person3"};
+      modified.Add(personDto3);
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var comparisonResult = mapper.Compare(original, modified);
+        var keyMapping = comparisonResult.Second;
+        Assert.AreEqual(2, keyMapping.Count);
+        var person2RealKey = Key.Parse(Domain, (string) keyMapping[personDto2.Key]);
+        var person3RealKey = Key.Parse(Domain, (string) keyMapping[personDto3.Key]);
+        comparisonResult.First.Apply();
+        Query.Single<SimplePerson>(person2RealKey);
+        Query.Single<SimplePerson>(person3RealKey);
+        modified.RemoveAt(2);
+        modified.RemoveAt(3);
+        var personDto4 = new SimplePersonDto {Key = Guid.NewGuid().ToString(), Name = "Person4"};
+        modified.Add(personDto4);
+        comparisonResult = mapper.Compare(original, modified);
+        keyMapping = comparisonResult.Second;
+        Assert.AreEqual(2, keyMapping.Count);
+        var person4RealKey = Key.Parse(Domain, (string) keyMapping[personDto4.Key]);
+        comparisonResult.First.Apply();
+        Query.Single<SimplePerson>(person4RealKey);
+        Query.Single<SimplePerson>(person2RealKey);
+        Query.Single<SimplePerson>(person3RealKey);
+        tx.Complete();
+      }
+    }
+
+    private static void ValidateApartment(ApartmentDto modifiedApartmentDto, Apartment apartment)
+    {
+      Assert.AreEqual(modifiedApartmentDto.Person.Key, apartment.Person.Key.Format());
+      Assert.AreEqual(modifiedApartmentDto.Address.Building, apartment.Address.Building);
+      Assert.AreEqual(modifiedApartmentDto.Address.Country, apartment.Address.Country);
+      Assert.AreEqual(modifiedApartmentDto.Address.City, apartment.Address.City);
     }
 
     private static T Clone<T>(T obj)

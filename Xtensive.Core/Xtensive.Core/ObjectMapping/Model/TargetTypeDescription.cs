@@ -49,6 +49,11 @@ namespace Xtensive.Core.ObjectMapping.Model
     public ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription> ComplexProperties { get; private set; }
 
     /// <summary>
+    /// Gets mutable properties.
+    /// </summary>
+    public ReadOnlyCollection<TargetPropertyDescription> MutableProperties { get; private set; }
+
+    /// <summary>
     /// Gets direct descendants.
     /// </summary>
     public ReadOnlyCollection<TargetTypeDescription> DirectDescendants { get; private set; }
@@ -96,6 +101,8 @@ namespace Xtensive.Core.ObjectMapping.Model
         complexProperties.Add(property.SystemProperty, property);
       ComplexProperties =
         new ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription>(complexProperties, false);
+      var mutableProperties = new List<TargetPropertyDescription>(properties.Where(p => !p.IsImmutable));
+      MutableProperties = new ReadOnlyCollection<TargetPropertyDescription>(mutableProperties, false);
       base.Lock(recursive);
     }
 

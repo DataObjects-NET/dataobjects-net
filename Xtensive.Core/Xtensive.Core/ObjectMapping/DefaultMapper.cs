@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.12.10
 
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.ObjectMapping
@@ -28,10 +29,11 @@ namespace Xtensive.Core.ObjectMapping
     }
 
     /// <inheritdoc/>
-    protected override IOperationSet GetComparisonResult(object originalTarget, object modifiedTarget)
+    protected override Pair<IOperationSet, ReadOnlyDictionary<object, object>> GetComparisonResult(
+      object originalTarget, object modifiedTarget)
     {
       operationSet.Lock();
-      return operationSet;
+      return new Pair<IOperationSet, ReadOnlyDictionary<object, object>>(operationSet, null);
     }
 
     /// <summary>

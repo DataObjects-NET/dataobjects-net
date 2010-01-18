@@ -140,7 +140,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
           break;
         }
       };
-      ((DefaultOperationSet) mapper.Compare(original, modified)).Apply(validator);
+      ((DefaultOperationSet) mapper.Compare(original, modified).First).Apply(validator);
       Assert.AreEqual(7, eventRaisingCount);
       Assert.IsTrue(itemRemovalPublished0);
       Assert.IsTrue(itemRemovalPublished1);

@@ -7,8 +7,8 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Linq;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Resources;
 
@@ -86,8 +86,10 @@ namespace Xtensive.Core.ObjectMapping
     /// </summary>
     /// <param name="originalTarget">The original object graph.</param>
     /// <param name="modifiedTarget">The modified object graph.</param>
-    /// <returns>The set of operations describing found changes.</returns>
-    public IOperationSet Compare(object originalTarget, object modifiedTarget)
+    /// <returns>The set of operations describing found changes and the mapping from surrogate
+    /// keys to real keys for new objects.</returns>
+    public Pair<IOperationSet, ReadOnlyDictionary<object, object>> Compare(object originalTarget,
+      object modifiedTarget)
     {
       if (MappingDescription == null)
         throw new InvalidOperationException(Strings.ExMappingConfigurationHasNotBeenCompleted);
@@ -110,13 +112,15 @@ namespace Xtensive.Core.ObjectMapping
     protected abstract void InitializeComparison(object originalTarget, object modifiedTarget);
 
     /// <summary>
-    /// Gets a set of operations that may be used to apply found modifications
-    /// to source objects.
+    /// Gets the set of operations describing found changes and the mapping from surrogate
+    /// keys to real keys for new objects.
     /// </summary>
     /// <param name="originalTarget">The original target.</param>
     /// <param name="modifiedTarget">The modified target.</param>
-    /// <returns></returns>
-    protected abstract IOperationSet GetComparisonResult(object originalTarget, object modifiedTarget);
+    /// <returns>The set of operations describing found changes and the mapping from surrogate
+    /// keys to real keys for new objects.</returns>
+    protected abstract Pair<IOperationSet, ReadOnlyDictionary<object, object>> GetComparisonResult(
+      object originalTarget, object modifiedTarget);
 
     internal void Complete()
     {

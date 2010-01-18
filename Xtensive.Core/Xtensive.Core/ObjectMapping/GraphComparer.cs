@@ -11,11 +11,17 @@ using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.ObjectMapping
 {
   internal sealed class GraphComparer
   {
+    private static ThreadSafeDictionary<TargetTypeDescription, ReadOnlyCollection<TargetPropertyDescription>>
+      mutableNonStructureProperties =
+      ThreadSafeDictionary<TargetTypeDescription, ReadOnlyCollection<TargetPropertyDescription>>
+        .Create(new object());
+
     private readonly MappingDescription mappingDescription;
     private readonly Action<OperationInfo> subscriber;
     private readonly IExistanceInfoProvider existanceInfoProvider;
@@ -53,21 +59,20 @@ namespace Xtensive.Core.ObjectMapping
         null, null)));
       foreach (var createdObject in createdObjects) {
         var type = mappingDescription.TargetTypes[createdObject.GetType()];
-        var properties = GetMutableProperties(type);
+        var properties = type.MutableProperties;
         NotifyAboutValuesOfPropertiesOfCreatedObject(createdObject, properties);
       }
-    }
-
-    private static IEnumerable<TargetPropertyDescription> GetMutableProperties(TargetTypeDescription type)
-    {
-      return type.Properties.Select(pair => pair.Value).Cast<TargetPropertyDescription>()
-        .Where(p => !p.IsImmutable);
     }
 
     private static IEnumerable<TargetPropertyDescription> GetMutableNonStructureProperties(
       TargetTypeDescription type)
     {
-      return GetMutableProperties(type).Where(p => !p.IsUserStructure);
+      return mutableNonStructureProperties.GetValue(type,
+        t => {
+          var result = new List<TargetPropertyDescription>(t.MutableProperties.Count);
+          result.AddRange(t.MutableProperties.Where(p => !p.IsUserStructure));
+          return new ReadOnlyCollection<TargetPropertyDescription>(result, false);
+        });
     }
 
     private void NotifyAboutValuesOfPropertiesOfCreatedObject(object createdObject,

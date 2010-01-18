@@ -6,12 +6,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
+using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Storage.Operations;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
+using IOperationSet=Xtensive.Core.ObjectMapping.IOperationSet;
 
 namespace Xtensive.Storage.ObjectMapping
 {
@@ -69,16 +72,26 @@ namespace Xtensive.Storage.ObjectMapping
     protected override void InitializeComparison(object originalTarget, object modifiedTarget)
     {
       comparisonResult = new OperationSet();
-      if (keyMapping != null)
+      if (keyMapping!=null)
         keyMapping.Clear();
       session = Session.Demand();
     }
 
     /// <inheritdoc/>
-    protected override Core.ObjectMapping.IOperationSet GetComparisonResult(object originalTarget,
-      object modifiedTarget)
+    protected override Pair<IOperationSet, ReadOnlyDictionary<object, object>>
+      GetComparisonResult(object originalTarget, object modifiedTarget)
     {
-      return comparisonResult;
+      Dictionary<object, object> formattedKeyMapping = null;
+      if (keyMapping!=null) {
+        formattedKeyMapping = keyMapping.Select(pair => new {pair.Key, Value = pair.Value.Format()})
+        .ToDictionary(pair => pair.Key, pair => (object) pair.Value);
+        keyMapping.Clear();
+      }
+      var result = new Pair<IOperationSet, ReadOnlyDictionary<object, object>>(comparisonResult,
+        formattedKeyMapping!=null ? new ReadOnlyDictionary<object, object>(formattedKeyMapping, false) : null);
+      session = null;
+      comparisonResult = null;
+      return result;
     }
 
     #region Private \ internal methods
@@ -117,7 +130,7 @@ namespace Xtensive.Storage.ObjectMapping
       return session.Domain.Model.Types[sourceType.SystemType].Fields[fieldName];
     }
 
-    private static string MakeFieldName(ReadOnlyCollection<TargetPropertyDescription> propertyPath)
+    private static string MakeFieldName(System.Collections.ObjectModel.ReadOnlyCollection<TargetPropertyDescription> propertyPath)
     {
       var stringBuidler = new StringBuilder();
       for (var i = 0; i < propertyPath.Count; i++) {
