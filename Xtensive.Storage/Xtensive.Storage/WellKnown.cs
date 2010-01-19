@@ -55,6 +55,11 @@ namespace Xtensive.Storage
     public const string GeneratorColumnName = "ID";
 
     /// <summary>
+    /// Name of fake column in key generator table.
+    /// </summary>
+    public const string GeneratorFakeColumnName = "Fake";
+
+    /// <summary>
     /// Max number of key fields.
     /// </summary>
     public const int MaxKeyFieldNumber = 8;
@@ -110,6 +115,10 @@ namespace Xtensive.Storage
       /// </summary>
       public const string SqlServer = "sqlserver";
       /// <summary>
+      /// Microsoft SQL Server.
+      /// </summary>
+      public const string SqlServerCe = "sqlserverce";
+      /// <summary>
       /// PostgreSQL.
       /// </summary>
       public const string PostgreSql = "postgresql";
@@ -121,7 +130,7 @@ namespace Xtensive.Storage
       /// <summary>
       /// All supported protocols (for exception messages, etc).
       /// </summary>
-      public const string All = "'memory', 'sqlserver', 'postgresql', 'oracle'";
+      public const string All = "'memory', 'sqlserver', 'sqlserverce', 'postgresql', 'oracle'";
     }
 
     /// <summary>

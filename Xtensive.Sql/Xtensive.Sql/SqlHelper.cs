@@ -7,6 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -58,15 +59,16 @@ namespace Xtensive.Sql
     private static string Quote(string openingBracket, string closingBracket, string delimiter,
       string escapedClosingBracket, string[] names)
     {
+      var tokens = names.Where(name => !string.IsNullOrEmpty(name)).ToArray();
       var builder = new StringBuilder();
-      for (int i = 0; i < names.Length-1; i++) {
+      for (int i = 0; i < tokens.Length-1; i++) {
         builder.Append(openingBracket);
-        builder.Append(names[i].Replace(closingBracket, escapedClosingBracket));
+        builder.Append(tokens[i].Replace(closingBracket, escapedClosingBracket));
         builder.Append(closingBracket);
         builder.Append(delimiter);
       }
       builder.Append(openingBracket);
-      builder.Append(names[names.Length-1].Replace(closingBracket, escapedClosingBracket));
+      builder.Append(tokens[tokens.Length-1].Replace(closingBracket, escapedClosingBracket));
       builder.Append(closingBracket);
       return builder.ToString();
     }

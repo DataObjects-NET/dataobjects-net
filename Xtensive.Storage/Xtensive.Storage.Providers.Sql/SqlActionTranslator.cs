@@ -793,6 +793,10 @@ namespace Xtensive.Storage.Providers.Sql
           sequenceInfo.Current ?? sequenceInfo.StartValue,
           sequenceInfo.Increment);
       sequenceTable.CreatePrimaryKey(string.Format("PK_{0}", sequenceInfo.Name), idColumn);
+      if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
+        var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.BuildValueType(typeof(int)));
+        fakeColumn.IsNullable = true;
+      }
       RegisterCommand(SqlDdl.Create(sequenceTable));
     }
 

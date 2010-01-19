@@ -93,6 +93,11 @@ namespace Xtensive.Sql.Info
     MultipleResultsViaCursorParameters = 0x2000,
 
     /// <summary>
+    /// Indicates whether RDBMS supports INSERT INTO Table DEFAULT VALUES syntax
+    /// </summary>
+    DefaultValues = 0x4000,
+
+    /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>
     Paging = Limit | Offset,

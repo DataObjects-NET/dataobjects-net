@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.21
 
+using System.Collections.Generic;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Providers.Sql
@@ -16,7 +18,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// A request.
     /// </summary>
-    public readonly PersistRequest Request;
+    public readonly IEnumerable<PersistRequest> RequestSequence;
 
     /// <summary>
     /// A tuple containing parameter for request.
@@ -34,7 +36,13 @@ namespace Xtensive.Storage.Providers.Sql
 
     public SqlPersistTask(PersistRequest request, Tuple tuple)
     {
-      Request = request;
+      RequestSequence = EnumerableUtils.One(request);
+      Tuple = tuple;
+    }
+
+    public SqlPersistTask(IEnumerable<PersistRequest> requestSequence, Tuple tuple)
+    {
+      RequestSequence = requestSequence;
       Tuple = tuple;
     }
   }

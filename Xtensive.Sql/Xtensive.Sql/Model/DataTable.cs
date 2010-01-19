@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Sql.Model
 {
@@ -23,6 +22,14 @@ namespace Xtensive.Sql.Model
     public Index CreateIndex(string name)
     {
       return new Index(this, name);
+    }
+
+    /// <summary>
+    /// Creates the full-text index.
+    /// </summary>
+    public FullTextIndex CreateFullTextIndex()
+    {
+      return new FullTextIndex(this, string.Empty);
     }
 
     /// <summary>

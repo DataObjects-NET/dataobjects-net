@@ -94,7 +94,7 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Gets the referential constraint info.
     /// </summary>
-    public abstract FullTextInfo GetFullTextInfo();
+    public abstract FullTextSearchInfo GetFullTextInfo();
 
     /// <summary>
     /// Gets the referential constraint info.

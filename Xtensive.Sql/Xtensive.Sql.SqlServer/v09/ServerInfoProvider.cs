@@ -170,9 +170,11 @@ namespace Xtensive.Sql.SqlServer.v09
       return referenceConstraintInfo;
     }
 
-    public override FullTextInfo GetFullTextInfo()
+    public override FullTextSearchInfo GetFullTextInfo()
     {
-      return FullTextInfo.SingleKeyRankTable;
+      var info = new FullTextSearchInfo();
+      info.Features = FullTextSearchFeatures.SingleKeyRankTable;
+      return info;
     }
 
     public override QueryInfo GetQueryInfo()
@@ -188,7 +190,8 @@ namespace Xtensive.Sql.SqlServer.v09
         QueryFeatures.Batches |
         QueryFeatures.CrossApply |
         QueryFeatures.UpdateFrom |
-        QueryFeatures.Limit ;
+        QueryFeatures.Limit |
+        QueryFeatures.DefaultValues;
       return queryInfo;
     }
 

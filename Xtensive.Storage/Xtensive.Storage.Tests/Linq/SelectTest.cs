@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2009.01.12
 
+using System.Collections.Generic;
 using NUnit.Framework;
 using System;
 using System.Linq;
@@ -63,6 +64,17 @@ namespace Xtensive.Storage.Tests.Linq
         .OrderBy(customer => customer.Id)
         .Select(customer => customer["Phone"]);
       Assert.IsTrue(expected.SequenceEqual(result));
+
+      var qr = Query.All<Customer>();
+
+      var filter = new Dictionary<string, object> {{"Phone", "Test 718"}};
+
+      foreach (var item in filter) {
+          var pair = item; // This is important to use local variable
+          qr = qr.Where(order => order[pair.Key] == pair.Value);
+      }
+
+       var list = qr.ToList();
     }
 
     [Test]

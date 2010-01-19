@@ -48,7 +48,8 @@ namespace Xtensive.Sql.SqlServer.v09
       ExtractTablesAndViews();
       ExtractColumns();
       ExtractIndexes();
-      ExtractForeignKeys();      
+      ExtractForeignKeys();
+      ExtractFulltextIndexes();
     }
 
     // All schemas
@@ -230,7 +231,7 @@ namespace Xtensive.Sql.SqlServer.v09
     {
       string query = GetIndexQuery();
 
-      int tableId = 0, indexId = 0;
+      int tableId = 0;
       DataTableProxy table = null;
       Index index = null;
       PrimaryKey primaryKey = null;
@@ -248,13 +249,14 @@ namespace Xtensive.Sql.SqlServer.v09
             index = null;
             // Table could be changed only on new index creation
             GetDataTable(reader.GetInt32(1), ref tableId, ref table);
-            var name = reader.GetString(4);
+            var indexId = reader.GetInt32(3);
+            var indexName = reader.GetString(4);
 
             // Index is a part of primary key constraint
             if (reader.GetBoolean(6))
-              primaryKey = ((Table) table.Table).CreatePrimaryKey(name);
+              primaryKey = ((Table) table.Table).CreatePrimaryKey(indexName);
             else {
-              index = table.Table.CreateIndex(name);
+              index = table.Table.CreateIndex(indexName);
               index.IsUnique = reader.GetBoolean(7);
               index.IsClustered = reader.GetByte(5)==1;
               index.FillFactor = reader.GetByte(9);
@@ -263,7 +265,7 @@ namespace Xtensive.Sql.SqlServer.v09
 
               // Index is a part of unique constraint
               if (reader.GetBoolean(8))
-                uniqueConstraint = ((Table) table.Table).CreateUniqueConstraint(name);
+                uniqueConstraint = ((Table) table.Table).CreateUniqueConstraint(indexName);
             }
           }
 
@@ -314,6 +316,30 @@ namespace Xtensive.Sql.SqlServer.v09
           foreignKey.ReferencedColumns.Add((TableColumn) referencedTable.GetColumn(reader.GetInt32(9)));
         }
       }
+    }
+
+    private void ExtractFulltextIndexes()
+    {
+      string query = "select t.schema_id, t.name, fic.object_id, fi.unique_index_id, fc.name, fic.column_id, fic.type_column_id, fl.name, i.name from sys.tables t inner join sys.fulltext_index_columns as fic on t.object_id = fic.object_id inner join sys.fulltext_languages as fl on fic.language_id = fl.lcid inner join sys.fulltext_indexes fi on fic.object_id = fi.object_id inner join sys.fulltext_catalogs fc on fc.fulltext_catalog_id = fi.fulltext_catalog_id inner join sys.indexes as i on fic.object_id = i.object_id and fi.unique_index_id = i.index_id";
+      if (schema!=null)
+        query += " where t.schema_id = " + schemaId;
+      query += " order by t.schema_id, object_id, column_id";
+
+      int currentTableId = 0;
+      DataTableProxy table = null;
+      FullTextIndex index = null;
+      using (var cmd = Connection.CreateCommand(query))
+      using (var reader = cmd.ExecuteReader())
+        while (reader.Read()) {
+          int nextTableId = reader.GetInt32(1);
+          if (currentTableId != nextTableId) {
+            GetDataTable(nextTableId, ref currentTableId, ref table);
+            index = table.Table.CreateFullTextIndex();
+            index.FullTextCatalog = reader.GetString(3);
+            index.UnderlyingUniqueIndex = reader.GetString(7);
+          }
+          index.CreateIndexColumn(table.GetColumn(reader.GetInt32(4)), reader.GetString(6));
+        }
     }
 
     private static ReferentialAction GetReferentialAction(int actionCode)

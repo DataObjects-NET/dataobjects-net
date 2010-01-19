@@ -74,10 +74,18 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.MultipleResultsViaCursorParameters;
       if (si.MultipleActiveResultSets)
         f |= ProviderFeatures.MultipleActiveResultSets;
-      if (si.FullText==FullTextInfo.Full)
-        f |= ProviderFeatures.FullFeaturedFullText;
-      if (si.FullText==FullTextInfo.SingleKeyRankTable)
-        f |= ProviderFeatures.SingleKeyRankTableFullText;
+      if (queryFeatures.Supports(QueryFeatures.DefaultValues))
+        f |= ProviderFeatures.InsertDefaultValues;
+
+      var tt = si.TemporaryTable;
+      if (tt != null)
+        f |= ProviderFeatures.TemporaryTables;
+      if (si.FullTextSearch != null) {
+        if (si.FullTextSearch.Features==FullTextSearchFeatures.Full)
+          f |= ProviderFeatures.FullFeaturedFullText;
+        if (si.FullTextSearch.Features==FullTextSearchFeatures.SingleKeyRankTable)
+          f |= ProviderFeatures.SingleKeyRankTableFullText;
+      }
 
       var dataTypes = si.DataTypes;
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;

@@ -18,6 +18,7 @@ namespace Xtensive.Sql.Model
     private bool ascending;
     private Index index;
     private SqlExpression expression;
+    private string language;
 
     /// <summary>
     /// Gets or sets the index.
@@ -91,6 +92,19 @@ namespace Xtensive.Sql.Model
         expression = value;
       }
     }
+
+    /// <summary>
+    /// Gets or sets the language.
+    /// </summary>
+    public string Language
+    {
+      get { return language; }
+      set
+      {
+        this.EnsureNotLocked();
+        language = value;
+      }
+    }
  
   
     #region IPairedNode<Index> Members
@@ -115,6 +129,13 @@ namespace Xtensive.Sql.Model
       Column = column;
       Index = index;
       this.ascending = ascending;
+    }
+
+    internal IndexColumn(Index index, DataTableColumn column, string language)
+    {
+      Column = column;
+      Index = index;
+      this.language = language;
     }
 
     internal IndexColumn(Index index, SqlExpression expression, bool ascending)

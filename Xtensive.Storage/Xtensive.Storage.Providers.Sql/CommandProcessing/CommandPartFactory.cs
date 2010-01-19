@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
@@ -38,23 +40,26 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="task">The task.</param>
     /// <param name="parameterNamePrefix">The parameter name prefix.</param>
     /// <returns>Created command part.</returns>
-    public virtual CommandPart CreatePersistCommandPart(SqlPersistTask task, string parameterNamePrefix)
+    public virtual IEnumerable<CommandPart> CreatePersistCommandPart(SqlPersistTask task, string parameterNamePrefix)
     {
-      var request = task.Request;
-      var tuple = task.Tuple;
+      var result = new List<CommandPart>();
       int parameterIndex = 0;
-      var compilationResult = request.GetCompiledStatement(domainHandler);
-      var configuration = new SqlPostCompilerConfiguration();
-      var result = new CommandPart();
-      
-      foreach (var binding in request.ParameterBindings) {
-        var parameterValue = tuple.GetValueOrDefault(binding.FieldIndex);
-        string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
-        configuration.PlaceholderValues.Add(binding, driver.BuildParameterReference(parameterName));
-        AddPersistParameter(result, parameterName, parameterValue, binding);
-      }
+      foreach (var request in task.RequestSequence) {
+        var tuple = task.Tuple;
+        var compilationResult = request.GetCompiledStatement(domainHandler);
+        var configuration = new SqlPostCompilerConfiguration();
+        var part = new CommandPart();
+        
+        foreach (var binding in request.ParameterBindings) {
+          var parameterValue = tuple.GetValueOrDefault(binding.FieldIndex);
+          string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
+          configuration.PlaceholderValues.Add(binding, driver.BuildParameterReference(parameterName));
+          AddPersistParameter(part, parameterName, parameterValue, binding);
+        }
 
-      result.Query = compilationResult.GetCommandText(configuration);
+        part.Query = compilationResult.GetCommandText(configuration);
+        result.Add(part);
+      }
       return result;
     }
 

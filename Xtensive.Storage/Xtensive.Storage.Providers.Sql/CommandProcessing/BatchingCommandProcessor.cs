@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
@@ -40,8 +41,9 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void ProcessTask(SqlPersistTask task)
     {
-      var part = factory.CreatePersistCommandPart(task, GetParameterPrefix());
-      activeCommand.AddPart(part);
+      var sequence = factory.CreatePersistCommandPart(task, GetParameterPrefix());
+      foreach (var part in sequence)
+        activeCommand.AddPart(part);
     }
 
     /// <inheritdoc/>

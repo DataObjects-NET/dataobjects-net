@@ -363,5 +363,19 @@ namespace Xtensive.Sql.Tests.SqlServer
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 
+    [Test]
+    public void FreeTextCreateTest()
+    {
+      var table = Catalog.Schemas["Person"].Tables["Address"];
+      var ftindex = table.CreateFullTextIndex();
+      ftindex.CreateIndexColumn(table.Columns[1]);
+      ftindex.UnderlyingUniqueIndex = "PK_Address_AddressID";
+      var createIndex = SqlDdl.Create(ftindex);
+      Console.WriteLine(sqlDriver.Compile(createIndex).GetCommandText());
+
+      var dropIndex = SqlDdl.Drop(ftindex);
+      Console.WriteLine(sqlDriver.Compile(dropIndex).GetCommandText());
+    }
+
   }
 }

@@ -425,7 +425,7 @@ namespace Xtensive.Sql.Compiler
               }
             else {
               context.Output.AppendText(translator.QuoteIdentifier(item.Column.Name));
-              if (Driver.ServerInfo.Index.Features.Supports(IndexFeatures.SortOrder))
+              if (!node.Index.IsFullText && Driver.ServerInfo.Index.Features.Supports(IndexFeatures.SortOrder))
                 context.Output.AppendText(translator.TranslateSortOrder(item.Ascending));
             }
           }

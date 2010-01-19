@@ -304,7 +304,8 @@ namespace Xtensive.Storage.Providers.Sql
     /// </returns>
     protected virtual bool IsGeneratorTable(Table table)
     {
-      return table.TableColumns.Count==1 &&
+      int columnNumber = ProviderInfo.Supports(ProviderFeatures.InsertDefaultValues) ? 1 : 2;
+      return table.TableColumns.Count==columnNumber &&
         table.TableColumns[0].SequenceDescriptor!=null;
     }
 

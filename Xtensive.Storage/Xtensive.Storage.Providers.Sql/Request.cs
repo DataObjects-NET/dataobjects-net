@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Gets the statement of this request.
     /// </summary>
-    protected ISqlCompileUnit Statement { get; private set; }
+    protected internal ISqlCompileUnit Statement { get; private set; }
 
     /// <summary>
     /// Gets the options of this request.

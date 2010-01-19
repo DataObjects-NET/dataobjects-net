@@ -26,5 +26,8 @@ namespace Xtensive.Sql.Tests
     public const string Oracle9  = "oracle://test:test@localhost:5509/ora09";
     public const string Oracle10 = "oracle://test:test@localhost:5510/ora10";
     public const string Oracle11 = "oracle://test:test@localhost:5511/ora11";
+
+    public const string SqlServerCe35 = "sqlserverce://localhost/SqlServerCe/DO40-Test.sdf";
+    public const string SqlServerCe35Northwind = "sqlserverce://localhost/SqlServerCe/Northwind.sdf";
   }
 }

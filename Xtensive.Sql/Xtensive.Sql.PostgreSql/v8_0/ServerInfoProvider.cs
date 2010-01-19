@@ -136,9 +136,12 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return info;
     }
 
-    public override FullTextInfo GetFullTextInfo()
+    public override FullTextSearchInfo GetFullTextInfo()
     {
-      return FullTextInfo.Full;
+      var info = new FullTextSearchInfo();
+      info.Features = FullTextSearchFeatures.Full;
+      return info;
+
     }
 
     public override EntityInfo GetViewInfo()
@@ -251,7 +254,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         QueryFeatures.UpdateFrom | 
         QueryFeatures.Limit |
         QueryFeatures.Offset |
-        QueryFeatures.MulticolumnIn;
+        QueryFeatures.MulticolumnIn |
+        QueryFeatures.DefaultValues;
       info.ParameterPrefix = "@";
       info.MaxComparisonOperations = 1000000;
       info.MaxLength = 1000000;

@@ -505,6 +505,9 @@ namespace Xtensive.Sql.Compiler
       switch (section) {
         case CreateIndexSection.Entry:
           Index index = node.Index;
+          if (index.IsFullText) {
+            return "CREATE FULLTEXT INDEX ON " + Translate(index.DataTable);
+          }
           var builder = new StringBuilder();
           builder.Append("CREATE ");
           if (index.IsUnique)
@@ -537,6 +540,10 @@ namespace Xtensive.Sql.Compiler
           }
           else if (!String.IsNullOrEmpty(index.Filegroup))
             builder.Append(" ON " + index.Filegroup);
+          else if (index is FullTextIndex) {
+            var ftindex = index as FullTextIndex;
+            builder.Append(" KEY INDEX " + ftindex.UnderlyingUniqueIndex);
+          }
           return builder.ToString();
         default:
           return string.Empty;
@@ -815,7 +822,10 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      return "DROP INDEX " + QuoteIdentifier(node.Index.DbName) + " ON " + Translate(node.Index.DataTable);
+      if (!node.Index.IsFullText)
+        return "DROP INDEX " + QuoteIdentifier(node.Index.DbName) + " ON " + Translate(node.Index.DataTable);
+      else 
+        return "DROP FULLTEXT INDEX ON " + Translate(node.Index.DataTable);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropPartitionFunction node)

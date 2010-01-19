@@ -62,14 +62,16 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void ExecutePersist(SqlPersistTask task)
     {
-      AllocateCommand();
-      try {
-        var part = factory.CreatePersistCommandPart(task, DefaultParameterNamePrefix);
-        activeCommand.AddPart(part);
-        activeCommand.ExecuteNonQuery();
-      }
-      finally {
-        DisposeCommand();
+      var sequence = factory.CreatePersistCommandPart(task, DefaultParameterNamePrefix);
+      foreach (var part in sequence) {
+        AllocateCommand();
+        try {
+          activeCommand.AddPart(part);
+          activeCommand.ExecuteNonQuery();
+        }
+        finally {
+          DisposeCommand();
+        }
       }
     }
 

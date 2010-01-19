@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.Issues
   {
     protected override void CheckRequirements()
     {
-      EnsureProtocolIs(StorageProtocol.SqlServer);
+      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.SqlServerCe);
     }
 
     protected override DomainConfiguration BuildConfiguration()

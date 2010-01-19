@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Providers.Sql
   public abstract class DomainHandler : Providers.DomainHandler
   {
     private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
-    private ThreadSafeDictionary<PersistRequestBuilderTask, PersistRequest> requestCache;
+    private ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> requestCache;
 
     /// <summary>
     /// Gets the storage schema.
@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     /// <param name="task">The task to get request from.</param>
     /// <returns>A <see cref="PersistRequest"/> that represents <paramref name="task"/>.</returns>
-    public PersistRequest GetPersistRequest(PersistRequestBuilderTask task)
+    public IEnumerable<PersistRequest> GetPersistRequest(PersistRequestBuilderTask task)
     {
       return requestCache.GetValue(task, PersistRequestBuilder.Build);
     }
@@ -220,7 +220,7 @@ namespace Xtensive.Storage.Providers.Sql
       base.Initialize();
 
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
-      requestCache = ThreadSafeDictionary<PersistRequestBuilderTask, PersistRequest>.Create(new object());
+      requestCache = ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>.Create(new object());
       Mapping = new ModelMapping();
 
       PersistRequestBuilder = Handlers.HandlerFactory.CreateHandler<PersistRequestBuilder>();

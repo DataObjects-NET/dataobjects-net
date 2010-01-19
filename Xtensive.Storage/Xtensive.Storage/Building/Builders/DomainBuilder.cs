@@ -120,6 +120,7 @@ namespace Xtensive.Storage.Building.Builders
       case WellKnown.Protocol.Memory:
         return WellKnown.ProviderAssembly.Indexing;
       case WellKnown.Protocol.SqlServer:
+      case WellKnown.Protocol.SqlServerCe:
       case WellKnown.Protocol.PostgreSql:
       case WellKnown.Protocol.Oracle:
         return WellKnown.ProviderAssembly.Sql;

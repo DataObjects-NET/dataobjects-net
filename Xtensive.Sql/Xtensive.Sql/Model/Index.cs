@@ -111,6 +111,15 @@ namespace Xtensive.Sql.Model
     }
 
     /// <summary>
+    /// Gets or sets the value indicating that this index is unique index.
+    /// Unique index is one in which no two rows are permitted to have the same index key value.
+    /// </summary>
+    public virtual bool IsFullText
+    {
+      get { return false; }
+    }
+
+    /// <summary>
     /// Gets or sets the value indicating that this index is bitmap index.
     /// A bitmap index is a special kind of index that stores the bulk of its data as bitmaps 
     /// and answers most queries by performing bitwise logical operations on these bitmaps.

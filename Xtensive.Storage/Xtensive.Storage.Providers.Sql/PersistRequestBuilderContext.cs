@@ -29,10 +29,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructors
 
-    public PersistRequestBuilderContext(PersistRequestBuilderTask task, SqlBatch batch)
+    public PersistRequestBuilderContext(PersistRequestBuilderTask task)
     {
       Task = task;
-      Batch = batch;
       Type = task.Type;
       var affectedIndexes = Type.AffectedIndexes.Where(index => index.IsPrimary).ToList();
       affectedIndexes.Sort((left, right)=>{

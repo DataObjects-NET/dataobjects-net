@@ -18,6 +18,12 @@ namespace Xtensive.Sql.Tests.SqlServer
     protected override string Url { get { return TestUrl.SqlServer2005Aw; } }
 
     [Test]
+    public void Extract()
+    {
+      var catalog = ExtractCatalog();
+    }
+
+    [Test]
     public void ExtractDomainsTest()
     {
       string createTable =

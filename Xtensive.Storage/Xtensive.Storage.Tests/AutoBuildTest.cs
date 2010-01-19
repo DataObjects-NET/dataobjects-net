@@ -107,6 +107,9 @@ namespace Xtensive.Storage.Tests
       case WellKnown.Protocol.SqlServer:
         protocol = StorageProtocol.SqlServer;
         break;
+      case WellKnown.Protocol.SqlServerCe:
+        protocol = StorageProtocol.SqlServerCe;
+        break;
       case WellKnown.Protocol.PostgreSql:
         protocol = StorageProtocol.PostgreSql;
         break;

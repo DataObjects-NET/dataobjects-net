@@ -58,7 +58,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       // table
       string tableName = string.Format(TableNamePattern, name);
-      var table = schema.CreateTemporaryTable(tableName);
+      var supportTmpTables = DomainHandler.ProviderInfo.Supports(ProviderFeatures.TemporaryTables);
+      var table = supportTmpTables ? schema.CreateTemporaryTable(tableName) : schema.CreateTable(tableName);
       var typeMappings = source
         .Select(type => driver.GetTypeMapping(type))
         .ToArray();

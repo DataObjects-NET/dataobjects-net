@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Gets the server supported isolation levels.
     /// </summary>
-    public FullTextInfo FullText { get; private set; }
+    public FullTextSearchInfo FullTextSearch { get; private set; }
 
     /// <summary>
     /// Gets the assertion constraint info.
@@ -181,7 +181,7 @@ namespace Xtensive.Sql.Info
         Database = provider.GetDatabaseInfo(), 
         Domain = provider.GetDomainInfo(), 
         ForeignKey = provider.GetForeignKeyConstraintInfo(), 
-        FullText = provider.GetFullTextInfo(), 
+        FullTextSearch = provider.GetFullTextInfo(), 
         Identity = provider.GetIdentityInfo(), 
         Index = provider.GetIndexInfo(), 
         IsolationLevels = provider.GetIsolationLevels(), 

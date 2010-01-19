@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
@@ -20,7 +21,8 @@ namespace Xtensive.Storage.Providers.Sql
   /// <typeparam name="TFieldType">The type of the field.</typeparam>
   public class SqlCachingKeyGenerator<TFieldType> : CachingKeyGenerator<TFieldType>
   {
-    private string nextRequest;
+    private string insertRequest;
+    private string selectRequest;
     private ISqlCompileUnit sqlNext;
     private ISqlCompileUnit sqlInitialize;
 
@@ -38,7 +40,9 @@ namespace Xtensive.Storage.Providers.Sql
       using (Session.Open(domainHandler.Domain, SessionType.KeyGenerator))
       using (var t = Transaction.Open()) {
         var executor = Handlers.SessionHandler.GetService<IQueryExecutor>();
-        object value = executor.ExecuteScalar(nextRequest);
+        if (!string.IsNullOrEmpty(insertRequest))
+          executor.ExecuteNonQuery(insertRequest);
+        object value = executor.ExecuteScalar(selectRequest);
         upperBound = (TFieldType) Convert.ChangeType(value, typeof (TFieldType));
         // rolling back transaction
       }
@@ -65,10 +69,17 @@ namespace Xtensive.Storage.Providers.Sql
       }
 
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
-      nextRequest = domainHandler.Driver.Compile(sqlNext).GetCommandText();
+      var batch = sqlNext as SqlBatch;
+      if (batch != null && !domainHandler.ProviderInfo.Supports(ProviderFeatures.Batches)) {
+        insertRequest = domainHandler.Driver.Compile((ISqlCompileUnit) batch[0]).GetCommandText();
+        selectRequest = domainHandler.Driver.Compile((ISqlCompileUnit) batch[1]).GetCommandText();
+      }
+      else
+        selectRequest = domainHandler.Driver.Compile(sqlNext).GetCommandText();
       sqlNext = null;
     }
-    
+
+
     // Constructors
 
     /// <summary>

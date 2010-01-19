@@ -9,10 +9,10 @@ namespace Xtensive.Sql.Info
   /// <summary>
   /// Defines full-text options.
   /// </summary>
-  public enum FullTextInfo
+  public enum FullTextSearchFeatures
   {
     /// <summary>
-    /// Indicates that RDBMS does not support full-text.
+    /// Indicates that RDBMS doesn't support full-text at all.
     /// </summary>
     None = 0x0,
 

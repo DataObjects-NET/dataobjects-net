@@ -173,9 +173,12 @@ namespace Xtensive.Sql.Oracle.v09
       return foreignKeyConstraintInfo;
     }
 
-    public override FullTextInfo GetFullTextInfo()
+    public override FullTextSearchInfo GetFullTextInfo()
     {
-      return FullTextInfo.Full;
+      var info = new FullTextSearchInfo();
+      info.Features = FullTextSearchFeatures.Full;
+      return info;
+
     }
 
     public override QueryInfo GetQueryInfo()
@@ -191,7 +194,8 @@ namespace Xtensive.Sql.Oracle.v09
         QueryFeatures.Hints |
         QueryFeatures.DmlBatches |
         QueryFeatures.LargeObjects |
-        QueryFeatures.MultipleResultsViaCursorParameters;
+        QueryFeatures.MultipleResultsViaCursorParameters |
+        QueryFeatures.DefaultValues;
       return queryInfo;
     }
 
