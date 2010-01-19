@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0009_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0009_Model
@@ -39,7 +40,7 @@ namespace Xtensive.Storage.Tests.Issues
 {
   public class Issue0009_2SymmetricTablesForMNRelationship : AutoBuildTest
   {
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof(Book).Namespace);

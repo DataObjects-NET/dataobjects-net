@@ -5,6 +5,7 @@
 // Created:    2008.12.03
 
 using NUnit.Framework;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Tests.Issues.Issue0009_Model;
 
@@ -12,7 +13,7 @@ namespace Xtensive.Storage.Tests.Issues
 {
   public class Issue0005_EntitySetItemEnhancement : AutoBuildTest
   {
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (Book).Assembly, typeof (Book).Namespace);

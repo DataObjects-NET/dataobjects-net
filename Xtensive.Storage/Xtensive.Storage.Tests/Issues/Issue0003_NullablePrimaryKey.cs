@@ -9,6 +9,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0003_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0003_Model
@@ -27,14 +28,14 @@ namespace Xtensive.Storage.Tests.Issues
   [TestFixture]
   public class Issue0003_NullablePrimaryKey : AutoBuildTest
   {
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof(X).Namespace);
       return config;
     }
 
-    protected override Domain BuildDomain(Xtensive.Storage.Configuration.DomainConfiguration configuration)
+    protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       Domain domain = null;
       AssertEx.Throws<DomainBuilderException>(() => domain = base.BuildDomain(configuration));

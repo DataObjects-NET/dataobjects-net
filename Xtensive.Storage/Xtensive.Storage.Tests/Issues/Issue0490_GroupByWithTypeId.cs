@@ -16,7 +16,7 @@ using System.Reflection;
 
 namespace Xtensive.Storage.Tests.Issues
 {
-  public class Issue490_GroupByWithTypeId : NorthwindDOModelTest
+  public class Issue0490_GroupByWithTypeId : NorthwindDOModelTest
   {
     [Test]
     public void MainTest()

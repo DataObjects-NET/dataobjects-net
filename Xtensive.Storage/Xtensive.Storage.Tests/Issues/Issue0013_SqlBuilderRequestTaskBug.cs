@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0013_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0013_Model
@@ -38,7 +39,7 @@ namespace Xtensive.Storage.Tests.Issues
 {
   public class Issue0013_SqlBuilderRequestTaskBug : AutoBuildTest
   {
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (SqlTaskEntity).Assembly, typeof (SqlTaskEntity).Namespace);
