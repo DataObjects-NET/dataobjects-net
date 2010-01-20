@@ -45,12 +45,17 @@ namespace Xtensive.Storage.Providers.Sql
         enforceChangedColumns,
         SessionHandler.ExecuteScalar);
 
+      translator.Translate();
+
       LogTranslatedStatements(translator);
 
       Execute(translator.PreUpgradeCommands);
       Execute(translator.UpgradeCommands);
       Execute(translator.DataManipulateCommands);
       Execute(translator.PostUpgradeCommands);
+
+      var context = BuildingContext.Demand();
+      context.NonTransactionalAction = () => Execute(translator.NonTransactionalCommands);
     }
 
     /// <inheritdoc/>

@@ -54,6 +54,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly List<string> upgradeCommands = new List<string>();
     private readonly List<string> dataManipulateCommands = new List<string>();
     private readonly List<string> postUpgradeCommands = new List<string>();
+    private readonly List<string> nonTransactionalCommands = new List<string>();
     
     private bool translated;
     private readonly List<Table> createdTables = new List<Table>();
@@ -76,7 +77,7 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         if (!translated)
-          Translate();
+          throw new InvalidOperationException("Commands are not translated yet.");
         return preUpgradeCommands;
       }
     }
@@ -89,7 +90,7 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         if (!translated)
-          Translate();
+          throw new InvalidOperationException("Commands are not translated yet.");
         return upgradeCommands;
       }
     }
@@ -102,7 +103,7 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         if (!translated)
-          Translate();
+          throw new InvalidOperationException("Commands are not translated yet.");
         return dataManipulateCommands;
       }
     }
@@ -116,12 +117,28 @@ namespace Xtensive.Storage.Providers.Sql
       get
       {
         if (!translated)
-          Translate();
+          throw new InvalidOperationException("Commands are not translated yet.");
         return postUpgradeCommands;
       }
     }
 
-    private void Translate()
+    /// <summary>
+    /// Gets the non transactional commands.
+    /// </summary>
+    public List<string> NonTransactionalCommands
+    {
+      get
+      {
+        if (!translated)
+          throw new InvalidOperationException("Commands are not translated yet.");
+        return nonTransactionalCommands;
+      }
+    }
+
+    /// <summary>
+    /// Translates all registered actions.
+    /// </summary>
+    public void Translate()
     {
       // Prepairing
       stage = UpgradeStage.Prepare;
@@ -182,35 +199,39 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void VisitCreateAction(CreateNodeAction action)
     {
-      if (action.Type==typeof (TableInfo))
+      if (action.Type == typeof(TableInfo))
         VisitCreateTableAction(action);
-      else if (action.Type==typeof (ColumnInfo))
+      else if (action.Type == typeof(ColumnInfo))
         VisitCreateColumnAction(action);
-      else if (action.Type==typeof (PrimaryIndexInfo))
+      else if (action.Type == typeof(PrimaryIndexInfo))
         VisitCreatePrimaryKeyAction(action);
-      else if (action.Type==typeof (SecondaryIndexInfo))
+      else if (action.Type == typeof(SecondaryIndexInfo))
         VisitCreateSecondaryIndexAction(action);
-      else if (action.Type==typeof (ForeignKeyInfo))
+      else if (action.Type == typeof(ForeignKeyInfo))
         VisitCreateForeignKeyAction(action);
-      else if (action.Type==typeof (SequenceInfo))
+      else if (action.Type == typeof(SequenceInfo))
         VisitCreateSequenceAction(action);
+      else if (action.Type == typeof(FullTextIndexInfo))
+        VisitCreateFullTextIndexAction(action);
     }
 
     private void VisitRemoveAction(RemoveNodeAction action)
     {
       var node = action.Difference.Source;
-      if (node.GetType()==typeof (TableInfo))
+      if (node.GetType() == typeof(TableInfo))
         VisitRemoveTableAction(action);
-      else if (node.GetType()==typeof (ColumnInfo))
+      else if (node.GetType() == typeof(ColumnInfo))
         VisitRemoveColumnAction(action);
-      else if (node.GetType()==typeof (PrimaryIndexInfo))
+      else if (node.GetType() == typeof(PrimaryIndexInfo))
         VisitRemovePrimaryKeyAction(action);
-      else if (node.GetType()==typeof (SecondaryIndexInfo))
+      else if (node.GetType() == typeof(SecondaryIndexInfo))
         VisitRemoveSecondaryIndexAction(action);
-      else if (node.GetType()==typeof (ForeignKeyInfo))
+      else if (node.GetType() == typeof(ForeignKeyInfo))
         VisitRemoveForeignKeyAction(action);
-      else if (node.GetType()==typeof (SequenceInfo))
+      else if (node.GetType() == typeof(SequenceInfo))
         VisitRemoveSequenceAction(action);
+      else if (node.GetType() == typeof(FullTextIndexInfo))
+        VisitRemoveFullTextIndexAction(action);
     }
 
     private void VisitAlterAction(NodeAction action)
@@ -552,6 +573,35 @@ namespace Xtensive.Storage.Providers.Sql
         DropGeneratorTable(sequenceInfo);
         CreateGeneratorTable(sequenceInfo);
       }
+    }
+
+    private void VisitCreateFullTextIndexAction(CreateNodeAction action)
+    {
+      var fullTextIndexInfo = (FullTextIndexInfo) action.Difference.Target;
+      var fullTextSupported = providerInfo.Supports(ProviderFeatures.FullText);
+      if (!fullTextSupported)
+        return;
+      var table = FindTable(fullTextIndexInfo.Parent.Name);
+      var ftIndex = table.CreateFullTextIndex();
+      ftIndex.UnderlyingUniqueIndex = fullTextIndexInfo.Parent.PrimaryIndex.EscapedName;
+      ftIndex.FullTextCatalog = "Default";
+      foreach (var column in fullTextIndexInfo.Columns) {
+        var tableColumn = FindColumn(table, column.Value.Name);
+        ftIndex.CreateIndexColumn(tableColumn, column.Language);
+      }
+      RegisterCommand(SqlDdl.Create(ftIndex), true);
+    }
+
+    private void VisitRemoveFullTextIndexAction(RemoveNodeAction action)
+    {
+      var fullTextIndexInfo = (FullTextIndexInfo)action.Difference.Source;
+      var fullTextSupported = providerInfo.Supports(ProviderFeatures.FullText);
+      if (!fullTextSupported)
+        return;
+      var table = FindTable(fullTextIndexInfo.Parent.Name);
+      var ftIndex = table.Indexes[fullTextIndexInfo.Name];
+      RegisterCommand(SqlDdl.Drop(ftIndex), true);
+      table.Indexes.Remove(ftIndex);
     }
 
     private void ProcessClearDataActions()
@@ -927,12 +977,26 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void RegisterCommand(ISqlCompileUnit command)
     {
-      RegisterCommand(command, stage);
+      RegisterCommand(command, false);
+    }
+
+    private void RegisterCommand(ISqlCompileUnit command, bool nonTransactional)
+    {
+      RegisterCommand(command, stage, nonTransactional);
     }
 
     private void RegisterCommand(ISqlCompileUnit command, UpgradeStage stage)
     {
+      RegisterCommand(command, stage, false);
+    }
+
+    private void RegisterCommand(ISqlCompileUnit command, UpgradeStage stage, bool nonTransactional)
+    {
       var commandText = driver.Compile(command).GetCommandText();
+      if (nonTransactional) {
+        nonTransactionalCommands.Add(commandText);
+        return;
+      }
       switch (stage) {
         case UpgradeStage.Prepare:
         case UpgradeStage.TemporaryRename:

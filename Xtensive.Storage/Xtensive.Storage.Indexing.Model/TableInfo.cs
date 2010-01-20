@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets or sets the full-text index.
     /// </summary>
-    [Property(Priority = -900, IsMutable = true)]
+    [Property(Priority = -900, IsImmutable = true)]
     public FullTextIndexInfo FullTextIndex
     {
       get { return fullTextIndex; }

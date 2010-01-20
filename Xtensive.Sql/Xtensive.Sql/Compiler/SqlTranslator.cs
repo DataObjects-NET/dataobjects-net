@@ -542,7 +542,7 @@ namespace Xtensive.Sql.Compiler
             builder.Append(" ON " + index.Filegroup);
           else if (index is FullTextIndex) {
             var ftindex = index as FullTextIndex;
-            builder.Append(" KEY INDEX " + ftindex.UnderlyingUniqueIndex);
+            builder.Append(" KEY INDEX " + QuoteIdentifier(ftindex.UnderlyingUniqueIndex));
           }
           return builder.ToString();
         default:

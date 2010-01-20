@@ -27,6 +27,9 @@ namespace Xtensive.Storage.Indexing.Model
     [Property(Priority = -1000)]
     public FullTextColumnRefCollection Columns { get; private set; }
 
+    [Property(Priority = -2000)]
+    public string FullTextCatalog { get; set; }
+
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {

@@ -54,6 +54,9 @@ namespace Xtensive.Sql.Model
       var domain = node as Domain;
       if (domain!=null)
         return VisitDomain(domain);
+      var ftIndex = node as FullTextIndex;
+      if (ftIndex != null)
+        return VisitFullTextIndex(ftIndex);
       var index = node as Index;
       if (index!=null)
         return VisitIndex(index);
@@ -257,6 +260,13 @@ namespace Xtensive.Sql.Model
     /// <param name="domain">The domain.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitDomain(Domain domain);
+
+    /// <summary>
+    /// Visits the full-text index.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>Visit result.</returns>
+    protected abstract TResult VisitFullTextIndex(FullTextIndex index);
 
     /// <summary>
     /// Visits an index.

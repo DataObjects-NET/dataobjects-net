@@ -66,6 +66,8 @@ namespace Xtensive.Storage.Building.Builders
                 builderConfiguration.UpgradeHandler.Invoke();
               transactionScope.Complete();
             }
+            if (context.NonTransactionalAction != null)
+              context.NonTransactionalAction.Invoke();
           }
         }
       }

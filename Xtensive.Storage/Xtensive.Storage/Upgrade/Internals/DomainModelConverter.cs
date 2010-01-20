@@ -175,8 +175,12 @@ namespace Xtensive.Storage.Upgrade
     protected override IPathNode VisitDomainModel(DomainModel domainModel)
     {
       // Build tables, columns and primary indexes
-      foreach (IndexInfo primaryIndex in domainModel.RealIndexes.Where(i => i.IsPrimary))
+      foreach (var primaryIndex in domainModel.RealIndexes.Where(i => i.IsPrimary))
         Visit(primaryIndex);
+
+      // Build full-text indexes
+      foreach (var fullTextIndex in domainModel.FullTextIndexes)
+        Visit(fullTextIndex);
 
       // Build foreign keys
       if (BuildForeignKeys && ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints)) {
@@ -184,7 +188,7 @@ namespace Xtensive.Storage.Upgrade
           Visit(association);
       }
 
-      // Build sequnces
+      // Build sequences
       KeyProviderInfo[] persistentGenerators = domainModel.KeyProviders
         .Where(g => PersistentGeneratorFilter.Invoke(g)).ToArray();
       foreach (KeyProviderInfo generator in persistentGenerators)
@@ -362,8 +366,17 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex)
     {
-//      var fullTextIndex = new FullText
-      throw new NotImplementedException();
+      var table = GetTable(fullTextIndex.PrimaryIndex.ReflectedType);
+      var primaryIndex = table.PrimaryIndex;
+      var ftIndex = new IndexingModel.FullTextIndexInfo(table, fullTextIndex.Name);
+      foreach (var fullTextColumn in fullTextIndex.Columns) {
+        var column = table.Columns[fullTextColumn.Name];
+        var typeColumn = fullTextColumn.TypeColumn == null
+          ? null
+          : primaryIndex.ValueColumns[fullTextColumn.TypeColumn.Name];
+        var ftColumn = new IndexingModel.FullTextColumnRef(ftIndex, column, fullTextColumn.Language, typeColumn);
+      }
+      return ftIndex;
     }
 
     /// <summary>
@@ -500,8 +513,7 @@ namespace Xtensive.Storage.Upgrade
     /// <returns>Table.</returns>
     private IndexingModel.TableInfo GetTable(TypeInfo type)
     {
-      if (type.Hierarchy==null
-        || type.Hierarchy.Schema!=InheritanceSchema.SingleTable)
+      if (type.Hierarchy==null || type.Hierarchy.Schema!=InheritanceSchema.SingleTable)
         return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.MappingName);
       if (type.IsInterface)
         return null;

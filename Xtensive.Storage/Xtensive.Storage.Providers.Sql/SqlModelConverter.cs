@@ -21,6 +21,7 @@ using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
 using SequenceInfo = Xtensive.Storage.Indexing.Model.SequenceInfo;
 using SqlRefAction = Xtensive.Sql.ReferentialAction;
 using TableInfo = Xtensive.Storage.Indexing.Model.TableInfo;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -154,6 +155,23 @@ namespace Xtensive.Storage.Providers.Sql
       primaryIndexInfo.PopulateValueColumns();
 
       return primaryIndexInfo;
+    }
+
+    /// <inheritdoc/>
+    protected override IPathNode VisitFullTextIndex(FullTextIndex index)
+    {
+      var tableInfo = StorageInfo.Tables[index.DataTable.Name];
+      var name = index.Name.IsNullOrEmpty()
+        ? string.Format("FT_{0}", index.DataTable.Name)
+        : index.Name;
+      var ftIndex = new FullTextIndexInfo(tableInfo, name) {
+        FullTextCatalog = index.FullTextCatalog
+      };
+      foreach (var column in index.Columns) {
+        var columnInfo = tableInfo.Columns[column.Column.Name];
+        new FullTextColumnRef(ftIndex, columnInfo, column.Language);
+      }
+      return ftIndex;
     }
 
     /// <inheritdoc/>
