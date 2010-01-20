@@ -397,7 +397,7 @@ namespace Xtensive.Sql.SqlServer.v09
           // resetting length for types that do not require specifying it
           size = null;
         }
-        else if (size != null && size > 0)
+        else if (size != null && size > 1)
           switch (type) {
             case SqlType.Char:
             case SqlType.VarChar:

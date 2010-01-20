@@ -17,15 +17,11 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
 {
   internal class Extractor : Model.Extractor
   {
-    private static ThreadSafeCached<Catalog> infoCatalogCached = ThreadSafeCached<Catalog>.Create(new object());
-
-    private Catalog infoCatalog;
     protected Catalog catalog;
     protected Schema schema;
 
     protected override void Initialize()
     {
-      infoCatalog = infoCatalogCached.GetValue(BuildInfoCatalog, Connection.UnderlyingConnection);
       catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
     }
 
@@ -186,36 +182,6 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
       return ReferentialAction.NoAction;
     }
 
-    public void ExtractUniqueConstraints(Schema schema)
-    {
-      View tColumnUsage =
-        infoCatalog.Schemas["INFORMATION_SCHEMA"].Views["CONSTRAINT_COLUMN_USAGE"];
-      View tConstraints =
-        infoCatalog.Schemas["INFORMATION_SCHEMA"].Views["TABLE_CONSTRAINTS"];
-      SqlTableRef tColUseRef = SqlDml.TableRef(tColumnUsage, "constraintColumns");
-      SqlTableRef tConstrRef = SqlDml.TableRef(tConstraints, "constraints");
-      SqlSelect select =
-        SqlDml.Select(
-          tColUseRef.FullOuterJoin(tConstrRef, tConstrRef["CONSTRAINT_CATALOG"] == tColUseRef["CONSTRAINT_CATALOG"]));
-      select.Columns.AddRange(tColUseRef["TABLE_NAME"], tColUseRef["COLUMN_NAME"], tConstrRef["CONSTRAINT_NAME"]);
-      select.Where = tConstrRef["CONSTRAINT_NAME"] == tColUseRef["CONSTRAINT_NAME"] &&
-        tConstrRef["CONSTRAINT_TYPE"] == "UNIQUE" && tConstrRef["TABLE_SCHEMA"] == schema.Name;
-
-      using (var cmd = Connection.CreateCommand(select))
-      using (IDataReader reader = cmd.ExecuteReader()) {
-        while (reader.Read()) {
-          Table table = schema.Tables[(string) reader["TABLE_NAME"]];
-          string constraintName = (string) reader["CONSTRAINT_NAME"];
-
-          var uniqueConstraint = (Model.UniqueConstraint) table.TableConstraints[constraintName];
-          if (uniqueConstraint==null)
-            uniqueConstraint = table.CreateUniqueConstraint(constraintName);
-
-          uniqueConstraint.Columns.Add(table.TableColumns[(string) reader["COLUMN_NAME"]]);
-        }
-      }
-    }
-
     private SqlValueType ReadDataType(IDataRecord reader)
     {
       var typeName = (string) reader["DATA_TYPE"];
@@ -259,13 +225,6 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
     private static int? ReadNullableInt(IDataRecord reader, string column)
     {
       return Convert.IsDBNull(reader[column]) ? null : (int?) Convert.ToInt32(reader[column]);
-    }
-
-    private static Catalog BuildInfoCatalog(DbConnection connection)
-    {
-      var catalog = new Catalog("info_catalog");
-
-      return catalog;
     }
 
     public Extractor(SqlDriver driver)
