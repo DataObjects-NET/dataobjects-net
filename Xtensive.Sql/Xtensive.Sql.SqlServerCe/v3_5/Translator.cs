@@ -207,6 +207,11 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
     {
       return string.Format("DROP TYPE {0}", Translate(node.Domain));
     }
+    
+    public override string Translate(SqlCompilerContext context, SqlDropIndex node)
+    {
+      return string.Format("DROP INDEX {0}.{1}", QuoteIdentifier(node.Index.DataTable.DbName), QuoteIdentifier(node.Index.DbName));
+    }
 
     public override string Translate(SqlCompilerContext context, SqlAlterDomain node, AlterDomainSection section)
     {

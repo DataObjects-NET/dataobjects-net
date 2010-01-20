@@ -87,6 +87,10 @@ namespace Xtensive.Storage.Providers.Sql
           f |= ProviderFeatures.SingleKeyRankTableFullText;
       }
 
+      var c = si.Column;
+      if ((c.AllowedDdlStatements & DdlStatements.Alter) == DdlStatements.Alter)
+        f |= ProviderFeatures.ColumnRename;
+
       var dataTypes = si.DataTypes;
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;
       if (binaryTypeInfo!=null && binaryTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull))

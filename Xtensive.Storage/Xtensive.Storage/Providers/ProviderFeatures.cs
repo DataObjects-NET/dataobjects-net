@@ -37,6 +37,7 @@ namespace Xtensive.Storage.Providers
     TemporaryTables = 0x400000,
     FullFeaturedFullText  = 0x800000,
     SingleKeyRankTableFullText  = 0x1000000,
+    ColumnRename  = 0x2000000,
     FullText = FullFeaturedFullText & SingleKeyRankTableFullText,
     Paging = Limit | Offset,
     Batches = DdlBatches | DmlBatches,
