@@ -7,7 +7,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Resources;
@@ -86,9 +85,8 @@ namespace Xtensive.Core.ObjectMapping
     /// </summary>
     /// <param name="originalTarget">The original object graph.</param>
     /// <param name="modifiedTarget">The modified object graph.</param>
-    /// <returns>The set of operations describing found changes and the mapping from surrogate
-    /// keys to real keys for new objects.</returns>
-    public Pair<IOperationSet, ReadOnlyDictionary<object, object>> Compare(object originalTarget,
+    /// <returns>The <see cref="GraphComparisonResult"/>.</returns>
+    public GraphComparisonResult Compare(object originalTarget,
       object modifiedTarget)
     {
       if (MappingDescription == null)
@@ -117,10 +115,8 @@ namespace Xtensive.Core.ObjectMapping
     /// </summary>
     /// <param name="originalTarget">The original target.</param>
     /// <param name="modifiedTarget">The modified target.</param>
-    /// <returns>The set of operations describing found changes and the mapping from surrogate
-    /// keys to real keys for new objects.</returns>
-    protected abstract Pair<IOperationSet, ReadOnlyDictionary<object, object>> GetComparisonResult(
-      object originalTarget, object modifiedTarget);
+    /// <returns>The <see cref="GraphComparisonResult"/>.</returns>
+    protected abstract GraphComparisonResult GetComparisonResult(object originalTarget, object modifiedTarget);
 
     internal void Complete()
     {

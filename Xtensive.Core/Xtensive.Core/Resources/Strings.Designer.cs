@@ -1051,6 +1051,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Nested collection is not supported..
+        /// </summary>
+        internal static string ExNestedCollectionIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExNestedCollectionIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There are no more available items..
         /// </summary>
         internal static string ExNoAvailableItems {

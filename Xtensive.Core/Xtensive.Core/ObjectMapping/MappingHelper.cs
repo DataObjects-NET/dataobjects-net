@@ -35,24 +35,34 @@ namespace Xtensive.Core.ObjectMapping
       return typeof (IEnumerable).IsAssignableFrom(type);
     }
 
-    public static bool TryGetCollectionInterface(Type type, out Type interfaceType)
+    public static bool TryGetCollectionInterface(Type type, out Type interfaceType, out Type itemType)
     {
       var interfaces = type.GetInterfaces();
       for (var i = 0; i < interfaces.Length; i++) {
         interfaceType = interfaces[i];
         if (interfaceType.IsGenericType) {
           var interfaceGenericDefinition = interfaceType.GetGenericTypeDefinition();
-          if (interfaceGenericDefinition==typeof (ICollection<>))
+          if (interfaceGenericDefinition==typeof (ICollection<>)) {
+            itemType = type.IsArray ? type.GetElementType() : interfaceType.GetGenericArguments()[0];
             return true;
+          }
         }
       }
       interfaceType = null;
+      itemType = null;
       return false;
+    }
+
+    public static bool IsCollection(Type type)
+    {
+      Type interfaceType;
+      Type itemType;
+      return IsCollectionCandidate(type) && TryGetCollectionInterface(type, out interfaceType, out itemType);
     }
 
     public static bool IsTypePrimitive(Type type)
     {
-      return primitiveTypes.Contains(type);
+      return type.IsEnum || primitiveTypes.Contains(type);
     }
 
     private static bool TryExtractProperty(LambdaExpression expression, string paramName, bool throwIfFailed,

@@ -7,7 +7,6 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Linq;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tests.ObjectMapping.SourceModel;
@@ -68,7 +67,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         AuxInt = modified.CompositeStructure.AuxInt, Structure = newCompositeStructureStructure
       };
       modified.CompositeStructure = newCompositeStructure;
-      var operations = ((DefaultOperationSet) mapper.Compare(original, modified).First).ToList();
+      var operations = ((DefaultOperationSet) mapper.Compare(original, modified).Operations).ToList();
       Assert.AreEqual(3, operations.Count);
       ValidatePropertyOperation<StructureContainerDto>(original, operations[0], sc => sc.Structure.String,
         newStructureString, OperationType.SetProperty);
@@ -103,7 +102,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         AuxInt = modified.CompositeStructure.AuxInt,
         Structure = newCs1
       };
-      var operations = ((DefaultOperationSet) mapper.Compare(original, modified).First).ToList();
+      var operations = ((DefaultOperationSet) mapper.Compare(original, modified).Operations).ToList();
       Assert.AreEqual(8, operations.Count);
       ValidateObjectCreation(newStructureContainer, operations[0]);
       ValidatePropertyOperation<StructureContainerDto>(

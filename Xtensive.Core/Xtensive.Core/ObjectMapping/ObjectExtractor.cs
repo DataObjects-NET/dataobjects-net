@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.ObjectMapping.Model;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
@@ -27,6 +28,8 @@ namespace Xtensive.Core.ObjectMapping
         if (current == null)
           continue;
         var currentType = current.GetType();
+        if (MappingHelper.IsTypePrimitive(currentType))
+          continue;
         if (!currentType.IsValueType) {
           var key = mappingDescription.ExtractTargetKey(current);
           if (resultContainer.ContainsKey(key))
@@ -50,11 +53,12 @@ namespace Xtensive.Core.ObjectMapping
     private void InitializeExtraction(object root)
     {
       var type = root.GetType();
-      Type interfaceType;
-      if (MappingHelper.IsCollectionCandidate(type)
-        && MappingHelper.TryGetCollectionInterface(type, out interfaceType))
-          foreach (var obj in (IEnumerable) root)
+      if (MappingHelper.IsCollection(type))
+          foreach (var obj in (IEnumerable) root) {
+            if (obj!=null && MappingHelper.IsCollection(obj.GetType()))
+              throw new ArgumentException(Strings.ExNestedCollectionIsNotSupported, "root");
             referencedObjects.Enqueue(obj);
+          }
       else
         referencedObjects.Enqueue(root);
     }

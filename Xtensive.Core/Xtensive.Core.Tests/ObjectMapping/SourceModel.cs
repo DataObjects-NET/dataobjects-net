@@ -267,4 +267,34 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 
     public StructureContainer StructureContainer { get; set; }
   }
+
+  public class Account
+  {
+    public Guid Id { get; private set; }
+
+    public byte[] PasswordHash { get; set; }
+
+    public List<AccessRight> AccessRights { get; set; }
+
+
+    // Constructor
+
+    public Account()
+    {
+      Id = Guid.NewGuid();
+    }
+  }
+
+  public enum Action
+  {
+    Read,
+    Write
+  }
+
+  public class AccessRight
+  {
+    public long[] ObjectId { get; set; }
+
+    public Action Action { get; set; }
+  }
 }

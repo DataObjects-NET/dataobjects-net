@@ -729,4 +729,7 @@
   <data name="ExMappingConfigurationHasBeenAlreadyCompleted" xml:space="preserve">
     <value>The mapping configuration has been already completed.</value>
   </data>
+  <data name="ExNestedCollectionIsNotSupported" xml:space="preserve">
+    <value>Nested collection is not supported.</value>
+  </data>
 </root>

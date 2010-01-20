@@ -123,7 +123,8 @@ namespace Xtensive.Core.ObjectMapping.Model
     {
       Pair<Type, MemberInfoCacheEntry>? result = null;
       Type interfaceType;
-      if (MappingHelper.TryGetCollectionInterface(systemProperty.PropertyType, out interfaceType))
+      Type itemType;
+      if (MappingHelper.TryGetCollectionInterface(systemProperty.PropertyType, out interfaceType, out itemType))
         result = collectionTypes.GetValue(systemProperty.PropertyType, GenerateCollectionTypesCacheItem,
           interfaceType);
       return result;

@@ -78,8 +78,7 @@ namespace Xtensive.Storage.ObjectMapping
     }
 
     /// <inheritdoc/>
-    protected override Pair<IOperationSet, ReadOnlyDictionary<object, object>>
-      GetComparisonResult(object originalTarget, object modifiedTarget)
+    protected override GraphComparisonResult GetComparisonResult(object originalTarget, object modifiedTarget)
     {
       Dictionary<object, object> formattedKeyMapping = null;
       if (keyMapping!=null) {
@@ -87,7 +86,7 @@ namespace Xtensive.Storage.ObjectMapping
         .ToDictionary(pair => pair.Key, pair => (object) pair.Value);
         keyMapping.Clear();
       }
-      var result = new Pair<IOperationSet, ReadOnlyDictionary<object, object>>(comparisonResult,
+      var result = new GraphComparisonResult(comparisonResult,
         formattedKeyMapping!=null ? new ReadOnlyDictionary<object, object>(formattedKeyMapping, false) : null);
       session = null;
       comparisonResult = null;

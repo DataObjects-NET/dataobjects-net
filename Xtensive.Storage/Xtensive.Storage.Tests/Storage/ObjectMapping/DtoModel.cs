@@ -114,4 +114,10 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 
     public SimplePersonDto Manager { get; set; }
   }
+
+  [Serializable]
+  public class PersonWithVersionDto : PersonDto
+  {
+    public byte[] Version { get; set; }
+  }
 }

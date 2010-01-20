@@ -10,6 +10,7 @@ using System.Linq;
 
 namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 {
+  [Serializable]
   public class PersonDto : ICloneable
   {
     public int Id { get; set; }
@@ -265,5 +266,23 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
     public int AuxInt { get; set; }
 
     public StructureContainerDto StructureContainer { get; set; }
+  }
+
+  [Serializable]
+  public class AccountDto
+  {
+    public Guid Id { get; set; }
+
+    public byte[] PasswordHash { get; set; }
+
+    public List<AccessRightDto> AccessRights { get; set; }
+  }
+
+  [Serializable]
+  public struct AccessRightDto
+  {
+    public long[] ObjectId { get; set; }
+
+    public SourceModel.Action Action { get; set; }
   }
 }
