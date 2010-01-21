@@ -293,7 +293,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Assert.AreEqual(source.LastName, target.LastName);
     }
 
-    protected static TargetPropertyDescription GetTargetProperty(MapperBase mapper, Type type,
+    protected static TargetPropertyDescription GetTargetProperty(DefaultMapper mapper, Type type,
       string propertyName)
     {
       return (TargetPropertyDescription) mapper.MappingDescription.TargetTypes[type]

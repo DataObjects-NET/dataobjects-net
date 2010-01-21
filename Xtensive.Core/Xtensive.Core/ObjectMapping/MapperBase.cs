@@ -16,7 +16,8 @@ namespace Xtensive.Core.ObjectMapping
   /// <summary>
   /// A base class for O2O-mapper implementations.
   /// </summary>
-  public abstract class MapperBase : IMappingBuilder
+  public abstract class MapperBase<TComparisonResult> : IMappingBuilder
+    where TComparisonResult : GraphComparisonResult
   {
     private GraphTransformer transformer;
     private GraphComparer comparer;
@@ -56,7 +57,7 @@ namespace Xtensive.Core.ObjectMapping
         typeof (TTarget), target => compiledTargetKeyExtractor.Invoke((TTarget) target));
       if (isPropertyExtracted)
         ModelBuilder.RegisterProperty(null, source => sourceKeyExtractor.Invoke((TSource) source), targetProperty);
-      return new MapperAdapter<TSource, TTarget>(this);
+      return new MapperAdapter<TSource, TTarget, TComparisonResult>(this);
     }
 
     /// <inheritdoc/>
@@ -64,7 +65,7 @@ namespace Xtensive.Core.ObjectMapping
       where TTarget : struct
     {
       ModelBuilder.RegisterStructure(typeof (TSource), typeof (TTarget));
-      return new MapperAdapter<TSource, TTarget>(this);
+      return new MapperAdapter<TSource, TTarget, TComparisonResult>(this);
     }
 
     /// <summary>
@@ -86,8 +87,7 @@ namespace Xtensive.Core.ObjectMapping
     /// <param name="originalTarget">The original object graph.</param>
     /// <param name="modifiedTarget">The modified object graph.</param>
     /// <returns>The <see cref="GraphComparisonResult"/>.</returns>
-    public GraphComparisonResult Compare(object originalTarget,
-      object modifiedTarget)
+    public TComparisonResult Compare(object originalTarget, object modifiedTarget)
     {
       if (MappingDescription == null)
         throw new InvalidOperationException(Strings.ExMappingConfigurationHasNotBeenCompleted);
@@ -116,7 +116,7 @@ namespace Xtensive.Core.ObjectMapping
     /// <param name="originalTarget">The original target.</param>
     /// <param name="modifiedTarget">The modified target.</param>
     /// <returns>The <see cref="GraphComparisonResult"/>.</returns>
-    protected abstract GraphComparisonResult GetComparisonResult(object originalTarget, object modifiedTarget);
+    protected abstract TComparisonResult GetComparisonResult(object originalTarget, object modifiedTarget);
 
     internal void Complete()
     {

@@ -178,7 +178,7 @@ namespace Xtensive.Core.ObjectMapping
         return rootDescriptor.Object;
       case RootObjectType.UserStructure:
         var targetType = mappingDescription.SourceTypes[rootDescriptor.Object.GetType()].TargetType;
-        var transformedStructure = Activator.CreateInstance(targetType.SystemType);
+        var transformedStructure = CreateTargetObject(targetType.SystemType);
         TransformProperties(rootDescriptor.Object, targetType, new ResultDescriptor(transformedStructure));
         return transformedStructure;
       default:
@@ -241,8 +241,7 @@ namespace Xtensive.Core.ObjectMapping
       targetProperty.SystemProperty.SetValue(target.Result, transformedValue, null);
     }
 
-    private bool HandleExceedingOfGraphDepthLimit(int ownerLevel,
-      ref object value)
+    private bool HandleExceedingOfGraphDepthLimit(int ownerLevel, ref object value)
     {
       if (value==null)
         return true;
@@ -282,6 +281,8 @@ namespace Xtensive.Core.ObjectMapping
       if (sourceValue == null)
         return null;
       var itemCount = (int) sourceProperty.CountProperty.GetValue(sourceValue, null);
+      if (itemCount > 0 && HandleExceedingOfGraphDepthLimit(ownerLevel, ref sourceValue))
+        return sourceValue;
       object targetValue;
       var isItemTypePrimitive = MappingHelper.IsTypePrimitive(targetProperty.ItemType);
       object key;
@@ -295,7 +296,7 @@ namespace Xtensive.Core.ObjectMapping
         targetValue = array;
       }
       else {
-        var collection = Activator.CreateInstance(targetProperty.SystemProperty.PropertyType);
+        var collection = CreateTargetObject(targetProperty.SystemProperty.PropertyType);
         var addMethod = targetProperty.AddMethod;
         foreach (var obj in (IEnumerable) sourceValue) {
           var value = TransformCollectionItem(obj, ownerLevel);
@@ -318,12 +319,9 @@ namespace Xtensive.Core.ObjectMapping
         sourceValue = targetProperty.SourceProperty.SystemProperty.GetValue(source, null);
         targetValue = sourceValue==null ? null : CreateTargetObject(targetValueType.SystemType);
       }
-      if (!HandleExceedingOfGraphDepthLimit(target.Level, ref targetValue)) {
-        targetProperty.SystemProperty.SetValue(target.Result, null, null);
-        targetValue = CreateTargetObject(targetValueType.SystemType);
+      if (!HandleExceedingOfGraphDepthLimit(target.Level, ref targetValue))
         TransformProperties(sourceValue, targetValueType,
           new ResultDescriptor(targetValue) {Level = target.Level + 1});
-      }
       return targetValue;
     }
 
@@ -337,14 +335,12 @@ namespace Xtensive.Core.ObjectMapping
       var targetType = mappingDescription.SourceTypes[sourceType].TargetType;
       object target;
       if (targetType.SystemType.IsValueType) {
-        target = Activator.CreateInstance(targetType.SystemType);
-        if (!HandleExceedingOfGraphDepthLimit(ownerLevel, ref target))
-          TransformProperties(source, targetType, new ResultDescriptor(target) {Level = ownerLevel + 1});
+        target = CreateTargetObject(targetType.SystemType);
+        TransformProperties(source, targetType, new ResultDescriptor(target) {Level = ownerLevel + 1});
         return target;
       }
       object key;
       target = TransformComplexObject(source, targetType.SystemType, ownerLevel, out key);
-      HandleExceedingOfGraphDepthLimit(ownerLevel, ref target);
       return target;
     }
 

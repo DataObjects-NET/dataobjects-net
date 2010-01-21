@@ -8,20 +8,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Storage.Operations;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
-using IOperationSet=Xtensive.Core.ObjectMapping.IOperationSet;
 
 namespace Xtensive.Storage.ObjectMapping
 {
   /// <summary>
   /// The O2O-mapper.
   /// </summary>
-  public sealed class Mapper : MapperBase
+  public sealed class Mapper : MapperBase<GraphComparisonResult>
   {
     private OperationSet comparisonResult;
     private Session session;

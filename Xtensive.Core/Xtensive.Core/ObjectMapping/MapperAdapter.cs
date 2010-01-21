@@ -11,9 +11,11 @@ using Xtensive.Core.Linq;
 
 namespace Xtensive.Core.ObjectMapping
 {
-  internal sealed class MapperAdapter<TSource, TTarget> : IMappingBuilderAdapter<TSource, TTarget>
+  internal sealed class MapperAdapter<TSource, TTarget, TComparisonResult>
+    : IMappingBuilderAdapter<TSource, TTarget>
+    where TComparisonResult : GraphComparisonResult
   {
-    private readonly MapperBase realMapper;
+    private readonly MapperBase<TComparisonResult> realMapper;
 
     /// <inheritdoc/>
     public IMappingBuilderAdapter<TSource, TTarget> MapProperty<TValue>(Expression<Func<TSource, TValue>> source,
@@ -65,7 +67,7 @@ namespace Xtensive.Core.ObjectMapping
       where THeirTarget: TTargetBase
     {
       realMapper.ModelBuilder.RegisterHeir(typeof (TTargetBase), typeof (THeirSource), typeof (THeirTarget));
-      return new MapperAdapter<THeirSource, THeirTarget>(realMapper);
+      return new MapperAdapter<THeirSource, THeirTarget, TComparisonResult>(realMapper);
     }
 
     /// <inheritdoc/>
@@ -80,7 +82,7 @@ namespace Xtensive.Core.ObjectMapping
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="realMapper">The real mapper.</param>
-    public MapperAdapter(MapperBase realMapper)
+    public MapperAdapter(MapperBase<TComparisonResult> realMapper)
     {
       this.realMapper = realMapper;
     }

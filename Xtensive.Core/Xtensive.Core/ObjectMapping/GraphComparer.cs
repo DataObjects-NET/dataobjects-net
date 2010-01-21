@@ -155,6 +155,12 @@ namespace Xtensive.Core.ObjectMapping
     private void CompareCollections(object original, object originalValue, object modifiedValue,
       TargetPropertyDescription property)
     {
+      if (MappingHelper.IsTypePrimitive(property.ItemType)) {
+        ComparePrimitiveCollection(original, originalValue, modifiedValue, property);
+        return;
+      }
+      /*if (property.ItemType.IsValueType)
+        throw new InvalidOperationException("Collection of user structures aren't supported.");*/
       InitializeKeyCaches();
       ExtractKeys((IEnumerable) originalValue, originalKeyCache);
       ExtractKeys((IEnumerable) modifiedValue, modifiedKeyCache);
@@ -166,6 +172,31 @@ namespace Xtensive.Core.ObjectMapping
           NotifyAboutCollectionModification(original, property, false, objPair.Value);
     }
 
+    private void ComparePrimitiveCollection(object original, object originalValue, object modifiedValue,
+      TargetPropertyDescription property)
+    {
+      if (originalValue==null && modifiedValue==null)
+        return;
+      if (originalValue==null ^ modifiedValue==null) {
+        NotifyAboutPropertySetting(original, property, modifiedValue);
+        return;
+      }
+      var originalEnumerator = ((IEnumerable) originalValue).GetEnumerator();
+      var modifiedEnumerator = ((IEnumerable) modifiedValue).GetEnumerator();
+      using (originalEnumerator as IDisposable) {
+        using (modifiedEnumerator as IDisposable) {
+          while (originalEnumerator.MoveNext()) {
+            if (!modifiedEnumerator.MoveNext() || !Equals(originalEnumerator.Current, modifiedEnumerator.Current)) {
+              NotifyAboutPropertySetting(original, property, modifiedValue);
+              break;
+            }
+          }
+        }
+        if (originalEnumerator.MoveNext())
+          NotifyAboutPropertySetting(original, property, modifiedValue);
+      }
+    }
+    
     private void CompareUserStructure(object original, object originalValue, object modifiedValue,
       TargetPropertyDescription property)
     {

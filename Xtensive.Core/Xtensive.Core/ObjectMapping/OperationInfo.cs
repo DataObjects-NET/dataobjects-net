@@ -60,6 +60,7 @@ namespace Xtensive.Core.ObjectMapping
       Type = type;
       PropertyPath = propertyPath!=null ? Array.AsReadOnly(propertyPath) : null;
       Value = value;
+      propertyPathString = null;
 
 #if DEBUG
       if (PropertyPath!=null) {

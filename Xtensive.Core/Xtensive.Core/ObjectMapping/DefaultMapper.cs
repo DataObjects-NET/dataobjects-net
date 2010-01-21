@@ -9,9 +9,9 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.ObjectMapping
 {
   /// <summary>
-  /// Default concrete heir of <see cref="MapperBase"/>.
+  /// Default concrete heir of <see cref="MapperBase{TComparisonResult}"/>.
   /// </summary>
-  public class DefaultMapper : MapperBase
+  public class DefaultMapper : MapperBase<GraphComparisonResult>
   {
     private DefaultOperationSet operationSet;
 
