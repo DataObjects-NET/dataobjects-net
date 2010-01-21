@@ -638,7 +638,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (!fullTextSupported)
         return;
       var table = FindTable(fullTextIndexInfo.Parent.Name);
-      var ftIndex = table.Indexes[fullTextIndexInfo.Name];
+      var ftIndex = table.Indexes[fullTextIndexInfo.Name]
+        ?? table.Indexes.OfType<FullTextIndex>().Single();
       RegisterCommand(SqlDdl.Drop(ftIndex), true);
       table.Indexes.Remove(ftIndex);
     }

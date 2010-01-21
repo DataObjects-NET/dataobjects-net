@@ -51,16 +51,20 @@ namespace Xtensive.Storage.Tests.Upgrade.FullText
         case "Version1":
           break;
         case "Version2":
+          context.Hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version1.Article", typeof(Model.Version2.Article)));
           break;
         case "Version3":
+          context.Hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version2.Article", typeof(Model.Version3.Article)));
           break;
         case "Version4":
+          context.Hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version3.Article", typeof(Model.Version4.Article)));
           context.Hints.Add(new RenameFieldHint(typeof (Model.Version4.Article), "Content", "Text"));
           break;
         case "Version5":
           context.Hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version4.Article", typeof(Model.Version5.Book)));
           break;
         case "Version6":
+          context.Hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version5.Book", typeof(Model.Version6.Book)));
           break;
         default:
           throw new ArgumentOutOfRangeException();
