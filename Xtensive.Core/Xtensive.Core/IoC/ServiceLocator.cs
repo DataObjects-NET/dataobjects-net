@@ -11,7 +11,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Practices.ServiceLocation;
-using Xtensive.Core.Reflection;
 using ConfigurationSection=Xtensive.Core.IoC.Configuration.ConfigurationSection;
 using CommonServiceLocator=Microsoft.Practices.ServiceLocation.ServiceLocator;
 
@@ -29,6 +28,7 @@ namespace Xtensive.Core.IoC
     private static IServiceLocator GlobalLocator {
       get {
         if (currentProviderFieldGetter==null) {
+          // Caching fast CommonServiceLocator.currentProvider field getter
           var currentProviderField = typeof (CommonServiceLocator)
             .GetField("currentProvider", BindingFlags.NonPublic | BindingFlags.Static);
           currentProviderFieldGetter = (Func<ServiceLocatorProvider>) 
