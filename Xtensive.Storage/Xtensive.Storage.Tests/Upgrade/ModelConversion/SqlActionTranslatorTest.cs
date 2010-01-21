@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Tests.Upgrade
           connection.BeginTransaction();
           var translator = new SqlActionTranslator(actions,
             schema, oldModel, newModel, CreateProviderInfo(),
-            driver, "TypeId", new List<string>(), GetGeneratorValue);
+            driver, "TypeId", new List<string>(), GetGeneratorValue, GetGeneratorValue2);
           var batch = new List<string>();
           batch.Add(driver.BuildBatch(translator.PreUpgradeCommands.ToArray()));
           batch.Add(driver.BuildBatch(translator.UpgradeCommands.ToArray()));
@@ -238,6 +238,11 @@ namespace Xtensive.Storage.Tests.Upgrade
     private static object GetGeneratorValue(ISqlCompileUnit cmd)
     {
       return (long) 0;
+    }
+
+    private static int GetGeneratorValue2(ISqlCompileUnit cmd)
+    {
+      return 0;
     }
 
     #endregion

@@ -42,7 +42,8 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly ProviderInfo providerInfo;
     private readonly string typeIdColumnName;
     private readonly List<string> enforceChangedColumns = new List<string>();
-    private readonly Func<ISqlCompileUnit, object> commandExecutor;
+    private readonly Func<ISqlCompileUnit, object> scalarExecutor;
+    private readonly Func<ISqlCompileUnit, int> nonQueryExecutor;
 
     private readonly ActionSequence actions;
     private readonly Schema schema;
@@ -62,7 +63,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly List<PropertyChangeAction> changeColumnTypeActions = new List<PropertyChangeAction>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private UpgradeStage stage;
-    
+
     private bool IsSequencesAllowed
     {
       get { return providerInfo.Supports(ProviderFeatures.Sequences); }
@@ -393,6 +394,9 @@ namespace Xtensive.Storage.Providers.Sql
         return;
 
       var column = FindColumn(table, columnInfo.Name);
+      if (column == null)
+        return;
+
       if (column.DefaultValue!=null) {
         var constraint = table.TableConstraints
           .OfType<DefaultConstraint>()
@@ -424,12 +428,47 @@ namespace Xtensive.Storage.Providers.Sql
         // Process name changing
         var oldColumnInfo = sourceModel.Resolve(action.Path) as ColumnInfo;
         var column = FindColumn(oldColumnInfo.Parent.Name, oldColumnInfo.Name);
-        RegisterCommand(SqlDdl.Rename(column, action.Name));
+        RenameColumn(column, action.Name);
         oldColumnInfo.Name = action.Name;
-        RenameSchemaColumn(column, action.Name);
       }
       else
         throw new NotSupportedException();
+    }
+
+    private void RenameColumn(TableColumn column, string name)
+    {
+      if (providerInfo.Supports(ProviderFeatures.ColumnRename)) {
+        RegisterCommand(SqlDdl.Rename(column, name), UpgradeStage.Upgrade);
+        RenameSchemaColumn(column, name);
+        return;
+      }
+
+      var table = column.Table;
+      var originalName = column.Name;
+
+      // Create new column
+      var newColumn = table.CreateColumn(name, column.DataType);
+      newColumn.IsNullable = column.IsNullable;
+      newColumn.DefaultValue = column.DefaultValue;
+      var addColumnWithNewType = SqlDdl.Alter(column.Table, SqlDdl.AddColumn(newColumn));
+      RegisterCommand(addColumnWithNewType, UpgradeStage.Upgrade);
+
+      // Copy data
+      var tableRef = SqlDml.TableRef(column.Table);
+      var update = SqlDml.Update(tableRef);
+      update.Values[tableRef[name]] = tableRef[originalName];
+      RegisterCommand(update, UpgradeStage.Upgrade);
+
+      // Drop old column
+      if (column.DefaultValue!=null) {
+        var constraint = table.TableConstraints
+          .OfType<DefaultConstraint>().FirstOrDefault(defaultConstraint => defaultConstraint.Column==column);
+        if (constraint!=null)
+          RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)), UpgradeStage.Upgrade);
+      }
+      var removeOldColumn = SqlDdl.Alter(column.Table, SqlDdl.DropColumn(column));
+      RegisterCommand(removeOldColumn, UpgradeStage.Upgrade);
+      table.TableColumns.Remove(column);
     }
 
     private void VisitCreatePrimaryKeyAction(CreateNodeAction action)
@@ -715,9 +754,7 @@ namespace Xtensive.Storage.Providers.Sql
       
       // Rename old column
       var tempName = GetTemporaryName(column);
-      var renameColumn = SqlDdl.Rename(column, tempName);
-      RegisterCommand(renameColumn, UpgradeStage.Upgrade);
-      RenameSchemaColumn(column, tempName);
+      RenameColumn(column, tempName);
 
       // Create new columns
       var newTypeInfo = action.Properties[ColumnTypePropertyName] as TypeInfo;
@@ -726,13 +763,13 @@ namespace Xtensive.Storage.Providers.Sql
       newColumn.IsNullable = newTypeInfo.IsNullable;
       if (!newColumn.IsNullable)
         newColumn.DefaultValue = GetDefaultValueExpression(targetColumn);
-      var addColumnWithNewType = SqlDdl.Alter(column.Table, SqlDdl.AddColumn(newColumn));
+      var addColumnWithNewType = SqlDdl.Alter(table, SqlDdl.AddColumn(newColumn));
       RegisterCommand(addColumnWithNewType, UpgradeStage.Upgrade);
 
       // Copy values if possible to convert type
       if (Upgrade.TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)
         || enforceChangedColumns.Contains(sourceColumn.Path)) {
-        var tableRef = SqlDml.TableRef(column.Table);
+        var tableRef = SqlDml.TableRef(table);
         var copyValues = SqlDml.Update(tableRef);
         if (newTypeInfo.IsNullable)
           copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], type);
@@ -752,9 +789,9 @@ namespace Xtensive.Storage.Providers.Sql
         if (constraint!=null)
           RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)), UpgradeStage.Cleanup);
       }
-      var removeOldColumn = SqlDdl.Alter(column.Table, SqlDdl.DropColumn(column));
+      var removeOldColumn = SqlDdl.Alter(table, SqlDdl.DropColumn(table.TableColumns[tempName]));
       RegisterCommand(removeOldColumn, UpgradeStage.Cleanup);
-      column.Table.TableColumns.Remove(column);
+      table.TableColumns.Remove(table.TableColumns[tempName]);
     }
     
     #endregion
@@ -1030,8 +1067,18 @@ namespace Xtensive.Storage.Providers.Sql
 
     private long? GetCurrentSequenceValue(string sequenceInfoName)
     {
-      var selectNextValue = KeyGeneratorFactory.GetNextValueStatement(providerInfo, schema, sequenceInfoName);
-      return Convert.ToInt64(commandExecutor.Invoke(selectNextValue));
+      var script = KeyGeneratorFactory.GetNextValueStatement(providerInfo, schema, sequenceInfoName);
+
+      if (providerInfo.Supports(ProviderFeatures.Sequences))
+        return Convert.ToInt64(scalarExecutor.Invoke(script));
+
+      var batch = script as SqlBatch;
+      if (batch == null || providerInfo.Supports(ProviderFeatures.DdlBatches))
+        return Convert.ToInt64(scalarExecutor.Invoke(script));
+
+      ArgumentValidator.EnsureArgumentIsInRange(batch.Count, 2, 2, "batch.Count");
+      nonQueryExecutor.Invoke((ISqlCompileUnit) batch[0]);
+      return Convert.ToInt64(scalarExecutor.Invoke((ISqlCompileUnit) batch[1]));
     }
 
     #endregion
@@ -1054,7 +1101,7 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlActionTranslator(ActionSequence actions, Schema schema, 
       StorageInfo sourceModel, StorageInfo targetModel, 
       ProviderInfo providerInfo, Driver driver, string typeIdColumnName, 
-      List<string> enforceChangedColumns, Func<ISqlCompileUnit, object> commandExecutor)
+      List<string> enforceChangedColumns, Func<ISqlCompileUnit, object> scalarExecutor, Func<ISqlCompileUnit, int> nonQueryExecutor)
     {
       
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
@@ -1072,7 +1119,8 @@ namespace Xtensive.Storage.Providers.Sql
       this.sourceModel = sourceModel;
       this.targetModel = targetModel;
       this.enforceChangedColumns = enforceChangedColumns;
-      this.commandExecutor = commandExecutor;
+      this.scalarExecutor = scalarExecutor;
+      this.nonQueryExecutor = nonQueryExecutor;
     }
   }
 }
