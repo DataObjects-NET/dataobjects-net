@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void TrimOtherCharTest()
     {
-      EnsureProtocolIsNot(StorageProtocol.SqlServer);
+      EnsureProtocolIsNot(StorageProtocol.SqlServer | StorageProtocol.SqlServerCe);
       var results = Query.All<X>()
         .Select(x => new {
           String = x.FString,
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void TrimMultipleCharsTest()
     {
-      EnsureProtocolIsNot(StorageProtocol.SqlServer | StorageProtocol.Oracle);
+      EnsureProtocolIsNot(StorageProtocol.SqlServer | StorageProtocol.Oracle | StorageProtocol.SqlServerCe);
       var results = Query.All<X>()
         .Select(x => new {
           String = x.FString,

@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UpdateLockSkipTest()
     {
-      EnsureProtocolIs(StorageProtocol.SqlServer);
+      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.SqlServerCe);
       var key = Query.All<Customer>().First().Key;
       var expected = Query.All<Customer>().Where(c => c.Key == key)
         .Lock(LockMode.Update, LockBehavior.Wait).ToList();
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ExclusiveLockThrowTest()
     {
-      EnsureProtocolIs(StorageProtocol.SqlServer);
+      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.SqlServerCe);
       var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Exclusive, LockBehavior.ThrowIfLocked);
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ShareLockTest()
     {
-      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.PostgreSql);
+      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.PostgreSql | StorageProtocol.SqlServerCe);
       var catchedException = ExecuteConcurrentQueries(LockMode.Shared, LockBehavior.ThrowIfLocked,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.IsNull(catchedException);
@@ -110,6 +110,7 @@ namespace Xtensive.Storage.Tests.Linq
         }
         catch(Exception e) {
           firstThreadException = e;
+          secondEvent.Set();
           return;
         }
       });
