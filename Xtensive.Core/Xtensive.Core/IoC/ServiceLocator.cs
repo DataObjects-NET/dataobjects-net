@@ -8,27 +8,40 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Practices.ServiceLocation;
+using Xtensive.Core.Reflection;
 using ConfigurationSection=Xtensive.Core.IoC.Configuration.ConfigurationSection;
+using CommonServiceLocator=Microsoft.Practices.ServiceLocation.ServiceLocator;
 
 namespace Xtensive.Core.IoC
 {
   /// <summary>
-  /// <see cref="Microsoft.Practices.ServiceLocation.ServiceLocator"/> wrapper.
+  /// <see cref="CommonServiceLocator"/> wrapper.
   /// </summary>
   [Serializable]
   public static class ServiceLocator
   {
     private static IServiceLocator defaultLocator;
+    private static Func<ServiceLocatorProvider> currentProviderFieldGetter;
 
     private static IServiceLocator GlobalLocator {
       get {
-        // Do not cache global locator instance. It can be changed anytime.
-        var currentProviderField = typeof (Microsoft.Practices.ServiceLocation.ServiceLocator).GetField("currentProvider", BindingFlags.NonPublic | BindingFlags.Static);
-        var currentProviderValue = currentProviderField.GetValue(null);
+        if (currentProviderFieldGetter==null) {
+          var currentProviderField = typeof (CommonServiceLocator)
+            .GetField("currentProvider", BindingFlags.NonPublic | BindingFlags.Static);
+          currentProviderFieldGetter = (Func<ServiceLocatorProvider>) 
+            Expression.Lambda(typeof(Func<ServiceLocatorProvider>),
+              Expression.Field(
+                Expression.Constant(null),
+                currentProviderField))
+              .Compile();
+        }
+        // We must not cache global locator instance. It can be changed anytime.
+        var currentProviderValue = currentProviderFieldGetter.Invoke();
         if (currentProviderValue != null)
-          return Microsoft.Practices.ServiceLocation.ServiceLocator.Current;
+          return CommonServiceLocator.Current;
         return null;
       }
     }
@@ -130,7 +143,7 @@ namespace Xtensive.Core.IoC
     /// the current ambient container.</param>
     public static void SetLocatorProvider(ServiceLocatorProvider newProvider)
     {
-      Microsoft.Practices.ServiceLocation.ServiceLocator.SetLocatorProvider(newProvider);
+      CommonServiceLocator.SetLocatorProvider(newProvider);
     }
   }
 }
