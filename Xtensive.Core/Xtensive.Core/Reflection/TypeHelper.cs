@@ -492,12 +492,61 @@ namespace Xtensive.Core.Reflection
     [DebuggerStepThrough]
     public static object Activate(this Type type, Type[] genericArguments, params object[] arguments)
     {
+//      using (Log.DebugRegion("Activating {0} <{1}>", type.GetShortName(),
+//        genericArguments==null ? null : genericArguments.Select(t => t.GetShortName()).ToCommaDelimitedString()))
       try {
-        if (type.IsGenericTypeDefinition ^ genericArguments!=null)
+        if (type.IsAbstract) {
+//          Log.Debug("Rejected: type is abstract");
           return null;
-        if (type.IsGenericTypeDefinition)
+        }
+        if (type.IsGenericTypeDefinition ^ genericArguments!=null) {
+//          Log.Debug("Rejected: wrong generic arguments");
+          return null;
+        }
+        if (type.IsGenericTypeDefinition) {
+          // Validating generic parameters & constraints
+          if (genericArguments==null)
+            genericArguments = ArrayUtils<Type>.EmptyArray;
+          var genericParameters = type.GetGenericArguments();
+          if (genericParameters.Length!=genericArguments.Length) {
+//            Log.Debug("Rejected: wrong generic argument count");
+            return null;
+          }
+          var genericParameterIndexes = genericParameters
+            .Select((p, i) => new {Parameter = p, Index = i})
+            .ToDictionary(a => a.Parameter, a => a.Index);
+          for (int i = 0; i < genericParameters.Length; i++) {
+            var parameter = genericParameters[i];
+            var constraints = parameter.GetGenericParameterConstraints();
+            var argument = genericArguments[i];
+            foreach (var constraint in constraints) {
+              var projectedConstraint = constraint;
+              if (constraint.IsGenericParameter)
+                projectedConstraint = genericArguments[genericParameterIndexes[constraint]];
+              else if (constraint.IsGenericType) {
+                var constraintArguments = constraint.GetGenericArguments();
+                var projectedConstraintArguments = new Type[constraintArguments.Length];
+                for (int j = 0; j < constraintArguments.Length; j++)
+                  projectedConstraintArguments[j] =
+                    genericParameterIndexes.ContainsKey(constraintArguments[j])
+                      ? genericArguments[genericParameterIndexes[constraintArguments[j]]]
+                      : constraintArguments[j];
+                projectedConstraint = constraint
+                  .GetGenericTypeDefinition()
+                  .MakeGenericType(projectedConstraintArguments);
+              }
+              if (!projectedConstraint.IsAssignableFrom(argument)) {
+//                Log.Debug("Rejected: generic constraint check failed.");
+//                Log.Debug("  Constraint: {0} (original: {1})", projectedConstraint.GetShortName(), constraint.GetShortName());
+//                Log.Debug("  Argument:   {0}", argument.GetShortName());
+                return null;
+              }
+            }
+          }
           type = type.MakeGenericType(genericArguments);
-#if DEBUG
+        }
+        if (arguments==null)
+          arguments = ArrayUtils<object>.EmptyArray;
         // This code is just for suppression of possible exception during debugging
         if (arguments!=null) {
           bool cancelSearch = false;
@@ -512,10 +561,10 @@ namespace Xtensive.Core.Reflection
           if (!cancelSearch && type.GetConstructor(BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, argumentTypes) == null)
             return null;
         }
-#endif
-        return Activator.CreateInstance(type,BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, arguments, null);
+        return Activator.CreateInstance(type, BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, arguments, null);
       }
-      catch {
+      catch (Exception error) {
+//        Log.Debug("Rejected: {0}", error);
         return null;
       }
     }
