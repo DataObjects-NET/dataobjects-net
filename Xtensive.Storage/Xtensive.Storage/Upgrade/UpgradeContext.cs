@@ -111,6 +111,11 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     public ModuleProvider Modules { get; internal set; }
 
+    /// <summary>
+    /// Gets or sets current transaction scope.
+    /// </summary>
+    public TransactionScope TransactionScope { get; set; }
+
     #region IContext<...> methods
 
     /// <inheritdoc/>

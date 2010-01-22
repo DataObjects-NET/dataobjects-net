@@ -17,7 +17,9 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Upgrade;
 using Activator = System.Activator;
+using UpgradeContext = Xtensive.Storage.Upgrade.UpgradeContext;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -45,6 +47,7 @@ namespace Xtensive.Storage.Building.Builders
         BuilderConfiguration = builderConfiguration
       };
 
+      var upgradeContext = UpgradeContext.Demand();
       using (Log.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
         using (new BuildingScope(context)) {
           CreateDomain();
@@ -57,17 +60,19 @@ namespace Xtensive.Storage.Building.Builders
 
           using (Session.Open(context.Domain, SessionType.System)) {
             context.SystemSessionHandler = Session.Demand().Handler;
-            using (var transactionScope = Transaction.Open()) {
+            try {
+              upgradeContext.TransactionScope = Transaction.Open();
               SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
               context.Domain.Handler.BuildMapping();
               CreateGenerators();
               TypeIdBuilder.BuildTypeIds();
               if (builderConfiguration.UpgradeHandler!=null)
                 builderConfiguration.UpgradeHandler.Invoke();
-              transactionScope.Complete();
+              upgradeContext.TransactionScope.Complete();
             }
-            if (context.NonTransactionalAction != null)
-              context.NonTransactionalAction.Invoke();
+            finally {
+              upgradeContext.TransactionScope.Dispose();
+            }
           }
         }
       }

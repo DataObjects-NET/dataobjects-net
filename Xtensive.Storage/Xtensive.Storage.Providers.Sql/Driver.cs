@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Providers.Sql
         if (si.FullTextSearch.Features==FullTextSearchFeatures.Full)
           f |= ProviderFeatures.FullFeaturedFullText;
         if (si.FullTextSearch.Features==FullTextSearchFeatures.SingleKeyRankTable)
-          f |= ProviderFeatures.SingleKeyRankTableFullText;
+          f |= ProviderFeatures.SingleKeyRankTableFullText | ProviderFeatures.FullTextDdlIsNotTransactional;
       }
 
       var c = si.Column;

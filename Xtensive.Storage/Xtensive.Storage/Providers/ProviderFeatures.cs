@@ -38,7 +38,8 @@ namespace Xtensive.Storage.Providers
     FullText = 0x800000,
     FullFeaturedFullText = 0x1000000 + FullText,
     SingleKeyRankTableFullText  = 0x2000000 + FullText,
-    ColumnRename  = 0x4000000,
+    FullTextDdlIsNotTransactional  = 0x4000000 + FullText,
+    ColumnRename  = 0x8000000,
     Paging = Limit | Offset,
     Batches = DdlBatches | DmlBatches,
   }

@@ -30,7 +30,6 @@ namespace Xtensive.Storage.Building
     internal Graph<TypeDef> DependencyGraph { get; private set; }
     internal HashSet<TypeDef> Interfaces { get; private set; }
     internal HashSet<IndexInfo> UntypedIndexes { get; private set; }
-    public Action NonTransactionalAction { get; set; }
 
     #region Current property & Demand() method
 

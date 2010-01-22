@@ -13,6 +13,7 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Building;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Providers.Sql.Resources;
 using Xtensive.Storage.Upgrade;
@@ -49,13 +50,25 @@ namespace Xtensive.Storage.Providers.Sql
 
       LogTranslatedStatements(translator);
 
+      var context = UpgradeContext.Demand();
+      if (translator.NonTransactionalPrologCommands.Count > 0) {
+        context.TransactionScope.Complete();
+        context.TransactionScope.Dispose();
+        Execute(translator.NonTransactionalPrologCommands);
+        context.TransactionScope = Transaction.Open(SessionHandler.Session);
+      }
+
       Execute(translator.PreUpgradeCommands);
       Execute(translator.UpgradeCommands);
       Execute(translator.DataManipulateCommands);
       Execute(translator.PostUpgradeCommands);
 
-      var context = BuildingContext.Demand();
-      context.NonTransactionalAction = () => Execute(translator.NonTransactionalCommands);
+      if (translator.NonTransactionalEpilogCommands.Count > 0) {
+        context.TransactionScope.Complete();
+        context.TransactionScope.Dispose();
+        Execute(translator.NonTransactionalEpilogCommands);
+        context.TransactionScope = Transaction.Open(SessionHandler.Session);
+      }
     }
 
     /// <inheritdoc/>
