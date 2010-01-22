@@ -198,9 +198,7 @@ namespace Xtensive.Storage.Providers.Sql
     protected override IPreCompiler CreatePreCompiler()
     {
       var applyCorrector = new ApplyProviderCorrector(!ProviderInfo.Supports(ProviderFeatures.CrossApply));
-      var skipTakeCorrector = !ProviderInfo.Supports(ProviderFeatures.Paging)
-        ? new SkipTakeCorrector(!ProviderInfo.Supports(ProviderFeatures.Limit))
-        : (IPreCompiler) new EmptyPreCompiler();
+      var skipTakeCorrector = new SkipTakeCorrector(ProviderInfo.Supports(ProviderFeatures.Limit), ProviderInfo.Supports(ProviderFeatures.Offset));
       return new CompositePreCompiler(
         applyCorrector,
         skipTakeCorrector,

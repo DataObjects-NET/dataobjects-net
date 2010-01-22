@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -147,7 +146,7 @@ namespace Xtensive.Storage.Linq
     internal Translator(TranslatorContext context)
     {
       this.context = context;
-      state = new State(this);
+      state = new TranslatorState(this);
     }
 
     static Translator()

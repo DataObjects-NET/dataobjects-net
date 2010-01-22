@@ -1,8 +1,8 @@
-// Copyright (C) 2009 Xtensive LLC.
+// Copyright (C) 2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alexis Kochetov
-// Created:    2009.05.04
+// Created by: Alexey Gamzov
+// Created:    2010.01.21
 
 using System;
 using System.Collections.Generic;
@@ -14,12 +14,8 @@ using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage.Linq
 {
-  internal sealed partial class Translator
+  internal sealed class TranslatorState
   {
-    public State state;
-
-    public sealed class State
-    {
       private readonly Translator translator;
       private List<CalculatedColumnDescriptor> calculatedColumns;
       private ParameterExpression[] parameters;
@@ -80,7 +76,7 @@ namespace Xtensive.Storage.Linq
       public IDisposable CreateScope()
       {
         var currentState = translator.state;
-        var newState = new State(currentState);
+        var newState = new TranslatorState(currentState);
         translator.state = newState;
         return new Disposable(_ => translator.state = currentState);
       }
@@ -88,9 +84,9 @@ namespace Xtensive.Storage.Linq
       public IDisposable CreateLambdaScope(LambdaExpression le)
       {
         var currentState = translator.state;
-        var newState = new State(currentState);
+        var newState = new TranslatorState(currentState);
         newState.outerParameters = newState.outerParameters.Concat(newState.parameters).ToArray();
-        newState.parameters = le.Parameters.ToArray();
+        newState.parameters = Enumerable.ToArray(le.Parameters);
         newState.calculatedColumns = new List<CalculatedColumnDescriptor>();
         newState.currentLambda = le;
         newState.includeAlgorithm = includeAlgorithm;
@@ -101,7 +97,7 @@ namespace Xtensive.Storage.Linq
 
       // Constructors
 
-      public State(Translator translator)
+      public TranslatorState(Translator translator)
       {
         this.translator = translator;
         buildingProjection = true;
@@ -109,7 +105,7 @@ namespace Xtensive.Storage.Linq
         calculatedColumns = new List<CalculatedColumnDescriptor>();
       }
 
-      private State(State currentState)
+      private TranslatorState(TranslatorState currentState)
       {
         translator = currentState.translator;
         calculatedColumns = currentState.calculatedColumns;
@@ -121,6 +117,5 @@ namespace Xtensive.Storage.Linq
         joinLocalCollectionEntity = currentState.joinLocalCollectionEntity;
         includeAlgorithm = currentState.includeAlgorithm;
       }
-    }
   }
 }

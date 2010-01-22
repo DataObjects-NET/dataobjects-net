@@ -28,6 +28,7 @@ namespace Xtensive.Storage.Linq
 {
   internal sealed partial class Translator : QueryableVisitor
   {
+    public TranslatorState state;
     private readonly TranslatorContext context;
 
     protected override Expression VisitConstant(ConstantExpression c)

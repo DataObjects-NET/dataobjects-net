@@ -16,129 +16,87 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
   internal sealed class SkipTakeRewriter : CompilableProviderVisitor
   {
-    private readonly CompilableProvider origin;
-    private readonly bool takeRequiresRowNumber;
-    private Expression skipCount;
-    private Expression takeCount;
     private int rowNumberCount;
-    private ProviderType? consumerType;
-    private ProviderType? currentType;
+    private readonly CompilableProvider origin;
+    private readonly bool limitSupported;
+    private readonly bool offsetSupported;
+
+    public SkipTakeRewriterState State { get; set; }
 
     public CompilableProvider Rewrite()
     {
-      skipCount = null;
-      takeCount = null;
-      rowNumberCount = 0;
-      consumerType = null;
       return VisitCompilable(origin);
     }
 
     protected override Provider Visit(CompilableProvider cp)
     {
-      var prevConsumerType = consumerType;
-      consumerType = currentType;
-      currentType = cp.Type;
+      if ((cp.Type==ProviderType.Take || cp.Type==ProviderType.Skip) && !State.IsSkipTakeChain) {
+        var visitedProvider = (CompilableProvider) base.Visit(cp);
 
-      var prevCurrentType = currentType;
-      var visited = base.Visit(cp);
-      currentType = prevCurrentType;
-      consumerType = prevConsumerType;
-      return visited;
+        bool requiresRowNumber = (State.TakeExpression!=null && !limitSupported)
+          || (State.SkipExpression!=null && !offsetSupported);
+
+        // add rownumber column (if needed)
+        if (requiresRowNumber) {
+          // Arrray to avoid access to modified closure
+          string[] columnName = {String.Format(Strings.RowNumberX, rowNumberCount++)};
+          while (visitedProvider.Header.Columns.Any(column => column.Name==columnName[0]))
+            columnName[0] = String.Format(Strings.RowNumberX, rowNumberCount++);
+          visitedProvider = new RowNumberProvider(visitedProvider, columnName[0]);
+        }
+        // Add take
+        if (State.TakeExpression!=null) {
+          var takeExpression = State.TakeExpression;
+          if (State.SkipExpression!=null)
+            takeExpression = Expression.Add(takeExpression, State.SkipExpression);
+          var count = Expression.Lambda<Func<int>>(takeExpression).CachingCompile();
+          visitedProvider = new TakeProvider(visitedProvider, count);
+        }
+        // add skip
+        if (State.SkipExpression!=null) {
+          var count = Expression.Lambda<Func<int>>(State.SkipExpression).CachingCompile();
+          visitedProvider = new SkipProvider(visitedProvider, count);
+        }
+        // add select removing RowNumber column
+        if (requiresRowNumber)
+          visitedProvider = new SelectProvider(
+            visitedProvider,
+            Enumerable.Range(0, visitedProvider.Header.Length - 1).ToArray());
+
+        return visitedProvider;
+      }
+
+      if (cp.Type!=ProviderType.Take && cp.Type!=ProviderType.Skip && State.IsSkipTakeChain)
+        using (State.CreateScope())
+          return base.Visit(cp);
+
+      return base.Visit(cp);
     }
 
     protected override Provider VisitSkip(SkipProvider provider)
     {
-      skipCount = AddCount(skipCount, provider.Count);
-      var prevSkipCount = skipCount;
-      var isSourceSkip = provider.Source.Type == ProviderType.Skip;
-      if (!isSourceSkip)
-        skipCount = null;
+      State.IsSkipTakeChain = true;
       var visitedSource = VisitCompilable(provider.Source);
-      skipCount = prevSkipCount;
-      if (isSourceSkip)
-        return InsertSelectRemovingRowNumber(visitedSource);
-
-      if (provider.Source.Type != ProviderType.Take || !takeRequiresRowNumber)
-        visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
-      var newProvider = new SkipProvider(visitedSource, Expression.Lambda<Func<int>>(skipCount).CachingCompile());
-      return InsertSelectRemovingRowNumber(newProvider);
+      State.AddSkip(provider.Count);
+      return visitedSource;
     }
 
     protected override Provider VisitTake(TakeProvider provider)
     {
-      takeCount = SelectMiminal(takeCount, provider.Count);
-
-      var prevTakeCount = takeCount;
-      var isSourceTake = provider.Source.Type == ProviderType.Take;
-      if (!isSourceTake)
-        takeCount = null;
+      State.IsSkipTakeChain = true;
       var visitedSource = VisitCompilable(provider.Source);
-      takeCount = prevTakeCount;
-      if (isSourceTake)
-        return InsertSelectRemovingRowNumber(visitedSource);
-
-      if (provider.Source.Type != ProviderType.Skip && takeRequiresRowNumber)
-        visitedSource = CreateRowNumberProvider(visitedSource, ref rowNumberCount);
-      var newProvider = new TakeProvider(visitedSource, Expression.Lambda<Func<int>>(takeCount).CachingCompile());
-      return InsertSelectRemovingRowNumber(newProvider);
+      State.AddTake(provider.Count);
+      return visitedSource;
     }
-
-    #region Private \ internal methods
-
-    private static RowNumberProvider CreateRowNumberProvider(CompilableProvider source,
-      ref int rowNumberCount)
-    {
-      var sourceAsRowNumber = source as RowNumberProvider;
-      if (sourceAsRowNumber != null)
-        return sourceAsRowNumber;
-      var columnName = String.Format(Strings.RowNumberX, rowNumberCount++);
-      return new RowNumberProvider(source, columnName);
-    }
-
-    private static Expression AddCount(Expression source, Func<int> increment)
-    {
-      var result = source;
-      if (result == null)
-        result = CreateDelegateInvocation(increment);
-      else
-        result = Expression.Add(result, CreateDelegateInvocation(increment));
-      return result;
-    }
-
-    private static Expression SelectMiminal(Expression oldValue, Func<int> newValue)
-    {
-      var newExp = CreateDelegateInvocation(newValue);
-      if (oldValue == null)
-        return newExp;
-      return Expression.Condition(Expression.LessThan(newExp, oldValue), newExp, oldValue);
-    }
-    
-    private static MethodCallExpression CreateDelegateInvocation(Func<int> arg)
-    {
-      return Expression.Call(Expression.Constant(arg), "Invoke", null);
-    }
-
-    private CompilableProvider InsertSelectRemovingRowNumber(CompilableProvider source)
-    {
-      if (consumerType != ProviderType.Skip && consumerType != ProviderType.Take) {
-        if (source.Type == ProviderType.Take && !takeRequiresRowNumber)
-          return source;
-        return new SelectProvider(
-          source,
-          Enumerable.Range(0, source.Header.Length - 1).ToArray());
-      }
-      return source;
-    }
-
-    #endregion
-
 
     // Constructors
 
-    public SkipTakeRewriter(CompilableProvider origin, bool takeRequiresRowNumber)
+    public SkipTakeRewriter(CompilableProvider origin, bool limitSupported, bool offsetSupported)
     {
+      State = new SkipTakeRewriterState(this);
       this.origin = origin;
-      this.takeRequiresRowNumber = takeRequiresRowNumber;
+      this.limitSupported = limitSupported;
+      this.offsetSupported = offsetSupported;
     }
   }
 }

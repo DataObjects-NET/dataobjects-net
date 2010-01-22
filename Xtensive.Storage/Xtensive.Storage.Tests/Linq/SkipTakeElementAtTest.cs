@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
@@ -27,6 +28,51 @@ namespace Xtensive.Storage.Tests.Linq
       Assert.AreEqual(1, result1);
       var result2 = TakeCustomersIncorrect(2).Count();
       Assert.AreEqual(2, result2);
+    }
+
+    [Test]
+    public void MultipleTakeSkipRandomTest()
+    {
+      IQueryable<Customer> query = Query.All<Customer>().OrderBy(customer=>customer.Id);
+      int count = query.Count();
+      var expected = query.AsEnumerable();
+      var randomManager = RandomManager.CreateRandom();
+      for (int i = 0; i < 5; i++) {
+        int randomInt = randomManager.Next(0, 9);
+        switch (randomInt) {
+        case 0:
+          // Take with negative count
+          var takeNegativeCount = randomManager.Next(-count + 1, -1);
+          query = query.Take(takeNegativeCount);
+          expected = expected.Take(takeNegativeCount);
+          break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+          // Take
+          var takeCount = randomManager.Next((int) (count * 0.8), count);
+          query = query.Take(takeCount);
+          expected = expected.Take(takeCount);
+          break;
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+          // Skip
+          var skipCount = randomManager.Next((int) (count * 0.1), count);
+          query = query.Skip(skipCount);
+          expected = expected.Skip(skipCount);
+          break;
+        case 9:
+          // Skip with negative count
+          var skipNegativeCount = randomManager.Next((int) (-count*0.1 + 1), -1);
+          query = query.Skip(skipNegativeCount);
+          expected = expected.Skip(skipNegativeCount);
+          break;
+        }
+      }
+      Assert.IsTrue(expected.SequenceEqual(query));
     }
 
     [Test]
@@ -63,8 +109,8 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof (TranslationException))]
     public void ReuseElementAtTest()
     {
-      var customers = Query.All<Customer>().OrderBy(customer=>customer.Id).ToList();
-      Assert.IsTrue(customers.Count>0);
+      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      Assert.IsTrue(customers.Count > 0);
       for (int i = 0; i < customers.Count; i++)
         Assert.AreEqual(customers[i], ElementAtIncorrect(i));
     }
@@ -72,28 +118,27 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReuseElementAt2Test()
     {
-      var customers = Query.All<Customer>().OrderBy(customer=>customer.Id).ToList();
-      Assert.IsTrue(customers.Count>0);
+      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++)
         if (i < 0) {
           int index = i;
-          AssertEx.ThrowsInvalidOperationException(()=> ElementAtCorrect(index));
+          AssertEx.ThrowsInvalidOperationException(() => ElementAtCorrect(index));
         }
-        else if  (i >= customers.Count) {
+        else if (i >= customers.Count) {
           int index = i;
-          AssertEx.ThrowsInvalidOperationException(()=> ElementAtCorrect(index));
+          AssertEx.ThrowsInvalidOperationException(() => ElementAtCorrect(index));
         }
         else
           Assert.AreEqual(customers[i], ElementAtCorrect(i));
-
     }
 
 
     [Test]
     public void ReuseElementAtOrDefaultTest()
     {
-      var customers = Query.All<Customer>().OrderBy(customer=>customer.Id).ToList();
-      Assert.IsTrue(customers.Count>0);
+      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count)
           Assert.IsNull(ElementAtOrDefaultCorrect(i));
@@ -106,8 +151,8 @@ namespace Xtensive.Storage.Tests.Linq
     [ExpectedException(typeof (TranslationException))]
     public void ReuseElementAtOrDefault2Test()
     {
-      var customers = Query.All<Customer>().OrderBy(customer=>customer.Id).ToList();
-      Assert.IsTrue(customers.Count>0);
+      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count)
           Assert.IsNull(ElementAtOrDefaultIncorrect(i));
@@ -119,13 +164,13 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ElementAtOrDefaultIsNotRootTest()
     {
-      var customers = Query.All<Customer>().OrderBy(customer=>customer.Id).ToList();
-      Assert.IsTrue(customers.Count>0);
+      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count)
-          Assert.IsNull(Query.All<Customer>().OrderBy(customer=>customer.Id).ElementAtOrDefault(i));
+          Assert.IsNull(Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(i));
         else
-          Assert.AreEqual(customers[i], Query.All<Customer>().OrderBy(customer=>customer.Id).ElementAtOrDefault(i));
+          Assert.AreEqual(customers[i], Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(i));
       }
     }
 
@@ -133,7 +178,7 @@ namespace Xtensive.Storage.Tests.Linq
     public void ElementAtOrDefaultIsRootTest()
     {
       var customers = Query.All<Customer>().ToList();
-      Assert.IsTrue(customers.Count>0);
+      Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count)
           Assert.IsNull(Query.All<Customer>().ElementAtOrDefault(i));
@@ -145,19 +190,19 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ElementAtIsNotRootTest()
     {
-      var customers = Query.All<Customer>().OrderBy(customer=>customer.Id).ToList();
-      Assert.IsTrue(customers.Count>0);
+      var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
-        if (i < 0 ) {
+        if (i < 0) {
           int index = i;
-          AssertEx.ThrowsArgumentOutOfRangeException(()=> Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
+          AssertEx.ThrowsArgumentOutOfRangeException(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
         }
         else if (i >= customers.Count) {
           int index = i;
-          AssertEx.ThrowsInvalidOperationException(()=> Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
+          AssertEx.ThrowsInvalidOperationException(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
         }
         else
-          Assert.AreEqual(customers[i], Query.All<Customer>().OrderBy(customer=>customer.Id).ElementAt(i));
+          Assert.AreEqual(customers[i], Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(i));
       }
     }
 
@@ -165,15 +210,15 @@ namespace Xtensive.Storage.Tests.Linq
     public void ElementAtIsRootTest()
     {
       var customers = Query.All<Customer>().ToList();
-      Assert.IsTrue(customers.Count>0);
+      Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0) {
           int index = i;
-          AssertEx.ThrowsArgumentOutOfRangeException(()=> Query.All<Customer>().ElementAt(index));
+          AssertEx.ThrowsArgumentOutOfRangeException(() => Query.All<Customer>().ElementAt(index));
         }
-        else if  (i >= customers.Count) {
+        else if (i >= customers.Count) {
           int index = i;
-          AssertEx.ThrowsInvalidOperationException(()=> Query.All<Customer>().ElementAt(index));
+          AssertEx.ThrowsInvalidOperationException(() => Query.All<Customer>().ElementAt(index));
         }
         else
           Assert.AreEqual(customers[i], Query.All<Customer>().ElementAt(i));
@@ -187,7 +232,7 @@ namespace Xtensive.Storage.Tests.Linq
 
     private IEnumerable<Customer> TakeCustomersCorrect(int amount)
     {
-      return Query.Execute(() => Query.All<Customer>().Take(()=>amount));
+      return Query.Execute(() => Query.All<Customer>().Take(() => amount));
     }
 
     private IEnumerable<Customer> SkipCustomersIncorrect(int skip)
@@ -197,27 +242,27 @@ namespace Xtensive.Storage.Tests.Linq
 
     private IEnumerable<Customer> SkipCustomersCorrect(int skip)
     {
-      return Query.Execute(() => Query.All<Customer>().Skip(()=>skip));
+      return Query.Execute(() => Query.All<Customer>().Skip(() => skip));
     }
 
     private Customer ElementAtIncorrect(int index)
     {
-      return Query.Execute(() => Query.All<Customer>().OrderBy(customer=>customer.Id).ElementAt(index));
+      return Query.Execute(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
     }
 
     private Customer ElementAtCorrect(int index)
     {
-      return Query.Execute(() => Query.All<Customer>().OrderBy(customer=>customer.Id).ElementAt(()=>index));
+      return Query.Execute(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(() => index));
     }
 
     private Customer ElementAtOrDefaultIncorrect(int index)
     {
-      return Query.Execute(() => Query.All<Customer>().OrderBy(customer=>customer.Id).ElementAtOrDefault(index));
+      return Query.Execute(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(index));
     }
 
     private Customer ElementAtOrDefaultCorrect(int index)
     {
-      return Query.Execute(() => Query.All<Customer>().OrderBy(customer=>customer.Id).ElementAtOrDefault(()=>index));
+      return Query.Execute(() => Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(() => index));
     }
   }
 }

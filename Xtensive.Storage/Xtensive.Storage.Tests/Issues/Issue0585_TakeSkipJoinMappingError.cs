@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Tests.Issues
               activity.LastLockoutDate
             };
           var result = query.ToList();
-          Assert.Greater(0, result.Count);
+          Assert.Greater(result.Count, 0);
         }
       }
     }
