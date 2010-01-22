@@ -112,7 +112,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
-    public void ComparisonWhenRootsContainsPrimitiveObjectsTest()
+    public void ComparisonWhenRootsContainsValueObjectsTest()
     {
       var mapper = GetPersonStructureMapper();
       Person person;
@@ -139,24 +139,34 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
-    public void TransformationOfPropertyBeingPrimitiveTypeCollectionTest()
+    public void TransformationOfCollectionPropertyHavingItemsOfValueTypeTest()
     {
-      var mapper = new DefaultMapper();
-      mapper.MapType<Account, AccountDto, Guid>(a => a.Id, a => a.Id)
-        .MapStructure<AccessRight, AccessRightDto>()
-        .Complete();
-      var source = new Account {
-        AccessRights = new List<AccessRight> {
-          new AccessRight {Action = Action.Read, ObjectId = new[] {1L, 2, 3, 4, 5}},
-          new AccessRight {Action = Action.Write, ObjectId = new[] {0L, 9, 8, 7, 6}}
-        },
-        PasswordHash = new byte[] {1, 8, 89, 29, 50, 77}
-      };
+      var mapper = GetAccountMapper();
+      var source = GetSourceAccount();
       var target = (AccountDto) mapper.Transform(source);
       Assert.AreEqual(source.Id, target.Id);
-      Assert.AreEqual(source.AccessRights.Count, target.AccessRights.Count);
-      Assert.AreEqual(source.PasswordHash.Length, target.PasswordHash.Length);
+      Assert.IsTrue(source.AccessRights
+        .All(ar => target.AccessRights
+          .Where(tar => tar.Action==ar.Action && tar.ObjectId.SequenceEqual(ar.ObjectId)).Count()==1));
       Assert.IsTrue(source.PasswordHash.SequenceEqual(target.PasswordHash));
+    }
+
+    [Test]
+    public void ComparisonOfCollectionPropertyHavingItemsOfValueTypeTest()
+    {
+      var mapper = GetAccountMapper();
+      var source = GetSourceAccount();
+      var original = (AccountDto) mapper.Transform(source);
+      var modified = Clone(original);
+      modified.PasswordHash[3] += 5;
+      var oldAccessRight = modified.AccessRights[0];
+      modified.AccessRights[0] = new AccessRightDto {
+        Action = Action.Write, ObjectId = oldAccessRight.ObjectId
+      };
+      modified.AccessRights[0].ObjectId[2] += 7;
+      var result = mapper.Compare(original, modified);
+      var operations = ((DefaultOperationSet) result.Operations).ToList();
+      Assert.AreEqual(3, operations.Count);
     }
 
     private static DefaultMapper GetPersonStructureMapper()
@@ -164,6 +174,15 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var mapper = new DefaultMapper();
       mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
         .MapStructure<Structure, StructureDto>().Complete();
+      return mapper;
+    }
+
+    private static DefaultMapper GetAccountMapper()
+    {
+      var mapper = new DefaultMapper();
+      mapper.MapType<Account, AccountDto, Guid>(a => a.Id, a => a.Id)
+        .MapStructure<AccessRight, AccessRightDto>()
+        .Complete();
       return mapper;
     }
 
@@ -181,7 +200,18 @@ namespace Xtensive.Core.Tests.ObjectMapping
       source.Add(structureItem);
       return source;
     }
-    
+
+    private static Account GetSourceAccount()
+    {
+      return new Account {
+        AccessRights = new List<AccessRight> {
+          new AccessRight {Action = Action.Read, ObjectId = new[] {1L, 2, 3, 4, 5}},
+          new AccessRight {Action = Action.Write, ObjectId = new[] {0L, 9, 8, 7, 6}}
+        },
+        PasswordHash = new byte[] {1, 8, 89, 29, 50, 77}
+      };
+    }
+
     private static void ValidateCollectionComparison(DefaultMapper mapper, PetOwnerDto original,
       PetOwnerDto modified, AnimalDto newAnimal, AnimalDto removedAnimal0, AnimalDto removedAnimal1)
     {

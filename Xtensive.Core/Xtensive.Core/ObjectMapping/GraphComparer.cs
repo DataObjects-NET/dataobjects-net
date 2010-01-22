@@ -25,7 +25,6 @@ namespace Xtensive.Core.ObjectMapping
     private readonly MappingDescription mappingDescription;
     private readonly Action<OperationInfo> subscriber;
     private readonly IExistanceInfoProvider existanceInfoProvider;
-    private readonly ObjectExtractor objectExtractor;
     private Dictionary<object, object> originalKeyCache;
     private Dictionary<object, object> modifiedKeyCache;
     private object structureOwner;
@@ -34,20 +33,14 @@ namespace Xtensive.Core.ObjectMapping
     private readonly Action<object, object, object, TargetPropertyDescription> userStructureComparer;
     private readonly Action<object, object, object, TargetPropertyDescription> structureLevelsRegistrator;
     
-    public void Compare(object original, object modified)
+    public void Compare(Dictionary<object, object> original, Dictionary<object, object> modified)
     {
-      if (modified==null && original==null)
-        return;
-      var modifiedObjects = new Dictionary<object, object>();
-      objectExtractor.Extract(modified, modifiedObjects);
-      var originalObjects = new Dictionary<object, object>();
-      objectExtractor.Extract(original, originalObjects);
       IEnumerable<object> createdObjects;
       IEnumerable<object> removedObjects;
-      existanceInfoProvider.Get(new ReadOnlyDictionary<object, object>(modifiedObjects, false),
-        new ReadOnlyDictionary<object, object>(originalObjects, false), out createdObjects, out removedObjects);
+      existanceInfoProvider.Get(new ReadOnlyDictionary<object, object>(modified, false),
+        new ReadOnlyDictionary<object, object>(original, false), out createdObjects, out removedObjects);
       NotifyAboutCreatedObjects(createdObjects);
-      FindChangedObjects(modifiedObjects, originalObjects);
+      FindChangedObjects(modified, original);
       NotifyAboutRemovedObjects(removedObjects);
     }
 
@@ -333,7 +326,6 @@ namespace Xtensive.Core.ObjectMapping
       this.mappingDescription = mappingDescription;
       this.subscriber = subscriber;
       this.existanceInfoProvider = existanceInfoProvider;
-      objectExtractor = new ObjectExtractor(mappingDescription);
       userStructureComparer = CompareUserStructure;
       structureLevelsRegistrator = RegisterStructureLevels;
     }

@@ -344,7 +344,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
           formatter.Serialize(stream, version);
           stream.Seek(0, SeekOrigin.Begin);
           var result = new byte[stream.Length];
-          Array.Copy(stream.GetBuffer(), result, result.Length);
+          stream.Read(result, 0, result.Length);
           stream.SetLength(0);
           return result;
         };
@@ -374,40 +374,28 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
     private void ServerApplyChanges(List<object> original, List<object> modified, Mapper mapper)
     {
-      var formatter = new BinaryFormatter();
-      var deserializedVersions = new Dictionary<Key, VersionInfo>();
-      Func<Key, VersionInfo> versionProvider = key => {
-        VersionInfo result;
-        if (!deserializedVersions.TryGetValue(key, out result)) {
-          var keyString = key.Format();
-          var foundPerson = modified.Cast<PersonWithVersionDto>().Where(m => m.Key==keyString)
-            .First();
-          using (var stream = new MemoryStream(foundPerson.Version))
-            result = (VersionInfo) formatter.Deserialize(stream);
-          deserializedVersions.Add(key, result);
+      using (var session = Session.Open(Domain)) {
+        using (var result = mapper.Compare(original, modified))
+        using (VersionValidator.Attach(session, result.VersionInfoProvider))
+        using (var tx = Transaction.Open()) {
+          result.Operations.Apply();
+          tx.Complete();
         }
-        return result;
-      };
-      using (var session = Session.Open(Domain))
-      using (VersionValidator.Attach(session, versionProvider))
-      using (var tx = Transaction.Open()) {
-        var operations = mapper.Compare(original, modified).Operations;
-        operations.Apply();
-        tx.Complete();
       }
 
       // Validation of the stale object.
       ((PersonWithVersionDto) modified[0]).Name += "ModifiedAgain";
-      using (var session = Session.Open(Domain))
-      using (VersionValidator.Attach(session, versionProvider)) {
-        var tx = Transaction.Open();
-        try {
-          var operations = mapper.Compare(original, modified).Operations;
-          operations.Apply();
-          tx.Complete();
-        }
-        finally {
-          AssertEx.ThrowsInvalidOperationException(tx.Dispose);
+      using (var session = Session.Open(Domain)) {
+        using (var result = mapper.Compare(original, modified))
+        using (VersionValidator.Attach(session, result.VersionInfoProvider)) {
+          var tx = Transaction.Open();
+          try {
+            result.Operations.Apply();
+            tx.Complete();
+          }
+          finally {
+            AssertEx.ThrowsInvalidOperationException(tx.Dispose);
+          }
         }
       }
     }

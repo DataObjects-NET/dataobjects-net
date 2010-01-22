@@ -5,6 +5,7 @@
 // Created:    2009.12.09
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
@@ -16,12 +17,14 @@ namespace Xtensive.Core.ObjectMapping
   /// <summary>
   /// A base class for O2O-mapper implementations.
   /// </summary>
+  /// <typeparam name="TComparisonResult">The type of graphs comparison result.</typeparam>
   public abstract class MapperBase<TComparisonResult> : IMappingBuilder
     where TComparisonResult : GraphComparisonResult
   {
     private GraphTransformer transformer;
     private GraphComparer comparer;
     private ModelBuilder modelBuilder;
+    private ObjectExtractor objectExtractor;
 
     /// <summary>
     /// Gets the mapping description.
@@ -92,8 +95,14 @@ namespace Xtensive.Core.ObjectMapping
       if (MappingDescription == null)
         throw new InvalidOperationException(Strings.ExMappingConfigurationHasNotBeenCompleted);
       InitializeComparison(originalTarget, modifiedTarget);
-      comparer.Compare(originalTarget, modifiedTarget);
-      return GetComparisonResult(originalTarget, modifiedTarget);
+      var modifiedObjects = new Dictionary<object, object>();
+      var originalObjects = new Dictionary<object, object>();
+      if (originalTarget!=null || modifiedTarget!=null) {
+        objectExtractor.Extract(modifiedTarget, modifiedObjects);
+        objectExtractor.Extract(originalTarget, originalObjects);
+        comparer.Compare(originalObjects, modifiedObjects);
+      }
+      return GetComparisonResult(originalObjects, modifiedObjects);
     }
 
     /// <summary>
@@ -113,10 +122,11 @@ namespace Xtensive.Core.ObjectMapping
     /// Gets the set of operations describing found changes and the mapping from surrogate
     /// keys to real keys for new objects.
     /// </summary>
-    /// <param name="originalTarget">The original target.</param>
-    /// <param name="modifiedTarget">The modified target.</param>
+    /// <param name="originalObjects">The set of objects from the original graph.</param>
+    /// <param name="modifiedObjects">The set of objects from the modified graph.</param>
     /// <returns>The <see cref="GraphComparisonResult"/>.</returns>
-    protected abstract TComparisonResult GetComparisonResult(object originalTarget, object modifiedTarget);
+    protected abstract TComparisonResult GetComparisonResult(Dictionary<object, object> originalObjects,
+      Dictionary<object, object> modifiedObjects);
 
     internal void Complete()
     {
@@ -124,6 +134,7 @@ namespace Xtensive.Core.ObjectMapping
       ModelBuilder = null;
       transformer = new GraphTransformer(MappingDescription, Settings);
       comparer = new GraphComparer(MappingDescription, OnObjectModified, new DefaultExistanceInfoProvider());
+      objectExtractor = new ObjectExtractor(MappingDescription);
     }
 
 

@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.12.10
 
+using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.ObjectMapping
@@ -28,8 +29,8 @@ namespace Xtensive.Core.ObjectMapping
     }
 
     /// <inheritdoc/>
-    protected override GraphComparisonResult GetComparisonResult(
-      object originalTarget, object modifiedTarget)
+    protected override GraphComparisonResult GetComparisonResult(Dictionary<object, object> originalObjects,
+      Dictionary<object, object> modifiedObjects)
     {
       operationSet.Lock();
       return new GraphComparisonResult(operationSet, null);

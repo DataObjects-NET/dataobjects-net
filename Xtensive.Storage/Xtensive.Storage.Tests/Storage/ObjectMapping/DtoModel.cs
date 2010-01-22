@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Storage.ObjectMapping;
 
 namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 {
@@ -116,7 +117,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
   }
 
   [Serializable]
-  public class PersonWithVersionDto : PersonDto
+  public class PersonWithVersionDto : PersonDto,
+    IHasVersion
   {
     public byte[] Version { get; set; }
   }

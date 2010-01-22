@@ -76,15 +76,16 @@ namespace Xtensive.Storage.ObjectMapping
     }
 
     /// <inheritdoc/>
-    protected override GraphComparisonResult GetComparisonResult(object originalTarget, object modifiedTarget)
+    protected override GraphComparisonResult GetComparisonResult(Dictionary<object, object> originalObjects,
+      Dictionary<object, object> modifiedObjects)
     {
       Dictionary<object, object> formattedKeyMapping = null;
       if (keyMapping!=null) {
         formattedKeyMapping = keyMapping.Select(pair => new {pair.Key, Value = pair.Value.Format()})
-        .ToDictionary(pair => pair.Key, pair => (object) pair.Value);
+          .ToDictionary(pair => pair.Key, pair => (object) pair.Value);
         keyMapping.Clear();
       }
-      var result = new GraphComparisonResult(comparisonResult,
+      var result = new GraphComparisonResult(modifiedObjects, comparisonResult,
         formattedKeyMapping!=null ? new ReadOnlyDictionary<object, object>(formattedKeyMapping, false) : null);
       session = null;
       comparisonResult = null;
