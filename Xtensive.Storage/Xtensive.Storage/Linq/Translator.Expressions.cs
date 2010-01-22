@@ -397,6 +397,9 @@ namespace Xtensive.Storage.Linq
       Expression left = binaryExpression.Left.StripCasts().StripMarkers();
       Expression right = binaryExpression.Right.StripCasts().StripMarkers();
 
+      var rightIsConstant = context.Evaluator.CanBeEvaluated(right);
+      var leftIsConstant = context.Evaluator.CanBeEvaluated(left);
+
       IList<Expression> leftExpressions;
       IList<Expression> rightExpressions;
 
@@ -460,14 +463,16 @@ namespace Xtensive.Storage.Linq
         }
 
         // If array compares to null use standart routine. 
-        if (right.NodeType==ExpressionType.Constant
-          && ((ConstantExpression) right).Value==null)
+        if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
+          || (rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
+          || (right.Type==typeof(byte[]) && (left is FieldExpression || left is ColumnExpression || right is FieldExpression || right is ColumnExpression)))
           return Expression.MakeBinary(binaryExpression.NodeType,
             left,
             right,
             binaryExpression.IsLiftedToNull,
             binaryExpression.Method);
-
+        
+         
 
         // Array split to it's members.
         leftExpressions = ((NewArrayExpression) left).Expressions;
