@@ -732,4 +732,7 @@
   <data name="ExNestedCollectionIsNotSupported" xml:space="preserve">
     <value>Nested collection is not supported.</value>
   </data>
+  <data name="ExCollectionOfUserStructuresIsNotSupported" xml:space="preserve">
+    <value>Collection of user structures isn't supported.</value>
+  </data>
 </root>

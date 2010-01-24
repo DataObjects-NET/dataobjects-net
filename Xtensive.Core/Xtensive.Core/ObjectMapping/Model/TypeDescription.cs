@@ -39,6 +39,11 @@ namespace Xtensive.Core.ObjectMapping.Model
     public readonly Type SystemType;
 
     /// <summary>
+    /// Kind of an object whose type described by this instance.
+    /// </summary>
+    public readonly ObjectKind ObjectKind;
+
+    /// <summary>
     /// Gets the property.
     /// </summary>
     /// <param name="systemProperty">The system property.</param>
@@ -95,6 +100,12 @@ namespace Xtensive.Core.ObjectMapping.Model
 
       SystemType = systemType;
       Properties = new ReadOnlyDictionary<PropertyInfo, PropertyDescription>(properties, false);
+      if (MappingHelper.IsTypePrimitive(systemType))
+        ObjectKind = ObjectKind.Primitive;
+      else if (systemType.IsValueType)
+        ObjectKind = ObjectKind.UserStructure;
+      else
+        ObjectKind = ObjectKind.Entity;
     }
   }
 }

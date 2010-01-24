@@ -11,16 +11,43 @@ using System.Reflection;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Resources;
+using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.ObjectMapping
 {
   internal sealed class ModelBuilder
   {
+    #region Nested classes
+
+    private class MemberInfoCacheEntry
+    {
+      public readonly PropertyInfo Count;
+
+      public readonly MethodInfo Add;
+
+
+      // Constrcutors
+
+      public MemberInfoCacheEntry(PropertyInfo count, MethodInfo add)
+      {
+        Count = count;
+        Add = add;
+      }
+    }
+
+    #endregion
+
+    private static readonly ThreadSafeDictionary<Type, Pair<Type, MemberInfoCacheEntry>> collectionTypes =
+      ThreadSafeDictionary<Type, Pair<Type, MemberInfoCacheEntry>>.Create(new object());
+    private static readonly MemberInfoCacheEntry arrayCacheEntry =
+      new MemberInfoCacheEntry(typeof (Array).GetProperty("Length"), null);
     public static readonly Func<object, SourcePropertyDescription, object>
       DefaultPrimitiveConverter = (source, sourceProperty) =>
         sourceProperty.SystemProperty.GetValue(source, null);
     private readonly Dictionary<PropertyInfo, PropertyInfo> propertyBindings =
       new Dictionary<PropertyInfo, PropertyInfo>();
+    private readonly Dictionary<Type, TargetTypeDescription> enumTypes =
+      new Dictionary<Type, TargetTypeDescription>();
 
     private readonly MappingDescription mappingDescription = new MappingDescription();
 
@@ -69,9 +96,10 @@ namespace Xtensive.Core.ObjectMapping
     public MappingDescription Build()
     {
       mappingDescription.EnsureNotLocked();
+      mappingDescription.RegisterDefaultPrimitiveTypes();
       BindHierarchies();
-      BuildSourceDescriptions();
       BuildTargetDescriptions();
+      mappingDescription.RegisterEnumTypes(enumTypes);
       mappingDescription.Lock(true);
       var modelValidator = new ModelValidator();
       modelValidator.Validate(mappingDescription);
@@ -143,35 +171,38 @@ namespace Xtensive.Core.ObjectMapping
     private void BuildTargetDescriptions()
     {
       foreach (var targetType in mappingDescription.TargetTypes.Values) {
+        if (targetType.ObjectKind==ObjectKind.Primitive)
+          continue;
         ApplyCustomBindings(targetType);
         BuildTargetPropertyDescriptions(targetType);
       }
     }
 
-    private static void BuildTargetPropertyDescriptions(TargetTypeDescription targetType)
+    private void BuildTargetPropertyDescriptions(TargetTypeDescription targetType)
     {
       var properties = targetType.SystemType.GetProperties();
       for (var i = 0; i < properties.Length; i++) {
         var property = properties[i];
-        PropertyDescription existingProperty;
-        if (targetType.Properties.TryGetValue(property, out existingProperty))
-          SetPropertyConverter(targetType, (TargetPropertyDescription) existingProperty);
+        PropertyDescription propertyDescription;
+        if (targetType.Properties.TryGetValue(property, out propertyDescription))
+          BindToSource(targetType, (TargetPropertyDescription) propertyDescription);
         else {
           var newProperty = new TargetPropertyDescription(property, targetType);
-          SetPropertyConverter(targetType, newProperty);
+          BindToSource(targetType, newProperty);
           targetType.AddProperty(newProperty);
         }
       }
     }
 
-    private static void SetPropertyConverter(TargetTypeDescription targetType,
+    private void BindToSource(TargetTypeDescription targetType,
       TargetPropertyDescription propertyDescription)
     {
+      SetPropertyAttributes(propertyDescription);
       if (propertyDescription.Converter == null && !propertyDescription.IsIgnored) {
-        var sourceProperty = targetType.SourceType.Properties
-          .Where(p => p.Key.Name==propertyDescription.SystemProperty.Name).Select(p => p.Value).Single();
-        propertyDescription.SourceProperty = (SourcePropertyDescription) sourceProperty;
-        if (propertyDescription.IsPrimitive)
+        var sourceProperty = targetType.SourceType.SystemType
+          .GetProperty(propertyDescription.SystemProperty.Name);
+        propertyDescription.SourceProperty = AddSourceDescription(targetType.SourceType, sourceProperty);
+        if (propertyDescription.ValueType.ObjectKind==ObjectKind.Primitive)
           propertyDescription.Converter = DefaultPrimitiveConverter;
       }
     }
@@ -181,25 +212,86 @@ namespace Xtensive.Core.ObjectMapping
       foreach (var pair in targetType.Properties) {
         PropertyInfo sourceProperty;
         if (propertyBindings.TryGetValue(pair.Value.SystemProperty, out sourceProperty)) {
-          var sourceTypeDesc = mappingDescription.SourceTypes[sourceProperty.ReflectedType];
           ((TargetPropertyDescription) pair.Value).SourceProperty =
-            (SourcePropertyDescription) sourceTypeDesc.Properties[sourceProperty];
+            AddSourceDescription(targetType.SourceType, sourceProperty);
         }
       }
     }
 
-    private void BuildSourceDescriptions()
+    private SourcePropertyDescription AddSourceDescription(SourceTypeDescription sourceType,
+      PropertyInfo property)
     {
-      foreach (var sourceType in mappingDescription.SourceTypes) {
-        var properties = sourceType.Key.GetProperties();
-        for (var i = 0; i < properties.Length; i++) {
-          var property = properties[i];
-          if (sourceType.Value.Properties.ContainsKey(property))
-            continue;
-          var propertyDesc = new SourcePropertyDescription(property, sourceType.Value);
-          sourceType.Value.AddProperty(propertyDesc);
-        }
+      PropertyDescription result;
+      if (sourceType.Properties.TryGetValue(property, out result))
+        return (SourcePropertyDescription) result;
+      var propertyDesc = new SourcePropertyDescription(property, sourceType);
+      SetPropertyAttributes(propertyDesc);
+      sourceType.AddProperty(propertyDesc);
+      return propertyDesc;
+    }
+
+    private void SetPropertyAttributes(PropertyDescription property)
+    {
+      Pair<Type, MemberInfoCacheEntry>? cacheItem = null;
+      Pair<Type, MemberInfoCacheEntry> foundItem;
+      if (collectionTypes.TryGetValue(property.SystemProperty.PropertyType, out foundItem))
+        cacheItem = foundItem;
+      else if (property.SystemProperty.PropertyType.IsArray)
+        cacheItem = GenerateArrayCacheItem(property.SystemProperty);
+      else if (MappingHelper.IsCollectionCandidate(property.SystemProperty.PropertyType))
+        cacheItem = GenerateCollectionCacheItem(property.SystemProperty);
+      if (cacheItem!=null) {
+        property.IsCollection = true;
+        if (property is TargetPropertyDescription)
+          ((TargetPropertyDescription) property).ValueType =
+            mappingDescription.GetTargetTypeDescription(cacheItem.Value.First);
+        property.CountProperty = cacheItem.Value.Second.Count;
+        property.AddMethod = cacheItem.Value.Second.Add;
       }
+      else if (property is TargetPropertyDescription) {
+        var propertyType = property.SystemProperty.PropertyType;
+        var targetProperty = (TargetPropertyDescription) property;
+        if (propertyType.IsEnum)
+          targetProperty.ValueType = GetEnumDescription(propertyType);
+        else
+          targetProperty.ValueType = mappingDescription.GetTargetTypeDescription(propertyType);
+      }
+    }
+
+    private TargetTypeDescription GetEnumDescription(Type propertyType)
+    {
+      TargetTypeDescription result;
+      if (!enumTypes.TryGetValue(propertyType, out result)) {
+        result = new TargetTypeDescription(propertyType);
+        enumTypes.Add(propertyType, result);
+      }
+      return result;
+    }
+
+    private static Pair<Type, MemberInfoCacheEntry>? GenerateCollectionCacheItem(PropertyInfo systemProperty)
+    {
+      Pair<Type, MemberInfoCacheEntry>? result = null;
+      Type interfaceType;
+      Type itemType;
+      if (MappingHelper.TryGetCollectionInterface(systemProperty.PropertyType, out interfaceType, out itemType))
+        result = collectionTypes.GetValue(systemProperty.PropertyType, GenerateCollectionTypesCacheItem,
+          interfaceType);
+      return result;
+    }
+
+    private static Pair<Type, MemberInfoCacheEntry> GenerateArrayCacheItem(PropertyInfo systemProperty)
+    {
+      return collectionTypes.GetValue(systemProperty.PropertyType,
+        (type, propertyCacheEntry) =>
+          new Pair<Type, MemberInfoCacheEntry>(type.GetElementType(), propertyCacheEntry),
+        arrayCacheEntry);
+    }
+
+    private static Pair<Type, MemberInfoCacheEntry> GenerateCollectionTypesCacheItem(Type type,
+      Type interfaceType)
+    {
+      return new Pair<Type, MemberInfoCacheEntry>(interfaceType.GetGenericArguments()[0],
+        new MemberInfoCacheEntry(interfaceType.GetProperty("Count"), interfaceType.GetMethod("Add")));
     }
 
     #endregion

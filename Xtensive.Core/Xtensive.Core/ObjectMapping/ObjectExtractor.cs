@@ -27,26 +27,34 @@ namespace Xtensive.Core.ObjectMapping
         var current = referencedObjects.Dequeue();
         if (current == null)
           continue;
-        var currentType = current.GetType();
-        if (MappingHelper.IsTypePrimitive(currentType))
+        var currentType = mappingDescription.GetTargetTypeDescription(current.GetType());
+        switch (currentType.ObjectKind) {
+        case ObjectKind.Primitive:
           continue;
-        if (!currentType.IsValueType) {
-          var key = mappingDescription.ExtractTargetKey(current);
-          if (resultContainer.ContainsKey(key))
+        case ObjectKind.Entity:
+          if (!AddEntity(current, resultContainer))
             continue;
-          resultContainer.Add(key, current);
+          goto case ObjectKind.UserStructure;
+        case ObjectKind.UserStructure:
+          VisitComplexProperties(current, currentType);
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("currentType.ObjectKind");
         }
-        var description = mappingDescription.TargetTypes[currentType];
-        foreach (var property in description.ComplexProperties.Values) {
-          var value = property.SystemProperty.GetValue(current, null);
-          if (value==null)
-            continue;
-          if (!property.IsCollection)
-            referencedObjects.Enqueue(value);
-          else
-            foreach (var obj in (IEnumerable) value)
-              referencedObjects.Enqueue(obj);
-        }
+      }
+    }
+
+    private void VisitComplexProperties(object current, TargetTypeDescription currentType)
+    {
+      foreach (var property in currentType.ComplexProperties.Values) {
+        var value = property.SystemProperty.GetValue(current, null);
+        if (value==null)
+          continue;
+        if (!property.IsCollection)
+          referencedObjects.Enqueue(value);
+        else
+          foreach (var obj in (IEnumerable) value)
+            referencedObjects.Enqueue(obj);
       }
     }
 
@@ -61,6 +69,15 @@ namespace Xtensive.Core.ObjectMapping
           }
       else
         referencedObjects.Enqueue(root);
+    }
+
+    private bool AddEntity(object entity, IDictionary<object, object> resultContainer)
+    {
+      var key = mappingDescription.ExtractTargetKey(entity);
+      if (resultContainer.ContainsKey(key))
+        return false;
+      resultContainer.Add(key, entity);
+      return true;
     }
 
 

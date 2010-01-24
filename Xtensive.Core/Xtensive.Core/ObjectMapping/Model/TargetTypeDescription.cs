@@ -92,12 +92,16 @@ namespace Xtensive.Core.ObjectMapping.Model
       var primitiveProperties = new Dictionary<PropertyInfo, TargetPropertyDescription>();
       var properties = Properties.Select(pair => pair.Value).Cast<TargetPropertyDescription>()
         .Where(p => !p.IsIgnored);
-      foreach (var property in properties.Where(p => p.IsPrimitive))
+      var primitiveFiltered = properties
+        .Where(p => p.ValueType.ObjectKind==ObjectKind.Primitive && !p.IsCollection);
+      foreach (var property in primitiveFiltered)
         primitiveProperties.Add(property.SystemProperty, property);
       PrimitiveProperties =
         new ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription>(primitiveProperties, false);
       var complexProperties = new Dictionary<PropertyInfo, TargetPropertyDescription>();
-      foreach (var property in properties.Where(p => !p.IsPrimitive))
+      var complexFiltered = properties
+        .Where(p => p.ValueType.ObjectKind!=ObjectKind.Primitive || p.IsCollection);
+      foreach (var property in complexFiltered)
         complexProperties.Add(property.SystemProperty, property);
       ComplexProperties =
         new ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription>(complexProperties, false);

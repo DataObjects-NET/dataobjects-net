@@ -50,7 +50,8 @@ namespace Xtensive.Storage.ObjectMapping
       case Core.ObjectMapping.OperationType.SetProperty:
         var fieldInfo = ExtractFieldInfo(operationInfo);
         var lastProperty = operationInfo.PropertyPath[operationInfo.PropertyPath.Count - 1];
-        if (operationInfo.Value==null || lastProperty.IsPrimitive || lastProperty.IsUserStructure) {
+        if (operationInfo.Value==null || lastProperty.ValueType.ObjectKind==ObjectKind.Primitive
+          || lastProperty.ValueType.ObjectKind == ObjectKind.UserStructure) {
           operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
             operationInfo.Value);
         }

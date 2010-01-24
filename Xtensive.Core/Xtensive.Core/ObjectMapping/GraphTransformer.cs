@@ -47,26 +47,19 @@ namespace Xtensive.Core.ObjectMapping
       }
     }
 
-    private enum RootObjectType
-    {
-      Key = 0,
-      Primitive,
-      UserStructure
-    }
-
     private struct RootObjectDescriptor
     {
       public readonly object Object;
 
-      public readonly RootObjectType Type;
+      public readonly ObjectKind Kind;
 
 
       // Constructors
 
-      public RootObjectDescriptor(object obj, RootObjectType type)
+      public RootObjectDescriptor(object obj, ObjectKind kind)
       {
         Object = obj;
-        Type = type;
+        Kind = kind;
       }
     }
 
@@ -125,22 +118,21 @@ namespace Xtensive.Core.ObjectMapping
 
     private void RegisterRootObject(object obj)
     {
-      var objType = obj!=null ? obj.GetType() : null;
-      if (objType==null || MappingHelper.IsTypePrimitive(objType)) {
-        rootObjectKeys.Add(new RootObjectDescriptor(obj, RootObjectType.Primitive));
+      var systemType = obj!=null ? obj.GetType() : null;
+      if (systemType!=null && MappingHelper.IsCollection(systemType))
+        throw new ArgumentException(Strings.ExNestedCollectionIsNotSupported, "obj");
+      var modelType = systemType!=null ? mappingDescription.GetSourceTypeDescription(systemType) : null;
+      if (modelType==null || modelType.ObjectKind==ObjectKind.Primitive) {
+        rootObjectKeys.Add(new RootObjectDescriptor(obj, ObjectKind.Primitive));
         return;
       }
-      SourceTypeDescription sourceType;
-      if (!mappingDescription.SourceTypes.TryGetValue(objType, out sourceType)
-        && MappingHelper.IsCollection(objType))
-        throw new ArgumentException(Strings.ExNestedCollectionIsNotSupported, "obj");
-      if (sourceType.TargetType.SystemType.IsValueType) {
-        rootObjectKeys.Add(new RootObjectDescriptor(obj, RootObjectType.UserStructure));
+      if (modelType.TargetType.ObjectKind==ObjectKind.UserStructure) {
+        rootObjectKeys.Add(new RootObjectDescriptor(obj, ObjectKind.UserStructure));
         return;
       }
       object key;
       TransformComplexObject(obj, -1, out key);
-      rootObjectKeys.Add(new RootObjectDescriptor(key, RootObjectType.Key));
+      rootObjectKeys.Add(new RootObjectDescriptor(key, ObjectKind.Entity));
     }
 
     private void TransformObjects()
@@ -171,12 +163,12 @@ namespace Xtensive.Core.ObjectMapping
 
     private object CreateResultItem(RootObjectDescriptor rootDescriptor)
     {
-      switch (rootDescriptor.Type) {
-      case RootObjectType.Key:
+      switch (rootDescriptor.Kind) {
+      case ObjectKind.Entity:
         return transformedObjects[rootDescriptor.Object].Result;
-      case RootObjectType.Primitive:
+      case ObjectKind.Primitive:
         return rootDescriptor.Object;
-      case RootObjectType.UserStructure:
+      case ObjectKind.UserStructure:
         var targetType = mappingDescription.SourceTypes[rootDescriptor.Object.GetType()].TargetType;
         var transformedStructure = CreateTargetObject(targetType.SystemType);
         TransformProperties(rootDescriptor.Object, targetType, new ResultDescriptor(transformedStructure));
@@ -223,7 +215,7 @@ namespace Xtensive.Core.ObjectMapping
           var value = TransformCollection(source, target.Level, targetProperty);
           targetProperty.SystemProperty.SetValue(target.Result, value, null);
         }
-        else if (targetProperty.IsUserStructure) {
+        else if (targetProperty.ValueType.ObjectKind==ObjectKind.UserStructure) {
           var value = TransformUserStructure(source, target, targetProperty);
           targetProperty.SystemProperty.SetValue(target.Result, value, null);
         }
@@ -284,10 +276,10 @@ namespace Xtensive.Core.ObjectMapping
       if (itemCount > 0 && HandleExceedingOfGraphDepthLimit(ownerLevel, ref sourceValue))
         return sourceValue;
       object targetValue;
-      var isItemTypePrimitive = MappingHelper.IsTypePrimitive(targetProperty.ItemType);
+      //var isItemTypePrimitive = MappingHelper.IsTypePrimitive(targetProperty.ItemType);
       object key;
       if (targetProperty.SystemProperty.PropertyType.IsArray) {
-        var array = Array.CreateInstance(targetProperty.ItemType, itemCount);
+        var array = Array.CreateInstance(targetProperty.ValueType.SystemType, itemCount);
         var index = 0;
         foreach (var obj in (IEnumerable) sourceValue) {
           var value = TransformCollectionItem(obj, ownerLevel);
@@ -329,18 +321,18 @@ namespace Xtensive.Core.ObjectMapping
     {
       if (source==null)
         return null;
-      var sourceType = source.GetType();
-      if (MappingHelper.IsTypePrimitive(sourceType))
+      var sourceType = mappingDescription.GetSourceTypeDescription(source.GetType());
+      if (sourceType.ObjectKind==ObjectKind.Primitive)
         return source;
-      var targetType = mappingDescription.SourceTypes[sourceType].TargetType;
       object target;
-      if (targetType.SystemType.IsValueType) {
-        target = CreateTargetObject(targetType.SystemType);
-        TransformProperties(source, targetType, new ResultDescriptor(target) {Level = ownerLevel + 1});
+      if (sourceType.TargetType.ObjectKind==ObjectKind.UserStructure) {
+        target = CreateTargetObject(sourceType.TargetType.SystemType);
+        TransformProperties(source, sourceType.TargetType,
+          new ResultDescriptor(target) {Level = ownerLevel + 1});
         return target;
       }
       object key;
-      target = TransformComplexObject(source, targetType.SystemType, ownerLevel, out key);
+      target = TransformComplexObject(source, sourceType.TargetType.SystemType, ownerLevel, out key);
       return target;
     }
 

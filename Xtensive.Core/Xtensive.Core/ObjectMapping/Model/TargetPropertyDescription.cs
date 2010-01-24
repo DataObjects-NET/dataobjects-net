@@ -21,11 +21,21 @@ namespace Xtensive.Core.ObjectMapping.Model
     private Func<object, SourcePropertyDescription, object> converter;
     private bool isImmutable;
     private bool isIgnored;
+    private TargetTypeDescription valueType;    
 
     /// <inheritdoc/>
     public new TargetTypeDescription ReflectedType {
-      get {
-        return (TargetTypeDescription) base.ReflectedType;
+      get { return (TargetTypeDescription) base.ReflectedType; }
+    }
+
+    /// <summary>
+    /// Gets the type of the value.
+    /// </summary>
+    public TargetTypeDescription ValueType {
+      get { return valueType; }
+      internal set{
+        this.EnsureNotLocked();
+        valueType = value;
       }
     }
 

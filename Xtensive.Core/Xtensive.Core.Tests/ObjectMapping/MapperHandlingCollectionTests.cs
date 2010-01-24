@@ -152,7 +152,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
-    public void ComparisonOfCollectionPropertyHavingItemsOfValueTypeTest()
+    public void ComparisonOfUserStructureCollectionPropertiesTest()
     {
       var mapper = GetAccountMapper();
       var source = GetSourceAccount();
@@ -164,9 +164,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         Action = Action.Write, ObjectId = oldAccessRight.ObjectId
       };
       modified.AccessRights[0].ObjectId[2] += 7;
-      var result = mapper.Compare(original, modified);
-      var operations = ((DefaultOperationSet) result.Operations).ToList();
-      Assert.AreEqual(3, operations.Count);
+      AssertEx.ThrowsInvalidOperationException(() => mapper.Compare(original, modified));
     }
 
     private static DefaultMapper GetPersonStructureMapper()

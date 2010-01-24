@@ -26,10 +26,10 @@ namespace Xtensive.Core.ObjectMapping
           if (property.SourceProperty==null)
             continue;
           var sourceProperty = property.SourceProperty;
-          if (property.IsPrimitive)
-            ValidatePrimitiveProperty(property, sourceProperty);
-          else if (property.IsCollection)
+          if (property.IsCollection)
             ValidateCollectionProperty(property, sourceProperty);
+          else if (property.ValueType.ObjectKind==ObjectKind.Primitive)
+            ValidatePrimitiveProperty(property, sourceProperty);
           else
             ValidateReferenceProperty(property, sourceProperty);
         }
@@ -39,11 +39,11 @@ namespace Xtensive.Core.ObjectMapping
     private void ValidateReferenceProperty(TargetPropertyDescription property,
       SourcePropertyDescription sourceProperty)
     {
-      if (sourceProperty.IsPrimitive || sourceProperty.IsCollection)
+      if (sourceProperty.IsCollection
+        || MappingHelper.IsTypePrimitive(sourceProperty.SystemProperty.PropertyType))
         throw new InvalidOperationException(
           String.Format(Strings.ExReferencePropertyXIsBoundToPropertyYThatIsNotReference, property,
           sourceProperty));
-      description.EnsureTargetTypeIsRegistered(property.SystemProperty.PropertyType);
     }
 
     private void ValidateCollectionProperty(TargetPropertyDescription property,
@@ -53,22 +53,15 @@ namespace Xtensive.Core.ObjectMapping
         throw new InvalidOperationException(
           String.Format(Strings.ExCollectionPropertyXIsBoundToPropertyYThatIsNotCollection, property,
           sourceProperty));
-      if (!MappingHelper.IsTypePrimitive(property.ItemType))
-        description.EnsureTargetTypeIsRegistered(property.ItemType);
     }
 
     private void ValidatePrimitiveProperty(TargetPropertyDescription property,
       SourcePropertyDescription sourceProperty)
     {
-      if (!sourceProperty.IsPrimitive)
+      if (!MappingHelper.IsTypePrimitive(sourceProperty.SystemProperty.PropertyType))
         throw new InvalidOperationException(
           String.Format(Strings.ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive, property,
           sourceProperty));
-      var areCompatible = property.SystemProperty.PropertyType
-        .IsAssignableFrom(sourceProperty.SystemProperty.PropertyType);
-      if (!areCompatible)
-        throw new InvalidOperationException(
-          String.Format(Strings.ExPropertiesXAndYHaveIncompatibleTypes, property, sourceProperty));
     }
   }
 }

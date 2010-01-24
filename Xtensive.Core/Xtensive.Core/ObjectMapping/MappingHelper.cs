@@ -9,13 +9,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
   internal static class MappingHelper
   {
-    private static readonly HashSet<Type> primitiveTypes;
+    private static readonly SetSlim<Type> primitiveTypes;
+
+    public static readonly ReadOnlySet<Type> PrimitiveTypes;
 
     public static PropertyInfo ExtractProperty(LambdaExpression expression, string paramName)
     {
@@ -97,12 +100,13 @@ namespace Xtensive.Core.ObjectMapping
 
     static MappingHelper()
     {
-      primitiveTypes = new HashSet<Type> {
+      primitiveTypes = new SetSlim<Type> {
         typeof (Boolean), typeof (Int16), typeof (Int32), typeof (Int64), typeof (Byte), typeof (UInt16),
         typeof (UInt32), typeof (UInt64), typeof(Guid), typeof (Byte), typeof (Char), typeof (String),
         typeof (Decimal), typeof (Single), typeof (Double), typeof (DateTime), typeof (TimeSpan),
         typeof (DateTimeOffset)
       };
+      PrimitiveTypes = new ReadOnlySet<Type>(primitiveTypes, false);
     }
   }
 }

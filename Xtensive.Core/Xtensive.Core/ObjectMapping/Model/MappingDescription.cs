@@ -140,6 +140,26 @@ namespace Xtensive.Core.ObjectMapping.Model
       targetType.AddProperty(propertyDesc);
     }
 
+    internal void RegisterDefaultPrimitiveTypes()
+    {
+      foreach (var type in MappingHelper.PrimitiveTypes) {
+        sourceTypes.Add(type, new SourceTypeDescription(type));
+        targetTypes.Add(type, new TargetTypeDescription(type));
+      }
+    }
+
+    internal void RegisterEnumTypes(Dictionary<Type, TargetTypeDescription> enumTypes)
+    {
+      foreach (var pair in enumTypes) {
+        var sourceType = new SourceTypeDescription(pair.Key);
+        var targetType = pair.Value;
+        sourceType.TargetType = targetType;
+        targetType.SourceType = sourceType;
+        sourceTypes.Add(pair.Key, sourceType);
+        targetTypes.Add(pair.Key, targetType);
+      }
+    }
+
     internal void MarkPropertyAsIgnored(PropertyInfo propertyInfo)
     {
       this.EnsureNotLocked();
@@ -162,6 +182,22 @@ namespace Xtensive.Core.ObjectMapping.Model
         targetType.AddProperty((TargetPropertyDescription) propertyDescription);
       }
       ((TargetPropertyDescription) propertyDescription).IsImmutable = true;
+    }
+
+    internal TargetTypeDescription GetTargetTypeDescription(Type targetType)
+    {
+      TargetTypeDescription result;
+      if (!targetTypes.TryGetValue(targetType, out result))
+        ThrowTypeHasNotBeenRegistered(targetType);
+      return result;
+    }
+
+    internal SourceTypeDescription GetSourceTypeDescription(Type sourceType)
+    {
+      SourceTypeDescription result;
+      if (!sourceTypes.TryGetValue(sourceType, out result))
+        ThrowTypeHasNotBeenRegistered(sourceType);
+      return result;
     }
 
     internal void EnsureTargetTypeIsRegistered(Type targetType)
