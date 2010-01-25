@@ -227,6 +227,13 @@ namespace Xtensive.Sql.SqlServer.v09
       node.FreeText.AcceptVisitor(this);
       context.Output.AppendText(") ");
     }
+    
+  public override void Visit(SqlCreateIndex node, IndexColumn item)
+  {
+    base.Visit(node, item);
+    if (!string.IsNullOrEmpty(item.Language))
+      context.Output.AppendText(string.Format("LANGUAGE '{0}'", item.Language));
+  }
 
     #region Static helpers
 

@@ -2,7 +2,6 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System.Data.SqlClient;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.SqlServerCe
@@ -17,7 +16,12 @@ namespace Xtensive.Sql.SqlServerCe
 
       SqlHelper.ValidateConnectionUrl(url);
 
-      return string.Format("Data Source = '{0}'", url.Resource);
+      string result = string.Format("Data Source = '{0}'", url.Resource);
+      
+      if (!string.IsNullOrEmpty(url.Password))
+        result += string.Format("; Password = '{0}'", url.Password);
+      
+      return result;
 
 //      var builder = new SqlConnectionStringBuilder();
 //      

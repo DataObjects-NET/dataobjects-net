@@ -368,7 +368,7 @@ namespace Xtensive.Sql.Tests.SqlServer
     {
       var table = Catalog.Schemas["Person"].Tables["Address"];
       var ftindex = table.CreateFullTextIndex();
-      ftindex.CreateIndexColumn(table.Columns[1]);
+      ftindex.CreateIndexColumn(table.Columns[1], "English");
       ftindex.UnderlyingUniqueIndex = "PK_Address_AddressID";
       var createIndex = SqlDdl.Create(ftindex);
       Console.WriteLine(sqlDriver.Compile(createIndex).GetCommandText());
