@@ -28,20 +28,20 @@ namespace Xtensive.Core.ObjectMapping
       Expression<Func<TTarget, TValue>> target);
 
     /// <summary>
-    /// Specifies that a modification of the given property shouldn't be detected.
+    /// Specifies that the property won't be converted and its modifications won't be detected.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <param name="target">The target property's expression.</param>
     /// <returns><see langword="this" /></returns>
-    IMappingBuilderAdapter<TSource, TTarget> Ignore<TValue>(Expression<Func<TTarget, TValue>> target);
+    IMappingBuilderAdapter<TSource, TTarget> IgnoreProperty<TValue>(Expression<Func<TTarget, TValue>> target);
 
     /// <summary>
-    /// Specifies that the given property is immutable.
+    /// Specifies that modifications of the given property won't be detected.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <param name="target">The target property's expression.</param>
     /// <returns><see langword="this" /></returns>
-    IMappingBuilderAdapter<TSource, TTarget> Immutable<TValue>(Expression<Func<TTarget, TValue>> target);
+    IMappingBuilderAdapter<TSource, TTarget> SkipDetection<TValue>(Expression<Func<TTarget, TValue>> target);
 
     /// <summary>
     /// Registers mapping from the <typeparamref name="THeirSource"/>

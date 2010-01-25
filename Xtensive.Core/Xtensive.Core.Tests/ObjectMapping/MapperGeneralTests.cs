@@ -356,35 +356,35 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var creatureDtoType = typeof (CreatureDto);
       var namePropertyDescription = namePropertyGetter.Invoke(creatureDtoType);
       Assert.IsFalse(namePropertyDescription.IsIgnored);
-      Assert.IsTrue(namePropertyDescription.IsImmutable);
+      Assert.IsTrue(namePropertyDescription.IsDetectionSkipped);
       var mammalDtoType = typeof (MammalDto);
       namePropertyDescription = namePropertyGetter.Invoke(mammalDtoType);
       Assert.IsTrue(namePropertyDescription.IsIgnored);
-      Assert.IsFalse(namePropertyDescription.IsImmutable);
+      Assert.IsFalse(namePropertyDescription.IsDetectionSkipped);
       namePropertyDescription = namePropertyGetter.Invoke(typeof (CatDto));
       Assert.IsTrue(namePropertyDescription.IsIgnored);
-      Assert.IsFalse(namePropertyDescription.IsImmutable);
+      Assert.IsFalse(namePropertyDescription.IsDetectionSkipped);
       namePropertyDescription = namePropertyGetter.Invoke(typeof (DolphinDto));
       Assert.IsTrue(namePropertyDescription.IsIgnored);
-      Assert.IsFalse(namePropertyDescription.IsImmutable);
+      Assert.IsFalse(namePropertyDescription.IsDetectionSkipped);
       namePropertyDescription = namePropertyGetter.Invoke(typeof (InsectDto));
       Assert.IsFalse(namePropertyDescription.IsIgnored);
-      Assert.IsTrue(namePropertyDescription.IsImmutable);
+      Assert.IsTrue(namePropertyDescription.IsDetectionSkipped);
       namePropertyDescription = namePropertyGetter.Invoke(typeof (FlyingInsectDto));
       Assert.IsFalse(namePropertyDescription.IsIgnored);
-      Assert.IsTrue(namePropertyDescription.IsImmutable);
+      Assert.IsTrue(namePropertyDescription.IsDetectionSkipped);
       namePropertyDescription = namePropertyGetter.Invoke(typeof (LongBeeDto));
       Assert.IsFalse(namePropertyDescription.IsIgnored);
-      Assert.IsTrue(namePropertyDescription.IsImmutable);
+      Assert.IsTrue(namePropertyDescription.IsDetectionSkipped);
       var legPairCountPropertyDescription = legPairCountPropertyGetter.Invoke(typeof (InsectDto));
       Assert.IsFalse(legPairCountPropertyDescription.IsIgnored);
-      Assert.IsTrue(legPairCountPropertyDescription.IsImmutable);
+      Assert.IsTrue(legPairCountPropertyDescription.IsDetectionSkipped);
       legPairCountPropertyDescription = legPairCountPropertyGetter.Invoke(typeof (FlyingInsectDto));
       Assert.IsFalse(legPairCountPropertyDescription.IsIgnored);
-      Assert.IsTrue(legPairCountPropertyDescription.IsImmutable);
+      Assert.IsTrue(legPairCountPropertyDescription.IsDetectionSkipped);
       legPairCountPropertyDescription = legPairCountPropertyGetter.Invoke(typeof (LongBeeDto));
       Assert.IsFalse(legPairCountPropertyDescription.IsIgnored);
-      Assert.IsTrue(legPairCountPropertyDescription.IsImmutable);
+      Assert.IsTrue(legPairCountPropertyDescription.IsDetectionSkipped);
     }
 
     [Test]
@@ -428,23 +428,24 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
-    public void HandleChangeOfImmutablePropertyTest()
+    public void SkipDetectionOfPropertyChangeTest()
     {
       var mapper = new DefaultMapper();
-      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).Immutable(p => p.FirstName).Complete();
+      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).SkipDetection(p => p.FirstName).Complete();
       var source = GetSourcePerson(1);
       var target = (PersonDto) mapper.Transform(source);
       var modified = (PersonDto) target.Clone();
       modified.FirstName += "!";
-      AssertEx.ThrowsInvalidOperationException(() => mapper.Compare(target, modified));
+      var operations = mapper.Compare(target, modified).Operations;
+      Assert.IsTrue(operations.IsEmpty);
 
       mapper = new DefaultMapper();
-      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).Immutable(p => p.FirstName)
-        .Ignore(p => p.FirstName).Complete();
+      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).SkipDetection(p => p.FirstName)
+        .IgnoreProperty(p => p.FirstName).Complete();
       target = (PersonDto) mapper.Transform(source);
       modified = (PersonDto) target.Clone();
       modified.FirstName += "!";
-      var operations = mapper.Compare(target, modified).Operations;
+      operations = mapper.Compare(target, modified).Operations;
       Assert.IsTrue(operations.IsEmpty);
     }
 
@@ -452,7 +453,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void SkipSettingIgnoredPropertiesWhenObjectHasBeenCreatedTest()
     {
       var mapper = new DefaultMapper();
-      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).Ignore(p => p.FirstName).Complete();
+      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).IgnoreProperty(p => p.FirstName).Complete();
       var createdObject = new PersonDto {
         BirthDate = DateTime.Now, FirstName = "FirstName", LastName = "LastName"
       };

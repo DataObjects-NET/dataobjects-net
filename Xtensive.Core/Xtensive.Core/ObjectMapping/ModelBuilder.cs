@@ -68,7 +68,7 @@ namespace Xtensive.Core.ObjectMapping
       if (source != null)
         propertyBindings.Add(target, source);
       else
-        MarkPropertyAsImmutable(target);
+        SkipChangeDetection(target);
     }
 
     public void RegisterHeir(Type targetBase, Type source, Type target)
@@ -83,14 +83,14 @@ namespace Xtensive.Core.ObjectMapping
       var targetDescription = mappingDescription.TargetTypes[target];
     }
 
-    public void MarkPropertyAsIgnored(PropertyInfo propertyInfo)
+    public void Ignore(PropertyInfo propertyInfo)
     {
-      mappingDescription.MarkPropertyAsIgnored(propertyInfo);
+      mappingDescription.Ignore(propertyInfo);
     }
 
-    public void MarkPropertyAsImmutable(PropertyInfo propertyInfo)
+    public void SkipChangeDetection(PropertyInfo propertyInfo)
     {
-      mappingDescription.MarkPropertyAsImmutable(propertyInfo);
+      mappingDescription.SkipChangeDetection(propertyInfo);
     }
 
     public MappingDescription Build()
@@ -162,9 +162,9 @@ namespace Xtensive.Core.ObjectMapping
             descendantSystemProperty);
         }
         if (property.IsIgnored)
-          mappingDescription.MarkPropertyAsIgnored(descendantSystemProperty);
-        if (property.IsImmutable)
-          mappingDescription.MarkPropertyAsImmutable(descendantSystemProperty);
+          mappingDescription.Ignore(descendantSystemProperty);
+        if (property.IsDetectionSkipped)
+          mappingDescription.SkipChangeDetection(descendantSystemProperty);
       }
     }
 
@@ -242,9 +242,11 @@ namespace Xtensive.Core.ObjectMapping
         cacheItem = GenerateCollectionCacheItem(property.SystemProperty);
       if (cacheItem!=null) {
         property.IsCollection = true;
-        if (property is TargetPropertyDescription)
-          ((TargetPropertyDescription) property).ValueType =
+        if (property is TargetPropertyDescription) {
+          var targetProperty = ((TargetPropertyDescription) property);
+          targetProperty.ValueType =
             mappingDescription.GetTargetTypeDescription(cacheItem.Value.First);
+        }
         property.CountProperty = cacheItem.Value.Second.Count;
         property.AddMethod = cacheItem.Value.Second.Add;
       }

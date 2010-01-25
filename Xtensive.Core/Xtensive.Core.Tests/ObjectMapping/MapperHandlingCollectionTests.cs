@@ -164,7 +164,16 @@ namespace Xtensive.Core.Tests.ObjectMapping
         Action = Action.Write, ObjectId = oldAccessRight.ObjectId
       };
       modified.AccessRights[0].ObjectId[2] += 7;
-      AssertEx.ThrowsInvalidOperationException(() => mapper.Compare(original, modified));
+      var operations = ((DefaultOperationSet) mapper.Compare(original, modified).Operations).ToList();
+      Assert.AreEqual(1, operations.Count);
+      ValidatePropertyOperation<AccountDto>(original, operations[0], a => a.PasswordHash,
+        modified.PasswordHash, OperationType.SetProperty);
+    }
+
+    [Test]
+    public void AssignDefaultValueInToCollectionPropertyLocatedOnGraphTruncationPointTest()
+    {
+      throw new NotImplementedException();
     }
 
     private static DefaultMapper GetPersonStructureMapper()
@@ -178,7 +187,9 @@ namespace Xtensive.Core.Tests.ObjectMapping
     private static DefaultMapper GetAccountMapper()
     {
       var mapper = new DefaultMapper();
-      mapper.MapType<Account, AccountDto, Guid>(a => a.Id, a => a.Id)
+      mapper
+        .MapType<Account, AccountDto, Guid>(a => a.Id, a => a.Id)
+          .SkipDetection(a => a.AccessRights)
         .MapStructure<AccessRight, AccessRightDto>()
         .Complete();
       return mapper;

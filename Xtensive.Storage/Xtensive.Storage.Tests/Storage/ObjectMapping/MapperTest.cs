@@ -267,9 +267,9 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     {
       mapper = new Mapper();
       mapper.MapType<AnotherBookShop, BookShopDto, string>(abs => abs.Key.Format(), bs => bs.Key)
-        .Ignore(bs => bs.Name).Ignore(bs => bs.Url)
+        .IgnoreProperty(bs => bs.Name).IgnoreProperty(bs => bs.Url)
         .MapType<Publisher, PublisherDto, string>(p => p.Key.Format(), p => p.Key)
-        .Ignore(p => p.Distributors).Complete();
+        .IgnoreProperty(p => p.Distributors).Complete();
       BookShopDto bookShopDto;
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {

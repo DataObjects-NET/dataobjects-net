@@ -75,7 +75,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     {
       var result = new DefaultMapper();
       result.MapType<Ignorable, IgnorableDto, Guid>(i => i.Id, i => i.Id)
-        .Ignore(i => i.Auxiliary).Ignore(i => i.Ignored).Ignore(i => i.IgnoredReference)
+        .IgnoreProperty(i => i.Auxiliary).IgnoreProperty(i => i.Ignored).IgnoreProperty(i => i.IgnoredReference)
         .MapType<IgnorableSubordinate, IgnorableSubordinateDto, Guid>(s => s.Id, s => s.Id).Complete();
       return result;
     }
@@ -102,11 +102,11 @@ namespace Xtensive.Core.Tests.ObjectMapping
       result.MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
           .MapProperty(c => c.Name + inherited, c => c.Name)
         .MapType<Insect, InsectDto, Guid>(i => i.Id, i => i.Id)
-          .Immutable(i => i.LegPairCount)
+          .SkipDetection(i => i.LegPairCount)
         .Inherit<InsectDto, LongBee, LongBeeDto>()
         .MapType<FlyingInsect, FlyingInsectDto, Guid>(f => f.Id, f => f.Id)
         .MapType<Mammal, MammalDto, Guid>(m => m.Id, m => m.Id)
-          .Ignore(m => m.Name)
+          .IgnoreProperty(m => m.Name)
         .Inherit<MammalDto, Cat, CatDto>()
         .Inherit<MammalDto, Dolphin, DolphinDto>().Complete();
       return result;
@@ -234,7 +234,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     {
       var result = new Dictionary<string, int>();
       mapper.MappingDescription.TargetTypes[type].Properties.Select(pair => pair.Value)
-        .Cast<TargetPropertyDescription>().Where(p => !p.IsImmutable)
+        .Cast<TargetPropertyDescription>().Where(p => !p.IsDetectionSkipped)
         .Apply(p => result.Add(p.SystemProperty.Name, 0));
       return result;
     }

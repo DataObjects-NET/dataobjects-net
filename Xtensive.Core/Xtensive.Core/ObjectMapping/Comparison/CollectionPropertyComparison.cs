@@ -20,7 +20,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
         ComparePrimitiveCollections(originalValue, modifiedValue, property);
         break;
       case ObjectKind.UserStructure:
-        throw new InvalidOperationException(Strings.ExCollectionOfUserStructuresIsNotSupported);
+        throw new InvalidOperationException(Strings.ExDetectionOfChangesInUserStructureCollectionIsNotSupported);
       case ObjectKind.Entity:
         CompareEntityCollections(originalValue, modifiedValue, property);
         break;
@@ -58,7 +58,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
           while (originalEnumerator.MoveNext()) {
             if (!modifiedEnumerator.MoveNext() || !Equals(originalEnumerator.Current, modifiedEnumerator.Current)) {
               NotifyAboutPropertySetting(property, modifiedValue);
-              break;
+              return;
             }
           }
         }

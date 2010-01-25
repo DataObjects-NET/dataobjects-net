@@ -105,7 +105,7 @@ namespace Xtensive.Core.ObjectMapping.Model
         complexProperties.Add(property.SystemProperty, property);
       ComplexProperties =
         new ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription>(complexProperties, false);
-      var mutableProperties = new List<TargetPropertyDescription>(properties.Where(p => !p.IsImmutable));
+      var mutableProperties = new List<TargetPropertyDescription>(properties.Where(p => !p.IsDetectionSkipped));
       MutableProperties = new ReadOnlyCollection<TargetPropertyDescription>(mutableProperties, false);
       base.Lock(recursive);
     }

@@ -19,7 +19,7 @@ namespace Xtensive.Core.ObjectMapping.Model
   {
     private SourcePropertyDescription sourceProperty;
     private Func<object, SourcePropertyDescription, object> converter;
-    private bool isImmutable;
+    private bool isDetectionSkipped;
     private bool isIgnored;
     private TargetTypeDescription valueType;    
 
@@ -63,13 +63,13 @@ namespace Xtensive.Core.ObjectMapping.Model
     }
 
     /// <summary>
-    /// Gets a value indicating whether this property is immutable.
+    /// Gets a value indicating whether changes of property value should be detected.
     /// </summary>
-    public bool IsImmutable {
-      get { return isImmutable; }
+    public bool IsDetectionSkipped {
+      get { return isDetectionSkipped; }
       internal set {
         this.EnsureNotLocked();
-        isImmutable = value;
+        isDetectionSkipped = value;
       }
     }
 

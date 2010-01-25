@@ -38,7 +38,6 @@ namespace Xtensive.Core.ObjectMapping.Comparison
     protected void NotifyAboutCollectionModification(TargetPropertyDescription property,
       bool adding, object item)
     {
-      EnsurePropertyIsMutable(property);
       var path = GetFullPath(property);
       GraphComparer.Subscriber
         .Invoke(new OperationInfo(GraphComparer.ComparisonInfo.Owner,

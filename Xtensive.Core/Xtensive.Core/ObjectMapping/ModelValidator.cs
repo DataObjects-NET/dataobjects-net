@@ -53,6 +53,8 @@ namespace Xtensive.Core.ObjectMapping
         throw new InvalidOperationException(
           String.Format(Strings.ExCollectionPropertyXIsBoundToPropertyYThatIsNotCollection, property,
           sourceProperty));
+      if (property.ValueType.ObjectKind==ObjectKind.UserStructure && !property.IsDetectionSkipped)
+        throw new InvalidOperationException(Strings.ExDetectionOfChangesInUserStructureCollectionIsNotSupported);
     }
 
     private void ValidatePrimitiveProperty(TargetPropertyDescription property,

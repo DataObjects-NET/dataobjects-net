@@ -20,6 +20,8 @@ namespace Xtensive.Core.ObjectMapping.Comparison
     {
       using (GraphComparer.ComparisonInfo.SaveState()) {
         foreach (var property in description.ComplexProperties.Values) {
+          if (property.IsDetectionSkipped)
+            continue;
           var modifiedValue = property.SystemProperty.GetValue(modified, null);
           var originalValue = property.SystemProperty.GetValue(original, null);
           if (modifiedValue==null && originalValue==null)
@@ -33,6 +35,8 @@ namespace Xtensive.Core.ObjectMapping.Comparison
       TargetTypeDescription description)
     {
       foreach (var property in description.PrimitiveProperties.Values) {
+        if (property.IsDetectionSkipped)
+            continue;
         var systemProperty = property.SystemProperty;
         var modifiedValue = systemProperty.GetValue(modified, null);
         var originalValue = systemProperty.GetValue(original, null);
@@ -43,17 +47,9 @@ namespace Xtensive.Core.ObjectMapping.Comparison
 
     protected void NotifyAboutPropertySetting(TargetPropertyDescription property, object value)
     {
-      EnsurePropertyIsMutable(property);
       var path = GetFullPath(property);
       GraphComparer.Subscriber.Invoke(new OperationInfo(GraphComparer.ComparisonInfo.Owner,
         OperationType.SetProperty, path, value));
-    }
-
-    protected static void EnsurePropertyIsMutable(TargetPropertyDescription property)
-    {
-      if (property.IsImmutable)
-        throw new InvalidOperationException(String.Format(Strings.ExPropertyXIsImmutable,
-          property.SystemProperty));
     }
 
     protected TargetPropertyDescription[] GetFullPath(TargetPropertyDescription property)

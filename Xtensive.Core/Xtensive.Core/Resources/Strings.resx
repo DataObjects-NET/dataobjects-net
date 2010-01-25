@@ -705,9 +705,6 @@
   <data name="ExCollectionHasBeenModified" xml:space="preserve">
     <value>Collection has been modified.</value>
   </data>
-  <data name="ExPropertyXIsImmutable" xml:space="preserve">
-    <value>The property {0} is immutable.</value>
-  </data>
   <data name="ExPropertiesXAndYHaveIncompatibleTypes" xml:space="preserve">
     <value>The properties "{0}" and "{1}" have incompatible types.</value>
   </data>
@@ -732,7 +729,7 @@
   <data name="ExNestedCollectionIsNotSupported" xml:space="preserve">
     <value>Nested collection is not supported.</value>
   </data>
-  <data name="ExCollectionOfUserStructuresIsNotSupported" xml:space="preserve">
-    <value>Collection of user structures isn't supported.</value>
+  <data name="ExDetectionOfChangesInUserStructureCollectionIsNotSupported" xml:space="preserve">
+    <value>The detection of changes in user structure collection isn't supported.</value>
   </data>
 </root>

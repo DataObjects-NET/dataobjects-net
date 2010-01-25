@@ -31,20 +31,20 @@ namespace Xtensive.Core.ObjectMapping
     }
 
     /// <inheritdoc/>
-    public IMappingBuilderAdapter<TSource, TTarget> Ignore<TValue>(Expression<Func<TTarget, TValue>> target)
+    public IMappingBuilderAdapter<TSource, TTarget> IgnoreProperty<TValue>(Expression<Func<TTarget, TValue>> target)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var propertyInfo = MappingHelper.ExtractProperty(target, "target");
-      realMapper.ModelBuilder.MarkPropertyAsIgnored(propertyInfo);
+      realMapper.ModelBuilder.Ignore(propertyInfo);
       return this;
     }
 
     /// <inheritdoc/>
-    public IMappingBuilderAdapter<TSource, TTarget> Immutable<TValue>(Expression<Func<TTarget, TValue>> target)
+    public IMappingBuilderAdapter<TSource, TTarget> SkipDetection<TValue>(Expression<Func<TTarget, TValue>> target)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var propertyInfo = MappingHelper.ExtractProperty(target, "target");
-      realMapper.ModelBuilder.MarkPropertyAsImmutable(propertyInfo);
+      realMapper.ModelBuilder.SkipChangeDetection(propertyInfo);
       return this;
     }
 

@@ -160,7 +160,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       }
     }
 
-    internal void MarkPropertyAsIgnored(PropertyInfo propertyInfo)
+    internal void Ignore(PropertyInfo propertyInfo)
     {
       this.EnsureNotLocked();
       var targetType = targetTypes[propertyInfo.ReflectedType];
@@ -172,7 +172,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       ((TargetPropertyDescription) propertyDescription).IsIgnored = true;
     }
 
-    internal void MarkPropertyAsImmutable(PropertyInfo propertyInfo)
+    internal void SkipChangeDetection(PropertyInfo propertyInfo)
     {
       this.EnsureNotLocked();
       var targetType = targetTypes[propertyInfo.ReflectedType];
@@ -181,7 +181,7 @@ namespace Xtensive.Core.ObjectMapping.Model
         propertyDescription = new TargetPropertyDescription(propertyInfo, targetType);
         targetType.AddProperty((TargetPropertyDescription) propertyDescription);
       }
-      ((TargetPropertyDescription) propertyDescription).IsImmutable = true;
+      ((TargetPropertyDescription) propertyDescription).IsDetectionSkipped = true;
     }
 
     internal TargetTypeDescription GetTargetTypeDescription(Type targetType)
