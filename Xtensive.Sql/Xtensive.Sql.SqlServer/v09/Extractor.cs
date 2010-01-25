@@ -334,11 +334,12 @@ namespace Xtensive.Sql.SqlServer.v09
           int nextTableId = reader.GetInt32(1);
           if (currentTableId != nextTableId) {
             GetDataTable(nextTableId, ref currentTableId, ref table);
-            index = table.Table.CreateFullTextIndex();
+            index = table.Table.CreateFullTextIndex(string.Empty);
             index.FullTextCatalog = reader.GetString(3);
             index.UnderlyingUniqueIndex = reader.GetString(7);
           }
-          index.CreateIndexColumn(table.GetColumn(reader.GetInt32(4)), reader.GetString(6));
+          var column = index.CreateIndexColumn(table.GetColumn(reader.GetInt32(4)));
+          column.Languages.Add(new Language(reader.GetString(6)));
         }
     }
 

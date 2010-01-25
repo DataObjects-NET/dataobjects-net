@@ -169,7 +169,7 @@ namespace Xtensive.Storage.Providers.Sql
       };
       foreach (var column in index.Columns) {
         var columnInfo = tableInfo.Columns[column.Column.Name];
-        new FullTextColumnRef(ftIndex, columnInfo, column.Language);
+        new FullTextColumnRef(ftIndex, columnInfo, column.Languages.Single().Name);
       }
       return ftIndex;
     }

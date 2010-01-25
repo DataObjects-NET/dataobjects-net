@@ -115,11 +115,11 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field, FieldMapping("CategoryId"), Key]
     public int Id { get; private set; }
 
-    [FullText]
+    [FullText("English")]
     [Field(Length = 15)]
     public string CategoryName { get; set; }
 
-    [FullText]
+    [FullText("English")]
     [Field]
     public string Description { get; set; }
 
@@ -224,7 +224,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field, FieldMapping("ProductId"), Key]
     public int Id { get; private set; }
 
-    [FullText]
+    [FullText("English")]
     [Field(Length = 40)]
     public string ProductName { get; set; }
 

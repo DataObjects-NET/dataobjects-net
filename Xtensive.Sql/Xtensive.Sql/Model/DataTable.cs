@@ -27,9 +27,9 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Creates the full-text index.
     /// </summary>
-    public FullTextIndex CreateFullTextIndex()
+    public FullTextIndex CreateFullTextIndex(string name)
     {
-      return new FullTextIndex(this, string.Empty);
+      return new FullTextIndex(this, name);
     }
 
     /// <summary>

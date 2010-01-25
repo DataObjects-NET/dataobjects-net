@@ -18,7 +18,6 @@ namespace Xtensive.Storage.Indexing.Model
   public sealed class TableInfo : NodeBase<StorageInfo>
   {
     private PrimaryIndexInfo primaryIndex;
-    private FullTextIndexInfo fullTextIndex;
 
     /// <summary>
     /// Gets columns.
@@ -54,21 +53,10 @@ namespace Xtensive.Storage.Indexing.Model
     public ForeignKeyCollection ForeignKeys { get; private set; }
 
     /// <summary>
-    /// Gets or sets the full-text index.
+    /// Gets full-text indexes.
     /// </summary>
     [Property(Priority = -900, IsImmutable = true)]
-    public FullTextIndexInfo FullTextIndex
-    {
-      get { return fullTextIndex; }
-      set
-      {
-        EnsureIsEditable();
-        using (var scope = LogPropertyChange("FullTextIndex", value)) {
-          fullTextIndex = value;
-          scope.Commit();
-        }
-      }
-    }
+    public FullTextIndexInfoCollection FullTextIndexes { get; private set;}
 
     /// <summary>
     /// Gets all indexes belongs to the table.
@@ -99,6 +87,8 @@ namespace Xtensive.Storage.Indexing.Model
         Columns = new ColumnInfoCollection(this);
       if (SecondaryIndexes == null)
         SecondaryIndexes = new SecondaryIndexInfoCollection(this);
+      if (FullTextIndexes == null)
+        FullTextIndexes = new FullTextIndexInfoCollection(this);
       if (ForeignKeys == null)
         ForeignKeys = new ForeignKeyCollection(this);
     }

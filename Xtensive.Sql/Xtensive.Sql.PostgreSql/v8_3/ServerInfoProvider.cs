@@ -6,7 +6,12 @@ namespace Xtensive.Sql.PostgreSql.v8_3
   {
     protected override IndexFeatures GetIndexFeatures()
     {
-      return base.GetIndexFeatures() | IndexFeatures.SortOrder;
+      return base.GetIndexFeatures() | IndexFeatures.SortOrder | IndexFeatures.FullText;
+    }
+
+    public override FullTextSearchInfo GetFullTextInfo()
+    {
+      return new FullTextSearchInfo {Features = FullTextSearchFeatures.Full};
     }
     
 

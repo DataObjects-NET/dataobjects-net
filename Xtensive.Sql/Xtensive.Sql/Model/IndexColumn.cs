@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Model
     private bool ascending;
     private Index index;
     private SqlExpression expression;
-    private string language;
+    private readonly NodeCollection<Language> languages = new NodeCollection<Language>();
 
     /// <summary>
     /// Gets or sets the index.
@@ -96,16 +96,19 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Gets or sets the language.
     /// </summary>
-    public string Language
+    public NodeCollection<Language> Languages
     {
-      get { return language; }
-      set
-      {
-        this.EnsureNotLocked();
-        language = value;
-      }
+      get { return languages; }
     }
- 
+
+    #region ILockable Members
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      languages.Lock(recursive);
+      base.Lock(recursive);
+    }
+    #endregion
   
     #region IPairedNode<Index> Members
 
@@ -129,13 +132,6 @@ namespace Xtensive.Sql.Model
       Column = column;
       Index = index;
       this.ascending = ascending;
-    }
-
-    internal IndexColumn(Index index, DataTableColumn column, string language)
-    {
-      Column = column;
-      Index = index;
-      this.language = language;
     }
 
     internal IndexColumn(Index index, SqlExpression expression, bool ascending)

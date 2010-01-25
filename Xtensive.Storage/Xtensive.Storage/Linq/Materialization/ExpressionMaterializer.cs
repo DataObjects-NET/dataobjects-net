@@ -13,7 +13,6 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Storage.FullText;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Rewriters;

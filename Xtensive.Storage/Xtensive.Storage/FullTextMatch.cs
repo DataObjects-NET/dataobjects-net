@@ -4,11 +4,9 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.14
 
-using System;
-using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.FullText
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Single full-text search match result.

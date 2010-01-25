@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Storage.FullText;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Linq.Expressions

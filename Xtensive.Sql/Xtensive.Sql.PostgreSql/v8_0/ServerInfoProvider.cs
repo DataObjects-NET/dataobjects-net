@@ -1,3 +1,4 @@
+using System;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.PostgreSql.v8_0
@@ -112,6 +113,11 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return info;
     }
 
+    public override FullTextSearchInfo GetFullTextInfo()
+    {
+      return new FullTextSearchInfo();
+    }
+
     public override UniqueConstraintInfo GetUniqueConstraintInfo()
     {
       var info = new UniqueConstraintInfo();
@@ -134,14 +140,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       info.Features = ForeignKeyConstraintFeatures.Deferrable;
       info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
-    }
-
-    public override FullTextSearchInfo GetFullTextInfo()
-    {
-      var info = new FullTextSearchInfo();
-      info.Features = FullTextSearchFeatures.Full;
-      return info;
-
     }
 
     public override EntityInfo GetViewInfo()

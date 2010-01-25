@@ -226,7 +226,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       switch (section) {
         case CreateIndexSection.Entry:
           return string.Format("CREATE {0}INDEX {1} ON {2} ("
-            , index.IsUnique ? "UNIQUE " : ""
+            , index.IsUnique ? "UNIQUE " : String.Empty
             , QuoteIdentifier(index.Name)
             , Translate(index.DataTable));
         case CreateIndexSection.StorageOptions:

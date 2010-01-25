@@ -15,11 +15,11 @@ namespace Xtensive.Storage.Tests.Upgrade.FullText.Model.Version3
     [Field, Key]
     public int Id { get; private set; }
 
-    [FullText(Language = "Russian")]
+    [FullText("Russian")]
     [Field]
     public string Title { get; private set; }
 
-    [FullText(Language = "Russian")]
+    [FullText("Russian")]
     [Field]
     public string Content { get; private set; }
   }

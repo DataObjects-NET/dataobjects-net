@@ -8,6 +8,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using System.Data.Common;
 using System.Linq;
+using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Tests.SqlServer
 {
@@ -367,8 +368,9 @@ namespace Xtensive.Sql.Tests.SqlServer
     public void FreeTextCreateTest()
     {
       var table = Catalog.Schemas["Person"].Tables["Address"];
-      var ftindex = table.CreateFullTextIndex();
-      ftindex.CreateIndexColumn(table.Columns[1], "English");
+      var ftindex = table.CreateFullTextIndex(string.Empty);
+      var ftColumn = ftindex.CreateIndexColumn(table.Columns[1]);
+      ftColumn.Languages.Add(new Language("English"));
       ftindex.UnderlyingUniqueIndex = "PK_Address_AddressID";
       var createIndex = SqlDdl.Create(ftindex);
       Console.WriteLine(sqlDriver.Compile(createIndex).GetCommandText());

@@ -25,9 +25,9 @@ namespace Xtensive.Storage
     public bool Analyze { get; set; }
 
     /// <summary>
-    /// Gets or sets the language for word-breaker and stemmer. 
+    /// Gets the language for word-breaker and stemmer. 
     /// </summary>
-    public string Language { get; set; }
+    public string Language { get; private set;}
 
     /// <summary>
     /// Gets or sets the name of the type column.
@@ -40,8 +40,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public FullTextAttribute()
+    public FullTextAttribute(string language)
     {
+      Language = language;
       Analyze = true;
     }
   }

@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Text;
+using System.Text.RegularExpressions;
 using Npgsql;
 using Xtensive.Core.Collections;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Dml;
 using Xtensive.Core.Threading;
+using System.Linq;
 
 namespace Xtensive.Sql.PostgreSql.v8_0
 {
@@ -26,7 +28,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     protected int PgClassOid { get; private set; }
     protected Schema PgCatalogSchema { get; private set; }
 
-    class ExpressionIndexInfo
+    private class ExpressionIndexInfo
     {
       public Index Index { get; set; }
       public string Columns { get; set; }
@@ -37,7 +39,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         Columns = columns;
       }
     }
-    
+
     protected override void Initialize()
     {
       catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
@@ -76,7 +78,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       ExtractSchemas(catalog);
       return schema;
     }
-    
+
     private Schema CreatePgCatalogSchema(Type dummy)
     {
       var pgCatalog = new Catalog("info_catalog");
@@ -292,7 +294,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         }
       }
     }
-    
+
     /// <summary>
     /// Extracts the current user's schemas in the specified catalog.
     /// </summary>
@@ -327,36 +329,36 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         q1.Columns.Add(nsp1["nspname"]);
         q1.Columns.Add(nsp1["oid"]);
         q1.Columns.Add(nsp1["nspowner"]);
-        if (schema != null)
+        if (schema!=null)
           q1.Where &= nsp1["nspname"]==schema.Name;
         SqlSelect q2 = SqlDml.Select(nsp2);
         q2.Where = nsp2["nspowner"]==me;
         q2.Columns.Add(nsp2["nspname"]);
         q2.Columns.Add(nsp2["oid"]);
         q2.Columns.Add(nsp2["nspowner"]);
-        if (schema != null)
+        if (schema!=null)
           q2.Where &= nsp2["nspname"]==schema.Name;
         ISqlCompileUnit q = q1.UnionAll(q2);
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
-            while (dr.Read()) {
-              int oid = Convert.ToInt32(dr["oid"]);
-              string name = dr["nspname"].ToString();
-              int owner = Convert.ToInt32(dr["nspowner"]);
-              Schema sch;
-              if (catalog.Schemas[name] == null) {
-                sch = catalog.CreateSchema(name);
-                if (name=="public")
-                  catalog.DefaultSchema = sch;
-              }
-              else
-                sch = catalog.Schemas[name];
-              sch.Owner = mUserLookup[owner];
-              schemas[oid] = sch;
+          while (dr.Read()) {
+            int oid = Convert.ToInt32(dr["oid"]);
+            string name = dr["nspname"].ToString();
+            int owner = Convert.ToInt32(dr["nspowner"]);
+            Schema sch;
+            if (catalog.Schemas[name]==null) {
+              sch = catalog.CreateSchema(name);
+              if (name=="public")
+                catalog.DefaultSchema = sch;
             }
+            else
+              sch = catalog.Schemas[name];
+            sch.Owner = mUserLookup[owner];
+            schemas[oid] = sch;
           }
         }
-     
+      }
+
       #endregion
 
       //tables,views,sequences
@@ -508,6 +510,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         q.Columns.Add(ind["indnatts"]);
         q.Columns.Add(ind["indexprs"]);
         q.Columns.Add(SqlDml.FunctionCall("pg_get_expr", ind["indpred"], ind["indrelid"], true), "indpredtext");
+        q.Columns.Add(SqlDml.FunctionCall("pg_get_indexdef", ind["indexrelid"]), "inddef");
         AddSpecialIndexQueryColumns(q, spc, rel, ind, depend);
 
         int maxColumnNumber = 0;
@@ -524,43 +527,62 @@ namespace Xtensive.Sql.PostgreSql.v8_0
             if (dr["spcname"]!=DBNull.Value)
               tablespaceName = dr["spcname"].ToString();
             string filterExpression = string.Empty;
-            if (dr["indpredtext"] != DBNull.Value)
+            if (dr["indpredtext"]!=DBNull.Value)
               filterExpression = dr["indpredtext"].ToString();
 
             Table t = tables[tableOid];
-            Index i = t.CreateIndex(indexName);
-            i.IsBitmap = false;
-            i.IsClustered = isClustered;
-            i.IsUnique = isUnique;
-            i.Filegroup = tablespaceName;
-            if (!string.IsNullOrEmpty(filterExpression))
-              i.Where = SqlDml.Native(filterExpression);
 
-            // Expression-based index
-            if (dr["indexprs"] != DBNull.Value) {
-              expressionIndexes[indexOid] = new ExpressionIndexInfo(i, indKey);
-              int columnNumber = dr.GetInt16(dr.GetOrdinal("indnatts"));
-              if (columnNumber > maxColumnNumber)
-                maxColumnNumber = columnNumber;
-            }
-            else {
-              //index columns
-              string[] indKeyArray = indKey.Split(' ');
-              for (int j = 0; j < indKeyArray.Length; j++) {
-                int colIndex = Int32.Parse(indKeyArray[j]);
-                if (colIndex > 0) {
-                  i.CreateIndexColumn(tableColumns[tableOid][colIndex], true);
-                }
-                else {
-                  int z = 7;
-                  //column index is 0
-                  //this means that this index column is an expression
-                  //which is not possible with SqlDom tables
+            string fullTextRegex = @"(?<=CREATE INDEX \S+ ON \S+ USING (?:gist|gin)(?:\s|\S)*)to_tsvector\('(\w+)'::regconfig, \(*(?:(?:\s|\)|\(|\|)*(?:\(""(\w+)""\)|'\s')::text)+\)";
+            string indexScript = dr["inddef"].ToString();
+            var matches = Regex.Matches(indexScript, fullTextRegex, RegexOptions.Compiled);
+            if (matches.Count > 0) {
+              // Fulltext index
+              var fullTextIndex = t.CreateFullTextIndex(indexName);
+              foreach (Match match in matches) {
+                var columnConfigurationName = match.Groups[1].Value;
+                foreach (Capture capture in match.Groups[2].Captures) {
+                  var columnName = capture.Value;
+                  IndexColumn fullTextColumn = fullTextIndex.Columns[columnName] ?? fullTextIndex.CreateIndexColumn(t.Columns.Single(column => column.Name==columnName));
+                  if (fullTextColumn.Languages[columnConfigurationName]==null) 
+                    fullTextColumn.Languages.Add(new Language(columnConfigurationName));
                 }
               }
             }
+            else {
+              //Regular index
+              Index i = t.CreateIndex(indexName);
+              i.IsBitmap = false;
+              i.IsClustered = isClustered;
+              i.IsUnique = isUnique;
+              i.Filegroup = tablespaceName;
+              if (!string.IsNullOrEmpty(filterExpression))
+                i.Where = SqlDml.Native(filterExpression);
 
-            ReadSpecialIndexProperties(dr, i);
+              // Expression-based index
+              if (dr["indexprs"]!=DBNull.Value) {
+                expressionIndexes[indexOid] = new ExpressionIndexInfo(i, indKey);
+                int columnNumber = dr.GetInt16(dr.GetOrdinal("indnatts"));
+                if (columnNumber > maxColumnNumber)
+                  maxColumnNumber = columnNumber;
+              }
+              else {
+                //index columns
+                string[] indKeyArray = indKey.Split(' ');
+                for (int j = 0; j < indKeyArray.Length; j++) {
+                  int colIndex = Int32.Parse(indKeyArray[j]);
+                  if (colIndex > 0) {
+                    i.CreateIndexColumn(tableColumns[tableOid][colIndex], true);
+                  }
+                  else {
+                    int z = 7;
+                    //column index is 0
+                    //this means that this index column is an expression
+                    //which is not possible with SqlDom tables
+                  }
+                }
+              }
+              ReadSpecialIndexProperties(dr, i);
+            }
           }
         }
 
@@ -582,7 +604,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
                   exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt32(dr.GetInt64(0))][colIndex], true);
                 }
                 else {
-                  exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dr[(j+1).ToString()].ToString()));
+                  exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dr[(j + 1).ToString()].ToString()));
                 }
               }
             }
@@ -873,7 +895,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
           mUserSysId = Convert.ToInt32(cmd.ExecuteScalar());
       return mUserSysId;
     }
-    
+
     protected virtual string QuoteIdentifier(params string[] names)
     {
       string[] names2 = new string[names.Length];

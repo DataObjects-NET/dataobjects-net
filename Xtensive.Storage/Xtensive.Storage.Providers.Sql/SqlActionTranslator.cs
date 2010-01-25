@@ -636,12 +636,13 @@ namespace Xtensive.Storage.Providers.Sql
       if (!fullTextSupported)
         return;
       var table = FindTable(fullTextIndexInfo.Parent.Name);
-      var ftIndex = table.CreateFullTextIndex();
+      var ftIndex = table.CreateFullTextIndex(fullTextIndexInfo.Name);
       ftIndex.UnderlyingUniqueIndex = fullTextIndexInfo.Parent.PrimaryIndex.EscapedName;
       ftIndex.FullTextCatalog = "Default";
       foreach (var column in fullTextIndexInfo.Columns) {
         var tableColumn = FindColumn(table, column.Value.Name);
-        ftIndex.CreateIndexColumn(tableColumn, column.Language);
+        var ftColumn = ftIndex.CreateIndexColumn(tableColumn);
+        ftColumn.Languages.Add(new Language(column.Language));
       }
       var transactionalStage = providerInfo.Supports(ProviderFeatures.FullTextDdlIsNotTransactional)
         ? NonTransactionalStage.Epilog

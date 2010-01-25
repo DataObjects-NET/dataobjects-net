@@ -4,9 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.14
 
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using NUnit.Framework;
-using Xtensive.Storage.FullText;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
@@ -16,6 +17,13 @@ namespace Xtensive.Storage.Tests.Linq
 {
   public class FreeTextTest : NorthwindDOModelTest
   {
+    protected override Domain BuildDomain(Xtensive.Storage.Configuration.DomainConfiguration configuration)
+    {
+      var domain = base.BuildDomain(configuration);
+      Thread.Sleep(TimeSpan.FromSeconds(3));
+      return domain;
+    }
+
     [Test]
     [ExpectedException(typeof (TranslationException))]
     public void ReuseFreeText1Test()

@@ -231,8 +231,16 @@ namespace Xtensive.Sql.SqlServer.v09
   public override void Visit(SqlCreateIndex node, IndexColumn item)
   {
     base.Visit(node, item);
-    if (!string.IsNullOrEmpty(item.Language))
-      context.Output.AppendText(string.Format("LANGUAGE '{0}'", item.Language));
+    switch (item.Languages.Count) {
+      case 0:
+      break;
+      case 1:
+      if (!string.IsNullOrEmpty(item.Languages[0].Name)) 
+        context.Output.AppendText(string.Format("LANGUAGE '{0}'", item.Languages[0].Name));
+      break;
+      default:
+        throw new InvalidOperationException(String.Format("Multiple languages not supported for fulltext column {0} of index {1}.", item.Name, item.Index.Name));
+    }
   }
 
     #region Static helpers

@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Indexing.Model
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
-      return new Nesting<FullTextIndexInfo, TableInfo, FullTextIndexInfo>(this, "FullTextIndex");
+      return new Nesting<FullTextIndexInfo, TableInfo, FullTextIndexInfoCollection>(this, "FullTextIndexes");
     }
 
     /// <inheritdoc/>
