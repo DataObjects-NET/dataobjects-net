@@ -95,7 +95,10 @@ namespace Xtensive.Storage.Building.Builders
         if (fullTextAttribute == null) 
           continue;
 
-        var fullTextField = new FullTextFieldDef(fieldDef.Name, fullTextAttribute.Analyze);
+        var fullTextField = new FullTextFieldDef(fieldDef.Name, fullTextAttribute.Analyze) {
+          Language = fullTextAttribute.Language, 
+          TypeFieldName = fullTextAttribute.TypeColumnName
+        };
         fullTextIndexDef.Fields.Add(fullTextField);
       }
       if (fullTextIndexDef.Fields.Count > 0)
