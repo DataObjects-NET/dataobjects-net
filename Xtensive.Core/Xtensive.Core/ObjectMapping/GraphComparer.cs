@@ -26,6 +26,7 @@ namespace Xtensive.Core.ObjectMapping
     private readonly EntityReferencePropertyComparison entityReferencePropertyComparison;
     private readonly CollectionPropertyComparison collectionPropertyComparison;
     private readonly UserStructurePropertyComparison userStructurePropertyComparison;
+    private readonly Action<object> removedObjectNotificationSender;
 
     public readonly Action<OperationInfo> Subscriber;
 
@@ -54,16 +55,17 @@ namespace Xtensive.Core.ObjectMapping
         collectionPropertyComparison.Compare(originalValue, modifiedValue, property);
       else if (property.ValueType.ObjectKind==ObjectKind.UserStructure)
         userStructurePropertyComparison.Compare(originalValue, modifiedValue, property);
-      else
+      else if (property.ValueType.ObjectKind==ObjectKind.Entity)
         entityReferencePropertyComparison.Compare(originalValue, modifiedValue, property);
+      else
+        throw new ArgumentOutOfRangeException("property.ValueType.ObjectKind");
     }
 
     #region Private / internal methods
 
     private void NotifyAboutRemovedObjects(IEnumerable<object> removedObjects)
     {
-      removedObjects.Apply(obj => Subscriber.Invoke(new OperationInfo(obj, OperationType.RemoveObject,
-        null, null)));
+      removedObjects.Apply(removedObjectNotificationSender);
     }
 
     private void FindChangedObjects(Dictionary<object, object> modifiedObjects,
@@ -98,6 +100,9 @@ namespace Xtensive.Core.ObjectMapping
       entityComparison = new EntityComparison(this);
       entityReferencePropertyComparison = new EntityReferencePropertyComparison(this);
       userStructurePropertyComparison = new UserStructurePropertyComparison(this);
+
+      removedObjectNotificationSender = obj => Subscriber
+        .Invoke(new OperationInfo(obj, OperationType.RemoveObject, null, null));
     }
   }
 }

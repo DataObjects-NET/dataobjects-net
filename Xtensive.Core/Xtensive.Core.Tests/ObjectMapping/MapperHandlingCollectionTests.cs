@@ -139,7 +139,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
-    public void TransformationOfCollectionPropertyHavingItemsOfValueTypeTest()
+    public void TransformationOfValueTypesCollectionTest()
     {
       var mapper = GetAccountMapper();
       var source = GetSourceAccount();
@@ -152,7 +152,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
-    public void ComparisonOfUserStructureCollectionPropertiesTest()
+    public void ComparisonOfValueTypesCollectionTest()
     {
       var mapper = GetAccountMapper();
       var source = GetSourceAccount();

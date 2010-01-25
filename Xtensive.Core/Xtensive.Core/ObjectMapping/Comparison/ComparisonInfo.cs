@@ -35,7 +35,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
 
     private class Caretaker : IDisposable
     {
-      private readonly Stack<Memento> states = new Stack<Memento>();
+      private readonly Stack<Memento> states = new Stack<Memento>(32);
       private readonly ComparisonInfo originator;
 
       public void SaveMemento()
