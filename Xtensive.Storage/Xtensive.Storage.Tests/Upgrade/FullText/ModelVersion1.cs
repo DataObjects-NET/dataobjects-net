@@ -16,6 +16,6 @@ namespace Xtensive.Storage.Tests.Upgrade.FullText.Model.Version1
     public int Id { get; private set; }
 
     [Field]
-    public string Title { get; private set; }
+    public string Title { get; set; }
   }
 }

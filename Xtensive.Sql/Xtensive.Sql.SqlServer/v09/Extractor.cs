@@ -320,7 +320,7 @@ namespace Xtensive.Sql.SqlServer.v09
 
     private void ExtractFulltextIndexes()
     {
-      string query = "select t.schema_id, fic.object_id, fi.unique_index_id, fc.name, fic.column_id, fic.type_column_id, fl.name, i.name from sys.tables t inner join sys.fulltext_index_columns as fic on t.object_id = fic.object_id inner join sys.fulltext_languages as fl on fic.language_id = fl.lcid inner join sys.fulltext_indexes fi on fic.object_id = fi.object_id inner join sys.fulltext_catalogs fc on fc.fulltext_catalog_id = fi.fulltext_catalog_id inner join sys.indexes as i on fic.object_id = i.object_id and fi.unique_index_id = i.index_id";
+      string query = "select t.schema_id, fic.object_id, fi.unique_index_id, fc.name, fc.is_default, fic.column_id, fic.type_column_id, fl.name, i.name from sys.tables t inner join sys.fulltext_index_columns as fic on t.object_id = fic.object_id inner join sys.fulltext_languages as fl on fic.language_id = fl.lcid inner join sys.fulltext_indexes fi on fic.object_id = fi.object_id inner join sys.fulltext_catalogs fc on fc.fulltext_catalog_id = fi.fulltext_catalog_id inner join sys.indexes as i on fic.object_id = i.object_id and fi.unique_index_id = i.index_id";
       if (schema!=null)
         query += " where t.schema_id = " + schemaId;
       query += " order by t.schema_id, object_id, column_id";
@@ -335,11 +335,13 @@ namespace Xtensive.Sql.SqlServer.v09
           if (currentTableId != nextTableId) {
             GetDataTable(nextTableId, ref currentTableId, ref table);
             index = table.Table.CreateFullTextIndex(string.Empty);
-            index.FullTextCatalog = reader.GetString(3);
-            index.UnderlyingUniqueIndex = reader.GetString(7);
+            index.FullTextCatalog = reader.GetBoolean(4)
+              ? null
+              : reader.GetString(3);
+            index.UnderlyingUniqueIndex = reader.GetString(8);
           }
-          var column = index.CreateIndexColumn(table.GetColumn(reader.GetInt32(4)));
-          column.Languages.Add(new Language(reader.GetString(6)));
+          var column = index.CreateIndexColumn(table.GetColumn(reader.GetInt32(5)));
+          column.Languages.Add(new Language(reader.GetString(7)));
         }
     }
 

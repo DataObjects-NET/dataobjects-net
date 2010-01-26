@@ -389,7 +389,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>Index name.</returns>
     public virtual string BuildFullTextIndexName(TypeInfo typeInfo)
     {
-      var result = string.Format("FT_{0}", typeInfo);
+      var result = string.Format("FT_{0}", typeInfo.MappingName);
       return ApplyNamingRules(result);
     }
 

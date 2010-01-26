@@ -17,6 +17,6 @@ namespace Xtensive.Storage.Tests.Upgrade.FullText.Model.Version2
 
     [FullText("English")]
     [Field]
-    public string Title { get; private set; }
+    public string Title { get; set; }
   }
 }
