@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Indexing.Model
   [Serializable]
   public sealed class FullTextColumnRef : ColumnInfoRef<FullTextIndexInfo>
   {
-    [Property(Priority = -1100)]
+    [Property(Priority = -1100, CompareCaseInsensitive = true)]
     public string Language { get; set; }
 
     [Property(Priority = -1200)]

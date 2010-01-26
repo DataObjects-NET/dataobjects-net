@@ -415,7 +415,12 @@ namespace Xtensive.Modelling.Comparison
     protected virtual Difference VisitObject(object source, object target)
     {
       using (TryActivate(source, target, (s, t) => new ValueDifference(s, t)))
-        return Equals(source, target) ? null : Context.Difference;
+      {
+        var areEqual = Context.PropertyAccessor.CompareCaseInsensitive
+          ? string.Equals((string)source, (string)target, StringComparison.OrdinalIgnoreCase)
+          : Equals(source, target);
+        return areEqual ? null : Context.Difference;
+      }
     }
 
     /// <summary>

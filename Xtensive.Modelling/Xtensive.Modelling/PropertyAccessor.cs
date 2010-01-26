@@ -27,6 +27,8 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private bool ignoreInComparison;
     [NonSerialized]
+    private bool compareCaseInsensitive;
+    [NonSerialized]
     private bool isImmutable;
     [NonSerialized]
     private bool isMutable;
@@ -58,6 +60,14 @@ namespace Xtensive.Modelling
     /// </summary>
     public bool IgnoreInComparison {
       get { return ignoreInComparison; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether compare property values as case insensitive.
+    /// </summary>
+    public bool CompareCaseInsensitive
+    {
+      get { return compareCaseInsensitive; }
     }
 
     /// <summary>
@@ -150,6 +160,7 @@ namespace Xtensive.Modelling
         isMutable |= pa.IsMutable;
         isImmutable |= pa.IsImmutable;
         dependencyRootType = pa.DependencyRootType;
+        compareCaseInsensitive = tProperty == typeof (string) && pa.CompareCaseInsensitive;
       }
       this.GetType()
         .GetMethod("InnerInitialize", 
