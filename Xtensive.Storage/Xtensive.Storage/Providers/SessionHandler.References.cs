@@ -27,6 +27,8 @@ namespace Xtensive.Storage.Providers
     /// <returns>References.</returns>
     public virtual IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
     {
+      if (association.IsPaired)
+        return FindReferences(target, association, true);
       var result = new List<ReferenceInfo>();
       using (new ParameterContext().Activate()) {
         object key = new Pair<object, AssociationInfo>(CachingRegion, association);
@@ -50,20 +52,30 @@ namespace Xtensive.Storage.Providers
     /// <returns>References.</returns>
     public virtual IEnumerable<ReferenceInfo> GetReferencesFrom(Entity owner, AssociationInfo association)
     {
+      return FindReferences(owner, association, false);
+    }
+
+    private static IEnumerable<ReferenceInfo> FindReferences(Entity owner, AssociationInfo association, bool reversed)
+    {
+      Func<Entity, Entity, AssociationInfo, ReferenceInfo> referenceCtor = (o, t, a) => new ReferenceInfo(o, t, a);
+      if (reversed) {
+        association = association.Reversed;
+        referenceCtor = (o, t, a) => new ReferenceInfo(t, o, a);
+      }
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:
         case Multiplicity.OneToOne:
         case Multiplicity.ManyToOne:
           var target = owner.GetFieldValue<IEntity>(association.OwnerField);
           if (target != null)
-            yield return new ReferenceInfo(owner, (Entity) target, association);
+            yield return referenceCtor(owner, (Entity) target, association);
           break;
         case Multiplicity.ZeroToMany:
         case Multiplicity.OneToMany:
         case Multiplicity.ManyToMany:
           var targets = owner.GetFieldValue<EntitySetBase>(association.OwnerField);
           foreach (var item in targets.Entities)
-            yield return new ReferenceInfo(owner, (Entity) item, association);
+            yield return referenceCtor(owner, (Entity)item, association);
           break;
       }
     }
