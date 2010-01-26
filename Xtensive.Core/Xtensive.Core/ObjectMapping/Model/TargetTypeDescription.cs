@@ -27,6 +27,13 @@ namespace Xtensive.Core.ObjectMapping.Model
     private TargetTypeDescription ancestor;
 
     /// <summary>
+    /// Gets the provider of arguments for an algorithm of a new source 
+    /// object creation. For example, it can provide arguments for a custom
+    /// constructor or a key generator.
+    /// </summary>
+    public readonly Func<object, object[]> GeneratorArgumentsProvider;
+
+    /// <summary>
     /// Gets the corresponding source type.
     /// </summary>
     public SourceTypeDescription SourceType
@@ -105,7 +112,7 @@ namespace Xtensive.Core.ObjectMapping.Model
         complexProperties.Add(property.SystemProperty, property);
       ComplexProperties =
         new ReadOnlyDictionary<PropertyInfo, TargetPropertyDescription>(complexProperties, false);
-      var mutableProperties = new List<TargetPropertyDescription>(properties.Where(p => !p.IsDetectionSkipped));
+      var mutableProperties = new List<TargetPropertyDescription>(properties.Where(p => !p.IsChangeTrackingDisabled));
       MutableProperties = new ReadOnlyCollection<TargetPropertyDescription>(mutableProperties, false);
       base.Lock(recursive);
     }
@@ -129,9 +136,15 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// </summary>
     /// <param name="systemType">The system type.</param>
     /// <param name="keyExtractor">The key extractor.</param>
-    public TargetTypeDescription(Type systemType, Func<object, object> keyExtractor)
+    /// <param name="generatorArgumentsProvider">The provider of arguments for an algorithm of a new source 
+    /// object creation. For example, it can provide arguments for a custom
+    /// constructor or a key generator.</param>
+    public TargetTypeDescription(Type systemType, Func<object, object> keyExtractor,
+      Func<object, object[]> generatorArgumentsProvider)
       : base(systemType, keyExtractor)
-    {}
+    {
+      GeneratorArgumentsProvider = generatorArgumentsProvider;
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

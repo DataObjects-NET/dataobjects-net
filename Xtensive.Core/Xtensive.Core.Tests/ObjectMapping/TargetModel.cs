@@ -285,4 +285,14 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
     public SourceModel.Action Action { get; set; }
   }
+  
+  [Serializable]
+  public class CollectionContainerDto
+  {
+    public Guid Id { get; set; }
+
+    public int AuxInt { get; set; }
+
+    public List<CollectionContainerDto> Collection { get; set; }
+  }
 }

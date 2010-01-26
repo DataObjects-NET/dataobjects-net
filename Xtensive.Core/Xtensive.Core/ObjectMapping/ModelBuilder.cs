@@ -52,9 +52,9 @@ namespace Xtensive.Core.ObjectMapping
     private readonly MappingDescription mappingDescription = new MappingDescription();
 
     public void Register(Type source, Func<object, object> sourceKeyExtractor, Type target,
-      Func<object, object> targetKeyExtractor)
+      Func<object, object> targetKeyExtractor, Func<object, object[]> instanceGenerator)
     {
-      mappingDescription.Register(source, sourceKeyExtractor, target, targetKeyExtractor);
+      mappingDescription.Register(source, sourceKeyExtractor, target, targetKeyExtractor, instanceGenerator);
     }
 
     public void RegisterStructure(Type source, Type target)
@@ -68,10 +68,10 @@ namespace Xtensive.Core.ObjectMapping
       if (source != null)
         propertyBindings.Add(target, source);
       else
-        SkipChangeDetection(target);
+        TrackChanges(target, false);
     }
 
-    public void RegisterHeir(Type targetBase, Type source, Type target)
+    public void RegisterHeir(Type targetBase, Type source, Type target, Func<object, object[]> instanceGenerator)
     {
       mappingDescription.EnsureTargetTypeIsRegistered(targetBase);
       var targetBaseDescription = mappingDescription.TargetTypes[targetBase];
@@ -79,7 +79,7 @@ namespace Xtensive.Core.ObjectMapping
         throw new ArgumentException(String.Format(Strings.ExTypeXIsNotSubclassOfTypeY, source,
           targetBaseDescription.SourceType.SystemType));
       mappingDescription.Register(source, targetBaseDescription.SourceType.KeyExtractor, target,
-        targetBaseDescription.KeyExtractor);
+        targetBaseDescription.KeyExtractor, instanceGenerator);
       var targetDescription = mappingDescription.TargetTypes[target];
     }
 
@@ -88,9 +88,9 @@ namespace Xtensive.Core.ObjectMapping
       mappingDescription.Ignore(propertyInfo);
     }
 
-    public void SkipChangeDetection(PropertyInfo propertyInfo)
+    public void TrackChanges(PropertyInfo propertyInfo, bool isEnabled)
     {
-      mappingDescription.SkipChangeDetection(propertyInfo);
+      mappingDescription.TrackChanges(propertyInfo, isEnabled);
     }
 
     public MappingDescription Build()
@@ -163,8 +163,7 @@ namespace Xtensive.Core.ObjectMapping
         }
         if (property.IsIgnored)
           mappingDescription.Ignore(descendantSystemProperty);
-        if (property.IsDetectionSkipped)
-          mappingDescription.SkipChangeDetection(descendantSystemProperty);
+        mappingDescription.TrackChanges(descendantSystemProperty, !property.IsChangeTrackingDisabled);
       }
     }
 

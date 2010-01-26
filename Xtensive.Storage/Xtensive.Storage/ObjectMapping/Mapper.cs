@@ -39,7 +39,7 @@ namespace Xtensive.Storage.ObjectMapping
       case Core.ObjectMapping.OperationType.CreateObject:
         if (keyMapping==null)
           keyMapping = new Dictionary<object, Key>();
-        var newKey = CreateKey(operationInfo.Object.GetType());
+        var newKey = CreateKey(operationInfo.Object, operationInfo.Object.GetType());
         var dtoKey = MappingDescription.ExtractTargetKey(operationInfo.Object);
         keyMapping[dtoKey] = newKey;
         operation = new EntityOperation(newKey, Operations.OperationType.CreateEntity);
@@ -104,9 +104,12 @@ namespace Xtensive.Storage.ObjectMapping
       return Key.Parse(session.Domain, dtoKey);
     }
 
-    private Key CreateKey(Type type)
+    private Key CreateKey(object target, Type type)
     {
       var sourceType = MappingDescription.GetMappedSourceType(type);
+      if (sourceType.TargetType.GeneratorArgumentsProvider!=null)
+        return Key.Create(session.Domain, sourceType.SystemType,
+          sourceType.TargetType.GeneratorArgumentsProvider.Invoke(target));
       return Key.Create(session.Domain, sourceType.SystemType);
     }
 

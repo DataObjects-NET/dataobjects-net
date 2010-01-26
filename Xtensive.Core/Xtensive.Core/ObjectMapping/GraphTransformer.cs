@@ -211,7 +211,6 @@ namespace Xtensive.Core.ObjectMapping
           SetComplexTargetProperty(source, target, targetProperty,
             transformerForComplexPropertyHavingConverter);
         else if (targetProperty.IsCollection) {
-          //SetComplexTargetProperty(source, target, targetProperty, transformerForCollection);
           var value = TransformCollection(source, target.Level, targetProperty);
           targetProperty.SystemProperty.SetValue(target.Result, value, null);
         }
@@ -272,11 +271,10 @@ namespace Xtensive.Core.ObjectMapping
       var sourceValue = sourceProperty.SystemProperty.GetValue(source, null);
       if (sourceValue == null)
         return null;
-      var itemCount = (int) sourceProperty.CountProperty.GetValue(sourceValue, null);
-      if (itemCount > 0 && HandleExceedingOfGraphDepthLimit(ownerLevel, ref sourceValue))
+      if (HandleExceedingOfGraphDepthLimit(ownerLevel, ref sourceValue))
         return sourceValue;
+      var itemCount = (int) sourceProperty.CountProperty.GetValue(sourceValue, null);
       object targetValue;
-      //var isItemTypePrimitive = MappingHelper.IsTypePrimitive(targetProperty.ItemType);
       object key;
       if (targetProperty.SystemProperty.PropertyType.IsArray) {
         var array = Array.CreateInstance(targetProperty.ValueType.SystemType, itemCount);

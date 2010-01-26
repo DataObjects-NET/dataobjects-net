@@ -102,7 +102,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       result.MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
           .MapProperty(c => c.Name + inherited, c => c.Name)
         .MapType<Insect, InsectDto, Guid>(i => i.Id, i => i.Id)
-          .SkipDetection(i => i.LegPairCount)
+          .TrackChanges(i => i.LegPairCount, false)
         .Inherit<InsectDto, LongBee, LongBeeDto>()
         .MapType<FlyingInsect, FlyingInsectDto, Guid>(f => f.Id, f => f.Id)
         .MapType<Mammal, MammalDto, Guid>(m => m.Id, m => m.Id)
@@ -234,7 +234,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     {
       var result = new Dictionary<string, int>();
       mapper.MappingDescription.TargetTypes[type].Properties.Select(pair => pair.Value)
-        .Cast<TargetPropertyDescription>().Where(p => !p.IsDetectionSkipped)
+        .Cast<TargetPropertyDescription>().Where(p => !p.IsChangeTrackingDisabled)
         .Apply(p => result.Add(p.SystemProperty.Name, 0));
       return result;
     }

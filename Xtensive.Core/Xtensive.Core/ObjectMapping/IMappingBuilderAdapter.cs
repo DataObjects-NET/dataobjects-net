@@ -36,12 +36,14 @@ namespace Xtensive.Core.ObjectMapping
     IMappingBuilderAdapter<TSource, TTarget> IgnoreProperty<TValue>(Expression<Func<TTarget, TValue>> target);
 
     /// <summary>
-    /// Specifies that modifications of the given property won't be detected.
+    /// Specifies whether modification of the given property will be tracked.
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     /// <param name="target">The target property's expression.</param>
-    /// <returns><see langword="this" /></returns>
-    IMappingBuilderAdapter<TSource, TTarget> SkipDetection<TValue>(Expression<Func<TTarget, TValue>> target);
+    /// <param name="isEnabled">if set to <see langword="true"/> then changes will be tracked.</param>
+    /// <returns><see langword="this"/></returns>
+    IMappingBuilderAdapter<TSource, TTarget> TrackChanges<TValue>(Expression<Func<TTarget, TValue>> target,
+      bool isEnabled);
 
     /// <summary>
     /// Registers mapping from the <typeparamref name="THeirSource"/>
@@ -52,6 +54,21 @@ namespace Xtensive.Core.ObjectMapping
     /// <typeparam name="THeirTarget">The target type.</typeparam>
     /// <returns>A new instance of helper class.</returns>
     IMappingBuilderAdapter<THeirSource, THeirTarget> Inherit<TTargetBase, THeirSource, THeirTarget>()
+      where THeirTarget: TTargetBase;
+
+    /// <summary>
+    /// Registers mapping from the <typeparamref name="THeirSource"/>
+    /// to the <typeparamref name="THeirTarget"/>.
+    /// </summary>
+    /// <typeparam name="TTargetBase">The ancestor of the <typeparamref name="THeirTarget"/>.</typeparam>
+    /// <typeparam name="THeirSource">The source type.</typeparam>
+    /// <typeparam name="THeirTarget">The target type.</typeparam>
+    /// <param name="generatorArgumentsProvider">The provider of arguments for an
+    /// algorithm of a new source object creation. For example, it can provide arguments for a custom
+    /// constructor or a key generator.</param>
+    /// <returns>A new instance of helper class.</returns>
+    IMappingBuilderAdapter<THeirSource, THeirTarget> Inherit<TTargetBase, THeirSource, THeirTarget>(
+      Func<THeirTarget, object[]> generatorArgumentsProvider)
       where THeirTarget: TTargetBase;
 
     /// <summary>

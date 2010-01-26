@@ -226,6 +226,52 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       ServerApplyChanges(original, modified, mapper);
     }
 
+    [Test]
+    public void CreateObjectUsingCustomKeyValuesTest()
+    {
+      var mapper = new Mapper();
+      var rnd = new Random();
+      mapper
+        .MapType<CustomPerson, CustomPersonDto, string>(cp => cp.Key.Format(), cp => cp.Key,
+          dto => new object[] {dto.Id}).TrackChanges(cp => cp.Id, false).Complete();
+      List<object> originalPersonDtos;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var customPerson0 = new CustomPerson(rnd.Next()) {AuxString = "Auxiliary0", Name = "Name0"};
+        var customPerson1 = new CustomPerson(rnd.Next()) {AuxString = "Auxiliary1", Name = "Name1"};
+        originalPersonDtos = (List<object>) mapper.Transform(new[] {customPerson0, customPerson1});
+        tx.Complete();
+      }
+
+      var modifiedPersonDtos = Clone(originalPersonDtos);
+      var newCustomPersonDto = new CustomPersonDto {
+        AuxString = "AuxNew", Id = rnd.Next(), Name = "NewName", Key = Guid.NewGuid().ToString()
+      };
+      modifiedPersonDtos.Add(newCustomPersonDto);
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var result = mapper.Compare(originalPersonDtos, modifiedPersonDtos);
+        result.Operations.Apply();
+        Session.Current.Persist();
+
+        Action<CustomPersonDto, CustomPerson> validator = (personDto, person) => {
+          Assert.AreEqual(personDto.AuxString, person.AuxString);
+          Assert.AreEqual(personDto.Name, person.Name);
+          Assert.AreEqual(personDto.Id, person.Id);
+        };
+        var personDto0 = (CustomPersonDto) originalPersonDtos[0];
+        var personDto1 = (CustomPersonDto) originalPersonDtos[1];
+        var person0 = Query.Single<CustomPerson>(personDto0.Id);
+        validator.Invoke(personDto0, person0);
+        var person1 = Query.Single<CustomPerson>(personDto1.Id);
+        validator.Invoke(personDto1, person1);
+        var newPerson = Query.Single<CustomPerson>(newCustomPersonDto.Id);
+        validator.Invoke(personDto0, newPerson);
+        tx.Complete();
+      }
+    }
+
     private PersonalProductDto ServerCreateDtoGraphForSimpleEntitiesMappingTest(out Mapper mapper)
     {
       PersonalProductDto productDto;

@@ -171,11 +171,27 @@ namespace Xtensive.Core.Tests.ObjectMapping
     }
 
     [Test]
-    public void AssignDefaultValueInToCollectionPropertyLocatedOnGraphTruncationPointTest()
+    public void EnsureDepthLimitWhenCollectionPropertyLocatedOnGraphTruncationPointTest()
     {
-      throw new NotImplementedException();
+      var settings = new MapperSettings {
+        GraphDepthLimit = 1, GraphTruncationType = GraphTruncationType.SetDefaultValue
+      };
+      var mapper = new DefaultMapper(settings);
+      mapper.MapType<CollectionContainer, CollectionContainerDto, Guid>(c => c.Id, c => c.Id).Complete();
+      var source0 = new CollectionContainer {AuxInt = 1};
+      var source10 = new CollectionContainer {AuxInt = 11};
+      var source11 = new CollectionContainer {AuxInt = 12};
+      source0.Collection.Add(source10);
+      source0.Collection.Add(source11);
+      var source20 = new CollectionContainer {AuxInt = 20};
+      var source21 = new CollectionContainer {AuxInt = 21};
+      source10.Collection.Add(source20);
+      source10.Collection.Add(source21);
+      var target = (CollectionContainerDto) mapper.Transform(source0);
+      Assert.IsNull(target.Collection[0].Collection);
+      Assert.IsNull(target.Collection[1].Collection);
     }
-
+    
     private static DefaultMapper GetPersonStructureMapper()
     {
       var mapper = new DefaultMapper();
@@ -189,7 +205,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var mapper = new DefaultMapper();
       mapper
         .MapType<Account, AccountDto, Guid>(a => a.Id, a => a.Id)
-          .SkipDetection(a => a.AccessRights)
+          .TrackChanges(a => a.AccessRights, false)
         .MapStructure<AccessRight, AccessRightDto>()
         .Complete();
       return mapper;

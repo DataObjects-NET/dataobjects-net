@@ -7,7 +7,6 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Linq;
 
 namespace Xtensive.Core.ObjectMapping
 {
@@ -40,11 +39,12 @@ namespace Xtensive.Core.ObjectMapping
     }
 
     /// <inheritdoc/>
-    public IMappingBuilderAdapter<TSource, TTarget> SkipDetection<TValue>(Expression<Func<TTarget, TValue>> target)
+    public IMappingBuilderAdapter<TSource, TTarget> TrackChanges<TValue>(Expression<Func<TTarget, TValue>> target,
+      bool isEnabled)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var propertyInfo = MappingHelper.ExtractProperty(target, "target");
-      realMapper.ModelBuilder.SkipChangeDetection(propertyInfo);
+      realMapper.ModelBuilder.TrackChanges(propertyInfo, isEnabled);
       return this;
     }
 
@@ -53,6 +53,14 @@ namespace Xtensive.Core.ObjectMapping
       Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor)
     {
       return realMapper.MapType(sourceKeyExtractor, targetKeyExtractor);
+    }
+
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor,
+      Func<TTarget, object[]> generatorArgumentsProvider)
+    {
+      return realMapper.MapType(sourceKeyExtractor, targetKeyExtractor, generatorArgumentsProvider);
     }
 
     /// <inheritdoc/>
@@ -66,14 +74,34 @@ namespace Xtensive.Core.ObjectMapping
     public IMappingBuilderAdapter<THeirSource, THeirTarget> Inherit<TTargetBase, THeirSource, THeirTarget>()
       where THeirTarget: TTargetBase
     {
-      realMapper.ModelBuilder.RegisterHeir(typeof (TTargetBase), typeof (THeirSource), typeof (THeirTarget));
-      return new MapperAdapter<THeirSource, THeirTarget, TComparisonResult>(realMapper);
+      return RegisterHeir<TTargetBase, THeirSource, THeirTarget>(null);
+    }
+
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<THeirSource, THeirTarget> Inherit<TTargetBase, THeirSource, THeirTarget>(
+      Func<THeirTarget, object[]> generatorArgumentsProvider)
+      where THeirTarget: TTargetBase
+    {
+      ArgumentValidator.EnsureArgumentNotNull(generatorArgumentsProvider, "generatorArgumentsProvider");
+      return RegisterHeir<TTargetBase, THeirSource, THeirTarget>(generatorArgumentsProvider);
     }
 
     /// <inheritdoc/>
     public void Complete()
     {
       realMapper.Complete();
+    }
+
+    private IMappingBuilderAdapter<THeirSource, THeirTarget> RegisterHeir<TTargetBase, THeirSource, THeirTarget>(
+      Func<THeirTarget, object[]> generatorArgumentsProvider)
+      where THeirTarget: TTargetBase
+    {
+      var adaptedArgumentsProvider = generatorArgumentsProvider!=null
+        ? (Func<object, object[]>) (target => generatorArgumentsProvider.Invoke((THeirTarget) target))
+        : null;
+      realMapper.ModelBuilder.RegisterHeir(typeof (TTargetBase), typeof (THeirSource), typeof (THeirTarget),
+        adaptedArgumentsProvider);
+      return new MapperAdapter<THeirSource, THeirTarget, TComparisonResult>(realMapper);
     }
 
     // Constructors

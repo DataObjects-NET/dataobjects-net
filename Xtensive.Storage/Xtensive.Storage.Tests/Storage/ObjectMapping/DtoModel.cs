@@ -122,4 +122,12 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
   {
     public byte[] Version { get; set; }
   }
+
+  [Serializable]
+  public class CustomPersonDto : PersonDto
+  {
+    public int Id { get; set; }
+
+    public string AuxString { get; set; }
+  }
 }

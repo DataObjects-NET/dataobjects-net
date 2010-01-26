@@ -449,4 +449,14 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     [Field]
     public SimplePerson Manager { get; set; }
   }
+
+  public class CustomPerson : Person
+  {
+    [Field]
+    public string AuxString { get; set; }
+
+    public CustomPerson(int id)
+      : base(id)
+    {}
+  }
 }

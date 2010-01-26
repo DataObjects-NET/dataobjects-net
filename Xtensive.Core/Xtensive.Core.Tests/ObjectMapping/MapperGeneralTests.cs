@@ -356,35 +356,35 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var creatureDtoType = typeof (CreatureDto);
       var namePropertyDescription = namePropertyGetter.Invoke(creatureDtoType);
       Assert.IsFalse(namePropertyDescription.IsIgnored);
-      Assert.IsTrue(namePropertyDescription.IsDetectionSkipped);
+      Assert.IsTrue(namePropertyDescription.IsChangeTrackingDisabled);
       var mammalDtoType = typeof (MammalDto);
       namePropertyDescription = namePropertyGetter.Invoke(mammalDtoType);
       Assert.IsTrue(namePropertyDescription.IsIgnored);
-      Assert.IsFalse(namePropertyDescription.IsDetectionSkipped);
+      Assert.IsFalse(namePropertyDescription.IsChangeTrackingDisabled);
       namePropertyDescription = namePropertyGetter.Invoke(typeof (CatDto));
       Assert.IsTrue(namePropertyDescription.IsIgnored);
-      Assert.IsFalse(namePropertyDescription.IsDetectionSkipped);
+      Assert.IsFalse(namePropertyDescription.IsChangeTrackingDisabled);
       namePropertyDescription = namePropertyGetter.Invoke(typeof (DolphinDto));
       Assert.IsTrue(namePropertyDescription.IsIgnored);
-      Assert.IsFalse(namePropertyDescription.IsDetectionSkipped);
+      Assert.IsFalse(namePropertyDescription.IsChangeTrackingDisabled);
       namePropertyDescription = namePropertyGetter.Invoke(typeof (InsectDto));
       Assert.IsFalse(namePropertyDescription.IsIgnored);
-      Assert.IsTrue(namePropertyDescription.IsDetectionSkipped);
+      Assert.IsTrue(namePropertyDescription.IsChangeTrackingDisabled);
       namePropertyDescription = namePropertyGetter.Invoke(typeof (FlyingInsectDto));
       Assert.IsFalse(namePropertyDescription.IsIgnored);
-      Assert.IsTrue(namePropertyDescription.IsDetectionSkipped);
+      Assert.IsTrue(namePropertyDescription.IsChangeTrackingDisabled);
       namePropertyDescription = namePropertyGetter.Invoke(typeof (LongBeeDto));
       Assert.IsFalse(namePropertyDescription.IsIgnored);
-      Assert.IsTrue(namePropertyDescription.IsDetectionSkipped);
+      Assert.IsTrue(namePropertyDescription.IsChangeTrackingDisabled);
       var legPairCountPropertyDescription = legPairCountPropertyGetter.Invoke(typeof (InsectDto));
       Assert.IsFalse(legPairCountPropertyDescription.IsIgnored);
-      Assert.IsTrue(legPairCountPropertyDescription.IsDetectionSkipped);
+      Assert.IsTrue(legPairCountPropertyDescription.IsChangeTrackingDisabled);
       legPairCountPropertyDescription = legPairCountPropertyGetter.Invoke(typeof (FlyingInsectDto));
       Assert.IsFalse(legPairCountPropertyDescription.IsIgnored);
-      Assert.IsTrue(legPairCountPropertyDescription.IsDetectionSkipped);
+      Assert.IsTrue(legPairCountPropertyDescription.IsChangeTrackingDisabled);
       legPairCountPropertyDescription = legPairCountPropertyGetter.Invoke(typeof (LongBeeDto));
       Assert.IsFalse(legPairCountPropertyDescription.IsIgnored);
-      Assert.IsTrue(legPairCountPropertyDescription.IsDetectionSkipped);
+      Assert.IsTrue(legPairCountPropertyDescription.IsChangeTrackingDisabled);
     }
 
     [Test]
@@ -431,7 +431,8 @@ namespace Xtensive.Core.Tests.ObjectMapping
     public void SkipDetectionOfPropertyChangeTest()
     {
       var mapper = new DefaultMapper();
-      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).SkipDetection(p => p.FirstName).Complete();
+      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).TrackChanges(p => p.FirstName, false)
+        .Complete();
       var source = GetSourcePerson(1);
       var target = (PersonDto) mapper.Transform(source);
       var modified = (PersonDto) target.Clone();
@@ -440,7 +441,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Assert.IsTrue(operations.IsEmpty);
 
       mapper = new DefaultMapper();
-      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).SkipDetection(p => p.FirstName)
+      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).TrackChanges(p => p.FirstName, false)
         .IgnoreProperty(p => p.FirstName).Complete();
       target = (PersonDto) mapper.Transform(source);
       modified = (PersonDto) target.Clone();

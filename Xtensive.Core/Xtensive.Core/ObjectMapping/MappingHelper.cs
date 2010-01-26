@@ -68,6 +68,13 @@ namespace Xtensive.Core.ObjectMapping
       return type.IsEnum || primitiveTypes.Contains(type);
     }
 
+    public static Func<object, object> AdaptDelegate<T1, T2>(Func<T1, T2> source)
+    {
+      return source!=null
+        ? (Func<object, object>) (t1 => source.Invoke((T1) t1))
+        : null;
+    }
+
     private static bool TryExtractProperty(LambdaExpression expression, string paramName, bool throwIfFailed,
       out PropertyInfo propertyInfo)
     {

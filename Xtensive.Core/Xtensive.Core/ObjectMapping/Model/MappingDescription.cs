@@ -103,12 +103,12 @@ namespace Xtensive.Core.ObjectMapping.Model
     #region Private / internal methods
 
     internal void Register(Type source, Func<object, object> sourceKeyExtractor, Type target,
-      Func<object, object> targetKeyExtractor)
+      Func<object, object> targetKeyExtractor, Func<object, object[]> instanceGenerator)
     {
       this.EnsureNotLocked();
       EnsureTypesAreNotRegistered(source, target);
       var sourceDesc = new SourceTypeDescription(source, sourceKeyExtractor);
-      var targetDesc = new TargetTypeDescription(target, targetKeyExtractor);
+      var targetDesc = new TargetTypeDescription(target, targetKeyExtractor, instanceGenerator);
       BindTypes(source, sourceDesc, target, targetDesc);
     }
 
@@ -172,7 +172,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       ((TargetPropertyDescription) propertyDescription).IsIgnored = true;
     }
 
-    internal void SkipChangeDetection(PropertyInfo propertyInfo)
+    internal void TrackChanges(PropertyInfo propertyInfo, bool isEnabled)
     {
       this.EnsureNotLocked();
       var targetType = targetTypes[propertyInfo.ReflectedType];
@@ -181,7 +181,7 @@ namespace Xtensive.Core.ObjectMapping.Model
         propertyDescription = new TargetPropertyDescription(propertyInfo, targetType);
         targetType.AddProperty((TargetPropertyDescription) propertyDescription);
       }
-      ((TargetPropertyDescription) propertyDescription).IsDetectionSkipped = true;
+      ((TargetPropertyDescription) propertyDescription).IsChangeTrackingDisabled = !isEnabled;
     }
 
     internal TargetTypeDescription GetTargetTypeDescription(Type targetType)

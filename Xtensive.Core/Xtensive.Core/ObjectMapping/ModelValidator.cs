@@ -53,7 +53,7 @@ namespace Xtensive.Core.ObjectMapping
         throw new InvalidOperationException(
           String.Format(Strings.ExCollectionPropertyXIsBoundToPropertyYThatIsNotCollection, property,
           sourceProperty));
-      if (property.ValueType.ObjectKind==ObjectKind.UserStructure && !property.IsDetectionSkipped)
+      if (property.ValueType.ObjectKind==ObjectKind.UserStructure && !property.IsChangeTrackingDisabled)
         throw new InvalidOperationException(Strings.ExDetectionOfChangesInUserStructureCollectionIsNotSupported);
     }
 

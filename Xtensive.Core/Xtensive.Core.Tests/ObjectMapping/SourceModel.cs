@@ -297,4 +297,22 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 
     public Action Action { get; set; }
   }
+
+  public class CollectionContainer
+  {
+    public Guid Id { get; set; }
+
+    public int AuxInt { get; set; }
+
+    public List<CollectionContainer> Collection { get; private set; }
+
+
+    // Constructors
+
+    public CollectionContainer()
+    {
+      Id = Guid.NewGuid();
+      Collection = new List<CollectionContainer>();
+    }
+  }
 }

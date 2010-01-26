@@ -19,7 +19,7 @@ namespace Xtensive.Core.ObjectMapping.Model
   {
     private SourcePropertyDescription sourceProperty;
     private Func<object, SourcePropertyDescription, object> converter;
-    private bool isDetectionSkipped;
+    private bool isChangeTrackingDisabled;
     private bool isIgnored;
     private TargetTypeDescription valueType;    
 
@@ -63,13 +63,13 @@ namespace Xtensive.Core.ObjectMapping.Model
     }
 
     /// <summary>
-    /// Gets a value indicating whether changes of property value should be detected.
+    /// Gets a value indicating whether change tracking for this property is disabled.
     /// </summary>
-    public bool IsDetectionSkipped {
-      get { return isDetectionSkipped; }
+    public bool IsChangeTrackingDisabled {
+      get { return isChangeTrackingDisabled; }
       internal set {
         this.EnsureNotLocked();
-        isDetectionSkipped = value;
+        isChangeTrackingDisabled = value;
       }
     }
 

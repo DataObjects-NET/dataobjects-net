@@ -50,17 +50,17 @@ namespace Xtensive.Core.ObjectMapping
     public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
       Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sourceKeyExtractor, "sourceKeyExtractor");
-      ArgumentValidator.EnsureArgumentNotNull(targetKeyExtractor, "targetKeyExtractor");
-      var compiledTargetKeyExtractor = targetKeyExtractor.Compile();
-      PropertyInfo targetProperty;
-      var isPropertyExtracted = MappingHelper.TryExtractProperty(targetKeyExtractor, "targetKeyExtractor",
-        out targetProperty);
-      ModelBuilder.Register(typeof (TSource), source => sourceKeyExtractor.Invoke((TSource) source),
-        typeof (TTarget), target => compiledTargetKeyExtractor.Invoke((TTarget) target));
-      if (isPropertyExtracted)
-        ModelBuilder.RegisterProperty(null, source => sourceKeyExtractor.Invoke((TSource) source), targetProperty);
-      return new MapperAdapter<TSource, TTarget, TComparisonResult>(this);
+      return Register(sourceKeyExtractor, targetKeyExtractor, null);
+    }
+
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor,
+      Func<TTarget, object[]> generatorArgumentsProvider)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(generatorArgumentsProvider, "generatorArgumentsProvider");
+
+      return Register(sourceKeyExtractor, targetKeyExtractor, generatorArgumentsProvider);
     }
 
     /// <inheritdoc/>
@@ -135,6 +135,27 @@ namespace Xtensive.Core.ObjectMapping
       transformer = new GraphTransformer(MappingDescription, Settings);
       comparer = new GraphComparer(MappingDescription, OnObjectModified, new DefaultExistanceInfoProvider());
       objectExtractor = new ObjectExtractor(MappingDescription);
+    }
+
+    private IMappingBuilderAdapter<TSource, TTarget> Register<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor,
+      Func<TTarget, object[]> generatorArgumentsProvider)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(sourceKeyExtractor, "sourceKeyExtractor");
+      ArgumentValidator.EnsureArgumentNotNull(targetKeyExtractor, "targetKeyExtractor");
+      var compiledTargetKeyExtractor = targetKeyExtractor.Compile();
+      PropertyInfo targetProperty;
+      var isPropertyExtracted = MappingHelper.TryExtractProperty(targetKeyExtractor, "targetKeyExtractor",
+        out targetProperty);
+      var adaptedArgumentsProvider = generatorArgumentsProvider!=null
+        ? (Func<object, object[]>) (target => generatorArgumentsProvider.Invoke((TTarget) target))
+        : null;
+      var adapteSourceKeyExtractor = MappingHelper.AdaptDelegate(sourceKeyExtractor);
+      ModelBuilder.Register(typeof (TSource), adapteSourceKeyExtractor, typeof (TTarget),
+        MappingHelper.AdaptDelegate(compiledTargetKeyExtractor), adaptedArgumentsProvider);
+      if (isPropertyExtracted)
+        ModelBuilder.RegisterProperty(null, adapteSourceKeyExtractor, targetProperty);
+      return new MapperAdapter<TSource, TTarget, TComparisonResult>(this);
     }
 
 

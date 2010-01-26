@@ -20,7 +20,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
     {
       using (GraphComparer.ComparisonInfo.SaveState()) {
         foreach (var property in description.ComplexProperties.Values) {
-          if (property.IsDetectionSkipped)
+          if (property.IsChangeTrackingDisabled)
             continue;
           var modifiedValue = property.SystemProperty.GetValue(modified, null);
           var originalValue = property.SystemProperty.GetValue(original, null);
@@ -35,7 +35,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
       TargetTypeDescription description)
     {
       foreach (var property in description.PrimitiveProperties.Values) {
-        if (property.IsDetectionSkipped)
+        if (property.IsChangeTrackingDisabled)
             continue;
         var systemProperty = property.SystemProperty;
         var modifiedValue = systemProperty.GetValue(modified, null);
