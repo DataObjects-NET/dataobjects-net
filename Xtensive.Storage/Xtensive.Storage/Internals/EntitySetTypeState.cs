@@ -16,13 +16,13 @@ namespace Xtensive.Storage.Internals
   {
     public readonly RecordSet SeekRecordSet;
 
-    public readonly CombineTransform SeekTransform;
+    public readonly MapTransform SeekTransform;
 
     public readonly Func<Tuple, Entity> ItemCtor;
 
     public readonly Func<long> ItemCountQuery;
 
-    public EntitySetTypeState(RecordSet seekRecordSet, CombineTransform seekTransform,
+    public EntitySetTypeState(RecordSet seekRecordSet, MapTransform seekTransform,
       Func<Tuple, Entity> itemCtor, Func<long> itemCountQuery)
     {
       SeekRecordSet = seekRecordSet;

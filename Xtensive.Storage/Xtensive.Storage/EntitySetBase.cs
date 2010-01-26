@@ -607,9 +607,24 @@ namespace Xtensive.Storage
       var field = ((Pair<object, FieldInfo>) pair).Second;
       var entitySet = (EntitySetBase) entitySetObj;
       var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => keyParameter.Value);
-      var seekTransform = new CombineTransform(true,
-        field.Association.OwnerType.KeyProviderInfo.TupleDescriptor,
-        field.Association.TargetType.KeyProviderInfo.TupleDescriptor);
+      var ownerDescriptor = field.Association.OwnerType.KeyProviderInfo.TupleDescriptor;
+      var targetDescriptor = field.Association.TargetType.KeyProviderInfo.TupleDescriptor;
+
+      var itemColumnOffsets = field.Association.AuxiliaryType == null
+        ? field.Association.UnderlyingIndex.ValueColumns
+            .Where(ci => ci.IsPrimaryKey)
+            .Select(ci => ci.Field.MappingInfo.Offset)
+            .ToList()
+        : Enumerable.Range(0, targetDescriptor.Count).ToList();
+
+      var keyDescriptor = TupleDescriptor.Create(ownerDescriptor
+        .Concat(itemColumnOffsets.Select(i => targetDescriptor[i]))
+        .ToList());
+      var map = Enumerable.Range(0, ownerDescriptor.Count)
+        .Select(i => new Pair<int, int>(0, i))
+        .Concat(itemColumnOffsets.Select(i => new Pair<int, int>(1, i)))
+        .ToArray();
+      var seekTransform = new MapTransform(true, keyDescriptor, map);
       Func<Tuple, Entity> itemCtor = null;
       if (field.Association.AuxiliaryType!=null)
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
