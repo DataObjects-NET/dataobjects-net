@@ -961,24 +961,6 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The mapping configuration has been already completed..
-        /// </summary>
-        internal static string ExMappingConfigurationHasBeenAlreadyCompleted {
-            get {
-                return ResourceManager.GetString("ExMappingConfigurationHasBeenAlreadyCompleted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The mapping configuration hasn&apos;t been completed..
-        /// </summary>
-        internal static string ExMappingConfigurationHasNotBeenCompleted {
-            get {
-                return ResourceManager.GetString("ExMappingConfigurationHasNotBeenCompleted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The mapping for the property {0} has already been registered..
         /// </summary>
         internal static string ExMappingForPropertyXHasAlreadyBeenRegistered {
@@ -1417,6 +1399,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExTypeIsNotSupportedByBinaryPrimitiveSerializer {
             get {
                 return ResourceManager.GetString("ExTypeIsNotSupportedByBinaryPrimitiveSerializer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type {0} can&apos;t be transformed..
+        /// </summary>
+        internal static string ExTypeXCanNotBeTransformed {
+            get {
+                return ResourceManager.GetString("ExTypeXCanNotBeTransformed", resourceCulture);
             }
         }
         

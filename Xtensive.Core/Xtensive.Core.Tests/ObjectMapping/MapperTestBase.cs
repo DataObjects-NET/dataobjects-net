@@ -44,46 +44,40 @@ namespace Xtensive.Core.Tests.ObjectMapping
 
     protected static DefaultMapper GetPersonOrderMapper()
     {
-      var result = new DefaultMapper();
-      result
-        .MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
-        .MapType<Order, OrderDto, String>(o => o.Id.ToString(), o => o.Id).Complete();
-      return result;
+      var mapping = new MappingBuilder().MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
+        .MapType<Order, OrderDto, String>(o => o.Id.ToString(), o => o.Id).Build();
+      return new DefaultMapper(mapping);
     }
 
     protected static DefaultMapper GetPetOwnerAnimalMapper()
     {
-      var result = new DefaultMapper();
-      result.MapType<PetOwner, PetOwnerDto, int>(o => o.Id, o => o.Id)
-        .MapType<Animal, AnimalDto, Guid>(a => a.Id, a => a.Id).Complete();
-      return result;
+      var mapping = new MappingBuilder().MapType<PetOwner, PetOwnerDto, int>(o => o.Id, o => o.Id)
+        .MapType<Animal, AnimalDto, Guid>(a => a.Id, a => a.Id).Build();
+      return new DefaultMapper(mapping);
     }
 
     protected static DefaultMapper GetAuthorBookMapper()
     {
-      var result = new DefaultMapper();
-      result.MapType<Author, AuthorDto, Guid>(a => a.Id, a => a.Id)
+      var mapping = new MappingBuilder().MapType<Author, AuthorDto, Guid>(a => a.Id, a => a.Id)
           .MapProperty(a => a.Name + "!!!", a => a.Name)
         .MapType<Book, BookDto, string>(b => b.ISBN, b => b.ISBN)
           .MapProperty(b => b.Title.Text, b => b.TitleText)
           .MapProperty(b => new TitleDto {Id = b.Title.Id, Text = b.Title.Text}, b => b.Title)
-        .MapType<Title, TitleDto, Guid>(t => t.Id, t => t.Id).Complete();
-      return result;
+        .MapType<Title, TitleDto, Guid>(t => t.Id, t => t.Id).Build();
+      return new DefaultMapper(mapping);
     }
 
     protected static DefaultMapper GetIgnorableMapper()
     {
-      var result = new DefaultMapper();
-      result.MapType<Ignorable, IgnorableDto, Guid>(i => i.Id, i => i.Id)
+      var mapping = new MappingBuilder().MapType<Ignorable, IgnorableDto, Guid>(i => i.Id, i => i.Id)
         .IgnoreProperty(i => i.Auxiliary).IgnoreProperty(i => i.Ignored).IgnoreProperty(i => i.IgnoredReference)
-        .MapType<IgnorableSubordinate, IgnorableSubordinateDto, Guid>(s => s.Id, s => s.Id).Complete();
-      return result;
+        .MapType<IgnorableSubordinate, IgnorableSubordinateDto, Guid>(s => s.Id, s => s.Id).Build();
+      return new DefaultMapper(mapping);
     }
 
     protected static DefaultMapper GetCreatureHeirsMapperWithCustomConverters()
     {
-      var result = new DefaultMapper();
-      result.MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
+      var mapping = new MappingBuilder().MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
           .MapProperty(c => c.Name + inherited, c => c.Name)
         .MapType<Insect, InsectDto, Guid>(i => i.Id, i => i.Id)
         .Inherit<InsectDto, LongBee, LongBeeDto>()
@@ -92,14 +86,13 @@ namespace Xtensive.Core.Tests.ObjectMapping
         .MapType<Mammal, MammalDto, Guid>(m => m.Id, m => m.Id)
           .MapProperty(m => m.Name + inheritedFromMammal, m => m.Name)
         .Inherit<MammalDto, Cat, CatDto>()
-        .Inherit<MammalDto, Dolphin, DolphinDto>().Complete();
-      return result;
+        .Inherit<MammalDto, Dolphin, DolphinDto>().Build();
+      return new DefaultMapper(mapping);
     }
 
     protected static DefaultMapper GetCreatureHeirsMapperWithAttributesMapper()
     {
-      var result = new DefaultMapper();
-      result.MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
+      var mapping = new MappingBuilder().MapType<Creature, CreatureDto, Guid>(c => c.Id, c => c.Id)
           .MapProperty(c => c.Name + inherited, c => c.Name)
         .MapType<Insect, InsectDto, Guid>(i => i.Id, i => i.Id)
           .TrackChanges(i => i.LegPairCount, false)
@@ -108,18 +101,17 @@ namespace Xtensive.Core.Tests.ObjectMapping
         .MapType<Mammal, MammalDto, Guid>(m => m.Id, m => m.Id)
           .IgnoreProperty(m => m.Name)
         .Inherit<MammalDto, Cat, CatDto>()
-        .Inherit<MammalDto, Dolphin, DolphinDto>().Complete();
-      return result;
+        .Inherit<MammalDto, Dolphin, DolphinDto>().Build();
+      return new DefaultMapper(mapping);
     }
 
     protected static DefaultMapper GetRecursiveCompositionMapperWithGraphDepthLimit(
       int depthLimit, GraphTruncationType action)
     {
       var mapperSettings = new MapperSettings {GraphTruncationType = action, GraphDepthLimit = depthLimit};
-      var result = new DefaultMapper(mapperSettings);
-      result.MapType<RecursiveComposition, RecursiveCompositionDto, Guid>(r => r.Id, r => r.Id)
-        .MapType<Simplest, SimplestDto, Guid>(s => s.Id, s => s.Id).Complete();
-      return result;
+      var mapping = new MappingBuilder().MapType<RecursiveComposition, RecursiveCompositionDto, Guid>(r => r.Id, r => r.Id)
+        .MapType<Simplest, SimplestDto, Guid>(s => s.Id, s => s.Id).Build();
+      return new DefaultMapper(mapping, mapperSettings);
     }
 
     protected static DefaultMapper GetStructureContainerMapper(int? graphDepthLimit,
@@ -128,15 +120,14 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var settings = new MapperSettings {
         GraphDepthLimit = graphDepthLimit, GraphTruncationType = truncationType
       };
-      var result = new DefaultMapper(settings);
-      result
+      var mapping = new MappingBuilder()
         .MapStructure<Structure, StructureDto>()
         .MapType<StructureContainer, StructureContainerDto, Guid>(s => s.Id, s => s.Id)
         .MapStructure<CompositeStructure0, CompositeStructure0Dto>()
         .MapStructure<CompositeStructure1, CompositeStructure1Dto>()
           .MapProperty(c => (int) c.AuxDouble, c => c.AuxInt)
-        .MapStructure<CompositeStructure2, CompositeStructure2Dto>().Complete();
-      return result;
+        .MapStructure<CompositeStructure2, CompositeStructure2Dto>().Build();
+      return new DefaultMapper(mapping, settings);
     }
 
     protected static DefaultMapper GetStructureContainerMapper()
@@ -177,8 +168,13 @@ namespace Xtensive.Core.Tests.ObjectMapping
 
     protected static PetOwner GetSourcePetOwner()
     {
+      return GetSourcePetOwner(10);
+    }
+
+    protected static PetOwner GetSourcePetOwner(int id)
+    {
       var petOwner = new PetOwner {
-        BirthDate = DateTime.Now.AddYears(20), FirstName = "A", Id = 10, LastName = "B"
+        BirthDate = DateTime.Now.AddYears(20), FirstName = "A", Id = id, LastName = "B"
       };
       petOwner.Pets.Add(new Animal());
       petOwner.Pets.Add(new Animal());

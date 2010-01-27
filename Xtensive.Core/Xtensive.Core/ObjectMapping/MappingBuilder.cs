@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.ObjectMapping.Model;
@@ -15,7 +16,10 @@ using Xtensive.Core.Threading;
 
 namespace Xtensive.Core.ObjectMapping
 {
-  internal sealed class ModelBuilder
+  /// <summary>
+  /// Builder of mapping for <see cref="MapperBase{TComparisonResult}"/>.
+  /// </summary>
+  public sealed class MappingBuilder : IMappingBuilder
   {
     #region Nested classes
 
@@ -51,18 +55,40 @@ namespace Xtensive.Core.ObjectMapping
 
     private readonly MappingDescription mappingDescription = new MappingDescription();
 
-    public void Register(Type source, Func<object, object> sourceKeyExtractor, Type target,
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor)
+    {
+      return Register(sourceKeyExtractor, targetKeyExtractor, null);
+    }
+
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor,
+      Func<TTarget, object[]> generatorArgumentsProvider)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(generatorArgumentsProvider, "generatorArgumentsProvider");
+
+      return Register(sourceKeyExtractor, targetKeyExtractor, generatorArgumentsProvider);
+    }
+
+    /// <inheritdoc/>
+    public IMappingBuilderAdapter<TSource, TTarget> MapStructure<TSource, TTarget>()
+      where TTarget : struct
+    {
+      mappingDescription.RegisterStructure(typeof (TSource), typeof (TTarget));
+      return new MapperAdapter<TSource, TTarget>(this);
+    }
+
+    #region Private / internal methods
+
+    internal void Register(Type source, Func<object, object> sourceKeyExtractor, Type target,
       Func<object, object> targetKeyExtractor, Func<object, object[]> instanceGenerator)
     {
       mappingDescription.Register(source, sourceKeyExtractor, target, targetKeyExtractor, instanceGenerator);
     }
 
-    public void RegisterStructure(Type source, Type target)
-    {
-      mappingDescription.RegisterStructure(source, target);
-    }
-
-    public void RegisterProperty(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
+    internal void RegisterProperty(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
     {
       mappingDescription.RegisterProperty(source, converter, target);
       if (source != null)
@@ -71,7 +97,8 @@ namespace Xtensive.Core.ObjectMapping
         TrackChanges(target, false);
     }
 
-    public void RegisterHeir(Type targetBase, Type source, Type target, Func<object, object[]> instanceGenerator)
+    internal void RegisterHeir(Type targetBase, Type source, Type target,
+      Func<object, object[]> instanceGenerator)
     {
       mappingDescription.EnsureTargetTypeIsRegistered(targetBase);
       var targetBaseDescription = mappingDescription.TargetTypes[targetBase];
@@ -83,17 +110,17 @@ namespace Xtensive.Core.ObjectMapping
       var targetDescription = mappingDescription.TargetTypes[target];
     }
 
-    public void Ignore(PropertyInfo propertyInfo)
+    internal void Ignore(PropertyInfo propertyInfo)
     {
       mappingDescription.Ignore(propertyInfo);
     }
 
-    public void TrackChanges(PropertyInfo propertyInfo, bool isEnabled)
+    internal void TrackChanges(PropertyInfo propertyInfo, bool isEnabled)
     {
       mappingDescription.TrackChanges(propertyInfo, isEnabled);
     }
 
-    public MappingDescription Build()
+    internal MappingDescription Complete()
     {
       mappingDescription.EnsureNotLocked();
       mappingDescription.RegisterDefaultPrimitiveTypes();
@@ -106,7 +133,26 @@ namespace Xtensive.Core.ObjectMapping
       return mappingDescription;
     }
 
-    #region Private / internal methods
+    private IMappingBuilderAdapter<TSource, TTarget> Register<TSource, TTarget, TKey>(
+      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor,
+      Func<TTarget, object[]> generatorArgumentsProvider)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(sourceKeyExtractor, "sourceKeyExtractor");
+      ArgumentValidator.EnsureArgumentNotNull(targetKeyExtractor, "targetKeyExtractor");
+      var compiledTargetKeyExtractor = targetKeyExtractor.Compile();
+      PropertyInfo targetProperty;
+      var isPropertyExtracted = MappingHelper.TryExtractProperty(targetKeyExtractor, "targetKeyExtractor",
+        out targetProperty);
+      var adaptedArgumentsProvider = generatorArgumentsProvider!=null
+        ? (Func<object, object[]>) (target => generatorArgumentsProvider.Invoke((TTarget) target))
+        : null;
+      var adapteSourceKeyExtractor = MappingHelper.AdaptDelegate(sourceKeyExtractor);
+      Register(typeof (TSource), adapteSourceKeyExtractor, typeof (TTarget),
+        MappingHelper.AdaptDelegate(compiledTargetKeyExtractor), adaptedArgumentsProvider);
+      if (isPropertyExtracted)
+        RegisterProperty(null, adapteSourceKeyExtractor, targetProperty);
+      return new MapperAdapter<TSource, TTarget>(this);
+    }
 
     private void BindHierarchies()
     {

@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Core.ObjectMapping.Model;
 
 namespace Xtensive.Core.ObjectMapping
 {
@@ -74,6 +75,6 @@ namespace Xtensive.Core.ObjectMapping
     /// <summary>
     /// Completes creation of the mapping.
     /// </summary>
-    void Complete();
+    MappingDescription Build();
   }
 }

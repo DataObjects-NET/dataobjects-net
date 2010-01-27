@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Storage.Operations;
@@ -37,34 +38,49 @@ namespace Xtensive.Storage.ObjectMapping
         operation = CreateEntitySetItemOperation(operationInfo, Operations.OperationType.RemoveEntitySetItem);
         break;
       case Core.ObjectMapping.OperationType.CreateObject:
-        if (keyMapping==null)
-          keyMapping = new Dictionary<object, Key>();
-        var newKey = CreateKey(operationInfo.Object, operationInfo.Object.GetType());
-        var dtoKey = MappingDescription.ExtractTargetKey(operationInfo.Object);
-        keyMapping[dtoKey] = newKey;
-        operation = new EntityOperation(newKey, Operations.OperationType.CreateEntity);
+        operation = CreateEntityCreationOperation(operationInfo);
         break;
       case Core.ObjectMapping.OperationType.RemoveObject:
-        operation = new EntityOperation(ExtractKey(operationInfo.Object), Operations.OperationType.RemoveEntity);
+        operation = new EntityOperation(ExtractKey(operationInfo.Object),
+          Operations.OperationType.RemoveEntity);
         break;
       case Core.ObjectMapping.OperationType.SetProperty:
-        var fieldInfo = ExtractFieldInfo(operationInfo);
-        var lastProperty = operationInfo.PropertyPath[operationInfo.PropertyPath.Count - 1];
-        if (operationInfo.Value==null || lastProperty.ValueType.ObjectKind==ObjectKind.Primitive
-          || lastProperty.ValueType.ObjectKind == ObjectKind.UserStructure) {
-          operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
-            operationInfo.Value);
-        }
-        else {
-          var newDtoKey = MappingDescription.ExtractTargetKey(operationInfo.Value);
-          operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
-            keyMapping[newDtoKey]);
-        }
+        operation = CreatePropertySettingOperation(operationInfo);
         break;
       default:
         throw new ArgumentOutOfRangeException("operationInfo.Type");
       }
       comparisonResult.Register(operation);
+    }
+
+    private IOperation CreatePropertySettingOperation(OperationInfo operationInfo)
+    {
+      IOperation operation;
+      var fieldInfo = ExtractFieldInfo(operationInfo);
+      var lastProperty = operationInfo.PropertyPath[operationInfo.PropertyPath.Count - 1];
+      if (operationInfo.Value==null || lastProperty.ValueType.ObjectKind==ObjectKind.Primitive
+        || lastProperty.ValueType.ObjectKind == ObjectKind.UserStructure) {
+        operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
+          operationInfo.Value);
+      }
+      else {
+        var newDtoKey = MappingDescription.ExtractTargetKey(operationInfo.Value);
+        operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
+          keyMapping[newDtoKey]);
+      }
+      return operation;
+    }
+
+    private IOperation CreateEntityCreationOperation(OperationInfo operationInfo)
+    {
+      IOperation operation;
+      if (keyMapping==null)
+        keyMapping = new Dictionary<object, Key>();
+      var newKey = CreateKey(operationInfo.Object, operationInfo.Object.GetType());
+      var dtoKey = MappingDescription.ExtractTargetKey(operationInfo.Object);
+      keyMapping[dtoKey] = newKey;
+      operation = new EntityOperation(newKey, Operations.OperationType.CreateEntity);
+      return operation;
     }
 
     /// <inheritdoc/>
@@ -108,8 +124,8 @@ namespace Xtensive.Storage.ObjectMapping
     {
       var sourceType = MappingDescription.GetMappedSourceType(type);
       if (sourceType.TargetType.GeneratorArgumentsProvider!=null)
-        return Key.Create(session.Domain, sourceType.SystemType,
-          sourceType.TargetType.GeneratorArgumentsProvider.Invoke(target));
+        return Key.Create(session.Domain, session.Domain.Model.Types[sourceType.SystemType],
+          TypeReferenceAccuracy.ExactType, sourceType.TargetType.GeneratorArgumentsProvider.Invoke(target));
       return Key.Create(session.Domain, sourceType.SystemType);
     }
 
@@ -144,5 +160,25 @@ namespace Xtensive.Storage.ObjectMapping
     }
 
     #endregion
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="mappingDescription">The mapping description.</param>
+    public Mapper(MappingDescription mappingDescription)
+      : base(mappingDescription, new MapperSettings())
+    {}
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="mappingDescription">The mapping description.</param>
+    /// <param name="settings">The mapper settings.</param>
+    public Mapper(MappingDescription mappingDescription, MapperSettings settings)
+      : base(mappingDescription, settings)
+    {}
   }
 }

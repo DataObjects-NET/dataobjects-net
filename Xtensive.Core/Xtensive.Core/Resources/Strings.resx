@@ -687,9 +687,6 @@
   <data name="ExTypeXHasNotBeenRegistered" xml:space="preserve">
     <value>The type {0} hasn't been registered.</value>
   </data>
-  <data name="ExMappingConfigurationHasNotBeenCompleted" xml:space="preserve">
-    <value>The mapping configuration hasn't been completed.</value>
-  </data>
   <data name="ExSpecifiedExpressionIsNotMemberExpression" xml:space="preserve">
     <value>The specified expression is not a MemberExpression.</value>
   </data>
@@ -723,13 +720,13 @@
   <data name="ExLimitOfGraphDepthIsExceeded" xml:space="preserve">
     <value>The limit of the graph depth is exceeded.</value>
   </data>
-  <data name="ExMappingConfigurationHasBeenAlreadyCompleted" xml:space="preserve">
-    <value>The mapping configuration has been already completed.</value>
-  </data>
   <data name="ExNestedCollectionIsNotSupported" xml:space="preserve">
     <value>Nested collection is not supported.</value>
   </data>
   <data name="ExDetectionOfChangesInUserStructureCollectionIsNotSupported" xml:space="preserve">
     <value>The detection of changes in user structure collection isn't supported.</value>
+  </data>
+  <data name="ExTypeXCanNotBeTransformed" xml:space="preserve">
+    <value>The type {0} can't be transformed.</value>
   </data>
 </root>

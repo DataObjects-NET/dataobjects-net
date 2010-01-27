@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
+using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.ObjectMapping;
@@ -229,11 +230,11 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     [Test]
     public void CreateObjectUsingCustomKeyValuesTest()
     {
-      var mapper = new Mapper();
       var rnd = new Random();
-      mapper
+      var mapping = new MappingBuilder()
         .MapType<CustomPerson, CustomPersonDto, string>(cp => cp.Key.Format(), cp => cp.Key,
-          dto => new object[] {dto.Id}).TrackChanges(cp => cp.Id, false).Complete();
+          dto => new object[] {dto.Id}).TrackChanges(cp => cp.Id, false).Build();
+      var mapper = new Mapper(mapping);
       List<object> originalPersonDtos;
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -244,10 +245,10 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       }
 
       var modifiedPersonDtos = Clone(originalPersonDtos);
-      var newCustomPersonDto = new CustomPersonDto {
+      var newPersonDto = new CustomPersonDto {
         AuxString = "AuxNew", Id = rnd.Next(), Name = "NewName", Key = Guid.NewGuid().ToString()
       };
-      modifiedPersonDtos.Add(newCustomPersonDto);
+      modifiedPersonDtos.Add(newPersonDto);
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -266,8 +267,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         validator.Invoke(personDto0, person0);
         var person1 = Query.Single<CustomPerson>(personDto1.Id);
         validator.Invoke(personDto1, person1);
-        var newPerson = Query.Single<CustomPerson>(newCustomPersonDto.Id);
-        validator.Invoke(personDto0, newPerson);
+        var newPerson = Query.Single<CustomPerson>(newPersonDto.Id);
+        validator.Invoke(newPersonDto, newPerson);
         tx.Complete();
       }
     }
@@ -275,9 +276,10 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     private PersonalProductDto ServerCreateDtoGraphForSimpleEntitiesMappingTest(out Mapper mapper)
     {
       PersonalProductDto productDto;
-      mapper = new Mapper();
-      mapper.MapType<PersonalProduct, PersonalProductDto, string>(p => p.Key.Format(), p => p.Key)
-        .MapType<Employee, EmployeeDto, string>(e => e.Key.Format(), e => e.Key).Complete();
+      var mapping = new MappingBuilder()
+        .MapType<PersonalProduct, PersonalProductDto, string>(p => p.Key.Format(), p => p.Key)
+        .MapType<Employee, EmployeeDto, string>(e => e.Key.Format(), e => e.Key).Build();
+      mapper = new Mapper(mapping);
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var employee = new Employee {Age = 25, Name = "A", Position = "B"};
@@ -291,9 +293,10 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     private PublisherDto ServerCreateDtoGraphForCollectionMappingTest(out Mapper mapper)
     {
       PublisherDto publisherDto;
-      mapper = new Mapper();
-      mapper.MapType<Publisher, PublisherDto, string>(p => p.Key.Format(), p => p.Key)
-        .MapType<BookShop, BookShopDto, string>(b => b.Key.Format(), b => b.Key).Complete();
+      var mapping = new MappingBuilder()
+        .MapType<Publisher, PublisherDto, string>(p => p.Key.Format(), p => p.Key)
+        .MapType<BookShop, BookShopDto, string>(b => b.Key.Format(), b => b.Key).Build();
+      mapper = new Mapper(mapping);
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var bookShop0 = new BookShop {Name = "B0"};
@@ -311,11 +314,12 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
     private BookShopDto ServerCreateDtoGraphForCustomEntitySetMappingTest(out Mapper mapper)
     {
-      mapper = new Mapper();
-      mapper.MapType<AnotherBookShop, BookShopDto, string>(abs => abs.Key.Format(), bs => bs.Key)
+      var mapping = new MappingBuilder()
+        .MapType<AnotherBookShop, BookShopDto, string>(abs => abs.Key.Format(), bs => bs.Key)
         .IgnoreProperty(bs => bs.Name).IgnoreProperty(bs => bs.Url)
         .MapType<Publisher, PublisherDto, string>(p => p.Key.Format(), p => p.Key)
-        .IgnoreProperty(p => p.Distributors).Complete();
+        .IgnoreProperty(p => p.Distributors).Build();
+      mapper = new Mapper(mapping);
       BookShopDto bookShopDto;
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -336,11 +340,12 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     private void ServerCreateDtoGraphForStructureMappingTest(out ApartmentDto originalApartmentDto0,
       out ApartmentDto originalApartmentDto1, out Key apartment0Key, out Key apartment1Key, out Mapper mapper)
     {
-      mapper = new Mapper();
-      mapper.MapType<SimplePerson, SimplePersonDto, string>(p => p.Key.Format(), p => p.Key)
+      var mapping = new MappingBuilder()
+        .MapType<SimplePerson, SimplePersonDto, string>(p => p.Key.Format(), p => p.Key)
         .MapType<Apartment, ApartmentDto, string>(a => a.Key.Format(), a => a.Key)
         .MapStructure<Address, AddressDto>()
-        .MapStructure<ApartmentDescription, ApartmentDescriptionDto>().Complete();
+        .MapStructure<ApartmentDescription, ApartmentDescriptionDto>().Build();
+      mapper = new Mapper(mapping);
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var person0 = new SimplePerson {Name = "Name0"};
@@ -368,8 +373,9 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
     private List<object> ServerCreateDtoGraphForKeysMappingTest(out Mapper mapper)
     {
-      mapper = new Mapper();
-      mapper.MapType<SimplePerson, SimplePersonDto, string>(sp => sp.Key.Format(), sp => sp.Key).Complete();
+      var mapping = new MappingBuilder()
+        .MapType<SimplePerson, SimplePersonDto, string>(sp => sp.Key.Format(), sp => sp.Key).Build();
+      mapper = new Mapper(mapping);
       List<object> original;
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -383,7 +389,6 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 
     private List<object> ServerCreateDtoGraphForOptimisticLockTest(out Mapper mapper)
     {
-      mapper = new Mapper();
       var formatter = new BinaryFormatter();
       using (var stream = new MemoryStream()) {
         Func<VersionInfo, byte[]> serializer = version => {
@@ -394,10 +399,11 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
           stream.SetLength(0);
           return result;
         };
-        mapper
+        var mapping = new MappingBuilder()
           .MapType<SimplePerson, PersonWithVersionDto, string>(sp => sp.Key.Format(), sp => sp.Key)
           .MapProperty(p => serializer.Invoke(p.VersionInfo), p => p.Version)
-          .MapStructure<VersionInfo, VersionInfo>().Complete();
+          .MapStructure<VersionInfo, VersionInfo>().Build();
+        mapper = new Mapper(mapping);
         List<object> original;
         using (var session = Session.Open(Domain))
         using (var tx = Transaction.Open()) {

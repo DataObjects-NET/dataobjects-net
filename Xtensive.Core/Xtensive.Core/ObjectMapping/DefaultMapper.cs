@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.ObjectMapping.Model;
 
 namespace Xtensive.Core.ObjectMapping
 {
@@ -39,15 +40,18 @@ namespace Xtensive.Core.ObjectMapping
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public DefaultMapper()
+    /// <param name="mappingDescription">The mapping description.</param>
+    public DefaultMapper(MappingDescription mappingDescription)
+      : base(mappingDescription)
     {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="mappingDescription">The mapping description.</param>
     /// <param name="settings">The mapper settings.</param>
-    public DefaultMapper(MapperSettings settings)
-      : base(settings)
+    public DefaultMapper(MappingDescription mappingDescription, MapperSettings settings)
+      : base(mappingDescription, settings)
     {}
   }
 }

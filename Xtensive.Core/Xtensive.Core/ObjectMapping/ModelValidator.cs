@@ -21,6 +21,10 @@ namespace Xtensive.Core.ObjectMapping
       description = mappingDescription;
       foreach (var typePair in description.TargetTypes) {
         var type = typePair.Value;
+        if (type.ObjectKind!=ObjectKind.Primitive
+          && (type.SystemType==typeof (object) || type.SourceType.SystemType==typeof (object)))
+          throw new InvalidOperationException(
+            String.Format(Strings.ExTypeXCanNotBeTransformed, typeof (object)));
         var properties = type.Properties.Select(pair => pair.Value).Cast<TargetPropertyDescription>();
         foreach (var property in properties) {
           if (property.SourceProperty==null)

@@ -295,4 +295,14 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
     public List<CollectionContainerDto> Collection { get; set; }
   }
+
+  [Serializable]
+  public class ObjectContainerDto
+  {
+    public Guid Id { get; set; }
+
+    public int Int { get; set; }
+
+    public object Object { get; set; }
+  }
 }

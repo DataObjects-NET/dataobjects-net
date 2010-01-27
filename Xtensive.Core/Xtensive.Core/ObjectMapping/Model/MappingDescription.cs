@@ -131,8 +131,8 @@ namespace Xtensive.Core.ObjectMapping.Model
       BindTypes(source, sourceDesc, target, targetDesc);
     }
 
-    internal void RegisterInherited(PropertyInfo source, Func<object, SourcePropertyDescription, object> converter,
-      PropertyInfo target)
+    internal void RegisterInherited(PropertyInfo source,
+      Func<object, SourcePropertyDescription, object> converter, PropertyInfo target)
     {
       this.EnsureNotLocked();
       var targetType = targetTypes[target.ReflectedType];
@@ -142,6 +142,7 @@ namespace Xtensive.Core.ObjectMapping.Model
 
     internal void RegisterDefaultPrimitiveTypes()
     {
+      this.EnsureNotLocked();
       foreach (var type in MappingHelper.PrimitiveTypes) {
         sourceTypes.Add(type, new SourceTypeDescription(type));
         targetTypes.Add(type, new TargetTypeDescription(type));
@@ -150,6 +151,7 @@ namespace Xtensive.Core.ObjectMapping.Model
 
     internal void RegisterEnumTypes(Dictionary<Type, TargetTypeDescription> enumTypes)
     {
+      this.EnsureNotLocked();
       foreach (var pair in enumTypes) {
         var sourceType = new SourceTypeDescription(pair.Key);
         var targetType = pair.Value;

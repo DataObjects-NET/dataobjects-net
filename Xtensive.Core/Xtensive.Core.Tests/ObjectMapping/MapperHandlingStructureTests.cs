@@ -181,16 +181,15 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var settings = new MapperSettings {
         GraphDepthLimit = graphDepthLimit, GraphTruncationType = truncationType
       };
-      var result = new DefaultMapper(settings);
-      result
+      var mapping = new MappingBuilder()
         .MapStructure<Structure, StructureDto>()
         .MapType<StructureContainer, StructureContainerDto, Guid>(s => s.Id, s => s.Id)
         .MapStructure<CompositeStructure0, CompositeStructure0Dto>()
         .MapStructure<CompositeStructure1, CompositeStructure1Dto>()
           .MapProperty(c => (int) c.AuxDouble, c => c.AuxInt)
           .MapProperty(c => new CompositeStructure2Dto {AuxInt = c.Structure.AuxInt}, c => c.Structure)
-        .MapStructure<CompositeStructure2, CompositeStructure2Dto>().Complete();
-      return result;
+        .MapStructure<CompositeStructure2, CompositeStructure2Dto>().Build();
+      return new DefaultMapper(mapping, settings);
     }
 
     private static DefaultMapper GetStructureContainerMapperWithStructureConverter()

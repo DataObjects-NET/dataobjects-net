@@ -56,9 +56,10 @@ namespace Xtensive.Core.Tests.ObjectMapping
     [Test]
     public void TransformationOfPrimitiveCustomCollectionTest()
     {
-      var mapper = new DefaultMapper();
-      mapper.MapType<PrimitiveCollectionContainer, PrimitiveCollectionContainerDto, Guid>(c => c.Id, c => c.Id)
-        .Complete();
+      var mapping = new MappingBuilder()
+        .MapType<PrimitiveCollectionContainer, PrimitiveCollectionContainerDto, Guid>(c => c.Id, c => c.Id)
+        .Build();
+      var mapper = new DefaultMapper(mapping);
       var source = new PrimitiveCollectionContainer();
       source.Collection.Add(3);
       source.Collection.Add(2);
@@ -72,9 +73,9 @@ namespace Xtensive.Core.Tests.ObjectMapping
     [Test]
     public void TransformationOfComplexCustomCollectionTest()
     {
-      var mapper = new DefaultMapper();
-      mapper.MapType<ComplexCollectionContainer, ComplexCollectionContainerDto, Guid>(c => c.Id, c => c.Id)
-        .MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).Complete();
+      var mapping = new MappingBuilder().MapType<ComplexCollectionContainer, ComplexCollectionContainerDto, Guid>(c => c.Id, c => c.Id)
+        .MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).Build();
+      var mapper = new DefaultMapper(mapping);
       var source = new ComplexCollectionContainer();
       source.Collection.Add(GetSourcePerson(3));
       source.Collection.Add(GetSourcePerson(2));
@@ -176,8 +177,9 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var settings = new MapperSettings {
         GraphDepthLimit = 1, GraphTruncationType = GraphTruncationType.SetDefaultValue
       };
-      var mapper = new DefaultMapper(settings);
-      mapper.MapType<CollectionContainer, CollectionContainerDto, Guid>(c => c.Id, c => c.Id).Complete();
+      var mapping = new MappingBuilder()
+        .MapType<CollectionContainer, CollectionContainerDto, Guid>(c => c.Id, c => c.Id).Build();
+      var mapper = new DefaultMapper(mapping, settings);
       var source0 = new CollectionContainer {AuxInt = 1};
       var source10 = new CollectionContainer {AuxInt = 11};
       var source11 = new CollectionContainer {AuxInt = 12};
@@ -194,21 +196,19 @@ namespace Xtensive.Core.Tests.ObjectMapping
     
     private static DefaultMapper GetPersonStructureMapper()
     {
-      var mapper = new DefaultMapper();
-      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
-        .MapStructure<Structure, StructureDto>().Complete();
-      return mapper;
+      var mapping = new MappingBuilder().MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
+        .MapStructure<Structure, StructureDto>().Build();
+      return new DefaultMapper(mapping);
     }
 
     private static DefaultMapper GetAccountMapper()
     {
-      var mapper = new DefaultMapper();
-      mapper
+      var mapping = new MappingBuilder()
         .MapType<Account, AccountDto, Guid>(a => a.Id, a => a.Id)
           .TrackChanges(a => a.AccessRights, false)
         .MapStructure<AccessRight, AccessRightDto>()
-        .Complete();
-      return mapper;
+        .Build();
+      return new DefaultMapper(mapping);
     }
 
     private static List<object> GetSourcePersonStructure(out Person person, out int intItem,

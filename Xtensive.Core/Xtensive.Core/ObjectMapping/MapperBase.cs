@@ -4,13 +4,9 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.12.09
 
-using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.ObjectMapping.Model;
-using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
@@ -18,13 +14,12 @@ namespace Xtensive.Core.ObjectMapping
   /// A base class for O2O-mapper implementations.
   /// </summary>
   /// <typeparam name="TComparisonResult">The type of graphs comparison result.</typeparam>
-  public abstract class MapperBase<TComparisonResult> : IMappingBuilder
+  public abstract class MapperBase<TComparisonResult>
     where TComparisonResult : GraphComparisonResult
   {
-    private GraphTransformer transformer;
-    private GraphComparer comparer;
-    private ModelBuilder modelBuilder;
-    private ObjectExtractor objectExtractor;
+    private readonly GraphTransformer transformer;
+    private readonly GraphComparer comparer;
+    private readonly ObjectExtractor objectExtractor;
 
     /// <summary>
     /// Gets the mapping description.
@@ -36,41 +31,6 @@ namespace Xtensive.Core.ObjectMapping
     /// </summary>
     public MapperSettings Settings { get; private set; }
 
-    internal ModelBuilder ModelBuilder
-    {
-      get {
-        if (modelBuilder==null)
-          throw new InvalidOperationException(Strings.ExMappingConfigurationHasBeenAlreadyCompleted);
-        return modelBuilder;
-      }
-      private set { modelBuilder = value; }
-    }
-
-    /// <inheritdoc/>
-    public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
-      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor)
-    {
-      return Register(sourceKeyExtractor, targetKeyExtractor, null);
-    }
-
-    /// <inheritdoc/>
-    public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
-      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor,
-      Func<TTarget, object[]> generatorArgumentsProvider)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(generatorArgumentsProvider, "generatorArgumentsProvider");
-
-      return Register(sourceKeyExtractor, targetKeyExtractor, generatorArgumentsProvider);
-    }
-
-    /// <inheritdoc/>
-    public IMappingBuilderAdapter<TSource, TTarget> MapStructure<TSource, TTarget>()
-      where TTarget : struct
-    {
-      ModelBuilder.RegisterStructure(typeof (TSource), typeof (TTarget));
-      return new MapperAdapter<TSource, TTarget, TComparisonResult>(this);
-    }
-
     /// <summary>
     /// Transforms an object of the source type to an object of the target type.
     /// </summary>
@@ -78,8 +38,6 @@ namespace Xtensive.Core.ObjectMapping
     /// <returns>The transformed object.</returns>
     public object Transform(object source)
     {
-      if (MappingDescription == null)
-        throw new InvalidOperationException(Strings.ExMappingConfigurationHasNotBeenCompleted);
       return transformer.Transform(source);
     }
 
@@ -92,8 +50,6 @@ namespace Xtensive.Core.ObjectMapping
     /// <returns>The <see cref="GraphComparisonResult"/>.</returns>
     public TComparisonResult Compare(object originalTarget, object modifiedTarget)
     {
-      if (MappingDescription == null)
-        throw new InvalidOperationException(Strings.ExMappingConfigurationHasNotBeenCompleted);
       InitializeComparison(originalTarget, modifiedTarget);
       var modifiedObjects = new Dictionary<object, object>();
       var originalObjects = new Dictionary<object, object>();
@@ -128,56 +84,32 @@ namespace Xtensive.Core.ObjectMapping
     protected abstract TComparisonResult GetComparisonResult(Dictionary<object, object> originalObjects,
       Dictionary<object, object> modifiedObjects);
 
-    internal void Complete()
-    {
-      MappingDescription = ModelBuilder.Build();
-      ModelBuilder = null;
-      transformer = new GraphTransformer(MappingDescription, Settings);
-      comparer = new GraphComparer(MappingDescription, OnObjectModified, new DefaultExistanceInfoProvider());
-      objectExtractor = new ObjectExtractor(MappingDescription);
-    }
-
-    private IMappingBuilderAdapter<TSource, TTarget> Register<TSource, TTarget, TKey>(
-      Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor,
-      Func<TTarget, object[]> generatorArgumentsProvider)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(sourceKeyExtractor, "sourceKeyExtractor");
-      ArgumentValidator.EnsureArgumentNotNull(targetKeyExtractor, "targetKeyExtractor");
-      var compiledTargetKeyExtractor = targetKeyExtractor.Compile();
-      PropertyInfo targetProperty;
-      var isPropertyExtracted = MappingHelper.TryExtractProperty(targetKeyExtractor, "targetKeyExtractor",
-        out targetProperty);
-      var adaptedArgumentsProvider = generatorArgumentsProvider!=null
-        ? (Func<object, object[]>) (target => generatorArgumentsProvider.Invoke((TTarget) target))
-        : null;
-      var adapteSourceKeyExtractor = MappingHelper.AdaptDelegate(sourceKeyExtractor);
-      ModelBuilder.Register(typeof (TSource), adapteSourceKeyExtractor, typeof (TTarget),
-        MappingHelper.AdaptDelegate(compiledTargetKeyExtractor), adaptedArgumentsProvider);
-      if (isPropertyExtracted)
-        ModelBuilder.RegisterProperty(null, adapteSourceKeyExtractor, targetProperty);
-      return new MapperAdapter<TSource, TTarget, TComparisonResult>(this);
-    }
-
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected MapperBase()
-      : this(new MapperSettings())
+    /// <param name="mappingDescription">The mapping description.</param>
+    protected MapperBase(MappingDescription mappingDescription)
+      : this(mappingDescription, new MapperSettings())
     {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="mappingDescription">The mapping description.</param>
     /// <param name="settings">The mapper settings.</param>
-    protected MapperBase(MapperSettings settings)
+    protected MapperBase(MappingDescription mappingDescription, MapperSettings settings)
     {
+      ArgumentValidator.EnsureArgumentNotNull(mappingDescription, "mappingDescription");
       ArgumentValidator.EnsureArgumentNotNull(settings, "settings");
-      ModelBuilder = new ModelBuilder();
+      MappingDescription = mappingDescription;
       settings.Lock();
       Settings = settings;
+      transformer = new GraphTransformer(MappingDescription, Settings);
+      comparer = new GraphComparer(MappingDescription, OnObjectModified, new DefaultExistanceInfoProvider());
+      objectExtractor = new ObjectExtractor(MappingDescription);
     }
   }
 }

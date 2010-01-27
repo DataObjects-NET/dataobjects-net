@@ -430,9 +430,10 @@ namespace Xtensive.Core.Tests.ObjectMapping
     [Test]
     public void SkipDetectionOfPropertyChangeTest()
     {
-      var mapper = new DefaultMapper();
-      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).TrackChanges(p => p.FirstName, false)
-        .Complete();
+      var mapping = new MappingBuilder()
+        .MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).TrackChanges(p => p.FirstName, false)
+        .Build();
+      var mapper = new DefaultMapper(mapping);
       var source = GetSourcePerson(1);
       var target = (PersonDto) mapper.Transform(source);
       var modified = (PersonDto) target.Clone();
@@ -440,9 +441,11 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var operations = mapper.Compare(target, modified).Operations;
       Assert.IsTrue(operations.IsEmpty);
 
-      mapper = new DefaultMapper();
-      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).TrackChanges(p => p.FirstName, false)
-        .IgnoreProperty(p => p.FirstName).Complete();
+      mapping = new MappingBuilder()
+        .MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
+        .TrackChanges(p => p.FirstName, false)
+        .IgnoreProperty(p => p.FirstName).Build();
+      mapper = new DefaultMapper(mapping);
       target = (PersonDto) mapper.Transform(source);
       modified = (PersonDto) target.Clone();
       modified.FirstName += "!";
@@ -453,8 +456,10 @@ namespace Xtensive.Core.Tests.ObjectMapping
     [Test]
     public void SkipSettingIgnoredPropertiesWhenObjectHasBeenCreatedTest()
     {
-      var mapper = new DefaultMapper();
-      mapper.MapType<Person, PersonDto, int>(p => p.Id, p => p.Id).IgnoreProperty(p => p.FirstName).Complete();
+      var mapping = new MappingBuilder()
+        .MapType<Person, PersonDto, int>(p => p.Id, p => p.Id)
+        .IgnoreProperty(p => p.FirstName).Build();
+      var mapper = new DefaultMapper(mapping);
       var createdObject = new PersonDto {
         BirthDate = DateTime.Now, FirstName = "FirstName", LastName = "LastName"
       };

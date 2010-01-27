@@ -7,14 +7,14 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.ObjectMapping.Model;
 
 namespace Xtensive.Core.ObjectMapping
 {
-  internal sealed class MapperAdapter<TSource, TTarget, TComparisonResult>
+  internal sealed class MapperAdapter<TSource, TTarget>
     : IMappingBuilderAdapter<TSource, TTarget>
-    where TComparisonResult : GraphComparisonResult
   {
-    private readonly MapperBase<TComparisonResult> realMapper;
+    private readonly MappingBuilder realBuilder;
 
     /// <inheritdoc/>
     public IMappingBuilderAdapter<TSource, TTarget> MapProperty<TValue>(Expression<Func<TSource, TValue>> source,
@@ -24,8 +24,7 @@ namespace Xtensive.Core.ObjectMapping
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var targetProperty = MappingHelper.ExtractProperty(target, "target");
       var compliedSource = source.Compile();
-      realMapper.ModelBuilder.RegisterProperty(null, obj => compliedSource.Invoke((TSource) obj),
-        targetProperty);
+      realBuilder.RegisterProperty(null, obj => compliedSource.Invoke((TSource) obj), targetProperty);
       return this;
     }
 
@@ -34,7 +33,7 @@ namespace Xtensive.Core.ObjectMapping
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var propertyInfo = MappingHelper.ExtractProperty(target, "target");
-      realMapper.ModelBuilder.Ignore(propertyInfo);
+      realBuilder.Ignore(propertyInfo);
       return this;
     }
 
@@ -44,7 +43,7 @@ namespace Xtensive.Core.ObjectMapping
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var propertyInfo = MappingHelper.ExtractProperty(target, "target");
-      realMapper.ModelBuilder.TrackChanges(propertyInfo, isEnabled);
+      realBuilder.TrackChanges(propertyInfo, isEnabled);
       return this;
     }
 
@@ -52,7 +51,7 @@ namespace Xtensive.Core.ObjectMapping
     public IMappingBuilderAdapter<TSource, TTarget> MapType<TSource, TTarget, TKey>(
       Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor)
     {
-      return realMapper.MapType(sourceKeyExtractor, targetKeyExtractor);
+      return realBuilder.MapType(sourceKeyExtractor, targetKeyExtractor);
     }
 
     /// <inheritdoc/>
@@ -60,14 +59,14 @@ namespace Xtensive.Core.ObjectMapping
       Func<TSource, TKey> sourceKeyExtractor, Expression<Func<TTarget, TKey>> targetKeyExtractor,
       Func<TTarget, object[]> generatorArgumentsProvider)
     {
-      return realMapper.MapType(sourceKeyExtractor, targetKeyExtractor, generatorArgumentsProvider);
+      return realBuilder.MapType(sourceKeyExtractor, targetKeyExtractor, generatorArgumentsProvider);
     }
 
     /// <inheritdoc/>
     public IMappingBuilderAdapter<TSource, TTarget> MapStructure<TSource, TTarget>()
       where TTarget : struct
     {
-      return realMapper.MapStructure<TSource, TTarget>();
+      return realBuilder.MapStructure<TSource, TTarget>();
     }
 
     /// <inheritdoc/>
@@ -87,9 +86,9 @@ namespace Xtensive.Core.ObjectMapping
     }
 
     /// <inheritdoc/>
-    public void Complete()
+    public MappingDescription Build()
     {
-      realMapper.Complete();
+      return realBuilder.Complete();
     }
 
     private IMappingBuilderAdapter<THeirSource, THeirTarget> RegisterHeir<TTargetBase, THeirSource, THeirTarget>(
@@ -99,9 +98,9 @@ namespace Xtensive.Core.ObjectMapping
       var adaptedArgumentsProvider = generatorArgumentsProvider!=null
         ? (Func<object, object[]>) (target => generatorArgumentsProvider.Invoke((THeirTarget) target))
         : null;
-      realMapper.ModelBuilder.RegisterHeir(typeof (TTargetBase), typeof (THeirSource), typeof (THeirTarget),
+      realBuilder.RegisterHeir(typeof (TTargetBase), typeof (THeirSource), typeof (THeirTarget),
         adaptedArgumentsProvider);
-      return new MapperAdapter<THeirSource, THeirTarget, TComparisonResult>(realMapper);
+      return new MapperAdapter<THeirSource, THeirTarget>(realBuilder);
     }
 
     // Constructors
@@ -109,10 +108,10 @@ namespace Xtensive.Core.ObjectMapping
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="realMapper">The real mapper.</param>
-    public MapperAdapter(MapperBase<TComparisonResult> realMapper)
+    /// <param name="realBuilder">The real mapper.</param>
+    public MapperAdapter(MappingBuilder realBuilder)
     {
-      this.realMapper = realMapper;
+      this.realBuilder = realBuilder;
     }
   }
 }
