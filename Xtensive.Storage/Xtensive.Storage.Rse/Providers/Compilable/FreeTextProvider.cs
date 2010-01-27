@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       FullFeatured = fullFeatured;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
       if (FullFeatured) {
-        var primaryIndexRecordsetHeader = index.PrimaryIndex.GetRecordSetHeader();
+        var primaryIndexRecordsetHeader = index.PrimaryIndex.ReflectedType.Indexes.PrimaryIndex.GetRecordSetHeader();
         var rankColumn = new MappedColumn(rankColumnName, primaryIndexRecordsetHeader.Length, typeof (double));
         indexHeader = primaryIndexRecordsetHeader.Add(rankColumn);
       }

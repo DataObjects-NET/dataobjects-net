@@ -12,6 +12,11 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     private static readonly SqlNative OneDayInterval = SqlDml.Native("interval '1 day'");
     private static readonly SqlNative OneMillisecondInterval = SqlDml.Native("interval '0.001 second'");
 
+    public override void Visit(SqlFreeTextTable node)
+    {
+      throw new NotSupportedException("FREETEXTTABLE does not supported by this version of PostgreSQL");
+    }
+
     public override void Visit(SqlDeclareCursor node)
     {
     }

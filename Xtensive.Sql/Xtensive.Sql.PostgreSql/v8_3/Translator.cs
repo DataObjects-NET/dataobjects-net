@@ -22,7 +22,7 @@ namespace Xtensive.Sql.PostgreSql.v8_3
           , Translate(index.DataTable));
       case CreateIndexSection.ColumnsExit:
         // Add actual columns list
-        return string.Concat(GetFulltextExpression(context, (FullTextIndex) node.Index), base.Translate(context, node, section));
+        return string.Concat(GetFulltextVector(context, (FullTextIndex) node.Index), base.Translate(context, node, section));
       default:
         return base.Translate(context, node, section);
       }
@@ -37,7 +37,7 @@ namespace Xtensive.Sql.PostgreSql.v8_3
       return string.Empty;
     }
 
-    protected string GetFulltextExpression(SqlCompilerContext context, FullTextIndex index)
+    internal protected string GetFulltextVector(SqlCompilerContext context, FullTextIndex index)
     {
       var sb = new StringBuilder();
       sb.Append("(");

@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Providers.Sql
       return CreateProvider(query, provider);
     }
 
-    private SqlSelect BuildProviderQuery(IndexInfo index)
+    protected SqlSelect BuildProviderQuery(IndexInfo index)
     {
       if (index.IsVirtual) {
         if ((index.Attributes & IndexAttributes.Union) > 0)

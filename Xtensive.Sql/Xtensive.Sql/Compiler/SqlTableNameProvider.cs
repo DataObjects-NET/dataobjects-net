@@ -19,7 +19,7 @@ namespace Xtensive.Sql.Compiler
         "w", "x", "y", "z"
       };
 
-    internal string GetName(SqlTable table)
+    public string GetName(SqlTable table)
     {
       if ((context.NamingOptions & SqlCompilerNamingOptions.TableAliasing) == 0) {
         aliasIndex.Add(table.Name);
