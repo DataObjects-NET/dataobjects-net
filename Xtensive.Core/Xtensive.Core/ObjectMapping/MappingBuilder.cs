@@ -166,7 +166,7 @@ namespace Xtensive.Core.ObjectMapping
       foreach (var type in mappingDescription.TargetTypes.Values) {
         var ancestor = type.SystemType.BaseType;
         while (true) {
-          if (ancestor==typeof (object)) {
+          if (ancestor==null || ancestor==typeof (object)) {
             result.Add(type);
             break;
           }

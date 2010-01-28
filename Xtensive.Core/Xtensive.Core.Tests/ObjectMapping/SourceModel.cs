@@ -80,9 +80,14 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
     }
   }
 
-  public class Creature
+  public interface ICreature
   {
-    public Guid Id { get; private set; }
+    Guid Id { get; set; }
+  }
+
+  public class Creature : ICreature
+  {
+    public Guid Id { get; set; }
 
     public string Name { get; set; }
 

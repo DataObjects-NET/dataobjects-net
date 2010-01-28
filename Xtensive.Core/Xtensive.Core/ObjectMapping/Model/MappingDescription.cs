@@ -106,7 +106,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       Func<object, object> targetKeyExtractor, Func<object, object[]> instanceGenerator)
     {
       this.EnsureNotLocked();
-      EnsureTypesAreNotRegistered(source, target);
+      EnsureTypesCanBeRegistered(source, target);
       var sourceDesc = new SourceTypeDescription(source, sourceKeyExtractor);
       var targetDesc = new TargetTypeDescription(target, targetKeyExtractor, instanceGenerator);
       BindTypes(source, sourceDesc, target, targetDesc);
@@ -125,7 +125,7 @@ namespace Xtensive.Core.ObjectMapping.Model
     internal void RegisterStructure(Type source, Type target)
     {
       this.EnsureNotLocked();
-      EnsureTypesAreNotRegistered(source, target);
+      EnsureTypesCanBeRegistered(source, target);
       var sourceDesc = new SourceTypeDescription(source);
       var targetDesc = new TargetTypeDescription(target);
       BindTypes(source, sourceDesc, target, targetDesc);
@@ -220,6 +220,12 @@ namespace Xtensive.Core.ObjectMapping.Model
         type.FullName));
     }
 
+    private void EnsureTypesCanBeRegistered(Type source, Type target)
+    {
+      EnsureBothOfTypesAreNotObject(source, target);
+      EnsureTypesAreNotRegistered(source, target);
+    }
+
     private void EnsureTypesAreNotRegistered(Type source, Type target)
     {
       if (sourceTypes.ContainsKey(source))
@@ -237,6 +243,13 @@ namespace Xtensive.Core.ObjectMapping.Model
       targetDesc.SourceType = sourceDesc;
       sourceTypes.Add(source, sourceDesc);
       targetTypes.Add(target, targetDesc);
+    }
+    
+    private static void EnsureBothOfTypesAreNotObject(Type source, Type target)
+    {
+      if (source==typeof (object) || target==typeof (object))
+        throw new InvalidOperationException(
+          String.Format(Strings.ExTypeXCanNotBeTransformed, typeof (object)));
     }
 
     #endregion

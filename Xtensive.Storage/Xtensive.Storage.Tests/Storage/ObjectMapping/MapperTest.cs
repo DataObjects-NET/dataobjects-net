@@ -277,8 +277,9 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     {
       PersonalProductDto productDto;
       var mapping = new MappingBuilder()
-        .MapType<PersonalProduct, PersonalProductDto, string>(p => p.Key.Format(), p => p.Key)
-        .MapType<Employee, EmployeeDto, string>(e => e.Key.Format(), e => e.Key).Build();
+        .MapType<Entity, IdentifiableDto, string>(p => p.Key.Format(), p => p.Key)
+        .Inherit<IdentifiableDto, PersonalProduct, PersonalProductDto>()
+        .Inherit<IdentifiableDto, Employee, EmployeeDto>().Build();
       mapper = new Mapper(mapping);
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {

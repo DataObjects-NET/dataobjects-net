@@ -10,10 +10,14 @@ using Xtensive.Storage.ObjectMapping;
 
 namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 {
-  public abstract class AbstractProductDto
+  [Serializable]
+  public abstract class IdentifiableDto
   {
-    public string Key { get; set; }
+    public string Key {get; set; }
+  }
 
+  public abstract class AbstractProductDto : IdentifiableDto
+  {
     public string Name { get; set; }
   }
 
@@ -29,10 +33,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
   }
 
   [Serializable]
-  public abstract class PersonDto
+  public abstract class PersonDto : IdentifiableDto
   {
-    public string Key { get; set; }
-
     public string Name { get; set; }
   }
 
@@ -53,10 +55,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
   }
 
   [Serializable]
-  public class PublisherDto
+  public class PublisherDto : IdentifiableDto
   {
-    public string Key { get; set; }
-
     public string Trademark { get; set; }
 
     public HashSet<BookShopDto> Distributors { get; set; }
@@ -65,10 +65,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
   }
 
   [Serializable]
-  public class BookShopDto
+  public class BookShopDto : IdentifiableDto
   {
-    public string Key { get; set; }
-
     public string Url { get; set; }
 
     public string Name { get; set; }
@@ -81,10 +79,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
   {}
 
   [Serializable]
-  public class ApartmentDto
+  public class ApartmentDto : IdentifiableDto
   {
-    public string Key { get; set; }
-
     public SimplePersonDto Person { get; set; }
 
     public AddressDto Address { get; set; }
