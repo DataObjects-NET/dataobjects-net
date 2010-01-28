@@ -75,9 +75,26 @@ namespace Xtensive.Core.Tests.ObjectMapping
     [Test]
     public void ReportFailWhenObjectPropertyFoundTest()
     {
-      var builder = new MappingBuilder()
-        .MapType<ObjectContainer, ObjectContainerDto, Guid>(oc => oc.Id, oc => oc.Id);
+      /*var mapping = new MappingBuilder()
+        .MapType<ObjectContainer, ObjectContainerDto>()
+          .IgnoreProperty(oc => oc.Object)
+          .IgnoreProperty(oc => oc.ObjectCollection).Build();
+      Assert.IsNotNull(mapping);
+      var builder = new MappingBuilder<IEntity, IHasIdentifier, Guid>(s => s.Id, t => t.Id)
+        .MapType<ObjectContainer, ObjectContainerDto>();
       AssertEx.ThrowsInvalidOperationException(() => builder.Build());
+      builder = new MappingBuilder<IEntity, IHasIdentifier, Guid>(s => s.Id, t => t.Id)
+        .MapType<ObjectContainer, ObjectContainerDto>()
+          .IgnoreProperty(oc => oc.Object);
+      AssertEx.ThrowsInvalidOperationException(() => builder.Build());
+      builder = new MappingBuilder<IEntity, IHasIdentifier, Guid>(s => s.Id, t => t.Id)
+        .MapType<ObjectContainer, ObjectContainerDto>()
+          .IgnoreProperty(oc => oc.ObjectCollection);
+      AssertEx.ThrowsInvalidOperationException(() => builder.Build());
+      AssertEx.ThrowsInvalidOperationException(
+        () => new MappingBuilder<IEntity, IHasIdentifier, Guid>(s => s.Id, t => t.Id)
+          .MapType<ObjectContainer, ObjectContainerDto>()
+          .MapStructure<object, AccessRightDto>());*/
     }
 
     private static MappingDescription GetPetOwnerMapping()
