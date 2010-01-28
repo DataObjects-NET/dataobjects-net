@@ -12,7 +12,7 @@ namespace Xtensive.Storage
   /// Defines secondary index.
   /// </summary>
   /// <example>
-  ///   <code lang="cs" source="..\..\Xtensive.Storage\Xtensive.Storage.Manual\Attributes\AttributesTest.cs" region="Model" />
+  ///   <code lang="cs" source="..\Xtensive.Storage\Xtensive.Storage.Manual\Attributes\AttributesTest.cs" region="Model" />
   /// </example>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true, Inherited = false)]

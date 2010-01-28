@@ -178,12 +178,16 @@ namespace Xtensive.Storage.Building.Builders
             continue;
           if (keyProviderInfo.KeyGeneratorType == typeof(KeyGenerator)) {
             keyGenerator = generatorFactory.CreateGenerator(keyProviderInfo);
+            // In addition, we create local key generator here
+            // TODO: Refactor this code
             var localKeyGenerator = localGeneratorFactory.CreateGenerator(keyProviderInfo);
+            localKeyGenerator.Handlers = handlerAccessor;
             localKeyGenerator.Initialize();
             localKeyGenerators.Register(keyProviderInfo, keyGenerator);
           }
           else
             keyGenerator = (KeyGenerator)Activator.CreateInstance(keyProviderInfo.KeyGeneratorType, new object[] { keyProviderInfo });
+          keyGenerator.Handlers = handlerAccessor;
           keyGenerator.Initialize();
           keyGenerators.Register(keyProviderInfo, keyGenerator);
         }

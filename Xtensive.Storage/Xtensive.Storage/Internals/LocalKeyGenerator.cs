@@ -15,7 +15,8 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Internals
 {
   /// <summary>
-  /// Generator that provides nonoverlapping sequence of <see cref="IncrementalKeyGenerator{TFieldType}"/>'s sequence of numeric values.
+  /// Generator that provides non-overlapping sequence to
+  /// <see cref="IncrementalKeyGenerator{TFieldType}"/>'s sequence of numeric values.
   /// </summary>
   /// <typeparam name="TFieldType">The type of the field.</typeparam>
   public class LocalKeyGenerator<TFieldType> : KeyGenerator
@@ -33,10 +34,10 @@ namespace Xtensive.Storage.Internals
     public override Tuple Next()
     {
       var result = tuplePrototype.CreateNew();
-      LockType.Exclusive.Execute(_lock, () => {
+      lock (_lock) {
         current = Arithmetic.Subtract(current, Arithmetic.One);
-        result.SetValue(0, current);
-      });
+      };
+      result.SetValue(0, current);
       return result;
     }
 

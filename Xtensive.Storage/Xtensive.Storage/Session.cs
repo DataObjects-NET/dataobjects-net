@@ -45,7 +45,7 @@ namespace Xtensive.Storage
   /// </para>
   /// </remarks>
   /// <example>
-  /// <code lang="cs" source="..\..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Session sample"></code>
+  /// <code lang="cs" source="..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Session sample"></code>
   /// </example>
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />

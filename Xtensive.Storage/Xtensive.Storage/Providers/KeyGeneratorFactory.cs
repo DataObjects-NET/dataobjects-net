@@ -60,7 +60,6 @@ namespace Xtensive.Storage.Providers
       }
       if (result == null)
         throw new ArgumentOutOfRangeException(string.Format(Resources.Strings.ExTypeXIsNotSupported, fieldType.GetShortName()));
-      result.Handlers = Handlers;
       return result;
     }
     

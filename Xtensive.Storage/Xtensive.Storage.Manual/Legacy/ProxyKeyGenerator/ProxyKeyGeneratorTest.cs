@@ -1,0 +1,123 @@
+// Copyright (C) 2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alex Yakunin
+// Created:    2010.01.28
+
+using System;
+using NUnit.Framework;
+using Xtensive.Storage.Configuration;
+using Xtensive.Core.Collections;
+
+namespace Xtensive.Storage.Manual.Legacy.ProxyKeyGenerator
+{
+  #region Model
+
+  [Serializable]
+  [HierarchyRoot]
+  public class Author : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field(Length = 200)]
+    public string Name { get; set; }
+
+    [Field]
+    public EntitySet<Book> Books { get; private set; }
+
+    public override string ToString()
+    {
+      return Name;
+    }
+
+    // Constructors
+
+    public Author()
+    {
+    }
+
+    public Author(int id)
+      : base(id)
+    {
+    }
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  [KeyGenerator(typeof(ProxyKeyGenerator<Book, Author>))]
+  public class Book : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field(Length = 200)]
+    public string Name { get; set; }
+
+    [Field]
+    [Association(PairTo = "Books")]
+    public EntitySet<Author> Authors { get; private set; }
+
+    public override string ToString()
+    {
+      return string.Format("{0} by {1}",
+        Name, Authors.ToCommaDelimitedString());
+    }
+
+    // Constructors
+
+    public Book()
+    {
+    }
+
+    public Book(int id)
+      : base(id)
+    {
+    }
+  }
+
+  #endregion
+
+  [TestFixture]
+  public class ProxyKeyGeneratorTest
+  {
+    [Test]
+    public void CombinedTest()
+    {
+      // Creating new Domain configuration
+      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
+        UpgradeMode = DomainUpgradeMode.Recreate
+      };
+      // Registering all types in the specified assembly and namespace
+      config.Types.Register(typeof (Author).Assembly, typeof(Author).Namespace);
+      // And finally building the domain
+      var domain = Domain.Build(config);
+
+      using (Session.Open(domain)) {
+        using (var transactionScope = Transaction.Open()) {
+
+          // Creating two authors
+          var joseph = new Author {Name = "Joseph Albahari"};
+          var ben    = new Author {Name = "Ben Albahari"};
+          
+          // Creating the Book book with book.Id = joseph.Id
+          var book = new Book(joseph.Id) {Name = "C# 4.0 in a Nutshell"};
+          book.Authors.Add(joseph);
+          book.Authors.Add(ben);
+
+          // Testing ProxyKeyGenerator
+          Assert.AreSame(joseph, Query.SingleOrDefault(joseph.Key));
+          Assert.AreSame(ben, Query.SingleOrDefault(ben.Key));
+          // Must fail, if [KeyGenerator(typeof(ProxyKeyGenerator<Book, Author>))]
+          // line is commented
+          Assert.AreSame(book, Query.SingleOrDefault(book.Key));
+
+          // Let's finally print the Book 
+          Console.WriteLine(book);
+
+          transactionScope.Complete();
+        }
+      }
+    }
+  }
+}

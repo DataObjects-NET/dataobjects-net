@@ -232,7 +232,7 @@ namespace Xtensive.Core.Collections
       foreach (var item in source) {
         if (insertDelimiter)
           sb.Append(delimiter);
-        sb.Append(item.ToString());
+        sb.Append(item);
         insertDelimiter = true;
       }
       return sb.ToString();
@@ -254,7 +254,7 @@ namespace Xtensive.Core.Collections
       foreach (object item in source) {
         if (insertDelimiter)
           sb.Append(separator);
-        sb.Append(item.ToString());
+        sb.Append(item);
         insertDelimiter = true;
       }
       return sb.ToString();
