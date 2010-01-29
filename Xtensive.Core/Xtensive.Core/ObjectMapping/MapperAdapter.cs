@@ -33,7 +33,7 @@ namespace Xtensive.Core.ObjectMapping
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var propertyInfo = MappingHelper.ExtractProperty(target, "target");
-      realBuilder.Ignore(propertyInfo);
+      realBuilder.IgnoreProperty(propertyInfo);
       return this;
     }
 
@@ -70,37 +70,37 @@ namespace Xtensive.Core.ObjectMapping
     }
 
     /// <inheritdoc/>
-    public IMappingBuilderAdapter<THeirSource, THeirTarget> Inherit<TTargetBase, THeirSource, THeirTarget>()
-      where THeirTarget: TTargetBase
+    public IMappingBuilderAdapter<TDescendantSource, TDescendantTarget> Inherit<TTargetBase, TDescendantSource, TDescendantTarget>()
+      where TDescendantTarget: TTargetBase
     {
-      return RegisterHeir<TTargetBase, THeirSource, THeirTarget>(null);
+      return RegisterDescendant<TTargetBase, TDescendantSource, TDescendantTarget>(null);
     }
 
     /// <inheritdoc/>
-    public IMappingBuilderAdapter<THeirSource, THeirTarget> Inherit<TTargetBase, THeirSource, THeirTarget>(
-      Func<THeirTarget, object[]> generatorArgumentsProvider)
-      where THeirTarget: TTargetBase
+    public IMappingBuilderAdapter<TDescendantSource, TDescendantTarget> Inherit<TTargetBase, TDescendantSource, TDescendantTarget>(
+      Func<TDescendantTarget, object[]> generatorArgumentsProvider)
+      where TDescendantTarget: TTargetBase
     {
       ArgumentValidator.EnsureArgumentNotNull(generatorArgumentsProvider, "generatorArgumentsProvider");
-      return RegisterHeir<TTargetBase, THeirSource, THeirTarget>(generatorArgumentsProvider);
+      return RegisterDescendant<TTargetBase, TDescendantSource, TDescendantTarget>(generatorArgumentsProvider);
     }
 
     /// <inheritdoc/>
     public MappingDescription Build()
     {
-      return realBuilder.Complete();
+      return realBuilder.Build();
     }
 
-    private IMappingBuilderAdapter<THeirSource, THeirTarget> RegisterHeir<TTargetBase, THeirSource, THeirTarget>(
-      Func<THeirTarget, object[]> generatorArgumentsProvider)
-      where THeirTarget: TTargetBase
+    private IMappingBuilderAdapter<TDescendantSource, TDescendantTarget> RegisterDescendant<TTargetBase, TDescendantSource, TDescendantTarget>(
+      Func<TDescendantTarget, object[]> generatorArgumentsProvider)
+      where TDescendantTarget: TTargetBase
     {
       var adaptedArgumentsProvider = generatorArgumentsProvider!=null
-        ? (Func<object, object[]>) (target => generatorArgumentsProvider.Invoke((THeirTarget) target))
+        ? (Func<object, object[]>) (target => generatorArgumentsProvider.Invoke((TDescendantTarget) target))
         : null;
-      realBuilder.RegisterHeir(typeof (TTargetBase), typeof (THeirSource), typeof (THeirTarget),
+      realBuilder.RegisterDescendant(typeof (TTargetBase), typeof (TDescendantSource), typeof (TDescendantTarget),
         adaptedArgumentsProvider);
-      return new MapperAdapter<THeirSource, THeirTarget>(realBuilder);
+      return new MapperAdapter<TDescendantSource, TDescendantTarget>(realBuilder);
     }
 
     // Constructors

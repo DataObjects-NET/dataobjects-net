@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -218,12 +217,12 @@ namespace Xtensive.Storage.Manual.ObjectMapper
 
       // For a new object we must provide the key that is unique among all object keys 
       // in both of original and modified graphs
-      var newFreindDto = new UserDto {Key = Guid.NewGuid().ToString()};
-      newFreindDto.Name = "John Smith";
-      newFreindDto.PersonalPage = new WebPageDto {
+      var newFriendDto = new UserDto {Key = Guid.NewGuid().ToString()};
+      newFriendDto.Name = "John Smith";
+      newFriendDto.PersonalPage = new WebPageDto {
         Key = Guid.NewGuid().ToString(), Title = "DataObjects.Net", Url = "http://www.dataobjects.net"
       };
-      userDto.Friends.Add(newFreindDto);
+      userDto.Friends.Add(newFriendDto);
       userDto.PersonalPage.Title = "New title";
 
       // Replace the object
@@ -245,7 +244,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       }
 
       // Validation
-      ValidateMainTest(domain, userDto, newFreindDto);
+      ValidateMainTest(domain, userDto, newFriendDto);
     }
 
     [Test]

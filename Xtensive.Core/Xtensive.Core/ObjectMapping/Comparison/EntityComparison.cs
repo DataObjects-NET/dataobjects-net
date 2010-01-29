@@ -10,7 +10,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
   {
     public void Compare(object original, object modified)
     {
-      var description = GraphComparer.MappingDescription.TargetTypes[modified.GetType()];
+      var description = GraphComparer.MappingDescription.GetTargetTypeDescription(modified.GetType());
       using (GraphComparer.ComparisonInfo.SaveState()) {
         GraphComparer.ComparisonInfo.Owner = original;
         CompareComplexProperties(original, modified, description);

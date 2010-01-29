@@ -162,7 +162,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       }
     }
 
-    internal void Ignore(PropertyInfo propertyInfo)
+    internal void IgnoreProperty(PropertyInfo propertyInfo)
     {
       this.EnsureNotLocked();
       var targetType = targetTypes[propertyInfo.ReflectedType];

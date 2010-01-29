@@ -97,11 +97,11 @@ namespace Xtensive.Core.ObjectMapping
         TrackChanges(target, false);
     }
 
-    internal void RegisterHeir(Type targetBase, Type source, Type target,
+    internal void RegisterDescendant(Type targetBase, Type source, Type target,
       Func<object, object[]> instanceGenerator)
     {
       mappingDescription.EnsureTargetTypeIsRegistered(targetBase);
-      var targetBaseDescription = mappingDescription.TargetTypes[targetBase];
+      var targetBaseDescription = mappingDescription.GetTargetTypeDescription(targetBase);
       if (!targetBaseDescription.SourceType.SystemType.IsAssignableFrom(source))
         throw new ArgumentException(String.Format(Strings.ExTypeXIsNotSubclassOfTypeY, source,
           targetBaseDescription.SourceType.SystemType));
@@ -109,9 +109,9 @@ namespace Xtensive.Core.ObjectMapping
         targetBaseDescription.KeyExtractor, instanceGenerator);
     }
 
-    internal void Ignore(PropertyInfo propertyInfo)
+    internal void IgnoreProperty(PropertyInfo propertyInfo)
     {
-      mappingDescription.Ignore(propertyInfo);
+      mappingDescription.IgnoreProperty(propertyInfo);
     }
 
     internal void TrackChanges(PropertyInfo propertyInfo, bool isEnabled)
@@ -119,7 +119,7 @@ namespace Xtensive.Core.ObjectMapping
       mappingDescription.TrackChanges(propertyInfo, isEnabled);
     }
 
-    internal MappingDescription Complete()
+    internal MappingDescription Build()
     {
       mappingDescription.EnsureNotLocked();
       mappingDescription.RegisterDefaultPrimitiveTypes();
@@ -207,7 +207,7 @@ namespace Xtensive.Core.ObjectMapping
             descendantSystemProperty);
         }
         if (property.IsIgnored)
-          mappingDescription.Ignore(descendantSystemProperty);
+          mappingDescription.IgnoreProperty(descendantSystemProperty);
         mappingDescription.TrackChanges(descendantSystemProperty, !property.IsChangeTrackingDisabled);
       }
     }
@@ -312,36 +312,6 @@ namespace Xtensive.Core.ObjectMapping
         return GenerateCollectionCacheItem(property.SystemProperty);
       return null;
     }
-    
-    /*private void SetPropertyAttributes(PropertyDescription property)
-    {
-      Pair<Type, MemberInfoCacheEntry>? cacheItem = null;
-      Pair<Type, MemberInfoCacheEntry> foundItem;
-      if (collectionTypes.TryGetValue(property.SystemProperty.PropertyType, out foundItem))
-        cacheItem = foundItem;
-      else if (property.SystemProperty.PropertyType.IsArray)
-        cacheItem = GenerateArrayCacheItem(property.SystemProperty);
-      else if (MappingHelper.IsCollectionCandidate(property.SystemProperty.PropertyType))
-        cacheItem = GenerateCollectionCacheItem(property.SystemProperty);
-      if (cacheItem!=null) {
-        property.IsCollection = true;
-        if (property is TargetPropertyDescription) {
-          var targetProperty = ((TargetPropertyDescription) property);
-          targetProperty.ValueType =
-            mappingDescription.GetTargetTypeDescription(cacheItem.Value.First);
-        }
-        property.CountProperty = cacheItem.Value.Second.Count;
-        property.AddMethod = cacheItem.Value.Second.Add;
-      }
-      else if (property is TargetPropertyDescription) {
-        var propertyType = property.SystemProperty.PropertyType;
-        var targetProperty = (TargetPropertyDescription) property;
-        if (propertyType.IsEnum)
-          targetProperty.ValueType = GetEnumDescription(propertyType);
-        else
-          targetProperty.ValueType = mappingDescription.GetTargetTypeDescription(propertyType);
-      }
-    }*/
 
     private TargetTypeDescription GetEnumDescription(Type propertyType)
     {

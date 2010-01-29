@@ -47,30 +47,30 @@ namespace Xtensive.Core.ObjectMapping
       bool isEnabled);
 
     /// <summary>
-    /// Registers mapping from the <typeparamref name="THeirSource"/>
-    /// to the <typeparamref name="THeirTarget"/>.
+    /// Registers mapping from the <typeparamref name="TDescendantSource"/>
+    /// to the <typeparamref name="TDescendantTarget"/>.
     /// </summary>
-    /// <typeparam name="TTargetBase">The ancestor of the <typeparamref name="THeirTarget"/>.</typeparam>
-    /// <typeparam name="THeirSource">The source type.</typeparam>
-    /// <typeparam name="THeirTarget">The target type.</typeparam>
+    /// <typeparam name="TTargetBase">The ancestor of the <typeparamref name="TDescendantTarget"/>.</typeparam>
+    /// <typeparam name="TDescendantSource">The source type.</typeparam>
+    /// <typeparam name="TDescendantTarget">The target type.</typeparam>
     /// <returns>A new instance of helper class.</returns>
-    IMappingBuilderAdapter<THeirSource, THeirTarget> Inherit<TTargetBase, THeirSource, THeirTarget>()
-      where THeirTarget: TTargetBase;
+    IMappingBuilderAdapter<TDescendantSource, TDescendantTarget> Inherit<TTargetBase, TDescendantSource, TDescendantTarget>()
+      where TDescendantTarget: TTargetBase;
 
     /// <summary>
-    /// Registers mapping from the <typeparamref name="THeirSource"/>
-    /// to the <typeparamref name="THeirTarget"/>.
+    /// Registers mapping from the <typeparamref name="TDescendantSource"/>
+    /// to the <typeparamref name="TDescendantTarget"/>.
     /// </summary>
-    /// <typeparam name="TTargetBase">The ancestor of the <typeparamref name="THeirTarget"/>.</typeparam>
-    /// <typeparam name="THeirSource">The source type.</typeparam>
-    /// <typeparam name="THeirTarget">The target type.</typeparam>
+    /// <typeparam name="TTargetBase">The ancestor of the <typeparamref name="TDescendantTarget"/>.</typeparam>
+    /// <typeparam name="TDescendantSource">The source type.</typeparam>
+    /// <typeparam name="TDescendantTarget">The target type.</typeparam>
     /// <param name="generatorArgumentsProvider">The provider of arguments for an
     /// algorithm of a new source object creation. For example, it can provide arguments for a custom
     /// constructor or a key generator.</param>
     /// <returns>A new instance of helper class.</returns>
-    IMappingBuilderAdapter<THeirSource, THeirTarget> Inherit<TTargetBase, THeirSource, THeirTarget>(
-      Func<THeirTarget, object[]> generatorArgumentsProvider)
-      where THeirTarget: TTargetBase;
+    IMappingBuilderAdapter<TDescendantSource, TDescendantTarget> Inherit<TTargetBase, TDescendantSource, TDescendantTarget>(
+      Func<TDescendantTarget, object[]> generatorArgumentsProvider)
+      where TDescendantTarget: TTargetBase;
 
     /// <summary>
     /// Completes creation of the mapping.
