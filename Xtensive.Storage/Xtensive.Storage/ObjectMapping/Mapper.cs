@@ -64,9 +64,8 @@ namespace Xtensive.Storage.ObjectMapping
           operationInfo.Value);
       }
       else {
-        var newDtoKey = MappingDescription.ExtractTargetKey(operationInfo.Value);
-        operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
-          keyMapping[newDtoKey]);
+        var key = ExtractKey(operationInfo.Value);
+        operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo, key);
       }
       return operation;
     }
@@ -97,12 +96,12 @@ namespace Xtensive.Storage.ObjectMapping
       Dictionary<object, object> modifiedObjects)
     {
       Dictionary<object, object> formattedKeyMapping = null;
-      if (keyMapping!=null) {
+      if (keyMapping!=null && keyMapping.Count > 0) {
         formattedKeyMapping = keyMapping.Select(pair => new {pair.Key, Value = pair.Value.Format()})
           .ToDictionary(pair => pair.Key, pair => (object) pair.Value);
         keyMapping.Clear();
       }
-      var result = new GraphComparisonResult(modifiedObjects, comparisonResult,
+      var result = new GraphComparisonResult(originalObjects, modifiedObjects, comparisonResult,
         formattedKeyMapping!=null ? new ReadOnlyDictionary<object, object>(formattedKeyMapping, false) : null);
       session = null;
       comparisonResult = null;

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Disposing;
 using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage.ObjectMapping
@@ -20,8 +21,9 @@ namespace Xtensive.Storage.ObjectMapping
   public sealed class GraphComparisonResult : Core.ObjectMapping.GraphComparisonResult,
     IDisposable
   {
+    private readonly Dictionary<object, object> original;
     private readonly Dictionary<object, object> modified;
-    private readonly BinaryFormatter formatter = new BinaryFormatter();
+    private BinaryFormatter formatter;
     private MemoryStream stream;
     private Dictionary<Key, VersionInfo> deserializedVersions = new Dictionary<Key, VersionInfo>();
 
@@ -32,13 +34,16 @@ namespace Xtensive.Storage.ObjectMapping
     
     private VersionInfo GetVersionInfo(Key key)
     {
-      if (stream==null)
+      if (stream==null) {
         stream = new MemoryStream(1024);
+        formatter = new BinaryFormatter();
+      }
       VersionInfo result;
         if (!deserializedVersions.TryGetValue(key, out result)) {
           var keyString = key.Format();
           object foundObject;
-          if (modified.TryGetValue(keyString, out foundObject)) {
+          if (modified.TryGetValue(keyString, out foundObject)
+            || original.TryGetValue(keyString, out foundObject)) {
             var version = ((IHasVersion) foundObject).Version;
             stream.SetLength(version.Length);
             stream.Seek(0, SeekOrigin.Begin);
@@ -53,10 +58,11 @@ namespace Xtensive.Storage.ObjectMapping
         return result;
     }
 
-    internal GraphComparisonResult(Dictionary<object, object> modified, OperationSet operations,
-      ReadOnlyDictionary<object, object> keyMapping)
+    internal GraphComparisonResult(Dictionary<object, object> original, Dictionary<object, object> modified,
+      OperationSet operations, ReadOnlyDictionary<object, object> keyMapping)
       : base(operations, keyMapping)
     {
+      this.original = original;
       this.modified = modified;
       VersionInfoProvider = GetVersionInfo;
     }
@@ -64,7 +70,7 @@ namespace Xtensive.Storage.ObjectMapping
     /// <inheritdoc/>
     public void Dispose()
     {
-      stream.Dispose();
+      stream.DisposeSafely();
       deserializedVersions = null;
     }
   }

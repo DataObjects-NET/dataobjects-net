@@ -304,5 +304,7 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
     public int Int { get; set; }
 
     public object Object { get; set; }
+
+    public List<object> ObjectCollection { get; set; }
   }
 }

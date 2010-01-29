@@ -107,7 +107,6 @@ namespace Xtensive.Core.ObjectMapping
           targetBaseDescription.SourceType.SystemType));
       mappingDescription.Register(source, targetBaseDescription.SourceType.KeyExtractor, target,
         targetBaseDescription.KeyExtractor, instanceGenerator);
-      var targetDescription = mappingDescription.TargetTypes[target];
     }
 
     internal void Ignore(PropertyInfo propertyInfo)
@@ -239,16 +238,17 @@ namespace Xtensive.Core.ObjectMapping
       }
     }
 
-    private void BindToSource(TargetTypeDescription targetType,
-      TargetPropertyDescription propertyDescription)
+    private void BindToSource(TargetTypeDescription targetType, TargetPropertyDescription property)
     {
-      SetPropertyAttributes(propertyDescription);
-      if (propertyDescription.Converter == null && !propertyDescription.IsIgnored) {
+      if (property.IsIgnored)
+        return;
+      SetAttributes(property);
+      if (property.Converter == null) {
         var sourceProperty = targetType.SourceType.SystemType
-          .GetProperty(propertyDescription.SystemProperty.Name);
-        propertyDescription.SourceProperty = AddSourceDescription(targetType.SourceType, sourceProperty);
-        if (propertyDescription.ValueType.ObjectKind==ObjectKind.Primitive)
-          propertyDescription.Converter = DefaultPrimitiveConverter;
+          .GetProperty(property.SystemProperty.Name);
+        property.SourceProperty = AddSourceDescription(targetType.SourceType, sourceProperty);
+        if (property.ValueType.ObjectKind==ObjectKind.Primitive)
+          property.Converter = DefaultPrimitiveConverter;
       }
     }
 
@@ -263,19 +263,57 @@ namespace Xtensive.Core.ObjectMapping
       }
     }
 
-    private SourcePropertyDescription AddSourceDescription(SourceTypeDescription sourceType,
+    private static SourcePropertyDescription AddSourceDescription(SourceTypeDescription sourceType,
       PropertyInfo property)
     {
       PropertyDescription result;
       if (sourceType.Properties.TryGetValue(property, out result))
         return (SourcePropertyDescription) result;
-      var propertyDesc = new SourcePropertyDescription(property, sourceType);
-      SetPropertyAttributes(propertyDesc);
-      sourceType.AddProperty(propertyDesc);
-      return propertyDesc;
+      var propertyDescription = new SourcePropertyDescription(property, sourceType);
+      var cacheItem = TryGetCollectionTypeMembersInfo(propertyDescription);
+      if (cacheItem!=null)
+        SetCollectionAttributes(propertyDescription, cacheItem.Value.Second);
+      sourceType.AddProperty(propertyDescription);
+      return propertyDescription;
     }
 
-    private void SetPropertyAttributes(PropertyDescription property)
+    private void SetAttributes(TargetPropertyDescription property)
+    {
+      var cacheItem = TryGetCollectionTypeMembersInfo(property);
+      if (cacheItem!=null) {
+        SetCollectionAttributes(property, cacheItem.Value.Second);
+        property.ValueType = mappingDescription.GetTargetTypeDescription(cacheItem.Value.First);
+      }
+      else {
+        var propertyType = property.SystemProperty.PropertyType;
+        property.ValueType = propertyType.IsEnum
+          ? GetEnumDescription(propertyType)
+          : mappingDescription.GetTargetTypeDescription(propertyType);
+      }
+    }
+
+    private static void SetCollectionAttributes(PropertyDescription property,
+      MemberInfoCacheEntry memberInfoEntry)
+    {
+      property.IsCollection = true;
+      property.CountProperty = memberInfoEntry.Count;
+      property.AddMethod = memberInfoEntry.Add;
+    }
+    
+    private static Pair<Type, MemberInfoCacheEntry>? TryGetCollectionTypeMembersInfo(
+      PropertyDescription property)
+    {
+      Pair<Type, MemberInfoCacheEntry> foundItem;
+      if (collectionTypes.TryGetValue(property.SystemProperty.PropertyType, out foundItem))
+        return foundItem;
+      if (property.SystemProperty.PropertyType.IsArray)
+        return GenerateArrayCacheItem(property.SystemProperty);
+      if (MappingHelper.IsCollectionCandidate(property.SystemProperty.PropertyType))
+        return GenerateCollectionCacheItem(property.SystemProperty);
+      return null;
+    }
+    
+    /*private void SetPropertyAttributes(PropertyDescription property)
     {
       Pair<Type, MemberInfoCacheEntry>? cacheItem = null;
       Pair<Type, MemberInfoCacheEntry> foundItem;
@@ -303,7 +341,7 @@ namespace Xtensive.Core.ObjectMapping
         else
           targetProperty.ValueType = mappingDescription.GetTargetTypeDescription(propertyType);
       }
-    }
+    }*/
 
     private TargetTypeDescription GetEnumDescription(Type propertyType)
     {

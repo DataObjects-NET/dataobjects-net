@@ -329,7 +329,9 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 
     public object Object { get; set; }
 
-
+    public List<object> ObjectCollection { get; set; }
+    
+    
     // Constructors
 
     public ObjectContainer()
