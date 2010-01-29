@@ -216,7 +216,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       // Modify the DTO graph
 
       // For a new object we must provide the key that is unique among all object keys 
-      // in both of original and modified graphs
+      // in both original and modified graphs
       var newFriendDto = new UserDto {Key = Guid.NewGuid().ToString()};
       newFriendDto.Name = "John Smith";
       newFriendDto.PersonalPage = new WebPageDto {
