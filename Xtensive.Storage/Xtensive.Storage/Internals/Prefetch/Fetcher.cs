@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 
@@ -19,33 +20,35 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private readonly PrefetchManager manager;
 
-    public void ExecuteTasks(SetSlim<GraphContainer> containers)
+    public void ExecuteTasks(IEnumerable<GraphContainer> containers, PersistReason persistReason)
     {
       try {
-        foreach (var container in containers)
-          if (container.RootEntityContainer!=null)
-            AddTask(container.RootEntityContainer);
+        var rootEntityContainers = containers
+          .Where(container => container.RootEntityContainer!=null)
+          .Select(container => container.RootEntityContainer);
+        foreach (var container in rootEntityContainers)
+          AddTask(container);
         RegisterAllEntityGroupTasks();
         RegisterAllEntitySetTasks(containers);
 
-        manager.Owner.Session.ExecuteAllDelayedQueries();
+        manager.Owner.Session.ExecuteAllDelayedQueries(persistReason);
         UpdateCacheFromAllEntityGroupTasks();
         UpdateCacheFromAllEntitySetTasks(containers);
 
         tasks.Clear();
-        
-        foreach (var container in containers) {
-          var referencedEntityPrefetchContainers = container.ReferencedEntityContainers;
-          if (referencedEntityPrefetchContainers!=null)
-            foreach (var referencedEntityPrefetchContainer in referencedEntityPrefetchContainers)
-              AddTask(referencedEntityPrefetchContainer);
-        }
+
+        var referencedEntityContainers = containers
+          .Select(container => container.ReferencedEntityContainers)
+          .Where(referencedEntityPrefetchContainers => referencedEntityPrefetchContainers!=null)
+          .SelectMany(referencedEntityPrefetchContainers => referencedEntityPrefetchContainers);
+        foreach (var container in referencedEntityContainers)
+          AddTask(container);
 
         if (tasks.Count == 0)
           return;
         RegisterAllEntityGroupTasks();
 
-        manager.Owner.Session.ExecuteAllDelayedQueries();
+        manager.Owner.Session.ExecuteAllDelayedQueries(persistReason);
         UpdateCacheFromAllEntityGroupTasks();
       }
       finally {

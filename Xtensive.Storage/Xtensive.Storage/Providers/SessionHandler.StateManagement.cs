@@ -63,9 +63,9 @@ namespace Xtensive.Storage.Providers
       if (entityState!=null) {
         var entity = entityState.Entity;
         if (entity!=null) {
-          var state = entity.GetFieldValue<EntitySetBase>(fieldInfo).State;
-          if (state.IsLoaded) {
-            entitySetState = state;
+          var entitySet = entity.GetFieldValue<EntitySetBase>(fieldInfo);
+          if (entitySet.CheckStateIsLoaded()) {
+            entitySetState = entitySet.State;
             return true;
           }
         }

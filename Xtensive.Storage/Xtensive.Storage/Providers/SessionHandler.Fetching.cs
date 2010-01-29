@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.19
 
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 
@@ -32,11 +33,12 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Executes registered prefetch tasks.
     /// </summary>
+    /// <param name="persistReason">Persist reason.</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save 
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
-    public virtual StrongReferenceContainer ExecutePrefetchTasks()
+    public virtual StrongReferenceContainer ExecutePrefetchTasks(PersistReason persistReason)
     {
-      return prefetchManager.ExecuteTasks();
+      return prefetchManager.ExecuteTasks(persistReason);
     }
 
     /// <summary>
@@ -49,7 +51,7 @@ namespace Xtensive.Storage.Providers
       var type = key.TypeRef.Type;
       prefetchManager.Prefetch(key, type,
         PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type));
-      prefetchManager.ExecuteTasks();
+      prefetchManager.ExecuteTasks(PersistReason.None);
       EntityState result;
       return TryGetEntityState(key, out result) ? result : null;
     }
@@ -64,7 +66,7 @@ namespace Xtensive.Storage.Providers
       var type = key.TypeRef.Type;
       prefetchManager.Prefetch(key, type,
         new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, false, false)));
-      prefetchManager.ExecuteTasks();
+      prefetchManager.ExecuteTasks(PersistReason.None);
     }
 
     /// <summary>
@@ -77,7 +79,7 @@ namespace Xtensive.Storage.Providers
       var ownerType = ownerKey.TypeRef.Type;
       Session.Handler.Prefetch(ownerKey, ownerType,
         new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, itemCountLimit)));
-      Session.Handler.ExecutePrefetchTasks();
+      Session.Handler.ExecutePrefetchTasks(PersistReason.Query);
     }
   }
 }

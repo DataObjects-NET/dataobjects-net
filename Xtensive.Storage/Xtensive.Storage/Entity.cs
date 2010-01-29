@@ -118,7 +118,7 @@ namespace Xtensive.Storage
         }
         if (columnsToPrefetch!=null) {
           Session.Handler.Prefetch(Key, Type, new FieldDescriptorCollection(columnsToPrefetch));
-          Session.Handler.ExecutePrefetchTasks();
+          Session.Handler.ExecutePrefetchTasks(PersistReason.None);
         }
         var versionTuple = Type.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
         return new VersionInfo(versionTuple);

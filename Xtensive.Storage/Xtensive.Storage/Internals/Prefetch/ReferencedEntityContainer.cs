@@ -35,9 +35,14 @@ namespace Xtensive.Storage.Internals.Prefetch
 
       EntityState ownerState;
       var isStateCached = Manager.Owner.TryGetEntityState(ownerKey, out ownerState);
-      if (isStateCached
-        && (ownerState.Tuple==null || ownerState.PersistenceState==PersistenceState.Removed))
-        return null;
+      if (isStateCached) {
+        if (ownerState == null)
+          return null;
+        if (ownerState.Tuple == null)
+          return null;
+        if (ownerState.PersistenceState == PersistenceState.Removed)
+          return null;
+      }
       if (!isStateCached)
         throw new KeyNotFoundException(
           String.Format(Strings.ExReferencingEntityWithKeyXIsNotFound, ownerKey));

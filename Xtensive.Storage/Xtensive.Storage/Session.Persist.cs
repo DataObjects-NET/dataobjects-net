@@ -35,6 +35,8 @@ namespace Xtensive.Storage
 
     private void Persist(PersistReason reason)
     {
+      if (reason == PersistReason.None)
+        return;
       EnsureNotDisposed();
 
       if (IsPersisting || EntityChangeRegistry.Count==0)
@@ -67,7 +69,7 @@ namespace Xtensive.Storage
             itemsToPersist = EntityChangeRegistry;
 
           try {
-            Handler.Persist(itemsToPersist, reason==PersistReason.Query);
+            Handler.Persist(itemsToPersist, reason == PersistReason.Query);
           }
           finally {
             foreach (var item in itemsToPersist.GetItems(PersistenceState.New))

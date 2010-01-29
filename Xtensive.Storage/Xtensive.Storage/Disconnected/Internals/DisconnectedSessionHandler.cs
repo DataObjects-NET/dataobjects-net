@@ -102,6 +102,7 @@ namespace Xtensive.Storage.Disconnected
         entityState = Session.UpdateEntityState(key, tuple, true);
         return true;
       }
+      entityState = null;
       return false;
     }
 
@@ -117,7 +118,7 @@ namespace Xtensive.Storage.Disconnected
       }
 
       // tuple==null && key is not cached || cached entity state is removed
-      if (cachedEntityState==null || cachedEntityState.IsRemoved)
+      if (cachedEntityState==null || cachedEntityState.IsRemoved || cachedEntityState.Tuple == null)
         return Session.UpdateEntityState(key, null, true);
       
       var entityState = Session.UpdateEntityState(cachedEntityState.Key, cachedEntityState.Tuple.Clone(), true);
@@ -146,7 +147,7 @@ namespace Xtensive.Storage.Disconnected
         return true;
       }
       entitySetState = null;
-      return false;
+      return !disconnectedState.IsConnected;
     }
 
     internal override EntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo,
@@ -180,7 +181,7 @@ namespace Xtensive.Storage.Disconnected
         BeginChainedTransaction();
         var type = key.TypeRef.Type;
         Prefetch(key, type, PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(type));
-        ExecutePrefetchTasks();
+        ExecutePrefetchTasks(PersistReason.None);
         EntityState result;
         return TryGetEntityState(key, out result) ? result : null;
       }

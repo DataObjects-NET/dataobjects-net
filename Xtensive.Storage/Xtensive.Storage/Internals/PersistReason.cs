@@ -12,6 +12,10 @@ namespace Xtensive.Storage.Internals
   public enum PersistReason
   {
     /// <summary>
+    /// Persist is not required.
+    /// </summary>
+    None = 0,
+    /// <summary>
     /// Manual persist is requested.
     /// </summary>
     Manual,

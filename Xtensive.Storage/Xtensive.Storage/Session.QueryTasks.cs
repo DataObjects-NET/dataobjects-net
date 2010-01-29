@@ -22,9 +22,9 @@ namespace Xtensive.Storage
       queryTasks.Add(task);
     }
 
-    internal void ExecuteAllDelayedQueries()
+    internal void ExecuteAllDelayedQueries(PersistReason persistReason)
     {
-      Persist(PersistReason.Query);
+      Persist(persistReason);
       ExecuteAllDelayedQueries(false);
     }
 

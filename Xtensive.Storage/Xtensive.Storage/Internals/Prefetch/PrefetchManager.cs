@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       try {
         StrongReferenceContainer prevContainer = null;
         if (graphContainers.Count >= MaxContainerCount)
-          prevContainer = ExecuteTasks();
+          prevContainer = ExecuteTasks(PersistReason.Query);
 
         EnsureKeyTypeCorrespondsToSpecifiedType(key, type);
 
@@ -146,14 +146,14 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
     }
 
-    public StrongReferenceContainer ExecuteTasks()
+    public StrongReferenceContainer ExecuteTasks(PersistReason persistReason)
     {
       if (graphContainers.Count == 0) {
         referenceContainer = null;
         return null;
       }
       try {
-        fetcher.ExecuteTasks(graphContainers);
+        fetcher.ExecuteTasks(graphContainers, persistReason);
         foreach (var graphContainer in graphContainers)
           graphContainer.NotifyAboutExtractionOfKeysWithUnknownType();
         return referenceContainer;
@@ -222,6 +222,10 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       EntityState cachedState;
       if (Owner.TryGetEntityState(key, out cachedState)) {
+        if (cachedState == null) {
+          isRemoved = false;
+          return null;
+        }
         key = cachedState.Key;
         isRemoved = cachedState.PersistenceState==PersistenceState.Removed;
         return cachedState.IsTupleLoaded ? cachedState : null;

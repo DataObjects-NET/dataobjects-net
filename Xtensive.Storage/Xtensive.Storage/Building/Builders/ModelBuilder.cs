@@ -16,7 +16,9 @@ using Xtensive.Core.Threading;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
@@ -87,8 +89,30 @@ namespace Xtensive.Storage.Building.Builders
         BuildAssociations();
         BuildIndexes();
         context.Model.UpdateState(true);
+        BuildPrefetchActions();
       }
     }
+
+    private static void BuildPrefetchActions()
+    {
+      var context = BuildingContext.Current;
+      var model = context.Model;
+      var domain = context.Domain;
+      foreach (var type in context.Model.Types.Entities) {
+//        var associations = model.Associations.Find(type)
+//          .Where(a => a.IsMaster && a.OnOwnerRemove.In(OnRemoveAction.Cascade, OnRemoveAction.Clear) && (a.OwnerType == type || a.IsPaired))
+//          .Select(a => a.OwnerType == type ? a : a.Reversed)
+//          .ToList();
+        var associations = type.GetOwnerAssociations()
+          .Where(a => a.OnOwnerRemove.In(OnRemoveAction.Cascade, OnRemoveAction.Clear))
+          .ToList();
+        if (associations.Count <= 0)
+          continue;
+        var actionContainer = new PrefetchActionContainer(type, associations);
+        var action = actionContainer.BuildPrefetchAction();
+        domain.PrefetchActionMap.Add(type, action);
+      }
+    } 
 
     private static void BuildTypes(IEnumerable<Node<TypeDef>> nodes)
     {

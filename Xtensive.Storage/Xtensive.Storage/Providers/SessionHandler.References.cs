@@ -37,6 +37,7 @@ namespace Xtensive.Storage.Providers
         var recordSet = pair.First;
         var parameter = pair.Second;
         parameter.Value = target.Key.Value;
+        Session.Persist();
         foreach (var item in recordSet.ToEntities(0))
           result.Add(new ReferenceInfo(item, target, association));
       }

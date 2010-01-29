@@ -5,6 +5,7 @@
 // Created:    2007.08.03
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.ConstrainedExecution;
 using Microsoft.Practices.ServiceLocation;
@@ -24,6 +25,7 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Upgrade;
+using TypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage
 {
@@ -86,7 +88,12 @@ namespace Xtensive.Storage
     /// Gets the <see cref="RecordSetReader"/> instance.
     /// </summary>
     internal RecordSetReader RecordSetReader { get; private set; }
-    
+
+    /// <summary>
+    /// Gets the prefetch action map.
+    /// </summary>
+    internal Dictionary<Model.TypeInfo, Action<SessionHandler, IEnumerable<Key>>> PrefetchActionMap { get; private set; }
+
     /// <summary>
     /// Gets the disposing state of the domain.
     /// </summary>
@@ -252,6 +259,7 @@ namespace Xtensive.Storage
         Configuration.QueryCacheSize, k => k.First);
       TemporaryData = new GlobalTemporaryData();
       Modules = modules;
+      PrefetchActionMap = new Dictionary<Model.TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
     }
 
     /// <inheritdoc/>

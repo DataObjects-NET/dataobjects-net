@@ -97,7 +97,6 @@ namespace Xtensive.Storage
     /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
     /// </summary>
     public long Count {
-      [DebuggerStepThrough]
       get {
         EnsureOwnerIsNotRemoved();
         EnsureIsLoaded(WellKnown.EntitySetPreloadCount);
@@ -379,6 +378,11 @@ namespace Xtensive.Storage
       EnsureOwnerIsNotRemoved();
       if (item==null || !Field.ItemType.IsAssignableFrom(item.Type.UnderlyingType))
         return false;
+      var association = Field.Association;
+      if (association.IsPaired && association.Multiplicity.In(Multiplicity.ManyToOne, Multiplicity.OneToMany)) {
+        var candidate = item.GetFieldValue<IEntity>(association.Reversed.OwnerField);
+        return candidate == Owner;
+      }
       return Contains(item.Key, item.PersistenceState);
     }
 
@@ -534,19 +538,26 @@ namespace Xtensive.Storage
       return State;
     }
 
-    private void EnsureIsLoaded(int? maxItemCount)
+    internal bool CheckStateIsLoaded()
     {
       if (State.IsLoaded)
-        return;
-      if (Owner.State.PersistenceState==PersistenceState.New) {
+        return true;
+      if (Owner.State.PersistenceState == PersistenceState.New) {
         State.TotalItemCount = State.CachedItemCount;
         State.IsLoaded = true;
+        return true;
       }
-      else 
-        using (Session.Activate()) {
-          Session.Handler.FetchEntitySet(Owner.Key, Field, maxItemCount);
-        }
+      return false;
     }
+
+    private void EnsureIsLoaded(int? maxItemCount)
+    {
+      if (!CheckStateIsLoaded())
+        using (Session.Activate())
+          Session.Handler.FetchEntitySet(Owner.Key, Field, maxItemCount);
+    }
+
+
 
     private void EnsureCountIsLoaded()
     {

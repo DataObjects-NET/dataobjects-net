@@ -243,9 +243,12 @@ namespace Xtensive.Storage.Tests.Storage
           c.Package1 = new Package();
           var item = new PackageItem();
           c.Package1.Items.Add(item);
-          session.Persist();
+
           c.Remove();
-          session.Persist();
+
+          Assert.AreEqual(0, Query.All<Container>().Count());
+          Assert.AreEqual(0, Query.All<Package>().Count());
+          Assert.AreEqual(0, Query.All<PackageItem>().Count());
         }
       }
     }

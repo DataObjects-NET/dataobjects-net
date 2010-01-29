@@ -355,9 +355,9 @@ namespace Xtensive.Storage.Tests.Model
         using (var transaction = Transaction.Open()) {
           f.ManyToOnePaired = a;
           Assert.IsNotNull(f.ManyToOnePaired);
-          Assert.AreEqual(1, a.OneToManyMaster.Count);
           Assert.IsTrue(a.OneToManyMaster.Contains(f.Key));
           Assert.IsTrue(a.OneToManyMaster.Contains(f));
+          Assert.AreEqual(1, a.OneToManyMaster.Count);
           transaction.Complete();
         }
 
