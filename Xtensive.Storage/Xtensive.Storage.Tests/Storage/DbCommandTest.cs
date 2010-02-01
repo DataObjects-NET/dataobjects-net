@@ -56,14 +56,18 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var article = new Article {Title = "Some title", Content = "Some content"};
-
+          
+          session.Persist();
           var dbCommand = session.GetDbCommand();
           dbCommand.CommandText = "DELETE FROM dbo.Article;";
           dbCommand.ExecuteNonQuery();
+          var anotherArticle = new Article { Title = "Another title", Content = "Another content" };
+          session.Persist();
           session.Invalidate();
 
-          AssertEx.ThrowsInvalidOperationException(() => Assert.IsNull(article.Content));
-          Assert.AreEqual(0, Query.All<Article>().Count());
+          AssertEx.ThrowsInvalidOperationException(() => Assert.IsNotNull(article.Content));
+          Assert.AreEqual(1, Query.All<Article>().Count());
+          Assert.IsNotNull(anotherArticle.Content);
           t.Complete();
         }
       }
