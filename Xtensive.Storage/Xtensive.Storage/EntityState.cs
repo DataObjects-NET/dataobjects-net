@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -21,7 +22,8 @@ namespace Xtensive.Storage
   [Infrastructure]
   [DebuggerDisplay("Key = {key}, Tuple = {state}, StateIsLoaded = {StateIsLoaded}, PersistenceState = {persistenceState}")]
   public sealed class EntityState : TransactionalStateContainer<Tuple>, 
-    IEquatable<EntityState>
+    IEquatable<EntityState>,
+    IInvalidatable
   {
     private readonly Key key;
     private PersistenceState persistenceState;
@@ -209,6 +211,12 @@ namespace Xtensive.Storage
       persistenceState = PersistenceState.Synchronized;
       Tuple = null;
       Session.Handler.FetchInstance(key);
+    }
+
+    /// <inheritdoc/>
+    void IInvalidatable.Invalidate()
+    {
+      Invalidate();
     }
 
     /// <inheritdoc/>

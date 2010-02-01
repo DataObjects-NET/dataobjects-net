@@ -6,10 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Transactions;
+using System.Data;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Storage.Internals;
+using IsolationLevel = System.Transactions.IsolationLevel;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -281,6 +282,17 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    public override T GetService<T>()
+    {
+      if (typeof(T) == typeof(IDbCommand)) {
+        EnsureConnectionIsOpen();
+        var dbCommand = connection.CreateCommand();
+        return dbCommand as T;
+      }
+      return base.GetService<T>();
+    }
 
     /// <inheritdoc/>
     public override void Initialize()

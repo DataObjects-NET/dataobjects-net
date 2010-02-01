@@ -5,9 +5,12 @@
 // Created:    2007.08.10
 
 using System;
+using System.Data;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using Xtensive.Core;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
@@ -160,6 +163,25 @@ namespace Xtensive.Storage
         }
         return serviceLocator;
       }
+    }
+
+    /// <summary>
+    /// Gets the ADO.Net <see cref="IDbCommand"/> command implementation for current underlying SQL database.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Underlying database does not support ADO.Net API.</exception>
+    public IDbCommand GetDbCommand()
+    {
+      return Handler.GetService<IDbCommand>();
+    }
+
+    /// <summary>
+    /// Invalidates all cached entities and resets all pending changes.
+    /// </summary>
+    public void Invalidate()
+    {
+      ClearChangeRegistry();
+      foreach (var invalidable in EntityStateCache.Cast<IInvalidatable>())
+        invalidable.Invalidate();
     }
 
     #region Private / internal members
