@@ -109,6 +109,84 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     public string Title { get; set; }
   }
 
+  public enum OrderPriority
+  {
+    Normal,
+    High,
+    Low
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class Order : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public OrderPriority Priority { get; set; }
+    
+    [Field]
+    public Customer Customer { get; set; }
+
+    [Field]
+    [Association(PairTo = "Order", OnOwnerRemove = OnRemoveAction.Cascade,
+      OnTargetRemove = OnRemoveAction.Clear)]
+    public EntitySet<OrderItem> Items { get; set; }
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class OrderItem : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public Order Order { get; set; }
+
+    [Field]
+    public string ProductName { get; set; }
+
+    [Field]
+    public double Price { get; set; }
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class Customer : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public string FirstName { get; set; }
+
+    [Field]
+    public string LastName { get; set; }
+
+    [Field]
+    public Address Address { get; set; }
+  }
+
+  public class Address : Structure
+  {
+    [Field]
+    public string State { get; set; }
+
+    [Field]
+    public string City { get; set; }
+
+    [Field]
+    public string Street { get; set; }
+
+    [Field]
+    public int Building { get; set; }
+
+    [Field]
+    public int Office { get; set; }
+  }
+
   #endregion
 
   #region DTO
@@ -172,6 +250,62 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     public AuthorDto Author { get; set; }
 
     public string Title { get; set; }
+  }
+
+  [Serializable]
+  public class OrderDto : IdentifiableDto
+  {
+    public CustomerDto Customer { get; set; }
+
+    public OrderPriority Priority { get; set; }
+
+    public List<OrderItemDto> Items { get; set; }
+  }
+
+  [Serializable]
+  public class OrderItemDto : IdentifiableDto
+  {
+    public OrderDto Order { get; set; }
+
+    public string ProductName { get; set; }
+
+    public double Price { get; set; }
+  }
+
+  [Serializable]
+  public class CustomerDto : IdentifiableDto
+  {
+    public string FirstName { get; set; }
+
+    public string LastName { get; set; }
+
+    public AddressDto Address { get; set; }
+  }
+
+  [Serializable]
+  public struct AddressDto
+  {
+    public string State { get; set; }
+
+    public string City { get; set; }
+
+    public string Street { get; set; }
+
+    public int Building { get; set; }
+
+    public int Office { get; set; }
+  }
+
+  [Serializable]
+  public class ExtendedOrderDto : IdentifiableDto
+  {
+    public double AvgItemPrice { get; set; }
+
+    public OrderPriority Priority { get; set; }
+
+    public CustomerDto Customer { get; set; }
+
+    public List<OrderItemDto> Items { get; set; }
   }
 
   #endregion
@@ -239,11 +373,13 @@ namespace Xtensive.Storage.Manual.ObjectMapper
         using (var comparisonResult = mapper.Compare(originalUserDto, userDto)) {
           // Apply found changes to domain model objects
           comparisonResult.Operations.Apply();
+          // The property KeyMapping provides the mapping from simulated keys of 
+          // new objects in the graph to real keys of these objects in the storage
+          var newFreind = Query.Single<User>(Key.Parse((string) comparisonResult.KeyMapping[newFriendDto.Key]));
         }
         tx.Complete();
       }
 
-      // Validation
       ValidateMainTest(domain, userDto, newFriendDto);
     }
 
@@ -302,6 +438,120 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       ValidateOptimisticOfflineLockTest(domain, authorDto);
     }
 
+    [Test]
+    public void StructureTest()
+    {
+      var mapping = new MappingBuilder()
+        .MapType<Entity, IdentifiableDto, string>(e => e.Key.Format(), dto => dto.Key)
+          .Inherit<IdentifiableDto, Customer, CustomerDto>()
+          .Inherit<IdentifiableDto, Order, OrderDto>()
+          .Inherit<IdentifiableDto, OrderItem, OrderItemDto>()
+        // The mapping for structure requires the target must be a structure,
+        // but it doesn't require a key extractor
+        .MapStructure<Address, AddressDto>()
+        .Build();
+
+      var domain = BuildDomain();
+
+      var orderDto = GetOrderDto(mapping, domain);
+      var originalOrderDto = Clone(orderDto);
+
+      orderDto.Priority = OrderPriority.High;
+      // Modify the structure
+      orderDto.Customer.Address = new AddressDto {
+        State = orderDto.Customer.Address.State, City = "Moscow", Street = orderDto.Customer.Address.Street,
+        Building = 10, Office = orderDto.Customer.Address.Office
+      };
+
+      using (var session = Session.Open(domain))
+      using (var tx = Transaction.Open()) {
+        var mapper = new Mapper(mapping);
+        using (var comparisonResult = mapper.Compare(originalOrderDto, orderDto))
+          comparisonResult.Operations.Apply();
+        tx.Complete();
+      }
+
+      ValidateStructureTest(orderDto, domain);
+    }
+
+    [Test]
+    public void AdvancedMappingTest()
+    {
+      var mapping = new MappingBuilder()
+        .MapType<Entity, IdentifiableDto, string>(e => e.Key.Format(), dto => dto.Key)
+          .Inherit<IdentifiableDto, Order, ExtendedOrderDto>()
+            // Specify custom converter, the change tracking will be disabled for this property
+            .MapProperty(o => o.Items.Average(item => item.Price), o => o.AvgItemPrice)
+            // Exclude the property of DTO from mapping
+            .IgnoreProperty(o => o.Items)
+          .Inherit<IdentifiableDto, Customer, CustomerDto>()
+            // Disable change tracking for the property
+            .TrackChanges(c => c.FirstName, false)
+            .TrackChanges(c => c.Address, false)
+        .MapStructure<Address, AddressDto>()
+        .Build();
+
+      var domain = BuildDomain();
+
+      List<object> orderDtos;
+      using (var session = Session.Open(domain))
+      using (var tx = Transaction.Open()) {
+        var customer = new Customer {
+          FirstName = "First", LastName = "Customer", Address = new Address {
+            State = "Russia", City = "Yekaterinburg", Street = "Nagornaya", Building = 12, Office = 316
+          }
+        };
+        var order0 = new Order {Priority = OrderPriority.High, Customer = customer};
+        order0.Items.Add(new OrderItem {Price = 1.5, ProductName = "Product0"});
+        order0.Items.Add(new OrderItem {Price = 3, ProductName = "Product1"});
+        var order1 = new Order {Priority = OrderPriority.Normal, Customer = customer};
+        order1.Items.Add(new OrderItem {Price = 1.5, ProductName = "Product0"});
+        order1.Items.Add(new OrderItem {Price = 10, ProductName = "Product2"});
+        var orders = new HashSet<Order> {order0, order1};
+        var mapper = new Mapper(mapping);
+        // The graph root can be a descendant of ICollection<T>
+        orderDtos = (List<object>) mapper.Transform(orders);
+        tx.Complete();
+      }
+
+      var originalOrderDtos = Clone(orderDtos);
+      var orderDto0 = (ExtendedOrderDto) orderDtos[0];
+      orderDto0.Priority += 1;
+      orderDto0.Customer.FirstName = "New";
+      orderDto0.Customer.LastName = "Smith";
+      Assert.IsNull(orderDto0.Items);
+      var orderDto1 = (ExtendedOrderDto) orderDtos[1];
+      orderDto1.Priority += 1;
+      orderDto1.AvgItemPrice += 1;
+      orderDto1.Customer.Address = new AddressDto {
+        State = "State", City = "City", Street = "Street", Building = 10, Office = 20
+      };
+      Assert.AreSame(orderDto0.Customer, orderDto1.Customer);
+
+      using (var session = Session.Open(domain))
+      using (var tx = Transaction.Open()) {
+        var mapper = new Mapper(mapping);
+        using (var comparisonResult = mapper.Compare(originalOrderDtos, orderDtos)) {
+          comparisonResult.Operations.Apply();
+          var order0 = Query.Single<Order>(Key.Parse(orderDto0.Key));
+          Assert.AreEqual(orderDto0.Priority, order0.Priority);
+          Assert.AreNotEqual(orderDto0.Customer.FirstName, order0.Customer.FirstName);
+          Assert.AreEqual("First", order0.Customer.FirstName);
+          Assert.AreEqual(orderDto0.Customer.LastName, order0.Customer.LastName);
+          Assert.AreEqual(2, order0.Items.Count);
+          var order1 = Query.Single<Order>(Key.Parse(orderDto1.Key));
+          Assert.AreEqual(orderDto1.Priority, order1.Priority);
+          Assert.AreEqual(orderDto1.Customer.Key, order0.Customer.Key.Format());
+          Assert.AreEqual(2, order0.Items.Count);
+          Assert.AreNotEqual(orderDto1.Customer.Address.State, order1.Customer.Address.State);
+          Assert.AreNotEqual(orderDto1.Customer.Address.Building, order1.Customer.Address.Building);
+          Assert.AreEqual("Russia", order1.Customer.Address.State);
+          Assert.AreEqual(12, order1.Customer.Address.Building);
+          tx.Complete();
+        }
+      }
+    }
+
     private byte[] SerializeVersionInfo(VersionInfo versionInfo)
     {
       // This isn't the best practice, it's just an example
@@ -326,6 +576,26 @@ namespace Xtensive.Storage.Manual.ObjectMapper
         tx.Complete();
       }
       return result;
+    }
+
+    private static OrderDto GetOrderDto(MappingDescription mapping, Domain domain)
+    {
+      OrderDto orderDto;
+      using (var session = Session.Open(domain))
+      using (var tx = Transaction.Open()) {
+        var customer = new Customer {
+          FirstName = "John", LastName = "Smith", Address = new Address {
+            State = "Russia", City = "Yekaterinburg", Street = "Nagornaya", Building = 12, Office = 316
+          }
+        };
+        var orderItem = new OrderItem {Price = 99.99, ProductName = "Product"};
+        var order = new Order {Customer = customer, Priority = OrderPriority.Normal};
+        order.Items.Add(orderItem);
+        var mapper = new Mapper(mapping);
+        orderDto = (OrderDto) mapper.Transform(order);
+        tx.Complete();
+      }
+      return orderDto;
     }
 
     private static void ValidateMainTest(Domain domain, UserDto userDto, UserDto newFreindDto)
@@ -361,6 +631,31 @@ namespace Xtensive.Storage.Manual.ObjectMapper
         Assert.AreEqual(firstBookDto.Author.Key, author.Key.Format());
         Assert.AreEqual(secondBookDto.Title, secondBook.Title);
         Assert.AreEqual(secondBookDto.Author.Key, author.Key.Format());
+      }
+    }
+
+    private static void ValidateStructureTest(OrderDto orderDto, Domain domain)
+    {
+      using (var session = Session.Open(domain))
+      using (var tx = Transaction.Open()) {
+        var order = Query.Single<Order>(Key.Parse(orderDto.Key));
+        Assert.AreEqual(orderDto.Priority, order.Priority);
+        var orderItemDto = orderDto.Items.Single();
+        var orderItem = order.Items.Single();
+        Assert.AreEqual(orderItemDto.Price, orderItem.Price);
+        Assert.AreEqual(orderItemDto.ProductName, orderItem.ProductName);
+        Assert.AreSame(orderItemDto.Order, orderDto);
+        Assert.AreEqual(orderItemDto.Order.Key, orderItem.Order.Key.Format());
+        var customer = order.Customer;
+        var customerDto = orderDto.Customer;
+        Assert.AreEqual(customerDto.Key, customer.Key.Format());
+        Assert.AreEqual(customerDto.FirstName, customer.FirstName);
+        Assert.AreEqual(customerDto.LastName, customer.LastName);
+        Assert.AreEqual(customerDto.Address.Building, customer.Address.Building);
+        Assert.AreEqual(customerDto.Address.City, customer.Address.City);
+        Assert.AreEqual(customerDto.Address.Office, customer.Address.Office);
+        Assert.AreEqual(customerDto.Address.State, customer.Address.State);
+        Assert.AreEqual(customerDto.Address.Street, customer.Address.Street);
       }
     }
 
