@@ -243,19 +243,30 @@ namespace Xtensive.Storage.Upgrade
 
     private static int ProvideTypeId(UpgradeContext context, Type type)
     {
+      var typeId = ModelTypeInfo.NoTypeId;
       var oldModel = context.ExtractedDomainModel;
-      if (oldModel==null)
-        return ModelTypeInfo.NoTypeId;
+      if (oldModel == null && context.ExtractedTypeMap == null)
+        return typeId;
+
       // type has been renamed?
+      var fullName = type.GetFullName();
       var renamer = context.Hints.OfType<RenameTypeHint>()
-        .SingleOrDefault(hint => hint.NewType.GetFullName()==type.GetFullName());
-      if (renamer != null)
-        return oldModel.Types.Single(t => t.UnderlyingType==renamer.OldType).TypeId;
+        .SingleOrDefault(hint => hint.NewType.GetFullName()==fullName);
+      if (renamer != null) {
+        if (context.ExtractedTypeMap.TryGetValue(renamer.OldType, out typeId))
+          return typeId;
+        if (oldModel != null)
+          return oldModel.Types.Single(t => t.UnderlyingType==renamer.OldType).TypeId;
+      }
       // type has been preserved
-      var oldType = oldModel.Types
-        .SingleOrDefault(t => t.UnderlyingType==type.GetFullName());
-      if (oldType != null)
-        return oldType.TypeId;
+      if (context.ExtractedTypeMap.TryGetValue(fullName, out typeId))
+        return typeId;
+      if (oldModel != null) {
+        var oldType = oldModel.Types
+          .SingleOrDefault(t => t.UnderlyingType==fullName);
+        if (oldType != null)
+          return oldType.TypeId;
+      }
       return ModelTypeInfo.NoTypeId;
     }
   }

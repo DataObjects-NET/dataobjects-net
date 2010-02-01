@@ -17,6 +17,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Resources;
 using M = Xtensive.Storage.Metadata;
+using Type = Xtensive.Storage.Metadata.Type;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -164,6 +165,7 @@ namespace Xtensive.Storage.Upgrade
     private void ExtractDomainModel()
     {
       var context = UpgradeContext.Demand();
+      context.ExtractedTypeMap = Query.All<Type>().ToDictionary(t => t.Name, t => t.Id);
       var modelHolder = Query.All<Extension>()
         .SingleOrDefault(e => e.Name==WellKnown.DomainModelExtensionName);
       if (modelHolder == null) {

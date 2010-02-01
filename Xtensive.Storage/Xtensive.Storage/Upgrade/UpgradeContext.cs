@@ -102,6 +102,11 @@ namespace Xtensive.Storage.Upgrade
     public StoredDomainModel ExtractedDomainModel { get; internal set; }
 
     /// <summary>
+    /// Gets the extracted type map (Full name of the type and TypeId).
+    /// </summary>
+    public Dictionary<string, int> ExtractedTypeMap { get; internal set; }
+
+    /// <summary>
     /// Gets the native storage schema.
     /// </summary>
     public object NativeExtractedSchema { get; internal set; }
