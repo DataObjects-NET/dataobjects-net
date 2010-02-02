@@ -7,7 +7,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Storage.Providers.Sql.Resources;
 
@@ -18,7 +17,7 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlConnection CreateConnection(Session session)
     {
       try {
-        if (IsDebugLoggingEnabled) {
+        if (isDebugLoggingEnabled) {
           Log.Debug(Strings.LogSessionXCreatingConnectionY,
             session.GetFullNameSafely(),
             session.Domain.Configuration.ConnectionInfo);
@@ -33,7 +32,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void OpenConnection(Session session, SqlConnection connection)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXOpeningConnectionY,
             session.GetFullNameSafely(),
             session.Domain.Configuration.ConnectionInfo);
@@ -47,7 +46,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void CloseConnection(Session session, SqlConnection connection)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXClosingConnectionY, 
             session.GetFullNameSafely(),
             session.Domain.Configuration.ConnectionInfo);
@@ -63,7 +62,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void BeginTransaction(Session session, SqlConnection connection, IsolationLevel isolationLevel)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, 
             session.GetFullNameSafely(), isolationLevel);
         connection.BeginTransaction(isolationLevel);
@@ -76,7 +75,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void CommitTransaction(Session session, SqlConnection connection)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXCommitTransaction, 
             session.GetFullNameSafely());
         connection.Commit();
@@ -89,7 +88,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void RollbackTransaction(Session session, SqlConnection connection)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXRollbackTransaction, 
             session.GetFullNameSafely());
         connection.Rollback();
@@ -102,7 +101,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void MakeSavepoint(Session session, SqlConnection connection, string name)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXMakeSavepointY,
             session.GetFullNameSafely(), name);
         connection.MakeSavepoint(name);
@@ -115,7 +114,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void RollbackToSavepoint(Session session, SqlConnection connection, string name)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXRollbackToSavepointY,
             session.GetFullNameSafely(), name);
         connection.RollbackToSavepoint(name);
@@ -128,7 +127,7 @@ namespace Xtensive.Storage.Providers.Sql
     public void ReleaseSavepoint(Session session, SqlConnection connection, string name)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXReleaseSavepointY,
             session.GetFullNameSafely(), name);
         connection.ReleaseSavepoint(name);
@@ -141,7 +140,7 @@ namespace Xtensive.Storage.Providers.Sql
     public int ExecuteNonQuery(Session session, DbCommand command)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXQueryY, 
             session.GetFullNameSafely(), command.ToHumanReadableString());
         return command.ExecuteNonQuery();
@@ -154,7 +153,7 @@ namespace Xtensive.Storage.Providers.Sql
     public object ExecuteScalar(Session session, DbCommand command)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXQueryY, 
             session.GetFullNameSafely(), command.ToHumanReadableString());
         return command.ExecuteScalar();
@@ -167,7 +166,7 @@ namespace Xtensive.Storage.Providers.Sql
     public DbDataReader ExecuteReader(Session session, DbCommand command)
     {
       try {
-        if (IsDebugLoggingEnabled)
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXQueryY, 
             session.GetFullNameSafely(), command.ToHumanReadableString());
         return command.ExecuteReader();

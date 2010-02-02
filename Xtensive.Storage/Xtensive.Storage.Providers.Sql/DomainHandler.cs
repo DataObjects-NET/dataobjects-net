@@ -213,7 +213,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override void Initialize()
     {
-      Driver = new Driver(Handlers.Domain.Configuration.ConnectionInfo);
+      Driver = new Driver(Handlers.Domain);
 
       base.Initialize();
 

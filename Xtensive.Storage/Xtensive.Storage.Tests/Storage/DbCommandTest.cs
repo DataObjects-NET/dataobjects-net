@@ -27,6 +27,10 @@ namespace Xtensive.Storage.Tests.Storage
       public string Content { get; set; }
     }
 
+    protected override void CheckRequirements()
+    {
+      EnsureProtocolIs(StorageProtocol.SqlServer);
+    }
 
     public override void TestFixtureSetUp()
     {

@@ -4,10 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.14
 
-using System;
-using System.Data.Common;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
@@ -19,12 +16,13 @@ namespace Xtensive.Storage.Providers.Sql
 {
   public sealed partial class Driver
   {
+    private readonly Domain domain;
     private readonly SqlDriver underlyingDriver;
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
-
-    public bool IsDebugLoggingEnabled { get; private set; }
     
+    private bool isDebugLoggingEnabled;
+
     public string BatchBegin { get { return translator.BatchBegin; } }
     public string BatchEnd { get { return translator.BatchEnd; } }
 
@@ -116,7 +114,10 @@ namespace Xtensive.Storage.Providers.Sql
 
     public Schema ExtractSchema(SqlConnection connection)
     {
-      return underlyingDriver.ExtractDefaultSchema(connection);
+      string schema = string.IsNullOrEmpty(domain.Configuration.DefaultSchema)
+        ? underlyingDriver.CoreServerInfo.DefaultSchemaName
+        : domain.Configuration.DefaultSchema;
+      return underlyingDriver.ExtractSchema(connection, schema);
     }
 
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
@@ -127,11 +128,11 @@ namespace Xtensive.Storage.Providers.Sql
 
     // Constructors
 
-    public Driver(UrlInfo url)
+    public Driver(Domain domain)
     {
-      IsDebugLoggingEnabled = 
-        Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
-      underlyingDriver = SqlDriver.Create(url);
+      isDebugLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      this.domain = domain;
+      underlyingDriver = SqlDriver.Create(domain.Configuration.ConnectionInfo);
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
     }

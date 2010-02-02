@@ -95,7 +95,9 @@ namespace Xtensive.Storage.Configuration
 
     private string name = string.Empty;
     private UrlInfo connectionInfo;
+    private string defaultSchema = string.Empty;
     private TypeRegistry types = new TypeRegistry(new SessionBoundTypeRegistrationHandler());
+    private TypeRegistry compilerContainers = new TypeRegistry(new CompilerContainerRegistrationHandler());
     private NamingConvention namingConvention = new NamingConvention();
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
@@ -103,7 +105,6 @@ namespace Xtensive.Storage.Configuration
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
     private bool inconsistentTransactions;
-    private TypeRegistry compilerContainers = new TypeRegistry(new CompilerContainerRegistrationHandler());
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
     private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
     private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
@@ -178,10 +179,7 @@ namespace Xtensive.Storage.Configuration
     /// Gets the collection of persistent <see cref="Type"/>s that are about to be 
     /// registered in the <see cref="Domain"/>.
     /// </summary>
-    public TypeRegistry Types
-    {
-      get { return types; }
-    }
+    public TypeRegistry Types { get { return types; } }
     
     /// <summary>
     /// Gets or sets the naming convention.
@@ -189,8 +187,7 @@ namespace Xtensive.Storage.Configuration
     public NamingConvention NamingConvention
     {
       get { return namingConvention; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         namingConvention = value;
       }
@@ -203,8 +200,7 @@ namespace Xtensive.Storage.Configuration
     public int KeyCacheSize
     {
       get { return keyCacheSize; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyCacheSize = value;
@@ -218,8 +214,7 @@ namespace Xtensive.Storage.Configuration
     public int KeyGeneratorCacheSize
     {
       get { return keyGeneratorCacheSize; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyGeneratorCacheSize = value;
@@ -233,8 +228,7 @@ namespace Xtensive.Storage.Configuration
     public int QueryCacheSize
     {
       get { return queryCacheSize; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         queryCacheSize = value;
@@ -248,8 +242,7 @@ namespace Xtensive.Storage.Configuration
     public int RecordSetMappingCacheSize
     {
       get { return recordSetMappingCacheSize; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         recordSetMappingCacheSize = value;
@@ -263,8 +256,7 @@ namespace Xtensive.Storage.Configuration
     public bool AutoValidation
     {
       get { return autoValidation; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         autoValidation = value;
       }
@@ -276,8 +268,7 @@ namespace Xtensive.Storage.Configuration
     public ValidationMode ValidationMode
     {
       get { return validationMode; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         validationMode = value;
       }
@@ -290,8 +281,7 @@ namespace Xtensive.Storage.Configuration
     public ForeignKeyMode ForeignKeyMode
     {
       get { return foreignKeyMode; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         foreignKeyMode = value;
       }
@@ -313,13 +303,17 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets user defined method compiler containers.
     /// </summary>
-    public TypeRegistry CompilerContainers
+    public TypeRegistry CompilerContainers { get { return compilerContainers; } }
+
+    /// <summary>
+    /// Gets or sets the default schema.
+    /// </summary>
+    public string DefaultSchema
     {
-      get { return compilerContainers; }
+      get { return defaultSchema; }
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
         this.EnsureNotLocked();
-        compilerContainers = value;
+        defaultSchema = value;
       }
     }
 
@@ -349,7 +343,7 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Copies the properties from the <paramref name="source"/>
     /// configuration to this one.
-    /// Used by <see cref="M:Xtensive.Core.Helpers.ConfigurationBase.Clone"/> method implementation.
+    /// Used by <see cref="ConfigurationBase.Clone"/> method implementation.
     /// </summary>
     /// <param name="source">The configuration to copy properties from.</param>
     /// <inheritdoc/>
@@ -358,7 +352,8 @@ namespace Xtensive.Storage.Configuration
       base.Clone(source);
       var configuration = (DomainConfiguration) source;
       name = configuration.Name;
-      connectionInfo = new UrlInfo(configuration.ConnectionInfo.Url);
+      connectionInfo = configuration.ConnectionInfo;
+      defaultSchema = configuration.defaultSchema;
       types = (TypeRegistry) configuration.Types.Clone();
       namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
       keyCacheSize = configuration.KeyCacheSize;
@@ -444,7 +439,7 @@ namespace Xtensive.Storage.Configuration
       : this()
     {
       ArgumentValidator.EnsureArgumentNotNull(connectionUrl, "connectionUrl");
-      connectionInfo = new UrlInfo(connectionUrl);
+      connectionInfo = UrlInfo.Parse(connectionUrl);
     }
 
     /// <summary>
@@ -453,7 +448,7 @@ namespace Xtensive.Storage.Configuration
     public DomainConfiguration()
     {
       // This assembly must be always registered
-      types.Register(typeof(Persistent).Assembly);
+      types.Register(typeof (Persistent).Assembly);
     }
   }
 }

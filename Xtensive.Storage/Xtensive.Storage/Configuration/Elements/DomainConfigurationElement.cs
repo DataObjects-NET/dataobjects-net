@@ -28,7 +28,8 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string SessionPoolSizeElementName = "sessionPoolSize";
     private const string RecordSetMappingCacheSizeElementName = "recordSetMappingCacheSizeSize";
     private const string AutoValidationElementName = "autoValidation";
-  
+    private const string DefaultSchemaElementName = "defaultSchema";
+
     private const string SessionsElementName = "sessions";
     private const string CompilerContainersElementName = "compilerContainers";
     private const string TypeAliasesElementName = "typeAliases";
@@ -152,7 +153,7 @@ namespace Xtensive.Storage.Configuration.Elements
     [ConfigurationProperty(UpgradeModeElementName, IsRequired = false, DefaultValue = "Default")]
     public string UpgradeMode
     {
-      get { return (string)this[UpgradeModeElementName]; }
+      get { return (string) this[UpgradeModeElementName]; }
       set { this[UpgradeModeElementName] = value; }
     }
 
@@ -162,7 +163,7 @@ namespace Xtensive.Storage.Configuration.Elements
     [ConfigurationProperty(ForeignKeyModeElementName, IsRequired = false, DefaultValue = "Default")]
     public string ForeignKeyMode
     {
-      get { return (string)this[ForeignKeyModeElementName]; }
+      get { return (string) this[ForeignKeyModeElementName]; }
       set { this[ForeignKeyModeElementName] = value; }
     }
 
@@ -172,7 +173,7 @@ namespace Xtensive.Storage.Configuration.Elements
     [ConfigurationProperty(ValidationModeElementName, IsRequired = false, DefaultValue = "Default")]
     public string ValidationMode
     {
-      get { return (string)this[ValidationModeElementName]; }
+      get { return (string) this[ValidationModeElementName]; }
       set { this[ValidationModeElementName] = value; }
     }
 
@@ -180,7 +181,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <see cref="DomainConfiguration.Sessions" copy="true"/>
     /// </summary>
     [ConfigurationProperty(SessionsElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof(ConfigurationCollection<SessionElement>), AddItemName = "session")]
+    [ConfigurationCollection(typeof (ConfigurationCollection<SessionElement>), AddItemName = "session")]
     public ConfigurationCollection<SessionElement> Sessions
     {
       get { return (ConfigurationCollection<SessionElement>) this[SessionsElementName]; }
@@ -197,6 +198,16 @@ namespace Xtensive.Storage.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.DefaultSchema" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(DefaultSchemaElementName, IsRequired = false)]
+    public string DefaultSchema
+    {
+      get { return (string) this[DefaultSchemaElementName]; }
+      set { this[DefaultSchemaElementName] = DefaultSchemaElementName; }
+    }
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -205,13 +216,14 @@ namespace Xtensive.Storage.Configuration.Elements
     {
       var config = new DomainConfiguration {
         Name = Name,
-        ConnectionInfo = new UrlInfo(ConnectionUrl),
+        ConnectionInfo = UrlInfo.Parse(ConnectionUrl),
         NamingConvention = NamingConvention.ToNative(),
         KeyCacheSize = KeyCacheSize,
         KeyGeneratorCacheSize = KeyGeneratorCacheSize,
         QueryCacheSize = QueryCacheSize,
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,
         AutoValidation = AutoValidation,
+        DefaultSchema = DefaultSchema,
         ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true)
