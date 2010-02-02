@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Tests.Issues
       var driver = SqlDriver.Create(url);
       using (var connection = driver.CreateConnection()) {
         connection.Open();
-        string checkSchemaQuery = string.Format("select object_id('{0}')", SchemaName);
+        string checkSchemaQuery = string.Format("select schema_id('{0}')", SchemaName);
         using (var command = connection.CreateCommand(checkSchemaQuery))
           if (command.ExecuteScalar()!=DBNull.Value)
             return;
