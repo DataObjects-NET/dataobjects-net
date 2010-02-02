@@ -11,15 +11,9 @@ namespace Xtensive.Sql.SqlServer.Azure
 {
   internal class ServerInfoProvider : v10.ServerInfoProvider
   {
-    public override bool GetMultipleActiveResultSets()
-    {
-      return false;
-    }
-
     public override FullTextSearchInfo GetFullTextInfo()
     {
       return new FullTextSearchInfo();
-
     }
 
     // Constructors

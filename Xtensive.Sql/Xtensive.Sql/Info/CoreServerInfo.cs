@@ -14,11 +14,12 @@ namespace Xtensive.Sql.Info
   /// </summary>
   public class CoreServerInfo : LockableBase
   {
-    private string databaseName;
-    private string defaultSchemaName;
     private Version serverVersion;
     private string connectionString;
-
+    private string databaseName;
+    private string defaultSchemaName;
+    private bool multipleActiveResultSets;
+    
     /// <summary>
     /// Gets or sets the name of the database.
     /// </summary>
@@ -69,6 +70,17 @@ namespace Xtensive.Sql.Info
       set {
         this.EnsureNotLocked();
         connectionString = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether multiple active result sets are supported.
+    /// </summary>
+    public bool MultipleActiveResultSets {
+      get { return multipleActiveResultSets; }
+      set {
+        this.EnsureNotLocked();
+        multipleActiveResultSets = value;
       }
     }
   }

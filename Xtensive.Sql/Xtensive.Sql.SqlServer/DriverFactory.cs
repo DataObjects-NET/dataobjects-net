@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using System;
+using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.SqlServer.Resources;
@@ -17,8 +18,22 @@ namespace Xtensive.Sql.SqlServer
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
+    // Some people, when confronted with a problem, think
+    // "I know, I'll use regular expressions." Now they have two problems.
+    private static readonly Regex MarsParameterChecker = new Regex(
+      @"MultipleActiveResultSets\ *=\ *True",
+      RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
     private const string DatabaseAndSchemaQuery =
       "select db_name(), default_schema_name from sys.database_principals where name=user";
+
+    private static bool IsAzure(SqlServerConnection connection)
+    {
+      using (var command = connection.CreateCommand()) {
+        command.CommandText = "SELECT @@VERSION";
+        return ((string) command.ExecuteScalar()).Contains("Azure");
+      }
+    }
 
     /// <inheritdoc/>
     public override SqlDriver CreateDriver(ConnectionInfo connectionInfo)
@@ -27,26 +42,24 @@ namespace Xtensive.Sql.SqlServer
       using (var connection = new SqlServerConnection(connectionString)) {
         connection.Open();
         var version = new Version(connection.ServerVersion);
-        var coreServerInfo = new CoreServerInfo {ConnectionString = connectionString, ServerVersion = version};
+        var coreServerInfo = new CoreServerInfo {
+          ConnectionString = connectionString,
+          ServerVersion = version
+        };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
-        SqlDriver result;
+        if (IsAzure(connection)) {
+          coreServerInfo.MultipleActiveResultSets = false;
+          return new Azure.Driver(coreServerInfo);
+        }
+        coreServerInfo.MultipleActiveResultSets = MarsParameterChecker.IsMatch(connectionString);
         switch (version.Major) {
         case 9:
-          result = new v09.Driver(coreServerInfo);
-          break;
+          return new v09.Driver(coreServerInfo);
         case 10:
-          using (var command = connection.CreateCommand()) {
-            command.CommandText = "SELECT @@VERSION";
-            result = ((string) command.ExecuteScalar()).Contains("Azure")
-              ? new Azure.Driver(coreServerInfo)
-              : new v10.Driver(coreServerInfo);
-          }
-          break;
+          return new v10.Driver(coreServerInfo);
         default:
           throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
         }
-        connection.Close();
-        return result;
       }
     }
   }

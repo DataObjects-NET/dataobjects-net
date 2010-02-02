@@ -253,11 +253,6 @@ namespace Xtensive.Sql.Oracle.v09
       return 1;
     }
 
-    public override bool GetMultipleActiveResultSets()
-    {
-      return true;
-    }
-
     // Constructors
 
     public ServerInfoProvider(SqlDriver driver)

@@ -140,12 +140,7 @@ namespace Xtensive.Sql.Info
     /// Gets the string indexing base.
     /// </summary>
     public abstract int GetStringIndexingBase();
-
-    /// <summary>
-    /// Gets whether the multiple active result sets are supported.
-    /// </summary>
-    public abstract bool GetMultipleActiveResultSets();
-
+    
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

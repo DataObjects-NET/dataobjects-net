@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.Offset;
       if (queryFeatures.Supports(QueryFeatures.MultipleResultsViaCursorParameters))
         f |= ProviderFeatures.MultipleResultsViaCursorParameters;
-      if (si.MultipleActiveResultSets)
+      if (csi.MultipleActiveResultSets)
         f |= ProviderFeatures.MultipleActiveResultSets;
       if (queryFeatures.Supports(QueryFeatures.DefaultValues))
         f |= ProviderFeatures.InsertDefaultValues;

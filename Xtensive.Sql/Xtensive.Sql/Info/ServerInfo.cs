@@ -158,11 +158,6 @@ namespace Xtensive.Sql.Info
     /// </summary>
     /// <value>The string indexing base.</value>
     public int StringIndexingBase { get; private set; }
-
-    /// <summary>
-    /// Gets a value indicating whether multiple active result sets are supported.
-    /// </summary>
-    public bool MultipleActiveResultSets { get; private set; }
     
     /// <summary>
     /// Builds the server info using specified <see cref="ServerInfoProvider"/>.
@@ -197,7 +192,6 @@ namespace Xtensive.Sql.Info
         UniqueConstraint = provider.GetUniqueConstraintInfo(), 
         View = provider.GetViewInfo(), 
         StringIndexingBase = provider.GetStringIndexingBase(), 
-        MultipleActiveResultSets = provider.GetMultipleActiveResultSets()
       };
 
       info.Lock(true);

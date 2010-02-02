@@ -20,7 +20,7 @@ namespace Xtensive.Sql.All
       typeof (SqlServer.DriverFactory),
       typeof (PostgreSql.DriverFactory),
       typeof (Oracle.DriverFactory),
-      typeof(SqlServerCe.DriverFactory)
+      typeof (SqlServerCe.DriverFactory),
     };
 
 

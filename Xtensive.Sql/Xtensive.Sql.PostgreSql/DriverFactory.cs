@@ -26,23 +26,23 @@ namespace Xtensive.Sql.PostgreSql
       using (var connection = new NpgsqlConnection(connectionString)) {
         connection.Open();
         var version = connection.PostgreSqlVersion;
-        var coreServerInfo = new CoreServerInfo {ConnectionString = connectionString, ServerVersion = version};
+        var coreServerInfo = new CoreServerInfo {
+          ConnectionString = connectionString,
+          ServerVersion = version,
+          MultipleActiveResultSets = false,
+        };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
         if (version.Major < 8)
           throw new NotSupportedException(Strings.ExPostgreSqlBelow80IsNotSupported);
-        SqlDriver result;
         if (version.Major==8 && version.Minor==0)
-          result = new v8_0.Driver(coreServerInfo);
-        else if (version.Major==8 && version.Minor==1)
-          result = new v8_1.Driver(coreServerInfo);
-        else if (version.Major==8 && version.Minor==2)
-          result = new v8_2.Driver(coreServerInfo);
-        else if (version.Major==8 && version.Minor==3)
-          result = new v8_3.Driver(coreServerInfo);
-        else
-          result = new v8_4.Driver(coreServerInfo);
-        connection.Close();
-        return result;
+          return new v8_0.Driver(coreServerInfo);
+        if (version.Major==8 && version.Minor==1)
+          return new v8_1.Driver(coreServerInfo);
+        if (version.Major==8 && version.Minor==2)
+          return new v8_2.Driver(coreServerInfo);
+        if (version.Major==8 && version.Minor==3)
+          return new v8_3.Driver(coreServerInfo);
+        return new v8_4.Driver(coreServerInfo);
       }
     }
   }

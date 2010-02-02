@@ -286,12 +286,6 @@ namespace Xtensive.Sql.SqlServer.v09
       return 1;
     }
 
-    public override bool GetMultipleActiveResultSets()
-    {
-      return true;
-    }
-
-
     // Constructors
 
     public ServerInfoProvider(SqlDriver driver)

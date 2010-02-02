@@ -25,32 +25,12 @@ namespace Xtensive.Sql.SqlServerCe
     {
       var connectionString = ConnectionStringBuilder.Build(connectionInfo);
       var version = new Version(3, 5, 1, 0);
-      var coreServerInfo = new CoreServerInfo {ConnectionString = connectionString, ServerVersion = version};
+      var coreServerInfo = new CoreServerInfo {
+        ConnectionString = connectionString,
+        ServerVersion = version,
+        MultipleActiveResultSets = true
+      };
       return new v3_5.Driver(coreServerInfo);
-//      using (var connection = new SqlCeConnection(connectionString)) {
-//        connection.Open();
-//        var version = new Version(connection.ServerVersion);
-//        var coreServerInfo = new CoreServerInfo {ConnectionString = connectionString, ServerVersion = version};
-//        SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
-//        SqlDriver result;
-//        switch (version.Major) {
-//        case 9:
-//          result = new v3_5.Driver(coreServerInfo);
-//          break;
-//        case 10:
-//          using (var command = connection.CreateCommand()) {
-//            command.CommandText = "SELECT @@VERSION";
-//            result = ((string) command.ExecuteScalar()).Contains("Azure")
-//              ? new Azure.Driver(coreServerInfo)
-//              : new v10.Driver(coreServerInfo);
-//          }
-//          break;
-//        default:
-//          throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
-//        }
-//        connection.Close();
-//        return result;
-//      }
     }
   }
 }

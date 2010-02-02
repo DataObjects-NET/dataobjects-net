@@ -291,12 +291,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return 1;
     }
 
-    public override bool GetMultipleActiveResultSets()
-    {
-      return false;
-    }
-
-
     // Constructors
 
     public ServerInfoProvider(SqlDriver driver)

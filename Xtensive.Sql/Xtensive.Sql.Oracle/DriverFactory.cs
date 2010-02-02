@@ -27,19 +27,19 @@ namespace Xtensive.Sql.Oracle
       using (var connection = new OracleConnection(connectionString)) {
         connection.Open();
         var version = ParseVersion(connection.ServerVersion);
-        var coreServerInfo = new CoreServerInfo {ConnectionString = connectionString, ServerVersion = version};
+        var coreServerInfo = new CoreServerInfo {
+          ConnectionString = connectionString,
+          ServerVersion = version,
+          MultipleActiveResultSets = true,
+        };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
         if (version.Major < 9 || version.Major==9 && version.Minor < 2)
           throw new NotSupportedException(Strings.ExOracleBelow9i2IsNotSupported);
-        SqlDriver result;
         if (version.Major==9)
-          result = new v09.Driver(coreServerInfo);
-        else if (version.Major==10)
-          result = new v10.Driver(coreServerInfo);
-        else
-          result = new v11.Driver(coreServerInfo);
-        connection.Close();
-        return result;
+          return new v09.Driver(coreServerInfo);
+        if (version.Major==10)
+          return new v10.Driver(coreServerInfo);
+        return new v11.Driver(coreServerInfo);
       }
     }
 
