@@ -5,10 +5,10 @@
 // Created:    2009.12.11
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping.Model
 {
@@ -16,12 +16,12 @@ namespace Xtensive.Core.ObjectMapping.Model
   /// Description of a property of a mapped class.
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("{SystemProperty} in {ReflectedType.SystemType}")]
   public abstract class PropertyDescription : LockableBase
   {
     private bool isCollection;
     private PropertyInfo countProperty;
     private MethodInfo addMethod;
+    private readonly string stringDescription;
 
     /// <summary>
     /// Gets the type that was used to obtain this description.
@@ -69,7 +69,7 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// <inheritdoc/>
     public override string ToString()
     {
-      return SystemProperty.ToString();
+      return stringDescription;
     }
 
 
@@ -87,6 +87,7 @@ namespace Xtensive.Core.ObjectMapping.Model
 
       SystemProperty = systemProperty;
       ReflectedType = reflectedType;
+      stringDescription = String.Format(Strings.XInY, systemProperty, reflectedType);
     }
   }
 }

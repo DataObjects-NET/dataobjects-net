@@ -11,7 +11,7 @@ using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.ObjectMapping
 {
-  internal sealed class ModelValidator
+  internal sealed class MappingValidator
   {
     private MappingDescription description;
 
@@ -23,6 +23,7 @@ namespace Xtensive.Core.ObjectMapping
         var type = typePair.Value;
         var properties = type.Properties.Select(pair => pair.Value).Cast<TargetPropertyDescription>();
         foreach (var property in properties.Where(p => !p.IsIgnored)) {
+          CheckSetterAndGetter(property);
           if (property.SourceProperty==null)
             continue;
           var sourceProperty = property.SourceProperty;
@@ -34,6 +35,22 @@ namespace Xtensive.Core.ObjectMapping
             ValidateReferenceProperty(property, sourceProperty);
         }
       }
+    }
+
+    #region Private \ internal methods
+
+    private static void CheckSetterAndGetter(TargetPropertyDescription property)
+    {
+      if (property.SystemProperty.GetSetMethod()==null)
+        throw new InvalidOperationException(
+          String.Format(Strings.ExPropertyDoesNotHaveSetter, property.SystemProperty, property.ReflectedType));
+      if (!property.IsChangeTrackingDisabled && property.SystemProperty.GetGetMethod()==null)
+        throw new InvalidOperationException(
+          String.Format(Strings.ExPropertyDoesNotHaveGetter, property.SystemProperty, property.ReflectedType));
+      if (property.SourceProperty!=null && property.SourceProperty.SystemProperty.GetGetMethod()==null)
+        throw new InvalidOperationException(
+          String.Format(Strings.ExPropertyDoesNotHaveGetter, property.SourceProperty,
+          property.SourceProperty.ReflectedType));
     }
 
     private void ValidateReferenceProperty(TargetPropertyDescription property,
@@ -65,5 +82,7 @@ namespace Xtensive.Core.ObjectMapping
           String.Format(Strings.ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive, property,
           sourceProperty));
     }
+
+    #endregion
   }
 }

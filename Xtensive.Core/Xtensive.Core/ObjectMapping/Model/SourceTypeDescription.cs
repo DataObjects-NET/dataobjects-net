@@ -5,7 +5,6 @@
 // Created:    2009.12.11
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
@@ -16,7 +15,6 @@ namespace Xtensive.Core.ObjectMapping.Model
   /// Description of source mapped type.
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("SystemType = {SystemType}")]
   public sealed class SourceTypeDescription : TypeDescription
   {
     private TargetTypeDescription targetType;

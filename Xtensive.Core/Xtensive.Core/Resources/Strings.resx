@@ -729,4 +729,7 @@
   <data name="ExTypeXCanNotBeTransformed" xml:space="preserve">
     <value>The type {0} can't be transformed.</value>
   </data>
+  <data name="XInY" xml:space="preserve">
+    <value>{0} in {1}</value>
+  </data>
 </root>

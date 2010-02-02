@@ -206,9 +206,9 @@ namespace Xtensive.Storage.Manual.ObjectMapper
 
     public WebPageDto PersonalPage { get; set; }
 
-    public BlogPostDto[] BlogPosts { get; private set; }
+    public BlogPostDto[] BlogPosts { get; set; }
 
-    public HashSet<UserDto> Friends { get; private set; }
+    public HashSet<UserDto> Friends { get; set; }
   }
 
   [Serializable]

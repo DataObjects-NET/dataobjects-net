@@ -24,7 +24,8 @@ namespace Xtensive.Storage.ObjectMapping
   {
     private OperationSet comparisonResult;
     private Session session;
-    private Dictionary<object, Key> keyMapping;
+    private Dictionary<object, Key> newObjectKeys;
+    private Dictionary<object, Key> existingObjectKeys;
 
     /// <inheritdoc/>
     protected override void OnObjectModified(OperationInfo operationInfo)
@@ -53,6 +54,38 @@ namespace Xtensive.Storage.ObjectMapping
       comparisonResult.Register(operation);
     }
 
+    /// <inheritdoc/>
+    protected override void InitializeComparison(object originalTarget, object modifiedTarget)
+    {
+      comparisonResult = new OperationSet();
+      if (newObjectKeys!=null)
+        newObjectKeys.Clear();
+      if (existingObjectKeys!=null)
+        existingObjectKeys.Clear();
+      session = Session.Demand();
+    }
+
+    /// <inheritdoc/>
+    protected override GraphComparisonResult GetComparisonResult(Dictionary<object, object> originalObjects,
+      Dictionary<object, object> modifiedObjects)
+    {
+      Dictionary<object, object> formattedKeyMapping = null;
+      if (newObjectKeys!=null && newObjectKeys.Count > 0) {
+        formattedKeyMapping = newObjectKeys.Select(pair => new {pair.Key, Value = pair.Value.Format()})
+          .ToDictionary(pair => pair.Key, pair => (object) pair.Value);
+        newObjectKeys.Clear();
+      }
+      var result = new GraphComparisonResult(originalObjects, modifiedObjects, comparisonResult,
+        formattedKeyMapping!=null ? new ReadOnlyDictionary<object, object>(formattedKeyMapping, false) : null);
+      session = null;
+      comparisonResult = null;
+      if (existingObjectKeys!=null)
+        existingObjectKeys.Clear();
+      return result;
+    }
+
+    #region Private \ internal methods
+
     private IOperation CreatePropertySettingOperation(OperationInfo operationInfo)
     {
       IOperation operation;
@@ -73,50 +106,28 @@ namespace Xtensive.Storage.ObjectMapping
     private IOperation CreateEntityCreationOperation(OperationInfo operationInfo)
     {
       IOperation operation;
-      if (keyMapping==null)
-        keyMapping = new Dictionary<object, Key>();
+      if (newObjectKeys==null)
+        newObjectKeys = new Dictionary<object, Key>();
       var newKey = CreateKey(operationInfo.Object, operationInfo.Object.GetType());
       var dtoKey = MappingDescription.ExtractTargetKey(operationInfo.Object);
-      keyMapping[dtoKey] = newKey;
+      newObjectKeys[dtoKey] = newKey;
       operation = new EntityOperation(newKey, Operations.OperationType.CreateEntity);
       return operation;
     }
-
-    /// <inheritdoc/>
-    protected override void InitializeComparison(object originalTarget, object modifiedTarget)
-    {
-      comparisonResult = new OperationSet();
-      if (keyMapping!=null)
-        keyMapping.Clear();
-      session = Session.Demand();
-    }
-
-    /// <inheritdoc/>
-    protected override GraphComparisonResult GetComparisonResult(Dictionary<object, object> originalObjects,
-      Dictionary<object, object> modifiedObjects)
-    {
-      Dictionary<object, object> formattedKeyMapping = null;
-      if (keyMapping!=null && keyMapping.Count > 0) {
-        formattedKeyMapping = keyMapping.Select(pair => new {pair.Key, Value = pair.Value.Format()})
-          .ToDictionary(pair => pair.Key, pair => (object) pair.Value);
-        keyMapping.Clear();
-      }
-      var result = new GraphComparisonResult(originalObjects, modifiedObjects, comparisonResult,
-        formattedKeyMapping!=null ? new ReadOnlyDictionary<object, object>(formattedKeyMapping, false) : null);
-      session = null;
-      comparisonResult = null;
-      return result;
-    }
-
-    #region Private \ internal methods
 
     private Key ExtractKey(object obj)
     {
       Key result;
       var dtoKey = (string) MappingDescription.ExtractTargetKey(obj);
-      if (keyMapping != null && keyMapping.TryGetValue(dtoKey, out result))
+      if (newObjectKeys!=null && newObjectKeys.TryGetValue(dtoKey, out result))
         return result;
-      return Key.Parse(session.Domain, dtoKey);
+      if (existingObjectKeys==null)
+        existingObjectKeys = new Dictionary<object, Key>();
+      if (!existingObjectKeys.TryGetValue(dtoKey, out result)) {
+        result = Key.Parse(session.Domain, dtoKey);
+        existingObjectKeys.Add(dtoKey, result);
+      }
+      return result;
     }
 
     private Key CreateKey(object target, Type type)

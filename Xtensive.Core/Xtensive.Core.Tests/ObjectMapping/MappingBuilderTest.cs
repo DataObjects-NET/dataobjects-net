@@ -57,8 +57,8 @@ namespace Xtensive.Core.Tests.ObjectMapping
           var target = (PetOwnerDto) mapper.Transform(source);
           EnsureAreEqual(source, target);
         }
-        ((AutoResetEvent) state).Set();
         Interlocked.Increment(ref finishedTaskCount);
+        ((AutoResetEvent) state).Set();
       };
       var finishEvents = new List<AutoResetEvent>();
       for (var i = 0; i < threadCount; i++) {
@@ -97,6 +97,53 @@ namespace Xtensive.Core.Tests.ObjectMapping
           .MapStructure<object, AccessRightDto>());
     }
 
+    [Test]
+    public void CheckSourceGetterAndSetterTest()
+    {
+      Func<IMappingBuilderAdapter<SourceGetterSetterExample, SourceGetterSetterExampleDto>>
+        sourceBuilderProvider = () => new MappingBuilder()
+          .MapType<SourceGetterSetterExample, SourceGetterSetterExampleDto, Guid>(s => s.Id, s => s.Id);
+      AssertEx.ThrowsInvalidOperationException(() => sourceBuilderProvider.Invoke()
+        .IgnoreProperty(s => s.WithInternalGetter).IgnoreProperty(s => s.WithProtectedGetter).Build());
+      AssertEx.ThrowsInvalidOperationException(() => sourceBuilderProvider.Invoke()
+        .IgnoreProperty(s => s.WithInternalGetter).IgnoreProperty(s => s.WriteOnly).Build());
+      AssertEx.ThrowsInvalidOperationException(() => sourceBuilderProvider.Invoke()
+        .IgnoreProperty(s => s.WithProtectedGetter).IgnoreProperty(s => s.WriteOnly).Build());
+      var builder = sourceBuilderProvider.Invoke().IgnoreProperty(s => s.WithInternalGetter)
+        .IgnoreProperty(s => s.WithProtectedGetter).IgnoreProperty(s => s.WriteOnly);
+      Assert.IsNotNull(builder);
+    }
+
+    [Test]
+    public void CheckTargetGetterAndSetterTest()
+    {
+      var builder0 = new MappingBuilder()
+        .MapType<TargetGetterSetterExample, SetterOnlyExampleDto, Guid>(t => t.Id, t => t.Id);
+      AssertEx.ThrowsInvalidOperationException(() => builder0.Build());
+      var builder1 = new MappingBuilder()
+        .MapType<TargetGetterSetterExample, ProtectedGetterExampleDto, Guid>(t => t.Id, t => t.Id);
+      AssertEx.ThrowsInvalidOperationException(() => builder1.Build());
+      Func<IMappingBuilderAdapter<TargetGetterSetterExample, TargetGetterSetterExampleDto>>
+        builderProvider = () => new MappingBuilder()
+          .MapType<TargetGetterSetterExample, TargetGetterSetterExampleDto, Guid>(s => s.Id, s => s.Id);
+      var builder2 = builderProvider.Invoke().IgnoreProperty(t => t.ReadOnly)
+        .IgnoreProperty(t => t.WithInternalGetter).IgnoreProperty(t => t.WithInternalSetter);
+      AssertEx.ThrowsInvalidOperationException(() => builder2.Build());
+      builder2 = builderProvider.Invoke().IgnoreProperty(t => t.ReadOnly)
+        .IgnoreProperty(t => t.WithInternalGetter).IgnoreProperty(t => t.WithProtectedSetter);
+      AssertEx.ThrowsInvalidOperationException(() => builder2.Build());
+      builder2 = builderProvider.Invoke().IgnoreProperty(t => t.ReadOnly)
+        .IgnoreProperty(t => t.WithInternalSetter).IgnoreProperty(t => t.WithProtectedSetter);
+      AssertEx.ThrowsInvalidOperationException(() => builder2.Build());
+      builder2 = builderProvider.Invoke().IgnoreProperty(t => t.WithInternalGetter)
+        .IgnoreProperty(t => t.WithInternalSetter).IgnoreProperty(t => t.WithProtectedSetter);
+      AssertEx.ThrowsInvalidOperationException(() => builder2.Build());
+      var mapping = builderProvider.Invoke().IgnoreProperty(t => t.ReadOnly)
+        .IgnoreProperty(t => t.WithInternalGetter).IgnoreProperty(t => t.WithInternalSetter)
+        .IgnoreProperty(t => t.WithProtectedSetter);
+      Assert.IsNotNull(mapping);
+    }
+    
     private static MappingDescription GetPetOwnerMapping()
     {
       return new MappingBuilder()

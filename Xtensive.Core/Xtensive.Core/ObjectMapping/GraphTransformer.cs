@@ -108,10 +108,9 @@ namespace Xtensive.Core.ObjectMapping
       Type interfaceType;
       Type itemType;
       if (MappingHelper.IsCollectionCandidate(type)
-        && MappingHelper.TryGetCollectionInterface(type, out interfaceType, out itemType)) {
+        && MappingHelper.TryGetCollectionInterface(type, out interfaceType, out itemType))
         foreach (var obj in (IEnumerable) source)
           RegisterRootObject(obj);
-      }
       else
         RegisterRootObject(source);
     }

@@ -151,7 +151,7 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 
   public class RecursiveComposition
   {
-    public Guid Id { get; set; }
+    public Guid Id { get; private set; }
 
     public int Level { get; private set; }
 
@@ -338,5 +338,47 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
     {
       Id = Guid.NewGuid();
     }
+  }
+
+  public class SourceGetterSetterExample
+  {
+    private readonly int readOnly;
+    private DateTime writeOnly;
+
+    public Guid Id { get; private set; }
+
+    public int ReadOnly { get { return readOnly; } }
+
+    public DateTime WriteOnly { set { writeOnly = value; } }
+
+    public string WithProtectedGetter { protected get; set; }
+
+    public double WithInternalGetter { internal get; set; }
+
+
+    // Constructors
+
+    public SourceGetterSetterExample()
+    {
+      Id = Guid.NewGuid();
+      readOnly = new Random().Next();
+    }
+  }
+
+  public class TargetGetterSetterExample
+  {
+    public Guid Id { get; set; }
+
+    public int ReadOnly { get; set; }
+
+    public DateTime WriteOnly { get; set; }
+
+    public string WithProtectedGetter { get; set; }
+
+    public double WithInternalGetter { get; set; }
+
+    public string WithProtectedSetter { get; set; }
+
+    public double WithInternalSetter { get; set; }
   }
 }

@@ -61,6 +61,12 @@ namespace Xtensive.Core.ObjectMapping.Model
       base.Lock(recursive);
     }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return SystemType.ToString();
+    }
+
     /// <summary>
     /// Adds the property.
     /// </summary>
@@ -70,7 +76,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       this.EnsureNotLocked();
       if (properties.ContainsKey(property.SystemProperty))
         throw new InvalidOperationException(
-          String.Format(Strings.ExMappingForPropertyXHasAlreadyBeenRegistered, property.SystemProperty));
+          String.Format(Strings.ExMappingForPropertyXHasAlreadyBeenRegistered, property));
       properties.Add(property.SystemProperty, property);
     }
 

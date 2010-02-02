@@ -109,7 +109,8 @@ namespace Xtensive.Core.Tests.ObjectMapping
       int depthLimit, GraphTruncationType action)
     {
       var mapperSettings = new MapperSettings {GraphTruncationType = action, GraphDepthLimit = depthLimit};
-      var mapping = new MappingBuilder().MapType<RecursiveComposition, RecursiveCompositionDto, Guid>(r => r.Id, r => r.Id)
+      var mapping = new MappingBuilder()
+        .MapType<RecursiveComposition, RecursiveCompositionDto, Guid>(r => r.Id, r => r.Id)
         .MapType<Simplest, SimplestDto, Guid>(s => s.Id, s => s.Id).Build();
       return new DefaultMapper(mapping, mapperSettings);
     }

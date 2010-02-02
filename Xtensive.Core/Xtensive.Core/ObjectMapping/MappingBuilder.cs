@@ -127,7 +127,7 @@ namespace Xtensive.Core.ObjectMapping
       BuildTargetDescriptions();
       mappingDescription.RegisterEnumTypes(enumTypes);
       mappingDescription.Lock(true);
-      var modelValidator = new ModelValidator();
+      var modelValidator = new MappingValidator();
       modelValidator.Validate(mappingDescription);
       return mappingDescription;
     }

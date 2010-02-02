@@ -194,11 +194,11 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
   {
     public Guid Id { get; set; }
 
-    public int Level { get; private set; }
+    public int Level { get; set; }
 
     public SimplestDto AuxReference { get; set; }
 
-    public RecursiveCompositionDto Child { get; private set; }
+    public RecursiveCompositionDto Child { get; set; }
   }
 
   public class SimplestDto
@@ -306,5 +306,53 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
     public object Object { get; set; }
 
     public List<object> ObjectCollection { get; set; }
+  }
+
+  [Serializable]
+  public class SourceGetterSetterExampleDto
+  {
+    public Guid Id { get; set; }
+
+    public int ReadOnly { get; set; }
+
+    public DateTime WriteOnly { get; set; }
+
+    public string WithProtectedGetter { get; set; }
+
+    public double WithInternalGetter { get; set; }
+  }
+
+  [Serializable]
+  public class SetterOnlyExampleDto
+  {
+    private DateTime writeOnly;
+
+    public Guid Id { get; set; }
+
+    public DateTime WriteOnly { set { writeOnly = value; } }
+  }
+
+  [Serializable]
+  public class ProtectedGetterExampleDto
+  {
+    public Guid Id { get; set; }
+
+    public string WithProtectedGetter { protected get; set; }
+  }
+
+  [Serializable]
+  public class TargetGetterSetterExampleDto
+  {
+    private readonly int readOnly;
+
+    public Guid Id { get; set; }
+
+    public int ReadOnly { get { return readOnly; } }
+
+    public double WithInternalGetter { internal get; set; }
+
+    public string WithProtectedSetter { get; protected set; }
+
+    public double WithInternalSetter { get; internal set; }
   }
 }

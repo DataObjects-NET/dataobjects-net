@@ -402,8 +402,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         };
         var mapping = new MappingBuilder()
           .MapType<SimplePerson, PersonWithVersionDto, string>(sp => sp.Key.Format(), sp => sp.Key)
-          .MapProperty(p => serializer.Invoke(p.VersionInfo), p => p.Version)
-          .MapStructure<VersionInfo, VersionInfo>().Build();
+          .MapProperty(p => serializer.Invoke(p.VersionInfo), p => p.Version).Build();
         mapper = new Mapper(mapping);
         List<object> original;
         using (var session = Session.Open(Domain))
