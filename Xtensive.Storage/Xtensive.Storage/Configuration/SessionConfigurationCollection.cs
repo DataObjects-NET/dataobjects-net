@@ -191,10 +191,10 @@ namespace Xtensive.Storage.Configuration
         config.Password = Default.Password;
       if (config.CacheSize!=Default.CacheSize && config.CacheSize==SessionConfiguration.DefaultCacheSize)
         config.CacheSize = Default.CacheSize;
-      if (config.CacheType != Default.CacheType && config.CacheType == SessionConfiguration.DefaultCacheType)
+      if (config.CacheType != Default.CacheType && config.CacheType == SessionCacheType.Default)
         config.CacheType = Default.CacheType;
       if (config.DefaultIsolationLevel != Default.DefaultIsolationLevel
-        && config.DefaultIsolationLevel == SessionConfiguration.DefaultIsolationLevelValue)
+        && config.DefaultIsolationLevel == SessionConfiguration.DefaultDefaultIsolationLevelValue)
         config.DefaultIsolationLevel = Default.DefaultIsolationLevel;
       config.Options = config.Options | Default.Options;
     }

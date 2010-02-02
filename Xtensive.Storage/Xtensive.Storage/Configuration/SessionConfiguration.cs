@@ -22,22 +22,17 @@ namespace Xtensive.Storage.Configuration
   [Serializable]
   public class SessionConfiguration : ConfigurationBase
   {
-    #region Constants
+    #region Defaults
 
     /// <summary>
     /// Default cache size.
     /// </summary>
     public const int DefaultCacheSize = 16 * 1024;
-
-    /// <summary>
-    /// Default cache type.
-    /// </summary>
-    public const SessionCacheType DefaultCacheType = SessionCacheType.LruWeak;
-
+    
     ///<summary>
     /// Default isolation level.
     ///</summary>
-    public const IsolationLevel DefaultIsolationLevelValue = IsolationLevel.ReadCommitted;
+    public const IsolationLevel DefaultDefaultIsolationLevelValue = IsolationLevel.ReadCommitted;
 
     /// <summary>
     /// Default batch size.
@@ -49,13 +44,14 @@ namespace Xtensive.Storage.Configuration
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static readonly SessionConfiguration Default;
     
-    private SessionOptions options;
-    private string userName;
-    private string password;
-    private int cacheSize;
-    private SessionCacheType cacheType;
-    private IsolationLevel defaultIsolationLevel;
-    private int batchSize;
+    private SessionOptions options = SessionOptions.Default;
+    private string userName = string.Empty;
+    private string password = string.Empty;
+    private int cacheSize = DefaultCacheSize;
+    private int batchSize = DefaultBatchSize;
+    private SessionCacheType cacheType = SessionCacheType.Default;
+    private IsolationLevel defaultIsolationLevel = DefaultDefaultIsolationLevelValue; // what a fancy name?
+    private ReaderPreloadingPolicy readerPreloading = ReaderPreloadingPolicy.Default;
 
     /// <summary>
     /// Gets the session name.
@@ -101,9 +97,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets the type of the session cache.
-    /// Default value is <see cref="DefaultCacheType"/>.
     /// </summary>
-    /// <value>The type of the cache.</value>
     public SessionCacheType CacheType {
       get { return cacheType; }
       set {
@@ -114,7 +108,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets the default isolation level. 
-    /// Default value is <see cref="DefaultIsolationLevelValue"/>.
+    /// Default value is <see cref="DefaultDefaultIsolationLevelValue"/>.
     /// </summary>
     public IsolationLevel DefaultIsolationLevel {
       get { return defaultIsolationLevel; }
@@ -151,6 +145,18 @@ namespace Xtensive.Storage.Configuration
       set {
         this.EnsureNotLocked();
         options = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the reader preloading policy.
+    /// </summary>
+    public ReaderPreloadingPolicy ReaderPreloading
+    {
+      get { return readerPreloading; }
+      set {
+        this.EnsureNotLocked();
+        readerPreloading = value;
       }
     }
 
@@ -194,6 +200,7 @@ namespace Xtensive.Storage.Configuration
       CacheType = configuration.CacheType;
       CacheSize = configuration.CacheSize;
       BatchSize = configuration.BatchSize;
+      ReaderPreloading = configuration.readerPreloading;
       DefaultIsolationLevel = configuration.DefaultIsolationLevel;
     }
 
@@ -209,9 +216,10 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public override string ToString()
     {
-      if (UserName.IsNullOrEmpty())
-        return string.Format("Name = {0}, Options = {1}, CacheType = {2}, CacheSize = {3}, DefaultIsolationLevel = {4}", Name, Options, CacheType, CacheSize, DefaultIsolationLevel);
-      return string.Format("Name = {0}, UserName = {1}, Options = {2}, CacheType = {3}, CacheSize = {4}, DefaultIsolationLevel = {5}", Name, UserName, Options, CacheType, CacheSize, DefaultIsolationLevel);
+      var safeUserName = string.IsNullOrEmpty(UserName) ? "<null>" : UserName;
+      return string.Format(
+        "Name = {0}, UserName = {1}, Options = {2}, CacheType = {3}, CacheSize = {4}, DefaultIsolationLevel = {5}",
+        Name, safeUserName, Options, CacheType, CacheSize, DefaultIsolationLevel);
     }
 
 
@@ -249,13 +257,6 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public SessionConfiguration()
     {
-      CacheSize = DefaultCacheSize;
-      DefaultIsolationLevel = DefaultIsolationLevelValue;
-      Options = SessionOptions.Default;
-      Type = SessionType.Default;
-      BatchSize = DefaultBatchSize;
-      UserName = string.Empty;
-      Password = string.Empty;
     }
 
     // Type initializer

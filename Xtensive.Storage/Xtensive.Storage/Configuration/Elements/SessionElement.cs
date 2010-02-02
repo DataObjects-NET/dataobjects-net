@@ -24,12 +24,10 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string OptionsElementName = "options";
     private const string IsolationLevelElementName = "isolationLevel";
     private const string BatchSizeElementName = "batchSize";
+    private const string ReaderPreloadingElementName = "readerPreloading";
 
     /// <inheritdoc/>
-    public override object Identifier
-    {
-      get { return Name; }
-    }
+    public override object Identifier { get { return Name; } }
 
     /// <summary>
     /// <see cref="SessionConfiguration.Name" copy="true"/>
@@ -111,6 +109,13 @@ namespace Xtensive.Storage.Configuration.Elements
       set { this[BatchSizeElementName] = value; }
     }
 
+    [ConfigurationProperty(ReaderPreloadingElementName, IsRequired = false, DefaultValue = "Default")]
+    public string ReaderPreloading
+    {
+      get { return (string) this[ReaderPreloadingElementName]; }
+      set { this[ReaderPreloadingElementName] = value; }
+    }
+
     /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="SessionConfiguration"/> object.
@@ -122,10 +127,11 @@ namespace Xtensive.Storage.Configuration.Elements
         UserName = UserName,
         Password = Password,
         CacheSize = CacheSize,
+        BatchSize = BatchSize,
         CacheType =  (SessionCacheType) Enum.Parse(typeof (SessionCacheType), CacheType, true),
         Options = (SessionOptions) Enum.Parse(typeof (SessionOptions), Options, true),
         DefaultIsolationLevel = (IsolationLevel) Enum.Parse(typeof (IsolationLevel), DefaultIsolationLevel, true),
-        BatchSize = BatchSize
+        ReaderPreloading = (ReaderPreloadingPolicy) Enum.Parse(typeof (ReaderPreloadingPolicy), ReaderPreloading, true)
       };
       return result;
     }

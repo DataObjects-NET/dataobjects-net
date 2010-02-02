@@ -15,9 +15,15 @@ namespace Xtensive.Storage.Configuration
   public enum NamespacePolicy
   {
     /// <summary>
-    /// The same as <see cref="Omit"/>.
+    /// Default value is <see cref="Omit"/>.
     /// </summary>
-    Default = 0,
+    Default = Omit,
+
+    /// <summary>
+    /// Only name of the type will be used to derive the name of
+    /// the table or view.
+    /// </summary>
+    Omit = 0,
 
     /// <summary>
     /// Name of the type and namespace synonym will be used to derive 
@@ -37,11 +43,5 @@ namespace Xtensive.Storage.Configuration
     /// algorythm to use.
     /// </summary>
     Hash = 3,
-
-    /// <summary>
-    /// Only name of the type will be used to derive the name of
-    /// the table or view.
-    /// </summary>
-    Omit = Default,
   }
 }

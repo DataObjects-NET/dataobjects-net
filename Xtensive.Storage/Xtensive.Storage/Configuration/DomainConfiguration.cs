@@ -24,33 +24,21 @@ namespace Xtensive.Storage.Configuration
   /// The configuration of the <see cref="Domain"/>.
   /// </summary> 
   [Serializable]
-  public class  DomainConfiguration : ConfigurationBase
+  public class DomainConfiguration : ConfigurationBase
   {
-    #region Defaults (constants)
-
-    /// <summary>
-    /// Default <see cref="UpgradeMode"/> value:
-    /// "<see cref="DomainUpgradeMode.Default" />".
-    /// </summary>
-    public const DomainUpgradeMode DefaultUpgradeMode = DomainUpgradeMode.Default;
-
-    /// <summary>
-    /// Default <see cref="ForeignKeyMode"/> value:
-    /// "<see cref="Storage.ForeignKeyMode.Default" />".
-    /// </summary>
-    public const ForeignKeyMode DefaultForeignKeyMode = ForeignKeyMode.Default;
+    #region Defaults
 
     /// <summary>
     /// Default <see cref="SectionName"/> value:
     /// "<see langword="Xtensive.Storage" />".
     /// </summary>
-    public static string DefaultSectionName = "Xtensive.Storage";
+    public const string DefaultSectionName = "Xtensive.Storage";
 
     /// <summary>
     /// Default <see cref="DomainConfiguration.KeyCacheSize"/> value: 
     /// <see langword="16*1024" />.
     /// </summary>
-    public const int DefaultKeyCacheSize = 16*1024;
+    public const int DefaultKeyCacheSize = 16 * 1024;
 
     /// <summary>
     /// Default <see cref="DomainConfiguration.KeyGeneratorCacheSize"/> value: 
@@ -71,30 +59,18 @@ namespace Xtensive.Storage.Configuration
     public const int DefaultRecordSetMappingCacheSize = 1024;
 
     /// <summary>
-    /// Default <see cref="DomainConfiguration.SessionPoolSize"/> value: 
-    /// <see langword="64" />.
-    /// </summary>
-    public const int DefaultSessionPoolSize = 64;
-
-    /// <summary>
-    /// Default <see cref="DomainConfiguration.InconsistentTransactions"/> value: 
-    /// <see langword="false" />.
-    /// </summary>
-    public const bool DefaultInconsistentTransactions = false;
-
-    /// <summary>
     /// Default <see cref="DomainConfiguration.AutoValidation"/> value: 
     /// <see langword="true" />.
     /// </summary>
     public const bool DefaultAutoValidation = true;
 
     #endregion
-    
-    private static string sectionName = DefaultSectionName;
-    private static bool sectionNameIsDefined;
 
-    private string name = string.Empty;
+    private static bool sectionNameIsDefined;
+    private static string sectionName = DefaultSectionName;
+    
     private UrlInfo connectionInfo;
+    private string name = string.Empty;
     private string defaultSchema = string.Empty;
     private TypeRegistry types = new TypeRegistry(new SessionBoundTypeRegistrationHandler());
     private TypeRegistry compilerContainers = new TypeRegistry(new CompilerContainerRegistrationHandler());
@@ -104,11 +80,10 @@ namespace Xtensive.Storage.Configuration
     private int queryCacheSize = DefaultQueryCacheSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
-    private bool inconsistentTransactions;
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
-    private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
-    private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
-    private ValidationMode validationMode;
+    private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
+    private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
+    private ValidationMode validationMode = ValidationMode.Default;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -163,7 +138,6 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets a value indicating domain upgrade behavior. 
-    /// Default value is <see cref="DefaultUpgradeMode"/>.
     /// </summary>
     public DomainUpgradeMode UpgradeMode
     {
@@ -179,15 +153,19 @@ namespace Xtensive.Storage.Configuration
     /// Gets the collection of persistent <see cref="Type"/>s that are about to be 
     /// registered in the <see cref="Domain"/>.
     /// </summary>
-    public TypeRegistry Types { get { return types; } }
-    
+    public TypeRegistry Types
+    {
+      get { return types; }
+    }
+
     /// <summary>
     /// Gets or sets the naming convention.
     /// </summary>
     public NamingConvention NamingConvention
     {
       get { return namingConvention; }
-      set {
+      set
+      {
         this.EnsureNotLocked();
         namingConvention = value;
       }
@@ -200,7 +178,8 @@ namespace Xtensive.Storage.Configuration
     public int KeyCacheSize
     {
       get { return keyCacheSize; }
-      set {
+      set
+      {
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyCacheSize = value;
@@ -214,7 +193,8 @@ namespace Xtensive.Storage.Configuration
     public int KeyGeneratorCacheSize
     {
       get { return keyGeneratorCacheSize; }
-      set {
+      set
+      {
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyGeneratorCacheSize = value;
@@ -228,7 +208,8 @@ namespace Xtensive.Storage.Configuration
     public int QueryCacheSize
     {
       get { return queryCacheSize; }
-      set {
+      set
+      {
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         queryCacheSize = value;
@@ -242,7 +223,8 @@ namespace Xtensive.Storage.Configuration
     public int RecordSetMappingCacheSize
     {
       get { return recordSetMappingCacheSize; }
-      set {
+      set
+      {
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         recordSetMappingCacheSize = value;
@@ -256,7 +238,8 @@ namespace Xtensive.Storage.Configuration
     public bool AutoValidation
     {
       get { return autoValidation; }
-      set {
+      set
+      {
         this.EnsureNotLocked();
         autoValidation = value;
       }
@@ -268,7 +251,8 @@ namespace Xtensive.Storage.Configuration
     public ValidationMode ValidationMode
     {
       get { return validationMode; }
-      set {
+      set
+      {
         this.EnsureNotLocked();
         validationMode = value;
       }
@@ -281,7 +265,8 @@ namespace Xtensive.Storage.Configuration
     public ForeignKeyMode ForeignKeyMode
     {
       get { return foreignKeyMode; }
-      set {
+      set
+      {
         this.EnsureNotLocked();
         foreignKeyMode = value;
       }
@@ -293,7 +278,8 @@ namespace Xtensive.Storage.Configuration
     public SessionConfigurationCollection Sessions
     {
       get { return sessions; }
-      set {
+      set
+      {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         this.EnsureNotLocked();
         sessions = value;
@@ -303,7 +289,10 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets user defined method compiler containers.
     /// </summary>
-    public TypeRegistry CompilerContainers { get { return compilerContainers; } }
+    public TypeRegistry CompilerContainers
+    {
+      get { return compilerContainers; }
+    }
 
     /// <summary>
     /// Gets or sets the default schema.
@@ -311,7 +300,8 @@ namespace Xtensive.Storage.Configuration
     public string DefaultSchema
     {
       get { return defaultSchema; }
-      set {
+      set
+      {
         this.EnsureNotLocked();
         defaultSchema = value;
       }
@@ -417,7 +407,7 @@ namespace Xtensive.Storage.Configuration
       }
       else
         section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
-      if (section==null) 
+      if (section==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
       var domainElement = section.Domains[name];

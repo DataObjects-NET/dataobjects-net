@@ -25,7 +25,6 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string KeyCacheSizeElementName = "keyCacheSize";
     private const string KeyGeneratorCacheSizeElementName = "generatorCacheSize";
     private const string QueryCacheSizeElementName = "queryCacheSize";
-    private const string SessionPoolSizeElementName = "sessionPoolSize";
     private const string RecordSetMappingCacheSizeElementName = "recordSetMappingCacheSizeSize";
     private const string AutoValidationElementName = "autoValidation";
     private const string DefaultSchemaElementName = "defaultSchema";
@@ -113,17 +112,6 @@ namespace Xtensive.Storage.Configuration.Elements
     {
       get { return (int) this[QueryCacheSizeElementName]; }
       set { this[QueryCacheSizeElementName] = value; }
-    }
-
-    /// <summary>
-    /// <see cref="DomainConfiguration.SessionPoolSize" copy="true"/>
-    /// </summary>
-    [ConfigurationProperty(SessionPoolSizeElementName, DefaultValue = DomainConfiguration.DefaultSessionPoolSize, IsRequired = false)]
-    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
-    public int SessionPoolSize
-    {
-      get { return (int) this[SessionPoolSizeElementName]; }
-      set { this[SessionPoolSizeElementName] = value; }
     }
 
     /// <summary>

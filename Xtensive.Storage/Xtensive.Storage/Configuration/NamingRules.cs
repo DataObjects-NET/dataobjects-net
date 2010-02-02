@@ -16,9 +16,14 @@ namespace Xtensive.Storage.Configuration
   public enum NamingRules
   {
     /// <summary>
+    /// Default value is <see cref="None"/>.
+    /// </summary>
+    Default = None,
+    
+    /// <summary>
     /// No modification should be applied.
     /// </summary>
-    Default = 0,
+    None = 0,
 
     /// <summary>
     /// All hyphens should be replaced with underscore symbol.

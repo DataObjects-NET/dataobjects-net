@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Linq;
@@ -108,8 +109,21 @@ namespace Xtensive.Storage.Providers
     protected virtual EnumerationContextOptions GetEnumerationContextOptions()
     {
       var options = EnumerationContextOptions.Default;
-      if (!Handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.MultipleActiveResultSets))
+      switch (Session.Configuration.ReaderPreloading) {
+      case ReaderPreloadingPolicy.Auto:
+        bool marsSupported = Handlers.DomainHandler.ProviderInfo
+          .Supports(ProviderFeatures.MultipleActiveResultSets);
+        if (!marsSupported)
+          options |= EnumerationContextOptions.PreloadEnumerator;
+        break;
+      case ReaderPreloadingPolicy.Always:
         options |= EnumerationContextOptions.PreloadEnumerator;
+        break;
+      case ReaderPreloadingPolicy.Never:
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("Session.Configuration.ReaderPreloading");
+      }
       return options;
     }
 

@@ -16,9 +16,9 @@ namespace Xtensive.Storage.Configuration
   {
     /// <summary>
     /// Default cache type.
-    /// Value is <see langword="0x0" />.
+    /// Value is <see cref="LruWeak"/>.
     /// </summary>
-    Default = 0,
+    Default = LruWeak,
 
     /// <summary>
     /// <see cref="LruCache&lt;TKey,TItem&gt;"/> with chained <see cref="WeakCache&lt;TKey,TItem&gt;"/>.
