@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.02.02
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Sql;
@@ -38,7 +39,7 @@ namespace Xtensive.Storage.Tests.Issues
         connection.Open();
         string checkSchemaQuery = string.Format("select object_id('{0}')", SchemaName);
         using (var command = connection.CreateCommand(checkSchemaQuery))
-          if (command.ExecuteScalar()!=null)
+          if (command.ExecuteScalar()!=DBNull.Value)
             return;
         var createSchemaQuery = string.Format("create schema {0}", SchemaName);
         using (var command = connection.CreateCommand(createSchemaQuery))
