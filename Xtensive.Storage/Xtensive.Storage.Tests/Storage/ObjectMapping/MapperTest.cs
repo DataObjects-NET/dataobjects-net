@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     {
       var config = base.BuildConfiguration();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof(Person).Assembly, typeof(Supplier).Namespace);
+      config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       return config;
     }
 

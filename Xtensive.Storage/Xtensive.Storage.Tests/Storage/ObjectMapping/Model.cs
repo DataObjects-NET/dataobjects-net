@@ -11,20 +11,6 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 {
   [Serializable]
   [HierarchyRoot]
-  public class Simple : Entity
-  {
-    [Key, Field]
-    public int Id { get; private set;}
-
-    [Field, Version]
-    public int VersionId { get; set;}
-
-    [Field]
-    public string Value { get; set;}
-  }
-
-  [Serializable]
-  [HierarchyRoot]
   public abstract class Person : Entity
   {
     [Key, Field]
@@ -61,26 +47,6 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
   }
 
   [Serializable]
-  public class Customer : AdvancedPerson
-  {
-    [Field, Association(PairTo = "Customer", OnTargetRemove = OnRemoveAction.Clear)]
-    public EntitySet<Order> Orders { get; private set; }
-
-    [Field]
-    public string City { get; set; }
-
-
-    // Constructors
-
-    public Customer()
-    {}
-
-    public Customer(int id)
-      : base(id)
-    {}
-  }
-
-  [Serializable]
   public class Supplier : AdvancedPerson
   {
     [Field, Association(PairTo = "Supplier")]
@@ -92,43 +58,6 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
   {
     [Field]
     public string Position { get; set; }
-  }
-
-  [Serializable]
-  [HierarchyRoot]
-  public class Order : Entity
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    [Field]
-    public int Number { get; set; }
-
-    [Field]
-    public Employee Employee { get; set; }
-
-    [Field(LazyLoad = true)]
-    public Customer Customer { get; set; }
-
-    [Field, Association(PairTo = "Order", OnOwnerRemove = OnRemoveAction.Clear)]
-    public EntitySet<OrderDetail> Details { get; private set; }
-  }
-
-  [Serializable]
-  [HierarchyRoot]
-  public class OrderDetail : Entity
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    [Field]
-    public Order Order { get; set; }
-
-    [Field]
-    public Product Product { get; set; }
-
-    [Field]
-    public int Count { get; set; }
   }
 
   [Serializable]
@@ -225,19 +154,6 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public string Language { get; set; }
   }
 
-  [Serializable]
-  [HierarchyRoot]
-  public class AnotherTitle : Entity,
-    ITitle
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    public string Text { get; set; }
-
-    public Book Book { get; set; }
-  }
-
   public interface IPublisher : IEntity
   {
     [Field]
@@ -308,77 +224,6 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public int AuxField { get; set; }
 
     public IReferenceToSelf Reference { get; set; }
-  }
-
-  [Serializable]
-  public class Offer : Structure
-  {
-    [Field]
-    public int Number { get; set; }
-
-    [Field(LazyLoad = true)]
-    public Book Book { get; set; }
-
-    [Field]
-    public IBookShop BookShop { get; set; }
-
-    [Field(LazyLoad = true)]
-    public int Lazy { get; set; }
-  }
-
-  [Serializable]
-  public class IntermediateOffer : Structure
-  {
-    [Field]
-    public int Number { get; set; }
-
-    [Field]
-    public OfferContainer AnotherContainer { get; set; }
-
-    [Field]
-    public Offer RealOffer { get; set; }
-  }
-
-  [Serializable]
-  [HierarchyRoot]
-  public class OfferContainer : Entity
-  {
-    [Key, Field]
-    public int Id { get; private set; }
-
-    [Field]
-    public Offer RealOffer { get; set; }
-
-    [Field(LazyLoad = true)]
-    public IntermediateOffer IntermediateOffer { get; set; }
-
-    [Field]
-    public string AuxField { get; set; }
-
-    [Field(LazyLoad = true)]
-    public int Lazy { get; set; }
-  }
-
-  [Serializable]
-  [HierarchyRoot]
-  public class LazyClass : Entity
-  {
-    [Field, Key]
-    public int Id { get; private set; }
-
-    [Field(LazyLoad = true)]
-    public string LazyString { get; set; }
-
-    [Field(LazyLoad = true)]
-    public int LazyInt { get; set; }
-  }
-
-  [Serializable]
-  [HierarchyRoot]
-  public class IdOnly : Entity
-  {
-    [Field, Key]
-    public int Id { get; private set; }
   }
 
   [Serializable]
