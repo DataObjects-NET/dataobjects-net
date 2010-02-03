@@ -42,6 +42,7 @@ namespace Xtensive.Storage
     internal static readonly Parameter<Entity> ownerParameter = new Parameter<Entity>("Owner");
 
     private readonly Entity owner;
+    private readonly CombineTransform auxilaryTypeKeyTransform;
     private bool isInitialized;
 
     /// <summary>
@@ -405,8 +406,22 @@ namespace Xtensive.Storage
 
           if (Field.Association.IsPaired)
             Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
-          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster)
-            GetEntitySetTypeState().ItemCtor.Invoke(Owner.Key.Value.Combine(item.Key.Value));
+          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
+            var combinedTuple = auxilaryTypeKeyTransform.Apply(
+             TupleTransformType.Tuple,
+             Owner.Key.Value,
+             item.Key.Value);
+
+            var combinedKey = Key.Create(
+              Session.Domain,
+              Field.Association.AuxiliaryType,
+              TypeReferenceAccuracy.ExactType,
+              combinedTuple);
+
+            var underlyindEntityState = new EntityState(Session, combinedKey, combinedTuple) {
+              PersistenceState = PersistenceState.New
+            };
+          }
 
           State.Add(item.Key);
           Owner.UpdateVersionInternal();
@@ -442,9 +457,18 @@ namespace Xtensive.Storage
           if (Field.Association.IsPaired)
             Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
 
-          var auxiliaryType = Field.Association.AuxiliaryType;
-          if (auxiliaryType != null && Field.Association.IsMaster) {
-            var combinedKey = Key.Create(Session.Domain, auxiliaryType, TypeReferenceAccuracy.ExactType, Owner.Key.Value.Combine(item.Key.Value));
+          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
+            var combinedTuple = auxilaryTypeKeyTransform.Apply(
+              TupleTransformType.Tuple, 
+              Owner.Key.Value, 
+              item.Key.Value);
+
+            var combinedKey = Key.Create(
+              Session.Domain, 
+              Field.Association.AuxiliaryType, 
+              TypeReferenceAccuracy.ExactType, 
+              combinedTuple);
+
             var underlyindEntityState = new EntityState(Session, combinedKey, null) {
               PersistenceState = PersistenceState.Removed
             };
@@ -686,6 +710,13 @@ namespace Xtensive.Storage
       this.owner = owner;
       Field = field;
       State = new EntitySetState(this);
+      if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
+        var itemType =  Field.ItemType.GetTypeInfo(Session.Domain);
+        auxilaryTypeKeyTransform = new CombineTransform(
+          false, 
+          owner.Type.KeyProviderInfo.TupleDescriptor, 
+          itemType.KeyProviderInfo.TupleDescriptor);
+      }
       Initialize(typeof (EntitySetBase));
     }
 

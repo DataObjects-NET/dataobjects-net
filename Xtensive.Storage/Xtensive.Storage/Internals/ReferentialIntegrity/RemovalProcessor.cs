@@ -100,6 +100,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
       if (sequence==null || sequence.Count==0)
         return;
 
+      if (Context.IsEmpty)
+        Session.Persist();
+
       ExecutePrefetchAction(entities);
 
       var referenceContainers = new List<ReferenceContainer>();
@@ -130,8 +133,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
         }
       }
 
-      if (Session.Handler.ExecutePrefetchTasks(PersistReason.Query) == null);
-        Session.ExecuteAllDelayedQueries(PersistReason.Query);
+      if (Session.Handler.ExecutePrefetchTasks(PersistReason.None) == null);
+        Session.ExecuteAllDelayedQueries(PersistReason.None);
 
       foreach (var container in referenceContainers) {
         var processor = container.Processor;
@@ -144,20 +147,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
           foreach (var reference in container.References.ToList())
             processor.Process(Context, association, removingEntity, reference.ReferencingEntity, reference.ReferencingEntity, removingEntity);
       }
-
-//      foreach (var association in sequence) {
-//        if (association.OwnerType.UnderlyingType.IsAssignableFrom(entityType.UnderlyingType)) {
-//          actionProcessor = GetProcessor(association.OnOwnerRemove.Value);
-//          foreach (var reference in ReferenceFinder.GetReferencesFrom(item, association).ToList())
-//            actionProcessor.Process(Context, association, item, reference.ReferencedEntity, item, reference.ReferencedEntity);
-//        }
-//
-//        if (association.TargetType.UnderlyingType.IsAssignableFrom(entityType.UnderlyingType)) {
-//          actionProcessor = GetProcessor(association.OnTargetRemove.Value);
-//          foreach (var reference in ReferenceFinder.GetReferencesTo(item, association).ToList())
-//            actionProcessor.Process(Context, association, item, reference.ReferencingEntity, reference.ReferencingEntity, item);
-//        }
-//      }
     }
 
     private void ExecutePrefetchAction(List<Entity> itemList)
