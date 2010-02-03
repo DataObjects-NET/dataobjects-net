@@ -100,9 +100,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
       if (sequence==null || sequence.Count==0)
         return;
 
-      if (Context.IsEmpty)
-        Session.Persist();
-
       ExecutePrefetchAction(entities);
 
       var referenceContainers = new List<ReferenceContainer>();
@@ -133,8 +130,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
         }
       }
 
-      if (Session.Handler.ExecutePrefetchTasks(PersistReason.None) == null);
-        Session.ExecuteAllDelayedQueries(PersistReason.None);
+      if (Session.Handler.ExecutePrefetchTasks(PersistReason.Query) == null);
+        Session.ExecuteAllDelayedQueries(PersistReason.Query);
 
       foreach (var container in referenceContainers) {
         var processor = container.Processor;
