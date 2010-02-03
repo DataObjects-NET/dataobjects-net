@@ -442,12 +442,12 @@ namespace Xtensive.Storage
           if (Field.Association.IsPaired)
             Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
 
-          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
-            var combinedKey = Key.Create(Session.Domain, Field.Association.AuxiliaryType,
-                                         TypeReferenceAccuracy.ExactType,
-                                         Owner.Key.Value.Combine(item.Key.Value));
-            Entity underlyingItem = Query.SingleOrDefault(Session, combinedKey);
-            underlyingItem.Remove();
+          var auxiliaryType = Field.Association.AuxiliaryType;
+          if (auxiliaryType != null && Field.Association.IsMaster) {
+            var combinedKey = Key.Create(Session.Domain, auxiliaryType, TypeReferenceAccuracy.ExactType, Owner.Key.Value.Combine(item.Key.Value));
+            var underlyindEntityState = new EntityState(Session, combinedKey, null) {
+              PersistenceState = PersistenceState.Removed
+            };
           }
 
           State.Remove(item.Key);

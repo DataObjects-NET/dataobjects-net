@@ -24,6 +24,15 @@ namespace Xtensive.Storage.ReferentialIntegrity
     private static readonly DenyActionProcessor    denyActionProcessor    = new DenyActionProcessor();
     private static readonly ClearActionProcessor   clearActionProcessor   = new ClearActionProcessor();
 
+    class ReferenceContainer
+    {
+      public Entity RemovingEntity;
+      public ActionProcessor Processor;
+      public AssociationInfo Association;
+      public IEnumerable<ReferenceInfo> References;
+      public bool IsOutgoing;
+    }
+
     internal readonly RemovalContext Context;
 
     public void Remove(Entity item)
@@ -32,7 +41,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
         try {
           Session.EnforceChangeRegistrySizeLimit();
           // Session.Persist(); // Remove
-          ProcessItem(item);
+          ProcessItems(new List<Entity>(){item});
           ProcessQueue();
           MarkItemsAsRemoved();
           // Session.Persist(); // Remove
@@ -61,52 +70,94 @@ namespace Xtensive.Storage.ReferentialIntegrity
         return;
       TypeInfo prevItemType = null;
       var itemList = new List<Entity>();
-      Action<List<Entity>> processItems = (itemsToProcess) => {
-        ExecutePrefetchAction(itemsToProcess);
-        foreach (var entity in itemsToProcess)
-          ProcessItem(entity);
-        itemsToProcess.Clear();
-      };
       while(queue.Count != 0) {
         var item = queue.Dequeue();
         if (!Context.Items.Contains(item)) {
-          if (itemList.Count!=0 && item.Type!=(prevItemType ?? item.Type))
-            processItems(itemList);
+          if (itemList.Count!=0 && item.Type!=(prevItemType ?? item.Type)) {
+            ProcessItems(itemList);
+            itemList.Clear();
+          }
           itemList.Add(item);
           prevItemType = item.Type;
         }
         if (queue.Count != 0 || itemList.Count == 0)
           continue;
-        processItems(itemList);
+        ProcessItems(itemList);
+        itemList.Clear();
       }
     }
 
-    private void ProcessItem(Entity item)
+    private void ProcessItems(List<Entity> entities)
     {
-      ActionProcessor actionProcessor;
-      var isEmpty = Context.IsEmpty;
-      Context.Items.Add(item);
+      if (entities.Count == 0)
+        return;
 
-      var sequence = item.Type.GetRemovalAssociationSequence();
+      foreach (var entity in entities)
+        Context.Items.Add(entity);
+
+      var entityType = entities[0].Type;
+      var sequence = entityType.GetRemovalAssociationSequence();
       if (sequence==null || sequence.Count==0)
         return;
 
-      if (isEmpty)
-        ExecutePrefetchAction(new List<Entity>() { item });
+      ExecutePrefetchAction(entities);
 
+      var referenceContainers = new List<ReferenceContainer>();
       foreach (var association in sequence) {
-        if (association.OwnerType.UnderlyingType.IsAssignableFrom(item.Type.UnderlyingType)) {
-          actionProcessor = GetProcessor(association.OnOwnerRemove.Value);
-          foreach (var reference in ReferenceFinder.GetReferencesFrom(item, association).ToList())
-            actionProcessor.Process(Context, association, item, reference.ReferencedEntity, item, reference.ReferencedEntity);
+        if (association.OwnerType.UnderlyingType.IsAssignableFrom(entityType.UnderlyingType)) {
+          foreach (var entity in entities) {
+            var container = new ReferenceContainer() {
+              RemovingEntity = entity,
+              Processor = GetProcessor(association.OnOwnerRemove.Value),
+              Association = association,
+              References = ReferenceFinder.GetReferencesFrom(entity, association),
+              IsOutgoing = true
+            };
+            referenceContainers.Add(container);
+          }
         }
-
-        if (association.TargetType.UnderlyingType.IsAssignableFrom(item.Type.UnderlyingType)) {
-          actionProcessor = GetProcessor(association.OnTargetRemove.Value);
-          foreach (var reference in ReferenceFinder.GetReferencesTo(item, association).ToList())
-            actionProcessor.Process(Context, association, item, reference.ReferencingEntity, reference.ReferencingEntity, item);
+        if (association.TargetType.UnderlyingType.IsAssignableFrom(entityType.UnderlyingType)) {
+          foreach (var entity in entities) {
+            var container = new ReferenceContainer() {
+              RemovingEntity = entity,
+              Processor = GetProcessor(association.OnTargetRemove.Value),
+              Association = association,
+              References = ReferenceFinder.GetReferencesTo(entity, association),
+              IsOutgoing = false
+            };
+            referenceContainers.Add(container);
+          }
         }
       }
+
+      if (Session.Handler.ExecutePrefetchTasks(PersistReason.Query) == null);
+        Session.ExecuteAllDelayedQueries(PersistReason.Query);
+
+      foreach (var container in referenceContainers) {
+        var processor = container.Processor;
+        var association = container.Association;
+        var removingEntity = container.RemovingEntity;
+        if (container.IsOutgoing)
+          foreach (var reference in container.References.ToList())
+            processor.Process(Context, association, removingEntity, reference.ReferencedEntity, removingEntity, reference.ReferencedEntity);
+        else
+          foreach (var reference in container.References.ToList())
+            processor.Process(Context, association, removingEntity, reference.ReferencingEntity, reference.ReferencingEntity, removingEntity);
+      }
+
+//      foreach (var association in sequence) {
+//        if (association.OwnerType.UnderlyingType.IsAssignableFrom(entityType.UnderlyingType)) {
+//          actionProcessor = GetProcessor(association.OnOwnerRemove.Value);
+//          foreach (var reference in ReferenceFinder.GetReferencesFrom(item, association).ToList())
+//            actionProcessor.Process(Context, association, item, reference.ReferencedEntity, item, reference.ReferencedEntity);
+//        }
+//
+//        if (association.TargetType.UnderlyingType.IsAssignableFrom(entityType.UnderlyingType)) {
+//          actionProcessor = GetProcessor(association.OnTargetRemove.Value);
+//          foreach (var reference in ReferenceFinder.GetReferencesTo(item, association).ToList())
+//            actionProcessor.Process(Context, association, item, reference.ReferencingEntity, reference.ReferencingEntity, item);
+//        }
+//      }
     }
 
     private void ExecutePrefetchAction(List<Entity> itemList)

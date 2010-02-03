@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
@@ -29,20 +30,20 @@ namespace Xtensive.Storage.Providers
     {
       if (association.IsPaired)
         return FindReferences(target, association, true);
-      var result = new List<ReferenceInfo>();
-      using (new ParameterContext().Activate()) {
-        object key = new Pair<object, AssociationInfo>(CachingRegion, association);
-        Func<object, object> generator = p => BuildReferencingQuery(((Pair<object, AssociationInfo>)p).Second);
-        var pair = (Pair<RecordSet, Parameter<Tuple>>)Session.Domain.Cache.GetValue(key, generator);
-        var recordSet = pair.First;
-        var parameter = pair.Second;
+      object key = new Pair<object, AssociationInfo>(CachingRegion, association);
+      Func<object, object> generator = p => BuildReferencingQuery(((Pair<object, AssociationInfo>)p).Second);
+      var pair = (Pair<RecordSet, Parameter<Tuple>>)Session.Domain.Cache.GetValue(key, generator);
+      var recordSet = pair.First;
+      var parameter = pair.Second;
+      var parameterContext = new ParameterContext();
+      using (parameterContext.Activate())
         parameter.Value = target.Key.Value;
-        Session.Persist();
-        foreach (var item in recordSet.ToEntities(0))
-          result.Add(new ReferenceInfo(item, target, association));
-      }
-      return result;
-
+      var executableProvider = CompilationContext.Current.Compile(recordSet.Provider);
+      var queryTask = new QueryTask(executableProvider, parameterContext);
+      Session.RegisterDelayedQuery(queryTask);
+      return queryTask
+        .ToEntities(recordSet.Header, 0)
+        .Select(item => new ReferenceInfo(item, target, association));
     }
 
     /// <summary>

@@ -529,8 +529,7 @@ namespace Xtensive.Storage.Model
 
       var sequence = new List<AssociationInfo>(associations.Count);
 
-      IEnumerable<AssociationInfo> items;
-      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Deny && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType));
+      var items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Deny && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType));
       if (items != null) sequence.AddRange(items);
       items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Deny && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType));
       if (items != null) sequence.AddRange(items);

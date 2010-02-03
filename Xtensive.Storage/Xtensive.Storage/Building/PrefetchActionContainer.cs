@@ -34,7 +34,6 @@ namespace Xtensive.Storage.Building
     {
       foreach (var key in keys)
         sh.Prefetch(key, type, fields);
-      sh.ExecutePrefetchTasks(PersistReason.None);
     }
 
     public PrefetchActionContainer(TypeInfo type, List<AssociationInfo> associations)
