@@ -175,9 +175,10 @@ namespace Xtensive.Sql.Oracle.v09
 
     public override FullTextSearchInfo GetFullTextInfo()
     {
-      var info = new FullTextSearchInfo();
-      info.Features = FullTextSearchFeatures.Full;
-      return info;
+      return null;
+//      var info = new FullTextSearchInfo();
+//      info.Features = FullTextSearchFeatures.Full;
+//      return info;
 
     }
 

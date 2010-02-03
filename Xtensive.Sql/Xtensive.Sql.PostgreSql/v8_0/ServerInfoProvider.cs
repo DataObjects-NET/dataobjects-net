@@ -115,7 +115,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     public override FullTextSearchInfo GetFullTextInfo()
     {
-      return new FullTextSearchInfo();
+      return null;
     }
 
     public override UniqueConstraintInfo GetUniqueConstraintInfo()
