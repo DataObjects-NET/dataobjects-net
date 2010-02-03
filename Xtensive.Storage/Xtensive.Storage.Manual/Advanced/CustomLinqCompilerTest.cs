@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
           UpgradeMode = DomainUpgradeMode.Recreate
         };
         config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
-        config.CompilerContainers.Register(typeof (CustomLinqCompilerContainer));
+        config.Types.Register(typeof (CustomLinqCompilerContainer));
 
         var domain = Domain.Build(config);
         using (var session = Session.Open(domain)) {

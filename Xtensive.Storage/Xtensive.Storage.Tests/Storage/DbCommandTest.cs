@@ -5,6 +5,7 @@
 // Created:    2010.01.29
 
 using System;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -62,7 +63,7 @@ namespace Xtensive.Storage.Tests.Storage
           var article = new Article {Title = "Some title", Content = "Some content"};
           
           session.Persist();
-          var dbCommand = session.GetDbCommand();
+          DbCommand dbCommand = null; // session.GetDbCommand();
           dbCommand.CommandText = "DELETE FROM dbo.Article;";
           dbCommand.ExecuteNonQuery();
           var anotherArticle = new Article { Title = "Another title", Content = "Another content" };

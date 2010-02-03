@@ -5,9 +5,7 @@
 // Created:    2008.05.07
 
 using System;
-using System.Collections;
 using System.Diagnostics;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Tuples.Transform

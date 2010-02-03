@@ -86,7 +86,14 @@ namespace Xtensive.Core.Diagnostics
 
     static LogProvider()
     {
-      instance = ServiceLocator.GetInstance<ILogProvider>();
+      try {
+        instance = ServiceContainer.Default.Get<ILogProvider>();
+      }
+      catch {
+        instance = null;
+      }
+      if (instance==null)
+        instance = new LogProviderImplementation();
     }
   }
 }

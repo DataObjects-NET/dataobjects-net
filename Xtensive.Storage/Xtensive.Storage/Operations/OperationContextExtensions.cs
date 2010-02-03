@@ -19,7 +19,8 @@ namespace Xtensive.Storage.Operations
     /// </summary>
     /// <param name="context">The context.</param>
     /// <returns>
-    /// 	<see langword="true"/> if the specified context is enabled; otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if the specified context is enabled; 
+    /// otherwise, <see langword="false"/>.
     /// </returns>
     public static bool IsEnabled(this OperationContext context)
     {

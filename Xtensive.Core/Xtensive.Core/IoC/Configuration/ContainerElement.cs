@@ -6,41 +6,73 @@
 
 using System;
 using System.Configuration;
+using Xtensive.Core.Collections.Configuration;
 using Xtensive.Core.Configuration;
+using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.IoC.Configuration
 {
   [Serializable]
   public class ContainerElement : ConfigurationCollectionElementBase
   {
-    private const string CollectionElementName = "types";
     private const string NameElementName = "name";
+    private const string TypeElementName = "type";
+    private const string ParentElementName = "parent";
+    private const string ExplicitElementName = "explicit";
+    private const string AutoElementName = "auto";
+
+    /// <inheritdoc/>
+    public override object Identifier
+    {
+      get { return Name.IsNullOrEmpty() ? string.Empty : Name; }
+    }
 
     /// <summary>
-    /// Name to use when registering this type. 
+    /// Gets or sets the name of the container. 
     /// </summary>
     [ConfigurationProperty(NameElementName, IsRequired = false, DefaultValue = null)]
-    public string Name
-    {
+    public string Name {
       get { return (string) this[NameElementName]; }
       set { this[NameElementName] = value; }
     }
 
     /// <summary>
-    /// Gets the collection of type configurations.
+    /// Gets or sets the type of the container. 
     /// </summary>
-    [ConfigurationProperty(CollectionElementName, IsDefaultCollection = true)]
-    [ConfigurationCollection(typeof(ConfigurationCollection<TypeElement>), AddItemName = "type")]
-    public ConfigurationCollection<TypeElement> Types {
+    [ConfigurationProperty(TypeElementName, IsRequired = false, DefaultValue = null)]
+    public string Type {
+      get { return (string) this[TypeElementName]; }
+      set { this[TypeElementName] = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the name of the parent container. 
+    /// </summary>
+    [ConfigurationProperty(ParentElementName, IsRequired = false, DefaultValue = null)]
+    public string Parent {
+      get { return (string) this[ParentElementName]; }
+      set { this[ParentElementName] = value; }
+    }
+
+    /// <summary>
+    /// Gets the collection of service configurations.
+    /// </summary>
+    [ConfigurationProperty(ExplicitElementName, IsRequired = false, IsDefaultCollection = true)]
+    [ConfigurationCollection(typeof(ConfigurationCollection<ServiceRegistrationElement>), AddItemName = "add")]
+    public ConfigurationCollection<ServiceRegistrationElement> Explicit {
       get {
-        return (ConfigurationCollection<TypeElement>)base[CollectionElementName];
+        return (ConfigurationCollection<ServiceRegistrationElement>) base[ExplicitElementName];
       }
     }
 
-    /// <inheritdoc/>
-    public override object Identifier
-    {
-      get { return Name; }
+    /// <summary>
+    /// Gets the automatic .
+    /// </summary>
+    /// <value>The types.</value>
+    [ConfigurationProperty(AutoElementName, IsRequired = false, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<TypeRegistrationElement>), AddItemName = "add")]
+    public ConfigurationCollection<TypeRegistrationElement> Auto {
+      get { return (ConfigurationCollection<TypeRegistrationElement>) base[AutoElementName]; }
     }
   }
 }

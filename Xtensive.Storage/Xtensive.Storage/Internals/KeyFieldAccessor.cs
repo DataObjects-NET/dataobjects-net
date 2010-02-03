@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.21
 
+using System;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 

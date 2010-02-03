@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.26
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Testing;

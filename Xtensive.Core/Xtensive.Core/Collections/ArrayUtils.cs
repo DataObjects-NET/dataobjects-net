@@ -19,7 +19,7 @@ namespace Xtensive.Core.Collections
   /// <typeparam name="TItem">Type of array item.</typeparam>
   public static class ArrayUtils<TItem>
   {
-    private static readonly TItem[] emptyArray;
+    private static readonly TItem[] emptyArray = new TItem[] {};
 
     /// <summary>
     /// Gets empty array of items of <typeparamref name="TItem"/> type.
@@ -42,14 +42,6 @@ namespace Xtensive.Core.Collections
         return new TItem[size];
       else
         return emptyArray;
-    }
-
-
-    // Constructors
-
-    static ArrayUtils()
-    {
-      emptyArray = new TItem[] {};
     }
   }
 }

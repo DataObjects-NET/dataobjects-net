@@ -10,6 +10,7 @@ using System.Text;
 using Xtensive.Core.Reflection;
 using System.Linq;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Reflection
 {
@@ -268,6 +269,8 @@ namespace Xtensive.Core.Reflection
     /// <returns>Full member name.</returns>
     public static string GetFullName(this MemberInfo member, bool includeTypeName)
     {
+      if (member==null)
+        return null;
       if (!includeTypeName) {
         if (!member.IsExplicitImplementation())
           return member.Name;

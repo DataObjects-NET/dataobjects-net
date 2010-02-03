@@ -162,7 +162,7 @@ namespace Xtensive.Storage.Manual.Advanced.CustomSqlCompiler
           UpgradeMode = DomainUpgradeMode.Recreate
         };
         config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
-        config.CompilerContainers.Register(typeof (CustomSqlCompilerContainer));
+        config.Types.Register(typeof (CustomSqlCompilerContainer));
         var domain = Domain.Build(config);
         using (var session = Session.Open(domain)) {
           using (var transactionScope = Transaction.Open(session)) {

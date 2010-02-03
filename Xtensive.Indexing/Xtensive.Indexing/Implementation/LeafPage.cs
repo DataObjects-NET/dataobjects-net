@@ -298,7 +298,7 @@ namespace Xtensive.Indexing.Implementation
     {
       if (Provider.Index.HasMeasures) {
         if (!MeasureResults.Add(item)) {
-          MeasureUtils<TItem>.BatchRecalculate(MeasureResults, new Core.Collections.ArraySegment<TItem>(items, 0, CurrentSize));
+          MeasureUtils<TItem>.BatchRecalculate(MeasureResults, items.Segment(0, CurrentSize));
         }
       }
     }
@@ -308,7 +308,7 @@ namespace Xtensive.Indexing.Implementation
     {
       if (Provider.Index.HasMeasures) {
         if (!MeasureUtils<TItem>.BatchAdd(MeasureResults, hasMeasures.MeasureResults)) {
-          MeasureUtils<TItem>.BatchRecalculate(MeasureResults, new Core.Collections.ArraySegment<TItem>(items, 0, CurrentSize));
+          MeasureUtils<TItem>.BatchRecalculate(MeasureResults, items.Segment(0, CurrentSize));
         }
       }
     }
@@ -318,7 +318,7 @@ namespace Xtensive.Indexing.Implementation
     {
       if (Provider.Index.HasMeasures) {
         if (!MeasureResults.Subtract(item)) {
-          MeasureUtils<TItem>.BatchRecalculate(MeasureResults, new Core.Collections.ArraySegment<TItem>(items, 0, CurrentSize));
+          MeasureUtils<TItem>.BatchRecalculate(MeasureResults, items.Segment(0, CurrentSize));
         }
       }
     }
@@ -328,7 +328,7 @@ namespace Xtensive.Indexing.Implementation
     {
       if (Provider.Index.HasMeasures) {
         if (!MeasureUtils<TItem>.BatchSubtract(MeasureResults, hasMeasures.MeasureResults)) {
-          MeasureUtils<TItem>.BatchRecalculate(MeasureResults, new Core.Collections.ArraySegment<TItem>(items, 0, CurrentSize));
+          MeasureUtils<TItem>.BatchRecalculate(MeasureResults, items.Segment(0, CurrentSize));
         }
       }
     }

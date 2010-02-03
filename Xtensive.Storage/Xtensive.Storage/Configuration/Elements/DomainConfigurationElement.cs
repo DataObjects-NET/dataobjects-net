@@ -7,6 +7,7 @@
 using System;
 using System.Configuration;
 using Xtensive.Core;
+using Xtensive.Core.Collections.Configuration;
 using Xtensive.Core.Configuration;
 
 namespace Xtensive.Storage.Configuration.Elements
@@ -30,10 +31,10 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string DefaultSchemaElementName = "defaultSchema";
 
     private const string SessionsElementName = "sessions";
-    private const string CompilerContainersElementName = "compilerContainers";
     private const string TypeAliasesElementName = "typeAliases";
     private const string ServicesElementName = "services";
     private const string ValidationModeElementName = "validationMode";
+    private const string ServiceContainerTypeElementName = "serviceContainerType";
 
     /// <inheritdoc/>
     public override object Identifier
@@ -169,21 +170,22 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <see cref="DomainConfiguration.Sessions" copy="true"/>
     /// </summary>
     [ConfigurationProperty(SessionsElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<SessionElement>), AddItemName = "session")]
-    public ConfigurationCollection<SessionElement> Sessions
+    [ConfigurationCollection(typeof(ConfigurationCollection<SessionConfigurationElement>), AddItemName = "session")]
+    public ConfigurationCollection<SessionConfigurationElement> Sessions
     {
-      get { return (ConfigurationCollection<SessionElement>) this[SessionsElementName]; }
+      get { return (ConfigurationCollection<SessionConfigurationElement>) this[SessionsElementName]; }
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.CompilerContainers" copy="true"/>
+    /// <see cref="DomainConfiguration.ServiceContainerType" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(CompilerContainersElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<TypeRegistrationElement>), AddItemName = "add")]
-    public ConfigurationCollection<TypeRegistrationElement> CompilerContainers
+    [ConfigurationProperty(ServiceContainerTypeElementName, IsRequired = false, DefaultValue = null)]
+    public string ServiceContainerType
     {
-      get { return (ConfigurationCollection<TypeRegistrationElement>) base[CompilerContainersElementName]; }
+      get { return (string)this[ServiceContainerTypeElementName]; }
+      set { this[ServiceContainerTypeElementName] = value; }
     }
+
 
     /// <summary>
     /// <see cref="DomainConfiguration.DefaultSchema" copy="true"/>
@@ -214,12 +216,11 @@ namespace Xtensive.Storage.Configuration.Elements
         DefaultSchema = DefaultSchema,
         ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
-        ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true)
+        ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
+        ServiceContainerType = Type.GetType(ServiceContainerType)
       };
       foreach (var entry in Types)
         config.Types.Register(entry.ToNative());
-      foreach (var entry in CompilerContainers)
-        config.CompilerContainers.Register(entry.ToNative());
       foreach (var session in Sessions)
         config.Sessions.Add(session.ToNative());
       return config;

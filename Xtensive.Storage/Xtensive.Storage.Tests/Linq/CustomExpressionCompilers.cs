@@ -69,7 +69,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
-      config.CompilerContainers.Register(typeof (CustomLinqCompilerContainer));
+      config.Types.Register(typeof (CustomLinqCompilerContainer));
       return config;
     }
 

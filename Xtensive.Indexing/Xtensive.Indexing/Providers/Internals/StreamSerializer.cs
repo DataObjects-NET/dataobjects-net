@@ -4,11 +4,11 @@
 // Created by: Nick Svetlov
 // Created:    2008.01.02
 
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Security.AccessControl;
 using Xtensive.Core;
-using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Serialization;
 using Xtensive.Indexing.Implementation;

@@ -5,12 +5,15 @@
 // Created:    2009.05.01
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Indexing.Model;
+using System.Linq;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -59,7 +62,7 @@ namespace Xtensive.Storage.Building.Builders
     /// <summary>
     /// Gets or sets the collection of extension modules.
     /// </summary>
-    public ModuleProvider Modules { get; private set; }
+    public ReadOnlyList<IModule> Modules { get; private set; }
 
     
     // Constructors
@@ -69,7 +72,7 @@ namespace Xtensive.Storage.Building.Builders
     /// </summary>
     /// <param name="schemaUpgradeMode">The schema upgrade mode.</param>
     /// <param name="modules">The collection of modules.</param>
-    public DomainBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode, ModuleProvider modules)
+    public DomainBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode, ReadOnlyList<IModule> modules)
     {
       SchemaUpgradeMode = schemaUpgradeMode;
       Modules = modules;

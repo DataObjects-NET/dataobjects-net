@@ -732,4 +732,28 @@
   <data name="XInY" xml:space="preserve">
     <value>{0} in {1}</value>
   </data>
+  <data name="ExCannotActivateServiceXErrorY" xml:space="preserve">
+    <value>Can't activate service '{0}'. Error: {1}</value>
+  </data>
+  <data name="ExCannotActivateServiceXWithKeyYErrorZ" xml:space="preserve">
+    <value>Can't activate service '{0}' with name "{1}". Error: {2}</value>
+  </data>
+  <data name="ExMultipleServicesMatchToTheSpecifiedArguments" xml:space="preserve">
+    <value>Multiple services match to the specified arguments.</value>
+  </data>
+  <data name="ExServiceOfTypeXIsNotAvailable" xml:space="preserve">
+    <value>Service of type '{0}' is not available.</value>
+  </data>
+  <data name="ExServiceWithNameXOfTypeYIsNotAvailable" xml:space="preserve">
+    <value>Service with name "{0}" of type '{1}' is not available.</value>
+  </data>
+  <data name="ExContainerTypeMustImplementX" xml:space="preserve">
+    <value>Container type must implement {0}.</value>
+  </data>
+  <data name="ExContainerTypeDoesNotProvideASuitableConstructor" xml:space="preserve">
+    <value>Container type does not provide a suitable constructor.</value>
+  </data>
+  <data name="ExRecursiveConstructorParemeterDependencyIsDetected" xml:space="preserve">
+    <value>Recursive constructor paremeter dependency is detected.</value>
+  </data>
 </root>

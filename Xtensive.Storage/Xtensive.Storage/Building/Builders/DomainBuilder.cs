@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
@@ -53,9 +54,8 @@ namespace Xtensive.Storage.Building.Builders
           CreateDomain();
           CreateHandlerFactory();
           CreateDomainHandler();
-
           CreateNameBuilder();
-          CreateDomainHandler();
+          CreateServices();
           BuildModel();
 
           using (Session.Open(context.Domain, SessionType.System)) {
@@ -82,8 +82,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void CreateDomain()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
-        var domain = new Domain(BuildingContext.Current.Configuration,
-          BuildingContext.Current.BuilderConfiguration.Modules);
+        var domain = new Domain(BuildingContext.Current.Configuration);
         BuildingContext.Current.Domain = domain;
       }
     }
@@ -137,6 +136,15 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
+    private static void CreateDomainHandler()
+    {
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
+        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
+        handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
+        handlerAccessor.DomainHandler.Initialize();
+      }
+    }
+
     private static void CreateNameBuilder()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (NameBuilder).GetShortName())) {
@@ -146,12 +154,18 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static void CreateDomainHandler()
+    private static void CreateServices()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
-        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
-        handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
-        handlerAccessor.DomainHandler.Initialize();
+      using (Log.InfoRegion(Strings.LogCreatingX, typeof (IServiceContainer).GetShortName())) {
+        var domain = BuildingContext.Current.Domain;
+        var configuration = domain.Configuration;
+        var serviceContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
+        domain.Services =
+          ServiceContainer.Create(typeof (ServiceContainer),
+            from type in configuration.Types.DomainServices
+            from registration in ServiceRegistration.CreateAll(type)
+            select registration,
+            ServiceContainer.Create(serviceContainerType, domain.Handler.CreateBaseServices()));
       }
     }
 

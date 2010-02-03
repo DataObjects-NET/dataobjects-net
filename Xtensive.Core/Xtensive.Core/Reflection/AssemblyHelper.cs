@@ -47,6 +47,7 @@ namespace Xtensive.Core.Reflection
     /// <param name="baseType">The base type.</param>
     /// <param name="filter">The filter.</param>
     /// <returns>A <see cref="IList{T}"/> of all found types.</returns>
+    /// <exception cref="InvalidOperationException">Something went wrong :(</exception>
     public static IList<Type> FindTypes(this Assembly assembly, Type baseType, TypeFilter filter)
     {
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");

@@ -4,10 +4,10 @@
 // Created by: Alex Yakunin
 // Created:    2009.02.09
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core.Linq;
 
 namespace Xtensive.Core.Tests.Linq
 {

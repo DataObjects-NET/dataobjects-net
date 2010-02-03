@@ -5,6 +5,7 @@
 // Created:    2007.08.10
 
 using System;
+using Xtensive.Core;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 
@@ -95,6 +96,27 @@ namespace Xtensive.Storage
       finally {
         IsPersisting = false;
       }
+    }
+
+    /// <summary>
+    /// Pins the specified <see cref="IEntity"/>.
+    /// Pinned entity is prevented from being persisted,
+    /// when <see cref="Persist"/> is called or query is executed.
+    /// If persist is to be performed due to starting a nested transaction or committing a transaction,
+    /// any pinned entity will lead to failure.
+    /// If <paramref name="target"/> is not present in the database,
+    /// all entities that reference <paramref name="target"/> are also pinned automatically.
+    /// </summary>
+    /// <param name="target">The entity to pin.</param>
+    /// <returns>An entity pinning scope if <paramref name="target"/> was not previously pinned,
+    /// otherwise <see langword="null"/>.</returns>
+    public IDisposable Pin(IEntity target)
+    {
+      EnsureNotDisposed();
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      var targetEntity = (Entity) target;
+      targetEntity.EnsureNotRemoved();
+      return pinner.RegisterRoot(targetEntity.State);
     }
   }
 }

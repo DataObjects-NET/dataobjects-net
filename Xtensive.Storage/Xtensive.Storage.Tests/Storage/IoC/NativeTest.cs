@@ -20,7 +20,8 @@ namespace Xtensive.Storage.Tests.Storage.IoC
 
       // Setting domain-container
       var domainContainer = BuildContainer("domain");
-      domain.Services.SetLocatorProvider(() => new ServiceLocatorAdapter(domainContainer));
+      // TODO: Fix this
+      // domain.Services.SetLocatorProvider(() => new ServiceLocatorAdapter(domainContainer));
 
       // Singing up to SessionOpen event to set and configure session-level container
       domain.SessionOpen += OnSessionOpen;
@@ -30,14 +31,21 @@ namespace Xtensive.Storage.Tests.Storage.IoC
     private void OnSessionOpen(object sender, SessionEventArgs e)
     {
       var sessionContainer = BuildContainer("session");
-      e.Session.Services.SetLocatorProvider(() => new ServiceLocatorAdapter(sessionContainer));
+      // TODO: Fix this
+      // e.Session.Services.SetLocatorProvider(() => new ServiceLocatorAdapter(sessionContainer));
     }
 
+    /// <summary>
+    /// Builds the container.
+    /// </summary>
+    /// <param name="containerName">Name of the container.</param>
+    /// <returns></returns>
     private static ServiceContainer BuildContainer(string containerName)
     {
       var section = (Core.IoC.Configuration.ConfigurationSection) ConfigurationManager.GetSection("NativeTest");
       var result = new ServiceContainer();
-      result.Configure(section.Containers[containerName]);
+      // TODO: Fix this
+      // result.Configure(section.Containers[containerName]);
 
       return result;
     }

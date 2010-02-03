@@ -570,6 +570,40 @@ namespace Xtensive.Core.Reflection
     }
 
     /// <summary>
+    /// Gets the public constructor of type <paramref name="type"/> 
+    /// accepting specified <paramref name="arguments"/>.
+    /// </summary>
+    /// <param name="type">The type to get the constructor for.</param>
+    /// <param name="arguments">The arguments.</param>
+    /// <returns>
+    /// Appropriate constructor, if a single match is found;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public static ConstructorInfo GetConstructor(this Type type, object[] arguments)
+    {
+      var ctors =
+        from ctor in type.GetConstructors()
+        let parameters = ctor.GetParameters()
+        where parameters.Length==arguments.Length
+        let zipped = parameters.Zip(arguments, (p, a) => new {Parameter = p, Argument = a})
+        where (
+          from pair in zipped
+          let parameter = pair.Parameter
+          let parameterType = parameter.ParameterType
+          let argument = pair.Argument
+          let argumentType = argument==null ? typeof (object) : argument.GetType()
+          select 
+            !parameter.IsOut && (
+              parameterType.IsAssignableFrom(argumentType) ||
+              (!parameterType.IsValueType && argument==null) ||
+              (parameterType.IsNullable() && argument==null)
+            )
+          ).All(passed => passed)
+        select ctor;
+      return ctors.SingleOrDefault();
+    }
+
+    /// <summary>
     /// Orders the specified <paramref name="types"/> by their inheritance
     /// (very base go first).
     /// </summary>
@@ -603,6 +637,8 @@ namespace Xtensive.Core.Reflection
     /// <returns>Full type name.</returns>
     public static string GetFullName(this Type type)
     {
+      if (type==null)
+        return null;
       string result = type.Namespace + "." + type.Name;
       int arrayBracketPosition = result.IndexOf('[');
       if (arrayBracketPosition > 0)
@@ -611,7 +647,7 @@ namespace Xtensive.Core.Reflection
       if (arguments==null)
         arguments = ArrayUtils<Type>.EmptyArray;
       if (arguments.Length > 0) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         sb.Append(TrimGenericSuffix(result));
         sb.Append("<");
         string comma = "";
@@ -625,7 +661,7 @@ namespace Xtensive.Core.Reflection
         result = sb.ToString();
       }
       if (type.IsArray) {
-        StringBuilder sb = new StringBuilder(result);
+        var sb = new StringBuilder(result);
         Type elementType = type;
         while (elementType.IsArray) {
           sb.Append("[");
@@ -647,11 +683,13 @@ namespace Xtensive.Core.Reflection
     /// <returns>Short type name.</returns>
     public static string GetShortName(this Type type)
     {
+      if (type==null)
+        return null;
       string result = type.Name;
       int arrayBracketPosition = result.IndexOf('[');
       if (arrayBracketPosition > 0)
         result = result.Substring(0, arrayBracketPosition);
-      Type[] arguments = type.GetGenericArguments();
+      var arguments = type.GetGenericArguments();
       if (arguments==null)
         arguments = ArrayUtils<Type>.EmptyArray;
       if (arguments.Length > 0) {
@@ -878,9 +916,9 @@ namespace Xtensive.Core.Reflection
     public static bool IsAnonymous(this Type type)
     {
       return ((type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-              && type.BaseType==typeof (object)
-              && Attribute.IsDefined(type, typeof (CompilerGeneratedAttribute), false)
-              && type.Name.Contains("AnonymousType")
+        && type.BaseType==typeof (object)
+          && Attribute.IsDefined(type, typeof (CompilerGeneratedAttribute), false)
+            && type.Name.Contains("AnonymousType")
               && (type.Attributes & TypeAttributes.NotPublic)==TypeAttributes.NotPublic);
     }
 
@@ -894,9 +932,9 @@ namespace Xtensive.Core.Reflection
     public static bool IsClosure(this Type type)
     {
       return ((type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-              && type.BaseType == typeof(object)
-              && Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-              && type.Name.Contains("DisplayClass")
+        && type.BaseType == typeof(object)
+          && Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+            && type.Name.Contains("DisplayClass")
               && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic);
     }
 

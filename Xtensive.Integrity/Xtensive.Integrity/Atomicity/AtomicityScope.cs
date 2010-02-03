@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2007.11.23
 
+using System;
 using System.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;

@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Linq
 
     public ProviderInfo ProviderInfo { get; private set; }
 
-    public IEnumerable<IQueryPreProcessor> QueryPreProcessors { get; private set; }
+    public IEnumerable<IQueryPreprocessor> QueryPreProcessors { get; private set; }
 
     public Expression Query { get; private set; }
 
@@ -107,11 +107,11 @@ namespace Xtensive.Storage.Linq
     public TranslatorContext(Expression query, Domain domain)
     {
       // Custom preprocessors
-      QueryPreProcessors = domain.Services.GetAllInstances<IQueryPreProcessor>();
+      QueryPreProcessors = domain.Services.GetAll<IQueryPreprocessor>();
       foreach (var queryPreProcessor in QueryPreProcessors)
         query = queryPreProcessor.Apply(query);
 
-      // built-in preprocessors
+      // Built-in preprocessors
       query = ClosureAccessRewriter.Rewrite(query);
       query = EqualityRewriter.Rewrite(query);
       query = EntitySetAccessRewriter.Rewrite(query);

@@ -9,9 +9,7 @@ using System.Configuration;
 using System.Web;
 using System.Web.Configuration;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Configuration;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Configuration.Elements;
 using Xtensive.Storage.Configuration.Internals;
@@ -72,8 +70,7 @@ namespace Xtensive.Storage.Configuration
     private UrlInfo connectionInfo;
     private string name = string.Empty;
     private string defaultSchema = string.Empty;
-    private TypeRegistry types = new TypeRegistry(new SessionBoundTypeRegistrationHandler());
-    private TypeRegistry compilerContainers = new TypeRegistry(new CompilerContainerRegistrationHandler());
+    private DomainTypeRegistry types = new DomainTypeRegistry(new DomainTypeRegistrationHandler());
     private NamingConvention namingConvention = new NamingConvention();
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
@@ -84,6 +81,7 @@ namespace Xtensive.Storage.Configuration
     private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
     private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
     private ValidationMode validationMode = ValidationMode.Default;
+    private Type serviceContainerType;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -153,7 +151,7 @@ namespace Xtensive.Storage.Configuration
     /// Gets the collection of persistent <see cref="Type"/>s that are about to be 
     /// registered in the <see cref="Domain"/>.
     /// </summary>
-    public TypeRegistry Types
+    public DomainTypeRegistry Types
     {
       get { return types; }
     }
@@ -287,11 +285,15 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets user defined method compiler containers.
+    /// Gets or sets the type of the service container.
     /// </summary>
-    public TypeRegistry CompilerContainers
+    public Type ServiceContainerType 
     {
-      get { return compilerContainers; }
+      get { return serviceContainerType; }
+      set {
+        this.EnsureNotLocked();
+        serviceContainerType = value;
+      }
     }
 
     /// <summary>
@@ -300,13 +302,12 @@ namespace Xtensive.Storage.Configuration
     public string DefaultSchema
     {
       get { return defaultSchema; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         defaultSchema = value;
       }
     }
-
+	
     /// <summary>
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
@@ -315,7 +316,6 @@ namespace Xtensive.Storage.Configuration
     {
       types.Lock(true);
       sessions.Lock(true);
-      compilerContainers.Lock(true);
       base.Lock(recursive);
     }
 
@@ -344,17 +344,17 @@ namespace Xtensive.Storage.Configuration
       name = configuration.Name;
       connectionInfo = configuration.ConnectionInfo;
       defaultSchema = configuration.defaultSchema;
-      types = (TypeRegistry) configuration.Types.Clone();
+      types = (DomainTypeRegistry) configuration.Types.Clone();
       namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
       keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       queryCacheSize = configuration.QueryCacheSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
-      compilerContainers = (TypeRegistry) configuration.CompilerContainers.Clone();
       upgradeMode = configuration.upgradeMode;
       foreignKeyMode = configuration.foreignKeyMode;
       validationMode = configuration.validationMode;
+      ServiceContainerType = configuration.ServiceContainerType;
     }
 
     /// <summary>

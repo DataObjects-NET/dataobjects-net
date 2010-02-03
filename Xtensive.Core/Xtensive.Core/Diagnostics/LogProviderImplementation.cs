@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Xtensive.Core.Diagnostics.Configuration;
 using Xtensive.Core.Helpers;
+using Xtensive.Core.IoC;
 using DiagnosticsSection=Xtensive.Core.Diagnostics.Configuration.ConfigurationSection;
 
 namespace Xtensive.Core.Diagnostics
@@ -18,6 +19,7 @@ namespace Xtensive.Core.Diagnostics
   /// Default <see cref="ILogProvider"/> implementation.
   /// </summary>
   [Serializable]
+  [Service(typeof(ILogProvider), Default = true, Singleton = true)]
   public sealed class LogProviderImplementation : LogProviderImplementationBase
   {
     private const string DefaultLogName = "Default.log";

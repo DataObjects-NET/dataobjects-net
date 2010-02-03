@@ -5,6 +5,7 @@
 // Created:    2008.11.07
 
 using System;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Tuples;
@@ -19,6 +20,16 @@ namespace Xtensive.Storage
   {
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
+
+    /// <summary>
+    /// Invalidates (forgets) the spate of all cached entities and pending changes.
+    /// </summary>
+    public void Invalidate()
+    {
+      ClearChangeRegistry();
+      foreach (var invalidable in EntityStateCache.Cast<IInvalidatable>())
+        invalidable.Invalidate();
+    }
 
     internal void EnforceChangeRegistrySizeLimit()
     {

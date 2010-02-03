@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Configuration
         foreach (var item in this)
           if (comparer.Compare(item.Name, name)==0)
             return item;
-        return null;
+        return IsLocked ? Default : null;
       }
     }
 

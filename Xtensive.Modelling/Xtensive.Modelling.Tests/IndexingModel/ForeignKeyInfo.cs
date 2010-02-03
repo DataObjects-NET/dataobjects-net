@@ -6,11 +6,10 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core.Helpers;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {

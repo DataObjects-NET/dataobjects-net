@@ -4,9 +4,9 @@
 // Created by: Elena Vakhtina
 // Created:    2008.08.13
 
+using System;
 using System.Diagnostics;
 using Xtensive.Core.Configuration;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Differential

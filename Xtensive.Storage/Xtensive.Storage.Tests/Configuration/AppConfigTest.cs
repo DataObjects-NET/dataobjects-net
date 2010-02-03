@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.08.06
 
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Testing;
@@ -29,13 +30,12 @@ namespace Xtensive.Storage.Tests.Configuration
   [TestFixture]
   public class AppConfigTest
   {
-
     [Test]
     public void CustomMemberCompilerProvidersTest()
     {
       var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain3");
       configuration.Lock();
-      Assert.AreEqual(2, configuration.CompilerContainers.Count);
+      Assert.AreEqual(2, configuration.Types.CompilerContainers.Count());
     }
 
     [Test]

@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Upgrade
     /// schema isn't upgraded, but only checked for compatibility with
     /// the model containing system types only (<see cref="SchemaUpgradeMode.ValidateCompatible"/>).
     /// </summary>
-    Validation,
+    Validation = 0x0,
     /// <summary>
     /// The second upgrade stage.
     /// All the types are visible, including upgrade-only types;
@@ -27,12 +27,12 @@ namespace Xtensive.Storage.Upgrade
     /// <see cref="IUpgradeHandler.OnStage"/> events are raised at the beginning of this stage;
     /// <see cref="UpgradeHandler.OnUpgrade"/> events are raised at the end of this stage.
     /// </summary>
-    Upgrading,
+    Upgrading = 0x1,
     /// <summary>
     /// The final upgrade stage.
     /// Only runtime types are visible; upgrade-only types are invisible;
     /// schema is upgraded once more (upgrade-only types are removed); 
     /// </summary>
-    Final
+    Final = 0x2,
   }
 }

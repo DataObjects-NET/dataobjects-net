@@ -22,8 +22,7 @@ namespace Xtensive.Storage
   /// to ensure its <see cref="Session"/> is active inside method bodies.
   /// </summary>
   [Infrastructure]
-  public abstract class SessionBound : 
-    ISessionBound
+  public abstract class SessionBound : ISessionBound
   {
     private Session session;
 

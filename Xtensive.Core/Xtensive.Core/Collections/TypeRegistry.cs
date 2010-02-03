@@ -17,7 +17,7 @@ namespace Xtensive.Core.Collections
   /// <see cref="Type"/> registration endpoint.
   /// </summary>
   [Serializable]
-  public sealed class TypeRegistry : LockableBase,
+  public class TypeRegistry : LockableBase,
     ICountable<Type>,
     ICloneable
   {
@@ -25,7 +25,7 @@ namespace Xtensive.Core.Collections
     private readonly HashSet<Type> typeSet = new HashSet<Type>();
     private readonly List<TypeRegistration> actions = new List<TypeRegistration>();
     private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
-    private readonly ITypeRegistrationHandler processor;
+    private readonly ITypeRegistrationProcessor processor;
     private bool isProcessingPendingActions = false;
     private readonly Set<Assembly> assemblies = new Set<Assembly>();
 
@@ -143,7 +143,7 @@ namespace Xtensive.Core.Collections
     /// Clones this instance.
     /// </summary>
     /// <returns></returns>
-    public object Clone()
+    public virtual object Clone()
     {
       return new TypeRegistry(this);
     }
@@ -198,20 +198,25 @@ namespace Xtensive.Core.Collections
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="processor">The registry action processor.</param>
-    public TypeRegistry(ITypeRegistrationHandler processor)
+    public TypeRegistry(ITypeRegistrationProcessor processor)
     {
       ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
       this.processor = processor;
     }
 
-    private TypeRegistry(TypeRegistry typeRegistry)
+    /// <summary>
+    /// This constructor is used to clone the instance.
+    /// </summary>
+    /// <param name="source">The type registry to clone the state of.</param>
+    protected TypeRegistry(TypeRegistry source)
     {
-      actions = new List<TypeRegistration>(typeRegistry.actions);
-      actionSet = new HashSet<TypeRegistration>(typeRegistry.actionSet);
-      types = new List<Type>(typeRegistry.types);
-      typeSet = new HashSet<Type>(typeRegistry.typeSet);
-      processor = typeRegistry.processor;
-      assemblies = new Set<Assembly>(typeRegistry.assemblies);
+      ArgumentValidator.EnsureArgumentIs(source, GetType(), "source");
+      actions = new List<TypeRegistration>(source.actions);
+      actionSet = new HashSet<TypeRegistration>(source.actionSet);
+      types = new List<Type>(source.types);
+      typeSet = new HashSet<Type>(source.typeSet);
+      processor = source.processor;
+      assemblies = new Set<Assembly>(source.assemblies);
     }
   }
 }

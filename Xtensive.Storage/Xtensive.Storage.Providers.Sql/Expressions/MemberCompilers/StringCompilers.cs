@@ -421,15 +421,19 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       return SqlDml.GreaterThanOrEquals(_this, value);
     }
 
-    [Compiler(typeof(StringExtensions), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method)]
-    public static SqlExpression StringIsNullOrEmptyExtension(
-      [Type(typeof(string))] SqlExpression value)
+    [Compiler(typeof(EnumerableExtensions), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method, 1)]
+    public static SqlExpression EnumerableIsNullOrEmptyExtension(
+      MemberInfo member, SqlExpression value)
     {
+      var method = (MethodInfo) member;
+      if (method.GetGenericArguments()[0] != typeof(string))
+        throw new NotSupportedException();
       return StringIsNullOrEmpty(value);
     }
 
     [Compiler(typeof(Enumerable), "Contains", TargetKind.Static | TargetKind.Method, 1)]
-    public static SqlExpression EnumerableContains(MemberInfo member, SqlExpression sequence, SqlExpression value)
+    public static SqlExpression EnumerableContains(
+      MemberInfo member, SqlExpression sequence, SqlExpression value)
     {
       var method = (MethodInfo) member;
       if (method.GetGenericArguments()[0] != typeof(char))

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Disposing;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
@@ -26,7 +27,8 @@ namespace Xtensive.Storage.Providers
   /// Base <see cref="Session"/> handler class.
   /// </summary>
   public abstract partial class SessionHandler : InitializableHandlerBase,
-    IDisposable, IHasServices
+    IHasServices,
+    IDisposable
   {
     private static readonly object CachingRegion = new object();
     
@@ -56,20 +58,6 @@ namespace Xtensive.Storage.Providers
       return new Disposable<object>(connectionSyncRoot, (disposing, syncRoot) => Monitor.Exit(syncRoot));
     }
 
-    /// <inheritdoc/>
-    public override void Initialize()
-    {
-      prefetchManager = new PrefetchManager(Session);
-
-      persistRequiresTopologicalSort =
-        (Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0 &&
-         Handlers.Domain.Handler.ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints) &&
-        !Handlers.Domain.Handler.ProviderInfo.Supports(ProviderFeatures.DeferrableConstraints);
-    }
-
-    /// <inheritdoc/>
-    public abstract void Dispose();
-
     /// <summary>
     /// Gets the key generator.
     /// </summary>
@@ -86,20 +74,6 @@ namespace Xtensive.Storage.Providers
     public virtual Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
       return new EnumerationContext(GetEnumerationContextOptions());
-    }
-
-    /// <summary>
-    /// Executes the specified query tasks.
-    /// </summary>
-    /// <param name="queryTasks">The query tasks to execute.</param>
-    /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
-    public virtual void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
-    {
-      foreach (var task in queryTasks) {
-        using (EnumerationScope.Open())
-        using (task.ParameterContext.ActivateSafely())
-          task.Result = task.DataSource.ToList();
-      }
     }
 
     /// <summary>
@@ -127,8 +101,53 @@ namespace Xtensive.Storage.Providers
       return options;
     }
 
+    /// <summary>
+    /// Executes the specified query tasks.
+    /// </summary>
+    /// <param name="queryTasks">The query tasks to execute.</param>
+    /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
+    public virtual void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
+    {
+      foreach (var task in queryTasks) {
+        using (EnumerationScope.Open())
+        using (task.ParameterContext.ActivateSafely())
+          task.Result = task.DataSource.ToList();
+      }
+    }
+
+    #region IoC support (Domain.Services)
+
+    /// <summary>
+    /// Creates parent service container 
+    /// for <see cref="Storage.Session.Services"/> container.
+    /// </summary>
+    /// <returns>Container providing base services.</returns>
+    public virtual IServiceContainer CreateBaseServices()
+    {
+      var registrations = new List<ServiceRegistration>{
+        new ServiceRegistration(typeof (Session), Session),
+        new ServiceRegistration(typeof (SessionHandler), this),
+      };
+      AddBaseServiceRegistrations(registrations);
+      return new ServiceContainer(registrations, Session.Domain.Services);
+    }
+
+    /// <summary>
+    /// Adds base service registration entries into the list of
+    /// registrations used by <see cref="CreateBaseServices"/>
+    /// method.
+    /// </summary>
+    /// <param name="registrations">The list of service registrations.</param>
+    protected virtual void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
+    {
+      return;
+    }
+
+    #endregion
+
     #region IHasServices members
 
+    /// <inheritdoc/>
     public virtual T GetService<T>()
       where T : class
     {
@@ -140,5 +159,22 @@ namespace Xtensive.Storage.Providers
     }
 
     #endregion
+
+    // Initialization
+
+    /// <inheritdoc/>
+    public override void Initialize()
+    {
+      prefetchManager = new PrefetchManager(Session);
+      persistRequiresTopologicalSort =
+        (Handlers.Domain.Configuration.ForeignKeyMode & ForeignKeyMode.Reference) > 0 &&
+          Handlers.Domain.Handler.ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints) &&
+            !Handlers.Domain.Handler.ProviderInfo.Supports(ProviderFeatures.DeferrableConstraints);
+    }
+
+    // Disposing
+
+    /// <inheritdoc/>
+    public abstract void Dispose();
   }
 }

@@ -8,11 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Collections;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers
 {
@@ -108,6 +108,37 @@ namespace Xtensive.Storage.Providers
     /// <returns></returns>
     protected abstract ProviderInfo CreateProviderInfo();
 
+    #region IoC support (Domain.Services)
+
+    /// <summary>
+    /// Creates parent service container 
+    /// for <see cref="Storage.Domain.Services"/> container.
+    /// </summary>
+    /// <returns>Container providing base services.</returns>
+    public virtual IServiceContainer CreateBaseServices()
+    {
+      var registrations = new List<ServiceRegistration>{
+        new ServiceRegistration(typeof (Domain), Domain),
+        new ServiceRegistration(typeof (HandlerAccessor), Handlers),
+        new ServiceRegistration(typeof (DomainHandler), this),
+      };
+      AddBaseServiceRegistrations(registrations);
+      return new ServiceContainer(registrations);
+    }
+
+    /// <summary>
+    /// Adds base service registration entries into the list of
+    /// registrations used by <see cref="CreateBaseServices"/>
+    /// method.
+    /// </summary>
+    /// <param name="registrations">The list of service registrations.</param>
+    protected virtual void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
+    {
+      return;
+    }
+
+    #endregion
+
     #region Private \ internal methods
 
     private void BuildCompilationContext()
@@ -122,7 +153,7 @@ namespace Xtensive.Storage.Providers
     /// improperly described.</exception>
     private void BuildMemberCompilerProviders()
     {
-      var customCompilerContainers = Domain.Configuration.CompilerContainers;
+      var customCompilerContainers = Domain.Configuration.Types.CompilerContainers.ToList();
       var builtinCompilerContainers = GetCompilerProviderContainerTypes();
       var typeGroups = builtinCompilerContainers.GroupBy(
         t => ((CompilerContainerAttribute[]) t.GetCustomAttributes(
@@ -160,6 +191,7 @@ namespace Xtensive.Storage.Providers
     }
 
     #endregion
+
 
     // Initialization
 

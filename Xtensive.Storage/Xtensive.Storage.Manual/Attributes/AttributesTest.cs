@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Manual.Attributes
   [Index("SciFiDescription", IncludedFields = new[] {"SciFiDescriptionDate"})]
   public class SciFi : Book
   {
-    [Field(LazyLoad = true, Length = 5000)]
+    [Field(LazyLoad = true, Length = 4000)]
     public string SciFiDescription { get; set; }
 
     [Field(LazyLoad = true)]

@@ -2,6 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Collections;

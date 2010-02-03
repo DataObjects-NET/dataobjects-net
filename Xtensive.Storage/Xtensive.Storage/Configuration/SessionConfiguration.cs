@@ -52,6 +52,7 @@ namespace Xtensive.Storage.Configuration
     private SessionCacheType cacheType = SessionCacheType.Default;
     private IsolationLevel defaultIsolationLevel = DefaultDefaultIsolationLevelValue; // what a fancy name?
     private ReaderPreloadingPolicy readerPreloading = ReaderPreloadingPolicy.Default;
+    private Type serviceContainerType;
 
     /// <summary>
     /// Gets the session name.
@@ -174,6 +175,18 @@ namespace Xtensive.Storage.Configuration
       get { return (options & SessionOptions.AutoShortenTransactions)==SessionOptions.AutoShortenTransactions; }
     }
 
+    /// <summary>
+    /// Gets or sets the type of the service container.
+    /// </summary>
+    public Type ServiceContainerType 
+    {
+      get { return serviceContainerType; }
+      set {
+        this.EnsureNotLocked();
+        serviceContainerType = value;
+      }
+    }
+
     /// <inheritdoc/>
     public override void Validate()
     {
@@ -202,6 +215,7 @@ namespace Xtensive.Storage.Configuration
       BatchSize = configuration.BatchSize;
       ReaderPreloading = configuration.readerPreloading;
       DefaultIsolationLevel = configuration.DefaultIsolationLevel;
+      ServiceContainerType = configuration.ServiceContainerType;
     }
 
     /// <summary>

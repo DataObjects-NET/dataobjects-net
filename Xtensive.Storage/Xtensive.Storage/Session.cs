@@ -71,7 +71,6 @@ namespace Xtensive.Storage
     private readonly Pinner pinner = new Pinner();
     private readonly bool persistRequiresTopologicalSort;
     
-    private SessionServiceLocator serviceLocator;
     private SessionScope sessionScope;
 
     private volatile bool isDisposed;
@@ -154,35 +153,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the session service provider.
     /// </summary>
-    public SessionServiceLocator Services {
-      get {
-        if (serviceLocator==null) {
-          serviceLocator = new SessionServiceLocator(this);
-          var container = new ServiceContainer();
-          serviceLocator.SetLocatorProvider(() => new ServiceLocatorAdapter(container));
-        }
-        return serviceLocator;
-      }
-    }
-
-    /// <summary>
-    /// Gets the ADO.Net <see cref="IDbCommand"/> command implementation for current underlying SQL database.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Underlying database does not support ADO.Net API.</exception>
-    public IDbCommand GetDbCommand()
-    {
-      return Handler.GetService<IDbCommand>();
-    }
-
-    /// <summary>
-    /// Invalidates all cached entities and resets all pending changes.
-    /// </summary>
-    public void Invalidate()
-    {
-      ClearChangeRegistry();
-      foreach (var invalidable in EntityStateCache.Cast<IInvalidatable>())
-        invalidable.Invalidate();
-    }
+    public IServiceContainer Services { get; private set; }
 
     #region Private / internal members
 
@@ -278,52 +249,6 @@ namespace Xtensive.Storage
 
     #endregion
 
-
-    #region IDisposable members
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
-    /// </summary>
-    public void Dispose()
-    {
-      if (isDisposed)
-        return;
-      try {
-        if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXDisposing, this);
-        NotifyDisposing();
-        Handler.DisposeSafely();
-        sessionScope.DisposeSafely();
-        sessionScope = null;
-      }
-      finally {
-        isDisposed = true;
-      }
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Pins the specified <see cref="IEntity"/>.
-    /// Pinned entity is prevented from being persisted,
-    /// when <see cref="Persist"/> is called or query is executed.
-    /// If persist is to be performed due to starting a nested transaction or committing a transaction,
-    /// any pinned entity will lead to failure.
-    /// If <paramref name="target"/> is not present in the database,
-    /// all entities that reference <paramref name="target"/> are also pinned automatically.
-    /// </summary>
-    /// <param name="target">The entity to pin.</param>
-    /// <returns>An entity pinning scope if <paramref name="target"/> was not previously pinned,
-    /// otherwise <see langword="null"/>.</returns>
-    public IDisposable Pin(IEntity target)
-    {
-      EnsureNotDisposed();
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      var targetEntity = (Entity) target;
-      targetEntity.EnsureNotRemoved();
-      return pinner.RegisterRoot(targetEntity.State);
-    }
-
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -363,6 +288,38 @@ namespace Xtensive.Storage
       if (activate)
         sessionScope = new SessionScope(this);
       CurrentOperationContext = OperationContext.Default;
+
+      // Creating Services
+      var serviceContainerType = Configuration.ServiceContainerType ?? typeof (ServiceContainer);
+      Services = 
+        ServiceContainer.Create(typeof (ServiceContainer), 
+          from type in Domain.Configuration.Types.SessionServices
+          from registration in ServiceRegistration.CreateAll(type)
+          select registration,
+          ServiceContainer.Create(serviceContainerType, Handler.CreateBaseServices()));
+    }
+
+    // IDisposable implementation
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// </summary>
+    public void Dispose()
+    {
+      if (isDisposed)
+        return;
+      try {
+        if (IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXDisposing, this);
+        NotifyDisposing();
+        Services.DisposeSafely();
+        Handler.DisposeSafely();
+        sessionScope.DisposeSafely();
+        sessionScope = null;
+      }
+      finally {
+        isDisposed = true;
+      }
     }
   }
 }

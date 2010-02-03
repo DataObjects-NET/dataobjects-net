@@ -30,7 +30,11 @@ namespace Xtensive.Storage.Upgrade
 
     /// <inheritdoc/>
     public virtual bool IsEnabled {
-      get { return true; }
+      get {
+        // Must be disabled for Xtensive.Storage,
+        // since there is SystemUpgradeHandler.
+        return Assembly!=typeof(UpgradeHandler).Assembly;
+      }
     }
 
     /// <inheritdoc/>
@@ -284,11 +288,7 @@ namespace Xtensive.Storage.Upgrade
     {
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="assembly">The assembly this handler is bound to.</param>
-    public UpgradeHandler(Assembly assembly)
+    internal UpgradeHandler(Assembly assembly)
     {
       this.assembly = assembly;
     }

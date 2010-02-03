@@ -1,0 +1,95 @@
+<#@ output extension="cs" #>
+<#@ template language="C# 3.5" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Linq" #>
+<#
+Action<int, bool, bool> WriteGenericParameters = delegate (int numberOfArguments, bool forAction, bool writePrefix) {
+  if (numberOfArguments == 0) {
+    if (forAction && writePrefix)
+      Write("<object[]>");
+    else if (!forAction && writePrefix)
+      Write("<object[], TResult>");
+    else if (!forAction)
+      Write("<TResult>");
+    return;
+  }
+  Write("<");
+  if (writePrefix)
+    Write("object[], ");
+  if (forAction) {
+    for (int i = 1; i < numberOfArguments; i++)
+      Write(string.Format("T{0}, ", i));
+    Write(string.Format("T{0}", numberOfArguments));
+  }
+  else {
+    for (int i = 1; i <= numberOfArguments; i++)
+      Write(string.Format("T{0}, ", i));
+    Write("TResult");
+  }
+  Write(">");
+};
+
+Action<bool> WriteType = delegate (bool forAction) {
+  Write(forAction ? "Action" : "Func");
+};
+
+Action<int, bool> WriteMethod = delegate (int numberOfArguments, bool forAction) {
+  WriteLine("/// <summary>Compiles the specified lambda and caches the result of compilation.</summary>");
+  WriteLine("/// <returns>Compiled lambda.</returns>");
+  Write("public static ");
+  WriteType(forAction);
+  WriteGenericParameters(numberOfArguments, forAction, false);
+  Write(" CachingCompile");
+  WriteGenericParameters(numberOfArguments, forAction, false);
+  Write("(this Expression<");
+  WriteType(forAction);
+  WriteGenericParameters(numberOfArguments, forAction, false);
+  Write("> lambda");
+  WriteLine(")");
+  WriteLine("{");
+  PushIndent("  ");
+  WriteLine("var result = CachingExpressionCompiler.Instance.Compile(lambda);");
+  Write("return ((");
+  WriteType(forAction);
+  WriteGenericParameters(numberOfArguments, forAction, true);
+  WriteLine(") result.First).Bind(result.Second);");
+  PopIndent(); 
+  WriteLine("}");
+  WriteLine("");
+};
+
+Action<bool> WriteMethods = delegate (bool forAction) {
+  for (int i = 0; i < 9; i++)
+    WriteMethod(i, forAction);
+};
+
+#>
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2009.05.07
+
+using System;
+using System.Linq.Expressions;
+using Xtensive.Core;
+using Xtensive.Core.Helpers;
+using Xtensive.Core.Linq;
+using Xtensive.Core.Linq.Internals;
+
+namespace System
+{
+  /// <summary>
+  /// Extension methods for compiling strictly typed lambda expressions.
+  /// </summary>
+  public static class ExpressionCompileExtensions
+  {
+<#
+PushIndent("    ");
+WriteMethods(false);
+WriteMethods(true);
+PopIndent();
+#>
+  }
+}

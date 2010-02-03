@@ -15,21 +15,21 @@ namespace Xtensive.Core.IoC.Configuration
   public class ConfigurationSection : System.Configuration.ConfigurationSection
   {
     /// <summary>
-    /// Gets default section name for diagnostics configuration.
-    /// Value is "Xtensive.Core.Diagnostics".
+    /// Gets default section name for IoC configuration.
+    /// Value is "Xtensive.Core.IoC".
     /// </summary>
-    public static readonly string DefaultSectionName = "Xtensive.Core.IoC";
-    
+    public const string DefaultSectionName = "Xtensive.Core.IoC";
+
     private const string CollectionElementName = "containers";
 
     /// <summary>
     /// Gets the collection of container configurations.
     /// </summary>
     [ConfigurationProperty(CollectionElementName, IsDefaultCollection = true)]
-    [ConfigurationCollection(typeof(ContainerElementCollection), AddItemName = "container")]
-    public ContainerElementCollection Containers {
+    [ConfigurationCollection(typeof(ConfigurationCollection<ContainerElement>), AddItemName = "container")]
+    public ConfigurationCollection<ContainerElement> Containers {
       get {
-        return (ContainerElementCollection)base[CollectionElementName];
+        return (ConfigurationCollection<ContainerElement>) base[CollectionElementName];
       }
     }
   }

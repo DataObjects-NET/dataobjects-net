@@ -29,7 +29,7 @@ namespace Xtensive.Core.Reflection
       var attributes = member.GetCustomAttributes(typeof (TAttribute), false).Cast<object, TAttribute>();
       if (attributes==null || attributes.Length==0) {
         if ((options & AttributeSearchOptions.InheritFromPropertyOrEvent)!=0) {
-          MethodInfo m = member as MethodInfo;
+          var m = member as MethodInfo;
           if (m!=null) {
             var poe = (MemberInfo) m.GetProperty() ?? m.GetEvent();
             if (poe!=null)
@@ -38,7 +38,7 @@ namespace Xtensive.Core.Reflection
         }
         if ((options & AttributeSearchOptions.InheritFromBase)!=0 &&
             (options & AttributeSearchOptions.InheritFromAllBase)==0) {
-          MemberInfo bm = member.GetBaseMember();
+          var bm = member.GetBaseMember();
           if (bm!=null)
             attributes = bm.GetAttributes<TAttribute>(options);
         }
@@ -46,7 +46,7 @@ namespace Xtensive.Core.Reflection
 
       if ((options & AttributeSearchOptions.InheritFromAllBase)!=0
           && member.DeclaringType!=typeof(object)) {
-        MemberInfo bm = member.GetBaseMember();
+        var bm = member.GetBaseMember();
         if (bm!=null) {
           var list = new List<TAttribute>();
           if (attributes!=null)

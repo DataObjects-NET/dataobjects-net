@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.ConstrainedExecution;
-using Microsoft.Practices.ServiceLocation;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
@@ -25,7 +23,6 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Upgrade;
-using TypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage
 {
@@ -40,9 +37,7 @@ namespace Xtensive.Storage
     IHasExtensions
   {
     private readonly object _lock = new object();
-
     private volatile ExtensionCollection extensions;
-    private volatile DomainServiceLocator serviceLocator;
     
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
@@ -149,23 +144,9 @@ namespace Xtensive.Storage
     public ProviderInfo StorageProviderInfo { get { return Handler.ProviderInfo; } }
 
     /// <summary>
-    /// Gets the collection of extension modules.
+    /// Gets the domain-level service container.
     /// </summary>
-    public ModuleProvider Modules { get; private set; }
-
-    /// <summary>
-    /// Gets the domain service provider.
-    /// </summary>
-    public DomainServiceLocator Services {
-      get {
-        if (serviceLocator==null) lock (_lock) if (serviceLocator==null) {
-          serviceLocator = new DomainServiceLocator();
-          var container = new ServiceContainer();
-          serviceLocator.SetLocatorProvider(() => new ServiceLocatorAdapter(container));
-        }
-        return serviceLocator;
-      }
-    }
+    public IServiceContainer Services { get; internal set; }
 
     #region Private / internal members
 
@@ -242,7 +223,7 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal Domain(DomainConfiguration configuration, ModuleProvider modules)
+    internal Domain(DomainConfiguration configuration)
     {
       IsDebugEventLoggingEnabled = 
         Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
@@ -258,7 +239,6 @@ namespace Xtensive.Storage
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(
         Configuration.QueryCacheSize, k => k.First);
       TemporaryData = new GlobalTemporaryData();
-      Modules = modules;
       PrefetchActionMap = new Dictionary<Model.TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
     }
 
@@ -271,6 +251,7 @@ namespace Xtensive.Storage
           if (IsDebugEventLoggingEnabled)
             Log.Debug(Strings.LogDomainIsDisposing);
           NotifyDisposing();
+          Services.DisposeSafely();
           KeyGenerators.DisposeSafely();
           LocalKeyGenerators.DisposeSafely();
         }

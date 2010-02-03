@@ -28,6 +28,14 @@ namespace Xtensive.Storage.Upgrade
   public sealed class SystemUpgradeHandler : UpgradeHandler
   {
     /// <inheritdoc/>
+    public override bool IsEnabled {
+      get {
+        // Enabled just for Xtensive.Storage
+        return Assembly==GetType().Assembly;
+      }
+    }
+
+    /// <inheritdoc/>
     public override void OnStage()
     {
       var context = UpgradeContext.Demand();

@@ -44,29 +44,28 @@ namespace Xtensive.Storage.Tests.Storage.IoC
     [Test]
     public void ContainerTest()
     {
-
       using (var session = Session.Open(Domain)) {
         using (Transaction.Open()) {
 
           // Domain-level singleton service
-          var domainSingleton1 = Domain.Services.GetInstance<IMyService>("singleton");
-          var domainSingleton2 = Domain.Services.GetInstance<IMyService>("singleton");
+          var domainSingleton1 = Domain.Services.Get<IMyService>("singleton");
+          var domainSingleton2 = Domain.Services.Get<IMyService>("singleton");
           Assert.AreSame(domainSingleton1, domainSingleton2);
 
           // Domain-level transient service
-          var domainTransient1 = Domain.Services.GetInstance<IMyService>("transient");
-          var domainTransient2 = Domain.Services.GetInstance<IMyService>("transient");
+          var domainTransient1 = Domain.Services.Get<IMyService>("transient");
+          var domainTransient2 = Domain.Services.Get<IMyService>("transient");
           Assert.AreNotSame(domainTransient1, domainTransient2);
 
           // Session-level singleton service
-          var sessionSingleton1 = session.Services.GetInstance<IMyService>();
-          var sessionSingleton2 = session.Services.GetInstance<IMyService>();
+          var sessionSingleton1 = session.Services.Get<IMyService>();
+          var sessionSingleton2 = session.Services.Get<IMyService>();
           Assert.AreSame(sessionSingleton1, sessionSingleton2);
 
           using (Session.Open(Domain)) {
             using (Transaction.Open()) {
               // Session-level singleton service from another session
-              var sessionSingleton3 = Session.Current.Services.GetInstance<IMyService>();
+              var sessionSingleton3 = Session.Current.Services.Get<IMyService>();
               Assert.AreNotSame(sessionSingleton1, sessionSingleton3);
             }
           }
@@ -82,15 +81,15 @@ namespace Xtensive.Storage.Tests.Storage.IoC
         using (Transaction.Open()) {
           using (new Measurement("Getting domain-level singleton service.", iterationCount))
             for (int i = 0; i < iterationCount; i++)
-              Domain.Services.GetInstance<IMyService>("singleton");
+              Domain.Services.Get<IMyService>("singleton");
 
           using (new Measurement("Getting domain-level transient service.", iterationCount))
             for (int i = 0; i < iterationCount; i++)
-              Domain.Services.GetInstance<IMyService>("transient");
+              Domain.Services.Get<IMyService>("transient");
 
           using (new Measurement("Getting session-level singleton service.", iterationCount))
             for (int i = 0; i < iterationCount; i++)
-              session.Services.GetInstance<IMyService>();
+              session.Services.Get<IMyService>();
         }
       }
     }

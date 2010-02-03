@@ -138,7 +138,7 @@ namespace Xtensive.Storage.Manual.Caching
         UpgradeMode = DomainUpgradeMode.Recreate
       };
       config.Types.Register(typeof(Product).Assembly, typeof(Product).Namespace);
-      config.CompilerContainers.Register(typeof (CustomLinqCompilerContainer));
+      config.Types.Register(typeof(CustomLinqCompilerContainer));
       var domain = Domain.Build(config);
 
       using (Session.Open(domain)) {

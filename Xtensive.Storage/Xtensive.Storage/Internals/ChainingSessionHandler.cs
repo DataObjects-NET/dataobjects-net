@@ -66,6 +66,7 @@ namespace Xtensive.Storage.Internals
       chainedHandler.RollbackToSavepoint(name);
     }
 
+    /// <inheritdoc/>
     public override void ReleaseSavepoint(string name)
     {
       chainedHandler.ReleaseSavepoint(name);
@@ -142,11 +143,13 @@ namespace Xtensive.Storage.Internals
       return chainedHandler.TryGetEntityState(key, out entityState);
     }
 
+    /// <inheritdoc/>
     public override T GetService<T>()
     {
       return chainedHandler.GetService<T>();
     }
 
+    /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {
       return chainedHandler.CreateEnumerationContext();

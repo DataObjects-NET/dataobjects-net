@@ -4,10 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.19
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Sorting;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;

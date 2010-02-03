@@ -22,7 +22,8 @@ namespace Xtensive.Storage.Tests.Storage.IoC
 
       // Setting domain-container
       var domainContainer = BuildContainer("domain");
-      domain.Services.SetLocatorProvider(() => new Microsoft.Practices.Unity.ServiceLocatorAdapter.UnityServiceLocator(domainContainer));
+      // TODO: Fix this
+      // domain.Services.SetLocatorProvider(() => new Microsoft.Practices.Unity.ServiceLocatorAdapter.UnityServiceLocator(domainContainer));
 
       // Singing up to SessionOpen event to set and configure session-level container
       domain.SessionOpen += OnSessionOpen;
@@ -32,7 +33,8 @@ namespace Xtensive.Storage.Tests.Storage.IoC
     private void OnSessionOpen(object sender, SessionEventArgs e)
     {
       var sessionContainer = BuildContainer("session");
-      e.Session.Services.SetLocatorProvider(() => new Microsoft.Practices.Unity.ServiceLocatorAdapter.UnityServiceLocator(sessionContainer));
+      // TODO: Fix this
+      // e.Session.Services.SetLocatorProvider(() => new Microsoft.Practices.Unity.ServiceLocatorAdapter.UnityServiceLocator(sessionContainer));
     }
 
     private static UnityContainer BuildContainer(string containerName)

@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.22
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;

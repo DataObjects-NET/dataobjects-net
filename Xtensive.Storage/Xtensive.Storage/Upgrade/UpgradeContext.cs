@@ -7,15 +7,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.IoC;
+using Xtensive.Core.Sorting;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model.Stored;
+using Xtensive.Storage.Resources;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -65,16 +69,6 @@ namespace Xtensive.Storage.Upgrade
     public DomainConfiguration Configuration { get; internal set; }
 
     /// <summary>
-    /// Gets the ordered collection of upgrade handlers.
-    /// </summary>
-    public IList<IUpgradeHandler> OrderedUpgradeHandlers { get; internal set; }
-
-    /// <summary>
-    /// Gets the map of upgrade handlers.
-    /// </summary>
-    public IDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get; internal set; }
-
-    /// <summary>
     /// Gets the upgrade hints.
     /// </summary>
     public SetSlim<UpgradeHint> Hints { get; private set; }
@@ -112,9 +106,24 @@ namespace Xtensive.Storage.Upgrade
     public object NativeExtractedSchema { get; internal set; }
 
     /// <summary>
-    /// Gets or sets the collection of extension modules.
+    /// Gets or sets the collection of services related to upgrade.
     /// </summary>
-    public ModuleProvider Modules { get; internal set; }
+    public IServiceContainer Services { get; private set; }
+
+    /// <summary>
+    /// Gets the map of upgrade handlers.
+    /// </summary>
+    public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get; private set; }
+
+    /// <summary>
+    /// Gets the ordered collection of upgrade handlers.
+    /// </summary>
+    public ReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers { get; private set; }
+
+    /// <summary>
+    /// Gets the ordered collection of upgrade handlers.
+    /// </summary>
+    public ReadOnlyList<IModule> Modules { get; private set; }
 
     /// <summary>
     /// Gets or sets current transaction scope.
@@ -137,12 +146,94 @@ namespace Xtensive.Storage.Upgrade
 
     #endregion
 
+    #region BuildXxx methods
+
+    private void BuildServices()
+    {
+      var handlerRegistrations =
+        from type in OriginalConfiguration.Types.UpgradeHandlers
+        select new ServiceRegistration(typeof (IUpgradeHandler), type, false);
+
+      var baseServices = new ServiceContainer(new List<ServiceRegistration>{
+        new ServiceRegistration(typeof (UpgradeContext), this),
+      });
+
+      var serviceContainerType = OriginalConfiguration.ServiceContainerType ?? typeof (ServiceContainer);
+      Services = 
+        ServiceContainer.Create(typeof (ServiceContainer), handlerRegistrations, 
+          ServiceContainer.Create(serviceContainerType, baseServices));
+    }
+
+    /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
+    private void BuildUpgradeHandlers()
+    {
+      // Getting user handlers
+      var userHandlers =
+        from handler in Services.GetAll<IUpgradeHandler>()
+        let assembly = handler.GetType().Assembly
+        where handler.IsEnabled
+        group handler by assembly;
+
+      // Adding user handlers
+      var handlers = new Dictionary<Assembly, IUpgradeHandler>();
+      foreach (var group in userHandlers) {
+        var handler = group.SingleOrDefault();
+        if (handler==null)
+          throw new DomainBuilderException(
+            Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY.FormatWith(
+              typeof (IUpgradeHandler).GetShortName(), group.Key));
+        handlers.Add(group.Key, handler);
+      }
+
+      // Adding default handlers
+      var assembliesWithUserHandlers = handlers.Select(pair => pair.Key);
+      var assembliesWithoutUserHandler = 
+        OriginalConfiguration.Types.PersistentTypes
+          .Select(type => type.Assembly)
+          .Distinct()
+          .Except(assembliesWithUserHandlers);
+
+      foreach (var assembly in assembliesWithoutUserHandler) {
+        var handler = new UpgradeHandler(assembly);
+        handlers.Add(assembly, handler);
+      }
+
+      // Building a list of handlers sorted by dependencies of their assemblies
+      var dependencies = handlers.Keys.ToDictionary(
+        assembly => assembly,
+        assembly => assembly.GetReferencedAssemblies().Select(assemblyName => assemblyName.ToString()).ToHashSet());
+      var sortedHandlers =
+        from pair in 
+          TopologicalSorter.Sort(handlers, 
+            (a0, a1) => dependencies[a1.Key].Contains(a0.Key.GetName().ToString()))
+        select pair.Value;
+
+      // Storing the result
+      UpgradeHandlers = 
+        new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
+      OrderedUpgradeHandlers = 
+        new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
+    }
+
+    private void BuildModules()
+    {
+      Modules = new ReadOnlyList<IModule>(Services.GetAll<IModule>().ToList());
+    }
+
+    #endregion
+
 
     // Constructors.
 
-    internal UpgradeContext()
+    internal UpgradeContext(DomainConfiguration originalConfiguration)
     {
+      OriginalConfiguration = originalConfiguration;
+      Stage = UpgradeStage.Validation;
       Hints = new SetSlim<UpgradeHint>();
+
+      BuildServices();
+      BuildUpgradeHandlers();
+      BuildModules();
     }
   }
 }

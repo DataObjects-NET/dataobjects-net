@@ -284,17 +284,6 @@ namespace Xtensive.Storage.Providers.Sql
     #endregion
 
     /// <inheritdoc/>
-    public override T GetService<T>()
-    {
-      if (typeof(T) == typeof(IDbCommand)) {
-        EnsureConnectionIsOpen();
-        var dbCommand = connection.CreateCommand();
-        return dbCommand as T;
-      }
-      return base.GetService<T>();
-    }
-
-    /// <inheritdoc/>
     public override void Initialize()
     {
       base.Initialize();

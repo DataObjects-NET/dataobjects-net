@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Sorting;
 using Xtensive.Modelling.Actions;
@@ -42,14 +41,9 @@ namespace Xtensive.Storage.Upgrade
     public static Domain Build(DomainConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      var context = new UpgradeContext();
+      configuration.Lock();
+      var context = new UpgradeContext(configuration);
       using (context.Activate()) {
-        context.OriginalConfiguration = configuration;
-        context.Stage = UpgradeStage.Validation;
-        context.Modules = new ModuleProvider(configuration);
-        BuildUpgradeHandlers();
-        context.Modules.BuildModules();
-
         try {
           BuildStageDomain(UpgradeStage.Validation).DisposeSafely();
         }
@@ -63,17 +57,12 @@ namespace Xtensive.Storage.Upgrade
             throw;
           }
         BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
-        var result = BuildStageDomain(UpgradeStage.Final);
-        result.Model.Lock(true);
-        NotifyModules(result);
-        return result;
+        var domain = BuildStageDomain(UpgradeStage.Final);
+        domain.Model.Lock(true);
+        foreach (var module in context.Modules)
+          module.OnBuilt(domain);
+        return domain;
       }
-    }
-
-    private static void NotifyModules(Domain domain)
-    {
-      foreach (var module in domain.Modules)
-        module.OnBuilt(domain);
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
@@ -154,17 +143,6 @@ namespace Xtensive.Storage.Upgrade
       };
     }
 
-    private static List<IUpgradeHandler> SortUpgradeHandlers(
-      IDictionary<Assembly, IUpgradeHandler> unsortedHandlers)
-    {
-      var references = (from asm in unsortedHandlers.Keys
-      select new {asm, Reference = asm.GetReferencedAssemblies().Select(a => a.ToString())})
-        .ToDictionary(a => a.asm, a => a.Reference);
-      return TopologicalSorter.Sort(unsortedHandlers,
-        (asm0, asm1) => references[asm1.Key].Any(asmName => asmName==asm0.Key.GetName().ToString()))
-        .Select(pair => pair.Value).ToList();
-    }
-
     private static Exception GetInnermostException(Exception exception)
     {
       ArgumentValidator.EnsureArgumentNotNull(exception, "exception");
@@ -188,57 +166,6 @@ namespace Xtensive.Storage.Upgrade
         foreach (var schemaHint in hints.SchemaHints)
           context.SchemaHints.Add(schemaHint);
       }
-    }
-
-    /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
-    private static void BuildUpgradeHandlers()
-    {
-      var context = UpgradeContext.Current;
-      var handlers = new Dictionary<Assembly, IUpgradeHandler>();
-
-      var assemblies = (
-        from type in context.OriginalConfiguration.Types
-        let assembly = type.Assembly
-        select assembly).Distinct();
-
-      // Creating user handlers
-      var userHandlers =
-        from assembly in assemblies
-        from type in assembly.GetTypes()
-        where 
-          (typeof (IUpgradeHandler)).IsAssignableFrom(type)
-          && !type.IsAbstract
-          && type.IsClass
-          && type!=typeof (UpgradeHandler)
-        let handler = (IUpgradeHandler) type.Activate(null)
-        where handler!=null && handler.IsEnabled
-        group handler by assembly;
-
-      // Adding user handlers
-      foreach (var group in userHandlers) {
-        if (group.Count()>1)
-          throw new DomainBuilderException(string.Format(
-            Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY, 
-            typeof (IUpgradeHandler).GetShortName(), group.Key));
-        handlers.Add(group.Key, group.First());
-      }
-
-      context.Modules.SetUpgradeHandlers(handlers.Values);
-
-      // Adding default handlers
-      var assembliesWithUserHandlers = userHandlers.Select(g => g.Key);
-      var assembliesWithoutUserHandler = assemblies.Except(assembliesWithUserHandlers);
-
-      foreach (var assembly in assembliesWithoutUserHandler) {
-        var handler = new UpgradeHandler(assembly);
-        handlers.Add(assembly, handler);
-      }
-
-      // Storing the result
-      context.UpgradeHandlers = 
-        new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers, false);
-      context.OrderedUpgradeHandlers = 
-        new ReadOnlyList<IUpgradeHandler>(SortUpgradeHandlers(handlers));
     }
 
     private static int ProvideTypeId(UpgradeContext context, Type type)

@@ -8,13 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
-using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
 using Xtensive.Core.IoC;
-using Xtensive.Core.IoC.Configuration;
 using Xtensive.Core.Testing;
 using ConfigurationSection=Xtensive.Core.IoC.Configuration.ConfigurationSection;
-using ServiceLocator=Xtensive.Core.IoC.ServiceLocator;
 
 namespace Xtensive.Core.Tests.IoC
 {
@@ -23,11 +20,29 @@ namespace Xtensive.Core.Tests.IoC
     void Print(string msg);
   }
 
+  public interface IPrinter
+  {
+    void Print(string msg);
+  }
+
+  public interface ISelfConsumer
+  {
+  }
+
+  [Service(typeof(IPrintService), Default = true)]
   public class ConsoleService : IPrintService
   {
+    public IPrinter Printer { get; private set; }
+
     public void Print(string msg)
     {
       Console.WriteLine(msg);
+    }
+
+    [ServiceConstructor]
+    public ConsoleService(IPrinter printer)
+    {
+      Printer = printer;
     }
   }
 
@@ -39,43 +54,70 @@ namespace Xtensive.Core.Tests.IoC
     }
   }
 
+  [Service(typeof(IPrintService), "AutoDebug", Singleton = false)]
+  public class NamedAutoDebugService : IPrintService
+  {
+    public void Print(string msg)
+    {
+      Debug.WriteLine(msg);
+    }
+  }
+
+  [Service(typeof(ISelfConsumer))]
+  public class SelfConsumer : ISelfConsumer
+  {
+    [ServiceConstructor]
+    public SelfConsumer(ISelfConsumer baseConsumer)
+    {
+    }
+  }
+
   [TestFixture]
   public class MainTest
   {
     [Test]
-    public void AmbientTest()
+    public void DefaultContainerTest()
     {
-      var ps = ServiceLocator.GetInstance<IPrintService>();
+      var ps = ServiceContainer.Default.Get<IPrintService>();
       Assert.IsNotNull(ps);
 
-      var services = new List<IPrintService>(ServiceLocator.GetAllInstances<IPrintService>());
-      Assert.AreEqual(2, services.Count);
+      var services = new List<IPrintService>(ServiceContainer.Default.GetAll<IPrintService>());
+      Assert.AreEqual(1, services.Count);
 
-      var singleton1 = ServiceLocator.GetInstance<IPrintService>("Console");
-      var singleton2 = ServiceLocator.GetInstance<IPrintService>("Console");
+      var singleton1 = ServiceContainer.Default.Get<IPrintService>("Console");
+      var singleton2 = ServiceContainer.Default.Get<IPrintService>("Console");
       Assert.AreSame(singleton1, singleton2);
+
+      var instance1 = ServiceContainer.Default.Get<IPrintService>("AutoDebug");
+      var instance2 = ServiceContainer.Default.Get<IPrintService>("AutoDebug");
+      Assert.AreNotSame(instance1, instance2);
     }
 
     [Test]
-    public void ContainerTest()
+    public void CustomContainerTest()
     {
       var config = (ConfigurationSection) ConfigurationManager.GetSection("Xtensive.Core.IoC");
-      var container = new ServiceContainer();
-      container.Configure(config.Containers["second"]);
-      ServiceLocator.SetLocatorProvider(() => new ServiceLocatorAdapter(container));
+      var container = ServiceContainer.Create("second");
 
-      var ps = ServiceLocator.GetInstance<IPrintService>();
+      var ps = container.Get<IPrintService>();
       Assert.IsNotNull(ps);
 
-      var services = new List<IPrintService>(ServiceLocator.GetAllInstances<IPrintService>());
-      Assert.AreEqual(2, services.Count);
+      var services = new List<IPrintService>(container.GetAll<IPrintService>());
+      Assert.AreEqual(1, services.Count);
 
-      var singleton1 = ServiceLocator.GetInstance<IPrintService>("Debug");
-      var singleton2 = ServiceLocator.GetInstance<IPrintService>("Debug");
+      var singleton1 = container.Get<IPrintService>("Debug");
+      var singleton2 = container.Get<IPrintService>("Debug");
       Assert.AreSame(singleton1, singleton2);
 
-      // This is standalone container, there is no such types as "console" in it
-      AssertEx.Throws<ActivationException>(() => ServiceLocator.GetInstance<IPrintService>("Console"));
+      Assert.IsNull(container.Get<IPrintService>("Console"));
+    }
+
+    [Test]
+    public void SelfConsumerTest()
+    {
+      AssertEx.Throws<ActivationException>(() => {
+        var s = ServiceContainer.Default.Get<ISelfConsumer>();
+      });
     }
   }
 }
