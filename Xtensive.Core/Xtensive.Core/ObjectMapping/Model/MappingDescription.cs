@@ -75,6 +75,32 @@ namespace Xtensive.Core.ObjectMapping.Model
     }
 
     /// <summary>
+    /// Gets the description of the target type.
+    /// </summary>
+    /// <param name="targetType">The target system type.</param>
+    /// <returns>The description of the target type.</returns>
+    public TargetTypeDescription GetTargetTypeDescription(Type targetType)
+    {
+      TargetTypeDescription result;
+      if (!targetTypes.TryGetValue(targetType, out result))
+        ThrowTypeHasNotBeenRegistered(targetType);
+      return result;
+    }
+
+    /// <summary>
+    /// Gets the description of the source type.
+    /// </summary>
+    /// <param name="sourceType">The source system type.</param>
+    /// <returns>The description of the source type.</returns>
+    public SourceTypeDescription GetSourceTypeDescription(Type sourceType)
+    {
+      SourceTypeDescription result;
+      if (!sourceTypes.TryGetValue(sourceType, out result))
+        ThrowTypeHasNotBeenRegistered(sourceType);
+      return result;
+    }
+
+    /// <summary>
     /// Extracts a key from an object of a target type.
     /// </summary>
     /// <param name="target">The object of the target type.</param>
@@ -84,7 +110,9 @@ namespace Xtensive.Core.ObjectMapping.Model
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var type = target.GetType();
       EnsureTargetTypeIsRegistered(type);
-      return targetTypes[type].KeyExtractor.Invoke(target);
+      var result = targetTypes[type].KeyExtractor.Invoke(target);
+      ArgumentValidator.EnsureArgumentNotNull(result, "result");
+      return result;
     }
 
     /// <summary>
@@ -97,7 +125,9 @@ namespace Xtensive.Core.ObjectMapping.Model
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       var type = source.GetType();
       EnsureSourceTypeIsRegistered(type);
-      return sourceTypes[type].KeyExtractor.Invoke(source);
+      var result = sourceTypes[type].KeyExtractor.Invoke(source);
+      ArgumentValidator.EnsureArgumentNotNull(result, "result");
+      return result;
     }
 
     #region Private / internal methods
@@ -184,22 +214,6 @@ namespace Xtensive.Core.ObjectMapping.Model
         targetType.AddProperty((TargetPropertyDescription) propertyDescription);
       }
       ((TargetPropertyDescription) propertyDescription).IsChangeTrackingDisabled = !isEnabled;
-    }
-
-    internal TargetTypeDescription GetTargetTypeDescription(Type targetType)
-    {
-      TargetTypeDescription result;
-      if (!targetTypes.TryGetValue(targetType, out result))
-        ThrowTypeHasNotBeenRegistered(targetType);
-      return result;
-    }
-
-    internal SourceTypeDescription GetSourceTypeDescription(Type sourceType)
-    {
-      SourceTypeDescription result;
-      if (!sourceTypes.TryGetValue(sourceType, out result))
-        ThrowTypeHasNotBeenRegistered(sourceType);
-      return result;
     }
 
     internal void EnsureTargetTypeIsRegistered(Type targetType)

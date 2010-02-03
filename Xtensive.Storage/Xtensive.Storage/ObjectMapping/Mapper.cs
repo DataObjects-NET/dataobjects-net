@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.ObjectMapping;
@@ -108,9 +109,7 @@ namespace Xtensive.Storage.ObjectMapping
       IOperation operation;
       if (newObjectKeys==null)
         newObjectKeys = new Dictionary<object, Key>();
-      var newKey = CreateKey(operationInfo.Object, operationInfo.Object.GetType());
-      var dtoKey = MappingDescription.ExtractTargetKey(operationInfo.Object);
-      newObjectKeys[dtoKey] = newKey;
+      var newKey = CreateKey(operationInfo.Object);
       operation = new EntityOperation(newKey, Operations.OperationType.CreateEntity);
       return operation;
     }
@@ -130,13 +129,37 @@ namespace Xtensive.Storage.ObjectMapping
       return result;
     }
 
-    private Key CreateKey(object target, Type type)
+    private Key CreateKey(object target)
     {
-      var sourceType = MappingDescription.GetMappedSourceType(type);
-      if (sourceType.TargetType.GeneratorArgumentsProvider!=null)
-        return Key.Create(session.Domain, session.Domain.Model.Types[sourceType.SystemType],
-          TypeReferenceAccuracy.ExactType, sourceType.TargetType.GeneratorArgumentsProvider.Invoke(target));
-      return Key.Create(session.Domain, sourceType.SystemType);
+      Key result;
+      var dtoKey = MappingDescription.ExtractTargetKey(target);
+      if (newObjectKeys.TryGetValue(dtoKey, out result))
+        return result;
+      var sourceType = MappingDescription.GetMappedSourceType(target.GetType());
+      if (sourceType.TargetType.GeneratorArgumentsProvider!=null) {
+        var customKeyFieldValues = GetCustomKeyFields(target, sourceType.TargetType);
+        result = Key.Create(session.Domain, session.Domain.Model.Types[sourceType.SystemType],
+          TypeReferenceAccuracy.ExactType, customKeyFieldValues);
+      }
+      else
+        result = Key.Create(session.Domain, sourceType.SystemType);
+      newObjectKeys[dtoKey] = result;
+      return result;
+    }
+
+    private object[] GetCustomKeyFields(object target, TargetTypeDescription targetType)
+    {
+      var arguments = targetType.GeneratorArgumentsProvider.Invoke(target);
+      ArgumentValidator.EnsureArgumentNotNull(arguments, "arguments");
+      var result = new object[arguments.Length];
+      for (var i = 0; i < arguments.Length; i++) {
+        var argument = arguments[i];
+        var argumentTargetType = MappingDescription.GetTargetTypeDescription(argument.GetType());
+        result[i] = argumentTargetType.ObjectKind==ObjectKind.Entity
+          ? CreateKey(argument)
+          : argument;
+      }
+      return result;
     }
 
     private EntitySetItemOperation CreateEntitySetItemOperation(OperationInfo operationInfo,

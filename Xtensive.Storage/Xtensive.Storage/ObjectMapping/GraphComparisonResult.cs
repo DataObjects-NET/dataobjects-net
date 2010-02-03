@@ -10,7 +10,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
-using Xtensive.Storage.Operations;
+using IOperationSet=Xtensive.Core.ObjectMapping.IOperationSet;
 
 namespace Xtensive.Storage.ObjectMapping
 {
@@ -58,8 +58,11 @@ namespace Xtensive.Storage.ObjectMapping
         return result;
     }
 
+
+    // Constructors
+
     internal GraphComparisonResult(Dictionary<object, object> original, Dictionary<object, object> modified,
-      OperationSet operations, ReadOnlyDictionary<object, object> keyMapping)
+      IOperationSet operations, ReadOnlyDictionary<object, object> keyMapping)
       : base(operations, keyMapping)
     {
       this.original = original;

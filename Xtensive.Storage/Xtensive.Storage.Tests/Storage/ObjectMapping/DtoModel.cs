@@ -126,4 +126,54 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 
     public string AuxString { get; set; }
   }
+
+  [Serializable]
+  public class CompositeKeyRootDto
+  {
+    public string Key { get; set; }
+
+    public CompositeKeyFirstLevel0Dto FirstId { get; set; }
+
+    public CompositeKeySecondLevel0Dto SecondId { get; set; }
+
+    public DateTime Aux { get; set; }
+  }
+
+  [Serializable]
+  public class CompositeKeyFirstLevel0Dto
+  {
+    public string Key { get; set; }
+
+    public Guid FirstId { get; set; }
+
+    public CompositeKeyFirstLevel1Dto SecondId { get; set; }
+
+    public string Aux { get; set; }
+  }
+
+  [Serializable]
+  public class CompositeKeyFirstLevel1Dto
+  {
+    public string Key { get; set; }
+
+    public Guid FirstId { get; set; }
+
+    public DateTime SecondId { get; set; }
+
+    public int Aux { get; set; }
+  }
+
+  [Serializable]
+  public class CompositeKeySecondLevel0Dto
+  {
+    public string Key { get; set; }
+
+    public int FirstId { get; set; }
+
+    public string SecondId { get; set; }
+
+    public CompositeKeyFirstLevel0Dto Reference { get; set; }
+
+    public int Aux { get; set; }
+  }
 }

@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Storage.Configuration;
@@ -187,6 +188,39 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     public int Office { get; set; }
   }
 
+  [Serializable]
+  [HierarchyRoot]
+  public class Trunk : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public string ProjectName { get; set; }
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class Branch : Entity
+  {
+    [Key(0), Field]
+    public int Id { get; private set; }
+
+    [Key(1), Field]
+    public Trunk Trunk { get; private set; }
+
+    [Field]
+    public DateTime CreationDate { get; set; }
+
+
+    // Constructors
+
+    public Branch(int id, Trunk trunk)
+      : base(id, trunk)
+    {}
+  }
+
   #endregion
 
   #region DTO
@@ -306,6 +340,22 @@ namespace Xtensive.Storage.Manual.ObjectMapper
     public CustomerDto Customer { get; set; }
 
     public List<OrderItemDto> Items { get; set; }
+  }
+
+  [Serializable]
+  public class TrunkDto : IdentifiableDto
+  {
+    public string ProjectName { get; set; }
+  }
+
+  [Serializable]
+  public class BranchDto : IdentifiableDto
+  {
+    public int Id { get; set; }
+
+    public TrunkDto Trunk { get; set; }
+
+    public DateTime CreationDate { get; set; }
   }
 
   #endregion
@@ -552,6 +602,40 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       }
     }
 
+    [Test]
+    public void CustomKeyGenerationTest()
+    {
+      var mapping = new MappingBuilder()
+        .MapType<Entity, IdentifiableDto, string>(e => e.Key.Format(), i => i.Key)
+          .Inherit<IdentifiableDto, Trunk, TrunkDto>()
+          // Specify the delegate providing key field values
+          .Inherit<IdentifiableDto, Branch, BranchDto>(b => new object[] {b.Id, b.Trunk})
+            // Change tracking for properties included in the key has to be disabled
+            .TrackChanges(b => b.Id, false)
+            .TrackChanges(b => b.Trunk, false)
+        .Build();
+
+      var domain = BuildDomain();
+
+      var trunkDto = new TrunkDto {Key = Guid.NewGuid().ToString(), ProjectName = "DataObjects.Net"};
+      var branchDto = new BranchDto {
+        Key = Guid.NewGuid().ToString(), Id = 1, Trunk = trunkDto, CreationDate = DateTime.Now.AddDays(-30)
+      };
+
+      IDictionary<object,object> newObjectKeys;
+      using (var session = Session.Open(domain))
+      using (var tx = Transaction.Open(session)) {
+        var mapper = new Mapper(mapping);
+        using (var comparisonResult = mapper.Compare(null, branchDto)) {
+          comparisonResult.Operations.Apply();
+          newObjectKeys = comparisonResult.KeyMapping;
+        }
+        tx.Complete();
+      }
+
+      ValidateCustomKeyGenerationTest(branchDto, newObjectKeys, domain);
+    }
+
     private byte[] SerializeVersionInfo(VersionInfo versionInfo)
     {
       // This isn't the best practice, it's just an example
@@ -656,6 +740,19 @@ namespace Xtensive.Storage.Manual.ObjectMapper
         Assert.AreEqual(customerDto.Address.Office, customer.Address.Office);
         Assert.AreEqual(customerDto.Address.State, customer.Address.State);
         Assert.AreEqual(customerDto.Address.Street, customer.Address.Street);
+      }
+    }
+
+    private static void ValidateCustomKeyGenerationTest(BranchDto branchDto,
+      IDictionary<object, object> newObjectKeys, Domain domain)
+    {
+      using (var session = Session.Open(domain))
+      using (var tx = Transaction.Open(session)) {
+        var branch = Query.Single<Branch>(Key.Parse((string) newObjectKeys[branchDto.Key]));
+        Assert.AreEqual(Key.Parse((string) newObjectKeys[branchDto.Trunk.Key]), branch.Trunk.Key);
+        Assert.AreEqual(branchDto.Id, branch.Id);
+        Assert.AreEqual(branchDto.CreationDate.ToString(), branch.CreationDate.ToString());
+        Assert.AreEqual(branchDto.Trunk.ProjectName, branch.Trunk.ProjectName);
       }
     }
 

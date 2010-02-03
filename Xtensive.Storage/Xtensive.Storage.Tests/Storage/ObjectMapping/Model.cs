@@ -304,4 +304,95 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
       : base(id)
     {}
   }
+
+  [Serializable]
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class CompositeKeyRoot : Entity
+  {
+    [Key(0), Field]
+    public CompositeKeyFirstLevel0 FirstId { get; private set; }
+
+    [Key(1), Field]
+    public CompositeKeySecondLevel0 SecondId { get; private set; }
+
+    [Field]
+    public DateTime Aux { get; set; }
+
+
+    // Constructor
+
+    public CompositeKeyRoot(CompositeKeyFirstLevel0 firstId, CompositeKeySecondLevel0 secondId)
+      : base(firstId, secondId)
+    {}
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class CompositeKeyFirstLevel0 : Entity
+  {
+    [Key(0), Field]
+    public Guid FirstId { get; private set; }
+
+    [Key(1), Field]
+    public CompositeKeyFirstLevel1 SecondId { get; private set; }
+
+    [Field]
+    public string Aux { get; set; }
+
+
+    // Constructors
+
+    public CompositeKeyFirstLevel0(Guid firstId, CompositeKeyFirstLevel1 secondId)
+      : base(firstId, secondId)
+    {}
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class CompositeKeyFirstLevel1 : Entity
+  {
+    [Key(0), Field]
+    public Guid FirstId { get; private set; }
+
+    [Key(1), Field]
+    public DateTime SecondId { get; private set; }
+
+    [Field]
+    public int Aux { get; set; }
+
+
+    // Constructors
+
+    public CompositeKeyFirstLevel1(Guid firstId, DateTime secondId)
+      : base(firstId, secondId)
+    {}
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class CompositeKeySecondLevel0 : Entity
+  {
+    [Key(0), Field]
+    public int FirstId { get; private set; }
+
+    [Key(1), Field]
+    public string SecondId { get; private set; }
+
+    [Field]
+    public CompositeKeyFirstLevel0 Reference { get; set; }
+
+    [Field]
+    public int Aux { get; set; }
+
+
+    // Constructors
+
+    public CompositeKeySecondLevel0(int firstId, string secondId)
+      : base(firstId, secondId)
+    {}
+  }
 }

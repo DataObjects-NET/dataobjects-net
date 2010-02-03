@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Disconnected;
@@ -228,7 +229,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     }
 
     [Test]
-    public void CreateObjectUsingCustomKeyValuesTest()
+    public void CreateObjectUsingCustomPrimitiveKeyValuesTest()
     {
       var rnd = new Random();
       var mapping = new MappingBuilder()
@@ -270,6 +271,72 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         var newPerson = Query.Single<CustomPerson>(newPersonDto.Id);
         validator.Invoke(newPersonDto, newPerson);
         tx.Complete();
+      }
+    }
+
+    [Test]
+    public void CreateObjectUsingCustomComplexKeyValuesTest()
+    {
+      var mapping = new MappingBuilder()
+        .MapType<CompositeKeyRoot, CompositeKeyRootDto, string>(c => c.Key.Format(),
+          c => c.Key, c => new object[] {c.FirstId, c.SecondId})
+          .TrackChanges(c => c.FirstId, false).TrackChanges(c => c.SecondId, false)
+        .MapType<CompositeKeyFirstLevel0, CompositeKeyFirstLevel0Dto, string>(c => c.Key.Format(),
+          c => c.Key, c => new object[] {c.FirstId, c.SecondId})
+          .TrackChanges(c => c.FirstId, false).TrackChanges(c => c.SecondId, false)
+        .MapType<CompositeKeyFirstLevel1, CompositeKeyFirstLevel1Dto, string>(c => c.Key.Format(),
+          c => c.Key, c => new object[] {c.FirstId, c.SecondId})
+          .TrackChanges(c => c.FirstId, false).TrackChanges(c => c.SecondId, false)
+        .MapType<CompositeKeySecondLevel0, CompositeKeySecondLevel0Dto, string>(c => c.Key.Format(),
+          c => c.Key, c => new object[] {c.FirstId, c.SecondId})
+          .TrackChanges(c => c.FirstId, false).TrackChanges(c => c.SecondId, false)
+        .Build();
+
+      var firstLevel1Dto = new CompositeKeyFirstLevel1Dto {
+        Key = Guid.NewGuid().ToString(), FirstId = Guid.NewGuid(), SecondId = DateTime.Now.AddDays(1), Aux = 10
+      };
+      var firstLevel0Dto = new CompositeKeyFirstLevel0Dto {
+        Key = Guid.NewGuid().ToString(), FirstId = Guid.NewGuid(), SecondId = firstLevel1Dto, Aux = "11"
+      };
+      var secondLevel0Dto = new CompositeKeySecondLevel0Dto {
+        Key = Guid.NewGuid().ToString(), FirstId = 1, SecondId = "12", Aux = 13, Reference = firstLevel0Dto
+      };
+      var target = new CompositeKeyRootDto {
+        Key = Guid.NewGuid().ToString(), FirstId = firstLevel0Dto, SecondId = secondLevel0Dto,
+        Aux = DateTime.Now.AddDays(2)
+      };
+
+      ReadOnlyDictionary<object, object> keyMapping;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open(session)) {
+        var mapper = new Mapper(mapping);
+        using (var comparisonResult = mapper.Compare(null, target)) {
+          comparisonResult.Operations.Apply();
+          keyMapping = comparisonResult.KeyMapping;
+        }
+        tx.Complete();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open(session)) {
+        var root = Query.Single<CompositeKeyRoot>(Key.Parse((string) keyMapping[target.Key]));
+        Assert.AreEqual(target.Aux, root.Aux);
+        Assert.AreEqual(Key.Parse((string) keyMapping[target.FirstId.Key]), root.FirstId.Key);
+        Assert.AreEqual(Key.Parse((string) keyMapping[target.SecondId.Key]), root.SecondId.Key);
+        var firstLevel0 = root.FirstId;
+        Assert.AreEqual(firstLevel0Dto.Aux, firstLevel0.Aux);
+        Assert.AreEqual(firstLevel0Dto.FirstId, firstLevel0.FirstId);
+        Assert.AreEqual(Key.Parse((string) keyMapping[firstLevel0Dto.SecondId.Key]), firstLevel0.SecondId.Key);
+        var firstLevel1 = firstLevel0.SecondId;
+        Assert.AreEqual(firstLevel1Dto.Aux, firstLevel1.Aux);
+        Assert.AreEqual(firstLevel1Dto.FirstId, firstLevel1.FirstId);
+        Assert.AreEqual(firstLevel1Dto.SecondId, firstLevel1.SecondId);
+        var secondLevel0 = root.SecondId;
+        Assert.AreEqual(secondLevel0Dto.Aux, secondLevel0.Aux);
+        Assert.AreEqual(secondLevel0Dto.FirstId, secondLevel0.FirstId);
+        Assert.AreEqual(secondLevel0Dto.SecondId, secondLevel0.SecondId);
+        Assert.AreEqual(Key.Parse((string) keyMapping[secondLevel0Dto.Reference.Key]), firstLevel0.Key);
+        Assert.AreSame(secondLevel0.Reference, firstLevel0);
       }
     }
 
