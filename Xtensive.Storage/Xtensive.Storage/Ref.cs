@@ -6,6 +6,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.Serialization;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Resources;
 
@@ -17,7 +19,8 @@ namespace Xtensive.Storage
   /// <typeparam name="T">The type of referenced object (<see cref="Value"/> property).</typeparam>
   [Serializable]
   [DebuggerDisplay("Key = {Key}")]
-  public struct Ref<T> : IEquatable<Ref<T>>
+  public struct Ref<T> : IEquatable<Ref<T>>,
+    ISerializable
     where T : class, IEntity
   {
     private readonly Key key;
@@ -109,5 +112,21 @@ namespace Xtensive.Storage
       else
         key = entity.Key;
     }
+
+    #region ISerializable members
+
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    private Ref(SerializationInfo info, StreamingContext context)
+    {
+      key = Key.Parse(info.GetString("Key"));
+    }
+
+    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("Key", key.Format());
+    }
+
+    #endregion
   }
 }

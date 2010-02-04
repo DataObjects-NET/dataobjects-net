@@ -30,9 +30,10 @@ namespace Xtensive.Storage
   {
     private const char KeyFormatEscape    = '\\';
     private const char KeyFormatDelimiter = ':';
+
     protected Tuple value;
-    private int? hashCode;
     internal TypeReference TypeRef;
+    private int? hashCode;
     private string cachedFormatResult;
 
     /// <summary>
