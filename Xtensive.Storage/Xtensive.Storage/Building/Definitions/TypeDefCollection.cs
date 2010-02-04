@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
 
@@ -51,21 +52,17 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Find the <see cref="IList{T}"/> of interfaces that specified <paramref name="type"/> implements.
+    /// Find the <see cref="IEnumerable{T}"/> of interfaces that specified <paramref name="type"/> implements.
     /// </summary>
     /// <param name="type">The type to search interfaces for.</param>
-    /// <returns><see cref="IList{T}"/> of <see name="TypeDef"/> instance that are implemented by the specified <paramref name="type"/>.</returns>
+    /// <returns><see cref="IEnumerable{T}"/> of <see name="TypeDef"/> instance that are implemented by the specified <paramref name="type"/>.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
     public IEnumerable<TypeDef> FindInterfaces(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
-      Type[] interfaces = type.GetInterfaces();
-      for (int index = 0; index < interfaces.Length; index++) {
-        TypeDef result = TryGetValue(interfaces[index]);
-        if (result != null)
-          yield return result;
-      }
+      var interfaces = type.GetInterfaces();
+      return interfaces.Select(t => TryGetValue(t)).Where(result => result != null);
     }
 
     /// <summary>

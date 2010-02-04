@@ -100,12 +100,30 @@ namespace Xtensive.Storage.Building
 
     public static void Process(AddForeignKeyIndexAction action)
     {
-      if (action.Type.Indexes.Where(i => i.IsSecondary && i.KeyFields.Count==1 && i.KeyFields[0].Key==action.Field.Name).Any())
+      var type = action.Type;
+      Func<IndexDef, bool> predicate = 
+        i => i.IsSecondary && 
+        i.KeyFields.Count==1 && 
+        i.KeyFields[0].Key==action.Field.Name;
+      if (type.Indexes.Any(predicate))
+        return;
+      var context = BuildingContext.Current;
+      var queue = new Queue<TypeDef>();
+      var interfaces = new HashSet<TypeDef>();
+      queue.Enqueue(type);
+      while (queue.Count > 0) {
+        var item = queue.Dequeue();
+        foreach (var @interface in context.ModelDef.Types.FindInterfaces(item.UnderlyingType)) {
+          queue.Enqueue(@interface);
+          interfaces.Add(@interface);
+        }
+      }
+      if (interfaces.SelectMany(i => i.Indexes).Any(predicate))
         return;
 
       var attribute = new IndexAttribute(action.Field.Name);
-      var indexDef = ModelDefBuilder.DefineIndex(action.Type, attribute);
-      action.Type.Indexes.Add(indexDef);
+      var indexDef = ModelDefBuilder.DefineIndex(type, attribute);
+      type.Indexes.Add(indexDef);
     }
 
     public static void Process(AddPrimaryIndexAction action)
