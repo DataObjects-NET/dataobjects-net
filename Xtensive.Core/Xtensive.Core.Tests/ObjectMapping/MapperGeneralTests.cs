@@ -348,9 +348,9 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var mapper = GetCreatureHeirsMapperWithAttributesMapper();
       var model = mapper.MappingDescription;
       Func<Type, TargetPropertyDescription> namePropertyGetter =
-        type => (TargetPropertyDescription) model.TargetTypes[type].Properties[type.GetProperty("Name")];
+        type => (TargetPropertyDescription) model.GetTargetType(type).Properties[type.GetProperty("Name")];
       Func<Type, TargetPropertyDescription> legPairCountPropertyGetter =
-        type => (TargetPropertyDescription) model.TargetTypes[type]
+        type => (TargetPropertyDescription) model.GetTargetType(type)
           .Properties[type.GetProperty("LegPairCount")];
       
       var creatureDtoType = typeof (CreatureDto);
@@ -470,6 +470,25 @@ namespace Xtensive.Core.Tests.ObjectMapping
         createdObject.LastName, OperationType.SetProperty);
       ValidatePropertyOperation<PersonDto>(createdObject, operations[2], p => p.BirthDate,
         createdObject.BirthDate, OperationType.SetProperty);
+    }
+
+    [Test]
+    public void DynamicExpansionOfSourceHierarchyTest()
+    {
+      var settings = new MapperSettings {EnableDynamicSourceHierarchies = true};
+      var mapping = new MappingBuilder()
+        .MapType<CreatureBase, CreatureDto, Guid>(c => c.Id, c => c.Id).Build();
+
+      var source = new List<Creature> {
+        new Creature {Id = Guid.NewGuid(), Name = "Name0"}, new LongBee {Id = Guid.NewGuid(), Name = "Name1"},
+        new Mammal {Id = Guid.NewGuid(), Name = "Name2"}
+      };
+      var target = ((List<object>) new DefaultMapper(mapping, settings).Transform(source))
+        .Cast<CreatureDto>().ToList();
+      for (var i = 0; i < source.Count; i++) {
+        Assert.AreEqual(source[i].Id, target[i].Id);
+        Assert.AreEqual(source[i].Name, target[i].Name);
+      }
     }
     
     private static void ValidateComparisonOfObjectsWhenReferencedObjectHasBeenReplaced(DefaultMapper mapper,

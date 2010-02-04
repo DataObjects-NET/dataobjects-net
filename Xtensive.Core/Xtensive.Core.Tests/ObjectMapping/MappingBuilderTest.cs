@@ -143,6 +143,15 @@ namespace Xtensive.Core.Tests.ObjectMapping
         .IgnoreProperty(t => t.WithProtectedSetter);
       Assert.IsNotNull(mapping);
     }
+
+    [Test]
+    public void InterfaceSourceIsNotSupportedTest()
+    {
+      AssertEx.ThrowsInvalidOperationException(() => 
+        new MappingBuilder().MapType<IPerson, PersonDto, int>(p => p.Id, p => p.Id).Build());
+      AssertEx.ThrowsInvalidOperationException(() => 
+        new MappingBuilder().MapStructure<IStructure, StructureDto>().Build());
+    }
     
     private static MappingDescription GetPetOwnerMapping()
     {

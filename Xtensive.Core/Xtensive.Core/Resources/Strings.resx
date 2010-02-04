@@ -756,4 +756,7 @@
   <data name="ExRecursiveConstructorParemeterDependencyIsDetected" xml:space="preserve">
     <value>Recursive constructor paremeter dependency is detected.</value>
   </data>
+  <data name="ExXIsNeitherClassNorValueType" xml:space="preserve">
+    <value>The {0} is neither class nor value type.</value>
+  </data>
 </root>

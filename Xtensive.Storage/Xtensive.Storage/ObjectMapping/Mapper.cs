@@ -154,7 +154,7 @@ namespace Xtensive.Storage.ObjectMapping
       var result = new object[arguments.Length];
       for (var i = 0; i < arguments.Length; i++) {
         var argument = arguments[i];
-        var argumentTargetType = MappingDescription.GetTargetTypeDescription(argument.GetType());
+        var argumentTargetType = MappingDescription.GetTargetType(argument.GetType());
         result[i] = argumentTargetType.ObjectKind==ObjectKind.Entity
           ? CreateKey(argument)
           : argument;

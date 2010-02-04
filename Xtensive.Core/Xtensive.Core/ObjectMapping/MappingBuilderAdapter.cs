@@ -11,7 +11,7 @@ using Xtensive.Core.ObjectMapping.Model;
 
 namespace Xtensive.Core.ObjectMapping
 {
-  internal sealed class MapperAdapter<TSource, TTarget>
+  internal sealed class MappingBuilderAdapter<TSource, TTarget>
     : IMappingBuilderAdapter<TSource, TTarget>
   {
     private readonly MappingBuilder realBuilder;
@@ -100,7 +100,7 @@ namespace Xtensive.Core.ObjectMapping
         : null;
       realBuilder.RegisterDescendant(typeof (TTargetBase), typeof (TDescendantSource), typeof (TDescendantTarget),
         adaptedArgumentsProvider);
-      return new MapperAdapter<TDescendantSource, TDescendantTarget>(realBuilder);
+      return new MappingBuilderAdapter<TDescendantSource, TDescendantTarget>(realBuilder);
     }
 
     // Constructors
@@ -109,7 +109,7 @@ namespace Xtensive.Core.ObjectMapping
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="realBuilder">The real mapper.</param>
-    public MapperAdapter(MappingBuilder realBuilder)
+    public MappingBuilderAdapter(MappingBuilder realBuilder)
     {
       this.realBuilder = realBuilder;
     }

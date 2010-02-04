@@ -19,8 +19,9 @@ namespace Xtensive.Core.ObjectMapping
     {
       ArgumentValidator.EnsureArgumentNotNull(mappingDescription, "mappingDescription");
       description = mappingDescription;
-      foreach (var typePair in description.TargetTypes) {
-        var type = typePair.Value;
+      foreach (var type in description.TargetTypes) {
+        EnsureTypeIsClassOrValueType(type);
+        EnsureTypeIsClassOrValueType(type.SourceType);
         var properties = type.Properties.Select(pair => pair.Value).Cast<TargetPropertyDescription>();
         foreach (var property in properties.Where(p => !p.IsIgnored)) {
           CheckSetterAndGetter(property);
@@ -38,6 +39,12 @@ namespace Xtensive.Core.ObjectMapping
     }
 
     #region Private \ internal methods
+
+    private static void EnsureTypeIsClassOrValueType(TypeDescription type)
+    {
+      if (type!=null && !type.SystemType.IsClass && !type.SystemType.IsValueType)
+        throw new InvalidOperationException(Strings.ExXIsNeitherClassNorValueType.FormatWith(type));
+    }
 
     private static void CheckSetterAndGetter(TargetPropertyDescription property)
     {

@@ -27,7 +27,7 @@ namespace Xtensive.Core.ObjectMapping
         var current = referencedObjects.Dequeue();
         if (current == null)
           continue;
-        var currentType = mappingDescription.GetTargetTypeDescription(current.GetType());
+        var currentType = mappingDescription.GetTargetType(current.GetType());
         switch (currentType.ObjectKind) {
         case ObjectKind.Primitive:
           continue;

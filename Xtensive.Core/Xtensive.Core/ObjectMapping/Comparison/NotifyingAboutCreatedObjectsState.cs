@@ -27,7 +27,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
       foreach (var createdObject in createdObjects) {
         using (GraphComparer.ComparisonInfo.SaveState()) {
           GraphComparer.ComparisonInfo.Owner = createdObject;
-          var type = GraphComparer.MappingDescription.TargetTypes[createdObject.GetType()];
+          var type = GraphComparer.MappingDescription.GetTargetType(createdObject.GetType());
           var properties = type.MutableProperties;
           NotifyAboutValuesOfPropertiesOfCreatedObject(createdObject, properties);
         }
@@ -57,7 +57,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
         else if (property.ValueType.ObjectKind==ObjectKind.UserStructure) {
           using (GraphComparer.ComparisonInfo.SaveState()) {
             var structureType = GraphComparer.MappingDescription
-              .TargetTypes[property.SystemProperty.PropertyType];
+              .GetTargetType(property.SystemProperty.PropertyType);
             GraphComparer.ComparisonInfo.StructurePath = ExtendPath(GraphComparer.ComparisonInfo.StructurePath,
               property);
             NotifyAboutValuesOfPropertiesOfCreatedObject(value, GetMutableNonStructureProperties(structureType));

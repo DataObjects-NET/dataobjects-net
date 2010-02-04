@@ -9,7 +9,18 @@ using System.Collections.Generic;
 
 namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 {
-  public class Person
+  public interface IPerson
+  {
+    int Id { get; set; }
+
+    string FirstName { get; set; }
+
+    string LastName { get; set; }
+
+    DateTime BirthDate { get; set; }
+  }
+
+  public class Person : IPerson
   {
     public int Id { get; set; }
 
@@ -80,16 +91,18 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
     }
   }
 
-  public interface ICreature
+  public abstract class CreatureBase
   {
-    Guid Id { get; set; }
+    public abstract Guid Id { get; set; }
+
+    public abstract string Name { get; set; }
   }
 
-  public class Creature : ICreature
+  public class Creature : CreatureBase
   {
-    public Guid Id { get; set; }
+    public override Guid Id { get; set; }
 
-    public string Name { get; set; }
+    public override string Name { get; set; }
 
     public Creature()
     {
@@ -241,6 +254,15 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
     {
       Id = Guid.NewGuid();
     }
+  }
+
+  public interface IStructure
+  {
+    int Int { get; set; }
+
+    string String { get; set; }
+
+    DateTime DateTime { get; set; }
   }
 
   public class Structure

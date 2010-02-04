@@ -17,7 +17,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
           property);
         var structurePath = GraphComparer.ComparisonInfo.StructurePath;
         var structureSystemType = structurePath[structurePath.Length - 1].SystemProperty.PropertyType;
-        var structureType = GraphComparer.MappingDescription.TargetTypes[structureSystemType];
+        var structureType = GraphComparer.MappingDescription.GetTargetType(structureSystemType);
         ComparePrimitiveProperties(originalValue, modifiedValue, structureType);
         CompareComplexProperties(originalValue, modifiedValue, structureType);
       }

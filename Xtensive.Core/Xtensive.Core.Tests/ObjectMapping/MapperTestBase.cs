@@ -12,7 +12,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
-using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Tests.ObjectMapping.SourceModel;
@@ -230,7 +229,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     protected static Dictionary<string, int> CreateCountsForMutableProperties(Type type, DefaultMapper mapper)
     {
       var result = new Dictionary<string, int>();
-      mapper.MappingDescription.TargetTypes[type].Properties.Select(pair => pair.Value)
+      mapper.MappingDescription.GetTargetType(type).Properties.Select(pair => pair.Value)
         .Cast<TargetPropertyDescription>().Where(p => !p.IsChangeTrackingDisabled)
         .Apply(p => result.Add(p.SystemProperty.Name, 0));
       return result;
@@ -293,7 +292,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     protected static TargetPropertyDescription GetTargetProperty(DefaultMapper mapper, Type type,
       string propertyName)
     {
-      return (TargetPropertyDescription) mapper.MappingDescription.TargetTypes[type]
+      return (TargetPropertyDescription) mapper.MappingDescription.GetTargetType(type)
         .Properties[type.GetProperty(propertyName)];
     }
 

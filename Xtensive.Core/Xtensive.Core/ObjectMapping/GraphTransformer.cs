@@ -120,7 +120,7 @@ namespace Xtensive.Core.ObjectMapping
       var systemType = obj!=null ? obj.GetType() : null;
       if (systemType!=null && MappingHelper.IsCollection(systemType))
         throw new ArgumentException(Strings.ExNestedCollectionIsNotSupported, "obj");
-      var modelType = systemType!=null ? mappingDescription.GetSourceTypeDescription(systemType) : null;
+      var modelType = systemType!=null ? mappingDescription.GetSourceType(systemType) : null;
       if (modelType==null || modelType.ObjectKind==ObjectKind.Primitive) {
         rootObjectKeys.Add(new RootObjectDescriptor(obj, ObjectKind.Primitive));
         return;
@@ -168,7 +168,7 @@ namespace Xtensive.Core.ObjectMapping
       case ObjectKind.Primitive:
         return rootDescriptor.Object;
       case ObjectKind.UserStructure:
-        var targetType = mappingDescription.SourceTypes[rootDescriptor.Object.GetType()].TargetType;
+        var targetType = mappingDescription.GetSourceType(rootDescriptor.Object.GetType()).TargetType;
         var transformedStructure = CreateTargetObject(targetType.SystemType);
         TransformProperties(rootDescriptor.Object, targetType, new ResultDescriptor(transformedStructure));
         return transformedStructure;
@@ -299,7 +299,7 @@ namespace Xtensive.Core.ObjectMapping
     private object TransformUserStructure(object source, ResultDescriptor target,
       TargetPropertyDescription targetProperty)
     {
-      var targetValueType = mappingDescription.TargetTypes[targetProperty.SystemProperty.PropertyType];
+      var targetValueType = mappingDescription.GetTargetType(targetProperty.SystemProperty.PropertyType);
       object targetValue;
       object sourceValue = null;
       if (targetProperty.Converter!=null)
@@ -318,7 +318,7 @@ namespace Xtensive.Core.ObjectMapping
     {
       if (source==null)
         return null;
-      var sourceType = mappingDescription.GetSourceTypeDescription(source.GetType());
+      var sourceType = mappingDescription.GetSourceType(source.GetType());
       if (sourceType.ObjectKind==ObjectKind.Primitive)
         return source;
       object target;

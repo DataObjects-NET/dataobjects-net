@@ -18,6 +18,7 @@ namespace Xtensive.Core.ObjectMapping
   {
     private GraphTruncationType graphTruncationType;
     private int? graphDepthLimit;
+    private bool enableDynamicSourceHierarchies;
 
     /// <summary>
     /// Gets or sets the action that is taken to truncate a graph.
@@ -41,6 +42,21 @@ namespace Xtensive.Core.ObjectMapping
         if (value != null)
           ArgumentValidator.EnsureArgumentIsGreaterThan((int) value, -1, "value");
         graphDepthLimit = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether hierarchies of source types
+    /// can be expanded by the mapper. If this option is enabled the mapper
+    /// can transform instance of class which hasn't been registered in the mapping,
+    /// but is descendant of a class that has been registered.
+    /// </summary>
+    public bool EnableDynamicSourceHierarchies
+    {
+      get { return enableDynamicSourceHierarchies; }
+      set {
+        this.EnsureNotLocked();
+        enableDynamicSourceHierarchies = value;
       }
     }
 

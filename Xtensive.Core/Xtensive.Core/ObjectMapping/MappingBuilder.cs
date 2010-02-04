@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
@@ -77,7 +76,7 @@ namespace Xtensive.Core.ObjectMapping
       where TTarget : struct
     {
       mappingDescription.RegisterStructure(typeof (TSource), typeof (TTarget));
-      return new MapperAdapter<TSource, TTarget>(this);
+      return new MappingBuilderAdapter<TSource, TTarget>(this);
     }
 
     #region Private / internal methods
@@ -101,7 +100,7 @@ namespace Xtensive.Core.ObjectMapping
       Func<object, object[]> instanceGenerator)
     {
       mappingDescription.EnsureTargetTypeIsRegistered(targetBase);
-      var targetBaseDescription = mappingDescription.GetTargetTypeDescription(targetBase);
+      var targetBaseDescription = mappingDescription.GetTargetType(targetBase);
       if (!targetBaseDescription.SourceType.SystemType.IsAssignableFrom(source))
         throw new ArgumentException(String.Format(Strings.ExTypeXIsNotSubclassOfTypeY, source,
           targetBaseDescription.SourceType.SystemType));
@@ -150,7 +149,7 @@ namespace Xtensive.Core.ObjectMapping
         MappingHelper.AdaptDelegate(compiledTargetKeyExtractor), adaptedArgumentsProvider);
       if (isPropertyExtracted)
         RegisterProperty(null, adapteSourceKeyExtractor, targetProperty);
-      return new MapperAdapter<TSource, TTarget>(this);
+      return new MappingBuilderAdapter<TSource, TTarget>(this);
     }
 
     private void BindHierarchies()
@@ -162,7 +161,7 @@ namespace Xtensive.Core.ObjectMapping
     private List<TargetTypeDescription> GetHierarchies()
     {
       var result = new List<TargetTypeDescription>();
-      foreach (var type in mappingDescription.TargetTypes.Values) {
+      foreach (var type in mappingDescription.TargetTypes) {
         var ancestor = type.SystemType.BaseType;
         while (true) {
           if (ancestor==null || ancestor==typeof (object)) {
@@ -170,7 +169,7 @@ namespace Xtensive.Core.ObjectMapping
             break;
           }
           TargetTypeDescription ancestorDescription;
-          if (mappingDescription.TargetTypes.TryGetValue(ancestor, out ancestorDescription)) {
+          if (mappingDescription.TryGetTargetType(ancestor, out ancestorDescription)) {
             ancestorDescription.AddDirectDescendant(type);
             break;
           }
@@ -214,7 +213,7 @@ namespace Xtensive.Core.ObjectMapping
 
     private void BuildTargetDescriptions()
     {
-      foreach (var targetType in mappingDescription.TargetTypes.Values) {
+      foreach (var targetType in mappingDescription.TargetTypes) {
         if (targetType.ObjectKind==ObjectKind.Primitive)
           continue;
         ApplyCustomBindings(targetType);
@@ -282,13 +281,13 @@ namespace Xtensive.Core.ObjectMapping
       var cacheItem = TryGetCollectionTypeMembersInfo(property);
       if (cacheItem!=null) {
         SetCollectionAttributes(property, cacheItem.Value.Second);
-        property.ValueType = mappingDescription.GetTargetTypeDescription(cacheItem.Value.First);
+        property.ValueType = mappingDescription.GetTargetType(cacheItem.Value.First);
       }
       else {
         var propertyType = property.SystemProperty.PropertyType;
         property.ValueType = propertyType.IsEnum
           ? GetEnumDescription(propertyType)
-          : mappingDescription.GetTargetTypeDescription(propertyType);
+          : mappingDescription.GetTargetType(propertyType);
       }
     }
 

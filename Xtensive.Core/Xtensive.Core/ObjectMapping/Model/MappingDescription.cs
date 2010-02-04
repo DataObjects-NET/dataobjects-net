@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Resources;
 
@@ -17,7 +16,7 @@ namespace Xtensive.Core.ObjectMapping.Model
   /// Description of a mapping.
   /// </summary>
   [Serializable]
-  public sealed class MappingDescription : LockableBase
+  public class MappingDescription : LockableBase
   {
     private readonly Dictionary<Type, TargetTypeDescription> targetTypes =
       new Dictionary<Type, TargetTypeDescription>();
@@ -27,12 +26,12 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// <summary>
     /// Gets the target types.
     /// </summary>
-    public ReadOnlyDictionary<Type, TargetTypeDescription> TargetTypes { get; private set; }
+    public virtual IEnumerable<TargetTypeDescription> TargetTypes { get { return targetTypes.Values; } }
 
     /// <summary>
     /// Gets the source types.
     /// </summary>
-    public ReadOnlyDictionary<Type, SourceTypeDescription> SourceTypes { get; private set; }
+    public virtual IEnumerable<SourceTypeDescription> SourceTypes { get { return sourceTypes.Values; } }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
@@ -51,13 +50,9 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// </summary>
     /// <param name="sourceType">The source type.</param>
     /// <returns>The description of the target type.</returns>
-    public TargetTypeDescription GetMappedTargetType(Type sourceType)
+    public virtual TargetTypeDescription GetMappedTargetType(Type sourceType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sourceType, "sourceType");
-      SourceTypeDescription description;
-      if (!sourceTypes.TryGetValue(sourceType, out description))
-        ThrowTypeHasNotBeenRegistered(sourceType);
-      return description.TargetType;
+      return GetSourceType(sourceType).TargetType;
     }
 
     /// <summary>
@@ -65,13 +60,9 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// </summary>
     /// <param name="targetType">The source type.</param>
     /// <returns>The description of the source type.</returns>
-    public SourceTypeDescription GetMappedSourceType(Type targetType)
+    public virtual SourceTypeDescription GetMappedSourceType(Type targetType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(targetType, "targetType");
-      TargetTypeDescription description;
-      if (!targetTypes.TryGetValue(targetType, out description))
-        ThrowTypeHasNotBeenRegistered(targetType);
-      return description.SourceType;
+      return GetTargetType(targetType).SourceType;
     }
 
     /// <summary>
@@ -79,8 +70,9 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// </summary>
     /// <param name="targetType">The target system type.</param>
     /// <returns>The description of the target type.</returns>
-    public TargetTypeDescription GetTargetTypeDescription(Type targetType)
+    public virtual TargetTypeDescription GetTargetType(Type targetType)
     {
+      ArgumentValidator.EnsureArgumentNotNull(targetType, "targetType");
       TargetTypeDescription result;
       if (!targetTypes.TryGetValue(targetType, out result))
         ThrowTypeHasNotBeenRegistered(targetType);
@@ -92,8 +84,9 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// </summary>
     /// <param name="sourceType">The source system type.</param>
     /// <returns>The description of the source type.</returns>
-    public SourceTypeDescription GetSourceTypeDescription(Type sourceType)
+    public virtual SourceTypeDescription GetSourceType(Type sourceType)
     {
+      ArgumentValidator.EnsureArgumentNotNull(sourceType, "sourceType");
       SourceTypeDescription result;
       if (!sourceTypes.TryGetValue(sourceType, out result))
         ThrowTypeHasNotBeenRegistered(sourceType);
@@ -105,12 +98,10 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// </summary>
     /// <param name="target">The object of the target type.</param>
     /// <returns>The extracted key.</returns>
-    public object ExtractTargetKey(object target)
+    public virtual object ExtractTargetKey(object target)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      var type = target.GetType();
-      EnsureTargetTypeIsRegistered(type);
-      var result = targetTypes[type].KeyExtractor.Invoke(target);
+      var result = GetTargetType(target.GetType()).KeyExtractor.Invoke(target);
       ArgumentValidator.EnsureArgumentNotNull(result, "result");
       return result;
     }
@@ -120,12 +111,10 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// </summary>
     /// <param name="source">The object of the source type.</param>
     /// <returns>The extracted key.</returns>
-    public object ExtractSourceKey(object source)
+    public virtual object ExtractSourceKey(object source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      var type = source.GetType();
-      EnsureSourceTypeIsRegistered(type);
-      var result = sourceTypes[type].KeyExtractor.Invoke(source);
+      var result = GetSourceType(source.GetType()).KeyExtractor.Invoke(source);
       ArgumentValidator.EnsureArgumentNotNull(result, "result");
       return result;
     }
@@ -216,6 +205,16 @@ namespace Xtensive.Core.ObjectMapping.Model
       ((TargetPropertyDescription) propertyDescription).IsChangeTrackingDisabled = !isEnabled;
     }
 
+    internal bool TryGetTargetType(Type type, out TargetTypeDescription result)
+    {
+      return targetTypes.TryGetValue(type, out result);
+    }
+
+    internal bool TryGetSourceType(Type type, out SourceTypeDescription result)
+    {
+      return sourceTypes.TryGetValue(type, out result);
+    }
+    
     internal void EnsureTargetTypeIsRegistered(Type targetType)
     {
       if (!targetTypes.ContainsKey(targetType))
@@ -228,7 +227,7 @@ namespace Xtensive.Core.ObjectMapping.Model
         ThrowTypeHasNotBeenRegistered(sourceType);
     }
 
-    private static void ThrowTypeHasNotBeenRegistered(Type type)
+    internal static void ThrowTypeHasNotBeenRegistered(Type type)
     {
       throw new InvalidOperationException(String.Format(Strings.ExTypeXHasNotBeenRegistered,
         type.FullName));
@@ -269,12 +268,9 @@ namespace Xtensive.Core.ObjectMapping.Model
     #endregion
 
 
-    // Constructor
+    // Constructors
 
     internal MappingDescription()
-    {
-      SourceTypes = new ReadOnlyDictionary<Type, SourceTypeDescription>(sourceTypes, false);
-      TargetTypes = new ReadOnlyDictionary<Type, TargetTypeDescription>(targetTypes, false);
-    }
+    {}
   }
 }

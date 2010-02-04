@@ -107,9 +107,12 @@ namespace Xtensive.Core.ObjectMapping
       MappingDescription = mappingDescription;
       settings.Lock();
       Settings = settings;
-      transformer = new GraphTransformer(MappingDescription, Settings);
-      comparer = new GraphComparer(MappingDescription, OnObjectModified, new DefaultExistanceInfoProvider());
-      objectExtractor = new ObjectExtractor(MappingDescription);
+      var description = settings.EnableDynamicSourceHierarchies
+        ? new DynamicMappingDescription(MappingDescription)
+        : MappingDescription;
+      transformer = new GraphTransformer(description, Settings);
+      comparer = new GraphComparer(description, OnObjectModified, new DefaultExistanceInfoProvider());
+      objectExtractor = new ObjectExtractor(description);
     }
   }
 }
