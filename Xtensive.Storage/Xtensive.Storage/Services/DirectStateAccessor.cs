@@ -4,9 +4,13 @@
 // Created by: Alex Yakunin
 // Created:    2010.01.14
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Services
 {
-  public static class CachedStateAccessor
+  /// <summary>
+  /// Provides direct read-only access to various caches.
+  /// Note that this is a fully static service.
+  /// </summary>
+  public static class DirectStateAccessor
   {
     /// <summary>
     /// Gets public accessor to <see cref="Session"/> state.
@@ -19,17 +23,17 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets public accessor to <see cref="Persistent"/> instance state.
     /// </summary>
-    public static PersistentCacheAccessor Get(Persistent source) 
+    public static PersistentStateAccessor Get(Persistent source) 
     {
-      return new PersistentCacheAccessor(source);
+      return new PersistentStateAccessor(source);
     }
     
     /// <summary>
     /// Gets public accessor to <see cref="EntitySetBase"/> instance state.
     /// </summary>
-    public static EntitySetCacheAccessor Get(EntitySetBase source) 
+    public static EntitySetStateAccessor Get(EntitySetBase source) 
     {
-      return new EntitySetCacheAccessor(source);
+      return new EntitySetStateAccessor(source);
     }
   }
 }

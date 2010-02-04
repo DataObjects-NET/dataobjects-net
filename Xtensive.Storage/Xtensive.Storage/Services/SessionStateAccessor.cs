@@ -12,11 +12,11 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Services
 {
   /// <summary>
-  /// Public API to <see cref="Session"/> cache 
-  /// (see <see cref="CachedStateAccessor"/>).
+  /// Public API to cached state of the <see cref="Session"/>
+  /// (see <see cref="DirectStateAccessor"/>).
   /// </summary>
   [DebuggerDisplay("Count = {Count}")]
   public struct SessionStateAccessor : ICountable<Entity>
@@ -63,6 +63,17 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <summary>
+    /// Invalidates (forgets) all the pending changes 
+    /// and the state of all cached entities.
+    /// </summary>
+    public void Invalidate()
+    {
+      Session.Invalidate();
+    }
+
+    #region IEnuemrable<...> members
+
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
@@ -84,6 +95,8 @@ namespace Xtensive.Storage
         select entity;
       return allCached.GetEnumerator();
     }
+
+    #endregion
 
     #region Private \ internal members
 

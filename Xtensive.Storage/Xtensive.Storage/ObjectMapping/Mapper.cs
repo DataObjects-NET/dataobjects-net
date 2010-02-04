@@ -19,7 +19,7 @@ using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 namespace Xtensive.Storage.ObjectMapping
 {
   /// <summary>
-  /// The O2O-mapper.
+  /// The O2O-mapper for persistent types.
   /// </summary>
   public sealed class Mapper : MapperBase<GraphComparisonResult>
   {

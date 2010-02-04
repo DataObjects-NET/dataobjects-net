@@ -66,9 +66,9 @@ namespace Xtensive.Storage.Configuration
 
     private static bool sectionNameIsDefined;
     private static string sectionName = DefaultSectionName;
-    
-    private UrlInfo connectionInfo;
+
     private string name = string.Empty;
+    private UrlInfo connectionInfo;
     private string defaultSchema = string.Empty;
     private DomainTypeRegistry types = new DomainTypeRegistry(new DomainTypeRegistrationHandler());
     private NamingConvention namingConvention = new NamingConvention();
@@ -131,6 +131,18 @@ namespace Xtensive.Storage.Configuration
       {
         this.EnsureNotLocked();
         connectionInfo = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the default schema.
+    /// </summary>
+    public string DefaultSchema
+    {
+      get { return defaultSchema; }
+      set {
+        this.EnsureNotLocked();
+        defaultSchema = value;
       }
     }
 
@@ -296,18 +308,6 @@ namespace Xtensive.Storage.Configuration
       }
     }
 
-    /// <summary>
-    /// Gets or sets the default schema.
-    /// </summary>
-    public string DefaultSchema
-    {
-      get { return defaultSchema; }
-      set {
-        this.EnsureNotLocked();
-        defaultSchema = value;
-      }
-    }
-	
     /// <summary>
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>

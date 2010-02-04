@@ -7,18 +7,22 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Activator=Xtensive.Storage.Internals.Activator;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Services
 {
   /// <summary>
   /// Provides access to low-level operations with <see cref="Persistent"/> descendants.
   /// </summary>
+  [Service(typeof(DirectPersistentAccessor))]
   [Infrastructure]
-  public sealed class PersistentAccessor : SessionBound
+  public sealed class DirectPersistentAccessor : SessionBound,
+    ISessionService,
+    IUsesSystemLogicOnlyRegions
   {
     #region Entity/Structure-related methods
 
@@ -29,7 +33,7 @@ namespace Xtensive.Storage
     /// <returnsCreated entity.</returns>
     public Entity CreateEntity(Type entityType)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(entityType, "entityType");
         if (!typeof (Entity).IsAssignableFrom(entityType))
           throw new InvalidOperationException(
@@ -49,7 +53,7 @@ namespace Xtensive.Storage
     /// <returns>Created entity.</returns>
     public Entity CreateEntity(Type entityType, Tuple tuple)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(entityType, "entityType");
         ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
         if (!typeof (Entity).IsAssignableFrom(entityType))
@@ -70,7 +74,7 @@ namespace Xtensive.Storage
     /// <returns>Created entity.</returns>
     public Entity CreateEntity(Key key)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion())
+      using (this.OpenSystemLogicOnlyRegion())
       {
         ArgumentValidator.EnsureArgumentNotNull(key, "key");
         if (key.TypeRef.Accuracy != TypeReferenceAccuracy.ExactType)
@@ -89,7 +93,7 @@ namespace Xtensive.Storage
     /// <returns>Created structure.</returns>
     public Structure CreateStructure(Type structureType)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(structureType, "structureType");
         if (!typeof (Structure).IsAssignableFrom(structureType))
           throw new InvalidOperationException(string.Format(Strings.TypeXIsNotAnYDescendant, structureType, typeof (Structure)));
@@ -106,7 +110,7 @@ namespace Xtensive.Storage
     /// <returns>Created structure.</returns>
     public Structure CreateStructure(Type structureType, Tuple structureData)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(structureType, "structureType");
         if (!typeof(Structure).IsAssignableFrom(structureType))
           throw new InvalidOperationException(string.Format(Strings.TypeXIsNotAnYDescendant, structureType, typeof(Structure)));
@@ -124,7 +128,7 @@ namespace Xtensive.Storage
     /// <returns></returns>
     public T GetFieldValue<T>(Persistent target, FieldInfo field)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, field);
         return target.GetFieldValue<T>(field);
       }
@@ -139,7 +143,7 @@ namespace Xtensive.Storage
     /// <param name="value">The value to set.</param>
     public void SetFieldValue<T>(Persistent target, FieldInfo field, T value)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, field);
         target.SetFieldValue(field, value);
       }
@@ -160,7 +164,7 @@ namespace Xtensive.Storage
     /// <exception cref="InvalidOperationException">Field is not a reference field.</exception>
     public Key GetReferenceKey(Persistent target, FieldInfo field)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, field);
         return target.GetReferenceKey(field);
       }
@@ -172,7 +176,7 @@ namespace Xtensive.Storage
     /// <param name="target">The entity to remove.</param>
     public void Remove(Entity target)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(target, "target");
         target.Remove();
       }
@@ -196,7 +200,9 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal PersistentAccessor(Session session)
+    /// <inheritdoc/>
+   [ServiceConstructor]
+   public DirectPersistentAccessor(Session session)
       : base(session)
     {
     }

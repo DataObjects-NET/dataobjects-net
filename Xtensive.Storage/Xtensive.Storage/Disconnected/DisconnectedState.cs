@@ -17,6 +17,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Services;
 
 namespace Xtensive.Storage.Disconnected
 {
@@ -302,7 +303,8 @@ namespace Xtensive.Storage.Disconnected
     {
       this.session = session;
       handler = new DisconnectedSessionHandler(Session.Handler, this);
-      sessionHandlerSubstitutionScope = Session.CoreServices.ChangeSessionHandler(handler);
+      sessionHandlerSubstitutionScope = Session.Services.Get<DirectSessionAccessor>()
+        .ChangeSessionHandler(handler);
     }
 
     private void Detach()

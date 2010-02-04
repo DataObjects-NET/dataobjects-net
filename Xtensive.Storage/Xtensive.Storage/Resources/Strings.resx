@@ -1358,4 +1358,7 @@ Actions:
   <data name="ExFreeTextNotSupportedInCompiledQueries" xml:space="preserve">
     <value>'FreeText&lt;T&gt;({0})' not supported in compiled queries (Query.Execute). Use 'FreeText&lt;T&gt;(Expression&lt;Func&lt;int&gt;&gt;)' instead.For example use 'FreeText&lt;T&gt;(()=&gt;{0})'.</value>
   </data>
+  <data name="ExSessionOfAnotherSessionBoundMustBeTheSame" xml:space="preserve">
+    <value>Session of another SessionBound must be the same.</value>
+  </data>
 </root>

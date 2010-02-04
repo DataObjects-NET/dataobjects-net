@@ -10,6 +10,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Services;
 
 namespace Xtensive.Storage.Operations
 {
@@ -105,7 +106,8 @@ namespace Xtensive.Storage.Operations
       else if (typeof (Structure).IsAssignableFrom(Field.ValueType)) {
         var serializedTuple = (SerializableTuple) info.GetValue("value", typeof (SerializableTuple));
         var tuple = serializedTuple.Value;
-        Value = session.CoreServices.PersistentAccessor.CreateStructure(Field.ValueType, tuple);
+        Value = session.Services.Get<DirectPersistentAccessor>()
+          .CreateStructure(Field.ValueType, tuple);
       }
       else
         Value = info.GetValue("value", Field.ValueType);

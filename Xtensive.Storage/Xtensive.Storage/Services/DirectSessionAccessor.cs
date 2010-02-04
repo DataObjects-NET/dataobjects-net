@@ -7,26 +7,19 @@
 using System;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Disposing;
+using Xtensive.Core.IoC;
 using Xtensive.Storage.Providers;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Services
 {
   /// <summary>
   /// Provides access to core services bound to a <see cref="Session"/>.
   /// </summary>
+  [Service(typeof(DirectSessionAccessor))]
   [Infrastructure]
-  public sealed class CoreServiceAccessor : SessionBound
+  public sealed class DirectSessionAccessor : SessionBound,
+    ISessionService
   {
-    /// <summary>
-    /// Gets the accessor for <see cref="Persistent"/> descendants.
-    /// </summary>
-    public PersistentAccessor PersistentAccessor { get; private set; }
-
-    /// <summary>
-    /// Gets the accessor for <see cref="EntitySet{TItem}"/> descendants.
-    /// </summary>
-    public EntitySetAccessor EntitySetAccessor { get; private set; }
-
     /// <summary>
     /// Opens the region in which only the system logic is executed.
     /// </summary>
@@ -65,11 +58,10 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <inheritdoc/>
-    public CoreServiceAccessor(Session session)
+    [ServiceConstructor]
+    public DirectSessionAccessor(Session session)
       : base(session)
     {
-      PersistentAccessor = new PersistentAccessor(session);
-      EntitySetAccessor = new EntitySetAccessor(session);
     }
   }
 }

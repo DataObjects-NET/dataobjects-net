@@ -21,10 +21,7 @@ namespace Xtensive.Storage
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
 
-    /// <summary>
-    /// Invalidates (forgets) the spate of all cached entities and pending changes.
-    /// </summary>
-    public void Invalidate()
+    internal void Invalidate()
     {
       ClearChangeRegistry();
       foreach (var invalidable in EntityStateCache.Cast<IInvalidatable>())

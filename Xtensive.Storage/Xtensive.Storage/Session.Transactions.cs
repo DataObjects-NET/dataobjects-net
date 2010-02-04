@@ -187,7 +187,12 @@ namespace Xtensive.Storage
       else
         Handler.BeginTransaction(transaction.IsolationLevel);
     }
-    
+
+    private string GetNextSavepointName()
+    {
+      return string.Format(SavepointNameFormat, nextSavepoint++);
+    }
+
     private void ClearChangeRegistry()
     {
       foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
@@ -197,11 +202,6 @@ namespace Xtensive.Storage
       foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
         item.PersistenceState = PersistenceState.Synchronized;
       EntityChangeRegistry.Clear();
-    }
-
-    private string GetNextSavepointName()
-    {
-      return string.Format(SavepointNameFormat, nextSavepoint++);
     }
 
     private TransactionScope CreateAmbientTransaction(IsolationLevel isolationLevel)

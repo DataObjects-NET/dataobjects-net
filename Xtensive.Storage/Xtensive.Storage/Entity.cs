@@ -26,6 +26,7 @@ using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Serialization;
+using Xtensive.Storage.Services;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage
@@ -536,7 +537,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         SerializationContext.Demand().GetEntityData(this, info, context);
       }
     }
@@ -544,7 +545,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     void IDeserializationCallback.OnDeserialization(object sender)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         DeserializationContext.Demand().OnDeserialization();
       }
     }
@@ -617,11 +618,9 @@ namespace Xtensive.Storage
     /// <param name="context">The <see cref="StreamingContext"/>.</param>
     protected Entity(SerializationInfo info, StreamingContext context)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         DeserializationContext.Demand().SetEntityData(this, info, context);
       }
     }
-
-    
   }
 }

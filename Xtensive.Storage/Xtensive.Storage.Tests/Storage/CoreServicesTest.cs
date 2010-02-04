@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Storage.Services;
 using Xtensive.Storage.Tests.Storage.CoreServicesModel;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
@@ -190,7 +191,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.CoreServices.PersistentAccessor;
+          var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
           accessor.CreateEntity(typeof (MyEntity));
           accessor.CreateStructure(typeof (MyStructure));
           t.Complete();
@@ -203,12 +204,12 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.CoreServices.PersistentAccessor;
+          var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
           MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
-          myEntity.CoreServices.PersistentAccessor.SetFieldValue(myEntity, myEntity.Type.Fields["Value"], "Value");
+          myEntity.Session.Services.Get<DirectPersistentAccessor>().SetFieldValue(myEntity, myEntity.Type.Fields["Value"], "Value");
           Assert.AreEqual("Value", myEntity.Value);
           MyStructure myStructure = (MyStructure) accessor.CreateStructure(typeof(MyStructure));
-          myStructure.CoreServices.PersistentAccessor.SetFieldValue(myStructure, myStructure.Type.Fields["Value"], "Value");
+          myStructure.Session.Services.Get<DirectPersistentAccessor>().SetFieldValue(myStructure, myStructure.Type.Fields["Value"], "Value");
           Assert.AreEqual("Value", myStructure.Value);
           t.Complete();
         }
@@ -220,11 +221,11 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          var accessor = Session.Current.CoreServices.PersistentAccessor;
+          var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
           MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
           Key key = myEntity.Key;
           Assert.IsNotNull(Query.SingleOrDefault(key));
-          myEntity.CoreServices.PersistentAccessor.Remove(myEntity);
+          myEntity.Session.Services.Get<DirectPersistentAccessor>().Remove(myEntity);
           Assert.AreEqual(PersistenceState.Removed, myEntity.PersistenceState);
           Assert.IsNull(Query.SingleOrDefault(key));
           t.Complete();
@@ -237,12 +238,12 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          var pa = Session.Current.CoreServices.PersistentAccessor;
+          var pa = Session.Current.Services.Get<DirectPersistentAccessor>();
           MyEntity container = (MyEntity)pa.CreateEntity(typeof (MyEntity));
           MyEntity item1 = (MyEntity)pa.CreateEntity(typeof (MyEntity));
           MyEntity item2 = (MyEntity)pa.CreateEntity(typeof (MyEntity));
 
-          var entitySetAccessor = Session.Current.CoreServices.EntitySetAccessor;
+          var entitySetAccessor = Session.Current.Services.Get<DirectEntitySetAccessor>();
           var field = container.Type.Fields["Items"];
           var entitySet = entitySetAccessor.GetEntitySet(container, field);
           entitySetAccessor.Add(entitySet, item1);

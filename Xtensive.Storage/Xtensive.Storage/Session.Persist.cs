@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Services;
 
 namespace Xtensive.Storage
 {
@@ -56,7 +57,7 @@ namespace Xtensive.Storage
       NotifyPersisting();
 
       try {
-        using (CoreServices.OpenSystemLogicOnlyRegion()) {
+        using (this.OpenSystemLogicOnlyRegion()) {
           EnsureTransactionIsStarted();
           if (IsDebugEventLoggingEnabled)
             Log.Debug(Strings.LogSessionXPersistingReasonY, this, reason);

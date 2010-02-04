@@ -8,16 +8,20 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Services
 {
   /// <summary>
   /// Provides access to low-level operations with <see cref="EntitySetBase"/> descendants.
   /// </summary>
+  [Service(typeof(DirectEntitySetAccessor))]
   [Infrastructure]
-  public sealed class EntitySetAccessor : SessionBound
+  public sealed class DirectEntitySetAccessor : SessionBound,
+    ISessionService,
+    IUsesSystemLogicOnlyRegions
   {
     /// <summary>
     /// Gets the entity set for the specified property.
@@ -27,7 +31,7 @@ namespace Xtensive.Storage
     /// <returns></returns>
     public EntitySetBase GetEntitySet(Entity target, FieldInfo field)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, field);
         return target.GetFieldValue<EntitySetBase>(field);
       }
@@ -56,7 +60,7 @@ namespace Xtensive.Storage
     /// </returns>
     public bool Add(EntitySetBase target, Entity item)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, item);
         return target.Add(item);
       }
@@ -89,7 +93,7 @@ namespace Xtensive.Storage
     /// </returns>
     public bool Remove(EntitySetBase target, Entity item)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, item);
         return target.Remove(item);
       }
@@ -117,7 +121,7 @@ namespace Xtensive.Storage
     /// <param name="target">The target.</param>
     public void Clear(EntitySetBase target)
     {
-      using (CoreServices.OpenSystemLogicOnlyRegion()) {
+      using (this.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target);
         target.Clear();
       }
@@ -170,11 +174,9 @@ namespace Xtensive.Storage
     
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="session">The session.</param>
-    public EntitySetAccessor(Session session)
+    /// <inheritdoc/>
+    [ServiceConstructor]
+    public DirectEntitySetAccessor(Session session)
       : base(session)
     {
     }

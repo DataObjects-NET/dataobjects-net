@@ -7,13 +7,13 @@
 using System;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Services
 {
   /// <summary>
-  /// Public API to <see cref="Persistent"/> instance cache 
-  /// (see <see cref="CachedStateAccessor"/>).
+  /// Public API to cached state of <see cref="Persistent"/> instance
+  /// (see <see cref="DirectStateAccessor"/>).
   /// </summary>
-  public struct PersistentCacheAccessor
+  public struct PersistentStateAccessor
   {
     private readonly Persistent persistent;
 
@@ -49,7 +49,7 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal PersistentCacheAccessor(Persistent persistent)
+    internal PersistentStateAccessor(Persistent persistent)
     {
       this.persistent = persistent;
     }

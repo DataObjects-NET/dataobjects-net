@@ -22,7 +22,7 @@ namespace Xtensive.Core.Collections.Configuration
     /// <inheritdoc/>
     public override object Identifier {
       get {
-        if (Type!=null)
+        if (!Type.IsNullOrEmpty())
           return Type;
         else
           return new ObjectPair(Assembly, Namespace.IsNullOrEmpty() ? null : Namespace);

@@ -11,6 +11,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.ValueTypeMapping;
+using System;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -114,7 +115,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     public Schema ExtractSchema(SqlConnection connection)
     {
-      string schema = string.IsNullOrEmpty(domain.Configuration.DefaultSchema)
+      string schema = domain.Configuration.DefaultSchema.IsNullOrEmpty()
         ? underlyingDriver.CoreServerInfo.DefaultSchemaName
         : domain.Configuration.DefaultSchema;
       return underlyingDriver.ExtractSchema(connection, schema);

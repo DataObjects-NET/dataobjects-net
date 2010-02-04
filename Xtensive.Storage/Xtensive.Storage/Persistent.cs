@@ -18,6 +18,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Services;
 using OperationType=Xtensive.Storage.PairIntegrity.OperationType;
 
 namespace Xtensive.Storage
@@ -34,7 +35,8 @@ namespace Xtensive.Storage
     IValidationAware,
     INotifyPropertyChanged,
     IInitializable,
-    IDataErrorInfo
+    IDataErrorInfo,
+    IUsesSystemLogicOnlyRegions
   {
     private IFieldValueAdapter[] fieldAdapters;
 

@@ -9,14 +9,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Collections;
 
-namespace Xtensive.Storage
+namespace Xtensive.Storage.Services
 {
   /// <summary>
-  /// Public API to <see cref="EntitySet{TItem}"/> cache 
-  /// (see <see cref="CachedStateAccessor"/>).
+  /// Public API to cached state of <see cref="EntitySet{TItem}"/> 
+  /// (see <see cref="DirectStateAccessor"/>).
   /// </summary>
   [DebuggerDisplay("Count = {Count}")]
-  public struct EntitySetCacheAccessor : ICountable<Key>
+  public struct EntitySetStateAccessor : ICountable<Key>
   {
     private readonly EntitySetBase entitySet;
 
@@ -90,7 +90,7 @@ namespace Xtensive.Storage
 
     // Constructors
 
-    internal EntitySetCacheAccessor(EntitySetBase entitySet)
+    internal EntitySetStateAccessor(EntitySetBase entitySet)
     {
       this.entitySet = entitySet;
     }

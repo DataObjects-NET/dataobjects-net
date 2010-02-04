@@ -37,21 +37,6 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets the core services accessor.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Caller is not registered in <see cref="DomainModel"/> of the 
-    /// <see cref="Domain"/> this instance belongs to.</exception>
-    protected internal CoreServiceAccessor CoreServices {
-      [DebuggerStepThrough]
-      get {
-        if (!Session.Domain.Configuration.Types.Assemblies.Contains(GetType().Assembly))
-          throw new InvalidOperationException(
-            Strings.ExUnauthorizedAccessDeclarationOfCallerTypeIsNotInRegisteredAssembly);
-        return session.CoreServices;
-      }
-    }
-
-    /// <summary>
     /// Opens the operation context.
     /// </summary>
     /// <param name="disableNested">if set to <see langword="true"/> disable nested context actions.</param>
@@ -63,6 +48,19 @@ namespace Xtensive.Storage
       if (!Session.OperationRegisterHasSubscribers())
         return null;
       return new OperationContext(Session, disableNested);
+    }
+
+    /// <summary>
+    /// Ensures <see cref="Session"/> of <paramref name="other"/> is the same 
+    /// as <see cref="Session"/> of this instance.
+    /// </summary>
+    /// <param name="other">The <see cref="SessionBound"/> object to check the session of.</param>
+    /// <exception cref="ArgumentException">Session of <paramref name="other"/>
+    /// 	<see cref="SessionBound"/> differs from this <see cref="Session"/>.</exception>
+    protected void EnsureTheSameSession(SessionBound other)
+    {
+      if (Session!=other.Session)
+        throw new ArgumentException(Strings.ExSessionOfAnotherSessionBoundMustBeTheSame, "other");
     }
 
     #region IContextBound<Session> Members

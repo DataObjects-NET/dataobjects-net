@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Configuration
     {
       var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain3");
       configuration.Lock();
-      Assert.AreEqual(2, configuration.Types.CompilerContainers.Count());
+      Assert.AreEqual(1, configuration.Types.CompilerContainers.Count());
     }
 
     [Test]

@@ -161,8 +161,6 @@ namespace Xtensive.Storage
 
     internal HandlerAccessor Handlers { get; private set; }
 
-    internal CoreServiceAccessor CoreServices { get; private set; }
-
     internal SyncManager PairSyncManager { get; private set; }
 
     internal RemovalProcessor RemovalProcessor { get; private set; }
@@ -281,7 +279,6 @@ namespace Xtensive.Storage
 
       // Etc...
       AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
-      CoreServices = new CoreServiceAccessor(this);
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       EntityEventBroker = new EntityEventBroker();
