@@ -355,4 +355,24 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
     public double WithInternalSetter { get; internal set; }
   }
+
+  [Serializable]
+  public class ArrayContainerDto
+  {
+    public Guid Id { get; set; }
+
+    public int[] IntArray { get; set; }
+
+    public ArrayElementDto[] EntityArray { get; set; }
+  }
+
+  [Serializable]
+  public class ArrayElementDto
+  {
+    public Guid Id { get; set; }
+
+    public string Aux { get; set; }
+
+    public ArrayElementDto[] NestedElements { get; set; }
+  }
 }

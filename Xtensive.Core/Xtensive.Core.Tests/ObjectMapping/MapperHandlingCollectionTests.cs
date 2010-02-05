@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping;
+using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tests.ObjectMapping.SourceModel;
 using Xtensive.Core.Tests.ObjectMapping.TargetModel;
@@ -193,6 +193,50 @@ namespace Xtensive.Core.Tests.ObjectMapping
       Assert.IsNull(target.Collection[0].Collection);
       Assert.IsNull(target.Collection[1].Collection);
     }
+
+    [Test]
+    public void ArrayTransformationTest()
+    {
+      var mapping = GetArrayContainerMapping();
+      var source = GetSourceArrayContainer();
+      var mapper = new DefaultMapper(mapping);
+      var target = (ArrayContainerDto) mapper.Transform(source);
+      Assert.AreEqual(source.Id, target.Id);
+      Assert.IsTrue(source.IntArray.SequenceEqual(target.IntArray));
+      Action<ArrayElement[], ArrayElementDto[]> validator = null;
+      validator = (sourceArray, targetArray) => {
+        Assert.AreEqual(sourceArray.Length, targetArray.Length);
+        for (var i = 0; i < sourceArray.Length; i++) {
+          var sourceItem = sourceArray[i];
+          var targetItem = targetArray[i];
+          Assert.AreEqual(sourceItem.Id, targetItem.Id);
+          Assert.AreEqual(sourceItem.Aux, targetItem.Aux);
+          if (sourceItem.NestedElements!=null)
+            validator(sourceItem.NestedElements, targetItem.NestedElements);
+        }
+      };
+      validator.Invoke(source.EntityArray, target.EntityArray);
+    }
+
+    [Test]
+    public void ArrayComparisonTest()
+    {
+      var mapping = GetArrayContainerMapping();
+      var source = GetSourceArrayContainer();
+      var mapper = new DefaultMapper(mapping);
+      var original = (ArrayContainerDto) mapper.Transform(source);
+      var modified = Clone(original);
+      var removedElement = modified.EntityArray[1].NestedElements[0];
+      var newArrayElementDto = new ArrayElementDto {
+        Id = Guid.NewGuid(), Aux = "NewElement", NestedElements = new[] {
+          new ArrayElementDto {Id = Guid.NewGuid(), Aux = "NewElement10"},
+          new ArrayElementDto {Id = Guid.NewGuid(), Aux = "NewElement10"}
+        }
+      };
+      modified.EntityArray[1].NestedElements[0] = newArrayElementDto;
+      var comparisonResult = mapper.Compare(original, modified);
+      throw new NotImplementedException();
+    }
     
     private static DefaultMapper GetPersonStructureMapper()
     {
@@ -226,6 +270,14 @@ namespace Xtensive.Core.Tests.ObjectMapping
       return source;
     }
 
+    private static MappingDescription GetArrayContainerMapping()
+    {
+      return new MappingBuilder()
+        .MapType<ArrayContainer, ArrayContainerDto, Guid>(a => a.Id, a => a.Id)
+        .MapType<ArrayElement, ArrayElementDto, Guid>(a => a.Id, a => a.Id)
+        .Build();
+    }
+
     private static Account GetSourceAccount()
     {
       return new Account {
@@ -234,6 +286,22 @@ namespace Xtensive.Core.Tests.ObjectMapping
           new AccessRight {Action = Action.Write, ObjectId = new[] {0L, 9, 8, 7, 6}}
         },
         PasswordHash = new byte[] {1, 8, 89, 29, 50, 77}
+      };
+    }
+
+    private static ArrayContainer GetSourceArrayContainer()
+    {
+      return new ArrayContainer {IntArray = new[] {6, 8, 2, 9, 7}, EntityArray = new[] {
+          new ArrayElement {
+            Aux = "Element00", NestedElements = new[] {
+              new ArrayElement {Aux = "Element10"}, new ArrayElement {Aux = "Element11"},
+              new ArrayElement {Aux = "Element12"}
+          }},
+          new ArrayElement {Aux = "Element01", NestedElements = new[] {
+              new ArrayElement {Aux = "Element13"}, new ArrayElement {Aux = "Element14"},
+              new ArrayElement {Aux = "Element15"}
+          }}
+        }
       };
     }
 

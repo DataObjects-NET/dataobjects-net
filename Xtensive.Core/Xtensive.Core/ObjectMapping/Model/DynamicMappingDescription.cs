@@ -13,16 +13,13 @@ namespace Xtensive.Core.ObjectMapping.Model
   internal sealed class DynamicMappingDescription : MappingDescription
   {
     private readonly MappingDescription immutableDescription;
-    private Dictionary<Type, SourceTypeDescription> sourceTypes;
 
     public override IEnumerable<SourceTypeDescription> SourceTypes
     {
       get {
         foreach (var type in immutableDescription.SourceTypes)
           yield return type;
-        if (sourceTypes==null)
-          yield break;
-        foreach (var type in sourceTypes.Values)
+        foreach (var type in base.SourceTypes)
           yield return type;
       }
     }
@@ -33,9 +30,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       SourceTypeDescription result;
       if (immutableDescription.TryGetSourceType(sourceType, out result))
         return result;
-      if (sourceTypes==null)
-        sourceTypes=new Dictionary<Type, SourceTypeDescription>();
-      else if (sourceTypes.TryGetValue(sourceType, out result))
+      if (TryGetSourceType(sourceType, out result))
         return result;
       var ancestor = sourceType;
       SourceTypeDescription ancestorDescription;
@@ -50,7 +45,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       foreach (var property in ancestorDescription.Properties.Values)
         result.AddProperty((SourcePropertyDescription) property);
       result.Lock();
-      sourceTypes.Add(sourceType, result);
+      AddSourceType(result);
       return result;
     }
 

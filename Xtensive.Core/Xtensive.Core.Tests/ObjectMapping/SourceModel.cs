@@ -403,4 +403,38 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
 
     public double WithInternalSetter { get; set; }
   }
+
+  public class ArrayContainer
+  {
+    public Guid Id { get; private set; }
+
+    public int[] IntArray { get; set; }
+
+    public ArrayElement[] EntityArray { get; set; }
+
+    
+    // Constructors
+
+    public ArrayContainer()
+    {
+      Id = Guid.NewGuid();
+    }
+  }
+
+  public class ArrayElement
+  {
+    public Guid Id { get; private set; }
+
+    public string Aux { get; set; }
+
+    public ArrayElement[] NestedElements { get; set; }
+
+
+    // Constructors
+
+    public ArrayElement()
+    {
+      Id = Guid.NewGuid();
+    }
+  }
 }

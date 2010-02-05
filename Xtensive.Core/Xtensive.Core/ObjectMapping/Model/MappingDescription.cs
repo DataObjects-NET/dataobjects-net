@@ -128,7 +128,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       EnsureTypesCanBeRegistered(source, target);
       var sourceDesc = new SourceTypeDescription(source, sourceKeyExtractor);
       var targetDesc = new TargetTypeDescription(target, targetKeyExtractor, instanceGenerator);
-      BindTypes(source, sourceDesc, target, targetDesc);
+      BindTypes(sourceDesc, targetDesc);
     }
 
     internal void RegisterProperty(PropertyInfo source, Func<object, object> converter, PropertyInfo target)
@@ -147,7 +147,7 @@ namespace Xtensive.Core.ObjectMapping.Model
       EnsureTypesCanBeRegistered(source, target);
       var sourceDesc = new SourceTypeDescription(source);
       var targetDesc = new TargetTypeDescription(target);
-      BindTypes(source, sourceDesc, target, targetDesc);
+      BindTypes(sourceDesc, targetDesc);
     }
 
     internal void RegisterInherited(PropertyInfo source,
@@ -214,6 +214,16 @@ namespace Xtensive.Core.ObjectMapping.Model
     {
       return sourceTypes.TryGetValue(type, out result);
     }
+
+    internal void AddTargetType(TargetTypeDescription targetDesc)
+    {
+      targetTypes.Add(targetDesc.SystemType, targetDesc);
+    }
+
+    internal void AddSourceType(SourceTypeDescription sourceDesc)
+    {
+      sourceTypes.Add(sourceDesc.SystemType, sourceDesc);
+    }
     
     internal void EnsureTargetTypeIsRegistered(Type targetType)
     {
@@ -249,15 +259,14 @@ namespace Xtensive.Core.ObjectMapping.Model
           target.FullName));
     }
 
-    private void BindTypes(Type source, SourceTypeDescription sourceDesc, Type target,
-      TargetTypeDescription targetDesc)
+    private void BindTypes(SourceTypeDescription sourceDesc, TargetTypeDescription targetDesc)
     {
       sourceDesc.TargetType = targetDesc;
       targetDesc.SourceType = sourceDesc;
-      sourceTypes.Add(source, sourceDesc);
-      targetTypes.Add(target, targetDesc);
+      AddSourceType(sourceDesc);
+      AddTargetType(targetDesc);
     }
-    
+
     private static void EnsureBothOfTypesAreNotObject(Type source, Type target)
     {
       if (source==typeof (object) || target==typeof (object))
