@@ -159,7 +159,7 @@ namespace Xtensive.Core.IO
     /// <returns>Newly created stream.</returns>
     protected virtual Stream CreateStream()
     {
-      return new FileStream(fileName, FileMode.Open, FileSystemRights.Read, FileShare.ReadWrite, bufferSize, FileOptions.RandomAccess);
+      return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, bufferSize, FileOptions.RandomAccess);
     }
 
     /// <summary>

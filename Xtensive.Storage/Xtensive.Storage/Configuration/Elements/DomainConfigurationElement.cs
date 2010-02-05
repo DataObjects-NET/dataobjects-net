@@ -217,7 +217,7 @@ namespace Xtensive.Storage.Configuration.Elements
         ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
-        ServiceContainerType = Type.GetType(ServiceContainerType)
+        ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType)
       };
       foreach (var entry in Types)
         config.Types.Register(entry.ToNative());

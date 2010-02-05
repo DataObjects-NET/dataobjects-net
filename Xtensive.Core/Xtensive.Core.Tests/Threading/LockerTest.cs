@@ -11,7 +11,7 @@ namespace Xtensive.Core.Tests.Threading
     public class ThreadSafeWrapper<T>
     {
       private T value;
-      private ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+      private ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
       private string indent = "  ";
       private Random random = new Random();
 

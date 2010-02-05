@@ -139,9 +139,9 @@ namespace Xtensive.Core.Tuples.Internals
           il.Emit(OpCodes.Ldarg_1);
           il.Emit(OpCodes.Ldarg_2);
           il.Emit(OpCodes.Ldc_I4, fieldIndex);
-          il.EmitCall(OpCodes.Callvirt, 
+          il.Emit(OpCodes.Callvirt, 
             TypeBuilder.GetMethod(actionHandlerType, actionHandlerGenericType.GetMethod(executeMethodName))
-              .MakeGenericMethod(new Type[] {typeBuilder.GetGenericArguments()[fieldIndex]}), null);
+              .MakeGenericMethod(new Type[] {typeBuilder.GetGenericArguments()[fieldIndex]}));
           il.Emit(OpCodes.Ret);
         }
         else {
@@ -193,9 +193,9 @@ namespace Xtensive.Core.Tuples.Internals
           il.Emit(OpCodes.Ldarg_1);
           il.Emit(OpCodes.Ldarg_2);
           il.Emit(OpCodes.Ldc_I4, i);
-          il.EmitCall(OpCodes.Callvirt, 
+          il.Emit(OpCodes.Callvirt, 
             TypeBuilder.GetMethod(actionHandlerType, actionHandlerGenericType.GetMethod(executeMethodName))
-              .MakeGenericMethod(new Type[] {typeBuilder.GetGenericArguments()[i]}), null);
+              .MakeGenericMethod(new Type[] {typeBuilder.GetGenericArguments()[i]}));
           // "  goto lEnd;"
           il.Emit(OpCodes.Brtrue, lEnd);
         }
@@ -208,9 +208,9 @@ namespace Xtensive.Core.Tuples.Internals
           il.Emit(OpCodes.Ldarg_1);
           il.Emit(OpCodes.Ldarg_2);
           il.Emit(OpCodes.Ldc_I4, i);
-          il.EmitCall(OpCodes.Callvirt, 
+          il.Emit(OpCodes.Callvirt, 
             TypeBuilder.GetMethod(actionHandlerType, actionHandlerGenericType.GetMethod(executeMethodName))
-              .MakeGenericMethod(new Type[] {typeBuilder.GetGenericArguments()[i]}), null);
+              .MakeGenericMethod(new Type[] {typeBuilder.GetGenericArguments()[i]}));
           // "  goto lEnd;"
           il.Emit(OpCodes.Brtrue, lEnd);
         }
@@ -271,9 +271,9 @@ namespace Xtensive.Core.Tuples.Internals
           il.Emit(OpCodes.Ldarg_1);
           il.Emit(OpCodes.Ldarg_2);
           il.Emit(OpCodes.Ldc_I4, i);
-          il.EmitCall(OpCodes.Callvirt, 
+          il.Emit(OpCodes.Callvirt, 
             TypeBuilder.GetMethod(actionHandlerType, actionHandlerGenericType.GetMethod(executeMethodName))
-              .MakeGenericMethod(new Type[] {typeBuilder.GetGenericArguments()[i]}), null);
+              .MakeGenericMethod(new Type[] {typeBuilder.GetGenericArguments()[i]}));
           // "  goto lEnd;"
           il.Emit(OpCodes.Brtrue, lEnd);
         }
@@ -286,9 +286,9 @@ namespace Xtensive.Core.Tuples.Internals
           il.Emit(OpCodes.Ldarg_1);
           il.Emit(OpCodes.Ldarg_2);
           il.Emit(OpCodes.Ldc_I4, i);
-          il.EmitCall(OpCodes.Callvirt, 
+          il.Emit(OpCodes.Callvirt, 
             TypeBuilder.GetMethod(actionHandlerType, actionHandlerGenericType.GetMethod(executeMethodName))
-              .MakeGenericMethod(new Type[] {typeBuilder.GetGenericArguments()[i]}), null);
+              .MakeGenericMethod(new Type[] {typeBuilder.GetGenericArguments()[i]}));
           // "  goto lEnd;"
           il.Emit(OpCodes.Brtrue, lEnd);
         }
@@ -299,11 +299,10 @@ namespace Xtensive.Core.Tuples.Internals
       // "return functionData.Result;"
       il.Emit(OpCodes.Ldarg_2);
       il.Emit(OpCodes.Constrained, tFunctionDataParameter);
-      il.EmitCall(OpCodes.Callvirt, 
+      il.Emit(OpCodes.Callvirt, 
         TypeBuilder.GetMethod(
           functionDataType, 
-          functionDataGenericType.GetProperty(resultPropertyName).GetGetMethod()), 
-        null);
+          functionDataGenericType.GetProperty(resultPropertyName).GetGetMethod()));
       il.Emit(OpCodes.Ret);
       // "}"
     }

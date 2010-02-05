@@ -16,7 +16,7 @@ namespace Xtensive.Core.Diagnostics
   /// </summary>
   public abstract class LogProviderImplementationBase : ISynchronizable, ILogProvider
   {
-    private readonly object syncRoot = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+    private readonly object syncRoot = new ReaderWriterLockSlim();
     private readonly Dictionary<string, ILog> logs = new Dictionary<string, ILog>();
 
     /// <inheritdoc/>

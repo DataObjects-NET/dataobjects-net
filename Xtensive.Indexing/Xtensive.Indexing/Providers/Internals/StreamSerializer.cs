@@ -135,7 +135,7 @@ namespace Xtensive.Indexing.Providers.Internals
       var streamPageProvider = (StreamPageProvider<TKey, TItem>) provider;
       serializer = streamPageProvider.Serializer;
       offsetSerializer = streamPageProvider.OffsetSerializer;
-      stream = new FileStream(streamPageProvider.StreamProvider.FileName, FileMode.OpenOrCreate, FileSystemRights.Write, FileShare.ReadWrite, 65535, FileOptions.RandomAccess);
+      stream = new FileStream(streamPageProvider.StreamProvider.FileName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite, 65535, FileOptions.RandomAccess);
       LastPageRef = StreamPageRef<TKey, TItem>.Create(StreamPageRefType.Undefined);
     }
 
