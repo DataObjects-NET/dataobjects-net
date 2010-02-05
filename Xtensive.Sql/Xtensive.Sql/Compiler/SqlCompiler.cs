@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Compiler
     
     protected SqlCompilerConfiguration configuration;
     protected SqlCompilerContext context;
-
+    
     public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
@@ -1008,6 +1008,9 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlRowNumber node)
     {
+      if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.RowNumber))
+        throw SqlHelper.NotSupported(QueryFeatures.RowNumber);
+
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, NodeSection.Entry));
         using (context.EnterCollectionScope()) {

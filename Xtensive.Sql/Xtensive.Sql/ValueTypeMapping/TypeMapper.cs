@@ -323,7 +323,7 @@ namespace Xtensive.Sql.ValueTypeMapping
       }
       if (precision.Value > MaxDecimalPrecision.Value)
         throw new InvalidOperationException(string.Format(
-          Strings.ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByUnderlyingStorageY,
+          Strings.ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByStorageY,
           precision.Value, MaxDecimalPrecision.Value));
       return new SqlValueType(SqlType.Decimal, null, null, precision, scale);
     }

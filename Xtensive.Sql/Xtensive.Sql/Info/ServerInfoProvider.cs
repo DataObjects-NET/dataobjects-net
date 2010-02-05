@@ -137,6 +137,11 @@ namespace Xtensive.Sql.Info
     public abstract AssertConstraintInfo GetAssertionInfo();
 
     /// <summary>
+    /// Gets the server features.
+    /// </summary>
+    public abstract ServerFeatures GetServerFeatures();
+
+    /// <summary>
     /// Gets the string indexing base.
     /// </summary>
     public abstract int GetStringIndexingBase();

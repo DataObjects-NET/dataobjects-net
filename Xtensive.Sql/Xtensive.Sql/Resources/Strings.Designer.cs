@@ -88,110 +88,11 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; column type is not supported by &apos;{1}&apos; comparer..
-        /// </summary>
-        internal static string ExColumnTypeIsNotSupportedByComparer {
-            get {
-                return ResourceManager.GetString("ExColumnTypeIsNotSupportedByComparer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Comparison context missing..
-        /// </summary>
-        internal static string ExComparisonContextMissing {
-            get {
-                return ResourceManager.GetString("ExComparisonContextMissing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Another comparison result already registered in comparison registry..
-        /// </summary>
-        internal static string ExComparisonResultAlreadyRegistered {
-            get {
-                return ResourceManager.GetString("ExComparisonResultAlreadyRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Comparison root is not locked..
-        /// </summary>
-        internal static string ExComparisonRootNotLocked {
-            get {
-                return ResourceManager.GetString("ExComparisonRootNotLocked", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Constraint type &apos;{0}&apos; is not supported by &apos;{1}&apos; comparer..
-        /// </summary>
-        internal static string ExConstraintIsNotSupportedByComparer {
-            get {
-                return ResourceManager.GetString("ExConstraintIsNotSupportedByComparer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SqlJoinType.CrossApply &amp; SqlJoinType.LeftOuterApply are not supported by default SqlTranslator.
-        /// </summary>
-        internal static string ExCrossApplyAndLeftOuterApplyAreNotSupportedByDefault {
-            get {
-                return ResourceManager.GetString("ExCrossApplyAndLeftOuterApplyAreNotSupportedByDefault", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Current storage does not support &apos;{0}&apos; values greather than &apos;{1}&apos;. Supplied value is &apos;{2}&apos;..
-        /// </summary>
-        internal static string ExCurrentStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ {
-            get {
-                return ResourceManager.GetString("ExCurrentStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Current storage does not support &apos;{0}&apos; values less than &apos;{1}&apos;. Supplied value is &apos;{2}&apos;..
-        /// </summary>
-        internal static string ExCurrentStorageDoesNotSupporXValuesLessThanYSuppliedValueIsZ {
-            get {
-                return ResourceManager.GetString("ExCurrentStorageDoesNotSupporXValuesLessThanYSuppliedValueIsZ", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cursor parameters are not supported by this server..
-        /// </summary>
-        internal static string ExCursorParametersAreNotSupportedByThisServer {
-            get {
-                return ResourceManager.GetString("ExCursorParametersAreNotSupportedByThisServer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Driver is not properly initialized..
-        /// </summary>
-        internal static string ExDriverIsNotProperlyInitialized {
-            get {
-                return ResourceManager.GetString("ExDriverIsNotProperlyInitialized", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Function &apos;{0}&apos; is not supported..
         /// </summary>
         internal static string ExFunctionXIsNotSupported {
             get {
                 return ResourceManager.GetString("ExFunctionXIsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Instance is locked..
-        /// </summary>
-        internal static string ExInstanceIsLocked {
-            get {
-                return ResourceManager.GetString("ExInstanceIsLocked", resourceCulture);
             }
         }
         
@@ -241,20 +142,11 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Join expression should be null for SqlJoinType.CrossApply &amp; SqlJoinType.LeftOuterApply..
+        ///   Looks up a localized string similar to Join expression should be NULL for CROSS APPLY &amp; OUTER APPLY..
         /// </summary>
-        internal static string ExJoinExpressionShouldBeNullForCrossApplyAndLeftOuterApply {
+        internal static string ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply {
             get {
-                return ResourceManager.GetString("ExJoinExpressionShouldBeNullForCrossApplyAndLeftOuterApply", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Large objects are not supported by this server..
-        /// </summary>
-        internal static string ExLargeObjectsAreNotSupportedByThisServer {
-            get {
-                return ResourceManager.GetString("ExLargeObjectsAreNotSupportedByThisServer", resourceCulture);
+                return ResourceManager.GetString("ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply", resourceCulture);
             }
         }
         
@@ -282,15 +174,6 @@ namespace Xtensive.Sql.Resources {
         internal static string ExLockXIsNotSupported {
             get {
                 return ResourceManager.GetString("ExLockXIsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Multiple rename hints found for type &apos;{0}&apos; with name &apos;{1}&apos;..
-        /// </summary>
-        internal static string ExMultipleRenameHintsFoundForTypeXxx {
-            get {
-                return ResourceManager.GetString("ExMultipleRenameHintsFoundForTypeXxx", resourceCulture);
             }
         }
         
@@ -385,15 +268,6 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Savepoints are not supported by current storage.
-        /// </summary>
-        internal static string ExSavepointsAreNotSupportedByCurrentStorage {
-            get {
-                return ResourceManager.GetString("ExSavepointsAreNotSupportedByCurrentStorage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Scale should be non-negative value..
         /// </summary>
         internal static string ExScaleShouldBeNonNegativeValue {
@@ -421,11 +295,11 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Specified precision ({0}) is greater than maximum supported by underlying storage ({1})..
+        ///   Looks up a localized string similar to Specified precision ({0}) is greater than maximum supported by storage ({1})..
         /// </summary>
-        internal static string ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByUnderlyingStorageY {
+        internal static string ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByStorageY {
             get {
-                return ResourceManager.GetString("ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByUnderlyingStorageY", resourceCulture);
+                return ResourceManager.GetString("ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByStorageY", resourceCulture);
             }
         }
         
@@ -471,6 +345,33 @@ namespace Xtensive.Sql.Resources {
         internal static string ExTheScaleMustBeLessThanOrEqualToPrecision {
             get {
                 return ResourceManager.GetString("ExTheScaleMustBeLessThanOrEqualToPrecision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This storage does not support &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExThisStorageDoesNotSupportX {
+            get {
+                return ResourceManager.GetString("ExThisStorageDoesNotSupportX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This storage does not support &apos;{0}&apos; values greather than &apos;{1}&apos;. Supplied value is &apos;{2}&apos;..
+        /// </summary>
+        internal static string ExThisStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ {
+            get {
+                return ResourceManager.GetString("ExThisStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This storage does not support &apos;{0}&apos; values less than &apos;{1}&apos;. Supplied value is &apos;{2}&apos;..
+        /// </summary>
+        internal static string ExThisStorageDoesNotSupportXValuesLessThanYSuppliedValueIsZ {
+            get {
+                return ResourceManager.GetString("ExThisStorageDoesNotSupportXValuesLessThanYSuppliedValueIsZ", resourceCulture);
             }
         }
         

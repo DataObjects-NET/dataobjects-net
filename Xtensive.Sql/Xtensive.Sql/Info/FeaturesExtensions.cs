@@ -4,6 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.15
 
+using System;
+using Xtensive.Sql.Resources;
+
 namespace Xtensive.Sql.Info
 {
   /// <summary>
@@ -47,6 +50,14 @@ namespace Xtensive.Sql.Info
     /// Determines whether the specified active features is supported.
     /// </summary>
     public static bool Supports(this ColumnFeatures available, ColumnFeatures required)
+    {
+      return (available & required)==required;
+    }
+
+    /// <summary>
+    /// Determines whether the specified active features is supported.
+    /// </summary>
+    public static bool Supports(this ServerFeatures available, ServerFeatures required)
     {
       return (available & required)==required;
     }

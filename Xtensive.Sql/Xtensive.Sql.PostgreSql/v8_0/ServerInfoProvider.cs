@@ -260,7 +260,12 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       info.MaxNestedSubqueriesAmount = 100;
       return info;
     }
-    
+
+    public override ServerFeatures GetServerFeatures()
+    {
+      return ServerFeatures.Savepoints;
+    }
+
     public override IdentityInfo GetIdentityInfo()
     {
       return null;

@@ -233,5 +233,38 @@ namespace Xtensive.Sql
         throw new NotSupportedException(string.Format(Strings.ExIsolationLevelXIsNotSupported, level));
       }
     }
+
+    /// <summary>
+    /// Creates a <see cref="NotSupportedException"/> with message that says that <paramref name="feature"/>
+    /// is not supported by current storage.
+    /// </summary>
+    /// <param name="feature">The feature.</param>
+    /// <returns>Created exception.</returns>
+    public static NotSupportedException NotSupported(string feature)
+    {
+      return new NotSupportedException(string.Format(Strings.ExThisStorageDoesNotSupportX, feature));
+    }
+
+    /// <summary>
+    /// Creates a <see cref="NotSupportedException"/> with message that says that <paramref name="feature"/>
+    /// is not supported by current storage.
+    /// </summary>
+    /// <param name="feature">The feature.</param>
+    /// <returns>Created exception.</returns>
+    public static NotSupportedException NotSupported(QueryFeatures feature)
+    {
+      return NotSupported(feature.ToString());
+    }
+
+    /// <summary>
+    /// Creates a <see cref="NotSupportedException"/> with message that says that <paramref name="feature"/>
+    /// is not supported by current storage.
+    /// </summary>
+    /// <param name="feature">The feature.</param>
+    /// <returns>Created exception.</returns>
+    public static NotSupportedException NotSupported(ServerFeatures feature)
+    {
+      return NotSupported(feature.ToString());
+    }
   }
 }

@@ -191,8 +191,14 @@ namespace Xtensive.Sql.SqlServer.v09
         QueryFeatures.CrossApply |
         QueryFeatures.UpdateFrom |
         QueryFeatures.Limit |
-        QueryFeatures.DefaultValues;
+        QueryFeatures.DefaultValues |
+        QueryFeatures.RowNumber;
       return queryInfo;
+    }
+
+    public override ServerFeatures GetServerFeatures()
+    {
+      return ServerFeatures.Savepoints;
     }
 
     public override IdentityInfo GetIdentityInfo()

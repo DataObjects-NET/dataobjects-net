@@ -162,14 +162,8 @@
   <data name="ExCircularReferenceDetected" xml:space="preserve">
     <value>Circular reference is detected.</value>
   </data>
-  <data name="ExInstanceIsLocked" xml:space="preserve">
-    <value>Instance is locked.</value>
-  </data>
   <data name="ExTheDataTypeMustBeExactNumericWithScale0" xml:space="preserve">
     <value>The data type must be exact numeric with scale 0.</value>
-  </data>
-  <data name="ExDriverIsNotProperlyInitialized" xml:space="preserve">
-    <value>Driver is not properly initialized.</value>
   </data>
   <data name="ExLiteralTypeXIsNotSupported" xml:space="preserve">
     <value>Literal type '{0}' is not supported.</value>
@@ -177,29 +171,8 @@
   <data name="LogUnableToGetDefaultNodeComparerForTypeXxx" xml:space="preserve">
     <value>Unable to get default SQL comparer for type {0}.</value>
   </data>
-  <data name="ExMultipleRenameHintsFoundForTypeXxx" xml:space="preserve">
-    <value>Multiple rename hints found for type '{0}' with name '{1}'.</value>
-  </data>
-  <data name="ExColumnTypeIsNotSupportedByComparer" xml:space="preserve">
-    <value>'{0}' column type is not supported by '{1}' comparer.</value>
-  </data>
-  <data name="ExConstraintIsNotSupportedByComparer" xml:space="preserve">
-    <value>Constraint type '{0}' is not supported by '{1}' comparer.</value>
-  </data>
-  <data name="ExComparisonRootNotLocked" xml:space="preserve">
-    <value>Comparison root is not locked.</value>
-  </data>
-  <data name="ExComparisonContextMissing" xml:space="preserve">
-    <value>Comparison context missing.</value>
-  </data>
-  <data name="ExComparisonResultAlreadyRegistered" xml:space="preserve">
-    <value>Another comparison result already registered in comparison registry.</value>
-  </data>
-  <data name="ExCrossApplyAndLeftOuterApplyAreNotSupportedByDefault" xml:space="preserve">
-    <value>SqlJoinType.CrossApply &amp; SqlJoinType.LeftOuterApply are not supported by default SqlTranslator</value>
-  </data>
-  <data name="ExJoinExpressionShouldBeNullForCrossApplyAndLeftOuterApply" xml:space="preserve">
-    <value>Join expression should be null for SqlJoinType.CrossApply &amp; SqlJoinType.LeftOuterApply.</value>
+  <data name="ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply" xml:space="preserve">
+    <value>Join expression should be NULL for CROSS APPLY &amp; OUTER APPLY.</value>
   </data>
   <data name="ExNodeTypeIsUnknown" xml:space="preserve">
     <value>Node type is unknown.</value>
@@ -225,17 +198,14 @@
   <data name="ExOperationXIsNotSupported" xml:space="preserve">
     <value>Operation '{0}' is not supported</value>
   </data>
-  <data name="ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByUnderlyingStorageY" xml:space="preserve">
-    <value>Specified precision ({0}) is greater than maximum supported by underlying storage ({1}).</value>
+  <data name="ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByStorageY" xml:space="preserve">
+    <value>Specified precision ({0}) is greater than maximum supported by storage ({1}).</value>
   </data>
   <data name="ExTableAlreadyHasSpecifiedName" xml:space="preserve">
     <value>Table already has specified name.</value>
   </data>
   <data name="ExColumnAlreadyHasSpecifiedName" xml:space="preserve">
     <value>Column already has specified name.</value>
-  </data>
-  <data name="ExLargeObjectsAreNotSupportedByThisServer" xml:space="preserve">
-    <value>Large objects are not supported by this server.</value>
   </data>
   <data name="ExIsolationLevelXIsNotSupported" xml:space="preserve">
     <value>Isolation level '{0}' is not supported</value>
@@ -255,12 +225,6 @@
   <data name="ExItemsForCycleXAreNotSpecified" xml:space="preserve">
     <value>Items for cycle '{0}' are not specified.</value>
   </data>
-  <data name="ExCursorParametersAreNotSupportedByThisServer" xml:space="preserve">
-    <value>Cursor parameters are not supported by this server.</value>
-  </data>
-  <data name="ExSavepointsAreNotSupportedByCurrentStorage" xml:space="preserve">
-    <value>Savepoints are not supported by current storage</value>
-  </data>
   <data name="ExTransactionShouldBeActive" xml:space="preserve">
     <value>Transaction should be active</value>
   </data>
@@ -270,13 +234,16 @@
   <data name="ExTypesOfValuesAreDifferent" xml:space="preserve">
     <value>Types of values are different</value>
   </data>
-  <data name="ExCurrentStorageDoesNotSupporXValuesLessThanYSuppliedValueIsZ" xml:space="preserve">
-    <value>Current storage does not support '{0}' values less than '{1}'. Supplied value is '{2}'.</value>
+  <data name="ExThisStorageDoesNotSupportXValuesLessThanYSuppliedValueIsZ" xml:space="preserve">
+    <value>This storage does not support '{0}' values less than '{1}'. Supplied value is '{2}'.</value>
   </data>
-  <data name="ExCurrentStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ" xml:space="preserve">
-    <value>Current storage does not support '{0}' values greather than '{1}'. Supplied value is '{2}'.</value>
+  <data name="ExThisStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ" xml:space="preserve">
+    <value>This storage does not support '{0}' values greather than '{1}'. Supplied value is '{2}'.</value>
   </data>
   <data name="ExCanNotReadDatabaseAndSchemaNames" xml:space="preserve">
     <value>Can not read database and schema names</value>
+  </data>
+  <data name="ExThisStorageDoesNotSupportX" xml:space="preserve">
+    <value>This storage does not support '{0}'.</value>
   </data>
 </root>

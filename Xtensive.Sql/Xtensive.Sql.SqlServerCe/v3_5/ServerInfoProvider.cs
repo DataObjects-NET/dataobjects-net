@@ -182,6 +182,11 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
       return queryInfo;
     }
 
+    public override ServerFeatures GetServerFeatures()
+    {
+      return ServerFeatures.None;
+    }
+
     public override IdentityInfo GetIdentityInfo()
     {
       var identityInfo = new IdentityInfo();

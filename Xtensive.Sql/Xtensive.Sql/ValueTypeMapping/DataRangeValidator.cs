@@ -26,13 +26,11 @@ namespace Xtensive.Sql.ValueTypeMapping
       where T : struct, IComparable<T>
     {
       if (allowedRange.MinValue.CompareTo(value) > 0)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExCurrentStorageDoesNotSupporXValuesLessThanYSuppliedValueIsZ,
-          typeof (T).GetShortName(), allowedRange.MinValue, value));
+        throw OutOfRange(Strings.ExThisStorageDoesNotSupportXValuesLessThanYSuppliedValueIsZ,
+          typeof (T).GetShortName(), allowedRange.MinValue, value);
       if (allowedRange.MaxValue.CompareTo(value) < 0)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExCurrentStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ,
-          typeof (T).GetShortName(), allowedRange.MaxValue, value));
+        throw OutOfRange(Strings.ExThisStorageDoesNotSupportXValuesGreatherThanYSuppliedValueIsZ,
+          typeof (T).GetShortName(), allowedRange.MaxValue, value);
     }
 
     /// <summary>
@@ -41,7 +39,7 @@ namespace Xtensive.Sql.ValueTypeMapping
     /// <typeparam name="T">Type of the value to validate</typeparam>
     /// <param name="value">The value.</param>
     /// <param name="allowedRange">The allowed range.</param>
-    /// <returns></returns>
+    /// <returns>Corrected value.</returns>
     public static T Correct<T>(T value, ValueRange<T> allowedRange)
       where T : struct, IComparable<T>
     {
@@ -50,6 +48,15 @@ namespace Xtensive.Sql.ValueTypeMapping
       if (allowedRange.MaxValue.CompareTo(value) < 0)
         return allowedRange.MaxValue;
       return value;
+    }
+    
+    private static InvalidOperationException OutOfRange<T>(string format,
+      string typeName, T boundaryValue, T suppliedValue)
+    {
+      return new InvalidOperationException(
+        string.Format(
+          Strings.ExThisStorageDoesNotSupportX,
+          string.Format(format, typeName, boundaryValue, suppliedValue)));
     }
   }
 }

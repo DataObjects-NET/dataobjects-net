@@ -6,6 +6,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Core;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql
@@ -82,7 +83,7 @@ namespace Xtensive.Sql
     /// <returns>Created parameter.</returns>
     public virtual DbParameter CreateCursorParameter()
     {
-      throw new NotSupportedException(Strings.ExCursorParametersAreNotSupportedByThisServer);
+      throw SqlHelper.NotSupported(ServerFeatures.CursorParameters);
     }
 
     /// <summary>
@@ -92,7 +93,7 @@ namespace Xtensive.Sql
     /// <returns>Created CLOB.</returns>
     public virtual ICharacterLargeObject CreateCharacterLargeObject()
     {
-      throw new NotSupportedException(Strings.ExLargeObjectsAreNotSupportedByThisServer);
+      throw SqlHelper.NotSupported(ServerFeatures.LargeObjects);
     }
 
     /// <summary>
@@ -102,7 +103,7 @@ namespace Xtensive.Sql
     /// <returns>Created BLOB.</returns>
     public virtual IBinaryLargeObject CreateBinaryLargeObject()
     {
-      throw new NotSupportedException(Strings.ExLargeObjectsAreNotSupportedByThisServer);
+      throw SqlHelper.NotSupported(ServerFeatures.LargeObjects);
     }
 
     /// <summary>
@@ -168,7 +169,7 @@ namespace Xtensive.Sql
     /// <param name="name">The name of the savepoint.</param>
     public virtual void MakeSavepoint(string name)
     {
-      throw new NotSupportedException(Strings.ExSavepointsAreNotSupportedByCurrentStorage);
+      throw SqlHelper.NotSupported(ServerFeatures.Savepoints);
     }
 
     /// <summary>
@@ -177,7 +178,7 @@ namespace Xtensive.Sql
     /// <param name="name">The name of the savepoint.</param>
     public virtual void RollbackToSavepoint(string name)
     {
-      throw new NotSupportedException(Strings.ExSavepointsAreNotSupportedByCurrentStorage);
+      throw SqlHelper.NotSupported(ServerFeatures.Savepoints);
     }
 
     /// <summary>
@@ -186,7 +187,7 @@ namespace Xtensive.Sql
     /// <param name="name">The name of the savepoint.</param>
     public virtual void ReleaseSavepoint(string name)
     {
-      throw new NotSupportedException(Strings.ExSavepointsAreNotSupportedByCurrentStorage);
+      throw SqlHelper.NotSupported(ServerFeatures.Savepoints);
     }
 
     /// <inheritdoc/>

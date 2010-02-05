@@ -51,11 +51,6 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
       return result;
     }
 
-    protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
-    {
-      throw new NotSupportedException();
-    }
-
 
     // Constructors
 

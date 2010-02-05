@@ -61,42 +61,35 @@ namespace Xtensive.Sql.Info
     FullBooleanExpressionSupport = 0x80,
 
     /// <summary>
-    /// Indicates that RDBMS uses large objects (LOBs) for manipulating large data chunks.
-    /// <seealso cref="ICharacterLargeObject"/>.
-    /// <seealso cref="IBinaryLargeObject"/>.
-    /// </summary>
-    LargeObjects = 0x100,
-
-    /// <summary>
     /// Indicates that RDBMS supports UPDATE ... FROM statements.
     /// </summary>
-    UpdateFrom = 0x200,
+    UpdateFrom = 0x100,
 
     /// <summary>
     /// Indicates that RDBMS supports result limiting operator (LIMIT and TOP).
     /// </summary>
-    Limit = 0x400,
+    Limit = 0x200,
 
     /// <summary>
     /// Indicates that RDBMS supports result skipping operator (OFFSET and SKIP).
     /// </summary>
-    Offset = 0x800,
+    Offset = 0x400,
 
     /// <summary>
     /// Indicates that RDBMS supports multicolumn IN operator.
     /// </summary>
-    MulticolumnIn = 0x1000,
+    MulticolumnIn = 0x800,
+    
+    /// <summary>
+    /// Indicates whether RDBMS supports INSERT INTO Table DEFAULT VALUES syntax.
+    /// </summary>
+    DefaultValues = 0x1000,
 
     /// <summary>
-    /// Indicates that RDBMS supports multiple results via cursor parameters.
+    /// Indicates whether RDBMS supports ROW_NUMBER window function.
     /// </summary>
-    MultipleResultsViaCursorParameters = 0x2000,
-
-    /// <summary>
-    /// Indicates whether RDBMS supports INSERT INTO Table DEFAULT VALUES syntax
-    /// </summary>
-    DefaultValues = 0x4000,
-
+    RowNumber = 0x2000,
+    
     /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>

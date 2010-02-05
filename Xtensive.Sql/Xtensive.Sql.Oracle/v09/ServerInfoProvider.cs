@@ -194,10 +194,17 @@ namespace Xtensive.Sql.Oracle.v09
         QueryFeatures.ParameterPrefix |
         QueryFeatures.Hints |
         QueryFeatures.DmlBatches |
-        QueryFeatures.LargeObjects |
-        QueryFeatures.MultipleResultsViaCursorParameters |
-        QueryFeatures.DefaultValues;
+        QueryFeatures.DefaultValues |
+        QueryFeatures.RowNumber;
       return queryInfo;
+    }
+
+    public override ServerFeatures GetServerFeatures()
+    {
+      return ServerFeatures.Savepoints |
+        ServerFeatures.LargeObjects |
+        ServerFeatures.CursorParameters |
+        ServerFeatures.MultipleResultsViaCursorParameters;
     }
 
     public override IdentityInfo GetIdentityInfo()

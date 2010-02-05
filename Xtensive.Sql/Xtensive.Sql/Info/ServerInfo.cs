@@ -154,6 +154,11 @@ namespace Xtensive.Sql.Info
     public DataTypeCollection DataTypes { get; private set; }
 
     /// <summary>
+    /// Gets the server features.
+    /// </summary>
+    public ServerFeatures ServerFeatures { get; private set; }
+
+    /// <summary>
     /// Gets the string indexing base. Normally is equal to 1.
     /// </summary>
     /// <value>The string indexing base.</value>
@@ -191,6 +196,7 @@ namespace Xtensive.Sql.Info
         Trigger = provider.GetTriggerInfo(), 
         UniqueConstraint = provider.GetUniqueConstraintInfo(), 
         View = provider.GetViewInfo(), 
+        ServerFeatures = provider.GetServerFeatures(),
         StringIndexingBase = provider.GetStringIndexingBase(), 
       };
 

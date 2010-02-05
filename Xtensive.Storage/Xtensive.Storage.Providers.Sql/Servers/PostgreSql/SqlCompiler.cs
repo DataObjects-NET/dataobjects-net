@@ -18,8 +18,6 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
 {
   internal class SqlCompiler : Sql.SqlCompiler
   {
-    private bool supportsRowNumber;
-
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
       var domainHandler = (DomainHandler) Handlers.DomainHandler;
@@ -53,18 +51,9 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
       return result;
     }
 
-    protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
-    {
-      if (!supportsRowNumber)
-        throw new NotSupportedException(Strings.ExRowNumberWindowFunctionIsNotSupportedOnThisVersionOfPostgreSql);
-      return base.VisitRowNumber(provider);
-    }
-
     public SqlCompiler(HandlerAccessor handlers)
       : base(handlers)
     {
-      var version = handlers.DomainHandler.ProviderInfo.StorageVersion;
-      supportsRowNumber = version.Major > 8 || version.Major==8 && version.Minor >= 4;
     }
   }
 }

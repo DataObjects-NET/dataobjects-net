@@ -41,25 +41,6 @@ namespace Xtensive.Sql.SqlServerCe
       EnsureTrasactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction(isolationLevel);
     }
-    
-    /// <inheritdoc/>
-    public override void MakeSavepoint(string name)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    public override void RollbackToSavepoint(string name)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    public override void ReleaseSavepoint(string name)
-    {
-      EnsureTransactionIsActive();
-      // nothing
-    }
 
     /// <inheritdoc/>
     protected override void ClearActiveTransaction()

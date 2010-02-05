@@ -1413,7 +1413,7 @@ namespace Xtensive.Sql.Compiler
         return "RIGHT OUTER";
       case SqlJoinType.CrossApply:
       case SqlJoinType.LeftOuterApply:
-        throw new NotSupportedException(Strings.ExCrossApplyAndLeftOuterApplyAreNotSupportedByDefault);
+        throw SqlHelper.NotSupported(QueryFeatures.CrossApply);
       default:
         return string.Empty;
       }

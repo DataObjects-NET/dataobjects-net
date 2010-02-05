@@ -32,6 +32,7 @@ namespace Xtensive.Storage.Providers.Sql
       var csi = underlyingDriver.CoreServerInfo;
       var si = underlyingDriver.ServerInfo;
       var queryFeatures = si.Query.Features;
+      var serverFeatures = si.ServerFeatures;
       var indexFeatures = si.Index.Features;
       var foreignKeyFeatures = si.ForeignKey.Features;
 
@@ -57,7 +58,7 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.Sequences;
       if (queryFeatures.Supports(QueryFeatures.CrossApply))
         f |= ProviderFeatures.CrossApply;
-      if (queryFeatures.Supports(QueryFeatures.LargeObjects))
+      if (serverFeatures.Supports(ServerFeatures.LargeObjects))
         f |= ProviderFeatures.LargeObjects;
       if (queryFeatures.Supports(QueryFeatures.FullBooleanExpressionSupport))
         f |= ProviderFeatures.FullFledgedBooleanExpressions;
@@ -69,7 +70,7 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.Limit;
       if (queryFeatures.Supports(QueryFeatures.Offset))
         f |= ProviderFeatures.Offset;
-      if (queryFeatures.Supports(QueryFeatures.MultipleResultsViaCursorParameters))
+      if (serverFeatures.Supports(ServerFeatures.MultipleResultsViaCursorParameters))
         f |= ProviderFeatures.MultipleResultsViaCursorParameters;
       if (csi.MultipleActiveResultSets)
         f |= ProviderFeatures.MultipleActiveResultSets;
