@@ -78,15 +78,12 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     protected override string GetCreateDbScript(DomainConfiguration config)
     {
       return @"
-  CREATE TABLE [dbo].[DT](
-	[Id] [uniqueidentifier] NOT NULL,
-	[Date] [date] NOT NULL,
-	[Time] [time](7) NOT NULL,
- CONSTRAINT [PK_DT] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-) ON [PRIMARY]
-) ON [PRIMARY]";
+        CREATE TABLE [dbo].[DT](
+          [Id] [uniqueidentifier] NOT NULL,
+          [Date] [date] NOT NULL,
+          [Time] [time](7) NOT NULL,
+          CONSTRAINT [PK_DT] PRIMARY KEY CLUSTERED ([Id] ASC) ON [PRIMARY]
+        ) ON [PRIMARY]";
     }
   }
 }

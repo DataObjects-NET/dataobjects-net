@@ -12,45 +12,54 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
 {
   [Serializable]
   [HierarchyRoot]
+  [KeyGenerator(null)]
   public sealed class Fake : Entity
   {
     [Field, Key]
-    public Guid Id { get; private set; }
+    public int Id { get; private set; }
   }
-
-  public class LegacyDbTestBase : AutoBuildTest
+  
+  public abstract class LegacyDbAutoBuildTest : AutoBuildTest
   {
-    protected sealed override DomainConfiguration BuildConfiguration()
+    public override void TestFixtureSetUp()
     {
-      var config = base.BuildConfiguration();
-      config.Types.Register(typeof(Fake));
-      return config;
+      ClearDb();
+      base.TestFixtureSetUp();
+    }
+
+    protected override Domain BuildDomain(DomainConfiguration configuration)
+    {
+      PrepareDb(configuration);
+      return base.BuildDomain(configuration);
     }
 
     protected override void CheckRequirements()
     {
       EnsureProtocolIs(StorageProtocol.SqlServer);
     }
-  }
 
-  public abstract class LegacyDbAutoBuildTest : LegacyDbTestBase
-  {
-    public override void TestFixtureSetUp()
+    protected abstract string GetCreateDbScript(DomainConfiguration config);
+    
+    protected override DomainConfiguration BuildConfiguration()
     {
-      base.TestFixtureSetUp();
-      var config = BuildConfiguration();
-      PrepareDb(config);
-      Domain = BuildDomain(config);
-      if (Domain!=null)
-        ProviderInfo = Domain.StorageProviderInfo;
+      var config = base.BuildConfiguration();
+      config.UpgradeMode = DomainUpgradeMode.Legacy;
+      return config;
+    }
+
+    private void ClearDb()
+    {
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof (Fake));
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
+      Domain.Build(config).Dispose();
     }
 
     private void PrepareDb(DomainConfiguration config)
     {
       var driver = SqlDriver.Create(config.ConnectionInfo);
-      var connection = driver.CreateConnection();
-      connection.Open();
-      try {
+      using (var connection = driver.CreateConnection()) {
+        connection.Open();
         using (var cmd = connection.CreateCommand()) {
           cmd.CommandText = GetCleanDbScript();
           cmd.ExecuteNonQuery();
@@ -58,28 +67,15 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
           cmd.ExecuteNonQuery();
         }
       }
-      finally {
-        connection.Close();
-      }
     }
 
-    private string GetCleanDbScript()
+    private static string GetCleanDbScript()
     {
       return @"
       IF object_id('[dbo].[Fake]') is not null drop table [dbo].[Fake]
       IF object_id('[dbo].[Metadata.Assembly]') is not null drop table [dbo].[Metadata.Assembly]
       IF object_id('[dbo].[Metadata.Extension]') is not null drop table [dbo].[Metadata.Extension]
       IF object_id('[dbo].[Metadata.Type]') is not null drop table [dbo].[Metadata.Type]";
-    }
-
-    protected abstract string GetCreateDbScript(DomainConfiguration config);
-
-
-    protected virtual new DomainConfiguration BuildConfiguration()
-    {
-      var config = DomainConfigurationFactory.Create();
-      config.UpgradeMode = DomainUpgradeMode.Legacy;
-      return config;
     }
   }
 }
