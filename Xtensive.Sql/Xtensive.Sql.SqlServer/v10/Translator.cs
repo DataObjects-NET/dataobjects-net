@@ -8,6 +8,8 @@ namespace Xtensive.Sql.SqlServer.v10
 {
   internal class Translator : v09.Translator
   {
+    public override string DateTimeFormatString { get { return @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'' as datetime2)'"; } }
+
     // Constructors
 
     public Translator(SqlDriver driver)
