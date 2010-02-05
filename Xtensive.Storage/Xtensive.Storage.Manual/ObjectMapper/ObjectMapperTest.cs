@@ -226,7 +226,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
   #region DTO
 
   [Serializable]
-  public abstract class IdentifiableDto
+  public class IdentifiableDto
   {
     public string Key {get; set; }
   }

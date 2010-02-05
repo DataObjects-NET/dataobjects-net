@@ -296,7 +296,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         .Properties[type.GetProperty(propertyName)];
     }
 
-    protected static void ValidatePropertyOperation<T>(object obj, OperationInfo operationInfo,
+    protected static void ValidatePropertyOperation<T>(T obj, OperationInfo operationInfo,
       Expression<Func<T, object>> propertyPath, object value, OperationType operationType)
     {
       var expression = propertyPath.Body;

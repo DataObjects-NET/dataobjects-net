@@ -21,7 +21,9 @@ namespace Xtensive.Core.ObjectMapping
       description = mappingDescription;
       foreach (var type in description.TargetTypes) {
         EnsureTypeIsClassOrValueType(type);
-        EnsureTypeIsClassOrValueType(type.SourceType);
+        EnsureTypeIsConcrete(type);
+        if (type.SourceType!=null)
+          EnsureTypeIsClassOrValueType(type.SourceType);
         var properties = type.Properties.Select(pair => pair.Value).Cast<TargetPropertyDescription>();
         foreach (var property in properties.Where(p => !p.IsIgnored)) {
           CheckSetterAndGetter(property);
@@ -42,8 +44,14 @@ namespace Xtensive.Core.ObjectMapping
 
     private static void EnsureTypeIsClassOrValueType(TypeDescription type)
     {
-      if (type!=null && !type.SystemType.IsClass && !type.SystemType.IsValueType)
-        throw new InvalidOperationException(Strings.ExXIsNeitherClassNorValueType.FormatWith(type));
+      if (!type.SystemType.IsClass && !type.SystemType.IsValueType)
+        throw new InvalidOperationException(String.Format(Strings.ExXIsNeitherClassNorValueType, type));
+    }
+
+    private static void EnsureTypeIsConcrete(TypeDescription type)
+    {
+      if (type.SystemType.IsAbstract)
+        throw new InvalidOperationException(String.Format(Strings.ExTypeXMustBeNonAbstractType, type));
     }
 
     private static void CheckSetterAndGetter(TargetPropertyDescription property)

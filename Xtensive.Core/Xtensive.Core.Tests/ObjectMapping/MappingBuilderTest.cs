@@ -152,6 +152,13 @@ namespace Xtensive.Core.Tests.ObjectMapping
       AssertEx.ThrowsInvalidOperationException(() => 
         new MappingBuilder().MapStructure<IStructure, StructureDto>().Build());
     }
+
+    [Test]
+    public void AbstractTargetIsNotSupportedTest()
+    {
+      var mapping = new MappingBuilder().MapType<Person, AbstractPersonDto, int>(p => p.Id, p => p.Id);
+      AssertEx.ThrowsInvalidOperationException(() => mapping.Build());
+    }
     
     private static MappingDescription GetPetOwnerMapping()
     {

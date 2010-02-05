@@ -375,4 +375,7 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
     public ArrayElementDto[] NestedElements { get; set; }
   }
+
+  public abstract class AbstractPersonDto : PersonDto
+  {}
 }

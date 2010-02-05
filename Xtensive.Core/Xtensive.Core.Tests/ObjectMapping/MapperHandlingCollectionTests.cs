@@ -131,8 +131,8 @@ namespace Xtensive.Core.Tests.ObjectMapping
       modifiedStructureItem.Int += 5;
       var operations = ((DefaultOperationSet) mapper.Compare(original, modified).Operations).ToList();
       Assert.AreEqual(1, operations.Count);
-      ValidatePropertyOperation<PersonDto>(original[0], operations[0], p => p.FirstName, newFirstName,
-        OperationType.SetProperty);
+      ValidatePropertyOperation((PersonDto) original[0], operations[0], p => p.FirstName,
+        newFirstName, OperationType.SetProperty);
 
       var intArray = new[] {8, 9, 0};
       modified.Add(intArray);
@@ -167,7 +167,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       modified.AccessRights[0].ObjectId[2] += 7;
       var operations = ((DefaultOperationSet) mapper.Compare(original, modified).Operations).ToList();
       Assert.AreEqual(1, operations.Count);
-      ValidatePropertyOperation<AccountDto>(original, operations[0], a => a.PasswordHash,
+      ValidatePropertyOperation(original, operations[0], a => a.PasswordHash,
         modified.PasswordHash, OperationType.SetProperty);
     }
 
@@ -226,16 +226,35 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var mapper = new DefaultMapper(mapping);
       var original = (ArrayContainerDto) mapper.Transform(source);
       var modified = Clone(original);
-      var removedElement = modified.EntityArray[1].NestedElements[0];
+      var removedElement = original.EntityArray[1].NestedElements[0];
       var newArrayElementDto = new ArrayElementDto {
         Id = Guid.NewGuid(), Aux = "NewElement", NestedElements = new[] {
           new ArrayElementDto {Id = Guid.NewGuid(), Aux = "NewElement10"},
-          new ArrayElementDto {Id = Guid.NewGuid(), Aux = "NewElement10"}
+          new ArrayElementDto {Id = Guid.NewGuid(), Aux = "NewElement11"}
         }
       };
       modified.EntityArray[1].NestedElements[0] = newArrayElementDto;
-      var comparisonResult = mapper.Compare(original, modified);
-      throw new NotImplementedException();
+      var operations = ((DefaultOperationSet) mapper.Compare(original, modified).Operations).ToList();
+      Assert.AreEqual(11, operations.Count);
+      ValidateObjectCreation(newArrayElementDto, operations[0]);
+      ValidateObjectCreation(newArrayElementDto.NestedElements[0], operations[1]);
+      ValidateObjectCreation(newArrayElementDto.NestedElements[1], operations[2]);
+      ValidatePropertyOperation(newArrayElementDto, operations[3], e => e.Aux,
+        newArrayElementDto.Aux, OperationType.SetProperty);
+      var nestedElementsProperty = typeof (ArrayElementDto).GetProperty("NestedElements");
+      ValidateItemAdditionOperation(newArrayElementDto, operations[4], nestedElementsProperty,
+        newArrayElementDto.NestedElements[0]);
+      ValidateItemAdditionOperation(newArrayElementDto, operations[5], nestedElementsProperty,
+        newArrayElementDto.NestedElements[1]);
+      ValidatePropertyOperation(newArrayElementDto.NestedElements[0], operations[6],
+        e => e.Aux, newArrayElementDto.NestedElements[0].Aux, OperationType.SetProperty);
+      ValidatePropertyOperation(newArrayElementDto.NestedElements[1], operations[7],
+        e => e.Aux, newArrayElementDto.NestedElements[1].Aux, OperationType.SetProperty);
+      ValidateItemAdditionOperation(original.EntityArray[1], operations[8], nestedElementsProperty,
+        newArrayElementDto);
+      ValidateItemRemovalOperation(original.EntityArray[1], operations[9], nestedElementsProperty,
+        removedElement);
+      ValidateObjectRemoval(removedElement, operations[10]);
     }
     
     private static DefaultMapper GetPersonStructureMapper()

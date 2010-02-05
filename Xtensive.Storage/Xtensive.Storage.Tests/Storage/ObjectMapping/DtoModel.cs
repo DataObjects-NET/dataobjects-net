@@ -11,7 +11,7 @@ using Xtensive.Storage.ObjectMapping;
 namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 {
   [Serializable]
-  public abstract class IdentifiableDto
+  public class IdentifiableDto
   {
     public string Key {get; set; }
   }
