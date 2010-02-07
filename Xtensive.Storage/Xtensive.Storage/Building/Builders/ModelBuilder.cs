@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Notifications;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Sorting;
@@ -16,9 +14,7 @@ using Xtensive.Core.Threading;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Internals;
-using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
@@ -32,16 +28,14 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Run()
     {
-      BuildingContext context = BuildingContext.Current;
+      var context = BuildingContext.Current;
 
       // Model definition building
       context.ModelDef = new DomainModelDef();
       ModelDefBuilder.Run();
 
-      // Custom model definition actions
-      BuildCustomDefinitions();
-
-      CleanModelDef();
+      ApplyCustomDefinitions();
+      RemoveTemporaryDefinitions();
 
       // Inspecting model definition
       ModelInspector.Run();
@@ -60,22 +54,21 @@ namespace Xtensive.Storage.Building.Builders
       BuildModel();
     }
 
-    private static void CleanModelDef()
-    {
-      var modelDef = BuildingContext.Current.ModelDef;
-
-      var ientityDef = modelDef.Types[typeof (IEntity)];
-      if (ientityDef != null)
-        modelDef.Types.Remove(ientityDef);
-    }
-
-    private static void BuildCustomDefinitions()
+    private static void ApplyCustomDefinitions()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
         var context = BuildingContext.Current;
         foreach (var module in context.BuilderConfiguration.Modules)
           module.OnDefinitionsBuilt(context, context.ModelDef);
       }
+    }
+
+    private static void RemoveTemporaryDefinitions()
+    {
+      var modelDef = BuildingContext.Current.ModelDef;
+      var ientityDef = modelDef.Types[typeof (IEntity)];
+      if (ientityDef != null)
+        modelDef.Types.Remove(ientityDef);
     }
 
     public static void BuildModel()

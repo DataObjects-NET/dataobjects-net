@@ -150,9 +150,16 @@ namespace Xtensive.Storage.Upgrade
 
     private void BuildServices()
     {
-      var handlerRegistrations =
+      var handlerRegistrations = (
         from type in OriginalConfiguration.Types.UpgradeHandlers
-        select new ServiceRegistration(typeof (IUpgradeHandler), type, false);
+        select new ServiceRegistration(typeof (IUpgradeHandler), type, false)
+        ).ToList();
+      var moduleRegistrations = (
+        from type in OriginalConfiguration.Types.Modules
+        select new ServiceRegistration(typeof (IModule), type, false)
+        ).ToList();
+      var allRegistrations = 
+        handlerRegistrations.Concat(moduleRegistrations);
 
       var baseServices = new ServiceContainer(new List<ServiceRegistration>{
         new ServiceRegistration(typeof (UpgradeContext), this),
@@ -160,7 +167,7 @@ namespace Xtensive.Storage.Upgrade
 
       var serviceContainerType = OriginalConfiguration.ServiceContainerType ?? typeof (ServiceContainer);
       Services = 
-        ServiceContainer.Create(typeof (ServiceContainer), handlerRegistrations, 
+        ServiceContainer.Create(typeof (ServiceContainer), allRegistrations, 
           ServiceContainer.Create(serviceContainerType, baseServices));
     }
 

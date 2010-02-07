@@ -27,16 +27,17 @@ namespace Xtensive.Storage.Tests.Upgrade
       BuildDomain(Mode.Recreate);
       using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
-          var x = new X();
-          x.FInt = 1;
-          x.FInt2 = 12345;
-          x.FLong = (long) int.MaxValue + 12345;
-          x.FLong2 = 12345;
-          x.FBool = true;
-          x.FString1 = "a";
-          x.FString5 = "12345";
-          x.FGuid = new Guid("E484EE28-3801-445B-9DF0-FBCBE5AA4883");
-          x.FDecimal = new decimal(1.2);
+          var x = new X {
+            FInt = 1, 
+            FInt2 = 12345, 
+            FLong = (long) int.MaxValue + 12345, 
+            FLong2 = 12345, 
+            FBool = true, 
+            FString1 = "a", 
+            FString5 = "12345", 
+            FGuid = new Guid("E484EE28-3801-445B-9DF0-FBCBE5AA4883"), 
+            FDecimal = new decimal(1.2),
+          };
           t.Complete();
         }
       }
@@ -46,158 +47,170 @@ namespace Xtensive.Storage.Tests.Upgrade
     public void ValidateModeTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (string), null, null, null, "FInt", "1", Mode.Validate));
+        UpgradeDomain(typeof (string), null, null, null, "FInt", "1", Mode.Validate));
     }
     
     [Test]
     public void Int32ToStringTest()
     {
-      Build(typeof (string), null, null, null, "FInt", "1", Mode.Perform);
+      UpgradeDomain(typeof (string), null, null, null, "FInt", "1", Mode.Perform);
     }
 
     [Test]
     public void Int32ToStringSafelyTest()
     {
-      Build(typeof (string), null, null, null, "FInt", "1", Mode.PerformSafely);      
+      UpgradeDomain(typeof (string), null, null, null, "FInt", "1", Mode.PerformSafely);      
     }
 
     [Test]
     public void Int32ToShortStringTest()
     {
-      Build(typeof (string), 3, null, null, "FInt2", null, Mode.Perform);
+      UpgradeDomain(typeof (string), 3, null, null, "FInt2", null, Mode.Perform);
     }
 
     [Test]
     public void Int32ToShortStringSafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (string), 3, null, null, "FInt2", null, Mode.PerformSafely));
+        UpgradeDomain(typeof (string), 3, null, null, "FInt2", null, Mode.PerformSafely));
     }
 
     [Test]
     public void StringToInt32Test()
     {
-      Build(typeof (int), null, null, null, "FString1", 0, Mode.Perform);
+      UpgradeDomain(typeof (int), null, null, null, "FString1", 0, Mode.Perform);
     }
 
     [Test]
     public void StringToInt32SafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (int), null, null, null, "FString1", 0, Mode.PerformSafely));
+        UpgradeDomain(typeof (int), null, null, null, "FString1", 0, Mode.PerformSafely));
     }
 
     [Test]
     public void StringToInt32WithHintTest()
     {
       using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FString5"))) {
-        Build(typeof (int), null, null, null, "FString5", 12345, Mode.PerformSafely);
+        UpgradeDomain(typeof (int), null, null, null, "FString5", 12345, Mode.PerformSafely);
       }
     }
 
     [Test]
     public void StringToShortStringTest()
     {
-      Build(typeof (string), 3, null, null, "FString5", "123", Mode.Perform);
+      UpgradeDomain(typeof (string), 3, null, null, "FString5", "123", Mode.Perform);
     }
 
     [Test]
     public void StringToShortStringSafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (string), 3, null, null, "FString5", string.Empty, Mode.PerformSafely));
+        UpgradeDomain(typeof (string), 3, null, null, "FString5", string.Empty, Mode.PerformSafely));
     }
 
     [Test]
     public void StringToLongStringTest()
     {
-      Build(typeof (string), 3, null, null, "FString1", "a", Mode.Perform);
+      UpgradeDomain(typeof (string), 3, null, null, "FString1", "a", Mode.Perform);
     }
 
     [Test]
     public void StringToLongStringSafelyTest()
     {
-      Build(typeof (string), 3, null, null, "FString1", "a", Mode.PerformSafely);
+      UpgradeDomain(typeof (string), 3, null, null, "FString1", "a", Mode.PerformSafely);
     }
 
     [Test]
     public void BoolToStringTest()
     {
-      Build(typeof (string), 100, null, null, "FBool", null, Mode.Perform);
+      UpgradeDomain(typeof (string), 100, null, null, "FBool", null, Mode.Perform);
     }
 
     [Test]
     public void BoolToStringSafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-        Build(typeof (string), 100, null, null, "FBool", "", Mode.PerformSafely));
+        UpgradeDomain(typeof (string), 100, null, null, "FBool", string.Empty, Mode.PerformSafely));
     }
 
     [Test]
     public void Int32ToInt64Test()
     {
-      Build(typeof (long), null, null, null, "FInt2", 12345L, Mode.Perform);
+      UpgradeDomain(typeof (long), null, null, null, "FInt2", 12345L, Mode.Perform);
     }
 
     [Test]
     public void Int32ToInt64SafelyTest()
     {
-      Build(typeof (long), null, null, null, "FInt2", 12345L, Mode.PerformSafely);
+      UpgradeDomain(typeof (long), null, null, null, "FInt2", 12345L, Mode.PerformSafely);
     }
 
     [Test]
     public void Int64ToInt32Test()
     {
-      Build(typeof (int), null, null, null, "FLong", 0, Mode.Perform);
+      UpgradeDomain(typeof (int), null, null, null, "FLong", 0, Mode.Perform);
     }
 
     [Test]
     public void Int64ToInt32SafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() => 
-       Build(typeof (int), null, null, null, "FLong", 12345, Mode.PerformSafely));
+       UpgradeDomain(typeof (int), null, null, null, "FLong", 12345, Mode.PerformSafely));
     }
 
     [Test]
     public void DecimalToLongDecimalTest()
     {
-      Build(typeof (decimal), null, 3, 2, "FDecimal", new decimal(1.2), Mode.Perform);
+      UpgradeDomain(typeof (decimal), null, 3, 2, "FDecimal", new decimal(1.2), Mode.Perform);
     }
 
     [Test]
     public void DecimalToLongDecimalSafelyTest()
     {
-      Build(typeof (decimal), null, 3, 2, "FDecimal", new decimal(1.2), Mode.PerformSafely);
+      UpgradeDomain(typeof (decimal), null, 3, 2, "FDecimal", new decimal(1.2), Mode.PerformSafely);
     }
 
     [Test]
     public void DecimalToShortDecimalTest()
     {
-      Build(typeof (decimal), null, 2, 0, "FDecimal", new decimal(1.0), Mode.Perform);
+      UpgradeDomain(typeof (decimal), null, 2, 0, "FDecimal", new decimal(1.0), Mode.Perform);
     }
 
     [Test]
     public void DecimalToShortDecimalSafelyTest()
     {
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        Build(typeof (decimal), null, 2, 0, "FDecimal", new decimal(1.2), Mode.PerformSafely));
+        UpgradeDomain(typeof (decimal), null, 2, 0, "FDecimal", new decimal(1.2), Mode.PerformSafely));
     }
 
     [Test]
     public void AddNonNullableColumnTest()
     {
-      BuildWithNewColumn(typeof (Guid));
-      BuildWithNewColumn(typeof (bool));
-      BuildWithNewColumn(typeof (int));
-      BuildWithNewColumn(typeof (long));
-      BuildWithNewColumn(typeof (float));
-      BuildWithNewColumn(typeof (TimeSpan));
-      BuildWithNewColumn(typeof (DateTime));
+      UpgradeDomain(typeof (Guid));
+      UpgradeDomain(typeof (bool));
+      UpgradeDomain(typeof (int));
+      UpgradeDomain(typeof (long));
+      UpgradeDomain(typeof (float));
+      UpgradeDomain(typeof (TimeSpan));
+      UpgradeDomain(typeof (DateTime));
     }
 
     #region Helper methods
 
-    private void Build(Type newColumnType, int? newLength, int? newPresicion, int? newScale,
+    private void BuildDomain(DomainUpgradeMode upgradeMode)
+    {
+      if (domain != null)
+        domain.DisposeSafely();
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = upgradeMode;
+      configuration.Types.Register(typeof (X));
+      configuration.Types.Register(typeof (TestUpgrader));
+      configuration.Types.Register(typeof (FieldTypeChanger));
+      domain = Domain.Build(configuration);
+    }
+
+    private void UpgradeDomain(Type newColumnType, int? newLength, int? newPresicion, int? newScale,
       string changedFieldName, object expectedValue, DomainUpgradeMode mode)
     {
       using (FieldTypeChanger.Enable(newColumnType, changedFieldName, newLength, newPresicion, newScale)) {
@@ -212,36 +225,58 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
     }
 
-    private void BuildDomain(DomainUpgradeMode upgradeMode)
-    {
-      if (domain != null)
-        domain.DisposeSafely();
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(typeof (X));
-      AddColumnBuilder.IsEnabled = false;
-      domain = Domain.Build(configuration);
-    }
-
-    private void BuildWithNewColumn(Type columnType)
+    private void UpgradeDomain(Type newColumnType)
     {
       SetUp();
       if (domain != null)
         domain.DisposeSafely();
-      AddColumnBuilder.NewColumnType = columnType;
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
       configuration.Types.Register(typeof (X));
+      configuration.Types.Register(typeof (TestUpgrader));
+      configuration.Types.Register(typeof (FieldTypeChanger));
+      configuration.Types.Register(typeof (AddColumnBuilder));
+      AddColumnBuilder.NewColumnType = newColumnType;
       AddColumnBuilder.IsEnabled = true;
-      try {
-        domain = Domain.Build(configuration);
-      }
-      finally {
-        AddColumnBuilder.IsEnabled = false;
-      }
+      domain = Domain.Build(configuration);
     }
 
     #endregion
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class X : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public int FInt { get; set; }
+
+    [Field]
+    public int FInt2 { get; set; }
+
+    [Field]
+    public long FLong { get; set; }
+
+    [Field]
+    public long FLong2 { get; set; }
+
+    [Field(Length = 1)]
+    public string FString1 { get; set; }
+
+    [Field(Length = 5)]
+    public string FString5 { get; set; }
+
+    [Field]
+    public bool FBool { get; set; }
+
+    [Field]
+    public Guid FGuid { get; set; }
+
+    [Field(Precision = 2, Scale = 1)]
+    public decimal FDecimal{ get; set;}
   }
 
   public class FieldTypeChanger : IModule
@@ -316,41 +351,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       newField.Name = "NewColumn";
       xType.Fields.Add(newField);
     }
-  }
-
-  [Serializable]
-  [HierarchyRoot]
-  public class X : Entity
-  {
-    [Field, Key]
-    public int Id { get; private set; }
-
-    [Field]
-    public int FInt { get; set; }
-
-    [Field]
-    public int FInt2 { get; set; }
-
-    [Field]
-    public long FLong { get; set; }
-
-    [Field]
-    public long FLong2 { get; set; }
-
-    [Field(Length = 1)]
-    public string FString1 { get; set; }
-
-    [Field(Length = 5)]
-    public string FString5 { get; set; }
-
-    [Field]
-    public bool FBool { get; set; }
-
-    [Field]
-    public Guid FGuid { get; set; }
-
-    [Field(Precision = 2, Scale = 1)]
-    public decimal FDecimal{ get; set;}
   }
 
   [Serializable]

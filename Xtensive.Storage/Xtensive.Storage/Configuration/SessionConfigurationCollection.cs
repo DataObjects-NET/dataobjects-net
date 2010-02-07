@@ -150,6 +150,8 @@ namespace Xtensive.Storage.Configuration
       service = BuildConfiguration(WellKnown.Sessions.Service);
       keyGenerator = BuildConfiguration(WellKnown.Sessions.KeyGenerator);
       foreach (var item in this) {
+        if (item.IsLocked)
+          continue;
         ApplyDefaultSettings(item);
         if (item == system || item == keyGenerator)
           item.Options = item.Options & ~SessionOptions.AutoShortenTransactions;
