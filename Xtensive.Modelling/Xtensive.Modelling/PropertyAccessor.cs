@@ -63,9 +63,9 @@ namespace Xtensive.Modelling
     }
 
     /// <summary>
-    /// Gets a value indicating whether compare property values as case insensitive.
+    /// Gets a value indicating whether property values are compared case insensitively.
     /// </summary>
-    public bool CompareCaseInsensitive
+    public bool CaseInsensitiveComparison
     {
       get { return compareCaseInsensitive; }
     }
@@ -160,7 +160,7 @@ namespace Xtensive.Modelling
         isMutable |= pa.IsMutable;
         isImmutable |= pa.IsImmutable;
         dependencyRootType = pa.DependencyRootType;
-        compareCaseInsensitive = tProperty == typeof (string) && pa.CompareCaseInsensitive;
+        compareCaseInsensitive = tProperty == typeof (string) && pa.CaseInsensitiveComparison;
       }
       this.GetType()
         .GetMethod("InnerInitialize", 

@@ -5,8 +5,6 @@
 // Created:    2010.01.14
 
 using System;
-using System.Diagnostics;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
@@ -18,7 +16,7 @@ namespace Xtensive.Storage.Indexing.Model
   [Serializable]
   public sealed class FullTextColumnRef : ColumnInfoRef<FullTextIndexInfo>
   {
-    [Property(Priority = -1100, CompareCaseInsensitive = true)]
+    [Property(Priority = -1100, CaseInsensitiveComparison = true)]
     public string Language { get; set; }
 
     [Property(Priority = -1200)]

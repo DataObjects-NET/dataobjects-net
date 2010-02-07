@@ -416,7 +416,7 @@ namespace Xtensive.Modelling.Comparison
     {
       using (TryActivate(source, target, (s, t) => new ValueDifference(s, t)))
       {
-        var areEqual = Context.PropertyAccessor.CompareCaseInsensitive
+        var areEqual = Context.PropertyAccessor.CaseInsensitiveComparison
           ? string.Equals((string)source, (string)target, StringComparison.OrdinalIgnoreCase)
           : Equals(source, target);
         return areEqual ? null : Context.Difference;

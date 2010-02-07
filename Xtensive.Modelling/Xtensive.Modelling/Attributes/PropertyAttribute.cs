@@ -27,9 +27,9 @@ namespace Xtensive.Modelling.Attributes
     public bool IgnoreInComparison { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether compare properties case insensitively.
+    /// Gets or sets a value indicating whether property values are compared case insensitively.
     /// </summary>
-    public bool CompareCaseInsensitive { get; set; }
+    public bool CaseInsensitiveComparison { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether underlying property value must be re-created
