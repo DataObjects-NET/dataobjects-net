@@ -66,6 +66,8 @@ namespace Xtensive.Storage.Services
     /// <summary>
     /// Invalidates (forgets) all the pending changes 
     /// and the state of all cached entities.
+    /// Very similar to what happens on rollback, but
+    /// without rollback itself.
     /// </summary>
     public void Invalidate()
     {

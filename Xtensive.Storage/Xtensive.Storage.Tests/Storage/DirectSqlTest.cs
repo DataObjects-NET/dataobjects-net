@@ -6,16 +6,15 @@
 
 using System;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Services;
 
 namespace Xtensive.Storage.Tests.Storage
 {
-  public class DbCommandTest : AutoBuildTest
+  public class DirectSqlTest : AutoBuildTest
   {
     [HierarchyRoot]
     public class Article : Entity
@@ -26,11 +25,6 @@ namespace Xtensive.Storage.Tests.Storage
       public string Title { get; set; }
       [Field]
       public string Content { get; set; }
-    }
-
-    protected override void CheckRequirements()
-    {
-      EnsureProtocolIs(StorageProtocol.SqlServer);
     }
 
     public override void TestFixtureSetUp()
@@ -56,19 +50,44 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void Test()
+    public void IndexStorageTest()
     {
+      EnsureProtocolIs(StorageProtocol.Index);
       using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
+          var directSql = session.Services.Demand<DirectSqlAccessor>();
+          Assert.IsFalse(directSql.IsAvailable);
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void SqlStorageTest()
+    {
+      EnsureProtocolIs(StorageProtocol.SqlServer);
+      using (var session = Session.Open(Domain)) {
+        var directSql = session.Services.Demand<DirectSqlAccessor>();
+        Assert.IsTrue(directSql.IsAvailable);
+        Assert.IsNull(directSql.Transaction);
+        
+        using (var t = Transaction.Open()) {
           var article = new Article {Title = "Some title", Content = "Some content"};
-          
           session.Persist();
-          DbCommand dbCommand = null; // session.GetDbCommand();
-          dbCommand.CommandText = "DELETE FROM dbo.Article;";
-          dbCommand.ExecuteNonQuery();
+          
+          // Now both are definitely not null
+          Assert.IsNotNull(directSql.Connection);
+          Assert.IsNotNull(directSql.Transaction);
+
+          var command = session.Services.Demand<DirectSqlAccessor>().CreateCommand();
+          command.CommandText = "DELETE FROM [dbo].[Article];";
+          command.ExecuteNonQuery();
+
+          // Cache invalidation (~ like on rollback, but w/o rollback)
+          DirectStateAccessor.Get(session).Invalidate();
+
           var anotherArticle = new Article { Title = "Another title", Content = "Another content" };
           session.Persist();
-          session.Invalidate();
 
           AssertEx.ThrowsInvalidOperationException(() => Assert.IsNotNull(article.Content));
           Assert.AreEqual(1, Query.All<Article>().Count());

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
 using Xtensive.Storage.Internals;
@@ -20,6 +21,9 @@ namespace Xtensive.Storage.Providers.Sql
   public class SessionHandler : Providers.SessionHandler,
     IQueryExecutor
   {
+    private static readonly IEnumerable<ServiceRegistration> baseServiceRegistrations = 
+      ServiceRegistration.CreateAll(typeof(DirectSqlHandler));
+
     private Driver driver;
     private DomainHandler domainHandler;
     private SqlConnection connection;
@@ -282,6 +286,12 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     #endregion
+
+    /// <inheritdoc/>
+    protected override void AddBaseServiceRegistrations(List<ServiceRegistration> registrations)
+    {
+      registrations.AddRange(baseServiceRegistrations);
+    }
 
     /// <inheritdoc/>
     public override void Initialize()

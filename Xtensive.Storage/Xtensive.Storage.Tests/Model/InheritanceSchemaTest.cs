@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   {
   }
 
-  internal abstract class DomainBuilderBase : IModule
+  public abstract class DomainBuilderBase : IModule
   {
     protected abstract InheritanceSchema InheritanceSchema { get; }
 
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     }
   }
 
-  internal class SingleTableInheritanceBuilder : DomainBuilderBase
+  public class SingleTableInheritanceBuilder : DomainBuilderBase
   {
     public static bool IsEnabled;
 
@@ -143,7 +143,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     }
   }
 
-  internal class ConcreteTableInheritanceBuilder : DomainBuilderBase
+  public class ConcreteTableInheritanceBuilder : DomainBuilderBase
   {
     public static bool IsEnabled;
 

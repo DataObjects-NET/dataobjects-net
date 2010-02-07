@@ -1,0 +1,85 @@
+// Copyright (C) 2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alex Yakunin
+// Created:    2010.02.08
+
+using System;
+using System.Data.Common;
+using Xtensive.Core.Aspects;
+using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.IoC;
+using Xtensive.Storage.Providers;
+using Xtensive.Storage.Resources;
+
+namespace Xtensive.Storage.Services
+{
+  /// <summary>
+  /// Provides access to such low-level objects as 
+  /// <see cref="DbCommand"/> and <see cref="DbConnection"/>.
+  /// </summary>
+  [Service(typeof(DirectSqlAccessor))]
+  [Infrastructure]
+  public sealed class DirectSqlAccessor : SessionBound,
+    ISessionService
+  {
+    private IDirectSqlHandler handler;
+
+    /// <summary>
+    /// Gets a value indicating whether direct SQL capabilities are available.
+    /// Returns <see langword="true" />, if underlying storage provider 
+    /// supports SQL.
+    /// </summary>
+    public bool IsAvailable {
+      get {
+        return handler!=null;
+      }
+    }
+
+    /// <see cref="IDirectSqlHandler.Connection" copy="true" />
+    public DbConnection Connection {
+      get {
+        EnsureIsAvailable();
+        return handler.Connection;
+      }
+    }
+
+    /// <see cref="IDirectSqlHandler.Transaction" copy="true" />
+    public DbTransaction Transaction {
+      get {
+        EnsureIsAvailable();
+        return handler.Transaction;
+      }
+    }
+
+    /// <see cref="IDirectSqlHandler.CreateCommand" copy="true" />
+    public DbCommand CreateCommand()
+    {
+      EnsureIsAvailable();
+      return handler.CreateCommand();
+    }
+
+    /// <exception cref="NotSupportedException">Underlying storage provider 
+    /// does not support SQL.</exception>
+    private void EnsureIsAvailable()
+    {
+      if (handler==null)
+        throw new NotSupportedException(Strings.ExUnderlyingStorageProviderDoesNotSupportSQL);
+    }
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="session">The session this instance is bound to.</param>
+    /// <param name="handler">The underlying <see cref="IDirectSqlHandler"/> to use.</param>
+    [ServiceConstructor]
+    public DirectSqlAccessor(Session session, IDirectSqlHandler handler)
+      : base(session)
+    {
+      this.handler = handler;
+    }
+  }
+}

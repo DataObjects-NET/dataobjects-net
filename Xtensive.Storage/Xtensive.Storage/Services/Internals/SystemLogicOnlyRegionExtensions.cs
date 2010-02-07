@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Services
 
     public static IDisposable OpenSystemLogicOnlyRegion(this Session session)
     {
-      return session.Services.Get<DirectSessionAccessor>()
+      return session.Services.Demand<DirectSessionAccessor>()
         .OpenSystemLogicOnlyRegion();
     }
   }

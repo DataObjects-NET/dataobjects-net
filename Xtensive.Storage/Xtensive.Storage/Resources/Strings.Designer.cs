@@ -2765,6 +2765,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Underlying storage provider does not support SQL..
+        /// </summary>
+        internal static string ExUnderlyingStorageProviderDoesNotSupportSQL {
+            get {
+                return ResourceManager.GetString("ExUnderlyingStorageProviderDoesNotSupportSQL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unknown entity serialization kind &apos;{0}&apos;..
         /// </summary>
         internal static string ExUnknownEntitySerializationKindX {

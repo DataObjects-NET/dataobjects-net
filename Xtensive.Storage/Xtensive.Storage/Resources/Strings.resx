@@ -1361,4 +1361,7 @@ Actions:
   <data name="ExSessionOfAnotherSessionBoundMustBeTheSame" xml:space="preserve">
     <value>Session of another SessionBound must be the same.</value>
   </data>
+  <data name="ExUnderlyingStorageProviderDoesNotSupportSQL" xml:space="preserve">
+    <value>Underlying storage provider does not support SQL.</value>
+  </data>
 </root>
