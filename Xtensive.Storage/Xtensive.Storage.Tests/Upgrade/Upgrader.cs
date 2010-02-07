@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Helpers;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 using M2 = Xtensive.Storage.Tests.Upgrade.Model.Version2;
 using M3 = Xtensive.Storage.Tests.Upgrade.Model.Version3;
@@ -50,15 +50,12 @@ namespace Xtensive.Storage.Tests.Upgrade
       return true;
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var context = UpgradeContext.Current;
-
       if (runningVersion=="2")
-        Version1To2Hints.Apply(hint=>context.Hints.Add(hint));
-
+        Version1To2Hints.Apply(hint => hints.Add(hint));
       if (runningVersion=="3")
-        Version1To3Hints.Apply(hint=>context.Hints.Add(hint));
+        Version1To3Hints.Apply(hint => hints.Add(hint));
     }
 
     public override void OnUpgrade()

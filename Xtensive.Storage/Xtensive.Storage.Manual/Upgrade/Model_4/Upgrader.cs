@@ -4,7 +4,10 @@
 // Created by: Alex Kofman
 // Created:    2009.11.19
 
+using System;
 using System.Linq;
+using Xtensive.Core.Collections;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Manual.Upgrade.Model_4
@@ -16,13 +19,11 @@ namespace Xtensive.Storage.Manual.Upgrade.Model_4
       get { return UpgradeHandlerEnabler.EnabledUpgradeHandler==GetType(); }
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var hintSet = UpgradeContext.Demand().Hints;
-
-      hintSet.Add(
+      hints.Add(
         new RenameTypeHint(typeof (Model_3.Order).FullName, typeof (Order)));
-      hintSet.Add(
+      hints.Add(
         new RenameTypeHint(typeof (Model_3.Person).FullName, typeof (Person)));
     }
 

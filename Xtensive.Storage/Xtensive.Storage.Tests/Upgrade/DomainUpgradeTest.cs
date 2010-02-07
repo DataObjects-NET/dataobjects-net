@@ -233,6 +233,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Storage.Tests.Upgrade.Model.Version" + version);
+      configuration.Types.Register(typeof (Upgrader));
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);
       }
@@ -249,6 +250,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         configuration.Types.Register(type);
       if (keyCacheSize.HasValue)
         configuration.KeyGeneratorCacheSize = keyCacheSize.Value;
+      configuration.Types.Register(typeof (Upgrader));
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);
       }

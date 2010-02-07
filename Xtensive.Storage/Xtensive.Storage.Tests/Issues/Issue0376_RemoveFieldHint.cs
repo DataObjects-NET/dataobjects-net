@@ -6,7 +6,9 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Upgrade;
 using System.Reflection;
@@ -82,14 +84,12 @@ namespace Xtensive.Storage.Tests.Issues.Issue0376.Model2
       }
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var hintSet = UpgradeContext.Demand().Hints;
-      var oldNamescpace = "Xtensive.Storage.Tests.Issues.Issue0376.Model1";
-      hintSet.Add(new RenameTypeHint(oldNamescpace + ".Father", typeof (Father)));
-      hintSet.Add(new RenameTypeHint(oldNamescpace + ".Son", typeof (Son)));
-
-      hintSet.Add(new MoveFieldHint(oldNamescpace + ".Son", "FirstName", typeof (Father)));
+      var oldNamespace = "Xtensive.Storage.Tests.Issues.Issue0376.Model1";
+      hints.Add(new RenameTypeHint(oldNamespace + ".Father", typeof (Father)));
+      hints.Add(new RenameTypeHint(oldNamespace + ".Son", typeof (Son)));
+      hints.Add(new MoveFieldHint(oldNamespace + ".Son", "FirstName", typeof (Father)));
 //      hintSet.Add(new CopyFieldHint(oldNamescpace + ".Son", "FirstName", typeof (Father)));
 //      hintSet.Add(new RemoveFieldHint(oldNamescpace + ".Son", "FirstName"));
     }
@@ -133,13 +133,11 @@ namespace Xtensive.Storage.Tests.Issues.Issue0376.Model3
       }
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var hintSet = UpgradeContext.Demand().Hints;
-      var oldNamescpace = "Xtensive.Storage.Tests.Issues.Issue0376.Model2";
-      hintSet.Add(new RenameTypeHint(oldNamescpace + ".Father", typeof (Father)));
-
-      hintSet.Add(new RemoveTypeHint(oldNamescpace + ".Son"));
+      var oldNamespace = "Xtensive.Storage.Tests.Issues.Issue0376.Model2";
+      hints.Add(new RenameTypeHint(oldNamespace + ".Father", typeof (Father)));
+      hints.Add(new RemoveTypeHint(oldNamespace + ".Son"));
     }
   }
 }

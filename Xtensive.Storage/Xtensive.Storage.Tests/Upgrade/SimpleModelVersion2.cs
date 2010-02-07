@@ -14,8 +14,8 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion2
   // Fields LastName and FirstName moved from Employee to BusinessContact (old Person)
   // Field Order.ProcessingTime removed
   // Field Order.OrderNumber renamed to Order.Number
-  // Type of field Order.Number chaged to int
-  // Type of field BusinessContact.PassportNumber (old Person.PassportNumber) chaged to int
+  // Type of field Order.Number changed to int
+  // Type of field BusinessContact.PassportNumber (old Person.PassportNumber) changed to int
 
   [Serializable]
   public class Address : Structure

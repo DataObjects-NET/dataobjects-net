@@ -4,6 +4,9 @@
 // Created by: Alex Kofman
 // Created:    2009.11.12
 
+using System;
+using Xtensive.Core.Collections;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Manual.Upgrade.Model_3
@@ -15,17 +18,14 @@ namespace Xtensive.Storage.Manual.Upgrade.Model_3
       get { return UpgradeHandlerEnabler.EnabledUpgradeHandler==GetType(); }
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var hintSet = UpgradeContext.Demand().Hints;
-
-      hintSet.Add(
+      hints.Add(
         new RenameTypeHint(typeof (Model_2.Order).FullName, typeof (Order)));
-      hintSet.Add(
+      hints.Add(
         new RenameTypeHint(typeof (Model_2.Customer).FullName, typeof (Person)));
-      hintSet.Add(
+      hints.Add(
         new RenameFieldHint(typeof (Person), "Name", "FullName"));
-
     }
   }
 }

@@ -6,6 +6,8 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Collections;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Manual.Upgrade.Model_2
@@ -17,11 +19,9 @@ namespace Xtensive.Storage.Manual.Upgrade.Model_2
       get { return UpgradeHandlerEnabler.EnabledUpgradeHandler==GetType(); }
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var hintSet = UpgradeContext.Demand().Hints;
-
-      hintSet.Add(new RenameTypeHint(
+      hints.Add(new RenameTypeHint(
         typeof (Model_1.Order).FullName, typeof (Order)));
     }
   }

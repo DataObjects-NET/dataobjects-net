@@ -41,6 +41,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       configuration.Types.Register(typeof(Model.Person));
+      configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable())
         domain = Domain.Build(configuration);
 

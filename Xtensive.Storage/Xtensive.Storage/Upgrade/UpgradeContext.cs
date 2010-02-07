@@ -238,9 +238,12 @@ namespace Xtensive.Storage.Upgrade
       Stage = UpgradeStage.Validation;
       Hints = new SetSlim<UpgradeHint>();
 
-      BuildServices();
-      BuildUpgradeHandlers();
-      BuildModules();
+      using (Activate()) {
+        // Ensures UpgradeContext.Current is this context
+        BuildServices();
+        BuildUpgradeHandlers();
+        BuildModules();
+      }
     }
   }
 }

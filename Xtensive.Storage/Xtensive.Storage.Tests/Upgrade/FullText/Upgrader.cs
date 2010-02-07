@@ -6,7 +6,9 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Tests.Upgrade.FullText
@@ -44,27 +46,27 @@ namespace Xtensive.Storage.Tests.Upgrade.FullText
       return true;
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var context = UpgradeContext.Current;
+      var context = UpgradeContext;
       switch (runningVersion) {
         case "Version1":
           break;
         case "Version2":
-          context.Hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version1.Article", typeof(Model.Version2.Article)));
+          hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version1.Article", typeof(Model.Version2.Article)));
           break;
         case "Version3":
-          context.Hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version2.Article", typeof(Model.Version3.Article)));
+          hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version2.Article", typeof(Model.Version3.Article)));
           break;
         case "Version4":
-          context.Hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version3.Article", typeof(Model.Version4.Article)));
-          context.Hints.Add(new RenameFieldHint(typeof (Model.Version4.Article), "Content", "Text"));
+          hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version3.Article", typeof(Model.Version4.Article)));
+          hints.Add(new RenameFieldHint(typeof (Model.Version4.Article), "Content", "Text"));
           break;
         case "Version5":
-          context.Hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version4.Article", typeof(Model.Version5.Book)));
+          hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version4.Article", typeof(Model.Version5.Book)));
           break;
         case "Version6":
-          context.Hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version5.Book", typeof(Model.Version6.Book)));
+          hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.FullText.Model.Version5.Book", typeof(Model.Version6.Book)));
           break;
         default:
           throw new ArgumentOutOfRangeException();

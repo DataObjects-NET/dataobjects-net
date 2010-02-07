@@ -58,6 +58,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version" + version);
+      configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);
       }

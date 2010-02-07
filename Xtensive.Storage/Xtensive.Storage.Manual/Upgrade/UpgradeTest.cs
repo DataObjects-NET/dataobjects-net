@@ -21,6 +21,7 @@ namespace Xtensive.Storage.Manual.Upgrade
     [Test]
     public void Test()
     {
+      UpgradeHandlerEnabler.EnabledUpgradeHandler = null;
       try {
         BuildFirstDomain();
 

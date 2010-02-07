@@ -33,6 +33,11 @@ namespace Xtensive.Storage.Upgrade
     /// Gets the version of the assembly described by this handler.
     /// </summary>
     string AssemblyVersion { get; }
+
+    /// <summary>
+    /// Gets the upgrade context this handler is bound to.
+    /// </summary>
+    UpgradeContext UpgradeContext { get; }
     
     /// <summary>
     /// Override this method to modify the <see cref="Storage.Upgrade.UpgradeContext.Configuration"/>

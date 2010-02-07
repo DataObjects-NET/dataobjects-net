@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
       public override void OnSchemaReady()
       {
-        var context = UpgradeContext.Current;
+        var context = UpgradeContext.Demand();
         hints.Apply(context.SchemaHints.Add);
       }
 

@@ -75,6 +75,7 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Storage.Tests.Upgrade.DataUpgrade.Model.Version" + version);
+      configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);
       }
@@ -89,6 +90,7 @@ namespace Xtensive.Storage.Tests.Upgrade.DataUpgrade
       configuration.UpgradeMode = upgradeMode;
       foreach (var type in types)
         configuration.Types.Register(type);
+      configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable("1")) {
         domain = Domain.Build(configuration);
       }

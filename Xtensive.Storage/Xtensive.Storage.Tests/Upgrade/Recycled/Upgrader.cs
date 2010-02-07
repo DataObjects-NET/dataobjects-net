@@ -6,10 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Helpers;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 using Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version2;
 
@@ -50,12 +49,10 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
       return true;
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var context = UpgradeContext.Current;
-
       if (runningVersion=="2")
-        Version1To2Hints.Apply(hint=>context.Hints.Add(hint));
+        Version1To2Hints.Apply(hint => hints.Add(hint));
     }
 
     public override void OnUpgrade()
@@ -102,8 +99,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
         && base.IsTypeAvailable(type, upgradeStage);
     }
 
-    private static IEnumerable<UpgradeHint> Version1To2Hints
-    {
+    private static IEnumerable<UpgradeHint> Version1To2Hints {
       get {
         // renaming types
         yield return new RenameTypeHint(

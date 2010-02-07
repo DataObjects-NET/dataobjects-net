@@ -7,10 +7,11 @@
 using System;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using System.Linq;
-using Xtensive.Core.Helpers;
+using Xtensive.Modelling.Comparison.Hints;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -67,17 +68,19 @@ namespace Xtensive.Storage.Upgrade
       }
     }
 
+    public UpgradeContext UpgradeContext { get; private set; }
+
     /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
     public virtual void OnBeforeStage()
     {
-      var context = UpgradeContext.Current;
+      var context = UpgradeContext;
       switch (context.Stage) {
         case UpgradeStage.Validation:
           break;
         case UpgradeStage.Upgrading:
-          AddAutoHints();
-          AddUpgradeHints();
+          AddAutoHints(context.Hints);
+          AddUpgradeHints(context.Hints);
           break;
         case UpgradeStage.Final:
           break;
@@ -95,7 +98,7 @@ namespace Xtensive.Storage.Upgrade
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
     public virtual void OnStage()
     {
-      var context = UpgradeContext.Current;
+      var context = UpgradeContext;
       switch (context.Stage) {
         case UpgradeStage.Validation:
           break;
@@ -155,10 +158,12 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <summary>
-    /// Override this method to add upgrade hints to 
+    /// Override this method to add upgrade hints to
     /// <see cref="Upgrade.UpgradeContext.Hints"/> collection.
     /// </summary>
-    protected virtual void AddUpgradeHints()
+    /// <param name="hints">A set of hints to add new hints to
+    /// (a shortcut to <see cref="Upgrade.UpgradeContext.Hints"/> collection).</param>
+    protected virtual void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
     }
 
@@ -206,9 +211,11 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// Adds the "auto" hints - e.g. hints for recycled types.
     /// </summary>
-    protected virtual void AddAutoHints()
+    /// <param name="hints">A set of hints to add new hints to
+    /// (a shortcut to <see cref="Upgrade.UpgradeContext.Hints"/> collection).</param>
+    protected virtual void AddAutoHints(ISet<UpgradeHint> hints)
     {
-      var context = UpgradeContext.Demand();
+      var context = UpgradeContext;
       var types = Assembly.GetTypes();
       var registeredTypes = (
         from t in types
@@ -229,7 +236,7 @@ namespace Xtensive.Storage.Upgrade
           string ns = TryStripRecycledSuffix(r.Type.Namespace);
           oldName = ns + "." + oldName;
         }
-        context.Hints.Add(new RenameTypeHint(oldName, r.Type));
+        hints.Add(new RenameTypeHint(oldName, r.Type));
         // TODO: Add table rename hint as well
       }
 
@@ -248,7 +255,7 @@ namespace Xtensive.Storage.Upgrade
         var oldName = r.Attribute.OriginalName;
         if (!oldName.IsNullOrEmpty()) {
           // TODO: Add column rename hint here
-          context.Hints.Add(new RenameFieldHint(r.Property.DeclaringType, oldName, r.Property.Name));
+          hints.Add(new RenameFieldHint(r.Property.DeclaringType, oldName, r.Property.Name));
         }
       }
     }
@@ -286,9 +293,11 @@ namespace Xtensive.Storage.Upgrade
     /// </summary>
     public UpgradeHandler()
     {
+      UpgradeContext = UpgradeContext.Demand();
     }
 
     internal UpgradeHandler(Assembly assembly)
+      : this()
     {
       this.assembly = assembly;
     }

@@ -80,10 +80,6 @@ namespace Xtensive.Storage.Tests.Upgrade
       return true;
     }
 
-    protected override void AddUpgradeHints()
-    {
-    }
-
     public override void OnSchemaReady()
     {
       base.OnSchemaReady();

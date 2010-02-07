@@ -6,7 +6,9 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
@@ -34,10 +36,9 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
       }
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var hintSet = UpgradeContext.Demand().Hints;
-      hintSet.Add(new RemoveTypeHint(typeof(Model.Employee).FullName));
+      hints.Add(new RemoveTypeHint(typeof(Model.Employee).FullName));
     }
   }
 }

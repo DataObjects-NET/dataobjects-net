@@ -56,6 +56,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Storage.Tests.Upgrade.Sample3.Model.Version" + version);
+      configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);
       }

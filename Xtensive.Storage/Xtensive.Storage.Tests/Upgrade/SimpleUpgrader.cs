@@ -6,10 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.Helpers;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
 using SimpleVersion2 = Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion2;
 
@@ -49,12 +48,10 @@ namespace Xtensive.Storage.Tests.Upgrade
       return true;
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      var context = UpgradeContext.Current;
-
       if (runningVersion == "SimpleVersion2")
-        Hints.Apply(hint => context.Hints.Add(hint));
+        Hints.Apply(hint => hints.Add(hint));
     }
 
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
@@ -66,11 +63,9 @@ namespace Xtensive.Storage.Tests.Upgrade
         && base.IsTypeAvailable(type, upgradeStage);
     }
 
-    private static IEnumerable<UpgradeHint> Hints
-    {
-      get
-      {
-        // renaming types
+    private static IEnumerable<UpgradeHint> Hints {
+      get {
+        // Renaming types
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion1.BusinessContact", typeof(SimpleVersion2.Person));
         yield return new RenameTypeHint(
@@ -82,14 +77,14 @@ namespace Xtensive.Storage.Tests.Upgrade
         yield return new RenameTypeHint(
           "Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion1.Order", typeof(SimpleVersion2.Order));
 
-        // renaming fields
+        // Renaming fields
         yield return new RenameFieldHint(typeof(SimpleVersion2.Order), "OrderNumber", "Number");
 
-        // type changes
+        // Type changes
         yield return new ChangeFieldTypeHint(typeof(SimpleVersion2.Person), "PassportNumber");
         yield return new ChangeFieldTypeHint(typeof(SimpleVersion2.Order), "Number");
 
-        // copying data
+        // Copying data
         yield return new CopyFieldHint(
           "Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion1.Employee", "FirstName", typeof(SimpleVersion2.BusinessContact));
         yield return new CopyFieldHint(

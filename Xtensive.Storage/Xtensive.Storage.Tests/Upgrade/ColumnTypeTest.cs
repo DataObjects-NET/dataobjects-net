@@ -7,8 +7,10 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Disposing;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Upgrade;
@@ -384,11 +386,10 @@ namespace Xtensive.Storage.Tests.Upgrade
       return true;
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      base.AddUpgradeHints();
       if (columnHint!=null)
-        UpgradeContext.Current.Hints.Add(columnHint);
+        hints.Add(columnHint);
     }
 
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)

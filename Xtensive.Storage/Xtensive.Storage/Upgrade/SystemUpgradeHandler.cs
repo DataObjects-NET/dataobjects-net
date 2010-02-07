@@ -10,7 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
@@ -38,7 +37,7 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     public override void OnStage()
     {
-      var context = UpgradeContext.Demand();
+      var context = UpgradeContext;
       var upgradeMode = context.OriginalConfiguration.UpgradeMode;
       switch (context.Stage) {
       case UpgradeStage.Validation:
@@ -145,7 +144,7 @@ namespace Xtensive.Storage.Upgrade
 
     private Pair<IUpgradeHandler, M.Assembly>[] GetAssemblies()
     {
-      var context = UpgradeContext.Current;
+      var context = UpgradeContext;
 
       var oldAssemblies = Query.All<M.Assembly>().ToArray();
       var oldAssemblyByName = new Dictionary<string, M.Assembly>();
@@ -172,7 +171,7 @@ namespace Xtensive.Storage.Upgrade
 
     private void ExtractDomainModel()
     {
-      var context = UpgradeContext.Demand();
+      var context = UpgradeContext;
       context.ExtractedTypeMap = Query.All<Type>().ToDictionary(t => t.Name, t => t.Id);
       var modelHolder = Query.All<Extension>()
         .SingleOrDefault(e => e.Name==WellKnown.DomainModelExtensionName);
