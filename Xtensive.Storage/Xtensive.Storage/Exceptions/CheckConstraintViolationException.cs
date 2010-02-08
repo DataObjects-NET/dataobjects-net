@@ -11,19 +11,19 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An exception that is thrown when multiversion concurency control (MVCC) RDBMS
-  /// can not handle version conflict.
+  /// An exception that is thrown when a CHECK constraint violation is detected.
+  /// This also includes violations of a NOT NULL constraints.
   /// </summary>
   [Serializable]
-  public class VersionConflictException : ReprocessableStorageException
+  public class CheckConstraintViolationException : ConstraintViolationException
   {
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="message">The message.</param>
-    public VersionConflictException(string message)
+    /// <param name="message">The error message.</param>
+    public CheckConstraintViolationException(string message)
       : base(message)
     {
     }
@@ -31,9 +31,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="message">The message.</param>
+    /// <param name="message">The error message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public VersionConflictException(string message, Exception innerException)
+    public CheckConstraintViolationException(string message, Exception innerException)
       : base(message, innerException)
     {
     }
@@ -41,7 +41,7 @@ namespace Xtensive.Storage
     // Serialization
 
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
-    protected VersionConflictException(SerializationInfo info, StreamingContext context)
+    protected CheckConstraintViolationException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }     

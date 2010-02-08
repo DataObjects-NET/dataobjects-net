@@ -12,7 +12,8 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// An exception that is thrown when generated RDBMS query contains syntax error.
-  /// When you've got this exception, most probably you've found an error in DataObjects.
+  /// When you've got this exception, you either did not configured access rights in your RDBMS
+  /// or you've found an error in DataObjects.
   /// </summary>
   [Serializable]
   public class SyntaxErrorException : StorageException

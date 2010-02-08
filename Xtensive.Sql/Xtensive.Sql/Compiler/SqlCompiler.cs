@@ -1372,51 +1372,67 @@ namespace Xtensive.Sql.Compiler
     
     private void Visit(TableConstraint constraint)
     {
-      context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
-      if (constraint is CheckConstraint) {
-        context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Check));
-        ((CheckConstraint)constraint).Condition.AcceptVisitor(this);
+      using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
+        context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
+        var checkConstraint = constraint as CheckConstraint;
+        if (checkConstraint!=null)
+          VisitCheckConstraint(checkConstraint);
+        var uniqueConstraint = constraint as UniqueConstraint;
+        if (uniqueConstraint!=null)
+          VisitUniqueConstraint(uniqueConstraint);
+        var foreignKey = constraint as ForeignKey;
+        if (constraint is ForeignKey)
+          VisitForeignKeyConstraint(foreignKey);
+        context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Exit));
       }
-      else if (constraint is UniqueConstraint) {
-        if (constraint is PrimaryKey)
-          context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.PrimaryKey));
-        else
-          context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Unique));
-        if (((UniqueConstraint)constraint).Columns.Count>0)
-          using (context.EnterCollectionScope()) {
-            foreach (TableColumn tc in ((UniqueConstraint)constraint).Columns) {
-              if (!context.IsEmpty)
-                context.Output.AppendDelimiter(translator.ColumnDelimiter);
-              context.Output.AppendText(
-                translator.Translate(context, tc, TableColumnSection.Entry));
-            }
-          }
+    }
+
+    private void VisitForeignKeyConstraint(ForeignKey constraint)
+    {
+      context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.ForeignKey));
+      if (constraint.ReferencedColumns.Count==0)
+        throw new SqlCompilerException(Strings.ExReferencedColumnsCountCantBeLessThenOne);
+      if (constraint.Columns.Count==0)
+        throw new SqlCompilerException(Strings.ExReferencingColumnsCountCantBeLessThenOne);
+      using (context.EnterCollectionScope()) {
+        foreach (TableColumn column in constraint.Columns) {
+          if (!context.IsEmpty)
+            context.Output.AppendDelimiter(translator.ColumnDelimiter);
+          context.Output.AppendText(translator.Translate(context, column, TableColumnSection.Entry));
+        }
       }
-      else if (constraint is ForeignKey) {
-        context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.ForeignKey));
-        ForeignKey fk = constraint as ForeignKey;
-        if (fk.ReferencedColumns.Count==0)
-          throw new SqlCompilerException(Strings.ExReferencedColumnsCountCantBeLessThenOne);
-        if (fk.Columns.Count==0)
-          throw new SqlCompilerException(Strings.ExReferencingColumnsCountCantBeLessThenOne);
-        using (context.EnterCollectionScope()) {
-          foreach (TableColumn tc in fk.Columns) {
+
+      context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.ReferencedColumns));
+      using (context.EnterCollectionScope()) {
+        foreach (TableColumn tc in constraint.ReferencedColumns) {
+          if (!context.IsEmpty)
+            context.Output.AppendDelimiter(translator.ColumnDelimiter);
+          context.Output.AppendText(
+            translator.Translate(context, tc, TableColumnSection.Entry));
+        }
+      }
+    }
+
+    private void VisitUniqueConstraint(UniqueConstraint constraint)
+    {
+      if (constraint is PrimaryKey)
+        context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.PrimaryKey));
+      else
+        context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Unique));
+
+      if (constraint.Columns.Count > 0)
+        using (context.EnterCollectionScope())
+          foreach (TableColumn tc in constraint.Columns) {
             if (!context.IsEmpty)
               context.Output.AppendDelimiter(translator.ColumnDelimiter);
             context.Output.AppendText(translator.Translate(context, tc, TableColumnSection.Entry));
           }
-        }
-        context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.ReferencedColumns));
-        using (context.EnterCollectionScope()) {
-          foreach (TableColumn tc in fk.ReferencedColumns) {
-            if (!context.IsEmpty)
-              context.Output.AppendDelimiter(translator.ColumnDelimiter);
-            context.Output.AppendText(
-              translator.Translate(context, tc, TableColumnSection.Entry));
-          }
-        }
-      }
-      context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Exit));
+    }
+
+    private void VisitCheckConstraint(CheckConstraint constraint)
+    {
+      context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Check));
+      constraint.Condition.AcceptVisitor(this);
     }
 
     public virtual void Visit(SqlExtract node)

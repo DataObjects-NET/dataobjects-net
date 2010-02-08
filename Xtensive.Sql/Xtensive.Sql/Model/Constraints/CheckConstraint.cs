@@ -10,15 +10,13 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents <see cref="Table"/> check constraint.
   /// </summary>
-  [Serializable]
   public class CheckConstraint : TableConstraint
   {
-    #region Constructors
+    // Constructors
 
-    internal CheckConstraint(Table table, string name, SqlExpression condition) : base(table, name, condition, null, null)
+    internal CheckConstraint(Table table, string name, SqlExpression condition)
+      : base(table, name, condition, null, null)
     {
     }
-
-    #endregion
   }
 }

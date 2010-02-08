@@ -8,7 +8,7 @@ using Constraint = Xtensive.Sql.Model.Constraint;
 namespace Xtensive.Sql.Tests.SqlServer
 {
   [TestFixture]
-  public class AdventureWorks
+  public abstract class AdventureWorks
   {
     protected struct DbCommandExecutionResult
     {

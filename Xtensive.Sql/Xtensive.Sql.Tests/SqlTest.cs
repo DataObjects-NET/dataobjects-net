@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Tests
 
     protected virtual void TestFixtureSetUp()
     {
-      var parsedUrl = new UrlInfo(Url);
+      var parsedUrl = UrlInfo.Parse(Url);
       Driver = SqlDriver.Create(parsedUrl);
       Connection = Driver.CreateConnection();
       Connection.Open();

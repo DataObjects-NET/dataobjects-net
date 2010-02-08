@@ -17,9 +17,9 @@ namespace Xtensive.Sql
     Unknown,
 
     /// <summary>
-    /// Connection timeout.
+    /// Connection error (such as timeout).
     /// </summary>
-    ConnectionTimeout,
+    ConnectionError,
 
     /// <summary>
     /// Syntax error in query.
@@ -27,7 +27,12 @@ namespace Xtensive.Sql
     SyntaxError,
 
     /// <summary>
-    /// Unique constraint violation (also denotes unique index key duplication).
+    /// Check constraint violation (including NOT NULL constraints)
+    /// </summary>
+    CheckConstraintViolation,
+
+    /// <summary>
+    /// Unique constraint violation (also denotes unique and primary index key duplication).
     /// </summary>
     UniqueConstraintViolation,
 
@@ -42,8 +47,8 @@ namespace Xtensive.Sql
     Deadlock,
 
     /// <summary>
-    /// Version conflict.
+    /// Concurrent access serialization failure.
     /// </summary>
-    VersionConflict,
+    SerializationFailure,
   }
 }

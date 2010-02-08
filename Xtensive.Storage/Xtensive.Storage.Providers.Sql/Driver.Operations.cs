@@ -198,18 +198,20 @@ namespace Xtensive.Storage.Providers.Sql
             exceptionType, queryText, originalMessage);
 
       switch (exceptionType) {
-      case SqlExceptionType.ConnectionTimeout:
-        return new ConnectionTimeoutException(message, exception);
+      case SqlExceptionType.ConnectionError:
+        return new ConnectionErrorException(message, exception);
       case SqlExceptionType.SyntaxError:
         return new SyntaxErrorException(message, exception);
+      case SqlExceptionType.CheckConstraintViolation:
+        return new CheckConstraintViolationException(message, exception);
       case SqlExceptionType.UniqueConstraintViolation:
         return new UniqueConstraintViolationException(message, exception);
       case SqlExceptionType.ReferentialContraintViolation:
         return new ReferentialContraintViolationException(message, exception);
       case SqlExceptionType.Deadlock:
         return new DeadlockException(message, exception);
-      case SqlExceptionType.VersionConflict:
-        return new VersionConflictException(message, exception);
+      case SqlExceptionType.SerializationFailure:
+        return new SerializationFailureException(message, exception);
       default:
         return new StorageException(message, exception);
       }

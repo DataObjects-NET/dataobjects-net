@@ -11,19 +11,16 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An exception that is thrown when unique constaint is violated,
-  /// this also denotes violation of a unique or primary index.
+  /// An exception that is thrown when a connection error occured.
   /// </summary>
   [Serializable]
-  public class UniqueConstraintViolationException : ConstraintViolationException
+  public class ConnectionErrorException : StorageException
   {
-    // Constructors
-
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="message">The message.</param>
-    public UniqueConstraintViolationException(string message)
+    /// <param name="message">The error message.</param>
+    public ConnectionErrorException(string message)
       : base(message)
     {
     }
@@ -31,9 +28,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="message">The message.</param>
+    /// <param name="message">The error message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public UniqueConstraintViolationException(string message, Exception innerException)
+    public ConnectionErrorException(string message, Exception innerException)
       : base(message, innerException)
     {
     }
@@ -41,9 +38,9 @@ namespace Xtensive.Storage
     // Serialization
 
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
-    protected UniqueConstraintViolationException(SerializationInfo info, StreamingContext context)
+    protected ConnectionErrorException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-    }    
+    } 
   }
 }

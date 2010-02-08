@@ -16,7 +16,7 @@ namespace Xtensive.Storage
   /// and reprocessing all actions in a new one.
   /// </summary>
   [Serializable]
-  public class ReprocessableStorageException : StorageException
+  public abstract class ReprocessableException : StorageException
   {
     // Constructors
 
@@ -24,7 +24,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="message">The message.</param>
-    public ReprocessableStorageException(string message)
+    public ReprocessableException(string message)
       : base(message)
     {
     }
@@ -34,7 +34,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public ReprocessableStorageException(string message, Exception innerException)
+    public ReprocessableException(string message, Exception innerException)
       : base(message, innerException)
     {
     }
@@ -42,7 +42,7 @@ namespace Xtensive.Storage
     // Serialization
 
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
-    protected ReprocessableStorageException(SerializationInfo info, StreamingContext context)
+    protected ReprocessableException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }    

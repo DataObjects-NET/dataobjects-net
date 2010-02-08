@@ -5,7 +5,6 @@
 // Created:    2010.02.08
 
 using System;
-using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -15,7 +14,7 @@ namespace Xtensive.Storage
   /// An exception that is thrown when deadlock is detected by RDBMS.
   /// </summary>
   [Serializable]
-  public class DeadlockException : ReprocessableStorageException
+  public class DeadlockException : ReprocessableException
   {
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

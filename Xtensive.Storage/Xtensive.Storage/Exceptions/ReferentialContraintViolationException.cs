@@ -18,7 +18,7 @@ namespace Xtensive.Storage
   /// mechanism detects a violation.
   /// </summary>
   [Serializable]
-  public class ReferentialContraintViolationException : StorageException
+  public class ReferentialContraintViolationException : ConstraintViolationException
   {
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

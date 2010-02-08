@@ -11,16 +11,19 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// An exception that is thrown when a connection timeout occured.
+  /// An exception that is thrown when RDBMS can not serialize concurrent access.
+  /// This exception is unrelated with .NET serialization.
   /// </summary>
   [Serializable]
-  public class ConnectionTimeoutException : StorageException
+  public class SerializationFailureException : ReprocessableException
   {
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="message">The error message.</param>
-    public ConnectionTimeoutException(string message)
+    /// <param name="message">The message.</param>
+    public SerializationFailureException(string message)
       : base(message)
     {
     }
@@ -28,9 +31,9 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="message">The error message.</param>
+    /// <param name="message">The message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public ConnectionTimeoutException(string message, Exception innerException)
+    public SerializationFailureException(string message, Exception innerException)
       : base(message, innerException)
     {
     }
@@ -38,9 +41,9 @@ namespace Xtensive.Storage
     // Serialization
 
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
-    protected ConnectionTimeoutException(SerializationInfo info, StreamingContext context)
+    protected SerializationFailureException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-    } 
+    }     
   }
 }

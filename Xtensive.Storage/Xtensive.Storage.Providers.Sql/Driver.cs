@@ -132,11 +132,13 @@ namespace Xtensive.Storage.Providers.Sql
 
     public Driver(Domain domain)
     {
-      isDebugLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       this.domain = domain;
+
       underlyingDriver = SqlDriver.Create(domain.Configuration.ConnectionInfo);
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
+
+      isDebugLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
     }
   }
 }
