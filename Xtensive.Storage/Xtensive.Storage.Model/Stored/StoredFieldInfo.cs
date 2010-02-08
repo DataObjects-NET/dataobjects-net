@@ -4,8 +4,11 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.22
 
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using System;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Model.Stored
 {
@@ -14,6 +17,8 @@ namespace Xtensive.Storage.Model.Stored
   /// </summary>
   public sealed class StoredFieldInfo : StoredNode
   {
+    private List<StoredFieldInfo> primitiveFields;
+
     /// <summary>
     /// <see cref="FieldInfo.DeclaringType"/>
     /// </summary>
@@ -46,6 +51,36 @@ namespace Xtensive.Storage.Model.Stored
     /// </summary>
     [XmlArray("Fields"), XmlArrayItem("Field")]
     public StoredFieldInfo[] Fields;
+
+    /// <summary>
+    /// Gets the primitive fields.
+    /// </summary>
+    public IEnumerable<StoredFieldInfo> PrimitiveFields
+    {
+      get
+      {
+        if (primitiveFields != null)
+          return primitiveFields;
+        var result = new List<StoredFieldInfo>();
+        if (IsPrimitive) {
+          result.Add(this);
+        }
+        else {
+          var queue = new Queue<StoredFieldInfo>();
+          queue.Enqueue(this);
+          while (queue.Count > 0) {
+            var field = queue.Dequeue();
+            if (field.IsPrimitive)
+              result.Add(field);
+            else
+              foreach (var child in field.Fields)
+                queue.Enqueue(child);
+          }
+        }
+        primitiveFields = result;
+        return result;
+      }
+    }
 
     /// <summary>
     /// <see cref="FieldInfo.Length"/>.

@@ -474,32 +474,34 @@ namespace Xtensive.Storage.Upgrade
     {
       var affectedColumns = new List<string>();
       var typeName = hint.Type;
-      var storedType = storedModel.Types.SingleOrDefault(type => 
-        type.UnderlyingType==typeName);
+      var storedType = storedModel.Types.SingleOrDefault(type => type.UnderlyingType==typeName);
       if (storedType==null)
         throw TypeIsNotFound(typeName);
       var storedField = storedType.AllFields
         .SingleOrDefault(field => field.Name==hint.Field);
       if (storedField==null)
         throw FieldIsNotFound(typeName, hint.Field);
-      var inheritanceSchema = storedType.Hierarchy.Schema;
-      
-      switch (inheritanceSchema) {
-      case InheritanceSchema.ClassTable:
-        affectedColumns.Add(GetColumnPath(storedField.DeclaringType.MappingName, storedField.MappingName));
-        break;
-      case InheritanceSchema.SingleTable:
-        affectedColumns.Add(GetColumnPath(storedType.Hierarchy.Root.MappingName, storedField.MappingName));
-        break;
-      case InheritanceSchema.ConcreteTable:
-        var typeToProcess = GetAffectedMappedTypes(storedType,
-          storedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable);
-        affectedColumns.AddRange(
-          typeToProcess.Select(type => GetColumnPath(type.MappingName, storedField.MappingName)));
-        break;
-      default:
-          throw Exceptions.InternalError(String.Format(
-            Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
+      foreach (var primitiveField in storedField.PrimitiveFields) {
+        var inheritanceSchema = storedType.Hierarchy.Schema;
+        switch (inheritanceSchema) {
+          case InheritanceSchema.ClassTable:
+            affectedColumns.Add(
+              GetColumnPath(primitiveField.DeclaringType.MappingName, primitiveField.MappingName));
+            break;
+          case InheritanceSchema.SingleTable:
+            affectedColumns.Add(
+              GetColumnPath(storedType.Hierarchy.Root.MappingName, primitiveField.MappingName));
+            break;
+          case InheritanceSchema.ConcreteTable:
+            var typeToProcess = GetAffectedMappedTypes(
+              storedType,
+              storedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable);
+            affectedColumns.AddRange(
+              typeToProcess.Select(type => GetColumnPath(type.MappingName, primitiveField.MappingName)));
+            break;
+          default:
+            throw Exceptions.InternalError(String.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
+        }
       }
       hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
     }

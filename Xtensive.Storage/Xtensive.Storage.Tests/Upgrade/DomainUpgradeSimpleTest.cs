@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public void UpgradeTest()
     {
-      BuildDomain("SimpleVersion2", DomainUpgradeMode.Perform);
+      BuildDomain("SimpleVersion2", DomainUpgradeMode.PerformSafely);
     }
 
     private void BuildDomain(string version, DomainUpgradeMode upgradeMode)

@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion2
     public int PassportNumber { get; set; }
 
     [Field]
-    public Address Address { get; set; }
+    public Address BusinessAddress { get; set; }
 
     [Field(Length = 24)]
     public string Phone { get; set; }
@@ -66,6 +66,9 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion2
   [Index("HireDate")]
   public class Employee : BusinessContact
   {
+    [Field]
+    public Address Address { get; set; }
+
     [Field]
     public DateTime? HireDate { get; set; }
 
@@ -104,9 +107,6 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion2
 
     [Field]
     public decimal? Freight { get; set; }
-
-    [Field]
-    public Address ShippingAddress { get; set; }
 
     [Field]
     public int Number { get; set; }

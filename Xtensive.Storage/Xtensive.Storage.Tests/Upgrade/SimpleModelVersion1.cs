@@ -59,6 +59,9 @@ namespace Xtensive.Storage.Tests.Upgrade.Model.SimpleVersion1
     public string FirstName { get; set; }
 
     [Field]
+    public Address HomeAddress { get; set; }
+
+    [Field]
     public DateTime? HireDate { get; set; }
 
     [Field]
