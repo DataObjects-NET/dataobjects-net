@@ -16,6 +16,8 @@ namespace Xtensive.Storage
   [Serializable]
   public class StorageException : Exception
   {
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>

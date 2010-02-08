@@ -51,18 +51,6 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Determines whether specified exception can be recovered by reprocessing operation.
-    /// </summary>
-    /// <param name="exceptionType">Type of the exception.</param>
-    /// <returns>
-    /// <see langword="true"/> if exception is recoverable; otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool IsReprocessable(this SqlExceptionType exceptionType)
-    {
-      return ((int) exceptionType) < 0;
-    }
-
-    /// <summary>
     /// Converts the specified <see cref="SqlType"/> to corresponding .NET type.
     /// </summary>
     /// <param name="type">The type to convert.</param>

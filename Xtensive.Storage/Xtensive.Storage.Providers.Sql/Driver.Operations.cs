@@ -186,18 +186,33 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private Exception TranslateException(string queryText, Exception exception)
+    private StorageException TranslateException(string queryText, Exception exception)
     {
       var exceptionType = underlyingDriver.GetExceptionType(exception);
       var originalMessage = exception.Message;
-      var errorText = string.IsNullOrEmpty(queryText)
+
+      var message = string.IsNullOrEmpty(queryText)
         ? string.Format(Strings.ExErrorXOriginalMessageY,
             exceptionType, originalMessage)
         : string.Format(Strings.ExErrorXWhileExecutingQueryYOriginalMessageZ,
             exceptionType, queryText, originalMessage);
-      return exceptionType.IsReprocessable()
-        ? new ReprocessableStorageException(errorText, exception)
-        : new StorageException(errorText, exception);
+
+      switch (exceptionType) {
+      case SqlExceptionType.ConnectionTimeout:
+        return new ConnectionTimeoutException(message, exception);
+      case SqlExceptionType.SyntaxError:
+        return new SyntaxErrorException(message, exception);
+      case SqlExceptionType.UniqueConstraintViolation:
+        return new UniqueConstraintViolationException(message, exception);
+      case SqlExceptionType.ReferentialContraintViolation:
+        return new ReferentialContraintViolationException(message, exception);
+      case SqlExceptionType.Deadlock:
+        return new DeadlockException(message, exception);
+      case SqlExceptionType.VersionConflict:
+        return new VersionConflictException(message, exception);
+      default:
+        return new StorageException(message, exception);
+      }
     }
   }
 }

@@ -1,8 +1,8 @@
-// Copyright (C) 2007 Xtensive LLC.
+// Copyright (C) 2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Dmitri Maximov
-// Created:    2007.09.18
+// Created by: Denis Krjuchkov
+// Created:    2010.02.08
 
 using System;
 using System.Runtime.Serialization;
@@ -11,19 +11,16 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Describes schema synchronization errors 
-  /// detected during <see cref="Domain"/>.<see cref="Domain.Build"/> execution.
+  /// An exception that is thrown when a connection timeout occured.
   /// </summary>
   [Serializable]
-  public class SchemaSynchronizationException : StorageException
+  public class ConnectionTimeoutException : StorageException
   {
-    // Constructors
-
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="message">The error message.</param>
-    public SchemaSynchronizationException(string message)
+    public ConnectionTimeoutException(string message)
       : base(message)
     {
     }
@@ -33,7 +30,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="message">The error message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public SchemaSynchronizationException(string message, Exception innerException)
+    public ConnectionTimeoutException(string message, Exception innerException)
       : base(message, innerException)
     {
     }
@@ -41,9 +38,9 @@ namespace Xtensive.Storage
     // Serialization
 
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
-    protected SchemaSynchronizationException(SerializationInfo info, StreamingContext context)
+    protected ConnectionTimeoutException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-    }
+    } 
   }
 }

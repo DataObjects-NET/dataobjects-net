@@ -4,18 +4,13 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.31
 
-using System.Configuration;
 using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Configuration;
 using NUnit.Framework;
 using System;
 using Xtensive.Core.Disposing;
-using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
-using SqlSessionHandler = Xtensive.Storage.Providers.Sql.SessionHandler;
-using IndexSessionHandler = Xtensive.Storage.Providers.Index.SessionHandler;
 
 namespace Xtensive.Storage.Tests
 {

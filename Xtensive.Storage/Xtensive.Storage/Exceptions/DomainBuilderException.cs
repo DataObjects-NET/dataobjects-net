@@ -5,6 +5,7 @@
 // Created:    2007.09.18
 
 using System;
+using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage
@@ -13,7 +14,7 @@ namespace Xtensive.Storage
   /// Describes various errors detected during <see cref="Domain"/>.<see cref="Domain.Build"/> execution.
   /// </summary>
   [Serializable]
-  public class DomainBuilderException: StorageException
+  public class DomainBuilderException : StorageException
   {
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
@@ -31,6 +32,14 @@ namespace Xtensive.Storage
     /// <param name="innerException">The inner exception.</param>
     public DomainBuilderException(string message, Exception innerException)
       : base(message, innerException)
+    {
+    }
+
+    // Serialization
+
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    protected DomainBuilderException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
     {
     }
   }

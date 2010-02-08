@@ -14,33 +14,36 @@ namespace Xtensive.Sql
     /// <summary>
     /// Reason of exception is unknown.
     /// </summary>
-    Unknown = 0,
+    Unknown,
 
     /// <summary>
     /// Connection timeout.
     /// </summary>
-    ConnectionTimeout = 1,
+    ConnectionTimeout,
 
     /// <summary>
     /// Syntax error in query.
     /// </summary>
-    SyntaxError = 2,
+    SyntaxError,
 
     /// <summary>
-    /// Constraint violation detected.
+    /// Unique constraint violation (also denotes unique index key duplication).
     /// </summary>
-    ConstraintViolation = 3,
-
-    // NOTE: all recoverable exceptions should have negative values.
-    
-    /// <summary>
-    /// Deadlock detected.
-    /// </summary>
-    Deadlock = -1,
+    UniqueConstraintViolation,
 
     /// <summary>
-    /// Version conflict detected.
+    /// Referential constraint (aka foreign key) violation.
     /// </summary>
-    VersionConflict = -2,
+    ReferentialContraintViolation,
+
+    /// <summary>
+    /// Deadlock.
+    /// </summary>
+    Deadlock,
+
+    /// <summary>
+    /// Version conflict.
+    /// </summary>
+    VersionConflict,
   }
 }

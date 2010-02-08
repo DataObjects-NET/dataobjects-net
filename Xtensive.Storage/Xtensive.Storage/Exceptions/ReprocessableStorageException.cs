@@ -5,6 +5,7 @@
 // Created:    2009.08.17
 
 using System;
+using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage
@@ -17,6 +18,8 @@ namespace Xtensive.Storage
   [Serializable]
   public class ReprocessableStorageException : StorageException
   {
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
@@ -35,5 +38,13 @@ namespace Xtensive.Storage
       : base(message, innerException)
     {
     }
+
+    // Serialization
+
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    protected ReprocessableStorageException(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+    }    
   }
 }

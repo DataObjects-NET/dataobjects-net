@@ -18,7 +18,7 @@ namespace Xtensive.Storage
   /// option pointing to it.
   /// </summary>
   [Serializable]
-  public class ReferentialIntegrityException: StorageException
+  public class ReferentialIntegrityException : StorageException
   {
     /// <summary>
     /// Gets the association.
