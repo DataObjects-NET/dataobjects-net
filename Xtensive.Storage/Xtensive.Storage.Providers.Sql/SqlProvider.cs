@@ -13,6 +13,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse.Providers;
+using System;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -48,7 +49,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
-      var executor = handlers.SessionHandler.GetService<IQueryExecutor>();
+      var executor = handlers.SessionHandler.GetService<IQueryExecutor>(true);
       var enumerator = executor.ExecuteTupleReader(Request);
       using (enumerator) {
         while (enumerator.MoveNext()) {

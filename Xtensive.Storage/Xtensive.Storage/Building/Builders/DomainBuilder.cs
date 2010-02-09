@@ -5,6 +5,7 @@
 // Created:    2007.08.03
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using Xtensive.Core;
@@ -16,6 +17,7 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Upgrade;
@@ -57,6 +59,7 @@ namespace Xtensive.Storage.Building.Builders
           CreateNameBuilder();
           CreateServices();
           BuildModel();
+          CreateKeyGenerators();
 
           using (Session.Open(context.Domain, SessionType.System)) {
             context.SystemSessionHandler = Session.Demand().Handler;
@@ -64,7 +67,6 @@ namespace Xtensive.Storage.Building.Builders
               upgradeContext.TransactionScope = Transaction.Open();
               SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
               context.Domain.Handler.BuildMapping();
-              CreateGenerators();
               TypeIdBuilder.BuildTypeIds();
               if (builderConfiguration.UpgradeHandler!=null)
                 builderConfiguration.UpgradeHandler.Invoke();
@@ -82,8 +84,8 @@ namespace Xtensive.Storage.Building.Builders
     private static void CreateDomain()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
-        var domain = new Domain(BuildingContext.Current.Configuration);
-        BuildingContext.Current.Domain = domain;
+        var domain = new Domain(BuildingContext.Demand().Configuration);
+        BuildingContext.Demand().Domain = domain;
       }
     }
 
@@ -91,7 +93,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void CreateHandlerFactory()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
-        string protocol = BuildingContext.Current.Configuration.ConnectionInfo.Protocol;
+        string protocol = BuildingContext.Demand().Configuration.ConnectionInfo.Protocol;
         var thisAssembly = typeof (DomainBuilder).Assembly;
         Assembly providerAssembly;
         if (thisAssembly.GetName().Name==WellKnown.MergedAssemblyName) {
@@ -113,9 +115,9 @@ namespace Xtensive.Storage.Building.Builders
             string.Format(Strings.ExStorageProviderNotFound, protocol));
 
         var handlerFactory = (HandlerFactory) Activator.CreateInstance(handlerProviderType);
-        handlerFactory.Domain = BuildingContext.Current.Domain;
+        handlerFactory.Domain = BuildingContext.Demand().Domain;
         handlerFactory.Initialize();
-        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
+        var handlerAccessor = BuildingContext.Demand().Domain.Handlers;
         handlerAccessor.HandlerFactory = handlerFactory;
       }
     }
@@ -139,7 +141,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void CreateDomainHandler()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
-        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
+        var handlerAccessor = BuildingContext.Demand().Domain.Handlers;
         handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
         handlerAccessor.DomainHandler.Initialize();
       }
@@ -148,23 +150,47 @@ namespace Xtensive.Storage.Building.Builders
     private static void CreateNameBuilder()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (NameBuilder).GetShortName())) {
-        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
+        var handlerAccessor = BuildingContext.Demand().Domain.Handlers;
         handlerAccessor.NameBuilder = handlerAccessor.HandlerFactory.CreateHandler<NameBuilder>();
         handlerAccessor.NameBuilder.Initialize(handlerAccessor.Domain.Configuration.NamingConvention);
       }
     }
 
+    internal static IEnumerable<ServiceRegistration> CreateServiceRegistrations(
+      DomainConfiguration configuration)
+    {
+      return from type in configuration.Types.DomainServices
+      from registration in ServiceRegistration.CreateAll(type)
+      select registration;
+    }
+
+    internal static IEnumerable<ServiceRegistration> CreateKeyGeneratorRegistrations(
+      DomainConfiguration configuration)
+    {
+      var keyGeneratorRegistrations = (
+        from type in configuration.Types.KeyGenerators
+        from registration in ServiceRegistration.CreateAll(type)
+        select registration
+        ).ToList();
+      var defaultKeyGeneratorRegistrations = (
+        from type in KeyGenerator.SupportedKeyFieldTypes
+        let registration = new ServiceRegistration(typeof (KeyGenerator), type.GetShortName(),
+          typeof(CachingKeyGenerator<>).MakeGenericType(type), true)
+        where !keyGeneratorRegistrations.Any(r => r.Type==registration.Type && r.Name==registration.Name)
+        select registration
+        ).ToList();
+      return keyGeneratorRegistrations.Concat(defaultKeyGeneratorRegistrations);
+    }
+
     private static void CreateServices()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (IServiceContainer).GetShortName())) {
-        var domain = BuildingContext.Current.Domain;
+        var domain = BuildingContext.Demand().Domain;
         var configuration = domain.Configuration;
         var serviceContainerType = configuration.ServiceContainerType ?? typeof (ServiceContainer);
         domain.Services =
           ServiceContainer.Create(typeof (ServiceContainer),
-            from type in configuration.Types.DomainServices
-            from registration in ServiceRegistration.CreateAll(type)
-            select registration,
+            CreateServiceRegistrations(configuration).Concat(CreateKeyGeneratorRegistrations(configuration)),
             ServiceContainer.Create(serviceContainerType, domain.Handler.CreateBaseServices()));
       }
     }
@@ -173,40 +199,28 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
         ModelBuilder.Run();
-        var domain = BuildingContext.Current.Domain;
-        domain.Model = BuildingContext.Current.Model;
+        var context = BuildingContext.Demand();
+        var domain = context.Domain;
+        domain.Model = context.Model;
       }
     }
 
-    private static void CreateGenerators()
+    private static void CreateKeyGenerators()
     {
-      using (Log.InfoRegion(Strings.LogCreatingX, Strings.Generators)) {
-        var handlerAccessor = BuildingContext.Current.Domain.Handlers;
-        var keyGenerators = BuildingContext.Current.Domain.KeyGenerators;
-        var localKeyGenerators = BuildingContext.Current.Domain.LocalKeyGenerators;
-        var generatorFactory = handlerAccessor.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
-        var localGeneratorFactory = new LocalKeyGeneratorFactory();
-        foreach (var keyProviderInfo in BuildingContext.Current.Model.KeyProviders) {
-          KeyGenerator keyGenerator;
-          if (keyProviderInfo.KeyGeneratorType==null)
-            continue;
-          if (keyProviderInfo.KeyGeneratorType == typeof(KeyGenerator)) {
-            keyGenerator = generatorFactory.CreateGenerator(keyProviderInfo);
-            // In addition, we create local key generator here
-            // TODO: Refactor this code
-            var localKeyGenerator = localGeneratorFactory.CreateGenerator(keyProviderInfo);
-            localKeyGenerator.Handlers = handlerAccessor;
-            localKeyGenerator.Initialize();
-            localKeyGenerators.Register(keyProviderInfo, keyGenerator);
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
+        var context = BuildingContext.Demand();
+        var domain = context.Domain;
+        foreach (var keyProviderInfo in domain.Model.KeyProviders) {
+          KeyGenerator generator = null;
+          if (keyProviderInfo.KeyGeneratorType!=null) {
+            generator = (KeyGenerator) domain.Services.Demand(
+              keyProviderInfo.KeyGeneratorType, keyProviderInfo.KeyGeneratorName);
+            if (!generator.IsInitialized) {
+              generator.Initialize(domain.Handlers, keyProviderInfo);
+            }
           }
-          else
-            keyGenerator = (KeyGenerator)Activator.CreateInstance(keyProviderInfo.KeyGeneratorType, new object[] { keyProviderInfo });
-          keyGenerator.Handlers = handlerAccessor;
-          keyGenerator.Initialize();
-          keyGenerators.Register(keyProviderInfo, keyGenerator);
+          domain.KeyGenerators.Add(keyProviderInfo, generator);
         }
-        keyGenerators.Lock();
-        localKeyGenerators.Lock();
       }
     }
 
@@ -215,7 +229,7 @@ namespace Xtensive.Storage.Building.Builders
     /// <exception cref="ArgumentOutOfRangeException"><c>schemaUpgradeMode</c> is out of range.</exception>
     private static void SynchronizeSchema(SchemaUpgradeMode schemaUpgradeMode)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var domain = context.Domain;
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
         var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();

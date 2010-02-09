@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
@@ -95,12 +94,12 @@ namespace Xtensive.Storage.Building
     public SessionHandler SystemSessionHandler { get; internal set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="Storage.Domain"/> model definition.
+    /// Gets the <see cref="Storage.Domain"/> model definition.
     /// </summary>
     public DomainModelDef ModelDef { get; internal set; }
 
     /// <summary>
-    /// Gets the model.
+    /// Gets domain  model.
     /// </summary>
     public DomainModel Model { get; internal set; }
 

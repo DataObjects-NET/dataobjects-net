@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Providers
   /// A handler used by <see cref="DirectSqlAccessor"/>.
   /// If implemented by provider
   /// </summary>
-  public interface IDirectSqlHandler
+  public interface IDirectSqlService
   {
     /// <summary>
     /// Gets the underlying connection that is currently in use.

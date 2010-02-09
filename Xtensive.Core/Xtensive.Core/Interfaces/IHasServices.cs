@@ -15,6 +15,7 @@ namespace Xtensive.Core
   {
     /// <summary>
     /// Gets the service of the specified type <typeparamref name="T"/>.
+    /// Returns <see langword="null" />, if there is no such service.
     /// </summary>
     /// <typeparam name="T">The type of the service to get.</typeparam>
     /// <returns>The service of specified type.</returns>

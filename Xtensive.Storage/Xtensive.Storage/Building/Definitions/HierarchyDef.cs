@@ -14,8 +14,7 @@ namespace Xtensive.Storage.Building.Definitions
   [Serializable]
   public sealed class HierarchyDef : Node
   {
-    private Type keyGenerator;
-    private int? keyGeneratorCacheSize;
+    private Type keyGeneratorType;
 
     /// <summary>
     /// Gets the root of the hierarchy.
@@ -23,61 +22,49 @@ namespace Xtensive.Storage.Building.Definitions
     public TypeDef Root { get; internal set; }
 
     /// <summary>
-    /// Gets the fields that are included in the key for this hierarchy.
-    /// </summary>
-    public List<KeyField> KeyFields { get; private set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether key should include TypeId field.
-    /// </summary>
-    /// <value>
-    /// <see langword="true"/> if TypeId field should be included into key; otherwise, <see langword="false"/>.
-    /// </value>
-    public bool IncludeTypeId { get; set; }
-
-    /// <summary>
     /// Gets the <see cref="InheritanceSchema"/> for this hierarchy.
     /// </summary>
     public InheritanceSchema Schema { get; set; }
 
     /// <summary>
-    /// Gets or sets the size of the key generator cache.
+    /// Gets the fields that are included in the key for this hierarchy.
     /// </summary>
-    public int? KeyGeneratorCacheSize
+    public List<KeyField> KeyFields { get; private set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether key includes TypeId field.
+    /// </summary>
+    public bool IncludeTypeId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the key generator type to use in this hierarchy.
+    /// </summary>
+    public Type KeyGeneratorType
     {
-      get { return keyGeneratorCacheSize; }
-      set
-      {
-        if (value.HasValue)
-          ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, -1, "KeyGeneratorCacheSize");
-        keyGeneratorCacheSize = value;
+      get { return keyGeneratorType; }
+      set {
+        if (value != null)
+          Validator.ValidateKeyGeneratorType(value);
+
+        keyGeneratorType = value;
+        if (keyGeneratorType == null)
+          KeyGeneratorName = null;
       }
     }
 
     /// <summary>
-    /// Gets or sets the type instance of which is responsible for key generation.
+    /// Gets or sets the key generator name to use in this hierarchy.
     /// </summary>
-    public Type KeyGenerator
-    {
-      get { return keyGenerator; }
-      set
-      {
-        if (value != null)
-          Validator.ValidateKeyGeneratorType(value);
+    public string KeyGeneratorName { get; set; }
 
-        keyGenerator = value;
 
-        // Syncs keyGeneratorCacheSize with the presence of generator type.
-        if (keyGenerator == null)
-          keyGeneratorCacheSize = null;
-      }
-    }
+    // Constructors
 
     internal HierarchyDef(TypeDef root)
     {
       Root = root;
       KeyFields = new List<KeyField>(WellKnown.MaxKeyFieldNumber);
-      KeyGenerator = typeof (KeyGenerator);
+      keyGeneratorType = typeof (KeyGenerator);
     }
   }
 }

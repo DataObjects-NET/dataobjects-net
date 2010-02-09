@@ -54,7 +54,8 @@ namespace Xtensive.Storage.Model
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">The name of this instance.</param>
-    protected MappingNode(string name) : base(name)
+    protected MappingNode(string name) 
+      : base(name)
     {
     }
   }

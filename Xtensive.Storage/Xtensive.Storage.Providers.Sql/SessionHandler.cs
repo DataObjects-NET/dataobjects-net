@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
+using Xtensive.Core.Collections;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
 using Xtensive.Sql;
@@ -18,11 +18,13 @@ namespace Xtensive.Storage.Providers.Sql
   /// <summary>
   /// <see cref="Session"/>-level handler for SQL storages.
   /// </summary>
-  public class SessionHandler : Providers.SessionHandler,
-    IQueryExecutor
+  public partial class SessionHandler : Providers.SessionHandler,
+    IQueryExecutor,
+    IDirectSqlService,
+    ICachingKeyGeneratorService
   {
-    private static readonly IEnumerable<ServiceRegistration> baseServiceRegistrations = 
-      ServiceRegistration.CreateAll(typeof(DirectSqlHandler));
+    private static readonly IEnumerable<ServiceRegistration> baseServiceRegistrations =
+      EnumerableUtils<ServiceRegistration>.Empty;
 
     private Driver driver;
     private DomainHandler domainHandler;
@@ -139,82 +141,6 @@ namespace Xtensive.Storage.Providers.Sql
 
     #endregion
     
-    #region IQueryExecutor members
-
-    /// <inheritdoc/>
-    public IEnumerator<Tuple> ExecuteTupleReader(QueryRequest request)
-    {
-      lock (connectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        var enumerator = commandProcessor.ExecuteRequestsWithReader(request);
-        using (enumerator) {
-          while (enumerator.MoveNext())
-            yield return enumerator.Current;
-        }
-      }
-    }
-
-    /// <inheritdoc/>
-    public int ExecuteNonQuery(ISqlCompileUnit statement)
-    {
-      lock (connectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        using (var command = connection.CreateCommand(statement))
-          return driver.ExecuteNonQuery(Session, command);
-      }
-    }
-
-    /// <inheritdoc/>
-    public object ExecuteScalar(ISqlCompileUnit statement)
-    {
-      lock (connectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        using (var command = connection.CreateCommand(statement))
-          return driver.ExecuteScalar(Session, command);
-      }
-    }
-
-    /// <inheritdoc/>
-    public int ExecuteNonQuery(string commandText)
-    {
-      lock (connectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        using (var command = connection.CreateCommand(commandText))
-          return driver.ExecuteNonQuery(Session, command);
-      }
-    }
-
-    /// <inheritdoc/>
-    public object ExecuteScalar(string commandText)
-    {
-      lock (connectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        using (var command = connection.CreateCommand(commandText))
-          return driver.ExecuteScalar(Session, command);
-      }
-    }
-    
-    public void Store(TemporaryTableDescriptor descriptor, IEnumerable<Tuple> tuples)
-    {
-      lock (connectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        foreach (var tuple in tuples)
-          commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-        commandProcessor.ExecuteRequests();
-      }
-    }
-
-    public void Clear(TemporaryTableDescriptor descriptor)
-    {
-      lock (connectionSyncRoot) {
-        EnsureConnectionIsOpen();
-        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
-        commandProcessor.ExecuteRequests();
-      }
-    }
-
-    #endregion
-
     #region Insert, Update, Delete
 
     /// <inheritdoc/>

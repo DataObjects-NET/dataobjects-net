@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Building
   {
     public static void Run()
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
 
       using (Log.InfoRegion(Strings.LogProcessingFixupActions))
         while (context.ModelInspectionResult.Actions.Count > 0) {
@@ -58,14 +58,14 @@ namespace Xtensive.Storage.Building
 
     public static void Process(RemoveTypeAction action)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       context.DependencyGraph.RemoveNode(action.Type);
       context.ModelDef.Types.Remove(action.Type);
     }
 
     public static void Process(BuildGenericTypeInstancesAction action)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
 
       // Making a copy of already built hierarchy set to avoid recursiveness
       var hierarchies = context.ModelDef.Hierarchies
@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Building
         i.KeyFields[0].Key==action.Field.Name;
       if (type.Indexes.Any(predicate))
         return;
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var queue = new Queue<TypeDef>();
       var interfaces = new HashSet<TypeDef>();
       queue.Enqueue(type);
@@ -183,7 +183,7 @@ namespace Xtensive.Storage.Building
           type.Indexes.Remove(primaryIndex);
 
       var generatedIndex = new IndexDef {IsPrimary = true};
-      generatedIndex.Name = BuildingContext.Current.NameBuilder.BuildIndexName(type, generatedIndex);
+      generatedIndex.Name = BuildingContext.Demand().NameBuilder.BuildIndexName(type, generatedIndex);
 
       TypeDef hierarchyRoot;
       if (type.IsInterface) {
@@ -193,7 +193,7 @@ namespace Xtensive.Storage.Building
       else
         hierarchyRoot = type;
 
-      var hierarchyDef = BuildingContext.Current.ModelDef.FindHierarchy(hierarchyRoot);
+      var hierarchyDef = BuildingContext.Demand().ModelDef.FindHierarchy(hierarchyRoot);
 
       foreach (KeyField pair in hierarchyDef.KeyFields)
         generatedIndex.KeyFields.Add(pair.Name, pair.Direction);
@@ -255,7 +255,7 @@ namespace Xtensive.Storage.Building
 
     public static void Process(BuildImplementorListAction action)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
 
       var node = context.DependencyGraph.TryGetNode(action.Type);
       node.Value.Implementors.AddRange(node.IncomingEdges.Where(e => e.Kind==EdgeKind.Implementation).Select(e => e.Tail.Value));

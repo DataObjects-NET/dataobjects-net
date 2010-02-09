@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Services
   public sealed class DirectSqlAccessor : SessionBound,
     ISessionService
   {
-    private IDirectSqlHandler handler;
+    private IDirectSqlService service;
 
     /// <summary>
     /// Gets a value indicating whether direct SQL capabilities are available.
@@ -32,38 +32,38 @@ namespace Xtensive.Storage.Services
     /// </summary>
     public bool IsAvailable {
       get {
-        return handler!=null;
+        return service!=null;
       }
     }
 
-    /// <see cref="IDirectSqlHandler.Connection" copy="true" />
+    /// <see cref="IDirectSqlService.Connection" copy="true" />
     public DbConnection Connection {
       get {
         EnsureIsAvailable();
-        return handler.Connection;
+        return service.Connection;
       }
     }
 
-    /// <see cref="IDirectSqlHandler.Transaction" copy="true" />
+    /// <see cref="IDirectSqlService.Transaction" copy="true" />
     public DbTransaction Transaction {
       get {
         EnsureIsAvailable();
-        return handler.Transaction;
+        return service.Transaction;
       }
     }
 
-    /// <see cref="IDirectSqlHandler.CreateCommand" copy="true" />
+    /// <see cref="IDirectSqlService.CreateCommand" copy="true" />
     public DbCommand CreateCommand()
     {
       EnsureIsAvailable();
-      return handler.CreateCommand();
+      return service.CreateCommand();
     }
 
     /// <exception cref="NotSupportedException">Underlying storage provider 
     /// does not support SQL.</exception>
     private void EnsureIsAvailable()
     {
-      if (handler==null)
+      if (service==null)
         throw new NotSupportedException(Strings.ExUnderlyingStorageProviderDoesNotSupportSQL);
     }
 
@@ -74,12 +74,11 @@ namespace Xtensive.Storage.Services
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="session">The session this instance is bound to.</param>
-    /// <param name="handler">The underlying <see cref="IDirectSqlHandler"/> to use.</param>
     [ServiceConstructor]
-    public DirectSqlAccessor(Session session, IDirectSqlHandler handler)
+    public DirectSqlAccessor(Session session)
       : base(session)
     {
-      this.handler = handler;
+      service = session.Services.Demand<SessionHandler>().GetService<IDirectSqlService>();
     }
   }
 }

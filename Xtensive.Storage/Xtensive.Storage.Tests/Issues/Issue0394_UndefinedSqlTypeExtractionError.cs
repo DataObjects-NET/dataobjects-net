@@ -9,6 +9,7 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers.Sql;
 using Xtensive.Storage.Tests.ObjectModel.Northwind;
 using System.Linq;
+using System;
 
 namespace Xtensive.Storage.Tests.Issues
 {
@@ -37,7 +38,8 @@ namespace Xtensive.Storage.Tests.Issues
           var createTableCommandText = "CREATE TABLE " + 
             domainHandler.Schema.Name + ".[TestTable] ([TestColumn] [money])";
           var sessionHandler = (SessionHandler) session.Handler;
-          sessionHandler.ExecuteNonQuery(createTableCommandText);
+          var queryExecutor = sessionHandler.GetService<IQueryExecutor>(true);
+          queryExecutor.ExecuteNonQuery(createTableCommandText);
           transactionScope.Complete();
         }
       }

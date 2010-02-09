@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Building.Builders
       if (type.IsStructure)
         return;
 
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var root = type.Hierarchy.Root;
 

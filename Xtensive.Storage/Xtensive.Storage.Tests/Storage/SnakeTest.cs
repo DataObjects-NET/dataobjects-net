@@ -50,7 +50,6 @@ namespace Xtensive.Storage.Tests.Storage.SnakesModel
   [Index("Name")]
   [Index("Name", "AlsoKnownAs")]
   [HierarchyRoot]
-  [KeyGenerator(CacheSize = 16)]
   public class Creature : Entity,
     ICreature
   {

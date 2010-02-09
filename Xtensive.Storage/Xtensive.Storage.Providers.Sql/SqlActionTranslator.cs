@@ -44,6 +44,7 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly List<string> enforceChangedColumns = new List<string>();
     private readonly Func<ISqlCompileUnit, object> scalarExecutor;
     private readonly Func<ISqlCompileUnit, int> nonQueryExecutor;
+    private readonly Func<ProviderInfo, Schema, string, ISqlCompileUnit> getNextImplementationHandler;
 
     private readonly ActionSequence actions;
     private readonly Schema schema;
@@ -580,8 +581,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (IsSequencesAllowed) {
         var sequence = schema.CreateSequence(sequenceInfo.Name);
         sequence.SequenceDescriptor = new SequenceDescriptor(sequence,
-          sequenceInfo.StartValue, sequenceInfo.Increment);
-        sequence.SequenceDescriptor.MinValue = sequenceInfo.StartValue;
+          sequenceInfo.Seed, sequenceInfo.Increment);
+        sequence.SequenceDescriptor.MinValue = sequenceInfo.Seed;
         sequence.DataType = GetSqlType(sequenceInfo.OriginalType);
         RegisterCommand(SqlDdl.Create(sequence), NonTransactionalStage.None);
         createdSequences.Add(sequence);
@@ -901,7 +902,7 @@ namespace Xtensive.Storage.Providers.Sql
       idColumn.SequenceDescriptor =
         new SequenceDescriptor(
           idColumn,
-          sequenceInfo.Current ?? sequenceInfo.StartValue,
+          sequenceInfo.Current ?? sequenceInfo.Seed,
           sequenceInfo.Increment);
       sequenceTable.CreatePrimaryKey(string.Format("PK_{0}", sequenceInfo.Name), idColumn);
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
@@ -1085,8 +1086,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     private long? GetCurrentSequenceValue(string sequenceInfoName)
     {
-      var script = KeyGeneratorFactory.GetNextValueStatement(providerInfo, schema, sequenceInfoName);
-
+      var script = getNextImplementationHandler.Invoke(providerInfo, schema, sequenceInfoName);
+      
       if (providerInfo.Supports(ProviderFeatures.Sequences))
         return Convert.ToInt64(scalarExecutor.Invoke(script));
 
@@ -1116,10 +1117,18 @@ namespace Xtensive.Storage.Providers.Sql
     /// <param name="typeIdColumnName">Name of the type id column.</param>
     /// <param name="enforceChangedColumns">Columns thats types must be changed 
     /// enforced (without type conversion verification).</param>
-    public SqlActionTranslator(ActionSequence actions, Schema schema, 
-      StorageInfo sourceModel, StorageInfo targetModel, 
-      ProviderInfo providerInfo, Driver driver, string typeIdColumnName, 
-      List<string> enforceChangedColumns, Func<ISqlCompileUnit, object> scalarExecutor, Func<ISqlCompileUnit, int> nonQueryExecutor)
+    public SqlActionTranslator(
+      ActionSequence actions, 
+      Schema schema, 
+      StorageInfo sourceModel, 
+      StorageInfo targetModel, 
+      ProviderInfo providerInfo, 
+      Driver driver, 
+      string typeIdColumnName, 
+      List<string> enforceChangedColumns, 
+      Func<ISqlCompileUnit, object> scalarExecutor, 
+      Func<ISqlCompileUnit, int> nonQueryExecutor,
+      Func<ProviderInfo, Schema, string, ISqlCompileUnit> getNextImplementationHandler)
     {
       
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
@@ -1128,6 +1137,9 @@ namespace Xtensive.Storage.Providers.Sql
       ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeIdColumnName, "typeIdColumnName");
+      ArgumentValidator.EnsureArgumentNotNull(scalarExecutor, "scalarExecutor");
+      ArgumentValidator.EnsureArgumentNotNull(nonQueryExecutor, "nonQueryExecutor");
+      ArgumentValidator.EnsureArgumentNotNull(getNextImplementationHandler, "getNextImplementationHandler");
       
       this.typeIdColumnName = typeIdColumnName;
       this.providerInfo = providerInfo;
@@ -1139,6 +1151,7 @@ namespace Xtensive.Storage.Providers.Sql
       this.enforceChangedColumns = enforceChangedColumns;
       this.scalarExecutor = scalarExecutor;
       this.nonQueryExecutor = nonQueryExecutor;
+      this.getNextImplementationHandler = getNextImplementationHandler;
     }
   }
 }

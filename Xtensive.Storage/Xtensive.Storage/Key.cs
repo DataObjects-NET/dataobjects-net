@@ -241,7 +241,7 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(Strings.ExInvalidKeyString);
 
       var type = domain.Model.Types[System.Type.GetType(typeName, true)];
-      var keyTupleDescriptor = type.KeyProviderInfo.TupleDescriptor;
+      var keyTupleDescriptor = type.KeyProviderInfo.KeyTupleDescriptor;
 
       return Create(domain, type, TypeReferenceAccuracy.BaseType, keyTupleDescriptor.Parse(valueString));
     }

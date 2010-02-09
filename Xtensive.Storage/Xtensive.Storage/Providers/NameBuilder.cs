@@ -10,7 +10,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building;
@@ -18,7 +17,6 @@ using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using System.Linq;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Providers
 {
@@ -70,7 +68,7 @@ namespace Xtensive.Storage.Providers
         Type[] arguments = type.UnderlyingType.GetGenericArguments();
         var names = new string[arguments.Length];
         if (!type.UnderlyingType.IsGenericTypeDefinition) {
-          var context = BuildingContext.Current;
+          var context = BuildingContext.Demand();
           for (int i = 0; i < arguments.Length; i++) {
             var argument = arguments[i];
             if (argument.IsSubclassOf(typeof (Persistent))) {
@@ -409,8 +407,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="providerInfo">The <see cref="providerInfo"/> instance to build name for.</param>
     public string BuildGeneratorName(KeyProviderInfo providerInfo)
     {
-      return ApplyNamingRules(string.Format(GeneratorPattern,
-        providerInfo.TupleDescriptor.Select(t => t.GetShortName()).ToDelimitedString("-")));
+      return ApplyNamingRules(string.Format(GeneratorPattern, providerInfo.KeyGeneratorName));
     }
 
     /// <summary>

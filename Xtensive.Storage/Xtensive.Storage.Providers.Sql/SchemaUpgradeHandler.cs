@@ -27,13 +27,15 @@ namespace Xtensive.Storage.Providers.Sql
   public class SchemaUpgradeHandler : Providers.SchemaUpgradeHandler
   {
     private DomainHandler DomainHandler { get { return (DomainHandler) Handlers.DomainHandler; } }
-    private SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Current.SystemSessionHandler; } }
+    private SessionHandler SessionHandler { get { return (SessionHandler) BuildingContext.Demand().SystemSessionHandler; } }
     private SqlConnection Connection { get { return ((SessionHandler) Handlers.SessionHandler).Connection; } }
     private Driver Driver { get { return DomainHandler.Driver; } }
 
     /// <inheritdoc/>
     public override void UpgradeSchema(ActionSequence upgradeActions, StorageInfo sourceSchema, StorageInfo targetSchema)
     {
+      var queryExecutor = SessionHandler.GetService<IQueryExecutor>(true);
+
       var enforceChangedColumns = UpgradeContext.Demand().Hints
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
@@ -44,7 +46,9 @@ namespace Xtensive.Storage.Providers.Sql
         sourceSchema, targetSchema, DomainHandler.ProviderInfo, Driver,
         Handlers.NameBuilder.TypeIdColumnName,
         enforceChangedColumns,
-        SessionHandler.ExecuteScalar, SessionHandler.ExecuteNonQuery);
+        queryExecutor.ExecuteScalar, 
+        queryExecutor.ExecuteNonQuery,
+        SessionHandler.GetNextImplementation);
 
       translator.Translate();
 

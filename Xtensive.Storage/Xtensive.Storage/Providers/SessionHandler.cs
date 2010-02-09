@@ -59,15 +59,6 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Gets the key generator.
-    /// </summary>
-    /// <param name="keyProviderInfo">The key provider info.</param>
-    public virtual KeyGenerator GetKeyGenerator(KeyProviderInfo keyProviderInfo)
-    {
-      return null;
-    }
-
-    /// <summary>
     /// Creates enumeration context.
     /// </summary>
     /// <returns>Created context.</returns>
@@ -126,6 +117,7 @@ namespace Xtensive.Storage.Providers
     {
       var registrations = new List<ServiceRegistration>{
         new ServiceRegistration(typeof (Session), Session),
+        new ServiceRegistration(typeof (SessionConfiguration), Session.Configuration),
         new ServiceRegistration(typeof (SessionHandler), this),
       };
       AddBaseServiceRegistrations(registrations);
@@ -152,9 +144,6 @@ namespace Xtensive.Storage.Providers
       where T : class
     {
       var result = this as T;
-      if (result==null)
-        throw new InvalidOperationException(
-          string.Format(Strings.ExServiceXIsNotSupported, typeof (T).GetFullName()));
       return result;
     }
 

@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building.Definitions;
@@ -27,7 +26,7 @@ namespace Xtensive.Storage.Building.Builders
     public static TypeInfo BuildType(TypeDef typeDef)
     {
       Log.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.GetShortName());
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
 
       var typeInfo = new TypeInfo(context.Model, typeDef.Attributes) {
         UnderlyingType = typeDef.UnderlyingType,
@@ -59,7 +58,7 @@ namespace Xtensive.Storage.Building.Builders
         // Is type a hierarchy root?
         if (typeInfo.UnderlyingType==hierarchyDef.Root.UnderlyingType) {
           foreach (var keyField in hierarchyDef.KeyFields) {
-            var fieldInfo = BuildDeclaredField(BuildingContext.Current, typeInfo, typeDef.Fields[keyField.Name]);
+            var fieldInfo = BuildDeclaredField(BuildingContext.Demand(), typeInfo, typeDef.Fields[keyField.Name]);
             fieldInfo.IsPrimaryKey = true;
           }
           typeInfo.Hierarchy = BuildHierarchy(context, typeInfo, hierarchyDef);
@@ -80,7 +79,7 @@ namespace Xtensive.Storage.Building.Builders
       else if (typeDef.IsInterface) {
         var hierarchyDef = context.ModelDef.FindHierarchy(typeDef.Implementors[0]);
         foreach (var keyField in hierarchyDef.KeyFields) {
-          var fieldInfo = BuildDeclaredField(BuildingContext.Current, typeInfo, typeDef.Fields[keyField.Name]);
+          var fieldInfo = BuildDeclaredField(BuildingContext.Demand(), typeInfo, typeDef.Fields[keyField.Name]);
           fieldInfo.IsPrimaryKey = true;
         }
       }
@@ -95,7 +94,7 @@ namespace Xtensive.Storage.Building.Builders
     /// <param name="typeInfo">The corresponding <see cref="TypeInfo"/> instance.</param>
     public static void BuildFields(TypeDef typeDef, TypeInfo typeInfo)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
 
       if (typeInfo.IsInterface) {
         var sourceFields = typeInfo.GetInterfaces()
@@ -317,29 +316,46 @@ namespace Xtensive.Storage.Building.Builders
           .Where(f => f.IsPrimaryKey && f.Column != null)
           .Select(f => f.Column)
           .ToList();
-      var descriptor = TupleDescriptor.Create(keyColumns.Select(c => c.ValueType));
-      var keyProviderInfo = context.Model.KeyProviders
-        .SingleOrDefault(kp => 
-          kp.KeyGeneratorType != null && 
-          kp.KeyGeneratorType == hierarchyDef.KeyGenerator && 
-          kp.TupleDescriptor == descriptor);
-      if (keyProviderInfo == null) {
-        var typeIdColumnIndex = -1;
-        if (hierarchyDef.IncludeTypeId)
-          for (int i = 0; i < keyColumns.Count; i++)
-            if (keyColumns[i].Field.IsTypeId)
-              typeIdColumnIndex = i;
-        var keyGeneratorType = hierarchyDef.KeyGenerator;
-        var cacheSize = hierarchyDef.KeyGeneratorCacheSize.HasValue && hierarchyDef.KeyGeneratorCacheSize > 0
-          ? hierarchyDef.KeyGeneratorCacheSize.Value
-          : context.Configuration.KeyGeneratorCacheSize;
+      var keyTupleDescriptor = TupleDescriptor.Create(keyColumns.Select(c => c.ValueType));
 
-        keyProviderInfo = new KeyProviderInfo(descriptor, keyGeneratorType, typeIdColumnIndex, cacheSize);
-        keyProviderInfo.Name = root.Name;
-        if (keyProviderInfo.KeyGeneratorType==typeof (KeyGenerator))
-          keyProviderInfo.MappingName = context.NameBuilder.BuildGeneratorName(keyProviderInfo);
-        context.Model.KeyProviders.Add(keyProviderInfo);
+      var typeIdColumnIndex = -1;
+      if (hierarchyDef.IncludeTypeId)
+        for (int i = 0; i < keyColumns.Count; i++)
+          if (keyColumns[i].Field.IsTypeId)
+            typeIdColumnIndex = i;
+
+      var generatorName = BuildGeneratorName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex);
+      var keyProviderInfo = new KeyProviderInfo(
+        hierarchyDef.KeyGeneratorType, 
+        generatorName, 
+        keyTupleDescriptor, typeIdColumnIndex) {
+        Name = root.Name
+      };
+      keyProviderInfo.MappingName = context.NameBuilder.BuildGeneratorName(keyProviderInfo);
+
+      var keyGenerator = (KeyGenerator) context.BuilderConfiguration.Services.Get(
+        hierarchyDef.KeyGeneratorType, generatorName);
+      if (keyGenerator!=null) {
+        var sequenceIncrement = keyGenerator.SequenceIncrement;
+        if (sequenceIncrement.HasValue) {
+          keyProviderInfo.SequenceInfo = new SequenceInfo(generatorName) {
+            MappingName = keyProviderInfo.MappingName,
+            Seed = sequenceIncrement.Value,
+            Increment = sequenceIncrement.Value
+          };
+        }
       }
+
+      // Trying to find an existing KeyProviderInfo (i.e. the same)
+      var existingKeyProviderInfo = context.Model.KeyProviders
+        .SingleOrDefault(kp => 
+          kp.KeyGeneratorType == keyProviderInfo.KeyGeneratorType && 
+          kp.KeyGeneratorName == keyProviderInfo.KeyGeneratorName && 
+          kp.KeyTupleDescriptor == keyTupleDescriptor);
+      if (existingKeyProviderInfo!=null)
+        keyProviderInfo = existingKeyProviderInfo;
+      else
+        context.Model.KeyProviders.Add(keyProviderInfo);
 
       var schema = hierarchyDef.Schema;
 
@@ -360,6 +376,23 @@ namespace Xtensive.Storage.Building.Builders
       };
       context.Model.Hierarchies.Add(hierarchy);
       return hierarchy;
+    }
+
+    private static string BuildGeneratorName(HierarchyDef hierarchyDef, TupleDescriptor keyTupleDescriptor, int typeIdColumnIndex)
+    {
+      if (!hierarchyDef.KeyGeneratorName.IsNullOrEmpty())
+        return hierarchyDef.KeyGeneratorName;
+      else {
+        if (hierarchyDef.KeyGeneratorType==null || hierarchyDef.KeyGeneratorType==typeof (KeyGenerator))
+          return keyTupleDescriptor
+            .Where((type, index) => index!=typeIdColumnIndex)
+            .Select(type => type.GetShortName())
+            .ToDelimitedString("-");
+        else
+          throw new DomainBuilderException(
+            String.Format(Strings.ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet, 
+            hierarchyDef.Root.UnderlyingType.GetShortName()));
+      }
     }
 
     #endregion

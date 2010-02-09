@@ -40,23 +40,25 @@ namespace Xtensive.Storage.Serialization
       if (IsInitialized(entity))
         return;
 
-      Session session = Session.Demand();
-      TypeInfo entityType = session.Domain.Model.Types[entity.GetType()];
-      KeyGenerator generator = null;
-      if (entityType.KeyProviderInfo.KeyGeneratorType != null)
-        generator = session.Domain.KeyGenerators[entityType.KeyProviderInfo];
-      
-      Tuple keyValue = generator!=null ? 
-        generator.Next() : DeserializeKeyFields(entityType, info, context);
+      var session = Session.Demand();
+      var entityType = session.Domain.Model.Types[entity.GetType()];
+      var generator = session.Domain.KeyGenerators[entityType.KeyProviderInfo];
 
-      Key key = Key.Create(session.Domain, entityType, TypeReferenceAccuracy.ExactType, keyValue);
+      bool useGenerator = generator!=null;
+      var keyValue = useGenerator 
+        ? generator.DemandNext(false) 
+        : DeserializeKeyFields(entityType, info, context);
+      var key = Key.Create(session.Domain, entityType, TypeReferenceAccuracy.ExactType, keyValue);
+
+//      if (useGenerator)
+//        session.NotifyKeyGenerated(key);
       entity.State = session.CreateEntityState(key);
       entity.SystemBeforeInitialize(false);
     }
 
     public static Tuple DeserializeKeyFields(TypeInfo entityType, SerializationInfo info, StreamingContext context)
     {
-      var keyTuple = Tuple.Create(entityType.Hierarchy.KeyProviderInfo.TupleDescriptor);
+      var keyTuple = Tuple.Create(entityType.Hierarchy.KeyProviderInfo.KeyTupleDescriptor);
       foreach (FieldInfo keyField in entityType.Fields.Where(f => f.IsPrimaryKey && f.Parent == null)) {
         if (keyField.IsTypeId)
           keyTuple.SetValue(keyField.MappingInfo.Offset, entityType.TypeId);

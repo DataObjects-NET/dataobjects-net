@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Linq
       if (type.IsSubclassOf(typeof (Entity))) {
         TypeInfo typeInfo = model.Types[type];
         KeyProviderInfo keyProviderInfo = typeInfo.KeyProviderInfo;
-        TupleDescriptor keyTupleDescriptor = keyProviderInfo.TupleDescriptor;
+        TupleDescriptor keyTupleDescriptor = keyProviderInfo.KeyTupleDescriptor;
         EntityExpression entityExpression = EntityExpression.Create(typeInfo, index, true);
         index += keyTupleDescriptor.Count;
         types = types.Concat(keyTupleDescriptor);

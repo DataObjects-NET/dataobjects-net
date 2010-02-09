@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Aspects
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
+    // [DebuggerStepThrough]
     public override object OnEntry(object instance)
     {
       var sessionBound = (ISessionBound) instance;
@@ -111,7 +111,7 @@ namespace Xtensive.Storage.Aspects
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
+    // [DebuggerStepThrough]
     public override void OnSuccess(object instance, object onEntryResult)
     {
       if (!openTransaction)
@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Aspects
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
+    // [DebuggerStepThrough]
     public override void OnExit(object instance, object onEntryResult)
     {
       var disposable = (IDisposable) onEntryResult;

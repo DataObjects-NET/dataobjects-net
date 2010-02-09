@@ -30,19 +30,19 @@ namespace Xtensive.Storage.Building
 
     private static void InspectHierarchies()
     {
-      foreach (var hierarchy in BuildingContext.Current.ModelDef.Hierarchies)
+      foreach (var hierarchy in BuildingContext.Demand().ModelDef.Hierarchies)
         Inspect(hierarchy);
     }
 
     private static void InspectTypes()
     {
-      foreach (var typeDef in BuildingContext.Current.ModelDef.Types)
+      foreach (var typeDef in BuildingContext.Demand().ModelDef.Types)
         Inspect(typeDef);
     }
 
     private static void InspectInterfaces()
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
 
       foreach (var interfaceDef in context.ModelDef.Types.Where(t => t.IsInterface)) {
 
@@ -157,7 +157,7 @@ namespace Xtensive.Storage.Building
 
     public static void Inspect(HierarchyDef hierarchyDef)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var root = hierarchyDef.Root;
       Log.Info(Strings.LogInspectingHierarchyX, root.Name);
       Validator.ValidateHierarchy(hierarchyDef);
@@ -188,7 +188,7 @@ namespace Xtensive.Storage.Building
 
     public static void Inspect(TypeDef typeDef)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       Log.Info(Strings.LogInspectingTypeX, typeDef.Name);
 
       if (typeDef.IsInterface) {
@@ -262,7 +262,7 @@ namespace Xtensive.Storage.Building
 
     private static void InspectField(TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
 //      if (fieldDef.UnderlyingProperty != null &&
 //        fieldDef.UnderlyingProperty.DeclaringType.Assembly == Assembly.GetExecutingAssembly())
 //        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemAction(typeDef, fieldDef));
@@ -309,7 +309,7 @@ namespace Xtensive.Storage.Building
 
     private static TypeDef GetTypeDef(Type type)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var result = context.ModelDef.Types.TryGetValue(type);
       if (result!=null)
         return result;

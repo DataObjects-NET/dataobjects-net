@@ -13,13 +13,23 @@ namespace Xtensive.Storage.Model
   [Serializable]
   public sealed class KeyProviderInfo : MappingNode
   {
+    private SequenceInfo sequenceInfo;
+
     /// <summary>
-    /// Gets the length of the key.
+    /// Gets the key generator type.
     /// </summary>
-    public int Length
-    {
-      get { return TupleDescriptor.Count; }
-    }
+    public Type KeyGeneratorType { get; private set; }
+
+    /// <summary>
+    /// Gets the key generator name.
+    /// </summary>
+    public string KeyGeneratorName { get; private set; }
+
+    /// <summary>
+    /// Gets the tuple descriptor of the key.
+    /// </summary>
+    /// <value></value>
+    public TupleDescriptor KeyTupleDescriptor { get; private set; }
 
     /// <summary>
     /// Gets the index of the column related to field with <see cref="FieldInfo.IsTypeId"/>==<see langword="true" />.
@@ -28,20 +38,35 @@ namespace Xtensive.Storage.Model
     public int TypeIdColumnIndex { get; private set; }
 
     /// <summary>
-    /// Gets the tuple descriptor of the key.
+    /// Gets the information on associated sequence.
     /// </summary>
-    /// <value></value>
-    public TupleDescriptor TupleDescriptor { get; private set; }
+    public SequenceInfo SequenceInfo {
+      get { return sequenceInfo; }
+      set {
+        this.EnsureNotLocked();
+        sequenceInfo = value;
+      }
+    }
 
-    /// <summary>
-    /// Gets or sets the size of the generator cache.
-    /// </summary>
-    public int CacheSize { get; private set; }
-
-    /// <summary>
-    /// Gets the type instance of which is responsible for key generation.
-    /// </summary>
-    public Type KeyGeneratorType { get; private set; }
+    /// <inheritdoc/>
+    public override void UpdateState(bool recursive)
+    {
+      base.UpdateState(recursive);
+      if (!recursive)
+        return;
+      if (SequenceInfo!=null)
+        SequenceInfo.UpdateState(true);
+    }
+ 
+    /// <inheritdoc/>
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      if (!recursive)
+        return;
+      if (SequenceInfo!=null)
+        SequenceInfo.Lock(true);
+    }
 
 
     // Constructors
@@ -49,12 +74,16 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public KeyProviderInfo(TupleDescriptor tupleDescriptor, Type keyGeneratorType, int typeIdColumnIndex, int cacheSize)
+    /// <param name="keyGeneratorType">Type of the key generator.</param>
+    /// <param name="keyGeneratorName">Name of the key generator (<see langword="null" /> means unnamed).</param>
+    /// <param name="keyTupleDescriptor">Key tuple descriptor.</param>
+    /// <param name="typeIdColumnIndex">Index of the type id column.</param>
+    public KeyProviderInfo(Type keyGeneratorType, string keyGeneratorName,  TupleDescriptor keyTupleDescriptor, int typeIdColumnIndex)
     {
-      TupleDescriptor = tupleDescriptor;
       KeyGeneratorType = keyGeneratorType;
+      KeyGeneratorName = keyGeneratorName;
+      KeyTupleDescriptor = keyTupleDescriptor;
       TypeIdColumnIndex = typeIdColumnIndex;
-      CacheSize = cacheSize;
     }
   }
 }

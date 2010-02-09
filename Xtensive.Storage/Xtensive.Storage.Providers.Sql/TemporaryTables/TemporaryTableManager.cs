@@ -120,7 +120,8 @@ namespace Xtensive.Storage.Providers.Sql
       }
       bool isLocked;
       if (!registry.States.TryGetValue(name, out isLocked))
-        Handlers.SessionHandler.GetService<IQueryExecutor>().ExecuteNonQuery(descriptor.CreateStatement);
+        Handlers.SessionHandler.GetService<IQueryExecutor>(true)
+          .ExecuteNonQuery(descriptor.CreateStatement);
       else if (isLocked)
         throw new InvalidOperationException(string.Format(Strings.ExTemporaryTableXIsLocked, name));
       registry.States[name] = true;

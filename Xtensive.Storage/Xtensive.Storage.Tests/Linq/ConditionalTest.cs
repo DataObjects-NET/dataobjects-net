@@ -14,7 +14,7 @@ using System.Linq;
 namespace Xtensive.Storage.Tests.Linq.ConditionalTestModel
 {
   [Serializable]
-  [KeyGenerator(typeof(DualIntKeyGenerator))]
+  [KeyGenerator(typeof(DualIntKeyGenerator), Name = "DualInt")]
   [HierarchyRoot]
   public class Root1 : Entity
   {
@@ -65,6 +65,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (Root1).Assembly, typeof (Root1).Namespace);
+      config.Types.Register(typeof (DualIntKeyGenerator));
       return config;
     }
 

@@ -642,8 +642,8 @@ namespace Xtensive.Storage
       var field = ((Pair<object, FieldInfo>) pair).Second;
       var entitySet = (EntitySetBase) entitySetObj;
       var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => keyParameter.Value);
-      var ownerDescriptor = field.Association.OwnerType.KeyProviderInfo.TupleDescriptor;
-      var targetDescriptor = field.Association.TargetType.KeyProviderInfo.TupleDescriptor;
+      var ownerDescriptor = field.Association.OwnerType.KeyProviderInfo.KeyTupleDescriptor;
+      var targetDescriptor = field.Association.TargetType.KeyProviderInfo.KeyTupleDescriptor;
 
       var itemColumnOffsets = field.Association.AuxiliaryType == null
         ? field.Association.UnderlyingIndex.ValueColumns
@@ -714,8 +714,8 @@ namespace Xtensive.Storage
         var itemType =  Field.ItemType.GetTypeInfo(Session.Domain);
         auxilaryTypeKeyTransform = new CombineTransform(
           false, 
-          owner.Type.KeyProviderInfo.TupleDescriptor, 
-          itemType.KeyProviderInfo.TupleDescriptor);
+          owner.Type.KeyProviderInfo.KeyTupleDescriptor, 
+          itemType.KeyProviderInfo.KeyTupleDescriptor);
       }
       Initialize(typeof (EntitySetBase));
     }

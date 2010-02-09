@@ -25,7 +25,6 @@ namespace Xtensive.Storage.Providers
     public StorageInfo GetTargetSchema()
     {
       var buildingContext = BuildingContext.Demand();
-      var generatorFactory = Handlers.HandlerFactory.CreateHandler<KeyGeneratorFactory>();
       var domainHandler = Handlers.DomainHandler;
 
       var buildForeignKeys =
@@ -37,9 +36,10 @@ namespace Xtensive.Storage.Providers
       var providerInfo = domainHandler.ProviderInfo;
 
       var domainModelConverter = new DomainModelConverter(
-        buildForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
-        buildHierarchyForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName,
-         generatorFactory.IsSchemaBoundGenerator, providerInfo, CreateTypeInfo);
+        providerInfo, 
+        buildForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName, 
+        buildHierarchyForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName, 
+        CreateTypeInfo);
 
       return domainModelConverter.Convert(buildingContext.Model);
     }

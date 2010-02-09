@@ -103,7 +103,7 @@ namespace Xtensive.Storage.Providers
           var targetIndex = association.TargetType.Indexes.PrimaryIndex;
           recordSet = targetIndex.ToRecordSet()
             .Filter(QueryHelper.BuildFilterLambda(0,
-              association.TargetType.KeyProviderInfo.TupleDescriptor,
+              association.TargetType.KeyProviderInfo.KeyTupleDescriptor,
               parameter))
             .Alias("a")
             .Join(
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Providers
           recordSet = targetIndex.ToRecordSet()
             .Filter(QueryHelper.BuildFilterLambda(
               referencingField.MappingInfo.Offset,
-              referencingType.KeyProviderInfo.TupleDescriptor,
+              referencingType.KeyProviderInfo.KeyTupleDescriptor,
               parameter))
             .Alias("a")
             .Join(

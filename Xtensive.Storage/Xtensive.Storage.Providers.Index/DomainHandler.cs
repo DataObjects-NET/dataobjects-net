@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
     public override void BuildMapping()
     {
-      var model = BuildingContext.Current.Model;
+      var model = BuildingContext.Demand().Model;
 
       // Build index transforms
       foreach (var type in model.Types) {
@@ -197,7 +197,7 @@ namespace Xtensive.Storage.Providers.Index
     public override void Initialize()
     {
       base.Initialize();
-      var connectionInfo = BuildingContext.Current.Configuration.ConnectionInfo;
+      var connectionInfo = BuildingContext.Demand().Configuration.ConnectionInfo;
       var remoteUrl = connectionInfo.ToString(); // TODO: Fix this
       IndexStorage storage;
       if (!TryGetRemoteStorage(remoteUrl, out storage)) {

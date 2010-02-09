@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Building.Builders
     public static void Process(TypeDef type, SystemTypeAttribute attribute)
     {
         type.Attributes |= TypeAttributes.System;
-        BuildingContext.Current.SystemTypeIds[type.UnderlyingType] = attribute.TypeId;
+        BuildingContext.Demand().SystemTypeIds[type.UnderlyingType] = attribute.TypeId;
     }
 
     public static void Process(HierarchyDef hierarchyDef, HierarchyRootAttribute attribute)
@@ -69,9 +69,9 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(HierarchyDef hierarchy, KeyGeneratorAttribute attribute)
     {
-      hierarchy.KeyGenerator = attribute.Type;
-      if (attribute.cacheSize.HasValue)
-        hierarchy.KeyGeneratorCacheSize = attribute.CacheSize;
+      hierarchy.KeyGeneratorType = attribute.Type;
+      if (!attribute.Name.IsNullOrEmpty())
+        hierarchy.KeyGeneratorName = attribute.Name;
     }
 
     public static void Process(FieldDef fieldDef, FieldAttribute attribute)
@@ -207,7 +207,7 @@ namespace Xtensive.Storage.Building.Builders
       if (mappingName.IsNullOrEmpty())
         return;
 
-      mappingName = BuildingContext.Current.NameBuilder.ApplyNamingRules(mappingName);
+      mappingName = BuildingContext.Demand().NameBuilder.ApplyNamingRules(mappingName);
 
       Validator.ValidateName(mappingName, rule);
 

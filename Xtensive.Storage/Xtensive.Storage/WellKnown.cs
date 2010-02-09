@@ -5,10 +5,15 @@
 // Created:    2009.04.21
 
 using System;
+using System.Collections.Generic;
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Metadata;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse.Providers.Compilable;
+using Type=System.Type;
+using System.Linq;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage
 {
@@ -84,6 +89,67 @@ namespace Xtensive.Storage
     /// Number of items that are preloaded on first <see cref="EntitySet{TItem}"/> access.
     /// </summary>
     public const int EntitySetPreloadCount = 32;
+
+    /// <summary>
+    /// Gets a read-only hash set containing all supported integer types.
+    /// </summary>
+    public static readonly ReadOnlyHashSet<Type> SupportedIntegerTypes = 
+      new ReadOnlyHashSet<Type>(
+        new HashSet<Type>{
+          typeof(sbyte),
+          typeof(byte),
+          typeof(short),
+          typeof(ushort),
+          typeof(int),
+          typeof(uint),
+          typeof(long),
+          typeof(ulong),
+          }
+        );
+
+    /// <summary>
+    /// Gets a read-only hash set containing all supported numeric types.
+    /// </summary>
+    public static readonly ReadOnlyHashSet<Type> SupportedNumericTypes = 
+      new ReadOnlyHashSet<Type>(
+        new [] {
+          typeof(decimal),
+          typeof(double),
+          typeof(float),
+          }.Concat(SupportedIntegerTypes).ToHashSet()
+        );
+
+    /// <summary>
+    /// Gets a read-only hash set containing all supported primitive types.
+    /// </summary>
+    public static readonly ReadOnlyHashSet<Type> SupportedPrimitiveTypes = 
+      new ReadOnlyHashSet<Type>(
+        new [] {
+          typeof(string),
+          typeof(Guid),
+          typeof(DateTime),
+          typeof(TimeSpan),
+          typeof(byte[]),
+          }.Concat(SupportedNumericTypes).ToHashSet()
+        );
+
+    /// <summary>
+    /// Gets a read-only hash set containing all supported nullable types.
+    /// </summary>
+    public static readonly ReadOnlyHashSet<Type> SupportedNullableTypes = 
+      new ReadOnlyHashSet<Type>(
+        SupportedPrimitiveTypes.Select(type => type.ToNullable())
+        .ToHashSet()
+      );
+
+    /// <summary>
+    /// Gets a read-only hash set containing all supported primitive and nullable types.
+    /// </summary>
+    public static readonly ReadOnlyHashSet<Type> SupportedPrimitiveAndNullableTypes = 
+      new ReadOnlyHashSet<Type>(
+        SupportedPrimitiveTypes.Union(SupportedNullableTypes)
+        .ToHashSet()
+      );
 
     /// <summary>
     /// Well-known storage provider assembly names.

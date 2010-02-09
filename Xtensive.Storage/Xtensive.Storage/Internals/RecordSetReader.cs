@@ -157,7 +157,8 @@ namespace Xtensive.Storage.Internals
           }
 
           // Building keyMap
-          var keyMap = Enumerable.Repeat(MapTransform.NoMapping, type.KeyProviderInfo.Length).ToArray();
+          var keyMap = Enumerable.Repeat(MapTransform.NoMapping, 
+            type.KeyProviderInfo.KeyTupleDescriptor.Count).ToArray();
           foreach (var pair in keyMapping) {
             var childTypeField = type.IsInterface
               ? childType.FieldMap[pair.First]
@@ -165,7 +166,7 @@ namespace Xtensive.Storage.Internals
             keyMap[childTypeField.MappingInfo.Offset] = pair.Second.Index;
           }
           var typeMapping = new TypeMapping(childType,
-            new MapTransform(true, childType.KeyProviderInfo.TupleDescriptor, keyMap),
+            new MapTransform(true, childType.KeyProviderInfo.KeyTupleDescriptor, keyMap),
             new MapTransform(true, childType.TupleDescriptor, typeMap));
           typeMappings.Add(childType.TypeId, typeMapping);
         }

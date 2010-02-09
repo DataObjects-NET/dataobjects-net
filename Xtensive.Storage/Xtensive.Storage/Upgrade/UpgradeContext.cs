@@ -5,7 +5,6 @@
 // Created:    2008.12.30
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -16,7 +15,9 @@ using Xtensive.Core.Sorting;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Reflection;
@@ -158,11 +159,16 @@ namespace Xtensive.Storage.Upgrade
         from type in OriginalConfiguration.Types.Modules
         select new ServiceRegistration(typeof (IModule), type, false)
         ).ToList();
+      var keyGeneratorRegistrations = DomainBuilder.CreateKeyGeneratorRegistrations(OriginalConfiguration);
+
       var allRegistrations = 
-        handlerRegistrations.Concat(moduleRegistrations);
+        handlerRegistrations
+        .Concat(moduleRegistrations)
+        .Concat(keyGeneratorRegistrations);
 
       var baseServices = new ServiceContainer(new List<ServiceRegistration>{
         new ServiceRegistration(typeof (UpgradeContext), this),
+        new ServiceRegistration(typeof (DomainConfiguration), OriginalConfiguration),
       });
 
       var serviceContainerType = OriginalConfiguration.ServiceContainerType ?? typeof (ServiceContainer);

@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Building.Builders
   {
     public static void BuildFullTextIndexes()
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var modelDef = context.ModelDef;
       var model = context.Model;
       var indexLookup = modelDef.FullTextIndexes.ToLookup(fi => model.Types[fi.Type.UnderlyingType].Hierarchy);
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildFullTextIndexesClassTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var model = context.Model;
       var indexDefs = GatherFullTextIndexDefinitons(root, hierarchyIndexes);
 
@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildFullTextIndexesSingleTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var model = context.Model;
       var primaryIndex = root.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
       var name = context.NameBuilder.BuildFullTextIndexName(root);
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildFullTextIndexesConcreteTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var model = context.Model;
       var indexDefs = GatherFullTextIndexDefinitons(root, hierarchyIndexes);
 
@@ -117,7 +117,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static Dictionary<TypeInfo, List<FullTextIndexDef>> GatherFullTextIndexDefinitons(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var model = context.Model;
       var processQueue = new Queue<TypeInfo>();
       foreach (var type in root.GetDescendants())

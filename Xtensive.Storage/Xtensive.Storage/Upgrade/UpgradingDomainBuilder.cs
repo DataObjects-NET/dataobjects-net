@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Upgrade
     private static DomainBuilderConfiguration CreateBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)
     {
       var context = UpgradeContext.Current;
-      return new DomainBuilderConfiguration(schemaUpgradeMode, context.Modules) {
+      return new DomainBuilderConfiguration(schemaUpgradeMode, context.Modules, context.Services) {
         TypeFilter = type => {
           var assembly = type.Assembly;
           var handlers = context.UpgradeHandlers;

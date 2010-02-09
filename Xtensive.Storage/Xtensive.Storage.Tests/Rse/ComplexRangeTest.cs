@@ -23,7 +23,6 @@ namespace Xtensive.Storage.Tests.Rse.AnimalModel
 {
   [Serializable]
   [DebuggerDisplay("Name = '{Name}'")]
-  [KeyGenerator(CacheSize = 16)]
   [HierarchyRoot]
   [Index("Name")]
   public class Animal : Entity

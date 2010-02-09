@@ -11,6 +11,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Building;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Compilation;
 
@@ -119,6 +120,7 @@ namespace Xtensive.Storage.Providers
     {
       var registrations = new List<ServiceRegistration>{
         new ServiceRegistration(typeof (Domain), Domain),
+        new ServiceRegistration(typeof (DomainConfiguration), Domain.Configuration),
         new ServiceRegistration(typeof (HandlerAccessor), Handlers),
         new ServiceRegistration(typeof (DomainHandler), this),
       };
@@ -198,7 +200,7 @@ namespace Xtensive.Storage.Providers
     /// <inheritdoc/>
     public override void Initialize()
     {
-      Domain = BuildingContext.Current.Domain;
+      Domain = BuildingContext.Demand().Domain;
       ProviderInfo = CreateProviderInfo();
       BuildMemberCompilerProviders();
       BuildCompilationContext();

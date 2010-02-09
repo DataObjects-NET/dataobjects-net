@@ -233,7 +233,7 @@ namespace Xtensive.Storage.Providers.Sql
       var type = ExtractType(idColumn);
       var sequence =
         new SequenceInfo(StorageInfo, generatorTable.Name) {
-          StartValue = startValue ?? 0,
+          Seed = startValue ?? 0,
           Increment = increment ?? 1,
           Type = type,
         };

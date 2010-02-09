@@ -16,12 +16,9 @@ namespace Xtensive.Storage
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
   public sealed class KeyGeneratorAttribute : StorageAttribute
   {
-    internal int? cacheSize;
-
     /// <summary>
     /// Gets the key generator type.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Value is not inherited from <see cref="KeyGenerator"/> type.</exception>
     public Type Type { get; private set; }
 
     /// <summary>
@@ -30,22 +27,18 @@ namespace Xtensive.Storage
     public KeyGeneratorKind Kind {
       get {
         var type = Type;
-        if (type==null) 
+        if (type==null && Name.IsNullOrEmpty()) 
           return KeyGeneratorKind.None;
-        if (type==typeof(KeyGeneratorKind))
+        if (type==typeof(KeyGeneratorKind) && Name.IsNullOrEmpty())
           return KeyGeneratorKind.Default;
         return KeyGeneratorKind.Custom;
       }
     }
 
     /// <summary>
-    /// Gets or sets the size of the key generator cache.
+    /// Gets or sets the name of the key generator.
     /// </summary>
-    public int CacheSize
-    {
-      get { return cacheSize.HasValue ? cacheSize.Value : 0; }
-      set { cacheSize = value; }
-    }
+    public string Name { get; set; }
 
 
     // Constructors

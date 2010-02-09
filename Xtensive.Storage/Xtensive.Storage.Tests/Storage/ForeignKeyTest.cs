@@ -6,13 +6,14 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Storage.ForeignKeys
 {
   [Serializable]
-  [KeyGenerator(typeof(DualIntKeyGenerator))]
+  [KeyGenerator(typeof(DualIntKeyGenerator), Name = "DualInt")]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -37,7 +38,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
   }
 
   [Serializable]
-  [KeyGenerator(typeof(DualIntKeyGenerator))]
+  [KeyGenerator(typeof(DualIntKeyGenerator), Name = "DualInt")]
   [HierarchyRoot]
   public class Company : Entity
   {
@@ -55,7 +56,7 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
   }
 
   [Serializable]
-  [KeyGenerator(typeof(DualIntKeyGenerator))]
+  [KeyGenerator(typeof(DualIntKeyGenerator), Name = "DualInt")]
   [HierarchyRoot]
   public class Project : Entity
   {
@@ -79,18 +80,14 @@ namespace Xtensive.Storage.Tests.Storage.ForeignKeys
     public string Country { get; set; }
   }
 
-  public class DualIntKeyGenerator : KeyGenerator
+  [Service(typeof(DualIntKeyGenerator), "DualInt")]
+  public class DualIntKeyGenerator : KeyGenerator<int>
   {
     private int seed = 1;
 
-    public DualIntKeyGenerator(KeyProviderInfo keyProviderInfo)
-      : base(keyProviderInfo)
+    public override Tuple Next(bool temporaryKey)
     {
-    }
-
-    public override Tuple Next()
-    {
-      return Tuple.Create(KeyProviderInfo.TupleDescriptor, seed++, seed++);
+      return Tuple.Create(KeyProviderInfo.KeyTupleDescriptor, seed++, seed++);
     }
   }
 

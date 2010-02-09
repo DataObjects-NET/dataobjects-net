@@ -6,15 +6,27 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core.IoC;
 using Xtensive.Storage.Configuration;
-using Xtensive.Core.Collections;
 
-namespace Xtensive.Storage.Manual.Legacy.ProxyKeyGenerator
+namespace Xtensive.Storage.Manual.Legacy.CustomKeyGenerators
 {
   #region Model
 
+  [Service(typeof(KeyGenerator), Name="Author")]
+  [Service(typeof(KeyGenerator), Name="Book")]
+  public class CustomInt32KeyGenerator : CachingKeyGenerator<int>
+  {
+    [ServiceConstructor]
+    public CustomInt32KeyGenerator(DomainConfiguration configuration)
+      : base(configuration)
+    {
+    }
+  }
+
   [Serializable]
   [HierarchyRoot]
+  [KeyGenerator(Name = "Author")]
   public class Author : Entity
   {
     [Key, Field]
@@ -45,7 +57,7 @@ namespace Xtensive.Storage.Manual.Legacy.ProxyKeyGenerator
 
   [Serializable]
   [HierarchyRoot]
-  [KeyGenerator(typeof(ProxyKeyGenerator<Book, Author>))]
+  [KeyGenerator(Name = "Book")]
   public class Book : Entity
   {
     [Key, Field]
@@ -79,7 +91,7 @@ namespace Xtensive.Storage.Manual.Legacy.ProxyKeyGenerator
   #endregion
 
   [TestFixture]
-  public class ProxyKeyGeneratorTest
+  public class CustomKeyGeneratorsTest
   {
     [Test]
     public void CombinedTest()

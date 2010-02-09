@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.12.03
 
+using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Indexing;
@@ -23,7 +24,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     public IUniqueOrderedIndex<Tuple, Tuple> GetIndex(IndexInfo indexInfo)
     {
-      return handlers.SessionHandler.GetService<IIndexResolver>().GetIndex(indexInfo);
+      return handlers.SessionHandler.GetService<IIndexResolver>(true).GetIndex(indexInfo);
     }
 
     /// <summary>

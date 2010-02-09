@@ -23,22 +23,16 @@ namespace Xtensive.Storage.Internals
     {
       if (!typeInfo.IsEntity)
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
-
-      bool notifyLocalKeyCreated = false;
-      KeyGenerator keyGenerator = null;
       var session = Session.Current;
-      if (session != null) {
-        keyGenerator = session.Handler.GetKeyGenerator(typeInfo.KeyProviderInfo);
-        if (keyGenerator != null)
-          notifyLocalKeyCreated = true;
-      }
+
+      var keyGenerator = domain.KeyGenerators[typeInfo.KeyProviderInfo];
       if (keyGenerator == null)
-        keyGenerator = domain.KeyGenerators[typeInfo.KeyProviderInfo];
-      if (keyGenerator == null)
-        throw new InvalidOperationException(String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
-      var keyValue = keyGenerator.Next();
+        throw new InvalidOperationException(String.Format(
+          Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
+      var keyValue = keyGenerator.DemandNext(false);
       var key = Materialize(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
-      if (notifyLocalKeyCreated)
+      
+      if (session!=null)
         session.NotifyKeyGenerated(key);
       return key;
     }
@@ -48,7 +42,7 @@ namespace Xtensive.Storage.Internals
       var hierarchy = type.Hierarchy;
       var keyInfo = type.KeyProviderInfo;
       if (keyIndexes==null) {
-        if (value.Descriptor!=keyInfo.TupleDescriptor)
+        if (value.Descriptor!=keyInfo.KeyTupleDescriptor)
           throw new ArgumentException(Strings.ExWrongKeyStructure);
         if (accuracy == TypeReferenceAccuracy.ExactType) {
           int typeIdColumnIndex = keyInfo.TypeIdColumnIndex;
@@ -63,7 +57,7 @@ namespace Xtensive.Storage.Internals
       }
 
       Key key;
-      var isGenericKey = keyInfo.Length <= WellKnown.MaxGenericKeyLength;
+      var isGenericKey = keyInfo.KeyTupleDescriptor.Count <= WellKnown.MaxGenericKeyLength;
       if (isGenericKey)
         key = CreateGenericKey(domain, type, accuracy, value, keyIndexes);
       else {
@@ -89,9 +83,9 @@ namespace Xtensive.Storage.Internals
     public static Key Materialize(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
       var keyInfo = type.KeyProviderInfo;
-      ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
+      ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.KeyTupleDescriptor.Count, "values");
 
-      var tuple = Tuple.Create(keyInfo.TupleDescriptor);
+      var tuple = Tuple.Create(keyInfo.KeyTupleDescriptor);
       int typeIdIndex = keyInfo.TypeIdColumnIndex;
       if (typeIdIndex>=0)
         tuple.SetValue(typeIdIndex, type.TypeId);
@@ -138,7 +132,7 @@ namespace Xtensive.Storage.Internals
 
     private static GenericKeyTypeInfo BuildGenericKeyTypeInfo(int typeId, TypeInfo typeInfo)
     {
-      var descriptor = typeInfo.KeyProviderInfo.TupleDescriptor;
+      var descriptor = typeInfo.KeyProviderInfo.KeyTupleDescriptor;
       int length = descriptor.Count;
       var keyType = typeof (Key).Assembly.GetType(
         String.Format(GenericKeyNameFormat, typeof (Key<>).Namespace, typeof(Key).Name, length));

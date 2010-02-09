@@ -64,24 +64,6 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Defines new <see cref="HierarchyDef"/> and adds it to the <see cref="DomainModelDef"/> instance.
-    /// </summary>
-    /// <param name="root">The <see cref="TypeDef"/> instance that will be the root of the hierarchy.</param>
-    /// <returns>Newly created <see cref="HierarchyDef"/> instance.</returns>
-    public HierarchyDef DefineHierarchy(TypeDef root)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(root, "root");
-
-      if (!root.IsEntity)
-        throw new ArgumentException(Strings.ExOnlyEntitiesCouldBeHierarchyRoots, "root");
-
-      if (!types.Contains(root))
-        throw new ArgumentException(Strings.ExHierarchyRootIsNotRegistered, "root");
-
-      return ModelDefBuilder.DefineHierarchy(root);
-    }
-
-    /// <summary>
     /// Finds the root of inheritance hierarchy for the specified <paramref name="item"/>.
     /// </summary>
     /// <param name="item">The type to search root for.</param>

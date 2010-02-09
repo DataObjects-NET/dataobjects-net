@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Run()
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
 
       // Model definition building
       context.ModelDef = new DomainModelDef();
@@ -57,7 +57,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void ApplyCustomDefinitions()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions)) {
-        var context = BuildingContext.Current;
+        var context = BuildingContext.Demand();
         foreach (var module in context.BuilderConfiguration.Modules)
           module.OnDefinitionsBuilt(context, context.ModelDef);
       }
@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void RemoveTemporaryDefinitions()
     {
-      var modelDef = BuildingContext.Current.ModelDef;
+      var modelDef = BuildingContext.Demand().ModelDef;
       var ientityDef = modelDef.Types[typeof (IEntity)];
       if (ientityDef != null)
         modelDef.Types.Remove(ientityDef);
@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Building.Builders
     public static void BuildModel()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
-        var context = BuildingContext.Current;
+        var context = BuildingContext.Demand();
 
         context.Model = new DomainModel();
         var typeSequence = GetTypeBuildSequence(context);
@@ -88,7 +88,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildPrefetchActions()
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var model = context.Model;
       var domain = context.Domain;
       foreach (var type in context.Model.Types.Entities) {
@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildTypes(IEnumerable<Node<TypeDef>> nodes)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
 
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
         // Building types, system fields and hierarchies
@@ -129,7 +129,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildAssociations()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Associations)) {
-        var context = BuildingContext.Current;
+        var context = BuildingContext.Demand();
         foreach (var pair in context.PairedAssociations) {
           if (context.DiscardedAssociations.Contains(pair.First))
             continue;
@@ -162,7 +162,7 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void BuildAuxiliaryTypes(IEnumerable<AssociationInfo> associations)
     {
-      var context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       foreach (var association in associations) {
         if (!association.IsMaster)
           continue;

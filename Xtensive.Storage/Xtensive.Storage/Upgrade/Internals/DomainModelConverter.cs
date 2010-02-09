@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
@@ -29,34 +28,36 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="buildForeignKeys">If set to <see langword="true"/> foreign keys
+    /// <param name="buildForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for associations.</param>
     /// <param name="foreignKeyNameGenerator">The foreign key name generator.</param>
-    /// <param name="buildHierarchyForeignKeys">If set to <see langword="true"/> foreign keys
+    /// <param name="buildHierarchyForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for hierarchies.</param>
     /// <param name="hierarchyForeignKeyNameGenerator">The hierarchy foreign key name generator.</param>
-    /// <param name="persistentGeneratorFilter">The persistent generator filter.</param>
+    /// <param name="generatorResolver">The persistent generator filter.</param>
     /// <param name="providerInfo">The provider info.</param>
     /// <param name="typeBuilder">The type builder.</param>
-    public DomainModelConverter(bool buildForeignKeys, Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator,
-      bool buildHierarchyForeignKeys, Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator,
-      Func<KeyProviderInfo, bool> persistentGeneratorFilter, ProviderInfo providerInfo,
-      Func<Type, int?, int?, int?, IndexingModel.TypeInfo> typeBuilder)
+    public DomainModelConverter(
+      ProviderInfo providerInfo, 
+      bool buildForeignKeys, 
+      Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator, 
+      bool buildHierarchyForeignKeys, 
+      Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator, 
+      Func<Type, int?, int?, int?, Indexing.Model.TypeInfo> typeBuilder)
     {
+      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
       if (buildForeignKeys)
-        ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, "foreignKeyNameGenerator");
+        ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, 
+          "foreignKeyNameGenerator");
       if (buildHierarchyForeignKeys) {
         ArgumentValidator.EnsureArgumentNotNull(hierarchyForeignKeyNameGenerator,
           "hierarchyForeignKeyNameGenerator");
       }
-      ArgumentValidator.EnsureArgumentNotNull(persistentGeneratorFilter, "persistentGeneratorFilter");
-      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
 
       BuildForeignKeys = buildForeignKeys;
       ForeignKeyNameGenerator = foreignKeyNameGenerator;
       BuildHierarchyForeignKeys = buildHierarchyForeignKeys;
       HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
-      PersistentGeneratorFilter = persistentGeneratorFilter;
       ProviderInfo = providerInfo;
       TypeBuilder = typeBuilder;
     }
@@ -96,7 +97,7 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// Gets the persistent generator filter.
     /// </summary>
-    private Func<KeyProviderInfo, bool> PersistentGeneratorFilter { get; set; }
+    private Func<KeyProviderInfo, KeyGenerator> GeneratorResolver { get; set; }
 
     /// <summary>
     /// Gets the provider info.
@@ -189,10 +190,8 @@ namespace Xtensive.Storage.Upgrade
       }
 
       // Build sequences
-      KeyProviderInfo[] persistentGenerators = domainModel.KeyProviders
-        .Where(g => PersistentGeneratorFilter.Invoke(g)).ToArray();
-      foreach (KeyProviderInfo generator in persistentGenerators)
-        Visit(generator);
+      foreach (KeyProviderInfo provider in domainModel.KeyProviders)
+        Visit(provider);
 
       if (!BuildHierarchyForeignKeys || !ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints))
         return StorageInfo;
@@ -351,16 +350,25 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitKeyProviderInfo(KeyProviderInfo keyProvider)
     {
-      var sequence = new IndexingModel.SequenceInfo(StorageInfo, keyProvider.MappingName) {
-        StartValue = keyProvider.CacheSize,
-        Increment = keyProvider.CacheSize,
-        Type = TypeBuilder.Invoke(keyProvider.TupleDescriptor[0], null, null, null),
-        OriginalType = new IndexingModel.TypeInfo(GetType(keyProvider.TupleDescriptor[0], false))
+      if (keyProvider.SequenceInfo==null)
+        return null;
+      var sequenceInfo = keyProvider.SequenceInfo;
+      var sequence = new IndexingModel.SequenceInfo(StorageInfo, sequenceInfo.MappingName) {
+        Seed = sequenceInfo.Seed,
+        Increment = sequenceInfo.Increment,
+        Type = TypeBuilder.Invoke(keyProvider.KeyTupleDescriptor[0], null, null, null),
+        OriginalType = new IndexingModel.TypeInfo(GetType(keyProvider.KeyTupleDescriptor[0], false))
       };
       return sequence;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Thrown always by this method.</exception>
+    protected override IPathNode VisitSequenceInfo(SequenceInfo sequenceInfo)
+    {
+      throw new NotSupportedException();
     }
 
     /// <inheritdoc/>

@@ -10,7 +10,6 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using System.Linq;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 

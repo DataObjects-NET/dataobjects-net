@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
 
-        BuildingContext context = BuildingContext.Current;
+        BuildingContext context = BuildingContext.Demand();
         context.ModelDef = new DomainModelDef();
 
         using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static TypeDef ProcessType(Type type)
     {
-      var modelDef = BuildingContext.Current.ModelDef;
+      var modelDef = BuildingContext.Demand().ModelDef;
 
       if (modelDef.Types.Contains(type))
         return modelDef.Types[type];
@@ -84,7 +84,7 @@ namespace Xtensive.Storage.Building.Builders
     public static void ProcessFullText(TypeDef typeDef)
     {
       var fullTextIndexDef = new FullTextIndexDef(typeDef);
-      var modelDef = BuildingContext.Current.ModelDef;
+      var modelDef = BuildingContext.Demand().ModelDef;
       var hierarchy = modelDef.FindHierarchy(typeDef);
       if (hierarchy == null)
         return;
@@ -163,7 +163,7 @@ namespace Xtensive.Storage.Building.Builders
     public static TypeDef DefineType(Type type)
     {
       var typeDef = new TypeDef(type);
-      typeDef.Name = BuildingContext.Current.NameBuilder.BuildTypeName(typeDef);
+      typeDef.Name = BuildingContext.Demand().NameBuilder.BuildTypeName(typeDef);
 
       if (!(type.UnderlyingSystemType.IsInterface || type.IsAbstract)) {
           var sta = type.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.Default);
@@ -221,7 +221,7 @@ namespace Xtensive.Storage.Building.Builders
         throw new DomainBuilderException(Strings.ExIndexedPropertiesAreNotSupported);
 
       var fieldDef = new FieldDef(propertyInfo);
-      fieldDef.Name = BuildingContext.Current.NameBuilder.BuildFieldName(fieldDef);
+      fieldDef.Name = BuildingContext.Demand().NameBuilder.BuildFieldName(fieldDef);
 
       var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll);
       if (fieldAttribute!=null) {
@@ -259,7 +259,7 @@ namespace Xtensive.Storage.Building.Builders
       AttributeProcessor.Process(index, attribute);
 
       if (string.IsNullOrEmpty(index.Name) && index.KeyFields.Count > 0)
-        index.Name = BuildingContext.Current.NameBuilder.BuildIndexName(typeDef, index);
+        index.Name = BuildingContext.Demand().NameBuilder.BuildIndexName(typeDef, index);
 
       return index;
     }
@@ -270,14 +270,14 @@ namespace Xtensive.Storage.Building.Builders
 
     private static Func<Type, bool> GetTypeFilter()
     {
-      var filter = BuildingContext.Current.BuilderConfiguration.TypeFilter 
+      var filter = BuildingContext.Demand().BuilderConfiguration.TypeFilter 
         ?? TypeFilteringHelper.IsPersistentType;
       return (t => filter(t) && t!=typeof (EntitySetItem<,>));
     }
 
     private static Func<PropertyInfo, bool> GetFieldFilter()
     {
-      return BuildingContext.Current.BuilderConfiguration.FieldFilter ?? (p => true);
+      return BuildingContext.Demand().BuilderConfiguration.FieldFilter ?? (p => true);
     }
 
     #endregion

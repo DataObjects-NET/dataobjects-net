@@ -60,10 +60,10 @@ namespace Xtensive.Storage.Linq.Materialization
         }
 
       int[] allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
-      int[] keyIndexes = Enumerable.Range(allIndexes[0], keyInfo.Length).ToArray();
+      int[] keyIndexes = Enumerable.Range(allIndexes[0], keyInfo.KeyTupleDescriptor.Count).ToArray();
 
       var transform    = new MapTransform(true, descriptor, allIndexes);
-      var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
+      var keyTransform = new MapTransform(true, keyInfo.KeyTupleDescriptor, keyIndexes);
 
       result = new TypeMapping(type, keyTransform, transform, keyIndexes);
 

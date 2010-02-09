@@ -7,7 +7,6 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -18,9 +17,9 @@ namespace Xtensive.Storage.Building.Builders
   {
     public static void BuildAssociation(FieldDef fieldDef, FieldInfo field)
     {
-      BuildingContext context = BuildingContext.Current;
-      TypeInfo referencedType = field.IsEntity ? context.Model.Types[field.ValueType] : context.Model.Types[field.ItemType];
-      Multiplicity multiplicity = field.IsEntitySet ? Multiplicity.ZeroToMany : Multiplicity.ZeroToOne;
+      var context = BuildingContext.Demand();
+      var referencedType = field.IsEntity ? context.Model.Types[field.ValueType] : context.Model.Types[field.ItemType];
+      var multiplicity = field.IsEntitySet ? Multiplicity.ZeroToMany : Multiplicity.ZeroToOne;
       var association = new AssociationInfo(field, referencedType, multiplicity, fieldDef.OnOwnerRemove, fieldDef.OnTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       context.Model.Associations.Add(association);
@@ -32,7 +31,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void BuildAssociation(AssociationInfo origin, FieldInfo field)
     {
-      BuildingContext context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       var association = new AssociationInfo(field, origin.TargetType, origin.Multiplicity, origin.OnOwnerRemove, origin.OnTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       context.Model.Associations.Add(association);

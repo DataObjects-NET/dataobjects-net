@@ -628,7 +628,7 @@ namespace Xtensive.Storage.Model
 
         // Building primary key injector
         var fieldCount = TupleDescriptor.Count;
-        var keyFieldCount = KeyProviderInfo.TupleDescriptor.Count;
+        var keyFieldCount = KeyProviderInfo.KeyTupleDescriptor.Count;
         var keyFieldMap = new Pair<int, int>[fieldCount];
         for (i = 0; i < fieldCount; i++)
           keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);

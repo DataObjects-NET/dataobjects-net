@@ -130,20 +130,15 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
     }
   }
 
-  public class IsbnKeyGenerator : KeyGenerator
+  public class IsbnKeyGenerator : KeyGenerator<string>
   {
     private int counter;
 
-    public override Tuple Next()
+    public override Tuple Next(bool temporaryKey)
     {
-      Tuple result = Tuple.Create(counter.ToString());
+      var result = Tuple.Create(counter.ToString());
       counter++;
       return result;
-    }
-
-    public IsbnKeyGenerator(KeyProviderInfo keyProviderInfo)
-      : base(keyProviderInfo)
-    {
     }
   }
 
@@ -157,8 +152,8 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
 
     private static void VerifyTypeCollection()
     {
-      BuildingContext context = BuildingContext.Current;
-      TypeDefCollection types = context.ModelDef.Types;
+      var context = BuildingContext.Demand();
+      var types = context.ModelDef.Types;
       Assert.IsNull(types.FindAncestor(types[typeof (Entity)]));
       Assert.IsNull(types.FindAncestor(types[typeof (IEntity)]));
       Assert.IsNull(types.FindAncestor(types[typeof (Structure)]));
@@ -172,7 +167,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
 
     private static void RedefineTypes()
     {
-      BuildingContext context = BuildingContext.Current;
+      var context = BuildingContext.Demand();
       context.ModelDef.Types.Clear();
       context.ModelDef.DefineType(typeof (BookReview));
       context.ModelDef.DefineType(typeof (Book));
@@ -187,16 +182,16 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
 
     private static void RedefineFields()
     {
-      TypeDefCollection types = BuildingContext.Current.ModelDef.Types;
+      var types = BuildingContext.Demand().ModelDef.Types;
       foreach (TypeDef type in types) {
         type.Fields.Clear();
         type.Indexes.Clear();
 
-        PropertyInfo[] properties =
+        var properties =
           type.UnderlyingType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance |
             BindingFlags.DeclaredOnly);
         for (int index = 0, count = properties.Length; index < count; index++) {
-          object[] attributes = properties[index].GetCustomAttributes(typeof (FieldAttribute), true);
+          var attributes = properties[index].GetCustomAttributes(typeof (FieldAttribute), true);
           if (attributes==null || attributes.Length==0)
             continue;
           if (!properties[index].Name.Contains("."))
@@ -225,7 +220,7 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
 
     private static void VerifyDefinition()
     {
-      BuildingContext context = BuildingContext.Current;
+      BuildingContext context = BuildingContext.Demand();
       Assert.IsNotNull(context.ModelDef.Types[typeof (Entity)]);
       Assert.IsNotNull(context.ModelDef.Types[typeof (IEntity)]);
 
@@ -529,7 +524,7 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsNotNull(typeInfo.Indexes["PK_Person"]);
       Assert.IsTrue(typeInfo.Indexes["PK_Person"].IsPrimary);
       Assert.IsTrue(typeInfo.Indexes["PK_Person"].IsUnique);
-      Assert.AreEqual(typeInfo.Hierarchy.KeyProviderInfo.Length, typeInfo.Indexes["PK_Person"].KeyColumns.Count);
+      Assert.AreEqual(typeInfo.Hierarchy.KeyProviderInfo.KeyTupleDescriptor.Count, typeInfo.Indexes["PK_Person"].KeyColumns.Count);
       Assert.AreEqual(typeInfo.Columns["PassportNumber"], typeInfo.Indexes["PK_Person"].KeyColumns[0].Key);
 
       #endregion
@@ -624,14 +619,14 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsNotNull(typeInfo.Indexes["PK_Book"]);
       Assert.IsTrue(typeInfo.Indexes["PK_Book"].IsPrimary);
       Assert.IsTrue(typeInfo.Indexes["PK_Book"].IsUnique);
-      Assert.AreEqual(typeInfo.Hierarchy.KeyProviderInfo.Length, typeInfo.Indexes["PK_Book"].KeyColumns.Count);
+      Assert.AreEqual(typeInfo.Hierarchy.KeyProviderInfo.KeyTupleDescriptor.Count, typeInfo.Indexes["PK_Book"].KeyColumns.Count);
       Assert.AreEqual("Isbn", typeInfo.Indexes["PK_Book"].KeyColumns[0].Key.Name);
       Assert.AreEqual(Direction.Positive, typeInfo.Indexes["PK_Book"].KeyColumns[0].Value);
 
       Assert.IsNotNull(typeInfo.Indexes["Book.FK_Author"]);
       Assert.IsFalse(typeInfo.Indexes["Book.FK_Author"].IsPrimary);
       Assert.IsFalse(typeInfo.Indexes["Book.FK_Author"].IsUnique);
-      Assert.AreEqual(domain.Model.Types[typeof(Author)].Hierarchy.KeyProviderInfo.Length, typeInfo.Indexes["Book.FK_Author"].KeyColumns.Count);
+      Assert.AreEqual(domain.Model.Types[typeof(Author)].Hierarchy.KeyProviderInfo.KeyTupleDescriptor.Count, typeInfo.Indexes["Book.FK_Author"].KeyColumns.Count);
       Assert.AreEqual("BookAuthor", typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Key.Name);
       Assert.AreEqual(Direction.Positive, typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Value);
 
@@ -670,7 +665,7 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsNotNull(typeInfo.Indexes["PK_BookReview"]);
       Assert.IsTrue(typeInfo.Indexes["PK_BookReview"].IsPrimary);
       Assert.IsTrue(typeInfo.Indexes["PK_BookReview"].IsUnique);
-      Assert.AreEqual(typeInfo.Hierarchy.KeyProviderInfo.Length, typeInfo.Indexes["PK_BookReview"].KeyColumns.Count);
+      Assert.AreEqual(typeInfo.Hierarchy.KeyProviderInfo.KeyTupleDescriptor.Count, typeInfo.Indexes["PK_BookReview"].KeyColumns.Count);
       Assert.AreEqual("Book", typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Key.Name);
       Assert.AreEqual(Direction.Positive, typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Value);
 //      Assert.AreEqual("Reviewer.PassportNumber", typeInfo.Indexes["PK_BookReview"].KeyColumns[1].Key.Name);

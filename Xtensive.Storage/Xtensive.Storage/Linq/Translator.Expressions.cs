@@ -432,7 +432,7 @@ namespace Xtensive.Storage.Linq
           .Model
           .Types[(leftEntityExpression ?? rightEntityExpression).Type]
           .KeyProviderInfo
-          .TupleDescriptor;
+          .KeyTupleDescriptor;
 
         leftExpressions = GetEntityFields(left, keyFieldTypes);
         rightExpressions = GetEntityFields(right, keyFieldTypes);
@@ -570,7 +570,7 @@ namespace Xtensive.Storage.Linq
             .Model
             .Types[fieldExpression.Type]
             .KeyProviderInfo
-            .TupleDescriptor;
+            .KeyTupleDescriptor;
           result.AddRange(GetEntityFields(memberExpression, keyFieldTypes));
           break;
         case MemberType.Structure:

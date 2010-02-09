@@ -21,21 +21,21 @@ namespace Xtensive.Storage.Indexing.Model
   public sealed class SequenceInfo : NodeBase<StorageInfo>
   {
     private TypeInfo type;
-    private long startValue;
+    private long seed;
     private long increment;
 
     /// <summary>
     /// Gets or sets the start value.
     /// </summary>
     [Property(IgnoreInComparison = true)]
-    public long StartValue
+    public long Seed
     {
-      get { return startValue; }
+      get { return seed; }
       set
       {
         EnsureIsEditable();
-        using (var scope = LogPropertyChange("StartValue", value)) {
-          startValue = value;
+        using (var scope = LogPropertyChange("Seed", value)) {
+          seed = value;
           scope.Commit();
         }
       }

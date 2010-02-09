@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Building
 
     public static void ValidateHierarchyRoot(TypeDef typeDef)
     {
-      BuildingContext context = BuildingContext.Current;
+      BuildingContext context = BuildingContext.Demand();
 
       // Ensures that typeDef doesn't belong to another hierarchy
       TypeDef root = context.ModelDef.FindRoot(typeDef);
@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Building
 
       var root = hierarchyDef.Root;
 
-      if (hierarchyDef.KeyGenerator == typeof(KeyGenerator)) {
+      if (hierarchyDef.KeyGeneratorType == typeof(KeyGenerator)) {
         // Default key generator can't produce values with 2 or more fields
         if (hierarchyDef.KeyFields.Count > 2)
           throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);

@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var tableLock = DomainHandler.TemporaryTableManager.Acquire(tableDescriptor);
       context.SetValue(this, TemporaryTableLockName, tableLock);
-      var executor = handlers.SessionHandler.GetService<IQueryExecutor>();
+      var executor = handlers.SessionHandler.GetService<IQueryExecutor>(true);
       executor.Store(tableDescriptor, data);
     }
 
@@ -31,7 +31,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (tableLock==null)
         return false;
       using (tableLock)
-        handlers.SessionHandler.GetService<IQueryExecutor>().Clear(tableDescriptor);
+        handlers.SessionHandler.GetService<IQueryExecutor>(true)
+          .Clear(tableDescriptor);
       return true;
     }
 

@@ -28,6 +28,7 @@ namespace Xtensive.Storage.Configuration
     internal readonly static Type iSessionServiceType = typeof (ISessionService);
     internal readonly static Type iModuleType = typeof (IModule);
     internal readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
+    internal readonly static Type iKeyGeneratorType = typeof (KeyGenerator);
     internal readonly static Type iQueryPreprocessor = typeof (IQueryPreprocessor);
 
     /// <summary>
@@ -76,6 +77,15 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
+    /// Gets all the registered <see cref="KeyGenerator"/> implementations.
+    /// </summary>
+    public IEnumerable<Type> KeyGenerators { 
+      get {
+        return this.Where(IsKeyGenerator);
+      }
+    }
+
+    /// <summary>
     /// Gets all the registered <see cref="IQueryPreprocessor"/> implementations.
     /// </summary>
     public IEnumerable<Type> QueryPreprocessors { 
@@ -110,8 +120,9 @@ namespace Xtensive.Storage.Configuration
             IsSessionService(type) ||
               IsModule(type) ||
                 IsUpgradeHandler(type) ||
-                  IsQueryPreprocessor(type) ||
-                    IsCompilerContainer(type);
+                  IsKeyGenerator(type) ||
+                    IsQueryPreprocessor(type) ||
+                      IsCompilerContainer(type);
     }
 
     /// <summary>
@@ -185,6 +196,21 @@ namespace Xtensive.Storage.Configuration
       if (type.IsAbstract)
         return false;
       if (iUpgradeHandlerType.IsAssignableFrom(type) && iUpgradeHandlerType!=type)
+        return true;
+      return false;
+    }
+
+    /// <summary>
+    /// Determines whether a <paramref name="type"/>
+    /// is key generator.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns>Check result.</returns>
+    public static bool IsKeyGenerator(Type type)
+    {
+      if (type.IsAbstract)
+        return false;
+      if (iKeyGeneratorType.IsAssignableFrom(type))
         return true;
       return false;
     }
