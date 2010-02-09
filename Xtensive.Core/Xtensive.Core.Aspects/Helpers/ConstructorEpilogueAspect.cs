@@ -158,7 +158,6 @@ namespace Xtensive.Core.Aspects.Helpers
       HandlerType = handlerType;
       HandlerMethodName = handlerMethodName;
       ErrorHandlerMethodName = errorHandlerMethodName;
-      ErrorLog.Debug("EH: {0}", errorHandlerMethodName);
     }
   }
 }

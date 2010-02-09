@@ -54,7 +54,6 @@ namespace Xtensive.Core.Aspects
         GetMethod(initializeMethodDeclarer, 
           InitializationErrorMethodName,
           new[] {typeof (Type), typeof(Exception)})!=null;
-      ErrorLog.Debug("HIEH: {0}", hasInitializationErrorHandler);
 
       // Applying the aspect to all the constructors
       foreach (var constructor in type.GetConstructors()) {
