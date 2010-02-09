@@ -11,6 +11,6 @@ namespace Xtensive.Sql.Tests.PostgreSql.v8_4
   [TestFixture]
   public class ExceptionTypesTest : Tests.ExceptionTypesTest
   {
-    protected override string Url { get { return TestUrl.PostgreSql84LowTimeout; } }
+    protected override string Url { get { return TestUrl.PostgreSql84; } }
   }
 }

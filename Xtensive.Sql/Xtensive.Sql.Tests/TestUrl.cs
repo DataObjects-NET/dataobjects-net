@@ -13,17 +13,11 @@ namespace Xtensive.Sql.Tests
     public const string SqlServer2008 = @"sqlserver://localhost\Sql2008/DO40-Tests";
     public const string SqlServer2008Aw = @"sqlserver://localhost\Sql2008/AdventureWorks";
 
-    public const string PostgreSql80 = "postgresql://do4test:do4testpwd@127.0.0.1:8032/do40test";
-    public const string PostgreSql81 = "postgresql://do4test:do4testpwd@127.0.0.1:8132/do40test";
-    public const string PostgreSql82 = "postgresql://do4test:do4testpwd@127.0.0.1:8232/do40test";
-    public const string PostgreSql83 = "postgresql://do4test:do4testpwd@127.0.0.1:8332/do40test";
-    public const string PostgreSql84 = "postgresql://do4test:do4testpwd@127.0.0.1:8432/do40test";
-
-    public const string PostgreSql80LowTimeout = "postgresql://do4test:do4testpwd@127.0.0.1:8032/do40test?CommandTimeout=3";
-    public const string PostgreSql81LowTimeout = "postgresql://do4test:do4testpwd@127.0.0.1:8132/do40test?CommandTimeout=3";
-    public const string PostgreSql82LowTimeout = "postgresql://do4test:do4testpwd@127.0.0.1:8232/do40test?CommandTimeout=3";
-    public const string PostgreSql83LowTimeout = "postgresql://do4test:do4testpwd@127.0.0.1:8332/do40test?CommandTimeout=3";
-    public const string PostgreSql84LowTimeout = "postgresql://do4test:do4testpwd@127.0.0.1:8432/do40test?CommandTimeout=3";
+    public const string PostgreSql80 = "postgresql://do4test:do4testpwd@127.0.0.1:8032/do40test?CommandTimeout=5";
+    public const string PostgreSql81 = "postgresql://do4test:do4testpwd@127.0.0.1:8132/do40test?CommandTimeout=5";
+    public const string PostgreSql82 = "postgresql://do4test:do4testpwd@127.0.0.1:8232/do40test?CommandTimeout=5";
+    public const string PostgreSql83 = "postgresql://do4test:do4testpwd@127.0.0.1:8332/do40test?CommandTimeout=5";
+    public const string PostgreSql84 = "postgresql://do4test:do4testpwd@127.0.0.1:8432/do40test?CommandTimeout=5";
     
     public const string Oracle9  = "oracle://test:test@localhost:5509/ora09";
     public const string Oracle10 = "oracle://test:test@localhost:5510/ora10";
