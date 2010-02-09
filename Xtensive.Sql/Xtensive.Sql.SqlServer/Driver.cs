@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
+using System;
+using System.Data.SqlClient;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.SqlServer
@@ -13,6 +15,39 @@ namespace Xtensive.Sql.SqlServer
     public override SqlConnection CreateConnection()
     {
       return new Connection(this);
+    }
+
+    public override SqlExceptionType GetExceptionType(Exception exception)
+    {
+      var nativeException = exception as SqlException;
+      if (nativeException==null)
+        return SqlExceptionType.Unknown;
+      int errorCode = nativeException.Number;
+      string errorMessage = nativeException.Message;
+      if (errorCode==-2)
+        return SqlExceptionType.OperationTimeout;
+      if (errorCode==1205)
+        return SqlExceptionType.Deadlock;
+      if (errorCode==3958 || errorCode==3960)
+        return SqlExceptionType.SerializationFailure;
+      if (errorCode==2627)
+        return SqlExceptionType.UniqueConstraintViolation;
+      if (errorCode==515) // NOT NULL constraint
+        return SqlExceptionType.CheckConstraintViolation;
+      if (errorCode==547) {
+        // We assume that SQL keywords are not localizable,
+        // so it is safe to search them in message.
+        if (errorMessage.Contains("CHECK"))
+          return SqlExceptionType.CheckConstraintViolation;
+        if (errorMessage.Contains("FOREIGN KEY") || errorMessage.Contains("REFERENCE"))
+          return SqlExceptionType.ReferentialContraintViolation;
+        if (errorMessage.Contains("UNIQUE KEY") || errorMessage.Contains("PRIMARY KEY"))
+          return SqlExceptionType.UniqueConstraintViolation;
+        return SqlExceptionType.Unknown;
+      }
+      if (errorCode >= 100 && errorCode <= 499)
+        return SqlExceptionType.SyntaxError;
+      return SqlExceptionType.Unknown;
     }
 
     // Constructors

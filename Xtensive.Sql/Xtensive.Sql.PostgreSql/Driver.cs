@@ -26,10 +26,10 @@ namespace Xtensive.Sql.PostgreSql
       if (nativeException==null)
         return SqlExceptionType.Unknown;
 
-      // There is no guaranteed way to detect a operation timeout
+      // There is no guaranteed way to detect a operation timeout.
       // We simply check that error message says something about CommandTimeout connection parameter.
       if (nativeException.Message.ToUpperInvariant().Contains("COMMANDTIMEOUT"))
-        return SqlExceptionType.OperationTimeout; 
+        return SqlExceptionType.OperationTimeout;
 
       if (nativeException.Code.Length!=5)
         return SqlExceptionType.Unknown;

@@ -38,8 +38,8 @@ namespace Xtensive.Sql.Tests
       schema = ExtractDefaultSchema();
       EnsureTableNotExists(schema, TimeoutTableName);
       EnsureTableNotExists(schema, DeadlockTableName);
-      EnsureTableNotExists(schema, MasterTableName);
       EnsureTableNotExists(schema, SlaveTableName);
+      EnsureTableNotExists(schema, MasterTableName);
       EnsureTableNotExists(schema, UniqueTableName);
       EnsureTableNotExists(schema, CheckedTableName);
     }
@@ -83,7 +83,31 @@ namespace Xtensive.Sql.Tests
     [Test]
     public void ReferentialConstraintTest()
     {
-      
+      var masterTable = schema.CreateTable(MasterTableName);
+      var masterId = CreatePrimaryKey(masterTable);
+      var slaveTable = schema.CreateTable(SlaveTableName);
+      var slaveId = CreatePrimaryKey(slaveTable);
+      var fk = slaveTable.CreateForeignKey("foreign_me");
+      fk.ReferencedTable = masterTable;
+      fk.ReferencedColumns.Add(masterId);
+      fk.Columns.Add(slaveId);
+      ExecuteNonQuery(SqlDdl.Create(masterTable));
+      ExecuteNonQuery(SqlDdl.Create(slaveTable));
+
+      var slaveTableRef = SqlDml.TableRef(slaveTable);
+      var slaveInsert = SqlDml.Insert(slaveTableRef);
+      slaveInsert.Values.Add(slaveTableRef[IdColumnName], 1);
+      AssertExceptionType(slaveInsert, SqlExceptionType.ReferentialContraintViolation);
+
+      var masterTableRef = SqlDml.TableRef(masterTable);
+      var masterInsert = SqlDml.Insert(masterTableRef);
+      masterInsert.Values.Add(masterTableRef[IdColumnName], 1);
+      ExecuteNonQuery(masterInsert);
+      ExecuteNonQuery(slaveInsert);
+
+      var masterDelete = SqlDml.Delete(masterTableRef);
+      masterDelete.Where = masterTableRef[IdColumnName]==1;
+      AssertExceptionType(masterDelete, SqlExceptionType.ReferentialContraintViolation);
     }
 
     [Test]
@@ -208,7 +232,7 @@ namespace Xtensive.Sql.Tests
     [Test]
     public void SerializationFailureTest()
     {
-      
+      // How to implement this?
     }
 
     private static Thread StartEvilThread(EvilThreadArgument arg)
@@ -245,7 +269,9 @@ namespace Xtensive.Sql.Tests
       }
       catch(Exception exception) {
         Assert.AreEqual(expectedExceptionType, Driver.GetExceptionType(exception));
+        return;
       }
+      Assert.Fail("Exception was not thrown");
     }
 
     private static TableColumn CreatePrimaryKey(Table table)
