@@ -153,12 +153,6 @@ namespace Xtensive.Storage
       return OperationCompleted != null;
     }
 
-    private void NotifyDisposing()
-    {
-      if (Disposing!=null)
-        Disposing(this, EventArgs.Empty);
-    }
-
     private void NotifyPersisting()
     {
       if (!IsSystemLogicOnly && Persisting!=null)
@@ -169,6 +163,12 @@ namespace Xtensive.Storage
     {
       if (!IsSystemLogicOnly && Persisted!=null)
         Persisted(this, EventArgs.Empty);
+    }
+
+    private void NotifyDisposing()
+    {
+      if (Disposing!=null)
+        Disposing(this, EventArgs.Empty);
     }
 
     internal void NotifyKeyGenerated(Key key)
