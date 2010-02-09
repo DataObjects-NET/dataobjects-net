@@ -61,6 +61,11 @@ namespace Xtensive.Storage
     public static readonly object InitializePersistentEventKey = new object();
     
     /// <summary>
+    /// The key of 'Error on initializing persistent' event.
+    /// </summary>
+    public static readonly object InitializationErrorPersistentEventKey = new object();
+    
+    /// <summary>
     /// The key of 'Removing entity' event.
     /// </summary>
     public static readonly object RemovingEntityEventKey = new object();

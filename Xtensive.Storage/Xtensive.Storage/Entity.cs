@@ -426,6 +426,23 @@ namespace Xtensive.Storage
       OnInitialize();
     }
 
+    internal override sealed void SystemInitializationError(Exception error)
+    {
+      try {
+        if (Session.IsSystemLogicOnly)
+          return;
+        var subscriptionInfo = GetSubscription(EntityEventBroker.InitializationErrorPersistentEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First);
+        OnInitializationError(error);
+      }
+      finally {
+        if (!IsRemoved)
+          Remove();
+      }
+    }
+
     internal override sealed void SystemBeforeGetValue(FieldInfo fieldInfo)
     {
       EnsureNotRemoved();

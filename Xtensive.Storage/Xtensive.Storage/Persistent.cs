@@ -326,8 +326,19 @@ namespace Xtensive.Storage
     #endregion
 
     #region User-level event-like members
-    
+
+    /// <summary>
+    /// Called when instance is initialized (right after constructor).
+    /// </summary>
     protected virtual void OnInitialize()
+    {
+    }
+
+    /// <summary>
+    /// Called on instance initialization error (constructor failure).
+    /// </summary>
+    /// <param name="error">The actual error.</param>
+    protected virtual void OnInitializationError(Exception error)
     {
     }
 
@@ -399,6 +410,8 @@ namespace Xtensive.Storage
     internal abstract void SystemBeforeInitialize(bool materialize);
 
     internal abstract void SystemInitialize();
+
+    internal abstract void SystemInitializationError(Exception error);
 
     internal abstract void SystemBeforeGetValue(FieldInfo field);
 
@@ -606,16 +619,30 @@ namespace Xtensive.Storage
     /// <summary>
     /// Initializes this instance.
     /// </summary>
+    /// <param name="ctorType">Type of the instance that is being constructed.</param>
     /// <remarks>
     /// This method is called when custom constructor is finished.
     /// </remarks>
-    /// <param name="ctorType">Type of the instance that is being constructed.</param>
     [Infrastructure]
     protected void Initialize(Type ctorType)
     {
       if (ctorType!=GetType())
         return;
       SystemInitialize();
+    }
+
+    /// <summary>
+    /// Called on initialization error.
+    /// </summary>
+    /// <param name="ctorType">Type of the instance that is being constructed.</param>
+    /// <param name="error">The error that happened on initialization.</param>
+    /// <remarks>
+    /// This method is called when custom constructor is finished.
+    /// </remarks>
+    [Infrastructure]
+    protected void InitializationError(Type ctorType, Exception error)
+    {
+      SystemInitializationError(error);
     }
 
     #endregion

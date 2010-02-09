@@ -55,7 +55,6 @@ namespace Xtensive.Core.Weaver
       writer.EmitInstruction(OpCodeNumber.Ldarg_0);
       for (short i = 0; i < argumentTypes.Length; i++)
         writer.EmitInstructionParameter(OpCodeNumber.Ldarg_S, ctorDef.Parameters[i]);
-
       
       writer.EmitInstructionMethod(OpCodeNumber.Call,
         (IMethod)baseConstructor.Translate(module));

@@ -11,7 +11,9 @@ using System.Reflection;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using System.Linq;
 
 namespace Xtensive.Core.Aspects
 {
@@ -20,6 +22,7 @@ namespace Xtensive.Core.Aspects
   public sealed class InitializableAttribute : CompoundAspect
   {
     public const string InitializeMethodName = "Initialize";
+    public const string InitializationErrorMethodName = "InitializationError";
 
     public override bool CompileTimeValidate(object element)
     {
@@ -42,44 +45,57 @@ namespace Xtensive.Core.Aspects
         return;
 
       // Getting all the base types
-      var bases = new List<Type>();
-      Type current = type;
-      while (current!=typeof(object)) {
-        bases.Add(current);
-        current = current.BaseType;
-      }
-
-      // Looking for the first "Initialize" method declaration 
-      // starting from the very base type
-      MethodInfo initializeMethod = null;
-      Type initializeMethodType   = null;
-      for (int i = bases.Count - 1; i >= 0; i--) {
-        var currentBase = bases[i];
-        try {
-          initializeMethod = currentBase.GetMethod(InitializeMethodName,
-            BindingFlags.Instance | 
-            BindingFlags.Public | 
-            BindingFlags.NonPublic |
-            BindingFlags.ExactBinding,
-            null, new[] {typeof (Type)}, null);
-        }
-        catch {}
-        if (initializeMethod!=null) {
-          initializeMethodType = currentBase;
-          break;
-        }
-      }
-      if (initializeMethodType==null)
+      Type initializeMethodDeclarer = FindFirstMethodDeclarer(type, 
+        InitializeMethodName, 
+        new[] {typeof (Type)});
+      if (initializeMethodDeclarer==null)
         return;
+      bool hasInitializationErrorHandler = 
+        GetMethod(initializeMethodDeclarer, 
+          InitializationErrorMethodName,
+          new[] {typeof (Type), typeof(Exception)})!=null;
+      ErrorLog.Debug("HIEH: {0}", hasInitializationErrorHandler);
 
       // Applying the aspect to all the constructors
       foreach (var constructor in type.GetConstructors()) {
-        if (!constructor.IsPublic && !Attribute.IsDefined(constructor, typeof(DebuggerNonUserCodeAttribute)))
+        if (!constructor.IsPublic && !IsDefined(constructor, typeof(DebuggerNonUserCodeAttribute)))
           continue;
-        var icea = ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodType, InitializeMethodName);
+        var icea = hasInitializationErrorHandler 
+          ? ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
+          : ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodDeclarer, InitializeMethodName);
         if (icea!=null)
           collection.AddAspect(constructor, icea);
       }
+    }
+
+    private Type FindFirstMethodDeclarer(Type descendantType, string methodName, Type[] arguments)
+    {
+      // Looking for the first method declaration 
+      // starting from the very base type
+      var bases =
+        EnumerableUtils.Unfold(descendantType, type => type.BaseType)
+          .Reverse()
+          .Skip(1); // Skipping object type
+      foreach (var currentBase in bases) {
+        MethodInfo method = null;
+        try {
+          method = GetMethod(currentBase, methodName, arguments);
+        }
+        catch {}
+        if (method!=null)
+          return currentBase;
+      }
+      return null;
+    }
+
+    private static MethodInfo GetMethod(Type type, string methodName, Type[] arguments)
+    {
+      return type.GetMethod(methodName,
+        BindingFlags.Instance | 
+          BindingFlags.Public | 
+            BindingFlags.NonPublic |
+              BindingFlags.ExactBinding,
+        null, arguments, null);
     }
 
     public override PostSharpRequirements GetPostSharpRequirements()

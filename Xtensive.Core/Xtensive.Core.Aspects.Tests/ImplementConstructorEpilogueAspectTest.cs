@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Testing;
 
 namespace Xtensive.Core.Aspects.Tests
 {
@@ -16,7 +17,9 @@ namespace Xtensive.Core.Aspects.Tests
   {
     public class HandlerTargetBase
     {
+      public static HandlerTargetBase LastInstance = null;
       public int HandlerInvocationCount;
+      public int ErrorHandlerInvocationCount;
       public int CtorInvocationCount;
 
       protected void Handler(Type type)
@@ -27,29 +30,61 @@ namespace Xtensive.Core.Aspects.Tests
           CtorInvocationCount++;
       }
 
-      [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler")]
-      public HandlerTargetBase()
+      protected void Error(Type type, Exception exception)
       {
+        LastInstance = this;
+        Log.Info("In error handler, Type={0}, GetType={1}", type.GetShortName(), GetType().GetShortName());
+        ErrorHandlerInvocationCount++;
+        if (type==GetType())
+          CtorInvocationCount++;
+      }
+
+      [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler", "Error")]
+      public HandlerTargetBase(Exception toThrow)
+      {
+        if (toThrow!=null)
+          throw toThrow;
       }
     }
 
     public class HandlerTarget: HandlerTargetBase
     {
-      [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler")]
-      public HandlerTarget()
+      [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler", "Error")]
+      public HandlerTarget(Exception toThrow)
+        : base(null)
       {
+        if (toThrow!=null)
+          throw toThrow;
       }
     }
 
     [Test]
     public void Test()
     {
-      var t = new HandlerTargetBase();
+      var t = new HandlerTargetBase(null);
       Assert.AreEqual(1, t.HandlerInvocationCount);
+      Assert.AreEqual(0, t.ErrorHandlerInvocationCount);
       Assert.AreEqual(1, t.CtorInvocationCount);
 
-      t = new HandlerTarget();
+      t = new HandlerTarget(null);
       Assert.AreEqual(2, t.HandlerInvocationCount);
+      Assert.AreEqual(0, t.ErrorHandlerInvocationCount);
+      Assert.AreEqual(1, t.CtorInvocationCount);
+
+      AssertEx.Throws<ApplicationException>(() => {
+        new HandlerTargetBase(new ApplicationException("Test error."));
+      });
+      t = HandlerTargetBase.LastInstance;
+      Assert.AreEqual(0, t.HandlerInvocationCount);
+      Assert.AreEqual(1, t.ErrorHandlerInvocationCount);
+      Assert.AreEqual(1, t.CtorInvocationCount);
+
+      AssertEx.Throws<ApplicationException>(() => {
+        new HandlerTarget(new ApplicationException("Test error."));
+      });
+      t = HandlerTargetBase.LastInstance;
+      Assert.AreEqual(1, t.HandlerInvocationCount);
+      Assert.AreEqual(1, t.ErrorHandlerInvocationCount);
       Assert.AreEqual(1, t.CtorInvocationCount);
     }
   }

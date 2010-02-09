@@ -44,7 +44,9 @@ namespace Xtensive.Core.Weaver
       // Trying ConstructorEpilogueWeaver
       if (constructorEpilogueAspect!=null)
         return new ConstructorEpilogueWeaver(
-          Project.Module.Cache.GetType(constructorEpilogueAspect.HandlerType), constructorEpilogueAspect.HandlerMethodName);
+          Project.Module.Cache.GetType(constructorEpilogueAspect.HandlerType), 
+          constructorEpilogueAspect.HandlerMethodName,
+          constructorEpilogueAspect.ErrorHandlerMethodName);
 
       // Trying DeclareConstructorAspect
       if (declareConstructorAspect!=null)

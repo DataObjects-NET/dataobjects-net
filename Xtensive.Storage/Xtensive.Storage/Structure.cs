@@ -135,6 +135,17 @@ namespace Xtensive.Storage
         this.Validate();
     }
 
+    internal override sealed void SystemInitializationError(Exception error)
+    {
+      if (Session.IsSystemLogicOnly)
+        return;
+      var subscriptionInfo = GetSubscription(EntityEventBroker.InitializationErrorPersistentEventKey);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key>) subscriptionInfo.Second)
+          .Invoke(subscriptionInfo.First);
+      OnInitializationError(error);
+    }
+
     internal override sealed void SystemBeforeGetValue(FieldInfo fieldInfo)
     {
       if (!Session.IsSystemLogicOnly) {

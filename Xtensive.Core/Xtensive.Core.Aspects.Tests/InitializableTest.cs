@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Testing;
 
 [assembly:Initializable(AttributeTargetTypes = "*")]
 
@@ -25,6 +26,7 @@ namespace Xtensive.Core.Aspects.Tests
 
   public class InitializableBase: IInitializable
   {
+    public static int ErrorCount { get; private set; }
     public int InitializeCount { get; private set; }
 
     protected void Initialize(Type ctorType)
@@ -34,6 +36,12 @@ namespace Xtensive.Core.Aspects.Tests
       InitializeCount++;
       Log.Info("Initialized: type {0}", ctorType.GetShortName());
     }
+
+    protected void InitializationError(Type ctorType, Exception error)
+    {
+      ErrorCount++;
+      Log.Info("Failed: type {0}", ctorType.GetShortName());
+    }
   }
 
   [Initializable]
@@ -42,15 +50,21 @@ namespace Xtensive.Core.Aspects.Tests
     // Constructors
 
     public InitializableSample()
-      : this(0)
+      : this(0, true)
     {
+    }
+
+    public InitializableSample(int i)
+      : this(i, true)
+    {
+      ArgumentValidator.EnsureArgumentIsInRange(i, 0, int.MaxValue, "i");
     }
 
     public InitializableSample(object arg)
     {
     }
 
-    protected InitializableSample(int i)
+    protected InitializableSample(int i, bool ignored)
     {
     }
   }
@@ -70,6 +84,12 @@ namespace Xtensive.Core.Aspects.Tests
       Assert.AreEqual(1, i.InitializeCount);
       i = new InitializableSample(null);
       Assert.AreEqual(1, i.InitializeCount);
+
+      Assert.AreEqual(0, InitializableBase.ErrorCount);
+      AssertEx.Throws<ArgumentException>(() => {
+        new InitializableSample(-1);
+      });
+      Assert.AreEqual(1, InitializableBase.ErrorCount);
     }
   }
 }

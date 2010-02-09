@@ -32,6 +32,11 @@ namespace Xtensive.Core.Aspects.Helpers
     /// </summary>
     public string HandlerMethodName { get; private set; }
 
+    /// <summary>
+    /// Gets the name of the initialization error handler method to call.
+    /// </summary>
+    public string ErrorHandlerMethodName { get; private set; }
+
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
@@ -54,7 +59,7 @@ namespace Xtensive.Core.Aspects.Helpers
         BindingFlags.Public | 
         BindingFlags.NonPublic | 
         BindingFlags.ExactBinding,
-        typeof(void), HandlerMethodName, new [] { typeof (Type)}, out targetMethod))
+        typeof(void), HandlerMethodName, new [] { typeof (Type) }, out targetMethod))
         return false;
       if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
         targetMethod, false, MethodAttributes.Private))
@@ -62,6 +67,24 @@ namespace Xtensive.Core.Aspects.Helpers
       if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
         targetMethod, false, MethodAttributes.Virtual))
         return false;
+
+      if (!ErrorHandlerMethodName.IsNullOrEmpty()) {
+        if (!AspectHelper.ValidateMethod(this, SeverityType.Error,
+          HandlerType, true,
+          BindingFlags.Instance |
+          BindingFlags.DeclaredOnly |
+          BindingFlags.Public |
+          BindingFlags.NonPublic |
+          BindingFlags.ExactBinding,
+          typeof (void), ErrorHandlerMethodName, new[] {typeof (Type), typeof (Exception)}, out targetMethod))
+          return false;
+        if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
+          targetMethod, false, MethodAttributes.Private))
+          return false;
+        if (!AspectHelper.ValidateMethodAttributes(this, SeverityType.Error,
+          targetMethod, false, MethodAttributes.Virtual))
+          return false;
+      }
 
       return true;
     }
@@ -84,12 +107,31 @@ namespace Xtensive.Core.Aspects.Helpers
     /// otherwise, <see langword="null" />.</returns>
     public static ConstructorEpilogueAspect ApplyOnce(ConstructorInfo ctor, Type handlerType, string handlerMethodName)
     {
+      return ApplyOnce(ctor, handlerType, handlerMethodName, null);
+    }
+
+    /// <summary>
+    /// Applies this aspect to the specified <paramref name="ctor"/>.
+    /// </summary>
+    /// <param name="ctor">The constructor to apply the aspect to.</param>
+    /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
+    /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
+    /// <param name="errorHandlerMethodName"><see cref="ErrorHandlerMethodName"/> property value.</param>
+    /// <returns>
+    /// If it was the first application with the specified set of arguments, the newly created aspect;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public static ConstructorEpilogueAspect ApplyOnce(ConstructorInfo ctor, Type handlerType, string handlerMethodName, string errorHandlerMethodName)
+    {
       ArgumentValidator.EnsureArgumentNotNull(ctor, "ctor");
       ArgumentValidator.EnsureArgumentNotNull(handlerType, "handlerType");
       ArgumentValidator.EnsureArgumentNotNull(handlerMethodName, "handlerMethodName");
 
-      return AppliedAspectSet.Add(new Triplet<ConstructorInfo, Type, string>(ctor, handlerType, handlerMethodName), 
-        () => new ConstructorEpilogueAspect(handlerType, handlerMethodName));
+      string methodsKey = errorHandlerMethodName.IsNullOrEmpty()
+        ? handlerMethodName
+        : "{0}, {1}".FormatWith(handlerMethodName, errorHandlerMethodName);
+      return AppliedAspectSet.Add(new Triplet<ConstructorInfo, Type, string>(ctor, handlerType, methodsKey), 
+        () => new ConstructorEpilogueAspect(handlerType, handlerMethodName, errorHandlerMethodName));
     }
 
 
@@ -101,9 +143,22 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
     /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
     public ConstructorEpilogueAspect(Type handlerType, string handlerMethodName)
+      : this(handlerType, handlerMethodName, null)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
+    /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
+    /// <param name="errorHandlerMethodName"><see cref="ErrorHandlerMethodName"/> property value.</param>
+    public ConstructorEpilogueAspect(Type handlerType, string handlerMethodName, string errorHandlerMethodName)
     {
       HandlerType = handlerType;
       HandlerMethodName = handlerMethodName;
+      ErrorHandlerMethodName = errorHandlerMethodName;
+      ErrorLog.Debug("EH: {0}", errorHandlerMethodName);
     }
   }
 }

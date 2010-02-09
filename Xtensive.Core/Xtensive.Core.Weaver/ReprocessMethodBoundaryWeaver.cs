@@ -5,17 +5,12 @@
 // Created:    2008.09.25
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using PostSharp.CodeModel;
 using PostSharp.CodeWeaver;
 using PostSharp.Collections;
-using PostSharp.Extensibility;
 using PostSharp.Laos;
 using PostSharp.Laos.Weaver;
-using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
-using System.Linq;
 using Xtensive.Core.Weaver.Resources;
 
 namespace Xtensive.Core.Weaver
@@ -207,6 +202,7 @@ namespace Xtensive.Core.Weaver
     public override void Initialize()
     {
       base.Initialize();
+	  
       var module = Task.Project.Module;
       onEntryMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ReprocessMethodBoundaryAspect).GetMethod("OnEntry"), BindingOptions.RequireGenericDefinition));
       onExitMethod = (IMethod) module.Cache.GetItem(theModule => theModule.FindMethod(typeof (ReprocessMethodBoundaryAspect).GetMethod("OnExit"), BindingOptions.RequireGenericDefinition));
