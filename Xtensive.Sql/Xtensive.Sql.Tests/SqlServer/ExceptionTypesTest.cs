@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace Xtensive.Sql.Tests.SqlServer
 {
-  [TestFixture, Explicit]
+  [TestFixture]
   public class ExceptionTypesTest : Tests.ExceptionTypesTest
   {
     protected override string Url { get { return TestUrl.SqlServer2005; } }

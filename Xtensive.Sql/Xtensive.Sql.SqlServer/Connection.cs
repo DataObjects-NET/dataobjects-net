@@ -53,7 +53,7 @@ namespace Xtensive.Sql.SqlServer
     public override void RollbackToSavepoint(string name)
     {
       EnsureTransactionIsActive();
- 	    activeTransaction.Rollback(name);
+      activeTransaction.Rollback(name);
     }
 
     /// <inheritdoc/>
