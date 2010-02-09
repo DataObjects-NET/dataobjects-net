@@ -74,7 +74,7 @@ namespace Xtensive.Storage.Providers
           for (int i = 0; i < arguments.Length; i++) {
             var argument = arguments[i];
             if (argument.IsSubclassOf(typeof (Persistent))) {
-              TypeDef argTypeDef = context.ModelDef.Types[argument];
+              var argTypeDef = context.ModelDef.Types[argument];
               names[i] = argTypeDef.Name;
             }
             else

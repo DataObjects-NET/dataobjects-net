@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Building.Builders
             else
               ProcessType(type);
           }
-          foreach (var type in genericTypes)
+          foreach (var type in genericTypes.Where(t => !t.FullName.IsNullOrEmpty()))
             ProcessType(type);
         }
       }
