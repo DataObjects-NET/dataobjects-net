@@ -93,26 +93,20 @@ namespace Xtensive.Sql.Tests
 
     protected int ExecuteNonQuery(string commandText)
     {
-      using (var command = Connection.CreateCommand()) {
-        command.CommandText = commandText;
+      using (var command = Connection.CreateCommand(commandText))
         return command.ExecuteNonQuery();
-      }
     }
 
     protected int ExecuteNonQuery(ISqlCompileUnit statement)
     {
-      using (var command = Connection.CreateCommand(statement)) {
-        Console.WriteLine(command.CommandText);
+      using (var command = Connection.CreateCommand(statement))
         return command.ExecuteNonQuery();
-      }
     }
 
     protected object ExecuteScalar(string commandText)
     {
-      using (var command = Connection.CreateCommand()) {
-        command.CommandText = commandText;
+      using (var command = Connection.CreateCommand(commandText))
         return command.ExecuteScalar();
-      }
     }
 
     protected object ExecuteScalar(ISqlCompileUnit statement)

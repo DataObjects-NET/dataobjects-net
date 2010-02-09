@@ -23,6 +23,7 @@ namespace Xtensive.Sql.Tests
     }
 
     private const string IdColumnName = "id";
+    private const string TimeoutTableName = "TheTimeout";
     private const string DeadlockTableName = "TheDeadlock";
     private const string MasterTableName = "TheMaster";
     private const string SlaveTableName = "TheSlave";
@@ -35,6 +36,7 @@ namespace Xtensive.Sql.Tests
     {
       base.TestFixtureSetUp();
       schema = ExtractDefaultSchema();
+      EnsureTableNotExists(schema, TimeoutTableName);
       EnsureTableNotExists(schema, DeadlockTableName);
       EnsureTableNotExists(schema, MasterTableName);
       EnsureTableNotExists(schema, SlaveTableName);
@@ -180,6 +182,26 @@ namespace Xtensive.Sql.Tests
       }
       finally {
         Connection.Rollback();
+      }
+    }
+
+    [Test]
+    public void TimeoutTest()
+    {
+      var table = schema.CreateTable(TimeoutTableName);
+      CreatePrimaryKey(table);
+      ExecuteNonQuery(SqlDdl.Create(table));
+
+      var tableRef = SqlDml.TableRef(table);
+      var insert = SqlDml.Insert(tableRef);
+      insert.Values.Add(tableRef[IdColumnName], 1);
+
+      using (var anotherConnection = Driver.CreateConnection()) {
+        anotherConnection.Open();
+        anotherConnection.BeginTransaction(IsolationLevel.ReadCommitted);
+        using (var command = anotherConnection.CreateCommand(insert))
+          command.ExecuteNonQuery();
+        AssertExceptionType(insert, SqlExceptionType.OperationTimeout);
       }
     }
 

@@ -50,5 +50,10 @@ namespace Xtensive.Sql
     /// Concurrent access serialization failure.
     /// </summary>
     SerializationFailure,
+
+    /// <summary>
+    /// Operation timed out.
+    /// </summary>
+    OperationTimeout,
   }
 }

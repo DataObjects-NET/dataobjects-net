@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Tests
   {
     public const string SqlServer2005 = "sqlserver://localhost/DO40-Tests";
     public const string SqlServer2005Aw = "sqlserver://localhost/AdventureWorks";
-    public const string SqlServer2005Northwind = "sqlserver://localhost/Northwind";
     public const string SqlServer2008 = @"sqlserver://localhost\Sql2008/DO40-Tests";
     public const string SqlServer2008Aw = @"sqlserver://localhost\Sql2008/AdventureWorks";
 
@@ -20,9 +19,12 @@ namespace Xtensive.Sql.Tests
     public const string PostgreSql83 = "postgresql://do4test:do4testpwd@127.0.0.1:8332/do40test";
     public const string PostgreSql84 = "postgresql://do4test:do4testpwd@127.0.0.1:8432/do40test";
 
-    public const string VistaDb = "vistadb://localhost/VistaDb/VDBTests.vdb3";
-    public const string VistaDbAw = "vistadb://localhost/VistaDb/AdventureWorks.vdb3";
-
+    public const string PostgreSql80LowTimeout = "postgresql://do4test:do4testpwd@127.0.0.1:8032/do40test?CommandTimeout=3";
+    public const string PostgreSql81LowTimeout = "postgresql://do4test:do4testpwd@127.0.0.1:8132/do40test?CommandTimeout=3";
+    public const string PostgreSql82LowTimeout = "postgresql://do4test:do4testpwd@127.0.0.1:8232/do40test?CommandTimeout=3";
+    public const string PostgreSql83LowTimeout = "postgresql://do4test:do4testpwd@127.0.0.1:8332/do40test?CommandTimeout=3";
+    public const string PostgreSql84LowTimeout = "postgresql://do4test:do4testpwd@127.0.0.1:8432/do40test?CommandTimeout=3";
+    
     public const string Oracle9  = "oracle://test:test@localhost:5509/ora09";
     public const string Oracle10 = "oracle://test:test@localhost:5510/ora10";
     public const string Oracle11 = "oracle://test:test@localhost:5511/ora11";

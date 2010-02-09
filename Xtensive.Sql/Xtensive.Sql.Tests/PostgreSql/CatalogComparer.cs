@@ -1,3 +1,7 @@
+// Copyright (C) 2007 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+
 using System;
 using NUnit.Framework;
 using Xtensive.Sql.Model;
@@ -8,16 +12,16 @@ namespace Xtensive.Sql.Tests.PostgreSql
   {
     public CatalogComparer(SqlConnection conn)
     {
-      mConnection = conn;
+      connection = conn;
     }
 
-    private SqlConnection mConnection;
+    private readonly SqlConnection connection;
 
 
     public void CompareCatalogs(Catalog created, Catalog extracted)
     {
       Assert.AreEqual(created.Name, extracted.Name);
-      //Extracted schema count is greater, because it includes the "public" schema
+      // Extracted schema count is greater, because it includes the "public" schema
       Assert.AreEqual(created.Schemas.Count, extracted.Schemas.Count - 1);
 
       foreach (Schema s1 in created.Schemas) {
@@ -184,7 +188,7 @@ namespace Xtensive.Sql.Tests.PostgreSql
       Assert.AreEqual(i1.DataTable.Name, i2.DataTable.Name);
       Assert.AreEqual(i1.Filegroup, i2.Filegroup);
 
-      Version ver = mConnection.Driver.CoreServerInfo.ServerVersion;
+      Version ver = connection.Driver.CoreServerInfo.ServerVersion;
       if (ver.Major * 100 + ver.Minor >= 802) {
         if (i1.FillFactor!=null)
           Assert.AreEqual(i1.FillFactor, i2.FillFactor);

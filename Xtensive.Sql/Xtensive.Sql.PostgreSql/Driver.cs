@@ -1,3 +1,7 @@
+// Copyright (C) 2007 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+
 using System;
 using Npgsql;
 using Xtensive.Sql.Info;
@@ -21,7 +25,15 @@ namespace Xtensive.Sql.PostgreSql
       var nativeException = exception as NpgsqlException;
       if (nativeException==null)
         return SqlExceptionType.Unknown;
-      
+
+      // There is no guaranteed way to detect a operation timeout
+      // We simply check that error message says something about CommandTimeout connection parameter.
+      if (nativeException.Message.ToUpperInvariant().Contains("COMMANDTIMEOUT"))
+        return SqlExceptionType.OperationTimeout; 
+
+      if (nativeException.Code.Length!=5)
+        return SqlExceptionType.Unknown;
+
       var errorCode = nativeException.Code.ToUpperInvariant();
       var errorCodeClass = errorCode.Substring(0, 2);
 

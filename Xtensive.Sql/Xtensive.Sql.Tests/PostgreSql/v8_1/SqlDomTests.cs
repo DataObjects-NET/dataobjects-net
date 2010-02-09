@@ -1,4 +1,8 @@
-﻿using NUnit.Framework;
+﻿// Copyright (C) 2007 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+
+using NUnit.Framework;
 
 namespace Xtensive.Sql.Tests.PostgreSql.v8_1
 {
