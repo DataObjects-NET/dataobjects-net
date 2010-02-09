@@ -425,7 +425,6 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void StringStartsWithColumnTest()
     {
-      EnsureProtocolIs(StorageProtocol.Index);
       var customers = Query.All<Customer>();
       var customer = customers.Where(c => c.ContactName.StartsWith(c.ContactName)).First();
       Assert.IsNotNull(customer);
@@ -442,7 +441,6 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void StringEndsWithColumnTest()
     {
-      EnsureProtocolIs(StorageProtocol.Index);
       var customers = Query.All<Customer>();
       var customer = customers.Where(c => c.ContactName.EndsWith(c.ContactName)).First();
       Assert.IsNotNull(customer);
