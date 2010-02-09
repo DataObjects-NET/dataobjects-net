@@ -161,6 +161,9 @@ namespace Xtensive.Storage.Building
       var root = hierarchyDef.Root;
       Log.Info(Strings.LogInspectingHierarchyX, root.Name);
       Validator.ValidateHierarchy(hierarchyDef);
+      // Skip open generic hierarchies
+      if (root.IsGenericTypeDefinition)
+        return;
 
       // Check the presence of TypeId field
       var typeIdField = root.Fields[WellKnown.TypeIdFieldName];
@@ -213,7 +216,22 @@ namespace Xtensive.Storage.Building
 
       if (typeDef.IsEntity) {
         Validator.EnsureUnderlyingTypeIsAspected(typeDef);
+        // Should we remove it or not?
+        var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
+        if (hierarchyDef == null) {
+          context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
+          return;
+        }
+
+        // Register closed generic types
         if (typeDef.IsGenericTypeDefinition) {
+          var allGenericConstraintsAreEntity = typeDef.UnderlyingType.GetGenericArguments()
+            .SelectMany(ga => ga.GetGenericParameterConstraints())
+            .All(constraintType => typeof (IEntity).IsAssignableFrom(constraintType));
+          // Skip automatic registration for open generic types whicn constraints are not IEntity
+          if (!allGenericConstraintsAreEntity)
+            return;
+
           context.ModelInspectionResult.Register(new BuildGenericTypeInstancesAction(typeDef));
           context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
           return;
@@ -229,19 +247,13 @@ namespace Xtensive.Storage.Building
           context.DependencyGraph.AddEdge(typeDef, @interface, EdgeKind.Implementation, EdgeWeight.High);
           context.Interfaces.Add(@interface);
         }
-
-        // Should we remove it or not?
-        var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
-        if (hierarchyDef==null)
-          context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
-        else {
-          Validator.ValidateType(typeDef, hierarchyDef);
-          // We should skip key fields inspection as they have been already inspected
-          foreach (var field in typeDef.Fields) {
-            var _field = field;
-            if (!hierarchyDef.KeyFields.Any(f => f.Name==_field.Name))
-              InspectField(typeDef, field, false);
-          }
+       
+        Validator.ValidateType(typeDef, hierarchyDef);
+        // We should skip key fields inspection as they have been already inspected
+        foreach (var field in typeDef.Fields) {
+          var _field = field;
+          if (!hierarchyDef.KeyFields.Any(f => f.Name==_field.Name))
+            InspectField(typeDef, field, false);
         }
       }
     }

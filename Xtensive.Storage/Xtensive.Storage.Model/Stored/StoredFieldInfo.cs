@@ -55,6 +55,7 @@ namespace Xtensive.Storage.Model.Stored
     /// <summary>
     /// Gets the primitive fields.
     /// </summary>
+    [XmlIgnore]
     public IEnumerable<StoredFieldInfo> PrimitiveFields
     {
       get

@@ -34,7 +34,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
   [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
-  public class SyncInfo<TEntity> : Entity where TEntity : Entity
+  public class SyncInfo<TEntity> : Entity 
+    where TEntity : Entity, new()
   {
     [Field, Key]
     public TEntity Target { get; private set; }
@@ -48,7 +49,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue0036_Model
   [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
-  public class SecurityInfo<TEntity> : Entity where TEntity : Entity, ISecurable
+  public class SecurityInfo<TEntity> : Entity 
+    where TEntity : Entity, ISecurable
   {
     [Field, Key]
     public TEntity Target { get; private set; }

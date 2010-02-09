@@ -57,10 +57,10 @@ namespace Xtensive.Storage.Building.Builders
           throw new DomainBuilderException(string.Format(Strings.ExTypeWithNameXIsAlreadyDefined, typeDef.Name));
 
         HierarchyDef hierarchyDef = null;
-        if (typeDef.IsEntity && !typeDef.UnderlyingType.IsGenericTypeDefinition) {
+        if (typeDef.IsEntity) {
           // HierarchyRootAttribute is required for hierarchy root
           var hra = type.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
-          if (hra!=null)
+          if (hra != null)
             hierarchyDef = DefineHierarchy(typeDef, hra);
         }
 

@@ -68,33 +68,80 @@ namespace Xtensive.Storage.Building
       var context = BuildingContext.Current;
 
       // Making a copy of already built hierarchy set to avoid recursiveness
-      var hierarchies = context.ModelDef.Hierarchies.ToList();
-      var parameters = action.Type.UnderlyingType.GetGenericArguments();
+      var hierarchies = context.ModelDef.Hierarchies
+        .Where(h => !h.Root.IsGenericTypeDefinition)
+        .ToList();
+      var type = action.Type;
+      var parameters = type.UnderlyingType.GetGenericArguments();
+      var inheritors = context.ModelDef.Types
+        .Where(t => t.IsEntity)
+        .ToLookup(t => t.UnderlyingType.BaseType, t => t.UnderlyingType);
 
-      // We can produce generic instance types with exactly 1 parameter, e.g. EntityWrapper<TEntity> where TEntity : Entity
-      if (parameters.Length!=1)
-        throw new DomainBuilderException(string.Format(
-          Strings.ExUnableToBuildGenericInstanceTypesForXTypeBecauseItContainsMoreThen1GenericParameter, action.Type.Name));
-
-      var parameter = parameters[0];
-
-      // Parameter must be constrained
-      var constraints = parameter.GetGenericParameterConstraints();
-      if (constraints.Length==0)
-        throw new DomainBuilderException(string.Format(
-          Strings.ExUnableToBuildGenericInstanceTypesForXTypeBecauseParameterIsNotConstrained, action.Type.Name));
-
-      // Building instances for all hierarchies
-      foreach (var hierarchy in hierarchies) {
-        foreach (var constraint in constraints) {
-          if (!constraint.IsAssignableFrom(hierarchy.Root.UnderlyingType))
-            goto next;
+      // Remove hierarchy
+      var hierarchyToRemove = context.ModelDef.Hierarchies.SingleOrDefault(h => h.Root == type);
+      if (hierarchyToRemove != null) 
+        context.ModelDef.Hierarchies.Remove(hierarchyToRemove);
+      var arguments = type.UnderlyingType.GetGenericArguments();
+      var typeSubstitutions = new Type[arguments.Length][];
+      for (var i = 0; i < arguments.Length; i++) {
+        var argument = arguments[i];
+        var constraints = argument.GetGenericParameterConstraints();
+        var queue = new Queue<Type>(hierarchies
+          .Where(h => !h.Root.IsSystem)
+          .Select(h => h.Root.UnderlyingType));
+        var types = new List<Type>();
+        while (queue.Count > 0) {
+          var typeCandidate = queue.Dequeue();
+          if (constraints.All(ct => ct.IsAssignableFrom(typeCandidate))) {
+            types.Add(typeCandidate);
+            continue;
+          }
+          foreach (var inheritor in inheritors[typeCandidate])
+            queue.Enqueue(inheritor);
         }
-        Type instanceType = action.Type.UnderlyingType.MakeGenericType(hierarchy.Root.UnderlyingType);
+        // Skip generic registration
+        if (types.Count == 0)
+          return;
+        typeSubstitutions[i] = types.ToArray();
+      }
+      foreach (var instanceType in GenericCombinator.Generate(type.UnderlyingType, typeSubstitutions))
         ModelDefBuilder.ProcessType(instanceType);
+    }
 
-      next:
-        continue;
+    class GenericCombinator
+    {
+      private readonly Type[] current;
+      private readonly List<Type> result;
+      private readonly Type typeDefinition;
+      private readonly Type[][] candidateTypes;
+
+      public static List<Type> Generate(Type typeDefinition, Type[][] candidateTypes)
+      {
+        var combinator = new GenericCombinator(typeDefinition, candidateTypes);
+        combinator.Generate(0);
+        return combinator.result;
+      }
+
+      private void Generate(int argumentPosition)
+      {
+        if (argumentPosition < current.Length - 1)
+          foreach (var candidate in candidateTypes[argumentPosition]) {
+            current[argumentPosition] = candidate;
+            Generate(argumentPosition + 1);
+          }
+        else
+          foreach (var candidate in candidateTypes[argumentPosition]) {
+            current[argumentPosition] = candidate;
+            result.Add(typeDefinition.MakeGenericType(current));
+          }
+      }
+
+      private GenericCombinator(Type typeDefinition, Type[][] candidateTypes)
+      {
+        current = new Type[candidateTypes.Length];
+        result = new List<Type>();
+        this.typeDefinition = typeDefinition;
+        this.candidateTypes = candidateTypes;
       }
     }
 

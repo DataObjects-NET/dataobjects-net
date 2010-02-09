@@ -35,6 +35,17 @@ namespace Xtensive.Storage.Tests.Interfaces.UnusedTypeRemovalTestModel
   {
     [Field, Key]
     public int Id { get; private set; }
+    [Field]
+    public IFirst First { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class First : Entity, IFirst
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+    [Field]
+    public ISecond Second { get; set; }
   }
 }
 
@@ -42,6 +53,12 @@ namespace Xtensive.Storage.Tests.Interfaces
 {
   public class UnusedTypeRemovalTest : AutoBuildTest
   {
+    [Test]
+    public void MainTest()
+    {
+      Assert.IsNull(Domain);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
