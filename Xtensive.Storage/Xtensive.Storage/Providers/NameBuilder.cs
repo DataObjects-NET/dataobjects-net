@@ -407,7 +407,9 @@ namespace Xtensive.Storage.Providers
     /// <param name="providerInfo">The <see cref="providerInfo"/> instance to build name for.</param>
     public string BuildGeneratorName(KeyProviderInfo providerInfo)
     {
-      return ApplyNamingRules(string.Format(GeneratorPattern, providerInfo.KeyGeneratorName));
+      return providerInfo.KeyGeneratorName == null
+        ? null
+        : ApplyNamingRules(string.Format(GeneratorPattern, providerInfo.KeyGeneratorName));
     }
 
     /// <summary>

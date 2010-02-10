@@ -20,7 +20,7 @@ namespace Xtensive.Storage
   /// The underlying state of the <see cref="Storage.Entity"/>.
   /// </summary>
   [Infrastructure]
-  [DebuggerDisplay("Key = {key}, Tuple = {state}, StateIsLoaded = {StateIsLoaded}, PersistenceState = {persistenceState}")]
+  [DebuggerDisplay("Key = {key}, Tuple = {state}, PersistenceState = {persistenceState}")]
   public sealed class EntityState : TransactionalStateContainer<Tuple>, 
     IEquatable<EntityState>,
     IInvalidatable

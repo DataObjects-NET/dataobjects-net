@@ -153,7 +153,6 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public override int GetHashCode()
     {
       if (hashCode.HasValue)

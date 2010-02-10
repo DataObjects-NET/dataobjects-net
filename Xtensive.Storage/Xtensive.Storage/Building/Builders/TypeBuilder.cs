@@ -327,14 +327,14 @@ namespace Xtensive.Storage.Building.Builders
       var generatorName = BuildGeneratorName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex);
       var keyProviderInfo = new KeyProviderInfo(
         hierarchyDef.KeyGeneratorType, 
-        generatorName, 
-        keyTupleDescriptor, typeIdColumnIndex) {
-        Name = root.Name
-      };
+        hierarchyDef.KeyGeneratorType == null 
+          ? null
+          : generatorName, 
+        keyTupleDescriptor,
+        typeIdColumnIndex) {Name = root.Name};
       keyProviderInfo.MappingName = context.NameBuilder.BuildGeneratorName(keyProviderInfo);
 
-      var keyGenerator = (KeyGenerator) context.BuilderConfiguration.Services.Get(
-        hierarchyDef.KeyGeneratorType, generatorName);
+      var keyGenerator = (KeyGenerator) context.BuilderConfiguration.Services.Get(hierarchyDef.KeyGeneratorType, generatorName);
       if (keyGenerator!=null) {
         var sequenceIncrement = keyGenerator.SequenceIncrement;
         if (sequenceIncrement.HasValue) {
@@ -346,16 +346,18 @@ namespace Xtensive.Storage.Building.Builders
         }
       }
 
-      // Trying to find an existing KeyProviderInfo (i.e. the same)
-      var existingKeyProviderInfo = context.Model.KeyProviders
-        .SingleOrDefault(kp => 
-          kp.KeyGeneratorType == keyProviderInfo.KeyGeneratorType && 
-          kp.KeyGeneratorName == keyProviderInfo.KeyGeneratorName && 
-          kp.KeyTupleDescriptor == keyTupleDescriptor);
-      if (existingKeyProviderInfo!=null)
-        keyProviderInfo = existingKeyProviderInfo;
-      else
-        context.Model.KeyProviders.Add(keyProviderInfo);
+      if (keyProviderInfo.KeyGeneratorName != null) {
+        // Trying to find an existing KeyProviderInfo (i.e. the same)
+        var existingKeyProviderInfo = context.Model.KeyProviders
+          .SingleOrDefault(kp =>
+                           kp.KeyGeneratorType == keyProviderInfo.KeyGeneratorType &&
+                           kp.KeyGeneratorName == keyProviderInfo.KeyGeneratorName &&
+                           kp.KeyTupleDescriptor == keyTupleDescriptor);
+        if (existingKeyProviderInfo != null)
+          keyProviderInfo = existingKeyProviderInfo;
+        else
+          context.Model.KeyProviders.Add(keyProviderInfo);
+      }
 
       var schema = hierarchyDef.Schema;
 
@@ -382,17 +384,13 @@ namespace Xtensive.Storage.Building.Builders
     {
       if (!hierarchyDef.KeyGeneratorName.IsNullOrEmpty())
         return hierarchyDef.KeyGeneratorName;
-      else {
-        if (hierarchyDef.KeyGeneratorType==null || hierarchyDef.KeyGeneratorType==typeof (KeyGenerator))
-          return keyTupleDescriptor
-            .Where((type, index) => index!=typeIdColumnIndex)
-            .Select(type => type.GetShortName())
-            .ToDelimitedString("-");
-        else
-          throw new DomainBuilderException(
-            String.Format(Strings.ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet, 
-            hierarchyDef.Root.UnderlyingType.GetShortName()));
-      }
+      if (hierarchyDef.KeyGeneratorType==null || hierarchyDef.KeyGeneratorType==typeof (KeyGenerator))
+        return keyTupleDescriptor
+          .Where((type, index) => index!=typeIdColumnIndex)
+          .Select(type => type.GetShortName())
+          .ToDelimitedString("-");
+      throw new DomainBuilderException(
+        String.Format(Strings.ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet, hierarchyDef.Root.UnderlyingType.GetShortName()));
     }
 
     #endregion
