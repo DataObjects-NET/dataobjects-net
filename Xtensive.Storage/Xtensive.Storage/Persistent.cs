@@ -38,6 +38,16 @@ namespace Xtensive.Storage
     IDataErrorInfo,
     IUsesSystemLogicOnlyRegions
   {
+    private class CtorTransactionInfo
+    {
+      [ThreadStatic]
+      public static CtorTransactionInfo Current;
+
+      public Persistent Persistent;
+      public TransactionScope TransactionScope;
+    }
+
+
     private IFieldValueAdapter[] fieldAdapters;
 
     /// <summary>
@@ -628,7 +638,12 @@ namespace Xtensive.Storage
     {
       if (ctorType!=GetType())
         return;
-      SystemInitialize();
+      try {
+        SystemInitialize();
+      }
+      finally {
+        LeaveCtorTransactionScope();
+      }
     }
 
     /// <summary>
@@ -642,7 +657,34 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected void InitializationError(Type ctorType, Exception error)
     {
-      SystemInitializationError(error);
+      try {
+        SystemInitializationError(error);
+      }
+      finally {
+        LeaveCtorTransactionScope();
+      }
+    }
+
+    #endregion
+
+    #region Enter/LeaveCtorTransactionScope methods
+
+    internal void EnterCtorTransactionScope()
+    {
+      if (Transaction.Current==null)
+        CtorTransactionInfo.Current = new CtorTransactionInfo {
+          Persistent = this,
+          TransactionScope = Transaction.Open()
+        };
+    }
+
+    internal void LeaveCtorTransactionScope()
+    {
+      var cti = CtorTransactionInfo.Current;
+      if (cti!=null && cti.Persistent==this) {
+        CtorTransactionInfo.Current = null;
+        cti.TransactionScope.DisposeSafely();
+      }
     }
 
     #endregion
@@ -652,6 +694,7 @@ namespace Xtensive.Storage
 
     internal Persistent()
     {
+      EnterCtorTransactionScope();
     }
   }
 }

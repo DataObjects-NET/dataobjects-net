@@ -586,7 +586,7 @@ namespace Xtensive.Storage
     internal Entity(Tuple keyTuple)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
-      Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
+      var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
       State = Session.CreateEntityState(key);
       SystemBeforeInitialize(false);
       this.Validate();
@@ -620,12 +620,16 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// <see cref="ClassDocTemplate()" copy="true"/>
+    /// Used internally to initialize the entity on materialization.
     /// </summary>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
     protected Entity(EntityState state)
     {
       State = state;
       SystemBeforeInitialize(true);
+      // Required, since generated .ctors in descendants 
+      // don't call Initialize / InitializationFailed
+      LeaveCtorTransactionScope(); 
     }
 
     /// <summary>
@@ -638,6 +642,9 @@ namespace Xtensive.Storage
       using (this.OpenSystemLogicOnlyRegion()) {
         DeserializationContext.Demand().SetEntityData(this, info, context);
       }
+      // Required, since generated .ctors in descendants 
+      // don't call Initialize / InitializationFailed
+      LeaveCtorTransactionScope(); 
     }
   }
 }

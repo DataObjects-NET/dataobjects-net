@@ -315,6 +315,17 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="data">Underlying <see cref="Tuple"/> value.</param>
+    protected Structure(Tuple data)
+    {
+      type = GetTypeInfo();
+      tuple = data;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Used internally to initialize the structure on materialization.
+    /// </summary>
     /// <param name="owner">The owner of this instance.</param>
     /// <param name="field">The owner field that describes this instance.</param>
     protected Structure(Persistent owner, FieldInfo field)
@@ -328,16 +339,9 @@ namespace Xtensive.Storage
         tuple = field.ExtractValue(
           new ReferencedTuple(() => Owner.Tuple));
       SystemBeforeInitialize(false);
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="data">Underlying <see cref="Tuple"/> value.</param>
-    protected Structure(Tuple data)
-    {
-      type = GetTypeInfo();
-      tuple = data;
+      // Required, since generated .ctors in descendants 
+      // don't call Initialize / InitializationFailed
+      LeaveCtorTransactionScope(); 
     }
 
     /// <summary>

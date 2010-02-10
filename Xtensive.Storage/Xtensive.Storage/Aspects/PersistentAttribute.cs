@@ -126,7 +126,8 @@ namespace Xtensive.Storage.Aspects
       
       var candidates = GetMethods(type).Cast<MethodBase>()
         .Concat(explicitMethods)
-        .Concat(GetConstructors(type))
+        // Constructors are now processed using .base ... Initialize/InitializationError
+        // .Concat(GetConstructors(type))
         .ToHashSet();
 
       var propertyAccessorsAttributes = GetPropertyAccessorsAttributes(type);

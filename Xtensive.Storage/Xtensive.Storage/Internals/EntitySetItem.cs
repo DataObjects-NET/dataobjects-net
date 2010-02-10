@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Internals
     // Constructors
 
     protected EntitySetItem(Tuple tuple)
-      :base(tuple)
+      : base(tuple)
     {
     }
   }
