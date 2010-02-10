@@ -293,7 +293,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         .Build();
 
       var firstLevel1Dto = new CompositeKeyFirstLevel1Dto {
-        Key = Guid.NewGuid().ToString(), FirstId = Guid.NewGuid(), SecondId = DateTime.Now.AddDays(1), Aux = 10
+        Key = Guid.NewGuid().ToString(), FirstId = Guid.NewGuid(), SecondId = DateTime.Now.AddDays(1).Date,
+        Aux = 10
       };
       var firstLevel0Dto = new CompositeKeyFirstLevel0Dto {
         Key = Guid.NewGuid().ToString(), FirstId = Guid.NewGuid(), SecondId = firstLevel1Dto, Aux = "11"
@@ -303,7 +304,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       };
       var target = new CompositeKeyRootDto {
         Key = Guid.NewGuid().ToString(), FirstId = firstLevel0Dto, SecondId = secondLevel0Dto,
-        Aux = DateTime.Now.AddDays(2)
+        Aux = DateTime.Now.AddDays(2).Date
       };
 
       ReadOnlyDictionary<object, object> keyMapping;
