@@ -13,6 +13,7 @@ namespace Xtensive.Core
   /// A wrapper representing connection information.
   /// Connection can be specified by either <see cref="ConnectionString"/> or <see cref="ConnectionUrl"/>.
   /// </summary>
+  [Serializable]
   public sealed class ConnectionInfo : IEquatable<ConnectionInfo>
   {
     private const string ToStringFormat = "[{0}] {1}";
@@ -116,6 +117,15 @@ namespace Xtensive.Core
 
       ConnectionUrl = connectionUrl;
       Provider = connectionUrl.Protocol.ToLowerInvariant();
+    }
+
+    /// <summary>
+    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="connectionUrl">The connection URL.</param>
+    public ConnectionInfo(string connectionUrl)
+      : this(UrlInfo.Parse(connectionUrl))
+    {
     }
   }
 }

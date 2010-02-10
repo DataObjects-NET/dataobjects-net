@@ -32,9 +32,9 @@ namespace Xtensive.Storage.Tests.Issues
       Assert.AreEqual(handler.Schema.Name, SchemaName);
     }
 
-    private static void EnsureSchemaExists(UrlInfo url)
+    private static void EnsureSchemaExists(ConnectionInfo connectionInfo)
     {
-      var driver = SqlDriver.Create(url);
+      var driver = SqlDriver.Create(connectionInfo);
       using (var connection = driver.CreateConnection()) {
         connection.Open();
         string checkSchemaQuery = string.Format("select schema_id('{0}')", SchemaName);

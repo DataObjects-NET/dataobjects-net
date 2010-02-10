@@ -16,15 +16,12 @@ namespace Xtensive.Storage.Rse.Compilation
   {
     private CompilableProvider rootProvider;
 
-    protected CompilableProvider RootProvider
-    {
-      get { return rootProvider; }
-    }
+    protected CompilableProvider RootProvider { get { return rootProvider; } }
 
     /// <summary>
     /// Gets execution site location.
     /// </summary>
-    public UrlInfo Location { get; private set; }
+    public Location Location { get; private set; }
 
     /// <inheritdoc/>
     public BindingCollection<ApplyParameter, ExecutableProvider> OuterReferences { get; private set; }
@@ -337,7 +334,7 @@ namespace Xtensive.Storage.Rse.Compilation
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="location">Location.</param>
-    protected Compiler(UrlInfo location)
+    protected Compiler(Location location)
     {
       Location = location;
       OuterReferences = new BindingCollection<ApplyParameter, ExecutableProvider>();

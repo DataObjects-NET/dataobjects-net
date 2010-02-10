@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// Gets or sets execution site location.
     /// </summary>
-    public UrlInfo Location { get; private set; }
+    public Location Location { get; private set; }
 
 
     // Constructors
@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected LocationAwareProvider(ProviderType type, UrlInfo location, params Provider[] sources)
+    protected LocationAwareProvider(ProviderType type, Location location, params Provider[] sources)
       : base(type, sources)
     {
       Location = location;

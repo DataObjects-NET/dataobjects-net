@@ -4,11 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2009.05.19
 
-using System;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
-using Xtensive.Core.Reflection;
+using System.Text;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests
@@ -28,7 +25,7 @@ namespace Xtensive.Storage.Tests
     public void MainTest()
     {
       var result = new StringBuilder();
-      result.Append("ConnectionString: ").AppendLine(config.ConnectionInfo.Url);
+      result.Append("ConnectionString: ").AppendLine(config.ConnectionInfo.ToString());
       result.Append("ForeignKeyMode: ").AppendLine(config.ForeignKeyMode.ToString());
       Log.Error(result.ToString());
     }

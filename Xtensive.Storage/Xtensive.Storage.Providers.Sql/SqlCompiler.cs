@@ -490,7 +490,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public SqlCompiler(HandlerAccessor handlers)
-      : base(handlers.Domain.Configuration.ConnectionInfo)
+      : base(handlers.DomainHandler.StorageLocation)
     {
       Handlers = handlers;
 

@@ -9,6 +9,7 @@ using System.Configuration;
 using Xtensive.Core;
 using Xtensive.Core.Collections.Configuration;
 using Xtensive.Core.Configuration;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Configuration.Elements
 {
@@ -20,6 +21,8 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string UpgradeModeElementName = "upgradeMode";
     private const string ForeignKeyModeElementName = "foreignKeyMode";
     private const string NameElementName = "name";
+    private const string ProviderElementName = "provider";
+    private const string ConnectionStringElementName = "connectionString";
     private const string ConnectionUrlElementName = "connectionUrl";
     private const string TypesElementName = "types";
     private const string NamingConventionElementName = "namingConvention";
@@ -37,15 +40,12 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string ServiceContainerTypeElementName = "serviceContainerType";
 
     /// <inheritdoc/>
-    public override object Identifier
-    {
-      get { return Name; }
-    }
+    public override object Identifier { get { return Name; } }
 
     /// <summary>
     /// <see cref="DomainConfiguration.Name" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(NameElementName, IsKey = true, IsRequired = false, DefaultValue = "")]
+    [ConfigurationProperty(NameElementName, IsKey = true, DefaultValue = "")]
     public string Name
     {
       get { return (string) this[NameElementName]; }
@@ -55,11 +55,31 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.ConnectionInfo" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(ConnectionUrlElementName, DefaultValue = null, IsRequired = true)]
+    [ConfigurationProperty(ConnectionUrlElementName, DefaultValue = null)]
     public string ConnectionUrl
     {
       get { return (string) this[ConnectionUrlElementName]; }
       set { this[ConnectionUrlElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.ConnectionInfo" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(ConnectionStringElementName, DefaultValue = null)]
+    public string ConnectionString
+    {
+      get { return (string) this[ConnectionStringElementName]; }
+      set { this[ConnectionUrlElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.ConnectionInfo" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(ProviderElementName, DefaultValue = null)]
+    public string Provider
+    {
+      get { return (string) this[ProviderElementName]; }
+      set { this[ProviderElementName] = value; }
     }
 
     /// <summary>
@@ -75,7 +95,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.NamingConvention" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(NamingConventionElementName, IsRequired = false)]
+    [ConfigurationProperty(NamingConventionElementName)]
     public NamingConventionElement NamingConvention
     {
       get { return (NamingConventionElement) this[NamingConventionElementName]; }
@@ -85,7 +105,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.KeyCacheSize" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(KeyCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyCacheSize, IsRequired = false)]
+    [ConfigurationProperty(KeyCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyCacheSize)]
     [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int KeyCacheSize
     {
@@ -96,7 +116,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.KeyGeneratorCacheSize" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(KeyGeneratorCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyGeneratorCacheSize, IsRequired = false)]
+    [ConfigurationProperty(KeyGeneratorCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyGeneratorCacheSize)]
     [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int KeyGeneratorCacheSize
     {
@@ -107,7 +127,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.QueryCacheSize" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(QueryCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultQueryCacheSize, IsRequired = false)]
+    [ConfigurationProperty(QueryCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultQueryCacheSize)]
     [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int QueryCacheSize
     {
@@ -118,7 +138,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.RecordSetMappingCacheSize" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(RecordSetMappingCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultRecordSetMappingCacheSize, IsRequired = false)]
+    [ConfigurationProperty(RecordSetMappingCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultRecordSetMappingCacheSize)]
     [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int RecordSetMappingCacheSize
     {
@@ -129,7 +149,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.AutoValidation" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(AutoValidationElementName, IsRequired = false, DefaultValue = DomainConfiguration.DefaultAutoValidation)]
+    [ConfigurationProperty(AutoValidationElementName, DefaultValue = DomainConfiguration.DefaultAutoValidation)]
     public bool AutoValidation
     {
       get { return (bool) this[AutoValidationElementName]; }
@@ -139,7 +159,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.UpgradeMode" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(UpgradeModeElementName, IsRequired = false, DefaultValue = "Default")]
+    [ConfigurationProperty(UpgradeModeElementName, DefaultValue = "Default")]
     public string UpgradeMode
     {
       get { return (string) this[UpgradeModeElementName]; }
@@ -149,7 +169,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.ForeignKeyMode" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(ForeignKeyModeElementName, IsRequired = false, DefaultValue = "Default")]
+    [ConfigurationProperty(ForeignKeyModeElementName, DefaultValue = "Default")]
     public string ForeignKeyMode
     {
       get { return (string) this[ForeignKeyModeElementName]; }
@@ -159,7 +179,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.ValidationMode" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(ValidationModeElementName, IsRequired = false, DefaultValue = "Default")]
+    [ConfigurationProperty(ValidationModeElementName, DefaultValue = "Default")]
     public string ValidationMode
     {
       get { return (string) this[ValidationModeElementName]; }
@@ -179,7 +199,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.ServiceContainerType" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(ServiceContainerTypeElementName, IsRequired = false, DefaultValue = null)]
+    [ConfigurationProperty(ServiceContainerTypeElementName, DefaultValue = null)]
     public string ServiceContainerType
     {
       get { return (string)this[ServiceContainerTypeElementName]; }
@@ -190,7 +210,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.DefaultSchema" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(DefaultSchemaElementName, IsRequired = false)]
+    [ConfigurationProperty(DefaultSchemaElementName)]
     public string DefaultSchema
     {
       get { return (string) this[DefaultSchemaElementName]; }
@@ -204,9 +224,18 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <returns>The result of conversion.</returns>
     public DomainConfiguration ToNative()
     {
+      bool connectionUrlSpecified = !string.IsNullOrEmpty(ConnectionUrl);
+      bool connectionStringSpecified = !string.IsNullOrEmpty(ConnectionString) && !string.IsNullOrEmpty(Provider);
+      if (connectionUrlSpecified==connectionStringSpecified)
+        throw new InvalidOperationException(
+          Strings.ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnectionStringElements);
+      var connectionInfo = connectionUrlSpecified
+        ? new ConnectionInfo(ConnectionUrl)
+        : new ConnectionInfo(Provider, ConnectionString);
+
       var config = new DomainConfiguration {
         Name = Name,
-        ConnectionInfo = UrlInfo.Parse(ConnectionUrl),
+        ConnectionInfo = connectionInfo,
         NamingConvention = NamingConvention.ToNative(),
         KeyCacheSize = KeyCacheSize,
         KeyGeneratorCacheSize = KeyGeneratorCacheSize,
@@ -219,6 +248,7 @@ namespace Xtensive.Storage.Configuration.Elements
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType)
       };
+
       foreach (var entry in Types)
         config.Types.Register(entry.ToNative());
       foreach (var session in Sessions)

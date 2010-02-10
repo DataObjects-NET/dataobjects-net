@@ -9,7 +9,7 @@ namespace Xtensive.Storage.Providers.Sql.Servers.Oracle
   /// <summary>
   /// Storage provider for Oracle.
   /// </summary>
-  [Provider(WellKnown.Protocol.Oracle, "Storage provider for Oracle.")]
+  [Provider(WellKnown.Provider.Oracle, "Storage provider for Oracle.")]
   public class HandlerFactory : Sql.HandlerFactory
   {
   }

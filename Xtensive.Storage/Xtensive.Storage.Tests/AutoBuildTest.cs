@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Tests
     {
       if ((protocol & allowedProtocols)==0)
         throw new IgnoreException(
-          string.Format("This test is not suitable for '{0}' protocol", protocolName));
+          string.Format("This test is not suitable for '{0}' provider", protocolName));
     }
 
     protected void EnsureProtocolIsNot(StorageProtocol disallowedProtocols)
@@ -94,21 +94,21 @@ namespace Xtensive.Storage.Tests
     
     private void SelectProtocol(DomainConfiguration config)
     {
-      protocolName = config.ConnectionInfo.Protocol;
+      protocolName = config.ConnectionInfo.Provider;
       switch (protocolName) {
-      case WellKnown.Protocol.Memory:
+      case WellKnown.Provider.Memory:
         protocol = StorageProtocol.Memory;
         break;
-      case WellKnown.Protocol.SqlServer:
+      case WellKnown.Provider.SqlServer:
         protocol = StorageProtocol.SqlServer;
         break;
-      case WellKnown.Protocol.SqlServerCe:
+      case WellKnown.Provider.SqlServerCe:
         protocol = StorageProtocol.SqlServerCe;
         break;
-      case WellKnown.Protocol.PostgreSql:
+      case WellKnown.Provider.PostgreSql:
         protocol = StorageProtocol.PostgreSql;
         break;
-      case WellKnown.Protocol.Oracle:
+      case WellKnown.Provider.Oracle:
         protocol = StorageProtocol.Oracle;
         break;
       default:

@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public IndexCompiler(HandlerAccessor handlers, IIndexResolver indexResolver)
-      : base(handlers.Domain.Configuration.ConnectionInfo)
+      : base(handlers.DomainHandler.StorageLocation)
     {
       Handlers = handlers;
       this.indexResolver = indexResolver;

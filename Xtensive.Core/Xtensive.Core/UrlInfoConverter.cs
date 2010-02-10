@@ -23,7 +23,7 @@ namespace Xtensive.Core
     public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
     {
       if (value is string) {
-        return new UrlInfo((string)value);
+        return UrlInfo.Parse((string) value);
       }
       return base.ConvertFrom(context, culture, value);
     }

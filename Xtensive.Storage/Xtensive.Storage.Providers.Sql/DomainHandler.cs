@@ -217,6 +217,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       base.Initialize();
 
+      StorageLocation = Driver.StorageLocation;
+
       accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
       requestCache = ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>.Create(new object());
       Mapping = new ModelMapping();

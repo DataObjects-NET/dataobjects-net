@@ -5,6 +5,7 @@
 // Created:    2009.12.25
 
 using System;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Info
@@ -14,6 +15,7 @@ namespace Xtensive.Sql.Info
   /// </summary>
   public class CoreServerInfo : LockableBase
   {
+    private Location serverLocation;
     private Version serverVersion;
     private string connectionString;
     private string databaseName;
@@ -21,31 +23,17 @@ namespace Xtensive.Sql.Info
     private bool multipleActiveResultSets;
     
     /// <summary>
-    /// Gets or sets the name of the database.
+    /// Gets or sets the server location.
     /// </summary>
-    public string DatabaseName {
+    public Location ServerLocation {
       get {
-        return databaseName;
+        return serverLocation;
       }
       set {
         this.EnsureNotLocked();
-        databaseName = value;
+        serverLocation = value;
       }
     }
-
-    /// <summary>
-    /// Gets or sets the default name of the schema.
-    /// </summary>
-    public string DefaultSchemaName {
-      get {
-        return defaultSchemaName;
-      }
-      set {
-        this.EnsureNotLocked();
-        defaultSchemaName = value;
-      }
-    }
-
 
     /// <summary>
     /// Gets or sets the server version.
@@ -74,10 +62,38 @@ namespace Xtensive.Sql.Info
     }
 
     /// <summary>
+    /// Gets or sets the name of the database.
+    /// </summary>
+    public string DatabaseName {
+      get {
+        return databaseName;
+      }
+      set {
+        this.EnsureNotLocked();
+        databaseName = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the default name of the schema.
+    /// </summary>
+    public string DefaultSchemaName {
+      get {
+        return defaultSchemaName;
+      }
+      set {
+        this.EnsureNotLocked();
+        defaultSchemaName = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets a value indicating whether multiple active result sets are supported.
     /// </summary>
     public bool MultipleActiveResultSets {
-      get { return multipleActiveResultSets; }
+      get {
+        return multipleActiveResultSets;
+      }
       set {
         this.EnsureNotLocked();
         multipleActiveResultSets = value;

@@ -20,24 +20,15 @@ namespace Xtensive.Storage.Rse.Compilation
   [Serializable]
   public abstract class RseCompiler : Compiler<ExecutableProvider>
   {
-    private static readonly UrlInfo defaultClientLocation = new UrlInfo("rse://localhost/");
-    private static readonly UrlInfo defaultServerLocation = new UrlInfo("rse://server/");
-
     /// <summary>
     /// Gets the default client location.
     /// </summary>
-    public static UrlInfo DefaultClientLocation
-    {
-      get { return defaultClientLocation; }
-    }
+    public static Location DefaultClientLocation { get; private set; }
 
     /// <summary>
     /// Gets the default server location.
     /// </summary>
-    public static UrlInfo DefaultServerLocation
-    {
-      get { return defaultServerLocation; }
-    }
+    public static Location DefaultServerLocation { get; private set; }
 
     /// <inheritdoc/>
     protected override ExecutableProvider VisitTransfer(TransferProvider provider)
@@ -356,9 +347,17 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    protected RseCompiler(UrlInfo location)
+    protected RseCompiler(Location location)
       : base(location)
     {
+    }
+
+    // Type initializer
+
+    static RseCompiler()
+    {
+      DefaultServerLocation = new Location("rse", "server/");
+      DefaultClientLocation = new Location("rse", "localhost/");
     }
   }
 }

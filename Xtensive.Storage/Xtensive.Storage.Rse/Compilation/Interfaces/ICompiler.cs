@@ -54,6 +54,6 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <summary>
     /// Gets execution site location.
     /// </summary>
-    UrlInfo Location { get; }
+    Location Location { get; }
   }
 }

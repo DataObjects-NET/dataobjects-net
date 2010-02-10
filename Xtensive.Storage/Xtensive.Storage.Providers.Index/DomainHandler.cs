@@ -198,13 +198,17 @@ namespace Xtensive.Storage.Providers.Index
     {
       base.Initialize();
       var connectionInfo = BuildingContext.Demand().Configuration.ConnectionInfo;
-      var remoteUrl = connectionInfo.ToString(); // TODO: Fix this
+      if (connectionInfo.ConnectionUrl==null)
+        throw new NotImplementedException(Strings.ExIndexingStoragesSupportOnlyConnectionUrls);
+      var remoteUrl = connectionInfo.ConnectionUrl;
+      var remoteUrlString = remoteUrl.ToString(); // TODO: Fix this
       IndexStorage storage;
-      if (!TryGetRemoteStorage(remoteUrl, out storage)) {
-        storage = CreateLocalStorage(connectionInfo.Resource);
-        MarshalStorage(storage, remoteUrl, connectionInfo.Port);
+      if (!TryGetRemoteStorage(remoteUrlString, out storage)) {
+        storage = CreateLocalStorage(remoteUrl.Resource);
+        MarshalStorage(storage, remoteUrlString, remoteUrl.Port);
       }
       Storage = storage;
+      StorageLocation = Location.FromUrl(remoteUrl);
     }
   }
 }

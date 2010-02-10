@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using System;
+using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
@@ -18,12 +19,7 @@ namespace Xtensive.Sql.SqlServer
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
-    // Some people, when confronted with a problem, think
-    // "I know, I'll use regular expressions." Now they have two problems.
-    private static readonly Regex MarsParameterChecker = new Regex(
-      @"MultipleActiveResultSets\ *=\ *True",
-      RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
+    private const string DataSourceFormat = "{0}/{1}";
     private const string DatabaseAndSchemaQuery =
       "select db_name(), default_schema_name from sys.database_principals where name=user";
 
@@ -36,22 +32,55 @@ namespace Xtensive.Sql.SqlServer
     }
 
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(ConnectionInfo connectionInfo)
+    public override string BuildConnectionString(UrlInfo url)
     {
-      var connectionString = ConnectionStringBuilder.Build(connectionInfo);
+      SqlHelper.ValidateConnectionUrl(url);
+
+      var builder = new SqlConnectionStringBuilder();
+      
+      // host, port, database
+      if (url.Port==0)
+        builder.DataSource = url.Host;
+      else
+        builder.DataSource = url.Host + "," + url.Port;
+      builder.InitialCatalog = url.Resource ?? string.Empty;
+
+      // user, password
+      if (!String.IsNullOrEmpty(url.User)) {
+        builder.UserID = url.User;
+        builder.Password = url.Password;
+      }
+      else {
+        builder.IntegratedSecurity = true;
+        builder.PersistSecurityInfo = false;
+      }
+
+      // custom options
+      foreach (var param in url.Params)
+        builder[param.Key] = param.Value;
+
+      return builder.ToString();
+    }
+
+    /// <inheritdoc/>
+    public override SqlDriver CreateDriver(string connectionString)
+    {
       using (var connection = new SqlServerConnection(connectionString)) {
         connection.Open();
         var version = new Version(connection.ServerVersion);
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        var dataSource = string.Format(DataSourceFormat, builder.DataSource, builder.InitialCatalog);
         var coreServerInfo = new CoreServerInfo {
+          ServerLocation = new Location("sqlserver", dataSource),
+          ServerVersion = version,
           ConnectionString = connectionString,
-          ServerVersion = version
         };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
         if (IsAzure(connection)) {
           coreServerInfo.MultipleActiveResultSets = false;
           return new Azure.Driver(coreServerInfo);
         }
-        coreServerInfo.MultipleActiveResultSets = MarsParameterChecker.IsMatch(connectionString);
+        coreServerInfo.MultipleActiveResultSets = builder.MultipleActiveResultSets;
         switch (version.Major) {
         case 9:
           return new v09.Driver(coreServerInfo);

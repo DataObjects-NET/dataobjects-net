@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.Randomized
 {
@@ -27,10 +28,10 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
     private readonly List<Key> entitySetCache = new List<Key>();
     private bool isProtocolMemory;
     
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      isProtocolMemory = config.ConnectionInfo.Protocol==WellKnown.Protocol.Memory;
+      isProtocolMemory = config.ConnectionInfo.Provider==WellKnown.Provider.Memory;
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Tree).Assembly, typeof(Tree).Namespace);
       return config;

@@ -14,13 +14,20 @@ namespace Xtensive.Storage.Tests
 {
   public static class DomainConfigurationFactory
   {
-    private const string StorageTypeKey =       "X_STORAGE";
-    private const string ForeignKeysModeKey =   "X_FOREIGN_KEYS";
-    private const string TypeIdKey =            "X_TYPE_ID";
+    private const string StorageTypeKey = "X_STORAGE";
+    private const string ForeignKeysModeKey = "X_FOREIGN_KEYS";
+    private const string TypeIdKey = "X_TYPE_ID";
     private const string InheritanceSchemaKey = "X_INHERITANCE_SCHEMA";
-    private const string ConnectionUrlKey =     "X_CONNECTION_URL";
-
+    private const string ProviderKey = "X_PROVIDER";
+    private const string ConnectionStringKey = "X_CONNECTION_STRING";
+    private const string ConnectionUrlKey = "X_CONNECTION_URL";
+    
     public static DomainConfiguration Create()
+    {
+      return Create(false);
+    }
+
+    public static DomainConfiguration Create(bool useConnectionString)
     {
       // Default values
       var storageType = "memory";
@@ -50,6 +57,9 @@ namespace Xtensive.Storage.Tests
         foreignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), value, true);
       }
 
+      if (useConnectionString)
+        storageType += "cs";
+
       DomainConfiguration config;
 
       config = Create(storageType, inheritanceSchema, typeIdBehavior, foreignKeyMode);
@@ -70,12 +80,17 @@ namespace Xtensive.Storage.Tests
 //      config = Create("pgsql", InheritanceSchema.SingleTable);
 //      config = Create("pgsql", InheritanceSchema.ConcreteTable);
 //      config = Create("pgsql", InheritanceSchema.Default, TypeIdBehavior.Include);
-
-
       
       value = GetEnvironmentVariable(ConnectionUrlKey);
       if (value!=null)
-        config.ConnectionInfo = UrlInfo.Parse(value);
+        config.ConnectionInfo = new ConnectionInfo(value);
+
+      value = GetEnvironmentVariable(ConnectionStringKey);
+      if (value!=null) {
+        var provider = GetEnvironmentVariable(ProviderKey);
+        if (provider!=null)
+          config.ConnectionInfo = new ConnectionInfo(provider, value);
+      }
 
       return config;
     }

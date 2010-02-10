@@ -170,7 +170,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Well-known storage protocol names.
     /// </summary>
-    public static class Protocol
+    public static class Provider
     {
       /// <summary>
       /// In-memory index storage.

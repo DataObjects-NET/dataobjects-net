@@ -18,23 +18,23 @@ namespace Xtensive.Sql
     /// <summary>
     /// Creates the driver from the specified connection URL.
     /// </summary>
-    /// <param name="url">The connection url.</param>
+    /// <param name="connectionUrl">The connection url.</param>
     /// <returns>Created driver.</returns>
-    public static SqlDriver Create(UrlInfo url)
+    public static SqlDriver Create(UrlInfo connectionUrl)
     {
-      ArgumentValidator.EnsureArgumentNotNull(url, "url");
-      return BuildDriver(new ConnectionInfo(url));
+      ArgumentValidator.EnsureArgumentNotNull(connectionUrl, "connectionUrl");
+      return BuildDriver(new ConnectionInfo(connectionUrl));
     }
 
     /// <summary>
     /// Creates the driver from the specified connection URL.
     /// </summary>
-    /// <param name="url">The connection url.</param>
+    /// <param name="connectionUrl">The connection url.</param>
     /// <returns>Created driver.</returns>
-    public static SqlDriver Create(string url)
+    public static SqlDriver Create(string connectionUrl)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(url, "url");
-      return BuildDriver(new ConnectionInfo(UrlInfo.Parse(url)));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionUrl, "connectionUrl");
+      return BuildDriver(new ConnectionInfo(connectionUrl));
     }
 
     /// <summary>
@@ -63,11 +63,14 @@ namespace Xtensive.Sql
 
     private static SqlDriver BuildDriver(ConnectionInfo connectionInfo)
     {
-      var assembly = AssemblyHelper.LoadExtensionAssembly(string.Format(DriverAssemblyFormat, connectionInfo.Provider));
+      var assembly = AssemblyHelper.LoadExtensionAssembly(
+        string.Format(DriverAssemblyFormat, connectionInfo.Provider));
       var factoryType = assembly.GetTypes()
         .Single(type => type.IsPublicNonAbstractInheritorOf(typeof (SqlDriverFactory)));
       var factory = (SqlDriverFactory) Activator.CreateInstance(factoryType);
-      var driver = factory.CreateDriver(connectionInfo);
+      var connectionString = connectionInfo.ConnectionString
+        ?? factory.BuildConnectionString(connectionInfo.ConnectionUrl);
+      var driver = factory.CreateDriver(connectionString);
       driver.Initialize();
       return driver;
     }

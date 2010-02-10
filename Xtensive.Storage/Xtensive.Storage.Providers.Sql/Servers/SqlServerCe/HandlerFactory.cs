@@ -9,7 +9,7 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
   /// <summary>
   /// Storage provider for SQL Server Ce.
   /// </summary>
-  [Provider(WellKnown.Protocol.SqlServerCe, "Storage provider for SQL Server Ce.")]
+  [Provider(WellKnown.Provider.SqlServerCe, "Storage provider for SQL Server Ce.")]
   public class HandlerFactory : Sql.HandlerFactory
   {
   }

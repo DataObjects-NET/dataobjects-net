@@ -79,6 +79,15 @@ namespace Xtensive.Storage.Providers.Index.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Indexing storages support only connection URLs.
+        /// </summary>
+        internal static string ExIndexingStoragesSupportOnlyConnectionUrls {
+            get {
+                return ResourceManager.GetString("ExIndexingStoragesSupportOnlyConnectionUrls", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Instance of type &apos;{0}&apos; with specified key is not found..
         /// </summary>
         internal static string ExInstanceXIsNotFound {

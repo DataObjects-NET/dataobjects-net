@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Rse.Providers
     /// <summary>
     /// Gets or sets execution site location.
     /// </summary>
-    public UrlInfo Location { get; set; }
+    public Location Location { get; set; }
 
     /// <summary>
     /// Gets the sequence this provider provides in the specified <see cref="EnumerationContext"/>.

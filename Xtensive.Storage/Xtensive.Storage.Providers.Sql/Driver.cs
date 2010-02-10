@@ -5,6 +5,7 @@
 // Created:    2009.08.14
 
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
@@ -22,10 +23,12 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly SqlTranslator translator;
     private readonly TypeMappingCollection allMappings;
     
-    private bool isDebugLoggingEnabled;
+    private readonly bool isDebugLoggingEnabled;
 
     public string BatchBegin { get { return translator.BatchBegin; } }
     public string BatchEnd { get { return translator.BatchEnd; } }
+
+    public Location StorageLocation { get; private set; }
 
     public ProviderInfo BuildProviderInfo()
     {
@@ -137,6 +140,8 @@ namespace Xtensive.Storage.Providers.Sql
       underlyingDriver = SqlDriver.Create(domain.Configuration.ConnectionInfo);
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
+
+      StorageLocation = underlyingDriver.CoreServerInfo.ServerLocation;
 
       isDebugLoggingEnabled = Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
     }

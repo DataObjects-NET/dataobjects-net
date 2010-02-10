@@ -9,7 +9,7 @@ namespace Xtensive.Storage.Providers.Sql.Servers.PostgreSql
   /// <summary>
   /// Storage provider for PostgreSQL.
   /// </summary>
-  [Provider(WellKnown.Protocol.PostgreSql, "Storage provider for PostgreSQL.")]
+  [Provider(WellKnown.Provider.PostgreSql, "Storage provider for PostgreSQL.")]
   public class HandlerFactory : Sql.HandlerFactory
   {
   }

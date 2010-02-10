@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Linq;
@@ -22,7 +23,7 @@ namespace Xtensive.Storage.Providers
   /// </summary>
   public abstract class DomainHandler : InitializableHandlerBase
   {
-    private object syncRoot = new object();
+    private readonly object syncRoot = new object();
     private readonly Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders = new Dictionary<Type, IMemberCompilerProvider>();
 
     /// <summary>
@@ -46,6 +47,11 @@ namespace Xtensive.Storage.Providers
     /// Gets the information about provider's capabilities.
     /// </summary>
     public ProviderInfo ProviderInfo { get; private set; }
+
+    /// <summary>
+    /// Gets the storage location.
+    /// </summary>
+    public Location StorageLocation { get; protected set; }
 
     /// <summary>
     /// Gets the member compiler provider by its type parameter.

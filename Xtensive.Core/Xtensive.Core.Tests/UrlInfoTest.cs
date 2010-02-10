@@ -13,10 +13,10 @@ namespace Xtensive.Core.Tests.Utility
     [Test]
     public void CombinedTest()
     {
-      UrlInfo a1 = new UrlInfo("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter=someValue&someParameter2=someValue2");
-      UrlInfo a2 = new UrlInfo("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter=someValue&someParameter2=someValue2");
-      UrlInfo aX = new UrlInfo("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter2=someValue2&someParameter=someValue");
-      UrlInfo b  = new UrlInfo("tcp://user:password@someHost:1000/someUrl/someUrl");
+      UrlInfo a1 = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter=someValue&someParameter2=someValue2");
+      UrlInfo a2 = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter=someValue&someParameter2=someValue2");
+      UrlInfo aX = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter2=someValue2&someParameter=someValue");
+      UrlInfo b  = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl");
 
       Assert.IsTrue(a1.GetHashCode()==a2.GetHashCode());
       Assert.IsTrue(a1.GetHashCode()!=aX.GetHashCode());

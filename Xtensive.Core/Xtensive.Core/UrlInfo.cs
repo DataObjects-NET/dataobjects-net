@@ -12,12 +12,9 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Resources;
-using System.IO;
-using System.Security.Cryptography;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Core
 {
@@ -422,16 +419,6 @@ namespace Xtensive.Core
 
 
     // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
-    /// </summary>
-    /// <param name="url">Initial <see cref="UrlInfo.Url"/> property value.</param>
-    [Obsolete]
-    public UrlInfo(string url)
-    {
-      Parse(url, this);
-    }
 
     private UrlInfo()
     {

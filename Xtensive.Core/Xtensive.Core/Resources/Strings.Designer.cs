@@ -187,6 +187,24 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Argument must be greater that or equal &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExArgumentMustBeGreaterThatOrEqualX {
+            get {
+                return ResourceManager.GetString("ExArgumentMustBeGreaterThatOrEqualX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Argument must be less than or equal &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExArgumentMustBeLessThanOrEqualX {
+            get {
+                return ResourceManager.GetString("ExArgumentMustBeLessThanOrEqualX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Argument must be less than &apos;{0}&apos;.
         /// </summary>
         internal static string ExArgumentMustBeLessThanX {

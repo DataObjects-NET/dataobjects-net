@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void CreateHandlerFactory()
     {
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (HandlerFactory).GetShortName())) {
-        string protocol = BuildingContext.Demand().Configuration.ConnectionInfo.Protocol;
+        string protocol = BuildingContext.Demand().Configuration.ConnectionInfo.Provider;
         var thisAssembly = typeof (DomainBuilder).Assembly;
         Assembly providerAssembly;
         if (thisAssembly.GetName().Name==WellKnown.MergedAssemblyName) {
@@ -125,16 +125,16 @@ namespace Xtensive.Storage.Building.Builders
     private static string GetProviderAssemblyName(string providerName)
     {
       switch (providerName) {
-      case WellKnown.Protocol.Memory:
+      case WellKnown.Provider.Memory:
         return WellKnown.ProviderAssembly.Indexing;
-      case WellKnown.Protocol.SqlServer:
-      case WellKnown.Protocol.SqlServerCe:
-      case WellKnown.Protocol.PostgreSql:
-      case WellKnown.Protocol.Oracle:
+      case WellKnown.Provider.SqlServer:
+      case WellKnown.Provider.SqlServerCe:
+      case WellKnown.Provider.PostgreSql:
+      case WellKnown.Provider.Oracle:
         return WellKnown.ProviderAssembly.Sql;
       default:
         throw new NotSupportedException(
-          string.Format(Strings.ExProtocolXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Protocol.All));
+          string.Format(Strings.ExProviderXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Provider.All));
       }
     }
 

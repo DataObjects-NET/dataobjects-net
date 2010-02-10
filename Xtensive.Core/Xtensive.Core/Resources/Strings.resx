@@ -759,4 +759,10 @@
   <data name="ExXIsNeitherClassNorValueType" xml:space="preserve">
     <value>The {0} is neither class nor value type.</value>
   </data>
+  <data name="ExArgumentMustBeGreaterThatOrEqualX" xml:space="preserve">
+    <value>Argument must be greater that or equal '{0}'</value>
+  </data>
+  <data name="ExArgumentMustBeLessThanOrEqualX" xml:space="preserve">
+    <value>Argument must be less than or equal '{0}'</value>
+  </data>
 </root>

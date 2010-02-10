@@ -17,18 +17,49 @@ namespace Xtensive.Sql.PostgreSql
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
+    private const string DataSourceFormat = "{0}:{1}/{2}";
     private const string DatabaseAndSchemaQuery = "select current_database(), current_schema()";
 
     /// <inheritdoc/>
-    public override SqlDriver CreateDriver(ConnectionInfo connectionInfo)
+    public override string BuildConnectionString(UrlInfo url)
     {
-      var connectionString = ConnectionStringBuilder.Build(connectionInfo);
+      SqlHelper.ValidateConnectionUrl(url);
+
+      var builder = new NpgsqlConnectionStringBuilder();
+      
+      // host, port, database
+      builder.Host = url.Host;
+      if (url.Port!=0)
+        builder.Port = url.Port;
+      builder.Database = url.Resource ?? string.Empty;
+
+      // user, password
+      if (!String.IsNullOrEmpty(url.User)) {
+        builder.UserName = url.User;
+        builder.Password = url.Password;
+      }
+      else
+        builder.IntegratedSecurity = true;
+
+      // custom options
+      foreach (var param in url.Params)
+        builder[param.Key] = param.Value;
+
+      return builder.ToString();
+    }
+
+    /// <inheritdoc/>
+    public override SqlDriver CreateDriver(string connectionString)
+    {
       using (var connection = new NpgsqlConnection(connectionString)) {
         connection.Open();
         var version = connection.PostgreSqlVersion;
+        var builder = new NpgsqlConnectionStringBuilder(connectionString);
+        var dataSource = string.Format(DataSourceFormat, builder.Host, builder.Port, builder.Database);
         var coreServerInfo = new CoreServerInfo {
-          ConnectionString = connectionString,
+          ServerLocation = new Location("postgresql", dataSource),
           ServerVersion = version,
+          ConnectionString = connectionString,
           MultipleActiveResultSets = false,
         };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);

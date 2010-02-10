@@ -18,9 +18,9 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
     public void NoChangesTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      var protocolName = configuration.ConnectionInfo.Protocol;
-      if (protocolName != WellKnown.Protocol.SqlServer)
-          throw new IgnoreException(string.Format("This test is not suitable for '{0}' protocol", protocolName));
+      var protocolName = configuration.ConnectionInfo.Provider;
+      if (protocolName!=WellKnown.Provider.SqlServer)
+        throw new IgnoreException(string.Format("This test is not suitable for '{0}' provider", protocolName));
       
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(Model.Person));
@@ -83,9 +83,9 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
     public void TypeAddTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      var protocolName = configuration.ConnectionInfo.Protocol;
-      if (protocolName != WellKnown.Protocol.SqlServer)
-          throw new IgnoreException(string.Format("This test is not suitable for '{0}' protocol", protocolName));
+      var protocolName = configuration.ConnectionInfo.Provider;
+      if (protocolName != WellKnown.Provider.SqlServer)
+        throw new IgnoreException(string.Format("This test is not suitable for '{0}' provider", protocolName));
       
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(Model.Person));
@@ -145,9 +145,9 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
     public void TypeRemovalTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      var protocolName = configuration.ConnectionInfo.Protocol;
-      if (protocolName != WellKnown.Protocol.SqlServer)
-          throw new IgnoreException(string.Format("This test is not suitable for '{0}' protocol", protocolName));
+      var protocolName = configuration.ConnectionInfo.Provider;
+      if (protocolName!=WellKnown.Provider.SqlServer)
+        throw new IgnoreException(string.Format("This test is not suitable for '{0}' provider", protocolName));
       
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(Model.Person));

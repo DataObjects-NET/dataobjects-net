@@ -68,7 +68,7 @@ namespace Xtensive.Storage.Configuration
     private static string sectionName = DefaultSectionName;
 
     private string name = string.Empty;
-    private UrlInfo connectionInfo;
+    private ConnectionInfo connectionInfo;
     private string defaultSchema = string.Empty;
     private DomainTypeRegistry types = new DomainTypeRegistry(new DomainTypeRegistrationHandler());
     private NamingConvention namingConvention = new NamingConvention();
@@ -124,7 +124,7 @@ namespace Xtensive.Storage.Configuration
     /// configuration.ConnectionInfo = new UrlInfo(connectionUrl);
     /// </code>
     /// </example>
-    public UrlInfo ConnectionInfo
+    public ConnectionInfo ConnectionInfo
     {
       get { return connectionInfo; }
       set
@@ -424,14 +424,43 @@ namespace Xtensive.Storage.Configuration
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="connectionUrl">The string containing connection URL for <see cref="Domain"/>.</param>
-    /// <exception cref="ArgumentNullException">Parameter <paramref name="connectionUrl"/> is null or empty string.</exception>
     public DomainConfiguration(string connectionUrl)
       : this()
     {
-      ArgumentValidator.EnsureArgumentNotNull(connectionUrl, "connectionUrl");
-      connectionInfo = UrlInfo.Parse(connectionUrl);
+      connectionInfo = new ConnectionInfo(connectionUrl);
     }
 
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="connectionUrl">The connection URL.</param>
+    public DomainConfiguration(UrlInfo connectionUrl)
+      : this()
+    {
+      connectionInfo = new ConnectionInfo(connectionUrl);
+    }
+
+    /// <summary>
+    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="provider">The provider.</param>
+    /// <param name="connectionString">The connection string.</param>
+    public DomainConfiguration(string provider, string connectionString)
+      : this()
+    {
+      connectionInfo = new ConnectionInfo(provider, connectionString);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="connectionInfo">The connection info.</param>
+    public DomainConfiguration(ConnectionInfo connectionInfo)
+      : this()
+    {
+      this.connectionInfo = connectionInfo;
+    }
+    
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
