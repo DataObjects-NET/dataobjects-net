@@ -192,6 +192,12 @@ namespace Xtensive.Storage.Building
       Log.Info(Strings.LogInspectingTypeX, typeDef.Name);
 
       if (typeDef.IsInterface) {
+         // Remove open generic interface
+        if (typeDef.IsGenericTypeDefinition) {
+          context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
+          return;
+        }
+
         // Base interfaces
         foreach (var @interface in context.ModelDef.Types.FindInterfaces(typeDef.UnderlyingType))
           context.DependencyGraph.AddEdge(typeDef, @interface, EdgeKind.Inheritance, EdgeWeight.High);
