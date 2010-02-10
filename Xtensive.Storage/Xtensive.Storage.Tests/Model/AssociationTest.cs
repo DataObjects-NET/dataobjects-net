@@ -557,7 +557,7 @@ namespace Xtensive.Storage.Tests.Model
     [Test]
     public void OneToZero()
     {
-      EnsureProtocolIs(StorageProtocol.Sql);
+      EnsureProviderIs(StorageProvider.Sql);
 
       using (Session.Open(Domain)) {
         A a;

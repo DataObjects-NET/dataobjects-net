@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Tests.Rse
   {
     protected override void CheckRequirements()
     {
-      EnsureProtocolIs(StorageProtocol.Index);
+      EnsureProviderIs(StorageProvider.Index);
     }
 
     protected override DomainConfiguration BuildConfiguration()

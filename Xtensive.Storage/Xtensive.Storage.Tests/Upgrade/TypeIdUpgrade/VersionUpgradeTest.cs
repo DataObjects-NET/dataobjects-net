@@ -14,14 +14,18 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
   [TestFixture]
   public class VersionUpgradeTest
   {
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      var providerName = configuration.ConnectionInfo.Provider;
+      StorageTestHelper.EnsureProviderIs(providerName, StorageProvider.SqlServer);
+    }
+
     [Test]
     public void NoChangesTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      var protocolName = configuration.ConnectionInfo.Provider;
-      if (protocolName!=WellKnown.Provider.SqlServer)
-        throw new IgnoreException(string.Format("This test is not suitable for '{0}' provider", protocolName));
-      
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(Model.Person));
       configuration.Types.Register(typeof(Model.Employee));
@@ -83,10 +87,6 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
     public void TypeAddTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      var protocolName = configuration.ConnectionInfo.Provider;
-      if (protocolName != WellKnown.Provider.SqlServer)
-        throw new IgnoreException(string.Format("This test is not suitable for '{0}' provider", protocolName));
-      
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(Model.Person));
       var domain = Domain.Build(configuration);
@@ -145,10 +145,6 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
     public void TypeRemovalTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      var protocolName = configuration.ConnectionInfo.Provider;
-      if (protocolName!=WellKnown.Provider.SqlServer)
-        throw new IgnoreException(string.Format("This test is not suitable for '{0}' provider", protocolName));
-      
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(Model.Person));
       configuration.Types.Register(typeof(Model.Employee));

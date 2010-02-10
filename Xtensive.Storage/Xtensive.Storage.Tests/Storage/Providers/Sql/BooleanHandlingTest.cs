@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009 Xtensive LLC.
+// Copyright (C) 2009 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   {
     protected override void CheckRequirements()
     {
-      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.Oracle | StorageProtocol.SqlServerCe);
+      EnsureProviderIs(StorageProvider.SqlServer | StorageProvider.Oracle | StorageProvider.SqlServerCe);
     }
 
     protected override DomainConfiguration BuildConfiguration()

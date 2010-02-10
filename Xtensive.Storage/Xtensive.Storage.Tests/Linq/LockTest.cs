@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Tests.Linq
   {
     protected override void CheckRequirements()
     {
-      EnsureProtocolIs(StorageProtocol.Sql);
+      EnsureProviderIs(StorageProvider.Sql);
     }
 
     [Test]
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UpdateLockSkipTest()
     {
-      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.SqlServerCe);
+      EnsureProviderIs(StorageProvider.SqlServer | StorageProvider.SqlServerCe);
       var key = Query.All<Customer>().First().Key;
       var expected = Query.All<Customer>().Where(c => c.Key == key)
         .Lock(LockMode.Update, LockBehavior.Wait).ToList();
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ShareLockThrowTest()
     {
-      EnsureProtocolIs(StorageProtocol.PostgreSql);
+      EnsureProviderIs(StorageProvider.PostgreSql);
       var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ExclusiveLockThrowTest()
     {
-      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.SqlServerCe);
+      EnsureProviderIs(StorageProvider.SqlServer | StorageProvider.SqlServerCe);
       var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Exclusive, LockBehavior.ThrowIfLocked);
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ShareLockTest()
     {
-      EnsureProtocolIs(StorageProtocol.SqlServer | StorageProtocol.PostgreSql | StorageProtocol.SqlServerCe);
+      EnsureProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql | StorageProvider.SqlServerCe);
       var catchedException = ExecuteConcurrentQueries(LockMode.Shared, LockBehavior.ThrowIfLocked,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.IsNull(catchedException);

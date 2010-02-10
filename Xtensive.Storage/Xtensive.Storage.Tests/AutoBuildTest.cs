@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Tests
   public abstract class AutoBuildTest
   {
     private string protocolName;
-    private StorageProtocol protocol;
+    private StorageProvider provider;
     private DisposableSet disposables;
     private static UnityContainer container;
 
@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests
     public virtual void TestFixtureSetUp()
     {
       var config = BuildConfiguration();
-      SelectProtocol(config);
+      provider = StorageTestHelper.ParseProvider(config.ConnectionInfo.Provider);
       CheckRequirements();
       Domain = BuildDomain(config);
       if (Domain!=null)
@@ -52,16 +52,14 @@ namespace Xtensive.Storage.Tests
     {
     }
 
-    protected void EnsureProtocolIs(StorageProtocol allowedProtocols)
+    protected void EnsureProviderIs(StorageProvider allowedProviders)
     {
-      if ((protocol & allowedProtocols)==0)
-        throw new IgnoreException(
-          string.Format("This test is not suitable for '{0}' provider", protocolName));
+      StorageTestHelper.EnsureProviderIs(provider, allowedProviders);
     }
 
-    protected void EnsureProtocolIsNot(StorageProtocol disallowedProtocols)
+    protected void EnsureProviderIsNot(StorageProvider disallowedProviders)
     {
-      EnsureProtocolIs(~disallowedProtocols);
+      StorageTestHelper.EnsureProviderIs(provider, ~disallowedProviders);
     }
 
     protected void CreateSessionAndTransaction()
@@ -89,30 +87,6 @@ namespace Xtensive.Storage.Tests
         Log.Error(GetType().GetFullName());
         Log.Error(e);
         throw;
-      }
-    }
-    
-    private void SelectProtocol(DomainConfiguration config)
-    {
-      protocolName = config.ConnectionInfo.Provider;
-      switch (protocolName) {
-      case WellKnown.Provider.Memory:
-        protocol = StorageProtocol.Memory;
-        break;
-      case WellKnown.Provider.SqlServer:
-        protocol = StorageProtocol.SqlServer;
-        break;
-      case WellKnown.Provider.SqlServerCe:
-        protocol = StorageProtocol.SqlServerCe;
-        break;
-      case WellKnown.Provider.PostgreSql:
-        protocol = StorageProtocol.PostgreSql;
-        break;
-      case WellKnown.Provider.Oracle:
-        protocol = StorageProtocol.Oracle;
-        break;
-      default:
-        throw new ArgumentOutOfRangeException();
       }
     }
   }

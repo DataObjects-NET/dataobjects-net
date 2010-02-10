@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     protected override void CheckRequirements()
     {
-      EnsureProtocolIs(StorageProtocol.Sql);
+      EnsureProviderIs(StorageProvider.Sql);
     }
 
     protected override DomainConfiguration BuildConfiguration()

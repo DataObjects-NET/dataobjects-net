@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Storage.Tests
 {
   [Flags]
-  public enum StorageProtocol
+  public enum StorageProvider
   {
     Memory = 0x1,
     SqlServer = 0x2,
