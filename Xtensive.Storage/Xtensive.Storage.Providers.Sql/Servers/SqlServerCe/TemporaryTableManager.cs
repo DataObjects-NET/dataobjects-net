@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.02.11
 
+using System;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
@@ -17,6 +18,12 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
     protected override Table CreateTemporaryTable(Schema schema, string tableName)
     {
       return schema.CreateTable(tableName);
+    }
+
+    /// <inheritdoc/>
+    protected override void Release(TemporaryTableDescriptor descriptor)
+    {
+      Handlers.SessionHandler.GetService<IQueryExecutor>(true).ExecuteNonQuery(descriptor.DropStatement);
     }
   }
 }

@@ -71,8 +71,7 @@ namespace Xtensive.Storage.Providers.Sql
            column.Collation = DomainHandler.Schema.Collations.FirstOrDefault();
         fieldIndex++;
       }
-
-
+      
       // select statement
       var tableRef = SqlDml.TableRef(table);
       var queryStatement = SqlDml.Select(tableRef);
@@ -117,6 +116,7 @@ namespace Xtensive.Storage.Providers.Sql
         registry = new TemporaryTableStateRegistry();
         session.Extensions.Set(registry);
       }
+
       bool isLocked;
       if (!registry.States.TryGetValue(name, out isLocked))
         Handlers.SessionHandler.GetService<IQueryExecutor>(true)
@@ -125,6 +125,7 @@ namespace Xtensive.Storage.Providers.Sql
         throw new InvalidOperationException(string.Format(Strings.ExTemporaryTableXIsLocked, name));
       registry.States[name] = true;
       return new Disposable(disposing => {
+        Release(descriptor);
         registry.States[name] = false;
       });
     }
@@ -138,6 +139,14 @@ namespace Xtensive.Storage.Providers.Sql
     protected virtual Table CreateTemporaryTable(Schema schema, string tableName)
     {
       return schema.CreateTemporaryTable(tableName);
+    }
+
+    /// <summary>
+    /// Releases the lock on a temporary table.
+    /// </summary>
+    /// <param name="descriptor">The descriptor.</param>
+    protected virtual void Release(TemporaryTableDescriptor descriptor)
+    {
     }
 
     /// <inheritdoc/>
