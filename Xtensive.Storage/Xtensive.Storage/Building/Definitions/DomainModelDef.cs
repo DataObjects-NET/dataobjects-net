@@ -5,12 +5,14 @@
 // Created:    2007.07.11
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Notifications;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using System.Linq;
 
 namespace Xtensive.Storage.Building.Definitions
 {
@@ -90,7 +92,6 @@ namespace Xtensive.Storage.Building.Definitions
       foreach (var hierarchy in Hierarchies)
         if (hierarchy.Root.UnderlyingType.IsAssignableFrom(item.UnderlyingType))
           return hierarchy;
-
       return null;
     }
 

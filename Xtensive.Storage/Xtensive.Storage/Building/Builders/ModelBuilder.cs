@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Notifications;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Sorting;
@@ -49,9 +50,27 @@ namespace Xtensive.Storage.Building.Builders
 
         // Applying fixup actions to the model definition.
         FixupActionProcessor.Run();
+
+        InspectAndProcessGeneratedEntities(context);
       }
 
       BuildModel();
+      context.ModelDef.Hierarchies.Inserted -= OnHierarchyAdded;
+      context.ModelDef.Types.Inserted -= OnTypeAdded;
+    }
+
+    private static void InspectAndProcessGeneratedEntities(BuildingContext context)
+    {
+      foreach (var hieararchy in context.ModelInspectionResult.GeneratedHieararchies)
+        ModelInspector.Inspect(hieararchy);
+      foreach (var type in context.ModelInspectionResult.GeneratedTypes)
+        ModelInspector.Inspect(type);
+      context.ModelInspectionResult.GeneratedHieararchies.Clear();
+      context.ModelInspectionResult.GeneratedTypes.Clear();
+
+      if (context.ModelInspectionResult.HasActions)
+        // Applying fixup actions for generated entities.
+        FixupActionProcessor.Run();
     }
 
     private static void ApplyCustomDefinitions()
@@ -92,10 +111,6 @@ namespace Xtensive.Storage.Building.Builders
       var model = context.Model;
       var domain = context.Domain;
       foreach (var type in context.Model.Types.Entities) {
-//        var associations = model.Associations.Find(type)
-//          .Where(a => a.IsMaster && a.OnOwnerRemove.In(OnRemoveAction.Cascade, OnRemoveAction.Clear) && (a.OwnerType == type || a.IsPaired))
-//          .Select(a => a.OwnerType == type ? a : a.Reversed)
-//          .ToList();
         var associations = type.GetOwnerAssociations()
           .Where(a => a.OnOwnerRemove.In(OnRemoveAction.Cascade, OnRemoveAction.Clear))
           .ToList();
@@ -163,6 +178,7 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildAuxiliaryTypes(IEnumerable<AssociationInfo> associations)
     {
       var context = BuildingContext.Demand();
+      var list = new List<Pair<AssociationInfo, TypeDef>>();
       foreach (var association in associations) {
         if (!association.IsMaster)
           continue;
@@ -217,13 +233,19 @@ namespace Xtensive.Storage.Building.Builders
         }
         context.ModelDef.Hierarchies.Add(hierarchy);
         context.ModelDef.Types.Add(underlyingTypeDef);
+        list.Add(new Pair<AssociationInfo, TypeDef>(association, underlyingTypeDef));
+      }
 
-        var auxiliaryType = TypeBuilder.BuildType(underlyingTypeDef);
+      InspectAndProcessGeneratedEntities(context);
+
+      // Build auxiliary types
+      foreach (var pair in list) {
+        var auxiliaryType = TypeBuilder.BuildType(pair.Second);
         auxiliaryType.IsAuxiliary = true;
-        TypeBuilder.BuildFields(underlyingTypeDef, auxiliaryType);
-        association.AuxiliaryType = auxiliaryType;
-        if (association.IsPaired)
-          association.Reversed.AuxiliaryType = auxiliaryType;
+        TypeBuilder.BuildFields(pair.Second, auxiliaryType);
+        pair.First.AuxiliaryType = auxiliaryType;
+        if (pair.First.IsPaired)
+          pair.First.Reversed.AuxiliaryType = auxiliaryType;
       }
     }
 
@@ -231,14 +253,14 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void OnHierarchyAdded(object sender, CollectionChangeNotifierEventArgs<HierarchyDef> e)
     {
-      ModelInspector.Inspect(e.Item);
-      FixupActionProcessor.Run();
+      var context = BuildingContext.Demand();
+      context.ModelInspectionResult.GeneratedHieararchies.Add(e.Item);
     }
 
     private static void OnTypeAdded(object sender, CollectionChangeNotifierEventArgs<TypeDef> e)
     {
-      ModelInspector.Inspect(e.Item);
-      FixupActionProcessor.Run();
+      var context = BuildingContext.Demand();
+      context.ModelInspectionResult.GeneratedTypes.Add(e.Item);
     }
 
     #endregion

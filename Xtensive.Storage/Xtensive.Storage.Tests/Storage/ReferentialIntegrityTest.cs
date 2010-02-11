@@ -283,5 +283,34 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
+
+    [Test]
+    [Explicit, Category("Performance")]
+    public void SessionRemovePerformanceTest()
+    {
+      const int containersCount = 100;
+      const int itemCount = 100;
+      using (Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          for (int i = 0; i < containersCount; i++) {
+            var c = new Container {Package1 = new Package(), Package2 = new Package()};
+            for (int j = 0; j < itemCount; j++) {
+              c.Package1.Items.Add(new PackageItem());
+              c.Package2.Items.Add(new PackageItem());
+            }
+          }
+          t.Complete();
+        }
+
+        using (var t = Transaction.Open()) {
+          Query.All<Container>().Remove();
+
+          Assert.AreEqual(0, Query.All<Container>().Count());
+          Assert.AreEqual(0, Query.All<Package>().Count());
+          Assert.AreEqual(0, Query.All<PackageItem>().Count());
+          t.Complete();
+        }
+      }
+    }
   }
 }

@@ -5,6 +5,7 @@
 // Created:    2007.08.10
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
@@ -33,6 +34,21 @@ namespace Xtensive.Storage
     public void Persist()
     {
       Persist(PersistReason.Manual);
+    }
+
+    /// <summary>
+    /// Removes the specified entities.
+    /// </summary>
+    /// <typeparam name="T">Entity type.</typeparam>
+    /// <param name="entities">The entities.</param>
+    /// <exception cref="ReferentialIntegrityException">
+    /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.
+    /// </exception>
+    public void Remove<T>(IEnumerable<T> entities)
+      where T : IEntity
+    {
+      foreach (var entity in entities)
+        entity.Remove();
     }
 
     private void Persist(PersistReason reason)

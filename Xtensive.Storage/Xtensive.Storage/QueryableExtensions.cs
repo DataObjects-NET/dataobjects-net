@@ -227,6 +227,21 @@ namespace Xtensive.Storage
       return outer.Provider.CreateQuery<TResult>(expression);
     }
 
+    /// <summary>
+    /// Removes the specified entities using <see cref="Session.Remove{T}"/> method of <see cref="Session"/>. 
+    /// </summary>
+    /// <typeparam name="T">Entity type.</typeparam>
+    /// <param name="entities">The entities.</param>
+    ///  <exception cref="ReferentialIntegrityException">
+    /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.
+    /// </exception>
+    public static void Remove<T>(this IEnumerable<T> entities)
+      where T : IEntity
+    {
+      var session = Session.Demand();
+      session.Remove(entities);
+    }
+
     #region Private \ internal members
 
     /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Storage.Linq"/> query.</exception>

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Building.FixupActions;
@@ -269,9 +270,6 @@ namespace Xtensive.Storage.Building
     private static void InspectField(TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
     {
       var context = BuildingContext.Demand();
-//      if (fieldDef.UnderlyingProperty != null &&
-//        fieldDef.UnderlyingProperty.DeclaringType.Assembly == Assembly.GetExecutingAssembly())
-//        context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemAction(typeDef, fieldDef));
       if (fieldDef.IsVersion)
         Validator.ValidateVersionField(fieldDef, isKeyField);
 
@@ -319,6 +317,15 @@ namespace Xtensive.Storage.Building
       var result = context.ModelDef.Types.TryGetValue(type);
       if (result!=null)
         return result;
+      // Do not register requested type automatically
+//      if (type.IsGenericType) {
+//        var genericDef = type.GetGenericTypeDefinition();
+//        var alreadyRegisteredForGeneration = context.ModelInspectionResult.Actions
+//          .OfType<BuildGenericTypeInstancesAction>()
+//          .Any(action => action.Type.UnderlyingType == genericDef);
+//        if (alreadyRegisteredForGeneration)
+//          return ModelDefBuilder.ProcessType(type);
+//      }
 
       throw new DomainBuilderException(
         String.Format(Strings.ExTypeXIsNotRegisteredInTheModel, type.GetFullName()));

@@ -40,11 +40,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
       if (Context.IsEmpty) {
         try {
           Session.EnforceChangeRegistrySizeLimit();
-          // Session.Persist(); // Remove
           ProcessItems(new List<Entity>(){item});
           ProcessQueue();
           MarkItemsAsRemoved();
-          // Session.Persist(); // Remove
         }
         finally {
           Context.Clear();
