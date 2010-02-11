@@ -156,4 +156,13 @@
   <data name="ExKeyContainsMultipleFieldsWithIsTypeIdTrueFlag" xml:space="preserve">
     <value>Key contains multiple fields with IsTypeId==true flag.</value>
   </data>
+  <data name="ExCanNotExtractForeignKey" xml:space="preserve">
+    <value>Can't extract foreign key.</value>
+  </data>
+  <data name="ExTypeDiscriminatorFieldIsAlreadySet" xml:space="preserve">
+    <value>TypeDiscriminator field is already set.</value>
+  </data>
+  <data name="ExDefaultTypeIsAlreadyRegistered" xml:space="preserve">
+    <value>Default type is already registered.</value>
+  </data>
 </root>

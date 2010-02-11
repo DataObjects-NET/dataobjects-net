@@ -42,7 +42,7 @@ namespace Xtensive.Sql.SqlServer.v09
         if (columnMappings[i].First == dbColumnIndex)
           return table.TableColumns[columnMappings[i].Second];
       }
-      throw new ArgumentOutOfRangeException("Column is not found.");
+      throw new ArgumentOutOfRangeException("dbColumnIndex");
     }
 
     public DataTableProxy(DataTable table)

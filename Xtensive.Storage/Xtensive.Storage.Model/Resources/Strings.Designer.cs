@@ -61,6 +61,15 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t extract foreign key..
+        /// </summary>
+        internal static string ExCanNotExtractForeignKey {
+            get {
+                return ResourceManager.GetString("ExCanNotExtractForeignKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Comparer for type &apos;{0}&apos; is not available..
         /// </summary>
         internal static string ExComparerForTypeIsNotAvailable {
@@ -75,6 +84,15 @@ namespace Xtensive.Storage.Model.Resources {
         internal static string ExCouldNotResolveXYWithinDomain {
             get {
                 return ResourceManager.GetString("ExCouldNotResolveXYWithinDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default type is already registered..
+        /// </summary>
+        internal static string ExDefaultTypeIsAlreadyRegistered {
+            get {
+                return ResourceManager.GetString("ExDefaultTypeIsAlreadyRegistered", resourceCulture);
             }
         }
         
@@ -102,6 +120,15 @@ namespace Xtensive.Storage.Model.Resources {
         internal static string ExNodeTypeIsUnknown {
             get {
                 return ResourceManager.GetString("ExNodeTypeIsUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TypeDiscriminator field is already set..
+        /// </summary>
+        internal static string ExTypeDiscriminatorFieldIsAlreadySet {
+            get {
+                return ResourceManager.GetString("ExTypeDiscriminatorFieldIsAlreadySet", resourceCulture);
             }
         }
         

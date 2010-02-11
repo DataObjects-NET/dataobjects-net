@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using System.Linq;
+using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
@@ -29,7 +30,7 @@ namespace Xtensive.Storage.Model
       {
         this.EnsureNotLocked();
         if (field != null)
-          throw new InvalidOperationException("TypeDiscriminator field is already set.");
+          throw new InvalidOperationException(Strings.ExTypeDiscriminatorFieldIsAlreadySet);
         field = value;
       }
     }
@@ -77,7 +78,7 @@ namespace Xtensive.Storage.Model
     {
       this.EnsureNotLocked();
       if (@default != null)
-        throw new InvalidOperationException("Default type is already registered.");
+        throw new InvalidOperationException(Strings.ExDefaultTypeIsAlreadyRegistered);
 
       @default = type;
     }

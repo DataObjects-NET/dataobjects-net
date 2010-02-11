@@ -126,4 +126,7 @@
   <data name="ExFreeTextSearchOnCustomColumnsNotSupported" xml:space="preserve">
     <value>FreeText search on custom columns not supported.</value>
   </data>
+  <data name="ExSqlMatchValueMustBeAnSqlRowInstance" xml:space="preserve">
+    <value>SqlMatch.Value must be an SqlRow instance.</value>
+  </data>
 </root>

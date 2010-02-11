@@ -9,6 +9,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.PostgreSql.Resources;
 
 namespace Xtensive.Sql.PostgreSql.v8_0
 {
@@ -631,7 +632,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
           return "EXISTS(SELECT '";
         }
         else {
-          throw new InvalidOperationException("SqlMatch.Value must be an SqlRow instance.");
+          throw new InvalidOperationException(Strings.ExSqlMatchValueMustBeAnSqlRowInstance);
         }
       case MatchSection.Specification:
         return "' WHERE EXISTS";

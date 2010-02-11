@@ -79,6 +79,15 @@ namespace Xtensive.Sql.PostgreSql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to SqlMatch.Value must be an SqlRow instance..
+        /// </summary>
+        internal static string ExSqlMatchValueMustBeAnSqlRowInstance {
+            get {
+                return ResourceManager.GetString("ExSqlMatchValueMustBeAnSqlRowInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to URL contains invalid {0} specification. {0} has to be {1}..
         /// </summary>
         internal static string ExUrlContainsInvalidXSpecificationXHasToBeY {

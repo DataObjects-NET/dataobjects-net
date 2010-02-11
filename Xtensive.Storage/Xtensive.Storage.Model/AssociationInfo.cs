@@ -185,7 +185,7 @@ namespace Xtensive.Storage.Model
         return field.ExtractValue(tuple);
       }
 
-      throw new InvalidOperationException("Can't extract foreign key.");
+      throw new InvalidOperationException(Strings.ExCanNotExtractForeignKey);
     }
 
     /// <inheritdoc/>
