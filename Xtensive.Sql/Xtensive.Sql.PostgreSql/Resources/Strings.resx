@@ -123,4 +123,7 @@
   <data name="ExUrlContainsInvalidXSpecificationXHasToBeY" xml:space="preserve">
     <value>URL contains invalid {0} specification. {0} has to be {1}.</value>
   </data>
+  <data name="ExFreeTextSearchOnCustomColumnsNotSupported" xml:space="preserve">
+    <value>FreeText search on custom columns not supported.</value>
+  </data>
 </root>

@@ -239,7 +239,8 @@ namespace Xtensive.Sql.SqlServer.v09
         context.Output.AppendText(string.Format("LANGUAGE '{0}'", item.Languages[0].Name));
       break;
       default:
-        throw new InvalidOperationException(String.Format("Multiple languages not supported for fulltext column {0} of index {1}.", item.Name, item.Index.Name));
+        throw new InvalidOperationException(string.Format(
+          Strings.ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY, item.Name, item.Index.Name));
     }
   }
 

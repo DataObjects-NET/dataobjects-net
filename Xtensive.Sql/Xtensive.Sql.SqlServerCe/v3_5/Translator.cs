@@ -215,7 +215,7 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
 
     public override string Translate(SqlCompilerContext context, SqlAlterDomain node, AlterDomainSection section)
     {
-      throw new NotSupportedException("Alter domain is not supported by storage.");
+      throw SqlHelper.NotSupported("ALTER DOMAIN"); // NOTE: Do not localize, it's an SQL keyword
     }
 
     public override string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)

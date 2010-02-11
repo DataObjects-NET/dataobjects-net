@@ -129,4 +129,7 @@
   <data name="ExInvalidBooleanStringX" xml:space="preserve">
     <value>Invalid boolean string '{0}'.</value>
   </data>
+  <data name="ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY" xml:space="preserve">
+    <value>Multiple languages not supported for fulltext column {0} of index {1}.</value>
+  </data>
 </root>

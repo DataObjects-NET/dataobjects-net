@@ -88,11 +88,65 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Column belongs to other table..
+        /// </summary>
+        internal static string ExColumnBelongsToOtherTable {
+            get {
+                return ResourceManager.GetString("ExColumnBelongsToOtherTable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Constraint belongs to other domain..
+        /// </summary>
+        internal static string ExConstraintBelongsToOtherDomain {
+            get {
+                return ResourceManager.GetString("ExConstraintBelongsToOtherDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Constraint belongs to other table..
+        /// </summary>
+        internal static string ExConstraintBelongsToOtherTable {
+            get {
+                return ResourceManager.GetString("ExConstraintBelongsToOtherTable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Function &apos;{0}&apos; is not supported..
         /// </summary>
         internal static string ExFunctionXIsNotSupported {
             get {
                 return ResourceManager.GetString("ExFunctionXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increment must not be 0..
+        /// </summary>
+        internal static string ExIncrementMustNotBeZero {
+            get {
+                return ResourceManager.GetString("ExIncrementMustNotBeZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid action type..
+        /// </summary>
+        internal static string ExInvalidActionType {
+            get {
+                return ResourceManager.GetString("ExInvalidActionType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid constraint type..
+        /// </summary>
+        internal static string ExInvalidConstraintType {
+            get {
+                return ResourceManager.GetString("ExInvalidConstraintType", resourceCulture);
             }
         }
         
@@ -187,6 +241,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Name must be not null or empty..
+        /// </summary>
+        internal static string ExNameMustBeNotNullOrEmpty {
+            get {
+                return ResourceManager.GetString("ExNameMustBeNotNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Node type is unknown..
         /// </summary>
         internal static string ExNodeTypeIsUnknown {
@@ -277,6 +340,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Schema must be not null..
+        /// </summary>
+        internal static string ExSchemaMustBeNotNull {
+            get {
+                return ResourceManager.GetString("ExSchemaMustBeNotNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Size should be not negative value..
         /// </summary>
         internal static string ExSizeShouldBeNotNegativeValue {
@@ -331,6 +403,15 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The data type must be exact numeric without scale or with zero scale..
+        /// </summary>
+        internal static string ExTheDataTypeMustBeExactNumericWithoutScaleOrWithZeroScale {
+            get {
+                return ResourceManager.GetString("ExTheDataTypeMustBeExactNumericWithoutScaleOrWithZeroScale", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The data type must be exact numeric with scale 0..
         /// </summary>
         internal static string ExTheDataTypeMustBeExactNumericWithScale0 {
@@ -340,11 +421,29 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The maximum value must be greater than the minimum value..
+        /// </summary>
+        internal static string ExTheMaximumValueMustBeGreaterThanTheMinimumValue {
+            get {
+                return ResourceManager.GetString("ExTheMaximumValueMustBeGreaterThanTheMinimumValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The scale must be less than or equal to precision..
         /// </summary>
         internal static string ExTheScaleMustBeLessThanOrEqualToPrecision {
             get {
                 return ResourceManager.GetString("ExTheScaleMustBeLessThanOrEqualToPrecision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The start value should be between the minimum and maximum value..
+        /// </summary>
+        internal static string ExTheStartValueShouldBeBetweenTheMinimumAndMaximumValue {
+            get {
+                return ResourceManager.GetString("ExTheStartValueShouldBeBetweenTheMinimumAndMaximumValue", resourceCulture);
             }
         }
         
@@ -435,6 +534,15 @@ namespace Xtensive.Sql.Resources {
         internal static string ExValueForPlaceholderXIsNotSet {
             get {
                 return ResourceManager.GetString("ExValueForPlaceholderXIsNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Full text queries.
+        /// </summary>
+        internal static string FullTextQueries {
+            get {
+                return ResourceManager.GetString("FullTextQueries", resourceCulture);
             }
         }
         

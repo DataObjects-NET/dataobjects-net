@@ -61,6 +61,15 @@ namespace Xtensive.Sql.PostgreSql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to FreeText search on custom columns not supported..
+        /// </summary>
+        internal static string ExFreeTextSearchOnCustomColumnsNotSupported {
+            get {
+                return ResourceManager.GetString("ExFreeTextSearchOnCustomColumnsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to PostgreSQL below 8.0 is not supported..
         /// </summary>
         internal static string ExPostgreSqlBelow80IsNotSupported {

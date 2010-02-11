@@ -118,7 +118,7 @@ namespace Xtensive.Sql.Compiler
             context.Output.AppendText(translator.Translate(context, action.SequenceDescriptor, SequenceDescriptorSection.RestartValue));
           if ((action.InfoOption & SqlAlterIdentityInfoOptions.IncrementByOption)!=0) {
             if (action.SequenceDescriptor.Increment.HasValue && action.SequenceDescriptor.Increment.Value==0)
-              throw new SqlCompilerException("Increment must not be 0.");
+              throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
             context.Output.AppendText(translator.Translate(context, action.Column, TableColumnSection.SetIdentityInfoElement));
             context.Output.AppendText(translator.Translate(context, action.SequenceDescriptor, SequenceDescriptorSection.Increment));
           }
@@ -165,7 +165,7 @@ namespace Xtensive.Sql.Compiler
         context.Output.AppendText(translator.Translate(context, node.SequenceDescriptor, SequenceDescriptorSection.RestartValue));
       if ((node.InfoOption & SqlAlterIdentityInfoOptions.IncrementByOption)!=0) {
         if (node.SequenceDescriptor.Increment.HasValue && node.SequenceDescriptor.Increment.Value==0)
-          throw new SqlCompilerException("Increment must not be 0.");
+          throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
         context.Output.AppendText(translator.Translate(context, node.SequenceDescriptor, SequenceDescriptorSection.Increment));
       }
       if ((node.InfoOption & SqlAlterIdentityInfoOptions.MaxValueOption)!=0)
@@ -551,23 +551,23 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterScope(node)) {
         var dataType = node.Sequence.DataType;
         if (!SqlValueType.IsExactNumeric(dataType) || dataType.Scale.HasValue && dataType.Scale!=0)
-          throw new SqlCompilerException("The data type must be exact numeric without scale or with zero scale.");
+          throw new SqlCompilerException(Strings.ExTheDataTypeMustBeExactNumericWithoutScaleOrWithZeroScale);
         if (node.Sequence.SequenceDescriptor.Increment.HasValue && node.Sequence.SequenceDescriptor.Increment.Value==0)
-            throw new SqlCompilerException("Increment must not be 0.");
-        if (String.IsNullOrEmpty(node.Sequence.Name))
-          throw new SqlCompilerException("Name must be not null or empty.");
+            throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
+        if (string.IsNullOrEmpty(node.Sequence.Name))
+          throw new SqlCompilerException(Strings.ExNameMustBeNotNullOrEmpty);
         if (node.Sequence.Schema==null)
-          throw new SqlCompilerException("Schema must be not null.");
+          throw new SqlCompilerException(Strings.ExSchemaMustBeNotNull);
         if (node.Sequence.SequenceDescriptor.MaxValue.HasValue &&
             node.Sequence.SequenceDescriptor.MinValue.HasValue &&
             node.Sequence.SequenceDescriptor.MaxValue.Value<=node.Sequence.SequenceDescriptor.MinValue.Value)
-          throw new SqlCompilerException("The maximum value must be greater than the minimum value.");
+          throw new SqlCompilerException(Strings.ExTheMaximumValueMustBeGreaterThanTheMinimumValue);
         if (node.Sequence.SequenceDescriptor.StartValue.HasValue &&
             (node.Sequence.SequenceDescriptor.MaxValue.HasValue &&
              node.Sequence.SequenceDescriptor.MaxValue.Value<node.Sequence.SequenceDescriptor.StartValue.Value ||
              node.Sequence.SequenceDescriptor.MinValue.HasValue &&
              node.Sequence.SequenceDescriptor.MinValue.Value>node.Sequence.SequenceDescriptor.StartValue.Value))
-          throw new SqlCompilerException("The start value must lie between the minimum and maximum value.");
+          throw new SqlCompilerException(Strings.ExTheStartValueShouldBeBetweenTheMinimumAndMaximumValue);
         context.Output.AppendText(translator.Translate(context, node, NodeSection.Entry));
         context.Output.AppendText(translator.Translate(context, node.Sequence.SequenceDescriptor, SequenceDescriptorSection.StartValue));
         context.Output.AppendText(translator.Translate(context, node.Sequence.SequenceDescriptor, SequenceDescriptorSection.Increment));
@@ -797,6 +797,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlFreeTextTable node)
     {
+      throw SqlHelper.NotSupported(Strings.FullTextQueries);
     }
 
     public virtual void Visit(SqlFunctionCall node)

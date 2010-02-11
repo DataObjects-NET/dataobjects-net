@@ -70,6 +70,15 @@ namespace Xtensive.Sql.SqlServer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Multiple languages not supported for fulltext column {0} of index {1}..
+        /// </summary>
+        internal static string ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY {
+            get {
+                return ResourceManager.GetString("ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Operation &apos;{0}&apos; is not supported.
         /// </summary>
         internal static string ExOperationXIsNotSupported {

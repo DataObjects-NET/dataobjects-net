@@ -246,4 +246,40 @@
   <data name="ExThisStorageDoesNotSupportX" xml:space="preserve">
     <value>This storage does not support '{0}'.</value>
   </data>
+  <data name="FullTextQueries" xml:space="preserve">
+    <value>Full text queries</value>
+  </data>
+  <data name="ExIncrementMustNotBeZero" xml:space="preserve">
+    <value>Increment must not be 0.</value>
+  </data>
+  <data name="ExTheDataTypeMustBeExactNumericWithoutScaleOrWithZeroScale" xml:space="preserve">
+    <value>The data type must be exact numeric without scale or with zero scale.</value>
+  </data>
+  <data name="ExNameMustBeNotNullOrEmpty" xml:space="preserve">
+    <value>Name must be not null or empty.</value>
+  </data>
+  <data name="ExSchemaMustBeNotNull" xml:space="preserve">
+    <value>Schema must be not null.</value>
+  </data>
+  <data name="ExTheMaximumValueMustBeGreaterThanTheMinimumValue" xml:space="preserve">
+    <value>The maximum value must be greater than the minimum value.</value>
+  </data>
+  <data name="ExTheStartValueShouldBeBetweenTheMinimumAndMaximumValue" xml:space="preserve">
+    <value>The start value should be between the minimum and maximum value.</value>
+  </data>
+  <data name="ExInvalidActionType" xml:space="preserve">
+    <value>Invalid action type.</value>
+  </data>
+  <data name="ExColumnBelongsToOtherTable" xml:space="preserve">
+    <value>Column belongs to other table.</value>
+  </data>
+  <data name="ExInvalidConstraintType" xml:space="preserve">
+    <value>Invalid constraint type.</value>
+  </data>
+  <data name="ExConstraintBelongsToOtherTable" xml:space="preserve">
+    <value>Constraint belongs to other table.</value>
+  </data>
+  <data name="ExConstraintBelongsToOtherDomain" xml:space="preserve">
+    <value>Constraint belongs to other domain.</value>
+  </data>
 </root>

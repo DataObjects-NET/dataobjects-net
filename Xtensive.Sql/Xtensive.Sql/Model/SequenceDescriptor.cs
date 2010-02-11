@@ -5,6 +5,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
+using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql.Model
 {
@@ -69,7 +70,7 @@ namespace Xtensive.Sql.Model
       set {
         this.EnsureNotLocked();
         if (value.HasValue && value.Value == 0)
-          throw new ArgumentException("Increment must not be 0.", "value");
+          throw new ArgumentException(Strings.ExIncrementMustNotBeZero);
         increment = value;
       }
     }

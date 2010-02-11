@@ -13,6 +13,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Xtensive.Sql.PostgreSql.Resources;
 
 namespace Xtensive.Sql.PostgreSql.v8_3
 {
@@ -29,7 +30,7 @@ namespace Xtensive.Sql.PostgreSql.v8_3
     public override void Visit(SqlFreeTextTable node)
     {
       if (node.TargetColumns.Count!=1 || node.TargetColumns[0]!=node.TargetTable.Asterisk)
-        throw new NotSupportedException("FreeText search on custom columns not supported.");
+        throw new NotSupportedException(Strings.ExFreeTextSearchOnCustomColumnsNotSupported);
 
       FullTextIndex fullTextIndex = node.TargetTable.DataTable.Indexes.OfType<FullTextIndex>().Single();
       string alias = context.TableNameProvider.GetName(node);

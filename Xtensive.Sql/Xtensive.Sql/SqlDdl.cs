@@ -264,7 +264,7 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
       if (action is SqlSetDefault && ((SqlSetDefault)action).Column==null ||
           action is SqlDropDefault && ((SqlDropDefault)action).Column==null)
-        throw new ArgumentException("Invalid action type.", "action");
+        throw new ArgumentException(Strings.ExInvalidActionType, "action");
       if (action is SqlAddColumn && ((SqlAddColumn)action).Column.DataTable!=null &&
           ((SqlAddColumn)action).Column.DataTable!=table ||
           action is SqlSetDefault && ((SqlSetDefault)action).Column.DataTable!=null &&
@@ -275,20 +275,20 @@ namespace Xtensive.Sql
           ((SqlDropColumn)action).Column.DataTable!=table ||
           action is SqlAlterIdentityInfo && ((SqlAlterIdentityInfo)action).Column.DataTable!=null &&
           ((SqlAlterIdentityInfo)action).Column.DataTable!=table)
-        throw new ArgumentException("Column belongs to other table.", "action");
+        throw new ArgumentException(Strings.ExColumnBelongsToOtherTable, "action");
       else if (action is SqlAddConstraint) {
         var constraint = ((SqlAddConstraint) action).Constraint as TableConstraint;
         if (constraint==null)
-          throw new ArgumentException("Invalid constraint type.", "action");
+          throw new ArgumentException(Strings.ExInvalidConstraintType, "action");
         else if (constraint.Table!=null && constraint.Table!=table)
-          throw new ArgumentException("Constraint belongs to other table.", "action");
+          throw new ArgumentException(Strings.ExConstraintBelongsToOtherTable, "action");
       }
       else if (action is SqlDropConstraint) {
         var constraint = ((SqlDropConstraint) action).Constraint as TableConstraint;
         if (constraint==null)
-          throw new ArgumentException("Invalid constraint type.", "action");
+          throw new ArgumentException(Strings.ExInvalidConstraintType, "action");
         else if (constraint.Table!=null && constraint.Table!=table)
-          throw new ArgumentException("Constraint belongs to other table.", "action");
+          throw new ArgumentException(Strings.ExConstraintBelongsToOtherTable, "action");
       }
       return new SqlAlterTable(table, action);
     }
@@ -332,22 +332,22 @@ namespace Xtensive.Sql
       if (action is SqlAddConstraint) {
         DomainConstraint constraint = ((SqlAddConstraint)action).Constraint as DomainConstraint;
         if (constraint==null)
-          throw new ArgumentException("Invalid constraint type.", "action");
+          throw new ArgumentException(Strings.ExInvalidConstraintType, "action");
         else if (constraint.Domain!=null && constraint.Domain!=domain)
-          throw new ArgumentException("Constraint belongs to other domain.", "action");
+          throw new ArgumentException(Strings.ExConstraintBelongsToOtherDomain, "action");
       }
       else if (action is SqlDropConstraint) {
         DomainConstraint constraint = ((SqlDropConstraint)action).Constraint as DomainConstraint;
         if (constraint==null)
-          throw new ArgumentException("Invalid constraint type.", "action");
+          throw new ArgumentException(Strings.ExInvalidConstraintType, "action");
         else if (constraint.Domain!=null && constraint.Domain!=domain)
-          throw new ArgumentException("Constraint belongs to other domain.", "action");
+          throw new ArgumentException(Strings.ExConstraintBelongsToOtherDomain, "action");
       }
       else if (action is SqlSetDefault && ((SqlSetDefault)action).Column!=null ||
                action is SqlDropDefault && ((SqlDropDefault)action).Column!=null)
-        throw new ArgumentException("Invalid action type.", "action");
+        throw new ArgumentException(Strings.ExInvalidActionType, "action");
       else if (action is SqlAddColumn || action is SqlDropColumn || action is SqlAlterIdentityInfo)
-        throw new ArgumentException("Invalid action type.", "action");
+        throw new ArgumentException(Strings.ExInvalidActionType, "action");
       return new SqlAlterDomain(domain, action);
     }
 
