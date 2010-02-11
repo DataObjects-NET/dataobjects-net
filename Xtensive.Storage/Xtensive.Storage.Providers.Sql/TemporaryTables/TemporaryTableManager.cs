@@ -58,8 +58,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       // table
       string tableName = string.Format(TableNamePattern, name);
-      var supportTmpTables = DomainHandler.ProviderInfo.Supports(ProviderFeatures.TemporaryTables);
-      var table = supportTmpTables ? schema.CreateTemporaryTable(tableName) : schema.CreateTable(tableName);
+      var table = CreateTemporaryTable(schema, tableName);
       var typeMappings = source
         .Select(type => driver.GetTypeMapping(type))
         .ToArray();
@@ -128,6 +127,17 @@ namespace Xtensive.Storage.Providers.Sql
       return new Disposable(disposing => {
         registry.States[name] = false;
       });
+    }
+
+    /// <summary>
+    /// Creates the temporary table with the specified name.
+    /// </summary>
+    /// <param name="schema">The schema to create table in.</param>
+    /// <param name="tableName">Name of the table.</param>
+    /// <returns>Created table.</returns>
+    protected virtual Table CreateTemporaryTable(Schema schema, string tableName)
+    {
+      return schema.CreateTemporaryTable(tableName);
     }
 
     /// <inheritdoc/>
