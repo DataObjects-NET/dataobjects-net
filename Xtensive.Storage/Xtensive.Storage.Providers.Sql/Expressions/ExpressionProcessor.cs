@@ -380,7 +380,7 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       this.compiler = compiler;
       var domainHandler = handlers.DomainHandler;
       var providerInfo = domainHandler.ProviderInfo;
-      fixBooleanExpressions = !providerInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions);
+      fixBooleanExpressions = !providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
       emptyStringIsNull = providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
       memberCompilerProvider = domainHandler.GetMemberCompilerProvider<SqlExpression>();
       driver = ((DomainHandler) domainHandler).Driver;

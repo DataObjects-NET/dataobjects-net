@@ -494,7 +494,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       Handlers = handlers;
 
-      if (!handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.FullFledgedBooleanExpressions))
+      if (!handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
 
       stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();

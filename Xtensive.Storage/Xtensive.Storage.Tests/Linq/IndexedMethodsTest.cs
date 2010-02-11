@@ -6,6 +6,7 @@
 
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -15,7 +16,12 @@ namespace Xtensive.Storage.Tests.Linq
   [TestFixture]
   public class IndexedMethodsTest : NorthwindDOModelTest
   {
-
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+    }
+    
     //    public static IQueryable<TResult> Select<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, int, TResult>> selector);
     [Test]
     public void SelectIndexedTest()

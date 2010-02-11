@@ -18,8 +18,9 @@ namespace Xtensive.Storage.Providers.Index
         ProviderFeatures.IncludedColumns |
         ProviderFeatures.KeyColumnSortOrder |
         ProviderFeatures.Paging |
-        ProviderFeatures.FullFledgedBooleanExpressions |
-        ProviderFeatures.CrossApply;
+        ProviderFeatures.FullFeaturedBooleanExpressions |
+        ProviderFeatures.CrossApply |
+        ProviderFeatures.RowNumber;
       return new ProviderInfo(new Version(0, 3), features, int.MaxValue);
     }
   }

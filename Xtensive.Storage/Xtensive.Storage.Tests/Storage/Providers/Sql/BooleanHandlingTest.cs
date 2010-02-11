@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   {
     protected override void CheckRequirements()
     {
-      Require.AllFeaturesNotSupported(ProviderFeatures.FullFledgedBooleanExpressions);
+      Require.AllFeaturesNotSupported(ProviderFeatures.FullFeaturedBooleanExpressions);
     }
 
     protected override DomainConfiguration BuildConfiguration()
