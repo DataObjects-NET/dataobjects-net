@@ -156,7 +156,7 @@ namespace Xtensive.Storage.Tests.Issues
   {
     protected override void CheckRequirements()
     {
-      EnsureProviderIs(StorageProvider.Sql);
+      Require.ProviderIs(StorageProvider.Sql);
     }
 
     protected override DomainConfiguration BuildConfiguration()

@@ -5,8 +5,6 @@
 // Created:    2008.08.05
 //
 
-using System;
-using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 
@@ -26,130 +24,55 @@ namespace Xtensive.Storage.Tests
     {
       return Create(false);
     }
-
+    
     public static DomainConfiguration Create(bool useConnectionString)
     {
-      // Default values
-      var storageType = "memory";
-      string login = null;
-      string password = null;
-      var foreignKeyMode = ForeignKeyMode.Default;
-      var typeIdBehavior = TypeIdBehavior.Default;
-      var inheritanceSchema = InheritanceSchema.Default;
-
-      // Getting values from the environment variables
-      var value = GetEnvironmentVariable(StorageTypeKey);
-      if (!string.IsNullOrEmpty(value))
-        storageType = value;
-
-      value = GetEnvironmentVariable(TypeIdKey);
-      if (!string.IsNullOrEmpty(value)) {
-        typeIdBehavior = (TypeIdBehavior) Enum.Parse(typeof (TypeIdBehavior), value, true);
-      }
-
-      value = GetEnvironmentVariable(InheritanceSchemaKey);
-      if (!string.IsNullOrEmpty(value)) {
-        inheritanceSchema = (InheritanceSchema) Enum.Parse(typeof (InheritanceSchema), value, true);
-      }
-
-      value = GetEnvironmentVariable(ForeignKeysModeKey);
-      if (!string.IsNullOrEmpty(value)) {
-        foreignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), value, true);
-      }
-
+      var storageType = EnvironmentConfiguration.StorageType;
       if (useConnectionString)
         storageType += "cs";
-
-      DomainConfiguration config;
-
-      config = Create(storageType, inheritanceSchema, typeIdBehavior, foreignKeyMode);
-
-      // Here you still have the ability to override the above values
-
-//      config = Create("memory");
-//      config = Create("memory", InheritanceSchema.SingleTable);
-//      config = Create("memory", InheritanceSchema.ConcreteTable);
-//      config = Create("memory", InheritanceSchema.Default, TypeIdBehavior.Include);
-
-//      config = Create("mssql2005");
-//      config = Create("mssql2005", InheritanceSchema.SingleTable);
-//      config = Create("mssql2005", InheritanceSchema.ConcreteTable);
-//      config = Create("mssql2005", InheritanceSchema.Default, TypeIdBehavior.Include);
-
-//      config = Create("pgsql");
-//      config = Create("pgsql", InheritanceSchema.SingleTable);
-//      config = Create("pgsql", InheritanceSchema.ConcreteTable);
-//      config = Create("pgsql", InheritanceSchema.Default, TypeIdBehavior.Include);
-      
-      value = GetEnvironmentVariable(ConnectionUrlKey);
-      if (value!=null)
-        config.ConnectionInfo = new ConnectionInfo(value);
-
-      value = GetEnvironmentVariable(ConnectionStringKey);
-      if (value!=null) {
-        var provider = GetEnvironmentVariable(ProviderKey);
-        if (provider!=null)
-          config.ConnectionInfo = new ConnectionInfo(provider, value);
-      }
-
+      var config = Create(storageType,
+        EnvironmentConfiguration.InheritanceSchema,
+        EnvironmentConfiguration.TypeIdBehavior,
+        EnvironmentConfiguration.ForeignKeyMode);
+      if (EnvironmentConfiguration.CustomConnectionInfo!=null)
+        config.ConnectionInfo = EnvironmentConfiguration.CustomConnectionInfo;
       return config;
     }
 
-    public static DomainConfiguration Create(string protocol)
+    /// <summary>
+    /// Do not use for regular tests! Use Require.ProviderIs to require specific storage.
+    /// </summary>
+    /// <param name="provider">The provider.</param>
+    /// <returns>Configuration.</returns>
+    public static DomainConfiguration CreateForCrudTest(string provider)
     {
-      ConcreteTableSchemaModifier.IsEnabled = false;
-      SingleTableSchemaModifier.IsEnabled = false;
-      ClassTableSchemaModifier.IsEnabled = false;
-      IncludeTypeIdModifier.IsEnabled = false;
-      ExcludeTypeIdModifier.IsEnabled = false;
-      TypeIdModifier.IsEnabled = false;
-      var domainConfiguration = DomainConfiguration.Load(protocol);
-      return domainConfiguration;
+      DisableModifiers();
+      return DomainConfiguration.Load(provider);
     }
 
-    public static DomainConfiguration Create(string protocol, InheritanceSchema schema)
+    private static DomainConfiguration Create(string protocol,
+      InheritanceSchema schema, TypeIdBehavior typeIdBehavior, ForeignKeyMode foreignKeyMode)
     {
-      ConcreteTableSchemaModifier.IsEnabled = false;
-      SingleTableSchemaModifier.IsEnabled = false;
-      ClassTableSchemaModifier.IsEnabled = false;
-      IncludeTypeIdModifier.IsEnabled = false;
-      ExcludeTypeIdModifier.IsEnabled = false;
-      TypeIdModifier.IsEnabled = false;
-      DomainConfiguration config = Create(protocol);
-      if (schema != InheritanceSchema.Default)
-        InheritanceSchemaModifier.ActivateModifier(schema);
-      return config;
-    }
-
-    public static DomainConfiguration Create(string protocol, InheritanceSchema schema, TypeIdBehavior typeIdBehavior)
-    {
-      IncludeTypeIdModifier.IsEnabled = false;
-      ExcludeTypeIdModifier.IsEnabled = false;
-      TypeIdModifier.IsEnabled = false;
-      DomainConfiguration config = Create(protocol, schema);
-      if (typeIdBehavior != TypeIdBehavior.Default)
-        TypeIdModifier.ActivateModifier(typeIdBehavior);
-      return config;
-    }
-
-    public static DomainConfiguration Create(string protocol, InheritanceSchema schema, TypeIdBehavior typeIdBehavior, ForeignKeyMode foreignKeyMode)
-    {
-      IncludeTypeIdModifier.IsEnabled = false;
-      ExcludeTypeIdModifier.IsEnabled = false;
-      TypeIdModifier.IsEnabled = false;
-      DomainConfiguration config = Create(protocol, schema);
-      if (typeIdBehavior != TypeIdBehavior.Default)
-        TypeIdModifier.ActivateModifier(typeIdBehavior);
+      DisableModifiers();
+      var config = DomainConfiguration.Load(protocol);
       config.ForeignKeyMode = foreignKeyMode;
+      if (schema!=InheritanceSchema.Default)
+        InheritanceSchemaModifier.ActivateModifier(schema);
+      if (typeIdBehavior!=TypeIdBehavior.Default)
+        TypeIdModifier.ActivateModifier(typeIdBehavior);
+      if (typeIdBehavior!=TypeIdBehavior.Default)
+        TypeIdModifier.ActivateModifier(typeIdBehavior);
       return config;
     }
 
-    private static string GetEnvironmentVariable(string key)
+    private static void DisableModifiers()
     {
-      string result = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
-      if (!string.IsNullOrEmpty(result))
-        return result;
-      return Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.User);
+      ConcreteTableSchemaModifier.IsEnabled = false;
+      SingleTableSchemaModifier.IsEnabled = false;
+      ClassTableSchemaModifier.IsEnabled = false;
+      IncludeTypeIdModifier.IsEnabled = false;
+      ExcludeTypeIdModifier.IsEnabled = false;
+      TypeIdModifier.IsEnabled = false;
     }
   }
 }

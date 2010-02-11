@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
   {
     protected override DomainConfiguration CreateConfiguration()
     {
-      return DomainConfigurationFactory.Create("memory");
+      return DomainConfigurationFactory.CreateForCrudTest("memory");
     }
   }
 }

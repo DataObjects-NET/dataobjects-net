@@ -32,79 +32,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     public ProviderInfo BuildProviderInfo()
     {
-      var csi = underlyingDriver.CoreServerInfo;
-      var si = underlyingDriver.ServerInfo;
-      var queryFeatures = si.Query.Features;
-      var serverFeatures = si.ServerFeatures;
-      var indexFeatures = si.Index.Features;
-      var foreignKeyFeatures = si.ForeignKey.Features;
-
-      var f = ProviderFeatures.None;
-      if (queryFeatures.Supports(QueryFeatures.DdlBatches))
-        f |= ProviderFeatures.DdlBatches;
-      if (queryFeatures.Supports(QueryFeatures.DmlBatches))
-        f |= ProviderFeatures.DmlBatches;
-      if (indexFeatures.Supports(IndexFeatures.Clustered))
-        f |= ProviderFeatures.ClusteredIndexes;
-      if (si.Collation!=null)
-        f |= ProviderFeatures.Collations;
-      if (si.ForeignKey!=null) {
-        f |= ProviderFeatures.ForeignKeyConstraints;
-        if (foreignKeyFeatures.Supports(ForeignKeyConstraintFeatures.Deferrable))
-          f |= ProviderFeatures.DeferrableConstraints;
-      }
-      if (indexFeatures.Supports(IndexFeatures.NonKeyColumns))
-        f |= ProviderFeatures.IncludedColumns;
-      if (indexFeatures.Supports(IndexFeatures.SortOrder))
-        f |= ProviderFeatures.KeyColumnSortOrder;
-      if (si.Sequence!=null)
-        f |= ProviderFeatures.Sequences;
-      if (queryFeatures.Supports(QueryFeatures.CrossApply))
-        f |= ProviderFeatures.CrossApply;
-      if (serverFeatures.Supports(ServerFeatures.LargeObjects))
-        f |= ProviderFeatures.LargeObjects;
-      if (queryFeatures.Supports(QueryFeatures.FullBooleanExpressionSupport))
-        f |= ProviderFeatures.FullFledgedBooleanExpressions;
-      if (queryFeatures.Supports(QueryFeatures.NamedParameters))
-        f |= ProviderFeatures.NamedParameters;
-      if (queryFeatures.Supports(QueryFeatures.UpdateFrom))
-        f |= ProviderFeatures.UpdateFrom;
-      if (queryFeatures.Supports(QueryFeatures.Limit))
-        f |= ProviderFeatures.Limit;
-      if (queryFeatures.Supports(QueryFeatures.Offset))
-        f |= ProviderFeatures.Offset;
-      if (serverFeatures.Supports(ServerFeatures.MultipleResultsViaCursorParameters))
-        f |= ProviderFeatures.MultipleResultsViaCursorParameters;
-      if (csi.MultipleActiveResultSets)
-        f |= ProviderFeatures.MultipleActiveResultSets;
-      if (queryFeatures.Supports(QueryFeatures.DefaultValues))
-        f |= ProviderFeatures.InsertDefaultValues;
-
-      var tt = si.TemporaryTable;
-      if (tt != null)
-        f |= ProviderFeatures.TemporaryTables;
-      if (si.FullTextSearch != null) {
-        if (si.FullTextSearch.Features==FullTextSearchFeatures.Full)
-          f |= ProviderFeatures.FullFeaturedFullText;
-        if (si.FullTextSearch.Features==FullTextSearchFeatures.SingleKeyRankTable)
-          f |= ProviderFeatures.SingleKeyRankTableFullText | ProviderFeatures.FullTextDdlIsNotTransactional;
-      }
-
-      var c = si.Column;
-      if ((c.AllowedDdlStatements & DdlStatements.Alter) == DdlStatements.Alter)
-        f |= ProviderFeatures.ColumnRename;
-
-      var dataTypes = si.DataTypes;
-      var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;
-      if (binaryTypeInfo!=null && binaryTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull))
-        f |= ProviderFeatures.TreatEmptyBlobAsNull;
-      var stringTypeInfo = dataTypes.VarChar ?? dataTypes.VarCharMax;
-      if (stringTypeInfo!=null && stringTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull))
-        f |= ProviderFeatures.TreatEmptyStringAsNull;
-
-      var storageVersion = csi.ServerVersion;
-      var maxIdentifierLength = new EntityInfo[] {si.Column, si.ForeignKey, si.Index, si.PrimaryKey, si.Sequence, si.Table, si.TemporaryTable, si.UniqueConstraint}.Select(e => e == null ? int.MaxValue : e.MaxIdentifierLength).Min();
-      return new ProviderInfo(storageVersion, f, maxIdentifierLength);
+      // We extracted this method to a separate class for tests.
+      // It's very desirable to have a way of getting ProviderInfo without building a domain.
+      return ProviderInfoBuilder.Build(underlyingDriver);
     }
 
     public string BuildBatch(string[] statements)

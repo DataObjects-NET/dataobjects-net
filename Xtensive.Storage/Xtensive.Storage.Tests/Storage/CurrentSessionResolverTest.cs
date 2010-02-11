@@ -12,6 +12,12 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class CurrentSessionResolverTest
   {
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      Require.ProviderIs(StorageProvider.Memory);
+    }
+
     [TearDown]
     public void TearDown()
     {
@@ -21,7 +27,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void Tests()
     {
-      var config = DomainConfigurationFactory.Create("memory");
+      var config = DomainConfigurationFactory.Create();
       var domain = Domain.Build(config);
       var session = Session.Open(domain, false);
 

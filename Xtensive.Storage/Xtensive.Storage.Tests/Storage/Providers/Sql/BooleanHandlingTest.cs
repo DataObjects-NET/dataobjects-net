@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   {
     protected override void CheckRequirements()
     {
-      EnsureProviderIs(StorageProvider.SqlServer | StorageProvider.Oracle | StorageProvider.SqlServerCe);
+      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.Oracle | StorageProvider.SqlServerCe);
     }
 
     protected override DomainConfiguration BuildConfiguration()

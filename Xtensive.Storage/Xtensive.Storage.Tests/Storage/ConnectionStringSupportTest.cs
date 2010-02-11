@@ -12,13 +12,13 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class ConnectionStringSupportTest : AutoBuildTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Sql);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
-      // fancy check of a SQL storage
-      var checkerConfig = DomainConfigurationFactory.Create();
-      var provider = checkerConfig.ConnectionInfo.Provider;
-      StorageTestHelper.EnsureProviderIs(provider, StorageProvider.Sql);
-
       return DomainConfigurationFactory.Create(true);
     }
 

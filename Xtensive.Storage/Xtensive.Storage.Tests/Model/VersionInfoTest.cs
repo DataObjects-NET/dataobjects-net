@@ -134,9 +134,15 @@ namespace Xtensive.Storage.Tests.Model
   [TestFixture]
   public class VersionInfoTest
   {
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
+
     public Domain BuildDomain(string @namespace)
     {
-      var configuration = DomainConfigurationFactory.Create("mssql2005");
+      var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(Assembly.GetExecutingAssembly(), @namespace);
       return Domain.Build(configuration);

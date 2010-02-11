@@ -19,14 +19,13 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void Main()
     {
-      string connectionUrl = @"sqlserver://localhost/DO40-Tests";
-      Log.Info("ConnectionUrl: " + connectionUrl);
-
+      Require.ProviderIs(StorageProvider.SqlServer);
+      
       // Initialize domain
       Domain domain;
       try
       {
-        DomainConfiguration domainConfig = new DomainConfiguration(connectionUrl);
+        DomainConfiguration domainConfig = DomainConfigurationFactory.Create();
         SessionConfiguration sessionConfig = new SessionConfiguration(WellKnown.Sessions.Default);
         sessionConfig.Options |= SessionOptions.None;
         domainConfig.Sessions.Add(sessionConfig);

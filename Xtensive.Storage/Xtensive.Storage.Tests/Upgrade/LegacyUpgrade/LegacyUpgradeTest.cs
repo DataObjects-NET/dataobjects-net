@@ -170,7 +170,7 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
 
     protected override void CheckRequirements()
     {
-      EnsureProviderIs(StorageProvider.SqlServer);
+      Require.ProviderIs(StorageProvider.SqlServer);
     }
 
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()

@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Tests.Storage.Performance
     protected override DomainConfiguration BuildConfiguration()
     {
       // Just to ensure schema is ready
-      var config = DomainConfigurationFactory.Create("mssql2005");
+      var config = DomainConfigurationFactory.CreateForCrudTest("mssql2005");
       config.Types.Register(
         typeof (CrudModel.Simplest).Assembly, typeof (CrudModel.Simplest).Namespace);
       return config;

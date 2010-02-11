@@ -33,7 +33,8 @@ namespace Xtensive.Storage.Tests.Issues
       public static bool IsActive { get; set; }
 
       public void OnBuilt(Domain domain)
-      {}
+      {
+      }
 
       public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
       {
@@ -50,9 +51,9 @@ namespace Xtensive.Storage.Tests.Issues
       }
     }
 
-    protected void BuildDomain(DomainUpgradeMode mode)
+    private void BuildDomain(DomainUpgradeMode mode)
     {
-      var config = DomainConfigurationFactory.Create("mssql2005");
+      var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = mode;
       config.Types.Register(typeof (Ancestor).Assembly, typeof (Ancestor).Namespace);
       var domain = Domain.Build(config);
@@ -69,14 +70,11 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
       BuildDomain(DomainUpgradeMode.Recreate);
-
       BuildDomain(DomainUpgradeMode.Validate);
-
       ModelChanger.IsActive = true;
-
       BuildDomain(DomainUpgradeMode.Perform);
-
       ModelChanger.IsActive = false;
     }
   }

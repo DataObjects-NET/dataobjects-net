@@ -129,8 +129,9 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     protected override ProviderInfo CreateProviderInfo()
     {
-      const ProviderFeatures features = PF.Batches | PF.ClusteredIndexes | PF.IncludedColumns | PF.KeyColumnSortOrder | PF.Paging | PF.FullFledgedBooleanExpressions | PF.CrossApply;
-      return new ProviderInfo(new Version(0, 3), features, int.MaxValue);
+      // We extracted this method to a separate class for tests.
+      // It's very desirable to have a way of getting ProviderInfo without building a domain.
+      return ProviderInfoBuilder.Build();
     }
 
     #region Storage access methods

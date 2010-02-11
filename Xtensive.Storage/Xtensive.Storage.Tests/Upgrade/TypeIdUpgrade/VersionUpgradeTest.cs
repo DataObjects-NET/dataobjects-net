@@ -17,9 +17,7 @@ namespace Xtensive.Storage.Tests.Upgrade.TypeIdUpgrade
     [TestFixtureSetUp]
     public void TestFixtureSetUp()
     {
-      var configuration = DomainConfigurationFactory.Create();
-      var providerName = configuration.ConnectionInfo.Provider;
-      StorageTestHelper.EnsureProviderIs(providerName, StorageProvider.SqlServer);
+      Require.ProviderIs(StorageProvider.SqlServer);
     }
 
     [Test]

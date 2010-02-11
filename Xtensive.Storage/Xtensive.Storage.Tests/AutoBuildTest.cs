@@ -17,8 +17,6 @@ namespace Xtensive.Storage.Tests
   [TestFixture]
   public abstract class AutoBuildTest
   {
-    private string protocolName;
-    private StorageProvider provider;
     private DisposableSet disposables;
     private static UnityContainer container;
 
@@ -28,9 +26,8 @@ namespace Xtensive.Storage.Tests
     [TestFixtureSetUp]
     public virtual void TestFixtureSetUp()
     {
-      var config = BuildConfiguration();
-      provider = StorageTestHelper.ParseProvider(config.ConnectionInfo.Provider);
       CheckRequirements();
+      var config = BuildConfiguration();
       Domain = BuildDomain(config);
       if (Domain!=null)
         ProviderInfo = Domain.StorageProviderInfo;
@@ -50,16 +47,6 @@ namespace Xtensive.Storage.Tests
 
     protected virtual void CheckRequirements()
     {
-    }
-
-    protected void EnsureProviderIs(StorageProvider allowedProviders)
-    {
-      StorageTestHelper.EnsureProviderIs(provider, allowedProviders);
-    }
-
-    protected void EnsureProviderIsNot(StorageProvider disallowedProviders)
-    {
-      StorageTestHelper.EnsureProviderIs(provider, ~disallowedProviders);
     }
 
     protected void CreateSessionAndTransaction()

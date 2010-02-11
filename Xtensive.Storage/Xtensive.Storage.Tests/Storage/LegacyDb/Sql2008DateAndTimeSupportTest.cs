@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     protected override void CheckRequirements()
     {
       base.CheckRequirements();
-      EnsureProviderIs(StorageProvider.SqlServer);
+      Require.ProviderIs(StorageProvider.SqlServer);
     }
 
     protected override DomainConfiguration BuildConfiguration()

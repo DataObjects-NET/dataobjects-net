@@ -25,9 +25,14 @@ namespace Xtensive.Storage.Tests.Rse
   [TestFixture, Category("Rse")]
   public class ProviderTreeRewriterTest : AutoBuildTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Memory);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = DomainConfigurationFactory.Create("memory");
+      DomainConfiguration config = DomainConfigurationFactory.Create();
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Storage.Tests.Storage.SnakesModel");
       return config;
     }

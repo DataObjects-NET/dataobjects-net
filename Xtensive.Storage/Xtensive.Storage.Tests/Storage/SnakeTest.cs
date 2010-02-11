@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     protected override void CheckRequirements()
     {
-      EnsureProviderIs(StorageProvider.Index);
+      Require.ProviderIs(StorageProvider.Index);
     }
 
     protected override DomainConfiguration BuildConfiguration()

@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
 
     protected override void CheckRequirements()
     {
-      EnsureProviderIs(StorageProvider.Sql);
+      Require.ProviderIs(StorageProvider.Sql);
     }
 
     protected override DomainConfiguration BuildConfiguration()
@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void TrimOtherCharTest()
     {
-      EnsureProviderIsNot(StorageProvider.SqlServer | StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServer | StorageProvider.SqlServerCe);
       var results = Query.All<X>()
         .Select(x => new {
           String = x.FString,
@@ -132,7 +132,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
     [Test]
     public void TrimMultipleCharsTest()
     {
-      EnsureProviderIsNot(StorageProvider.SqlServer | StorageProvider.Oracle | StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServer | StorageProvider.Oracle | StorageProvider.SqlServerCe);
       var results = Query.All<X>()
         .Select(x => new {
           String = x.FString,

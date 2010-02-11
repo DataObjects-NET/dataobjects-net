@@ -26,13 +26,12 @@ namespace Xtensive.Storage.Tests.Issues
   {
     protected override void CheckRequirements()
     {
-      base.CheckRequirements();
-      EnsureProviderIs(StorageProvider.SqlServer);
+      Require.ProviderIs(StorageProvider.SqlServer);
     }
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      var config = DomainConfigurationFactory.Create();
       config.AutoValidation = true;
       config.ForeignKeyMode = ForeignKeyMode.All;
       config.KeyGeneratorCacheSize = 32;

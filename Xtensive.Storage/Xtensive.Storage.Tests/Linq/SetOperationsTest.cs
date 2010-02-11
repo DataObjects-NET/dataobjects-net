@@ -210,7 +210,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectWithoutOneOfSelect()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.ProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
       var actual = from c in Query.All<Customer>()
       from r in (c.Orders)
         .Intersect(c.Orders).Select(o => o.ShippedDate)

@@ -4,15 +4,14 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.23
 
+using NUnit.Framework;
 using System;
 using System.Reflection;
-using NUnit.Framework;
-using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Upgrade.ConvertDomainModel.Model;
-using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
-using Xtensive.Storage.Model;
+using TypeInfo = Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
@@ -23,26 +22,23 @@ namespace Xtensive.Storage.Tests.Upgrade
 
     protected Domain Domain { get; set; }
     
-    protected Domain BuildDomain(string protocol)
+    protected Domain BuildDomain()
     {
-      DomainConfiguration dc;
-      if (protocol == null)
-        dc = DomainConfigurationFactory.Create();
-      else
-        dc = DomainConfigurationFactory.Create(protocol);
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      configuration.ForeignKeyMode = ForeignKeyMode.Reference;
+      configuration.Types.Register(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
 
-      dc.UpgradeMode = DomainUpgradeMode.Recreate;
-      dc.ForeignKeyMode = ForeignKeyMode.Reference;
-      dc.Types.Register(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
-      Domain.Build(dc);
-      Domain = Domain.Build(dc);
+      Domain.DisposeSafely();
+      Domain.Build(configuration);
+      Domain = Domain.Build(configuration);
       return Domain;
     }
     
     [SetUp]
     public virtual void SetUp()
     {
-      Schema = BuildDomain(null).Schema;
+      Schema = BuildDomain().Schema;
     }
 
     [Test]

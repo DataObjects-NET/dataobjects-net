@@ -7,7 +7,6 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Core.Caching;
-using Xtensive.Core.Disposing;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
@@ -17,22 +16,27 @@ namespace Xtensive.Storage.Tests.Configuration
   [TestFixture]
   public class SessionInitializationTest
   {
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      Require.ProviderIs(StorageProvider.Memory);
+    }
+
     [Test]
     public void TestSessionCache()
     {
-      string url = "memory://localhost/DO40-Tests";
       // Default CacheType
-      var dc = new DomainConfiguration(url);
-      dc.UpgradeMode = DomainUpgradeMode.Recreate;
-      TestCacheType(dc, typeof (LruCache<,>));
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      TestCacheType(configuration, typeof (LruCache<,>));
       // Lru CacheType
-      dc = new DomainConfiguration(url);
-      dc.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default) {CacheType = SessionCacheType.LruWeak});
-      TestCacheType(dc, typeof (LruCache<,>));
+      configuration = DomainConfigurationFactory.Create();
+      configuration.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default) {CacheType = SessionCacheType.LruWeak});
+      TestCacheType(configuration, typeof (LruCache<,>));
       // Infinite CacheType
-      dc = new DomainConfiguration(url);
-      dc.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default) {CacheType = SessionCacheType.Infinite});
-      TestCacheType(dc, typeof (InfiniteCache<,>));
+      configuration = DomainConfigurationFactory.Create();
+      configuration.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default) {CacheType = SessionCacheType.Infinite});
+      TestCacheType(configuration, typeof (InfiniteCache<,>));
     }
 
     public void TestCacheType(DomainConfiguration config, Type expectedType)
@@ -49,8 +53,7 @@ namespace Xtensive.Storage.Tests.Configuration
     [Test]
     public void TestNamedConfigurations()
     {
-      string url = "memory://localhost/DO40-Tests";
-      var config = new DomainConfiguration(url);
+      var config = DomainConfigurationFactory.Create();
       AssertEx.ThrowsArgumentNullException(() => config.Sessions.Add(new SessionConfiguration()));
       config.Sessions.Add(new SessionConfiguration("SomeName"));
       AssertEx.ThrowsInvalidOperationException(() => config.Sessions.Add(new SessionConfiguration("SomeName")));

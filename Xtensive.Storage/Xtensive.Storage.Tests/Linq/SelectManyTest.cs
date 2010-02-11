@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -76,7 +77,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupBySelectorTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.FeaturesSupported(ProviderFeatures.CrossApply);
       var result = Query.All<Order>()
         .GroupBy(o => o.Customer)
         .SelectMany(g => g.Select(o => o.Customer));
@@ -88,7 +89,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByCountTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.FeaturesSupported(ProviderFeatures.CrossApply);
       var result = Query.All<Order>()
         .GroupBy(o => o.Customer)
         .SelectMany(g => g.Select(o => o.Customer).Where(c => g.Count() > 2));
@@ -103,7 +104,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByCount2Test()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.FeaturesSupported(ProviderFeatures.CrossApply);
       var result = Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Where(g => g.Count() > 2)
@@ -139,7 +140,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetSubqueryTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.FeaturesSupported(ProviderFeatures.CrossApply);
       int expectedCount = Query.All<Order>().Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => c.Orders.Where(o => o.Employee.FirstName.StartsWith("A")));
@@ -149,7 +150,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetSubqueryWithResultSelectorTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.FeaturesSupported(ProviderFeatures.CrossApply);
       int expected = Query.All<Order>()
         .Count(o => o.Employee.FirstName.StartsWith("A"));
 
@@ -312,7 +313,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryWithEntityReferenceTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.ProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
       int expected = Query.All<Order>().Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c)
@@ -334,7 +335,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectBetweenFilterAndApplyTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.FeaturesSupported(ProviderFeatures.CrossApply);
       int expected = Query.All<Order>().Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c).Intersect(Query.All<Order>())
@@ -345,7 +346,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DistinctBetweenFilterAndApplyTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.ProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
       int expected = Query.All<Order>().Distinct().Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c).Distinct()
@@ -356,7 +357,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TakeBetweenFilterAndApplyTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.FeaturesSupported(ProviderFeatures.CrossApply);
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c).Take(10));
       QueryDumper.Dump(result);
@@ -365,7 +366,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SkipBetweenFilterAndApplyTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.FeaturesSupported(ProviderFeatures.CrossApply);
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c).Skip(10));
       QueryDumper.Dump(result);
@@ -388,7 +389,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TwoCalculateWithApplyTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.FeaturesSupported(ProviderFeatures.CrossApply);
       var actual = from c in Query.All<Customer>()
       from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
         .Union(c.Orders.Select(o => c.ContactName + o.ShipName))
@@ -405,7 +406,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TwoFilterWithApplyTest()
     {
-      EnsureProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.FeaturesSupported(ProviderFeatures.CrossApply);
       var actual = from c in Query.All<Customer>()
       from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
         .Intersect(c.Orders.Where(x => x.ShipName.StartsWith("a"))))

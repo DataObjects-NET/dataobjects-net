@@ -320,7 +320,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ValidateTest()
     {
-      EnsureProviderIs(StorageProvider.Sql);
+      Require.ProviderIs(StorageProvider.Sql);
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
       configuration.Types.Register(typeof (X));

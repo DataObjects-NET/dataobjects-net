@@ -15,16 +15,14 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeHandlersSorting
 {
   [TestFixture, Category("Upgrade")]
   [Explicit("Requires specific file path")]
-  public sealed class UpgradeHandlersSortingTest : AutoBuildTest
+  public sealed class UpgradeHandlersSortingTest
   {
-    public override void TestFixtureSetUp()
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
     }
-
-    public override void TestFixtureTearDown()
-    {
-    }
-
+    
     [Test]
     public void CombinedTest()
     {
@@ -46,14 +44,14 @@ namespace Xtensive.Storage.Tests.Upgrade.UpgradeHandlersSorting
 
     private Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration0()
     {
-      var config = DomainConfigurationFactory.Create("mssql2005");
+      var config = DomainConfigurationFactory.Create();
       config.Types.Register(CompileAssembly(0), "UpgradeHandlersSorting.Model");
       return config;
     }
 
     private Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration1()
     {
-      var config = DomainConfigurationFactory.Create("mssql2005");
+      var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = DomainUpgradeMode.Perform;
       config.Types.Register(CompileAssembly(1, 0), "UpgradeHandlersSorting.Model");
       config.Types.Register(CompileAssembly(2, 0, 1), "UpgradeHandlersSorting.Model");
