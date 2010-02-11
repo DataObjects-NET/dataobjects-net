@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void SqlStorageTest()
     {
-      Require.ProviderIs(StorageProvider.Sql);
+      Require.ProviderIs(StorageProvider.SqlServer);
       using (var session = Session.Open(Domain)) {
         var directSql = session.Services.Demand<DirectSqlAccessor>();
         Assert.IsTrue(directSql.IsAvailable);
