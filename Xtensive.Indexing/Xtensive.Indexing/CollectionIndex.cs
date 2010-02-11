@@ -13,6 +13,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
 using Xtensive.Indexing.Measures;
 using Xtensive.Indexing.Optimization;
+using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing
 {
@@ -355,7 +356,7 @@ namespace Xtensive.Indexing
     {
       if (uniqueIndex != null && ContainsKey(index.KeyExtractor(args.Item))) {
         pendingItems.Remove(args.Item);
-        throw new InvalidOperationException("Unique constraint violation");
+        throw new InvalidOperationException(Strings.ExUniqueConstraintViolation);
       }
       TKey key;
       if (pendingItems.TryGetValue(args.Item, out key))
@@ -377,7 +378,7 @@ namespace Xtensive.Indexing
     private void OnItemInserting(object sender, CollectionChangeNotifierEventArgs<TItem> args)
     {
       if (ContainsKey(index.KeyExtractor(args.Item)))
-        throw new InvalidOperationException("Unique constraint violation");
+        throw new InvalidOperationException(Strings.ExUniqueConstraintViolation);
     }
 
     private void OnItemRemoved(object sender, CollectionChangeNotifierEventArgs<TItem> args)

@@ -191,7 +191,7 @@ namespace Xtensive.Indexing
       }
       else {
         if (result.ResultType!=SeekResultType.Exact)
-          throw new ArgumentOutOfRangeException("item", "Specified key could not be found.");
+          throw new ArgumentOutOfRangeException("item", Strings.ExSpecifiedKeyCouldNotBeFound);
         var replacedItem = leafPage[result.Pointer];
         leafPage[result.Pointer] = item;
         leafPage.SubtractFromMeasures(replacedItem);

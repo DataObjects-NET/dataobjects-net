@@ -765,4 +765,13 @@
   <data name="ExArgumentMustBeLessThanOrEqualX" xml:space="preserve">
     <value>Argument must be less than or equal '{0}'</value>
   </data>
+  <data name="ExUseLogIndentScopeConstructorInstead" xml:space="preserve">
+    <value>Use LogIndentScope constructor instead.</value>
+  </data>
+  <data name="ExOnlyBreakableNodesSadSmile" xml:space="preserve">
+    <value>Only breakable nodes :(</value>
+  </data>
+  <data name="ExSegmentIsOutOfRange" xml:space="preserve">
+    <value>Segment is out of range.</value>
+  </data>
 </root>

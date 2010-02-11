@@ -1150,6 +1150,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only breakable nodes :(.
+        /// </summary>
+        internal static string ExOnlyBreakableNodesSadSmile {
+            get {
+                return ResourceManager.GetString("ExOnlyBreakableNodesSadSmile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Only the normalized expression having the different normal form can be added as the immediate descendant to the root expression..
         /// </summary>
         internal static string ExOnlyNormalizedExpressionCanBeAddedAsChildToRoot {
@@ -1362,6 +1371,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExScopeRequired {
             get {
                 return ResourceManager.GetString("ExScopeRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Segment is out of range..
+        /// </summary>
+        internal static string ExSegmentIsOutOfRange {
+            get {
+                return ResourceManager.GetString("ExSegmentIsOutOfRange", resourceCulture);
             }
         }
         
@@ -1624,6 +1642,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExUseLogCaptureScopeConstructorInstead {
             get {
                 return ResourceManager.GetString("ExUseLogCaptureScopeConstructorInstead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use LogIndentScope constructor instead..
+        /// </summary>
+        internal static string ExUseLogIndentScopeConstructorInstead {
+            get {
+                return ResourceManager.GetString("ExUseLogIndentScopeConstructorInstead", resourceCulture);
             }
         }
         

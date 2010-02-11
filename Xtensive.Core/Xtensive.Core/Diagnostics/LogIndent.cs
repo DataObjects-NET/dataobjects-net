@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.IoC;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Diagnostics
 {
@@ -83,7 +84,7 @@ namespace Xtensive.Core.Diagnostics
     /// <inheritdoc/>
     public LogIndentScope Activate()
     {
-      throw new NotSupportedException("Use LogIndentScope constructor instead.");
+      throw new NotSupportedException(Strings.ExUseLogIndentScopeConstructorInstead);
     }
 
     #endregion

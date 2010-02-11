@@ -82,7 +82,7 @@ namespace Xtensive.Core.Tuples.Transform
         }
       }
       else 
-        throw new InvalidOperationException("Segment is out of range.");
+        throw new InvalidOperationException(Strings.ExSegmentIsOutOfRange);
       Descriptor = TupleDescriptor.Create(fields);
       SingleSourceMap = map;
     }

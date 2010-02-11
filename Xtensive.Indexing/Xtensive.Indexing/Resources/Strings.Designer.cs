@@ -286,6 +286,15 @@ namespace Xtensive.Indexing.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Specified key could not be found..
+        /// </summary>
+        internal static string ExSpecifiedKeyCouldNotBeFound {
+            get {
+                return ResourceManager.GetString("ExSpecifiedKeyCouldNotBeFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Stream is not empty..
         /// </summary>
         internal static string ExStreamIsNotEmpty {
@@ -300,6 +309,15 @@ namespace Xtensive.Indexing.Resources {
         internal static string ExUnableToGetCountForBloomFilter {
             get {
                 return ResourceManager.GetString("ExUnableToGetCountForBloomFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unique constraint violation.
+        /// </summary>
+        internal static string ExUniqueConstraintViolation {
+            get {
+                return ResourceManager.GetString("ExUniqueConstraintViolation", resourceCulture);
             }
         }
         

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using System.Linq;
+using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Sorting
 {
@@ -216,7 +217,7 @@ namespace Xtensive.Core.Sorting
               edgeToBreakLoop.UnbindFromNodes();
             }
           else {
-            throw new InvalidOperationException("Only breakable nodes :(");
+            throw new InvalidOperationException(Strings.ExOnlyBreakableNodesSadSmile);
           }
         }
         foreach (var nodeToRemove in nodesToRemove)
