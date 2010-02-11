@@ -56,8 +56,8 @@ namespace Xtensive.Storage.Providers.Sql
       if (queryFeatures.Supports(QueryFeatures.Offset))
         f |= ProviderFeatures.Offset;
       // We support paging either directly or via row number.
-      if (queryFeatures.Supports(QueryFeatures.RowNumber))
-        f |= (ProviderFeatures.RowNumber | ProviderFeatures.Paging);
+//      if (queryFeatures.Supports(QueryFeatures.RowNumber))
+//        f |= (ProviderFeatures.RowNumber | ProviderFeatures.Paging);
       if (serverFeatures.Supports(ServerFeatures.MultipleResultsViaCursorParameters))
         f |= ProviderFeatures.MultipleResultsViaCursorParameters;
       if (csi.MultipleActiveResultSets)
