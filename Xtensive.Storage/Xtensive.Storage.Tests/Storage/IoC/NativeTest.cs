@@ -8,46 +8,47 @@ using System.Configuration;
 using NUnit.Framework;
 using Xtensive.Core.IoC;
 using Xtensive.Storage.Configuration;
+using ConfigurationSection=Xtensive.Core.IoC.Configuration.ConfigurationSection;
 
 namespace Xtensive.Storage.Tests.Storage.IoC
 {
+  #region Service containers for this test
+
+  public class DomainServiceContainer : ProxyContainerBase
+  {
+    public DomainServiceContainer(object configuration, IServiceContainer parent)
+      : base(configuration, parent)
+    {
+      var section = (ConfigurationSection) 
+        ConfigurationManager.GetSection("NativeTest");
+      RealContainer = ServiceContainer.Create(section, "domain");
+    }
+  }
+
+  public class SessionServiceContainer : ProxyContainerBase
+  {
+    public SessionServiceContainer(object configuration, IServiceContainer parent)
+      : base(configuration, parent)
+    {
+      var section = (ConfigurationSection) 
+        ConfigurationManager.GetSection("NativeTest");
+      RealContainer = ServiceContainer.Create(section, "session");
+    }
+  }
+
+  #endregion
+
   [TestFixture]
   public class NativeTest : ServiceTestBase
   {
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
-      var domain = base.BuildDomain(configuration);
-
-      // Setting domain-container
-      var domainContainer = BuildContainer("domain");
-      // TODO: Fix this
-      // domain.Services.SetLocatorProvider(() => new ServiceLocatorAdapter(domainContainer));
-
-      // Singing up to SessionOpen event to set and configure session-level container
-      domain.SessionOpen += OnSessionOpen;
-      return domain;
-    }
-
-    private void OnSessionOpen(object sender, SessionEventArgs e)
-    {
-      var sessionContainer = BuildContainer("session");
-      // TODO: Fix this
-      // e.Session.Services.SetLocatorProvider(() => new ServiceLocatorAdapter(sessionContainer));
-    }
-
-    /// <summary>
-    /// Builds the container.
-    /// </summary>
-    /// <param name="containerName">Name of the container.</param>
-    /// <returns></returns>
-    private static ServiceContainer BuildContainer(string containerName)
-    {
-      var section = (Core.IoC.Configuration.ConfigurationSection) ConfigurationManager.GetSection("NativeTest");
-      var result = new ServiceContainer();
-      // TODO: Fix this
-      // result.Configure(section.Containers[containerName]);
-
-      return result;
+      configuration.ServiceContainerType = 
+        typeof (DomainServiceContainer);
+      configuration.Sessions.Add(new SessionConfiguration(WellKnown.Sessions.Default));
+      configuration.Sessions.Default.ServiceContainerType = 
+        typeof (SessionServiceContainer);
+      return base.BuildDomain(configuration);
     }
   }
 }

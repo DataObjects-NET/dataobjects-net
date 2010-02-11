@@ -419,7 +419,7 @@ namespace Xtensive.Storage
 
     internal abstract void SystemBeforeInitialize(bool materialize);
 
-    internal abstract void SystemInitialize();
+    internal abstract void SystemInitialize(bool materialize);
 
     internal abstract void SystemInitializationError(Exception error);
 
@@ -639,7 +639,7 @@ namespace Xtensive.Storage
       if (ctorType!=GetType())
         return;
       try {
-        SystemInitialize();
+        SystemInitialize(false);
       }
       finally {
         LeaveCtorTransactionScope();

@@ -87,15 +87,15 @@ namespace Xtensive.Storage.Tests.Storage.Validation
     [Test]
     public void ValidationCallsCountTest()
     { 
-      validationCallsCount = 0;
       int mouseId;
-
+      validationCallsCount = 0;
       using (Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
           using (var region = Xtensive.Storage.Validation.Disable()) {
-            Mouse mouse = new Mouse();
-            mouse.ButtonCount = 2;
-            mouse.ScrollingCount = 1;
+            var mouse = new Mouse {
+              ButtonCount = 2,
+              ScrollingCount = 1
+            };
             mouse.Led.Brightness = 1.5;
             mouse.Led.Precision = 1.5;
             mouseId = mouse.ID;
@@ -107,12 +107,14 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       }
       Assert.AreEqual(1, validationCallsCount);
 
+      validationCallsCount = 0;
       using (Session.Open(Domain)) {
         using (Transaction.Open()) {
-          Mouse mouse = Query.All<Mouse>().Where(m => m.ID==mouseId).First();
+          var mouse = Query.All<Mouse>().Where(m => m.ID==mouseId).First();
         }
       }
-      Assert.AreEqual(1, validationCallsCount); 
+      // No validation calls on meterialization
+      Assert.AreEqual(0, validationCallsCount); 
     }
 
     [Test]
@@ -142,7 +144,6 @@ namespace Xtensive.Storage.Tests.Storage.Validation
 
         AssertEx.Throws<InvalidOperationException>(
           transactionScope.Dispose);
-        
       }
     }
     

@@ -75,18 +75,18 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public override void Insert(int index, SessionConfiguration item)
     {
-      EnsureItemisValid(item);
+      EnsureItemIsValid(item);
       base.Insert(index, item);
     }
 
     /// <inheritdoc/>
     public override void Add(SessionConfiguration item)
     {
-      EnsureItemisValid(item);
+      EnsureItemIsValid(item);
       base.Add(item);
     }
 
-    private void EnsureItemisValid(SessionConfiguration item)
+    private void EnsureItemIsValid(SessionConfiguration item)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(item.Name, "SessionConfiguration.Name");
       var current = this[item.Name];

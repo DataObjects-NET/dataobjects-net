@@ -38,8 +38,11 @@ namespace Xtensive.Storage.Operations
       else {
         var domain = Session.Domain;
         var typeInfo = key.TypeRef.Type;
-        var generator = domain.KeyGenerators[typeInfo.KeyProviderInfo];
-        if (generator.IsTemporaryKey(key.Value))
+
+        KeyGenerator generator;
+        domain.KeyGenerators.TryGetValue(typeInfo.KeyProviderInfo, out generator);
+
+        if (generator!=null && generator.IsTemporaryKey(key.Value))
           // Only temporary keys are remapped
           remappedKey = KeyFactory.Generate(domain, key.Type);
         else

@@ -122,7 +122,7 @@ namespace Xtensive.Storage
           .Invoke(subscriptionInfo.First, Field);
     }
 
-    internal sealed override void SystemInitialize()
+    internal sealed override void SystemInitialize(bool materialize)
     {
       if (Session.IsSystemLogicOnly)
         return;
@@ -132,7 +132,7 @@ namespace Xtensive.Storage
         ((Action<Key, FieldInfo>) subscriptionInfo.Second)
           .Invoke(subscriptionInfo.First, Field);
       OnInitialize();
-      if (CanBeValidated && Session.Domain.Configuration.AutoValidation)
+      if (!materialize && CanBeValidated && Session.Domain.Configuration.AutoValidation)
         this.Validate();
     }
 
