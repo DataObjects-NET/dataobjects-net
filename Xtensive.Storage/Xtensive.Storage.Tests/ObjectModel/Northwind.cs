@@ -355,12 +355,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
 
   public class DataBaseFiller
   {
-    private static readonly SqlConnection con = new SqlConnection("Data Source=localhost;"
-      + "Initial Catalog = Northwind;"
-        + "Integrated Security=SSPI;");
-
     public static void Fill(Domain domain)
     {
+      var con = new SqlConnection(EnvironmentConfiguration.NorthwindConnectionString);
       con.Open();
       SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
@@ -599,6 +596,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Northwind
         Session.Current.Persist();
         tr.Complete();
       }
+
       transaction.Commit();
       con.Close();
     }

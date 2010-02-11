@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Tests
     private const string ProviderKey = "X_PROVIDER";
     private const string ConnectionStringKey = "X_CONNECTION_STRING";
     private const string ConnectionUrlKey = "X_CONNECTION_URL";
+    private const string NorthwindConnectionStringKey = "X_NORTHWIND";
 
     private static bool isInitialized;
     private static string storageType;
@@ -26,6 +27,7 @@ namespace Xtensive.Storage.Tests
     private static TypeIdBehavior typeIdBehavior;
     private static InheritanceSchema inheritanceSchema;
     private static ConnectionInfo customConnectionInfo;
+    private static string northwindConnectionString;
 
     public static string StorageType {
       get {
@@ -62,6 +64,13 @@ namespace Xtensive.Storage.Tests
       }
     }
 
+    public static string NorthwindConnectionString {
+      get {
+        EnsureIsInitialized();
+        return northwindConnectionString;
+      }
+    }
+
     private static string GetEnvironmentVariable(string key)
     {
       string result = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
@@ -82,6 +91,8 @@ namespace Xtensive.Storage.Tests
       typeIdBehavior = TypeIdBehavior.Default;
       inheritanceSchema = InheritanceSchema.Default;
       customConnectionInfo = null;
+      northwindConnectionString =
+        "Data Source=localhost; Initial Catalog = Northwind; Integrated Security=SSPI;";
 
       string value;
       value = GetEnvironmentVariable(StorageTypeKey);
@@ -101,15 +112,19 @@ namespace Xtensive.Storage.Tests
         foreignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), value, true);
 
       value = GetEnvironmentVariable(ConnectionUrlKey);
-      if (value!=null)
+      if (!string.IsNullOrEmpty(value))
         customConnectionInfo = new ConnectionInfo(value);
 
       value = GetEnvironmentVariable(ConnectionStringKey);
-      if (value!=null) {
+      if (!string.IsNullOrEmpty(value)) {
         var provider = GetEnvironmentVariable(ProviderKey);
         if (provider!=null)
           customConnectionInfo = new ConnectionInfo(provider, value);
       }
+
+      value = GetEnvironmentVariable(NorthwindConnectionStringKey);
+      if (!string.IsNullOrEmpty(value))
+        northwindConnectionString = value;
     }
   }
 }

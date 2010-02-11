@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Providers.Index
         ProviderFeatures.KeyColumnSortOrder |
         ProviderFeatures.Paging |
         ProviderFeatures.FullFeaturedBooleanExpressions |
-        ProviderFeatures.CrossApply |
+        ProviderFeatures.Apply |
         ProviderFeatures.RowNumber;
       return new ProviderInfo(new Version(0, 3), features, int.MaxValue);
     }

@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (si.Sequence!=null)
         f |= ProviderFeatures.Sequences;
       if (queryFeatures.Supports(QueryFeatures.CrossApply))
-        f |= ProviderFeatures.CrossApply;
+        f |= ProviderFeatures.Apply;
       if (serverFeatures.Supports(ServerFeatures.LargeObjects))
         f |= ProviderFeatures.LargeObjects;
       if (queryFeatures.Supports(QueryFeatures.FullBooleanExpressionSupport))
@@ -52,12 +52,11 @@ namespace Xtensive.Storage.Providers.Sql
       if (queryFeatures.Supports(QueryFeatures.UpdateFrom))
         f |= ProviderFeatures.UpdateFrom;
       if (queryFeatures.Supports(QueryFeatures.Limit))
-        f |= ProviderFeatures.Limit;
+        f |= ProviderFeatures.Take | ProviderFeatures.NativeTake;
       if (queryFeatures.Supports(QueryFeatures.Offset))
-        f |= ProviderFeatures.Offset;
-      // We support paging either directly or via row number.
-//      if (queryFeatures.Supports(QueryFeatures.RowNumber))
-//        f |= (ProviderFeatures.RowNumber | ProviderFeatures.Paging);
+        f |= ProviderFeatures.Skip | ProviderFeatures.NativeSkip;
+      if (queryFeatures.Supports(QueryFeatures.RowNumber))
+        f |= ProviderFeatures.RowNumber | ProviderFeatures.Paging;
       if (serverFeatures.Supports(ServerFeatures.MultipleResultsViaCursorParameters))
         f |= ProviderFeatures.MultipleResultsViaCursorParameters;
       if (csi.MultipleActiveResultSets)

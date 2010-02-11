@@ -17,22 +17,22 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
   [Serializable]
   public sealed class SkipTakeCorrector : IPreCompiler
   {
-    private readonly bool limitSupported;
-    private readonly bool offsetSupported;
+    private readonly bool takeSupported;
+    private readonly bool skipSupported;
 
     /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
-      return new SkipTakeRewriter(rootProvider, limitSupported, offsetSupported).Rewrite();
+      return new SkipTakeRewriter(rootProvider, takeSupported, skipSupported).Rewrite();
     }
 
 
     // Constructors
 
-    public SkipTakeCorrector(bool limitSupported, bool offsetSupported)
+    public SkipTakeCorrector(bool takeSupported, bool skipSupported)
     {
-      this.limitSupported = limitSupported;
-      this.offsetSupported = offsetSupported;
+      this.takeSupported = takeSupported;
+      this.skipSupported = skipSupported;
     }
   }
 }

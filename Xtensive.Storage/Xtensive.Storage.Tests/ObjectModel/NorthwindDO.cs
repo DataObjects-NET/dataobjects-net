@@ -446,12 +446,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
 
   public class DataBaseFiller
   {
-    private static readonly SqlConnection con = new SqlConnection(@"Data Source=localhost;"
-      + "Initial Catalog = Northwind;"
-        + "Integrated Security=SSPI;");
-
     public static void Fill(Domain domain)
     {
+      var con = new SqlConnection(EnvironmentConfiguration.NorthwindConnectionString);
       con.Open();
       try
       {

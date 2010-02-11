@@ -18,8 +18,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
   {
     private int rowNumberCount;
     private readonly CompilableProvider origin;
-    private readonly bool limitSupported;
-    private readonly bool offsetSupported;
+    private readonly bool takeSupported;
+    private readonly bool skipSupported;
 
     public SkipTakeRewriterState State { get; set; }
 
@@ -33,8 +33,8 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       if ((cp.Type==ProviderType.Take || cp.Type==ProviderType.Skip) && !State.IsSkipTakeChain) {
         var visitedProvider = (CompilableProvider) base.Visit(cp);
 
-        bool requiresRowNumber = (State.TakeExpression!=null && !limitSupported)
-          || (State.SkipExpression!=null && !offsetSupported);
+        bool requiresRowNumber = (State.TakeExpression!=null && !takeSupported)
+          || (State.SkipExpression!=null && !skipSupported);
 
         // add rownumber column (if needed)
         if (requiresRowNumber) {
@@ -91,12 +91,12 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
 
     // Constructors
 
-    public SkipTakeRewriter(CompilableProvider origin, bool limitSupported, bool offsetSupported)
+    public SkipTakeRewriter(CompilableProvider origin, bool takeSupported, bool skipSupported)
     {
       State = new SkipTakeRewriterState(this);
       this.origin = origin;
-      this.limitSupported = limitSupported;
-      this.offsetSupported = offsetSupported;
+      this.takeSupported = takeSupported;
+      this.skipSupported = skipSupported;
     }
   }
 }

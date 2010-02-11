@@ -9,14 +9,14 @@ using System;
 namespace Xtensive.Storage.Providers
 {
   [Flags]
-  public enum ProviderFeatures
+  public enum ProviderFeatures : long
   {
     None = 0x0,
     DdlBatches = 0x1,
     DmlBatches = 0x2,
     ClusteredIndexes = 0x4,
     Collations = 0x8,
-    CrossApply = 0x10,
+    Apply = 0x10,
     DeferrableConstraints = 0x20,
     ForeignKeyConstraints = 0x40,
     FullFeaturedBooleanExpressions = 0x80,
@@ -29,19 +29,22 @@ namespace Xtensive.Storage.Providers
     TreatEmptyBlobAsNull = 0x4000,
     TreatEmptyStringAsNull = 0x8000,
     UpdateFrom = 0x10000,
-    Limit = 0x20000,
-    Offset = 0x40000,
+    Take = 0x20000,
+    Skip = 0x40000,
     MultipleActiveResultSets = 0x80000,
     MultipleResultsViaCursorParameters = 0x100000,
     InsertDefaultValues = 0x200000,
     TemporaryTables = 0x400000,
     FullText = 0x800000,
-    FullFeaturedFullText = 0x1000000 + FullText,
-    SingleKeyRankTableFullText = 0x2000000 + FullText,
-    FullTextDdlIsNotTransactional = 0x4000000 + FullText,
+    FullFeaturedFullText = 0x1000000 | FullText,
+    SingleKeyRankTableFullText = 0x2000000 | FullText,
+    FullTextDdlIsNotTransactional = 0x4000000 | FullText,
     ColumnRename = 0x8000000,
     RowNumber = 0x10000000,
-    Paging = Limit | Offset,
+    NativeTake = 0x20000000,
+    NativeSkip = 0x40000000,
+    Paging = Take | Skip,
+    NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,
   }
 }

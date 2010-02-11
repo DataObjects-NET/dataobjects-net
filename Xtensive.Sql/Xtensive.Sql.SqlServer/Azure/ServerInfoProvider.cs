@@ -13,7 +13,7 @@ namespace Xtensive.Sql.SqlServer.Azure
   {
     public override FullTextSearchInfo GetFullTextInfo()
     {
-      return new FullTextSearchInfo();
+      return null;
     }
 
     // Constructors

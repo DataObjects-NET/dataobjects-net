@@ -211,7 +211,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectWithoutOneOfSelect()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.Apply);
       var actual = from c in Query.All<Customer>()
       from r in (c.Orders)
         .Intersect(c.Orders).Select(o => o.ShippedDate)

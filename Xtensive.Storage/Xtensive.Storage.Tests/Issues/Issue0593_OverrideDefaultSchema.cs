@@ -18,11 +18,20 @@ namespace Xtensive.Storage.Tests.Issues
   {
     private const string SchemaName = "MyFancySchema";
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithCustomSchema");
+      return DomainConfiguration.Load("AppConfigTest", "DomainWithCustomSchema");
+    }
+
+    protected override Domain BuildDomain(DomainConfiguration configuration)
+    {
       EnsureSchemaExists(configuration.ConnectionInfo);
-      return configuration;
+      return base.BuildDomain(configuration);
     }
 
     [Test]
