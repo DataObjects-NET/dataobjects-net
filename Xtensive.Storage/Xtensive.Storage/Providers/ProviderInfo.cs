@@ -30,10 +30,12 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Version of the underlying storage.
     /// </summary>
-    public Version StorageVersion
-    {
-      get { return storageVersion; }
-    }
+    public Version StorageVersion { get { return storageVersion; } }
+
+    /// <summary>
+    /// Gets the features.
+    /// </summary>
+    public ProviderFeatures Features { get { return features; } }
 
     /// <summary>
     /// Maximal identifier length.

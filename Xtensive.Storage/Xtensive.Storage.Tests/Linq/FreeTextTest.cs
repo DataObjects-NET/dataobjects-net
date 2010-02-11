@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Storage.Linq;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
@@ -17,6 +18,11 @@ namespace Xtensive.Storage.Tests.Linq
 {
   public class FreeTextTest : NorthwindDOModelTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.FullText);
+    }
+
     protected override Domain BuildDomain(Xtensive.Storage.Configuration.DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);

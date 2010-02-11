@@ -8,7 +8,7 @@ using System;
 
 namespace Xtensive.Storage.Tests
 {
-  public static class StorageVersion
+  public static class StorageProviderVersion
   {
     public static Version SqlServer2005 = new Version(9, 0);
     public static Version SqlServer2008 = new Version(10, 0);

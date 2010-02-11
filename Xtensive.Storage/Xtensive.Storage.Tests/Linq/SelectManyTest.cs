@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupBySelectorTest()
     {
-      Require.FeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       var result = Query.All<Order>()
         .GroupBy(o => o.Customer)
         .SelectMany(g => g.Select(o => o.Customer));
@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByCountTest()
     {
-      Require.FeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       var result = Query.All<Order>()
         .GroupBy(o => o.Customer)
         .SelectMany(g => g.Select(o => o.Customer).Where(c => g.Count() > 2));
@@ -104,7 +104,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByCount2Test()
     {
-      Require.FeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       var result = Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Where(g => g.Count() > 2)
@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetSubqueryTest()
     {
-      Require.FeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       int expectedCount = Query.All<Order>().Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => c.Orders.Where(o => o.Employee.FirstName.StartsWith("A")));
@@ -150,7 +150,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySetSubqueryWithResultSelectorTest()
     {
-      Require.FeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       int expected = Query.All<Order>()
         .Count(o => o.Employee.FirstName.StartsWith("A"));
 
@@ -335,7 +335,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectBetweenFilterAndApplyTest()
     {
-      Require.FeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       int expected = Query.All<Order>().Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c).Intersect(Query.All<Order>())
@@ -357,7 +357,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TakeBetweenFilterAndApplyTest()
     {
-      Require.FeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c).Take(10));
       QueryDumper.Dump(result);
@@ -366,7 +366,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SkipBetweenFilterAndApplyTest()
     {
-      Require.FeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c).Skip(10));
       QueryDumper.Dump(result);
@@ -389,7 +389,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TwoCalculateWithApplyTest()
     {
-      Require.FeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       var actual = from c in Query.All<Customer>()
       from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
         .Union(c.Orders.Select(o => c.ContactName + o.ShipName))
@@ -406,7 +406,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TwoFilterWithApplyTest()
     {
-      Require.FeaturesSupported(ProviderFeatures.CrossApply);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       var actual = from c in Query.All<Customer>()
       from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
         .Intersect(c.Orders.Where(x => x.ShipName.StartsWith("a"))))

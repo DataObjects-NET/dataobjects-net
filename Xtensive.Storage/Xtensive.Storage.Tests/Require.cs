@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Tests
     {
       EnsureIsInitialized();
       if ((activeProvider & allowedProviders)==0)
-        IgnoreMe("This test is not suitable for '{0}' provider", activeProvider);
+        IgnoreMe("This test is not suitable for '{0}' provider", activeProvider.ToString().ToLowerInvariant());
     }
 
     public static void ProviderIsNot(StorageProvider disallowedProviders)
@@ -45,19 +45,33 @@ namespace Xtensive.Storage.Tests
       if (activeProviderInfo.StorageVersion > maximalVersion)
         IgnoreMe("This test requires at most '{0}' version", maximalVersion);
     }
-
-    public static void FeaturesSupported(ProviderFeatures requiredFeatures)
+    
+    public static void AllFeaturesSupported(ProviderFeatures requiredFeatures)
     {
       EnsureIsInitialized();
-      if (!activeProviderInfo.Supports(requiredFeatures))
+      if ((requiredFeatures & activeProviderInfo.Features)==requiredFeatures)
         IgnoreMe("This test requires storage that supports '{0}'", requiredFeatures);
     }
 
-    public static void FeaturesNotSupported(ProviderFeatures disallowedFeatures)
+    public static void AllFeaturesNotSupported(ProviderFeatures disallowedFeatures)
     {
       EnsureIsInitialized();
-      if (activeProviderInfo.Supports(disallowedFeatures))
+      if ((disallowedFeatures & activeProviderInfo.Features)==0)
         IgnoreMe("This test requires storage that does not support '{0}'", disallowedFeatures);
+    }
+
+    public static void AnyFeatureSupported(ProviderFeatures requiredFeatures)
+    {
+      EnsureIsInitialized();
+      if ((requiredFeatures & activeProviderInfo.Features)!=0)
+        IgnoreMe("This test requires storage that supports at least one of the '{0}' features", requiredFeatures);
+    }
+
+    public static void AnyFeatureNotSupported(ProviderFeatures disallowedFeatures)
+    {
+      EnsureIsInitialized();
+      if ((disallowedFeatures & activeProviderInfo.Features)!=disallowedFeatures)
+        IgnoreMe("This test requires storage that does not support at least one of the '{0}' features", disallowedFeatures);
     }
 
     public static void InheritanceSchemaIs(InheritanceSchema requiredInheritanceSchema)

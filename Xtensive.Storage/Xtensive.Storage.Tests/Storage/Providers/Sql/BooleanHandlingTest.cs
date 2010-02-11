@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.Providers.Sql.BooleanHandlingTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.Providers.Sql.BooleanHandlingTestModel
@@ -39,7 +40,7 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
   {
     protected override void CheckRequirements()
     {
-      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.Oracle | StorageProvider.SqlServerCe);
+      Require.AllFeaturesNotSupported(ProviderFeatures.FullFledgedBooleanExpressions);
     }
 
     protected override DomainConfiguration BuildConfiguration()

@@ -26,12 +26,12 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
   }
 
   [TestFixture]
-  public class Sql2008DateAndTimeSupportTest : LegacyDbAutoBuildTest
+  public class DateAndTimeSupportTest : LegacyDbAutoBuildTest
   {
     protected override void CheckRequirements()
     {
-      base.CheckRequirements();
       Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2008);
     }
 
     protected override DomainConfiguration BuildConfiguration()

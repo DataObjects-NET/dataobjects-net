@@ -23,6 +23,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
   {
     public override void TestFixtureSetUp()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
       ClearDb();
       base.TestFixtureSetUp();
     }
@@ -31,11 +32,6 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     {
       PrepareDb(configuration);
       return base.BuildDomain(configuration);
-    }
-
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.SqlServer);
     }
 
     protected abstract string GetCreateDbScript(DomainConfiguration config);
