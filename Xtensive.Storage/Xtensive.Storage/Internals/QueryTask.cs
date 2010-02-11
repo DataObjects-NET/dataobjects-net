@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Internals
     public IEnumerator<Tuple> GetEnumerator()
     {
       if (Result == null)
-        throw new InvalidOperationException("Query task is not executed yet.");
+        throw new InvalidOperationException(Strings.ExQueryTaskIsNotExecutedYet);
       return Result.GetEnumerator();
     }
 

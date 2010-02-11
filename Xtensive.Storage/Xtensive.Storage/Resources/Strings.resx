@@ -1379,4 +1379,10 @@ Actions:
   <data name="ExTransactionIsRunning" xml:space="preserve">
     <value>A transaction is running, but there should be no active transaction.</value>
   </data>
+  <data name="ExCanNotMergeTheState" xml:space="preserve">
+    <value>Can't merge the state.</value>
+  </data>
+  <data name="ExQueryTaskIsNotExecutedYet" xml:space="preserve">
+    <value>Query task is not executed yet.</value>
+  </data>
 </root>

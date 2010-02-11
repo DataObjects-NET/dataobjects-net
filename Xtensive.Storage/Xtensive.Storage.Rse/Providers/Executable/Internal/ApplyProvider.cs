@@ -14,6 +14,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Providers.Executable
 {
@@ -90,7 +91,7 @@ namespace Xtensive.Storage.Rse.Providers.Executable
               if (!isEmpty)
                 if (Origin.SequenceType==ApplySequenceType.Single
                   || Origin.SequenceType==ApplySequenceType.SingleOrDefault)
-                  throw new InvalidOperationException("Sequence contains more than one element.");
+                  throw new InvalidOperationException(Strings.ExSequenceContainsMoreThanOneElement);
               isEmpty = false;
               result.Add(combineTransform.Apply(TupleTransformType.Auto, tuple, rTuple));
             }

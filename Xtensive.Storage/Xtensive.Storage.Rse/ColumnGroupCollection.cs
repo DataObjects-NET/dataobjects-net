@@ -13,6 +13,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse
 {
@@ -62,8 +63,8 @@ namespace Xtensive.Storage.Rse
           return index;
         index++;
       }
-      throw new InvalidOperationException("Column group could not be found.");
-    }
+      throw new InvalidOperationException(Strings.ExColumnGroupCouldNotBeFound);
+    } 
 
     
     // Constructors

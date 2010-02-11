@@ -79,8 +79,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       get
       {
-        if (!translated)
-          throw new InvalidOperationException("Commands are not translated yet.");
+        EnsureCommandsAreTranslated();
         return preUpgradeCommands;
       }
     }
@@ -92,8 +91,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       get
       {
-        if (!translated)
-          throw new InvalidOperationException("Commands are not translated yet.");
+        EnsureCommandsAreTranslated();
         return upgradeCommands;
       }
     }
@@ -105,8 +103,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       get
       {
-        if (!translated)
-          throw new InvalidOperationException("Commands are not translated yet.");
+        EnsureCommandsAreTranslated();
         return dataManipulateCommands;
       }
     }
@@ -119,8 +116,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       get
       {
-        if (!translated)
-          throw new InvalidOperationException("Commands are not translated yet.");
+        EnsureCommandsAreTranslated();
         return postUpgradeCommands;
       }
     }
@@ -132,8 +128,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       get
       {
-        if (!translated)
-          throw new InvalidOperationException("Commands are not translated yet.");
+        EnsureCommandsAreTranslated();
         return nonTransactionalPrologCommands;
       }
     }
@@ -146,8 +141,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       get
       {
-        if (!translated)
-          throw new InvalidOperationException("Commands are not translated yet.");
+        EnsureCommandsAreTranslated();
         return nonTransactionalEpilogCommands;
       }
     }
@@ -822,6 +816,12 @@ namespace Xtensive.Storage.Providers.Sql
     #endregion
 
     #region Helper methods
+
+    private void EnsureCommandsAreTranslated()
+    {
+      if (!translated)
+        throw new InvalidOperationException(Strings.ExCommandsAreNotTranslatedYet);
+    }
 
     private Table CreateTable(TableInfo tableInfo)
     {

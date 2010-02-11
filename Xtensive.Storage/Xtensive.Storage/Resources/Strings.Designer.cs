@@ -422,6 +422,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t merge the state..
+        /// </summary>
+        internal static string ExCanNotMergeTheState {
+            get {
+                return ResourceManager.GetString("ExCanNotMergeTheState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can not open more than one inner transaction..
         /// </summary>
         internal static string ExCanNotOpenMoreThanOneInnerTransaction {
@@ -1950,6 +1959,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExQueryContainsClosuresOfDifferentTypes {
             get {
                 return ResourceManager.GetString("ExQueryContainsClosuresOfDifferentTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Query task is not executed yet..
+        /// </summary>
+        internal static string ExQueryTaskIsNotExecutedYet {
+            get {
+                return ResourceManager.GetString("ExQueryTaskIsNotExecutedYet", resourceCulture);
             }
         }
         

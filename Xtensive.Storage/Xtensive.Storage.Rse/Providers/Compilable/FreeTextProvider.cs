@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Rse.Resources;
 
 namespace Xtensive.Storage.Rse.Providers.Compilable
 {
@@ -47,9 +48,9 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
       }
       else {
         if (index.PrimaryIndex.KeyColumns.Count!=1)
-          throw new InvalidOperationException("Only single-column key supported.");
+          throw new InvalidOperationException(Strings.ExOnlySingleColumnKeySupported);
         var fieldTypes = index
-          .PrimaryIndex
+          .PrimaryIndex 
           .KeyColumns
           .Select(columnInfo => columnInfo.Key.ValueType)
           .AddOne(typeof (double));

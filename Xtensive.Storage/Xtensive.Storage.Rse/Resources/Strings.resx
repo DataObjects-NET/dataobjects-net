@@ -201,4 +201,13 @@
   <data name="ExUnableToInitializeJoinIndexProviderColumnsCountMismatch" xml:space="preserve">
     <value>Unable to initialize JoinIndexProvider. Columns count mismatch.</value>
   </data>
+  <data name="ExColumnGroupCouldNotBeFound" xml:space="preserve">
+    <value>Column group could not be found.</value>
+  </data>
+  <data name="ExOnlySingleColumnKeySupported" xml:space="preserve">
+    <value>Only single-column key supported.</value>
+  </data>
+  <data name="ExSequenceContainsMoreThanOneElement" xml:space="preserve">
+    <value>Sequence contains more than one element.</value>
+  </data>
 </root>

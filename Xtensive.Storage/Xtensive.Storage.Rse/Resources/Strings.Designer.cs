@@ -124,6 +124,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Column group could not be found..
+        /// </summary>
+        internal static string ExColumnGroupCouldNotBeFound {
+            get {
+                return ResourceManager.GetString("ExColumnGroupCouldNotBeFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Columns used by the CalculatedColumn&apos;s expression containing the ApplyParameter are removed..
         /// </summary>
         internal static string ExColumnsUsedByCalculatedColumnExpressionContainingApplyParameterAreRemoved {
@@ -187,6 +196,15 @@ namespace Xtensive.Storage.Rse.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only single-column key supported..
+        /// </summary>
+        internal static string ExOnlySingleColumnKeySupported {
+            get {
+                return ResourceManager.GetString("ExOnlySingleColumnKeySupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The ordering of records is not specified for RowNumberProvider..
         /// </summary>
         internal static string ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider {
@@ -237,6 +255,15 @@ namespace Xtensive.Storage.Rse.Resources {
         internal static string ExSelectProviderRemovesColumnsUsedForOrdering {
             get {
                 return ResourceManager.GetString("ExSelectProviderRemovesColumnsUsedForOrdering", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sequence contains more than one element..
+        /// </summary>
+        internal static string ExSequenceContainsMoreThanOneElement {
+            get {
+                return ResourceManager.GetString("ExSequenceContainsMoreThanOneElement", resourceCulture);
             }
         }
         

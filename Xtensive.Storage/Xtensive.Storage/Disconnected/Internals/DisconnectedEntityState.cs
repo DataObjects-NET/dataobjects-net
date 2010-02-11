@@ -14,6 +14,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Disconnected
 {
@@ -111,7 +112,7 @@ namespace Xtensive.Storage.Disconnected
     public bool MergeValue(Tuple newValue)
     {
       if (Origin!=null)
-        throw new InvalidOperationException("Can't merge the state.");
+        throw new InvalidOperationException(Strings.ExCanNotMergeTheState);
       
       return MergeTuples(tuple.Origin, newValue);
     }
@@ -119,7 +120,7 @@ namespace Xtensive.Storage.Disconnected
     public void SetNewValue(Tuple newValue)
     {
       if (Origin!=null)
-        throw new InvalidOperationException("Can't merge the state.");
+        throw new InvalidOperationException(Strings.ExCanNotMergeTheState);
       
       if (tuple==null)
         tuple = new DifferentialTuple(newValue.Clone());
