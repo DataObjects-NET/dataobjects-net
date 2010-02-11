@@ -678,7 +678,7 @@ Actions:
     <value>OfType supports casting only inside Entity hierarchy.</value>
   </data>
   <data name="ExLambdaParameterIsOutOfScope" xml:space="preserve">
-    <value>Lambda parameter is out of scope!</value>
+    <value>Lambda parameter is out of scope.</value>
   </data>
   <data name="LogFailedToExtractDomainModelFromStorage" xml:space="preserve">
     <value>Failed to extract domain model from the storage.</value>
@@ -813,13 +813,13 @@ Actions:
     <value>'{0}.{1}' OnOwnerRemove action is not equal to '{2}.{3}' OnTargetRemove action.</value>
   </data>
   <data name="ExTypeMappingDoesNotContainXType" xml:space="preserve">
-    <value>Type mapping does not contain '{0}' type</value>
+    <value>Type mapping does not contain '{0}' type.</value>
   </data>
   <data name="ExFieldMappingDoesNotContainField" xml:space="preserve">
     <value>Field mapping does not contain '{0} field.</value>
   </data>
   <data name="ExInheritanceSchemaIsInvalid" xml:space="preserve">
-    <value>Inheritance schema '{0}' is invalid</value>
+    <value>Inheritance schema '{0}' is invalid.</value>
   </data>
   <data name="ExVisitKeyFieldIsNotSupportedByX" xml:space="preserve">
     <value>VisitKeyField is not supported by '{0}'.</value>
@@ -837,7 +837,7 @@ Actions:
     <value>'{0}' method isn't supported.</value>
   </data>
   <data name="ExpressionXIsUnknown" xml:space="preserve">
-    <value>Expression '{0}' is unknown</value>
+    <value>Expression '{0}' is unknown.</value>
   </data>
   <data name="ExFieldIsNotStructure" xml:space="preserve">
     <value>Field '{0}' is not structure.</value>
@@ -888,7 +888,7 @@ Actions:
     <value>'{0}.{1}': '{2}' value is not acceptable for 'OnTargetRemove' property.</value>
   </data>
   <data name="ExHierarchyIsNotFoundForTypeX" xml:space="preserve">
-    <value>Hierarchy is not found for type '{0}'</value>
+    <value>Hierarchy is not found for type '{0}'.</value>
   </data>
   <data name="ExUnableToBuildGenericInstanceTypesForXTypeBecauseItContainsMoreThen1GenericParameter" xml:space="preserve">
     <value>Unable to build generic instance types for '{0}' type because it contains more then 1 generic parameter.</value>
@@ -927,7 +927,7 @@ Actions:
     <value>Field '{0}' is not an entity reference, nor entity set.</value>
   </data>
   <data name="ExUnableToRemapKeyExpression" xml:space="preserve">
-    <value>Unable to remap KeyExpression</value>
+    <value>Unable to remap KeyExpression.</value>
   </data>
   <data name="ExUnableToHandleEntitySetExpressionWithoutSpecifiedOwner" xml:space="preserve">
     <value>Unable to handle EntitySetExpression without specified Owner.</value>
@@ -1208,9 +1208,6 @@ Actions:
   <data name="ExDisconnectedStateIsDetached" xml:space="preserve">
     <value>DisconnectedState is detached.</value>
   </data>
-  <data name="ExActiveTransactionIsPresent" xml:space="preserve">
-    <value>Active transaction is present.</value>
-  </data>
   <data name="ExStateWithKeyXIsAlreadyExists" xml:space="preserve">
     <value>State with key '{0}' is already exists.</value>
   </data>
@@ -1245,10 +1242,7 @@ Actions:
     <value>Can not mark state as modified: it is not valid in current transaction.</value>
   </data>
   <data name="ExTransactionIsNotActive" xml:space="preserve">
-    <value>Transaction is not active</value>
-  </data>
-  <data name="ExTransactionShouldNotBeActive" xml:space="preserve">
-    <value>Transaction should not be active</value>
+    <value>Transaction is not active.</value>
   </data>
   <data name="ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne" xml:space="preserve">
     <value>Version of entity with key '{0}' differs from the expected one.</value>
@@ -1302,7 +1296,7 @@ Actions:
     <value>'ElementAtOrDefault({0})' not supported in compiled queries (Query.Execute). Use 'ElementAtOrDefault(Expression&lt;Func&lt;int&gt;&gt;)' instead.For example use 'ElementAtOrDefault(()=&gt;{0})'.</value>
   </data>
   <data name="ExCanNotPersistThereArePinnedEntities" xml:space="preserve">
-    <value>Can not persist: there are pinned entities</value>
+    <value>Can not persist: there are pinned entities.</value>
   </data>
   <data name="ExTypeDiscriminatorValueIsRequiredUnlessXIsMarkedAsDefaultTypeInHierarchy" xml:space="preserve">
     <value>Type discriminator value is required unless {0} is marked as default type in hierarchy.</value>
@@ -1338,7 +1332,7 @@ Actions:
     <value>Session '{0}'. Opened transaction.</value>
   </data>
   <data name="ExUnknownInSyntax" xml:space="preserve">
-    <value>Unable to translate '{0}' expression. Unknown "In" syntax</value>
+    <value>Unable to translate '{0}' expression. Unknown "In" syntax.</value>
   </data>
   <data name="ExFieldMustBePersistent" xml:space="preserve">
     <value>Field '{0}' must be persistent (marked by [Field] attribute).</value>
@@ -1381,5 +1375,8 @@ Actions:
   </data>
   <data name="ExKeyGeneratorAttributeOnTypeXRequiresNameToBeSet" xml:space="preserve">
     <value>[KeyGenerator] attribute on type '{0}' requires Name to be set.</value>
+  </data>
+  <data name="ExTransactionIsRunning" xml:space="preserve">
+    <value>A transaction is running, but there should be no active transaction.</value>
   </data>
 </root>

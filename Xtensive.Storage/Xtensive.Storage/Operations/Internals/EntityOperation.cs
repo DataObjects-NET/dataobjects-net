@@ -20,32 +20,22 @@ namespace Xtensive.Storage.Operations
     /// <inheritdoc/>
     public override void Prepare(OperationExecutionContext context)
     {
-      if (context.KeysForRemap.Contains(Key)) {
-        var oldKey = Key;
-        Key newKey;
-        if (!context.KeyMapping.TryGetValue(oldKey, out newKey)) {
-          newKey = KeyFactory.Generate(context.Session.Domain, oldKey.Type);
-          context.KeyMapping.Add(oldKey, newKey);
-        }
-        Key = newKey;
-      }
-      if (Type == OperationType.CreateEntity) 
-        context.RegisterNew(Key);
-      else
-        context.Register(Key);
+      var remappedKey = context.TryRemapKey(Key);
+      context.RegisterKey(remappedKey, Type == OperationType.CreateEntity);
     }
 
     /// <inheritdoc/>
     public override void Execute(OperationExecutionContext context)
     {
       var session = context.Session;
+      var key = context.TryRemapKey(Key);
       if (Type == OperationType.CreateEntity) {
-        var entityType = Key.TypeRef.Type;
+        var entityType = key.TypeRef.Type;
         var domain = session.Domain;
-        session.CreateEntityState(Key);
+        session.CreateEntityState(key);
       }
       else {
-        var entity = Query.Single(session, Key);
+        var entity = Query.Single(session, key);
         entity.Remove();
       }
     }

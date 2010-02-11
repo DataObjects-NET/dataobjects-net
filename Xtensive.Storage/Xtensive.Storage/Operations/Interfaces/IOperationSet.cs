@@ -5,44 +5,56 @@
 // Created:    2009.10.21
 
 using System.Collections.Generic;
+using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Operations
 {
   /// <summary>
   /// Declares public contract for operations container.
   /// </summary>
-  public interface IOperationSet : Core.ObjectMapping.IOperationSet,
-    IEnumerable<IOperation>
+  public interface IOperationSet : ICountable<IOperation>
   {
     /// <summary>
     /// Gets the keys to remap.
     /// </summary>
     /// <returns>A set of keys to remap.</returns>
-    HashSet<Key> GetKeysToRemap();
+    ReadOnlyHashSet<Key> NewKeys { get; }
 
     /// <summary>
     /// Registers the key to remap.
     /// </summary>
     /// <param name="key">The key.</param>
-    void RegisterKeyToRemap(Key key);
+    void RegisterNewKey(Key key);
 
     /// <summary>
     /// Registers the specified operation.
     /// </summary>
     /// <param name="operation">The operation.</param>
-    void Register(IOperation operation);
+    void Append(IOperation operation);
 
     /// <summary>
     /// Registers the specified <see cref="IOperationSet"/>.
     /// </summary>
     /// <param name="source">The source.</param>
-    void Register(IOperationSet source);
+    void Append(IOperationSet source);
 
     /// <summary>
-    /// Applies current operation set using specified session.
+    /// Applies this operation set to the <see cref="Session.Current"/> session.
     /// </summary>
-    /// <param name="session">The session.</param>
+    /// <returns>Key mapping.</returns>
+    KeyMapping Apply();
+
+    /// <summary>
+    /// Applies this operation set to the specified session.
+    /// </summary>
+    /// <param name="session">The session to apply operations to.</param>
     /// <returns>Key mapping.</returns>
     KeyMapping Apply(Session session);
+
+    /// <summary>
+    /// Clears the operation set - 
+    /// "forgets" all the registered operations and new keys.
+    /// </summary>
+    void Clear();
   }
 }

@@ -12,7 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
-using Xtensive.Core.Disposing;
+using Xtensive.Core;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
@@ -134,8 +134,8 @@ namespace Xtensive.Storage.DisconnectedTests.Model
 
       public void Prepare(OperationExecutionContext context)
       {
-        context.Register(productKey.Key);
-        context.Register(orderKey.Key);
+        context.RegisterKey(productKey.Key, false);
+        context.RegisterKey(orderKey.Key, false);
       }
 
       public void Execute(OperationExecutionContext context)
@@ -469,7 +469,7 @@ namespace Xtensive.Storage.Tests.Storage
           Exception secondError = null;
 
           try {
-            disconnectedState.SaveChanges();
+            disconnectedState.ApplyChanges();
           }
           catch (Exception exception) {
             firstError = exception;
@@ -477,24 +477,25 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.IsNotNull(firstError);
 
           try {
-            disconnectedState.SaveChanges();
+            disconnectedState.ApplyChanges();
           }
           catch (Exception exception) {
             secondError = exception;
           }
 
           Assert.IsNotNull(secondError);
-          Assert.AreEqual(firstError.Message, secondError.Message);
+          // Messages are similar, but keys there (if they are included into text) are different
+          Assert.AreEqual(
+            firstError.Message.Substring(0, 20), 
+            secondError.Message.Substring(0, 20)); 
 
           // Correct value
           using (var transactionScope = Transaction.Open()) {
-
             author.Name += " the Second";
-
             transactionScope.Complete();
           }
 
-          disconnectedState.SaveChanges();
+          disconnectedState.ApplyChanges();
         }
       }     
     }
@@ -701,9 +702,9 @@ namespace Xtensive.Storage.Tests.Storage
       // Save data to storage
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
-          var keyMapping = state.SaveChanges();
-          order1Key = keyMapping.Remap(order1Key);
-          newCustomerKey = keyMapping.Remap(newCustomerKey);
+          var keyMapping = state.ApplyChanges();
+          order1Key = keyMapping.TryRemapKey(order1Key);
+          newCustomerKey = keyMapping.TryRemapKey(newCustomerKey);
         }
       }
 
@@ -753,7 +754,7 @@ namespace Xtensive.Storage.Tests.Storage
             };
             transactionScope.Complete();
           }
-          state.SaveChanges();
+          state.ApplyChanges();
         }
       }
       using (var session = Session.Open(Domain)) {
@@ -767,7 +768,7 @@ namespace Xtensive.Storage.Tests.Storage
 
             transactionScope.Complete();
           }
-          state.SaveChanges();
+          state.ApplyChanges();
         }
       }
 
@@ -892,12 +893,12 @@ namespace Xtensive.Storage.Tests.Storage
       // Save changes to storage
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
-          var keyMapping = state.SaveChanges();
-          newProduct1Key = keyMapping.Remap(newProduct1Key);
-          newProduct2Key = keyMapping.Remap(newProduct2Key);
-          product3Key = keyMapping.Remap(product3Key);
-          newSupplierKey = keyMapping.Remap(newSupplierKey);
-          supplier1Key = keyMapping.Remap(supplier1Key);
+          var keyMapping = state.ApplyChanges();
+          newProduct1Key = keyMapping.TryRemapKey(newProduct1Key);
+          newProduct2Key = keyMapping.TryRemapKey(newProduct2Key);
+          product3Key = keyMapping.TryRemapKey(product3Key);
+          newSupplierKey = keyMapping.TryRemapKey(newSupplierKey);
+          supplier1Key = keyMapping.TryRemapKey(supplier1Key);
         }
       }
 
@@ -1207,20 +1208,12 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
-      // Serialize/Deserialize operationLog
-      IOperationSet deserializedSet = null;
-      var binaryFormatter = new BinaryFormatter();
-      using (var stream = new MemoryStream()) {
-        binaryFormatter.Serialize(stream, log);
-        stream.Position = 0;
-        using (Session.Open(Domain))
-          deserializedSet = (IOperationSet)binaryFormatter.Deserialize(stream);
-      }
  
       // Save data to storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open(session)) {
-          deserializedSet.Apply(session);
+          var logCopy = Cloner.Default.Clone(log);
+          logCopy.Apply(session);
           transactionScope.Complete();
         }
       }
@@ -1310,9 +1303,9 @@ namespace Xtensive.Storage.Tests.Storage
             Assert.IsNotNull(details.FirstOrDefault(detail => detail.Product.Name=="Product3"));
             transactionScope.Complete();
           }
-          var keyMapping = state.SaveChanges();
-          order1Key = keyMapping.Remap(order1Key);
-          newCustomerKey = keyMapping.Remap(newCustomerKey);
+          var keyMapping = state.ApplyChanges();
+          order1Key = keyMapping.TryRemapKey(order1Key);
+          newCustomerKey = keyMapping.TryRemapKey(newCustomerKey);
         }
       }
 
@@ -1364,7 +1357,7 @@ namespace Xtensive.Storage.Tests.Storage
             customer1.Name = "NewName2";
             transactionScope.Complete();
           }
-          AssertEx.Throws<InvalidOperationException>(() => state.SaveChanges());
+          AssertEx.Throws<InvalidOperationException>(() => state.ApplyChanges());
         }
       }
     }
@@ -1697,7 +1690,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Save changes to DB
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
-          state.SaveChanges();
+          state.ApplyChanges();
         }
       }
 
@@ -1755,7 +1748,7 @@ namespace Xtensive.Storage.Tests.Storage
             Assert.IsNotNull(simple);
             transactionScope.Complete();
           }
-          state1.SaveChanges();
+          state1.ApplyChanges();
         }
       }
       

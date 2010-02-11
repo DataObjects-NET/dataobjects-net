@@ -472,14 +472,14 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       using (var session = Session.Open(domain))
       using (var comparisonResult = mapper.Compare(originalAuthorDto, staleAuthorDto))
       using (VersionValidator.Attach(session, comparisonResult.VersionInfoProvider)) {
-        var tx = Transaction.Open();
-        comparisonResult.Operations.Apply();
-        tx.Complete();
         var wasThrown = false;
         try {
-          tx.Dispose();
+          using (var tx = Transaction.Open()) {
+            comparisonResult.Operations.Apply();
+            tx.Complete();
+          }
         }
-        catch(InvalidOperationException) {
+        catch (InvalidOperationException) {
           wasThrown = true;
         }
         Assert.IsTrue(wasThrown);

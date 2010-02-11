@@ -30,12 +30,12 @@ namespace Xtensive.Storage.Disconnected
 
     private void KeyGenerated(object sender, KeyEventArgs e)
     {
-      Operations.RegisterKeyToRemap(e.Key);
+      Operations.RegisterNewKey(e.Key);
     }
 
     private void OperationCompleted(object sender, OperationEventArgs e)
     {
-      Operations.Register(e.Operation);
+      Operations.Append(e.Operation);
     }
 
     #endregion

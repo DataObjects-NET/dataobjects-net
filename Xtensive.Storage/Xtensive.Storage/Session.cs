@@ -18,6 +18,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC;
 using Xtensive.Integrity.Atomicity;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.PairIntegrity;
@@ -123,6 +124,19 @@ namespace Xtensive.Storage
     /// Gets or sets a value indicating whether only a system logic is enabled.
     /// </summary>
     public bool IsSystemLogicOnly { get; internal set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether session is disconnected:
+    /// a <see cref="DisconnectedState"/> is attached to it (not <see langword="null" />).
+    /// </summary>
+    public bool IsDisconnected { 
+      get { return DisconnectedState!=null; } 
+    }
+
+    /// <summary>
+    /// Gets the attached <see cref="Disconnected.DisconnectedState"/> object, if any.
+    /// </summary>
+    public DisconnectedState DisconnectedState { get; internal set; }
 
     /// <summary>
     /// Gets or sets the <see cref="Current"/> session resolver to use

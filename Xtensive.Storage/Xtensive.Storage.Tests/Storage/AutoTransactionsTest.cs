@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Tests.Storage
     public void TransactionsTest()
     {
       using (Session.Open(Domain)) {
-
+        MySessionBound.TestSession = Session.Demand();
         var testObject = new MySessionBound();
         testObject.CheckAutoTransactions();
       }
@@ -58,8 +58,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (session.Activate()) {
         testObject = new MySessionBound();
       }
-
-      testObject.CheckSessionActivating();
+      testObject.CheckSessionActivation();
     }
   }    
 
@@ -68,17 +67,15 @@ namespace Xtensive.Storage.Tests.Storage
   {
 
     [ActivateSession(false), Transactional(false)]
-    public void CheckSessionActivating()
+    public void CheckSessionActivation()
     {
-      TestSession = this.Session;
+      TestSession = Session;
 
-      Assert(TransactionState.None, SessionState.NotActive);
+      CheckState(TransactionState.None, SessionState.NotActive);
       using (Session.Activate()) {
-        Assert(TransactionState.None, SessionState.Active);
+        CheckState(TransactionState.None, SessionState.Active);
       }
-      Assert(TransactionState.None, SessionState.NotActive);
-
-      // Check properties
+      CheckState(TransactionState.None, SessionState.NotActive);
 
       CallAllMethods();
     }
@@ -86,15 +83,13 @@ namespace Xtensive.Storage.Tests.Storage
     [ActivateSession(true), Transactional(false)]
     public void CheckAutoTransactions()
     {
-      // Check whether IsTransactionOpen property is OK
+      TestSession = Session;
 
-      TestSession = this.Session;
-
-      Assert(TransactionState.None, SessionState.Active);
+      CheckState(TransactionState.None, SessionState.Active);
       using (Transaction.Open()) {
-        Assert(TransactionState.Open, SessionState.Active);
+        CheckState(TransactionState.Open, SessionState.Active);
       }
-      Assert(TransactionState.None, SessionState.Active);
+      CheckState(TransactionState.None, SessionState.Active);
 
       CallAllMethods();
       CallConstructors();
@@ -103,13 +98,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Infrastructure]
     public void CallConstructors()
     {
-      new MySessionBound(1); // public constructor
-      new MySessionBound(true); // private transactional constructor
-            
-      new MySessionBound(DateTime.Now); // internal constructor
-      new MySessionBound("hello"); // private constructor
-      new MySessionBound(1.5F); // not transactional public constructor
-      new MySessionBound('a'); // infrastructure constructor
+      new MySessionBound(); // Nothing must happen
     }
 
     [Infrastructure]
@@ -145,53 +134,53 @@ namespace Xtensive.Storage.Tests.Storage
 
     public int PublicProperty
     {
-      get { return Assert(TransactionState.Open, SessionState.Active); }
-      set { Assert(TransactionState.Open, SessionState.Active); }
+      get { return CheckState(TransactionState.Open, SessionState.Active); }
+      set { CheckState(TransactionState.Open, SessionState.Active); }
     }
 
     protected int ProtectedProperty
     {
-      get { return Assert(TransactionState.None, SessionState.NotActive); }
-      set { Assert(TransactionState.None, SessionState.NotActive); }
+      get { return CheckState(TransactionState.None, SessionState.NotActive); }
+      set { CheckState(TransactionState.None, SessionState.NotActive); }
     }
 
     internal int InternalProperty
     {
-      get { return Assert(TransactionState.None, SessionState.NotActive); }
-      set { Assert(TransactionState.None, SessionState.NotActive); }
+      get { return CheckState(TransactionState.None, SessionState.NotActive); }
+      set { CheckState(TransactionState.None, SessionState.NotActive); }
     }
 
     protected internal int ProtectedInternalProperty
     {
-      get { return Assert(TransactionState.None, SessionState.NotActive); }
-      set { Assert(TransactionState.None, SessionState.NotActive); }
+      get { return CheckState(TransactionState.None, SessionState.NotActive); }
+      set { CheckState(TransactionState.None, SessionState.NotActive); }
     }
 
     private int PrivateProperty
     {
-      get { return Assert(TransactionState.None, SessionState.NotActive); }
-      set { Assert(TransactionState.None, SessionState.NotActive); }
+      get { return CheckState(TransactionState.None, SessionState.NotActive); }
+      set { CheckState(TransactionState.None, SessionState.NotActive); }
     }
 
     [Transactional(false)]
     public int PublicNotTransactionalProperty
     {
-      get { return Assert(TransactionState.None, SessionState.Active); }
-      set { Assert(TransactionState.None, SessionState.Active); }
+      get { return CheckState(TransactionState.None, SessionState.Active); }
+      set { CheckState(TransactionState.None, SessionState.Active); }
     }
 
     [Transactional]
     private int PrivateTransactionalProperty
     {
-      get { return Assert(TransactionState.Open, SessionState.Active); }
-      set { Assert(TransactionState.Open, SessionState.Active); }
+      get { return CheckState(TransactionState.Open, SessionState.Active); }
+      set { CheckState(TransactionState.Open, SessionState.Active); }
     }
 
     [Infrastructure]
     public int PublicInfrastructureProperty
     {
-      get { return Assert(TransactionState.None, SessionState.NotActive); }
-      set { Assert(TransactionState.None, SessionState.NotActive); }
+      get { return CheckState(TransactionState.None, SessionState.NotActive); }
+      set { CheckState(TransactionState.None, SessionState.NotActive); }
     }
 
 
@@ -199,105 +188,72 @@ namespace Xtensive.Storage.Tests.Storage
 
     public void PublicMethod()
     {
-      Assert(TransactionState.Open, SessionState.Active);
+      CheckState(TransactionState.Open, SessionState.Active);
     }
 
     protected void ProtectedMethod()
     {
-      Assert(TransactionState.None, SessionState.NotActive);
+      CheckState(TransactionState.None, SessionState.NotActive);
     }
 
     internal void InternalMethod()
     {
-      Assert(TransactionState.None, SessionState.NotActive);
+      CheckState(TransactionState.None, SessionState.NotActive);
     }
 
     protected internal void ProtectedInternalMethod()
     {
-      Assert(TransactionState.None, SessionState.NotActive);
+      CheckState(TransactionState.None, SessionState.NotActive);
     }
 
     private void PrivateMethod()
     {
-      Assert(TransactionState.None, SessionState.NotActive);
+      CheckState(TransactionState.None, SessionState.NotActive);
     }
 
     [Transactional(false)]
     public void PublicNotTransactionalMethod()
     {
-      Assert(TransactionState.None, SessionState.Active);
+      CheckState(TransactionState.None, SessionState.Active);
     }
 
     [Transactional(true)]
     private void PrivateTransactionalMethod()
     {
-      Assert(TransactionState.Open, SessionState.Active);
+      CheckState(TransactionState.Open, SessionState.Active);
     }
 
     [Infrastructure]
     public void PublicInfrastructureMethod()
     {
-      Assert(TransactionState.None, SessionState.NotActive);
+      CheckState(TransactionState.None, SessionState.NotActive);
     }
 
     [ActivateSession(false)]
     public void PublicNotSessionMethod()
     {
-      Assert(TransactionState.Open, SessionState.NotActive);
+      CheckState(TransactionState.Open, SessionState.NotActive);
     }
 
     [ActivateSession(false), Transactional]
     public void InternalTransactionalNotSessionMethod()
     {
-      Assert(TransactionState.Open, SessionState.NotActive);
+      CheckState(TransactionState.Open, SessionState.NotActive);
     }
 
 
     // Constructors
 
-    public MySessionBound(int parameter)
-    {
-      Assert(TransactionState.Open, SessionState.NotActive);
-    }
-
-    internal MySessionBound(DateTime parameter)
-    {
-      Assert(TransactionState.None, SessionState.NotActive);
-    }
-
-    private MySessionBound(string parameter)
-    {
-      Assert(TransactionState.None, SessionState.NotActive);
-    }
-
-    [Transactional(false)]
-    public MySessionBound(float parameter)
-    {
-      Assert(TransactionState.None, SessionState.NotActive);
-    }
-
-    [Transactional]
-    private MySessionBound(bool parameter)
-    {
-      Assert(TransactionState.Open, SessionState.NotActive);
-    }
-
-    [Infrastructure]
-    public MySessionBound(char parameter)
-    {
-      Assert(TransactionState.None, SessionState.NotActive);
-    }
-
     public MySessionBound()
     {
+      CheckState(TransactionState.None, SessionState.NotActive);
     }
 
     #endregion
 
-
     #region Infrastructure
 
-    private static Session TestSession { get; set;}
+    internal static Session TestSession { get; set;}
 
     public enum TransactionState
     {
@@ -314,7 +270,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     public static bool CheckSession { get; set; }
 
-    public static int Assert(TransactionState transactionState, SessionState sessionState)
+    public static int CheckState(TransactionState transactionState, SessionState sessionState)
     {
       if (CheckSession)
         NUnit.Framework.Assert.IsTrue(TestSession.IsActive);
@@ -328,5 +284,4 @@ namespace Xtensive.Storage.Tests.Storage
     }
     #endregion
   }
-  
 }

@@ -41,14 +41,15 @@ namespace Xtensive.Storage.Serialization
         return;
 
       var session = Session.Demand();
-      var entityType = session.Domain.Model.Types[entity.GetType()];
-      var generator = session.Domain.KeyGenerators[entityType.KeyProviderInfo];
+      var domain = session.Domain;
+      var typeInfo = domain.Model.Types[entity.GetType()];
+      var generator = domain.KeyGenerators[typeInfo.KeyProviderInfo];
 
       bool useGenerator = generator!=null;
       var keyValue = useGenerator 
-        ? generator.DemandNext(false) 
-        : DeserializeKeyFields(entityType, info, context);
-      var key = Key.Create(session.Domain, entityType, TypeReferenceAccuracy.ExactType, keyValue);
+        ? generator.DemandNext(session.IsDisconnected) 
+        : DeserializeKeyFields(typeInfo, info, context);
+      var key = Key.Create(domain, typeInfo, TypeReferenceAccuracy.ExactType, keyValue);
 
 //      if (useGenerator)
 //        session.NotifyKeyGenerated(key);

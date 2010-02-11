@@ -29,18 +29,18 @@ namespace Xtensive.Storage.Disconnected
     #region Transactions
 
     /// <inheritdoc/>
-    public override bool TransactionIsStarted { get { return disconnectedState.TransactionIsStarted; } }
+    public override bool TransactionIsStarted { get { return disconnectedState.IsLocalTransactionOpen; } }
 
     /// <inheritdoc/>
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      disconnectedState.OnTransactionStarted();
+      disconnectedState.OnTransactionOpened();
     }
 
     /// <inheritdoc/>
     public override void MakeSavepoint(string name)
     {
-      disconnectedState.OnTransactionStarted();
+      disconnectedState.OnTransactionOpened();
     }
 
     /// <inheritdoc/>

@@ -70,7 +70,7 @@ namespace Xtensive.Core.Collections.Configuration
     public TypeRegistration ToNative()
     {
       if (!Type.IsNullOrEmpty())
-        return new TypeRegistration(System.Type.GetType(Type));
+        return new TypeRegistration(System.Type.GetType(Type, true));
       else {
         var assembly = System.Reflection.Assembly.Load(Assembly);
         if (Namespace.IsNullOrEmpty())

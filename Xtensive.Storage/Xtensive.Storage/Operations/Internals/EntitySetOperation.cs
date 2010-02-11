@@ -20,7 +20,8 @@ namespace Xtensive.Storage.Operations
       if (Type != OperationType.ClearEntitySet) 
         return;
       var session = context.Session;
-      var target = Query.Single(session, Key);
+      var key = context.TryRemapKey(Key);
+      var target = Query.Single(session, key);
       var entitySet = target.GetFieldValue<EntitySetBase>(Field);
       entitySet.Clear();
     }

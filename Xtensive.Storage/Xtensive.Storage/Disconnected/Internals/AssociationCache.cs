@@ -14,7 +14,7 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Disconnected
 {
-  internal sealed class ModelRequestCache
+  internal sealed class AssociationCache
   {
     // Triplet<Association, MasterField, SlaveField>
     private Dictionary<TypeInfo, Triplet<AssociationInfo, FieldInfo, FieldInfo>> auxTypeDescriptions = 

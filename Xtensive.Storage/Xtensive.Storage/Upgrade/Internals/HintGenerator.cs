@@ -178,7 +178,7 @@ namespace Xtensive.Storage.Upgrade
 
     #endregion
 
-    #region Mapping
+    #region Map
 
     private void MapType(StoredTypeInfo oldType, StoredTypeInfo newType)
     {

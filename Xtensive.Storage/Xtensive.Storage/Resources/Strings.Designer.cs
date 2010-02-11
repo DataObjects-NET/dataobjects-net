@@ -214,15 +214,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Active transaction is present..
-        /// </summary>
-        internal static string ExActiveTransactionIsPresent {
-            get {
-                return ResourceManager.GetString("ExActiveTransactionIsPresent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Actual schema version of assembly &apos;{0}&apos; is expected to be &apos;{1}&apos;, but currently it is &apos;{2}&apos;..
         /// </summary>
         internal static string ExActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyItIsZ {
@@ -449,7 +440,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not persist: there are pinned entities.
+        ///   Looks up a localized string similar to Can not persist: there are pinned entities..
         /// </summary>
         internal static string ExCanNotPersistThereArePinnedEntities {
             get {
@@ -1170,7 +1161,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hierarchy is not found for type &apos;{0}&apos;.
+        ///   Looks up a localized string similar to Hierarchy is not found for type &apos;{0}&apos;..
         /// </summary>
         internal static string ExHierarchyIsNotFoundForTypeX {
             get {
@@ -1296,7 +1287,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Inheritance schema &apos;{0}&apos; is invalid.
+        ///   Looks up a localized string similar to Inheritance schema &apos;{0}&apos; is invalid..
         /// </summary>
         internal static string ExInheritanceSchemaIsInvalid {
             get {
@@ -1593,7 +1584,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lambda parameter is out of scope!.
+        ///   Looks up a localized string similar to Lambda parameter is out of scope..
         /// </summary>
         internal static string ExLambdaParameterIsOutOfScope {
             get {
@@ -1909,7 +1900,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Expression &apos;{0}&apos; is unknown.
+        ///   Looks up a localized string similar to Expression &apos;{0}&apos; is unknown..
         /// </summary>
         internal static string ExpressionXIsUnknown {
             get {
@@ -2296,7 +2287,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Transaction is not active.
+        ///   Looks up a localized string similar to Transaction is not active..
         /// </summary>
         internal static string ExTransactionIsNotActive {
             get {
@@ -2314,20 +2305,20 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A transaction is running, but there should be no active transaction..
+        /// </summary>
+        internal static string ExTransactionIsRunning {
+            get {
+                return ResourceManager.GetString("ExTransactionIsRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to process operation without a transaction. Use Transaction.Open(...) to open it..
         /// </summary>
         internal static string ExTransactionRequired {
             get {
                 return ResourceManager.GetString("ExTransactionRequired", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Transaction should not be active.
-        /// </summary>
-        internal static string ExTransactionShouldNotBeActive {
-            get {
-                return ResourceManager.GetString("ExTransactionShouldNotBeActive", resourceCulture);
             }
         }
         
@@ -2386,7 +2377,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type mapping does not contain &apos;{0}&apos; type.
+        ///   Looks up a localized string similar to Type mapping does not contain &apos;{0}&apos; type..
         /// </summary>
         internal static string ExTypeMappingDoesNotContainXType {
             get {
@@ -2693,7 +2684,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to remap KeyExpression.
+        ///   Looks up a localized string similar to Unable to remap KeyExpression..
         /// </summary>
         internal static string ExUnableToRemapKeyExpression {
             get {
@@ -2838,7 +2829,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to translate &apos;{0}&apos; expression. Unknown &quot;In&quot; syntax.
+        ///   Looks up a localized string similar to Unable to translate &apos;{0}&apos; expression. Unknown &quot;In&quot; syntax..
         /// </summary>
         internal static string ExUnknownInSyntax {
             get {

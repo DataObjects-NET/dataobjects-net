@@ -22,51 +22,50 @@ namespace Xtensive.Storage.Disconnected
   internal sealed class StateRegistry
   {
     private readonly StateRegistry origin;
-    private readonly Dictionary<Key, DisconnectedEntityState> states;
-    private readonly ModelRequestCache modelRequestCache;
-    
-    public IEnumerable<DisconnectedEntityState> States { get { return states.Values; } }
-
-    public OperationSet OperationSet { get; set; }
+    private readonly Dictionary<Key, DisconnectedEntityState> items;
+    private readonly AssociationCache associationCache;
 
     public StateRegistry Origin { get { return origin; } }
 
-    public DisconnectedEntityState GetState(Key key)
+    public IEnumerable<DisconnectedEntityState> EntityStates { get { return items.Values; } }
+    public OperationSet Operations { get; set; }
+
+    public DisconnectedEntityState Get(Key key)
     {
       DisconnectedEntityState state;
-      if (states.TryGetValue(key, out state))
+      if (items.TryGetValue(key, out state))
         return state;
       if (Origin!=null)
-        return Origin.GetState(key);
+        return Origin.Get(key);
       return null;
     }
 
-    public DisconnectedEntityState GetForUpdate(Key key)
+    public DisconnectedEntityState GetOrCreate(Key key)
     {
       DisconnectedEntityState state;
-      if (states.TryGetValue(key, out state))
+      if (items.TryGetValue(key, out state))
         return state;
       if (Origin!=null)
-        state = new DisconnectedEntityState(Origin.GetForUpdate(key));
+        state = new DisconnectedEntityState(Origin.GetOrCreate(key));
       else 
         state = new DisconnectedEntityState(key);
-      states.Add(key, state);
+      items.Add(key, state);
       return state;
     }
-    
+
     public void Insert(Key key, Tuple tuple)
     {
       if (Origin==null)
         return;
 
-      var state = GetForUpdate(key);
+      var state = GetOrCreate(key);
       if (state.IsLoaded)
         throw new InvalidOperationException(string.Format(
           Strings.ExStateWithKeyXIsAlreadyExists, key));
 
       state.Tuple = tuple.Clone();
       OnStateChanged(key, null, state.Tuple);
-      foreach (var fieldInfo in modelRequestCache.GetEntitySetFields(key.TypeRef.Type))
+      foreach (var fieldInfo in associationCache.GetEntitySetFields(key.TypeRef.Type))
         state.GetEntitySetState(fieldInfo).IsFullyLoaded = true;
     }
 
@@ -75,7 +74,7 @@ namespace Xtensive.Storage.Disconnected
       if (Origin==null)
         return;
 
-      var state = GetForUpdate(key);
+      var state = GetOrCreate(key);
       if (!state.IsLoaded)
         throw new InvalidOperationException(Strings.ExStateIsNotLoaded);
 
@@ -96,7 +95,7 @@ namespace Xtensive.Storage.Disconnected
       if (Origin==null)
         return;
       
-      var state = GetForUpdate(key);
+      var state = GetOrCreate(key);
       if (!state.IsLoaded)
         throw new InvalidOperationException(Strings.ExStateIsNotLoaded);
       
@@ -109,7 +108,7 @@ namespace Xtensive.Storage.Disconnected
       if (Origin!=null)
         throw new InvalidOperationException(Strings.ExCantRegisterState);
 
-      var state = GetForUpdate(key);
+      var state = GetOrCreate(key);
       if (state.IsRemoved)
         return;
 
@@ -117,12 +116,12 @@ namespace Xtensive.Storage.Disconnected
       OnStateChanged(key, null, state.Tuple);
     }
 
-    public void MergeUnloadedFields(Key key, Tuple newValue)
+    public void MergeUnavailableFields(Key key, Tuple newValue)
     {
       if (Origin!=null)
         throw new InvalidOperationException(Strings.ExCantMergeState);
 
-      var state = GetForUpdate(key);
+      var state = GetOrCreate(key);
       if (state.IsRemoved || !state.IsLoaded)
         throw new InvalidOperationException(Strings.ExCantMergeState);
 
@@ -135,7 +134,7 @@ namespace Xtensive.Storage.Disconnected
       if (Origin!=null)
         throw new InvalidOperationException(Strings.ExCantMergeState);
 
-      var state = GetForUpdate(key);
+      var state = GetOrCreate(key);
       if (state.IsRemoved || !state.IsLoaded)
         throw new InvalidOperationException(Strings.ExCantMergeState);
 
@@ -144,43 +143,58 @@ namespace Xtensive.Storage.Disconnected
       OnStateChanged(key, preValue, state.Tuple);
     }
 
-    public void Commit()
+    public void Commit(bool clearLoggedOperations)
     {
-      if (Origin==null)
-        return;
+      try {
+        if (Origin==null)
+          return;
 
-      foreach (var state in states)
-        state.Value.Commit();
-      if (Origin.OperationSet!=null)
-        Origin.OperationSet.Register(OperationSet);
+        foreach (var state in items)
+          state.Value.Commit();
+        if (Origin.Operations!=null)
+          Origin.Operations.Append(Operations);
+      }
+      finally {
+        if (clearLoggedOperations)
+          Operations.Clear();
+      }
+    }
+
+    /// <exception cref="InvalidOperationException">Origin!=null</exception>
+    public void Remap(KeyMapping keyMapping)
+    {
+      if (origin!=null)
+        throw Exceptions.InternalError("Origin!=null", Log.Instance);
+      foreach (var map in keyMapping.Map)
+        Remap(map.Key, map.Value);
     }
 
     public void AddState(DisconnectedEntityState state)
     {
-      states.Add(state.Key, state);
+      items.Add(state.Key, state);
     }
 
     public void OnStateChanged(Key key, Tuple prevValue, Tuple newValue)
     {
       // Inserting
       if (prevValue==null) {
-        foreach (var item in modelRequestCache.GetEntitySetItems(key, newValue))
+        foreach (var item in associationCache.GetEntitySetItems(key, newValue))
           InsertIntoEntitySet(item.OwnerKey, item.Field, item.ItemKey);
-        foreach (var reference in modelRequestCache.GetReferencesFrom(key, newValue))
+        foreach (var reference in associationCache.GetReferencesFrom(key, newValue))
           AddReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
       }
       // Deleting
       else if (newValue==null) {
-        foreach (var item in modelRequestCache.GetEntitySetItems(key, prevValue))
+        foreach (var item in associationCache.GetEntitySetItems(key, prevValue))
           RemoveFromEntitySet(item.OwnerKey, item.Field, item.ItemKey);
-        foreach (var reference in modelRequestCache.GetReferencesFrom(key, prevValue))
+        foreach (var reference in associationCache.GetReferencesFrom(key, prevValue))
           RemoveReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
       }
       // Updating
       else {
-        foreach (var pair in modelRequestCache.GetEntitySets(key.Type)) {
-          var prevOwnerKey = modelRequestCache.GetKeyFieldValue(pair.First, prevValue);
-          var ownerKey = modelRequestCache.GetKeyFieldValue(pair.First, newValue);
+        foreach (var pair in associationCache.GetEntitySets(key.Type)) {
+          var prevOwnerKey = associationCache.GetKeyFieldValue(pair.First, prevValue);
+          var ownerKey = associationCache.GetKeyFieldValue(pair.First, newValue);
           if (ownerKey!=prevOwnerKey) {
             if (prevOwnerKey!=null)
               RemoveFromEntitySet(prevOwnerKey, pair.Second, key);
@@ -188,9 +202,9 @@ namespace Xtensive.Storage.Disconnected
               InsertIntoEntitySet(ownerKey, pair.Second, key);
           }
         }
-        foreach (var field in modelRequestCache.GetReferencingFields(key.Type)) {
-          var prevOwnerKey = modelRequestCache.GetKeyFieldValue(field, prevValue);
-          var ownerKey = modelRequestCache.GetKeyFieldValue(field, newValue);
+        foreach (var field in associationCache.GetReferencingFields(key.Type)) {
+          var prevOwnerKey = associationCache.GetKeyFieldValue(field, prevValue);
+          var ownerKey = associationCache.GetKeyFieldValue(field, newValue);
           if (ownerKey!=prevOwnerKey) {
             if (prevOwnerKey!=null)
               RemoveReference(prevOwnerKey, field, key);
@@ -203,7 +217,7 @@ namespace Xtensive.Storage.Disconnected
 
     private void InsertIntoEntitySet(Key ownerKey, FieldInfo field, Key itemKey)
     {
-      var state = GetForUpdate(ownerKey);
+      var state = GetOrCreate(ownerKey);
       var entitySet = state.GetEntitySetState(field);
       if (!entitySet.Items.ContainsKey(itemKey))
         entitySet.Items.Add(itemKey, itemKey);
@@ -211,7 +225,7 @@ namespace Xtensive.Storage.Disconnected
 
     private void RemoveFromEntitySet(Key ownerKey, FieldInfo field, Key itemKey)
     {
-      var state = GetForUpdate(ownerKey);
+      var state = GetOrCreate(ownerKey);
       var entitySet = state.GetEntitySetState(field);
       if (entitySet.Items.ContainsKey(itemKey))
         entitySet.Items.Remove(itemKey);
@@ -219,7 +233,7 @@ namespace Xtensive.Storage.Disconnected
 
     private void AddReference(Key targetKey, FieldInfo fieldInfo, Key itemKey)
     {
-      var state = GetForUpdate(targetKey);
+      var state = GetOrCreate(targetKey);
       var references = state.GetReferences(fieldInfo);
       if (!references.ContainsKey(itemKey))
         references.Add(itemKey, itemKey);
@@ -227,10 +241,21 @@ namespace Xtensive.Storage.Disconnected
 
     private void RemoveReference(Key targetKey, FieldInfo fieldInfo, Key itemKey)
     {
-      var state = GetForUpdate(targetKey);
+      var state = GetOrCreate(targetKey);
       var references = state.GetReferences(fieldInfo);
       if (references.ContainsKey(itemKey))
         references.Remove(itemKey);
+    }
+
+    private void Remap(Key key, Key newKey)
+    {
+      return;
+      // TODO: Implement.
+      var entityState = Get(key);
+      if (entityState!=null)
+        entityState.Remap(key, newKey);
+      items.Add(newKey, entityState);
+      items.Remove(key);
     }
 
 
@@ -240,13 +265,13 @@ namespace Xtensive.Storage.Disconnected
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     
-    public StateRegistry(ModelRequestCache modelRequestCache)
+    public StateRegistry(AssociationCache associationCache)
     {
-      ArgumentValidator.EnsureArgumentNotNull(modelRequestCache, "modelRequestCache");
+      ArgumentValidator.EnsureArgumentNotNull(associationCache, "modelRequestCache");
 
-      states = new Dictionary<Key, DisconnectedEntityState>();
-      this.modelRequestCache = modelRequestCache;
-      OperationSet = new OperationSet();
+      items = new Dictionary<Key, DisconnectedEntityState>();
+      this.associationCache = associationCache;
+      Operations = new OperationSet();
     }
 
     /// <summary>
@@ -257,10 +282,10 @@ namespace Xtensive.Storage.Disconnected
     {
       ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
 
-      states = new Dictionary<Key, DisconnectedEntityState>();
+      items = new Dictionary<Key, DisconnectedEntityState>();
       this.origin = origin;
-      this.modelRequestCache = origin.modelRequestCache;
-      OperationSet = new OperationSet();
+      associationCache = origin.associationCache;
+      Operations = new OperationSet();
     }
   }
 }

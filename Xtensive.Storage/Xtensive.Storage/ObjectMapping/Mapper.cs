@@ -52,7 +52,7 @@ namespace Xtensive.Storage.ObjectMapping
       default:
         throw new ArgumentOutOfRangeException("operationInfo.Type");
       }
-      comparisonResult.Register(operation);
+      comparisonResult.Append(operation);
     }
 
     /// <inheritdoc/>

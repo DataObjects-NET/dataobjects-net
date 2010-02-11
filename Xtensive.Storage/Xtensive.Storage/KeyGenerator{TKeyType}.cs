@@ -90,12 +90,14 @@ namespace Xtensive.Storage
       }
       else {
         if (fieldType==typeof(Guid)) {
-          var bytes = ((Guid) (object) value).ToByteArray();
-          ulong highULong = BitConverter.ToUInt64(bytes, 8);
-          return highULong==0;
+          return false;
+//          var bytes = ((Guid) (object) value).ToByteArray();
+//          ulong highULong = BitConverter.ToUInt64(bytes, 8);
+//          return highULong==0;
         }
         if (fieldType==typeof (string))
-          return ((string) (object) value).StartsWith(TemporaryStringKeyPrefix);
+          return false;
+//          return ((string) (object) value).StartsWith(TemporaryStringKeyPrefix);
         throw new NotSupportedException(
           Strings.ExSpecifiedKeyFieldTypeIsNotSupportedByThisTemporaryKeyGenerator);
       }
@@ -155,18 +157,20 @@ namespace Xtensive.Storage
         return arithmetic.Subtract(currentValue, arithmetic.One);
       else {
         if (fieldType==typeof(Guid)) {
-          var bytes = ((Guid) (object) lastTemporary).ToByteArray();
-          ulong lowULong = BitConverter.ToUInt64(bytes, 0);
-          unchecked { lowULong += 1; }
-          BitConverter.GetBytes(lowULong).Copy(bytes, 0);
-          return (TKeyType) (object) new Guid(bytes);
+          return (TKeyType) (object) Guid.NewGuid();
+//          var bytes = ((Guid) (object) lastTemporary).ToByteArray();
+//          ulong lowULong = BitConverter.ToUInt64(bytes, 0);
+//          unchecked { lowULong += 1; }
+//          BitConverter.GetBytes(lowULong).Copy(bytes, 0);
+//          return (TKeyType) (object) new Guid(bytes);
         }
         if (fieldType==typeof(string)) {
-          string strValue = (string) (object) currentValue;
-          strValue = strValue.TryCutPrefix(TemporaryStringKeyPrefix);
-          long longValue = long.Parse(strValue);
-          longValue--;
-          return (TKeyType) (object) (TemporaryStringKeyPrefix + longValue);
+          return (TKeyType) (object) Guid.NewGuid().ToString();
+//          string strValue = (string) (object) currentValue;
+//          strValue = strValue.TryCutPrefix(TemporaryStringKeyPrefix);
+//          long longValue = long.Parse(strValue);
+//          longValue--;
+//          return (TKeyType) (object) (TemporaryStringKeyPrefix + longValue);
         }
         throw new NotSupportedException(
           Strings.ExSpecifiedKeyFieldTypeIsNotSupportedByThisTemporaryKeyGenerator);
@@ -193,14 +197,6 @@ namespace Xtensive.Storage
           lastTemporary = (TKeyType) (object) (TemporaryStringKeyPrefix + "0");
       }
       last = lastTemporary;
-    }
-
-
-    // Constructors
-
-    /// <inheritdoc/>
-    public KeyGenerator()
-    {
     }
   }
 }

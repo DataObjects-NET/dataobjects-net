@@ -508,14 +508,12 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var session = Session.Open(Domain)) {
         using (var result = mapper.Compare(original, modified))
         using (VersionValidator.Attach(session, result.VersionInfoProvider)) {
-          var tx = Transaction.Open();
-          try {
-            result.Operations.Apply();
-            tx.Complete();
-          }
-          finally {
-            AssertEx.ThrowsInvalidOperationException(tx.Dispose);
-          }
+          AssertEx.ThrowsInvalidOperationException(() => {
+            using (var tx = Transaction.Open()) {
+              result.Operations.Apply();
+              tx.Complete();
+            }
+          });
         }
       }
     }

@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Internals
       if (keyGenerator == null)
         throw new InvalidOperationException(String.Format(
           Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
-      var keyValue = keyGenerator.DemandNext(false);
+      var keyValue = keyGenerator.DemandNext(session==null ? false : session.IsDisconnected);
       var key = Materialize(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
       
       if (session!=null)

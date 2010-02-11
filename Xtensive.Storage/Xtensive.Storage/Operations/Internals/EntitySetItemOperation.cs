@@ -5,16 +5,13 @@
 // Created:    2009.10.22
 
 using System;
-using System.Diagnostics;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Operations
 {
   [Serializable]
-  internal sealed class EntitySetItemOperation : EntitySetOperation,
-    ISerializable
+  internal sealed class EntitySetItemOperation : EntitySetOperation
   {
     private Key ItemKey { get; set; }
 
@@ -22,17 +19,15 @@ namespace Xtensive.Storage.Operations
     public override void Prepare(OperationExecutionContext context)
     {
       base.Prepare(context);
-      if (context.KeysForRemap.Contains(ItemKey))
-        ItemKey = context.KeyMapping[ItemKey];
-      context.Register(ItemKey);
+      context.RegisterKey(context.TryRemapKey(ItemKey), false);
     }
 
     /// <inheritdoc/>
     public override void Execute(OperationExecutionContext context)
     {
       var session = context.Session;
-      var target = Query.Single(session, Key);
-      var item = Query.Single(session, ItemKey);
+      var target = Query.Single(session, context.TryRemapKey(Key));
+      var item = Query.Single(session, context.TryRemapKey(ItemKey));
       var entitySet = target.GetFieldValue<EntitySetBase>(Field);
       if (Type == OperationType.AddEntitySetItem)
         entitySet.Add(item);

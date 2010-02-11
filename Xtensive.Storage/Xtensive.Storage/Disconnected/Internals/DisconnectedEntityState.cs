@@ -208,7 +208,7 @@ namespace Xtensive.Storage.Disconnected
     public static DisconnectedEntityState Deserialize(SerializableEntityState serialized, StateRegistry registry, Domain domain)
     {
       var key = Key.Parse(domain, serialized.Key);
-      var origin = registry.Origin!=null ? registry.Origin.GetState(key) : null;
+      var origin = registry.Origin!=null ? registry.Origin.Get(key) : null;
       var state = origin!=null
         ? new DisconnectedEntityState(origin)
         : new DisconnectedEntityState(key);
@@ -271,6 +271,11 @@ namespace Xtensive.Storage.Disconnected
           isMerged = true;
         }
       return isMerged;
+    }
+
+    public void Remap(Key key, Key newKey)
+    {
+      throw new NotImplementedException();
     }
 
 

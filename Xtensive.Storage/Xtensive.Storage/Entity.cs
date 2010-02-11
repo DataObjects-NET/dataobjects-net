@@ -267,8 +267,7 @@ namespace Xtensive.Storage
     #region Protected event-like methods
 
     /// <inheritdoc/>
-    protected internal override bool CanBeValidated
-    {
+    protected internal override bool CanBeValidated {
       get { return !IsRemoved; }
     }
 
@@ -424,6 +423,8 @@ namespace Xtensive.Storage
         ((Action<Key>) subscriptionInfo.Second)
           .Invoke(subscriptionInfo.First);
       OnInitialize();
+      if (CanBeValidated)
+        this.Validate();
     }
 
     internal override sealed void SystemInitializationError(Exception error)
@@ -522,7 +523,6 @@ namespace Xtensive.Storage
 
       if (Session.Domain.Configuration.AutoValidation)
         this.Validate();
-
       Session.NotifyFieldValueSet(this, field, oldValue, newValue);
       var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
       if (subscriptionInfo.Second!=null)
@@ -579,7 +579,6 @@ namespace Xtensive.Storage
       var key = Key.Create(Session.Domain, GetType());
       State = Session.CreateEntityState(key);
       SystemBeforeInitialize(false);
-      this.Validate();
     }
 
     // Is used for EntitySetItem<,> instance construction
@@ -589,7 +588,6 @@ namespace Xtensive.Storage
       var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
       State = Session.CreateEntityState(key);
       SystemBeforeInitialize(false);
-      this.Validate();
     }
 
     /// <summary>
@@ -615,7 +613,6 @@ namespace Xtensive.Storage
       Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
       State = Session.CreateEntityState(key);
       SystemBeforeInitialize(false);
-      this.Validate();
     }
 
     /// <summary>

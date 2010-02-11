@@ -18,34 +18,33 @@ namespace Xtensive.Storage.Operations
   internal sealed class EntityFieldSetOperation : EntityFieldOperation
   {
     private object Value { get; set; }
-    private Key entityValueKey;
+    private Key ValueKey { get; set; }
 
     public override void Prepare(OperationExecutionContext context)
     {
       base.Prepare(context);
-      if (context.KeysForRemap.Contains(entityValueKey))
-        entityValueKey = context.KeyMapping[entityValueKey];
-      context.Register(entityValueKey);
+      context.RegisterKey(context.TryRemapKey(ValueKey), false);
     }
 
     public override void Execute(OperationExecutionContext context)
     {
       var session = context.Session;
-      var entity = Query.Single(session, Key);
+      var key = context.TryRemapKey(Key);
+      var entity = Query.Single(session, key);
       var setter = DelegateHelper.CreateDelegate<Action<Entity,object>>(
         this, 
         typeof (EntityFieldSetOperation), 
         "ExecuteSetValue", 
         Field.ValueType);
-      var value = entityValueKey != null 
-                    ? Query.Single(session, entityValueKey) 
+      var value = ValueKey != null 
+                    ? Query.Single(session, context.TryRemapKey(ValueKey)) 
                     : Value;
       setter.Invoke(entity, value);
     }
 
     private void ExecuteSetValue<T>(Entity entity, object value)
     {
-      entity.SetFieldValue(Field, (T)value);
+      entity.SetFieldValue(Field, (T) value);
     }
 
     
@@ -56,7 +55,7 @@ namespace Xtensive.Storage.Operations
     {
       var entityValue = value as IEntity;
       if (entityValue != null)
-        entityValueKey = entityValue.Key;
+        ValueKey = entityValue.Key;
       else
         Value = value;
     }
@@ -64,7 +63,7 @@ namespace Xtensive.Storage.Operations
     public EntityFieldSetOperation(Key key, FieldInfo fieldInfo, Key valueKey)
       : base(key, OperationType.SetEntityField, fieldInfo)
     {
-      entityValueKey = valueKey;
+      ValueKey = valueKey;
     }
 
     
@@ -77,8 +76,8 @@ namespace Xtensive.Storage.Operations
       var structureValue = Value as Structure;
       if (typeof(IEntity).IsAssignableFrom(Field.ValueType)) {
         // serializing entity value as key
-        if (entityValueKey != null)
-          info.AddValue("value", entityValueKey.Format());
+        if (ValueKey != null)
+          info.AddValue("value", ValueKey.Format());
         else
           info.AddValue("value", string.Empty);
       }
@@ -99,8 +98,8 @@ namespace Xtensive.Storage.Operations
         // deserializing entity
         var value = info.GetString("value");
         if (!value.IsNullOrEmpty()) {
-          entityValueKey = Key.Parse(session.Domain, value);
-          entityValueKey.TypeRef = new TypeReference(entityValueKey.TypeRef.Type, TypeReferenceAccuracy.ExactType);
+          ValueKey = Key.Parse(session.Domain, value);
+          ValueKey.TypeRef = new TypeReference(ValueKey.TypeRef.Type, TypeReferenceAccuracy.ExactType);
         }
       }
       else if (typeof (Structure).IsAssignableFrom(Field.ValueType)) {

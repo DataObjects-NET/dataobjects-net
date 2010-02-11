@@ -124,14 +124,15 @@ namespace Xtensive.Storage
 
     internal sealed override void SystemInitialize()
     {
-      if (!Session.IsSystemLogicOnly) {
-        var subscriptionInfo = GetSubscription(EntityEventBroker.InitializePersistentEventKey);
-        if (subscriptionInfo.Second!=null)
-          ((Action<Key, FieldInfo>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, Field);
-        OnInitialize();
-      }
-      if (CanBeValidated)
+      if (Session.IsSystemLogicOnly)
+        return;
+
+      var subscriptionInfo = GetSubscription(EntityEventBroker.InitializePersistentEventKey);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key, FieldInfo>) subscriptionInfo.Second)
+          .Invoke(subscriptionInfo.First, Field);
+      OnInitialize();
+      if (CanBeValidated && Session.Domain.Configuration.AutoValidation)
         this.Validate();
     }
 
@@ -208,7 +209,7 @@ namespace Xtensive.Storage
     internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
     {
       if (!Session.IsSystemLogicOnly) {
-        if (Session.Domain.Configuration.AutoValidation)
+        if (CanBeValidated && Session.Domain.Configuration.AutoValidation)
           this.Validate();
         var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
         if (subscriptionInfo.Second != null)
