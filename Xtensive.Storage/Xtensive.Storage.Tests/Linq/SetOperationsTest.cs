@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -210,7 +211,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectWithoutOneOfSelect()
     {
-      Require.ProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       var actual = from c in Query.All<Customer>()
       from r in (c.Orders)
         .Intersect(c.Orders).Select(o => o.ShippedDate)

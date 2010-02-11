@@ -313,7 +313,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryWithEntityReferenceTest()
     {
-      Require.ProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       int expected = Query.All<Order>().Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c)
@@ -346,7 +346,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DistinctBetweenFilterAndApplyTest()
     {
-      Require.ProviderIs(StorageProvider.Index | StorageProvider.SqlServer);
+      Require.AllFeaturesSupported(ProviderFeatures.CrossApply);
       int expected = Query.All<Order>().Distinct().Count(o => o.Employee.FirstName.StartsWith("A"));
       IQueryable<Order> result = Query.All<Customer>()
         .SelectMany(c => Query.All<Order>().Where(o => o.Customer==c).Distinct()
