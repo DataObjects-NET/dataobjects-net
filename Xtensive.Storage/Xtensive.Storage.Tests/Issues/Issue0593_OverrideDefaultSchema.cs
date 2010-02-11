@@ -28,6 +28,9 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void CheckSchemaTest()
     {
+      var configuration = Domain.Configuration;
+      Assert.AreEqual(SchemaName, configuration.DefaultSchema);
+      Assert.AreEqual(SchemaName, configuration.Clone().DefaultSchema);
       var handler = (SqlDomainHandler) Domain.Handler;
       Assert.AreEqual(handler.Schema.Name, SchemaName);
     }

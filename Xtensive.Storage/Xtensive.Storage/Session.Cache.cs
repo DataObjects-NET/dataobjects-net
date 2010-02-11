@@ -30,7 +30,7 @@ namespace Xtensive.Storage
 
     internal void EnforceChangeRegistrySizeLimit()
     {
-      if (EntityChangeRegistry.Count>=EntityChangeRegistrySizeLimit)
+      if (EntityChangeRegistry.Count>=Configuration.EntityChangeRegistrySize)
         Persist(PersistReason.ChangeRegistrySizeLimit);
     }
 

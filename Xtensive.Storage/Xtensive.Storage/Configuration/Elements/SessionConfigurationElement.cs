@@ -26,13 +26,15 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string BatchSizeElementName = "batchSize";
     private const string ReaderPreloadingElementName = "readerPreloading";
     private const string ServiceContainerTypeElementName = "serviceContainerType";
+    private const string EntityChangeRegistrySizeElementName = "entityChangeRegistrySize";
+
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
 
     /// <summary>
     /// <see cref="SessionConfiguration.Name" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(NameElementName, IsRequired = false, IsKey = true, DefaultValue = "Default")]
+    [ConfigurationProperty(NameElementName, IsKey = true, DefaultValue = "Default")]
     public string Name
     {
       get { return (string) this[NameElementName]; }
@@ -42,7 +44,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.UserName" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(UserNameElementName, IsRequired = false, IsKey = false)]
+    [ConfigurationProperty(UserNameElementName)]
     public string UserName
     {
       get { return (string) this[UserNameElementName]; }
@@ -52,7 +54,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.Password" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(PasswordElementName, IsRequired = false, IsKey = false)]
+    [ConfigurationProperty(PasswordElementName)]
     public string Password
     {
       get { return (string)this[PasswordElementName]; }
@@ -62,7 +64,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.CacheSize" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(CacheSizeElementName, IsRequired = false, DefaultValue = SessionConfiguration.DefaultCacheSize, IsKey = false)]
+    [ConfigurationProperty(CacheSizeElementName, DefaultValue = SessionConfiguration.DefaultCacheSize)]
     public int CacheSize
     {
       get { return (int) this[CacheSizeElementName]; }
@@ -72,7 +74,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.CacheType" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(CacheTypeElementName, IsRequired = false, DefaultValue = "Default", IsKey = false)]
+    [ConfigurationProperty(CacheTypeElementName, DefaultValue = "Default")]
     public string CacheType
     {
       get { return (string)this[CacheTypeElementName]; }
@@ -82,7 +84,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.Options" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(OptionsElementName, IsRequired = false, DefaultValue = "Default", IsKey = false)]
+    [ConfigurationProperty(OptionsElementName, DefaultValue = "Default")]
     public string Options
     {
       get { return (string) this[OptionsElementName]; }
@@ -92,7 +94,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.DefaultIsolationLevel" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(IsolationLevelElementName, IsRequired = false, DefaultValue = "ReadCommitted", IsKey = false)]
+    [ConfigurationProperty(IsolationLevelElementName, DefaultValue = "ReadCommitted")]
     public string DefaultIsolationLevel
     {
       get { return (string)this[IsolationLevelElementName]; }
@@ -102,14 +104,15 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.BatchSize" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(BatchSizeElementName, IsRequired = false, DefaultValue = SessionConfiguration.DefaultBatchSize, IsKey = false)]
+    [ConfigurationProperty(BatchSizeElementName,
+      DefaultValue = SessionConfiguration.DefaultBatchSize)]
     public int BatchSize
     {
       get { return (int) this[BatchSizeElementName]; }
       set { this[BatchSizeElementName] = value; }
     }
 
-    [ConfigurationProperty(ReaderPreloadingElementName, IsRequired = false, DefaultValue = "Default")]
+    [ConfigurationProperty(ReaderPreloadingElementName, DefaultValue = "Default")]
     public string ReaderPreloading
     {
       get { return (string) this[ReaderPreloadingElementName]; }
@@ -119,11 +122,22 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.ServiceContainerType" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(ServiceContainerTypeElementName, IsRequired = false, DefaultValue = null)]
+    [ConfigurationProperty(ServiceContainerTypeElementName, DefaultValue = null)]
     public string ServiceContainerType
     {
       get { return (string)this[ServiceContainerTypeElementName]; }
       set { this[ServiceContainerTypeElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="SessionConfiguration.EntityChangeRegistrySize" copy="true"/>.
+    /// </summary>
+    [ConfigurationProperty(EntityChangeRegistrySizeElementName,
+      DefaultValue = SessionConfiguration.DefaultEntityChangeRegistrySize)]
+    public int EntityChangeRegistrySize
+    {
+      get { return (int) this[EntityChangeRegistrySizeElementName]; }
+      set { this[EntityChangeRegistrySizeElementName] = value; }
     }
 
     /// <summary>
@@ -143,6 +157,7 @@ namespace Xtensive.Storage.Configuration.Elements
         DefaultIsolationLevel = (IsolationLevel) Enum.Parse(typeof (IsolationLevel), DefaultIsolationLevel, true),
         ReaderPreloading = (ReaderPreloadingPolicy) Enum.Parse(typeof (ReaderPreloadingPolicy), ReaderPreloading, true),
         ServiceContainerType = Type.GetType(ServiceContainerType),
+        EntityChangeRegistrySize = EntityChangeRegistrySize,
       };
       return result;
     }

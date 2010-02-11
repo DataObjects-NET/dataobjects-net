@@ -66,14 +66,9 @@ namespace Xtensive.Storage
     private static Func<Session> resolver;
     private static long lastUsedIdentifier;
 
-    private const int EntityChangeRegistrySizeLimit = 250; // TODO: -> SessionConfiguration
-    private ExtensionCollection extensions;
-
     private readonly Pinner pinner = new Pinner();
-    private readonly bool persistRequiresTopologicalSort;
-    
     private SessionScope sessionScope;
-
+    private ExtensionCollection extensions;
     private volatile bool isDisposed;
 
     /// <summary>

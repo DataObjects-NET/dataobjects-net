@@ -39,6 +39,11 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public const int DefaultBatchSize = 25;
 
+    /// <summary>
+    /// Default size of entity change registry.
+    /// </summary>
+    public const int DefaultEntityChangeRegistrySize = 250;
+
     #endregion
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
@@ -49,11 +54,12 @@ namespace Xtensive.Storage.Configuration
     private string password = string.Empty;
     private int cacheSize = DefaultCacheSize;
     private int batchSize = DefaultBatchSize;
+    private int entityChangeRegistrySize = DefaultEntityChangeRegistrySize;
     private SessionCacheType cacheType = SessionCacheType.Default;
     private IsolationLevel defaultIsolationLevel = DefaultDefaultIsolationLevelValue; // what a fancy name?
     private ReaderPreloadingPolicy readerPreloading = ReaderPreloadingPolicy.Default;
     private Type serviceContainerType;
-
+    
     /// <summary>
     /// Gets the session name.
     /// </summary>
@@ -162,6 +168,18 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
+    /// Gets or sets the size of the entity change registry.
+    /// </summary>
+    public int EntityChangeRegistrySize
+    {
+      get { return entityChangeRegistrySize; }
+      set {
+        this.EnsureNotLocked();
+        entityChangeRegistrySize = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether session uses ambient transactions.
     /// </summary>
     public bool UsesAmbientTransactions {
@@ -213,6 +231,7 @@ namespace Xtensive.Storage.Configuration
       CacheType = configuration.CacheType;
       CacheSize = configuration.CacheSize;
       BatchSize = configuration.BatchSize;
+      EntityChangeRegistrySize = configuration.EntityChangeRegistrySize;
       ReaderPreloading = configuration.readerPreloading;
       DefaultIsolationLevel = configuration.DefaultIsolationLevel;
       ServiceContainerType = configuration.ServiceContainerType;

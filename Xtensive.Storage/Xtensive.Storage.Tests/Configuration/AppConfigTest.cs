@@ -65,7 +65,7 @@ namespace Xtensive.Storage.Tests.Configuration
     public void BatchSizeTest()
     {
       var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain4");
-      var defaultSession = configuration.Sessions["Default"];
+      var defaultSession = configuration.Sessions[WellKnown.Sessions.Default];
       Assert.IsNotNull(defaultSession);
       Assert.AreEqual(10, defaultSession.BatchSize);
       var myCoolSession = configuration.Sessions["MyCoolSession"];
@@ -73,6 +73,15 @@ namespace Xtensive.Storage.Tests.Configuration
       Assert.AreEqual(100, myCoolSession.BatchSize);
       var clone = myCoolSession.Clone();
       Assert.AreEqual(100, clone.BatchSize);
+    }
+
+    [Test]
+    public void EntityChangeRegistrySizeTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithCustomChangeRegistrySize");
+      var defaultSession = configuration.Sessions[WellKnown.Sessions.Default];
+      Assert.AreEqual(1000, defaultSession.EntityChangeRegistrySize);
+      Assert.AreEqual(1000, defaultSession.Clone().EntityChangeRegistrySize);
     }
   }
 }
