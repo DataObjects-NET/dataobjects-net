@@ -46,6 +46,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <returns>Built descriptor.</returns>
     public TemporaryTableDescriptor BuildDescriptor(string name, TupleDescriptor source, string[] fieldNames)
     {
+      // TODO: split this method to a set of various simple virtual methods
       var driver = DomainHandler.Driver;
       var catalog = new Catalog(DomainHandler.Schema.Catalog.Name);
       var schema = catalog.CreateSchema(DomainHandler.Schema.Name);
@@ -111,21 +112,19 @@ namespace Xtensive.Storage.Providers.Sql
       var name = descriptor.Name;
       var sessionHandler = Handlers.SessionHandler;
       var session = sessionHandler.Session;
-      var registry = session.Extensions.Get<TemporaryTableStateRegistry>();
-      if (registry == null) {
-        registry = new TemporaryTableStateRegistry();
-        session.Extensions.Set(registry);
-      }
+      var registry = GetRegistry(session);
 
       bool isLocked;
       if (!registry.States.TryGetValue(name, out isLocked))
-        Handlers.SessionHandler.GetService<IQueryExecutor>(true)
-          .ExecuteNonQuery(descriptor.CreateStatement);
+        InitializeTable(descriptor);
       else if (isLocked)
         throw new InvalidOperationException(string.Format(Strings.ExTemporaryTableXIsLocked, name));
+
       registry.States[name] = true;
+      AcquireTable(descriptor);
+
       return new Disposable(disposing => {
-        Release(descriptor);
+        ReleaseTable(descriptor);
         registry.States[name] = false;
       });
     }
@@ -142,11 +141,43 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
+    /// Initializes the table. This is called once per session on a first acquire request.
+    /// </summary>
+    /// <param name="descriptor">The descriptor.</param>
+    protected virtual void InitializeTable(TemporaryTableDescriptor descriptor)
+    {
+      ExecuteNonQuery(descriptor.CreateStatement);
+    }
+
+    /// <summary>
+    /// Gets the lock on a temporary table.
+    /// </summary>
+    /// <param name="descriptor">The descriptor.</param>
+    protected virtual void AcquireTable(TemporaryTableDescriptor descriptor)
+    {
+    }
+
+    /// <summary>
     /// Releases the lock on a temporary table.
     /// </summary>
     /// <param name="descriptor">The descriptor.</param>
-    protected virtual void Release(TemporaryTableDescriptor descriptor)
+    protected virtual void ReleaseTable(TemporaryTableDescriptor descriptor)
     {
+    }
+
+    protected void ExecuteNonQuery(string statement)
+    {
+      Handlers.SessionHandler.GetService<IQueryExecutor>(true).ExecuteNonQuery(statement);
+    }
+
+    private static TemporaryTableStateRegistry GetRegistry(Session session)
+    {
+      var registry = session.Extensions.Get<TemporaryTableStateRegistry>();
+      if (registry==null) {
+        registry = new TemporaryTableStateRegistry();
+        session.Extensions.Set(registry);
+      }
+      return registry;
     }
 
     /// <inheritdoc/>

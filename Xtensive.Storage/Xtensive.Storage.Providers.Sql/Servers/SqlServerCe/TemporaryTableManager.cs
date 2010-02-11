@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.02.11
 
-using System;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
@@ -21,9 +20,20 @@ namespace Xtensive.Storage.Providers.Sql.Servers.SqlServerCe
     }
 
     /// <inheritdoc/>
-    protected override void Release(TemporaryTableDescriptor descriptor)
+    protected override void InitializeTable(TemporaryTableDescriptor descriptor)
     {
-      Handlers.SessionHandler.GetService<IQueryExecutor>(true).ExecuteNonQuery(descriptor.DropStatement);
+    }
+  
+    /// <inheritdoc/>
+    protected override void AcquireTable(TemporaryTableDescriptor descriptor)
+    {
+      ExecuteNonQuery(descriptor.CreateStatement);
+    }
+
+    /// <inheritdoc/>
+    protected override void ReleaseTable(TemporaryTableDescriptor descriptor)
+    {
+      ExecuteNonQuery(descriptor.DropStatement);
     }
   }
 }
