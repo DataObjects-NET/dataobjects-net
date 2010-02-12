@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Sorting;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
@@ -27,15 +28,34 @@ namespace Xtensive.Storage.Building.Builders
         using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
           var typeFilter = GetTypeFilter();
           var genericTypes = new List<Type>();
+          var genericTypeDefinitions = new List<Type>();
           foreach (var type in context.Configuration.Types) {
             if (!typeFilter.Invoke(type)) 
               continue;
-            if (type.IsGenericType || type.IsGenericTypeDefinition)
-              genericTypes.Add(type);
+            if (type.IsGenericType)
+              if (type.IsGenericTypeDefinition)
+                genericTypeDefinitions.Add(type);
+              else
+                genericTypes.Add(type);
             else
               ProcessType(type);
           }
-          foreach (var type in genericTypes.Where(t => !t.FullName.IsNullOrEmpty()))
+          var typesToSort = genericTypes
+            .Where(t => !t.FullName.IsNullOrEmpty()).ToList();
+          List<Node<Type, object>> loops;
+          var sortedTypes = TopologicalSorter.Sort(
+            typesToSort,
+            (first, second) => {
+                var arguments = second.GetGenericArguments();
+                foreach (var argument in arguments) {
+                  if (argument.IsAssignableFrom(first))
+                    return true;
+                }
+                return false;
+              }, out loops);
+          foreach (var type in sortedTypes)
+            ProcessType(type);
+          foreach (var type in genericTypeDefinitions)
             ProcessType(type);
         }
       }
