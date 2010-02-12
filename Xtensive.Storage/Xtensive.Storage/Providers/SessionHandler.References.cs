@@ -15,6 +15,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers
 {
@@ -36,9 +37,11 @@ namespace Xtensive.Storage.Providers
       var recordSet = pair.First;
       var parameter = pair.Second;
       var parameterContext = new ParameterContext();
-      using (parameterContext.Activate())
+      ExecutableProvider executableProvider;
+      using (parameterContext.Activate()) {
         parameter.Value = target.Key.Value;
-      var executableProvider = CompilationContext.Current.Compile(recordSet.Provider);
+        executableProvider = CompilationContext.Current.Compile(recordSet.Provider);
+      }
       var queryTask = new QueryTask(executableProvider, parameterContext);
       Session.RegisterDelayedQuery(queryTask);
       return queryTask
