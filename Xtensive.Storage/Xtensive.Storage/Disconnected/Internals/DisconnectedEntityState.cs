@@ -274,9 +274,26 @@ namespace Xtensive.Storage.Disconnected
       return isMerged;
     }
 
-    public void Remap(Key key, Key newKey)
+    internal void Remap(Key oldKey, Key newKey)
     {
-      throw new NotImplementedException();
+      Key realEntityKey;
+      if (Key==oldKey) {
+        if (tuple!=null)
+          newKey.Value.CopyTo(tuple, 0, oldKey.Value.Count);
+        Key = newKey;
+      }
+      if (references.Count > 0)
+        foreach (var backReferences in references.Values)
+          ReplaceKey(oldKey, newKey, backReferences);
+      if (setStates.Count > 0)
+        foreach (var setState in setStates.Values)
+          ReplaceKey(oldKey, newKey, setState.Items);
+    }
+
+    private static void ReplaceKey(Key oldKey, Key newKey, IDictionary<Key, Key> keys)
+    {
+      if (keys.Remove(oldKey))
+        keys.Add(newKey, newKey);
     }
 
 

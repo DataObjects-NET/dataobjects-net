@@ -165,8 +165,21 @@ namespace Xtensive.Storage.Disconnected
     {
       if (origin!=null)
         throw Exceptions.InternalError("Origin!=null", Log.Instance);
-      foreach (var map in keyMapping.Map)
-        Remap(map.Key, map.Value);
+      foreach (var map in keyMapping.Map) {
+        var hasToBeReplaced = false;
+        foreach (var itemPair in items) {
+          if (!hasToBeReplaced && itemPair.Key==map.Key)
+            hasToBeReplaced = true;
+          itemPair.Value.Remap(map.Key, map.Value);
+        }
+        if (!hasToBeReplaced)
+          continue;
+        DisconnectedEntityState entityState;
+        if (items.TryGetValue(map.Key, out entityState)) {
+          items.Remove(map.Key);
+          items.Add(map.Value, entityState);
+        }
+      }
     }
 
     public void AddState(DisconnectedEntityState state)
@@ -245,17 +258,6 @@ namespace Xtensive.Storage.Disconnected
       var references = state.GetReferences(fieldInfo);
       if (references.ContainsKey(itemKey))
         references.Remove(itemKey);
-    }
-
-    private void Remap(Key key, Key newKey)
-    {
-      return;
-      // TODO: Implement.
-      var entityState = Get(key);
-      if (entityState!=null)
-        entityState.Remap(key, newKey);
-      items.Add(newKey, entityState);
-      items.Remove(key);
     }
 
 

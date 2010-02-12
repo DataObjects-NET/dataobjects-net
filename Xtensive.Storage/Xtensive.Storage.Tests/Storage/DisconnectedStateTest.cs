@@ -256,6 +256,53 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
     public A Root { get; set; }
   }
+
+  [Serializable]
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class CompositeKeyExample : Entity
+  {
+    [Key(0), Field]
+    public KeyElementFirst First { get; private set; }
+
+    [Key(1), Field]
+    public int Second { get; private set; }
+
+    [Key(2), Field]
+    public KeyElementSecond Third { get; private set; }
+
+    [Field]
+    public string Aux { get; set; }
+
+
+    // Constructors
+
+    public CompositeKeyExample(KeyElementFirst first, int second, KeyElementSecond third)
+      : base(first, second, third)
+    {}
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class KeyElementFirst : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Aux { get; private set; }
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class KeyElementSecond : Entity
+  {
+    [Key, Field]
+    public Guid Id { get; private set; }
+
+    [Field]
+    public string Aux { get; private set; }
+  }
 }
 
 #endregion
@@ -1763,7 +1810,39 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
     }
-    
+
+    [Test]
+    public void CompositeKeyContainingEntityTest()
+    {
+      Key localFirstKey;
+      Key localSecondKey;
+      Key localCompositeKey;
+      KeyMapping keyMapping;
+      var state = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (state.Attach(session)) {
+        using (var transactionScope = Transaction.Open()) {
+          var firstElement = new KeyElementFirst();
+          localFirstKey = firstElement.Key;
+          var secondElement = new KeyElementSecond();
+          localSecondKey = secondElement.Key;
+          var composite = new CompositeKeyExample(firstElement, 3, secondElement);
+          localCompositeKey = composite.Key;
+          transactionScope.Complete();
+        }
+        keyMapping = state.ApplyChanges();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var transactionScope = Transaction.Open()) {
+        var composite = Query.Single<CompositeKeyExample>(localCompositeKey);
+        Assert.AreEqual(composite.First, keyMapping.Map[localFirstKey]);
+        Assert.AreEqual(3, composite.Second);
+        Assert.AreEqual(composite.Third, keyMapping.Map[localSecondKey]);
+        transactionScope.Complete();
+      }
+    }
+
     private void FillDataBase()
     {
       using (var sesscionScope = Session.Open(Domain)) {
