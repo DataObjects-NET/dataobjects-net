@@ -17,6 +17,12 @@ namespace Xtensive.Storage.Tests.Upgrade.FullText
   {
     private Domain domain;
 
+    [TestFixtureSetUp]
+    public void TestSetUp()
+    {
+      Require.ProviderIsNot(StorageProvider.Memory);
+    }
+
     [SetUp]
     public void SetUp()
     {

@@ -885,6 +885,8 @@ namespace Xtensive.Storage.Tests.Storage
       const int creaturesCount = 1000;
       const int lizardsCount = 1000;
 
+      Require.ProviderIsNot(StorageProvider.Memory);
+
       TestFixtureTearDown();
       TestFixtureSetUp();
 

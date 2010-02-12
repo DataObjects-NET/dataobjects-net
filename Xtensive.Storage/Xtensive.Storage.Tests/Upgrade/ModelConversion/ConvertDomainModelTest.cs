@@ -34,6 +34,12 @@ namespace Xtensive.Storage.Tests.Upgrade
       Domain = Domain.Build(configuration);
       return Domain;
     }
+
+    [TestFixtureSetUp]
+    public void TestSetUp()
+    {
+      Require.ProviderIsNot(StorageProvider.Memory);
+    }
     
     [SetUp]
     public virtual void SetUp()
