@@ -16,11 +16,13 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public string Key {get; set; }
   }
 
+  [Serializable]
   public abstract class AbstractProductDto : IdentifiableDto
   {
     public string Name { get; set; }
   }
 
+  [Serializable]
   public class PersonalProductDto : AbstractProductDto,
     ICloneable
   {
@@ -38,11 +40,13 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public string Name { get; set; }
   }
 
+  [Serializable]
   public abstract class AdvancedPersonDto : PersonDto
   {
     public int Age { get; set; }
   }
 
+  [Serializable]
   public class EmployeeDto : AdvancedPersonDto,
     ICloneable
   {

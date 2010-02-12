@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
 using IOperationSet=Xtensive.Core.ObjectMapping.IOperationSet;
 
 namespace Xtensive.Storage.ObjectMapping
@@ -23,20 +23,29 @@ namespace Xtensive.Storage.ObjectMapping
   {
     private readonly Dictionary<object, object> original;
     private readonly Dictionary<object, object> modified;
+    [NonSerialized]
     private BinaryFormatter formatter;
+    [NonSerialized]
     private MemoryStream stream;
-    private Dictionary<Key, VersionInfo> deserializedVersions = new Dictionary<Key, VersionInfo>();
+    [NonSerialized]
+    private Dictionary<Key, VersionInfo> deserializedVersions;
+    [NonSerialized]
+    private Func<Key, VersionInfo> versionInfoProvider;
 
     /// <summary>
     /// Gets the delegate that should be used to resolve object versions.
     /// </summary>
-    public Func<Key, VersionInfo> VersionInfoProvider { get; private set; }
-    
+    public Func<Key, VersionInfo> VersionInfoProvider
+    {
+      get { return versionInfoProvider; }
+    }
+
     private VersionInfo GetVersionInfo(Key key)
     {
       if (stream==null) {
         stream = new MemoryStream(1024);
         formatter = new BinaryFormatter();
+        deserializedVersions = new Dictionary<Key, VersionInfo>();
       }
       VersionInfo result;
         if (!deserializedVersions.TryGetValue(key, out result)) {
@@ -67,7 +76,17 @@ namespace Xtensive.Storage.ObjectMapping
     {
       this.original = original;
       this.modified = modified;
-      VersionInfoProvider = GetVersionInfo;
+      versionInfoProvider = GetVersionInfo;
+    }
+
+    /// <summary>
+    /// Called when the instance is deserialized.
+    /// </summary>
+    /// <param name="context">The serialization context.</param>
+    [OnDeserialized]
+    protected void OnDeserialized(StreamingContext context)
+    {
+      versionInfoProvider = GetVersionInfo;
     }
 
     /// <inheritdoc/>

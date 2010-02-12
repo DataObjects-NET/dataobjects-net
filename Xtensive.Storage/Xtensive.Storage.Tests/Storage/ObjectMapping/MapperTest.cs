@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
@@ -15,7 +17,9 @@ using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.ObjectMapping;
+using Xtensive.Storage.Operations;
 using Xtensive.Storage.Tests.Storage.ObjectMapping.Model;
+using GraphComparisonResult = Xtensive.Storage.ObjectMapping.GraphComparisonResult;
 
 namespace Xtensive.Storage.Tests.Storage.ObjectMapping
 {
@@ -339,6 +343,61 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         Assert.AreEqual(Key.Parse((string) keyMapping[secondLevel0Dto.Reference.Key]), firstLevel0.Key);
         Assert.AreSame(secondLevel0.Reference, firstLevel0);
       }
+    }
+
+    [Test]
+    public void SerializationTest()
+    {
+      Mapper mapper;
+      var productDto = ServerCreateDtoGraphForOptimisticLockTest(out mapper);
+
+      var modifiedProductDto = Clone(productDto);
+      var product = ((PersonWithVersionDto) modifiedProductDto[0]);
+      var productNewName = product.Name + "!!!";
+      product.Name = productNewName;
+      var newProductDto = new PersonWithVersionDto {Key = Guid.NewGuid().ToString(), Name = "New Employee"};
+      modifiedProductDto[1] = newProductDto;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var comparisonResult = mapper.Compare(productDto, modifiedProductDto);
+        Assert.IsFalse(comparisonResult.Operations.IsEmpty);
+        var binaryFormatter = new BinaryFormatter();
+        comparisonResult.VersionInfoProvider
+          .Invoke(Key.Parse(((PersonWithVersionDto) modifiedProductDto[0]).Key));
+        TestSerialization(comparisonResult, binaryFormatter.Serialize, binaryFormatter.Deserialize);
+        var dataContractSerializer = new DataContractSerializer(typeof (GraphComparisonResult),
+          new[] {typeof (PersonWithVersionDto), typeof (OperationSet),
+            typeof (EntityOperation), typeof (EntityFieldSetOperation),
+            typeof (Operations.OperationType), typeof (Xtensive.Storage.Model.FieldInfoRef)});
+        TestSerialization(comparisonResult, dataContractSerializer.WriteObject,
+          dataContractSerializer.ReadObject);
+      }
+    }
+
+    private static void TestSerialization(GraphComparisonResult expectedResult,
+      Action<Stream, GraphComparisonResult> serializer, Func<Stream, object> deserializer)
+    {
+      var binaryFormatter = new BinaryFormatter();
+      GraphComparisonResult actualResult;
+      using (var stream = new MemoryStream()) {
+        serializer.Invoke(stream, expectedResult);
+        stream.Seek(0, SeekOrigin.Begin);
+        actualResult = (GraphComparisonResult) deserializer.Invoke(stream);
+      }
+      var originalField = typeof (GraphComparisonResult).GetField("original",
+        BindingFlags.NonPublic | BindingFlags.Instance);
+      var modifiedField = typeof (GraphComparisonResult).GetField("modified",
+        BindingFlags.NonPublic | BindingFlags.Instance);
+      var expectedOriginal = (Dictionary<object, object>) originalField.GetValue(expectedResult);
+      var actualOriginal = (Dictionary<object, object>) originalField.GetValue(actualResult);
+      Assert.IsTrue(expectedOriginal.Select(p => p.Key).SequenceEqual(actualOriginal.Select(p => p.Key)));
+      var expectedModified = (Dictionary<object, object>) modifiedField.GetValue(expectedResult);
+      var actualModified = (Dictionary<object, object>) modifiedField.GetValue(actualResult);
+      Assert.IsTrue(expectedModified.Select(p => p.Key).SequenceEqual(actualModified.Select(p => p.Key)));
+      var expectedOperations = (OperationSet) actualResult.Operations;
+      var actualOperations = (OperationSet) actualResult.Operations;
+      Assert.IsTrue(expectedResult.KeyMapping.SequenceEqual(actualResult.KeyMapping));
+      Assert.IsNotNull(actualResult.VersionInfoProvider);
     }
 
     private PersonalProductDto ServerCreateDtoGraphForSimpleEntitiesMappingTest(out Mapper mapper)
