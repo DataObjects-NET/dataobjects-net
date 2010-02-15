@@ -232,9 +232,9 @@ namespace Xtensive.Storage.Building
 
     static Validator()
     {
-      ColumnNamingRule = new Regex(@"^[A-z][A-z0-9\-\._]*$", RegexOptions.Compiled);
-      TypeNamingRule = new Regex(@"^[A-z][A-z0-9\-\.\(\)_,]*$", RegexOptions.Compiled);
-      FieldNamingRule = new Regex(@"^[A-z][A-z0-9\-_]*$", RegexOptions.Compiled);
+      ColumnNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+      TypeNamingRule = new Regex(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+      FieldNamingRule = new Regex(@"^[\w][\w\-]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
       ValidFieldTypes.Add(typeof (string));
       ValidFieldTypes.Add(typeof (byte[]));
