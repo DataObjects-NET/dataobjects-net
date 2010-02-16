@@ -2,6 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System;
 using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -60,7 +61,7 @@ namespace Xtensive.Sql.Model
     /// </summary>
     /// <param name="statement">The statement to execute.</param>
     /// <returns>Executed reader.</returns>
-    protected DbDataReader ExecuteReader(ISqlCompileUnit statement)
+    protected virtual DbDataReader ExecuteReader(ISqlCompileUnit statement)
     {
       using (var command = Connection.CreateCommand(statement))
         return command.ExecuteReader();
@@ -71,7 +72,7 @@ namespace Xtensive.Sql.Model
     /// </summary>
     /// <param name="commandText">The command text to execute.</param>
     /// <returns>Executed reader.</returns>
-    protected DbDataReader ExecuteReader(string commandText)
+    protected virtual DbDataReader ExecuteReader(string commandText)
     {
       using (var command = Connection.CreateCommand(commandText))
         return command.ExecuteReader();

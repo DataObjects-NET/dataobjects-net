@@ -4,13 +4,15 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using System;
-using Xtensive.Sql.Model;
-
 namespace Xtensive.Sql.Oracle.v10
 {
   internal class Extractor : v09.Extractor
   {
+    protected override string ApplyTableFilter(string query)
+    {
+      return query.Replace(TableFilterPlaceholder, "NOT LIKE 'BIN$%'");
+    }
+
     // Constructors
 
     public Extractor(SqlDriver driver)

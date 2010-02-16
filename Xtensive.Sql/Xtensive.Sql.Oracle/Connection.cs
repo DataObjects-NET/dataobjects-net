@@ -7,7 +7,6 @@
 using Oracle.DataAccess.Client;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Core;
 
 namespace Xtensive.Sql.Oracle
 {
