@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
@@ -227,23 +228,16 @@ namespace Xtensive.Storage
     /// <seealso cref="IsRemoved"/>
     public void Remove()
     {
-      try {
-        using (var region = Validation.Disable())
-        using (var context = OpenOperationContext(true)) {
-          if (context.IsEnabled())
-            context.Add(new EntityOperation(Key, OperationType.RemoveEntity));
-          SystemBeforeRemove();
-          Session.RemovalProcessor.Remove(this);
-          SystemRemove();
-          region.Complete();
-          context.Complete();
-          SystemRemoveCompleted(null);
-        }
-      }
-      catch (Exception e) {
-        SystemRemoveCompleted(e);
-        throw;
-      }
+      Session.RemovalProcessor.Remove(EnumerableUtils.One(this));
+    }
+
+    /// <summary>
+    /// Register the entity in removing queue. Removal operation will be postponed 
+    /// until <see cref="Session.Persist"/> method is called; some query is executed or current transaction is being commited.
+    /// </summary>
+    public void RemoveLater()
+    {
+      Session.RemovalProcessor.RegisterForRemoval(EnumerableUtils.One(this));
     }
 
     /// <inheritdoc/>
@@ -356,9 +350,8 @@ namespace Xtensive.Storage
 
     #region System-level event-like members & GetSubscription members
 
-    private void SystemBeforeRemove()
+    internal void SystemBeforeRemove()
     {
-      EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
 
@@ -373,7 +366,7 @@ namespace Xtensive.Storage
       OnRemoving();
     }
 
-    private void SystemRemove()
+    internal void SystemRemove()
     {
       if (Session.IsSystemLogicOnly)
         return;
@@ -385,7 +378,7 @@ namespace Xtensive.Storage
       OnRemove();
     }
 
-    private void SystemRemoveCompleted(Exception exception)
+    internal void SystemRemoveCompleted(Exception exception)
     {
       if (Session.IsSystemLogicOnly)
         return;

@@ -13,7 +13,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
   {
     public override void Process(RemovalContext context, AssociationInfo association, Entity removingObject, Entity target, Entity referencingObject, Entity referencedObject)
     {
-      if (context.Items.Contains(target))
+      if (context.Contains(target))
         return;
 
       switch (association.Multiplicity) {
@@ -23,7 +23,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
         AssociationActionProvider.RemoveReferenceAction(association, referencingObject, referencedObject);
         break;
       }
-      target.Remove();
+      target.RemoveLater();
     }
   }
 }

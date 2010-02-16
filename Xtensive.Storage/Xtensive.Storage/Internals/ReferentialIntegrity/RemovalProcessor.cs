@@ -8,12 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
-using Xtensive.Core.Disposing;
+using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
@@ -33,65 +32,60 @@ namespace Xtensive.Storage.ReferentialIntegrity
       public bool IsOutgoing;
     }
 
-    internal readonly RemovalContext Context;
+    internal RemovalContext Context;
 
-    public void Remove(Entity item)
+    public void RegisterForRemoval(IEnumerable<Entity> entities)
     {
-      if (Context.IsEmpty) {
-        try {
-          Session.EnforceChangeRegistrySizeLimit();
-          ProcessItems(new List<Entity>(){item});
-          ProcessQueue();
-          MarkItemsAsRemoved();
-        }
-        finally {
-          Context.Clear();
-          Session.EnforceChangeRegistrySizeLimit();
-        }
-      }
-      else {
-        if (!Context.Items.Contains(item))
-          Context.Queue.Enqueue(item);
-      }
+      if (Context != null)
+        Context.Enqueue(entities);
+      else
+        Remove(entities);
     }
 
-    private void MarkItemsAsRemoved()
+    public void Remove(IEnumerable<Entity> entities)
     {
-      foreach (var item in Context.Items)
-        item.State.PersistenceState = PersistenceState.Removed;
-    }
-
-    private void ProcessQueue()
-    {
-      var queue = Context.Queue;
-      if (queue.Count == 0)
-        return;
-      TypeInfo prevItemType = null;
-      var itemList = new List<Entity>();
-      while(queue.Count != 0) {
-        var item = queue.Dequeue();
-        if (!Context.Items.Contains(item)) {
-          if (itemList.Count!=0 && item.Type!=(prevItemType ?? item.Type)) {
-            ProcessItems(itemList);
-            itemList.Clear();
+      var processedEntities = new List<Entity>();
+      try {
+        using (var region = Validation.Disable())
+        using (var operationContext = OpenOperationContext(true)) 
+        using (Context = new RemovalContext(this)) {
+          Session.EnforceChangeRegistrySizeLimit();
+          var operationContextIsEnabled = operationContext.IsEnabled();
+          foreach (var entity in entities) {
+            entity.EnsureNotRemoved();
+            if (operationContextIsEnabled)
+              operationContext.Add(new EntityOperation(entity.Key, OperationType.RemoveEntity));
           }
-          itemList.Add(item);
-          prevItemType = item.Type;
+          Context.Enqueue(entities);
+          while (!Context.QueueIsEmpty) {
+            var entitiesForProcessing = Context.GatherEntitiesForProcessing();
+            foreach (var entity in entitiesForProcessing)
+              entity.SystemBeforeRemove();
+            ProcessItems(entitiesForProcessing);
+          }
+          processedEntities = Context.GetProcessedEntities().ToList();
+          foreach (var entity in processedEntities) {
+            entity.SystemRemove();
+            entity.State.PersistenceState = PersistenceState.Removed;
+          }
+          Session.EnforceChangeRegistrySizeLimit();
+          region.Complete();
+          operationContext.Complete();
+          foreach (var entity in processedEntities)
+            entity.SystemRemoveCompleted(null);
         }
-        if (queue.Count != 0 || itemList.Count == 0)
-          continue;
-        ProcessItems(itemList);
-        itemList.Clear();
+      }
+      catch (Exception e) {
+        foreach (var entity in processedEntities)
+          entity.SystemRemoveCompleted(e);
+        throw;
       }
     }
 
-    private void ProcessItems(List<Entity> entities)
+    private void ProcessItems(IList<Entity> entities)
     {
       if (entities.Count == 0)
         return;
-
-      foreach (var entity in entities)
-        Context.Items.Add(entity);
 
       var entityType = entities[0].Type;
       var sequence = entityType.GetRemovalAssociationSequence();
@@ -144,7 +138,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       }
     }
 
-    private void ExecutePrefetchAction(List<Entity> itemList)
+    private void ExecutePrefetchAction(IList<Entity> itemList)
     {
       if ((Session.Handler is DisconnectedSessionHandler))
         return;
@@ -171,8 +165,6 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     public RemovalProcessor(Session session)
       : base(session)
-    {
-      Context = new RemovalContext();
-    }
+    {}
   }
 }

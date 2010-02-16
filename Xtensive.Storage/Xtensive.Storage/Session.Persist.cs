@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Services;
+using System.Linq;
 
 namespace Xtensive.Storage
 {
@@ -47,8 +48,7 @@ namespace Xtensive.Storage
     public void Remove<T>(IEnumerable<T> entities)
       where T : IEntity
     {
-      foreach (var entity in entities)
-        entity.Remove();
+      RemovalProcessor.Remove(entities.Cast<Entity>());
     }
 
     private void Persist(PersistReason reason)

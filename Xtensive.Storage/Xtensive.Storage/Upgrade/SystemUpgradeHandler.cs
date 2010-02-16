@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Upgrade
     private void UpdateTypes()
     {
       var domainModel = Domain.Demand().Model;
-      Query.All<M.Type>().Apply(type => type.Remove());
+      Query.All<M.Type>().Remove();
       Session.Demand().Persist();
       domainModel.Types
         .Where(type => type.TypeId!=TypeInfo.NoTypeId)

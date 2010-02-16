@@ -47,10 +47,15 @@ namespace Xtensive.Storage
     /// <seealso cref="Remove"/>
     bool IsRemoved { get; }
 
-      /// <summary>
+    /// <summary>
     /// Removes the instance.
     /// </summary>
     void Remove();
+
+    /// <summary>
+    /// Registers the instance in the removal queue.
+    /// </summary>
+    void RemoveLater();
 
     /// <summary>
     /// Locks this instance in the storage.

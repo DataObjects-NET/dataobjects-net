@@ -61,7 +61,9 @@ namespace Xtensive.Storage.PairIntegrity
               context.RegisterAction(new SyncAction(slaveActions.Break, association.Reversed, slave1, master1));
             break;
         case OperationType.Remove:
-            if ((!(association.IsLoop && master1==slave2)) && !Session.RemovalProcessor.Context.Items.Contains(slave2))
+            var removalContext = Session.RemovalProcessor.Context;
+            var isNotYetRemoved = removalContext == null || !removalContext.Contains(slave2);
+            if ((!(association.IsLoop && master1==slave2)) && isNotYetRemoved)
               context.RegisterAction(new SyncAction(slaveActions.Break, association.Reversed, slave2, master1));
             break;
         default:
