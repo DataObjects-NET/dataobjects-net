@@ -181,7 +181,7 @@ namespace Xtensive.Storage.Disconnected
         BeginChainedTransaction();
         var type = key.TypeRef.Type;
         Prefetch(key, type, PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(type));
-        ExecutePrefetchTasks(PersistReason.None);
+        ExecutePrefetchTasks(true);
         EntityState result;
         return TryGetEntityState(key, out result) ? result : null;
       }

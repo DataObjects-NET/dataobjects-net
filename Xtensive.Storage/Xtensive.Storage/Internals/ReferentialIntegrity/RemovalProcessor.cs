@@ -128,8 +128,8 @@ namespace Xtensive.Storage.ReferentialIntegrity
         }
       }
 
-      if (Session.Handler.ExecutePrefetchTasks(PersistReason.Query) == null);
-        Session.ExecuteAllDelayedQueries(PersistReason.Query);
+      if (Session.Handler.ExecutePrefetchTasks()==null);
+        Session.ExecuteDelayedQueries();
 
       foreach (var container in referenceContainers) {
         var processor = container.Processor;

@@ -53,8 +53,6 @@ namespace Xtensive.Storage
 
     private void Persist(PersistReason reason)
     {
-      if (reason == PersistReason.None)
-        return;
       EnsureNotDisposed();
 
       if (IsPersisting || EntityChangeRegistry.Count==0)

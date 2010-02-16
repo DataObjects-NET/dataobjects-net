@@ -98,9 +98,9 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override StrongReferenceContainer ExecutePrefetchTasks(PersistReason persistReason)
+    public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
-      return chainedHandler.ExecutePrefetchTasks(persistReason);
+      return chainedHandler.ExecutePrefetchTasks(skipPersist);
     }
 
     /// <inheritdoc/>

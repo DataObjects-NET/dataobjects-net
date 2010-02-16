@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       try {
         StrongReferenceContainer prevContainer = null;
         if (graphContainers.Count >= MaxContainerCount)
-          prevContainer = ExecuteTasks(PersistReason.Query);
+          prevContainer = ExecuteTasks();
 
         EnsureKeyTypeCorrespondsToSpecifiedType(key, type);
 
@@ -146,14 +146,19 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
     }
 
-    public StrongReferenceContainer ExecuteTasks(PersistReason persistReason)
+    public StrongReferenceContainer ExecuteTasks()
+    {
+      return ExecuteTasks(false);
+    }
+
+    public StrongReferenceContainer ExecuteTasks(bool skipPersist)
     {
       if (graphContainers.Count == 0) {
         referenceContainer = null;
         return null;
       }
       try {
-        fetcher.ExecuteTasks(graphContainers, persistReason);
+        fetcher.ExecuteTasks(graphContainers, skipPersist);
         foreach (var graphContainer in graphContainers)
           graphContainer.NotifyAboutExtractionOfKeysWithUnknownType();
         return referenceContainer;

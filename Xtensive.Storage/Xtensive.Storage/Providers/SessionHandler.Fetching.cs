@@ -33,12 +33,22 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Executes registered prefetch tasks.
     /// </summary>
-    /// <param name="persistReason">Persist reason.</param>
+    /// <param name="skipPersist">if set to <see langword="true"/> persist is not performed.</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save 
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
-    public virtual StrongReferenceContainer ExecutePrefetchTasks(PersistReason persistReason)
+    public virtual StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
-      return prefetchManager.ExecuteTasks(persistReason);
+      return prefetchManager.ExecuteTasks(skipPersist);
+    }
+
+    /// <summary>
+    /// Executes registered prefetch tasks.
+    /// </summary>
+    /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save 
+    /// a strong reference to a fetched <see cref="Entity"/>.</returns>
+    public StrongReferenceContainer ExecutePrefetchTasks()
+    {
+      return ExecutePrefetchTasks(false);
     }
 
     /// <summary>
@@ -51,7 +61,7 @@ namespace Xtensive.Storage.Providers
       var type = key.TypeRef.Type;
       prefetchManager.Prefetch(key, type,
         PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type));
-      prefetchManager.ExecuteTasks(PersistReason.None);
+      prefetchManager.ExecuteTasks(true);
       EntityState result;
       return TryGetEntityState(key, out result) ? result : null;
     }
@@ -66,7 +76,7 @@ namespace Xtensive.Storage.Providers
       var type = key.TypeRef.Type;
       prefetchManager.Prefetch(key, type,
         new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, false, false)));
-      prefetchManager.ExecuteTasks(PersistReason.None);
+      prefetchManager.ExecuteTasks(true);
     }
 
     /// <summary>
@@ -79,7 +89,7 @@ namespace Xtensive.Storage.Providers
       var ownerType = ownerKey.TypeRef.Type;
       Session.Handler.Prefetch(ownerKey, ownerType,
         new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, itemCountLimit)));
-      Session.Handler.ExecutePrefetchTasks(PersistReason.Query);
+      Session.Handler.ExecutePrefetchTasks();
     }
   }
 }

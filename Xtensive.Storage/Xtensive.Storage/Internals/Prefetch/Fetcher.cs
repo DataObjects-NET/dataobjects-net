@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private readonly PrefetchManager manager;
 
-    public void ExecuteTasks(IEnumerable<GraphContainer> containers, PersistReason persistReason)
+    public void ExecuteTasks(IEnumerable<GraphContainer> containers, bool skipPersist)
     {
       try {
         var rootEntityContainers = containers
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Internals.Prefetch
         RegisterAllEntityGroupTasks();
         RegisterAllEntitySetTasks(containers);
 
-        manager.Owner.Session.ExecuteAllDelayedQueries(persistReason);
+        manager.Owner.Session.ExecuteDelayedQueries(skipPersist);
         UpdateCacheFromAllEntityGroupTasks();
         UpdateCacheFromAllEntitySetTasks(containers);
 
@@ -44,11 +44,11 @@ namespace Xtensive.Storage.Internals.Prefetch
         foreach (var container in referencedEntityContainers)
           AddTask(container);
 
-        if (tasks.Count == 0)
+        if (tasks.Count==0)
           return;
         RegisterAllEntityGroupTasks();
 
-        manager.Owner.Session.ExecuteAllDelayedQueries(persistReason);
+        manager.Owner.Session.ExecuteDelayedQueries(skipPersist);
         UpdateCacheFromAllEntityGroupTasks();
       }
       finally {

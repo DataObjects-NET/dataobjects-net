@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       }
       while (processedElements.Count > 0)
         yield return processedElements.Dequeue();
-      strongReferenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks(PersistReason.Query));
+      strongReferenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks());
       ProcessFetchedElements(true);
       while (processedElements.Count > 0)
         yield return processedElements.Dequeue();
@@ -190,7 +190,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private void ExecutePrefetchTasks()
     {
-      strongReferenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks(PersistReason.Query));
+      strongReferenceContainer.JoinIfPossible(sessionHandler.ExecutePrefetchTasks());
       blockingDelayedElement = null;
     }
 

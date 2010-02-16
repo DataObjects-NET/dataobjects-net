@@ -189,7 +189,7 @@ namespace Xtensive.Storage
     internal EnumerationContext CreateEnumerationContext()
     {
       Persist(PersistReason.Query);
-      ExecuteAllDelayedQueries(true);
+      ProcessDelayedQueries(true);
       EnsureTransactionIsStarted();
       return Handler.CreateEnumerationContext();
     }

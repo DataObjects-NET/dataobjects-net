@@ -22,13 +22,19 @@ namespace Xtensive.Storage
       queryTasks.Add(task);
     }
 
-    internal void ExecuteAllDelayedQueries(PersistReason persistReason)
+    internal void ExecuteDelayedQueries()
     {
-      Persist(persistReason);
-      ExecuteAllDelayedQueries(false);
+      ExecuteDelayedQueries(false);
     }
 
-    private void ExecuteAllDelayedQueries(bool allowPartialExecution)
+    internal void ExecuteDelayedQueries(bool skipPersist)
+    {
+      if (!skipPersist)
+        Persist(PersistReason.Query);
+      ProcessDelayedQueries(false);
+    }
+
+    private void ProcessDelayedQueries(bool allowPartialExecution)
     {
       if (IsDelayedQueryRunning || queryTasks.Count==0)
         return;
