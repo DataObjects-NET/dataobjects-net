@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.ReferentialIntegrityModel;
@@ -259,7 +260,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       const int containersCount = 100;
       const int itemCount = 100;
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < containersCount; i++) {
             var c = new Container {Package1 = new Package(), Package2 = new Package()};
@@ -272,9 +273,13 @@ namespace Xtensive.Storage.Tests.Storage
         }
 
         using (var t = Transaction.Open()) {
-          var containers = Query.All<Container>();
-          foreach (var container in containers)
-            container.Remove();
+          const int operationCount = containersCount*3 + containersCount*itemCount*2;
+          using (new Measurement("Remove...", operationCount)) {
+            var containers = Query.All<Container>();
+            foreach (var container in containers)
+              container.Remove();
+            session.Persist();
+          }
 
           Assert.AreEqual(0, Query.All<Container>().Count());
           Assert.AreEqual(0, Query.All<Package>().Count());
@@ -290,7 +295,7 @@ namespace Xtensive.Storage.Tests.Storage
     {
       const int containersCount = 100;
       const int itemCount = 100;
-      using (Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           for (int i = 0; i < containersCount; i++) {
             var c = new Container {Package1 = new Package(), Package2 = new Package()};
@@ -303,7 +308,11 @@ namespace Xtensive.Storage.Tests.Storage
         }
 
         using (var t = Transaction.Open()) {
-          Query.All<Container>().Remove();
+          const int operationCount = containersCount*3 + containersCount*itemCount*2;
+          using (new Measurement("Remove...", operationCount)) {
+            Query.All<Container>().Remove();
+            session.Persist();
+          }
 
           Assert.AreEqual(0, Query.All<Container>().Count());
           Assert.AreEqual(0, Query.All<Package>().Count());
