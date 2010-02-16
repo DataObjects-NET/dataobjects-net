@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-using System.Collections.Generic;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Operations
@@ -14,18 +13,6 @@ namespace Xtensive.Storage.Operations
   /// </summary>
   public interface IOperationSet : ICountable<IOperation>
   {
-    /// <summary>
-    /// Gets the keys to remap.
-    /// </summary>
-    /// <returns>A set of keys to remap.</returns>
-    ReadOnlyHashSet<Key> NewKeys { get; }
-
-    /// <summary>
-    /// Registers the key to remap.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    void RegisterNewKey(Key key);
-
     /// <summary>
     /// Registers the specified operation.
     /// </summary>

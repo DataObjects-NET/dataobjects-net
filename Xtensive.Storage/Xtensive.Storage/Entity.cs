@@ -397,8 +397,12 @@ namespace Xtensive.Storage
 
       Session.NotifyEntityCreated(this);
       using (var context = OpenOperationContext(true)) {
-        if (context.IsEnabled())
+        if (context.IsEnabled()) {
+          KeyGenerator keyGenerator;
+          if (!Session.Domain.KeyGenerators.TryGetValue(Type.Hierarchy.KeyProviderInfo, out keyGenerator))
+            context.Add(new GenerateKeyOperation(Key));
           context.Add(new EntityOperation(Key, OperationType.CreateEntity));
+        }
         context.Complete();
       }
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializingPersistentEventKey);

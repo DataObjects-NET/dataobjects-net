@@ -7,9 +7,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
 using IObjectMappingOperationSet=Xtensive.Core.ObjectMapping.IOperationSet;
 
 namespace Xtensive.Storage.Operations
@@ -22,11 +19,6 @@ namespace Xtensive.Storage.Operations
     IObjectMappingOperationSet
   {
     private readonly List<IOperation> log = new List<IOperation>();
-    private readonly List<SerializableKey> serializableKeys = new List<SerializableKey>();
-    [NonSerialized]
-    private HashSet<Key> keys;
-    [NonSerialized]
-    private ReadOnlyHashSet<Key> readOnlyKeys;
 
     /// <inheritdoc/>
     public long Count {
@@ -39,18 +31,6 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public ReadOnlyHashSet<Key> NewKeys {
-      get { return readOnlyKeys; }
-    }
-
-    /// <inheritdoc/>
-    public void RegisterNewKey(Key key)
-    {
-      if (keys.Add(key))
-        serializableKeys.Add(key);
-    }
-
-    /// <inheritdoc/>
     public void Append(IOperation operation)
     {
       log.Add(operation);
@@ -60,8 +40,6 @@ namespace Xtensive.Storage.Operations
     public void Append(IOperationSet source)
     {
       log.AddRange(source);
-      foreach (var key in source.NewKeys)
-        RegisterNewKey(key);
     }
 
     /// <inheritdoc/>
@@ -79,7 +57,7 @@ namespace Xtensive.Storage.Operations
     /// <inheritdoc/>
     public KeyMapping Apply(Session session)
     {
-      var operationContext = new OperationExecutionContext(session, this);
+      var operationContext = new OperationExecutionContext(session);
 
       using (session.Activate())
       using (var ts = Transaction.Open(TransactionOpenMode.New)) { 
@@ -103,8 +81,6 @@ namespace Xtensive.Storage.Operations
     public void Clear()
     {
       log.Clear();
-      serializableKeys.Clear();
-      keys.Clear();
     }
 
     #region IEnumerable<...> implementation
@@ -122,30 +98,5 @@ namespace Xtensive.Storage.Operations
     }
 
     #endregion
-
-
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public OperationSet()
-    {
-      keys = new HashSet<Key>();
-      readOnlyKeys = new ReadOnlyHashSet<Key>(keys);
-    }
-
-    /// <summary>
-    /// Called when operation set is deserialized.
-    /// </summary>
-    /// <param name="context">The serialization context.</param>
-    [OnDeserialized]
-    protected void OnDeserialized(StreamingContext context)
-    {
-      keys = new HashSet<Key>();
-      readOnlyKeys = new ReadOnlyHashSet<Key>(keys);
-      foreach (var serializedKey in serializableKeys)
-        keys.Add(serializedKey.Key);
-    }
   }
 }

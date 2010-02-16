@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -35,6 +36,11 @@ namespace Xtensive.Storage.Model
     public KeyProviderInfo KeyProviderInfo { get; private set; }
 
     /// <summary>
+    /// Gets the key fields.
+    /// </summary>
+    public ReadOnlyList<FieldInfo> KeyFields { get; private set; }
+
+    /// <summary>
     /// Gets the type discriminator.
     /// </summary>
     public TypeDiscriminatorMap TypeDiscriminatorMap { get; private set; }
@@ -51,6 +57,9 @@ namespace Xtensive.Storage.Model
         Schema = InheritanceSchema.ConcreteTable;
       if (TypeDiscriminatorMap != null)
         TypeDiscriminatorMap.UpdateState();
+      var keyFields = Root.Fields.Where(f => f.IsPrimaryKey && f.Parent==null)
+        .OrderBy(f => f.MappingInfo.Offset).ToList();
+      KeyFields = new ReadOnlyList<FieldInfo>(keyFields, false);
     }
 
     /// <inheritdoc/>

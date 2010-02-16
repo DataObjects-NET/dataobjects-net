@@ -1835,10 +1835,10 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain))
       using (var transactionScope = Transaction.Open()) {
-        var composite = Query.Single<CompositeKeyExample>(localCompositeKey);
-        Assert.AreEqual(composite.First, keyMapping.Map[localFirstKey]);
+        var composite = Query.Single<CompositeKeyExample>(keyMapping.Map[localCompositeKey]);
+        Assert.AreEqual(composite.First.Key, keyMapping.Map[localFirstKey]);
         Assert.AreEqual(3, composite.Second);
-        Assert.AreEqual(composite.Third, keyMapping.Map[localSecondKey]);
+        Assert.AreEqual(composite.Third.Key, keyMapping.Map[localSecondKey]);
         transactionScope.Complete();
       }
     }

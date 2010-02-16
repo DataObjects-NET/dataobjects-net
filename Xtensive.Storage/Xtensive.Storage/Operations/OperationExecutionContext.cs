@@ -4,24 +4,34 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage.Operations
 {
   /// <summary>
-  /// Operation context for <see cref="IOperation.Execute"/> and <see cref="IOperation.Prepare"/> methods executed for a set of operations.
+  /// Operation context for <see cref="IOperation.Execute"/> and
+  /// <see cref="IOperation.Prepare"/> methods executed for a set of operations.
   /// </summary>
   public sealed class OperationExecutionContext
   {
     private readonly HashSet<Key> prefetchKeys;
     private readonly HashSet<Key> excludedKeys;
+
+    /// <summary>
+    /// The session this instance is bound to.
+    /// </summary>
     public readonly Session Session;
+
+    /// <summary>
+    /// The mapping for new keys.
+    /// </summary>
     public readonly Dictionary<Key, Key> KeyMapping;
-    public readonly ReadOnlyHashSet<Key> KeysToRemap;
+
+    /// <summary>
+    /// Gets the sequence of keys to prefetch.
+    /// </summary>
+    public IEnumerable<Key> KeysToPrefetch { get { return prefetchKeys; } }
 
     /// <summary>
     /// Remaps the key.
@@ -30,26 +40,10 @@ namespace Xtensive.Storage.Operations
     /// <returns>Remapped key</returns>
     public Key TryRemapKey(Key key)
     {
-      if (key==null || !KeysToRemap.Contains(key))
+      if (key==null)
         return key;
       Key remappedKey;
-      if (KeyMapping.TryGetValue(key, out remappedKey))
-        return remappedKey;
-      else {
-        var domain = Session.Domain;
-        var typeInfo = key.TypeRef.Type;
-
-        KeyGenerator generator;
-        domain.KeyGenerators.TryGetValue(typeInfo.KeyProviderInfo, out generator);
-
-        if (generator!=null && generator.IsTemporaryKey(key.Value))
-          // Only temporary keys are remapped
-          remappedKey = KeyFactory.Generate(domain, key.Type);
-        else
-          remappedKey = key;
-        KeyMapping.Add(key, remappedKey);
-        return remappedKey;
-      }
+      return KeyMapping.TryGetValue(key, out remappedKey) ? remappedKey : key;
     }
 
     /// <summary>
@@ -68,23 +62,15 @@ namespace Xtensive.Storage.Operations
           prefetchKeys.Add(key);
     }
 
-    /// <summary>
-    /// Gets the sequence of keys to prefetch.
-    /// </summary>
-    public IEnumerable<Key> KeysToPrefetch {
-      get { return prefetchKeys; }
-    }
-
 
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public OperationExecutionContext(Session session, IOperationSet operationSet)
+    public OperationExecutionContext(Session session)
     {
       Session = session;
-      KeysToRemap = operationSet.NewKeys;
       KeyMapping = new Dictionary<Key, Key>();
       prefetchKeys = new HashSet<Key>();
       excludedKeys = new HashSet<Key>();

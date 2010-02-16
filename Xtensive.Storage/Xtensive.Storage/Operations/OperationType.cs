@@ -45,6 +45,10 @@ namespace Xtensive.Storage.Operations
     /// <summary>
     /// Calling a method.
     /// </summary>
-    MethodCall
+    MethodCall,
+    /// <summary>
+    /// Key generation.
+    /// </summary>
+    GenerateKey
   }
 }
