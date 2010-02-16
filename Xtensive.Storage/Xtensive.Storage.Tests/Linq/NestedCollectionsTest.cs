@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectOtherParameterTest()
     {
-      var result = Query.All<Customer>().Select(c => Query.All<Order>().Select(o => c.Orders.Count()));
+      var result = Query.All<Customer>().Take(5).Select(c => Query.All<Order>().Select(o => c.Orders.Count()));
       result.ToList();
     }
 
