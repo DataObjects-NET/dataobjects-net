@@ -637,7 +637,7 @@ namespace Xtensive.Storage.Providers.Sql
       foreach (var column in fullTextIndexInfo.Columns) {
         var tableColumn = FindColumn(table, column.Value.Name);
         var ftColumn = ftIndex.CreateIndexColumn(tableColumn);
-        ftColumn.Languages.Add(new Language(column.Language));
+        ftColumn.Languages.Add(new Language(column.Configuration));
       }
       var transactionalStage = providerInfo.Supports(ProviderFeatures.FullTextDdlIsNotTransactional)
         ? NonTransactionalStage.Epilog

@@ -116,8 +116,7 @@ namespace Xtensive.Storage.Building.Builders
           continue;
 
         var fullTextField = new FullTextFieldDef(fieldDef.Name, fullTextAttribute.Analyze) {
-          Language = fullTextAttribute.Language, 
-          TypeFieldName = fullTextAttribute.TypeColumnName
+          Configuration = fullTextAttribute.Configuration, 
         };
         fullTextIndexDef.Fields.Add(fullTextField);
       }

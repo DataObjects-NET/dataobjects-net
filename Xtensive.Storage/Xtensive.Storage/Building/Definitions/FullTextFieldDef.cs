@@ -16,10 +16,10 @@ namespace Xtensive.Storage.Building.Definitions
   public class FullTextFieldDef : Node
   {
     /// <summary>
-    /// Gets or sets the language for word-breaker and stemmer.
+    /// Gets or sets the configuration for word-breaker and stemmer.
     /// </summary>
-    /// <value>The language.</value>
-    public string Language { get; set; }
+    /// <value>The configuration name.</value>
+    public string Configuration { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the type field.

@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Indexing.Model
   public sealed class FullTextColumnRef : ColumnInfoRef<FullTextIndexInfo>
   {
     [Property(Priority = -1100, CaseInsensitiveComparison = true)]
-    public string Language { get; set; }
+    public string Configuration { get; set; }
 
     [Property(Priority = -1200)]
     public ValueColumnRef TypeColumn { get; set; }
@@ -42,17 +42,17 @@ namespace Xtensive.Storage.Indexing.Model
     {}
 
     /// <inheritdoc/>
-    public FullTextColumnRef(FullTextIndexInfo parent, ColumnInfo column, string language)
+    public FullTextColumnRef(FullTextIndexInfo parent, ColumnInfo column, string configuration)
       : base(parent, column)
     {
-      Language = language;
+      Configuration = configuration;
     }
 
     /// <inheritdoc/>
-    public FullTextColumnRef(FullTextIndexInfo parent, ColumnInfo column, string language, ValueColumnRef typeColumn)
+    public FullTextColumnRef(FullTextIndexInfo parent, ColumnInfo column, string configuration, ValueColumnRef typeColumn)
       : base(parent, column)
     {
-      Language = language;
+      Configuration = configuration;
       TypeColumn = typeColumn;
     }
   }

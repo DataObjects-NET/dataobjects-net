@@ -25,24 +25,19 @@ namespace Xtensive.Storage
     public bool Analyze { get; set; }
 
     /// <summary>
-    /// Gets the language for word-breaker and stemmer. 
+    /// Gets the configuration name for word-breaker and stemmer. 
     /// </summary>
-    public string Language { get; private set;}
+    public string Configuration { get; private set;}
 
-    /// <summary>
-    /// Gets or sets the name of the type column.
-    /// </summary>
-    public string TypeColumnName { get; set; } 
-
-    
+  
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public FullTextAttribute(string language)
+    public FullTextAttribute(string configuration)
     {
-      Language = language;
+      Configuration = configuration;
       Analyze = true;
     }
   }

@@ -110,7 +110,7 @@ namespace Xtensive.Storage.Building.Builders
         : type.Fields[fullTextFieldDef.TypeFieldName].Column;
       return new FullTextColumnInfo(column) {
         IsAnalyzed = fullTextFieldDef.IsAnalyzed, 
-        Language = fullTextFieldDef.Language, 
+        Configuration = fullTextFieldDef.Configuration, 
         TypeColumn = typeColumn
       };
     }

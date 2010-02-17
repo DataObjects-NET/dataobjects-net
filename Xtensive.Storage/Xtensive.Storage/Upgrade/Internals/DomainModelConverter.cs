@@ -382,7 +382,7 @@ namespace Xtensive.Storage.Upgrade
         var typeColumn = fullTextColumn.TypeColumn == null
           ? null
           : primaryIndex.ValueColumns[fullTextColumn.TypeColumn.Name];
-        var ftColumn = new IndexingModel.FullTextColumnRef(ftIndex, column, fullTextColumn.Language, typeColumn);
+        var ftColumn = new IndexingModel.FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
       }
       return ftIndex;
     }

@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Model
   public class FullTextColumnInfo : Node
   {
     public ColumnInfo Column { get; private set; }
-    public string Language { get; set; }
+    public string Configuration { get; set; }
     public ColumnInfo TypeColumn { get; set; }
     public bool IsAnalyzed { get; set; }
 
