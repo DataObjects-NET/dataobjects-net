@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
+using Xtensive.Storage.Resources;
 using Xtensive.Storage.Tests.Storage.GeneralBehaviorTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.GeneralBehaviorTestModel
@@ -86,7 +87,8 @@ namespace Xtensive.Storage.Tests.Storage
       using (var tx = Transaction.Open()) {
         var customer = new Customer();
         customer.Remove();
-        var order = new Order {Customer = customer};
+        var order = new Order();
+        AssertEntityRemovalHasBeenDetected(() => order.Customer = customer);
         tx.Complete();
       }
     }
@@ -94,20 +96,12 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void UseRemovedEntityAsKeyForOtherEntityTest()
     {
-      Key orderKey;
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var customer = new Customer();
         customer.Remove();
-        var order = new CustomerOrder(1, customer);
-        orderKey = order.Key;
+        AssertEntityRemovalHasBeenDetected(() => new CustomerOrder(1, customer));
         tx.Complete();
-      }
-
-      using (var session = Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
-        var order = Query.Single<CustomerOrder>(orderKey);
-        Assert.IsNotNull(order.Customer);
       }
     }
 
@@ -119,7 +113,7 @@ namespace Xtensive.Storage.Tests.Storage
         var customer = new Customer();
         var order = new Order();
         order.Remove();
-        customer.Orders.Add(order);
+        AssertEntityRemovalHasBeenDetected(() => customer.Orders.Add(order));
         tx.Complete();
       }
     }
@@ -132,7 +126,7 @@ namespace Xtensive.Storage.Tests.Storage
         var customer = new Customer();
         var order = new Order();
         order.Remove();
-        customer.Orders.Remove(order);
+        AssertEntityRemovalHasBeenDetected(() => customer.Orders.Remove(order));
         tx.Complete();
       }
     }
@@ -145,8 +139,18 @@ namespace Xtensive.Storage.Tests.Storage
         var customer = new Customer();
         var order = new Order();
         order.Remove();
-        customer.Orders.Contains(order);
+        AssertEntityRemovalHasBeenDetected(() => customer.Orders.Contains(order));
         tx.Complete();
+      }
+    }
+
+    private static void AssertEntityRemovalHasBeenDetected(Action action)
+    {
+      try {
+        action.Invoke();
+      }
+      catch (InvalidOperationException e) {
+        Assert.AreEqual(Strings.ExEntityIsRemoved, e.Message);
       }
     }
   }

@@ -99,8 +99,10 @@ namespace Xtensive.Storage.Internals
         var value = values[valueIndex];
         ArgumentValidator.EnsureArgumentNotNull(value, String.Format("values[{0}]", valueIndex));
         var entity = value as Entity;
-        if (entity!=null)
+        if (entity!=null) {
+          entity.EnsureNotRemoved();
           value = entity.Key;
+        }
         var key = value as Key;
         if (key!=null) {
           if (key.TypeRef.Type.Hierarchy==type.Hierarchy)
