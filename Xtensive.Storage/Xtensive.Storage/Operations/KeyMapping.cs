@@ -5,10 +5,10 @@
 // Created:    2009.11.19
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Operations
@@ -19,7 +19,12 @@ namespace Xtensive.Storage.Operations
   [Serializable]
   public sealed class KeyMapping : ISerializable
   {
-    public Dictionary<Key, Key> Map { get; private set; }
+    private readonly IDictionary<Key, Key> map;
+
+    /// <summary>
+    /// Gets the key map.
+    /// </summary>
+    public ReadOnlyDictionary<Key, Key> Map { get; private set; }
 
     /// <summary>
     /// Tries to remaps the specified key;
@@ -33,8 +38,7 @@ namespace Xtensive.Storage.Operations
       Key remappedKey;
       if (key!=null && Map.TryGetValue(key, out remappedKey))
         return remappedKey;
-      else
-        return key;
+      return key;
     }
 
 
@@ -43,9 +47,10 @@ namespace Xtensive.Storage.Operations
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public KeyMapping(Dictionary<Key,Key> map)
+    public KeyMapping(ReadOnlyDictionary<Key,Key> map)
     {
-      Map = map;
+      this.map = map;
+      Map = new ReadOnlyDictionary<Key, Key>(map, false);
     }
 
     // Serialization
@@ -66,9 +71,10 @@ namespace Xtensive.Storage.Operations
     {
       var serializedMapping = (Dictionary<SerializableKey, SerializableKey>)
         info.GetValue("Map", typeof(Dictionary<SerializableKey, SerializableKey>));
-      Map = new Dictionary<Key, Key>();
+      map = new Dictionary<Key, Key>();
       foreach (var pair in serializedMapping)
-        Map.Add((Key) pair.Key, (Key) pair.Value);
+        map.Add((Key) pair.Key, (Key) pair.Value);
+      Map = new ReadOnlyDictionary<Key, Key>(map, false);
     }
   }
 }

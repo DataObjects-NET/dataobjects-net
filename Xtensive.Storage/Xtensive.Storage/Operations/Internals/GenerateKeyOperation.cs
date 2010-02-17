@@ -36,6 +36,14 @@ namespace Xtensive.Storage.Operations
     public override void Execute(OperationExecutionContext context)
     {}
 
+    private void GenerateNewKey(OperationExecutionContext context, Domain domain)
+    {
+      var result = keyGenerator.IsTemporaryKey(Key.Value)
+        ? KeyFactory.Generate(domain, Key.Type)
+        : Key;
+      context.AddKeyMapping(Key, result);
+    }
+
     private void MapCompositeKey(OperationExecutionContext context, Domain domain, HierarchyInfo hierarchy)
     {
       if (hierarchy.KeyFields.Count==1 && !hierarchy.KeyFields[0].IsEntity)
@@ -45,8 +53,6 @@ namespace Xtensive.Storage.Operations
       var resultTuple = Tuple.Create(sourceTuple.Descriptor);
       var hasTemporaryComponentBeenFound = false;
       foreach (var keyField in hierarchy.KeyFields) {
-        if (keyField.Parent!=null)
-          continue;
         if (keyField.IsPrimitive) {
           resultTuple.SetValue(columnIndex, sourceTuple.GetValue(columnIndex));
           columnIndex++;
@@ -63,21 +69,15 @@ namespace Xtensive.Storage.Operations
             mappedKey.Value.CopyTo(resultTuple, 0, columnIndex, componentKeyLength);
             hasTemporaryComponentBeenFound = true;
           }
+          else
+            componentKeyValue.CopyTo(resultTuple, 0, columnIndex, componentKeyLength);
           columnIndex += componentKeyLength;
         }
       }
       if (hasTemporaryComponentBeenFound) {
         var result = Key.Create(domain, Key.TypeRef.Type.UnderlyingType, resultTuple);
-        context.KeyMapping.Add(Key, result);
+        context.AddKeyMapping(Key, result);
       }
-    }
-
-    private void GenerateNewKey(OperationExecutionContext context, Domain domain)
-    {
-      var result = keyGenerator.IsTemporaryKey(Key.Value)
-        ? KeyFactory.Generate(domain, Key.Type)
-        : Key;
-      context.KeyMapping.Add(Key, result);
     }
 
 

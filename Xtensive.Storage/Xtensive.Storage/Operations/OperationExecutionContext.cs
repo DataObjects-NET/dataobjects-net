@@ -5,6 +5,7 @@
 // Created:    2009.10.21
 
 using System.Collections.Generic;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Operations
@@ -17,6 +18,7 @@ namespace Xtensive.Storage.Operations
   {
     private readonly HashSet<Key> prefetchKeys;
     private readonly HashSet<Key> excludedKeys;
+    private readonly Dictionary<Key, Key> keyMapping = new Dictionary<Key, Key>();
 
     /// <summary>
     /// The session this instance is bound to.
@@ -26,7 +28,7 @@ namespace Xtensive.Storage.Operations
     /// <summary>
     /// The mapping for new keys.
     /// </summary>
-    public readonly Dictionary<Key, Key> KeyMapping;
+    public readonly ReadOnlyDictionary<Key, Key> KeyMapping;
 
     /// <summary>
     /// Gets the sequence of keys to prefetch.
@@ -62,6 +64,11 @@ namespace Xtensive.Storage.Operations
           prefetchKeys.Add(key);
     }
 
+    internal void AddKeyMapping(Key localKey, Key realKey)
+    {
+      keyMapping.Add(localKey, realKey);
+    }
+
 
     // Constructors
 
@@ -71,7 +78,7 @@ namespace Xtensive.Storage.Operations
     public OperationExecutionContext(Session session)
     {
       Session = session;
-      KeyMapping = new Dictionary<Key, Key>();
+      KeyMapping = new ReadOnlyDictionary<Key, Key>(keyMapping, false);
       prefetchKeys = new HashSet<Key>();
       excludedKeys = new HashSet<Key>();
     }

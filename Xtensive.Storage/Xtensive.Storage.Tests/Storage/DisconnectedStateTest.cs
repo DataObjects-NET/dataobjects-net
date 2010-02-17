@@ -302,6 +302,71 @@ namespace Xtensive.Storage.DisconnectedTests.Model
 
     [Field]
     public string Aux { get; private set; }
+
+
+    // Constructors
+
+    public KeyElementSecond(Guid id)
+      : base(id)
+    {}
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class EntityIdentifiedByEntity : Entity
+  {
+    [Key, Field]
+    public Simple Id { get; private set; }
+
+    public int Aux { get; set; }
+
+
+    // Constructors
+
+    public EntityIdentifiedByEntity(Simple id)
+      : base(id)
+    {}
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class EntityIdentifiedByPrimitiveValue : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Aux { get; private set; }
+
+
+    // Constructors
+
+    public EntityIdentifiedByPrimitiveValue(int id)
+      : base(id)
+    {}
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class CompositePrimitiveKeyExample : Entity
+  {
+    [Key(0), Field]
+    public int IdFirst { get; private set; }
+
+    [Key(1), Field]
+    public Guid IdSecond { get; private set; }
+
+    [Field]
+    public string Aux { get; private set; }
+
+
+    // Constructors
+
+    public CompositePrimitiveKeyExample(int idFirst, Guid idSecond)
+      : base(idFirst, idSecond)
+    {}
   }
 }
 
@@ -1812,10 +1877,10 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
-    public void CompositeKeyContainingEntityTest()
+    public void MapCompositeKeyContainingEntityTest()
     {
       Key localFirstKey;
-      Key localSecondKey;
+      Key secondKey;
       Key localCompositeKey;
       KeyMapping keyMapping;
       var state = new DisconnectedState();
@@ -1824,8 +1889,8 @@ namespace Xtensive.Storage.Tests.Storage
         using (var transactionScope = Transaction.Open()) {
           var firstElement = new KeyElementFirst();
           localFirstKey = firstElement.Key;
-          var secondElement = new KeyElementSecond();
-          localSecondKey = secondElement.Key;
+          var secondElement = new KeyElementSecond(Guid.NewGuid());
+          secondKey = secondElement.Key;
           var composite = new CompositeKeyExample(firstElement, 3, secondElement);
           localCompositeKey = composite.Key;
           transactionScope.Complete();
@@ -1836,9 +1901,93 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain))
       using (var transactionScope = Transaction.Open()) {
         var composite = Query.Single<CompositeKeyExample>(keyMapping.Map[localCompositeKey]);
-        Assert.AreEqual(composite.First.Key, keyMapping.Map[localFirstKey]);
+        Assert.AreEqual(keyMapping.Map[localFirstKey], composite.First.Key);
         Assert.AreEqual(3, composite.Second);
-        Assert.AreEqual(composite.Third.Key, keyMapping.Map[localSecondKey]);
+        Assert.AreEqual(secondKey, composite.Third.Key);
+        transactionScope.Complete();
+      }
+    }
+
+    [Test]
+    public void MapKeyContainingOtherEntityTest()
+    {
+      Key localKey;
+      Key localSimpleKey;
+      KeyMapping keyMapping;
+      var state = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (state.Attach(session)) {
+        using (var transactionScope = Transaction.Open()) {
+          var simple = new Simple {Value = "Value0"};
+          localSimpleKey = simple.Key;
+          var entity = new EntityIdentifiedByEntity(simple);
+          localKey = entity.Key;
+          transactionScope.Complete();
+        }
+        keyMapping = state.ApplyChanges();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var transactionScope = Transaction.Open()) {
+        var entity = Query.Single<EntityIdentifiedByEntity>(keyMapping.Map[localKey]);
+        Assert.AreEqual(keyMapping.Map[localSimpleKey], entity.Id.Key);
+        transactionScope.Complete();
+      }
+    }
+
+    [Test]
+    public void MapExplicitlySpecifiedKeyContainingSinglePrimitiveValueTest()
+    {
+      Key key;
+      int value;
+      KeyMapping keyMapping;
+      var state = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (state.Attach(session)) {
+        using (var transactionScope = Transaction.Open()) {
+          value = int.MaxValue - 1;
+          var entity = new EntityIdentifiedByPrimitiveValue(value);
+          key = entity.Key;
+          transactionScope.Complete();
+        }
+        keyMapping = state.ApplyChanges();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var transactionScope = Transaction.Open()) {
+        var entity = Query.Single<EntityIdentifiedByPrimitiveValue>(key);
+        Assert.AreEqual(value, entity.Id);
+        Assert.AreEqual(0, keyMapping.Map.Count);
+        transactionScope.Complete();
+      }
+    }
+
+    [Test]
+    public void MapCompositeKeyContainingPrimitiveValuesOnlyTest()
+    {
+      Key key;
+      int valueFirst;
+      Guid valueSecond;
+      KeyMapping keyMapping;
+      var state = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (state.Attach(session)) {
+        using (var transactionScope = Transaction.Open()) {
+          valueFirst = int.MaxValue - 2;
+          valueSecond = Guid.NewGuid();
+          var entity = new CompositePrimitiveKeyExample(valueFirst, valueSecond);
+          key = entity.Key;
+          transactionScope.Complete();
+        }
+        keyMapping = state.ApplyChanges();
+      }
+
+      using (var session = Session.Open(Domain))
+      using (var transactionScope = Transaction.Open()) {
+        var entity = Query.Single<CompositePrimitiveKeyExample>(key);
+        Assert.AreEqual(valueFirst, entity.IdFirst);
+        Assert.AreEqual(valueSecond, entity.IdSecond);
+        Assert.AreEqual(0, keyMapping.Map.Count);
         transactionScope.Complete();
       }
     }
