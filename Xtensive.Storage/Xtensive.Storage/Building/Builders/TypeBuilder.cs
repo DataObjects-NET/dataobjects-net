@@ -312,10 +312,15 @@ namespace Xtensive.Storage.Building.Builders
 
     private static HierarchyInfo BuildHierarchy(BuildingContext context, TypeInfo root, HierarchyDef hierarchyDef)
     {
-      var keyColumns = root.Fields
-          .Where(f => f.IsPrimaryKey && f.Column != null)
-          .Select(f => f.Column)
-          .ToList();
+      var areAllKeyFieldsPrimitive = true;
+      var keyColumns = new List<ColumnInfo>();
+      foreach (var field in root.Fields) {
+        if (!field.IsPrimaryKey)
+          continue;
+        areAllKeyFieldsPrimitive = areAllKeyFieldsPrimitive && field.Parent==null;
+        if (field.Column!=null)
+          keyColumns.Add(field.Column);
+      }
       var keyTupleDescriptor = TupleDescriptor.Create(keyColumns.Select(c => c.ValueType));
 
       var typeIdColumnIndex = -1;
@@ -324,7 +329,9 @@ namespace Xtensive.Storage.Building.Builders
           if (keyColumns[i].Field.IsTypeId)
             typeIdColumnIndex = i;
 
-      var generatorName = BuildGeneratorName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex);
+      var generatorName = areAllKeyFieldsPrimitive
+        ? BuildGeneratorName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex)
+        : null;
       var keyProviderInfo = new KeyProviderInfo(
         hierarchyDef.KeyGeneratorType, 
         hierarchyDef.KeyGeneratorType == null 
@@ -334,7 +341,10 @@ namespace Xtensive.Storage.Building.Builders
         typeIdColumnIndex) {Name = root.Name};
       keyProviderInfo.MappingName = context.NameBuilder.BuildGeneratorName(keyProviderInfo);
 
-      var keyGenerator = (KeyGenerator) context.BuilderConfiguration.Services.Get(hierarchyDef.KeyGeneratorType, generatorName);
+      KeyGenerator keyGenerator = null;
+      if (hierarchyDef.KeyGeneratorType!=null || generatorName!=null)
+        keyGenerator = (KeyGenerator) context.BuilderConfiguration.Services
+          .Get(hierarchyDef.KeyGeneratorType, generatorName);
       if (keyGenerator!=null) {
         var sequenceIncrement = keyGenerator.SequenceIncrement;
         if (sequenceIncrement.HasValue) {
