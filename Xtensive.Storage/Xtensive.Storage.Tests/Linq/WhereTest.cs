@@ -153,6 +153,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySubqueryTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Order>()
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
@@ -174,6 +175,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void EntitySubqueryIndexerTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Order>()
         .OrderBy(order => order.Id)
         .Where(order => order.Customer==
@@ -995,6 +997,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DecimalRemainderTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var orders = Query.All<Order>();
       var order = orders.Where(o => decimal.Remainder(o.Id, 1.0m)==0.0m || o.Id > 0).First();
       Assert.IsNotNull(order);

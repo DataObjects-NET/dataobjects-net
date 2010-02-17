@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Building.Builders
               upgradeContext.TransactionScope.Complete();
             }
             finally {
-              upgradeContext.TransactionScope.Dispose();
+              upgradeContext.TransactionScope.DisposeSafely();
             }
           }
         }

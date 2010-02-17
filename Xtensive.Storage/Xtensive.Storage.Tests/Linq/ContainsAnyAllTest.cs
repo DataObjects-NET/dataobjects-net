@@ -345,6 +345,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectAllTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result =
         from c in Query.All<Customer>()
         select new {

@@ -30,6 +30,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Length2Test()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customers = Query.All<Customer>()
         .Where(cutomer =>
           cutomer
@@ -138,6 +139,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectFirstTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var products = Query.All<Product>();
       var orderDetails = Query.All<OrderDetails>();
       var result = from p in products
@@ -157,6 +159,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryFirstTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customersCount = Query.All<Customer>().Count(c => c.Orders.Count > 0);
       var result = Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.First());
       var list = result.ToList();
@@ -167,6 +170,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryFirstExpectedExceptionTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Customer>().Select(c => c.Orders.First());
       AssertEx.ThrowsInvalidOperationException(() => result.ToList());
     }
@@ -174,6 +178,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryFirstOrDefaultTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customersCount = Query.All<Customer>().Count();
       var result = Query.All<Customer>().Select(c => c.Orders.FirstOrDefault());
       var list = result.ToList();
@@ -183,6 +188,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubquerySingleTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customersCount = Query.All<Customer>().Count(c => c.Orders.Count > 0);
       var result = Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.Take(1).Single());
       var list = result.ToList();
@@ -192,6 +198,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubquerySingleExpectedException1Test()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Customer>().Select(c => c.Orders.Take(1).Single());
       AssertEx.ThrowsInvalidOperationException(() => result.ToList());
     }
@@ -199,6 +206,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubquerySingleExpectedException2Test()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       bool exceptionThrown = false;
       var result = Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.Single());
       try {
@@ -215,6 +223,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubquerySingleOrDefaultTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customersCount = Query.All<Customer>().Count();
       var result = Query.All<Customer>().Select(c => c.Orders.Take(1).SingleOrDefault());
       var list = result.ToList();
@@ -224,6 +233,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexSubquerySingleOrDefaultTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var categoriesCount = Query.All<Category>().Count();
       var result = Query.All<Category>().Select(
         c => new {
@@ -238,6 +248,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexSubquerySelectSingleOrDefaultTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var categoriesCount = Query.All<Category>().Count();
       var result = Query.All<Category>().Select(c => c.Products.Take(1).SingleOrDefault()).Select(
         p => new {
@@ -253,6 +264,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexSubqueryFirstTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var categoriesCount = Query.All<Category>().Count();
       var result = Query.All<Category>().Select(
         c => new {
@@ -267,6 +279,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexSubquerySelectFirstTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var categoriesCount = Query.All<Category>().Count();
       var result = Query.All<Category>().Select(c => c.Products.First()).Select(p => new { Product = p, p.ProductName, p.Supplier });
       var list = result.ToList();

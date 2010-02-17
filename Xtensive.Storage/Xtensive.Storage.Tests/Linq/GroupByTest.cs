@@ -68,6 +68,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWithWhereTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query =
         Query.All<Product>()
         .GroupBy(product => product.Id)
@@ -499,6 +500,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByWithSelectFirstTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Order>()
         .GroupBy(o => o.Customer)
         .Select(g => g.First());
@@ -655,6 +657,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByBooleanSubquery1Test()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Customer>().GroupBy(c => c.Orders.Count > 10);
       DumpGrouping(result);
     }
@@ -662,6 +665,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupByBooleanSubquery2Test()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Customer>()
         .Where(c => c.Orders.Count > 0)
         .GroupBy(c => c.Orders.Average(o => o.Freight) >= 80);
@@ -896,6 +900,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupWithJoinTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Query.All<Customer>()
         .GroupBy(c => c.Address.Region)
         .Join(Query.All<Customer>(),

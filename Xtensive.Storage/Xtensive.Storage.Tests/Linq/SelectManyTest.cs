@@ -65,6 +65,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void GroupBy2Test()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Order>()
         .GroupBy(o => o.Customer)
         .SelectMany(g => g, (grouping, order)=>new {Count = grouping.Count(), order});

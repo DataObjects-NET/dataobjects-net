@@ -19,6 +19,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void BlobTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Category>().Select(c => c.Picture).Distinct();
       var list = result.ToList();
     }
@@ -281,6 +282,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SkipTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var result = Query.All<Order>()
         .OrderBy(o => o.OrderDate)
         .Skip(5)

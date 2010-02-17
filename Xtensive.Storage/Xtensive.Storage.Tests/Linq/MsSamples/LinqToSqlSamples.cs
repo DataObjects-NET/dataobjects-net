@@ -489,6 +489,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample explictly joins two tables and projects results from both tables.")]
     public void DLinqJoin5()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q =
         from c in Query.All<Customer>()
         join o in Query.All<Order>() on c.Id equals o.Customer.Id into orders
@@ -502,6 +503,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample explictly joins three tables and projects results from each of them.")]
     public void DLinqJoin6()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q =
         from c in Query.All<Customer>()
         join o in Query.All<Order>() on c.Id equals o.Customer.Id into ords
@@ -652,6 +654,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       "the highest unit price in each category, and sorts the group by category id.")]
     public void DLinq41()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var categories =
         Query.All<Product>()
           .GroupBy(p => p.Id)
@@ -795,6 +798,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       "to find all categories that have at least 10 products.")]
     public void DLinq49()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q =
         from p in Query.All<Product>()
         group p by p.Id
@@ -940,6 +944,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       "Customers and Employees live in.")]
     public void DLinq58()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q = (
         from c in Query.All<Customer>()
         select c.Address.Country
@@ -957,6 +962,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
       "Customers live in but no Employees live in.")]
     public void DLinq59()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q = (
         from c in Query.All<Customer>()
         select c.Address.Country

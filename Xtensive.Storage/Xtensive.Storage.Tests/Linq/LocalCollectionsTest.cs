@@ -422,6 +422,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleConcatTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customers = Query.All<Customer>();
       var result = customers.Where(c => c.Orders.Count <= 1).Concat(Query.All<Customer>().ToList().Where(c => c.Orders.Count > 1));
       QueryDumper.Dump(result);
@@ -442,6 +443,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var products = Query.All<Product>();
       var customers = Query.All<Customer>();
       var productFirstChars = products.Select(p => p.ProductName.Substring(0, 1));
@@ -453,6 +455,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleIntersectTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Query.All<Order>()
         .Select(o => o.Employee.BirthDate)
         .Intersect(Query.All<Order>().ToList().Select(o => o.Employee.BirthDate));
@@ -468,6 +471,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleIntersectEntityTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Query.All<Order>()
         .Select(o => o.Employee)
         .Intersect(Query.All<Order>().ToList().Select(o => o.Employee));
@@ -483,6 +487,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SimpleExceptTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var products = Query.All<Product>();
       var customers = Query.All<Customer>();
       var productFirstChars = products.Select(p => p.ProductName.Substring(0, 1));
@@ -538,6 +543,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void IntersectDifferentTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customers = Query.All<Customer>();
       var employees = Query.All<Employee>();
       var result = customers
@@ -549,6 +555,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ExceptDifferentTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var customers = Query.All<Customer>();
       var employees = Query.All<Employee>();
       var result = customers
@@ -686,6 +693,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Aggregate2Test()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var localItems = GetLocalItems(100);
       var queryable = Query.Store(localItems);
       var result = Query.All<Order>().Where(order => order.Freight > queryable.Max(poco=>poco.Value1));

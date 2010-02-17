@@ -62,6 +62,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectOtherParameterTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Customer>().Take(5).Select(c => Query.All<Order>().Select(o => c.Orders.Count()));
       result.ToList();
     }
@@ -90,6 +91,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ComplexSubqueryTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Customer>()
         .Take(2)
         .Select(c => Query.All<Order>()
@@ -113,6 +115,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectNestedWithAggregateTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Customer>()
         .Select(c => Query.All<Order>().Where(o => o.Customer==c).Count());
       QueryDumper.Dump(result);
@@ -296,6 +299,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryScalarTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Product>()
         .Select(p => Query.All<Category>().Count());
       QueryDumper.Dump(result);
@@ -304,6 +308,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryWhereEntitySetTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Category>()
         .Where(c => c.Products.Count > 0);
       QueryDumper.Dump(result);

@@ -83,6 +83,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CountTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var expected = Query.All<Order>().Count();
       var count = Query.All<Customer>()
         .Select(c => c.Orders.Count)

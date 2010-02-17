@@ -27,8 +27,13 @@ namespace Xtensive.Storage.Tests.Rse
 
     public static IndexInfo GetIndexForForeignKey<T>(string fieldName, DomainModel domainModel)
     {
-      return domainModel.Types[typeof(T)].Fields[fieldName].Fields[fieldName + ".Id"]
-        .Column.Indexes.First();
+      var typeInfo = domainModel.Types[typeof(T)];
+      var indexForForeignKey = typeInfo.Fields[fieldName].Fields[fieldName + ".Id"].Column.Indexes.First();
+      var result = typeInfo.Indexes
+        .Where(i => i.DeclaringIndex == indexForForeignKey.DeclaringIndex)
+        .OrderByDescending(i => i.IsVirtual)
+        .First();
+      return result;
     }
 
     public static void ValidateQueryResult<T>(IEnumerable<T> expected, IEnumerable<T> actual)

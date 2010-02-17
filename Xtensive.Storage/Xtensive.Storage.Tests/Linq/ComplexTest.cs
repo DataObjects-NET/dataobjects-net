@@ -91,6 +91,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryCalculableFieldTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Supplier>()
         .Select(supplier => Query.All<Product>()
           .Where(p=>p.Supplier == supplier)
@@ -102,6 +103,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SubqueryCalculableColumnTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Supplier>()
         .Select(supplier => Query.All<Product>()
           .Where(p=>p.Supplier == supplier)
@@ -138,6 +140,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void CorrelatedOrderByTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result =
         from c in Query.All<Customer>()
         orderby Query.All<Order>().Where(o => o.Customer==c).Count() , c.Id

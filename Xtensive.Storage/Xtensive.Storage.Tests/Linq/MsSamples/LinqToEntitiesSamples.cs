@@ -642,6 +642,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses INTERSECT to get common employees where an order was shipped to Mexico or Canada.")]
     public void LinqToEntities49()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var mexico = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee);
       var canada = Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o.Employee);
 
@@ -655,6 +656,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses INTERSECT to get common employees where an order was shipped to Mexico or Canada in one consolidated query.")]
     public void LinqToEntities50()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Query.All<Order>()
         .Where(o => o.ShippingAddress.Country=="Mexico")
         .Select(o => o.Employee)
@@ -670,6 +672,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses EXCEPT to get employees who shipped orders to Mexico but not Canada.")]
     public void LinqToEntities51()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Query.All<Order>()
         .Where(o => o.ShippingAddress.Country=="Mexico")
         .Select(o => o.Employee)
@@ -685,6 +688,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses EXCEPT to get employees with no orders sent to Mexico.")]
     public void LinqToEntities52()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Query.All<Employee>().Select(e => e)
         .Except(Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee));
 
@@ -877,6 +881,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Customer Regions with the total Freight on all orders for Customers in that Region.")]
     public void LinqToEntities68()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = from c in Query.All<Customer>()
       group c by c.Address.Region
       into regions
@@ -891,6 +896,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select all Customer Regions with the total Freight on all orders for Customers in that Region using LINQ operators.")]
     public void LinqToEntities69()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Query.All<Customer>().GroupBy(c => c.Address.Region)
         .Select(g => new {
           Region = g.Key, FreightTotal = g
@@ -959,6 +965,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select a customer and the sum of the freight of thier orders.")]
     public void LinqToEntities73()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
         .Select(c => c.Orders.Sum(o => o.Freight));
 
@@ -970,6 +977,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Select customers with an order where the shipping address is the same as the customers.")]
     public void LinqToEntities75()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = Query.All<Customer>().Where(cust => cust.Orders.Any(o => o.ShippingAddress==cust.Address)).Select(c2 => c2);
 
       QueryDumper.Dump(query);
@@ -980,6 +988,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("Selects all regions with a customer, and shows the sum of orders for customers for each region.")]
     public void LinqToEntities76()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var query = from c in Query.All<Customer>()
       group c by c.Address.Region
       into regions

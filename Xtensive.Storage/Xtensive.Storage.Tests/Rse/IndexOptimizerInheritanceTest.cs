@@ -20,7 +20,7 @@ using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 namespace Xtensive.Storage.Tests.Rse
 {
   #region Implementation of DomainBuilder
-  class TypeModifier : IModule
+  public class TypeModifier : IModule
   {
     public static bool IsEnabled;
 
@@ -51,6 +51,7 @@ namespace Xtensive.Storage.Tests.Rse
     {
       var config = base.BuildConfiguration();
       config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
+      config.Types.Register(typeof(TypeModifier));
       return config;
     }
 

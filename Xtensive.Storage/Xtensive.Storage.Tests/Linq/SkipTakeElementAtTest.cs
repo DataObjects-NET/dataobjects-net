@@ -169,6 +169,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ElementAtOrDefaultIsNotRootTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {

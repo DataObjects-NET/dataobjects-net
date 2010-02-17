@@ -166,6 +166,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SelectUsingContextTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var expectedCount = Query.All<Order>().Count();
       var context = new Context();
       var actualCount = context.Orders.Count();
