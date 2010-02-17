@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Issues.Issue0422_GetStructureFieldsForComplexStructures_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0422_GetStructureFieldsForComplexStructures_Model
@@ -64,6 +65,12 @@ namespace Xtensive.Storage.Tests.Issues
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (EntityB).Assembly, typeof (EntityB).Namespace);
       return config;
+    }
+
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
     }
 
     [Test]

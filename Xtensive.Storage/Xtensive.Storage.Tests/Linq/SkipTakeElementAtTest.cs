@@ -11,6 +11,7 @@ using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Linq;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -33,6 +34,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void MultipleTakeSkipRandomTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       IQueryable<Customer> query = Query.All<Customer>().OrderBy(customer=>customer.Id);
       int count = query.Count();
       var expected = query.AsEnumerable();
@@ -98,6 +100,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReuseSkip2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var totalCount = Query.All<Customer>().Count();
       var result1 = SkipCustomersCorrect(1).Count();
       Assert.AreEqual(totalCount - 1, result1);
@@ -118,6 +121,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReuseElementAt2Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++)
@@ -137,6 +141,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ReuseElementAtOrDefaultTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
@@ -177,6 +182,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ElementAtOrDefaultIsRootTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var customers = Query.All<Customer>().ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
@@ -190,6 +196,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ElementAtIsNotRootTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var customers = Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
@@ -209,6 +216,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ElementAtIsRootTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var customers = Query.All<Customer>().ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {

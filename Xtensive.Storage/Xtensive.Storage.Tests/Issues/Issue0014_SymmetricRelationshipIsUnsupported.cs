@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Issues.Issue0014_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0014_Model
@@ -40,6 +41,12 @@ namespace Xtensive.Storage.Tests.Issues
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof(Person).Namespace);
       return config;
+    }
+
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
     }
 
     [Test]

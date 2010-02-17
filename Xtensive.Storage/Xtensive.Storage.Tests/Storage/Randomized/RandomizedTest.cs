@@ -12,6 +12,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 
 namespace Xtensive.Storage.Tests.Storage.Randomized
 {
@@ -60,6 +61,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
     [Test]
     public void CombinedTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       using (Session.Open(Domain))
         for (int i = 0; i < iterationCount; i++)
           GetAction().Invoke();

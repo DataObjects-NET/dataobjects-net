@@ -8,6 +8,7 @@ using NUnit.Framework;
 using System;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.TransactionsTestModel;
 
 namespace Xtensive.Storage.Tests.Storage.TransactionsTestModel
@@ -167,6 +168,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void TransactionEventsTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var session = Session.Open(Domain))
       using (Transaction.Open()) {
         var hexagon = new Hexagon {Kwanza = 1};

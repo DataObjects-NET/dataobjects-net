@@ -16,6 +16,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Storage.Prefetch.Model;
 
@@ -59,6 +60,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     [Test]
     public void ReferencedEntitiesByUnknownForeignKeysPrefetchTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       Key orderKey0;
       Key orderKey1;
       Key orderKey2;

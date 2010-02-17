@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -206,6 +207,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void OrderByTakeSkipTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var original = Query.All<Order>().ToList()
         .OrderBy(o => o.OrderDate)
         .Skip(100)

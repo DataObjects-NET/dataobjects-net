@@ -7,6 +7,7 @@
 using NUnit.Framework;
 using System.Linq;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -140,6 +141,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void NestedTransactionsWithAmbientOptionTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var sessionConfiguration = new SessionConfiguration {
         Options = SessionOptions.AmbientTransactions
       };
@@ -178,6 +180,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void NestedTransactionsWithAutoshortenedOptionTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var sessionConfiguration = new SessionConfiguration {
         Options = SessionOptions.AutoShortenTransactions
       };

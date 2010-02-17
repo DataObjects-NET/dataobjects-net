@@ -10,6 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Testing;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 using Xtensive.Storage.Linq;
@@ -986,6 +987,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
     [Description("This sample uses Skip to select all but the 10 most expensive Products.")]
     public void DLinq61()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var q = (
         from p in Query.All<Product>()
         orderby p.UnitPrice descending
@@ -1002,6 +1004,7 @@ namespace Xtensive.Storage.Tests.Linq.MsSamples
         "providing the data for page 6 of the Products table.")]
     public void DLinq62()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var q = (
         from c in Query.All<Customer>()
         orderby c.ContactName

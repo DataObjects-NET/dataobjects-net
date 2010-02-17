@@ -11,6 +11,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Storage.Linq;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -275,6 +276,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void Anonymous4Test()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       Customer first = Query.All<Customer>().First();
       Customer second = Query.All<Customer>().Skip(1).First();
       var p = new {first.CompanyName, first.ContactName};

@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
@@ -104,6 +105,11 @@ namespace Xtensive.Storage.Tests.Issues
       return config;
     }
 
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+    }
 
     public override void TestFixtureSetUp()
     {

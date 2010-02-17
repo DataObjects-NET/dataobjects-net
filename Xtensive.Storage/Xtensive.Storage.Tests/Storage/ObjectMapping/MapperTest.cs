@@ -18,6 +18,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.ObjectMapping;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.ObjectMapping.Model;
 using GraphComparisonResult = Xtensive.Storage.ObjectMapping.GraphComparisonResult;
 
@@ -37,6 +38,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     [Test]
     public void SimpleEntitiesMappingTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Mapper mapper;
       var productDto = ServerCreateDtoGraphForSimpleEntitiesMappingTest(out mapper);
 
@@ -73,6 +75,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     [Test]
     public void CollectionMappingTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Mapper mapper;
       var publisherDto = ServerCreateDtoGraphForCollectionMappingTest(out mapper);
 
@@ -118,6 +121,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     [Test]
     public void CustomEntitySetMappingTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Mapper mapper;
       var bookShopDto = ServerCreateDtoGraphForCustomEntitySetMappingTest(out mapper);
 
@@ -147,6 +151,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     [Test]
     public void StructureMappingTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       ApartmentDto originalApartmentDto0;
       ApartmentDto originalApartmentDto1;
       Key apartment0Key;
@@ -188,6 +193,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     [Test]
     public void NewObjectKeysMappingTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Mapper mapper;
       var original = ServerCreateDtoGraphForKeysMappingTest(out mapper);
 
@@ -226,6 +232,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     [Test]
     public void OptimisticOfflineLockTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Mapper mapper;
       var original = ServerCreateDtoGraphForOptimisticLockTest(out mapper);
       var modified = ClientModifiyDtoGraph(original);
@@ -235,6 +242,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     [Test]
     public void CreateObjectUsingCustomPrimitiveKeyValuesTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var rnd = new Random();
       var mapping = new MappingBuilder()
         .MapType<CustomPerson, CustomPersonDto, string>(cp => cp.Key.Format(), cp => cp.Key,
@@ -281,6 +289,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
     [Test]
     public void CreateObjectUsingCustomComplexKeyValuesTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       var mapping = new MappingBuilder()
         .MapType<CompositeKeyRoot, CompositeKeyRootDto, string>(c => c.Key.Format(),
           c => c.Key, c => new object[] {c.FirstId, c.SecondId})

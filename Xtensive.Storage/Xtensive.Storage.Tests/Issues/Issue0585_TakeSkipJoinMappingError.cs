@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Issues.Xtensive.Storage.Tests.Issues.Issue0585_TakeSkipJoinMappingError_Model;
 
 namespace Xtensive.Storage.Tests.Issues
@@ -160,6 +161,12 @@ namespace Xtensive.Storage.Tests.Issues
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (UserActivity).Assembly, typeof (UserActivity).Namespace);
       return config;
+    }
+
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
     }
 
     [Test]

@@ -45,6 +45,8 @@ namespace Xtensive.Storage.Providers.Sql
         f |= ProviderFeatures.Apply;
       if (serverFeatures.Supports(ServerFeatures.LargeObjects))
         f |= ProviderFeatures.LargeObjects;
+      if (serverFeatures.Supports(ServerFeatures.Savepoints))
+        f |= ProviderFeatures.Savepoints;
       if (queryFeatures.Supports(QueryFeatures.FullBooleanExpressionSupport))
         f |= ProviderFeatures.FullFeaturedBooleanExpressions;
       if (queryFeatures.Supports(QueryFeatures.NamedParameters))

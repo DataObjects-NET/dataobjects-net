@@ -19,6 +19,7 @@ using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.DisconnectedTests.Model;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.Providers;
 
 #region Model
 
@@ -1280,6 +1281,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void OperationLogSerializationTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       Key order1Key;
       Key newCustomerKey;
 

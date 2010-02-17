@@ -72,6 +72,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     [Test]
     public void ReferencedEntityHasBeenFullyLoadedBeforeTaskActivationTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       Key order0Key;
       Key employee0Key;
       Key order1Key;
@@ -337,6 +338,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     [Test]
     public void QueryPlanReusingTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       Key customer0Key;
       Key customer1Key;
       using (Session.Open(Domain))
@@ -705,6 +707,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
     [Test]
     public void RequestsGroupingByTypeAndColumnsTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       Key customer0Key;
       Key customer1Key;
       Key customer2Key;

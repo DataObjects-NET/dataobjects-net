@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void UpdateLockSkipTest()
     {
-      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.SqlServerCe);
+      Require.ProviderIs(StorageProvider.SqlServer);
       var key = Query.All<Customer>().First().Key;
       var expected = Query.All<Customer>().Where(c => c.Key == key)
         .Lock(LockMode.Update, LockBehavior.Wait).ToList();
@@ -82,7 +82,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void ShareLockTest()
     {
-      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql | StorageProvider.SqlServerCe);
+      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql);
       var catchedException = ExecuteConcurrentQueries(LockMode.Shared, LockBehavior.ThrowIfLocked,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.IsNull(catchedException);

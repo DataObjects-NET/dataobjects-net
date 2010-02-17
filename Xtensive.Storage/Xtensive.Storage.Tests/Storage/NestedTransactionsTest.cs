@@ -9,6 +9,7 @@ using NUnit.Framework;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.TransactionsTestModel;
 
 namespace Xtensive.Storage.Tests.Storage
@@ -41,6 +42,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void UnmodifiedStateIsValidInInnerTransactionTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var outerScope = Transaction.Open()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
@@ -57,6 +59,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ModifiedStateIsValidInInnerTransactionTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var outerScope = Transaction.Open()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
@@ -73,6 +76,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void UnmodifiedStateIsValidInOuterTransactionAfterInnerTransactionRolledBackTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var outerScope = Transaction.Open()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
@@ -87,6 +91,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ModifiedStateIsInvalidInOuterTransactionAfterInnerTransactionRolledBackTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var outerScope = Transaction.Open()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
@@ -102,6 +107,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void UnmodifiedStateIsValidInOuterTransactionAfterInnerTransactionCommitedTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var outerScope = Transaction.Open()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
@@ -116,6 +122,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void ModifiedStateIsValidInOuterTransactionAfterInnerTransactionCommitedTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var outerScope = Transaction.Open()) {
         var outerTransaction = Transaction.Current;
         Transaction innerTransaction;
@@ -133,6 +140,7 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void WrongNestedTransactionUsageTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var outerScope = Transaction.Open())
       using (var innerScope = Transaction.Open(TransactionOpenMode.New)) {
         outerScope.Complete();

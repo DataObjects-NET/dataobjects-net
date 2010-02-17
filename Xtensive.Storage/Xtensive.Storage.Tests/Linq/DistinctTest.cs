@@ -6,6 +6,7 @@
 
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.ObjectModel;
 using Xtensive.Storage.Tests.ObjectModel.NorthwindDO;
 
@@ -298,6 +299,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DistinctSkipTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var result = Query.All<Customer>()
         .Distinct()
         .OrderBy(c => c.ContactName)
@@ -314,6 +316,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void SkipTakeTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var result = Query.All<Order>()
         .OrderBy(o => o.OrderDate)
         .Skip(5)
@@ -334,6 +337,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void TakeSkipTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var result = Query.All<Order>()
         .OrderBy(o => o.OrderDate)
         .Take(10)
@@ -354,6 +358,7 @@ namespace Xtensive.Storage.Tests.Linq
     [Test]
     public void DistinctSkipTakeTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var result = Query.All<Customer>()
         .Select(c => c.ContactName)
         .Distinct()

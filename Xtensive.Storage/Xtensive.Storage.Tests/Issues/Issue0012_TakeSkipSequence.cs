@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Tests.Issues.Issue0012_Model;
 
@@ -35,6 +36,12 @@ namespace Xtensive.Storage.Tests.Issues
 {
   public class Issue0012_TakeSkipSequence : AutoBuildTest
   {
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();

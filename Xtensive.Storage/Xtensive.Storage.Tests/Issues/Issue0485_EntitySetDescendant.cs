@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Issues.Issue0485_EntitySetDescendant_Model;
 using System.Linq;
 
@@ -64,6 +65,12 @@ namespace Xtensive.Storage.Tests.Issues
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (Company).Assembly, typeof (Company).Namespace);
       return config;
+    }
+
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
     }
 
     [Test]
