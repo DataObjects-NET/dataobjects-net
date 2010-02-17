@@ -56,7 +56,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.FreeTextString.MakeGenericMethod(typeof (T));
       var expression = Expression.Call(method, Expression.Constant(searchCriteria));
-      return ((IQueryProvider) Session.Demand().Handler.Provider).CreateQuery<FullTextMatch<T>>(expression);
+      return ((IQueryProvider) Session.Demand().Handler.QueryProvider).CreateQuery<FullTextMatch<T>>(expression);
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.FreeTextExpression.MakeGenericMethod(typeof (T));
       var expression = Expression.Call(null, method, new[] {searchCriteria});
-      return ((IQueryProvider) Session.Demand().Handler.Provider).CreateQuery<FullTextMatch<T>>(expression);
+      return ((IQueryProvider) Session.Demand().Handler.QueryProvider).CreateQuery<FullTextMatch<T>>(expression);
     }
 
 
@@ -269,7 +269,7 @@ namespace Xtensive.Storage
       if (parameterizedQuery == null) {
         Parameter parameter;
         var preparedQuery = ReplaceClosure(query.Body, out target, out parameter);
-        var transaltedQuery = session.Handler.Provider.Translate<TResult>(preparedQuery);
+        var transaltedQuery = session.Handler.QueryProvider.Translate<TResult>(preparedQuery);
         parameterizedQuery = new ParameterizedQuery<TResult>(transaltedQuery, parameter);
           lock (cache)
             if (!cache.TryGetItem(key, false, out item))
@@ -299,7 +299,7 @@ namespace Xtensive.Storage
     public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(Expression<Func<TResult>> query)
     {
       var session = Session.Demand();
-      var translatedQuery = session.Handler.Provider.Translate<TResult>(query.Body);
+      var translatedQuery = session.Handler.QueryProvider.Translate<TResult>(query.Body);
       var result = new FutureScalar<TResult>(translatedQuery, null);
       session.RegisterDelayedQuery(result.Task);
       return result;
@@ -478,7 +478,7 @@ namespace Xtensive.Storage
         var queryParameter = BuildQueryParameter(query.Target, out replacer);
         using (new QueryCachingScope(queryParameter, replacer)) {
           var result = query.Invoke();
-          var translatedQuery = session.Handler.Provider.Translate<IEnumerable<TElement>>(result.Expression);
+          var translatedQuery = session.Handler.QueryProvider.Translate<IEnumerable<TElement>>(result.Expression);
           parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
           lock (cache)
             if (!cache.TryGetItem(key, false, out item))

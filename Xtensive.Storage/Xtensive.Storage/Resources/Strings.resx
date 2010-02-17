@@ -1385,4 +1385,7 @@ Actions:
   <data name="ExQueryTaskIsNotExecutedYet" xml:space="preserve">
     <value>Query task is not executed yet.</value>
   </data>
+  <data name="ExCyclicDependencyInQueryPreprocessorGraphIsDetected" xml:space="preserve">
+    <value>Cyclic dependency in query preprocessor graph is detected.</value>
+  </data>
 </root>

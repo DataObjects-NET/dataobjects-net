@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Providers
     /// <summary>
     /// Gets the query provider.
     /// </summary>
-    public virtual QueryProvider Provider {get { return QueryProvider.Instance; }}
+    public virtual QueryProvider QueryProvider {get { return QueryProvider.Instance; }}
     
     /// <summary>
     /// Acquires the connection lock.

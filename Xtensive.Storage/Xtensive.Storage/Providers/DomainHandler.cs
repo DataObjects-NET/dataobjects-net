@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Linq;
+using Xtensive.Core.Sorting;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Resources;
@@ -25,11 +26,17 @@ namespace Xtensive.Storage.Providers
   {
     private readonly object syncRoot = new object();
     private readonly Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders = new Dictionary<Type, IMemberCompilerProvider>();
+    private IQueryPreprocessor[] queryPreprocessors;
 
     /// <summary>
     /// Gets the domain this handler is bound to.
     /// </summary>
     public Domain Domain { get; private set; }
+
+    /// <summary>
+    /// Gets the information about provider's capabilities.
+    /// </summary>
+    public ProviderInfo ProviderInfo { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="Rse.Compilation.CompilationContext"/>
@@ -44,14 +51,28 @@ namespace Xtensive.Storage.Providers
     public ICompiler ServerSideCompiler { get; protected set; }
 
     /// <summary>
-    /// Gets the information about provider's capabilities.
-    /// </summary>
-    public ProviderInfo ProviderInfo { get; private set; }
-
-    /// <summary>
     /// Gets the storage location.
     /// </summary>
     public Location StorageLocation { get; protected set; }
+
+    /// <summary>
+    /// Gets the ordered sequence of query preprocessors to apply to any LINQ query.
+    /// </summary>
+    /// <returns>The ordered sequence of query preprocessors to apply to any LINQ query.</returns>
+    /// <exception cref="InvalidOperationException">Cyclic dependency in query preprocessor graph
+    /// is detected.</exception>
+    public virtual IQueryPreprocessor[] GetQueryPreprocessors()
+    {
+      if (queryPreprocessors==null) lock (syncRoot) if (queryPreprocessors==null) {
+        var unordered = Domain.Services.GetAll<IQueryPreprocessor>();
+        var ordered = TopologicalSorter.Sort(unordered, 
+          (first, second) => second.IsDependentOn(first));
+        if (ordered==null)
+          throw new InvalidOperationException(Strings.ExCyclicDependencyInQueryPreprocessorGraphIsDetected);
+        queryPreprocessors = ordered.ToArray();
+      }
+      return queryPreprocessors;
+    }
 
     /// <summary>
     /// Gets the member compiler provider by its type parameter.
