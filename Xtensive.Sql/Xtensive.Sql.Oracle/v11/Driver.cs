@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using System;
-using Oracle.DataAccess.Client;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
@@ -13,6 +11,11 @@ namespace Xtensive.Sql.Oracle.v11
 {
   internal class Driver : Oracle.Driver
   {
+    protected override ValueTypeMapping.TypeMapper CreateTypeMapper()
+    {
+      return new TypeMapper(this);
+    }
+
     protected override SqlCompiler CreateCompiler()
     {
       return new Compiler(this);

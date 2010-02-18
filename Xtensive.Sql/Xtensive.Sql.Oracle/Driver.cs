@@ -5,7 +5,6 @@
 // Created:    2009.07.17
 
 using Xtensive.Sql.Info;
-using Xtensive.Sql.Oracle.v09;
 
 namespace Xtensive.Sql.Oracle
 {
@@ -14,11 +13,6 @@ namespace Xtensive.Sql.Oracle
     public override SqlConnection CreateConnection()
     {
       return new Connection(this);
-    }
-
-    protected override ValueTypeMapping.TypeMapper CreateTypeMapper()
-    {
-      return new TypeMapper(this);
     }
 
     // Constructors
