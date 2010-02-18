@@ -228,7 +228,13 @@ namespace Xtensive.Storage.Linq.Materialization
 
     protected override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
-      return Expression.New(expression.Constructor, expression.ConstructorArguments.Select(e => Visit(e)));
+      var newExpression = Expression.New(expression.Constructor, expression.ConstructorArguments.Select(e => Visit(e)));
+      return expression.Bindings.Count == 0 
+        ? newExpression 
+        : (Expression) Expression.MemberInit(newExpression, expression
+        .Bindings
+        .Where(kvp => ((kvp.Key.MemberType==MemberTypes.Field && !((FieldInfo)kvp.Key).IsInitOnly) || (kvp.Key.MemberType==MemberTypes.Property && ((PropertyInfo)kvp.Key).CanWrite)))
+        .Select(kvp => Expression.Bind(kvp.Key, Visit(kvp.Value))).Cast<MemberBinding>());
     }
 
     protected override Expression VisitStructureExpression(StructureExpression expression)
