@@ -85,8 +85,6 @@ namespace Xtensive.Storage.Tests.Rse
         var compiledProvider = CompilationContext.Current.Compile(result.Provider);
         Assert.Greater(compiledProvider.Count(), 0);
         var compiledSort = ((SortProvider) ((SelectProvider) compiledProvider.Origin).Source);
-        var extractedIndexProvider = (IndexProvider) ((FilterProvider) compiledSort.Source).Source;
-        Assert.IsNotNull(extractedIndexProvider);
         Assert.IsTrue(originalOrder.SequenceEqual(compiledSort.Order));
       }
     }
@@ -108,7 +106,7 @@ namespace Xtensive.Storage.Tests.Rse
         var lastSelect = (SelectProvider) compiledProvider.Origin;
         Assert.AreEqual(typeof (DistinctProvider), lastSelect.Source.GetType());
         var rootProvider = ((FilterProvider) ((DistinctProvider) lastSelect.Source).Source).Source;
-        Assert.AreEqual(typeof (IndexProvider), rootProvider.GetType());
+        Assert.AreEqual(typeof (SelectProvider), rootProvider.GetType());
       }
     }
 
@@ -129,7 +127,7 @@ namespace Xtensive.Storage.Tests.Rse
         var root = (SelectProvider) compiledProvider.Origin;
         Assert.AreEqual(typeof (AggregateProvider), root.Source.GetType());
         var rootProvider = ((FilterProvider)((AggregateProvider)root.Source).Source).Source;
-        Assert.AreEqual(typeof (IndexProvider), rootProvider.GetType());
+        Assert.AreEqual(typeof (SelectProvider), rootProvider.GetType());
       }
     }
 
