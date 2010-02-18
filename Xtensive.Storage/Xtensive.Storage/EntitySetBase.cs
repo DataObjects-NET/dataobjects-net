@@ -73,12 +73,8 @@ namespace Xtensive.Storage
     private IEnumerable<IEntity> InnerGetEntities()
     {
       Prefetch();
-      foreach (var key in State) {
-        Entity entity;
-        using (Session.Activate())
-          entity = Query.SingleOrDefault(Session, key);
-        yield return entity;
-      }
+      foreach (var key in State)
+        yield return Query.SingleOrDefault(Session, key);
     }
 
     /// <summary>

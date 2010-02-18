@@ -70,9 +70,9 @@ namespace Xtensive.Storage.Tests.Issues
         using (var t = Transaction.Open()) {
           int pageIndex = 1;
           int pageSize = 1;
-          IQueryable<User> usersQuery = Query.All<User>().Skip(pageIndex * pageSize).Take(pageSize);
-          byte[] key = new byte[]{1,1,1};
-          var query =Query.All<User>().Where(user => user.Photo==key);
+          var usersQuery = Query.All<User>().Skip(pageIndex * pageSize).Take(pageSize);
+          var key = new byte[]{1,1,1};
+          var query = Query.All<User>().Where(user => user.Photo==key);
           var result = query.ToList();
           Assert.Greater(result.Count, 0);
         }

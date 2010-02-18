@@ -235,6 +235,32 @@ namespace Xtensive.Storage
         : new SessionScope(this);
     }
 
+
+    /// <summary>
+    /// Activates the session.
+    /// </summary>
+    /// <param name="throwIfAnotherSessionIsActive">If set to <see langword="true"/>, 
+    /// <see cref="InvalidOperationException"/> is thrown if another session is active
+    /// (performs session switching check).</param>
+    /// <returns>A disposable object reverting the action.</returns>
+    /// <exception cref="InvalidOperationException">Session switching is detected.</exception>
+    public SessionScope Activate(bool throwIfAnotherSessionIsActive)
+    {
+      if (!throwIfAnotherSessionIsActive)
+        return Activate();
+      var currentSession = SessionScope.CurrentSession; // Not Session.Current -
+      // to avoid possible comparison with Session provided by Session.Resolver.
+      if (currentSession==null)
+        return new SessionScope(this);
+      else {
+        if (currentSession!=this)
+          throw new InvalidOperationException(
+            Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked);
+        // No activation is necessary here
+        return null;
+      }
+    }
+
     /// <summary>
     /// Deactivates <see cref="Current"/> session making it equal to <see langword="null" />.
     /// </summary>

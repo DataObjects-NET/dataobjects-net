@@ -104,18 +104,8 @@ namespace Xtensive.Storage.Aspects
       var sessionBound = (ISessionBound) instance;
       var session = sessionBound.Session;
       IDisposable sessionScope = null;
-      if (openSession) {
-        var currentSession = SessionScope.CurrentSession; // Not Session.Current -
-        // to avoid possible comparison with Session provided by Session.Resolver.
-        if (currentSession==null)
-          sessionScope = sessionBound.ActivateContext();
-        else {
-          if (currentSession!=session)
-            throw new InvalidOperationException(
-              Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked);
-          // No activation is necessary here
-        }
-      }
+      if (openSession)
+        sessionScope = session.Activate(true);
       if (!openTransaction)
         return sessionScope;
       var transactionScope = session==null ? 
