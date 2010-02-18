@@ -53,7 +53,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(TransactionOpenMode mode)
     {
       var session = Session.Demand();
-      return session.OpenTransaction(mode, session.Configuration.DefaultIsolationLevel);
+      return session.OpenTransaction(mode, IsolationLevel.Unspecified);
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(TransactionOpenMode.Default, session.Configuration.DefaultIsolationLevel);
+      return session.OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified);
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open(Session session, TransactionOpenMode mode)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return session.OpenTransaction(mode, session.Configuration.DefaultIsolationLevel);
+      return session.OpenTransaction(mode, IsolationLevel.Unspecified);
     }
 
     /// <summary>

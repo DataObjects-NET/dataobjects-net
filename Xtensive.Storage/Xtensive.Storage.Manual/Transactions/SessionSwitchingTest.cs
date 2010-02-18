@@ -6,11 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using System.Linq;
 
-namespace Xtensive.Storage.Manual.Advanced.SessionSwitching
+namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
 {
   #region Model
 
