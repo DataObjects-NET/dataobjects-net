@@ -77,10 +77,9 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   }
 
   [Serializable]
-  [Index("CompanyName")]
   public abstract class BusinessContact : Person
   {
-    [Field(Length = 40)]
+    [Field(Length = 40, Indexed = true)]
     public string CompanyName { get; set; }
 
     [Field(Length = 30)]
@@ -109,14 +108,13 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   [Serializable]
   [TableMapping("Categories")]
   [HierarchyRoot]
-  [Index("CategoryName")]
   public class Category : Entity
   {
     [Field, FieldMapping("CategoryId"), Key]
     public int Id { get; private set; }
 
     [FullText("English")]
-    [Field(Length = 15)]
+    [Field(Length = 15, Indexed = true)]
     public string CategoryName { get; set; }
 
     [FullText("English")]
@@ -216,8 +214,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
   [Serializable]
   [TableMapping("Products")]
   [HierarchyRoot(InheritanceSchema.SingleTable)]
-  [Index("UnitPrice")]
-  [Index("ProductName")]
   [Index("Category", "Supplier", "UnitPrice")]
   public abstract class Product : Entity
   {
@@ -225,7 +221,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     public int Id { get; private set; }
 
     [FullText("English")]
-    [Field(Length = 40)]
+    [Field(Length = 40, Indexed = true)]
     public string ProductName { get; set; }
 
     [Field, FieldMapping("Seller")]
@@ -237,7 +233,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
     [Field]
     public ProductType ProductType { get; protected set;}
 
-    [Field]
+    [Field(Indexed = true)]
     public decimal UnitPrice { get; set; }
 
     [Field]

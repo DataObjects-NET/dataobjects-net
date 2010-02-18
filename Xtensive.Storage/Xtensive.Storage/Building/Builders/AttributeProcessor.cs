@@ -81,6 +81,7 @@ namespace Xtensive.Storage.Building.Builders
       ProcessScale(fieldDef, attribute);
       ProcessPrecision(fieldDef, attribute);
       ProcessLazyLoad(fieldDef, attribute);
+      ProcessIndexed(fieldDef, attribute);
     }
 
     public static void Process(FieldDef fieldDef, AssociationAttribute attribute)
@@ -200,6 +201,21 @@ namespace Xtensive.Storage.Building.Builders
           Strings.LogExplicitLazyLoadAttributeOnFieldXIsRedundant, fieldDef.Name);
       else 
         fieldDef.IsLazyLoad = attribute.LazyLoad;
+    }
+
+    private static void ProcessIndexed(FieldDef fieldDef, FieldAttribute attribute)
+    {
+      if (!attribute.Indexed)
+        return;
+      if (fieldDef.IsEntitySet)
+        throw new InvalidOperationException(string.Format("Unable to apply index to EntitySet field {0}.", fieldDef.Name));
+      if (fieldDef.IsStructure)
+        throw new InvalidOperationException(string.Format("Unable to apply index to Structure field {0}.", fieldDef.Name));
+
+      if (!fieldDef.IsPrimitive)
+        Log.Warning("Specifying index on field {0} is redundant.", fieldDef.Name);
+      else
+        fieldDef.IsIndexed = attribute.Indexed;
     }
 
     private static void ProcessMappingName(MappingNode node, string mappingName, ValidationRule rule)

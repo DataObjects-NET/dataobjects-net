@@ -20,6 +20,16 @@ namespace Xtensive.Storage
     internal int? scale;
     internal int? precision;
     internal bool? nullable;
+    internal bool? indexed;
+
+    /// <summary>
+    /// Gets or sets whether the field should be indexed.
+    /// </summary>
+    public bool Indexed
+    {
+      get { return indexed.HasValue ? indexed.Value : false; }
+      set { indexed = value; }
+    }
 
     /// <summary>
     /// Gets or sets the length of the field.

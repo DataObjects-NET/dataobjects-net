@@ -162,6 +162,16 @@ namespace Xtensive.Storage.Building.Definitions
       internal set { attributes = value ? attributes | FieldAttributes.Version : attributes & ~FieldAttributes.Version; }
     }
 
+
+    /// <summary>
+    /// Gets a value indicating whether this property is indexed.
+    /// </summary>
+    public bool IsIndexed
+    {
+      get { return (attributes & FieldAttributes.Indexed) != 0; }
+      internal set { attributes = value ? attributes | FieldAttributes.Indexed : attributes & ~FieldAttributes.Indexed; }
+    }
+
     /// <summary>
     /// Gets the underlying system property.
     /// </summary>

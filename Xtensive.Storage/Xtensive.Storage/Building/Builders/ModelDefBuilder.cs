@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Sorting;
 using Xtensive.Storage.Building.Definitions;
@@ -158,14 +159,20 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    public static void ProcessIndexes(TypeDef typeDef)
+    private static void ProcessIndexes(TypeDef typeDef)
     {
-      var ia = typeDef.UnderlyingType.GetAttributes<IndexAttribute>(AttributeSearchOptions.Default);
-      if (ia==null || ia.Length==0)
+      var targets = typeDef.Fields
+        .Where(f => f.IsIndexed)
+        .Select(f => new IndexAttribute(f.Name))
+        .Concat(typeDef.UnderlyingType.GetAttributes<IndexAttribute>(AttributeSearchOptions.Default) ??
+                EnumerableUtils<IndexAttribute>.Empty)
+        .ToList();
+
+      if (targets.Count == 0)
         return;
 
-      foreach (IndexAttribute attribute in ia) {
-        IndexDef index = DefineIndex(typeDef, attribute);
+      foreach (var attribute in targets) {
+        var index = DefineIndex(typeDef, attribute);
         if (typeDef.Indexes.Contains(index.Name))
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexWithNameXIsAlreadyRegistered, index.Name));

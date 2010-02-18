@@ -51,6 +51,11 @@ namespace Xtensive.Storage.Tests.Rse
   [TestFixture]
   public class OrderingCorrectorTest : NorthwindDOModelTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Index);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();

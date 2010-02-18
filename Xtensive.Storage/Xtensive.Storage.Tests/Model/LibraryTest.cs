@@ -83,13 +83,12 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
   [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
-  [Index("Title:ASC")]
   public class Book : Entity
   {
     [Field(Length = 32), Key]
     public string Isbn { get; private set; }
 
-    [Field(Length = 128)]
+    [Field(Length = 128, Indexed = true)]
     public string Title { get; set; }
 
     [Field, FieldMapping("BookAuthor")]
@@ -102,12 +101,6 @@ namespace Xtensive.Storage.Tests.Model.LibraryModel
       : base(isbn)
     {
     }
-
-    /* [Field]
-    public EntitySet<BookReview> Reviews
-    {
-      get { throw new NotImplementedException(); }
-    }*/
   }
 
   [Serializable]
