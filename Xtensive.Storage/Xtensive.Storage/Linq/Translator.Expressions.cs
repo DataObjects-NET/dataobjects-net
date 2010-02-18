@@ -216,7 +216,8 @@ namespace Xtensive.Storage.Linq
         state.BuildingProjection = false;
         source = Visit(ma.Expression);
       }
-      Expression result = GetMember(source, ma.Member, ma);
+      
+      var result = GetMember(source, ma.Member, ma);
       return result ?? base.VisitMemberAccess(ma);
     }
 
@@ -732,6 +733,8 @@ namespace Xtensive.Storage.Linq
     private Expression GetMember(Expression expression, MemberInfo member, Expression sourceExpression)
     {
       MarkerType markerType;
+      if (expression == null)
+        return null;
       expression = expression.StripCasts();
       bool isMarker = expression.TryGetMarker(out markerType);
       expression = expression.StripMarkers();

@@ -41,6 +41,23 @@ namespace Xtensive.Storage.Tests.Linq.CustomExpressionCompilersModel
       return string.Format("{0}{1}", prefix, LastName);
     }
   }
+
+  [HierarchyRoot]
+  public class Assignment : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+    [Field]
+    public bool Active { get; set; }
+    [Field]
+    public DateTime Start { get; set; }
+    [Field]
+    public DateTime? End { get; set; }
+    public bool Current
+    {
+      get { return Active && Start <= DateTime.Now && (End == null || End.Value >= DateTime.Now); }
+    }
+  }
 }
 
 namespace Xtensive.Storage.Tests.Linq
@@ -60,6 +77,13 @@ namespace Xtensive.Storage.Tests.Linq
     {
       Expression<Func<Person, string, string>> ex =  (person, prefix) => prefix + person.LastName;
       return ex.BindParameters(personExpression, prefixExpression);
+    }
+
+    [Compiler(typeof(Assignment), "Current", TargetKind.PropertyGet)]
+    public static Expression Current(Expression assignmentExpression)
+    {
+      Expression<Func<Assignment, bool>> ex = a => a.Active && (a.Start <= DateTime.Now) && (a.End == null || a.End.Value >= DateTime.Now);
+      return ex.BindParameters(assignmentExpression);
     }
   }
 
@@ -89,6 +113,23 @@ namespace Xtensive.Storage.Tests.Linq
           Assert.IsTrue(expected2.SequenceEqual(fullNames2));
           // Rollback
         }
+      }
+    }
+
+    [Test]
+    public void AssignmentCurrentTest()
+    {
+      using (Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        new Assignment() {Active = true, Start = new DateTime(2009, 11, 23), End = null};
+        new Assignment() {Active = false, Start = new DateTime(2009, 10, 3), End = null};
+        new Assignment() {Active = false, Start = new DateTime(2020, 01, 10), End = new DateTime(2044, 12, 3)};
+        new Assignment() {Active = true, Start = new DateTime(2026, 01, 10), End = new DateTime(2045, 11, 3)};
+        new Assignment() {Active = true, Start = new DateTime(2010, 01, 10), End = new DateTime(2035, 11, 3)};
+
+        var currentCount = Query.All<Assignment>().Count(a => a.Current);
+        Assert.AreEqual(2, currentCount);
+        // Rollback
       }
     }
 
