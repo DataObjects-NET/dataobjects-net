@@ -41,24 +41,22 @@ namespace Xtensive.Storage.Building.Builders
     {
       var context = BuildingContext.Demand();
       var model = context.Model;
-      var indexDefs = GatherFullTextIndexDefinitons(root, hierarchyIndexes);
-
-      foreach (var typeIndexDef in indexDefs) {
-        var type = typeIndexDef.Key;
-        var fullTextIndexDefs = typeIndexDef.Value;
-        if (fullTextIndexDefs.Count > 1)
-          throw new DomainBuilderException(
-            string.Format(Strings.ExUnableToBuildFulltextIndexesForHierarchyWithInheritanceSchemaClassTable, root.Name));
-        var fullTextIndexDef = fullTextIndexDefs.First();
-        var primaryIndex = type.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
-        var name = context.NameBuilder.BuildFullTextIndexName(root);
-        var index = new FullTextIndexInfo(primaryIndex, name);
-        foreach (var fullTextFieldDef in fullTextIndexDef.Fields) {
-          var fullTextColumn = GetFullTextColumn(type, fullTextFieldDef);
-          index.Columns.Add(fullTextColumn);
-        }
-        model.FullTextIndexes.Add(type, index);
+      var indexesToDefine = hierarchyIndexes.ToList();
+      if (hierarchyIndexes.Any(fti => fti.Type.UnderlyingType != root.UnderlyingType) || indexesToDefine.Count > 1)
+        throw new DomainBuilderException(string.Format(Strings.ExUnableToBuildFulltextIndexesForHierarchyWithInheritanceSchemaClassTable, root.Name));
+      var descendants = root.GetDescendants(true)
+        .AddOne(root)
+        .ToList();
+      var indexDef = indexesToDefine[0];
+      var primaryIndex = root.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
+      var name = context.NameBuilder.BuildFullTextIndexName(root);
+      var index = new FullTextIndexInfo(primaryIndex, name);
+      foreach (var fullTextFieldDef in indexDef.Fields) {
+        var fullTextColumn = GetFullTextColumn(root, fullTextFieldDef);
+        index.Columns.Add(fullTextColumn);
       }
+      foreach (var type in descendants)
+        model.FullTextIndexes.Add(type, index);
     }
 
     private static void BuildFullTextIndexesSingleTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
