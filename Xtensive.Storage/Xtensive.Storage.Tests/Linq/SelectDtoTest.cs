@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Tests.Linq
   }
 
   [Serializable]
-  public class SelectDtoTest1 : AutoBuildTest
+  public class SelectDtoTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
