@@ -21,10 +21,8 @@ namespace Xtensive.Storage.Operations
     private List<IOperation> operations;
     internal bool completed;
 
-    internal List<IOperation> Operations
-    {
-      get
-      {
+    internal List<IOperation> Operations {
+      get {
         if (operations == null)
           operations = new List<IOperation>();
         return operations;

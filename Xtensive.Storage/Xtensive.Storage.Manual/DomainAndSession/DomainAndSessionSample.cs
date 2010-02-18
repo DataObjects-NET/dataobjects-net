@@ -69,6 +69,40 @@ namespace Xtensive.Storage.Manual.DomainAndSession
     }
 
     [Test]
+    public void ConnectionStringTest()
+    {
+      #region Connection string sample
+
+      // Creating new Domain configuration
+      var config = new DomainConfiguration("sqlserver", 
+        "Data Source=localhost; Initial Catalog=DO40-Tests; " + 
+        "Integrated Security=True; MultipleActiveResultSets=true;") {
+        UpgradeMode = DomainUpgradeMode.Recreate
+      };
+      // Registering all types in the specified assembly and namespace
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      // And finally building the domain
+      var domain = Domain.Build(config);
+
+      #endregion
+    }
+
+    [Test]
+    public void ConnectionStringInAppConfigTest()
+    {
+      #region Connection string in App.config sample
+
+      // Creating new Domain configuration
+      var config = DomainConfiguration.Load("mssql2005-cs");
+      // Registering all types in the specified assembly and namespace
+      config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
+      // And finally building the domain
+      var domain = Domain.Build(config);
+
+      #endregion
+    }
+
+    [Test]
     public void CurrentSessionTest()
     {
       #region Session sample
