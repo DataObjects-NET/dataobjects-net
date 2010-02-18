@@ -118,9 +118,10 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
 
         // Auto transactions on query enumeration
         Console.WriteLine("All persons:");
+        var two = 2;
         foreach (var item in 
           from person in Query.All<Person>()
-          select new {person, twoFriends = person.Friends.Take(2), friendCount = person.Friends.Count()}) {
+          select new {person, twoFriends = person.Friends.Take(() => two), friendCount = person.Friends.Count()}) {
           Assert.IsNull(Transaction.Current);
           Console.WriteLine("  {0}, {1}, {2}", 
             item.person,
@@ -145,7 +146,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         Console.WriteLine("All persons (compiled query):");
         foreach (var item in Query.Execute(() => 
           from person in Query.All<Person>()
-          select new {person, twoFriends = person.Friends.Take(() => 2), friendCount = person.Friends.Count()})) {
+          select new {person, twoFriends = person.Friends.Take(() => two), friendCount = person.Friends.Count()})) {
           Assert.IsNull(Transaction.Current);
           Console.WriteLine("  {0}, {1}, {2}", 
             item.person,
