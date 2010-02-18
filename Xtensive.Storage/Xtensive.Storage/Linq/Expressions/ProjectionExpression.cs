@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Linq.Expressions
       return string.Format("Projection:  {0}, IsScalar = {1}", ItemProjector, IsScalar);
     }
 
+
     // Constructors
 
     public ProjectionExpression(
@@ -45,7 +46,7 @@ namespace Xtensive.Storage.Linq.Expressions
     {
       ItemProjector = itemProjectorExpression;
       ResultType = resultType;
-      TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings); 
+      TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);
     }
   }
 }

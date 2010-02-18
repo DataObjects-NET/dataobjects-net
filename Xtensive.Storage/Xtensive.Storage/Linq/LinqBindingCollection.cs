@@ -43,7 +43,11 @@ namespace Xtensive.Storage.Linq
           if (parameter!=key) {
             var projection = this[parameter];
             var newItemProjector = projection.ItemProjector.Remap(value.ItemProjector.DataSource, 0);
-            var newProjection = new ProjectionExpression(projection.Type, newItemProjector, projection.TupleParameterBindings, projection.ResultType);
+            var newProjection = new ProjectionExpression(
+              projection.Type, 
+              newItemProjector, 
+              projection.TupleParameterBindings, 
+              projection.ResultType);
             base.ReplaceBound(parameter, newProjection);
           }
         }

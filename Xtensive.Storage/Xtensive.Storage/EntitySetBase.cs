@@ -66,16 +66,21 @@ namespace Xtensive.Storage
     /// </summary>
     protected internal IEnumerable<IEntity> Entities {
       get {
-        Prefetch();
-        foreach (var key in State) {
-          Entity entity;
-          using (Session.Activate())
-            entity = Query.SingleOrDefault(Session, key);
-          yield return entity;
-        }
+        return InnerGetEntities().ToTransactional();
       }
     }
-    
+
+    private IEnumerable<IEntity> InnerGetEntities()
+    {
+      Prefetch();
+      foreach (var key in State) {
+        Entity entity;
+        using (Session.Activate())
+          entity = Query.SingleOrDefault(Session, key);
+        yield return entity;
+      }
+    }
+
     /// <summary>
     /// Prefetches the entity set completely - i.e. ensures it is fully loaded.
     /// </summary>
@@ -116,7 +121,7 @@ namespace Xtensive.Storage
         if (context.IsEnabled())
           context.Add(new EntitySetOperation(Owner.Key, Operations.OperationType.ClearEntitySet, Field));
         SystemBeforeClear();
-        foreach (var entity in Entities.ToList())
+        foreach (var entity in Entities)
           Remove(entity);
         SystemClear();
         context.Complete();
@@ -522,7 +527,7 @@ namespace Xtensive.Storage
       if (this==other)
         return;
       var otherEntities = other.Cast<IEntity>().ToHashSet();
-      foreach (var item in Entities.ToList())
+      foreach (var item in Entities)
         if (!otherEntities.Contains(item))
           Remove(item);
     }

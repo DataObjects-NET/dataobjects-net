@@ -51,7 +51,6 @@ namespace Xtensive.Storage.Linq
 
       var dataSource = prepared.ItemProjector.DataSource;
       
-      
       // Build materializer
       var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
       var translatedQuery = new TranslatedQuery<TResult>(dataSource, materializer, projection.TupleParameterBindings, tupleParameterBindings);
@@ -190,7 +189,11 @@ namespace Xtensive.Storage.Linq
         var indexItemProjector = new ItemProjectorExpression(itemExpression, indexDataSource, context);
         var indexProjectionExpression = new ProjectionExpression(typeof (long), indexItemProjector, sequence.TupleParameterBindings);
         var sequenceItemProjector = sequence.ItemProjector.Remap(indexDataSource, 0);
-        sequence = new ProjectionExpression(sequence.Type, sequenceItemProjector, sequence.TupleParameterBindings, sequence.ResultType);
+        sequence = new ProjectionExpression(
+          sequence.Type, 
+          sequenceItemProjector, 
+          sequence.TupleParameterBindings, 
+          sequence.ResultType);
         return indexProjectionExpression;
       }
       return null;

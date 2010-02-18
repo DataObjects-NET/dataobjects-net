@@ -54,20 +54,26 @@ namespace Xtensive.Storage
     /// Occurs when <see cref="Transaction"/> is rolled back.
     /// </summary>
     public event EventHandler<TransactionEventArgs> TransactionRollbacked;
-    
+
+    /// <exception cref="InvalidOperationException">Can't create a transaction
+    /// with requested isolation level.</exception>
     internal TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
       switch (mode) {
       case TransactionOpenMode.Auto:
         if (Transaction!=null) {
-          if (isolationLevel!=Transaction.IsolationLevel)
+          if (isolationLevel!=IsolationLevel.Unspecified && isolationLevel!=Transaction.IsolationLevel)
             throw new InvalidOperationException(Strings.ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent);
           return TransactionScope.VoidScopeInstance;
         }
+        if (isolationLevel==IsolationLevel.Unspecified)
+          isolationLevel = Configuration.DefaultIsolationLevel;
         return Configuration.UsesAmbientTransactions
           ? CreateAmbientTransaction(isolationLevel)
           : CreateOutermostTransaction(isolationLevel);
       case TransactionOpenMode.New:
+        if (isolationLevel==IsolationLevel.Unspecified)
+          isolationLevel = Configuration.DefaultIsolationLevel;
         if (Transaction!=null)
           return CreateNestedTransaction(isolationLevel);
         if (Configuration.UsesAmbientTransactions) {

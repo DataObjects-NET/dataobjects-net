@@ -31,8 +31,10 @@ namespace Xtensive.Storage.Linq.Materialization
     public static readonly MethodInfo GetDefaultMethodInfo;
     public static readonly MethodInfo CompileItemMaterializerMethodInfo;
     public static readonly MethodInfo IsNullMethodInfo;
-    public static readonly MethodInfo ThrowSequenceExceptionMethodInfo;
+    public static readonly MethodInfo ThrowEmptySequenceExceptionMethodInfo;
     public static readonly MethodInfo PrefetchEntitySetMethodInfo;
+
+    #region Nested type: BatchActivator
 
     class BatchActivator
     {
@@ -60,6 +62,8 @@ namespace Xtensive.Storage.Linq.Materialization
         this.parameterContext = parameterContext;
       }
     }
+
+    #endregion
 
     public static int[] CreateSingleSourceMap(int targetLength, Pair<int>[] remappedColumns)
     {
@@ -92,7 +96,7 @@ namespace Xtensive.Storage.Linq.Materialization
       return result;
     }
 
-    public static object ThrowSequenceException()
+    public static object ThrowEmptySequenceException()
     {
       throw new InvalidOperationException(Strings.ExSequenceContainsNoElements);
     }
@@ -127,12 +131,11 @@ namespace Xtensive.Storage.Linq.Materialization
       context.MaterializationQueue = materializationQueue;
       var batchSequence = materializedSequence
         .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
-        .ApplyBeforeAndAfter(batchActivator.Activate, batchActivator.Deactivate);
-      using (Transaction.Open(session)) {
-        foreach (var batch in batchSequence)
-          foreach (var result in batch)
-            yield return result;
-      }
+        .ApplyBeforeAndAfter(batchActivator.Activate, batchActivator.Deactivate)
+        .ToTransactional();
+      foreach (var batch in batchSequence)
+        foreach (var result in batch)
+          yield return result;
     }
 
     private static IEnumerable<TResult> SubqueryMaterialize<TResult>(IEnumerable<TResult> materializedSequence, ParameterContext parameterContext)
@@ -142,12 +145,11 @@ namespace Xtensive.Storage.Linq.Materialization
         .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
         .ApplyBeforeAndAfter(
           () => scope = parameterContext.Activate(),
-          () => scope.DisposeSafely());
+          () => scope.DisposeSafely())
+        .ToTransactional();
       foreach (var batch in batchSequence)
         foreach (var result in batch)
           yield return result;
-//      using (parameterContext.Activate())
-//        return materializedSequence.ToList();
     }
 
     public static Func<Tuple, ItemMaterializationContext, TResult> CompileItemMaterializer<TResult>(Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda)
@@ -181,8 +183,8 @@ namespace Xtensive.Storage.Linq.Materialization
         .GetMethod("GetDefault", BindingFlags.Public | BindingFlags.Static);
       IsNullMethodInfo = typeof(MaterializationHelper)
         .GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static);
-      ThrowSequenceExceptionMethodInfo = typeof(MaterializationHelper)
-        .GetMethod("ThrowSequenceException", BindingFlags.Public | BindingFlags.Static);
+      ThrowEmptySequenceExceptionMethodInfo = typeof(MaterializationHelper)
+        .GetMethod("ThrowEmptySequenceException", BindingFlags.Public | BindingFlags.Static);
       PrefetchEntitySetMethodInfo = typeof(MaterializationHelper)
         .GetMethod("PrefetechEntitySet", BindingFlags.Public | BindingFlags.Static);
     }

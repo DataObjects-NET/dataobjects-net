@@ -692,7 +692,11 @@ namespace Xtensive.Storage.Linq
 
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
       if (subQuery.Type!=resultType)
-        subQuery = new ProjectionExpression(resultType, subQuery.ItemProjector, subQuery.TupleParameterBindings, subQuery.ResultType);
+        subQuery = new ProjectionExpression(
+          resultType, 
+          subQuery.ItemProjector, 
+          subQuery.TupleParameterBindings, 
+          subQuery.ResultType);
       return new SubQueryExpression(resultType, state.Parameters[0], false, subQuery, applyParameter);
     }
 

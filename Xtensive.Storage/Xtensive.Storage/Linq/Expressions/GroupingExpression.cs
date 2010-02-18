@@ -62,7 +62,11 @@ namespace Xtensive.Storage.Linq.Expressions
         return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, KeyExpression, SelectManyInfo);
 
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
-      var newProjectionExpression = new ProjectionExpression(ProjectionExpression.Type, newItemProjector, ProjectionExpression.TupleParameterBindings, ProjectionExpression.ResultType);
+      var newProjectionExpression = new ProjectionExpression(
+        ProjectionExpression.Type, 
+        newItemProjector, 
+        ProjectionExpression.TupleParameterBindings, 
+        ProjectionExpression.ResultType);
       return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, SelectManyInfo);
     }
 

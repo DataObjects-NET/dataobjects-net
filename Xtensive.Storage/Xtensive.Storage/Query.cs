@@ -419,7 +419,7 @@ namespace Xtensive.Storage
     private static Parameter BuildQueryParameter(object target, out ExtendedExpressionReplacer replacer)
     {
       if (target == null) {
-        replacer = null;
+        replacer = new ExtendedExpressionReplacer(e => e);
         return null;
       }
       var closureType = target.GetType();
@@ -447,7 +447,8 @@ namespace Xtensive.Storage
           query.QueryParameter.Value = target;
       }
       ParameterScope scope = null;
-      var batches = query.Execute().Batch(2)
+      var batches = query.Execute()
+        .Batch(2)
         .ApplyBeforeAndAfter(() => scope = context.Activate(), () => scope.DisposeSafely());
       foreach (var batch in batches)
         foreach (var element in batch)

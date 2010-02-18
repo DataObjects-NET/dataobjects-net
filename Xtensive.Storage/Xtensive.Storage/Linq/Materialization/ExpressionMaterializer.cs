@@ -76,10 +76,10 @@ namespace Xtensive.Storage.Linq.Materialization
       var processedTarget = Visit(target);
       if (expression.MarkerType!=MarkerType.None && (expression.MarkerType & MarkerType.Default)==MarkerType.None) {
         if (itemMaterializationContextParameter==null)
-          MaterializationHelper.ThrowSequenceException();
+          MaterializationHelper.ThrowEmptySequenceException();
         var columns = ColumnGatherer.GetColumns(target, ColumnExtractionModes.Distinct | ColumnExtractionModes.Ordered).ToArray();
         var sequenceCheck = Expression.Call(MaterializationHelper.IsNullMethodInfo, tupleParameter, Expression.Constant(columns));
-        var throwException = Expression.Convert(Expression.Call(MaterializationHelper.ThrowSequenceExceptionMethodInfo), target.Type);
+        var throwException = Expression.Convert(Expression.Call(MaterializationHelper.ThrowEmptySequenceExceptionMethodInfo), target.Type);
         return Expression.Condition(sequenceCheck, throwException, processedTarget);
       }
       return processedTarget;
@@ -149,7 +149,6 @@ namespace Xtensive.Storage.Linq.Materialization
         subQueryExpression.ApplyParameter)
         .Result;
 
-
       var newItemProjectorBody = ApplyParameterToTupleParameterRewriter.Rewrite(
         subQueryExpression.ProjectionExpression.ItemProjector.Item,
         subqueryTupleParameter,
@@ -159,15 +158,14 @@ namespace Xtensive.Storage.Linq.Materialization
       parameterOfTuple = context.GetTupleParameter(subQueryExpression.OuterParameter);
 
       // 2. Add only parameter<tuple>. Tuple value will be assigned 
-      // at the moment of materialization in SubqQuery constructor
-
+      // at the moment of materialization in SubQuery constructor
       projection = new ProjectionExpression(
         subQueryExpression.ProjectionExpression.Type,
         itemProjector,
         subQueryExpression.ProjectionExpression.TupleParameterBindings,
         subQueryExpression.ProjectionExpression.ResultType);
 
-      // 3. make translation 
+      // 3. Make translation 
       elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;
       var resultType = SequenceHelper.GetSequenceType(elementType);
       var translateMethod = Translator.TranslateMethodInfo.MakeGenericMethod(new[] {resultType});

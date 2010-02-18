@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Transactions;
 using Xtensive.Core.Disposing;
+using System.Linq;
 
 namespace Xtensive.Storage
 {
@@ -257,6 +258,81 @@ namespace Xtensive.Storage
         var result = function.Invoke();
         transactionScope.Complete();
         return result;
+      }
+    }
+
+    #endregion
+
+    #region IEnumerable<T> extensions
+
+    /// <summary>
+    /// Converts the sequence to transactional.
+    /// In fact, it does nothing if current transaction is available;
+    /// otherwise it opens a new transaction, caches the sequence enumeration result,
+    /// closes the transaction and returns cached sequence enumerator.
+    /// </summary>
+    /// <typeparam name="T">The type of item in sequence.</typeparam>
+    /// <param name="source">The sequence to convert.</param>
+    /// <returns>"Transactional" version of sequence.</returns>
+    public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source)
+    {
+      return source.ToTransactional(Session.Demand(), IsolationLevel.Unspecified);
+    }
+
+    /// <summary>
+    /// Converts the sequence to transactional.
+    /// In fact, it does nothing if current transaction is available;
+    /// otherwise it opens a new transaction, caches the sequence enumeration result,
+    /// closes the transaction and returns cached sequence enumerator.
+    /// </summary>
+    /// <typeparam name="T">The type of item in sequence.</typeparam>
+    /// <param name="source">The sequence to convert.</param>
+    /// <param name="session">The session.</param>
+    /// <returns>"Transactional" version of sequence.</returns>
+    public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source, Session session)
+    {
+      return source.ToTransactional(session, IsolationLevel.Unspecified);
+    }
+
+    /// <summary>
+    /// Converts the sequence to transactional.
+    /// In fact, it does nothing if current transaction is available;
+    /// otherwise it opens a new transaction, caches the sequence enumeration result,
+    /// closes the transaction and returns cached sequence enumerator.
+    /// </summary>
+    /// <typeparam name="T">The type of item in sequence.</typeparam>
+    /// <param name="source">The sequence to convert.</param>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <returns>"Transactional" version of sequence.</returns>
+    public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source, IsolationLevel isolationLevel)
+    {
+      return source.ToTransactional(Session.Demand(), isolationLevel);
+    }
+
+    /// <summary>
+    /// Converts the sequence to transactional.
+    /// In fact, it does nothing if current transaction is available;
+    /// otherwise it opens a new transaction, caches the sequence enumeration result,
+    /// closes the transaction and returns cached sequence enumerator.
+    /// </summary>
+    /// <typeparam name="T">The type of item in sequence.</typeparam>
+    /// <param name="source">The sequence to convert.</param>
+    /// <param name="session">The session.</param>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <returns>"Transactional" version of sequence.</returns>
+    public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source, Session session, IsolationLevel isolationLevel)
+    {
+      if (Transaction.Current!=null)
+        foreach (var item in source)
+          yield return item;
+      else {
+        List<T> cached;
+        using (var tx = Transaction.Open(session, isolationLevel)) {
+          cached = source.ToList();
+          tx.Complete();
+        }
+        foreach (var item in cached)
+          yield return item;
       }
     }
 

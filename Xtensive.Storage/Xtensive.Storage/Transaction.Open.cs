@@ -23,7 +23,7 @@ namespace Xtensive.Storage
     public static TransactionScope Open()
     {
       var session = Session.Demand();
-      return session.OpenTransaction(TransactionOpenMode.Default, session.Configuration.DefaultIsolationLevel);
+      return session.OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified);
     }
 
     /// <summary>
