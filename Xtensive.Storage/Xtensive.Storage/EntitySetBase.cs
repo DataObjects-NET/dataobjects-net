@@ -66,7 +66,7 @@ namespace Xtensive.Storage
     /// </summary>
     protected internal IEnumerable<IEntity> Entities {
       get {
-        return InnerGetEntities().ToTransactional();
+        return InnerGetEntities().ToTransactional(Session);
       }
     }
 
@@ -121,7 +121,7 @@ namespace Xtensive.Storage
         if (context.IsEnabled())
           context.Add(new EntitySetOperation(Owner.Key, Operations.OperationType.ClearEntitySet, Field));
         SystemBeforeClear();
-        foreach (var entity in Entities)
+        foreach (var entity in Entities.ToList())
           Remove(entity);
         SystemClear();
         context.Complete();
@@ -527,7 +527,7 @@ namespace Xtensive.Storage
       if (this==other)
         return;
       var otherEntities = other.Cast<IEntity>().ToHashSet();
-      foreach (var item in Entities)
+      foreach (var item in Entities.ToList())
         if (!otherEntities.Contains(item))
           Remove(item);
     }

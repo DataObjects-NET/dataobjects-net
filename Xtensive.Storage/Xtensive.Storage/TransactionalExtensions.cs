@@ -327,6 +327,7 @@ namespace Xtensive.Storage
           yield return item;
       else {
         List<T> cached;
+        using (session.Activate())
         using (var tx = Transaction.Open(session, isolationLevel)) {
           cached = source.ToList();
           tx.Complete();
