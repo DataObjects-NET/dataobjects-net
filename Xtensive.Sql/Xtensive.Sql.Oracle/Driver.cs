@@ -5,6 +5,7 @@
 // Created:    2009.07.17
 
 using Xtensive.Sql.Info;
+using Xtensive.Sql.Oracle.v09;
 
 namespace Xtensive.Sql.Oracle
 {

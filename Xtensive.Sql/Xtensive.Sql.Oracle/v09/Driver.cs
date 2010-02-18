@@ -11,6 +11,11 @@ namespace Xtensive.Sql.Oracle.v09
 {
   internal class Driver : Oracle.Driver
   {
+    protected override ValueTypeMapping.TypeMapper CreateTypeMapper()
+    {
+      return new TypeMapper(this);
+    }
+
     protected override SqlCompiler CreateCompiler()
     {
       return new Compiler(this);

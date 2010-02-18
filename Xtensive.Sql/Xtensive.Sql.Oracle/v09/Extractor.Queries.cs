@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Oracle.v09
     {
       return
 @"SELECT
-    USERNAME,
+    USERNAME
 FROM
     SYS.ALL_USERS";
     }

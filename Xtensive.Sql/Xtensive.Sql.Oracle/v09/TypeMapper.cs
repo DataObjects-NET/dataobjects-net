@@ -10,7 +10,7 @@ using System.Data.Common;
 using Oracle.DataAccess.Client;
 using Oracle.DataAccess.Types;
 
-namespace Xtensive.Sql.Oracle
+namespace Xtensive.Sql.Oracle.v09
 {
   internal class TypeMapper : ValueTypeMapping.TypeMapper
   {
@@ -77,14 +77,14 @@ namespace Xtensive.Sql.Oracle
     public override void SetFloatParameterValue(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
-      nativeParameter.OracleDbType = OracleDbType.BinaryFloat;
+      nativeParameter.OracleDbType = OracleDbType.Single;
       nativeParameter.Value = value ?? DBNull.Value;
     }
 
     public override void SetDoubleParameterValue(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
-      nativeParameter.OracleDbType = OracleDbType.BinaryDouble;
+      nativeParameter.OracleDbType = OracleDbType.Double;
       nativeParameter.Value = value ?? DBNull.Value;
     }
 
@@ -167,12 +167,22 @@ namespace Xtensive.Sql.Oracle
       return ReadDecimalSafely(reader, index, MaxDecimalPrecision.Value, MaxDecimalPrecision.Value / 2);
     }
 
+    public override object ReadFloat(DbDataReader reader, int index)
+    {
+      return Convert.ToSingle(reader[index]);
+    }
+
+    public override object ReadDouble(DbDataReader reader, int index)
+    {
+      return Convert.ToDouble(reader[index]);
+    }
+
     public override object ReadTimeSpan(DbDataReader reader, int index)
     {
       var nativeReader = (OracleDataReader) reader;
       return (TimeSpan) nativeReader.GetOracleIntervalDS(index);
     }
-
+    
     public override object ReadGuid(DbDataReader reader, int index)
     {
       return SqlHelper.GuidFromString(reader.GetString(index));

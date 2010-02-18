@@ -36,9 +36,9 @@ namespace Xtensive.Sql.Tests
     [Test]
     public void InsertAndSelectTest()
     {
-      var model = ExtractCatalog();
-      EnsureTableNotExists(model.DefaultSchema, TableName);
-      var table = model.DefaultSchema.CreateTable(TableName);
+      var schema = ExtractDefaultSchema();
+      EnsureTableNotExists(schema, TableName);
+      var table = schema.CreateTable(TableName);
       var idColumnType = Driver.TypeMappings.Int.BuildSqlType();
       var idColumn = table.CreateColumn(IdColumnName, idColumnType);
       table.CreatePrimaryKey("PK_" + TableName, idColumn);
@@ -142,7 +142,7 @@ namespace Xtensive.Sql.Tests
       resultQuery.Columns.Add(SqlDml.Asterisk);
       resultQuery.OrderBy.Add(unionQueryRef[IdColumnName]);
       command.CommandText = Driver.Compile(resultQuery).GetCommandText();
-      VerifyResults(command);
+      VerifyResults(command, true);
     }
 
     protected virtual void CheckEquality(object expected, object actual)
@@ -157,12 +157,19 @@ namespace Xtensive.Sql.Tests
 
     private void VerifyResults(DbCommand command)
     {
+      VerifyResults(command, false);
+    }
+
+    private void VerifyResults(DbCommand command, bool skipCheckForByteArray)
+    {
       using (command)
       using (var reader = command.ExecuteReader()) {
         int rowIndex = 0;
         while (reader.Read()) {
           for (int columnIndex = 0; columnIndex < testValues.Length; columnIndex++) {
             var expectedValue = testValues[columnIndex][rowIndex];
+            if (expectedValue is byte[] && skipCheckForByteArray)
+              continue; // stupid hack for oracle
             var actualValue = !reader.IsDBNull(columnIndex + 1)
               ? ReadValue(typeMappings[columnIndex], reader, columnIndex + 1)
               : null;
