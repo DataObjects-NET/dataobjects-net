@@ -4,14 +4,19 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
+using System.Collections.Generic;
+
 namespace Xtensive.Sql.Oracle.v10
 {
   internal class Extractor : v09.Extractor
   {
-    protected override string ApplyTableFilter(string query)
+    protected override void RegisterReplacements(Dictionary<string, string> replacements)
     {
-      return query.Replace(TableFilterPlaceholder, "NOT LIKE 'BIN$%'");
+      base.RegisterReplacements(replacements);
+      replacements[TableFilterPlaceholder] = "NOT LIKE 'BIN$%'";
+      replacements[IndexesFilterPlaceholder] = "indexes.DROPPED = 'NO'";
     }
+   
 
     // Constructors
 

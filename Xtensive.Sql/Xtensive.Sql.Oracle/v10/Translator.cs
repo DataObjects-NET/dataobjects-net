@@ -11,6 +11,9 @@ namespace Xtensive.Sql.Oracle.v10
 {
   internal class Translator : v09.Translator
   {
+    public override string FloatFormatString { get { return base.FloatFormatString + "f"; } }
+    public override string DoubleFormatString { get { return base.DoubleFormatString + "d"; } }
+    
     // Constructors
 
     public Translator(SqlDriver driver)

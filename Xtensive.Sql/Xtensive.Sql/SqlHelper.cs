@@ -235,6 +235,16 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Quotes the string using standard SQL quoting rules.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>Quoted string.</returns>
+    public static string QuoteString(string value)
+    {
+      return "'" + value.Replace("'", "''").Replace("\0", string.Empty) + "'";
+    }
+
+    /// <summary>
     /// Creates a <see cref="NotSupportedException"/> with message that says that <paramref name="feature"/>
     /// is not supported by current storage.
     /// </summary>

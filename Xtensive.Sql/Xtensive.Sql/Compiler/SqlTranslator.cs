@@ -1727,7 +1727,7 @@ namespace Xtensive.Sql.Compiler
     /// <returns>Quoted string.</returns>
     public virtual string QuoteString(string str)
     {
-      return "'" + str.Replace("'", "''").Replace("\0", string.Empty) + "'";
+      return SqlHelper.QuoteString(str);
     }
 
     /// <summary>

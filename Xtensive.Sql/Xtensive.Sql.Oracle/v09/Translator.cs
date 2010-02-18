@@ -24,9 +24,7 @@ namespace Xtensive.Sql.Oracle.v09
     
     public override string DateTimeFormatString { get { return @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)"; } }
     public override string TimeSpanFormatString { get { return "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))"; } }
-    public override string FloatFormatString { get { return base.FloatFormatString + "f"; } }
-    public override string DoubleFormatString { get { return base.DoubleFormatString + "d"; } }
-
+    
     public override void Initialize()
     {
       base.Initialize();

@@ -22,6 +22,8 @@ namespace Xtensive.Sql.Oracle.v09
     private Catalog theCatalog;
     private string targetSchema;
 
+    private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
+
     protected override void Initialize()
     {
       theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
@@ -30,6 +32,8 @@ namespace Xtensive.Sql.Oracle.v09
     public override Catalog ExtractCatalog()
     {
       targetSchema = null;
+
+      RegisterReplacements(replacementsRegistry);
       ExtractSchemas();
       ExtractCatalogContents();
       return theCatalog;
@@ -37,11 +41,12 @@ namespace Xtensive.Sql.Oracle.v09
 
     public override Schema ExtractSchema(string schemaName)
     {
-      schemaName = schemaName.ToUpperInvariant();
-      theCatalog.CreateSchema(schemaName);
-      targetSchema = schemaName;
+      targetSchema = schemaName.ToUpperInvariant();
+      theCatalog.CreateSchema(targetSchema);
+
+      RegisterReplacements(replacementsRegistry);
       ExtractCatalogContents();
-      return theCatalog.Schemas[schemaName];
+      return theCatalog.Schemas[targetSchema];
     }
 
     private void ExtractCatalogContents()
@@ -360,35 +365,33 @@ namespace Xtensive.Sql.Oracle.v09
       }
     }
     
-    protected virtual string ApplySchemaFilter(string query)
+    protected virtual void RegisterReplacements(Dictionary<string, string> replacements)
     {
       var schemaFilter = targetSchema!=null
-        ? string.Format("= '{0}'", targetSchema)
+        ? "= " + SqlHelper.QuoteString(targetSchema)
         : "NOT IN ('SYS', 'SYSTEM')";
-      return query.Replace(SchemaFilterPlaceholder, schemaFilter);
+
+      replacements[SchemaFilterPlaceholder] = schemaFilter;
+      replacements[IndexesFilterPlaceholder] = "1 > 0";
+      replacements[TableFilterPlaceholder] = "IS NOT NULL";
     }
 
-    protected virtual string ApplyTableFilter(string query)
+    private string PerformReplacements(string query)
     {
-      return query.Replace(TableFilterPlaceholder, "IS NOT NULL");
-    }
-
-    protected virtual string ApplyFilters(string query)
-    {
-      query = ApplySchemaFilter(query);
-      query = ApplyTableFilter(query);
+      foreach (var registry in replacementsRegistry)
+        query = query.Replace(registry.Key, registry.Value);
       return query;
     }
 
     protected override DbDataReader ExecuteReader(string commandText)
     {
-      return base.ExecuteReader(ApplyFilters(commandText));
+      return base.ExecuteReader(PerformReplacements(commandText));
     }
 
     protected override DbDataReader ExecuteReader(ISqlCompileUnit statement)
     {
       var commandText = Connection.Driver.Compile(statement).GetCommandText();
-      return base.ExecuteReader(ApplyFilters(commandText));
+      return base.ExecuteReader(PerformReplacements(commandText));
     }
 
     
