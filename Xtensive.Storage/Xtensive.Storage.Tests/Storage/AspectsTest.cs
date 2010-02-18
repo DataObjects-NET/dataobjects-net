@@ -132,19 +132,21 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
     {            
       using (Session.Open(Domain)) {
         using (Transaction.Open()) {
-          BusinessObject obj = new BusinessObject();
+          var obj = new BusinessObject();
 
           using (Session.Open(Domain)) {
-            Session session2 = Session.Current;
+            var session2 = Session.Current;
             Assert.AreNotEqual(obj.Session, session2);
 
             // Check that transaction will be started in obj.Session, but not in second session.
 
-            obj.PublicMethod(
-              o => Assert.IsNotNull(o.Session.Transaction));
+            using (Session.Deactivate()) { // Prevents Session switching check error
+              obj.PublicMethod(
+                o => Assert.IsNotNull(o.Session.Transaction));
 
-            obj.PublicMethod(
-              o => Assert.IsNull(session2.Transaction));
+              obj.PublicMethod(
+                o => Assert.IsNull(session2.Transaction));
+            }
           }
         }
       }      

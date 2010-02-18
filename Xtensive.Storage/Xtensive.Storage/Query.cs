@@ -247,8 +247,8 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Creates the future and registers it for the later execution.
-    /// The query associated with the future will be cached.
+    /// Creates future scalar query and registers it for the later execution.
+    /// The query associated with the future scalar will be cached.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="key">An cache item's key.</param>
@@ -290,8 +290,8 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Creates the future and registers it for the later execution.
-    /// The query associated with the future will NOT be cached.
+    /// Creates future scalar query and registers it for the later execution.
+    /// The query associated with the future scalar will not be cached.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
@@ -306,8 +306,8 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Creates the future and registers it for the later execution.
-    /// The query associated with the future will be cached.
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
     /// </summary>
     /// <typeparam name="TElement">The type of the result element.</typeparam>
     /// <param name="key">An cache item's key.</param>
@@ -324,8 +324,8 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Creates the future and registers it for the later execution.
-    /// The query associated with the future will be cached.
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
     /// </summary>
     /// <typeparam name="TElement">The type of the result element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>

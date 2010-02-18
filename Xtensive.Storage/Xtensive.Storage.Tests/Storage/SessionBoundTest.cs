@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
@@ -15,7 +16,6 @@ namespace Xtensive.Storage.Tests.Storage
 {
   public class SessionBoundTest : AutoBuildTest
   {
-
     internal class TestHelper : SessionBound
     {
       public void Validate(Ray first, Ray second, Session secondSession)
@@ -27,8 +27,13 @@ namespace Xtensive.Storage.Tests.Storage
 
         Assert.AreEqual(Session.Current, first.Session);
         Assert.AreNotEqual(Session.Current, second.Session);
+        
+        AssertEx.ThrowsInvalidOperationException(() => {
+          bool result = first.Direction==second.Direction;
+        });
 
-        Assert.AreEqual(first.Direction, second.Direction);
+        using (Session.Deactivate())
+          Assert.AreEqual(first.Direction, second.Direction);
       }
 
       public TestHelper(Session session)
@@ -60,7 +65,8 @@ namespace Xtensive.Storage.Tests.Storage
 
             using (Transaction.Open()) {
               Ray ray2 = new Ray();
-              helper.Validate(ray1, ray2, Session.Current);
+              using (Session.Deactivate()) // To allow helper from session1 to activate its session
+                helper.Validate(ray1, ray2, Session.Current);
             }
           }
         }

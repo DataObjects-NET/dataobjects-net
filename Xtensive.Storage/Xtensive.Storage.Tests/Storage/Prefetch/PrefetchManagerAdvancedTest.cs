@@ -505,16 +505,20 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         using (var nestedSession = Session.Open(Domain)) {
           using (Transaction.Open()) {
             var count = 0;
-            foreach (var orderDetail in order.Details) {
-              Assert.AreSame(nestedSession, Session.Current);
-              Assert.AreSame(session, orderDetail.Session);
-              Assert.AreSame(session, orderDetail.Order.Session);
-              Assert.AreSame(order, orderDetail.Order);
-              count++;
+            Assert.AreSame(nestedSession, Session.Current);
+            using (Session.Deactivate()) { // Prevents Session switching check error
+              Assert.AreSame(null, Session.Current);
+              foreach (var orderDetail in order.Details) {
+                Assert.AreSame(null, Session.Current);
+                Assert.AreSame(session, orderDetail.Session);
+                Assert.AreSame(session, orderDetail.Order.Session);
+                Assert.AreSame(order, orderDetail.Order);
+                count++;
+              }
+              Assert.AreSame(session, order.Details.Session);
+              Assert.AreSame(session, order.Session);
+              Assert.AreEqual(4, count);
             }
-            Assert.AreSame(session, order.Details.Session);
-            Assert.AreSame(session, order.Session);
-            Assert.AreEqual(4, count);
           }
         }
       }

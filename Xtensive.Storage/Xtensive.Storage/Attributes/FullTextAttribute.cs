@@ -27,7 +27,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the configuration name for word-breaker and stemmer. 
     /// </summary>
-    public string Configuration { get; private set;}
+    public string Configuration { get; private set; }
 
   
     // Constructors

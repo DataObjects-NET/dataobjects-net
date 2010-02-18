@@ -13,6 +13,7 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Helpers;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Aspects
 {
@@ -96,14 +97,27 @@ namespace Xtensive.Storage.Aspects
     }
 
     /// <inheritdoc/>
-    // [DebuggerStepThrough]
+    /// <exception cref="InvalidOperationException">Session switching is detected.</exception>
+    [DebuggerStepThrough]
     public override object OnEntry(object instance)
     {
       var sessionBound = (ISessionBound) instance;
-      var sessionScope = openSession ? sessionBound.ActivateContext() : null;
+      var session = sessionBound.Session;
+      IDisposable sessionScope = null;
+      if (openSession) {
+        var currentSession = SessionScope.CurrentSession; // Not Session.Current -
+        // to avoid possible comparison with Session provided by Session.Resolver.
+        if (currentSession==null)
+          sessionScope = sessionBound.ActivateContext();
+        else {
+          if (currentSession!=session)
+            throw new InvalidOperationException(
+              Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked);
+          // No activation is necessary here
+        }
+      }
       if (!openTransaction)
         return sessionScope;
-      var session = sessionBound.Session;
       var transactionScope = session==null ? 
         Transaction.Open(mode) : 
         Transaction.Open(session, mode);
@@ -111,7 +125,7 @@ namespace Xtensive.Storage.Aspects
     }
 
     /// <inheritdoc/>
-    // [DebuggerStepThrough]
+    [DebuggerStepThrough]
     public override void OnSuccess(object instance, object onEntryResult)
     {
       if (!openTransaction)
@@ -131,7 +145,7 @@ namespace Xtensive.Storage.Aspects
     }
 
     /// <inheritdoc/>
-    // [DebuggerStepThrough]
+    [DebuggerStepThrough]
     public override void OnExit(object instance, object onEntryResult)
     {
       var disposable = (IDisposable) onEntryResult;

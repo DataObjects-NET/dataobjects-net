@@ -1388,4 +1388,7 @@ Actions:
   <data name="ExCyclicDependencyInQueryPreprocessorGraphIsDetected" xml:space="preserve">
     <value>Cyclic dependency in query preprocessor graph is detected.</value>
   </data>
+  <data name="ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked" xml:space="preserve">
+    <value>An attempt to automatically activate Session '{0}' inside Session '{1}' (Session switching) is blocked. Most likely, mixed usage of objects from different Sessions is a result of a bug in your code. Use manual Session activation (Session.Activate() or Session.Deactivate()) to avoid this exception, if this is intentional.</value>
+  </data>
 </root>

@@ -76,7 +76,11 @@ namespace Xtensive.Storage.Tests.Storage
         transactionScope = Transaction.Open();
       }
 
-      foreach (var book in author.Books) {        
+      // Requires manual Session switching, since NorthwindDOModelTest.SetUp 
+      // automatically activates a background Session.
+      using (Session.Deactivate()) {
+        foreach (var book in author.Books) {        
+        }
       }
 
       using (session.Activate()) {

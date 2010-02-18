@@ -19,11 +19,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
   [Infrastructure]
   internal class RemovalProcessor : SessionBound
   {
-    private static readonly CascadeActionProcessor cascadeActionProcessor = new CascadeActionProcessor();
-    private static readonly DenyActionProcessor    denyActionProcessor    = new DenyActionProcessor();
-    private static readonly ClearActionProcessor   clearActionProcessor   = new ClearActionProcessor();
+    #region Nested type: ReferenceDescriptor
 
-    class ReferenceContainer
+    class ReferenceDescriptor
     {
       public Entity RemovingEntity;
       public ActionProcessor Processor;
@@ -32,9 +30,15 @@ namespace Xtensive.Storage.ReferentialIntegrity
       public bool IsOutgoing;
     }
 
-    internal RemovalContext Context;
+    #endregion
 
-    public void RegisterForRemoval(IEnumerable<Entity> entities)
+    private static readonly CascadeActionProcessor cascadeActionProcessor = new CascadeActionProcessor();
+    private static readonly DenyActionProcessor    denyActionProcessor    = new DenyActionProcessor();
+    private static readonly ClearActionProcessor   clearActionProcessor   = new ClearActionProcessor();
+    
+    public RemovalContext Context { get; set; }
+
+    public void EnqueueForRemoval(IEnumerable<Entity> entities)
     {
       if (Context != null)
         Context.Enqueue(entities);
@@ -94,30 +98,30 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
       ExecutePrefetchAction(entities);
 
-      var referenceContainers = new List<ReferenceContainer>();
+      var referenceDescriptors = new List<ReferenceDescriptor>();
       foreach (var association in sequence) {
         if (association.OwnerType.UnderlyingType.IsAssignableFrom(entityType.UnderlyingType)) {
           foreach (var entity in entities) {
-            var container = new ReferenceContainer() {
+            var descriptor = new ReferenceDescriptor {
               RemovingEntity = entity,
               Processor = GetProcessor(association.OnOwnerRemove.Value),
               Association = association,
               References = ReferenceFinder.GetReferencesFrom(entity, association),
               IsOutgoing = true
             };
-            referenceContainers.Add(container);
+            referenceDescriptors.Add(descriptor);
           }
         }
         if (association.TargetType.UnderlyingType.IsAssignableFrom(entityType.UnderlyingType)) {
           foreach (var entity in entities) {
-            var container = new ReferenceContainer() {
+            var descriptor = new ReferenceDescriptor {
               RemovingEntity = entity,
               Processor = GetProcessor(association.OnTargetRemove.Value),
               Association = association,
               References = ReferenceFinder.GetReferencesTo(entity, association),
               IsOutgoing = false
             };
-            referenceContainers.Add(container);
+            referenceDescriptors.Add(descriptor);
           }
         }
       }
@@ -125,7 +129,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       if (Session.Handler.ExecutePrefetchTasks()==null);
         Session.ExecuteDelayedQueries();
 
-      foreach (var container in referenceContainers) {
+      foreach (var container in referenceDescriptors) {
         var processor = container.Processor;
         var association = container.Association;
         var removingEntity = container.RemovingEntity;

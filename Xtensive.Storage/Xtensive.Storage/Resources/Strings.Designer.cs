@@ -295,6 +295,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An attempt to automatically activate Session &apos;{0}&apos; inside Session &apos;{1}&apos; (Session switching) is blocked. Most likely, mixed usage of objects from different Sessions is a result of a bug in your code. Use manual Session activation (Session.Activate() or Session.Deactivate()) to avoid this exception, if this is intentional..
+        /// </summary>
+        internal static string ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked {
+            get {
+                return ResourceManager.GetString("ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Binary expressions with NodeType = &apos;ExpressionType.{0}&apos; aren&apos;t supported..
         /// </summary>
         internal static string ExBinaryExpressionsWithNodeTypeXAreNotSupported {

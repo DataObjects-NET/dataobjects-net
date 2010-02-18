@@ -237,7 +237,7 @@ namespace Xtensive.Storage
     /// </summary>
     public void RemoveLater()
     {
-      Session.RemovalProcessor.RegisterForRemoval(EnumerableUtils.One(this));
+      Session.RemovalProcessor.EnqueueForRemoval(EnumerableUtils.One(this));
     }
 
     /// <inheritdoc/>

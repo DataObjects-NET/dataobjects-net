@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Disposing;
 using Xtensive.Storage.Model;
 using System.Linq;
 

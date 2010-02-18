@@ -235,6 +235,17 @@ namespace Xtensive.Storage
         : new SessionScope(this);
     }
 
+    /// <summary>
+    /// Deactivates <see cref="Current"/> session making it equal to <see langword="null" />.
+    /// </summary>
+    /// <returns>A disposable object reverting the action.</returns>
+    public static SessionScope Deactivate()
+    {
+      return SessionScope.CurrentSession==null
+        ? null
+        : new SessionScope(null);
+    }
+
     /// <inheritdoc/>
     IDisposable IContext.Activate()
     {

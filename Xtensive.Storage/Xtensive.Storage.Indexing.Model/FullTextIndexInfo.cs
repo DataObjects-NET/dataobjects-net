@@ -5,10 +5,8 @@
 // Created:    2010.01.14
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
