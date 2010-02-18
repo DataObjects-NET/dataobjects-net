@@ -108,8 +108,9 @@ namespace Xtensive.Sql.Oracle.v09
     {
       var temporaryTableInfo = new TemporaryTableInfo();
       temporaryTableInfo.Features =
+        TemporaryTableFeatures.Global |
         TemporaryTableFeatures.DeleteRowsOnCommit |
-        TemporaryTableFeatures.Global;
+        TemporaryTableFeatures.PreserveRowsOnCommit;
       temporaryTableInfo.AllowedDdlStatements = DdlStatements.All;
       temporaryTableInfo.MaxIdentifierLength = MaxIdentifierLength;
       return temporaryTableInfo;

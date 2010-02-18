@@ -7,6 +7,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.ValueTypeMapping;
 
@@ -99,6 +101,16 @@ namespace Xtensive.Sql.SqlServer.v09
     public override SqlValueType BuildTimeSpanSqlType(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
+    }
+
+    public override object ReadDecimal(DbDataReader reader, int index)
+    {
+      var nativeReader = (SqlDataReader) reader;
+      // TODO: quickfix -- rewrite
+      var value = SqlDecimal.ConvertToPrecScale(
+        nativeReader.GetSqlDecimal(index),
+        MaxDecimalPrecision.Value - 2, MaxDecimalPrecision.Value / 3);
+      return value.Value;
     }
 
     public override object ReadTimeSpan(DbDataReader reader, int index)

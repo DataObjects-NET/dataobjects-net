@@ -327,5 +327,24 @@ namespace Xtensive.Storage.Tests.Storage
       var domain = Domain.Build(configuration);
       domain.Dispose();
     }
+
+    [Test]
+    public void DecimalTest()
+    {
+      const decimal magicNumber = 304861306900020.0000000000000000000m;
+      using (Session.Open(Domain)) {
+        Key key;
+        using (var transactionScope = Transaction.Open()) {
+          var theX = new X {FDecimal = magicNumber};
+          key = theX.Key;
+          transactionScope.Complete();
+        }
+        using (var transactionScope = Transaction.Open()) {
+          var theX = Query.Single<X>(key);
+          Assert.AreEqual(magicNumber, theX.FDecimal);
+          transactionScope.Complete();
+        }
+      }
+    }
   }
 }
