@@ -148,9 +148,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="OperationCompleted"/> event has subscribers.
     /// </summary>
-    internal bool OperationRegisterHasSubscribers()
-    {
-      return OperationCompleted != null;
+    internal bool OperationCompletedHasSubscribers {
+      get { return OperationCompleted!=null; }
     }
 
     private void NotifyPersisting()

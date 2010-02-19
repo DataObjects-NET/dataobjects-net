@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Disconnected
     private void KeyGenerated(object sender, KeyEventArgs e)
     {
       var keyGenerator = Session.Domain.KeyGenerators[e.Key.TypeRef.Type.Hierarchy.KeyProviderInfo];
-      Operations.Append(new GenerateKeyOperation(e.Key, keyGenerator));
+      Operations.Append(new GenerateKeyOperation(e.Key, false, keyGenerator));
     }
 
     private void OperationCompleted(object sender, OperationEventArgs e)

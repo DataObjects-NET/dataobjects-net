@@ -18,6 +18,21 @@ namespace Xtensive.Storage.Operations
   public abstract class Operation : IOperation, 
     ISerializable
   {
+    private string description;
+
+    /// <summary>
+    /// Gets or sets the operation description.
+    /// </summary>
+    public virtual string Description
+    {
+      get {
+        if (description==null)
+          description = Type.ToString();
+        return description;
+      }
+      protected set { description = value; }
+    }
+
     /// <summary>
     /// Gets or sets the operation type.
     /// </summary>

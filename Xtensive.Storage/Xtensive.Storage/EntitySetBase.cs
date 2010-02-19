@@ -114,7 +114,7 @@ namespace Xtensive.Storage
     {
       EnsureOwnerIsNotRemoved();
       using (var context = OpenOperationContext(true)) {
-        if (context.IsEnabled())
+        if (context.AreNormalOperationAccepted)
           context.Add(new EntitySetOperation(Owner.Key, Operations.OperationType.ClearEntitySet, Field));
         SystemBeforeClear();
         foreach (var entity in Entities.ToList())
@@ -396,7 +396,7 @@ namespace Xtensive.Storage
 
       try {
         using (var context = OpenOperationContext(true)) {
-          if (context.IsEnabled())
+          if (context.AreNormalOperationAccepted)
             context.Add(new EntitySetItemOperation(
               Owner.Key, 
               Field, 
@@ -447,7 +447,7 @@ namespace Xtensive.Storage
 
       try {
         using (var context = OpenOperationContext(true)) {
-          if (context.IsEnabled())
+          if (context.AreNormalOperationAccepted)
             context.Add(new EntitySetItemOperation(
               Owner.Key, 
               Field, 

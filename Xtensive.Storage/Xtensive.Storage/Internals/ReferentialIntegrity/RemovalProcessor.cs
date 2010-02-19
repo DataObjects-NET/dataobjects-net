@@ -54,10 +54,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
         using (var operationContext = OpenOperationContext(true)) 
         using (Context = new RemovalContext(this)) {
           Session.EnforceChangeRegistrySizeLimit();
-          var operationContextIsEnabled = operationContext.IsEnabled();
           foreach (var entity in entities) {
             entity.EnsureNotRemoved();
-            if (operationContextIsEnabled)
+            if (operationContext.AreNormalOperationAccepted)
               operationContext.Add(new EntityOperation(entity.Key, OperationType.RemoveEntity));
           }
           Context.Enqueue(entities);

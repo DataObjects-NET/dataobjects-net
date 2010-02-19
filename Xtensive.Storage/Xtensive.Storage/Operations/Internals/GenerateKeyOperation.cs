@@ -14,12 +14,20 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Operations
 {
   [Serializable]
-  internal sealed class GenerateKeyOperation : Operation
+  internal sealed class GenerateKeyOperation : Operation,
+    IUniqueOperation,
+    IEquatable<GenerateKeyOperation>
   {
     private const string keyName = "key";
     private readonly KeyGenerator keyGenerator;
+    private readonly Pair<Type, Key> identifier;
+    private readonly int hashCode;
 
     public Key Key { get; private set; }
+
+    public object Identifier { get { return identifier;} }
+
+    public bool IgnoreDuplicate { get; private set; }
 
     public override void Prepare(OperationExecutionContext context)
     {
@@ -35,6 +43,31 @@ namespace Xtensive.Storage.Operations
 
     public override void Execute(OperationExecutionContext context)
     {}
+
+    public bool Equals(GenerateKeyOperation other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return other.identifier.Equals(identifier);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      if (obj.GetType()!=typeof (GenerateKeyOperation))
+        return false;
+      return Equals((GenerateKeyOperation) obj);
+    }
+
+    public override int GetHashCode()
+    {
+      return hashCode;
+    }
 
     private void GenerateNewKey(OperationExecutionContext context, Domain domain)
     {
@@ -83,16 +116,19 @@ namespace Xtensive.Storage.Operations
 
     // Constructors
 
-    public GenerateKeyOperation(Key key)
+    public GenerateKeyOperation(Key key, bool ignoreDuplicate)
       : base(OperationType.GenerateKey)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
 
       Key = key;
+      IgnoreDuplicate = ignoreDuplicate;
+      identifier = new Pair<Type, Key>(GetType(), key);
+      hashCode = identifier.GetHashCode();
     }
 
-    public GenerateKeyOperation(Key key, KeyGenerator keyGenerator)
-      : this(key)
+    public GenerateKeyOperation(Key key, bool ignoreDuplicate, KeyGenerator keyGenerator)
+      : this(key, ignoreDuplicate)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyGenerator, "keyGenerator");
 
@@ -104,13 +140,14 @@ namespace Xtensive.Storage.Operations
     protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);
-      info.AddValue("key", (SerializableKey) Key, typeof (SerializableKey));
+      info.AddValue(keyName, (SerializableKey) Key, typeof (SerializableKey));
     }
 
     protected GenerateKeyOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
       Key = ((SerializableKey) info.GetValue(keyName, typeof (SerializableKey))).Key;
+      identifier = new Pair<Type, Key>(GetType(), Key);
     }
   }
 }

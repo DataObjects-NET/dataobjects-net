@@ -270,7 +270,7 @@ namespace Xtensive.Storage
       T oldValue = default(T);
       try {
         using (var context = OpenOperationContext(true)) {
-          if (context.IsEnabled()) {
+          if (context.AreNormalOperationAccepted) {
             var entity = this as Entity;
             if (entity != null)
               context.Add(new EntityFieldSetOperation(entity.Key, field, value));

@@ -178,7 +178,9 @@ namespace Xtensive.Storage
 
     internal CompilationContext CompilationContext { get { return Handlers.DomainHandler.CompilationContext; } }
 
-    internal OperationContext CurrentOperationContext { get; set; }
+    internal IOperationContext CurrentOperationContext { get; set; }
+
+    internal IOperationContext BlockingOperationContext { get; private set; }
 
     private void EnsureNotDisposed()
     {
@@ -330,7 +332,8 @@ namespace Xtensive.Storage
       EntityEventBroker = new EntityEventBroker();
       if (activate)
         sessionScope = new SessionScope(this);
-      CurrentOperationContext = OperationContext.Default;
+      //CurrentOperationContext = OperationContext.Default;
+      BlockingOperationContext = new BlockingOperationContext(this);
 
       // Creating Services
       var serviceContainerType = Configuration.ServiceContainerType ?? typeof (ServiceContainer);

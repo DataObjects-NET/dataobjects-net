@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Storage.Resources;
 using IObjectMappingOperationSet=Xtensive.Core.ObjectMapping.IOperationSet;
 
 namespace Xtensive.Storage.Operations
@@ -19,6 +20,7 @@ namespace Xtensive.Storage.Operations
     IObjectMappingOperationSet
   {
     private readonly List<IOperation> log = new List<IOperation>();
+    private HashSet<IUniqueOperation> uniqueOperations;
 
     /// <inheritdoc/>
     public long Count {
@@ -34,12 +36,16 @@ namespace Xtensive.Storage.Operations
     public void Append(IOperation operation)
     {
       log.Add(operation);
+      TryAppendUniqueOperation(operation);
     }
 
     /// <inheritdoc/>
     public void Append(IOperationSet source)
     {
-      log.AddRange(source);
+      foreach (var operation in source) {
+        log.Add(operation);
+        TryAppendUniqueOperation(operation);
+      }
     }
 
     /// <inheritdoc/>
@@ -81,6 +87,8 @@ namespace Xtensive.Storage.Operations
     public void Clear()
     {
       log.Clear();
+      if (uniqueOperations!=null)
+        uniqueOperations.Clear();
     }
 
     #region IEnumerable<...> implementation
@@ -98,5 +106,17 @@ namespace Xtensive.Storage.Operations
     }
 
     #endregion
+
+    private void TryAppendUniqueOperation(IOperation operation)
+    {
+      var uniqueOperation = operation as IUniqueOperation;
+      if (uniqueOperation!=null) {
+        if (uniqueOperations==null)
+          uniqueOperations = new HashSet<IUniqueOperation>();
+        if (!uniqueOperations.Add(uniqueOperation) && !uniqueOperation.IgnoreDuplicate)
+          throw new InvalidOperationException(
+            Strings.ExDuplicateForOperationXIsFound.FormatWith(uniqueOperation));
+      }
+    }
   }
 }

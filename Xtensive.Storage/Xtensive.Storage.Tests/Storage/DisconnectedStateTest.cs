@@ -157,7 +157,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public void CreateOrderItem(Product product, int count)
     {
       using (var context = OpenOperationContext(true)) {
-        if (context.IsEnabled()) {
+        if (context.AreNormalOperationAccepted) {
           var productKey = (SerializableKey)product.Key;
           var orderKey = (SerializableKey)Key;
           var operation = new CreateOrderItemOperation(product, this, count);

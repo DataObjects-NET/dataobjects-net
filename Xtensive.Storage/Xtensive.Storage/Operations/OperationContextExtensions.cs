@@ -22,30 +22,30 @@ namespace Xtensive.Storage.Operations
     /// <see langword="true"/> if the specified context is enabled; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsEnabled(this OperationContext context)
+    /*public static bool IsEnabled(this OperationContext context)
     {
       return context != null && context != OperationContext.Default && !context.completed;
-    }
+    }*/
 
     /// <summary>
     /// Completes the operation context.
     /// </summary>
     /// <param name="context">The context.</param>
-    public static void Complete(this OperationContext context)
+    /*public static void Complete(this OperationContext context)
     {
       if (context != null)
         context.completed = true;
-    }
+    }*/
 
     /// <summary>
     /// Adds the specified operation to the context.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="operation">The operation.</param>
-    public static void Add(this OperationContext context, IOperation operation)
+    /*public static void Add(this OperationContext context, IOperation operation)
     {
       if (context != null)
         context.Operations.Add(operation);
-    }
+    }*/
   }
 }
