@@ -24,6 +24,28 @@ namespace Xtensive.Storage.Tests.Storage
     }
 
     [Test]
+    public void CachedSubquerySequenceTest()
+    {
+      var categoryNames = Query.All<Category>()
+        .Select(c => c.CategoryName)
+        .ToList();
+      foreach (var categoryName in categoryNames) {
+        var result = Query.Execute(() => Query.All<Category>()
+          .Where(c => c.CategoryName == categoryName)
+          .Select(c => new {
+            Category = c, 
+            ProductsCount = Query.All<Product>().Count(p => p.Category.CategoryName == categoryName)})
+          ).ToList();
+        var expected = new {
+          Category = Query.All<Category>().First(c => c.CategoryName == categoryName),
+          ProductsCount = Query.All<Product>().Count(p => p.Category.CategoryName == categoryName)
+        };
+        Assert.AreSame(expected.Category, result.Single().Category);          
+        Assert.AreEqual(expected.ProductsCount, result.Single().ProductsCount);          
+      }
+    }
+
+    [Test]
     public void ScalarLongTest()
     {
       var productName = "Chai";

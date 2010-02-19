@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Linq
   {
     public readonly Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, TResult> Materializer;
     public Dictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
-    public IEnumerable<Parameter<Tuple>> TupleParameters { get; private set; }
+    public List<Parameter<Tuple>> TupleParameters { get; private set; }
 
     public override sealed Delegate UntypedMaterializer
     {

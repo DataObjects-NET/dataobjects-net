@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Linq
       var translatedQuery = new TranslatedQuery<TResult>(dataSource, materializer, projection.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
-      if (cachingScope!=null) {
+      if (cachingScope != null && translatedQuery.TupleParameters.Count == 0) {
         var parameterizedQuery = new ParameterizedQuery<TResult>(
           translatedQuery,
           cachingScope.QueryParameter);
