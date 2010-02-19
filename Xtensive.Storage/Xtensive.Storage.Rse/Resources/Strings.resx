@@ -210,4 +210,7 @@
   <data name="ExSequenceContainsMoreThanOneElement" xml:space="preserve">
     <value>Sequence contains more than one element.</value>
   </data>
+  <data name="ExCurrentCompilerIsNotSuitableForThisOperationMostLikelyThereIsNoActiveSession" xml:space="preserve">
+    <value>Current compiler is not suitable for this operation, most likely there is no active Session.</value>
+  </data>
 </root>

@@ -5,9 +5,6 @@
 // Created:    2009.02.14
 
 using System;
-using System.Diagnostics;
-using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -33,10 +30,11 @@ namespace Xtensive.Storage.Rse.Compilation
       return new StoreProvider(new Providers.Compilable.StoreProvider(provider.Origin), provider);
     }
 
+    /// <exception cref="NotSupportedException"></exception>
     /// <inheritdoc/>
     protected override ExecutableProvider VisitIndex(IndexProvider provider)
     {
-      throw new NotSupportedException();
+      throw new NotSupportedException(Resources.Strings.ExCurrentCompilerIsNotSuitableForThisOperationMostLikelyThereIsNoActiveSession);
     }
 
 
