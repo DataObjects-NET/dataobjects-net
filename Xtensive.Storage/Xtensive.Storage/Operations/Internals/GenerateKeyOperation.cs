@@ -14,20 +14,12 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Operations
 {
   [Serializable]
-  internal sealed class GenerateKeyOperation : Operation,
-    IUniqueOperation,
-    IEquatable<GenerateKeyOperation>
+  internal sealed class GenerateKeyOperation : UniqueOperationBase
   {
-    private const string keyName = "key";
     private readonly KeyGenerator keyGenerator;
-    private readonly Pair<Type, Key> identifier;
-    private readonly int hashCode;
+    private readonly bool ignoreDuplicate;
 
-    public Key Key { get; private set; }
-
-    public object Identifier { get { return identifier;} }
-
-    public bool IgnoreDuplicate { get; private set; }
+    public override bool IgnoreDuplicate { get { return ignoreDuplicate; } }
 
     public override void Prepare(OperationExecutionContext context)
     {
@@ -43,31 +35,6 @@ namespace Xtensive.Storage.Operations
 
     public override void Execute(OperationExecutionContext context)
     {}
-
-    public bool Equals(GenerateKeyOperation other)
-    {
-      if (ReferenceEquals(null, other))
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return other.identifier.Equals(identifier);
-    }
-
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType()!=typeof (GenerateKeyOperation))
-        return false;
-      return Equals((GenerateKeyOperation) obj);
-    }
-
-    public override int GetHashCode()
-    {
-      return hashCode;
-    }
 
     private void GenerateNewKey(OperationExecutionContext context, Domain domain)
     {
@@ -117,14 +84,9 @@ namespace Xtensive.Storage.Operations
     // Constructors
 
     public GenerateKeyOperation(Key key, bool ignoreDuplicate)
-      : base(OperationType.GenerateKey)
+      : base(key, OperationType.GenerateKey)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-
-      Key = key;
-      IgnoreDuplicate = ignoreDuplicate;
-      identifier = new Pair<Type, Key>(GetType(), key);
-      hashCode = identifier.GetHashCode();
+      this.ignoreDuplicate = ignoreDuplicate;
     }
 
     public GenerateKeyOperation(Key key, bool ignoreDuplicate, KeyGenerator keyGenerator)
@@ -134,20 +96,11 @@ namespace Xtensive.Storage.Operations
 
       this.keyGenerator = keyGenerator;
     }
-    
-    // Serialization
 
-    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue(keyName, (SerializableKey) Key, typeof (SerializableKey));
-    }
+    // Serialization
 
     protected GenerateKeyOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
-    {
-      Key = ((SerializableKey) info.GetValue(keyName, typeof (SerializableKey))).Key;
-      identifier = new Pair<Type, Key>(GetType(), Key);
-    }
+    {}
   }
 }

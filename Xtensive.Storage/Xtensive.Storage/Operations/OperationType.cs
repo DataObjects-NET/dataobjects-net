@@ -49,6 +49,10 @@ namespace Xtensive.Storage.Operations
     /// <summary>
     /// Key generation.
     /// </summary>
-    GenerateKey
+    GenerateKey,
+    /// <summary>
+    /// Version validation.
+    /// </summary>
+    ValidateVersion
   }
 }
