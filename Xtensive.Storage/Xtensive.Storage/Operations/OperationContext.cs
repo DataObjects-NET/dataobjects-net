@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Operations
     private readonly Session session;
     private readonly IOperationContext parentOperationContext;
     private List<IOperation> operations;
-    internal bool completed;
+    private bool completed;
 
     /// <inheritdoc/>
     public bool AreNormalOperationAccepted {get { return true; }}
