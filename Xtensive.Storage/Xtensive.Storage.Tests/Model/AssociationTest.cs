@@ -146,7 +146,7 @@ namespace Xtensive.Storage.Tests.Model
           foreach (Tuple tuple in rs) {
             var rs2 = a1.Type.Indexes.PrimaryIndex.ToRecordSet();
             foreach (Tuple tuple2 in rs2) {
-              Core.Log.Debug(tuple2.ToString());
+              Log.Debug(tuple2.ToString());
             }
           }
           // Rollback

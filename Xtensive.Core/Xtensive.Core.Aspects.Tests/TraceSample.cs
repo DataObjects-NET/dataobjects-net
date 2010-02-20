@@ -26,7 +26,7 @@ namespace Xtensive.Core.Aspects.Tests
     }
 
     [Trace("WriteMessage", TraceOptions.All, 
-      EventType = LogEventTypes.Warning, LogType = typeof(Xtensive.Core.Log))]
+      EventType = LogEventTypes.Warning, LogType = typeof(Log))]
     public bool WriteMessage(string message)
     {
       Log.Info("Inside LogTestSample.WriteMessage(\"{0}\")", message);

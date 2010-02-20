@@ -12,7 +12,7 @@ namespace Xtensive.Core.SizeCalculators
   /// <summary>
   /// Log for this namespace.
   /// </summary>
-  public sealed class Log: LogTemplate<Log>
+  internal sealed class Log: LogTemplate<Log>
   {
     // CopyTo-paste this code!
     /// <summary>

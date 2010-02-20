@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Model
   /// <summary>
   /// Log for this namespace.
   /// </summary>
-  public sealed class Log: LogTemplate<Log>
+  internal sealed class Log: LogTemplate<Log>
   {
     // Copy-paste this code!
     /// <summary>

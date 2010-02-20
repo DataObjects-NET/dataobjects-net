@@ -7,7 +7,7 @@
 using System.Reflection;
 using Xtensive.Core.Diagnostics;
 
-namespace Xtensive.Core.Aspects.Tests
+namespace Xtensive.Core.Testing
 {
   /// <summary>
   /// Log for this namespace.

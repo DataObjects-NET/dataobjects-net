@@ -5,7 +5,6 @@
 // Created:    2007.10.10
 
 using System;
-using System.Globalization;
 using System.Reflection;
 using log4net;
 using log4net.Core;
@@ -67,6 +66,7 @@ namespace Xtensive.Adapters.log4net
     
     #region Private methods
 
+    /// <exception cref="InvalidOperationException">RealLogImplementation.ToLevel: Wrong LogEventTypes.</exception>
     private Level ToLevel(LogEventTypes eventType)
     {
       switch(eventType) {
@@ -81,7 +81,8 @@ namespace Xtensive.Adapters.log4net
         case LogEventTypes.FatalError:
           return Level.Fatal;
         default:
-          throw Exceptions.InternalError("RealLogImplementation.ToLevel: Wrong LogEventTypes.", Core.Diagnostics.Log.Instance);
+          throw Exceptions.InternalError("RealLogImplementation.ToLevel: Wrong LogEventTypes.", 
+            log4net.Log.Instance);
       }
     }
 

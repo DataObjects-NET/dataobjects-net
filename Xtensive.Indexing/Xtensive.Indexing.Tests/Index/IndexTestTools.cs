@@ -43,7 +43,7 @@ namespace Xtensive.Indexing.Tests.Index
       foreach (IMeasure<TItem> measureResult in dataPage.MeasureResults) {
         sb.AppendFormat(" {0}: {1}", measureResult.Name, measureResult.Result);
       }
-      Core.Log.Info(sb.ToString());
+      Log.Info(sb.ToString());
       if (innerPage != null) {
         for (int i = -1; i < innerPage.CurrentSize; i++) {
           DumpPage(innerPage.GetPage(i), level + 1);
