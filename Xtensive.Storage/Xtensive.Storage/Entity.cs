@@ -102,11 +102,11 @@ namespace Xtensive.Storage
           foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
             if (root is IHasVersionRoots)
               throw new InvalidOperationException(Strings.ExVersionRootObjectCantImplementIHasVersionRoots);
-            version = version.Join(root.Key, root.VersionInfo);
+            version = version.Combine(root.Key, root.VersionInfo);
           }
           return version;
         }
-        if (Type.VersionExtractor==null)
+        if (Type.VersionInfoTupleExtractor==null)
           return new VersionInfo(); // returns empty VersionInfo
         var tuple = State.Tuple;
         var versionColumns = Type.GetVersionColumns();
@@ -122,7 +122,7 @@ namespace Xtensive.Storage
           Session.Handler.Prefetch(Key, Type, new FieldDescriptorCollection(columnsToPrefetch));
           Session.Handler.ExecutePrefetchTasks(true);
         }
-        var versionTuple = Type.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
+        var versionTuple = Type.VersionInfoTupleExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
         return new VersionInfo(versionTuple);
       }
     }
@@ -152,10 +152,8 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public bool IsRemoved
-    {
-      get
-      {
+    public bool IsRemoved {
+      get {
         if (Session.IsPersisting)
           // Removed = "already removed from storage" here
           return State.IsNotAvailable;
@@ -233,7 +231,8 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Register the entity in removing queue. Removal operation will be postponed 
-    /// until <see cref="Session.Persist"/> method is called; some query is executed or current transaction is being commited.
+    /// until <see cref="Session.Persist"/> method is called; some query is executed 
+    /// or current transaction is being committed.
     /// </summary>
     public void RemoveLater()
     {
@@ -286,13 +285,54 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Called when version is updated.
+    /// Invoked to update <see cref="VersionInfo"/>.
     /// </summary>
-    protected virtual void UpdateVersion()
+    /// <param name="changedEntity">The changed entity.</param>
+    /// <param name="changedField">The changed field.</param>
+    /// <returns>
+    /// <see langword="True"/>, if <see cref="VersionInfo"/> was changed;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <exception cref="NotSupportedException">Version root can't implement
+    /// <see cref="IHasVersionRoots"/>.</exception>
+    protected internal bool UpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
+    {
+      if (State.IsVersionInfoUpdated || IsRemoved || PersistenceState==PersistenceState.New)
+        return true;
+      bool changed = false;
+      try {
+        State.IsVersionInfoUpdated = true; // Prevents recursion
+        if (!Type.HasVersionRoots) 
+          changed = SystemUpdateVersionInfo(changedEntity, changedField);
+        else {
+          foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
+            if (root.Type.HasVersionRoots)
+              throw new NotSupportedException(Strings.ExVersionRootObjectCantImplementIHasVersionRoots);
+            changed |= root.UpdateVersionInfo(changedEntity, changedField);
+          }
+        }
+        return changed;
+      }
+      catch {
+        State.IsVersionInfoUpdated = changed;
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// Called to update the fields describing <see cref="Entity"/>'s version.
+    /// </summary>
+    /// <param name="changedEntity">The changed entity.</param>
+    /// <param name="changedField">The changed field.</param>
+    /// <returns>
+    /// <see langword="True"/>, if <see cref="VersionInfo"/> was changed;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    protected virtual bool HandleUpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
     {
       foreach (var field in Type.GetVersionFields())
-        SetFieldValue<object>(field.Name, 
-          IncrementalVersionGenerator.GetNext(GetFieldValue<object>(field.Name)));
+        SetFieldValue(field, VersionGenerator.GetNextVersion(GetFieldValue(field)));
+      return true;
     }
 
     #endregion
@@ -320,35 +360,23 @@ namespace Xtensive.Storage
       Session.Handler.FetchField(Key, field);
     }
 
-    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
-    internal void UpdateVersionInternal()
-    {
-      if ((!Type.HasVersionFields
-        && !Type.HasVersionRoots)
-        || IsRemoved
-        || State.IsVersionUpdated)
-        return;
-
-      try {
-        State.IsVersionUpdated = true;
-        if (!Type.HasVersionRoots)
-          UpdateVersion();
-        else
-          foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
-            if (root.Type.HasVersionRoots)
-              throw new NotSupportedException(Strings.ExVersionRootObjectCantImplementIHasVersionRoots);
-            root.UpdateVersionInternal();
-          }
-      }
-      catch {
-        State.IsVersionUpdated = false;
-        throw;
-      }
-    }
-
     #endregion
 
     #region System-level event-like members & GetSubscription members
+
+    private bool SystemUpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
+    {
+      if (!Session.IsSystemLogicOnly)
+        Session.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
+
+      bool changed = false;
+      if (changedEntity!=this || Type.HasVersionFields)
+        changed = HandleUpdateVersionInfo(changedEntity, changedField);
+
+      if (!Session.IsSystemLogicOnly)
+        Session.NotifyEntityVersionInfoChanged(changedEntity, changedField, changed);
+      return changed;
+    }
 
     internal void SystemBeforeRemove()
     {
@@ -382,6 +410,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
+
       Session.NotifyEntityRemoveCompleted(this, exception);
     }
 
@@ -429,6 +458,7 @@ namespace Xtensive.Storage
       try {
         if (Session.IsSystemLogicOnly)
           return;
+
         var subscriptionInfo = GetSubscription(EntityEventBroker.InitializationErrorPersistentEventKey);
         if (subscriptionInfo.Second!=null)
           ((Action<Key>) subscriptionInfo.Second)
@@ -481,6 +511,7 @@ namespace Xtensive.Storage
 
     internal override sealed void SystemBeforeChange()
     {
+      Session.NotifyEntityChanging(this);
       if (PersistenceState!=PersistenceState.New) {
         // Ensures there will be a DifferentialTuple, not the regular one
         var dTuple = State.DifferentialTuple;
@@ -513,7 +544,7 @@ namespace Xtensive.Storage
           // to avoid post-first property set flush.
           State.PersistenceState = PersistenceState.Modified;
         }
-      UpdateVersionInternal();
+      UpdateVersionInfo(this, field);
       
       if (Session.IsSystemLogicOnly)
         return;
@@ -619,11 +650,17 @@ namespace Xtensive.Storage
     /// <param name="state">The initial state of this instance fetched from storage.</param>
     protected Entity(EntityState state)
     {
-      State = state;
-      SystemBeforeInitialize(true);
-      // Required, since generated .ctors in descendants 
-      // don't call Initialize / InitializationFailed
-      LeaveCtorTransactionScope(); 
+      bool successfully = false;
+      try {
+        State = state;
+        SystemBeforeInitialize(true);
+        successfully = true;
+      }
+      finally {
+        // Required, since generated .ctors in descendants 
+        // don't call Initialize / InitializationFailed
+        LeaveCtorTransactionScope(successfully); 
+      }
     }
 
     /// <summary>
@@ -633,12 +670,18 @@ namespace Xtensive.Storage
     /// <param name="context">The <see cref="StreamingContext"/>.</param>
     protected Entity(SerializationInfo info, StreamingContext context)
     {
-      using (this.OpenSystemLogicOnlyRegion()) {
-        DeserializationContext.Demand().SetEntityData(this, info, context);
+      bool successfully = false;
+      try {
+        using (this.OpenSystemLogicOnlyRegion()) {
+          DeserializationContext.Demand().SetEntityData(this, info, context);
+        }
+        successfully = true;
       }
-      // Required, since generated .ctors in descendants 
-      // don't call Initialize / InitializationFailed
-      LeaveCtorTransactionScope(); 
+      finally {
+        // Required, since generated .ctors in descendants 
+        // don't call Initialize / InitializationFailed
+        LeaveCtorTransactionScope(successfully);
+      }
     }
   }
 }

@@ -40,7 +40,7 @@ namespace Xtensive.Storage.Providers.Index.Memory
     public override IStorageView GetView(Guid transactionId)
     {
       // TODO: Complete this
-      return new MemoryIndexStorageView(this, Model, IsolationLevel.ReadCommitted);
+      return new MemoryIndexStorageView(this, Model, IsolationLevel.RepeatableRead);
     }
 
     /// <inheritdoc/>

@@ -30,21 +30,10 @@ namespace Xtensive.Storage.Operations
     {
       var session = context.Session;
       var key = context.TryRemapKey(Key);
+      var valueKey = context.TryRemapKey(ValueKey);
       var entity = Query.Single(session, key);
-      var setter = DelegateHelper.CreateDelegate<Action<Entity,object>>(
-        this, 
-        typeof (EntityFieldSetOperation), 
-        "ExecuteSetValue", 
-        Field.ValueType);
-      var value = ValueKey != null 
-                    ? Query.Single(session, context.TryRemapKey(ValueKey)) 
-                    : Value;
-      setter.Invoke(entity, value);
-    }
-
-    private void ExecuteSetValue<T>(Entity entity, object value)
-    {
-      entity.SetFieldValue(Field, (T) value);
+      var value = ValueKey != null ? Query.Single(session, valueKey) : Value;
+      entity.SetFieldValue(Field, value);
     }
 
     

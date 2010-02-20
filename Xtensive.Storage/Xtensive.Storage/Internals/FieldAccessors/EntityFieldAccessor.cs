@@ -5,21 +5,18 @@
 // Created:    2008.05.26
 
 using System;
-using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.FieldAccessors
 {
   internal class EntityFieldAccessor<T> : FieldAccessor<T>
   {
-    public static readonly FieldAccessor<T> Instance = new EntityFieldAccessor<T>();
-
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    public override void SetValue(Persistent obj, T value)
     {
       var entity = value as Entity;
+      var field = Field;
 
       if (!ReferenceEquals(value, null) && entity==null)
         throw new InvalidOperationException(string.Format(
@@ -37,15 +34,14 @@ namespace Xtensive.Storage.Internals
           obj.Tuple.SetValue(i, null);
       }
       else {
-        EnsureGenericParameterIsValid(field);
         entity.Key.Value.CopyTo(obj.Tuple, 0, fieldIndex, mappingInfo.Length);
       }
     }
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj, FieldInfo field)
+    public override T GetValue(Persistent obj)
     {
-      EnsureGenericParameterIsValid(field);
+      var field = Field;
       Key key = obj.GetReferenceKey(field);
       if (key==null)
         return default(T);

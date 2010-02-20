@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Services
   /// </summary>
   [Service(typeof(DirectPersistentAccessor))]
   [Infrastructure]
-  public sealed class DirectPersistentAccessor : SessionBound,
+  public class DirectPersistentAccessor : SessionBound,
     ISessionService,
     IUsesSystemLogicOnlyRegions
   {
@@ -122,30 +122,29 @@ namespace Xtensive.Storage.Services
     /// <summary>
     /// Gets the value of the specified persistent field of the target.
     /// </summary>
+    /// <param name="target">The target.</param>
+    /// <param name="field">The field.</param>
+    /// <returns>Field value.</returns>
+    public object GetFieldValue(Persistent target, FieldInfo field)
+    {
+      using (this.OpenSystemLogicOnlyRegion()) {
+        ValidateArguments(target, field);
+        return target.GetFieldValue(field);
+      }
+    }
+
+    /// <summary>
+    /// Gets the value of the specified persistent field of the target.
+    /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="target">The target.</param>
     /// <param name="field">The field.</param>
-    /// <returns></returns>
+    /// <returns>Field value.</returns>
     public T GetFieldValue<T>(Persistent target, FieldInfo field)
     {
       using (this.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, field);
         return target.GetFieldValue<T>(field);
-      }
-    }
-
-    /// <summary>
-    /// Sets the value of the specified persistent field of the target.
-    /// </summary>
-    /// <typeparam name="T">Value type</typeparam>
-    /// <param name="target">The target persistent object.</param>
-    /// <param name="field">The field to set value for.</param>
-    /// <param name="value">The value to set.</param>
-    public void SetFieldValue<T>(Persistent target, FieldInfo field, T value)
-    {
-      using (this.OpenSystemLogicOnlyRegion()) {
-        ValidateArguments(target, field);
-        target.SetFieldValue(field, value);
       }
     }
 
@@ -171,6 +170,35 @@ namespace Xtensive.Storage.Services
     }
 
     /// <summary>
+    /// Sets the value of the specified persistent field of the target.
+    /// </summary>
+    /// <param name="target">The target persistent object.</param>
+    /// <param name="field">The field to set value for.</param>
+    /// <param name="value">The value to set.</param>
+    public void SetFieldValue(Persistent target, FieldInfo field, object value)
+    {
+      using (this.OpenSystemLogicOnlyRegion()) {
+        ValidateArguments(target, field);
+        target.SetFieldValue(field, value);
+      }
+    }
+
+    /// <summary>
+    /// Sets the value of the specified persistent field of the target.
+    /// </summary>
+    /// <typeparam name="T">Value type</typeparam>
+    /// <param name="target">The target persistent object.</param>
+    /// <param name="field">The field to set value for.</param>
+    /// <param name="value">The value to set.</param>
+    public void SetFieldValue<T>(Persistent target, FieldInfo field, T value)
+    {
+      using (this.OpenSystemLogicOnlyRegion()) {
+        ValidateArguments(target, field);
+        target.SetFieldValue(field, value);
+      }
+    }
+
+    /// <summary>
     /// Removes the specified entity.
     /// </summary>
     /// <param name="target">The entity to remove.</param>
@@ -184,9 +212,14 @@ namespace Xtensive.Storage.Services
 
     #endregion
 
-    #region Private members
+    #region Protected members
 
-    private static void ValidateArguments(Persistent target, FieldInfo field)
+    /// <summary>
+    /// Validates the arguments passed to some of methods.
+    /// </summary>
+    /// <param name="target">The persistent type.</param>
+    /// <param name="field">The field of persistent type.</param>
+    protected static void ValidateArguments(Persistent target, FieldInfo field)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentNotNull(field, "field");

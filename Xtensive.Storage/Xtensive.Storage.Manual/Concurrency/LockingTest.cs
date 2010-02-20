@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
   #endregion
   
   [TestFixture]
-  public class SessionSwitchingTest
+  public class LockingTest
   {
     public enum LockingMode 
     {
@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
       QueryLock
     }
 
-    private const string EntityLockTestName = "EntityLockTest";
+    private const string LockingTestName = "LockingTest";
     private const int TestTime = 5000;
     private Domain existingDomain;
     private volatile LockingMode lockingMode;
@@ -55,29 +55,29 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
 
 
     [Test]
-    public void LockingTest()
+    public void CombinedTest()
     {
       lockingMode = LockingMode.None;
       isolationLevel = IsolationLevel.ReadCommitted;
-      RunLockingTest("Counter isn't isolated.");
+      Run("Counter isn't isolated.");
 
       isolationLevel = IsolationLevel.RepeatableRead;
-      RunLockingTest("There are deadlocks or version conflicts, but counter is isolated.");
+      Run("There are deadlocks or version conflicts, but counter is isolated.");
 
       lockingMode = LockingMode.EntityLock;
-      RunLockingTest("Still can be a deadlock, since lock happen after read.");
+      Run("Still can be a deadlock, since lock happen after read.");
 
       lockingMode = LockingMode.QueryLock;
-      RunLockingTest("No deadlocks, counter isolation.");
+      Run("No deadlocks, counter isolation.");
     }
 
-    private void RunLockingTest(string remark)
+    private void Run(string remark)
     {
       using (var session = Session.Open(GetDomain()))
       using (var tx = Transaction.Open()) {
         Counter counter;
         if (counterKey==null) {
-          counter = new Counter(EntityLockTestName);
+          counter = new Counter(LockingTestName);
           counterKey = counter.Key;
         }
         else
@@ -86,10 +86,10 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
         tx.Complete();
       }
 
-      Console.WriteLine("{0}, LockingMode={1}, IsolationLevel = {2}", EntityLockTestName, lockingMode, isolationLevel);
+      Console.WriteLine("{0}, LockingMode={1}, IsolationLevel = {2}", LockingTestName, lockingMode, isolationLevel);
       Console.WriteLine("{0}", remark);
-      ThreadPool.QueueUserWorkItem(EntityLockTestThread, 500);
-      ThreadPool.QueueUserWorkItem(EntityLockTestThread, 333);
+      ThreadPool.QueueUserWorkItem(TestThread, 500);
+      ThreadPool.QueueUserWorkItem(TestThread, 333);
       WaitForCompletion();
 
       using (var session = Session.Open(GetDomain()))
@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Locking
       Console.WriteLine();
     }
 
-    private void EntityLockTestThread(object state)
+    private void TestThread(object state)
     {
       int delay = (int) state;
       var startTime = DateTime.UtcNow;

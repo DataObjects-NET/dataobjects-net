@@ -68,6 +68,7 @@ namespace Xtensive.Storage.Building.Builders
               SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
               context.Domain.Handler.BuildMapping();
               TypeIdBuilder.BuildTypeIds();
+              BuildTypeLevelCaches();
               if (builderConfiguration.UpgradeHandler!=null)
                 builderConfiguration.UpgradeHandler.Invoke();
               upgradeContext.TransactionScope.Complete();
@@ -208,10 +209,11 @@ namespace Xtensive.Storage.Building.Builders
     private static void BuildModel()
     {
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
-        ModelBuilder.Run();
         var context = BuildingContext.Demand();
         var domain = context.Domain;
+        ModelBuilder.Run();
         domain.Model = context.Model;
+        domain.Model.Lock(true);
       }
     }
 
@@ -231,6 +233,17 @@ namespace Xtensive.Storage.Building.Builders
           }
           domain.KeyGenerators.Add(keyProviderInfo, generator);
         }
+      }
+    }
+
+    private static void BuildTypeLevelCaches()
+    {
+      using (Log.InfoRegion(Strings.LogBuildingX, Strings.CachedTypeInfo)) {
+        var context = BuildingContext.Demand();
+        var domain = context.Domain;
+        foreach (var typeInfo in domain.Model.Types)
+          if (typeInfo.TypeId!=Model.TypeInfo.NoTypeId)
+            domain.TypeLevelCaches.Add(typeInfo.TypeId, new TypeLevelCache(typeInfo));
       }
     }
 

@@ -331,18 +331,24 @@ namespace Xtensive.Storage
     /// <param name="field">The owner field that describes this instance.</param>
     protected Structure(Persistent owner, FieldInfo field)
     {
-      type = GetTypeInfo();
-      Owner = owner;
-      Field = field;
-      if (owner == null || field == null)
-        tuple = type.TuplePrototype.Clone();
-      else
-        tuple = field.ExtractValue(
-          new ReferencedTuple(() => Owner.Tuple));
-      SystemBeforeInitialize(false);
-      // Required, since generated .ctors in descendants 
-      // don't call Initialize / InitializationFailed
-      LeaveCtorTransactionScope(); 
+      bool successfully = false;
+      try {
+        type = GetTypeInfo();
+        Owner = owner;
+        Field = field;
+        if (owner==null || field==null)
+          tuple = type.TuplePrototype.Clone();
+        else
+          tuple = field.ExtractValue(
+            new ReferencedTuple(() => Owner.Tuple));
+        SystemBeforeInitialize(false);
+        successfully = true;
+      }
+      finally {
+        // Required, since generated .ctors in descendants 
+        // don't call Initialize / InitializationFailed
+        LeaveCtorTransactionScope(successfully);
+      }
     }
 
     /// <summary>

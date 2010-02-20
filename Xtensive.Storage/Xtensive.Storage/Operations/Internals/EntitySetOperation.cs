@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Operations
       var session = context.Session;
       var key = context.TryRemapKey(Key);
       var target = Query.Single(session, key);
-      var entitySet = target.GetFieldValue<EntitySetBase>(Field);
+      var entitySet = (EntitySetBase) target.GetFieldValue(Field);
       entitySet.Clear();
     }
 

@@ -17,7 +17,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 
-namespace Xtensive.Storage.Disconnected
+namespace Xtensive.Storage
 {
   /// <summary>
   /// An attachable service validating versions inside the specified <see cref="Session"/>.
@@ -48,9 +48,8 @@ namespace Xtensive.Storage.Disconnected
       var expectedVersion = expectedVersionProvider.Invoke(key);
       if (expectedVersion.IsVoid)
         return true;
-      if (version.IsVoid)
-        return false;
-      return expectedVersion==version;
+      else
+        return expectedVersion==version;
     }
 
     /// <summary>
@@ -77,25 +76,11 @@ namespace Xtensive.Storage.Disconnected
 
     #region Valiadtor logic
 
-    private void OnEntityChanging(Entity entity)
-    {
-      if (entity.PersistenceState==PersistenceState.New)
-        return;
-      if (entity.Type.VersionExtractor==null)
-        return;
-      if (entity.State.IsStale)
-        return;
-      if (knownVersions.ContainsKey(entity.Key))
-        return;
-      if (processed.Contains(entity.Key))
-        return;
-      knownVersions.Add(entity.Key, entity.VersionInfo);
-    }
-
     private void EnqueueVersionValidation(Entity entity)
     {
-      if (entity.Type.VersionExtractor==null
-        || queuedVersions.ContainsKey(entity.Key))
+      if (entity.Type.VersionInfoTupleExtractor==null
+        || queuedVersions.ContainsKey(entity.Key)
+        || processed.Contains(entity.Key))
         return;
       VersionInfo version;
       if (knownVersions.TryGetValue(entity.Key, out version))
@@ -153,7 +138,7 @@ namespace Xtensive.Storage.Disconnected
     {
       if (state==null)
         return new VersionInfo();
-      var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, state);
+      var versionTuple = type.VersionInfoTupleExtractor.Apply(TupleTransformType.Tuple, state);
       return new VersionInfo(versionTuple);
     }
 
@@ -161,30 +146,45 @@ namespace Xtensive.Storage.Disconnected
 
     #region Event handlers
 
+    private void OnTransactionOpened(object sender, TransactionEventArgs e)
+    {
+      processed = new HashSet<Key>();
+      knownVersions = new Dictionary<Key, VersionInfo>();
+    }
+
+    private void OnTransactionClosed(object sender, TransactionEventArgs e)
+    {
+      processed = null;
+      knownVersions = null;
+    }
+
+    private void OnEntityVersionInfoChanging(object sender, EntityVersionInfoChangedEventArgs e)
+    {
+      OnEntityChanging(e.Entity);
+    }
+
     private void OnEntityRemoving(object sender, EntityEventArgs e)
     {
       OnEntityChanging(e.Entity);
     }
 
-    private void OnEntitySetItemRemoving(object sender, EntitySetItemEventArgs e)
+    private void OnEntityChanging(Entity entity)
     {
-      OnEntityChanging(e.EntitySet.Owner);
-    }
-
-    private void OnEntitySetItemAdding(object sender, EntitySetItemEventArgs e)
-    {
-      OnEntityChanging(e.EntitySet.Owner);
-    }
-
-    private void OnEntityFieldValueSetting(object sender, FieldValueEventArgs e)
-    {
-      OnEntityChanging(e.Entity);
-    }
-
-    private void OnTransactionOpened(object sender, TransactionEventArgs e)
-    {
-      processed = new HashSet<Key>();
-      knownVersions = new Dictionary<Key, VersionInfo>();
+      // "return" here means "we can't rely on Entity.VersionInfo,
+      // and so it must be fetched on Session.Persist, or
+      // there is nothing to validate"
+      if (entity.PersistenceState==PersistenceState.New)
+        return;
+      if (entity.Type.VersionInfoTupleExtractor==null)
+        return;
+      if (entity.State.IsStale && !entity.Type.HasVersionRoots)
+        return;
+      // Here we know the actual version is stored in VersionInfo
+      if (knownVersions.ContainsKey(entity.Key))
+        return;
+      if (processed.Contains(entity.Key))
+        return;
+      knownVersions.Add(entity.Key, entity.VersionInfo);
     }
 
     private void OnPersisting(object sender, EventArgs e)
@@ -218,13 +218,13 @@ namespace Xtensive.Storage.Disconnected
         throw new InvalidOperationException(Strings.ExTheServiceIsAlreadyAttachedToSession);
       isAttached = true;
       try {
+        Session.TransactionOpened += OnTransactionOpened;
+        Session.TransactionCommitted += OnTransactionClosed;
+        Session.TransactionRollbacked += OnTransactionClosed;
+        Session.EntityVersionInfoChanging += OnEntityVersionInfoChanging;
+        Session.EntityRemoving += OnEntityRemoving;
         Session.Persisting += OnPersisting;
         Session.Persisted += OnPersisted;
-        Session.TransactionOpened += OnTransactionOpened;
-        Session.EntityFieldValueSetting += OnEntityFieldValueSetting;
-        Session.EntitySetItemAdding += OnEntitySetItemAdding;
-        Session.EntitySetItemRemoving += OnEntitySetItemRemoving;
-        Session.EntityRemoving += OnEntityRemoving;
       }
       catch {
         DetachEventHandlers();
@@ -236,13 +236,13 @@ namespace Xtensive.Storage.Disconnected
     {
       if (isAttached) {
         isAttached = false;
+        Session.TransactionOpened -= OnTransactionOpened;
+        Session.TransactionCommitted -= OnTransactionClosed;
+        Session.TransactionRollbacked -= OnTransactionClosed;
+        Session.EntityVersionInfoChanging -= OnEntityVersionInfoChanging;
+        Session.EntityRemoving -= OnEntityRemoving;
         Session.Persisting -= OnPersisting;
         Session.Persisted -= OnPersisted;
-        Session.TransactionOpened -= OnTransactionOpened;
-        Session.EntityFieldValueSetting -= OnEntityFieldValueSetting;
-        Session.EntitySetItemAdding -= OnEntitySetItemAdding;
-        Session.EntitySetItemRemoving -= OnEntitySetItemRemoving;
-        Session.EntityRemoving -= OnEntityRemoving;
       }
     }
 

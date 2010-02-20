@@ -88,6 +88,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type-related information cache.
+        /// </summary>
+        internal static string CachedTypeInfo {
+            get {
+                return ResourceManager.GetString("CachedTypeInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t access member &apos;{0}&apos;.
         /// </summary>
         internal static string CantAccessMemberX {
@@ -409,6 +418,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExCannotFindHandlerOfTypeX {
             get {
                 return ResourceManager.GetString("ExCannotFindHandlerOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t generate next version value of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExCannotGenerateNextVersionValueOfTypeX {
+            get {
+                return ResourceManager.GetString("ExCannotGenerateNextVersionValueOfTypeX", resourceCulture);
             }
         }
         
@@ -1959,6 +1977,24 @@ namespace Xtensive.Storage.Resources {
         internal static string ExPrimaryKeyFieldXCanTBeMarkedAsVersion {
             get {
                 return ResourceManager.GetString("ExPrimaryKeyFieldXCanTBeMarkedAsVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property &apos;{0}&apos; doesn&apos;t have public getter..
+        /// </summary>
+        internal static string ExPropertyXDoesnTHavePublicGetter {
+            get {
+                return ResourceManager.GetString("ExPropertyXDoesnTHavePublicGetter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property &apos;{0}&apos; doesn&apos;t have public setter..
+        /// </summary>
+        internal static string ExPropertyXDoesnTHavePublicSetter {
+            get {
+                return ResourceManager.GetString("ExPropertyXDoesnTHavePublicSetter", resourceCulture);
             }
         }
         

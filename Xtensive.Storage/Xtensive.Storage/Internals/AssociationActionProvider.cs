@@ -24,11 +24,11 @@ namespace Xtensive.Storage.Internals
 
     static AssociationActionProvider()
     {
-      GetReferenceAction      = (association, owner) => ((Entity)owner).GetFieldValue<IEntity>(association.OwnerField);
-      ClearReferenceAction    = (association, owner, target) => ((Entity)owner).SetFieldValue<IEntity>(association.OwnerField, null);
-      SetReferenceAction      = (association, owner, target) => ((Entity)owner).SetFieldValue(association.OwnerField, target);
-      AddReferenceAction      = (association, owner, target) => ((Entity)owner).GetFieldValue<EntitySetBase>(association.OwnerField).Add((Entity)target);
-      RemoveReferenceAction   = (association, owner, target) => ((Entity)owner).GetFieldValue<EntitySetBase>(association.OwnerField).Remove((Entity)target);
+      GetReferenceAction      = (association, owner) => (IEntity) ((Entity)owner).GetFieldValue(association.OwnerField);
+      ClearReferenceAction    = (association, owner, target) => ((Entity)owner).SetFieldValue(association.OwnerField, null);
+      SetReferenceAction      = (association, owner, target) => ((Entity)owner).SetFieldValue(association.OwnerField, (object) target);
+      AddReferenceAction      = (association, owner, target) => ((EntitySetBase) ((Entity)owner).GetFieldValue(association.OwnerField)).Add((Entity)target);
+      RemoveReferenceAction   = (association, owner, target) => ((EntitySetBase) ((Entity)owner).GetFieldValue(association.OwnerField)).Remove((Entity)target);
     }
   }
 }

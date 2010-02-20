@@ -4,17 +4,18 @@
 // Created by: Alex Kofman
 // Created:    2009.10.08
 
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Arguments for field-related events.
+  /// Describes <see cref="Entity"/> field-related events.
   /// </summary>
-  public class FieldEventArgs : EntityEventArgs
+  public class EntityFieldEventArgs : EntityEventArgs
   {
     /// <summary>
-    /// Gets the field.
+    /// Gets the field to which this event is related.
     /// </summary>
     public FieldInfo Field { get; private  set; }
 
@@ -23,11 +24,11 @@ namespace Xtensive.Storage
 
 
     /// <summary>
-    /// <inheritdoc/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="entity">The entity.</param>
     /// <param name="field">The field.</param>
-    public FieldEventArgs(Entity entity, FieldInfo field)
+    public EntityFieldEventArgs(Entity entity, FieldInfo field)
       : base(entity)
     {
       Field = field;

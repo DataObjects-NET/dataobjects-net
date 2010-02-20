@@ -6,21 +6,17 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.FieldAccessors
 {
   internal class StructureFieldAccessor<T> : CachingFieldAccessor<T>
   {
-    public static readonly FieldAccessor<T> Instance = new StructureFieldAccessor<T>();
-
     /// <inheritdoc/>
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    public override void SetValue(Persistent obj, T value)
     {
+      var field = Field;
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
-      EnsureGenericParameterIsValid(field);
       var valueType = value.GetType();
       if (field.ValueType != valueType)
         throw new InvalidOperationException(String.Format(
@@ -33,9 +29,11 @@ namespace Xtensive.Storage.Internals
       structure.Tuple.CopyTo(obj.Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
     }
 
+    // Type initializer
+
     static StructureFieldAccessor()
     {
-       ctor = (obj, field) => Activator.CreateStructure(field.ValueType, obj, field);
+       Constructor = (obj, field) => Activator.CreateStructure(field.ValueType, obj, field);
     }
   }
 }

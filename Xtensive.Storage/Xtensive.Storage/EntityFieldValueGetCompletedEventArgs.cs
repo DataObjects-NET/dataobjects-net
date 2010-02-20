@@ -5,17 +5,18 @@
 // Created:    2009.10.22
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Arguments for completing get value event.
+  /// Describes <see cref="Entity"/> field reading completion events.
   /// </summary>
-  public class FieldValueGetCompletedEventArgs : FieldValueEventArgs
+  public class EntityFieldValueGetCompletedEventArgs : EntityFieldValueEventArgs
   {
     /// <summary>
-    /// Gets the exception.
+    /// Gets the exception, if any, that was thrown on getting the field value.
     /// </summary>
     public Exception Exception { get; private set; }
 
@@ -23,13 +24,13 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <summary>
-    /// <inheritdoc/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="entity">The entity.</param>
     /// <param name="field">The field.</param>
-    /// <param name="value">The <see cref="FieldValueEventArgs.Value"/> property initial value.</param>
-    /// <param name="exception">The <see cref="Exception"/> property initial value.</param>
-    public FieldValueGetCompletedEventArgs(Entity entity, FieldInfo field, object value, Exception exception)
+    /// <param name="value">The <see cref="EntityFieldValueEventArgs.Value"/> value.</param>
+    /// <param name="exception">The <see cref="Exception"/> value.</param>
+    public EntityFieldValueGetCompletedEventArgs(Entity entity, FieldInfo field, object value, Exception exception)
       : base(entity, field, value)
     {
       Exception = exception;

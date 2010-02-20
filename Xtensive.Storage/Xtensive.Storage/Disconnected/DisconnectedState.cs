@@ -257,11 +257,7 @@ namespace Xtensive.Storage.Disconnected
       var targetVersion = GetVersion(cachedState.Key.Type, cachedState.Tuple);
       var sourceVersion = GetVersion(key.Type, tuple);
 
-      var isVersionEquals =
-        (targetVersion.IsVoid && sourceVersion.IsVoid)
-          || (!targetVersion.IsVoid && !sourceVersion.IsVoid && targetVersion==sourceVersion);
-
-      if (isVersionEquals)
+      if (targetVersion==sourceVersion)
         originalState.MergeUnavailableFields(key, tuple);
       else if (mergeMode==MergeMode.Strict)
         throw new InvalidOperationException(string.Format(
@@ -379,9 +375,9 @@ namespace Xtensive.Storage.Disconnected
 
     private static VersionInfo GetVersion(TypeInfo type, Tuple tuple)
     {
-      if (type.VersionExtractor==null)
+      if (type.VersionInfoTupleExtractor==null)
         return new VersionInfo();
-      var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, tuple);
+      var versionTuple = type.VersionInfoTupleExtractor.Apply(TupleTransformType.Tuple, tuple);
       return new VersionInfo(versionTuple);
     }
 

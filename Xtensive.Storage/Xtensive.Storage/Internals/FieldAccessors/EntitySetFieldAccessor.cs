@@ -5,26 +5,24 @@
 // Created:    2008.09.05
 
 using System;
-using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.FieldAccessors
 {
   internal class EntitySetFieldAccessor<T> : CachingFieldAccessor<T> 
   {
-    public static readonly FieldAccessor<T> Instance = new EntitySetFieldAccessor<T>();
-
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Always thrown by this method.</exception>
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    public override void SetValue(Persistent obj, T value)
     {
       throw new InvalidOperationException(Strings.ExEntitySetCanTBeAssigned);
     }
 
+    // Type initializer
 
     static EntitySetFieldAccessor()
     {
-       ctor = (obj, field) => Activator.CreateEntitySet((Entity) obj, field);
+       Constructor = (obj, field) => Activator.CreateEntitySet((Entity) obj, field);
     }
   }
 }

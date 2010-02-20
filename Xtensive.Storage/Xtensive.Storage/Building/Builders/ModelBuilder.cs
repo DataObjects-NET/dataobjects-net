@@ -17,6 +17,7 @@ using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using TypeHelper=Xtensive.Core.Reflection.TypeHelper;
 
 namespace Xtensive.Storage.Building.Builders
 {

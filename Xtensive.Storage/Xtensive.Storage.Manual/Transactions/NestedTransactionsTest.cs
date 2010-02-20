@@ -10,7 +10,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Configuration;
 
-namespace Xtensive.Storage.Manual.Transactions
+namespace Xtensive.Storage.Manual.Transactions.NestedTransactions
 {
   #region Model
 

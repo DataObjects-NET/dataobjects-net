@@ -75,8 +75,10 @@ namespace Xtensive.Storage.Providers
           yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
-    private static IEnumerable<PersistAction> GetInsertSequence(IEnumerable<EntityState> entityStates)
+    private IEnumerable<PersistAction> GetInsertSequence(IEnumerable<EntityState> entityStates)
     {
+      var domain = Session.Domain;
+
       // Topological sorting
       List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;
       List<EntityState> sortedEntities;
@@ -95,14 +97,18 @@ namespace Xtensive.Storage.Providers
         var entityState = restoreGroup.Key;
         entityState.PersistenceState = PersistenceState.Synchronized;
         entityState.Entity.SystemBeforeChange();
-        foreach (var restoreData in restoreGroup)
-          Persistent.GetAccessor<IEntity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, restoreData.Third);
+        foreach (var restoreData in restoreGroup) {
+          Persistent.GetFieldAccessor(domain, restoreData.Second)
+            .SetUntypedValue(restoreData.First.Entity, restoreData.Third);
+        }
         yield return new PersistAction(entityState, PersistActionKind.Update);
       }
     }
 
-    private static IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
+    private IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
     {
+      var domain = Session.Domain;
+
       // Rolling back the changes in state to properly sort it
       foreach (var state in entityStates)
         state.RollbackDifference();
@@ -120,7 +126,8 @@ namespace Xtensive.Storage.Providers
       // Restore loop links
       foreach (var restoreData in loopReferences) {
         // No necessity to call Entity.SystemBeforeChange, since it already is
-        Persistent.GetAccessor<Entity>(restoreData.Second).SetValue(restoreData.First.Entity, restoreData.Second, null);
+        Persistent.GetFieldAccessor(domain, restoreData.Second)
+          .SetUntypedValue(restoreData.First.Entity, null);
         yield return new PersistAction(restoreData.First, PersistActionKind.Update);
       }
 
@@ -128,10 +135,12 @@ namespace Xtensive.Storage.Providers
         yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
-    private static void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates,
+    private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates,
       out List<EntityState> sortResult, out List<EntityState> unreferencedData,
       out List<Triplet<EntityState, FieldInfo, Entity>> keysToRestore)
     {
+      var domain = Session.Domain;
+
       var sortData = new Dictionary<Key, Node<EntityState, AssociationInfo>>();
       unreferencedData = new List<EntityState>();
       foreach (var data in entityStates) {
@@ -169,7 +178,8 @@ namespace Xtensive.Storage.Providers
         keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.OwnerField, edge.Destination.Item.Entity));
         var entity = edge.Source.Item.Entity;
         entity.SystemBeforeChange();
-        Persistent.GetAccessor<Entity>(associationInfo.OwnerField).SetValue(entity, associationInfo.OwnerField, null);
+        Persistent.GetFieldAccessor(domain, associationInfo.OwnerField)
+          .SetUntypedValue(entity, null);
       }
     }
   }

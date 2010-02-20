@@ -10,12 +10,12 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Arguments for <see cref="Entity"/>-related events.
+  /// Describes <see cref="Entity"/>-related events.
   /// </summary>
   public class EntityEventArgs : EventArgs
   {
     /// <summary>
-    /// Gets the entity.
+    /// Gets the entity to which this event is related.
     /// </summary>
     public Entity Entity { get; private set; }
 

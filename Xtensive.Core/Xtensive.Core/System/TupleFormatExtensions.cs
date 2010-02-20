@@ -4,6 +4,7 @@
 // Created by: Elena Vakhtina
 // Created:    2008.11.11
 
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -11,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Conversion;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples;
+using System.Linq;
 
 namespace System
 {
@@ -19,44 +21,38 @@ namespace System
   /// </summary>
   public static class TupleFormatExtensions
   {
-    private static Regex allExceptLastValueRegex = new Regex("(( (?<value>[^\"]*?),)|( \"(?<value>.*?)\",))",
-      RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
-    private static Regex lastValueRegex = new Regex("(, \"(?<value>.*?)\"$)|(, (?<value>[^\"]*?)$)",
-      RegexOptions.RightToLeft | RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
-    private static Regex onlyOneValueRegex = new Regex("( \"(?<value>.*)\"$)|( (?<value>[^\"]*)$)",
-      RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
     private static readonly FormatHandler formatHandler 
       = new FormatHandler();
     private static readonly ParseHandler parseHandler 
       = new ParseHandler();
-    private const string nullValue = "null";
+    private const string NullValue = "null";
+    private const string Quote = "\"";
+    private const char Escape = '\\';
+    private const char Comma = ',';
 
     #region Nested types: FormatData, ParseData
 
     private struct FormatData
     {
       public Tuple Source;
-      public StringBuilder Target;
+      public string[] Target;
 
       public FormatData(Tuple source)
       {
         Source = source;
-        Target = new StringBuilder();
+        Target = new string[source.Count];
       }
     }
 
     private struct ParseData
     {
+      public string[] Source;
       public Tuple Target;
-      public string ParsedPart;
 
-      public ParseData(TupleDescriptor descriptor)
+      public ParseData(string[] parts, TupleDescriptor targetDescriptor)
       {
-        Target = Tuple.Create(descriptor);
-        ParsedPart = string.Empty;
+        Source = parts;
+        Target = Tuple.Create(targetDescriptor);
       }
     }
 
@@ -86,9 +82,11 @@ namespace System
     {
       ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
       var actionData = new FormatData(tuple);
-      for (int i = 0; i < tuple.Count; i++)
-        tuple.Descriptor.Execute(formatHandler, ref actionData, i);
-      return actionData.Target.ToString();
+      var count = tuple.Count;
+      for (int i = 0; i < count; i++)
+        if (!tuple.Descriptor.Execute(formatHandler, ref actionData, i))
+          break;
+      return actionData.Target.RevertibleJoin(Escape, Comma);
     }
 
     /// <summary>
@@ -103,23 +101,12 @@ namespace System
     public static Tuple Parse(this TupleDescriptor descriptor, string source)
     {
       ArgumentValidator.EnsureArgumentNotNull(descriptor, "descriptor");
-      var actionData = new ParseData(descriptor);
-      var res = allExceptLastValueRegex.Matches(source);
-      if ((res.Count + 1) != descriptor.Count)
-        throw new InvalidOperationException(Strings.ExStringDoesNotCorrespondToDescriptor);
-
-      var regex = res.Count!=0 ? lastValueRegex.Match(source) : onlyOneValueRegex.Match(source);
-      for (int i = 0; i <= res.Count; i++) {
-        var v = i!=res.Count ? res[i] : regex;
-        var value = v.Groups["value"].Value;
-        if (((value==string.Empty || value==nullValue) && v.Value.Contains("\""))
-          || !(value==string.Empty || value==nullValue)) {
-          actionData.ParsedPart = HttpUtility.HtmlDecode(value);
-          descriptor.Execute(parseHandler, ref actionData, i);
-        }
-        else if (value==nullValue)
-          actionData.Target.SetValue(i, null);
-      }
+      var actionData = new ParseData(source.RevertibleSplit(Escape, Comma).ToArray(), descriptor);
+      var tuple = actionData.Target;
+      var count = tuple.Count;
+      for (int i = 0; i < count; i++)
+        if (!tuple.Descriptor.Execute(parseHandler, ref actionData, i))
+          break;
       return actionData.Target;
     }
 
@@ -129,38 +116,24 @@ namespace System
     {
       public bool Execute<TFieldType>(ref FormatData actionData, int fieldIndex)
       {
-        try {
-          var tuple = actionData.Source;
-          var converter = AdvancedConverterProvider.Default.GetConverter<TFieldType, string>();
-          TupleFieldState state;
-          var value = tuple.GetValue<TFieldType>(fieldIndex, out state);
-          string parsedStr = !state.IsAvailable() 
-            ? string.Empty 
-            : (state.IsNull() ? null : converter.Convert(value));
-          var str = parsedStr ?? nullValue;
-
-          actionData.Target.Append(" ");
-
-          if ((str.Equals(string.Empty) && state.IsAvailable()) || str.Length > 50
-            || str.StartsWith(" ") || str.EndsWith(" ") || str.Contains("\"") || str.Contains(",")
-              || (str.Equals(nullValue) && !(parsedStr==null))) {
-            actionData.Target.Append("\"");
-            if (fieldIndex==tuple.Count - 1)
-              actionData.Target.Append(HttpUtility.HtmlEncode(str)).Append("\"");
-            else
-              actionData.Target.Append(HttpUtility.HtmlEncode(str)).Append("\",");
-          }
-          else {
-            if (fieldIndex==tuple.Count - 1)
-              actionData.Target.Append(HttpUtility.HtmlEncode(str));
-            else
-              actionData.Target.Append(HttpUtility.HtmlEncode(str)).Append(",");
-          }
-          return true;
+        var tuple = actionData.Source;
+        var fieldState = tuple.GetFieldState(fieldIndex);
+        string result;
+        if (!fieldState.IsAvailable())
+          result = string.Empty;
+        else if (fieldState.IsNull())
+          result = NullValue;
+        else {
+          result = AdvancedConverterProvider.Default
+            .GetConverter<TFieldType, string>()
+            .Convert(tuple.GetValue<TFieldType>(fieldIndex, out fieldState));
+          if (result.IsNullOrEmpty()
+            || result==NullValue
+              || result.Contains(Quote))
+            result = Quote + HttpUtility.HtmlEncode(result ?? string.Empty) + Quote; // Quoting
         }
-        catch {
-          return false;
-        }
+        actionData.Target[fieldIndex] = result;
+        return true;
       }
     }
 
@@ -168,14 +141,20 @@ namespace System
     {
       public bool Execute<TFieldType>(ref ParseData actionData, int fieldIndex)
       {
-        try {
-          var converter = AdvancedConverterProvider.Default.GetConverter<string, TFieldType>();
-          actionData.Target.SetValue(fieldIndex, converter.Convert(actionData.ParsedPart));
+        string source = actionData.Source[fieldIndex];
+        if (source.IsNullOrEmpty())
+          return true;
+        if (source==NullValue) {
+          actionData.Target.SetValue(fieldIndex, null);
           return true;
         }
-        catch {
-          return false;
-        }
+        if (source.StartsWith(Quote) && source.EndsWith(Quote))
+          source = HttpUtility.HtmlDecode(source.Substring(1, source.Length - 2));
+        actionData.Target.SetValue(fieldIndex, 
+          AdvancedConverterProvider.Default
+            .GetConverter<string, TFieldType>()
+            .Convert(source));
+        return true;
       }
     }
 

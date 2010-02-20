@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Tests.Linq
       var firstThread = new Thread(() => {
         try {
           using (Session.Open(Domain))
-          using (Transaction.Open(IsolationLevel.ReadCommitted)) {
+          using (Transaction.Open()) {
             Query.All<Customer>().Where(c => c.Key == customerKey)
               .Join(Query.All<Order>().Where(o => o.Key == orderKey), c => c, o => o.Customer, (c, o) => c)
               .Lock(LockMode.Update, LockBehavior.Wait).ToList();
@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Tests.Linq
       var firstThread = new Thread(() => {
         try {
           using (Session.Open(Domain))
-          using (Transaction.Open(IsolationLevel.ReadCommitted)) {
+          using (Transaction.Open()) {
             Query.All<Customer>().Where(c => c.Key == key).Lock(lockMode0, lockBehavior0).ToList();
             secondEvent.Set();
             firstEvent.WaitOne();
@@ -183,7 +183,7 @@ namespace Xtensive.Storage.Tests.Linq
       var thread = new Thread(() => {
         try {
           using (Session.Open(Domain))
-          using (Transaction.Open(IsolationLevel.ReadCommitted)) {
+          using (Transaction.Open()) {
             query.Invoke().ToList();
           }
         }

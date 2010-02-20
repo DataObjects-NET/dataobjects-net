@@ -5,12 +5,12 @@
 // Created:    2009.10.06
 
 using System;
-using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Storage.Configuration;
 using System.Linq;
+using M=Xtensive.Storage.Model;
 
 #region Model
 
@@ -143,9 +143,10 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
     [Field]
     public string Field { get; set;}
 
-    protected override void UpdateVersion()
+    protected override bool HandleUpdateVersionInfo(Entity changedEntity, M.FieldInfo changedField)
     {
       VersionId = new VersionStructure{Version = Field==null ? 0 : Field.GetHashCode()};
+      return true;
     }
   }
 
@@ -162,9 +163,10 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
     [Field]
     public string Field { get; set;}
 
-    protected override void UpdateVersion()
+    protected override bool HandleUpdateVersionInfo(Entity changedEntity, M.FieldInfo changedField)
     {
       VersionId = new VersionEntity();
+      return true;
     }
   }
 
@@ -181,9 +183,10 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
     [Field]
     public string Field { get; set; }
 
-    protected override void UpdateVersion()
+    protected override bool HandleUpdateVersionInfo(Entity changedEntity, M.FieldInfo changedField)
     {
       VersionId1 = DateTime.Now.Ticks;
+      return true;
     }
   }
 

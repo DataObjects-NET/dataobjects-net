@@ -20,15 +20,20 @@ namespace Xtensive.Storage
   [Serializable]
   public struct VersionInfo : IEquatable<VersionInfo>
   {
-    private const string EmptyStringValue = "Void";
+    private static VersionInfo @void;
+
     [NonSerialized]
     private int cachedHashCode;
     [NonSerialized]
-    private bool isHashCodeCalculated;
-    [NonSerialized]
     private Tuple value;
-
     private object serializedValue;
+
+    /// <summary>
+    /// Gets the void <see cref="VersionInfo"/> object.
+    /// </summary>
+    public static VersionInfo Void {
+      get { return @void; }
+    }
 
     /// <summary>
     /// Gets a value indicating whether this instance is not contains version.
@@ -51,12 +56,12 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Joins this version tuple with specified key value tuple and specified version tuple.
+    /// Combines this version with the specified key value tuple and specified version tuple.
     /// </summary>
-    /// <param name="key">The key.</param>
-    /// <param name="versionInfo">The version info.</param>
-    /// <returns>New combined tuple.</returns>
-    internal VersionInfo Join(Key key, VersionInfo versionInfo)
+    /// <param name="key">The key to combine.</param>
+    /// <param name="versionInfo">The version info to combine.</param>
+    /// <returns>Combined version info.</returns>
+    internal VersionInfo Combine(Key key, VersionInfo versionInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
 
@@ -77,17 +82,13 @@ namespace Xtensive.Storage
     [DebuggerStepThrough]
     public bool Equals(VersionInfo other)
     {
-      if (IsVoid || other.IsVoid)
-        return true;
-      return Value.Equals(other.Value);
+      return Equals(Value, other.Value);
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override bool Equals(object obj)
     {
-      if (IsVoid)
-        return false;
       if (ReferenceEquals(obj, null))
         return false;
       if (obj.GetType()!=typeof (VersionInfo))
@@ -115,10 +116,11 @@ namespace Xtensive.Storage
     [DebuggerStepThrough]
     public override int GetHashCode()
     {
-      if (!isHashCodeCalculated) {
+      if (cachedHashCode==0) {
         if (!IsVoid)
           cachedHashCode = Value.GetHashCode();
-        isHashCodeCalculated = true;
+        if (cachedHashCode==0)
+          cachedHashCode = -1;
       }
       return cachedHashCode;
     }
@@ -129,7 +131,7 @@ namespace Xtensive.Storage
     [DebuggerStepThrough]
     public override string ToString()
     {
-      return Value==null ? EmptyStringValue : Value.ToString(true);
+      return Value==null ? string.Empty : Value.ToString();
     }
 
 
@@ -143,7 +145,6 @@ namespace Xtensive.Storage
     {
       value = version;
       cachedHashCode = 0;
-      isHashCodeCalculated = version==null;
       serializedValue = null;
     }
 

@@ -49,10 +49,10 @@ namespace Xtensive.Storage.Tests.Storage
     private EntityEventArgs entityRemoving;
     private EntityEventArgs entityRemoved;
 
-    private FieldEventArgs entityFieldGettingArgs;
-    private FieldValueEventArgs entityFieldArgs;
-    private FieldValueEventArgs entityFieldSettingArgs;
-    private FieldValueSetEventArgs entityFieldSetArgs;
+    private EntityFieldEventArgs entityEntityFieldGettingArgs;
+    private EntityFieldValueEventArgs entityEntityFieldArgs;
+    private EntityFieldValueEventArgs entityEntityFieldSettingArgs;
+    private EntityFieldValueSetEventArgs entityEntityFieldSetArgs;
 
     private class TestException : Exception { } 
     
@@ -74,10 +74,10 @@ namespace Xtensive.Storage.Tests.Storage
       entityRemoving = null;
       entityRemoved = null;
 
-      entityFieldGettingArgs = null;
-      entityFieldArgs = null;
-      entityFieldSettingArgs = null;
-      entityFieldSetArgs = null;
+      entityEntityFieldGettingArgs = null;
+      entityEntityFieldArgs = null;
+      entityEntityFieldSettingArgs = null;
+      entityEntityFieldSetArgs = null;
     }
 
     [Test]
@@ -104,10 +104,10 @@ namespace Xtensive.Storage.Tests.Storage
         session.EntityRemoving += (sender, e) => entityRemoving = e;
         session.EntityRemove += (sender, e) => entityRemoved = e;
 
-        session.EntityFieldValueGetting += (sender, e) => entityFieldGettingArgs = e;
-        session.EntityFieldValueGet += (sender, e) => entityFieldArgs = e;
-        session.EntityFieldValueSetting += (sender, e) => entityFieldSettingArgs = e;
-        session.EntityFieldValueSet += (sender, e) => entityFieldSetArgs = e;
+        session.EntityFieldValueGetting += (sender, e) => entityEntityFieldGettingArgs = e;
+        session.EntityFieldValueGet += (sender, e) => entityEntityFieldArgs = e;
+        session.EntityFieldValueSetting += (sender, e) => entityEntityFieldSettingArgs = e;
+        session.EntityFieldValueSet += (sender, e) => entityEntityFieldSetArgs = e;
 
         CommitTransaction();
         RollbackTransaction();
@@ -190,27 +190,27 @@ namespace Xtensive.Storage.Tests.Storage
 
         entity.Value = 2;
 
-        Assert.IsNotNull(entityFieldSettingArgs);
-        Assert.AreEqual(entity, entityFieldSettingArgs.Entity);
-        Assert.AreEqual(2, entityFieldSettingArgs.Value);
+        Assert.IsNotNull(entityEntityFieldSettingArgs);
+        Assert.AreEqual(entity, entityEntityFieldSettingArgs.Entity);
+        Assert.AreEqual(2, entityEntityFieldSettingArgs.Value);
 
-        Assert.IsNotNull(entityFieldSetArgs);
-        Assert.AreEqual(entity, entityFieldSetArgs.Entity);
-        Assert.AreEqual(0, entityFieldSetArgs.OldValue);
-        Assert.AreEqual(2, entityFieldSetArgs.NewValue);
+        Assert.IsNotNull(entityEntityFieldSetArgs);
+        Assert.AreEqual(entity, entityEntityFieldSetArgs.Entity);
+        Assert.AreEqual(0, entityEntityFieldSetArgs.OldValue);
+        Assert.AreEqual(2, entityEntityFieldSetArgs.NewValue);
 
         ClearEvents();
 
         int value = entity.Value;
 
-        Assert.IsNull(entityFieldSettingArgs);
-        Assert.IsNull(entityFieldSetArgs);
+        Assert.IsNull(entityEntityFieldSettingArgs);
+        Assert.IsNull(entityEntityFieldSetArgs);
 
-        Assert.IsNotNull(entityFieldGettingArgs);
-        Assert.AreEqual(entity, entityFieldGettingArgs.Entity);
-        Assert.IsNotNull(entityFieldArgs);
-        Assert.AreEqual(entity, entityFieldArgs.Entity);
-        Assert.AreEqual(2, entityFieldArgs.Value);
+        Assert.IsNotNull(entityEntityFieldGettingArgs);
+        Assert.AreEqual(entity, entityEntityFieldGettingArgs.Entity);
+        Assert.IsNotNull(entityEntityFieldArgs);
+        Assert.AreEqual(entity, entityEntityFieldArgs.Entity);
+        Assert.AreEqual(2, entityEntityFieldArgs.Value);
 
         ClearEvents();
 

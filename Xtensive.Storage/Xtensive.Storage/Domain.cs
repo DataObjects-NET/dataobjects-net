@@ -23,6 +23,7 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse.Providers.Executable;
 using Xtensive.Storage.Upgrade;
+using TypeInfo=Xtensive.Storage.Indexing.Model.TypeInfo;
 
 namespace Xtensive.Storage
 {
@@ -79,6 +80,11 @@ namespace Xtensive.Storage
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
     
+    /// <summary>
+    /// Gets the dictionary providing cached type information.
+    /// </summary>
+    internal IntDictionary<TypeLevelCache> TypeLevelCaches { get; private set; }
+
     /// <summary>
     /// Gets the <see cref="RecordSetReader"/> instance.
     /// </summary>
@@ -228,6 +234,7 @@ namespace Xtensive.Storage
         Log.IsLogged(LogEventTypes.Debug); // Just to cache this value
       
       Configuration = configuration;
+      TypeLevelCaches = new IntDictionary<TypeLevelCache>();
       Handlers = new HandlerAccessor(this);
       GenericKeyTypes = ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
       RecordSetReader = new RecordSetReader(this);

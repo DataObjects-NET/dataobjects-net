@@ -56,44 +56,59 @@ namespace Xtensive.Storage
     public event EventHandler Persisted;
 
     /// <summary>
-    /// Occurs when <see cref="Entity"/> created.
-    /// </summary>
-    public event EventHandler<EntityEventArgs> EntityCreated;
-
-    /// <summary>
     /// Occurs when local <see cref="Key"/> created.
     /// </summary>
     public event EventHandler<KeyEventArgs> KeyGenerated;
 
     /// <summary>
+    /// Occurs when <see cref="Entity"/> created.
+    /// </summary>
+    public event EventHandler<EntityEventArgs> EntityCreated;
+
+    /// <summary>
+    /// Occurs when <see cref="Entity"/> is about to change.
+    /// </summary>
+    public event EventHandler<EntityEventArgs> EntityChanging;
+
+    /// <summary>
+    /// Occurs when <see cref="Entity"/>.<see cref="Entity.VersionInfo"/> is about to change.
+    /// </summary>
+    public event EventHandler<EntityVersionInfoChangedEventArgs> EntityVersionInfoChanging;
+
+    /// <summary>
+    /// Occurs when <see cref="Entity"/>.<see cref="Entity.VersionInfo"/> is changed.
+    /// </summary>
+    public event EventHandler<EntityVersionInfoChangedEventArgs> EntityVersionInfoChanged;
+
+    /// <summary>
     /// Occurs when field value is about to be read.
     /// </summary>
-    public event EventHandler<FieldEventArgs> EntityFieldValueGetting;
+    public event EventHandler<EntityFieldEventArgs> EntityFieldValueGetting;
 
     /// <summary>
     /// Occurs when field value was read successfully.
     /// </summary>
-    public event EventHandler<FieldValueEventArgs> EntityFieldValueGet;
+    public event EventHandler<EntityFieldValueEventArgs> EntityFieldValueGet;
 
     /// <summary>
     /// Occurs when field value reading is completed.
     /// </summary>
-    public event EventHandler<FieldValueGetCompletedEventArgs> EntityFieldValueGetCompleted;
+    public event EventHandler<EntityFieldValueGetCompletedEventArgs> EntityFieldValueGetCompleted;
 
     /// <summary>
     /// Occurs when is field value is about to be changed.
     /// </summary>
-    public event EventHandler<FieldValueEventArgs> EntityFieldValueSetting;
+    public event EventHandler<EntityFieldValueEventArgs> EntityFieldValueSetting;
 
     /// <summary>
     /// Occurs when field value was changed successfully.
     /// </summary>
-    public event EventHandler<FieldValueSetEventArgs> EntityFieldValueSet;
+    public event EventHandler<EntityFieldValueSetEventArgs> EntityFieldValueSet;
 
     /// <summary>
     /// Occurs when field value changing is completed.
     /// </summary>
-    public event EventHandler<FieldValueSetCompletedEventArgs> EntityFieldValueSetCompleted;
+    public event EventHandler<EntityFieldValueSetCompletedEventArgs> EntityFieldValueSetCompleted;
 
     /// <summary>
     /// Occurs when <see cref="Entity"/> is about to remove.
@@ -109,6 +124,11 @@ namespace Xtensive.Storage
     /// Occurs when <see cref="Entity"/> removing is completed.
     /// </summary>
     public event EventHandler<EntityRemoveCompletedEventArgs> EntityRemoveCompleted;
+
+    /// <summary>
+    /// Occurs when <see cref="EntitySetBase"/> is about to change.
+    /// </summary>
+    public event EventHandler<EntitySetEventArgs> EntitySetChanging;
 
     /// <summary>
     /// Occurs when <see cref="EntitySetBase"/> item is about to remove.
@@ -182,40 +202,60 @@ namespace Xtensive.Storage
         EntityCreated(this, new EntityEventArgs(entity));
     }
 
+    internal void NotifyEntityChanging(Entity entity)
+    {
+      if (EntityChanging!=null)
+        EntityChanging(this, new EntityEventArgs(entity));
+    }
+
+    internal void NotifyEntityVersionInfoChanging(Entity changedEntity, FieldInfo changedField, bool changed)
+    {
+      if (EntityVersionInfoChanging!=null)
+        EntityVersionInfoChanging(this, new EntityVersionInfoChangedEventArgs(
+          changedEntity, changedField, changed));
+    }
+
+    internal void NotifyEntityVersionInfoChanged(Entity changedEntity, FieldInfo changedField, bool changed)
+    {
+      if (EntityVersionInfoChanged!=null)
+        EntityVersionInfoChanged(this, new EntityVersionInfoChangedEventArgs(
+          changedEntity, changedField, changed));
+    }
+
     internal void NotifyFieldValueGetting(Entity entity, FieldInfo field)
     {
       if (EntityFieldValueGetting!=null)
-        EntityFieldValueGetting(this, new FieldEventArgs(entity, field));
+        EntityFieldValueGetting(this, new EntityFieldEventArgs(entity, field));
     }
 
     internal void NotifyFieldValueGet(Entity entity, FieldInfo field, object value)
     {
       if (EntityFieldValueGet!=null)
-        EntityFieldValueGet(this, new FieldValueEventArgs(entity, field, value));
+        EntityFieldValueGet(this, new EntityFieldValueEventArgs(entity, field, value));
     }
 
     internal void NotifyFieldValueGetCompleted(Entity entity, FieldInfo field, object value, Exception exception)
     {
       if (EntityFieldValueGetCompleted != null)
-        EntityFieldValueGetCompleted(this, new FieldValueGetCompletedEventArgs(entity, field, value, exception));
+        EntityFieldValueGetCompleted(this, new EntityFieldValueGetCompletedEventArgs(entity, field, value, exception));
     }
 
     internal void NotifyFieldValueSetting(Entity entity, FieldInfo field, object value)
     {
       if (EntityFieldValueSetting!=null)
-        EntityFieldValueSetting(this, new FieldValueEventArgs(entity, field, value));
+        EntityFieldValueSetting(this, new EntityFieldValueEventArgs(entity, field, value));
     }
 
     internal void NotifyFieldValueSet(Entity entity, FieldInfo field, object oldValue, object newValue)
     {
       if (EntityFieldValueSet!=null)
-        EntityFieldValueSet(this, new FieldValueSetEventArgs(entity, field, oldValue, newValue));
+        EntityFieldValueSet(this, new EntityFieldValueSetEventArgs(entity, field, oldValue, newValue));
     }
 
     internal void NotifyFieldValueSetCompleted(Entity entity, FieldInfo field, object oldValue, object newValue, Exception exception)
     {
       if (EntityFieldValueSetCompleted != null)
-        EntityFieldValueSetCompleted(this, new FieldValueSetCompletedEventArgs(entity, field, oldValue, newValue, exception));
+        EntityFieldValueSetCompleted(this, new EntityFieldValueSetCompletedEventArgs(entity, field, oldValue, newValue, exception));
     }
 
     internal void NotifyEntityRemoving(Entity entity)
@@ -236,40 +276,40 @@ namespace Xtensive.Storage
         EntityRemoveCompleted(this, new EntityRemoveCompletedEventArgs(entity, exception));
     }
 
-    internal void NotifyEntitySetItemRemoving(EntitySetBase entitySet, Entity entity)
+    internal void NotifyEntitySetItemRemoving(EntitySetBase entitySet, Entity item)
     {
       if (EntitySetItemRemoving != null)
-        EntitySetItemRemoving(this, new EntitySetItemEventArgs(entity, entitySet));
+        EntitySetItemRemoving(this, new EntitySetItemEventArgs(entitySet, item));
     }
 
-    internal void NotifyEntitySetItemRemoved(EntitySetBase entitySet, Entity entity)
+    internal void NotifyEntitySetItemRemoved(Entity entity, EntitySetBase entitySet, Entity item)
     {
       if (EntitySetItemRemoved != null)
-        EntitySetItemRemoved(this, new EntitySetItemEventArgs(entity, entitySet));
+        EntitySetItemRemoved(this, new EntitySetItemEventArgs(entitySet, item));
     }
 
-    internal void NotifyEntitySetItemRemoveCompleted(EntitySetBase entitySet, Entity entity, Exception exception)
+    internal void NotifyEntitySetItemRemoveCompleted(EntitySetBase entitySet, Entity item, Exception exception)
     {
       if (EntitySetItemRemoveCompleted != null)
-        EntitySetItemRemoveCompleted(this, new EntitySetItemActionCompletedEventArgs(entity, entitySet, exception));
+        EntitySetItemRemoveCompleted(this, new EntitySetItemActionCompletedEventArgs(entitySet, item, exception));
     }
 
-    internal void NotifyEntitySetItemAdding(EntitySetBase entitySet, Entity entity)
+    internal void NotifyEntitySetItemAdding(EntitySetBase entitySet, Entity item)
     {
       if (EntitySetItemAdding != null)
-        EntitySetItemAdding(this, new EntitySetItemEventArgs(entity, entitySet));
+        EntitySetItemAdding(this, new EntitySetItemEventArgs(entitySet, item));
     }
 
-    internal void NotifyEntitySetItemAdd(EntitySetBase entitySet, Entity entity)
+    internal void NotifyEntitySetItemAdd(EntitySetBase entitySet, Entity item)
     {
       if (EntitySetItemAdd != null)
-        EntitySetItemAdd(this, new EntitySetItemEventArgs(entity, entitySet));
+        EntitySetItemAdd(this, new EntitySetItemEventArgs(entitySet, item));
     }
 
-    internal void NotifyEntitySetItemAddCompleted(EntitySetBase entitySet, Entity entity, Exception exception)
+    internal void NotifyEntitySetItemAddCompleted(EntitySetBase entitySet, Entity item, Exception exception)
     {
       if (EntitySetItemAddCompleted != null)
-        EntitySetItemAddCompleted(this, new EntitySetItemActionCompletedEventArgs(entity, entitySet, exception));
+        EntitySetItemAddCompleted(this, new EntitySetItemActionCompletedEventArgs(entitySet, item, exception));
     }
 
     internal void NotifyOperationCompleted(IOperation operation)

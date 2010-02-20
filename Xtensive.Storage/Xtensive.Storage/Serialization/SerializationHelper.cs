@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Serialization
         if (!IsSerializable(field))
           continue;
           
-        object value = entity.GetFieldValue<object>(field);
+        object value = entity.GetFieldValue(field);
         info.AddValue(field.Name, value, field.ValueType);
       }
     }

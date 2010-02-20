@@ -4,14 +4,15 @@
 // Created by: Alex Kofman
 // Created:    2009.10.08
 
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Arguments for field-related events.
+  /// Describes <see cref="Entity"/> field related events containing field value.
   /// </summary>
-  public class FieldValueEventArgs : FieldEventArgs
+  public class EntityFieldValueEventArgs : EntityFieldEventArgs
   {
     /// <summary>
     /// Gets the field value.
@@ -22,12 +23,12 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <summary>
-    /// <inheritdoc/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="entity">The entity.</param>
     /// <param name="field">The field.</param>
-    /// <param name="value">The <see cref="Value"/> property initial value.</param>
-    public FieldValueEventArgs(Entity entity, FieldInfo field, object value)
+    /// <param name="value">The <see cref="Value"/> property value.</param>
+    public EntityFieldValueEventArgs(Entity entity, FieldInfo field, object value)
       : base(entity, field)
     {
       Value = value;

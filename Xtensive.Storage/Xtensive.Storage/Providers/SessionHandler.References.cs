@@ -71,14 +71,14 @@ namespace Xtensive.Storage.Providers
         case Multiplicity.ZeroToOne:
         case Multiplicity.OneToOne:
         case Multiplicity.ManyToOne:
-          var target = owner.GetFieldValue<IEntity>(association.OwnerField);
+          var target = (Entity) owner.GetFieldValue(association.OwnerField);
           if (target != null)
-            yield return referenceCtor(owner, (Entity) target, association);
+            yield return referenceCtor(owner, target, association);
           break;
         case Multiplicity.ZeroToMany:
         case Multiplicity.OneToMany:
         case Multiplicity.ManyToMany:
-          var targets = owner.GetFieldValue<EntitySetBase>(association.OwnerField);
+          var targets = (EntitySetBase) owner.GetFieldValue(association.OwnerField);
           foreach (var item in targets.Entities)
             yield return referenceCtor(owner, (Entity)item, association);
           break;

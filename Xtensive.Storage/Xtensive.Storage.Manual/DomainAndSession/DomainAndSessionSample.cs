@@ -168,7 +168,7 @@ namespace Xtensive.Storage.Manual.DomainAndSession
       // First named Session configuration
       var sessionCongfigOne = new SessionConfiguration {
         BatchSize = 25,
-        DefaultIsolationLevel = IsolationLevel.ReadCommitted,
+        DefaultIsolationLevel = IsolationLevel.RepeatableRead,
         CacheSize = 16384,
         Options = SessionOptions.Default
       };

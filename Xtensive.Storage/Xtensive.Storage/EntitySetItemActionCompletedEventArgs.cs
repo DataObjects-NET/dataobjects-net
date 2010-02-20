@@ -6,24 +6,31 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage
 {
+  /// <summary>
+  /// Describes an event related to <see cref="EntitySet{TItem}"/> item action completion.
+  /// </summary>
   public class EntitySetItemActionCompletedEventArgs : EntitySetItemEventArgs
   {
+    /// <summary>
+    /// Gets the exception, if any, that was thrown on setting the field value.
+    /// </summary>
     public Exception Exception { get; private set; }
 
 
     // Cosntructors
 
     /// <summary>
-    /// <inheritdoc/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="entity">The entity.</param>
     /// <param name="entitySet">The entity set.</param>
-    /// <param name="exception">The ><see cref="Exception"/> property initial value.</param>
-    public EntitySetItemActionCompletedEventArgs(Entity entity, EntitySetBase entitySet, Exception exception)
-      : base(entity, entitySet)
+    /// <param name="item">The item.</param>
+    /// <param name="exception">The <see cref="Exception"/> property value.</param>
+    public EntitySetItemActionCompletedEventArgs(EntitySetBase entitySet, Entity item, Exception exception)
+      : base(entitySet, item)
     {
       Exception = exception;
     }

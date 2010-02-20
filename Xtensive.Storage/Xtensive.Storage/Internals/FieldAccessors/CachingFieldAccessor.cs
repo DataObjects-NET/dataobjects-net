@@ -7,16 +7,16 @@
 using System;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.FieldAccessors
 {
   internal abstract class CachingFieldAccessor<T> : FieldAccessor<T>
   {
-    protected static Func<Persistent, FieldInfo, IFieldValueAdapter> ctor;
+    public static Func<Persistent, FieldInfo, IFieldValueAdapter> Constructor;
 
-    public override T GetValue(Persistent obj, FieldInfo field)
+    public override T GetValue(Persistent obj)
     {
-      EnsureGenericParameterIsValid(field);
-      return (T) obj.GetFieldValueAdapter(field, ctor);
+      var field = Field;
+      return (T) obj.GetFieldValueAdapter(field, Constructor);
     }
   }
 }

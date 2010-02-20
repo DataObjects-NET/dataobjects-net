@@ -9,35 +9,29 @@ using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Tuples;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.FieldAccessors
 {
   internal class DefaultFieldAccessor<T> : FieldAccessor<T>
   {
-    public static readonly FieldAccessor<T> Instance = new DefaultFieldAccessor<T>();
     private static readonly bool isObject = (typeof (T)==typeof (object));
     private static readonly bool isString = (typeof (T)==typeof (string));
     private static readonly bool isByteArray = (typeof (T)==typeof (byte[]));
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj, FieldInfo field)
+    public override T GetValue(Persistent obj)
     {
-      EnsureGenericParameterIsValid(field);
+      var field = Field;
       int fieldIndex = field.MappingInfo.Offset;
       var tuple = obj.Tuple;
       var value = tuple.GetValueOrDefault<T>(fieldIndex);
       return value;
-
-
-//      if (isObject)
-//        return (T) tuple.GetValueOrDefault(fieldIndex);
-//
-//      return tuple.GetValueOrDefault<T>(fieldIndex);
     }
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    public override void SetValue(Persistent obj, T value)
     {
+      var field = Field;
       if (!field.IsNullable && value==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExNotNullableConstraintViolationOnFieldX, field));
@@ -51,7 +45,6 @@ namespace Xtensive.Storage.Internals
             Strings.ExLengthConstraintViolationOnFieldX, field));
       }
 
-      EnsureGenericParameterIsValid(field);
       obj.Tuple.SetValue(field.MappingInfo.Offset, value);
     }
   }

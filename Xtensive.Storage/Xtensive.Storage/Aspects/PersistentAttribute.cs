@@ -172,7 +172,6 @@ namespace Xtensive.Storage.Aspects
     private static void ProvidePersistentAspects(Type type, LaosReflectionAspectCollection collection)
     {
       ProvidePersistentFieldAspects(type, collection);
-      ProvideInconsistencyRegionAspects(type, collection);
       ProvideConstructorAspect(type, collection);
       ProvideConstructorAccessorAspect(type, collection);
       new InitializableAttribute().ProvideAspects(type, collection);
@@ -232,24 +231,6 @@ namespace Xtensive.Storage.Aspects
               collection.AddAspect(setter, transactionalAspect);
           }
         }
-      }
-    }
-
-    private static void ProvideInconsistencyRegionAspects(Type type, LaosReflectionAspectCollection collection)
-    {
-      if (type==entityType || type==structureType || type==persistentType)
-        return;
-      foreach (var ctorInfo in type.GetConstructors(
-        BindingFlags.Public |
-        BindingFlags.Instance |
-        BindingFlags.DeclaredOnly))
-      {
-        if (AspectHelper.IsInfrastructureMethod(ctorInfo))
-          continue;
-        if (IsCompilerGenerated(ctorInfo))
-          continue;
-
-        collection.AddAspect(ctorInfo, new InconsistentRegionAttribute());
       }
     }
 

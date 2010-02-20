@@ -32,8 +32,7 @@ namespace Xtensive.Storage.Model
     public string Name
     {
       get { return name; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         ValidateName(value);
         ChangeState("Name", delegate { name = value; });

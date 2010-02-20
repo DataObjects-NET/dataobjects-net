@@ -4,19 +4,19 @@
 // Created by: Alex Kofman
 // Created:    2009.10.08
 
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Field-related event arguments containing old and new field values.
+  /// Describes <see cref="Entity"/> field-related events containing old and new field values.
   /// </summary>
-  public class FieldValueSetEventArgs : FieldEventArgs
+  public class EntityFieldValueSetEventArgs : EntityFieldEventArgs
   {
     /// <summary>
     /// Gets the old value.
     /// </summary>
-    /// <value>The old value.</value>
     public object OldValue { get; private set; }
 
     /// <summary>
@@ -28,13 +28,13 @@ namespace Xtensive.Storage
     // Constructors
 
     /// <summary>
-    /// <inheritdoc/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="entity">The entity.</param>
     /// <param name="field">The field.</param>
-    /// <param name="oldValue">The <see cref="OldValue"/> initial value.</param>
-    /// <param name="newValue">The <see cref="NewValue"/> initial value.</param>
-    public FieldValueSetEventArgs(Entity entity, FieldInfo field, object oldValue, object newValue)
+    /// <param name="oldValue">The <see cref="OldValue"/> property value.</param>
+    /// <param name="newValue">The <see cref="NewValue"/> property value.</param>
+    public EntityFieldValueSetEventArgs(Entity entity, FieldInfo field, object oldValue, object newValue)
       : base(entity, field)
     {
       OldValue = oldValue;

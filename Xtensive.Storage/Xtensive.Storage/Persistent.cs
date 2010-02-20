@@ -45,6 +45,7 @@ namespace Xtensive.Storage
 
       public Persistent Persistent;
       public TransactionScope TransactionScope;
+      public InconsistentRegion InconsistentRegion;
     }
 
 
@@ -116,6 +117,7 @@ namespace Xtensive.Storage
     /// or calls <see cref="GetFieldValue{T}(string)"/> directly if there is no property declared for this field.
     /// </remarks>
     /// <seealso cref="SetProperty{T}"/>
+    /// <exception cref="InvalidOperationException">Property does not have public getter.</exception>
     [Infrastructure]
     public T GetProperty<T>(string fieldName)
     {
@@ -125,10 +127,11 @@ namespace Xtensive.Storage
         // Public accessor check
         var mi = field.UnderlyingProperty.GetGetMethod();
         if (mi == null)
-          throw new InvalidOperationException(string.Format("Property '{0}' doesn't have public getter.", fieldName));
+          throw new InvalidOperationException(string.Format(
+            Strings.ExPropertyXDoesnTHavePublicGetter, fieldName));
         return (T) field.UnderlyingProperty.GetValue(this, null);
       }
-      return GetFieldValue<T>(fieldName);
+      return (T) GetFieldValue(fieldName); // Untyped, since T might be wrong
     }
 
     /// <summary>
@@ -142,6 +145,7 @@ namespace Xtensive.Storage
     /// or calls <see cref="SetFieldValue{T}(string,T)"/> directly if there is no property declared for this field.
     /// </remarks>
     /// <seealso cref="GetProperty{T}"/>
+    /// <exception cref="InvalidOperationException">Property does not have public setter.</exception>
     [Infrastructure]
     public void SetProperty<T>(string fieldName, T value)
     {
@@ -151,11 +155,12 @@ namespace Xtensive.Storage
         // Public accessor check
         var mi = field.UnderlyingProperty.GetSetMethod();
         if (mi == null)
-          throw new InvalidOperationException(string.Format("Property '{0}' doesn't have public setter.", fieldName));
+          throw new InvalidOperationException(string.Format(
+            Strings.ExPropertyXDoesnTHavePublicSetter, fieldName));
         field.UnderlyingProperty.SetValue(this, value, null);
       }
       else
-        SetFieldValue(fieldName, value);
+        SetFieldValue(fieldName, (object) value); // Untyped, since T might be wrong
     }
 
     #endregion
@@ -164,8 +169,10 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Gets the field value.
+    /// Field value type must be specified precisely. 
+    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
-    /// <typeparam name="T">Value type.</typeparam>
+    /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
     /// <returns>Field value.</returns>
     protected internal T GetFieldValue<T>(string fieldName)
@@ -176,16 +183,53 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the field value.
     /// </summary>
-    /// <typeparam name="T">Value type</typeparam>
+    /// <typeparam name="T">Field value type.</typeparam>
+    /// <param name="fieldName">The field name.</param>
+    /// <returns>Field value.</returns>
+    protected internal object GetFieldValue(string fieldName)
+    {
+      return GetFieldValue(Type.Fields[fieldName]);
+    }
+
+    /// <summary>
+    /// Gets the field value.
+    /// Field value type must be specified precisely. 
+    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// </summary>
+    /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
     [ActivateSession, Transactional]
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
+      var fieldAccessor = GetFieldAccessor<T>(field);
       T result = default(T);
       try {
         SystemBeforeGetValue(field);
-        result = GetAccessor<T>(field).GetValue(this, field);
+        result = fieldAccessor.GetValue(this);
+        SystemGetValue(field, result);
+        SystemGetValueCompleted(field, result, null);
+        return result;
+      }
+      catch(Exception e) {
+        SystemGetValueCompleted(field, result, e);
+        throw;
+      }
+    }
+
+    /// <summary>
+    /// Gets the field value.
+    /// </summary>
+    /// <param name="field">The field.</param>
+    /// <returns>Field value.</returns>
+    [ActivateSession, Transactional]
+    protected internal object GetFieldValue(FieldInfo field)
+    {
+      var fieldAccessor = GetFieldAccessor(field);
+      object result = fieldAccessor.DefaultUntypedValue;
+      try {
+        SystemBeforeGetValue(field);
+        result = fieldAccessor.GetUntypedValue(this);
         SystemGetValue(field, result);
         SystemGetValueCompleted(field, result, null);
         return result;
@@ -249,8 +293,10 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Sets the field value.
+    /// Field value type must be specified precisely. 
+    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
-    /// <typeparam name="T">Value type</typeparam>
+    /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
     /// <param name="value">The value to set.</param>
     protected internal void SetFieldValue<T>(string fieldName, T value)
@@ -261,13 +307,41 @@ namespace Xtensive.Storage
     /// <summary>
     /// Sets the field value.
     /// </summary>
-    /// <typeparam name="T">Value type</typeparam>
+    /// <typeparam name="T">Field value type.</typeparam>
+    /// <param name="fieldName">The field name.</param>
+    /// <param name="value">The value to set.</param>
+    protected internal void SetFieldValue(string fieldName, object value)
+    {
+      SetFieldValue(Type.Fields[fieldName], value);
+    }
+
+    /// <summary>
+    /// Sets the field value.
+    /// Field value type must be specified precisely. 
+    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// </summary>
+    /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
     [ActivateSession, Transactional]
     protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
-      T oldValue = default(T);
+      SetFieldValue(field, (object) value);
+    }
+
+    /// <summary>
+    /// Sets the field value.
+    /// Field value type must be specified precisely. 
+    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// </summary>
+    /// <typeparam name="T">Field value type.</typeparam>
+    /// <param name="field">The field.</param>
+    /// <param name="value">The value to set.</param>
+    [ActivateSession, Transactional]
+    protected internal void SetFieldValue(FieldInfo field, object value)
+    {
+      var fieldAccessor = GetFieldAccessor(field);
+      object oldValue = fieldAccessor.DefaultUntypedValue;
       try {
         using (var context = OpenOperationContext(true)) {
           if (context.AreNormalOperationAccepted) {
@@ -290,7 +364,7 @@ namespace Xtensive.Storage
             }
           }
           SystemBeforeSetValue(field, value);
-          oldValue = GetFieldValue<T>(field);
+          oldValue = GetFieldValue(field);
           var structure = value as Structure;
           var association = field.Association;
           if (association != null && association.IsPaired) {
@@ -302,13 +376,13 @@ namespace Xtensive.Storage
             if (currentKey != newKey) {
               Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
               SystemBeforeChange();
-              GetAccessor<T>(field).SetValue(this, field, value);
+              fieldAccessor.SetUntypedValue(this, value);
             }
           }
           else {
             if (!Equals(value, oldValue) || field.IsStructure) {
               SystemBeforeChange();
-              GetAccessor<T>(field).SetValue(this, field, value);
+              fieldAccessor.SetUntypedValue(this, value);
             }
           }
           SystemSetValue(field, oldValue, value);
@@ -565,6 +639,22 @@ namespace Xtensive.Storage
 
     #region Private \ Internal methods
 
+    private FieldAccessor GetFieldAccessor(FieldInfo field)
+    {
+      return Session.Domain.TypeLevelCaches[field.ReflectedType.TypeId].GetFieldAccessor(field);
+    }
+
+    private FieldAccessor<T> GetFieldAccessor<T>(FieldInfo field)
+    {
+      return (FieldAccessor<T>) Session.Domain.TypeLevelCaches[field.ReflectedType.TypeId].GetFieldAccessor(field);
+    }
+
+    internal static FieldAccessor GetFieldAccessor(Domain domain, FieldInfo field)
+    {
+      return domain.TypeLevelCaches[field.ReflectedType.TypeId].GetFieldAccessor(field);
+    }
+
+
     internal PersistentFieldState GetFieldState(string fieldName)
     {
       return GetFieldState(Type.Fields[fieldName]);
@@ -587,21 +677,6 @@ namespace Xtensive.Storage
       if (diffTuple!=null && !diffTuple.Difference.AreAllColumnsAvalilable(mappingInfo))
         state |= PersistentFieldState.Modified;
       return state;
-    }
-
-    internal static FieldAccessor<T> GetAccessor<T>(FieldInfo field)
-    {
-      if (field.IsEntity)
-        return EntityFieldAccessor<T>.Instance;
-      if (field.IsStructure)
-        return StructureFieldAccessor<T>.Instance;
-      if (field.IsEnum)
-        return EnumFieldAccessor<T>.Instance;
-      if (field.IsEntitySet)
-        return EntitySetFieldAccessor<T>.Instance;
-      if (field.ValueType==typeof(Key))
-        return KeyFieldAccessor<T>.Instance;
-      return DefaultFieldAccessor<T>.Instance;
     }
 
     private static string GetErrorMessage(Exception error)
@@ -638,11 +713,13 @@ namespace Xtensive.Storage
     {
       if (ctorType!=GetType())
         return;
+      bool successfully = false;
       try {
         SystemInitialize(false);
+        successfully = true;
       }
       finally {
-        LeaveCtorTransactionScope();
+        LeaveCtorTransactionScope(successfully);
       }
     }
 
@@ -661,7 +738,7 @@ namespace Xtensive.Storage
         SystemInitializationError(error);
       }
       finally {
-        LeaveCtorTransactionScope();
+        LeaveCtorTransactionScope(false);
       }
     }
 
@@ -674,15 +751,19 @@ namespace Xtensive.Storage
       if (Transaction.Current==null)
         CtorTransactionInfo.Current = new CtorTransactionInfo {
           Persistent = this,
-          TransactionScope = Transaction.Open()
+          TransactionScope = Transaction.Open(),
+          InconsistentRegion = Validation.Disable()
         };
     }
 
-    internal void LeaveCtorTransactionScope()
+    internal void LeaveCtorTransactionScope(bool successfully)
     {
       var cti = CtorTransactionInfo.Current;
       if (cti!=null && cti.Persistent==this) {
         CtorTransactionInfo.Current = null;
+        cti.InconsistentRegion.DisposeSafely();
+        if (successfully)
+          cti.TransactionScope.Complete();
         cti.TransactionScope.DisposeSafely();
       }
     }

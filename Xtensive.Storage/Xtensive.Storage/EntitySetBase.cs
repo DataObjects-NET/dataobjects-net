@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core;
@@ -222,7 +221,7 @@ namespace Xtensive.Storage
     {
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyEntitySetItemRemoved(this, item);
+      Session.NotifyEntitySetItemRemoved(Owner, this, item);
       var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
@@ -382,7 +381,7 @@ namespace Xtensive.Storage
         return false;
       var association = Field.Association;
       if (association.IsPaired && association.Multiplicity.In(Multiplicity.ManyToOne, Multiplicity.OneToMany)) {
-        var candidate = item.GetFieldValue<IEntity>(association.Reversed.OwnerField);
+        var candidate = (IEntity) item.GetFieldValue(association.Reversed.OwnerField);
         return candidate == Owner;
       }
       return Contains(item.Key, item.PersistenceState);
@@ -425,7 +424,7 @@ namespace Xtensive.Storage
           }
 
           State.Add(item.Key);
-          Owner.UpdateVersionInternal();
+          Owner.UpdateVersionInfo(Owner, Field);
 
           SystemAdd(item);
           SystemAddCompleted(item, null);
@@ -476,7 +475,7 @@ namespace Xtensive.Storage
           }
 
           State.Remove(item.Key);
-          Owner.UpdateVersionInternal();
+          Owner.UpdateVersionInfo(Owner, Field);
           SystemRemove(item);
           SystemRemoveCompleted(item, null);
           context.Complete();

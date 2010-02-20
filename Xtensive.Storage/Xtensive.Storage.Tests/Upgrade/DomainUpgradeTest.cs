@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         }
       }
 
-      BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof (M1.Address), typeof (M1.Person), typeof (M1.BusinessContact));
+      BuildDomain("1", DomainUpgradeMode.PerformSafely, null, typeof (M1.Address), typeof (M1.Person), typeof (M1.BusinessContact));
       using (Session.Open(domain)) {
         using (var t = Transaction.Open()) {
           var businessContactTypeId = Query.All<Metadata.Type>()

@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Operations
       var session = context.Session;
       var target = Query.Single(session, context.TryRemapKey(Key));
       var item = Query.Single(session, context.TryRemapKey(ItemKey));
-      var entitySet = target.GetFieldValue<EntitySetBase>(Field);
+      var entitySet = (EntitySetBase) target.GetFieldValue(Field);
       if (Type == OperationType.AddEntitySetItem)
         entitySet.Add(item);
       else

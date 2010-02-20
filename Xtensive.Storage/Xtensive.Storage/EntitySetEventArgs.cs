@@ -11,27 +11,26 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Describes an event related to <see cref="EntitySet{TItem}"/> item.
+  /// Describes <see cref="EntitySet{TItem}"/>-related events.
   /// </summary>
-  public class EntitySetItemEventArgs : EntitySetEventArgs
+  public class EntitySetEventArgs : EntityFieldEventArgs
   {
     /// <summary>
-    /// Gets the item to which this event is related.
+    /// Gets the <see cref="EntitySetBase"/> to which this event is related.
     /// </summary>
-    public Entity Item { get; private set; }
+    public EntitySetBase EntitySet { get; private set; }
 
 
-    // Cosntructors
+    // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="entitySet">The entity set.</param>
-    /// <param name="item">The item.</param>
-    public EntitySetItemEventArgs(EntitySetBase entitySet, Entity item)
-      : base(entitySet)
+    public EntitySetEventArgs(EntitySetBase entitySet)
+      : base(entitySet.Owner, entitySet.Field)
     {
-      Item = item;
+      EntitySet = entitySet;
     }
   }
 }

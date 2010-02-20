@@ -9,7 +9,9 @@ using System.Transactions;
 using Xtensive.Core.Disposing;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
+using SD=System.Data;
 
 namespace Xtensive.Storage
 {
@@ -55,15 +57,14 @@ namespace Xtensive.Storage
     /// </summary>
     public event EventHandler<TransactionEventArgs> TransactionRollbacked;
 
-    /// <exception cref="InvalidOperationException">Can't create a transaction
-    /// with requested isolation level.</exception>
     internal TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
+      var transaction = Transaction;
       switch (mode) {
       case TransactionOpenMode.Auto:
-        if (Transaction!=null) {
-          if (isolationLevel!=IsolationLevel.Unspecified && isolationLevel!=Transaction.IsolationLevel)
-            throw new InvalidOperationException(Strings.ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent);
+        if (transaction!=null) {
+          if (isolationLevel!=IsolationLevel.Unspecified && isolationLevel!=transaction.IsolationLevel)
+            EnsureIsolationLevelCompatibility(transaction.IsolationLevel, isolationLevel);
           return TransactionScope.VoidScopeInstance;
         }
         if (isolationLevel==IsolationLevel.Unspecified)
@@ -74,7 +75,7 @@ namespace Xtensive.Storage
       case TransactionOpenMode.New:
         if (isolationLevel==IsolationLevel.Unspecified)
           isolationLevel = Configuration.DefaultIsolationLevel;
-        if (Transaction!=null)
+        if (transaction!=null)
           return CreateNestedTransaction(isolationLevel);
         if (Configuration.UsesAmbientTransactions) {
           CreateAmbientTransaction(isolationLevel);
@@ -179,6 +180,20 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(Strings.ExTransactionRequired);
       if (!Transaction.IsActuallyStarted)
         StartTransaction(Transaction);
+    }
+
+    /// <exception cref="InvalidOperationException">Can't create a transaction
+    /// with requested isolation level.</exception>
+    private static void EnsureIsolationLevelCompatibility(IsolationLevel current, IsolationLevel requested)
+    {
+      var sdCurrent = IsolationLevelConverter.Convert(current);
+      var sdRequested = IsolationLevelConverter.Convert(requested);
+      if (sdRequested<=sdCurrent)
+        return;
+      // sdRequested > sdCurrent
+      if (sdRequested==SD.IsolationLevel.Snapshot && sdCurrent==SD.IsolationLevel.Serializable)
+        return; // The only good case here
+      throw new InvalidOperationException(Strings.ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent);
     }
 
     private void StartTransaction(Transaction transaction)

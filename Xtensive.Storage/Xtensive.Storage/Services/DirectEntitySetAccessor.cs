@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Services
     {
       using (this.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, field);
-        return target.GetFieldValue<EntitySetBase>(field);
+        return (EntitySetBase) target.GetFieldValue(field);
       }
     }
 

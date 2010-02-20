@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Configuration
     ///<summary>
     /// Default isolation level.
     ///</summary>
-    public const IsolationLevel DefaultDefaultIsolationLevelValue = IsolationLevel.ReadCommitted;
+    public const IsolationLevel DefaultDefaultIsolationLevelValue = IsolationLevel.RepeatableRead;
 
     /// <summary>
     /// Default batch size.

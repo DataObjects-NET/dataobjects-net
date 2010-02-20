@@ -28,6 +28,8 @@ namespace Xtensive.Storage
     private readonly Key key;
     private PersistenceState persistenceState;
     private Entity entity;
+    private bool isStale;
+    private bool isVersionInfoUpdated;
 
     /// <summary>
     /// Gets the key.
@@ -140,6 +142,31 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Gets a value indicating whether this state is stale (taken from cache).
+    /// </summary>
+    public bool IsStale {
+      get {
+        return isStale;
+      }
+      internal set {
+        isStale = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether <see cref="Storage.Entity.VersionInfo"/> already updated.
+    /// </summary>
+    public bool IsVersionInfoUpdated {
+      get {
+        EnsureIsActual();
+        return isVersionInfoUpdated;
+      }
+      internal set {
+        isVersionInfoUpdated = value;
+      }
+    }
+
+    /// <summary>
     /// Reverts the state to the origin by discarding the difference.
     /// </summary>
     public void RollbackDifference()
@@ -195,16 +222,6 @@ namespace Xtensive.Storage
       }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether version already updated.
-    /// </summary>
-    internal bool IsVersionUpdated { get; set; }
-
-    /// <summary>
-    /// Gets a value indicating whether this state is stale.
-    /// </summary>
-    public bool IsStale { get; set; }
-
     /// <inheritdoc/>
     protected override void Refresh()
     {
@@ -223,6 +240,7 @@ namespace Xtensive.Storage
     protected override void Invalidate()
     {
       persistenceState = PersistenceState.Synchronized;
+      isVersionInfoUpdated = false;
       base.Invalidate();
     }
 

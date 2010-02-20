@@ -58,7 +58,6 @@ namespace Xtensive.Storage.Upgrade
           }
         BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
         var domain = BuildStageDomain(UpgradeStage.Final);
-        domain.Model.Lock(true);
         foreach (var module in context.Modules)
           module.OnBuilt(domain);
         return domain;

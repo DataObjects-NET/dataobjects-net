@@ -1,28 +1,41 @@
-// Copyright (C) 2008 Xtensive LLC.
+// Copyright (C) 2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alexey Gamzov
-// Created:    2008.06.02
+// Created by: Alex Yakunin
+// Created:    2010.02.19
 
 using System;
+using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Internals
 {
-  internal abstract class FieldAccessor<T>
+  internal abstract class FieldAccessor
   {
-    public abstract void SetValue(Persistent obj, FieldInfo field, T value);
+    private FieldInfo field;
 
-    public abstract T GetValue(Persistent obj, FieldInfo field);
+    public FieldInfo Field {
+      get { return field; }
+      set {
+        if (field!=null)
+          throw Exceptions.AlreadyInitialized("Field");
+        field = value;
+      }
+    }
 
-    protected static void EnsureGenericParameterIsValid(FieldInfo fieldInfo)
+    public object DefaultUntypedValue { get; private set; }
+
+    public abstract void SetUntypedValue(Persistent obj, object value);
+
+    public abstract object GetUntypedValue(Persistent obj);
+
+
+    // Constructors
+    
+    protected FieldAccessor(object defaultUntypedValue)
     {
-      Type resultType = typeof(T);
-      Type valueType = fieldInfo.IsEntitySet ? fieldInfo.UnderlyingProperty.PropertyType : fieldInfo.ValueType;
-      if (!resultType.IsAssignableFrom(valueType))
-        throw new InvalidOperationException(String.Format(
-          Strings.ExResultTypeIncorrect, valueType.Name, resultType.Name));
+      DefaultUntypedValue = defaultUntypedValue;
     }
   }
 }

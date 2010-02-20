@@ -8,17 +8,16 @@ using System;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.FieldAccessors
 {
   internal class KeyFieldAccessor<T> : FieldAccessor<T> 
   {
-    public static readonly FieldAccessor<T> Instance = new KeyFieldAccessor<T>();
-    private static readonly T @default = default(T);
+    private static readonly T @default;
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj, FieldInfo field)
+    public override T GetValue(Persistent obj)
     {
-      EnsureGenericParameterIsValid(field);
+      var field = Field;
       int fieldIndex = field.MappingInfo.Offset;
       var tuple = obj.Tuple;
       TupleFieldState state;
@@ -29,9 +28,9 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    public override void SetValue(Persistent obj, T value)
     {
-      EnsureGenericParameterIsValid(field);
+      var field = Field;
       var key = (Key) (object) value;
       obj.Tuple.SetValue(field.MappingInfo.Offset, key==null ? null : key.Format());
     }

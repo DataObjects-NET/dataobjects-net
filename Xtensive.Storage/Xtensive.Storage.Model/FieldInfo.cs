@@ -22,6 +22,18 @@ namespace Xtensive.Storage.Model
   public sealed class FieldInfo : MappingNode,
     ICloneable
   {
+    /// <summary>
+    /// "No <see cref="NoFieldId"/>" value (<see cref="NoFieldId"/> is unknown or undefined).
+    /// Value is <see langword="0" />.
+    /// </summary>
+    public const int NoFieldId = 0;
+
+    /// <summary>
+    /// Minimal possible <see cref="FieldId"/> value.
+    /// Value is <see langword="100" />.
+    /// </summary>
+    public const int MinFieldId = 1;
+
     private PropertyInfo                  underlyingProperty;
     private Type                          valueType;
     private int?                          length;
@@ -32,14 +44,30 @@ namespace Xtensive.Storage.Model
     private FieldInfo                     parent;
     private ColumnInfo                    column;
     private AssociationInfo               association;
-    private ThreadSafeCached<int>         cachedHashCode = ThreadSafeCached<int>.Create(new object());
     private Type                          itemType;
     private string                        originalName;
     internal SegmentTransform             valueExtractorTransform;
     private int                           adapterIndex = -1;
     private ColumnInfoCollection          columns;
+    private int                           fieldId;
+    private int?                          cachedHashCode;
     
     #region IsXxx properties
+
+    /// <summary>
+    /// Gets or sets the field identifier uniquely identifying the field
+    /// in <see cref="TypeInfo.Fields"/> collection of <see cref="ReflectedType"/>.
+    /// </summary>
+    /// <exception cref="NotSupportedException">Property is already initialized.</exception>
+    public int FieldId {
+      [DebuggerStepThrough]
+      get { return fieldId; }
+      set {
+        if (fieldId != NoFieldId)
+          throw Exceptions.AlreadyInitialized("FieldId");
+        fieldId = value;
+      }
+    }
 
     /// <summary>
     /// Gets a value indicating whether this property is system.
@@ -568,13 +596,25 @@ namespace Xtensive.Storage.Model
     /// <inheritdoc/>
     public override int GetHashCode()
     {
+      if (cachedHashCode.HasValue)
+        return cachedHashCode.Value;
+      if (!IsLocked)
+        return CalculateHashCode();
+      lock (this) {
+        if (cachedHashCode.HasValue)
+          return cachedHashCode.Value;
+        cachedHashCode = CalculateHashCode();
+        return cachedHashCode.Value;
+      }
+    }
+
+    private int CalculateHashCode()
+    {
       unchecked {
-        return cachedHashCode.GetValue(
-          _this =>
-            ((_this.declaringType.GetHashCode() * 397) ^ 
-              _this.valueType.GetHashCode() * 631) ^ 
-                _this.Name.GetHashCode(),
-          this);
+       return 
+         (declaringType.GetHashCode() * 397) ^ 
+         (valueType.GetHashCode() * 631) ^
+         Name.GetHashCode();
       }
     }
 

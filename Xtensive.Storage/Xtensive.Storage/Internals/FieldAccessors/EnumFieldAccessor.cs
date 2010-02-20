@@ -8,14 +8,12 @@ using System;
 using Xtensive.Core.Conversion;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Internals
+namespace Xtensive.Storage.Internals.FieldAccessors
 {
   internal class EnumFieldAccessor<T> : FieldAccessor<T> 
   {
-    public static readonly FieldAccessor<T> Instance = new EnumFieldAccessor<T>();
     private static readonly Type type = typeof(T);
     private static readonly object @default = 
       type.IsEnum 
@@ -25,9 +23,9 @@ namespace Xtensive.Storage.Internals
       ThreadSafeDictionary<Type, Biconverter<T, object>>.Create(new object());
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj, FieldInfo field)
+    public override T GetValue(Persistent obj)
     {
-      EnsureGenericParameterIsValid(field);
+      var field = Field;
       int fieldIndex = field.MappingInfo.Offset;
       var tuple = obj.Tuple;
 
@@ -42,9 +40,9 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void SetValue(Persistent obj, FieldInfo field, T value)
+    public override void SetValue(Persistent obj, T value)
     {
-      EnsureGenericParameterIsValid(field);
+      var field = Field;
       // Biconverter<object, T> converter = GetConverter(field.ValueType);
       obj.Tuple.SetValue(field.MappingInfo.Offset, Convert.ChangeType(value, field.Column.ValueType));
     }

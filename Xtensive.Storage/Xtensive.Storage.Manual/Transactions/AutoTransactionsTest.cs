@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
     public string Name { get; set; }
 
     [Field(Length = 200)]
-    public string SecondName { get; set; }
+    public string Surname { get; set; }
 
     [Field]
     [Association(PairTo = "Friends")]
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
     // Transactional - this is default mode for any public ISessionBound method
     public string FullName {
       get {
-        return "{Name} {SecondName}".FormatWith(this);
+        return "{Name} {Surname}".FormatWith(this);
       }
     }
 
@@ -167,9 +167,9 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         using (var session = Session.Open(domain)) {
           using (var transactionScope = Transaction.Open(session)) {
             // Creating initial content
-            var alex   = new Person {Name = "Alex", SecondName = "Yakunin"};
-            var dmitri = new Person {Name = "Dmitri", SecondName = "Maximov"};
-            var ivan   = new Person {Name = "Ivan", SecondName = "Galkin"};
+            var alex   = new Person {Name = "Alex", Surname = "Yakunin"};
+            var dmitri = new Person {Name = "Dmitri", Surname = "Maximov"};
+            var ivan   = new Person {Name = "Ivan", Surname = "Galkin"};
             alex.Friends.Add(dmitri);
             alex.Friends.Add(ivan);
             dmitri.Friends.Add(ivan);

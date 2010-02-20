@@ -60,19 +60,7 @@ namespace Xtensive.Storage.Model
     private bool                               hasVersionRoots;
     private Dictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
 
-    /// <summary>
-    /// Gets full-text index if any, otherwise gets <see langword="null"/>.
-    /// </summary>
-    public FullTextIndexInfo FullTextIndex
-    {
-      [DebuggerStepThrough]
-      get
-      {
-        FullTextIndexInfo fullTextIndexInfo;
-        model.FullTextIndexes.TryGetValue(this, out fullTextIndexInfo);
-        return fullTextIndexInfo;
-      }
-    }
+    #region IsXxx properties
 
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
@@ -130,20 +118,6 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Gets or sets the underlying system type.
-    /// </summary>
-    public Type UnderlyingType
-    {
-      [DebuggerStepThrough]
-      get { return underlyingType; }
-      set
-      {
-        this.EnsureNotLocked();
-        underlyingType = value;
-      }
-    }
-
-    /// <summary>
     /// Gets or sets a value indicating whether this instance is auxiliary type.
     /// </summary>
     public bool IsAuxiliary
@@ -155,6 +129,37 @@ namespace Xtensive.Storage.Model
         attributes = value
           ? attributes | TypeAttributes.AuxiliaryType
           : attributes & ~TypeAttributes.AuxiliaryType;
+      }
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Gets or sets the type identifier uniquely identifying the type in the domain model.
+    /// </summary>
+    /// <exception cref="NotSupportedException">Property is already initialized.</exception>
+    public int TypeId {
+      [DebuggerStepThrough]
+      get { return typeId; }
+      set {
+        if (typeId != NoTypeId)
+          throw Exceptions.AlreadyInitialized("TypeId");
+        typeId = value;
+        BuildTuplePrototype();
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the underlying system type.
+    /// </summary>
+    public Type UnderlyingType
+    {
+      [DebuggerStepThrough]
+      get { return underlyingType; }
+      set
+      {
+        this.EnsureNotLocked();
+        underlyingType = value;
       }
     }
 
@@ -189,6 +194,20 @@ namespace Xtensive.Storage.Model
     {
       [DebuggerStepThrough]
       get { return affectedIndexes; }
+    }
+
+    /// <summary>
+    /// Gets full-text index if any, otherwise gets <see langword="null"/>.
+    /// </summary>
+    public FullTextIndexInfo FullTextIndex
+    {
+      [DebuggerStepThrough]
+      get
+      {
+        FullTextIndexInfo fullTextIndexInfo;
+        model.FullTextIndexes.TryGetValue(this, out fullTextIndexInfo);
+        return fullTextIndexInfo;
+      }
     }
 
     /// <summary>
@@ -232,20 +251,6 @@ namespace Xtensive.Storage.Model
       }
     }
 
-    /// <summary>
-    /// Gets or sets the type id.
-    /// </summary>
-    /// <value></value>
-    public int TypeId
-    {
-      [DebuggerStepThrough]
-      get { return typeId; }
-      set
-      {
-        SetTypeId(value);
-      }
-    }
-
     private object typeDiscriminatorValue;
 
     public object TypeDiscriminatorValue
@@ -272,23 +277,25 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the version tuple extractor.
     /// </summary>
-    public MapTransform VersionExtractor { get; private set;}
+    public MapTransform VersionInfoTupleExtractor { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance has version fields.
+    /// </summary>
+    public bool HasVersionFields { get; private set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this instance has version roots.
     /// </summary>
-    public bool HasVersionRoots{
+    public bool HasVersionRoots {
       [DebuggerStepThrough]
       get { return hasVersionRoots; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         hasVersionRoots = value;
       }
     }
-
-    public bool HasVersionFields { get; private set; }
 
     /// <summary>
     /// Gets the structure field mapping.
@@ -296,8 +303,7 @@ namespace Xtensive.Storage.Model
     /// <value>The structure field mapping.</value>
     public Dictionary<Pair<FieldInfo>, FieldInfo> StructureFieldMapping
     {
-      get
-      {
+      get {
         return structureFieldMapping ?? BuildStructureFieldMapping();
       }
     }
@@ -550,6 +556,12 @@ namespace Xtensive.Storage.Model
     {
       base.Lock(recursive);
 
+      int currentFieldId = FieldInfo.MinFieldId;
+      foreach (var field in fields)
+        field.FieldId = currentFieldId++;
+      isLeaf = GetIsLeaf();
+      keyProviderInfo = GetKeyInfo();
+
       if (!recursive)
         return;
       affectedIndexes.Lock(true);
@@ -557,20 +569,9 @@ namespace Xtensive.Storage.Model
       columns.Lock(true);
       fieldMap.Lock(true);
       fields.Lock(true);
-      isLeaf = GetIsLeaf();
-      keyProviderInfo = GetKeyInfo();
     }
 
     #region Private \ internal methods
-
-    private void SetTypeId(int value)
-    {
-      if (typeId != 0)
-        throw new InvalidOperationException(
-          string.Format(Strings.TypeIdForTypeXIsAlreadyAssigned, underlyingType.Name));
-      typeId = value;
-      BuildTuplePrototype();
-    }
 
     private KeyProviderInfo GetKeyInfo()
     {
@@ -642,13 +643,13 @@ namespace Xtensive.Storage.Model
       // Building version tuple extractor
       var versionColumns = GetVersionColumns();
       if (versionColumns.Count==0) {
-        VersionExtractor = null;
+        VersionInfoTupleExtractor = null;
         return;
       }
       var types = versionColumns.Select(pair => pair.First.ValueType);
       var map = versionColumns.Select(pair => pair.Second).ToArray();
       var versionTupleDescriptor = TupleDescriptor.Create(types.ToArray());
-      VersionExtractor = new MapTransform(true, versionTupleDescriptor, map);
+      VersionInfoTupleExtractor = new MapTransform(true, versionTupleDescriptor, map);
     }
 
     private Dictionary<Pair<FieldInfo>, FieldInfo> BuildStructureFieldMapping()
