@@ -313,9 +313,8 @@ namespace Xtensive.Storage
         }
         return changed;
       }
-      catch {
+      finally {
         State.IsVersionInfoUpdated = changed;
-        throw;
       }
     }
 
@@ -331,7 +330,7 @@ namespace Xtensive.Storage
     protected virtual bool HandleUpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
     {
       foreach (var field in Type.GetVersionFields())
-        SetFieldValue(field, VersionGenerator.GetNextVersion(GetFieldValue(field)));
+        SetFieldValue(field, VersionGenerator.Next(GetFieldValue(field)));
       return true;
     }
 
@@ -369,9 +368,10 @@ namespace Xtensive.Storage
       if (!Session.IsSystemLogicOnly)
         Session.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
 
-      bool changed = false;
-      if (changedEntity!=this || Type.HasVersionFields)
-        changed = HandleUpdateVersionInfo(changedEntity, changedField);
+      bool changed = Type.HasVersionFields 
+        ? HandleUpdateVersionInfo(changedEntity, changedField) 
+        : true; // No [Version] fields = VersionInfo is composed of other (incl. changed)
+                // fields, so let's consider it is changed.
 
       if (!Session.IsSystemLogicOnly)
         Session.NotifyEntityVersionInfoChanged(changedEntity, changedField, changed);

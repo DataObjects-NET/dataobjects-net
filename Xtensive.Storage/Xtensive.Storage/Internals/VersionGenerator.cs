@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Internals
     /// <param name="currentVersion">The current version.</param>
     /// <returns>Next version value.</returns>
     /// <exception cref="NotSupportedException">Unsupported <paramref name="currentVersion"/> type.</exception>
-    public static object GetNextVersion(object currentVersion)
+    public static object Next(object currentVersion)
     {
       ArgumentValidator.EnsureArgumentNotNull(currentVersion, "currentValue");
 
