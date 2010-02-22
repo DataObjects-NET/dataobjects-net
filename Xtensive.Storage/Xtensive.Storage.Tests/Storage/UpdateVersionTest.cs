@@ -145,7 +145,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
 
     protected override bool HandleUpdateVersionInfo(Entity changedEntity, M.FieldInfo changedField)
     {
-      VersionId = new VersionStructure{Version = Field==null ? 0 : Field.GetHashCode()};
+      VersionId = new VersionStructure{Version = VersionId.Version + 1};
       return true;
     }
   }

@@ -526,6 +526,8 @@ namespace Xtensive.Storage
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
 
+      UpdateVersionInfo(this, field);
+
       if (Session.IsSystemLogicOnly)
         return;
 
@@ -544,7 +546,6 @@ namespace Xtensive.Storage
           // to avoid post-first property set flush.
           State.PersistenceState = PersistenceState.Modified;
         }
-      UpdateVersionInfo(this, field);
       
       if (Session.IsSystemLogicOnly)
         return;
