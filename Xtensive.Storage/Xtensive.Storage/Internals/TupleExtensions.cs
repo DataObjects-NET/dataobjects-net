@@ -61,5 +61,15 @@ namespace Xtensive.Storage.Internals
       }
       return true;
     }
+
+    public static bool IsAtLeastOneColumAvailable(this Tuple target, Segment<int> segment)
+    {
+      for (int i = segment.Offset; i < segment.EndOffset; i++) {
+        var state = target.GetFieldState(i);
+        if (state.IsAvailable())
+          return true;
+      }
+      return false;
+    }
   }
 }

@@ -11,7 +11,6 @@ namespace Xtensive.Storage
   /// <summary>
   /// Possible persistent field states.
   /// </summary>
-  [Flags]
   public enum PersistentFieldState
   {
     /// <summary>
