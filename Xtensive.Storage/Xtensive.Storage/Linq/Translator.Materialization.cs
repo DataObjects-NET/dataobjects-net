@@ -79,7 +79,7 @@ namespace Xtensive.Storage.Linq
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
         var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
         var rs = resultProvider.Result;
-        ItemProjectorExpression itemProjector = origin.ItemProjector.Remap(rs, usedColumns.ToArray());
+        var itemProjector = origin.ItemProjector.Remap(rs, usedColumns.ToArray());
         var result = new ProjectionExpression(
           origin.Type,
           itemProjector,
@@ -112,12 +112,14 @@ namespace Xtensive.Storage.Linq
         .MakeGenericMethod(elementType);
 
       var itemMaterializer = compileMaterializerMethod.Invoke(null, new[] {materializationInfo.Expression});
-      var materializationContext = new MaterializationContext(materializationInfo.EntitiesInRow);
+      Expression<Func<int, MaterializationContext>> materializationContextCtor = n => new MaterializationContext(n);
+      var materializationContextExpression = materializationContextCtor
+        .BindParameters(Expression.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
         materializeMethod,
         rs,
-        Expression.Constant(materializationContext),
+        materializationContextExpression,
         Expression.Constant(itemMaterializer),
         tupleParameterBindings);
 

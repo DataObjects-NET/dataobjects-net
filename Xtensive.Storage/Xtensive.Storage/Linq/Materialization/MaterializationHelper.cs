@@ -88,12 +88,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
     public static bool IsNull(Tuple tuple, int[] columns)
     {
-      var result = true;
-      for (int i = 0; i < columns.Length; i++) {
-        var column = columns[i];
-        result &= tuple.GetFieldState(column).IsNull();
-      }
-      return result;
+      return columns.Aggregate(true, (current, column) => current & tuple.GetFieldState(column).IsNull());
     }
 
     public static object ThrowEmptySequenceException()
@@ -133,9 +128,7 @@ namespace Xtensive.Storage.Linq.Materialization
         .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
         .ApplyBeforeAndAfter(batchActivator.Activate, batchActivator.Deactivate)
         .ToTransactional();
-      foreach (var batch in batchSequence)
-        foreach (var result in batch)
-          yield return result;
+      return batchSequence.SelectMany(batch => batch);
     }
 
     private static IEnumerable<TResult> SubqueryMaterialize<TResult>(IEnumerable<TResult> materializedSequence, ParameterContext parameterContext)
@@ -147,9 +140,7 @@ namespace Xtensive.Storage.Linq.Materialization
           () => scope = parameterContext.Activate(),
           () => scope.DisposeSafely())
         .ToTransactional();
-      foreach (var batch in batchSequence)
-        foreach (var result in batch)
-          yield return result;
+      return batchSequence.SelectMany(batch => batch);
     }
 
     public static Func<Tuple, ItemMaterializationContext, TResult> CompileItemMaterializer<TResult>(Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda)

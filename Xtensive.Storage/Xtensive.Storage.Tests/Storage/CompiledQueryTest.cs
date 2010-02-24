@@ -29,19 +29,19 @@ namespace Xtensive.Storage.Tests.Storage
       var categoryNames = Query.All<Category>()
         .Select(c => c.CategoryName)
         .ToList();
+      var expectedItems = Query.All<Category>()
+        .Select(c => new {Category = c, ProductsCount = c.Products.Count})
+        .ToDictionary(a => a.Category.CategoryName);
       foreach (var categoryName in categoryNames) {
         var result = Query.Execute(() => Query.All<Category>()
           .Where(c => c.CategoryName == categoryName)
           .Select(c => new {
             Category = c, 
-            ProductsCount = Query.All<Product>().Count(p => p.Category.CategoryName == categoryName)})
+            Products = Query.All<Product>().Where(p => p.Category.CategoryName == categoryName)})
           ).ToList();
-        var expected = new {
-          Category = Query.All<Category>().First(c => c.CategoryName == categoryName),
-          ProductsCount = Query.All<Product>().Count(p => p.Category.CategoryName == categoryName)
-        };
+        var expected = expectedItems[categoryName];
         Assert.AreSame(expected.Category, result.Single().Category);          
-        Assert.AreEqual(expected.ProductsCount, result.Single().ProductsCount);          
+        Assert.AreEqual(expected.ProductsCount, result.Single().Products.ToList().Count);          
       }
     }
 

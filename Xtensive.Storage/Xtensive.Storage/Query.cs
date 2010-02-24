@@ -426,13 +426,11 @@ namespace Xtensive.Storage
       var parameterType = typeof(Parameter<>).MakeGenericType(closureType);
       var valueMemberInfo = parameterType.GetProperty("Value", closureType);
       var queryParameter = (Parameter)Activator.CreateInstance(parameterType, "pClosure", target);
-      replacer = new ExtendedExpressionReplacer(e =>
-      {
+      replacer = new ExtendedExpressionReplacer(e => {
         if (e.NodeType == ExpressionType.Constant && e.Type.IsClosure()) {
           if (e.Type == closureType)
             return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           throw new NotSupportedException(String.Format(Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, e));
-
         }
         return null;
       });
@@ -450,9 +448,7 @@ namespace Xtensive.Storage
       var batches = query.Execute()
         .Batch(2)
         .ApplyBeforeAndAfter(() => scope = context.Activate(), () => scope.DisposeSafely());
-      foreach (var batch in batches)
-        foreach (var element in batch)
-          yield return element;
+      return batches.SelectMany(batch => batch);
     }
 
     private static TResult ExecuteScalar<TResult>(ParameterizedQuery<TResult> query, object target)
