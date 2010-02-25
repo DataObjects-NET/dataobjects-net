@@ -193,19 +193,19 @@ namespace Xtensive.Storage.Linq
       }
       if (ma.Expression==null) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
-          Func<IQueryable> lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
-          IQueryable rootPoint = lambda();
-          if (rootPoint!=null)
-            return ConstructQueryable(rootPoint);
+          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
+          var rootPoint = lambda();
+          if (rootPoint != null)
+            return VisitSequence(rootPoint.Expression);
         }
       }
       else if (ma.Expression.NodeType==ExpressionType.Constant) {
         var rfi = ma.Member as FieldInfo;
         if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
-          Func<IQueryable> lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
-          IQueryable rootPoint = lambda();
+          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
+          var rootPoint = lambda();
           if (rootPoint!=null)
-            return ConstructQueryable(rootPoint);
+            return VisitSequence(rootPoint.Expression);
         }
       }
       else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key")
@@ -229,6 +229,9 @@ namespace Xtensive.Storage.Linq
 
       // Visit Query.
       if (mc.Method.DeclaringType==typeof (Query)) {
+        // Query.All<T>
+        if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition() == WellKnownMembers.Query.All)
+          return ConstructQueryable(mc);
         // Query.FreeText<T>
         if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.Query.FreeTextString, WellKnownMembers.Query.FreeTextExpression))
           return CosntructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
@@ -664,23 +667,49 @@ namespace Xtensive.Storage.Linq
       return body;
     }
 
-    private Expression ConstructQueryable(IQueryable rootPoint)
+    private Expression ConstructQueryable(MethodCallExpression mc)
     {
-      // Special case. Constructing Queryable<T>.
-      var constExpression = rootPoint.Expression as ConstantExpression;
-      if (constExpression!=null && constExpression.Value==rootPoint) {
-        Type elementType = rootPoint.ElementType;
-        TypeInfo type;
-        if (!context.Model.Types.TryGetValue(elementType, out type))
-          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+      var elementType = mc.Method.GetGenericArguments()[0];
+      TypeInfo type;
+      if (!context.Model.Types.TryGetValue(elementType, out type))
+        throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+      var index = type.Indexes.PrimaryIndex;
+      var entityExpression = EntityExpression.Create(type, 0, false);
+      var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
+      return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
 
-        IndexInfo index = type.Indexes.PrimaryIndex;
-        EntityExpression entityExpression = EntityExpression.Create(type, 0, false);
-        var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
-        return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-      }
-      return VisitSequence(rootPoint.Expression);
+//      var constExpression = rootPoint.Expression as ConstantExpression;
+//      if (constExpression!=null && constExpression.Value==rootPoint) {
+//        Type elementType = rootPoint.ElementType;
+//        TypeInfo type;
+//        if (!context.Model.Types.TryGetValue(elementType, out type))
+//          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+//
+//        IndexInfo index = type.Indexes.PrimaryIndex;
+//        EntityExpression entityExpression = EntityExpression.Create(type, 0, false);
+//        var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
+//        return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+//      }
+//      return VisitSequence(rootPoint.Expression);
     }
+
+//    private Expression ConstructQueryable(IQueryable rootPoint)
+//    {
+      // Special case. Constructing Queryable<T>.
+//      var constExpression = rootPoint.Expression as ConstantExpression;
+//      if (constExpression!=null && constExpression.Value==rootPoint) {
+//        Type elementType = rootPoint.ElementType;
+//        TypeInfo type;
+//        if (!context.Model.Types.TryGetValue(elementType, out type))
+//          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+//
+//        IndexInfo index = type.Indexes.PrimaryIndex;
+//        EntityExpression entityExpression = EntityExpression.Create(type, 0, false);
+//        var itemProjector = new ItemProjectorExpression(entityExpression, IndexProvider.Get(index).Result, context);
+//        return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+//      }
+//      return VisitSequence(rootPoint.Expression);
+//    }
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {

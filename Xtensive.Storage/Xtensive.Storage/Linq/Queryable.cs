@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Linq
   /// An implementation of <see cref="IQueryable{T}"/>.
   /// </summary>
   /// <typeparam name="T">The type of the content item of the data source.</typeparam>
-  public sealed class Queryable<T> : IOrderedQueryable<T>
+  public sealed class Queryable<T> : IOrderedQueryable<T> 
   {
     private readonly Expression expression;
     private RecordSet compiledRecordset;
@@ -89,8 +89,8 @@ namespace Xtensive.Storage.Linq
     public override string ToString()
     {
       // TODO: Make the output readable?
-      if (expression.NodeType==ExpressionType.Constant && ((ConstantExpression) expression).Value==this)
-        return string.Format("Query.All<{0}>()", typeof (T).GetShortName());
+//      if (expression.NodeType==ExpressionType.Constant && ((ConstantExpression) expression).Value==this)
+//        return string.Format("Query.All<{0}>()", typeof (T).GetShortName());
       return expression.ToString();
     }
 
@@ -99,7 +99,8 @@ namespace Xtensive.Storage.Linq
 
     public Queryable()
     {
-      expression = Expression.Constant(this);
+      var allMethod = WellKnownMembers.Query.All.MakeGenericMethod(typeof (T));
+      expression = Expression.Call(null, allMethod);
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="expression"/>  is out of range.</exception>

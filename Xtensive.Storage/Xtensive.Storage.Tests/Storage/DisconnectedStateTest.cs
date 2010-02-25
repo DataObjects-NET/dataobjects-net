@@ -1400,10 +1400,8 @@ namespace Xtensive.Storage.Tests.Storage
       
       // Serialize, deserialize
       using (var session = Session.Open(Domain)) {
-        using (var stream = new MemoryStream()) {
-          state = LegacyBinarySerializer.Instance.Clone(state) as DisconnectedState;
-          Assert.IsNotNull(state);
-        }
+        state = LegacyBinarySerializer.Instance.Clone(state) as DisconnectedState;
+        Assert.IsNotNull(state);
       }
       
       // Check data in cache and save to DB

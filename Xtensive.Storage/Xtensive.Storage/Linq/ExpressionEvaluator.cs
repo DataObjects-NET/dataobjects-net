@@ -99,8 +99,13 @@ namespace Xtensive.Storage.Linq
         }
       }
       var mc = expression as MethodCallExpression;
-      if (mc!=null && (mc.Method.DeclaringType==typeof (Enumerable) || mc.Method.DeclaringType==typeof (Queryable)))
-        return false;
+      if (mc != null) {
+        var methodInfo = mc.Method;
+        if (methodInfo.DeclaringType == typeof (Enumerable) ||
+            methodInfo.DeclaringType == typeof (Queryable) || 
+           (methodInfo.DeclaringType == typeof (Query)) && methodInfo.IsGenericMethod)
+          return false;
+      }
       if (expression.NodeType==ExpressionType.Convert && expression.Type==typeof (object))
         return true;
       return expression.NodeType!=ExpressionType.Parameter &&

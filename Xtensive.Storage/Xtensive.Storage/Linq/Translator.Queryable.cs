@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Linq
         return c;
       var rootPoint = c.Value as IQueryable;
       if (rootPoint!=null)
-        return ConstructQueryable(rootPoint);
+        return VisitSequence(rootPoint.Expression);
       return base.VisitConstant(c);
     }
 

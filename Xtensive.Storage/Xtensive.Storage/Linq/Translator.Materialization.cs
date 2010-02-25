@@ -209,8 +209,8 @@ namespace Xtensive.Storage.Linq
       var returnType = mc.Method.ReturnType;
 
       var argument = mc.Arguments[0];
-      var queryable = (IQueryable)WellKnownMembers.Query.All.MakeGenericMethod(returnType).Invoke(null, new object[0]);
-      var source = ConstructQueryable(queryable);
+      var queryAll = Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(returnType));
+      var source = ConstructQueryable(queryAll);
       var parameter = Expression.Parameter(returnType, "entity");
       var keyAccessor = Expression.MakeMemberAccess(parameter, WellKnownMembers.IEntityKey);
       var equility = Expression.Equal(keyAccessor, argument);

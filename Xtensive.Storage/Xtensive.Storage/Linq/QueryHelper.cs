@@ -22,7 +22,6 @@ namespace Xtensive.Storage.Linq
 {
   internal static class QueryHelper
   {
-
     public static Expression<Func<Tuple,bool>> BuildFilterLambda(int startIndex, IList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
       Expression filterExpression = null;
@@ -50,10 +49,8 @@ namespace Xtensive.Storage.Linq
 
     public static Expression CreateEntityQueryExpression(Type elementType)
     {
-      var query = WellKnownMembers.Query.All
-        .MakeGenericMethod(elementType)
-        .Invoke(null, null);
-      return Expression.Constant(query, typeof(IQueryable<>).MakeGenericType(elementType));
+      var queryAll = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
+      return Expression.Call(null, queryAll);
     }
 
     public static Expression CreateEntitySetQueryExpression(Expression ownerEntity, FieldInfo field)
