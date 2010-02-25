@@ -9,21 +9,18 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
-using Xtensive.Core.Disposing;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Resources;
-using Xtensive.Core.Linq;
 using System.Linq;
 
 namespace Xtensive.Storage.Linq.Materialization
 {
   internal static class MaterializationHelper
   {
-    public readonly static int BatchFastFirstCount = 0;
+    public readonly static int BatchFastFirstCount = 2;
     public readonly static int BatchMinSize = 16;
     public readonly static int BatchMaxSize = 1024;
 
@@ -49,10 +46,14 @@ namespace Xtensive.Storage.Linq.Materialization
 
       public void Deactivate()
       {
-        scope.DisposeSafely();
-        while (materializationQueue.Count > 0) {
-          var materializeSelf = materializationQueue.Dequeue();
-          materializeSelf.Invoke();
+        try { 
+          while (materializationQueue.Count > 0){
+            var materializeSelf = materializationQueue.Dequeue();
+            materializeSelf.Invoke();
+          }
+        }
+        finally {
+          scope.DisposeSafely();
         }
       }
 
@@ -102,12 +103,11 @@ namespace Xtensive.Storage.Linq.Materialization
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="dataSource">The data source.</param>
     /// <param name="context">The context.</param>
+    /// <param name="parameterContext">The parameter context.</param>
     /// <param name="itemMaterializer">The item materializer.</param>
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
-    /// <returns></returns>
-    public static IEnumerable<TResult> Materialize<TResult>(IEnumerable<Tuple> dataSource, MaterializationContext context, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+    public static IEnumerable<TResult> Materialize<TResult>(IEnumerable<Tuple> dataSource, MaterializationContext context, ParameterContext parameterContext, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
     {
-      var parameterContext = new ParameterContext();
       using (parameterContext.Activate())
         foreach (var tupleParameterBinding in tupleParameterBindings)
           tupleParameterBinding.Key.Value = tupleParameterBinding.Value;

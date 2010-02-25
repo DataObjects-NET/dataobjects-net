@@ -72,7 +72,6 @@ namespace Xtensive.Storage.Linq
 
     public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery query, Parameter<Tuple> parameter, Tuple tuple, ItemMaterializationContext context)
     {
-      var parameterContext = new ParameterContext();
       var tupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(projectionExpression.TupleParameterBindings);
       var currentTranslatedQuery = ((TranslatedQuery<IEnumerable<TElement>>) query);
 
@@ -82,6 +81,7 @@ namespace Xtensive.Storage.Linq
         var value = tupleParameter.Value;
         tupleParameterBindings[tupleParameter] = value;
       }
+      var parameterContext = new ParameterContext();
       using (parameterContext.Activate())
       foreach (var tupleParameter in currentTranslatedQuery.TupleParameters)
         tupleParameter.Value = tupleParameter.Value;
@@ -93,7 +93,7 @@ namespace Xtensive.Storage.Linq
         projectionExpression.ResultType);
       var translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(
         query.DataSource,
-        (Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, IEnumerable<TElement>>) query.UntypedMaterializer,
+        (Func<IEnumerable<Tuple>, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, IEnumerable<TElement>>) query.UntypedMaterializer,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
       futureSequence = new FutureSequence<TElement>(translatedQuery, parameterContext);

@@ -188,7 +188,7 @@ namespace Xtensive.Storage
     /// <returns>Query result.</returns>
     public static IEnumerable<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
     {
-      return ExecuteSequence(GetParameterizedQuery(key, query, Session.Demand()), query.Target);
+      return ExecuteInternal(GetParameterizedQuery(key, query, Session.Demand()), query.Target);
     }
 
     /// <summary>
@@ -243,7 +243,7 @@ namespace Xtensive.Storage
           return result;
         }
       }
-      return ExecuteScalar(parameterizedQuery, target);
+      return ExecuteInternal(parameterizedQuery, target);
     }
 
     /// <summary>
@@ -437,27 +437,13 @@ namespace Xtensive.Storage
       return queryParameter;
     }
 
-    private static IEnumerable<TElement> ExecuteSequence<TElement>(ParameterizedQuery<IEnumerable<TElement>> query, object target)
+    private static TResult ExecuteInternal<TResult>(ParameterizedQuery<TResult> query, object target)
     {
       var context = new ParameterContext();
-      using (context.Activate()) {
+      using (context.Activate())
         if (query.QueryParameter != null)
           query.QueryParameter.Value = target;
-      }
-      ParameterScope scope = null;
-      var batches = query.Execute()
-        .Batch(2)
-        .ApplyBeforeAndAfter(() => scope = context.Activate(), () => scope.DisposeSafely());
-      return batches.SelectMany(batch => batch);
-    }
-
-    private static TResult ExecuteScalar<TResult>(ParameterizedQuery<TResult> query, object target)
-    {
-      using (new ParameterContext().Activate()) {
-        if (query.QueryParameter != null)
-          query.QueryParameter.Value = target;
-        return query.Execute();
-      }
+      return query.Execute(context);
     }
 
     private static ParameterizedQuery<IEnumerable<TElement>> GetParameterizedQuery<TElement>(object key,

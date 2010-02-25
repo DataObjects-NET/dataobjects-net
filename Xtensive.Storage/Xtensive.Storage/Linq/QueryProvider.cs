@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Linq;
 
@@ -62,7 +63,7 @@ namespace Xtensive.Storage.Linq
     public TResult Execute<TResult>(Expression expression)
     {
       var query = Translate<TResult>(expression);
-      return query.Execute();
+      return query.Execute(new ParameterContext());
     }
 
     internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)

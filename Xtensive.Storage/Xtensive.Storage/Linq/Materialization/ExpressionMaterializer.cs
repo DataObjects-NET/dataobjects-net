@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Linq.Materialization
       Parameter<Tuple> parameterOfTuple;
       Type elementType;
       ProjectionExpression projection;
-      TranslatedQuery translatedQuery = PrepareSubqueryParameters(groupingExpression, out parameterOfTuple, out elementType, out projection);
+      var translatedQuery = PrepareSubqueryParameters(groupingExpression, out parameterOfTuple, out elementType, out projection);
 
       // 2. Create constructor
       var keyType = groupingExpression.KeyExpression.Type;

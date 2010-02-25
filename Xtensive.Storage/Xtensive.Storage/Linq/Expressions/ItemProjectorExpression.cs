@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Linq.Expressions.Visitors;
@@ -23,12 +22,8 @@ namespace Xtensive.Storage.Linq.Expressions
 {
   internal class ItemProjectorExpression : ExtendedExpression
   {
-//    private static readonly ExtendedExpressionReplacer ApplyParameterReplacer = new ExtendedExpressionReplacer(ex => ex is SubQueryExpression ? ((SubQueryExpression) ex).ReplaceApplyParameter(newApplyParameter) : expression);
-
     public RecordSet DataSource { get; set; }
-
     public TranslatorContext Context { get; private set; }
-
     public Expression Item { get; private set; }
 
     public bool IsPrimitive
@@ -134,7 +129,7 @@ namespace Xtensive.Storage.Linq.Expressions
           EntityExpression.Fill(entityExpression, offset);
           return entityExpression;
         }
-        else if (e is EntityFieldExpression) {
+        if (e is EntityFieldExpression) {
           var entityFieldExpression = (EntityFieldExpression) e;
           var typeInfo = entityFieldExpression.PersistentType;
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
