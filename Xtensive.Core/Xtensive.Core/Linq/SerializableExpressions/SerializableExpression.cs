@@ -6,6 +6,8 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
+using Xtensive.Core.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
@@ -15,6 +17,8 @@ namespace Xtensive.Core.Linq.SerializableExpressions
   [Serializable]
   public abstract class SerializableExpression
   {
+    private string typeName;
+
     /// <summary>
     /// <see cref="Expression.NodeType"/>.
     /// </summary>
@@ -22,6 +26,19 @@ namespace Xtensive.Core.Linq.SerializableExpressions
     /// <summary>
     /// <see cref="Expression.Type"/>.
     /// </summary>
+    [NonSerialized]
     public Type Type;
+
+    [OnSerializing]
+    private void OnSerializing(StreamingContext context)
+    {
+      typeName = Type.ToSerializableForm();
+    }
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      Type = typeName.GetTypeFromSerializableForm();
+    }
   }
 }

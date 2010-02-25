@@ -7,6 +7,8 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
+using Xtensive.Core.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
@@ -16,6 +18,8 @@ namespace Xtensive.Core.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableMemberExpression : SerializableExpression
   {
+    private string memberName;
+
     /// <summary>
     /// <see cref="MemberExpression.Expression"/>
     /// </summary>
@@ -23,6 +27,19 @@ namespace Xtensive.Core.Linq.SerializableExpressions
     /// <summary>
     /// <see cref="MemberExpression.Member"/>
     /// </summary>
+    [NonSerialized]
     public MemberInfo Member;
+
+    [OnSerializing]
+    private void OnSerializing(StreamingContext context)
+    {
+      memberName = Member.ToSerializableForm();
+    }
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      Member = memberName.GetMemberFromSerializableForm();
+    }
   }
 }

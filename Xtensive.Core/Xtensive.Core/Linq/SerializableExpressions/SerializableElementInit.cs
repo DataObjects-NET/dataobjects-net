@@ -7,6 +7,8 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
+using Xtensive.Core.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
@@ -16,13 +18,28 @@ namespace Xtensive.Core.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableElementInit
   {
+    private string methodName;
+
     /// <summary>
     /// <see cref="ElementInit.AddMethod"/>
     /// </summary>
+    [NonSerialized]
     public MethodInfo AddMethod;
     /// <summary>
     /// <see cref="ElementInit.Arguments"/>
     /// </summary>
     public SerializableExpression[] Arguments;
+
+    [OnSerializing]
+    private void OnSerializing(StreamingContext context)
+    {
+      methodName = AddMethod.ToSerializableForm();
+    }
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      AddMethod = methodName.GetMethodFromSerializableForm();
+    }
   }
 }

@@ -7,6 +7,8 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
+using Xtensive.Core.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
@@ -16,6 +18,8 @@ namespace Xtensive.Core.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableBinaryExpression : SerializableExpression
   {
+    private string methodName;
+
     /// <summary>
     /// <see cref="BinaryExpression.IsLiftedToNull"/>
     /// </summary>
@@ -31,6 +35,19 @@ namespace Xtensive.Core.Linq.SerializableExpressions
     /// <summary>
     /// <see cref="BinaryExpression.Method"/>
     /// </summary>
+    [NonSerialized]
     public MethodInfo Method;
+
+    [OnSerializing]
+    private void OnSerializing(StreamingContext context)
+    {
+      methodName = Method.ToSerializableForm();
+    }
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      Method = methodName.GetMethodFromSerializableForm();
+    }
   }
 }

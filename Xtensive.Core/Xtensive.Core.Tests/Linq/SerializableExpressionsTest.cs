@@ -30,7 +30,7 @@ namespace Xtensive.Core.Tests.Linq
       }
     }
 
-    [Test, Ignore("Bug in formatter")]
+    [Test]
     public void BinaryFormatterSerializeTest()
     {
       RunSerializeTest(new BinaryFormatter());
@@ -42,7 +42,7 @@ namespace Xtensive.Core.Tests.Linq
       RunSerializeTest(new NetDataContractSerializer());
     }
 
-    [Test, Ignore("Bug in formatter")]
+    [Test]
     public void SoapSerializeTest()
     {
       RunSerializeTest(new SoapFormatter());
@@ -72,19 +72,35 @@ namespace Xtensive.Core.Tests.Linq
     [Explicit]
     public void SerializeBenchmarkTest()
     {
-      RunSerializeBenchmark(new NetDataContractSerializer(), true, 1);
-      RunSerializeBenchmark(new NetDataContractSerializer(), false, 1);
+      RunSerializeBenchmark(new NetDataContractSerializer(), true);
+      RunSerializeBenchmark(new NetDataContractSerializer(), false);
     }
 
-    private void RunSerializeBenchmark(IFormatter serializer, bool warmUp, int expressionIndex)
+    private void RunSerializeBenchmark(IFormatter serializer, bool warmUp)
     {
       int operationCount = warmUp ? warmUpOperationCount : actualOperationCount;
       var stream = new MemoryStream();
+      int operation = 0;
+      long length = 0;
       using (CreateMeasurement(warmUp, serializer.GetType().Name, operationCount))
-        for (int i = 0; i < operationCount; i++) {
-          serializer.Serialize(stream, Expressions[expressionIndex].ToSerializableExpression());
-          stream.SetLength(0);
+        while (operation < operationCount) {
+          foreach (var expression in Expressions) {
+            operation++;
+            if (operation > operationCount)
+              break;
+            serializer.Serialize(stream, expression.ToSerializableExpression());
+            length += stream.Position;
+            stream.Seek(0, SeekOrigin.Begin);
+            var serialized = (SerializableExpression)serializer.Deserialize(stream);
+            stream.SetLength(0);
+          }
         }
+//        for (int i = 0; i < operationCount; i++) {
+//          serializer.Serialize(stream, Expressions[expressionIndex].ToSerializableExpression());
+//          length += stream.Length;
+//          stream.SetLength(0);
+//        }
+      Console.Out.WriteLine("Stream size: {0} Kb", length / 1024);
     }
 
     private static IDisposable CreateMeasurement(bool warmUp, string name, int operationCount)

@@ -5,8 +5,11 @@
 // Created:    2009.05.12
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
+using Xtensive.Core.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
@@ -16,6 +19,9 @@ namespace Xtensive.Core.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableNewExpression : SerializableExpression
   {
+    private string ctorName;
+    private string[] memberNames;
+
     /// <summary>
     /// <see cref="NewExpression.Arguments"/>
     /// </summary>
@@ -23,10 +29,30 @@ namespace Xtensive.Core.Linq.SerializableExpressions
     /// <summary>
     /// <see cref="NewExpression.Constructor"/>
     /// </summary>
+    [NonSerialized]
     public ConstructorInfo Constructor;
     /// <summary>
     /// <see cref="NewExpression.Members"/>
     /// </summary>
+    [NonSerialized]
     public MemberInfo[] Members;
+
+    [OnSerializing]
+    private void OnSerializing(StreamingContext context)
+    {
+      ctorName = Constructor.ToSerializableForm();
+      memberNames = Members
+        .Select(m => m.ToSerializableForm())
+        .ToArray();
+    }
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      Constructor = ctorName.GetConstructorFromSerializableForm();
+      Members = memberNames
+        .Select(name => name.GetMemberFromSerializableForm())
+        .ToArray();
+    }
   }
 }

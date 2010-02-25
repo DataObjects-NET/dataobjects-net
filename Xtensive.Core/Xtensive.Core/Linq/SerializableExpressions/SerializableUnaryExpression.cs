@@ -7,6 +7,8 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Serialization;
+using Xtensive.Core.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Core.Linq.SerializableExpressions
 {
@@ -16,6 +18,8 @@ namespace Xtensive.Core.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableUnaryExpression : SerializableExpression
   {
+    private string methodName;
+
     /// <summary>
     /// <see cref="UnaryExpression.Operand"/>
     /// </summary>
@@ -23,6 +27,19 @@ namespace Xtensive.Core.Linq.SerializableExpressions
     /// <summary>
     /// <see cref="UnaryExpression.Method"/>
     /// </summary>
+    [NonSerialized]
     public MethodInfo Method;
+
+    [OnSerializing]
+    private void OnSerializing(StreamingContext context)
+    {
+      methodName = Method.ToSerializableForm();
+    }
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      Method = methodName.GetMethodFromSerializableForm();
+    }
   }
 }

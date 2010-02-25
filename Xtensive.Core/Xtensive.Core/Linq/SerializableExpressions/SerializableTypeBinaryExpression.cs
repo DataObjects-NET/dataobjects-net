@@ -6,6 +6,8 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
+using Xtensive.Core.Linq.SerializableExpressions.Internals;
 using ExpressionFactory = System.Linq.Expressions.Expression;
 
 namespace Xtensive.Core.Linq.SerializableExpressions
@@ -16,6 +18,8 @@ namespace Xtensive.Core.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableTypeBinaryExpression : SerializableExpression
   {
+    private string typeOperandName;
+
     /// <summary>
     /// <see cref="TypeBinaryExpression.Expression"/>
     /// </summary>
@@ -23,6 +27,19 @@ namespace Xtensive.Core.Linq.SerializableExpressions
     /// <summary>
     /// <see cref="TypeBinaryExpression.TypeOperand"/>
     /// </summary>
+    [NonSerialized]
     public Type TypeOperand;
+
+    [OnSerializing]
+    private void OnSerializing(StreamingContext context)
+    {
+      typeOperandName = TypeOperand.ToSerializableForm();
+    }
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      TypeOperand = typeOperandName.GetTypeFromSerializableForm();
+    }
   }
 }
