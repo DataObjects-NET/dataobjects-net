@@ -23,9 +23,8 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void CombinedTest()
     {
-      var name = "Beverages";
       var query = Query.All<Category>()
-        .Where(c => c.CategoryName == name)
+        .Where(c => c.CategoryName == "Beverages")
         .Where(c => c.Id > 0)
         .Take(5)
         .Skip(0);
