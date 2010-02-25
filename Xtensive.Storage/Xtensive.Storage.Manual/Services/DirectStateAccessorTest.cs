@@ -47,23 +47,7 @@ namespace Xtensive.Storage.Manual.Services
 
       using (var session = Session.Open(domain)) {
         string originalValue;
-        Key entity0Key;
-        using (var tx = Transaction.Open()) {
-          var entity0 = new Simple {Value = Guid.NewGuid().ToString()};
-          entity0Key = entity0.Key;
-          originalValue = entity0.Value;
-          var entity1 = new Simple {Value = Guid.NewGuid().ToString()};
-          var stateAccessor = DirectStateAccessor.Get(session);
-          // Get the number of cached entities
-          Assert.AreEqual(2, stateAccessor.Count);
-          // Enumerate the cached entites
-          foreach (var entity in stateAccessor) {
-            if (entity==entity0 || entity==entity1)
-              continue;
-            Assert.Fail();
-          }
-          tx.Complete();
-        }
+        var entity0Key = CreateEntity(session, out originalValue);
         using (var tx = Transaction.Open()) {
           var entity0 = Query.Single<Simple>(entity0Key);
           entity0.Value += "Modified";
@@ -74,7 +58,8 @@ namespace Xtensive.Storage.Manual.Services
         }
         using (var tx = Transaction.Open()) {
           var entity0 = Query.Single<Simple>(entity0Key);
-          // The field value hasn't been modified due to the call to Session.Invalidate
+          // The field value hasn't been modified due to
+          // the call to Session.Invalidate
           Assert.AreEqual(originalValue, entity0.Value);
         }
       }
@@ -100,11 +85,9 @@ namespace Xtensive.Storage.Manual.Services
           // Get the field state
           var valueFieldState = stateAccessor.GetFieldState(valueFieldName);
           Assert.AreEqual(PersistentFieldState.Loaded, valueFieldState);
-          using (session.Pin(entity0)) {
-            entity0.Value += "Modified";
-            valueFieldState = stateAccessor.GetFieldState(valueFieldName);
-            Assert.AreEqual(PersistentFieldState.Modified, valueFieldState);
-          }
+          entity0.Value += "Modified";
+          valueFieldState = stateAccessor.GetFieldState(valueFieldName);
+          Assert.AreEqual(PersistentFieldState.Modified, valueFieldState);
           tx.Complete();
         }
       }
@@ -140,6 +123,28 @@ namespace Xtensive.Storage.Manual.Services
           Assert.IsTrue(stateAccessor.Contains(simpleKey));
         }
       }
+    }
+
+    private static Key CreateEntity(Session session, out string originalValue)
+    {
+      Key entity0Key;
+      using (var tx = Transaction.Open()) {
+        var entity0 = new Simple {Value = Guid.NewGuid().ToString()};
+        entity0Key = entity0.Key;
+        originalValue = entity0.Value;
+        var entity1 = new Simple {Value = Guid.NewGuid().ToString()};
+        var stateAccessor = DirectStateAccessor.Get(session);
+        // Get the number of cached entities
+        Assert.AreEqual(2, stateAccessor.Count);
+        // Enumerate the cached entites
+        foreach (var entity in stateAccessor) {
+          if (entity==entity0 || entity==entity1)
+            continue;
+          Assert.Fail();
+        }
+        tx.Complete();
+      }
+      return entity0Key;
     }
 
     private static Domain BuildDomain()

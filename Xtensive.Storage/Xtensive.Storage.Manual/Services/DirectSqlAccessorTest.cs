@@ -58,10 +58,6 @@ namespace Xtensive.Storage.Manual.Services
           var article = new Article {Title = "Some title", Content = "Some content"};
           session.Persist();
           
-          // Now both are definitely not null
-          Assert.IsNotNull(directSql.Connection);
-          Assert.IsNotNull(directSql.Transaction);
-
           var command = session.Services.Demand<DirectSqlAccessor>().CreateCommand();
           command.CommandText = "DELETE FROM [dbo].[Article];";
           command.ExecuteNonQuery();
@@ -69,12 +65,14 @@ namespace Xtensive.Storage.Manual.Services
           // Invalidate the session cache
           DirectStateAccessor.Get(session).Invalidate();
 
-          var anotherArticle = new Article { Title = "Another title", Content = "Another content" };
+          var anotherArticle = new Article { 
+            Title = "Another title",
+            Content = "Another content"
+          };
+          var anotherArticleKey = anotherArticle.Key;
           session.Persist();
 
-          AssertEx.ThrowsInvalidOperationException(() => Assert.IsNotNull(article.Content));
-          Assert.AreEqual(1, Query.All<Article>().Count());
-          Assert.IsNotNull(anotherArticle.Content);
+          Assert.AreEqual(anotherArticleKey, Query.All<Article>().Single().Key);
           t.Complete();
         }
       }
