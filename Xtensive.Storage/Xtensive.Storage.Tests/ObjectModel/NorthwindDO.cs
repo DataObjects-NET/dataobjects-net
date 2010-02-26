@@ -455,7 +455,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.NorthwindDO
         var reader = cmd.ExecuteReader();
 
         using (Session.Open(domain))
-        using (var tr = Transaction.Open())
+        using (var tr = Transaction.Open(System.Transactions.IsolationLevel.ReadCommitted))
         {
           #region  Categories
 

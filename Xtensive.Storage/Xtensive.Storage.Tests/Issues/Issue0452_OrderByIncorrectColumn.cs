@@ -181,7 +181,6 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
-          Fill();
           var result = Query.All<Article>().Select(p => p.Category);
           foreach (var category in result) {
             Assert.IsNotNull(category);
