@@ -228,16 +228,12 @@ namespace Xtensive.Storage
     {
       if (source==null)
         return null;
-
-      var parts = source.RevertibleSplitFirstAndTail(KeyFormatEscape, KeyFormatDelimiter);
-      var typeName = parts.First;
-      if (typeName == null)
+      var parts = source.RevertibleSplit(KeyFormatEscape, KeyFormatDelimiter).ToList();
+      if (parts.Count != 3 || parts.Contains(null))
         throw new InvalidOperationException(Strings.ExInvalidKeyString);
-      parts = parts.Second.RevertibleSplitFirstAndTail(KeyFormatEscape, KeyFormatDelimiter);
-      var accuracyString = parts.First;
-      var valueString = parts.Second;
-      if (accuracyString == null || valueString == null)
-        throw new InvalidOperationException(Strings.ExInvalidKeyString);
+      var typeName = parts[0];
+      var accuracyString = parts[1];
+      var valueString = parts[2];
 
       var type = domain.Model.Types[System.Type.GetType(typeName, true)];
       var accuracy = (TypeReferenceAccuracy)Enum.Parse(typeof(TypeReferenceAccuracy), accuracyString, true);
