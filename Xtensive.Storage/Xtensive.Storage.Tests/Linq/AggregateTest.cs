@@ -217,12 +217,12 @@ namespace Xtensive.Storage.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Customer>()
-        .Select(c => Query.All<Order>().Count());
+        .Select(c => Query.All<Order>().Count())
+        .ToList();
       var expected = Customers
         .Select(c => Orders.Count());
       Assert.AreEqual(0, expected.Except(result).Count());
-      QueryDumper.Dump(result);
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.Greater(result.Count, 0);
     }
 
     [Test]
