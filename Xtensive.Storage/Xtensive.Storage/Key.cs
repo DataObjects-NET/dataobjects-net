@@ -192,6 +192,7 @@ namespace Xtensive.Storage
       if (cachedFormatResult==null) {
         return new[] {
           TypeRef.Type.UnderlyingType.AssemblyQualifiedName,
+          TypeRef.Accuracy.ToString(),
           Value.Format()
         }.RevertibleJoin(KeyFormatEscape, KeyFormatDelimiter);
       }
@@ -230,19 +231,18 @@ namespace Xtensive.Storage
 
       var parts = source.RevertibleSplitFirstAndTail(KeyFormatEscape, KeyFormatDelimiter);
       var typeName = parts.First;
-      if (typeName==null)
+      if (typeName == null)
         throw new InvalidOperationException(Strings.ExInvalidKeyString);
       parts = parts.Second.RevertibleSplitFirstAndTail(KeyFormatEscape, KeyFormatDelimiter);
-      var valueString = parts.First;
-      if (valueString==null)
-        throw new InvalidOperationException(Strings.ExInvalidKeyString);
-      if (parts.Second!=null)
+      var accuracyString = parts.First;
+      var valueString = parts.Second;
+      if (accuracyString == null || valueString == null)
         throw new InvalidOperationException(Strings.ExInvalidKeyString);
 
       var type = domain.Model.Types[System.Type.GetType(typeName, true)];
-      var keyTupleDescriptor = type.KeyProviderInfo.KeyTupleDescriptor;
-
-      return Create(domain, type, TypeReferenceAccuracy.BaseType, keyTupleDescriptor.Parse(valueString));
+      var accuracy = (TypeReferenceAccuracy)Enum.Parse(typeof(TypeReferenceAccuracy), accuracyString, true);
+      var value = type.KeyProviderInfo.KeyTupleDescriptor.Parse(valueString);
+      return Create(domain, type, accuracy, value);
     }
 
     #endregion
