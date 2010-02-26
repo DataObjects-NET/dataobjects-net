@@ -1461,6 +1461,11 @@ namespace Xtensive.Storage.Tests.Storage
         }
       }
 
+      // Clone DisconnectedState
+      DisconnectedState stateClone;
+      using (Session.Open(Domain))
+        stateClone = (DisconnectedState) LegacyBinarySerializer.Instance.Clone(state);
+
       // Modify instance in cache and check version
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
@@ -1470,6 +1475,18 @@ namespace Xtensive.Storage.Tests.Storage
             transactionScope.Complete();
           }
           AssertEx.Throws<InvalidOperationException>(() => state.ApplyChanges());
+        }
+      }
+
+      // Set the cached instance's field value equal to the field value of instance in the storage
+      using (var session = Session.Open(Domain)) {
+        using (stateClone.Attach(session)) {
+          using (var transactionScope = Transaction.Open()) {
+            var customer1 = Query.Single<Customer>(customer1Key);
+            customer1.Name = "NewName1";
+            transactionScope.Complete();
+          }
+          AssertEx.Throws<InvalidOperationException>(() => stateClone.ApplyChanges());
         }
       }
     }
