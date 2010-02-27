@@ -211,7 +211,7 @@ namespace Xtensive.Storage.Providers.Sql
       case SqlExceptionType.Deadlock:
         return new DeadlockException(message, exception);
       case SqlExceptionType.SerializationFailure:
-        return new SerializationFailureException(message, exception);
+        return new TransactionSerializationFailureException(message, exception);
       case SqlExceptionType.OperationTimeout:
         return new OperationTimeoutException(message, exception);
       default:

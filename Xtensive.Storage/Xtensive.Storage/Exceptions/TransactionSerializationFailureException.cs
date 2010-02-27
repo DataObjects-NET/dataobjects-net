@@ -15,7 +15,7 @@ namespace Xtensive.Storage
   /// This exception is unrelated with .NET serialization.
   /// </summary>
   [Serializable]
-  public class SerializationFailureException : ReprocessableException
+  public class TransactionSerializationFailureException : ReprocessableException
   {
     // Constructors
 
@@ -23,7 +23,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="message">The message.</param>
-    public SerializationFailureException(string message)
+    public TransactionSerializationFailureException(string message)
       : base(message)
     {
     }
@@ -33,7 +33,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="innerException">The inner exception.</param>
-    public SerializationFailureException(string message, Exception innerException)
+    public TransactionSerializationFailureException(string message, Exception innerException)
       : base(message, innerException)
     {
     }
@@ -41,7 +41,7 @@ namespace Xtensive.Storage
     // Serialization
 
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
-    protected SerializationFailureException(SerializationInfo info, StreamingContext context)
+    protected TransactionSerializationFailureException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }     
