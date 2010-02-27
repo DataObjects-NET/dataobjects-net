@@ -211,7 +211,8 @@ namespace Xtensive.Sql.Tests
         thread1.Join();
         thread2.Join();
         startEvent.Close();
-        Assert.AreEqual(SqlExceptionType.Deadlock, arg1.ExceptionType ?? arg2.ExceptionType);
+        var actual = arg1.ExceptionType ?? arg2.ExceptionType ?? SqlExceptionType.Unknown;
+        AssertExceptionType(SqlExceptionType.Deadlock, actual);
       }
     }
 
@@ -262,6 +263,10 @@ namespace Xtensive.Sql.Tests
       return thread;
     }
 
+    protected virtual void AssertExceptionType(SqlExceptionType expected, SqlExceptionType actual)
+    {
+      Assert.AreEqual(expected, actual);
+    }
 
     private void AssertExceptionType(ISqlCompileUnit statement, SqlExceptionType expectedExceptionType)
     {
@@ -275,7 +280,7 @@ namespace Xtensive.Sql.Tests
         ExecuteNonQuery(commandText);
       }
       catch (Exception exception) {
-        Assert.AreEqual(expectedExceptionType, Driver.GetExceptionType(exception));
+        AssertExceptionType(expectedExceptionType, Driver.GetExceptionType(exception));
         return;
       }
       Assert.Fail("Exception was not thrown");
