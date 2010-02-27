@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Tests
 
     private static void Dump(this HierarchyInfo target, int indent)
     {
-      WriteLine(indent, "InheritanceSchema: " + target.Schema);
+      WriteLine(indent, "InheritanceSchema: " + target.InheritanceSchema);
       WriteLine(indent, "KeyFields:");
       foreach (var pair in target.Root.Fields.Where(f => f.IsPrimaryKey)) {
         WriteLine(indent + 1, pair.Name + "(" + pair.ValueType + ") ");

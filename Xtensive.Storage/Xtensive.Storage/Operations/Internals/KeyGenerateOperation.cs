@@ -11,55 +11,60 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Operations
+namespace Xtensive.Storage.Operations.Internals
 {
+  /// <summary>
+  /// Describes key generation operation.
+  /// </summary>
   [Serializable]
-  internal sealed class GenerateKeyOperation : UniqueOperationBase
+  public sealed class KeyGenerateOperation : KeyOperation
   {
-    private readonly KeyGenerator keyGenerator;
-    private readonly bool ignoreDuplicate;
+    /// <inheritdoc/>
+    public override string Title {
+      get { return "Create entity"; }
+    }
 
-    public override bool IgnoreDuplicate { get { return ignoreDuplicate; } }
-
+    /// <inheritdoc/>
     public override void Prepare(OperationExecutionContext context)
     {
       if (context.KeyMapping.ContainsKey(Key))
         return;
-      var domain = context.Session.Domain;
-      var hierarchy = Key.TypeRef.Type.Hierarchy;
-      if (keyGenerator!=null)
-        GenerateNewKey(context, domain);
+      var keyInfo = Key.TypeRef.Type.Key;
+      if (!keyInfo.ContainsForeignKeys)
+        MapNewKey(context);
       else
-        MapCompositeKey(context, domain, hierarchy);
+        MapCompositeKey(context);
     }
 
-    public override void Execute(OperationExecutionContext context)
-    {}
-
-    private void GenerateNewKey(OperationExecutionContext context, Domain domain)
+    private void MapNewKey(OperationExecutionContext context)
     {
-      var result = keyGenerator.IsTemporaryKey(Key.Value)
-        ? KeyFactory.Generate(domain, Key.Type)
-        : Key;
-      context.AddKeyMapping(Key, result);
+      var domain = context.Session.Domain;
+      var mappedKey = Key;
+      if (Key.IsTemporary(domain))
+        mappedKey = Key.Create(domain, Key.Type.UnderlyingType);
+      context.AddKeyMapping(Key, mappedKey);
     }
 
-    private void MapCompositeKey(OperationExecutionContext context, Domain domain, HierarchyInfo hierarchy)
+    private void MapCompositeKey(OperationExecutionContext context)
     {
-      if (hierarchy.KeyFields.Count==1 && !hierarchy.KeyFields[0].IsEntity)
+      // TODO: AY: Review this later
+      var domain = context.Session.Domain;
+      var keyInfo = Key.TypeRef.Type.Key;
+      var hierarchy = keyInfo.Hierarchy;
+      if (hierarchy.Key.Fields.Count==1 && !hierarchy.Key.Fields[0].IsEntity)
         return;
       var columnIndex = 0;
       var sourceTuple = Key.Value;
       var resultTuple = Tuple.Create(sourceTuple.Descriptor);
       var hasTemporaryComponentBeenFound = false;
-      foreach (var keyField in hierarchy.KeyFields) {
+      foreach (var keyField in hierarchy.Key.Fields) {
         if (keyField.IsPrimitive) {
           resultTuple.SetValue(columnIndex, sourceTuple.GetValue(columnIndex));
           columnIndex++;
         }
         else {
           var componentKeyValue = Tuple
-            .Create(keyField.Association.TargetType.KeyProviderInfo.KeyTupleDescriptor);
+            .Create(keyField.Association.TargetType.Key.TupleDescriptor);
           sourceTuple.CopyTo(componentKeyValue, columnIndex, keyField.MappingInfo.Length);
           var componentKey = Key.Create(domain, keyField.Association.TargetType.UnderlyingType,
             componentKeyValue);
@@ -80,27 +85,25 @@ namespace Xtensive.Storage.Operations
       }
     }
 
+    /// <inheritdoc/>
+    public override void Execute(OperationExecutionContext context)
+    {
+    }
+
 
     // Constructors
 
-    public GenerateKeyOperation(Key key, bool ignoreDuplicate)
-      : base(key, OperationType.GenerateKey)
+    /// <inheritdoc/>
+    public KeyGenerateOperation(Key key)
+      : base(key)
     {
-      this.ignoreDuplicate = ignoreDuplicate;
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
     }
 
-    public GenerateKeyOperation(Key key, bool ignoreDuplicate, KeyGenerator keyGenerator)
-      : this(key, ignoreDuplicate)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(keyGenerator, "keyGenerator");
-
-      this.keyGenerator = keyGenerator;
-    }
-
-    // Serialization
-
-    protected GenerateKeyOperation(SerializationInfo info, StreamingContext context)
+    /// <inheritdoc/>
+    protected KeyGenerateOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
-    {}
+    {
+    }
   }
 }

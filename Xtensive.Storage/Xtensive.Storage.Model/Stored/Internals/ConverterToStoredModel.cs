@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Model.Stored
       var sourceAncestor = source.GetAncestor();
       string hierarchyRoot = null;
       if (source.Hierarchy != null && source.Hierarchy.Root == source)
-        hierarchyRoot = source.Hierarchy.Schema.ToString();
+        hierarchyRoot = source.Hierarchy.InheritanceSchema.ToString();
       var associations = source.GetOwnerAssociations()
         .Where(a => declaredFields.Contains(a.OwnerField))
         .Select(a => ConvertAssociation(a))
@@ -33,7 +33,7 @@ namespace Xtensive.Storage.Model.Stored
       // hack: for SingleTable hierarchies mapping name is not set correctly
       // and always should be taken from hierarchy root
       var mappingNameSource =
-        source.Hierarchy!=null && source.Hierarchy.Schema==InheritanceSchema.SingleTable
+        source.Hierarchy!=null && source.Hierarchy.InheritanceSchema==InheritanceSchema.SingleTable
           ? source.Hierarchy.Root
           : source;
       var result = new StoredTypeInfo

@@ -9,13 +9,14 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.Operations.Internals;
 
 namespace Xtensive.Storage.Disconnected
 {
   /// <summary>
   /// A service listening to operation-related events in <see cref="Session"/>
   /// and writing their sequence to <see cref="Operations"/> instance 
-  /// (<see cref="IOperationSet"/>).
+  /// (<see cref="IOperationLog"/>).
   /// </summary>
   [Infrastructure]
   public sealed class OperationLogger : SessionBound, 
@@ -24,14 +25,15 @@ namespace Xtensive.Storage.Disconnected
     /// <summary>
     /// Gets the operation set updated by this service.
     /// </summary>
-    public IOperationSet Operations { get; private set; }
+    public IOperationLog Operations { get; private set; }
 
     #region Session event handlers
 
     private void KeyGenerated(object sender, KeyEventArgs e)
     {
-      var keyGenerator = Session.Domain.KeyGenerators[e.Key.TypeRef.Type.Hierarchy.KeyProviderInfo];
-      Operations.Append(new GenerateKeyOperation(e.Key, false, keyGenerator));
+      var keyGenerator = Session.Domain.KeyGenerators[e.Key.TypeRef.Type.Hierarchy.Key];
+      Operations.Append(
+        new KeyGenerateOperation(e.Key));
     }
 
     private void OperationCompleted(object sender, OperationEventArgs e)
@@ -68,7 +70,7 @@ namespace Xtensive.Storage.Disconnected
     /// A newly created <see cref="OperationLogger"/> attached
     /// to the specified <paramref name="session"/>.
     /// </returns>
-    public static OperationLogger Attach(Session session, IOperationSet operations)
+    public static OperationLogger Attach(Session session, IOperationLog operations)
     {
       return new OperationLogger(session, operations);
     }
@@ -76,7 +78,7 @@ namespace Xtensive.Storage.Disconnected
 
     // Constructors
 
-    private OperationLogger(Session session, IOperationSet operations)
+    private OperationLogger(Session session, IOperationLog operations)
       : base(session)
     {
       ArgumentValidator.EnsureArgumentNotNull(operations, "operations");

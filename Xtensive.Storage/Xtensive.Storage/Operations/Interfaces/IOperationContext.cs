@@ -10,37 +10,36 @@ using System.Collections.Generic;
 namespace Xtensive.Storage.Operations
 {
   /// <summary>
-  /// Contract for an operation context that manages <see cref="IOperation"/> registration.
+  /// Operation context contract. Operation context manages 
+  /// <see cref="IOperation"/> logging in <see cref="Session"/>.
   /// </summary>
   public interface IOperationContext : IEnumerable<IOperation>,
     IDisposable
   {
     /// <summary>
-    /// Gets a value indicating whether this context accepts operations with the normal priority.
+    /// Gets a value indicating whether  <see cref="LogOperation"/> method
+    /// is enabled in this context.
+    /// Note that operations implementing <see cref="IPrecondition"/> 
+    /// are always logged - independently of value of this property.
     /// </summary>
-    bool AreNormalOperationAccepted { get; }
+    bool IsLoggingEnabled { get; }
 
     /// <summary>
-    /// Gets a value indicating whether nested contexts must be disabled.
+    /// Gets a value indicating whether nested contexts must be created
+    /// with <see cref="IsLoggingEnabled"/>==<see langword="true" /> option.
     /// </summary>
-    bool DisableNested { get; }
+    bool IsIntermediate { get; }
 
     /// <summary>
-    /// Adds the operation.
+    /// Logs the operation.
+    /// When <see cref="IsLoggingEnabled"/> is off, this method logs only
+    /// <see cref="IPrecondition"/> operations (e.g. version checks).
     /// </summary>
-    /// <param name="operation">The operation.</param>
-    void Add(IOperation operation);
+    /// <param name="operation">The operation to log.</param>
+    void LogOperation(IOperation operation);
 
     /// <summary>
-    /// Adds the operation.
-    /// </summary>
-    /// <param name="operation">The operation.</param>
-    /// <param name="highPriority">if set to <see langword="true"/>
-    /// the operation is considered as the high priority operation.</param>
-    void Add(IOperation operation, bool highPriority);
-
-    /// <summary>
-    /// Completes registration of operations in the context.
+    /// Completes registration of operations that were logged in the context.
     /// </summary>
     void Complete();
   }

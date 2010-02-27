@@ -208,15 +208,6 @@ namespace Xtensive.Storage.Disconnected
       base.ExecuteQueryTasks(queryTasks, allowPartialExecution);
     }
 
-    /*
-    /// <inheritdoc/>
-    public override KeyGenerator GetKeyGenerator(KeyProviderInfo keyProviderInfo)
-    {
-      TODO: Remap keys in disconnected state after SaveChanges()
-      return Session.Domain.LocalKeyGenerators[keyProviderInfo];
-    }
-    */
-
     /// <inheritdoc/>
     public override Rse.Providers.EnumerationContext CreateEnumerationContext()
     {

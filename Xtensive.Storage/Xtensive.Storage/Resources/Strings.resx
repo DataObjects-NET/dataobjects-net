@@ -1409,4 +1409,7 @@ Actions:
   <data name="ExPropertyXDoesnTHavePublicSetter" xml:space="preserve">
     <value>Property '{0}' doesn't have public setter.</value>
   </data>
+  <data name="ExTypeOfXMustBeADescendantOfYType" xml:space="preserve">
+    <value>Type of '{0}' must be a descendant of {1} type.</value>
+  </data>
 </root>

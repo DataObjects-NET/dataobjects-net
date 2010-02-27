@@ -12,7 +12,9 @@ using Xtensive.Storage.Resources;
 namespace Xtensive.Storage.Disconnected
 {
   /// <summary>
-  /// Connection required exception.
+  /// An exception indicating that <see cref="DisconnectedState"/>
+  /// isn't <see cref="DisconnectedState.Connect">connected</see>, although
+  /// connection is required to perform the operation.
   /// </summary>
   [Serializable]
   public class ConnectionRequiredException : Exception

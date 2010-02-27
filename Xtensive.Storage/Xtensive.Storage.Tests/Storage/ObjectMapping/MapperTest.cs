@@ -18,6 +18,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.ObjectMapping;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.Operations.Internals;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.ObjectMapping.Model;
 using GraphComparisonResult = Xtensive.Storage.ObjectMapping.GraphComparisonResult;
@@ -375,9 +376,17 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
           .Invoke(Key.Parse(((PersonWithVersionDto) modifiedProductDto[0]).Key));
         TestSerialization(comparisonResult, binaryFormatter.Serialize, binaryFormatter.Deserialize);
         var dataContractSerializer = new DataContractSerializer(typeof (GraphComparisonResult),
-          new[] {typeof (PersonWithVersionDto), typeof (OperationSet),
-            typeof (EntityOperation), typeof (EntityFieldSetOperation),
-            typeof (Operations.OperationType), typeof (Xtensive.Storage.Model.FieldInfoRef)});
+          new[] {
+            typeof (PersonWithVersionDto), 
+            typeof (OperationLog),
+            typeof (Ref<IEntity>), 
+            typeof (EntityCreateOperation), 
+            typeof (EntityFieldSetOperation),
+            typeof (EntityRemoveOperation),
+            typeof (EntitySetClearOperation),
+            typeof (EntitySetItemAddOperation),
+            typeof (EntitySetItemRemoveOperation),
+            typeof (Xtensive.Storage.Model.FieldInfoRef)});
         TestSerialization(comparisonResult, dataContractSerializer.WriteObject,
           dataContractSerializer.ReadObject);
       }
@@ -403,8 +412,8 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       var expectedModified = (Dictionary<object, object>) modifiedField.GetValue(expectedResult);
       var actualModified = (Dictionary<object, object>) modifiedField.GetValue(actualResult);
       Assert.IsTrue(expectedModified.Select(p => p.Key).SequenceEqual(actualModified.Select(p => p.Key)));
-      var expectedOperations = (OperationSet) actualResult.Operations;
-      var actualOperations = (OperationSet) actualResult.Operations;
+      var expectedOperations = (OperationLog) actualResult.Operations;
+      var actualOperations = (OperationLog) actualResult.Operations;
       Assert.IsTrue(expectedResult.KeyMapping.SequenceEqual(actualResult.KeyMapping));
       Assert.IsNotNull(actualResult.VersionInfoProvider);
     }

@@ -179,10 +179,10 @@ namespace Xtensive.Storage
 
 
     /// <inheritdoc/>
-    protected internal override void Initialize(HandlerAccessor handlers, KeyProviderInfo keyProviderInfo)
+    protected internal override void Initialize(HandlerAccessor handlers, KeyInfo keyInfo)
     {
-      base.Initialize(handlers, keyProviderInfo);
-      tuplePrototype = Tuple.Create(keyProviderInfo.KeyTupleDescriptor);
+      base.Initialize(handlers, keyInfo);
+      tuplePrototype = Tuple.Create(keyInfo.TupleDescriptor);
       arithmetic = Arithmetic<TKeyType>.Default;
       if (arithmetic!=null)
         arithmetic = arithmetic.ApplyRules(

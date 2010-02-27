@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Building.Definitions;
@@ -61,7 +62,7 @@ namespace Xtensive.Storage.Building.Builders
             var fieldInfo = BuildDeclaredField(BuildingContext.Demand(), typeInfo, typeDef.Fields[keyField.Name]);
             fieldInfo.IsPrimaryKey = true;
           }
-          typeInfo.Hierarchy = BuildHierarchy(context, typeInfo, hierarchyDef);
+          typeInfo.Hierarchy = BuildHierarchyInfo(context, typeInfo, hierarchyDef);
         }
         else {
           var root = context.Model.Types[hierarchyDef.Root.UnderlyingType];
@@ -310,71 +311,14 @@ namespace Xtensive.Storage.Building.Builders
       return column;
     }
 
-    private static HierarchyInfo BuildHierarchy(BuildingContext context, TypeInfo root, HierarchyDef hierarchyDef)
+    private static HierarchyInfo BuildHierarchyInfo(BuildingContext context, TypeInfo root, HierarchyDef hierarchyDef)
     {
-      var areAllKeyFieldsPrimitive = true;
-      var keyColumns = new List<ColumnInfo>();
-      foreach (var field in root.Fields) {
-        if (!field.IsPrimaryKey)
-          continue;
-        areAllKeyFieldsPrimitive = areAllKeyFieldsPrimitive && field.Parent==null;
-        if (field.Column!=null)
-          keyColumns.Add(field.Column);
-      }
-      var keyTupleDescriptor = TupleDescriptor.Create(keyColumns.Select(c => c.ValueType));
-
-      var typeIdColumnIndex = -1;
-      if (hierarchyDef.IncludeTypeId)
-        for (int i = 0; i < keyColumns.Count; i++)
-          if (keyColumns[i].Field.IsTypeId)
-            typeIdColumnIndex = i;
-
-      var generatorName = areAllKeyFieldsPrimitive
-        ? BuildGeneratorName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex)
-        : null;
-      var keyProviderInfo = new KeyProviderInfo(
-        hierarchyDef.KeyGeneratorType, 
-        hierarchyDef.KeyGeneratorType == null 
-          ? null
-          : generatorName, 
-        keyTupleDescriptor,
-        typeIdColumnIndex) {Name = root.Name};
-      keyProviderInfo.MappingName = context.NameBuilder.BuildGeneratorName(keyProviderInfo);
-
-      KeyGenerator keyGenerator = null;
-      if (hierarchyDef.KeyGeneratorType!=null || generatorName!=null)
-        keyGenerator = (KeyGenerator) context.BuilderConfiguration.Services
-          .Get(hierarchyDef.KeyGeneratorType, generatorName);
-      if (keyGenerator!=null) {
-        var sequenceIncrement = keyGenerator.SequenceIncrement;
-        if (sequenceIncrement.HasValue) {
-          keyProviderInfo.SequenceInfo = new SequenceInfo(generatorName) {
-            MappingName = keyProviderInfo.MappingName,
-            Seed = sequenceIncrement.Value,
-            Increment = sequenceIncrement.Value
-          };
-        }
-      }
-
-      if (keyProviderInfo.KeyGeneratorName != null) {
-        // Trying to find an existing KeyProviderInfo (i.e. the same)
-        var existingKeyProviderInfo = context.Model.KeyProviders
-          .SingleOrDefault(kp =>
-                           kp.KeyGeneratorType == keyProviderInfo.KeyGeneratorType &&
-                           kp.KeyGeneratorName == keyProviderInfo.KeyGeneratorName &&
-                           kp.KeyTupleDescriptor == keyTupleDescriptor);
-        if (existingKeyProviderInfo != null)
-          keyProviderInfo = existingKeyProviderInfo;
-        else
-          context.Model.KeyProviders.Add(keyProviderInfo);
-      }
-
+      var key = BuildKeyInfo(root, hierarchyDef, context);
       var schema = hierarchyDef.Schema;
 
       // Optimization. It there is the only class in hierarchy then ConcreteTable schema is applied
       if (schema != InheritanceSchema.ConcreteTable) {
         var node = context.DependencyGraph.TryGetNode(hierarchyDef.Root);
-
         // No dependencies => no descendants
         if (node == null || node.IncomingEdges.Where(e => e.Kind == EdgeKind.Inheritance).Count() == 0)
           schema = InheritanceSchema.ConcreteTable;
@@ -383,14 +327,92 @@ namespace Xtensive.Storage.Building.Builders
       var typeDiscriminatorField = hierarchyDef.Root.Fields.Where(f => f.IsTypeDiscriminator).FirstOrDefault();
       var typeDiscriminatorMap = typeDiscriminatorField!=null ? new TypeDiscriminatorMap() : null;
 
-      var hierarchy = new HierarchyInfo(root, schema, keyProviderInfo, typeDiscriminatorMap) {
-        Name = root.Name
+      var hierarchy = new HierarchyInfo(root, key, schema, typeDiscriminatorMap) {
+        Name = root.Name,
       };
+      key.Hierarchy = hierarchy; // Setting backreference
       context.Model.Hierarchies.Add(hierarchy);
       return hierarchy;
     }
 
-    private static string BuildGeneratorName(HierarchyDef hierarchyDef, TupleDescriptor keyTupleDescriptor, int typeIdColumnIndex)
+    private static KeyInfo BuildKeyInfo(TypeInfo root, HierarchyDef hierarchyDef, BuildingContext context)
+    {
+      var keyFields = new ReadOnlyList<FieldInfo>((
+        from field in root.Fields
+        where field.IsPrimaryKey
+        orderby field.MappingInfo.Offset
+        select field
+        ).ToList());
+
+      var keyColumns = new ReadOnlyList<ColumnInfo>((
+        from field in keyFields
+        where field.Column!=null
+        select field.Column
+        ).ToList());
+
+      var keyTupleDescriptor = TupleDescriptor.Create(keyColumns.Select(c => c.ValueType));
+
+      var typeIdColumnIndex = -1;
+      if (hierarchyDef.IncludeTypeId)
+        for (int i = 0; i < keyColumns.Count; i++)
+          if (keyColumns[i].Field.IsTypeId)
+            typeIdColumnIndex = i;
+
+      var requiresGenerator =
+        hierarchyDef.KeyGeneratorType!=null &&
+        !keyFields.Any(f => f.Parent!=null); // = does not contain foreign key(s)
+
+      var key = new KeyInfo(
+        keyFields,
+        keyColumns,
+        requiresGenerator ? hierarchyDef.KeyGeneratorType : null, 
+        requiresGenerator ? BuildKeyGeneratorName(hierarchyDef, keyTupleDescriptor, typeIdColumnIndex) : null, 
+        keyTupleDescriptor,
+        typeIdColumnIndex) {
+          Name = root.Name
+        };
+
+      key.MappingName = context.NameBuilder.BuildSequenceName(key);
+
+      // The most complex part: now we're trying to find out if
+      // this KeyInfo is actually quite similar to another one.
+      // If so, we clone its EqualityIdentifier and Sequence.
+      var keyGenerator = GetKeyGenerator(context, key.GeneratorType, key.GeneratorName);
+      KeyInfo existingKey = null;
+      if (keyGenerator!=null)
+        context.KeyGenerators.TryGetValue(keyGenerator, out existingKey);
+      if (existingKey!=null) {
+        // There is an existing key like this, with the same key generator
+        key.IsFirstAmongSimilarKeys = false;
+        key.EqualityIdentifier = existingKey.EqualityIdentifier;
+        key.Sequence = existingKey.Sequence;
+        return key;
+      }
+      // No existing key like this was found
+      key.IsFirstAmongSimilarKeys = true;
+      key.EqualityIdentifier = new object();
+      if (keyGenerator!=null) {
+        context.KeyGenerators.Add(keyGenerator, key);
+        var sequenceIncrement = keyGenerator.SequenceIncrement;
+        if (sequenceIncrement.HasValue) {
+          key.Sequence = new SequenceInfo(key.GeneratorName) {
+            MappingName = key.MappingName,
+            Seed = sequenceIncrement.Value,
+            Increment = sequenceIncrement.Value
+          };
+        }
+      }
+      return key;
+    }
+
+    private static KeyGenerator GetKeyGenerator(BuildingContext context, Type generatorType, string generatorName)
+    {
+      return generatorName==null 
+        ? null 
+        : (KeyGenerator) context.BuilderConfiguration.Services.Get(generatorType, generatorName);
+    }
+
+    private static string BuildKeyGeneratorName(HierarchyDef hierarchyDef, TupleDescriptor keyTupleDescriptor, int typeIdColumnIndex)
     {
       if (!hierarchyDef.KeyGeneratorName.IsNullOrEmpty())
         return hierarchyDef.KeyGeneratorName;

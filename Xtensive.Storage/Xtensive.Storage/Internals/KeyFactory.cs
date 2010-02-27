@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Internals
       var session = Session.Current;
 
       KeyGenerator generator;
-      domain.KeyGenerators.TryGetValue(typeInfo.KeyProviderInfo, out generator);
+      domain.KeyGenerators.TryGetValue(typeInfo.Key, out generator);
 
       if (generator == null)
         throw new InvalidOperationException(String.Format(
@@ -42,9 +42,9 @@ namespace Xtensive.Storage.Internals
     public static Key Materialize(Domain domain, TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, int[] keyIndexes)
     {
       var hierarchy = type.Hierarchy;
-      var keyInfo = type.KeyProviderInfo;
+      var keyInfo = type.Key;
       if (keyIndexes==null) {
-        if (value.Descriptor!=keyInfo.KeyTupleDescriptor)
+        if (value.Descriptor!=keyInfo.TupleDescriptor)
           throw new ArgumentException(Strings.ExWrongKeyStructure);
         if (accuracy == TypeReferenceAccuracy.ExactType) {
           int typeIdColumnIndex = keyInfo.TypeIdColumnIndex;
@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Internals
       }
 
       Key key;
-      var isGenericKey = keyInfo.KeyTupleDescriptor.Count <= WellKnown.MaxGenericKeyLength;
+      var isGenericKey = keyInfo.TupleDescriptor.Count <= WellKnown.MaxGenericKeyLength;
       if (isGenericKey)
         key = CreateGenericKey(domain, type, accuracy, value, keyIndexes);
       else {
@@ -84,10 +84,10 @@ namespace Xtensive.Storage.Internals
 
     public static Key Materialize(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
-      var keyInfo = type.KeyProviderInfo;
-      ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.KeyTupleDescriptor.Count, "values");
+      var keyInfo = type.Key;
+      ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
 
-      var tuple = Tuple.Create(keyInfo.KeyTupleDescriptor);
+      var tuple = Tuple.Create(keyInfo.TupleDescriptor);
       int typeIdIndex = keyInfo.TypeIdColumnIndex;
       if (typeIdIndex>=0)
         tuple.SetValue(typeIdIndex, type.TypeId);
@@ -136,7 +136,7 @@ namespace Xtensive.Storage.Internals
 
     private static GenericKeyTypeInfo BuildGenericKeyTypeInfo(int typeId, TypeInfo typeInfo)
     {
-      var descriptor = typeInfo.KeyProviderInfo.KeyTupleDescriptor;
+      var descriptor = typeInfo.Key.TupleDescriptor;
       int length = descriptor.Count;
       var keyType = typeof (Key).Assembly.GetType(
         String.Format(GenericKeyNameFormat, typeof (Key<>).Namespace, typeof(Key).Name, length));

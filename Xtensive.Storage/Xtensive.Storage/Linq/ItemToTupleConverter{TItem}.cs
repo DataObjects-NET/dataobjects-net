@@ -152,7 +152,7 @@ namespace Xtensive.Storage.Linq
 //      if (type.IsOfGenericType(typeof (Ref<>))) {
 //        var entityType = type.GetGenericType(typeof (Ref<>)).GetGenericArguments()[0];
 //        TypeInfo typeInfo = model.Types[entityType];
-//        KeyProviderInfo keyProviderInfo = typeInfo.KeyProviderInfo;
+//        KeyInfo keyProviderInfo = typeInfo.KeyInfo;
 //        TupleDescriptor keyTupleDescriptor = keyProviderInfo.TupleDescriptor;
 //        KeyExpression entityExpression = KeyExpression.Create(typeInfo, index);
 //        index += keyTupleDescriptor.Count;
@@ -162,8 +162,8 @@ namespace Xtensive.Storage.Linq
 
       if (type.IsSubclassOf(typeof (Entity))) {
         TypeInfo typeInfo = model.Types[type];
-        KeyProviderInfo keyProviderInfo = typeInfo.KeyProviderInfo;
-        TupleDescriptor keyTupleDescriptor = keyProviderInfo.KeyTupleDescriptor;
+        KeyInfo keyInfo = typeInfo.Key;
+        TupleDescriptor keyTupleDescriptor = keyInfo.TupleDescriptor;
         EntityExpression entityExpression = EntityExpression.Create(typeInfo, index, true);
         index += keyTupleDescriptor.Count;
         types = types.Concat(keyTupleDescriptor);

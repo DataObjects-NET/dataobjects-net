@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Internals
     /// <inheritdoc/>
     protected override int CalculateHashCode()
     {
-      return Tuple.HashCodeMultiplier ^ value.GetHashCode() ^ TypeRef.Type.KeyProviderInfo.GetHashCode();
+      return Tuple.HashCodeMultiplier ^ value.GetHashCode() ^ TypeRef.Type.Key.GetHashCode();
     }
 
     /// <inheritdoc/>

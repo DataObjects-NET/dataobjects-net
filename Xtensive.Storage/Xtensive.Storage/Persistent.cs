@@ -17,6 +17,7 @@ using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.Operations.Internals;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Services;
 using OperationType=Xtensive.Storage.PairIntegrity.OperationType;
@@ -267,7 +268,7 @@ namespace Xtensive.Storage
         if (tuple.ContainsEmptyValues(field.MappingInfo))
           return null;
 
-        int typeIdColumnIndex = type.KeyProviderInfo.TypeIdColumnIndex;
+        int typeIdColumnIndex = type.Key.TypeIdColumnIndex;
         var accuracy = TypeReferenceAccuracy.BaseType;
         if (typeIdColumnIndex >= 0)
           accuracy = TypeReferenceAccuracy.ExactType;
@@ -343,11 +344,11 @@ namespace Xtensive.Storage
       var fieldAccessor = GetFieldAccessor(field);
       object oldValue = fieldAccessor.DefaultUntypedValue;
       try {
-        using (var context = OpenOperationContext(true)) {
-          if (context.AreNormalOperationAccepted) {
+        using (var context = OpenOperationContext()) {
+          if (context.IsLoggingEnabled) {
             var entity = this as Entity;
             if (entity != null)
-              context.Add(new EntityFieldSetOperation(entity.Key, field, value));
+              context.LogOperation(new EntityFieldSetOperation(entity.Key, field, value));
             else {
               var persistent = this;
               var entityField = field;
@@ -360,7 +361,7 @@ namespace Xtensive.Storage
               }
               entity = persistent as Entity;
               if (entity != null)
-                context.Add(new EntityFieldSetOperation(entity.Key, entityField, value));
+                context.LogOperation(new EntityFieldSetOperation(entity.Key, entityField, value));
             }
           }
           SystemBeforeSetValue(field, value);

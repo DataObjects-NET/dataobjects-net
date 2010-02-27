@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Disconnected
     public StateRegistry Origin { get { return origin; } }
 
     public IEnumerable<DisconnectedEntityState> EntityStates { get { return items.Values; } }
-    public OperationSet Operations { get; set; }
+    public OperationLog Operations { get; set; }
 
     public DisconnectedEntityState Get(Key key)
     {
@@ -273,7 +273,7 @@ namespace Xtensive.Storage.Disconnected
 
       items = new Dictionary<Key, DisconnectedEntityState>();
       this.associationCache = associationCache;
-      Operations = new OperationSet();
+      Operations = new OperationLog();
     }
 
     /// <summary>
@@ -287,7 +287,7 @@ namespace Xtensive.Storage.Disconnected
       items = new Dictionary<Key, DisconnectedEntityState>();
       this.origin = origin;
       associationCache = origin.associationCache;
-      Operations = new OperationSet();
+      Operations = new OperationLog();
     }
   }
 }

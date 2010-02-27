@@ -48,9 +48,9 @@ namespace Xtensive.Storage
     protected HandlerAccessor Handlers { get; private set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="KeyProviderInfo"/> instance that describes <see cref="KeyGenerator"/> object.
+    /// Gets or sets the <see cref="KeyInfo"/> instance that describes <see cref="KeyGenerator"/> object.
     /// </summary>
-    public KeyProviderInfo KeyProviderInfo { get; private set; }
+    public KeyInfo KeyInfo { get; private set; }
 
     /// <summary>
     /// Gets the sequence increment value for the underlying sequence,
@@ -97,18 +97,18 @@ namespace Xtensive.Storage
     /// Initializer.
     /// </summary>
     /// <param name="handlers">Handler accessor.</param>
-    /// <param name="keyProviderInfo">The <see cref="KeyProviderInfo"/>
+    /// <param name="keyInfoiderInfo">The <see cref="KeyInfo"/>
     /// instance that describes generator.</param>
     /// <exception cref="NotSupportedException">Instance is already initialized.</exception>
-    protected internal virtual void Initialize(HandlerAccessor handlers, KeyProviderInfo keyProviderInfo)
+    protected internal virtual void Initialize(HandlerAccessor handlers, KeyInfo keyInfo)
     {
       if (isInitialized)
         throw Exceptions.AlreadyInitialized(null);
       isInitialized = true;
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(keyProviderInfo, "keyProviderInfo");
+      ArgumentValidator.EnsureArgumentNotNull(keyInfo, "keyInfo");
       Handlers = handlers;
-      KeyProviderInfo = keyProviderInfo;
+      KeyInfo = keyInfo;
     }
 
 

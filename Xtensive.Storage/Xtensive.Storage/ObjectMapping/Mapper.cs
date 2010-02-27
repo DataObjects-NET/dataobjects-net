@@ -14,6 +14,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.Operations.Internals;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.ObjectMapping
@@ -23,7 +24,7 @@ namespace Xtensive.Storage.ObjectMapping
   /// </summary>
   public sealed class Mapper : MapperBase<GraphComparisonResult>
   {
-    private OperationSet comparisonResult;
+    private OperationLog comparisonResult;
     private Session session;
     private Dictionary<object, Key> newObjectKeys;
     private Dictionary<object, Key> existingObjectKeys;
@@ -33,21 +34,18 @@ namespace Xtensive.Storage.ObjectMapping
     {
       IOperation operation;
       switch (operationInfo.Type) {
-      case Core.ObjectMapping.OperationType.AddItem:
-        operation = CreateEntitySetItemOperation(operationInfo, Operations.OperationType.AddEntitySetItem);
+      case OperationType.AddItem:
+      case OperationType.RemoveItem:
+        operation = CreateEntitySetItemOperation(operationInfo);
         break;
-      case Core.ObjectMapping.OperationType.RemoveItem:
-        operation = CreateEntitySetItemOperation(operationInfo, Operations.OperationType.RemoveEntitySetItem);
+      case OperationType.CreateObject:
+        operation = CreateEntityCreateOperation(operationInfo);
         break;
-      case Core.ObjectMapping.OperationType.CreateObject:
-        operation = CreateEntityCreationOperation(operationInfo);
+      case OperationType.RemoveObject:
+        operation = new EntityRemoveOperation(ExtractKey(operationInfo.Object));
         break;
-      case Core.ObjectMapping.OperationType.RemoveObject:
-        operation = new EntityOperation(ExtractKey(operationInfo.Object),
-          Operations.OperationType.RemoveEntity);
-        break;
-      case Core.ObjectMapping.OperationType.SetProperty:
-        operation = CreatePropertySettingOperation(operationInfo);
+      case OperationType.SetProperty:
+        operation = CreateEntityFieldSetOperation(operationInfo);
         break;
       default:
         throw new ArgumentOutOfRangeException("operationInfo.Type");
@@ -58,7 +56,7 @@ namespace Xtensive.Storage.ObjectMapping
     /// <inheritdoc/>
     protected override void InitializeComparison(object originalTarget, object modifiedTarget)
     {
-      comparisonResult = new OperationSet();
+      comparisonResult = new OperationLog();
       if (newObjectKeys!=null)
         newObjectKeys.Clear();
       if (existingObjectKeys!=null)
@@ -87,7 +85,7 @@ namespace Xtensive.Storage.ObjectMapping
 
     #region Private \ internal methods
 
-    private IOperation CreatePropertySettingOperation(OperationInfo operationInfo)
+    private IOperation CreateEntityFieldSetOperation(OperationInfo operationInfo)
     {
       IOperation operation;
       var fieldInfo = ExtractFieldInfo(operationInfo);
@@ -104,14 +102,12 @@ namespace Xtensive.Storage.ObjectMapping
       return operation;
     }
 
-    private IOperation CreateEntityCreationOperation(OperationInfo operationInfo)
+    private IOperation CreateEntityCreateOperation(OperationInfo operationInfo)
     {
-      IOperation operation;
       if (newObjectKeys==null)
         newObjectKeys = new Dictionary<object, Key>();
       var newKey = CreateKey(operationInfo.Object);
-      operation = new EntityOperation(newKey, Operations.OperationType.CreateEntity);
-      return operation;
+      return new EntityCreateOperation(newKey);
     }
 
     private Key ExtractKey(object obj)
@@ -162,13 +158,20 @@ namespace Xtensive.Storage.ObjectMapping
       return result;
     }
 
-    private EntitySetItemOperation CreateEntitySetItemOperation(OperationInfo operationInfo,
-      Operations.OperationType type)
+    /// <exception cref="ArgumentOutOfRangeException"><c>operationInfo.Type</c> is wrong.</exception>
+    private EntitySetItemOperation CreateEntitySetItemOperation(OperationInfo operationInfo)
     {
       var key = ExtractKey(operationInfo.Object);
       var itemKey = ExtractKey(operationInfo.Value);
       var fieldInfo = ExtractFieldInfo(operationInfo);
-      return new EntitySetItemOperation(key, fieldInfo, type, itemKey);
+      switch (operationInfo.Type) {
+      case OperationType.AddItem:
+        return new EntitySetItemAddOperation(key, fieldInfo, itemKey);
+      case OperationType.RemoveItem:
+        return new EntitySetItemRemoveOperation(key, fieldInfo, itemKey);
+      default:
+        throw new ArgumentOutOfRangeException("operationInfo.Type");
+      }
     }
 
     private FieldInfo ExtractFieldInfo(OperationInfo operationInfo)

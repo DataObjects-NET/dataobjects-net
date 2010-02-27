@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Linq.Materialization
         return result;
 
       var type       = model.Types[typeId];
-      var keyInfo    = type.KeyProviderInfo;
+      var keyInfo    = type.Key;
       var descriptor = type.TupleDescriptor;
 
       var typeColumnMap = columns.ToArray();
@@ -60,10 +60,10 @@ namespace Xtensive.Storage.Linq.Materialization
         }
 
       int[] allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
-      int[] keyIndexes = Enumerable.Range(allIndexes[0], keyInfo.KeyTupleDescriptor.Count).ToArray();
+      int[] keyIndexes = Enumerable.Range(allIndexes[0], keyInfo.TupleDescriptor.Count).ToArray();
 
       var transform    = new MapTransform(true, descriptor, allIndexes);
-      var keyTransform = new MapTransform(true, keyInfo.KeyTupleDescriptor, keyIndexes);
+      var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
 
       result = new TypeMapping(type, keyTransform, transform, keyIndexes);
 

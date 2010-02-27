@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Disconnected
   [Serializable]
   public sealed class DisconnectedState
   {
-    private OperationSet serializedSet;
+    private OperationLog serializedLog;
     private KeyValuePair<string, VersionInfo>[] serializedVersions;
     private SerializableEntityState[] serializedRegistry;
     private SerializableEntityState[] serializedGlobalRegistry;
@@ -421,7 +421,7 @@ namespace Xtensive.Storage.Disconnected
       serializedVersions = versionCache.Select(pair => 
         new KeyValuePair<string, VersionInfo>(pair.Key.ToString(true), pair.Value))
         .ToArray();
-      serializedSet = state.Operations;
+      serializedLog = state.Operations;
       serializedRegistry = state.EntityStates
         .Select(entityState => entityState.Serialize()).ToArray();
       serializedGlobalRegistry = originalState.EntityStates
@@ -433,7 +433,7 @@ namespace Xtensive.Storage.Disconnected
     {
       serializedRegistry = null;
       serializedGlobalRegistry = null;
-      serializedSet = null;
+      serializedLog = null;
       serializedVersions = null;
     }
 
@@ -454,12 +454,12 @@ namespace Xtensive.Storage.Disconnected
       serializedGlobalRegistry = null;
 
       state = new StateRegistry(originalState) {
-        Operations = serializedSet
+        Operations = serializedLog
       };
       foreach (var entityState in serializedRegistry)
         state.AddState(DisconnectedEntityState.Deserialize(entityState, state, domain));
       serializedRegistry = null;
-      serializedSet = null;
+      serializedLog = null;
     }
   }
 }

@@ -42,7 +42,7 @@ namespace Xtensive.Storage
     /// Indicates that no action will be executed to corresponding reference field 
     /// of referencing object.
     /// </summary>
-    /// <remarks>This option is prohibited for fields of <see cref="EntitySet{T}"/> type.</remarks>
+    /// <remarks>This option is prohibited for fields of <c>EntitySet&lt;T&gt;</c> type.</remarks>
     None = 3,
   }
 }

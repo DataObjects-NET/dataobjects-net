@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Building.Builders
       var indexLookup = modelDef.FullTextIndexes.ToLookup(fi => model.Types[fi.Type.UnderlyingType].Hierarchy);
       foreach (var hierarchyIndexes in indexLookup) {
         var root = hierarchyIndexes.Key.Root;
-        switch(hierarchyIndexes.Key.Schema) {
+        switch(hierarchyIndexes.Key.InheritanceSchema) {
           case InheritanceSchema.ClassTable:
             BuildFullTextIndexesClassTable(root, hierarchyIndexes);
             break;

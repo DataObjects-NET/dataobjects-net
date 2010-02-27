@@ -11,6 +11,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Operations.Internals;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Operations;
 
@@ -51,13 +52,14 @@ namespace Xtensive.Storage.ReferentialIntegrity
       var processedEntities = new List<Entity>();
       try {
         using (var region = Validation.Disable())
-        using (var operationContext = OpenOperationContext(true)) 
+        using (var operationContext = OpenOperationContext()) 
         using (Context = new RemovalContext(this)) {
           Session.EnforceChangeRegistrySizeLimit();
           foreach (var entity in entities) {
             entity.EnsureNotRemoved();
-            if (operationContext.AreNormalOperationAccepted)
-              operationContext.Add(new EntityOperation(entity.Key, OperationType.RemoveEntity));
+            if (operationContext.IsLoggingEnabled)
+              operationContext.LogOperation(
+                new EntityRemoveOperation(entity.Key));
           }
           Context.Enqueue(entities);
           while (!Context.QueueIsEmpty) {

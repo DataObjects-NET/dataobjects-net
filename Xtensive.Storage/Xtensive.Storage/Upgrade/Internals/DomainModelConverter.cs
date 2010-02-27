@@ -97,7 +97,7 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// Gets the persistent generator filter.
     /// </summary>
-    private Func<KeyProviderInfo, KeyGenerator> GeneratorResolver { get; set; }
+    private Func<KeyInfo, KeyGenerator> GeneratorResolver { get; set; }
 
     /// <summary>
     /// Gets the provider info.
@@ -189,9 +189,9 @@ namespace Xtensive.Storage.Upgrade
           Visit(association);
       }
 
-      // Build sequences
-      foreach (KeyProviderInfo provider in domainModel.KeyProviders)
-        Visit(provider);
+      // Build keys and sequences
+      foreach (KeyInfo keyInfo in domainModel.Hierarchies.Select(h => h.Key))
+        Visit(keyInfo);
 
       if (!BuildHierarchyForeignKeys || !ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints))
         return StorageInfo;
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Upgrade
       // Build hierarchy foreign keys
       var indexPairs = new Dictionary<Pair<IndexInfo>, object>();
       foreach (TypeInfo type in domainModel.Types.Entities) {
-        if (type.Hierarchy==null || type.Hierarchy.Schema==InheritanceSchema.ConcreteTable)
+        if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable)
           continue;
         if (type.Indexes.PrimaryIndex.IsVirtual) {
           Dictionary<TypeInfo, int> typeOrder = type.GetAncestors()
@@ -294,7 +294,7 @@ namespace Xtensive.Storage.Upgrade
         return null;
       if (association.OwnerType.Hierarchy==null)
         return null;
-      if (association.TargetType.Hierarchy.Schema==InheritanceSchema.ConcreteTable && !association.TargetType.IsLeaf)
+      if (association.TargetType.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable && !association.TargetType.IsLeaf)
         return null;
       if (association.OwnerType.Indexes.PrimaryIndex==null)
         return null;
@@ -350,16 +350,16 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitKeyProviderInfo(KeyProviderInfo keyProvider)
+    protected override IPathNode VisitKeyInfo(KeyInfo keyInfo)
     {
-      if (keyProvider.SequenceInfo==null)
+      if (keyInfo.Sequence==null || !keyInfo.IsFirstAmongSimilarKeys)
         return null;
-      var sequenceInfo = keyProvider.SequenceInfo;
+      var sequenceInfo = keyInfo.Sequence;
       var sequence = new IndexingModel.SequenceInfo(StorageInfo, sequenceInfo.MappingName) {
         Seed = sequenceInfo.Seed,
         Increment = sequenceInfo.Increment,
-        Type = TypeBuilder.Invoke(keyProvider.KeyTupleDescriptor[0], null, null, null),
-        OriginalType = new IndexingModel.TypeInfo(GetType(keyProvider.KeyTupleDescriptor[0], false))
+        Type = TypeBuilder.Invoke(keyInfo.TupleDescriptor[0], null, null, null),
+        OriginalType = new IndexingModel.TypeInfo(GetType(keyInfo.TupleDescriptor[0], false))
       };
       return sequence;
     }
@@ -521,7 +521,7 @@ namespace Xtensive.Storage.Upgrade
     /// <returns>Table.</returns>
     private IndexingModel.TableInfo GetTable(TypeInfo type)
     {
-      if (type.Hierarchy==null || type.Hierarchy.Schema!=InheritanceSchema.SingleTable)
+      if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable)
         return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.MappingName);
       if (type.IsInterface)
         return null;

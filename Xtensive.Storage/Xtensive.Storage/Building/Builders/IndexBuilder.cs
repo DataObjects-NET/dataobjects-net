@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Building.Builders
         var context = BuildingContext.Demand();
         CreateInterfaceIndexes();
         foreach (var hierarchy in context.Model.Hierarchies) {
-          switch (hierarchy.Schema) {
+          switch (hierarchy.InheritanceSchema) {
           case InheritanceSchema.Default:
             BuildClassTableIndexes(hierarchy.Root);
             break;
@@ -107,7 +107,7 @@ namespace Xtensive.Storage.Building.Builders
           foreach (var hierarchy in lookup) {
             var underlyingIndex = BuildIndex(@interface, indexDef, false);
             var hierarchyImplementors = hierarchy.ToHashSet();
-            switch (hierarchy.Key.Schema) {
+            switch (hierarchy.Key.InheritanceSchema) {
               case InheritanceSchema.ClassTable: {
                 foreach (var implementor in hierarchy) {
                   var interfaceFields = @interface.Fields.ToHashSet();
@@ -210,7 +210,7 @@ namespace Xtensive.Storage.Building.Builders
             var grouping = hierarchy;
             var underlyingIndex = interfaceIndex.Clone();
             var hierarchyImplementors = hierarchy.ToHashSet();
-            switch (hierarchy.Key.Schema) {
+            switch (hierarchy.Key.InheritanceSchema) {
               case InheritanceSchema.ClassTable: {
                 foreach (var implementor in hierarchyImplementors) {
                   var index = implementor.Indexes.SingleOrDefault(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual);
@@ -294,7 +294,7 @@ namespace Xtensive.Storage.Building.Builders
 
       var skipTypeId = false;
       if (typeInfo.Hierarchy != null) {
-        if (typeInfo.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+        if (typeInfo.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable)
           skipTypeId = true;
         else if (typeInfo.Hierarchy.TypeDiscriminatorMap != null)
           skipTypeId = true;
@@ -342,7 +342,7 @@ namespace Xtensive.Storage.Building.Builders
           types = typeInfo.GetInterfaces().Union(new[] { typeInfo });
         else {
           var root = typeInfo.Hierarchy.Root;
-          var schema = typeInfo.Hierarchy.Schema;
+          var schema = typeInfo.Hierarchy.InheritanceSchema;
           switch (schema) {
             case InheritanceSchema.SingleTable:
               types = new[] {typeInfo}.Union(root.GetDescendants(true));
@@ -398,7 +398,7 @@ namespace Xtensive.Storage.Building.Builders
 
       var skipTypeId = false;
       if (reflectedType.Hierarchy != null) {
-        if (reflectedType.Hierarchy.Schema == InheritanceSchema.ConcreteTable)
+        if (reflectedType.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable)
           skipTypeId = true;
         else if (reflectedType.Hierarchy.TypeDiscriminatorMap != null)
           skipTypeId = true;
@@ -441,7 +441,7 @@ namespace Xtensive.Storage.Building.Builders
           .Where(c => skipTypeId ? !(c.IsSystem && c.Field.IsTypeId) : true));
 
       if (ancestorIndex.IsPrimary && reflectedType.IsEntity) {
-        if (reflectedType.Hierarchy.Schema==InheritanceSchema.ClassTable) {
+        if (reflectedType.Hierarchy.InheritanceSchema==InheritanceSchema.ClassTable) {
           foreach (var column in ancestorIndex.IncludedColumns) {
             if (skipTypeId && column.IsSystem && column.Field.IsTypeId)
               continue;
@@ -454,7 +454,7 @@ namespace Xtensive.Storage.Building.Builders
             result.ValueColumns.Add(column);
           }
         }
-        else if (reflectedType.Hierarchy.Schema==InheritanceSchema.ConcreteTable) {
+        else if (reflectedType.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable) {
           foreach (var column in reflectedType.Columns.Find(ColumnAttributes.PrimaryKey, MatchType.None)) {
             if (skipTypeId && column.IsSystem && column.Field.IsTypeId)
               continue;
@@ -854,7 +854,7 @@ namespace Xtensive.Storage.Building.Builders
             };
 
           extractor(typeInfo.Indexes);
-          if (typeInfo.Hierarchy.Schema == InheritanceSchema.ClassTable) {
+          if (typeInfo.Hierarchy.InheritanceSchema == InheritanceSchema.ClassTable) {
             var rootIndex = typeInfo.Hierarchy.Root.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
             if (!type.AffectedIndexes.Contains(rootIndex))
               type.AffectedIndexes.Add(rootIndex);

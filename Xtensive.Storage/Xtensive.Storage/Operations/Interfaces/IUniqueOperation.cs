@@ -10,15 +10,15 @@ using Xtensive.Core;
 namespace Xtensive.Storage.Operations
 {
   /// <summary>
-  /// Contract for an operation that will be executed only once
-  /// in a given <see cref="OperationSet"/>.
+  /// Contract for an operation that must be logged only once
+  /// in a given <see cref="OperationLog"/>.
   /// </summary>
   public interface IUniqueOperation : IIdentified
   {
     /// <summary>
-    /// Gets a value indicating whether the <see cref="InvalidOperationException"/> will be thrown
-    /// if the duplicate of this operation is found.
+    /// Gets a value indicating whether to ignore the duplicate of this operation, 
+    /// or to throw an <see cref="InvalidOperationException"/>.
     /// </summary>
-    bool IgnoreDuplicate { get; }
+    bool IgnoreIfDuplicate { get; }
   }
 }

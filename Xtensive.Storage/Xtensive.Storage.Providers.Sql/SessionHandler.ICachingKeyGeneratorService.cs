@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Providers.Sql
       var sqlNext = GetNextImplementation(
         domainHandler.ProviderInfo, 
         domainHandler.Schema, 
-        generator.KeyProviderInfo.MappingName);
+        generator.KeyInfo.MappingName);
 
       var batch = sqlNext as SqlBatch;
       if (batch != null && !domainHandler.ProviderInfo.Supports(ProviderFeatures.Batches)) {

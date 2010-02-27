@@ -127,7 +127,7 @@ namespace Xtensive.Storage.Tests.Storage.Keys
       {
         using (var t = Transaction.Open())
         {
-          var descriptor = Domain.Model.Types[typeof (Test)].Hierarchy.KeyProviderInfo.KeyTupleDescriptor;
+          var descriptor = Domain.Model.Types[typeof (Test)].Hierarchy.Key.TupleDescriptor;
 
           Tuple tuple = Tuple.Create(descriptor);
           tuple.SetValue(0, " , ");

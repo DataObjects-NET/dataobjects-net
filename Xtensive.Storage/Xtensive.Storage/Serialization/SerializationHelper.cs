@@ -45,7 +45,7 @@ namespace Xtensive.Storage.Serialization
       var typeInfo = domain.Model.Types[entity.GetType()];
 
       KeyGenerator generator;
-      domain.KeyGenerators.TryGetValue(typeInfo.KeyProviderInfo, out generator);
+      domain.KeyGenerators.TryGetValue(typeInfo.Key, out generator);
 
       var keyValue = generator!=null 
         ? generator.DemandNext(session.IsDisconnected) 
@@ -60,7 +60,7 @@ namespace Xtensive.Storage.Serialization
 
     public static Tuple DeserializeKeyFields(TypeInfo entityType, SerializationInfo info, StreamingContext context)
     {
-      var keyTuple = Tuple.Create(entityType.Hierarchy.KeyProviderInfo.KeyTupleDescriptor);
+      var keyTuple = Tuple.Create(entityType.Hierarchy.Key.TupleDescriptor);
       foreach (FieldInfo keyField in entityType.Fields.Where(f => f.IsPrimaryKey && f.Parent == null)) {
         if (keyField.IsTypeId)
           keyTuple.SetValue(keyField.MappingInfo.Offset, entityType.TypeId);

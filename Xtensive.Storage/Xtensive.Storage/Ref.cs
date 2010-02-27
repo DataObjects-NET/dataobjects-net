@@ -19,7 +19,9 @@ namespace Xtensive.Storage
   /// <typeparam name="T">The type of referenced object (<see cref="Value"/> property).</typeparam>
   [Serializable]
   [DebuggerDisplay("Key = {Key}")]
-  public struct Ref<T> : IEquatable<Ref<T>>,
+  public struct Ref<T> : 
+    IEquatable<Ref<T>>,
+    IEquatable<Key>,
     ISerializable
     where T : class, IEntity
   {
@@ -48,13 +50,22 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
+    public bool Equals(Key other)
     {
-      if (ReferenceEquals(null, obj))
+      return other==Key;
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(object other)
+    {
+      if (ReferenceEquals(null, other))
         return false;
-      if (obj.GetType()!=typeof (Ref<T>))
-        return false;
-      return Equals((Ref<T>) obj);
+      if (other.GetType()==typeof (Ref<T>))
+        return Equals((Ref<T>) other);
+      var otherKey = other as Key;
+      if (otherKey!=null)
+        return Equals(otherKey);
+      return false;
     }
 
     /// <inheritdoc/>
@@ -73,26 +84,46 @@ namespace Xtensive.Storage
         key==null ? Strings.Null : key.ToString());
     }
 
-    #region Explicit cast operators
+    #region Cast operators
 
     /// <summary>
-    /// Explicit conversion of <see cref="Key"/> to <see cref="Ref{T}"/>.
+    /// Implicit conversion of <see cref="Key"/> to <see cref="Ref{T}"/>.
     /// </summary>
     /// <param name="key">Key of the entity to provide typed reference for.</param>
-    /// <returns>The result of the conversion.</returns>
-    public static explicit operator Ref<T>(Key key)
+    /// <returns>The result of conversion.</returns>
+    public static implicit operator Ref<T>(Key key)
     {
       return new Ref<T>(key);
     }
 
     /// <summary>
-    /// Explicit conversion of <see cref="Entity"/> to <see cref="Ref{T}"/>.
+    /// Implicit conversion of <see cref="IEntity"/> to <see cref="Ref{T}"/>.
     /// </summary>
     /// <param name="entity">The entity to provide typed reference for.</param>
-    /// <returns>The result of the conversion.</returns>
-    public static explicit operator Ref<T>(T entity)
+    /// <returns>The result of conversion.</returns>
+    public static implicit operator Ref<T>(T entity)
     {
       return new Ref<T>(entity);
+    }
+
+    /// <summary>
+    /// Implicit conversion of <see cref="Ref{T}"/> to <see cref="Key"/>.
+    /// </summary>
+    /// <param name="reference">The typed reference to convert.</param>
+    /// <returns>The result of conversion.</returns>
+    public static implicit operator Key(Ref<T> reference)
+    {
+      return reference.Key==null ? null : Key.Create<T>(reference.Key);
+    }
+
+    /// <summary>
+    /// Implicit conversion of <see cref="Ref{T}"/> to <typeparamref name="T"/>.
+    /// </summary>
+    /// <param name="reference">The typed reference to convert.</param>
+    /// <returns>The result of conversion.</returns>
+    public static implicit operator T(Ref<T> reference)
+    {
+      return reference.Value;
     }
 
     #endregion

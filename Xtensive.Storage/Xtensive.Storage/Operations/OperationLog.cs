@@ -13,37 +13,37 @@ using IObjectMappingOperationSet=Xtensive.Core.ObjectMapping.IOperationSet;
 namespace Xtensive.Storage.Operations
 {
   /// <summary>
-  /// Built-in implementation of <see cref="IOperationSet"/>.
+  /// Built-in implementation of <see cref="IOperationLog"/>.
   /// </summary>
   [Serializable]
-  public sealed class OperationSet : IOperationSet, 
+  public sealed class OperationLog : IOperationLog, 
     IObjectMappingOperationSet
   {
-    private readonly List<IOperation> log = new List<IOperation>();
+    private readonly List<IOperation> operations = new List<IOperation>();
     private HashSet<IUniqueOperation> uniqueOperations;
 
     /// <inheritdoc/>
     public long Count {
-      get { return log.Count; }
+      get { return operations.Count; }
     }
 
     /// <inheritdoc/>
     public bool IsEmpty {
-      get { return log.Count==0; }
+      get { return operations.Count==0; }
     }
 
     /// <inheritdoc/>
     public void Append(IOperation operation)
     {
-      log.Add(operation);
+      operations.Add(operation);
       TryAppendUniqueOperation(operation);
     }
 
     /// <inheritdoc/>
-    public void Append(IOperationSet source)
+    public void Append(IOperationLog source)
     {
       foreach (var operation in source) {
-        log.Add(operation);
+        operations.Add(operation);
         TryAppendUniqueOperation(operation);
       }
     }
@@ -67,14 +67,14 @@ namespace Xtensive.Storage.Operations
 
       using (session.Activate())
       using (var ts = Transaction.Open(TransactionOpenMode.New)) { 
-        foreach (var operation in log)
+        foreach (var operation in operations)
           operation.Prepare(operationContext);
 
         operationContext.KeysToPrefetch
           .Prefetch<Entity,Key>(key => key)
           .Execute();
 
-        foreach (var operation in log)
+        foreach (var operation in operations)
           operation.Execute(operationContext);
 
         ts.Complete();
@@ -86,7 +86,7 @@ namespace Xtensive.Storage.Operations
     /// <inheritdoc/>
     public void Clear()
     {
-      log.Clear();
+      operations.Clear();
       if (uniqueOperations!=null)
         uniqueOperations.Clear();
     }
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Operations
     /// <inheritdoc/>
     public IEnumerator<IOperation> GetEnumerator()
     {
-      return log.GetEnumerator();
+      return operations.GetEnumerator();
     }
 
     /// <inheritdoc/>
@@ -113,7 +113,7 @@ namespace Xtensive.Storage.Operations
       if (uniqueOperation!=null) {
         if (uniqueOperations==null)
           uniqueOperations = new HashSet<IUniqueOperation>();
-        if (!uniqueOperations.Add(uniqueOperation) && !uniqueOperation.IgnoreDuplicate)
+        if (!uniqueOperations.Add(uniqueOperation) && !uniqueOperation.IgnoreIfDuplicate)
           throw new InvalidOperationException(
             Strings.ExDuplicateForOperationXIsFound.FormatWith(uniqueOperation));
       }

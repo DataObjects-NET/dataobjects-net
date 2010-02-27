@@ -165,7 +165,7 @@ namespace Xtensive.Storage
 
     internal ThreadSafeIntDictionary<GenericKeyTypeInfo> GenericKeyTypes { get; private set; }
 
-    internal Dictionary<KeyProviderInfo, KeyGenerator> KeyGenerators { get; private set; }
+    internal Dictionary<KeyInfo, KeyGenerator> KeyGenerators { get; private set; }
 
     internal ThreadSafeDictionary<object, object> Cache { get; private set; }
     internal ICache<Key, Key> KeyCache { get; private set; }
@@ -238,7 +238,7 @@ namespace Xtensive.Storage
       Handlers = new HandlerAccessor(this);
       GenericKeyTypes = ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
       RecordSetReader = new RecordSetReader(this);
-      KeyGenerators = new Dictionary<KeyProviderInfo, KeyGenerator>();
+      KeyGenerators = new Dictionary<KeyInfo, KeyGenerator>();
       Cache = ThreadSafeDictionary<object, object>.Create(new object());
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(

@@ -6,14 +6,29 @@
 
 using System;
 using System.Runtime.Serialization;
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Operations
+namespace Xtensive.Storage.Operations.Internals
 {
+  /// <summary>
+  /// Describes an operation with <see cref="EntitySet{TItem}"/> item.
+  /// </summary>
   [Serializable]
-  internal sealed class EntitySetItemOperation : EntitySetOperation
+  public abstract class EntitySetItemOperation : EntitySetOperation
   {
-    private Key ItemKey { get; set; }
+    /// <summary>
+    /// Gets the key of the involved item.
+    /// </summary>
+    public Key ItemKey { get; set; }
+
+    /// <inheritdoc/>
+    public override string Description {
+      get {
+        return "{0}, Item Key = {1}".FormatWith(base.Description, ItemKey);
+      }
+    }
 
     /// <inheritdoc/>
     public override void Prepare(OperationExecutionContext context)
@@ -22,30 +37,21 @@ namespace Xtensive.Storage.Operations
       context.RegisterKey(context.TryRemapKey(ItemKey), false);
     }
 
-    /// <inheritdoc/>
-    public override void Execute(OperationExecutionContext context)
-    {
-      var session = context.Session;
-      var target = Query.Single(session, context.TryRemapKey(Key));
-      var item = Query.Single(session, context.TryRemapKey(ItemKey));
-      var entitySet = (EntitySetBase) target.GetFieldValue(Field);
-      if (Type == OperationType.AddEntitySetItem)
-        entitySet.Add(item);
-      else
-        entitySet.Remove(item);
-    }
-
     
     // Constructors
 
-    public EntitySetItemOperation(Key targetKey, FieldInfo fieldInfo, OperationType type, Key itemKey)
-      : base(targetKey, type, fieldInfo)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>.
+    /// </summary>
+    /// <param name="key">The key of the entity.</param>
+    /// <param name="field">The field involved into the operation.</param>
+    /// <param name="itemKey">The item key.</param>
+    protected EntitySetItemOperation(Key key, FieldInfo field, Key itemKey)
+      : base(key, field)
     {
-      if (!type.In(OperationType.AddEntitySetItem, OperationType.RemoveEntitySetItem))
-        throw new InvalidOperationException();
+      ArgumentValidator.EnsureArgumentNotNull(itemKey, "itemKey");
       ItemKey = itemKey;
     }
-
 
     // Serialization
 
@@ -53,14 +59,14 @@ namespace Xtensive.Storage.Operations
     protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);
-      info.AddValue("itemKey", ItemKey.Format());
+      info.AddValue("ItemKey", ItemKey.Format());
     }
 
     /// <inheritdoc/>
     protected EntitySetItemOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-      ItemKey = Key.Parse(info.GetString("itemKey"));
+      ItemKey = Key.Parse(info.GetString("ItemKey"));
       ItemKey.TypeRef = new TypeReference(ItemKey.TypeRef.Type, TypeReferenceAccuracy.ExactType);
     }
   }

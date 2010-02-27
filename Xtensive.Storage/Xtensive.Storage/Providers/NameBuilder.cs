@@ -402,14 +402,14 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Builds the name for the <see cref="providerInfo"/> instance.
+    /// Builds the key sequence name by <see cref="KeyInfo"/> instance.
     /// </summary>
-    /// <param name="providerInfo">The <see cref="providerInfo"/> instance to build name for.</param>
-    public string BuildGeneratorName(KeyProviderInfo providerInfo)
+    /// <param name="keyInfo">The <see cref="KeyInfo"/> instance to build sequence name for.</param>
+    public string BuildSequenceName(KeyInfo keyInfo)
     {
-      return providerInfo.KeyGeneratorName == null
+      return keyInfo.GeneratorName == null
         ? null
-        : ApplyNamingRules(string.Format(GeneratorPattern, providerInfo.KeyGeneratorName));
+        : ApplyNamingRules(string.Format(GeneratorPattern, keyInfo.GeneratorName));
     }
 
     /// <summary>

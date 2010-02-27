@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Model.Stored
     public StoredTypeInfo Root;
 
     /// <summary>
-    /// <see cref="HierarchyInfo.Schema"/>
+    /// <see cref="HierarchyInfo.InheritanceSchema"/>
     /// </summary>
     public InheritanceSchema Schema;
 

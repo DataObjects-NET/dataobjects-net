@@ -11,7 +11,7 @@ namespace Xtensive.Storage.Operations
   /// <summary>
   /// Declares public contract for operations container.
   /// </summary>
-  public interface IOperationSet : ICountable<IOperation>
+  public interface IOperationLog : ICountable<IOperation>
   {
     /// <summary>
     /// Registers the specified operation.
@@ -20,10 +20,10 @@ namespace Xtensive.Storage.Operations
     void Append(IOperation operation);
 
     /// <summary>
-    /// Registers the specified <see cref="IOperationSet"/>.
+    /// Registers the specified <see cref="IOperationLog"/>.
     /// </summary>
     /// <param name="source">The source.</param>
-    void Append(IOperationSet source);
+    void Append(IOperationLog source);
 
     /// <summary>
     /// Applies this operation set to the <see cref="Session.Current"/> session.

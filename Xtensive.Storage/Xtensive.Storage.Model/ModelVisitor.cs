@@ -26,9 +26,9 @@ namespace Xtensive.Storage.Model
       var domainModel = node as DomainModel;
       if (domainModel != null)
         return VisitDomainModel(domainModel);
-      var keyProviderInfo = node as KeyProviderInfo;
+      var keyProviderInfo = node as KeyInfo;
       if (keyProviderInfo != null)
-        return VisitKeyProviderInfo(keyProviderInfo);
+        return VisitKeyInfo(keyProviderInfo);
       var sequenceInfo = node as SequenceInfo;
       if (sequenceInfo != null)
         return VisitSequenceInfo(sequenceInfo);
@@ -82,11 +82,11 @@ namespace Xtensive.Storage.Model
     protected abstract TResult VisitFieldInfo(FieldInfo field);
 
     /// <summary>
-    /// Visits a <see cref="KeyProviderInfo"/> node.
+    /// Visits a <see cref="KeyInfo"/> node.
     /// </summary>
-    /// <param name="keyProvider">The key provider.</param>
+    /// <param name="keyInfo">The key provider.</param>
     /// <returns>Visit result.</returns>
-    protected abstract TResult VisitKeyProviderInfo(KeyProviderInfo keyProvider);
+    protected abstract TResult VisitKeyInfo(KeyInfo keyInfo);
 
     /// <summary>
     /// Visits a <see cref="SequenceInfo"/> node.

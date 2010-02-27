@@ -89,6 +89,29 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Determines whether this key is a temporary key 
+    /// in the <see cref="Domain.Demand">current</see> <see cref="Domain"/>.
+    /// </summary>
+    public bool IsTemporary()
+    {
+      return IsTemporary(Domain.Demand());
+    }
+
+    /// <summary>
+    /// Determines whether this key is a temporary key in the specified <paramref name="domain"/>.
+    /// </summary>
+    /// <param name="domain">The domain.</param>
+    /// <returns>Check result.</returns>
+    public bool IsTemporary(Domain domain)
+    {
+      var keyInfo = TypeRef.Type.Key;
+      KeyGenerator keyGenerator = null;
+      return 
+        domain.KeyGenerators.TryGetValue(keyInfo, out keyGenerator) 
+          && keyGenerator.IsTemporaryKey(Value);
+    }
+
+    /// <summary>
     /// Gets the value in form of <see cref="Tuple"/>.
     /// </summary>
     protected abstract Tuple GetValue();
@@ -119,7 +142,7 @@ namespace Xtensive.Storage
         return true;
       if (GetHashCode()!=other.GetHashCode())
         return false;
-      if (TypeRef.Type.KeyProviderInfo!=other.TypeRef.Type.KeyProviderInfo)
+      if (TypeRef.Type.Key.EqualityIdentifier!=other.TypeRef.Type.Key.EqualityIdentifier)
         return false;
       if (other.GetType().IsGenericType)
         return other.ValueEquals(this);
@@ -237,7 +260,7 @@ namespace Xtensive.Storage
 
       var type = domain.Model.Types[System.Type.GetType(typeName, true)];
       var accuracy = (TypeReferenceAccuracy)Enum.Parse(typeof(TypeReferenceAccuracy), accuracyString, true);
-      var value = type.KeyProviderInfo.KeyTupleDescriptor.Parse(valueString);
+      var value = type.Key.TupleDescriptor.Parse(valueString);
       return Create(domain, type, accuracy, value);
     }
 

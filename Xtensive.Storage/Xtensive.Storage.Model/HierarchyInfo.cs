@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -21,9 +22,9 @@ namespace Xtensive.Storage.Model
     public TypeInfo Root { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="InheritanceSchema"/> for this hierarchy.
+    /// Gets the <see cref="Model.InheritanceSchema"/> for this hierarchy.
     /// </summary>
-    public InheritanceSchema Schema { get; private set; }
+    public InheritanceSchema InheritanceSchema { get; private set; }
 
     /// <summary>
     /// Gets the types of the current <see cref="HierarchyInfo"/>.
@@ -31,14 +32,9 @@ namespace Xtensive.Storage.Model
     public ReadOnlyList<TypeInfo> Types { get; private set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="KeyProviderInfo"/> property for this instance.
+    /// Gets the <see cref="Key"/> for this instance.
     /// </summary>
-    public KeyProviderInfo KeyProviderInfo { get; private set; }
-
-    /// <summary>
-    /// Gets the key fields.
-    /// </summary>
-    public ReadOnlyList<FieldInfo> KeyFields { get; private set; }
+    public KeyInfo Key { get; private set; }
 
     /// <summary>
     /// Gets the type discriminator.
@@ -49,24 +45,21 @@ namespace Xtensive.Storage.Model
     public override void UpdateState(bool recursive)
     {
       base.UpdateState(recursive);
-      KeyProviderInfo.UpdateState(recursive);
+      Key.UpdateState(recursive);
       var list = new List<TypeInfo> {Root};
       list.AddRange(Root.GetDescendants(true));
       Types = new ReadOnlyList<TypeInfo>(list);
       if (Types.Count == 1)
-        Schema = InheritanceSchema.ConcreteTable;
+        InheritanceSchema = InheritanceSchema.ConcreteTable;
       if (TypeDiscriminatorMap != null)
         TypeDiscriminatorMap.UpdateState();
-      var keyFields = Root.Fields.Where(f => f.IsPrimaryKey && f.Parent==null)
-        .OrderBy(f => f.MappingInfo.Offset).ToList();
-      KeyFields = new ReadOnlyList<FieldInfo>(keyFields, false);
     }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      KeyProviderInfo.Lock(recursive);
+      Key.Lock(recursive);
       if (TypeDiscriminatorMap != null)
         TypeDiscriminatorMap.Lock();
     }
@@ -75,16 +68,21 @@ namespace Xtensive.Storage.Model
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="root">The hierarchy root.</param>
-    /// <param name="schema">The schema.</param>
-    /// <param name="keyProviderInfo">The key provider info.</param>
-    public HierarchyInfo(TypeInfo root, InheritanceSchema schema, KeyProviderInfo keyProviderInfo, TypeDiscriminatorMap typeDiscriminatorMap)
+    /// <param name="key">The key info.</param>
+    /// <param name="inheritanceSchema">The inheritance schema.</param>
+    /// <param name="typeDiscriminatorMap">The type discriminator map.</param>
+    public HierarchyInfo(
+      TypeInfo root, 
+      KeyInfo key, 
+      InheritanceSchema inheritanceSchema, 
+      TypeDiscriminatorMap typeDiscriminatorMap)
     {
       Root = root;
-      Schema = schema;
-      KeyProviderInfo = keyProviderInfo;
+      Key = key;
+      InheritanceSchema = inheritanceSchema;
       TypeDiscriminatorMap = typeDiscriminatorMap;
     }
   }

@@ -1,0 +1,75 @@
+// Copyright (C) 2009 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexis Kochetov
+// Created:    2009.10.22
+
+using System;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
+using Xtensive.Core.Internals.DocTemplates;
+
+namespace Xtensive.Storage.Operations.Internals
+{
+  /// <summary>
+  /// Describes an operation involving the <see cref="Key"/>.
+  /// </summary>
+  [Serializable]
+  public abstract class KeyOperation : Operation, 
+    ISerializable
+  {
+    /// <summary>
+    /// Gets the key of the entity.
+    /// </summary>
+    public Key Key { get; private set; }
+
+    /// <inheritdoc/>
+    public override string Description {
+      get {
+        return "{0}, Key = {1}".FormatWith(Title, Key);
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Prepare(OperationExecutionContext context)
+    {
+      context.RegisterKey(context.TryRemapKey(Key), false);
+    }
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />.
+    /// </summary>
+    /// <param name="key">The key of the entity.</param>
+    protected KeyOperation(Key key)
+    {
+      Key = key;
+    }
+
+    // Serialization
+
+    /// <inheritdoc/>
+    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      GetObjectData(info, context);
+    }
+
+    /// <summary>
+    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    /// </summary>
+    protected virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("Key", Key.Format());
+    }
+
+    /// <inheritdoc/>
+    protected KeyOperation(SerializationInfo info, StreamingContext context)
+    {
+      Key = Key.Parse(info.GetString("Key"));
+      Key.TypeRef = new TypeReference(Key.TypeRef.Type, TypeReferenceAccuracy.ExactType);
+    }
+  }
+}

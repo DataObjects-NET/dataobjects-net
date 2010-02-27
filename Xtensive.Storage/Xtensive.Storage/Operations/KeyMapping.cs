@@ -59,21 +59,21 @@ namespace Xtensive.Storage.Operations
     [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      var serializedMapping = new Dictionary<SerializableKey, SerializableKey>();
+      var serializedMapping = new Dictionary<Ref<IEntity>, Ref<IEntity>>();
       foreach (var pair in Map)
         serializedMapping.Add(pair.Key, pair.Value);
 
-      info.AddValue("Map", serializedMapping, typeof(Dictionary<SerializableKey,SerializableKey>));
+      info.AddValue("Map", serializedMapping, typeof(Dictionary<Ref<IEntity>, Ref<IEntity>>));
     }
 
     /// <see cref="SerializableDocTemplate.Ctor" copy="true"/>
     protected KeyMapping(SerializationInfo info, StreamingContext context)
     {
-      var serializedMapping = (Dictionary<SerializableKey, SerializableKey>)
-        info.GetValue("Map", typeof(Dictionary<SerializableKey, SerializableKey>));
+      var serializedMapping = (Dictionary<Ref<IEntity>, Ref<IEntity>>)
+        info.GetValue("Map", typeof(Dictionary<Ref<IEntity>, Ref<IEntity>>));
       map = new Dictionary<Key, Key>();
       foreach (var pair in serializedMapping)
-        map.Add((Key) pair.Key, (Key) pair.Value);
+        map.Add(pair.Key, pair.Value);
       Map = new ReadOnlyDictionary<Key, Key>(map, false);
     }
   }

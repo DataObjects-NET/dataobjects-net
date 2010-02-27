@@ -20,7 +20,6 @@ using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
-using Xtensive.Storage.Upgrade;
 using Activator = System.Activator;
 using UpgradeContext = Xtensive.Storage.Upgrade.UpgradeContext;
 
@@ -222,16 +221,16 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
         var context = BuildingContext.Demand();
         var domain = context.Domain;
-        foreach (var keyProviderInfo in domain.Model.KeyProviders) {
+        foreach (var keyInfo in domain.Model.Hierarchies.Select(h => h.Key)) {
           KeyGenerator generator = null;
-          if (keyProviderInfo.KeyGeneratorType!=null) {
+          if (keyInfo.GeneratorType!=null) {
             generator = (KeyGenerator) domain.Services.Demand(
-              keyProviderInfo.KeyGeneratorType, keyProviderInfo.KeyGeneratorName);
+              keyInfo.GeneratorType, keyInfo.GeneratorName);
             if (!generator.IsInitialized) {
-              generator.Initialize(domain.Handlers, keyProviderInfo);
+              generator.Initialize(domain.Handlers, keyInfo);
             }
           }
-          domain.KeyGenerators.Add(keyProviderInfo, generator);
+          domain.KeyGenerators.Add(keyInfo, generator);
         }
       }
     }

@@ -9,9 +9,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
 

@@ -129,40 +129,46 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     [Serializable]
     class CreateOrderItemOperation : IOperation
     {
-      private SerializableKey productKey;
-      private SerializableKey orderKey;
-      private int count;
+      private Ref<Product> product;
+      private Ref<Order> order;
+      private readonly int count;
+
+      public string Title {
+        get { return "Create order item"; }
+      }
+
+      public string Description {
+        get {
+          return "{0}, Product = {1}, Order = {2}".FormatWith(Title, product, order);
+        }
+      }
 
       public void Prepare(OperationExecutionContext context)
       {
-        context.RegisterKey(productKey.Key, false);
-        context.RegisterKey(orderKey.Key, false);
+        context.RegisterKey(product, false);
+        context.RegisterKey(order, false);
       }
 
       public void Execute(OperationExecutionContext context)
       {
-        var p = Query.Single<Product>(productKey.Key);
-        var o = Query.Single<Order>(orderKey.Key);
+        var p = Query.Single<Product>(context.TryRemapKey(product));
+        var o = Query.Single<Order>(context.TryRemapKey(order));
         var orderItem = new OrderDetail { Product = p, Order = o, Count = count };
       }
 
       public CreateOrderItemOperation(Product product, Order order, int count)
       {
-        productKey = product.Key;
-        orderKey = order.Key;
+        this.product = product;
+        this.order = order;
         this.count = count;
       }
     }
 
-    public void CreateOrderItem(Product product, int count)
+    public void LogCreateOrderItemOperation(Product product, int count)
     {
-      using (var context = OpenOperationContext(true)) {
-        if (context.AreNormalOperationAccepted) {
-          var productKey = (SerializableKey)product.Key;
-          var orderKey = (SerializableKey)Key;
-          var operation = new CreateOrderItemOperation(product, this, count);
-          context.Add(operation);
-        }
+      using (var context = OpenOperationContext()) {
+        if (context.IsLoggingEnabled)
+          context.LogOperation(new CreateOrderItemOperation(product, this, count));
         context.Complete();
       }
     }
@@ -1285,7 +1291,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key order1Key;
       Key newCustomerKey;
 
-      var log = new OperationSet();
+      var log = new OperationLog();
       // Modify data
       using (var session = Session.Open(Domain)) {
         using (OperationLogger.Attach(session, log))
@@ -1318,7 +1324,7 @@ namespace Xtensive.Storage.Tests.Storage
           var order1Detail2 = order1.Details.ToList().First(detail => detail.Product.Name=="Product2");
           order1.Details.Remove(order1Detail2);
           order1Detail2.Remove();
-          order1.CreateOrderItem(product2, 499);
+          order1.LogCreateOrderItemOperation(product2, 499);
         }
       }
 

@@ -12,7 +12,8 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Operations
 {
   /// <summary>
-  /// Operation context that manages <see cref="IOperation"/> registration.
+  /// Operation context that manages 
+  /// <see cref="IOperation"/> logging in <see cref="Session"/>.
   /// </summary>
   public sealed class OperationContext : IOperationContext
   {
@@ -22,23 +23,19 @@ namespace Xtensive.Storage.Operations
     private bool completed;
 
     /// <inheritdoc/>
-    public bool AreNormalOperationAccepted {get { return true; }}
+    public bool IsLoggingEnabled { get { return true; } }
 
     /// <inheritdoc/>
-    public bool DisableNested { get; private set; }
+    public bool IsIntermediate { get; private set; }
 
     /// <inheritdoc/>
-    public void Add(IOperation operation)
+    public void LogOperation(IOperation operation)
     {
+      if (!IsLoggingEnabled && !(operation is IPrecondition))
+        return;
       if (operations == null)
-          operations = new List<IOperation>();
+        operations = new List<IOperation>();
       operations.Add(operation);
-    }
-
-    /// <inheritdoc/>
-    public void Add(IOperation operation, bool highPriority)
-    {
-      Add(operation);
     }
 
     /// <inheritdoc/>
@@ -46,7 +43,9 @@ namespace Xtensive.Storage.Operations
     {
       completed = true;
     }
-    
+
+    #region IEnumerable<...> members
+
     /// <inheritdoc/>
     public IEnumerator<IOperation> GetEnumerator()
     {
@@ -62,20 +61,22 @@ namespace Xtensive.Storage.Operations
       return GetEnumerator();
     }
 
+    #endregion
+
 
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="disableNested">Disable nested operation contexts.</param>
-    internal OperationContext(Session session, bool disableNested)
+    /// <param name="session">The session this context belongs to.</param>
+    /// <param name="isIntermediate"><see cref="IsIntermediate"/> property value.</param>
+    internal OperationContext(Session session, bool isIntermediate)
     {
       this.session = session;
       parentOperationContext = session.CurrentOperationContext;
       session.CurrentOperationContext = this;
-      DisableNested = disableNested;
+      IsIntermediate = isIntermediate;
     }
 
     /// <inheritdoc/>

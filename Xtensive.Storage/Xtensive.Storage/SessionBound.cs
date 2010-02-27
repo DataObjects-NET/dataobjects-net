@@ -37,20 +37,34 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Opens the non-intermediate operation context.
+    /// </summary>
+    /// <returns>
+    /// The instance of <see cref="IOperationContext"/> implementor.
+    /// </returns>
+    protected IOperationContext OpenOperationContext()
+    {
+      return OpenOperationContext(false);
+    }
+
+    /// <summary>
     /// Opens the operation context.
     /// </summary>
-    /// <param name="disableNested">if set to <see langword="true"/> the registration of
-    /// normal priority operation in a nested context is disabled.</param>
-    /// <returns>The instance of an implementor of the <see cref="IOperationContext"/>.</returns>
-    protected IOperationContext OpenOperationContext(bool disableNested)
+    /// <param name="isIntermediate">If set to <see langword="true" />,
+    /// opened operation context will be an 
+    /// <see cref="IOperationContext.IsIntermediate">intermediate</see> context.</param>
+    /// <returns>
+    /// The instance of <see cref="IOperationContext"/> implementor.
+    /// </returns>
+    protected IOperationContext OpenOperationContext(bool isIntermediate)
     {
       if (!Session.OperationCompletedHasSubscribers)
         return Session.BlockingOperationContext;
       if (Session.CurrentOperationContext==null)
-        return new OperationContext(Session, disableNested);
-      if (Session.CurrentOperationContext.DisableNested)
+        return new OperationContext(Session, isIntermediate);
+      if (!Session.CurrentOperationContext.IsIntermediate)
         return Session.BlockingOperationContext;
-      return new OperationContext(Session, disableNested);
+      return new OperationContext(Session, isIntermediate);
     }
 
     /// <summary>

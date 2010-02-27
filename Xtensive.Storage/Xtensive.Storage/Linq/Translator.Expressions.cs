@@ -433,8 +433,8 @@ namespace Xtensive.Storage.Linq
         IEnumerable<Type> keyFieldTypes = context
           .Model
           .Types[(leftEntityExpression ?? rightEntityExpression).Type]
-          .KeyProviderInfo
-          .KeyTupleDescriptor;
+          .Key
+          .TupleDescriptor;
 
         leftExpressions = GetEntityFields(left, keyFieldTypes);
         rightExpressions = GetEntityFields(right, keyFieldTypes);
@@ -571,8 +571,8 @@ namespace Xtensive.Storage.Linq
           IEnumerable<Type> keyFieldTypes = context
             .Model
             .Types[fieldExpression.Type]
-            .KeyProviderInfo
-            .KeyTupleDescriptor;
+            .Key
+            .TupleDescriptor;
           result.AddRange(GetEntityFields(memberExpression, keyFieldTypes));
           break;
         case MemberType.Structure:

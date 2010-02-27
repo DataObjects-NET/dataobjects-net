@@ -6,39 +6,61 @@
 
 using System;
 using System.Runtime.Serialization;
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Operations
+namespace Xtensive.Storage.Operations.Internals
 {
+  /// <summary>
+  /// Describes an operation with <see cref="Entity"/> field.
+  /// </summary>
   [Serializable]
-  internal abstract class EntityFieldOperation : EntityOperation
+  public abstract class EntityFieldOperation : EntityOperation
   {
-    protected FieldInfo Field { get; private set; }
+    /// <summary>
+    /// Gets the field involved into the operation.
+    /// </summary>
+    public FieldInfo Field { get; private set; }
+
+    /// <inheritdoc/>
+    public override string Description {
+      get {
+        return "{0}, Field = {1}".FormatWith(base.Description, Field.Name);
+      }
+    }
 
 
     // Constructors
 
-    protected EntityFieldOperation(Key key, OperationType type, FieldInfo fieldInfo)
-      : base(key, type)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>.
+    /// </summary>
+    /// <param name="key">The key of the entity.</param>
+    /// <param name="field">The field involved into the operation.</param>
+    protected EntityFieldOperation(Key key, FieldInfo field)
+      : base(key)
     {
-      Field = fieldInfo;
+      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      Field = field;
     }
 
     // Serialization
 
     /// <inheritdoc/>
-    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue("field", new FieldInfoRef(Field), typeof(FieldInfoRef));
-    }
-
     protected EntityFieldOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
       var session = Session.Demand();
       var fieldRef = (FieldInfoRef)info.GetValue("field", typeof(FieldInfoRef));
       Field = fieldRef.Resolve(session.Domain.Model);
+    }
+
+    /// <inheritdoc/>
+    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddValue("field", new FieldInfoRef(Field), typeof(FieldInfoRef));
     }
   }
 }

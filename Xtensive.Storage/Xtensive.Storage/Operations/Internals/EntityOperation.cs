@@ -5,66 +5,35 @@
 // Created:    2009.10.22
 
 using System;
-using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Storage.Internals;
+using System.Security.Permissions;
+using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Operations
+namespace Xtensive.Storage.Operations.Internals
 {
+  /// <summary>
+  /// Describes an operation with <see cref="Entity"/>.
+  /// </summary>
   [Serializable]
-  [DebuggerDisplay("Key = {Key}, Type = {Type}")]
-  internal class EntityOperation : Operation
+  public abstract class EntityOperation : KeyOperation
   {
-    protected Key Key { get; private set;}
-
-    /// <inheritdoc/>
-    public override void Prepare(OperationExecutionContext context)
-    {
-      var remappedKey = context.TryRemapKey(Key);
-      context.RegisterKey(remappedKey, Type == OperationType.CreateEntity);
-    }
-
-    /// <inheritdoc/>
-    public override void Execute(OperationExecutionContext context)
-    {
-      var session = context.Session;
-      var key = context.TryRemapKey(Key);
-      if (Type == OperationType.CreateEntity) {
-        var entityType = key.TypeRef.Type;
-        var domain = session.Domain;
-        session.CreateEntityState(key);
-      }
-      else {
-        var entity = Query.Single(session, key);
-        entity.Remove();
-      }
-    }
-
-
     // Constructors
 
-    /// <inheritdoc/>
-    public EntityOperation(Key key, OperationType type)
-      : base(type)
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />.
+    /// </summary>
+    /// <param name="key">The key of the entity.</param>
+    protected EntityOperation(Key key)
+      : base(key)
     {
-      Key = key;
-    }
-
-    // Serialization
-
-    /// <inheritdoc/>
-    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue("key", Key.Format());
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
     }
 
     /// <inheritdoc/>
     protected EntityOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-      Key = Key.Parse(info.GetString("key"));
-      Key.TypeRef = new TypeReference(Key.TypeRef.Type, TypeReferenceAccuracy.ExactType);
     }
   }
 }

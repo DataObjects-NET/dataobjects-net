@@ -22,6 +22,7 @@ using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.Operations.Internals;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using OperationType=Xtensive.Storage.PairIntegrity.OperationType;
@@ -112,9 +113,10 @@ namespace Xtensive.Storage
     public void Clear()
     {
       EnsureOwnerIsNotRemoved();
-      using (var context = OpenOperationContext(true)) {
-        if (context.AreNormalOperationAccepted)
-          context.Add(new EntitySetOperation(Owner.Key, Operations.OperationType.ClearEntitySet, Field));
+      using (var context = OpenOperationContext()) {
+        if (context.IsLoggingEnabled)
+          context.LogOperation(
+            new EntitySetClearOperation(Owner.Key, Field));
         SystemBeforeClear();
         foreach (var entity in Entities.ToList())
           Remove(entity);
@@ -394,13 +396,9 @@ namespace Xtensive.Storage
         return false;
 
       try {
-        using (var context = OpenOperationContext(true)) {
-          if (context.AreNormalOperationAccepted)
-            context.Add(new EntitySetItemOperation(
-              Owner.Key, 
-              Field, 
-              Operations.OperationType.AddEntitySetItem, 
-              item.Key));
+        using (var context = OpenOperationContext()) {
+          if (context.IsLoggingEnabled)
+            context.LogOperation(new EntitySetItemAddOperation(Owner.Key, Field, item.Key));
 
           SystemBeforeAdd(item);
 
@@ -445,13 +443,9 @@ namespace Xtensive.Storage
         return false;
 
       try {
-        using (var context = OpenOperationContext(true)) {
-          if (context.AreNormalOperationAccepted)
-            context.Add(new EntitySetItemOperation(
-              Owner.Key, 
-              Field, 
-              Operations.OperationType.RemoveEntitySetItem,
-              item.Key));
+        using (var context = OpenOperationContext()) {
+          if (context.IsLoggingEnabled)
+            context.LogOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, item.Key));
           SystemBeforeRemove(item);
 
           if (Field.Association.IsPaired)
@@ -642,8 +636,8 @@ namespace Xtensive.Storage
       var field = ((Pair<object, FieldInfo>) pair).Second;
       var entitySet = (EntitySetBase) entitySetObj;
       var seek = field.Association.UnderlyingIndex.ToRecordSet().Seek(() => keyParameter.Value);
-      var ownerDescriptor = field.Association.OwnerType.KeyProviderInfo.KeyTupleDescriptor;
-      var targetDescriptor = field.Association.TargetType.KeyProviderInfo.KeyTupleDescriptor;
+      var ownerDescriptor = field.Association.OwnerType.Key.TupleDescriptor;
+      var targetDescriptor = field.Association.TargetType.Key.TupleDescriptor;
 
       var itemColumnOffsets = field.Association.AuxiliaryType == null
         ? field.Association.UnderlyingIndex.ValueColumns
@@ -714,8 +708,8 @@ namespace Xtensive.Storage
         var itemType =  Field.ItemType.GetTypeInfo(Session.Domain);
         auxilaryTypeKeyTransform = new CombineTransform(
           false, 
-          owner.Type.KeyProviderInfo.KeyTupleDescriptor, 
-          itemType.KeyProviderInfo.KeyTupleDescriptor);
+          owner.Type.Key.TupleDescriptor, 
+          itemType.Key.TupleDescriptor);
       }
       Initialize(typeof (EntitySetBase));
     }

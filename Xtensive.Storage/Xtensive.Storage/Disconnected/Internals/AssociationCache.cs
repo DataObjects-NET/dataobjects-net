@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Disconnected
       var type = types[field.ValueType];
       if (tuple.ContainsEmptyValues(field.MappingInfo))
         return null;
-      int typeIdFieldIndex = type.Hierarchy.KeyProviderInfo.TypeIdColumnIndex;
+      int typeIdFieldIndex = type.Hierarchy.Key.TypeIdColumnIndex;
       bool exactType = typeIdFieldIndex >= 0;
       var keyValue = field.ExtractValue(tuple);
       if (exactType) {

@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Building
     internal Graph<TypeDef> DependencyGraph { get; private set; }
     internal HashSet<TypeDef> Interfaces { get; private set; }
     internal HashSet<IndexInfo> UntypedIndexes { get; private set; }
+    internal Dictionary<KeyGenerator, KeyInfo> KeyGenerators { get; private set; }
 
     #region Current property & Demand() method
 
@@ -121,6 +122,7 @@ namespace Xtensive.Storage.Building
       DependencyGraph = new Graph<TypeDef>();
       Interfaces = new HashSet<TypeDef>();
       UntypedIndexes = new HashSet<IndexInfo>();
+      KeyGenerators = new Dictionary<KeyGenerator, KeyInfo>();
     }
   }
 }

@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Model
       IndexInfo index;
       if (!type.Indexes.TryGetValue(IndexName, out index)) {
         var hierarchy = type.Hierarchy;
-        if (hierarchy != null && hierarchy.Schema == InheritanceSchema.SingleTable && hierarchy.Root.Indexes.TryGetValue(IndexName, out index)) 
+        if (hierarchy != null && hierarchy.InheritanceSchema == InheritanceSchema.SingleTable && hierarchy.Root.Indexes.TryGetValue(IndexName, out index)) 
           return index;
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "index", IndexName));
       }

@@ -14,17 +14,16 @@ namespace Xtensive.Storage.Operations
   {
     private readonly Session session;
 
-    public bool AreNormalOperationAccepted {get { return false; }}
+    public bool IsLoggingEnabled { get { return false; } }
 
-    public bool DisableNested { get { return true; } }
+    public bool IsIntermediate { get { return false; } }
 
-    public void Add(IOperation operation)
-    {}
-
-    public void Add(IOperation operation, bool highPriority)
+    public void LogOperation(IOperation operation)
     {
-      if (highPriority && session.CurrentOperationContext!=null)
-        session.CurrentOperationContext.Add(operation);
+      var currentOperationContext = session.CurrentOperationContext;
+      if (currentOperationContext!=null && (operation is IPrecondition))
+        // Here we log only preconditions
+        currentOperationContext.LogOperation(operation);
     }
 
     public void Complete()
