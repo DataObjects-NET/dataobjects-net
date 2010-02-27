@@ -599,7 +599,7 @@ namespace Xtensive.Sql.Compiler
             }
           }
 
-        if (node.Table.TableConstraints.Count>0)
+        if (node.Table.TableConstraints.Count > 0)
           using (context.EnterCollectionScope()) {
             foreach (TableConstraint cs in node.Table.TableConstraints) {
               if (firstWasProcessed)
@@ -1373,7 +1373,7 @@ namespace Xtensive.Sql.Compiler
     
     private void Visit(TableConstraint constraint)
     {
-      using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
+      using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
         context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
         var checkConstraint = constraint as CheckConstraint;
         if (checkConstraint!=null)

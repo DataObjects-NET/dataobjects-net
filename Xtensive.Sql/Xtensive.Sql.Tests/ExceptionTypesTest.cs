@@ -14,6 +14,8 @@ namespace Xtensive.Sql.Tests
 {
   public abstract class ExceptionTypesTest : SqlTest
   {
+    private SqlConnection connectionOne;
+
     private class EvilThreadArgument
     {
       public SqlConnection Connection;
@@ -42,22 +44,29 @@ namespace Xtensive.Sql.Tests
       EnsureTableNotExists(schema, MasterTableName);
       EnsureTableNotExists(schema, UniqueTableName);
       EnsureTableNotExists(schema, CheckedTableName);
+      connectionOne = Connection;
+    }
+
+    public override void TearDown()
+    {
+      if (Connection.ActiveTransaction!=null)
+        Connection.Rollback();
     }
 
     [Test]
-    public void SyntaxErrorTest()
+    public virtual void SyntaxErrorTest()
     {
       AssertExceptionType("select lolwut??!", SqlExceptionType.SyntaxError);
     }
 
     [Test]
-    public void CheckConstraintTest()
+    public virtual void CheckConstraintTest()
     {
       var table = schema.CreateTable(CheckedTableName);
       CreatePrimaryKey(table);
-      var valueColumn1 = table.CreateColumn("value1", new SqlValueType(SqlType.Int32));
+      var valueColumn1 = table.CreateColumn("value1", Driver.TypeMappings.Int.BuildSqlType());
       valueColumn1.IsNullable = true;
-      var valueColumn2 = table.CreateColumn("value2", new SqlValueType(SqlType.Int32));
+      var valueColumn2 = table.CreateColumn("value2", Driver.TypeMappings.Int.BuildSqlType());
       valueColumn2.IsNullable = false;
 
       var tableRef = SqlDml.TableRef(table);
@@ -81,7 +90,7 @@ namespace Xtensive.Sql.Tests
     }
 
     [Test]
-    public void ReferentialConstraintTest()
+    public virtual void ReferentialConstraintTest()
     {
       var masterTable = schema.CreateTable(MasterTableName);
       var masterId = CreatePrimaryKey(masterTable);
@@ -111,11 +120,11 @@ namespace Xtensive.Sql.Tests
     }
 
     [Test]
-    public void UniqueConstraintTestTest()
+    public virtual void UniqueConstraintTestTest()
     {
       var table = schema.CreateTable(UniqueTableName);
       CreatePrimaryKey(table);
-      var column = table.CreateColumn("value", new SqlValueType(SqlType.Int32));
+      var column = table.CreateColumn("value", Driver.TypeMappings.Int.BuildSqlType());
       column.IsNullable = true;
       table.CreateUniqueConstraint("unique_me", column);
       ExecuteNonQuery(SqlDdl.Create(table));
@@ -141,14 +150,15 @@ namespace Xtensive.Sql.Tests
     }
 
     [Test]
-    public void DeadlockTest()
+    public virtual void DeadlockTest()
     {
       var table = schema.CreateTable(DeadlockTableName);
       CreatePrimaryKey(table);
-      var column = table.CreateColumn("value", new SqlValueType(SqlType.Int32));
+      var column = table.CreateColumn("value", Driver.TypeMappings.Int.BuildSqlType());
       column.IsNullable = true;
       ExecuteNonQuery(SqlDdl.Create(table));
 
+      Connection.BeginTransaction();
       var tableRef = SqlDml.TableRef(table);
       var insert = SqlDml.Insert(tableRef);
       insert.Values.Add(tableRef[IdColumnName], 1);
@@ -156,6 +166,7 @@ namespace Xtensive.Sql.Tests
       insert.Values.Clear();
       insert.Values.Add(tableRef[IdColumnName], 2);
       ExecuteNonQuery(insert);
+      Connection.Commit();
 
       var update1To1 = SqlDml.Update(tableRef);
       update1To1.Where = tableRef[IdColumnName]==1;
@@ -173,44 +184,39 @@ namespace Xtensive.Sql.Tests
       update2To2.Where = tableRef[IdColumnName]==2;
       update2To2.Values.Add(tableRef[column.Name], 2);
       
-      Connection.BeginTransaction(IsolationLevel.ReadCommitted);
-      try {
-        using (var anotherConnection = Driver.CreateConnection()) {
-          anotherConnection.Open();
-          anotherConnection.BeginTransaction(IsolationLevel.ReadCommitted);
+      connectionOne.BeginTransaction(IsolationLevel.ReadCommitted);
+      using (var connectionTwo = Driver.CreateConnection()) {
+        connectionTwo.Open();
+        connectionTwo.BeginTransaction(IsolationLevel.ReadCommitted);
 
-          using (var command = Connection.CreateCommand(update1To1))
-            command.ExecuteNonQuery();
-          using (var command = anotherConnection.CreateCommand(update2To2))
-            command.ExecuteNonQuery();
+        using (var command = connectionOne.CreateCommand(update1To1))
+          command.ExecuteNonQuery();
+        using (var command = connectionTwo.CreateCommand(update2To2))
+          command.ExecuteNonQuery();
 
-          var startEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
-          var arg1 = new EvilThreadArgument {
-            Connection = Connection,
-            StartEvent = startEvent,
-            Statement = update2To1
-          };
-          var arg2 = new EvilThreadArgument {
-            Connection = anotherConnection,
-            StartEvent = startEvent,
-            Statement = update1To2
-          };
-          var thread1 = StartEvilThread(arg1);
-          var thread2 = StartEvilThread(arg2);
-          startEvent.Set();
-          thread1.Join();
-          thread2.Join();
-          startEvent.Close();
-          Assert.AreEqual(SqlExceptionType.Deadlock, arg1.ExceptionType ?? arg2.ExceptionType);
-        }
-      }
-      finally {
-        Connection.Rollback();
+        var startEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
+        var arg1 = new EvilThreadArgument {
+          Connection = connectionOne,
+          StartEvent = startEvent,
+          Statement = update2To1
+        };
+        var arg2 = new EvilThreadArgument {
+          Connection = connectionTwo,
+          StartEvent = startEvent,
+          Statement = update1To2
+        };
+        var thread1 = StartEvilThread(arg1);
+        var thread2 = StartEvilThread(arg2);
+        startEvent.Set();
+        thread1.Join();
+        thread2.Join();
+        startEvent.Close();
+        Assert.AreEqual(SqlExceptionType.Deadlock, arg1.ExceptionType ?? arg2.ExceptionType);
       }
     }
 
     [Test]
-    public void TimeoutTest()
+    public virtual void TimeoutTest()
     {
       var table = schema.CreateTable(TimeoutTableName);
       CreatePrimaryKey(table);
@@ -220,19 +226,19 @@ namespace Xtensive.Sql.Tests
       var insert = SqlDml.Insert(tableRef);
       insert.Values.Add(tableRef[IdColumnName], 1);
 
-      using (var anotherConnection = Driver.CreateConnection()) {
-        anotherConnection.Open();
-        anotherConnection.BeginTransaction(IsolationLevel.ReadCommitted);
-        using (var command = anotherConnection.CreateCommand(insert))
+      connectionOne.BeginTransaction();
+      using (var connectionTwo = Driver.CreateConnection()) {
+        connectionTwo.Open();
+        connectionTwo.BeginTransaction(IsolationLevel.ReadCommitted);
+        using (var command = connectionTwo.CreateCommand(insert))
           command.ExecuteNonQuery();
         AssertExceptionType(insert, SqlExceptionType.OperationTimeout);
       }
     }
 
-    [Test]
-    public void SerializationFailureTest()
+    [Test, Ignore("Test is not implemented")]
+    public virtual void SerializationFailureTest()
     {
-      // How to implement this?
     }
 
     private static Thread StartEvilThread(EvilThreadArgument arg)
@@ -248,6 +254,7 @@ namespace Xtensive.Sql.Tests
         catch (Exception exception) {
           arg.ExceptionType = arg.Connection.Driver.GetExceptionType(exception);
         }
+        arg.Connection.Rollback();
       };
 
       var thread = new Thread(entry);
@@ -267,16 +274,16 @@ namespace Xtensive.Sql.Tests
       try {
         ExecuteNonQuery(commandText);
       }
-      catch(Exception exception) {
+      catch (Exception exception) {
         Assert.AreEqual(expectedExceptionType, Driver.GetExceptionType(exception));
         return;
       }
       Assert.Fail("Exception was not thrown");
     }
 
-    private static TableColumn CreatePrimaryKey(Table table)
+    private TableColumn CreatePrimaryKey(Table table)
     {
-      var column = table.CreateColumn(IdColumnName, new SqlValueType(SqlType.Int32));
+      var column = table.CreateColumn(IdColumnName, Driver.TypeMappings.Int.BuildSqlType());
       table.CreatePrimaryKey("pk_" + table.Name, column);
       return column;
     }

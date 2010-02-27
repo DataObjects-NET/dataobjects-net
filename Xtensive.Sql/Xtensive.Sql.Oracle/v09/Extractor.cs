@@ -239,8 +239,13 @@ namespace Xtensive.Sql.Oracle.v09
         while (reader.Read()) {
           var schema = theCatalog.Schemas[reader.GetString(0)];
           var table = schema.Tables[reader.GetString(1)];
-          var constraint = table.CreateCheckConstraint(
-            reader.GetString(2), SqlDml.Native(reader.GetString(3)));
+          var name = reader.GetString(2);
+          // It looks like ODP.NET sometimes fail to read a LONG column via GetString
+          // It returns empty string instead of the actual value.
+          var condition = string.IsNullOrEmpty(reader.GetString(3))
+            ? null
+            : SqlDml.Native(reader.GetString(3));
+          var constraint = table.CreateCheckConstraint(name, condition);
           ReadConstraintProperties(constraint, reader, 4, 5);
         }
       }

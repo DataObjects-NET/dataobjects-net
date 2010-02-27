@@ -19,9 +19,9 @@ namespace Xtensive.Sql.Tests
     public const string PostgreSql83 = "postgresql://do4test:do4testpwd@127.0.0.1:8332/do40test?CommandTimeout=5";
     public const string PostgreSql84 = "postgresql://do4test:do4testpwd@127.0.0.1:8432/do40test?CommandTimeout=5";
     
-    public const string Oracle9  = "oracle://test:test@localhost:5509/ora09";
-    public const string Oracle10 = "oracle://test:test@localhost:5510/ora10";
-    public const string Oracle11 = "oracle://test:test@localhost:5511/ora11";
+    public const string Oracle9  = "oracle://test:test@localhost:5509/ora09?Connection Timeout=5";
+    public const string Oracle10 = "oracle://test:test@localhost:5510/ora10?Connection Timeout=5";
+    public const string Oracle11 = "oracle://test:test@localhost:5511/ora11?Connection Timeout=5";
 
     public const string SqlServerCe35 = "sqlserverce://localhost/SqlServerCe/DO40-Test.sdf";
     public const string SqlServerCe35Northwind = "sqlserverce://localhost/SqlServerCe/Northwind.sdf";

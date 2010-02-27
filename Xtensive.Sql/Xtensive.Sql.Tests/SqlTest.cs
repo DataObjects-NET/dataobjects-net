@@ -38,6 +38,16 @@ namespace Xtensive.Sql.Tests
       TestFixtureTearDown();
     }
 
+    [SetUp]
+    public virtual void SetUp()
+    {
+    }
+
+    [TearDown]
+    public virtual void TearDown()
+    {
+    }
+
     protected virtual void TestFixtureSetUp()
     {
       var parsedUrl = UrlInfo.Parse(Url);
