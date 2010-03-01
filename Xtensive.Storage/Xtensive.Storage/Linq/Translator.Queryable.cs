@@ -793,8 +793,8 @@ namespace Xtensive.Storage.Linq
         for (int i = 0; i < outerColumns.Count; i++) {
           var outerColumnKeyExpression = outerColumns[i].Second as KeyExpression;
           var innerColumnKeyExpression = innerColumns[i].Second as KeyExpression;
-          if (outerColumnKeyExpression!=null && innerColumnKeyExpression!=null && outerColumnKeyExpression.EntityType.Hierarchy!=innerColumnKeyExpression.EntityType.Hierarchy)
-            throw new InvalidOperationException(String.Format(Strings.ExEntitiesXAndXBelongToDifferentHierarchies, expressionPart, outerColumnKeyExpression.EntityType, innerColumnKeyExpression.EntityType));
+          // Check key compatibility
+          innerColumnKeyExpression.EnsureKeyExpressionCompatible(outerColumnKeyExpression, expressionPart);
         }
 
         var keyPairs = outerColumns.Zip(innerColumns, (o, i) => new Pair<int>(o.First, i.First)).ToArray();

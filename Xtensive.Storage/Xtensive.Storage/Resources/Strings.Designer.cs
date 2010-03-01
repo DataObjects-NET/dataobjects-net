@@ -1602,6 +1602,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to translate &apos;{0}&apos;. Keys of &apos;{1}&apos; and &apos;{2}&apos; not compatible..
+        /// </summary>
+        internal static string ExKeysOfXAndXNotCompatible {
+            get {
+                return ResourceManager.GetString("ExKeysOfXAndXNotCompatible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Key structure for &apos;{0}&apos; contains NULL value..
         /// </summary>
         internal static string ExKeyStructureForXContainsNULLValue {

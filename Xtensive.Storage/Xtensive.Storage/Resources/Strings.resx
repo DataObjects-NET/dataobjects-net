@@ -1346,6 +1346,9 @@ Actions:
   <data name="JoinKeysLengthMismatch" xml:space="preserve">
     <value>Unable to translate '{0}'. Join keys length mismatch.</value>
   </data>
+  <data name="ExKeysOfXAndXNotCompatible" xml:space="preserve">
+    <value>Unable to translate '{0}'. Keys of '{1}' and '{2}' not compatible.</value>
+  </data>
   <data name="RefFormat" xml:space="preserve">
     <value>Ref&lt;{0}&gt;({1})</value>
   </data>

@@ -148,7 +148,7 @@ namespace Xtensive.Storage.Linq
 
       if (binaryExpression.NodeType==ExpressionType.Equal
         || binaryExpression.NodeType==ExpressionType.NotEqual)
-        return VisitBinaryRecursive(resultBinaryExpression);
+        return VisitBinaryRecursive(resultBinaryExpression, binaryExpression);
 
       if (binaryExpression.NodeType==ExpressionType.ArrayIndex) {
         var newArrayExpression = left.StripCasts() as NewArrayExpression;
@@ -390,7 +390,7 @@ namespace Xtensive.Storage.Linq
 
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
-    private Expression VisitBinaryRecursive(BinaryExpression binaryExpression)
+    private Expression VisitBinaryRecursive(BinaryExpression binaryExpression, BinaryExpression originalBinaryExpression)
     {
       if (context.Evaluator.CanBeEvaluated(binaryExpression))
         return context.ParameterExtractor.IsParameter(binaryExpression)
@@ -412,11 +412,9 @@ namespace Xtensive.Storage.Linq
         var leftKeyExpression = left as KeyExpression;
         var rightKeyExpression = right as KeyExpression;
         if (leftKeyExpression==null && rightKeyExpression==null)
-          throw new InvalidOperationException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, binaryExpression));
-        if (leftKeyExpression!=null
-          && rightKeyExpression!=null
-            && leftKeyExpression.EntityType.Hierarchy!=rightKeyExpression.EntityType.Hierarchy)
-          throw new InvalidOperationException(String.Format(Strings.ExEntitiesXAndXBelongToDifferentHierarchies, binaryExpression, leftKeyExpression.EntityType, rightKeyExpression.EntityType));
+          throw new InvalidOperationException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, originalBinaryExpression.ToString(true)));
+        // Check key compatibility
+        leftKeyExpression.EnsureKeyExpressionCompatible(rightKeyExpression, originalBinaryExpression);
         // Key split to it's fields.
         IEnumerable<Type> keyFields = (leftKeyExpression ?? rightKeyExpression)
           .KeyFields
@@ -526,7 +524,7 @@ namespace Xtensive.Storage.Linq
         }
 
         // visit new expression recursively
-        Expression visitedResultExpression = VisitBinaryRecursive(pairExpression);
+        Expression visitedResultExpression = VisitBinaryRecursive(pairExpression, originalBinaryExpression);
 
         // Combine expression chain with AndAlso
         resultExpression = resultExpression==null

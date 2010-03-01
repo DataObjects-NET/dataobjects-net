@@ -11,11 +11,23 @@ using System.Linq.Expressions;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Linq.Expressions;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Linq
 {
   internal static class ExpressionExtensions
   {
+    public static void EnsureKeyExpressionCompatible(this KeyExpression leftKeyExpression, KeyExpression rightKeyExpression, Expression expressionPart)
+    {
+        if (leftKeyExpression!=null && rightKeyExpression!=null) {
+          if (leftKeyExpression.EntityType.IsInterface || rightKeyExpression.EntityType.IsInterface) {
+            if (leftKeyExpression.EntityType.KeyProviderInfo!=rightKeyExpression.EntityType.KeyProviderInfo)
+              throw new InvalidOperationException(String.Format(Strings.ExKeysOfXAndXNotCompatible, expressionPart.ToString(true), leftKeyExpression.EntityType, rightKeyExpression.EntityType));
+          }
+          else if (leftKeyExpression.EntityType.Hierarchy!=rightKeyExpression.EntityType.Hierarchy)
+            throw new InvalidOperationException(String.Format(Strings.ExEntitiesXAndXBelongToDifferentHierarchies, expressionPart.ToString(true), leftKeyExpression.EntityType, rightKeyExpression.EntityType));
+        }
+    }
 
     public static bool IsAnonymousConstructor(this Expression expression)
     {
