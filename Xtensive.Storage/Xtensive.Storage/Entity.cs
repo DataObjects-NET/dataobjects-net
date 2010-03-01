@@ -424,14 +424,14 @@ namespace Xtensive.Storage
       if (Session.IsSystemLogicOnly || materialize) 
         return;
 
-      bool isKeyGenerated = Session.Domain.KeyGenerators.ContainsKey(Type.Hierarchy.Key);
-      if (isKeyGenerated)
+      bool hasKeyGenerator = Session.Domain.KeyGenerators[Type.Key]!=null;
+      if (hasKeyGenerator)
         Session.NotifyKeyGenerated(Key);
       Session.NotifyEntityCreated(this);
 
       using (var context = OpenOperationContext()) {
         if (context.IsLoggingEnabled) {
-          if (isKeyGenerated)
+          if (hasKeyGenerator)
             context.LogOperation(new KeyGenerateOperation(Key));
           context.LogOperation(new EntityCreateOperation(Key));
         }

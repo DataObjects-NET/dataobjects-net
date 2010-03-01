@@ -105,10 +105,8 @@ namespace Xtensive.Storage
     public bool IsTemporary(Domain domain)
     {
       var keyInfo = TypeRef.Type.Key;
-      KeyGenerator keyGenerator = null;
-      return 
-        domain.KeyGenerators.TryGetValue(keyInfo, out keyGenerator) 
-          && keyGenerator.IsTemporaryKey(Value);
+      var keyGenerator = domain.KeyGenerators[keyInfo];
+      return keyGenerator!=null && keyGenerator.IsTemporaryKey(Value);
     }
 
     /// <summary>

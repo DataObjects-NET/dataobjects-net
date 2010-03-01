@@ -25,13 +25,11 @@ namespace Xtensive.Storage.Internals
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
       var session = Session.Current;
 
-      KeyGenerator generator;
-      domain.KeyGenerators.TryGetValue(typeInfo.Key, out generator);
-
-      if (generator == null)
+      var keyGenerator = domain.KeyGenerators[typeInfo.Key];
+      if (keyGenerator==null)
         throw new InvalidOperationException(String.Format(
           Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
-      var keyValue = generator.DemandNext(session==null ? false : session.IsDisconnected);
+      var keyValue = keyGenerator.DemandNext(session==null ? false : session.IsDisconnected);
       var key = Materialize(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
 
       return key;

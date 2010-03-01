@@ -230,6 +230,7 @@ namespace Xtensive.Storage.Building.Builders
               generator.Initialize(domain.Handlers, keyInfo);
             }
           }
+          // So non-exisitng (==null) generators are added as well!
           domain.KeyGenerators.Add(keyInfo, generator);
         }
       }
