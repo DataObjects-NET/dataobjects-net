@@ -277,6 +277,7 @@ namespace Xtensive.Storage
       return GetState(key);
     }
 
+    /// <exception cref="VersionConflictException">Version check failed.</exception>
     internal void RegisterState(Key key, Tuple tuple, VersionInfo version, MergeMode mergeMode)
     {
       DisconnectedEntityState cachedState;
@@ -297,7 +298,7 @@ namespace Xtensive.Storage
       if (targetVersion==sourceVersion)
         originalState.MergeUnavailableFields(key, tuple);
       else if (mergeMode==MergeMode.Strict)
-        throw new InvalidOperationException(string.Format(
+        throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
       else if (mergeMode==MergeMode.PreferSource) {
         originalState.Merge(key, tuple);

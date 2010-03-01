@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
         Dump(dmitri);
 
         alex.Friends.Add(dmitri);
-        // Versions won't change!
+        // Automatically provided versions won't change because of change in EntitySet!
         Assert.AreEqual(alexVersion, alex.VersionInfo);
         Assert.AreEqual(dmitriVersion, dmitri.VersionInfo);
 
@@ -217,6 +217,9 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
           tx.Complete();
         }
 
+        // Let's clone VersionSet (actually - serialize & deserialize)
+        versions = Cloner.Default.Clone(versions);
+        // And dump it
         Dump(versions);
 
         using (VersionValidator.Attach(versions))
@@ -226,11 +229,13 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
           tx.Complete();
         }
 
-        using (VersionValidator.Attach(versions))
-        using (var tx = Transaction.Open()) {
-          alex.Name = "Edited again"; // Version check fails
-          tx.Complete();
-        }
+        AssertEx.Throws<VersionConflictException>(() => {
+          using (VersionValidator.Attach(versions))
+          using (var tx = Transaction.Open()) {
+            alex.Name = "And again"; 
+            tx.Complete(); 
+          } // Version check fails on Session.Persist() here
+        });
 
         versions.Add(alex, true); // Overwriting versions
         Dump(versions);

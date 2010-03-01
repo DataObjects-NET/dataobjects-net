@@ -53,12 +53,12 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">Version check failed.</exception>
+    /// <exception cref="VersionConflictException">Version check failed.</exception>
     public override void Execute(OperationExecutionContext context)
     {
       var entity = Query.Single(context.Session, Key);
       if (entity.VersionInfo != Version)
-        throw new InvalidOperationException(
+        throw new VersionConflictException(
           string.Format(Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, Key));
     }
 

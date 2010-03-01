@@ -64,12 +64,12 @@ namespace Xtensive.Storage
     /// <see langword="True"/>, if validation passes successfully;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    /// <exception cref="InvalidOperationException">Version conflict is detected.</exception>
+    /// <exception cref="VersionConflictException">Version conflict is detected.</exception>
     public bool ValidateVersion(Key key, VersionInfo version, bool throwOnFailure)
     {
       var result = ValidateVersion(key, version);
       if (throwOnFailure && !result)
-        throw new InvalidOperationException(string.Format(
+        throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
       return result;
     }
