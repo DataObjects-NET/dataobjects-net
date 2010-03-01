@@ -32,47 +32,37 @@ namespace Xtensive.Storage.Manual.Services
     #endregion
 
     [Test]
-    public void IndexStorageTest()
-    {
-      var domain = BuildDomain(false);
-      using (var session = Session.Open(domain)) {
-        using (var t = Transaction.Open()) {
-          var directSql = session.Services.Demand<DirectSqlAccessor>();
-          Assert.IsFalse(directSql.IsAvailable);
-          t.Complete();
-        }
-      }
-    }
-
-    [Test]
-    public void SqlStorageTest()
+    public void CombinedTest()
     {
       var domain = BuildDomain(true);
 
       using (var session = Session.Open(domain)) {
         var directSql = session.Services.Demand<DirectSqlAccessor>();
-        Assert.IsTrue(directSql.IsAvailable);
-        Assert.IsNull(directSql.Transaction);
-        
+        if (!directSql.IsAvailable) {
+          Console.WriteLine("DirectSqlAccessor is not available - ");
+          Console.WriteLine("indexing storage provider (e.g. memory) is used.");
+          return;
+        }
+
         using (var t = Transaction.Open()) {
           var article = new Article {Title = "Some title", Content = "Some content"};
-          session.Persist();
+          session.Persist(); // Ensures changes are flushed
           
+          // Article is created:
+          Assert.IsFalse(article.IsRemoved);
+          
+          // Direct SQL command execution
           var command = session.Services.Demand<DirectSqlAccessor>().CreateCommand();
           command.CommandText = "DELETE FROM [dbo].[Article];";
           command.ExecuteNonQuery();
 
-          // Invalidate the session cache
+          // Let's invalidate session cache after this
           DirectStateAccessor.Get(session).Invalidate();
 
-          var anotherArticle = new Article { 
-            Title = "Another title",
-            Content = "Another content"
-          };
-          var anotherArticleKey = anotherArticle.Key;
-          session.Persist();
+          // Entity is really removed:
+          Assert.IsTrue(article.IsRemoved);
+          Assert.IsNull(Query.SingleOrDefault(article.Key));
 
-          Assert.AreEqual(anotherArticleKey, Query.All<Article>().Single().Key);
           t.Complete();
         }
       }

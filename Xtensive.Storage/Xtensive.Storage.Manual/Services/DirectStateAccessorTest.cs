@@ -26,13 +26,13 @@ namespace Xtensive.Storage.Manual.Services
   }
 
   [HierarchyRoot]
-  public class SimpleContainer : Entity
+  public class Container : Entity
   {
     [Key, Field]
     public int Id { get; private set; }
 
     [Field]
-    public EntitySet<Simple> Set { get; private set; }
+    public EntitySet<Simple> Entities { get; private set; }
   }
 
   #endregion
@@ -46,21 +46,39 @@ namespace Xtensive.Storage.Manual.Services
       var domain = BuildDomain();
 
       using (var session = Session.Open(domain)) {
+        Key entityKey;
         string originalValue;
-        var entity0Key = CreateEntity(session, out originalValue);
         using (var tx = Transaction.Open()) {
-          var entity0 = Query.Single<Simple>(entity0Key);
-          entity0.Value += "Modified";
-          var stateAccessor = DirectStateAccessor.Get(session);
-          // Clear the cache of changed entities
-          stateAccessor.Invalidate();
+          var entity = new Simple {
+            Value = Guid.NewGuid().ToString()
+          };
+          entityKey = entity.Key;
+          session.Persist();
+
+          // Let's get session cache accessor
+          var sessionState = DirectStateAccessor.Get(session);
+
+          // Get the number of cached entities
+          Assert.AreEqual(1, sessionState.Count);
+
+          // Enumerate cached entites
+          foreach (var e in sessionState) {
+            if (e==entity)
+              continue;
+            Assert.Fail();
+          }
+
+          // Let's remember the value & change it
+          originalValue = entity.Value;
+          entity.Value += "Modified";
+
+          // Clear cached state of all the entities in session
+          sessionState.Invalidate();
+
+          // The field value hasn't been modified due to invalidation
+          Assert.AreEqual(originalValue, entity.Value);
+
           tx.Complete();
-        }
-        using (var tx = Transaction.Open()) {
-          var entity0 = Query.Single<Simple>(entity0Key);
-          // The field value hasn't been modified due to
-          // the call to Session.Invalidate
-          Assert.AreEqual(originalValue, entity0.Value);
         }
       }
     }
@@ -71,23 +89,23 @@ namespace Xtensive.Storage.Manual.Services
       var domain = BuildDomain();
 
       using (var session = Session.Open(domain)) {
-        Key entity0Key;
+        Key entityKey;
         using (var tx = Transaction.Open()) {
-          var entity0 = new Simple {Value = Guid.NewGuid().ToString()};
-          entity0Key = entity0.Key;
-          var entity1 = new Simple {Value = Guid.NewGuid().ToString()};
+          var entity = new Simple {Value = Guid.NewGuid().ToString()};
+          entityKey = entity.Key;
           tx.Complete();
         }
         using (var tx = Transaction.Open()) {
-          var entity0 = Query.Single<Simple>(entity0Key);
-          var stateAccessor = DirectStateAccessor.Get(entity0);
-          const string valueFieldName = "Value";
-          // Get the field state
-          var valueFieldState = stateAccessor.GetFieldState(valueFieldName);
+          var entity = Query.Single<Simple>(entityKey);
+          var entityState = DirectStateAccessor.Get(entity);
+
+          var valueFieldState = entityState.GetFieldState("Value");
           Assert.AreEqual(PersistentFieldState.Loaded, valueFieldState);
-          entity0.Value += "Modified";
-          valueFieldState = stateAccessor.GetFieldState(valueFieldName);
+
+          entity.Value += "Modified";
+          valueFieldState = entityState.GetFieldState("Value");
           Assert.AreEqual(PersistentFieldState.Modified, valueFieldState);
+
           tx.Complete();
         }
       }
@@ -100,51 +118,29 @@ namespace Xtensive.Storage.Manual.Services
 
       using (var session = Session.Open(domain)) {
         Key containerKey;
-        Key simpleKey;
+        Key firstContainedKey;
         using (var tx = Transaction.Open()) {
-          var container = new SimpleContainer();
+          var container = new Container();
           containerKey = container.Key;
-          container.Set.Add(new Simple());
-          simpleKey = container.Set.Single().Key;
-          container.Set.Add(new Simple());
-          container.Set.Add(new Simple());
+          container.Entities.Add(new Simple());
+          firstContainedKey = container.Entities.Single().Key;
+          container.Entities.Add(new Simple());
+          container.Entities.Add(new Simple());
           tx.Complete();
         }
         using (var tx = Transaction.Open()) {
-          var container = Query.Single<SimpleContainer>(containerKey);
-          var stateAccessor = DirectStateAccessor.Get(container.Set);
-          Assert.IsFalse(stateAccessor.IsFullyLoaded);
-          foreach (var simple in container.Set) {
-            // Do nothing
+          var container = Query.Single<Container>(containerKey);
+          var entitySetState = DirectStateAccessor.Get(container.Entities);
+          Assert.IsFalse(entitySetState.IsFullyLoaded);
+          foreach (var simple in container.Entities) {
+            break; // To do nothing, but just call GetEnumerator()
           }
-          Assert.IsTrue(stateAccessor.IsFullyLoaded);
-          Assert.IsTrue(stateAccessor.IsCountAvailable);
-          Assert.AreEqual(3, stateAccessor.Count);
-          Assert.IsTrue(stateAccessor.Contains(simpleKey));
+          Assert.IsTrue(entitySetState.IsFullyLoaded); // Enumeration attempt leads to full loading
+          Assert.IsTrue(entitySetState.IsCountAvailable); // So Count is available as well
+          Assert.AreEqual(3, entitySetState.Count);
+          Assert.IsTrue(entitySetState.Contains(firstContainedKey));
         }
       }
-    }
-
-    private static Key CreateEntity(Session session, out string originalValue)
-    {
-      Key entity0Key;
-      using (var tx = Transaction.Open()) {
-        var entity0 = new Simple {Value = Guid.NewGuid().ToString()};
-        entity0Key = entity0.Key;
-        originalValue = entity0.Value;
-        var entity1 = new Simple {Value = Guid.NewGuid().ToString()};
-        var stateAccessor = DirectStateAccessor.Get(session);
-        // Get the number of cached entities
-        Assert.AreEqual(2, stateAccessor.Count);
-        // Enumerate the cached entites
-        foreach (var entity in stateAccessor) {
-          if (entity==entity0 || entity==entity1)
-            continue;
-          Assert.Fail();
-        }
-        tx.Complete();
-      }
-      return entity0Key;
     }
 
     private static Domain BuildDomain()
