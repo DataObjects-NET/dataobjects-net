@@ -4,7 +4,9 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-namespace Xtensive.Storage.Operations
+using Xtensive.Storage.Operations;
+
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Contract for an operation that could be executed later

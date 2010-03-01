@@ -231,54 +231,54 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var result = new Dictionary<string, int>();
       mapper.MappingDescription.GetTargetType(type).Properties.Select(pair => pair.Value)
         .Cast<TargetPropertyDescription>().Where(p => !p.IsChangeTrackingDisabled)
-        .Apply(p => result.Add(p.SystemProperty.Name, 0));
+        .ForEach(p => result.Add(p.SystemProperty.Name, 0));
       return result;
     }
 
-    protected static void ValidatePropertyOperation(object obj, OperationInfo operationInfo,
+    protected static void ValidatePropertyOperation(object obj, Operation operation,
       PropertyInfo propertyInfo, OperationType operationType, object value)
     {
-      Assert.AreSame(obj, operationInfo.Object);
-      Assert.AreEqual(value, operationInfo.Value);
-      Assert.AreEqual(propertyInfo, operationInfo.PropertyPath[0].SystemProperty);
-      Assert.AreEqual(operationType, operationInfo.Type);
+      Assert.AreSame(obj, operation.Object);
+      Assert.AreEqual(value, operation.Value);
+      Assert.AreEqual(propertyInfo, operation.PropertyPath[0].SystemProperty);
+      Assert.AreEqual(operationType, operation.Type);
     }
 
-    protected static void ValidateObjectRemoval(object obj, OperationInfo operationInfo)
+    protected static void ValidateObjectRemoval(object obj, Operation operation)
     {
-      ValidateObjectOperation(obj, operationInfo, OperationType.RemoveObject);
+      ValidateObjectOperation(obj, operation, OperationType.RemoveObject);
     }
 
-    protected static void ValidateObjectOperation(object obj, OperationInfo operationInfo,
+    protected static void ValidateObjectOperation(object obj, Operation operation,
       OperationType operationType)
     {
-      Assert.AreEqual(obj, operationInfo.Object);
-      Assert.AreEqual(operationType, operationInfo.Type);
-      Assert.IsNull(operationInfo.PropertyPath);
-      Assert.IsNull(operationInfo.Value);
+      Assert.AreEqual(obj, operation.Object);
+      Assert.AreEqual(operationType, operation.Type);
+      Assert.IsNull(operation.PropertyPath);
+      Assert.IsNull(operation.Value);
     }
 
-    protected static void ValidateObjectCreation(object obj, OperationInfo operationInfo)
+    protected static void ValidateObjectCreation(object obj, Operation operation)
     {
-      ValidateObjectOperation(obj, operationInfo, OperationType.CreateObject);
+      ValidateObjectOperation(obj, operation, OperationType.CreateObject);
     }
 
-    protected static void ValidatePropertySettingOperation(object obj, OperationInfo operationInfo,
+    protected static void ValidatePropertySettingOperation(object obj, Operation operation,
       PropertyInfo propertyInfo, object value)
     {
-      ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.SetProperty, value);
+      ValidatePropertyOperation(obj, operation, propertyInfo, OperationType.SetProperty, value);
     }
 
-    protected static void ValidateItemAdditionOperation(object obj, OperationInfo operationInfo,
+    protected static void ValidateItemAdditionOperation(object obj, Operation operation,
       PropertyInfo propertyInfo, object item)
     {
-      ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.AddItem, item);
+      ValidatePropertyOperation(obj, operation, propertyInfo, OperationType.AddItem, item);
     }
 
-    protected static void ValidateItemRemovalOperation(object obj, OperationInfo operationInfo,
+    protected static void ValidateItemRemovalOperation(object obj, Operation operation,
       PropertyInfo propertyInfo, object item)
     {
-      ValidatePropertyOperation(obj, operationInfo, propertyInfo, OperationType.RemoveItem, item);
+      ValidatePropertyOperation(obj, operation, propertyInfo, OperationType.RemoveItem, item);
     }
 
     protected static void AssertAreEqual(Person source, PersonDto target)
@@ -296,7 +296,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         .Properties[type.GetProperty(propertyName)];
     }
 
-    protected static void ValidatePropertyOperation<T>(T obj, OperationInfo operationInfo,
+    protected static void ValidatePropertyOperation<T>(T obj, Operation operation,
       Expression<Func<T, object>> propertyPath, object value, OperationType operationType)
     {
       var expression = propertyPath.Body;
@@ -310,9 +310,9 @@ namespace Xtensive.Core.Tests.ObjectMapping
       }
       var i = 0;
       foreach (var property in properties)
-        Assert.AreEqual(property, operationInfo.PropertyPath[i++].SystemProperty);
-      Assert.AreEqual(i, operationInfo.PropertyPath.Count);
-      ValidatePropertyOperation(obj, operationInfo, operationInfo.PropertyPath[0].SystemProperty,
+        Assert.AreEqual(property, operation.PropertyPath[i++].SystemProperty);
+      Assert.AreEqual(i, operation.PropertyPath.Count);
+      ValidatePropertyOperation(obj, operation, operation.PropertyPath[0].SystemProperty,
         operationType, value);
     }
 

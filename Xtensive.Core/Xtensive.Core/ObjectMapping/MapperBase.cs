@@ -65,7 +65,7 @@ namespace Xtensive.Core.ObjectMapping
     /// Called when a difference in object graphs has been found.
     /// </summary>
     /// <param name="descriptor">The descriptor of operation.</param>
-    protected abstract void OnObjectModified(OperationInfo descriptor);
+    protected abstract void OnObjectModified(Operation descriptor);
 
     /// <summary>
     /// Initializes comparison process.

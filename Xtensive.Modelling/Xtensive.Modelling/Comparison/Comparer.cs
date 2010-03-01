@@ -285,7 +285,7 @@ namespace Xtensive.Modelling.Comparison
               ((NodeDifference) propertyDifference).IsDependentOnParent = true;
             else if (propertyDifference is NodeCollectionDifference)
               ((NodeCollectionDifference) propertyDifference).ItemChanges
-                .Apply(item=>item.IsDependentOnParent = true);
+                .ForEach(item=>item.IsDependentOnParent = true);
           }
               
           difference.PropertyChanges.Add(property.Name, propertyDifference);

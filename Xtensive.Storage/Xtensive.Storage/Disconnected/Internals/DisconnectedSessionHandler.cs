@@ -194,11 +194,11 @@ namespace Xtensive.Storage.Disconnected
     public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {
       registry.GetItems(PersistenceState.New)
-        .Apply(item => disconnectedState.Persist(item, PersistActionKind.Insert));
+        .ForEach(item => disconnectedState.Persist(item, PersistActionKind.Insert));
       registry.GetItems(PersistenceState.Modified)
-        .Apply(item => disconnectedState.Persist(item, PersistActionKind.Update));
+        .ForEach(item => disconnectedState.Persist(item, PersistActionKind.Update));
       registry.GetItems(PersistenceState.Removed)
-        .Apply(item => disconnectedState.Persist(item, PersistActionKind.Remove));
+        .ForEach(item => disconnectedState.Persist(item, PersistActionKind.Remove));
     }
 
     /// <inheritdoc/>

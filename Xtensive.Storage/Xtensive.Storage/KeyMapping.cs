@@ -11,10 +11,11 @@ using System.Security.Permissions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Operations
+namespace Xtensive.Storage
 {
   /// <summary>
-  /// Maps local ("disconnected") <see cref="Key"/> instances to actual (storage) <see cref="Key"/> instances.
+  /// Maps local ("disconnected") <see cref="Key"/> instances 
+  /// to actual (storage) <see cref="Key"/> instances.
   /// </summary>
   [Serializable]
   public sealed class KeyMapping : ISerializable

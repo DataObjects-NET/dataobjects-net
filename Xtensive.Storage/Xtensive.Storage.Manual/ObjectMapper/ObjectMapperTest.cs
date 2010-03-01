@@ -265,7 +265,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
 
   [Serializable]
   public class VersionDto : IdentifiableDto,
-    IHasVersion
+    IHasBinaryVersion
   {
     public byte[] Version { get; set; }
   }
@@ -422,7 +422,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
         // Compare original and modified graphs
         using (var comparisonResult = mapper.Compare(originalUserDto, userDto)) {
           // Apply found changes to domain model objects
-          comparisonResult.Operations.Apply();
+          comparisonResult.Operations.Replay();
           // The property KeyMapping provides the mapping from simulated keys of 
           // new objects in the graph to real keys of these objects in the storage
           var newFreind = Query.Single<User>(Key.Parse((string) comparisonResult.KeyMapping[newFriendDto.Key]));
@@ -460,7 +460,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       using (var comparisonResult = mapper.Compare(originalAuthorDto, authorDto))
       using (VersionValidator.Attach(session, comparisonResult.VersionInfoProvider))
       using (var tx = Transaction.Open()) {
-        comparisonResult.Operations.Apply();
+        comparisonResult.Operations.Replay();
         tx.Complete();
       }
 
@@ -475,7 +475,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
         var wasThrown = false;
         try {
           using (var tx = Transaction.Open()) {
-            comparisonResult.Operations.Apply();
+            comparisonResult.Operations.Replay();
             tx.Complete();
           }
         }
@@ -517,7 +517,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       using (var tx = Transaction.Open()) {
         var mapper = new Mapper(mapping);
         using (var comparisonResult = mapper.Compare(originalOrderDto, orderDto))
-          comparisonResult.Operations.Apply();
+          comparisonResult.Operations.Replay();
         tx.Complete();
       }
 
@@ -582,7 +582,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       using (var tx = Transaction.Open()) {
         var mapper = new Mapper(mapping);
         using (var comparisonResult = mapper.Compare(originalOrderDtos, orderDtos)) {
-          comparisonResult.Operations.Apply();
+          comparisonResult.Operations.Replay();
           var order0 = Query.Single<Order>(Key.Parse(orderDto0.Key));
           Assert.AreEqual(orderDto0.Priority, order0.Priority);
           Assert.AreNotEqual(orderDto0.Customer.FirstName, order0.Customer.FirstName);
@@ -627,7 +627,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
       using (var tx = Transaction.Open(session)) {
         var mapper = new Mapper(mapping);
         using (var comparisonResult = mapper.Compare(null, branchDto)) {
-          comparisonResult.Operations.Apply();
+          comparisonResult.Operations.Replay();
           newObjectKeys = comparisonResult.KeyMapping;
         }
         tx.Complete();

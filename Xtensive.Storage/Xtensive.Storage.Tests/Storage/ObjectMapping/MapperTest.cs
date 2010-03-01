@@ -18,7 +18,6 @@ using Xtensive.Core.Testing;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.ObjectMapping;
 using Xtensive.Storage.Operations;
-using Xtensive.Storage.Operations.Internals;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.ObjectMapping.Model;
 using GraphComparisonResult = Xtensive.Storage.ObjectMapping.GraphComparisonResult;
@@ -57,7 +56,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var modificationSet = mapper.Compare(productDto, modifiedProductDto).Operations;
-        modificationSet.Apply();
+        modificationSet.Replay();
         tx.Complete();
       }
 
@@ -94,7 +93,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var modifications = mapper.Compare(publisherDto, modifiedPublisherDto).Operations;
-        modifications.Apply();
+        modifications.Replay();
         tx.Complete();
       }
 
@@ -140,7 +139,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var operations = mapper.Compare(bookShopDto, modifiedBookShopDto).Operations;
-        operations.Apply();
+        operations.Replay();
         var newPublisher = Query.All<Publisher>().Where(p => p.Trademark==newPublisherDto.Trademark).Single();
         Assert.AreEqual("D", newPublisher.Trademark);
         var bookShop = Query.All<AnotherBookShop>().Single();
@@ -179,7 +178,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var tx = Transaction.Open()) {
         var operations = mapper.Compare(new[] {originalApartmentDto0, originalApartmentDto1},
           new[] {modifiedApartmentDto1, modifiedApartmentDto0}).Operations;
-        operations.Apply();
+        operations.Replay();
         var apartment0 = Query.Single<Apartment>(apartment0Key);
         ValidateApartment(modifiedApartmentDto0, apartment0);
         Assert.AreEqual(modifiedApartmentDto0.Description.Manager.Key,
@@ -211,7 +210,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         Assert.AreEqual(2, keyMapping.Count);
         var person2RealKey = Key.Parse(Domain, (string) keyMapping[personDto2.Key]);
         var person3RealKey = Key.Parse(Domain, (string) keyMapping[personDto3.Key]);
-        comparisonResult.Operations.Apply();
+        comparisonResult.Operations.Replay();
         Query.Single<SimplePerson>(person2RealKey);
         Query.Single<SimplePerson>(person3RealKey);
         modified.RemoveAt(2);
@@ -222,7 +221,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         keyMapping = comparisonResult.KeyMapping;
         Assert.AreEqual(1, keyMapping.Count);
         var person4RealKey = Key.Parse(Domain, (string) keyMapping[personDto4.Key]);
-        comparisonResult.Operations.Apply();
+        comparisonResult.Operations.Replay();
         Query.Single<SimplePerson>(person4RealKey);
         Query.Single<SimplePerson>(person2RealKey);
         Query.Single<SimplePerson>(person3RealKey);
@@ -267,7 +266,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var result = mapper.Compare(originalPersonDtos, modifiedPersonDtos);
-        result.Operations.Apply();
+        result.Operations.Replay();
         Session.Current.Persist();
 
         Action<CustomPersonDto, CustomPerson> validator = (personDto, person) => {
@@ -326,7 +325,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var tx = Transaction.Open(session)) {
         var mapper = new Mapper(mapping);
         using (var comparisonResult = mapper.Compare(null, target)) {
-          comparisonResult.Operations.Apply();
+          comparisonResult.Operations.Replay();
           keyMapping = comparisonResult.KeyMapping;
         }
         tx.Complete();
@@ -370,7 +369,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var comparisonResult = mapper.Compare(productDto, modifiedProductDto);
-        Assert.IsFalse(comparisonResult.Operations.IsEmpty);
+        Assert.IsFalse(comparisonResult.Operations.Count==0);
         var binaryFormatter = new BinaryFormatter();
         comparisonResult.VersionInfoProvider
           .Invoke(Key.Parse(((PersonWithVersionDto) modifiedProductDto[0]).Key));
@@ -575,7 +574,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         using (var result = mapper.Compare(original, modified))
         using (VersionValidator.Attach(session, result.VersionInfoProvider))
         using (var tx = Transaction.Open()) {
-          result.Operations.Apply();
+          result.Operations.Replay();
           tx.Complete();
         }
       }
@@ -587,7 +586,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
         using (VersionValidator.Attach(session, result.VersionInfoProvider)) {
           AssertEx.ThrowsInvalidOperationException(() => {
             using (var tx = Transaction.Open()) {
-              result.Operations.Apply();
+              result.Operations.Replay();
               tx.Complete();
             }
           });

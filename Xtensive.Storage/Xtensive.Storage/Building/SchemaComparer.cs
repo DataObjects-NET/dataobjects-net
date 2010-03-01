@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Building
         .Where(action => !TypeConversionVerifier.CanConvertSafely(
           action.Difference.Source as TypeInfo, action.Difference.Target as TypeInfo))
         .Where(action1 => !columnsWithHint.Contains(action1.Path))
-        .Apply(unsafeActions.Add);
+        .ForEach(unsafeActions.Add);
 
       // Unsafe column removes
       var columnActions = GetColumnActions(upgradeActions).ToList();
@@ -120,7 +120,7 @@ namespace Xtensive.Storage.Building
       columnActions
         .OfType<RemoveNodeAction>()
         .Where(action => !columnsWithHint.Contains(action.Path))
-        .Apply(unsafeActions.Add);
+        .ForEach(unsafeActions.Add);
       
       // Unsafe type removes
       var tableActions = GetTableActions(upgradeActions);
@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Building
       tableActions
         .OfType<RemoveNodeAction>()
         .Where(action => !tableWithHints.Contains(action.Path))
-        .Apply(unsafeActions.Add);
+        .ForEach(unsafeActions.Add);
 
       return unsafeActions;
     }

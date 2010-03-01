@@ -35,7 +35,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       var targets = new List<HintTarget>();
       targets.Add(new HintTarget(ModelType.Source, SourceTablePath));
-      Identities.Apply(pair => {
+      Identities.ForEach(pair => {
         targets.Add(new HintTarget(ModelType.Source, pair.Source));
         if (!pair.IsIdentifiedByConstant)
           targets.Add(new HintTarget(ModelType.Source, pair.Target));

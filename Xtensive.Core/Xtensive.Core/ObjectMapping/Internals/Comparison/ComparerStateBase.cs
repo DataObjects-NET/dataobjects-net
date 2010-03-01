@@ -48,7 +48,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
     protected void NotifyAboutPropertySetting(TargetPropertyDescription property, object value)
     {
       var path = GetFullPath(property);
-      GraphComparer.Subscriber.Invoke(new OperationInfo(GraphComparer.ComparisonInfo.Owner,
+      GraphComparer.Subscriber.Invoke(new Operation(GraphComparer.ComparisonInfo.Owner,
         OperationType.SetProperty, path, value));
     }
 

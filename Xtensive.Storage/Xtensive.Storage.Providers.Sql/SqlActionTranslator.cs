@@ -176,7 +176,7 @@ namespace Xtensive.Storage.Providers.Sql
       // Data manipulating
       stage = UpgradeStage.DataManipulate;
       // Process column type changes
-      changeColumnTypeActions.Apply(GenerateChangeColumnTypeCommands);
+      changeColumnTypeActions.ForEach(GenerateChangeColumnTypeCommands);
       var dataManipulate = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.DataManipulate.ToString());
       if (dataManipulate!=null)
@@ -319,12 +319,12 @@ namespace Xtensive.Storage.Providers.Sql
       if (providerInfo.Supports(ProviderFeatures.UpdateFrom)) {
         var fromTableRef = SqlDml.TableRef(fromTable);
         var select = SqlDml.Select(fromTableRef);
-        identityColumns.Apply(pair => select.Columns.Add(fromTableRef[pair.First.Name]));
-        copiedColumns.Apply(pair => select.Columns.Add(fromTableRef[pair.First.Name]));
+        identityColumns.ForEach(pair => select.Columns.Add(fromTableRef[pair.First.Name]));
+        copiedColumns.ForEach(pair => select.Columns.Add(fromTableRef[pair.First.Name]));
         var selectRef = SqlDml.QueryRef(select, SubqueryAliasName);
         update.From = selectRef;
-        copiedColumns.Apply(pair => update.Values[toTableRef[pair.Second.Name]] = selectRef[pair.First.Name]);
-        identityColumns.Apply(pair => update.Where &= toTableRef[pair.Second.Name]==selectRef[pair.First.Name]);
+        copiedColumns.ForEach(pair => update.Values[toTableRef[pair.Second.Name]] = selectRef[pair.First.Name]);
+        identityColumns.ForEach(pair => update.Where &= toTableRef[pair.Second.Name]==selectRef[pair.First.Name]);
       }
       else {
         foreach (var columnPair in copiedColumns) {
@@ -675,8 +675,8 @@ namespace Xtensive.Storage.Providers.Sql
           deleteFromAncestorTableActions.Add(deleteAction);
       }
 
-      updateActions.Apply(ProcessUpdateDataAction);
-      deleteFromConnectorTableActions.Apply(ProcessDeleteDataAction);
+      updateActions.ForEach(ProcessUpdateDataAction);
+      deleteFromConnectorTableActions.ForEach(ProcessDeleteDataAction);
       ProcessClearAncestorsActions(deleteFromAncestorTableActions);
     }
 
@@ -1015,10 +1015,10 @@ namespace Xtensive.Storage.Providers.Sql
         var identifiedTableRef = SqlDml.TableRef(identifiedTable, 
           string.Format(SubqueryTableAliasNameFormat, identifiedTable.Name));
         var select = SqlDml.Select(identifiedTableRef);
-        selectColumns.Apply(column => select.Columns.Add(identifiedTableRef[column.Name]));
-        identityColumnPairs.Apply(pair =>
+        selectColumns.ForEach(column => select.Columns.Add(identifiedTableRef[column.Name]));
+        identityColumnPairs.ForEach(pair =>
           select.Where &= identifiedTableRef[pair.First.Name]==table[pair.Second.Name]);
-        identityConstantPairs.Apply(pair =>
+        identityConstantPairs.ForEach(pair =>
           select.Where &= identifiedTableRef[pair.First.Name]==SqlDml.Literal(pair.Second));
         return SqlDml.Exists(select);
       }
@@ -1031,7 +1031,7 @@ namespace Xtensive.Storage.Providers.Sql
         if (identityConstantPairs.Count() == 0)
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
         SqlExpression expression = null;
-        identityConstantPairs.Apply(pair => 
+        identityConstantPairs.ForEach(pair => 
           expression &= table[pair.First.Name]==SqlDml.Literal(pair.Second));
         return expression;
       }

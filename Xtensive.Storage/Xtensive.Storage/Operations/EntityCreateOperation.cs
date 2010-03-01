@@ -7,7 +7,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Xtensive.Storage.Operations.Internals
+namespace Xtensive.Storage.Operations
 {
   /// <summary>
   /// Describes <see cref="Entity"/> creation operation.

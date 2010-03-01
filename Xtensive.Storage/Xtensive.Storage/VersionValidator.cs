@@ -252,6 +252,17 @@ namespace Xtensive.Storage
     // Factory method
 
     /// <summary>
+    /// Attaches the validator to the current session.
+    /// </summary>
+    /// <param name="expectedVersionProvider">The expected version provider.</param>
+    /// <returns>A newly created <see cref="VersionValidator"/> attached
+    /// to the current session.</returns>
+    public static VersionValidator Attach(Func<Key, VersionInfo> expectedVersionProvider)
+    {
+      return Attach(Session.Demand(), expectedVersionProvider);
+    }
+
+    /// <summary>
     /// Attaches the validator to the specified session.
     /// </summary>
     /// <param name="session">The session to attach validator to.</param>

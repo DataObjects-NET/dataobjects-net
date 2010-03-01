@@ -8,37 +8,28 @@ using System;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Storage.Operations;
-using Xtensive.Storage.Operations.Internals;
 
-namespace Xtensive.Storage.Disconnected
+namespace Xtensive.Storage.Operations
 {
   /// <summary>
   /// A service listening to operation-related events in <see cref="Session"/>
   /// and writing their sequence to <see cref="Operations"/> instance 
-  /// (<see cref="IOperationLog"/>).
+  /// (<see cref="IOperationLogger"/>).
   /// </summary>
   [Infrastructure]
-  public sealed class OperationLogger : SessionBound, 
+  public sealed class OperationCapturer : SessionBound, 
     IDisposable
   {
     /// <summary>
     /// Gets the operation set updated by this service.
     /// </summary>
-    public IOperationLog Operations { get; private set; }
+    public IOperationLogger Operations { get; private set; }
 
     #region Session event handlers
 
-    private void KeyGenerated(object sender, KeyEventArgs e)
-    {
-      var keyGenerator = Session.Domain.KeyGenerators[e.Key.TypeRef.Type.Hierarchy.Key];
-      Operations.Append(
-        new KeyGenerateOperation(e.Key));
-    }
-
     private void OperationCompleted(object sender, OperationEventArgs e)
     {
-      Operations.Append(e.Operation);
+      Operations.Log(e.Operation);
     }
 
     #endregion
@@ -47,13 +38,11 @@ namespace Xtensive.Storage.Disconnected
 
     private void AttachEventHandlers()
     {
-      Session.KeyGenerated += KeyGenerated;
       Session.OperationCompleted += OperationCompleted;
     }
 
     private void DetachEventHandlers()
     {
-      Session.KeyGenerated -= KeyGenerated;
       Session.OperationCompleted -= OperationCompleted;
     }
 
@@ -62,23 +51,36 @@ namespace Xtensive.Storage.Disconnected
     // Factory method
 
     /// <summary>
+    /// Attaches the operation logger to the current session.
+    /// </summary>
+    /// <param name="operations">The operation logger to append captured operations to.</param>
+    /// <returns>
+    /// A newly created <see cref="OperationCapturer"/> attached
+    /// to the current session.
+    /// </returns>
+    public static OperationCapturer Attach(IOperationLogger operations)
+    {
+      return Attach(Session.Demand(), operations);
+    }
+
+    /// <summary>
     /// Attaches the operation logger to the specified session.
     /// </summary>
-    /// <param name="session">The session to attach validator to.</param>
-    /// <param name="operations">The operation set to write the operation sequence to.</param>
+    /// <param name="session">The session to attach the logger to.</param>
+    /// <param name="operations">The operation logger to append captured operations to.</param>
     /// <returns>
-    /// A newly created <see cref="OperationLogger"/> attached
+    /// A newly created <see cref="OperationCapturer"/> attached
     /// to the specified <paramref name="session"/>.
     /// </returns>
-    public static OperationLogger Attach(Session session, IOperationLog operations)
+    public static OperationCapturer Attach(Session session, IOperationLogger operations)
     {
-      return new OperationLogger(session, operations);
+      return new OperationCapturer(session, operations);
     }
 
 
     // Constructors
 
-    private OperationLogger(Session session, IOperationLog operations)
+    private OperationCapturer(Session session, IOperationLogger operations)
       : base(session)
     {
       ArgumentValidator.EnsureArgumentNotNull(operations, "operations");

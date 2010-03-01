@@ -7,17 +7,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
-using IObjectMappingOperationSet=Xtensive.Core.ObjectMapping.IOperationSet;
 
-namespace Xtensive.Storage.Operations
+namespace Xtensive.Storage
 {
   /// <summary>
-  /// Built-in implementation of <see cref="IOperationLog"/>.
+  /// Built-in implementation of both <see cref="IOperationLogger"/>
+  /// and <see cref="IOperationSequence"/>.
   /// </summary>
   [Serializable]
-  public sealed class OperationLog : IOperationLog, 
-    IObjectMappingOperationSet
+  public sealed class OperationLog : IOperationLogger, 
+    IOperationSequence
   {
     private readonly List<IOperation> operations = new List<IOperation>();
     private HashSet<IUniqueOperation> uniqueOperations;
@@ -28,19 +29,14 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public bool IsEmpty {
-      get { return operations.Count==0; }
-    }
-
-    /// <inheritdoc/>
-    public void Append(IOperation operation)
+    public void Log(IOperation operation)
     {
       operations.Add(operation);
       TryAppendUniqueOperation(operation);
     }
 
     /// <inheritdoc/>
-    public void Append(IOperationLog source)
+    public void Log(IEnumerable<IOperation> source)
     {
       foreach (var operation in source) {
         operations.Add(operation);
@@ -49,19 +45,13 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    void IObjectMappingOperationSet.Apply()
+    public KeyMapping Replay()
     {
-      Apply();
+      return Replay(Session.Demand());
     }
 
     /// <inheritdoc/>
-    public KeyMapping Apply()
-    {
-      return Apply(Session.Demand());
-    }
-
-    /// <inheritdoc/>
-    public KeyMapping Apply(Session session)
+    public KeyMapping Replay(Session session)
     {
       var operationContext = new OperationExecutionContext(session);
 
@@ -84,11 +74,9 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public void Clear()
+    public object Replay(object target)
     {
-      operations.Clear();
-      if (uniqueOperations!=null)
-        uniqueOperations.Clear();
+      return Replay((Session) target);
     }
 
     #region IEnumerable<...> implementation
@@ -107,6 +95,8 @@ namespace Xtensive.Storage.Operations
 
     #endregion
 
+    #region Private \ internal methods
+
     private void TryAppendUniqueOperation(IOperation operation)
     {
       var uniqueOperation = operation as IUniqueOperation;
@@ -118,5 +108,7 @@ namespace Xtensive.Storage.Operations
             Strings.ExDuplicateForOperationXIsFound.FormatWith(uniqueOperation));
       }
     }
+
+    #endregion
   }
 }

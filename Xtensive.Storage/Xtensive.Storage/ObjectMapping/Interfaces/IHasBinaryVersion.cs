@@ -7,10 +7,13 @@
 namespace Xtensive.Storage.ObjectMapping
 {
   /// <summary>
-  /// Contract for a POCO object whose version should be validated.
+  /// Contract for a POCO object whose binary version should be validated.
   /// </summary>
-  public interface IHasVersion
+  public interface IHasBinaryVersion
   {
+    /// <summary>
+    /// Gets or sets the binary version of an object.
+    /// </summary>
     byte[] Version { get; set; }
   }
 }

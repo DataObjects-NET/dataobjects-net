@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 
   [Serializable]
   public class PersonWithVersionDto : PersonDto,
-    IHasVersion
+    IHasBinaryVersion
   {
     public byte[] Version { get; set; }
   }

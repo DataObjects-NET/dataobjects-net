@@ -11,7 +11,6 @@ using Xtensive.Core.Aspects;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Operations.Internals;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Operations;
 

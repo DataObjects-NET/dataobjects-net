@@ -14,16 +14,18 @@ using Xtensive.Core.ObjectMapping.Model;
 namespace Xtensive.Core.ObjectMapping
 {
   /// <summary>
-  /// Information about an operation that modified a state of an transformed object.
+  /// Provides information about an operation that modified state of mapped object.
   /// </summary>
   [Serializable]
   [DebuggerDisplay("Object = {Object.GetType().Name}, Type = {Type}, PropertyPath = {propertyPathString}")]
-  public struct OperationInfo
+  public sealed class Operation
   {
-    private readonly string propertyPathString;
+    // Actually used in [DebuggerDisplay], see above.
+    // Note that propertyPath is built only in Debug configuration.
+    private readonly string propertyPath;
 
     /// <summary>
-    /// The original transformed object.
+    /// The target (mapped) object.
     /// </summary>
     public readonly object Object;
 
@@ -38,7 +40,7 @@ namespace Xtensive.Core.ObjectMapping
     public readonly OperationType Type;
 
     /// <summary>
-    /// The new property value or the collection's item.
+    /// The new property value or the collection item, if any.
     /// </summary>
     public readonly object Value;
 
@@ -52,7 +54,7 @@ namespace Xtensive.Core.ObjectMapping
     /// <param name="type">The value of <see cref="Type"/>.</param>
     /// <param name="propertyPath">The value of <see cref="PropertyPath"/>.</param>
     /// <param name="value">The value of <see cref="Value"/>.</param>
-    public OperationInfo(object obj, OperationType type, TargetPropertyDescription[] propertyPath, object value)
+    public Operation(object obj, OperationType type, TargetPropertyDescription[] propertyPath, object value)
     {
       ArgumentValidator.EnsureArgumentNotNull(obj, "obj");
 
@@ -60,7 +62,7 @@ namespace Xtensive.Core.ObjectMapping
       Type = type;
       PropertyPath = propertyPath!=null ? Array.AsReadOnly(propertyPath) : null;
       Value = value;
-      propertyPathString = null;
+      this.propertyPath = null;
 
 #if DEBUG
       if (PropertyPath!=null) {
@@ -70,10 +72,10 @@ namespace Xtensive.Core.ObjectMapping
             stringBuilder.Append(".");
           stringBuilder.Append(PropertyPath[i].SystemProperty.Name);
         }
-        propertyPathString = stringBuilder.ToString();
+        this.propertyPath = stringBuilder.ToString();
       }
       else
-        propertyPathString = null;
+        this.propertyPath = null;
 #endif
     }
   }

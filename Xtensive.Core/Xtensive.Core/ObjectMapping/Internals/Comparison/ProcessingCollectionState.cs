@@ -40,7 +40,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
     {
       var path = GetFullPath(property);
       GraphComparer.Subscriber
-        .Invoke(new OperationInfo(GraphComparer.ComparisonInfo.Owner,
+        .Invoke(new Operation(GraphComparer.ComparisonInfo.Owner,
           adding ? OperationType.AddItem : OperationType.RemoveItem, path, item));
     }
 

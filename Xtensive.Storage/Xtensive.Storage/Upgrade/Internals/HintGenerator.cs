@@ -654,8 +654,8 @@ namespace Xtensive.Storage.Upgrade
         .Where(type => type.IsEntity && IsRemoved(type))
         .ToArray();
 
-      removedTypes.Apply(GenerateClearHierarchyHints);
-      removedTypes.Apply(GenerateClearReferencesHints);
+      removedTypes.ForEach(GenerateClearHierarchyHints);
+      removedTypes.ForEach(GenerateClearReferencesHints);
     }
 
     private void GenerateClearHierarchyHints(StoredTypeInfo removedType)

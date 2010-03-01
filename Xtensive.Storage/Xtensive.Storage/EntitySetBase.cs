@@ -22,7 +22,6 @@ using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
-using Xtensive.Storage.Operations.Internals;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using OperationType=Xtensive.Storage.PairIntegrity.OperationType;

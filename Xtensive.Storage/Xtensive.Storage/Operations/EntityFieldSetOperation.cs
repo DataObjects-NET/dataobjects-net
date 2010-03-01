@@ -12,7 +12,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Services;
 
-namespace Xtensive.Storage.Operations.Internals
+namespace Xtensive.Storage.Operations
 {
   /// <summary>
   /// Describes <see cref="Entity"/> field set operation.

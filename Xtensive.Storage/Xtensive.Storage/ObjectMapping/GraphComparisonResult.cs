@@ -10,7 +10,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xtensive.Core.Collections;
-using IOperationSet=Xtensive.Core.ObjectMapping.IOperationSet;
+using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage.ObjectMapping
 {
@@ -33,6 +33,13 @@ namespace Xtensive.Storage.ObjectMapping
     private Func<Key, VersionInfo> versionInfoProvider;
 
     /// <summary>
+    /// Gets the operation sequence describing the changes.
+    /// </summary>
+    public new IOperationSequence Operations { 
+      get { return (IOperationSequence) base.Operations; }
+    }
+
+    /// <summary>
     /// Gets the delegate that should be used to resolve object versions.
     /// </summary>
     public Func<Key, VersionInfo> VersionInfoProvider
@@ -53,7 +60,7 @@ namespace Xtensive.Storage.ObjectMapping
           object foundObject;
           if (modified.TryGetValue(keyString, out foundObject)
             || original.TryGetValue(keyString, out foundObject)) {
-            var version = ((IHasVersion) foundObject).Version;
+            var version = ((IHasBinaryVersion) foundObject).Version;
             stream.SetLength(version.Length);
             stream.Seek(0, SeekOrigin.Begin);
             stream.Write(version, 0, version.Length);
@@ -71,7 +78,7 @@ namespace Xtensive.Storage.ObjectMapping
     // Constructors
 
     internal GraphComparisonResult(Dictionary<object, object> original, Dictionary<object, object> modified,
-      IOperationSet operations, ReadOnlyDictionary<object, object> keyMapping)
+      IOperationSequence operations, ReadOnlyDictionary<object, object> keyMapping)
       : base(operations, keyMapping)
     {
       this.original = original;

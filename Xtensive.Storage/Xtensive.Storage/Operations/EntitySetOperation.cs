@@ -10,7 +10,7 @@ using Xtensive.Storage.Model;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Resources;
 
-namespace Xtensive.Storage.Operations.Internals
+namespace Xtensive.Storage.Operations
 {
   /// <summary>
   /// Describes an operation with <see cref="Entity"/> field of <see cref="EntitySet{TItem}"/> type.

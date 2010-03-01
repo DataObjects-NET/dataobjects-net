@@ -149,7 +149,7 @@ namespace Xtensive.Modelling.Comparison
           ProcessStage(UpgradeStage.DataManipulate, actions);
           ProcessStage(UpgradeStage.Cleanup, actions);
           var validationHints = new HintSet(CurrentModel, TargetModel);
-          Hints.OfType<IgnoreHint>().Apply(validationHints.Add);
+          Hints.OfType<IgnoreHint>().ForEach(validationHints.Add);
           var diff = comparer.Compare(CurrentModel, TargetModel, validationHints);
           if (diff!=null) {
             Log.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
@@ -276,9 +276,9 @@ namespace Xtensive.Modelling.Comparison
         }
         else if (difference.IsDataChanged) {
           Hints.GetHints<UpdateDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
-            .Apply(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
+            .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
           Hints.GetHints<DeleteDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
-            .Apply(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
+            .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
         }
         break;
       case UpgradeStage.Cleanup:
@@ -326,7 +326,7 @@ namespace Xtensive.Modelling.Comparison
         break;
       case UpgradeStage.DataManipulate:
         Hints.GetHints<CopyDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
-            .Apply(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
+            .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
         break;
       }
     }
@@ -667,7 +667,7 @@ namespace Xtensive.Modelling.Comparison
         EnumerableUtils.Unfold(Context, c => c.Parent)
           .Where(c => c.Parent.Difference==parentDifference)
           .Take(1)
-          .Apply(c => c.Renames.Add(action));
+          .ForEach(c => c.Renames.Add(action));
       }
       else {
         foreach (var ctx in EnumerableUtils.Unfold(Context, c => c.Parent)) {

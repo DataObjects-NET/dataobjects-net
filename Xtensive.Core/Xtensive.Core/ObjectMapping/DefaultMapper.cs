@@ -15,26 +15,26 @@ namespace Xtensive.Core.ObjectMapping
   /// </summary>
   public class DefaultMapper : MapperBase<GraphComparisonResult>
   {
-    private DefaultOperationSet operationSet;
+    private DefaultOperationLog operationLog;
 
     /// <inheritdoc/>
-    protected override void OnObjectModified(OperationInfo descriptor)
+    protected override void OnObjectModified(Operation descriptor)
     {
-      operationSet.Add(descriptor);
+      operationLog.Add(descriptor);
     }
 
     /// <inheritdoc/>
     protected override void InitializeComparison(object originalTarget, object modifiedTarget)
     {
-      operationSet = new DefaultOperationSet();
+      operationLog = new DefaultOperationLog();
     }
 
     /// <inheritdoc/>
     protected override GraphComparisonResult GetComparisonResult(Dictionary<object, object> originalObjects,
       Dictionary<object, object> modifiedObjects)
     {
-      operationSet.Lock();
-      return new GraphComparisonResult(operationSet, null);
+      operationLog.Lock();
+      return new GraphComparisonResult(operationLog, null);
     }
 
     /// <summary>

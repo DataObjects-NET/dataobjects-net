@@ -1294,7 +1294,7 @@ namespace Xtensive.Storage.Tests.Storage
       var log = new OperationLog();
       // Modify data
       using (var session = Session.Open(Domain)) {
-        using (OperationLogger.Attach(session, log))
+        using (OperationCapturer.Attach(session, log))
         using (var transactionScope = Transaction.Open()) {
           var orders = Query.All<Order>()
             .Prefetch(o => o.Customer)
@@ -1333,7 +1333,7 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open(session)) {
           var logCopy = Cloner.Default.Clone(log);
-          logCopy.Apply(session);
+          logCopy.Replay(session);
           transactionScope.Complete();
         }
       }

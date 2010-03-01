@@ -23,7 +23,7 @@ namespace Xtensive.Core.ObjectMapping.Comparison
     public void Notify(IEnumerable<object> createdObjects)
     {
       foreach (var createdObject in createdObjects)
-        GraphComparer.Subscriber.Invoke(new OperationInfo(createdObject, OperationType.CreateObject, null, null));
+        GraphComparer.Subscriber.Invoke(new Operation(createdObject, OperationType.CreateObject, null, null));
       foreach (var createdObject in createdObjects) {
         using (GraphComparer.ComparisonInfo.SaveState()) {
           GraphComparer.ComparisonInfo.Owner = createdObject;

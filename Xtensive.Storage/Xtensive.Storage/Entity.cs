@@ -23,7 +23,6 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
-using Xtensive.Storage.Operations.Internals;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -425,11 +424,14 @@ namespace Xtensive.Storage
       if (Session.IsSystemLogicOnly || materialize) 
         return;
 
+      bool isKeyGenerated = Session.Domain.KeyGenerators.ContainsKey(Type.Hierarchy.Key);
+      if (isKeyGenerated)
+        Session.NotifyKeyGenerated(Key);
       Session.NotifyEntityCreated(this);
+
       using (var context = OpenOperationContext()) {
         if (context.IsLoggingEnabled) {
-          KeyGenerator keyGenerator;
-          if (!Session.Domain.KeyGenerators.TryGetValue(Type.Hierarchy.Key, out keyGenerator))
+          if (isKeyGenerated)
             context.LogOperation(new KeyGenerateOperation(Key));
           context.LogOperation(new EntityCreateOperation(Key));
         }

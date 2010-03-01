@@ -4,10 +4,11 @@
 // Created by: Ivan Galkin
 // Created:    2009.11.26
 
-namespace Xtensive.Storage.Disconnected
+namespace Xtensive.Storage
 {
   /// <summary>
-  /// Enumerate all possible merge entity state modes.
+  /// Enumerate possible ways of merging entity states in
+  /// <see cref="DisconnectedState"/>.
   /// </summary>
   public enum MergeMode
   {

@@ -33,9 +33,7 @@ namespace Xtensive.Storage.Internals
           Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
       var keyValue = generator.DemandNext(session==null ? false : session.IsDisconnected);
       var key = Materialize(domain, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
-      
-      if (session!=null)
-        session.NotifyKeyGenerated(key);
+
       return key;
     }
 

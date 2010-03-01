@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
     protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
-        Version1To2Hints.Apply(hint => hints.Add(hint));
+        Version1To2Hints.ForEach(hint => hints.Add(hint));
     }
 
     public override void OnUpgrade()

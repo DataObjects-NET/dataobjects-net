@@ -152,11 +152,11 @@ namespace Xtensive.Storage.Disconnected
         foreach (var state in items)
           state.Value.Commit();
         if (Origin.Operations!=null)
-          Origin.Operations.Append(Operations);
+          Origin.Operations.Log(Operations);
       }
       finally {
         if (clearLoggedOperations)
-          Operations.Clear();
+          Operations = new OperationLog();
       }
     }
 

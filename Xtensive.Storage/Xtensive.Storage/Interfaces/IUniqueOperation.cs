@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 
-namespace Xtensive.Storage.Operations
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Contract for an operation that must be logged only once

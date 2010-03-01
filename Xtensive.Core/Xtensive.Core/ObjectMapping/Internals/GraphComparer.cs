@@ -28,7 +28,7 @@ namespace Xtensive.Core.ObjectMapping
     private readonly UserStructurePropertyComparison userStructurePropertyComparison;
     private readonly Action<object> removedObjectNotificationSender;
 
-    public readonly Action<OperationInfo> Subscriber;
+    public readonly Action<Operation> Subscriber;
 
     public readonly MappingDescription MappingDescription;
 
@@ -65,7 +65,7 @@ namespace Xtensive.Core.ObjectMapping
 
     private void NotifyAboutRemovedObjects(IEnumerable<object> removedObjects)
     {
-      removedObjects.Apply(removedObjectNotificationSender);
+      removedObjects.ForEach(removedObjectNotificationSender);
     }
 
     private void FindChangedObjects(Dictionary<object, object> modifiedObjects,
@@ -84,7 +84,7 @@ namespace Xtensive.Core.ObjectMapping
 
     // Constructors
 
-    public GraphComparer(MappingDescription mappingDescription, Action<OperationInfo> subscriber,
+    public GraphComparer(MappingDescription mappingDescription, Action<Operation> subscriber,
       IExistanceInfoProvider existanceInfoProvider)
     {
       ArgumentValidator.EnsureArgumentNotNull(mappingDescription, "mappingDescription");
@@ -102,7 +102,7 @@ namespace Xtensive.Core.ObjectMapping
       userStructurePropertyComparison = new UserStructurePropertyComparison(this);
 
       removedObjectNotificationSender = obj => Subscriber
-        .Invoke(new OperationInfo(obj, OperationType.RemoveObject, null, null));
+        .Invoke(new Operation(obj, OperationType.RemoveObject, null, null));
     }
   }
 }

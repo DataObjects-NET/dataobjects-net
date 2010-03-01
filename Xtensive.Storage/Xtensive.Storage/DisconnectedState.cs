@@ -13,13 +13,14 @@ using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Services;
 
-namespace Xtensive.Storage.Disconnected
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Disconnected state.
@@ -27,7 +28,7 @@ namespace Xtensive.Storage.Disconnected
   [Serializable]
   public sealed class DisconnectedState
   {
-    private OperationLog serializedLog;
+    private OperationLog serializedOperations;
     private KeyValuePair<string, VersionInfo>[] serializedVersions;
     private SerializableEntityState[] serializedRegistry;
     private SerializableEntityState[] serializedGlobalRegistry;
@@ -47,7 +48,7 @@ namespace Xtensive.Storage.Disconnected
     [NonSerialized]
     private Session session;
     [NonSerialized]
-    private OperationLogger operationLogger;
+    private OperationCapturer operationCapturer;
     [NonSerialized]
     private AssociationCache associationCache;
     
@@ -61,7 +62,7 @@ namespace Xtensive.Storage.Disconnected
 
     /// <summary>
     /// Gets a value indicating whether this instance is attached to <see cref="Session"/>.
-    /// See <see cref="Attach"/> method for details.
+    /// See <see cref="Attach()"/> method for details.
     /// </summary>
     public bool IsAttached {
       get { return sessionHandlerSubstitutionScope!=null; }
@@ -83,15 +84,28 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <summary>
-    /// Gets or sets the merge mode.
+    /// Gets or sets the merge mode to use when loading state of new entities 
+    /// into this <see cref="DisconnectedState"/>.
     /// </summary>
     public MergeMode MergeMode { get; set; }
 
     /// <summary>
-    /// Attach to specified session.
+    /// Attaches the disconnected state to the current session.
     /// </summary>
-    /// <param name="session">The session.</param>
-    /// <returns>Scope.</returns>
+    /// <returns>A disposable object that will detach the disconnected state
+    /// on its disposal.</returns>
+    /// <exception cref="InvalidOperationException">Transaction is running.</exception>
+    public IDisposable Attach()
+    {
+      return Attach(Session.Demand());
+    }
+
+    /// <summary>
+    /// Attaches the disconnected state to the specified session.
+    /// </summary>
+    /// <param name="session">The session to attach disconnected state to.</param>
+    /// <returns>A disposable object that will detach the disconnected state
+    /// on its disposal.</returns>
     /// <exception cref="InvalidOperationException">Transaction is running.</exception>
     public IDisposable Attach(Session session)
     {
@@ -105,9 +119,12 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <summary>
-    /// Opens connection.
+    /// "Connects" the disconnected state. 
+    /// When disconnected state is connected, it is allowed to
+    /// forward the queries to the underlying <see cref="Session"/>.
     /// </summary>
-    /// <returns>Scope.</returns>
+    /// <returns>A disposable object that will disconnected the disconnected state
+    /// on its disposal.</returns>
     public IDisposable Connect()
     {
       EnsureIsAttached();
@@ -121,7 +138,18 @@ namespace Xtensive.Storage.Disconnected
     /// <summary>
     /// Applies all the changes to the attached <see cref="Session"/>.
     /// </summary>
+    /// <returns>Resulting key mapping.</returns>
     public KeyMapping ApplyChanges()
+    {
+      return ApplyChanges(Session);
+    }
+
+    /// <summary>
+    /// Applies all the changes to the specified <see cref="Session"/>.
+    /// </summary>
+    /// <param name="targetSession">The session to apply the changes to.</param>
+    /// <returns>Resulting key mapping.</returns>
+    public KeyMapping ApplyChanges(Session targetSession)
     {
       EnsureIsAttached();
       EnsureNoTransaction();
@@ -129,8 +157,8 @@ namespace Xtensive.Storage.Disconnected
       DetachInternal();
       try {
         KeyMapping keyMapping;
-        using (VersionValidator.Attach(attachedSession, GetOriginalVersion)) {
-          keyMapping = state.Operations.Apply(attachedSession);
+        using (VersionValidator.Attach(targetSession, GetOriginalVersion)) {
+          keyMapping = state.Operations.Replay(targetSession);
           state.Commit(true);
         }
         originalState.Remap(keyMapping);
@@ -144,7 +172,7 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <summary>
-    /// Clears all changes.
+    /// Cancels all the changes.
     /// </summary>
     public void CancelChanges()
     {
@@ -154,10 +182,19 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <summary>
-    /// Merges state with the specified source state.
+    /// Merges this instance with the specified source <see cref="DisconnectedState"/>.
     /// </summary>
-    /// <param name="source">The source state.</param>
-    /// <param name="mergeMode">The merge mode.</param>
+    /// <param name="source">The source <see cref="DisconnectedState"/>.</param>
+    public void Merge(DisconnectedState source)
+    {
+      Merge(source, MergeMode);
+    }
+
+    /// <summary>
+    /// Merges this instance with the specified source <see cref="DisconnectedState"/>.
+    /// </summary>
+    /// <param name="source">The source <see cref="DisconnectedState"/>.</param>
+    /// <param name="mergeMode">The merge mode to use.</param>
     public void Merge(DisconnectedState source, MergeMode mergeMode)
     {
       var sourceStates = source.originalState.EntityStates;
@@ -383,16 +420,16 @@ namespace Xtensive.Storage.Disconnected
 
     private void CreateOperationLogger()
     {
-      operationLogger = OperationLogger.Attach(Session, transactionalState.Operations);
+      operationCapturer = OperationCapturer.Attach(Session, transactionalState.Operations);
     }
 
     private void DisposeOperationLogger()
     {
       try {
-        operationLogger.DisposeSafely();
+        operationCapturer.DisposeSafely();
       }
       finally {
-        operationLogger = null;
+        operationCapturer = null;
       }
     }
 
@@ -421,7 +458,7 @@ namespace Xtensive.Storage.Disconnected
       serializedVersions = versionCache.Select(pair => 
         new KeyValuePair<string, VersionInfo>(pair.Key.ToString(true), pair.Value))
         .ToArray();
-      serializedLog = state.Operations;
+      serializedOperations = state.Operations;
       serializedRegistry = state.EntityStates
         .Select(entityState => entityState.Serialize()).ToArray();
       serializedGlobalRegistry = originalState.EntityStates
@@ -433,7 +470,7 @@ namespace Xtensive.Storage.Disconnected
     {
       serializedRegistry = null;
       serializedGlobalRegistry = null;
-      serializedLog = null;
+      serializedOperations = null;
       serializedVersions = null;
     }
 
@@ -454,12 +491,12 @@ namespace Xtensive.Storage.Disconnected
       serializedGlobalRegistry = null;
 
       state = new StateRegistry(originalState) {
-        Operations = serializedLog
+        Operations = serializedOperations
       };
       foreach (var entityState in serializedRegistry)
         state.AddState(DisconnectedEntityState.Deserialize(entityState, state, domain));
       serializedRegistry = null;
-      serializedLog = null;
+      serializedOperations = null;
     }
   }
 }

@@ -12,20 +12,22 @@ using Xtensive.Core.Helpers;
 namespace Xtensive.Core.ObjectMapping
 {
   /// <summary>
-  /// Default implementation of <see cref="IOperationSet"/>.
+  /// Default implementation of <see cref="IOperationSequence"/> and operation logger.
   /// </summary>
   [Serializable]
-  public sealed class DefaultOperationSet : LockableBase,
-    IOperationSet,
-    IEnumerable<OperationInfo>
+  public sealed class DefaultOperationLog : LockableBase,
+    IOperationSequence,
+    IEnumerable<Operation>
   {
-    private readonly List<OperationInfo> descriptors = new List<OperationInfo>();
+    private readonly List<Operation> operations = new List<Operation>();
 
     /// <inheritdoc/>
-    public bool IsEmpty { get { return descriptors.Count==0; } }
+    public long Count {
+      get { return operations.Count; }
+    }
 
     /// <inheritdoc/>
-    public void Apply()
+    public object Replay(object target)
     {
       throw new NotImplementedException();
     }
@@ -34,16 +36,18 @@ namespace Xtensive.Core.ObjectMapping
     /// Adds the specified operation.
     /// </summary>
     /// <param name="operation">The operation.</param>
-    public void Add(OperationInfo operation)
+    public void Add(Operation operation)
     {
       this.EnsureNotLocked();
-      descriptors.Add(operation);
+      operations.Add(operation);
     }
 
+    #region IENumerable<...> methods
+
     /// <inheritdoc/>
-    public IEnumerator<OperationInfo> GetEnumerator()
+    public IEnumerator<Operation> GetEnumerator()
     {
-      return descriptors.GetEnumerator();
+      return operations.GetEnumerator();
     }
 
     /// <inheritdoc/>
@@ -51,5 +55,7 @@ namespace Xtensive.Core.ObjectMapping
     {
       return GetEnumerator();
     }
+
+    #endregion
   }
 }

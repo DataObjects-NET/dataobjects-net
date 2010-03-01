@@ -7,9 +7,10 @@
 using System;
 using System.Runtime.Serialization;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Resources;
 
-namespace Xtensive.Storage.Disconnected
+namespace Xtensive.Storage
 {
   /// <summary>
   /// An exception indicating that <see cref="DisconnectedState"/>

@@ -14,8 +14,8 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Storage.Operations;
-using Xtensive.Storage.Operations.Internals;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
+using MappingOperation=Xtensive.Core.ObjectMapping.Operation;
 
 namespace Xtensive.Storage.ObjectMapping
 {
@@ -30,27 +30,27 @@ namespace Xtensive.Storage.ObjectMapping
     private Dictionary<object, Key> existingObjectKeys;
 
     /// <inheritdoc/>
-    protected override void OnObjectModified(OperationInfo operationInfo)
+    protected override void OnObjectModified(MappingOperation mappingOperation)
     {
       IOperation operation;
-      switch (operationInfo.Type) {
+      switch (mappingOperation.Type) {
       case OperationType.AddItem:
       case OperationType.RemoveItem:
-        operation = CreateEntitySetItemOperation(operationInfo);
+        operation = CreateEntitySetItemOperation(mappingOperation);
         break;
       case OperationType.CreateObject:
-        operation = CreateEntityCreateOperation(operationInfo);
+        operation = CreateEntityCreateOperation(mappingOperation);
         break;
       case OperationType.RemoveObject:
-        operation = new EntityRemoveOperation(ExtractKey(operationInfo.Object));
+        operation = new EntityRemoveOperation(ExtractKey(mappingOperation.Object));
         break;
       case OperationType.SetProperty:
-        operation = CreateEntityFieldSetOperation(operationInfo);
+        operation = CreateEntityFieldSetOperation(mappingOperation);
         break;
       default:
-        throw new ArgumentOutOfRangeException("operationInfo.Type");
+        throw new ArgumentOutOfRangeException("mappingOperation.Type");
       }
-      comparisonResult.Append(operation);
+      comparisonResult.Log(operation);
     }
 
     /// <inheritdoc/>
@@ -85,28 +85,28 @@ namespace Xtensive.Storage.ObjectMapping
 
     #region Private \ internal methods
 
-    private IOperation CreateEntityFieldSetOperation(OperationInfo operationInfo)
+    private IOperation CreateEntityFieldSetOperation(MappingOperation mappingOperation)
     {
       IOperation operation;
-      var fieldInfo = ExtractFieldInfo(operationInfo);
-      var lastProperty = operationInfo.PropertyPath[operationInfo.PropertyPath.Count - 1];
-      if (operationInfo.Value==null || lastProperty.ValueType.ObjectKind==ObjectKind.Primitive
+      var fieldInfo = ExtractFieldInfo(mappingOperation);
+      var lastProperty = mappingOperation.PropertyPath[mappingOperation.PropertyPath.Count - 1];
+      if (mappingOperation.Value==null || lastProperty.ValueType.ObjectKind==ObjectKind.Primitive
         || lastProperty.ValueType.ObjectKind == ObjectKind.UserStructure) {
-        operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo,
-          operationInfo.Value);
+        operation = new EntityFieldSetOperation(ExtractKey(mappingOperation.Object), fieldInfo,
+          mappingOperation.Value);
       }
       else {
-        var key = ExtractKey(operationInfo.Value);
-        operation = new EntityFieldSetOperation(ExtractKey(operationInfo.Object), fieldInfo, key);
+        var key = ExtractKey(mappingOperation.Value);
+        operation = new EntityFieldSetOperation(ExtractKey(mappingOperation.Object), fieldInfo, key);
       }
       return operation;
     }
 
-    private IOperation CreateEntityCreateOperation(OperationInfo operationInfo)
+    private IOperation CreateEntityCreateOperation(MappingOperation mappingOperation)
     {
       if (newObjectKeys==null)
         newObjectKeys = new Dictionary<object, Key>();
-      var newKey = CreateKey(operationInfo.Object);
+      var newKey = CreateKey(mappingOperation.Object);
       return new EntityCreateOperation(newKey);
     }
 
@@ -143,10 +143,12 @@ namespace Xtensive.Storage.ObjectMapping
       return result;
     }
 
+    /// <exception cref="ArgumentException"><paramref name="targetType"/> state is invalid.</exception>
     private object[] GetCustomKeyFields(object target, TargetTypeDescription targetType)
     {
       var arguments = targetType.GeneratorArgumentsProvider.Invoke(target);
-      ArgumentValidator.EnsureArgumentNotNull(arguments, "arguments");
+      if (arguments==null)
+        throw new ArgumentException("targetType");
       var result = new object[arguments.Length];
       for (var i = 0; i < arguments.Length; i++) {
         var argument = arguments[i];
@@ -159,28 +161,28 @@ namespace Xtensive.Storage.ObjectMapping
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>operationInfo.Type</c> is wrong.</exception>
-    private EntitySetItemOperation CreateEntitySetItemOperation(OperationInfo operationInfo)
+    private EntitySetItemOperation CreateEntitySetItemOperation(MappingOperation mappingOperation)
     {
-      var key = ExtractKey(operationInfo.Object);
-      var itemKey = ExtractKey(operationInfo.Value);
-      var fieldInfo = ExtractFieldInfo(operationInfo);
-      switch (operationInfo.Type) {
+      var key = ExtractKey(mappingOperation.Object);
+      var itemKey = ExtractKey(mappingOperation.Value);
+      var fieldInfo = ExtractFieldInfo(mappingOperation);
+      switch (mappingOperation.Type) {
       case OperationType.AddItem:
         return new EntitySetItemAddOperation(key, fieldInfo, itemKey);
       case OperationType.RemoveItem:
         return new EntitySetItemRemoveOperation(key, fieldInfo, itemKey);
       default:
-        throw new ArgumentOutOfRangeException("operationInfo.Type");
+        throw new ArgumentOutOfRangeException("mappingOperation.Type");
       }
     }
 
-    private FieldInfo ExtractFieldInfo(OperationInfo operationInfo)
+    private FieldInfo ExtractFieldInfo(MappingOperation mappingOperation)
     {
       var sourceType = MappingDescription
-        .GetMappedSourceType(operationInfo.PropertyPath[0].SystemProperty.ReflectedType);
+        .GetMappedSourceType(mappingOperation.PropertyPath[0].SystemProperty.ReflectedType);
       var sourceTypeInfo = session.Domain.Model.Types[sourceType.SystemType];
-      var lastIndex = operationInfo.PropertyPath.Count - 1;
-      var fieldName = MakeFieldName(operationInfo.PropertyPath);
+      var lastIndex = mappingOperation.PropertyPath.Count - 1;
+      var fieldName = MakeFieldName(mappingOperation.PropertyPath);
       return session.Domain.Model.Types[sourceType.SystemType].Fields[fieldName];
     }
 

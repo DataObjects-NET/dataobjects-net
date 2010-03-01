@@ -129,7 +129,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       modified[2] = ((string) modified[2]) + "Modified1";
       var modifiedStructureItem = (StructureDto) modified[3];
       modifiedStructureItem.Int += 5;
-      var operations = ((DefaultOperationSet) mapper.Compare(original, modified).Operations).ToList();
+      var operations = ((DefaultOperationLog) mapper.Compare(original, modified).Operations).ToList();
       Assert.AreEqual(1, operations.Count);
       ValidatePropertyOperation((PersonDto) original[0], operations[0], p => p.FirstName,
         newFirstName, OperationType.SetProperty);
@@ -165,7 +165,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         Action = Action.Write, ObjectId = oldAccessRight.ObjectId
       };
       modified.AccessRights[0].ObjectId[2] += 7;
-      var operations = ((DefaultOperationSet) mapper.Compare(original, modified).Operations).ToList();
+      var operations = ((DefaultOperationLog) mapper.Compare(original, modified).Operations).ToList();
       Assert.AreEqual(1, operations.Count);
       ValidatePropertyOperation(original, operations[0], a => a.PasswordHash,
         modified.PasswordHash, OperationType.SetProperty);
@@ -234,7 +234,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         }
       };
       modified.EntityArray[1].NestedElements[0] = newArrayElementDto;
-      var operations = ((DefaultOperationSet) mapper.Compare(original, modified).Operations).ToList();
+      var operations = ((DefaultOperationLog) mapper.Compare(original, modified).Operations).ToList();
       Assert.AreEqual(11, operations.Count);
       ValidateObjectCreation(newArrayElementDto, operations[0]);
       ValidateObjectCreation(newArrayElementDto.NestedElements[0], operations[1]);
@@ -336,7 +336,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var petPropertyCounts = CreateCountsForMutableProperties(typeof (AnimalDto), mapper);
       const string petsName = "Pets";
       var eventRaisingCount = 0;
-      Action<OperationInfo> validator = descriptor => {
+      Action<Operation> validator = descriptor => {
         eventRaisingCount++;
         switch (descriptor.Type) {
         case OperationType.AddItem:
@@ -382,7 +382,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
           break;
         }
       };
-      ((DefaultOperationSet) mapper.Compare(original, modified).Operations).Apply(validator);
+      ((DefaultOperationLog) mapper.Compare(original, modified).Operations).ForEach(validator);
       Assert.AreEqual(7, eventRaisingCount);
       Assert.IsTrue(itemRemovalPublished0);
       Assert.IsTrue(itemRemovalPublished1);

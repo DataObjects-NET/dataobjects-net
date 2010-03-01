@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Collections;
 using Xtensive.Core.ObjectMapping;
 using Xtensive.Core.Tests.ObjectMapping.SourceModel;
 using Xtensive.Core.Tests.ObjectMapping.TargetModel;
@@ -23,8 +22,8 @@ namespace Xtensive.Core.Tests.ObjectMapping
     {
       var mapper = GetPersonOrderMapper();
       Assert.IsNull(mapper.Transform(null));
-      Action<OperationInfo> validator = descriptor => Assert.Fail();
-      ((DefaultOperationSet) mapper.Compare(null, null).Operations).Apply(validator);
+      Action<Operation> validator = descriptor => Assert.Fail();
+      ((DefaultOperationLog) mapper.Compare(null, null).Operations).ForEach(validator);
     }
 
     [Test]
@@ -37,7 +36,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var orderCreated = false;
       var orderPropertyCounts = CreateCountsForMutableProperties(typeof (OrderDto), mapper);
       var customerPropertyCounts = CreateCountsForMutableProperties(typeof (PersonDto), mapper);
-      Action<OperationInfo> validator = descriptor => {
+      Action<Operation> validator = descriptor => {
         switch (descriptor.Type) {
         case OperationType.CreateObject:
           if (ReferenceEquals(target, descriptor.Object))
@@ -61,7 +60,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         }
         eventRaisingCount++;
       };
-      ((DefaultOperationSet) mapper.Compare(null, target).Operations).Apply(validator);
+      ((DefaultOperationLog) mapper.Compare(null, target).Operations).ForEach(validator);
       Assert.AreEqual(7, eventRaisingCount);
       Assert.IsTrue(orderPropertyCounts.All(pair => pair.Value == 1));
       Assert.IsTrue(customerPropertyCounts.All(pair => pair.Value == 1));
@@ -77,7 +76,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var eventRaisingCount = 0;
       var personCreated = false;
       var orderCreated = false;
-      Action<OperationInfo> validator = descriptor => {
+      Action<Operation> validator = descriptor => {
         Assert.AreEqual(OperationType.RemoveObject, descriptor.Type);
         eventRaisingCount++;
         if (ReferenceEquals(target, descriptor.Object))
@@ -87,7 +86,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
         else
           Assert.Fail();
       };
-      ((DefaultOperationSet) mapper.Compare(target, null).Operations).Apply(validator);
+      ((DefaultOperationLog) mapper.Compare(target, null).Operations).ForEach(validator);
       Assert.AreEqual(2, eventRaisingCount);
       Assert.IsTrue(personCreated);
       Assert.IsTrue(orderCreated);
@@ -98,7 +97,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
     {
       var mapper = GetPersonOrderMapper();
       var operations = mapper.Compare(null, null).Operations;
-      Assert.IsTrue(operations.IsEmpty);
+      Assert.IsTrue(operations.Count==0);
     }
 
     [Test]
@@ -152,7 +151,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var originalOrder = (OrderDto) mapper.Transform(sourceOrder);
       var modifiedOrder = (OrderDto) originalOrder.Clone();
       originalOrder.Customer = null;
-      var operations = (DefaultOperationSet) mapper.Compare(originalOrder, modifiedOrder).Operations;
+      var operations = (DefaultOperationLog) mapper.Compare(originalOrder, modifiedOrder).Operations;
       Assert.AreEqual(5, operations.Count());
       var personCreationOperation = operations.First();
       var createdCustomer = modifiedOrder.Customer;
@@ -176,7 +175,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var originalOrder = (OrderDto) mapper.Transform(sourceOrder);
       var modifiedOrder = (OrderDto) originalOrder.Clone();
       modifiedOrder.Customer = null;
-      var operations = (DefaultOperationSet) mapper.Compare(originalOrder, modifiedOrder).Operations;
+      var operations = (DefaultOperationLog) mapper.Compare(originalOrder, modifiedOrder).Operations;
       Assert.AreEqual(2, operations.Count());
       var customerSettingOperation = operations.First();
       ValidatePropertySettingOperation(originalOrder, customerSettingOperation, CustomerProperty, null);
@@ -192,8 +191,8 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var original = (PetOwnerDto) mapper.Transform(source);
       var modified = (PetOwnerDto) original.Clone();
       modified.Pets = new List<AnimalDto>();
-      var operations = (DefaultOperationSet) mapper.Compare(original, modified).Operations;
-      Assert.IsTrue(operations.IsEmpty);
+      var operations = (DefaultOperationLog) mapper.Compare(original, modified).Operations;
+      Assert.IsTrue(operations.Count==0);
     }
 
     [Test]
@@ -206,7 +205,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var original = (PetOwnerDto) mapper.Transform(source);
       var modified = (PetOwnerDto) original.Clone();
       modified.Pets = null;
-      var operations = (DefaultOperationSet) mapper.Compare(original, modified).Operations;
+      var operations = (DefaultOperationLog) mapper.Compare(original, modified).Operations;
       Assert.AreEqual(2, operations.Count());
       var removedAnimal = original.Pets.Single();
       var itemRemovalOperation = operations.First();
@@ -227,7 +226,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var modified = (PetOwnerDto) original.Clone();
       original.Pets = new List<AnimalDto> {null};
       var createdAnimal = modified.Pets.Single();
-      var operations = (DefaultOperationSet) mapper.Compare(original, modified).Operations;
+      var operations = (DefaultOperationLog) mapper.Compare(original, modified).Operations;
       Assert.AreEqual(3, operations.Count());
       var animalCreationOperation = operations.First();
       ValidateObjectCreation(createdAnimal, animalCreationOperation);
@@ -249,7 +248,7 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var original = (PetOwnerDto) mapper.Transform(source);
       var modified = (PetOwnerDto) original.Clone();
       modified.Pets = null;
-      var operations = (DefaultOperationSet) mapper.Compare(original, modified).Operations;
+      var operations = (DefaultOperationLog) mapper.Compare(original, modified).Operations;
       Assert.AreEqual(2, operations.Count());
       var removedAnimal = original.Pets.Single();
       var itemRemovalOperation = operations.First();

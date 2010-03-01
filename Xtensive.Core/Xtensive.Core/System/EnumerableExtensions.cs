@@ -106,13 +106,23 @@ namespace System
     }
 
     /// <summary>
+    /// "Runs" the specified <paramref name="sequence"/> by enumerating it.
+    /// </summary>
+    /// <typeparam name="T">Type of the sequence item.</typeparam>
+    /// <param name="sequence">The sequence to run.</param>
+    public static void Run<T>(this IEnumerable<T> sequence)
+    {
+      foreach (var item in sequence);
+    }
+
+    /// <summary>
     /// Applies the specified <paramref name="action"/> to all the items 
     /// from the <paramref name="items"/> sequence.
     /// </summary>
     /// <typeparam name="T">Type of the sequence item.</typeparam>
     /// <param name="items">The sequence to apply the <paramref name="action"/> to.</param>
     /// <param name="action">The action to apply.</param>
-    public static void Apply<T>(this IEnumerable<T> items, Action<T, int> action)
+    public static void ForEach<T>(this IEnumerable<T> items, Action<T, int> action)
     {
       int i = 0;
       foreach (var item in items)
@@ -126,7 +136,7 @@ namespace System
     /// <typeparam name="T">Type of the sequence item.</typeparam>
     /// <param name="items">The sequence to apply the <paramref name="action"/> to.</param>
     /// <param name="action">The action to apply.</param>
-    public static void Apply<T>(this IEnumerable<T> items, Action<T> action)
+    public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
     {
       foreach (var item in items)
         action.Invoke(item);

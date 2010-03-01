@@ -10,7 +10,7 @@ using System.Security.Permissions;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Operations.Internals
+namespace Xtensive.Storage.Operations
 {
   /// <summary>
   /// Describes an operation with <see cref="Entity"/>.

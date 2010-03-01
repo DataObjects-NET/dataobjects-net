@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Configuration
     Default = Auto,
 
     /// <summary>
-    /// Preload reader if and only if underlying storage does not support MARS.
+    /// Preload reader if and only if the underlying storage does not support MARS.
     /// </summary>
     Auto = 0,
 

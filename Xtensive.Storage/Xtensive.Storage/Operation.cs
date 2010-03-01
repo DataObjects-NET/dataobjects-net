@@ -7,8 +7,9 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Operations;
 
-namespace Xtensive.Storage.Operations
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Base abstract class for all <see cref="IOperation"/> implementors.

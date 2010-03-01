@@ -5,42 +5,41 @@
 // Created:    2010.02.25
 
 using System;
-using System.Diagnostics;
 using System.Runtime.Serialization;
+using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Operations.Internals
+namespace Xtensive.Storage.Operations
 {
   /// <summary>
-  /// Describes <see cref="Entity"/> removal operation.
+  /// Describes <see cref="EntitySet{TItem}"/> item add operation.
   /// </summary>
   [Serializable]
-  public class EntityRemoveOperation : EntityOperation
+  public class EntitySetItemAddOperation : EntitySetItemOperation
   {
     /// <inheritdoc/>
     public override string Title {
-      get { return "Remove entity"; }
+      get { return "Add item to entity set"; }
     }
 
     /// <inheritdoc/>
     public override void Execute(OperationExecutionContext context)
     {
       var session = context.Session;
-      var key = context.TryRemapKey(Key);
-      var entity = Query.Single(session, key);
-      entity.Remove();
+      var item = Query.Single(session, context.TryRemapKey(ItemKey));
+      GetEntitySet(context).Add(item);
     }
 
-
+    
     // Constructors
 
     /// <inheritdoc/>
-    public EntityRemoveOperation(Key key)
-      : base(key)
+    public EntitySetItemAddOperation(Key key, FieldInfo field, Key itemKey)
+      : base(key, field, itemKey)
     {
     }
 
     /// <inheritdoc/>
-    protected EntityRemoveOperation(SerializationInfo info, StreamingContext context)
+    protected EntitySetItemAddOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }

@@ -53,9 +53,9 @@ namespace Xtensive.Storage.Tests.Upgrade
     protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
-        Version1To2Hints.Apply(hint => hints.Add(hint));
+        Version1To2Hints.ForEach(hint => hints.Add(hint));
       if (runningVersion=="3")
-        Version1To3Hints.Apply(hint => hints.Add(hint));
+        Version1To3Hints.ForEach(hint => hints.Add(hint));
     }
 
     public override void OnUpgrade()

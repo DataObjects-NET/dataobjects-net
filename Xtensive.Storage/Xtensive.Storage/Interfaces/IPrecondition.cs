@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.24
 
-namespace Xtensive.Storage.Operations
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Precondition operation contract. Preconditions change nothing,

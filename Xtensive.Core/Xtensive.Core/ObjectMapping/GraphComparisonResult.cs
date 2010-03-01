@@ -20,19 +20,22 @@ namespace Xtensive.Core.ObjectMapping
     /// <summary>
     /// The set of operations describing found changes.
     /// </summary>
-    public readonly IOperationSet Operations;
+    public readonly IOperationSequence Operations;
 
     /// <summary>
     /// The mapping from surrogate keys to real keys for new objects.
     /// </summary>
     public readonly ReadOnlyDictionary<object, object> KeyMapping;
 
+
+    // Constructors
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="operations">The set of operations describing found changes.</param>
     /// <param name="keyMapping">The mapping from surrogate keys to real keys for new objects.</param>
-    public GraphComparisonResult(IOperationSet operations, ReadOnlyDictionary<object, object> keyMapping)
+    public GraphComparisonResult(IOperationSequence operations, ReadOnlyDictionary<object, object> keyMapping)
     {
       ArgumentValidator.EnsureArgumentNotNull(operations, "operations");
 

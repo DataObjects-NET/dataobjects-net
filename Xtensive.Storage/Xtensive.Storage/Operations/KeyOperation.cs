@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Operations.Internals
+namespace Xtensive.Storage.Operations
 {
   /// <summary>
   /// Describes an operation involving the <see cref="Key"/>.
