@@ -431,8 +431,7 @@ namespace Xtensive.Storage
 
       using (var context = OpenOperationContext()) {
         if (context.IsLoggingEnabled) {
-          if (hasKeyGenerator)
-            context.LogOperation(new KeyGenerateOperation(Key));
+          context.LogOperation(new KeyGenerateOperation(Key));
           context.LogOperation(new EntityCreateOperation(Key));
         }
         context.Complete();

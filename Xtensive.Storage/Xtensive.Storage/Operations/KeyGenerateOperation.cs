@@ -8,8 +8,6 @@ using System;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Internals;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Operations
 {
@@ -39,10 +37,10 @@ namespace Xtensive.Storage.Operations
     private void MapNewKey(OperationExecutionContext context)
     {
       var domain = context.Session.Domain;
-      var mappedKey = Key;
-      if (Key.IsTemporary(domain))
-        mappedKey = Key.Create(domain, Key.Type.UnderlyingType);
-      context.AddKeyMapping(Key, mappedKey);
+      if (Key.IsTemporary(domain)) {
+        var mappedKey = Key.Create(domain, Key.Type.UnderlyingType);
+        context.AddKeyMapping(Key, mappedKey);
+      }
     }
 
     private void MapCompositeKey(OperationExecutionContext context)
@@ -58,6 +56,8 @@ namespace Xtensive.Storage.Operations
       var resultTuple = Tuple.Create(sourceTuple.Descriptor);
       var hasTemporaryComponentBeenFound = false;
       foreach (var keyField in hierarchy.Key.Fields) {
+        if (keyField.Parent!=null)
+          continue;
         if (keyField.IsPrimitive) {
           resultTuple.SetValue(columnIndex, sourceTuple.GetValue(columnIndex));
           columnIndex++;
