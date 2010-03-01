@@ -48,10 +48,10 @@ namespace Xtensive.Storage.Operations
 
     #endregion
 
-    // Factory method
+    // Factory methods
 
     /// <summary>
-    /// Attaches the operation logger to the current session.
+    /// Attaches the operation capturer to the current session.
     /// </summary>
     /// <param name="operations">The operation logger to append captured operations to.</param>
     /// <returns>
@@ -64,9 +64,9 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <summary>
-    /// Attaches the operation logger to the specified session.
+    /// Attaches the operation capturer to the specified session.
     /// </summary>
-    /// <param name="session">The session to attach the logger to.</param>
+    /// <param name="session">The session to attach the capturer to.</param>
     /// <param name="operations">The operation logger to append captured operations to.</param>
     /// <returns>
     /// A newly created <see cref="OperationCapturer"/> attached

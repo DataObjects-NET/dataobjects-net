@@ -437,8 +437,8 @@ namespace Xtensive.Storage
         context.Complete();
       }
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializingPersistentEventKey);
-      if (subscriptionInfo.Second != null)
-        ((Action<Key>)subscriptionInfo.Second).Invoke(subscriptionInfo.First);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
     }
 
     internal override sealed void SystemInitialize(bool materialize)

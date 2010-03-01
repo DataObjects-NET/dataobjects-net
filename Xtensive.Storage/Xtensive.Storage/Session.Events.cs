@@ -61,7 +61,12 @@ namespace Xtensive.Storage
     public event EventHandler<KeyEventArgs> KeyGenerated;
 
     /// <summary>
-    /// Occurs when <see cref="Entity"/> created.
+    /// Occurs when <see cref="Entity"/> is materialized.
+    /// </summary>
+    public event EventHandler<EntityEventArgs> EntityMaterialized;
+
+    /// <summary>
+    /// Occurs when <see cref="Entity"/> is created.
     /// </summary>
     public event EventHandler<EntityEventArgs> EntityCreated;
 
@@ -194,6 +199,12 @@ namespace Xtensive.Storage
     {
       if (KeyGenerated != null)
         KeyGenerated(this, new KeyEventArgs(key));
+    }
+
+    internal void NotifyEntityMaterialized(EntityState entityState)
+    {
+      if (EntityMaterialized!=null)
+        EntityMaterialized(this, new EntityEventArgs(entityState.Entity));
     }
 
     internal void NotifyEntityCreated(Entity entity)

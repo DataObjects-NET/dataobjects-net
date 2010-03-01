@@ -219,6 +219,7 @@ namespace Xtensive.Storage
             Tuple = tuple;
           }
         }
+        Session.NotifyEntityMaterialized(this);
       }
     }
 

@@ -378,7 +378,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
           new[] {
             typeof (PersonWithVersionDto), 
             typeof (OperationLog),
-            typeof (Ref<IEntity>), 
+            typeof (Ref<Entity>), 
             typeof (EntityCreateOperation), 
             typeof (EntityFieldSetOperation),
             typeof (EntityRemoveOperation),

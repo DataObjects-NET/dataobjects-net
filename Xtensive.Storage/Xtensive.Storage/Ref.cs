@@ -113,7 +113,7 @@ namespace Xtensive.Storage
     /// <returns>The result of conversion.</returns>
     public static implicit operator Key(Ref<T> reference)
     {
-      return reference.Key==null ? null : Key.Create<T>(reference.Key);
+      return reference.Key;
     }
 
     /// <summary>

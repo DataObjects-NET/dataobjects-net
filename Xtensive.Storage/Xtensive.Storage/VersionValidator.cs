@@ -248,8 +248,34 @@ namespace Xtensive.Storage
 
     #endregion
 
+    #region Attach methods (factory methods)
 
-    // Factory method
+    /// <summary>
+    /// Attaches the validator to the current session.
+    /// </summary>
+    /// <param name="expectedVersions">The set containing expected versions.</param>
+    /// <returns>
+    /// A newly created <see cref="VersionValidator"/> attached
+    /// to the current session.
+    /// </returns>
+    public static VersionValidator Attach(VersionSet expectedVersions)
+    {
+      return Attach(Session.Demand(), expectedVersions);
+    }
+
+    /// <summary>
+    /// Attaches the validator to the specified session.
+    /// </summary>
+    /// <param name="session">The session to attach validator to.</param>
+    /// <param name="expectedVersions">The set containing expected versions.</param>
+    /// <returns>
+    /// A newly created <see cref="VersionValidator"/> attached
+    /// to the specified <paramref name="session"/>.
+    /// </returns>
+    public static VersionValidator Attach(Session session, VersionSet expectedVersions)
+    {
+      return new VersionValidator(session, expectedVersions.Get);
+    }
 
     /// <summary>
     /// Attaches the validator to the current session.
@@ -273,6 +299,8 @@ namespace Xtensive.Storage
     {
       return new VersionValidator(session, expectedVersionProvider);
     }
+
+    #endregion
 
 
     // Constructors

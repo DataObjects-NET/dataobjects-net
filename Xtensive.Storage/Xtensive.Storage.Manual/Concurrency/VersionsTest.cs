@@ -9,7 +9,9 @@ using System.Linq;
 using System.Threading;
 using System.Transactions;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Rse;
 using Xtensive.Core.Reflection;
@@ -194,11 +196,69 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
       }
     }
 
+    [Test]
+    public void VersionValidatorTest()
+    {
+      var domain = GetDomain();
+
+      using (Session.Open(domain)) {
+        var versions = new VersionSet();
+
+        // Building initial state (in auto transactions)
+        var alex = new Person("Yakunin, Alex");
+        var dmitri = new Person("Maximov, Dmitri");
+
+        using (VersionCapturer.Attach(versions))
+        using (var tx = Transaction.Open()) {
+          // Simulating entity displaying @ web page
+          // By default this leads to their addition to VersionSet
+          Dump(alex);
+          Dump(dmitri);
+          tx.Complete();
+        }
+
+        Dump(versions);
+
+        using (VersionValidator.Attach(versions))
+        using (var tx = Transaction.Open()) {
+          alex.Name = "Edited Alex"; // Passes
+          alex.Name = "Edited again"; // Passes, because this is not the very first modification
+          tx.Complete();
+        }
+
+        using (VersionValidator.Attach(versions))
+        using (var tx = Transaction.Open()) {
+          alex.Name = "Edited again"; // Version check fails
+          tx.Complete();
+        }
+
+        versions.Add(alex, true); // Overwriting versions
+        Dump(versions);
+
+        using (VersionValidator.Attach(versions))
+        using (var tx = Transaction.Open()) {
+          alex.Name = "Edited again"; // Passes now
+          tx.Complete();
+        }
+      }
+    }
+
     private void Dump(Entity entity)
     {
       Console.WriteLine("Entity: {0}", entity);
       Console.WriteLine("          Key: {0}", entity.Key);
       Console.WriteLine("  VersionInfo: {0}", entity.VersionInfo);
+      Console.WriteLine();
+    }
+
+    private void Dump(VersionSet versions)
+    {
+      Console.WriteLine("VersionSet: \r\n{0}",
+        versions
+        .Select(pair => new Pair<Key, VersionInfo>(pair.Key, pair.Value))
+        .ToDelimitedString("\r\n")
+        .Indent(2, true)
+        );
       Console.WriteLine();
     }
 
