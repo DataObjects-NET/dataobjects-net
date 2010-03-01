@@ -257,7 +257,8 @@ namespace Xtensive.Storage
       else {
         if (currentSession!=this)
           throw new InvalidOperationException(
-            Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked);
+            Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked
+            .FormatWith(this, currentSession));
         // No activation is necessary here
         return null;
       }
