@@ -43,6 +43,27 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void LongSequenceIntTest()
+    {
+      // Wrong JOIN mapping for temptable version of .In
+      var list1 = new List<decimal?> {7, 22, 46};
+      var list2 = new List<decimal?>();
+      for (int i = 0; i < 100; i++) 
+        list2.AddRange(list1);
+      var query1 = from order in Query.All<Order>()
+      where (order.Freight).In(list1)
+      select order;
+      var query2 = from order in Query.All<Order>()
+      where (order.Freight).In(list2)
+      select order;
+      var expected = from order in Query.All<Order>().AsEnumerable()
+      where (order.Freight).In(list1)
+      select order;
+      Assert.AreEqual(0, expected.Except(query1).Count());
+      Assert.AreEqual(0, expected.Except(query2).Count());
+    }
+
+    [Test]
     public void IntAndDecimalContains1Test()
     {
       // casts int to decimal

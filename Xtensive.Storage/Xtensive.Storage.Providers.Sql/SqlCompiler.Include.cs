@@ -80,12 +80,13 @@ namespace Xtensive.Storage.Providers.Sql
       out TemporaryTableDescriptor tableDescriptor)
     {
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
+      var filteredColumns = provider.FilteredColumns.Select(index => sourceColumns[index]).ToList();
       tableDescriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(Guid.NewGuid().ToString(), filterTupleDescriptor);
       var filterQuery = tableDescriptor.QueryStatement.ShallowClone();
       var tableRef = filterQuery.From;
       for (int i = 0; i < filterTupleDescriptor.Count; i++)
-        filterQuery.Where &= sourceColumns[i]==tableRef[i];
+        filterQuery.Where &= filteredColumns[i]==tableRef[i];
       var resultExpression = SqlDml.Exists(filterQuery);
       return resultExpression;
     }
