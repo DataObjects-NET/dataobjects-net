@@ -186,9 +186,11 @@ namespace Xtensive.Storage.Building
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] {typeof (EntityState)});
       if (constructor!=null)
         return;
-      var assemblyName = type.UnderlyingType.Assembly.GetName().Name;
+      var typeName = type.UnderlyingType.GetFullName();
+      var assemblyName = type.UnderlyingType.Assembly.GetName().FullName;
       throw new DomainBuilderException(String.Format(
-        Strings.ExPersistentAttributeIsNotSetOnTypeX, assemblyName));
+        Strings.ExPersistentAttributeIsNotSetOnTypeXOrAssemblyYIsNotProcessedByPostSharp,
+        typeName, assemblyName));
     }
 
     public static void ValidateKeyGeneratorType(Type type)
