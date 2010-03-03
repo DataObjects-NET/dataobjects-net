@@ -100,10 +100,11 @@ namespace Xtensive.Core.Diagnostics
         return new NullLog(key);
       if (key == LogProviderType.Debug.ToString())
         return new DebugLog(key);
-      if (Debugger.IsAttached)
-        return new DebugLog(key);
-      else 
-        return new NullLog(key);
+      return new NullLog(key);
+//      if (Debugger.IsAttached)
+//        return new DebugLog(key);
+//      else 
+//        return new NullLog(key);
     }
   }
 }
