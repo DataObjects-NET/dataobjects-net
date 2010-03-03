@@ -25,7 +25,7 @@ namespace Xtensive.Core.Diagnostics.Configuration
     /// <summary>
     /// Gets or sets the name of the log.
     /// </summary>
-    [ConfigurationProperty(NameElementName, IsKey = true, IsRequired = true, DefaultValue = "")]
+    [ConfigurationProperty(NameElementName, IsKey = true, IsRequired = false, DefaultValue = "")]
     public string Name
     {
       get { return (string) this[NameElementName]; }
