@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Providers
         }
         else
           result = type.MappingName;
-        return ApplyNamingRules(string.Format(GenericTypePattern, result, string.Join(",", names)));
+        return ApplyNamingRules(string.Format(GenericTypePattern, result, string.Join("-", names)));
       }
 
       if (!type.MappingName.IsNullOrEmpty())
@@ -101,16 +101,14 @@ namespace Xtensive.Storage.Providers
       result = type.Name.IsNullOrEmpty() ? underlyingTypeName : type.Name;
       switch (NamingConvention.NamespacePolicy) {
         case NamespacePolicy.Synonymize: {
-          string namespacePrefix;
-          try {
-            namespacePrefix = NamingConvention.NamespaceSynonyms[@namespace];
-            if (namespacePrefix.IsNullOrEmpty())
+          string synonym;
+          if (NamingConvention.NamespaceSynonyms.TryGetValue(@namespace, out synonym)) {
+            if (synonym.IsNullOrEmpty())
               throw new InvalidOperationException(Resources.Strings.ExIncorrectNamespaceSynonyms);
           }
-          catch (KeyNotFoundException) {
-            namespacePrefix = @namespace;
-          }
-          result = string.Format("{0}.{1}", namespacePrefix, result);
+          else
+            synonym = @namespace;
+          result = string.Format("{0}.{1}", synonym, result);
         }
           break;
         case NamespacePolicy.AsIs:
