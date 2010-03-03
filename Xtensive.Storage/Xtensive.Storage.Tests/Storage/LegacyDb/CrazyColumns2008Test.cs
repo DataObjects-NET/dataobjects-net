@@ -8,12 +8,13 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Tests.Storage.LegacyDb.CrazyColumns2008TestModel;
 
-namespace Xtensive.Storage.Tests.Storage.LegacyDb
+namespace Xtensive.Storage.Tests.Storage.LegacyDb.CrazyColumns2008TestModel
 {
   [Serializable]
   [HierarchyRoot]
-  public class DT : Entity
+  public class Crazy : Entity
   {
     [Field, Key]
     public Guid Id { get; private set; }
@@ -24,20 +25,24 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     [Field]
     public DateTime Date { get; set; }
   }
+}
+
+namespace Xtensive.Storage.Tests.Storage.LegacyDb
+{
 
   [TestFixture]
-  public class DateAndTimeSupportTest : LegacyDbAutoBuildTest
+  public class CrazyColumns2008Test : LegacyDbAutoBuildTest
   {
     protected override void CheckRequirements()
     {
-      Require.ProviderIs(StorageProvider.SqlServer);
+      base.CheckRequirements();
       Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2008);
     }
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(DT));
+      config.Types.Register(typeof(Crazy));
       return config;
     }
 
@@ -46,43 +51,32 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     {
       var date = new DateTime(2000, 01, 01);
       var time = new DateTime(1,1,1,12, 00,00);
-      using (Session.Open(Domain)) {
-        using (var ts = Transaction.Open()) {
-
-          var dt1 = new DT();
-          dt1.Date = date;
-          dt1.Time = DateTime.Now;
-
-          var dt2 = new DT();
-          dt2.Date = DateTime.Now;
-          dt2.Time = time;
-
-          ts.Complete();
-        }
+      using (Session.Open(Domain))
+      using (var ts = Transaction.Open()) {
+        var crazy1 = new Crazy {Date = date, Time = DateTime.Now};
+        var crazy2 = new Crazy {Date = DateTime.Now, Time = time};
+        ts.Complete();
       }
 
-      using (Session.Open(Domain)) {
-        using (Transaction.Open()) {
-
-          foreach (var item in Query.All<DT>()) {
-            Console.WriteLine(item.Date);
-            Console.WriteLine(item.Time);
-          }
-
-          Assert.AreEqual(1, Query.All<DT>().Where(o => o.Date == date).Count());
-          Assert.AreEqual(1, Query.All<DT>().Where(o => o.Time == time).Count());
+      using (Session.Open(Domain))
+      using (Transaction.Open()) {
+        foreach (var item in Query.All<Crazy>()) {
+          Console.WriteLine(item.Date);
+          Console.WriteLine(item.Time);
         }
+        Assert.AreEqual(1, Query.All<Crazy>().Where(o => o.Date==date).Count());
+        Assert.AreEqual(1, Query.All<Crazy>().Where(o => o.Time==time).Count());
       }
     }
 
     protected override string GetCreateDbScript(DomainConfiguration config)
     {
       return @"
-        CREATE TABLE [dbo].[DT](
+        CREATE TABLE [dbo].[Crazy](
           [Id] [uniqueidentifier] NOT NULL,
           [Date] [date] NOT NULL,
           [Time] [time](7) NOT NULL,
-          CONSTRAINT [PK_DT] PRIMARY KEY CLUSTERED ([Id] ASC) ON [PRIMARY]
+          CONSTRAINT [PK_Crazy] PRIMARY KEY CLUSTERED ([Id] ASC) ON [PRIMARY]
         ) ON [PRIMARY]";
     }
   }

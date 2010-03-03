@@ -4,28 +4,24 @@
 // Created by: Dmitri Maximov
 // Created:    2009.11.28
 
-using System;
 using Xtensive.Sql;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Tests.Storage.LegacyDb
 {
-  [Serializable]
-  [HierarchyRoot]
-  [KeyGenerator(null)]
-  public sealed class Fake : Entity
-  {
-    [Field, Key]
-    public int Id { get; private set; }
-  }
-  
   public abstract class LegacyDbAutoBuildTest : AutoBuildTest
   {
     public override void TestFixtureSetUp()
     {
-      Require.ProviderIs(StorageProvider.SqlServer);
+      CheckRequirements();
       ClearDb();
       base.TestFixtureSetUp();
+    }
+
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.ProviderIs(StorageProvider.SqlServer);
     }
 
     protected override Domain BuildDomain(DomainConfiguration configuration)
@@ -46,7 +42,6 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     private void ClearDb()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Fake));
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       Domain.Build(config).Dispose();
     }
@@ -68,7 +63,6 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     private static string GetCleanDbScript()
     {
       return @"
-      IF object_id('[dbo].[Fake]') is not null drop table [dbo].[Fake]
       IF object_id('[dbo].[Metadata.Assembly]') is not null drop table [dbo].[Metadata.Assembly]
       IF object_id('[dbo].[Metadata.Extension]') is not null drop table [dbo].[Metadata.Extension]
       IF object_id('[dbo].[Metadata.Type]') is not null drop table [dbo].[Metadata.Type]";
