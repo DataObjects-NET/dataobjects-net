@@ -839,12 +839,15 @@ namespace Xtensive.Storage.Building.Builders
       ProcessAncestors(typeInfo, ancestor => ancestors.Add(ancestor));
 
       ExtractAffectedIndexes(typeInfo, typeInfo.Indexes, ancestors);
-      if (typeInfo.Hierarchy.InheritanceSchema==InheritanceSchema.ClassTable) {
-        var rootIndex = typeInfo.Hierarchy.Root.Indexes
-          .FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
-        if (!typeInfo.AffectedIndexes.Contains(rootIndex))
-          typeInfo.AffectedIndexes.Add(rootIndex);
-      }
+      if (typeInfo.Hierarchy.InheritanceSchema==InheritanceSchema.ClassTable)
+        // Add primary indexes of all ancestors to affected indexes list.
+        // This is an ugly hack :-(
+        foreach (var ancestor in ancestors) {
+          var primaryIndex = ancestor.Indexes
+            .FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
+          if (!typeInfo.AffectedIndexes.Contains(primaryIndex))
+            typeInfo.AffectedIndexes.Add(primaryIndex);
+        }
     }
     
     private static void ExtractAffectedIndexes(
