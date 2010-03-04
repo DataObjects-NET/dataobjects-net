@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return "{0,7} {1}\r\n{2,7} Now: {3}".FormatWith(
+      return "{0,7} {1}\r\n{2,7} Current state: {3}".FormatWith(
         ChangeType,
         EntityAsString,
         string.Empty,
@@ -141,8 +141,8 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return "{0} (Id = {1}), Pets: {2}".FormatWith(Name, Id, 
-        Pets.Select(p => p.Name).ToCommaDelimitedString());
+      return "{0} {1}, Id: #{2}, Pets: {3}".FormatWith(GetType().GetShortName(), Name, 
+        Id, Pets.Select(p => p.Name).ToCommaDelimitedString());
     }
   }
 
@@ -161,7 +161,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return "{0} ({1}, Id = {2}), Owner: {3}".FormatWith(Name, GetType().GetShortName(), 
+      return "{0} {1}, Id: #{2}, Owner: {3}".FormatWith(GetType().GetShortName(), Name, 
         Id, Owner==null ? "none" : Owner.Name);
     }
   }
@@ -242,7 +242,9 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
       var batches = info.ChangedEntities.Batch(); // To avoid further GCs, if set is large
       foreach (var changedEntities in batches) {
-        changedEntities.Prefetch<AuditRecord, Key>(key => key);
+        changedEntities
+          .Prefetch<AuditRecord, Key>(key => key)
+          .Run();
         foreach (var key in changedEntities) {
           var entity = Query.SingleOrDefault(key);
           bool isRemoved = entity.IsRemoved();
@@ -307,22 +309,7 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
       config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       var domain = Domain.Build(config);
 
-      var registeredTypes = (
-        from typeInfo in domain.Model.Types
-        orderby typeInfo.UnderlyingType.GetShortName()
-        select typeInfo).ToList();
-
-      var autoGenericInstances = (
-        from typeInfo in registeredTypes
-        where typeInfo.IsAutoGenericInstance
-        select typeInfo).ToList();
-
-      Console.WriteLine("Automatically registered generic instances:");
-      foreach (var typeInfo in autoGenericInstances)
-        Console.WriteLine("  {0}", typeInfo.UnderlyingType.GetShortName());
-      Console.WriteLine();
-
-      Assert.AreEqual(8, autoGenericInstances.Count);
+      DumpAutoRegisteredGenericInstances(domain);
 
       Cat tom;
       Cat musya;
@@ -367,27 +354,64 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
         tom.Owner = alex;
 
         // And now - the magic!
-        Console.WriteLine("Audit log:");
-        using (var tx = Transaction.Open()) {
-          var auditRecords =
-            from record in Query.All<AuditRecord>()
-            let transaction = record.Transaction
-            orderby transaction.Id, record.EntityKey
-            select record;
+        DumpAuditLog();
+      }
+    }
 
-          TransactionInfo lastTransaction = null;
-          foreach (var record in auditRecords) {
-            var transaction = record.Transaction;
-            if (lastTransaction!=transaction) {
-              // Client-side grouping ;) Actually, for nicer output.
-              Console.WriteLine();
-              Console.WriteLine(transaction.ToString());
-              lastTransaction = transaction;
-            }
-            Console.WriteLine(record.ToString().Indent(2));
+    private void DumpAutoRegisteredGenericInstances(Domain domain)
+    {
+      var registeredTypes = (
+        from typeInfo in domain.Model.Types
+        orderby typeInfo.UnderlyingType.GetShortName()
+        select typeInfo).ToList();
+
+      var autoGenericInstances = (
+        from typeInfo in registeredTypes
+        where typeInfo.IsAutoGenericInstance
+        select typeInfo).ToList();
+
+      Console.WriteLine("Automatically registered generic instances:");
+      foreach (var typeInfo in autoGenericInstances)
+        Console.WriteLine("  {0}", typeInfo.UnderlyingType.GetShortName());
+      Console.WriteLine();
+      Assert.AreEqual(8, autoGenericInstances.Count);
+    }
+
+    private void DumpAuditLog()
+    {
+      Console.WriteLine("Audit log:");
+      using (var tx = Transaction.Open()) {
+        var auditTable =
+          from record in Query.All<AuditRecord>()
+          let transaction = record.Transaction
+          orderby transaction.Id , record.EntityKey
+          select new {Record = record, Transaction = transaction};
+
+        // Prefetching AuditRecord<T> - so far we're sure there is only
+        // AuditRecord fields and Transaction, but we need descendant fields
+        // as well.
+        auditTable
+          .Select(e => e.Record.Key)
+          .Prefetch<Entity, Key>(key => key)
+          .Run();
+        // Prefetching AuditRecord.EntityKey
+        auditTable
+          .Select(e => e.Record.EntityKey)
+          .Prefetch<Entity, Key>(key => key)
+          .Run();
+
+        TransactionInfo lastTransaction = null;
+        foreach (var entry in auditTable) {
+          var transaction = entry.Transaction;
+          if (lastTransaction!=transaction) {
+            // Client-side grouping ;) Actually, for nicer output.
+            Console.WriteLine();
+            Console.WriteLine(transaction.ToString());
+            lastTransaction = transaction;
           }
-          tx.Complete();
+          Console.WriteLine(entry.Record.ToString().Indent(2));
         }
+        tx.Complete();
       }
     }
   }
