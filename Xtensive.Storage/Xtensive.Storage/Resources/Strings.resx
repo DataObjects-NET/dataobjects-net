@@ -1412,4 +1412,7 @@ Actions:
   <data name="ExTypeOfXMustBeADescendantOfYType" xml:space="preserve">
     <value>Type of '{0}' must be a descendant of {1} type.</value>
   </data>
+  <data name="ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt" xml:space="preserve">
+    <value>Active Transaction is required for this operation. Use Transaction.Open(...) to open it.</value>
+  </data>
 </root>

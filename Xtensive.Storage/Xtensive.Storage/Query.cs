@@ -51,7 +51,8 @@ namespace Xtensive.Storage
     /// <param name="searchCriteria">The search criteria in free text form.</param>
     /// <returns>An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.</returns>
-    public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria) where T:Entity
+    public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria) 
+      where T: Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.FreeTextString.MakeGenericMethod(typeof (T));
@@ -66,7 +67,8 @@ namespace Xtensive.Storage
     /// <param name="searchCriteria">The search criteria in free text form.</param>
     /// <returns>An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.</returns>
-    public static IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria) where T:Entity
+    public static IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria) 
+      where T: Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.FreeTextExpression.MakeGenericMethod(typeof (T));

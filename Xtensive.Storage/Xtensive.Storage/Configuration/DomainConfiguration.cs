@@ -466,7 +466,6 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public DomainConfiguration()
     {
-      // This assembly must be always registered
       types.Register(typeof (Persistent).Assembly);
     }
   }

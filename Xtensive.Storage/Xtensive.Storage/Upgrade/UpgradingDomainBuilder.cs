@@ -114,7 +114,7 @@ namespace Xtensive.Storage.Upgrade
           var assembly = type.Assembly;
           var handlers = context.UpgradeHandlers;
           return
-            handlers.ContainsKey(assembly) && TypeFilteringHelper.IsPersistentType(type)
+            handlers.ContainsKey(assembly) && DomainTypeRegistry.IsPersistentType(type)
               && handlers[assembly].IsTypeAvailable(type, context.Stage);
         },
         FieldFilter = field => {

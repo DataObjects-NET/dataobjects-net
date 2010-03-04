@@ -123,20 +123,18 @@ namespace Xtensive.Storage.Building.Builders
       }
     } 
 
-    private static void BuildTypes(IEnumerable<Node<TypeDef>> nodes)
+    private static void BuildTypes(IEnumerable<TypeDef> typeDefs)
     {
       var context = BuildingContext.Demand();
 
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
         // Building types, system fields and hierarchies
-        foreach (var node in nodes) {
-          var typeDef = node.Value;
+        foreach (var typeDef in typeDefs) {
           TypeBuilder.BuildType(typeDef);
         }
       }
       using (Log.InfoRegion(Strings.LogBuildingX, "Fields"))
-        foreach (var node in nodes) {
-          var typeDef = node.Value;
+        foreach (var typeDef in typeDefs) {
           var typeInfo = context.Model.Types[typeDef.UnderlyingType];
           TypeBuilder.BuildFields(typeDef, typeInfo);
         }
@@ -268,13 +266,15 @@ namespace Xtensive.Storage.Building.Builders
 
     #region Topological sort helpers
 
-    private static List<Node<TypeDef>> GetTypeBuildSequence(BuildingContext context)
+    private static IEnumerable<TypeDef> GetTypeBuildSequence(BuildingContext context)
     {
       List<Node<Node<TypeDef>, object>> loops;
-      List<Node<TypeDef>> result = TopologicalSorter.Sort(context.DependencyGraph.Nodes, TypeConnector, out loops);
+      var result = TopologicalSorter.Sort(context.DependencyGraph.Nodes, TypeConnector, out loops);
       if (result==null)
         throw new DomainBuilderException(String.Format(Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX, loops.Select(node => node.Item.Value.Name).ToCommaDelimitedString()));
-      return result;
+      var dependentTypes = result.Select(n => n.Value);
+      var independentTypes = context.ModelDef.Types.Except(dependentTypes);
+      return independentTypes.Concat(dependentTypes);
     }
 
     private static bool TypeConnector(Node<TypeDef> first, Node<TypeDef> second)

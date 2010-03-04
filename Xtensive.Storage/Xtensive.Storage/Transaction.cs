@@ -21,6 +21,8 @@ namespace Xtensive.Storage
   /// </summary>
   public sealed partial class Transaction : IHasExtensions
   {
+    #region Current, Demand() members (static)
+
     /// <summary>
     /// Gets the current <see cref="Transaction"/> object
     /// using <see cref="Session"/>.<see cref="Storage.Session.Current"/>.
@@ -32,10 +34,35 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <summary>
+    /// Gets the current <see cref="Transaction"/>, 
+    /// or throws <see cref="InvalidOperationException"/>, 
+    /// if active <see cref="Transaction"/> is not found.
+    /// </summary>
+    /// <returns>Current transaction.</returns>
+    /// <exception cref="InvalidOperationException"><see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.</exception>
+    public static Transaction Demand()
+    {
+      var currentTransaction = Current;
+      if (currentTransaction==null)
+        throw new InvalidOperationException(
+          Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
+      return currentTransaction;
+    }
+
+    #endregion
+
     private InconsistentRegion inconsistentRegion;
     private ExtensionCollection extensions;
     private Transaction inner;
     
+    /// <summary>
+    /// Gets the unique identifier of this transaction.
+    /// Nested transactions have the same <see cref="Guid"/> 
+    /// as their outermost.
+    /// </summary>
+    public Guid Guid { get; private set; }
+
     /// <summary>
     /// Gets the session this transaction is bound to.
     /// </summary>
@@ -62,7 +89,7 @@ namespace Xtensive.Storage
     public Transaction Outermost { get; private set; }
 
     /// <summary>
-    /// Gets the timestamp of this transaction.
+    /// Gets the start time of this transaction.
     /// </summary>
     public DateTime TimeStamp { get; private set; }
     
@@ -197,15 +224,17 @@ namespace Xtensive.Storage
 
     internal Transaction(Session session, IsolationLevel isolationLevel, Transaction outer, string savepointName)
     {
+      Guid = Guid.NewGuid();
       State = TransactionState.NotActivated;
       Session = session;
       IsolationLevel = isolationLevel;
-      TimeStamp = DateTime.Now;
+      TimeStamp = DateTime.UtcNow;
       TemporaryData = new TransactionTemporaryData();
       ValidationContext = new ValidationContext();
       
       if (outer!=null) {
         Outer = outer;
+        Guid = outer.Guid;
         Outermost = outer.Outermost;
         SavepointName = savepointName;
       }

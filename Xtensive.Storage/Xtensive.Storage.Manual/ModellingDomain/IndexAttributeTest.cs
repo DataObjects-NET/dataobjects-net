@@ -11,7 +11,7 @@ using NUnit.Framework;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 
-namespace Xtensive.Storage.Manual.ModellingDomain
+namespace Xtensive.Storage.Manual.ModellingDomain.IndexAttribute_
 {
   #region Model
 

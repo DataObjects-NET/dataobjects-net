@@ -32,6 +32,11 @@ namespace Xtensive.Storage.Tests.Issues
       public VirtualMedia() : base() { }
     }
 
+    public class VirtualMediaDescendant : VirtualMedia
+    {
+      public VirtualMediaDescendant() : base() { }
+    }
+
     [HierarchyRoot]
     public class ConcreteMedia : MediaType
     {
@@ -50,6 +55,17 @@ namespace Xtensive.Storage.Tests.Issues
 
       [Field]
       public abstract Int64 Duration { get; }
+    }
+
+    [HierarchyRoot]
+    public class WrongMediaItemBase<MT> : MediaBase 
+    {
+      public override long Duration
+      {
+        get { throw new NotImplementedException(); }
+      }
+
+      public WrongMediaItemBase() : base() { }
     }
 
     public abstract class MediaItemBase<MT> : MediaBase 
@@ -131,9 +147,9 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void MainTest()
     {
+      Assert.IsFalse(Domain.Model.Types.Contains(typeof(WrongMediaItemBase<VirtualMedia>)));
       using (Session.Open(Domain))
       using (var t = Transaction.Open()) {
-
       }
     }
   }

@@ -8,17 +8,48 @@ using System;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// Type attributes.
+  /// </summary>
   [Flags]
   public enum TypeAttributes
   {
     None = 0,
+    /// <summary>
+    /// Type is entity.
+    /// </summary>
     Entity = 0x1,
+    /// <summary>
+    /// Type is structure.
+    /// </summary>
     Structure = 0x4,
+    /// <summary>
+    /// Type is persistent interface.
+    /// </summary>
     Interface = 0x8,
+    /// <summary>
+    /// Type is abstract.
+    /// </summary>
     Abstract = 0x10,
+    /// <summary>
+    /// Type is materialized interface.
+    /// </summary>
     Materialized = 0x20,
+    /// <summary>
+    /// Type is system.
+    /// </summary>
     System = 0x40,
-    GenericTypeDefinition = 0x80,
-    AuxiliaryType = 0x100
+    /// <summary>
+    /// Type is auxilary (entity set item).
+    /// </summary>
+    AuxiliaryType = 0x80,
+    /// <summary>
+    /// Type is generic type definition.
+    /// </summary>
+    GenericTypeDefinition = 0x100,
+    /// <summary>
+    /// Type is automatically registered generic type instance.
+    /// </summary>
+    AutoGenericInstance = 0x200,
   }
 }

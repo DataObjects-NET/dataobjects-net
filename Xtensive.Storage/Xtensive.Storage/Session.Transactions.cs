@@ -120,11 +120,11 @@ namespace Xtensive.Storage
 
     internal void CommitTransaction(Transaction transaction)
     {
-      Persist(PersistReason.Commit);
-
       if (IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXCommittingTransaction, this);
       NotifyTransactionCommitting(transaction);
+
+      Persist(PersistReason.Commit);
 
       if (!transaction.IsActuallyStarted)
         return;

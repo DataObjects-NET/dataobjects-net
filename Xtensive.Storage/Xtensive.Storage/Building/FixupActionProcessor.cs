@@ -11,6 +11,7 @@ using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Building.FixupActions;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
@@ -19,6 +20,49 @@ namespace Xtensive.Storage.Building
   [Serializable]
   internal static class FixupActionProcessor
   {
+    #region Nested type: GenericArgumentCombinator
+
+    private class GenericArgumentCombinator
+    {
+      private readonly Type[] current;
+      private readonly List<Type> result;
+      private readonly Type typeDefinition;
+      private readonly Type[][] candidateTypes;
+
+      public static List<Type> Generate(Type typeDefinition, Type[][] candidateTypes)
+      {
+        var combinator = new GenericArgumentCombinator(typeDefinition, candidateTypes);
+        combinator.Generate(0);
+        return combinator.result;
+      }
+
+      private void Generate(int argumentPosition)
+      {
+        if (argumentPosition < current.Length - 1)
+          foreach (var candidate in candidateTypes[argumentPosition]) {
+            current[argumentPosition] = candidate;
+            Generate(argumentPosition + 1);
+          }
+        else
+          foreach (var candidate in candidateTypes[argumentPosition]) {
+            current[argumentPosition] = candidate;
+            result.Add(typeDefinition.MakeGenericType(current));
+          }
+      }
+
+      private GenericArgumentCombinator(Type typeDefinition, Type[][] candidateTypes)
+      {
+        current = new Type[candidateTypes.Length];
+        result = new List<Type>();
+        this.typeDefinition = typeDefinition;
+        this.candidateTypes = candidateTypes;
+      }
+    }
+
+    #endregion
+
+    internal readonly static Type iEntityType = typeof (IEntity);
+
     public static void Run()
     {
       var context = BuildingContext.Demand();
@@ -81,67 +125,43 @@ namespace Xtensive.Storage.Building
       var hierarchyToRemove = context.ModelDef.Hierarchies.SingleOrDefault(h => h.Root == type);
       if (hierarchyToRemove != null) 
         context.ModelDef.Hierarchies.Remove(hierarchyToRemove);
+
+      // Building al possible generic arguemtn substitusions
       var arguments = type.UnderlyingType.GetGenericArguments();
       var typeSubstitutions = new Type[arguments.Length][];
       for (var i = 0; i < arguments.Length; i++) {
         var argument = arguments[i];
-        var constraints = argument.GetGenericParameterConstraints();
-        var queue = new Queue<Type>(hierarchies
-          .Where(h => !h.Root.IsSystem)
-          .Select(h => h.Root.UnderlyingType));
+        var constraints =
+          argument.GetGenericParameterConstraints()
+            .Where(c => iEntityType.IsAssignableFrom(c))
+            .ToList();
+        if (constraints.Count==0)
+          return; // No IEntity / Entity constraints
+        var queue = new Queue<Type>(
+          from hierarchy in hierarchies
+          let root = hierarchy.Root
+          where 
+            !root.IsSystem && 
+            !root.IsAutoGenericInstance
+          select root.UnderlyingType);
         var types = new List<Type>();
         while (queue.Count > 0) {
-          var typeCandidate = queue.Dequeue();
-          if (constraints.All(ct => ct.IsAssignableFrom(typeCandidate))) {
-            types.Add(typeCandidate);
-            continue;
-          }
-          foreach (var inheritor in inheritors[typeCandidate])
-            queue.Enqueue(inheritor);
+          var candidate = queue.Dequeue();
+          if (constraints.All(ct => ct.IsAssignableFrom(candidate)))
+            // First suitable descendant is found
+            types.Add(candidate); 
+          else
+            // Suitable descendant is not found, let's study its descendant
+            foreach (var inheritor in inheritors[candidate])
+              queue.Enqueue(inheritor);
         }
-        // Skip generic registration
         if (types.Count == 0)
-          return;
+          return; // One of arguments has no matching types, so nothing to register at all
         typeSubstitutions[i] = types.ToArray();
       }
-      foreach (var instanceType in GenericCombinator.Generate(type.UnderlyingType, typeSubstitutions))
-        ModelDefBuilder.ProcessType(instanceType);
-    }
-
-    class GenericCombinator
-    {
-      private readonly Type[] current;
-      private readonly List<Type> result;
-      private readonly Type typeDefinition;
-      private readonly Type[][] candidateTypes;
-
-      public static List<Type> Generate(Type typeDefinition, Type[][] candidateTypes)
-      {
-        var combinator = new GenericCombinator(typeDefinition, candidateTypes);
-        combinator.Generate(0);
-        return combinator.result;
-      }
-
-      private void Generate(int argumentPosition)
-      {
-        if (argumentPosition < current.Length - 1)
-          foreach (var candidate in candidateTypes[argumentPosition]) {
-            current[argumentPosition] = candidate;
-            Generate(argumentPosition + 1);
-          }
-        else
-          foreach (var candidate in candidateTypes[argumentPosition]) {
-            current[argumentPosition] = candidate;
-            result.Add(typeDefinition.MakeGenericType(current));
-          }
-      }
-
-      private GenericCombinator(Type typeDefinition, Type[][] candidateTypes)
-      {
-        current = new Type[candidateTypes.Length];
-        result = new List<Type>();
-        this.typeDefinition = typeDefinition;
-        this.candidateTypes = candidateTypes;
+      foreach (var instanceType in GenericArgumentCombinator.Generate(type.UnderlyingType, typeSubstitutions)) {
+        var typeDef = ModelDefBuilder.ProcessType(instanceType);
+        typeDef.Attributes |= TypeAttributes.AutoGenericInstance;
       }
     }
 

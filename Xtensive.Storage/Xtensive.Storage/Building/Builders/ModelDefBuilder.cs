@@ -12,6 +12,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Sorting;
 using Xtensive.Storage.Building.Definitions;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 
@@ -96,13 +97,13 @@ namespace Xtensive.Storage.Building.Builders
         }
         modelDef.Types.Add(typeDef);
 
-        ProcessFullText(typeDef);
+        ProcessFullTextIndexes(typeDef);
 
         return typeDef;
       }
     }
 
-    public static void ProcessFullText(TypeDef typeDef)
+    public static void ProcessFullTextIndexes(TypeDef typeDef)
     {
       var fullTextIndexDef = new FullTextIndexDef(typeDef);
       var modelDef = BuildingContext.Demand().ModelDef;
@@ -297,7 +298,7 @@ namespace Xtensive.Storage.Building.Builders
     private static Func<Type, bool> GetTypeFilter()
     {
       var filter = BuildingContext.Demand().BuilderConfiguration.TypeFilter 
-        ?? TypeFilteringHelper.IsPersistentType;
+        ?? DomainTypeRegistry.IsPersistentType;
       return (t => filter(t) && t!=typeof (EntitySetItem<,>));
     }
 

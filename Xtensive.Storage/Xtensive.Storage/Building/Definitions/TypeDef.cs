@@ -77,6 +77,14 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
+    /// Gets a value indicating whether this instance is automatically registered generic type instance.
+    /// </summary>
+    public bool IsAutoGenericInstance
+    {
+      get { return (attributes & TypeAttributes.AutoGenericInstance) > 0; }
+    }
+
+    /// <summary>
     /// Gets or sets the underlying system type.
     /// </summary>
     public Type UnderlyingType

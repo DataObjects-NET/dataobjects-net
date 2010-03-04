@@ -600,6 +600,13 @@ namespace Xtensive.Storage
 
     #endregion
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return Key.ToString();
+    }
+
+
     // Constructors
 
     /// <summary>
