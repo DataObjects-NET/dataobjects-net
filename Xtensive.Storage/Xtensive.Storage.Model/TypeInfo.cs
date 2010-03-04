@@ -130,13 +130,29 @@ namespace Xtensive.Storage.Model
     public bool IsAuxiliary
     {
       [DebuggerStepThrough]
-      get { return (attributes & TypeAttributes.AuxiliaryType) == TypeAttributes.AuxiliaryType; }
+      get { return (attributes & TypeAttributes.Auxiliary) == TypeAttributes.Auxiliary; }
       set {
         this.EnsureNotLocked();
         attributes = value
-          ? attributes | TypeAttributes.AuxiliaryType
-          : attributes & ~TypeAttributes.AuxiliaryType;
+          ? attributes | TypeAttributes.Auxiliary
+          : attributes & ~TypeAttributes.Auxiliary;
       }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is generic type definition.
+    /// </summary>
+    public bool IsGenericTypeDefinition
+    {
+      get { return (attributes & TypeAttributes.GenericTypeDefinition) > 0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is automatically registered generic type instance.
+    /// </summary>
+    public bool IsAutoGenericInstance
+    {
+      get { return (attributes & TypeAttributes.AutoGenericInstance) > 0; }
     }
 
     #endregion

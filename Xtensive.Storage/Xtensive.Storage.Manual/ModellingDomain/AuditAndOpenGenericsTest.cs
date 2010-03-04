@@ -13,6 +13,7 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
 {
@@ -311,13 +312,17 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
         orderby typeInfo.UnderlyingType.GetShortName()
         select typeInfo).ToList();
 
+      var autoGenericInstances = (
+        from typeInfo in registeredTypes
+        where typeInfo.IsAutoGenericInstance
+        select typeInfo).ToList();
+
       Console.WriteLine("Automatically registered generic instances:");
-      foreach (var typeInfo in registeredTypes) {
-        var type = typeInfo.UnderlyingType;
-        if (type.IsGenericType)
-          Console.WriteLine("  {0}", type.GetShortName());
-      }
+      foreach (var typeInfo in autoGenericInstances)
+        Console.WriteLine("  {0}", typeInfo.UnderlyingType.GetShortName());
       Console.WriteLine();
+
+      Assert.AreEqual(8, autoGenericInstances.Count);
 
       Cat tom;
       Cat musya;

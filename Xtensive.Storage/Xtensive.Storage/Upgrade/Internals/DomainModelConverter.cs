@@ -303,7 +303,7 @@ namespace Xtensive.Storage.Upgrade
       if (association.OnTargetRemove==OnRemoveAction.None)
         return null;
 
-      // AuxiliaryType == null
+      // Auxiliary == null
       if (association.AuxiliaryType==null) {
         if (association.OwnerField.Columns.Count==0)
           return null;
@@ -326,7 +326,7 @@ namespace Xtensive.Storage.Upgrade
         return foreignKey;
       }
 
-      // AuxiliaryType != null
+      // Auxiliary != null
       if (association.AuxiliaryType!=null) {
         if (!association.IsMaster)
           return null;

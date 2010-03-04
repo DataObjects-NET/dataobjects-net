@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Type is auxilary (entity set item).
     /// </summary>
-    AuxiliaryType = 0x80,
+    Auxiliary = 0x80,
     /// <summary>
     /// Type is generic type definition.
     /// </summary>
