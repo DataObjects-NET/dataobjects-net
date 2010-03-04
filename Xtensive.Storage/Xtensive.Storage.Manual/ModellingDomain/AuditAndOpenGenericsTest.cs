@@ -374,11 +374,12 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
             let transaction = record.Transaction
             orderby transaction.Id, record.EntityKey
             select record;
+
           TransactionInfo lastTransaction = null;
           foreach (var record in auditRecords) {
             var transaction = record.Transaction;
             if (lastTransaction!=transaction) {
-              // Client-side grouping ;) Actually, for better output
+              // Client-side grouping ;) Actually, for nicer output.
               Console.WriteLine();
               Console.WriteLine(transaction.ToString());
               lastTransaction = transaction;
