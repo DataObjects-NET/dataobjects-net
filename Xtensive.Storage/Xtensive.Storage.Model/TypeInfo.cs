@@ -11,11 +11,9 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
@@ -87,6 +85,15 @@ namespace Xtensive.Storage.Model
     {
       [DebuggerStepThrough]
       get { return (attributes & TypeAttributes.Interface) > 0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is materialized interface.
+    /// </summary>
+    public bool IsMaterialized
+    {
+      [DebuggerStepThrough]
+      get { return (attributes & TypeAttributes.Materialized) > 0; }
     }
 
     /// <summary>
