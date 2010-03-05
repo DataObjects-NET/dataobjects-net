@@ -131,11 +131,9 @@ namespace Xtensive.Storage.Building
       var typeSubstitutions = new Type[arguments.Length][];
       for (var i = 0; i < arguments.Length; i++) {
         var argument = arguments[i];
-        var constraints =
-          argument.GetGenericParameterConstraints()
-            .Where(c => iEntityType.IsAssignableFrom(c))
-            .ToList();
-        if (constraints.Count==0)
+        var constraints = argument.GetGenericParameterConstraints()
+          .ToList();
+        if (constraints.Count == 0 || !constraints.Any(c => iEntityType.IsAssignableFrom(c)))
           return; // No IEntity / Entity constraints
         var queue = new Queue<Type>(
           from hierarchy in hierarchies

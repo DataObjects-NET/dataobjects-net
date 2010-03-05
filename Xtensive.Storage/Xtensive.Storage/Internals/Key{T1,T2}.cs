@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Internals
     {
       var result = Tuple.HashCodeMultiplier * 0 ^ value1.GetHashCode();
       result = (Tuple.HashCodeMultiplier * result ^ value2.GetHashCode());
-      return result ^ TypeRef.Type.Key.GetHashCode();
+      return result ^ TypeRef.Type.Key.EqualityIdentifier.GetHashCode();
     }
 
     public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)

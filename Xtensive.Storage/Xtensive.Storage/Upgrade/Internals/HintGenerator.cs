@@ -48,6 +48,8 @@ namespace Xtensive.Storage.Upgrade
       ValidateRenameFieldHints(fieldRenames);
       BuildFieldMapping(fieldRenames);
       BuildConnectorTypeMapping();
+
+      proccessedHints.AddRange(GenerateRemoveTypeHints(upgradeHints));
       
       var removeTypeHints = proccessedHints.OfType<RemoveTypeHint>().ToArray();
       ValidateRemoveTypeHints(removeTypeHints);
@@ -324,13 +326,15 @@ namespace Xtensive.Storage.Upgrade
       var genericTypesMapping = new Dictionary<Pair<string, Type>, List<Pair<string, Type>>>();
       var oldGenericTypes = GetGenericTypes(storedModel);
       var newGenericTypes = GetGenericTypes(BuildingContext.Demand().Model);
+      var typeHints = renameTypeHints.ToDictionary(h => h.OldType);
+      var newTypes = newGenericTypes.Keys.ToDictionary(t => t.GetFullName());
       foreach (var oldGenericDefName in oldGenericTypes.Keys) {
-        var newGenericDefType = GetNewType(oldGenericDefName, newGenericTypes.Keys, renameTypeHints);
+        var newGenericDefType = GetNewType(oldGenericDefName, newTypes, typeHints);
         if (newGenericDefType==null)
           continue;
         var genericArgumentsMapping = new List<Pair<string, Type>>();
         foreach (var oldGenericArgumentName in oldGenericTypes[oldGenericDefName]) {
-          var newGenericArgumentType = GetNewType(oldGenericArgumentName, newGenericTypes[newGenericDefType], renameTypeHints);
+          var newGenericArgumentType = GetNewType(oldGenericArgumentName, newGenericTypes[newGenericDefType].ToDictionary(t => t.GetFullName()), typeHints);
           if (newGenericArgumentType!=null)
             genericArgumentsMapping.Add(new Pair<string, Type>(oldGenericArgumentName, newGenericArgumentType));
         }
@@ -509,6 +513,16 @@ namespace Xtensive.Storage.Upgrade
     #endregion
     
     #region Hint generation
+
+    private IEnumerable<UpgradeHint> GenerateRemoveTypeHints(IEnumerable<UpgradeHint> hints)
+    {
+      var result = new List<UpgradeHint>();
+      if (currentModel == null || storedModel == null)
+        return result;
+
+      return result;
+    }
+
 
     private IEnumerable<UpgradeHint> GenerateTypeIdRemovalHints()
     {
@@ -803,12 +817,22 @@ namespace Xtensive.Storage.Upgrade
       return result;
     }
 
-    private static Type GetNewType(string oldTypeName, IEnumerable<Type> newTypes, IEnumerable<RenameTypeHint> hints)
+    private static Type GetNewType(string oldTypeName, Dictionary<string,Type> newTypes, Dictionary<string,RenameTypeHint> hints)
     {
-      var renameTypeHint = hints.FirstOrDefault(hint => hint.OldType==oldTypeName);
-      return renameTypeHint != null 
-        ? renameTypeHint.NewType 
-        : newTypes.FirstOrDefault(type => type.GetFullName() == oldTypeName);
+      RenameTypeHint hint;
+      Type newType;
+      return hints.TryGetValue(oldTypeName, out hint)
+        ? hint.NewType
+        : (newTypes.TryGetValue(oldTypeName, out newType) ? newType : null);
+    }
+
+    private StoredTypeInfo GetNewType(string oldTypeName, Dictionary<string, StoredTypeInfo> newTypes, Dictionary<string, RenameTypeHint> hints)
+    {
+      RenameTypeHint hint;
+      StoredTypeInfo newType;
+      return hints.TryGetValue(oldTypeName, out hint)
+        ? currentModel.Types.FirstOrDefault(t => t.Name == hint.NewType.GetFullName())
+        : (newTypes.TryGetValue(oldTypeName, out newType) ? newType : null);
     }
 
     private static Dictionary<string, List<string>> GetGenericTypes(StoredDomainModel model)

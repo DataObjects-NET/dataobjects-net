@@ -299,6 +299,8 @@ namespace Xtensive.Storage.Building.Builders
         }
 
         result = SchemaComparer.Compare(extractedSchema, targetSchema, hints, schemaUpgradeMode, context.Model);
+        if (!schemaUpgradeMode.In(SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate))
+          Upgrade.Log.Info(result.ToString());
         if (Log.IsLogged(LogEventTypes.Info))
           Log.Info(Strings.LogComparisonResultX, result);
         if (context.BuilderConfiguration.UpgradeActionsReadyHandler!=null)

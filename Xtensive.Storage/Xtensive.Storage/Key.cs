@@ -131,7 +131,6 @@ namespace Xtensive.Storage
     #region Equals, GetHashCode, ==, != 
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public bool Equals(Key other)
     {
       if (ReferenceEquals(other, null))
@@ -148,7 +147,6 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
     public override bool Equals(object obj)
     {
       if (obj==null)
