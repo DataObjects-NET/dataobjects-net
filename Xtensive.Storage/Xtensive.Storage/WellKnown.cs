@@ -78,7 +78,7 @@ namespace Xtensive.Storage
     /// Maximal number of filtering values in an <see cref="IncludeProvider"/> 
     /// which are to be placed inside a resulted SQL command (as boolean predicate).
     /// </summary>
-    public const int MaxNumberOfConditions = 20;
+    public const int MaxNumberOfConditions = 256;
 
     /// <summary>
     /// Maximum number of cached keys in <see cref="EntitySetState"/>.
