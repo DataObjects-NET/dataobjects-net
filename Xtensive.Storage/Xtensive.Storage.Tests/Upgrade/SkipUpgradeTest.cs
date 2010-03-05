@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Tests.Upgrade.SkipUpgradeTestModel
   [HierarchyRoot, KeyGenerator(KeyGeneratorKind.None)]
   public class BuildAgent : Entity
   {
-    [Key, Field]
+    [Key, Field(Length = 100)]
     public string Name { get; private set; }
 
     [Field, Association(
@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Upgrade.SkipUpgradeTestModel
   [HierarchyRoot, KeyGenerator(KeyGeneratorKind.None)]
   public class BuildConfiguration : Entity
   {
-    [Key, Field]
+    [Key, Field(Length = 100)]
     public string Name { get; private set; }
 
     [Field]
