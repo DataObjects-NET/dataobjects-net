@@ -50,11 +50,13 @@ namespace Xtensive.Storage.Building
       var unsafeActions = GetUnsafeActions(actions);
       var typeChanges = GetTypeChangeActions(actions);
       
-      if (schemaUpgradeMode != SchemaUpgradeMode.ValidateLegacy)
+      if (schemaUpgradeMode!=SchemaUpgradeMode.ValidateLegacy)
         return new SchemaComparisonResult(status, hints, difference, actions, typeChanges.Any(), unsafeActions, true);
 
-      var systemTables = model.Types.Where(type => type.IsSystem)
-        .Select(type => type.MappingName).ToHashSet();
+      var systemTables = model.Types
+        .Where(type => type.IsSystem)
+        .Select(type => type.MappingName)
+        .ToHashSet();
       
       var createTableActions = actions.Flatten()
         .OfType<CreateNodeAction>()

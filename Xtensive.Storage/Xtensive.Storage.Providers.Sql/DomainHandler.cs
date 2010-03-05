@@ -154,7 +154,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       foreach (var type in domainModel.Types) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
-        if (context.Configuration.UpgradeMode == DomainUpgradeMode.Legacy && type.IsSystem)
+        if (context.Configuration.UpgradeMode.IsLegacy() && type.IsSystem)
           continue;
         if (primaryIndex==null || Mapping[primaryIndex]!=null)
           continue;

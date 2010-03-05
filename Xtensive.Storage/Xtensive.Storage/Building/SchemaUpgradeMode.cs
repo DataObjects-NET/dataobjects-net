@@ -40,6 +40,11 @@ namespace Xtensive.Storage.Building
     /// <summary>
     /// Completely recreate the schema.
     /// </summary>
-    Recreate
+    Recreate,
+
+    /// <summary>
+    /// Skip schema upgrade.
+    /// </summary>
+    Skip,
   }
 }

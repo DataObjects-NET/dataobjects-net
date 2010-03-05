@@ -254,35 +254,24 @@ namespace Xtensive.Storage.Building.Builders
     {
       var context = BuildingContext.Demand();
       var domain = context.Domain;
+      var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
+
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
-        var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
-        
-        // Target schema
-        var targetSchema = upgradeHandler.GetTargetSchema();
-        domain.Schema = ((StorageInfo) targetSchema.Clone(null, StorageInfo.DefaultName));
-        domain.Schema.Lock();
-        // Dumping target schema
-        Log.Info(Strings.LogTargetSchema);
-        if (Log.IsLogged(LogEventTypes.Info))
-          targetSchema.Dump();
-        
-        // Extracted schema
-        var extractedSchema = upgradeHandler.GetExtractedSchema();
-        domain.ExtractedSchema = ((StorageInfo) extractedSchema.Clone(null, StorageInfo.DefaultName));
-        domain.ExtractedSchema.Lock();
-        // Dumping extracted schema
-        Log.Info(Strings.LogExtractedSchema);
-        if (Log.IsLogged(LogEventTypes.Info))
-          extractedSchema.Dump();
+        // Cooking required schemas
+        var targetSchema = ProvideTargetSchema(domain, upgradeHandler);
+        var extractedSchema = ProvideExtractedSchema(domain, upgradeHandler);
 
         // Hints
         HintSet hints = null;
         if (context.BuilderConfiguration.SchemaReadyHandler!=null)
           hints = context.BuilderConfiguration.SchemaReadyHandler.Invoke(extractedSchema, targetSchema);
-        var upgradeContext = Upgrade.UpgradeContext.Current;
-        if (upgradeContext != null)
+        var upgradeContext = UpgradeContext.Current;
+        if (upgradeContext!=null)
           foreach (var pair in upgradeContext.UpgradeHandlers)
             pair.Value.OnSchemaReady();
+
+        if (schemaUpgradeMode==SchemaUpgradeMode.Skip)
+          return; // Skipping comparison completely
 
         SchemaComparisonResult result;
         // Let's clear the schema if mode is Recreate
@@ -321,7 +310,7 @@ namespace Xtensive.Storage.Building.Builders
           break;
         case SchemaUpgradeMode.Recreate:
         case SchemaUpgradeMode.Perform:
-            upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
+          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         case SchemaUpgradeMode.PerformSafely:
           var firstBreakingAction = result.BreakingActions.FirstOrDefault();
@@ -332,13 +321,41 @@ namespace Xtensive.Storage.Building.Builders
           break;
         case SchemaUpgradeMode.ValidateLegacy:
           firstBreakingAction = result.BreakingActions.FirstOrDefault();
+          var firstBreakingActionDescription = firstBreakingAction!=null
+            ? GetErrorMessage(firstBreakingAction)
+            : string.Empty;
           if (!result.IsCompatible)
-            throw new SchemaSynchronizationException(string.Format("Legacy schema is not compatible ({0}).", firstBreakingAction != null ? GetErrorMessage(firstBreakingAction) : string.Empty));
+            throw new SchemaSynchronizationException(string.Format(
+              Strings.ExLegacySchemaIsNotCompatibleX, firstBreakingActionDescription));
           break;
         default:
           throw new ArgumentOutOfRangeException("schemaUpgradeMode");
         }
       }
+    }
+
+    private static StorageInfo ProvideExtractedSchema(Domain domain, SchemaUpgradeHandler upgradeHandler)
+    {
+      var extractedSchema = upgradeHandler.GetExtractedSchema();
+      domain.ExtractedSchema = ((StorageInfo) extractedSchema.Clone(null, StorageInfo.DefaultName));
+      domain.ExtractedSchema.Lock();
+      if (Log.IsLogged(LogEventTypes.Info)) {
+        Log.Info(Strings.LogExtractedSchema);
+        extractedSchema.Dump();
+      }
+      return extractedSchema;
+    }
+
+    private static StorageInfo ProvideTargetSchema(Domain domain, SchemaUpgradeHandler upgradeHandler)
+    {
+      var targetSchema = upgradeHandler.GetTargetSchema();
+      domain.Schema = ((StorageInfo) targetSchema.Clone(null, StorageInfo.DefaultName));
+      domain.Schema.Lock();
+      if (Log.IsLogged(LogEventTypes.Info)) {
+        Log.Info(Strings.LogTargetSchema);
+        targetSchema.Dump();
+      }
+      return targetSchema;
     }
 
     private static string GetErrorMessage(NodeAction unsafeAction)

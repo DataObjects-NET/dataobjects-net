@@ -4,8 +4,12 @@
 // Created by: Ivan Galkin
 // Created:    2009.11.20
 
-using Xtensive.Sql;
 using System;
+using NUnit.Framework;
+using Xtensive.Core.Testing;
+using Xtensive.Sql;
+using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Tests.Upgrade.LegacyUpgradeTest.Model;
 
 namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgradeTest.Model
 {
@@ -43,15 +47,12 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgradeTest.Model
 
 namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
 {
-  using Upgrade.LegacyUpgradeTest.Model;
-  using NUnit.Framework;
-  using Core.Testing;
-
-  public class LegacyUpgradeTest : AutoBuildTest
+  [TestFixture, Category("Upgrade")]
+  public class LegacyUpgradeTest
   {
     #region Sql scripts
 
-    private string createValidDbScript = @"
+    private const string CreateValidDbScript = @"
       IF object_id('[dbo].[B]') is not null drop table [dbo].[B]
       IF object_id('[dbo].[A]') is not null drop table [dbo].[A]
       IF object_id('[dbo].[C]') is not null drop table [dbo].[C]
@@ -81,7 +82,7 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
 	      [ID] [int] IDENTITY(128,128) NOT NULL,
         CONSTRAINT [PK_Int32-Generator] PRIMARY KEY CLUSTERED ([ID] ASC))";
 
-    private string createInvalidDbScript1 = @"
+    private const string CreateInvalidDbScript1 = @"
       IF object_id('[dbo].[B]') is not null drop table [dbo].[B]
       IF object_id('[dbo].[A]') is not null drop table [dbo].[A]
       IF object_id('[dbo].[C]') is not null drop table [dbo].[C]
@@ -120,7 +121,7 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
         CONSTRAINT [PK_Type_TEST] PRIMARY KEY CLUSTERED ([Id] ASC))
       CREATE UNIQUE NONCLUSTERED INDEX [Type.IX_Name] ON [dbo].[Metadata.Type] ([Name] ASC)";
 
-    private string createInvalidDbScript2 = @"
+    private const string CreateInvalidDbScript2 = @"
       IF object_id('[dbo].[B]') is not null drop table [dbo].[B]
       IF object_id('[dbo].[A]') is not null drop table [dbo].[A]
       IF object_id('[dbo].[C]') is not null drop table [dbo].[C]    
@@ -168,46 +169,51 @@ namespace Xtensive.Storage.Tests.Upgrade.LegacyUpgrade
 
     #endregion
 
-    protected override void CheckRequirements()
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
     }
 
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    private static DomainConfiguration BuildConfiguration()
     {
-      var config = base.BuildConfiguration();
+      var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof (A).Assembly, typeof (A).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }
 
-    protected override Domain BuildDomain(Xtensive.Storage.Configuration.DomainConfiguration configuration)
-    {
-      return base.BuildDomain(configuration);
-    }
-
     [Test]
     public void BuildWithValidDbTest()
     {
-      CreateDb(createValidDbScript);
+      CreateDb(CreateValidDbScript);
       var config = BuildConfiguration();
-      config.UpgradeMode = DomainUpgradeMode.Legacy;
-      Domain.Build(config);
+      config.UpgradeMode = DomainUpgradeMode.LegacyValidate;
+      Domain.Build(config).Dispose();
     }
 
     [Test]
-    public void BuildWithInalidDbTest()
+    public void BuildWithInvalidDbTest()
     {
       var config = BuildConfiguration();
-      config.UpgradeMode = DomainUpgradeMode.Legacy;
+      config.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       
-      CreateDb(createInvalidDbScript1);
+      CreateDb(CreateInvalidDbScript1);
       AssertEx.Throws<SchemaSynchronizationException>(() => Domain.Build(config));
-      CreateDb(createInvalidDbScript2);
+      CreateDb(CreateInvalidDbScript2);
       AssertEx.Throws<SchemaSynchronizationException>(() => Domain.Build(config));
     }
 
-    private void CreateDb(string script)
+    [Test]
+    public void BuildInSkipModeTest()
+    {
+      CreateDb(CreateValidDbScript);
+      var config = BuildConfiguration();
+      config.UpgradeMode = DomainUpgradeMode.LegacySkip;
+      Domain.Build(config).Dispose();
+    }
+
+    private static void CreateDb(string script)
     {
       var config = BuildConfiguration();
       var driver = SqlDriver.Create(config.ConnectionInfo);

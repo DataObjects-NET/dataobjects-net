@@ -35,7 +35,7 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.UpgradeMode = DomainUpgradeMode.Legacy;
+      config.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       return config;
     }
 

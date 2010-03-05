@@ -137,12 +137,15 @@ namespace Xtensive.Storage.Tests.Storage.LegacyDb.AnimalDbTestModel
 
 namespace Xtensive.Storage.Tests.Storage.LegacyDb
 {
-  public class AnimalDbTest : LegacyDbAutoBuildTest
+  public abstract class AnimalDbBaseTest : LegacyDbAutoBuildTest
   {
+    protected abstract DomainUpgradeMode GetUpgradeMode();
+    
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (Animal).Assembly, typeof (Animal).Namespace);
+      config.UpgradeMode = GetUpgradeMode();
       return config;
     }
 

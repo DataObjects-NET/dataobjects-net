@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace Xtensive.Storage.Tests.Upgrade
 {
-  [TestFixture]
+  [TestFixture, Category("Upgrade")]
   public class PrimaryKeyUpgradeTest
   {
     private Domain domain;

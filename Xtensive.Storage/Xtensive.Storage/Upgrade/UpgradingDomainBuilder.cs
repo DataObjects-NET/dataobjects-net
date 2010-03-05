@@ -5,21 +5,15 @@
 // Created:    2009.04.23
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Sorting;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
-using Xtensive.Storage.Internals;
-using Xtensive.Storage.Resources;
-using Assembly = System.Reflection.Assembly;
 using ModelTypeInfo = Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage.Upgrade
@@ -74,36 +68,11 @@ namespace Xtensive.Storage.Upgrade
       foreach (var handler in context.OrderedUpgradeHandlers)
         handler.OnBeforeStage();
 
-      var schemaUpgradeMode = SchemaUpgradeMode.Perform;
-      switch (stage) {
-      case UpgradeStage.Validation:
-        if (configuration.UpgradeMode==DomainUpgradeMode.Recreate ||
-            configuration.UpgradeMode==DomainUpgradeMode.Validate ||
-            configuration.UpgradeMode==DomainUpgradeMode.Legacy)
-          return null; // Nothing to do in these modes here
-        schemaUpgradeMode = SchemaUpgradeMode.ValidateCompatible;
-        break;
-      case UpgradeStage.Upgrading:
-        if (configuration.UpgradeMode==DomainUpgradeMode.Recreate ||
-            configuration.UpgradeMode==DomainUpgradeMode.Validate ||
-            configuration.UpgradeMode==DomainUpgradeMode.Legacy)
-          return null; // Nothing to do in these modes here
-        if (configuration.UpgradeMode==DomainUpgradeMode.PerformSafely)
-          schemaUpgradeMode = SchemaUpgradeMode.PerformSafely;
-        break;
-      case UpgradeStage.Final:
-        if (configuration.UpgradeMode==DomainUpgradeMode.Recreate)
-          schemaUpgradeMode = SchemaUpgradeMode.Recreate;
-        if (configuration.UpgradeMode==DomainUpgradeMode.Validate)
-          schemaUpgradeMode = SchemaUpgradeMode.ValidateExact;
-        if (configuration.UpgradeMode==DomainUpgradeMode.Legacy)
-          schemaUpgradeMode = SchemaUpgradeMode.ValidateLegacy;
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("context.Stage");
-      }
-      return DomainBuilder.BuildDomain(configuration, 
-        CreateBuilderConfiguration(schemaUpgradeMode));
+      var schemaUpgradeMode = GetUpgradeMode(stage, configuration.UpgradeMode);
+      if (schemaUpgradeMode==null)
+        return null;
+      return DomainBuilder.BuildDomain(
+        configuration, CreateBuilderConfiguration(schemaUpgradeMode.Value));
     }
 
     private static DomainBuilderConfiguration CreateBuilderConfiguration(SchemaUpgradeMode schemaUpgradeMode)
@@ -113,16 +82,15 @@ namespace Xtensive.Storage.Upgrade
         TypeFilter = type => {
           var assembly = type.Assembly;
           var handlers = context.UpgradeHandlers;
-          return
-            handlers.ContainsKey(assembly) && DomainTypeRegistry.IsPersistentType(type)
-              && handlers[assembly].IsTypeAvailable(type, context.Stage);
+          return handlers.ContainsKey(assembly)
+            && DomainTypeRegistry.IsPersistentType(type)
+            && handlers[assembly].IsTypeAvailable(type, context.Stage);
         },
         FieldFilter = field => {
           var assembly = field.DeclaringType.Assembly;
           var handlers = context.UpgradeHandlers;
-          return
-            handlers.ContainsKey(assembly)
-              && handlers[assembly].IsFieldAvailable(field, context.Stage);
+          return handlers.ContainsKey(assembly)
+            && handlers[assembly].IsFieldAvailable(field, context.Stage);
         },
         SchemaReadyHandler = (extractedSchema, targetSchema) => {
           context.SchemaHints = new HintSet(extractedSchema, targetSchema);
@@ -155,45 +123,98 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext.Demand();
       var oldModel = context.ExtractedDomainModel;
-      if (oldModel != null) {
-        var newModel = Domain.Demand().Model;
-        var hintGenerator = new HintGenerator(oldModel, newModel, extractedSchema);
-        var hints = hintGenerator.GenerateHints(context.Hints);
-        context.Hints.Clear();
-        foreach (var modelHint in hints.ModelHints)
-          context.Hints.Add(modelHint);
-        foreach (var schemaHint in hints.SchemaHints)
-          context.SchemaHints.Add(schemaHint);
-      }
+      if (oldModel==null)
+        return;
+      var newModel = Domain.Demand().Model;
+      var hintGenerator = new HintGenerator(oldModel, newModel, extractedSchema);
+      var hints = hintGenerator.GenerateHints(context.Hints);
+      context.Hints.Clear();
+      foreach (var modelHint in hints.ModelHints)
+        context.Hints.Add(modelHint);
+      foreach (var schemaHint in hints.SchemaHints)
+        context.SchemaHints.Add(schemaHint);
     }
 
     private static int ProvideTypeId(UpgradeContext context, Type type)
     {
       var typeId = ModelTypeInfo.NoTypeId;
       var oldModel = context.ExtractedDomainModel;
-      if (oldModel == null && context.ExtractedTypeMap == null)
+      if (oldModel==null && context.ExtractedTypeMap==null)
         return typeId;
 
       // type has been renamed?
       var fullName = type.GetFullName();
       var renamer = context.Hints.OfType<RenameTypeHint>()
         .SingleOrDefault(hint => hint.NewType.GetFullName()==fullName);
-      if (renamer != null) {
+      if (renamer!=null) {
         if (context.ExtractedTypeMap.TryGetValue(renamer.OldType, out typeId))
           return typeId;
-        if (oldModel != null)
+        if (oldModel!=null)
           return oldModel.Types.Single(t => t.UnderlyingType==renamer.OldType).TypeId;
       }
       // type has been preserved
       if (context.ExtractedTypeMap.TryGetValue(fullName, out typeId))
         return typeId;
-      if (oldModel != null) {
+      if (oldModel!=null) {
         var oldType = oldModel.Types
           .SingleOrDefault(t => t.UnderlyingType==fullName);
-        if (oldType != null)
+        if (oldType!=null)
           return oldType.TypeId;
       }
       return ModelTypeInfo.NoTypeId;
+    }
+
+    private static SchemaUpgradeMode GetUpgradingStageUpgradeMode(DomainUpgradeMode upgradeMode)
+    {
+      switch (upgradeMode) {
+      case DomainUpgradeMode.PerformSafely:
+        return SchemaUpgradeMode.PerformSafely;
+      case DomainUpgradeMode.Perform:
+        return SchemaUpgradeMode.Perform;
+      default:
+        throw new ArgumentOutOfRangeException("upgradeMode");
+      }
+    }
+
+    private static SchemaUpgradeMode GetFinalStageUpgradeMode(DomainUpgradeMode upgradeMode)
+    {
+      switch (upgradeMode) {
+      case DomainUpgradeMode.Skip:
+      case DomainUpgradeMode.LegacySkip:
+        return SchemaUpgradeMode.Skip;
+      case DomainUpgradeMode.Validate:
+        return SchemaUpgradeMode.ValidateExact;
+      case DomainUpgradeMode.LegacyValidate:
+        return SchemaUpgradeMode.ValidateLegacy;
+      case DomainUpgradeMode.Recreate:
+        return SchemaUpgradeMode.Recreate;
+      case DomainUpgradeMode.Perform:
+      case DomainUpgradeMode.PerformSafely:
+        // We need Perform here because after Upgrading stage
+        // there may be some recycled columns/tables.
+        // Perform will wipe them out.
+        return SchemaUpgradeMode.Perform;
+      default:
+        throw new ArgumentOutOfRangeException("upgradeMode");
+      }
+    }
+
+    private static SchemaUpgradeMode? GetUpgradeMode(UpgradeStage stage, DomainUpgradeMode upgradeMode)
+    {
+      switch (stage) {
+      case UpgradeStage.Validation:
+        if (upgradeMode.IsSingleStage())
+          return null; // Nothing to do in these modes here
+        return SchemaUpgradeMode.ValidateCompatible;
+      case UpgradeStage.Upgrading:
+        if (upgradeMode.IsSingleStage())
+          return null; // Nothing to do in these modes here
+        return GetUpgradingStageUpgradeMode(upgradeMode);
+      case UpgradeStage.Final:
+        return GetFinalStageUpgradeMode(upgradeMode);
+      default:
+        throw new ArgumentOutOfRangeException("context.Stage");
+      }      
     }
   }
 }

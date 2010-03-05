@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Upgrade
         UpdateMetadata();
         break;
       case UpgradeStage.Final:
-        if (upgradeMode == DomainUpgradeMode.Recreate)
+        if (upgradeMode==DomainUpgradeMode.Recreate)
           UpdateMetadata();
         break;
       default:
