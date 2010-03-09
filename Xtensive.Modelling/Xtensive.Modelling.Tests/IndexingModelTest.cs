@@ -93,7 +93,6 @@ namespace Xtensive.Modelling.Tests
     public void RemoveDependentPropertyTest1()
     {
       var storage = CreateSimpleStorageModel();
-      storage.Dump();
 
       TestUpdate(storage, (s1, s2, hs) => {
         var o = (TableInfo) s2.Resolve("Tables/Objects");
@@ -110,7 +109,6 @@ namespace Xtensive.Modelling.Tests
     public void RemoveDependentPropertyTest2()
     {
       var storage = CreateSimpleStorageModel();
-      storage.Dump();
 
       TestUpdate(storage, (s1, s2, hs) => {
         var t1 = (TableInfo) s2.Resolve("Tables/Types");
@@ -129,7 +127,6 @@ namespace Xtensive.Modelling.Tests
     public void RemoveDependentPropertyTest3()
     {
       var storage = CreateSimpleStorageModel();
-      storage.Dump();
 
       TestUpdate(storage, (s1, s2, hs) => {
         var t1 = (TableInfo) s2.Resolve("Tables/Types");
@@ -147,7 +144,6 @@ namespace Xtensive.Modelling.Tests
     public void RemoveDependentPropertyTest4()
     {
       var storage = CreateSimpleStorageModel();
-      storage.Dump();
 
       TestUpdate(storage, (s1, s2, hs) => {
         var t1 = (TableInfo) s2.Resolve("Tables/Objects");
@@ -163,7 +159,6 @@ namespace Xtensive.Modelling.Tests
     public void IgnoreHintTest()
     {
       var storage = CreateSimpleStorageModel();
-      storage.Dump();
 
       TestUpdate(storage, (s1, s2, hs) => {
         var o = s1.Resolve("Tables/Objects") as TableInfo;
@@ -179,7 +174,6 @@ namespace Xtensive.Modelling.Tests
     public void RenameTest1()
     {
       var storage = CreateSimpleStorageModel();
-      storage.Dump();
 
       TestUpdate(storage, (s1, s2, hs) => {
         var o2 = (TableInfo) s2.Resolve("Tables/Objects");
@@ -194,7 +188,6 @@ namespace Xtensive.Modelling.Tests
     public void RenameTest2()
     {
       var storage = CreateSimpleStorageModel();
-      storage.Dump();
 
       TestUpdate(storage, (source, target, hs) => {
         var type = (TableInfo)target.Resolve("Tables/Types");
@@ -218,7 +211,6 @@ namespace Xtensive.Modelling.Tests
     {
       var storage = CreateSimpleStorageModel();
       storage.Tables["Types"].Index = storage.Tables.Count - 1;
-      storage.Dump();
 
       TestUpdate(storage, (s1, s2, hs) => {
         var t2 = (TableInfo) s2.Resolve("Tables/Types");
@@ -254,7 +246,6 @@ namespace Xtensive.Modelling.Tests
     public void ChangeFullTextIndexTest()
     {
       var storage = CreateSimpleStorageModel();
-      storage.Dump();
 
       TestUpdate(storage, (source, target, hs) => {
         var type = (TableInfo) target.Resolve("Tables/Types");
@@ -500,8 +491,6 @@ namespace Xtensive.Modelling.Tests
       if (!useHints)
         hints = new HintSet(s1, s2);
       Log.Info("Update test ({0} hints)", useHints ? "with" : "without");
-      s1.Dump();
-      s2.Dump();
       s1.Validate();
       s2.Validate();
 

@@ -179,13 +179,25 @@ namespace Xtensive.Modelling.Comparison
         // Compare properties
         CompareProperties(source, target, difference);
 
-
         // Check if remove on cleanup
         if (difference.IsRemoved) {
           var nodeProperties = GetPropertyDifferences(difference);
           difference.IsRemoveOnCleanup = HasDependencies(source) ||
             nodeProperties.Any(nodeProperty => nodeProperty.IsRemoveOnCleanup);
         }
+        var recreated = MovementInfo.Created | MovementInfo.Removed;
+        if (Stage == ComparisonStage.ReferenceComparison && source != null && target != null)
+          if ((difference.MovementInfo & recreated) != recreated) {
+            var propertyAccessors = difference.PropertyChanges
+              .Where(p => p.Value.Source != null && p.Value.Target != null)
+              .Select(p => new {Pair = p, NodeDifference = p.Value as NodeDifference})
+              .Where(a => a.NodeDifference != null && !a.NodeDifference.IsNameChanged)
+              .Select(a => source.PropertyAccessors[a.Pair.Key])
+              .ToList();
+            if (propertyAccessors.Count != 0 && propertyAccessors.Any(propertyAccessor => propertyAccessor.RecreateParent))
+              difference.MovementInfo = recreated;
+          }
+
         return difference.HasChanges ? difference : null;
       }
     }
@@ -285,10 +297,6 @@ namespace Xtensive.Modelling.Comparison
                 .ForEach(item=>item.IsDependentOnParent = true);
           }
           difference.PropertyChanges.Add(property.Name, propertyDifference);
-//          var recreated = MovementInfo.Created | MovementInfo.Removed;
-//          if (Stage == ComparisonStage.ReferenceComparison)
-//            if ((difference.MovementInfo & recreated) != recreated && accessor.RecreateParent)
-//              difference.MovementInfo = recreated;
         }
       }
     }

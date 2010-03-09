@@ -19,7 +19,7 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// The source node is not changed.
     /// </summary>
-    None = 0,
+    Unknown = 0,
 
     /// <summary>
     /// The source node is changed.
