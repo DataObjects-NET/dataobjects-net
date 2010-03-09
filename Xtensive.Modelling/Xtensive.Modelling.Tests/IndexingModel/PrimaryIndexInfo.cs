@@ -22,7 +22,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets value columns.
     /// </summary>
-    [Property(Priority = -100)]
+    [Property(IgnoreInComparison = true)]
     public ValueColumnRefCollection ValueColumns { get; private set; }
 
     /// <summary>

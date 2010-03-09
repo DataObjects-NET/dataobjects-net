@@ -39,9 +39,14 @@ namespace Xtensive.Modelling.Attributes
 
     /// <summary>
     /// Gets or sets a value indicating whether underlying property must be 
-    /// ignored during recreation of parent immutable property.
+    /// ignored during recreation of parent atomic property.
     /// </summary>
-    public bool IsMutable { get; set; }
+    public bool IsVolatile { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether property owner should be recreated on property value change.
+    /// </summary>
+    public bool RecreateParent { get; set; }
 
     /// <summary>
     /// Gets or sets the dependency root type.

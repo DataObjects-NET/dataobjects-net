@@ -17,6 +17,11 @@ namespace Xtensive.Modelling.Comparison
   public enum MovementInfo
   {
     /// <summary>
+    /// The source node is not changed.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
     /// The source node is changed.
     /// </summary>
     Changed = 

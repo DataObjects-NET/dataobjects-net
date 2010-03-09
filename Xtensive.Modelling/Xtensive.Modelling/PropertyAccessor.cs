@@ -31,7 +31,9 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private bool isImmutable;
     [NonSerialized]
-    private bool isMutable;
+    private bool isVolatile;
+    [NonSerialized]
+    private bool recreateParent;
     [NonSerialized]
     private Type dependencyRootType;
 
@@ -80,10 +82,17 @@ namespace Xtensive.Modelling
 
     /// <summary>
     /// Gets a value indicating whether underlying property must be 
-    /// ignored during recreation of parent immutable property.
+    /// ignored during recreation of parent atomic property.
     /// </summary>
-    public bool IsMutable {
-      get { return isMutable; }
+    public bool IsVolatile {
+      get { return isVolatile; }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether property owner should be recreated on property value change.
+    /// </summary>
+    public bool RecreateParent {
+      get { return recreateParent; } 
     }
 
     /// <summary>
@@ -151,14 +160,15 @@ namespace Xtensive.Modelling
       var sa = propertyInfo.GetAttribute<SystemPropertyAttribute>(AttributeSearchOptions.InheritNone);
       isSystem = sa!=null;
       ignoreInComparison = isSystem;
-      isMutable = isSystem;
+      isVolatile = isSystem;
       isImmutable = false;
       var pa = propertyInfo.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone);
       if (pa!=null) {
         priority = pa.Priority;
         ignoreInComparison |= pa.IgnoreInComparison;
-        isMutable |= pa.IsMutable;
+        isVolatile |= pa.IsVolatile;
         isImmutable |= pa.IsImmutable;
+        recreateParent |= pa.RecreateParent;
         dependencyRootType = pa.DependencyRootType;
         compareCaseInsensitive = tProperty == typeof (string) && pa.CaseInsensitiveComparison;
       }

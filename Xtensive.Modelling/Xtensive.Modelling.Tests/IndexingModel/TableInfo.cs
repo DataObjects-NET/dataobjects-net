@@ -29,7 +29,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets or sets the primary index.
     /// </summary>
-    [Property(Priority = -1200, IsImmutable = true)]
+    [Property(Priority = -1200, IsImmutable = true, RecreateParent = true)]
     public PrimaryIndexInfo PrimaryIndex {
       get { return primaryIndex; }
       set {
@@ -56,7 +56,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     /// <summary>
     /// Gets or sets the full-text index.
     /// </summary>
-    [Property(Priority = -900/*, IsMutable = true*/)]
+    [Property(Priority = -900)]
     public FullTextIndexInfo FullTextIndex
     {
       get { return fullTextIndex; }

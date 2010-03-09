@@ -140,7 +140,7 @@ namespace Xtensive.Modelling.Tests
           actions
             .Flatten()
             .OfType<RemoveNodeAction>()
-            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId")));
+            .Any(a => a.Path == "Tables/Types/Columns/Value")));
     }
 
     [Test]
@@ -209,7 +209,7 @@ namespace Xtensive.Modelling.Tests
       },
       (diff, actions) => {
         var flatten = actions.Flatten().ToList();
-        Assert.AreEqual(15, flatten.Count);
+        Assert.AreEqual(11, flatten.Count);
       });
     }
 
@@ -339,6 +339,20 @@ namespace Xtensive.Modelling.Tests
 
         hs.Add(copyDataHint);
       },
+        (diff, actions) => { });
+    }
+
+    [Test]
+    public void ChangePrimaryColumnTypeTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      TestUpdate(storage, (s, t, hs) => {
+          var pk = t.Tables["Types"].PrimaryIndex;
+          var id = t.Tables["Types"].Columns["Id"];
+          id.Type = new TypeInfo(typeof(Guid));
+          var fk = t.Tables["Objects"].ForeignKeys["FK_TypeId"];
+          fk.ForeignKeyColumns.Set(pk);
+        },
         (diff, actions) => { });
     }
 

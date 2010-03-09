@@ -371,7 +371,7 @@ namespace Xtensive.Modelling.Comparison
         propertyChanges = propertyChanges.Reverse();
       foreach (var pair in propertyChanges) {
         var accessor = any.PropertyAccessors[pair.Key];
-        if (!isCleanup || !isImmutable || IsMutable(difference, accessor))
+        if (!isCleanup || !isImmutable || IsVolatile(difference, accessor))
           using (CreateContext().Activate()) {
             Context.Property = pair.Key;
             Context.IsImmutable = IsImmutable(difference, accessor);
@@ -529,12 +529,12 @@ namespace Xtensive.Modelling.Comparison
     /// otherwise, <see langword="false"/>.
     /// </returns>
     /// <remarks>
-    /// Returns <paramref name="accessor"/>.<see cref="PropertyAccessor.IsMutable"/>
+    /// Returns <paramref name="accessor"/>.<see cref="PropertyAccessor.IsVolatile"/>
     /// by default.
     /// </remarks>
-    protected virtual bool IsMutable(Difference difference, PropertyAccessor accessor)
+    protected virtual bool IsVolatile(Difference difference, PropertyAccessor accessor)
     {
-      return accessor.IsMutable;
+      return accessor.IsVolatile;
     }
 
     /// <summary>

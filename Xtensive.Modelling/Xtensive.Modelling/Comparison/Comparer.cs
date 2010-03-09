@@ -179,13 +179,13 @@ namespace Xtensive.Modelling.Comparison
         // Compare properties
         CompareProperties(source, target, difference);
 
+
         // Check if remove on cleanup
         if (difference.IsRemoved) {
           var nodeProperties = GetPropertyDifferences(difference);
-          difference.IsRemoveOnCleanup = HasDependencies(source) 
-            || nodeProperties.Any(nodeProperty => nodeProperty.IsRemoveOnCleanup);
+          difference.IsRemoveOnCleanup = HasDependencies(source) ||
+            nodeProperties.Any(nodeProperty => nodeProperty.IsRemoveOnCleanup);
         }
-
         return difference.HasChanges ? difference : null;
       }
     }
@@ -234,8 +234,6 @@ namespace Xtensive.Modelling.Comparison
         var parentMovementInfo = parentDifference.MovementInfo;
         if ((parentMovementInfo & MovementInfo.Relocated)!=0)
           movementInfo |= MovementInfo.ParentRelocated;
-//        if ((parentMovementInfo & MovementInfo.NameChanged) != 0 /*&& target.Parent*/)
-//          movementInfo |= MovementInfo.ParentRelocated;
       }
       return movementInfo;
     }
@@ -279,16 +277,18 @@ namespace Xtensive.Modelling.Comparison
           if (propertyDifference==null)
             continue;
 
-          if (any.Nesting.PropertyInfo != null 
-            && accessor.DependencyRootType==any.Nesting.PropertyInfo.PropertyType) {
+          if (any.Nesting.PropertyInfo != null && accessor.DependencyRootType==any.Nesting.PropertyInfo.PropertyType) {
             if (propertyDifference is NodeDifference)
               ((NodeDifference) propertyDifference).IsDependentOnParent = true;
             else if (propertyDifference is NodeCollectionDifference)
               ((NodeCollectionDifference) propertyDifference).ItemChanges
                 .ForEach(item=>item.IsDependentOnParent = true);
           }
-              
           difference.PropertyChanges.Add(property.Name, propertyDifference);
+//          var recreated = MovementInfo.Created | MovementInfo.Removed;
+//          if (Stage == ComparisonStage.ReferenceComparison)
+//            if ((difference.MovementInfo & recreated) != recreated && accessor.RecreateParent)
+//              difference.MovementInfo = recreated;
         }
       }
     }
@@ -370,13 +370,14 @@ namespace Xtensive.Modelling.Comparison
         Func<Node, Pair<Node, object>> keyExtractor = 
           n => new Pair<Node, object>(n, GetNodeComparisonKey(n));
 
-        var sourceKeyMap = new Dictionary<object, Node>();
-        foreach (var pair in src.Cast<Node>().Select(keyExtractor))
-          sourceKeyMap.Add(pair.Second, pair.First);
-
-        var targetKeyMap = new Dictionary<object, Node>();
-        foreach (var pair in tgt.Cast<Node>().Select(keyExtractor))
-          targetKeyMap.Add(pair.Second, pair.First);
+        var sourceKeyMap = src
+          .Cast<Node>()
+          .Select(keyExtractor)
+          .ToDictionary(pair => pair.Second, pair => pair.First);
+        var targetKeyMap = tgt
+          .Cast<Node>()
+          .Select(keyExtractor)
+          .ToDictionary(pair => pair.Second, pair => pair.First);
 
         var sourceKeys = src.Cast<Node>().Select(n => keyExtractor(n).Second);
         var targetKeys = tgt.Cast<Node>().Select(n => keyExtractor(n).Second);
@@ -414,8 +415,7 @@ namespace Xtensive.Modelling.Comparison
     /// <see langword="null" />, if they're equal.</returns>
     protected virtual Difference VisitObject(object source, object target)
     {
-      using (TryActivate(source, target, (s, t) => new ValueDifference(s, t)))
-      {
+      using (TryActivate(source, target, (s, t) => new ValueDifference(s, t))) {
         var areEqual = Context.PropertyAccessor.CaseInsensitiveComparison
           ? string.Equals((string)source, (string)target, StringComparison.OrdinalIgnoreCase)
           : Equals(source, target);
@@ -483,18 +483,12 @@ namespace Xtensive.Modelling.Comparison
       if (nodeDifference!=null) {
         if ((nodeDifference.MovementInfo & MovementInfo.Changed)!=0)
           return true;
-        foreach (var pair in nodeDifference.PropertyChanges)
-          if (HasChangedNodeProperties(pair.Value))
-            return true;
+        if (nodeDifference.PropertyChanges.Any(pair => HasChangedNodeProperties(pair.Value)))
+          return true;
       }
-
       var nodeCollectionDifference = difference as NodeCollectionDifference;
-      if (nodeCollectionDifference!=null)
-        foreach (var itemChange in nodeCollectionDifference.ItemChanges)
-          if (HasChangedNodeProperties(itemChange))
-            return true;
-      
-      return false;
+      return nodeCollectionDifference != null && 
+        nodeCollectionDifference.ItemChanges.Any(HasChangedNodeProperties);
     }
 
     /// <summary>
