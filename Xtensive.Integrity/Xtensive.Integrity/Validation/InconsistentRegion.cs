@@ -15,9 +15,9 @@ namespace Xtensive.Integrity.Validation
   /// </summary>
   public sealed class InconsistentRegion : IDisposable
   {
-    private readonly ValidationContextBase context;
-
     private static readonly InconsistentRegion voidRegionInstance = new InconsistentRegion();
+    private readonly ValidationContextBase context;
+    private bool isDisposed;
 
     /// <summary>
     /// <see cref="InconsistentRegion"/> instance that is used for all <see cref="IsVoid">nested</see> regions.
@@ -78,6 +78,9 @@ namespace Xtensive.Integrity.Validation
     /// <inheritdoc/>
     public void Dispose()
     {
+      if (isDisposed)
+        return;
+      isDisposed = true;
       if (!IsVoid)
         context.LeaveInconsistentRegion(this);
     }

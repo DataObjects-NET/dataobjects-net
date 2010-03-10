@@ -711,7 +711,8 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected void Initialize(Type ctorType)
     {
-      if (ctorType!=GetType())
+      var type = GetType();
+      if (type.IsGenericType ? ctorType!=type.GetGenericTypeDefinition() : ctorType!=type)
         return;
       bool successfully = false;
       try {
@@ -748,12 +749,11 @@ namespace Xtensive.Storage
 
     internal void EnterCtorTransactionScope()
     {
-      if (Transaction.Current==null)
-        CtorTransactionInfo.Current = new CtorTransactionInfo {
-          Persistent = this,
-          TransactionScope = Transaction.Open(),
-          InconsistentRegion = Validation.Disable()
-        };
+      CtorTransactionInfo.Current = new CtorTransactionInfo {
+        Persistent = this,
+        TransactionScope = Transaction.Current==null ? Transaction.Open() : null,
+        InconsistentRegion = Validation.Disable()
+      };
     }
 
     internal void LeaveCtorTransactionScope(bool successfully)
@@ -761,10 +761,25 @@ namespace Xtensive.Storage
       var cti = CtorTransactionInfo.Current;
       if (cti!=null && cti.Persistent==this) {
         CtorTransactionInfo.Current = null;
-        cti.InconsistentRegion.DisposeSafely();
-        if (successfully)
-          cti.TransactionScope.Complete();
-        cti.TransactionScope.DisposeSafely();
+        try {
+          if (successfully)
+            try {
+              cti.InconsistentRegion.Complete();
+            }
+            catch {
+              successfully = false;
+              throw;
+            }
+        }
+        finally {
+          cti.InconsistentRegion.Dispose();
+          var transactionScope = cti.TransactionScope;
+          if (transactionScope!=null) {
+            if (successfully)
+              transactionScope.Complete();
+            transactionScope.Dispose();
+          }
+        }
       }
     }
 

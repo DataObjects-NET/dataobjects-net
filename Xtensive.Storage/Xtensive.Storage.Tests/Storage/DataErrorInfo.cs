@@ -7,6 +7,8 @@
 using System;
 using System.ComponentModel;
 using NUnit.Framework;
+using Xtensive.Core;
+using Xtensive.Core.Testing;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.DataErrorInfoTestModel;
@@ -45,9 +47,8 @@ namespace Xtensive.Storage.Tests.Storage
     public void MainTest()
     {
       using (Session.Open(Domain)) {
-        using (var transactionScope = Transaction.Open()) {
-
-          using (Xtensive.Storage.Validation.Disable()) {
+        using (var tx = Transaction.Open()) {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
 
             var person = new Person();
 
@@ -62,9 +63,12 @@ namespace Xtensive.Storage.Tests.Storage
 
             person.Age = -1;
             Assert.AreEqual("Age is negative.", ((IDataErrorInfo) person)["Age"]);
-          }
 
-          // Rollback
+            region.Complete();
+            AssertEx.Throws<AggregateException>(region.Dispose);
+          } // Second .Dispose should do nothing!
+
+          // tx.Complete(); // Rollback
         }
       }
     }

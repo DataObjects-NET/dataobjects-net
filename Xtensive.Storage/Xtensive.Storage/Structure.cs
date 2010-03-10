@@ -309,8 +309,14 @@ namespace Xtensive.Storage
     /// </summary>
     protected Structure()
     {
-      type = GetTypeInfo();
-      tuple = type.TuplePrototype.Clone();
+      try {
+        type = GetTypeInfo();
+        tuple = type.TuplePrototype.Clone();
+      }
+      catch {
+        LeaveCtorTransactionScope(false);
+        throw;
+      }
     }
 
     /// <summary>
@@ -319,8 +325,14 @@ namespace Xtensive.Storage
     /// <param name="data">Underlying <see cref="Tuple"/> value.</param>
     protected Structure(Tuple data)
     {
-      type = GetTypeInfo();
-      tuple = data;
+      try {
+        type = GetTypeInfo();
+        tuple = data;
+      }
+      catch {
+        LeaveCtorTransactionScope(false);
+        throw;
+      }
     }
 
     /// <summary>
@@ -351,13 +363,10 @@ namespace Xtensive.Storage
       }
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="info">The <see cref="SerializationInfo"/>.</param>
-    /// <param name="context">The <see cref="StreamingContext"/>.</param>
+    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
     protected Structure(SerializationInfo info, StreamingContext context)
     {
+      // TODO: Implement!
       throw new NotImplementedException();
     }
   }

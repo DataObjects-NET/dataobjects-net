@@ -120,9 +120,9 @@ namespace Xtensive.Integrity.Validation
     protected internal virtual void LeaveInconsistentRegion(InconsistentRegion region)
     {
       IsConsistent = true;
-      if (region.IsCompleted) {
+      if (region.IsCompleted)
         Validate();
-      }
+      // Else do nothing, since an exception must be already thrown
     }
 
     /// <summary>

@@ -95,6 +95,7 @@ namespace Xtensive.Storage.Tests.Storage
         try {
           using (var region = Xtensive.Storage.Validation.Disable()) {
             var obj = new Validatable();
+            region.Complete();
           }
         }
         catch (Exception) { }

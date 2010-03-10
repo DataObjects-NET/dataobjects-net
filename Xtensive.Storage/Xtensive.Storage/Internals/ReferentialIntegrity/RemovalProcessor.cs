@@ -73,10 +73,10 @@ namespace Xtensive.Storage.ReferentialIntegrity
             entity.State.PersistenceState = PersistenceState.Removed;
           }
           Session.EnforceChangeRegistrySizeLimit();
-          region.Complete();
           operationContext.Complete();
           foreach (var entity in processedEntities)
             entity.SystemRemoveCompleted(null);
+          region.Complete();
         }
       }
       catch (Exception e) {

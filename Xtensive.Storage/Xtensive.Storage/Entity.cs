@@ -614,18 +614,30 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      var key = Key.Create(Session.Domain, GetType());
-      State = Session.CreateEntityState(key);
-      SystemBeforeInitialize(false);
+      try {
+        var key = Key.Create(Session.Domain, GetType());
+        State = Session.CreateEntityState(key);
+        SystemBeforeInitialize(false);
+      }
+      catch {
+        LeaveCtorTransactionScope(false);
+        throw;
+      }
     }
 
     // Is used for EntitySetItem<,> instance construction
     internal Entity(Tuple keyTuple)
     {
-      ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
-      var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
-      State = Session.CreateEntityState(key);
-      SystemBeforeInitialize(false);
+      try {
+        ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
+        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
+        State = Session.CreateEntityState(key);
+        SystemBeforeInitialize(false);
+      }
+      catch {
+        LeaveCtorTransactionScope(false);
+        throw;
+      }
     }
 
     /// <summary>
@@ -647,10 +659,16 @@ namespace Xtensive.Storage
     /// </example>
     protected Entity(params object[] values)
     {
-      ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
-      State = Session.CreateEntityState(key);
-      SystemBeforeInitialize(false);
+      try {
+        ArgumentValidator.EnsureArgumentNotNull(values, "values");
+        Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
+        State = Session.CreateEntityState(key);
+        SystemBeforeInitialize(false);
+      }
+      catch {
+        LeaveCtorTransactionScope(false);
+        throw;
+      }
     }
 
     /// <summary>

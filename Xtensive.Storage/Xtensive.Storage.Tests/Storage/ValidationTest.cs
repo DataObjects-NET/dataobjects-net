@@ -10,6 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Testing;
+using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Configuration;
 
@@ -19,6 +20,50 @@ namespace Xtensive.Storage.Tests.Storage.Validation
   {
     [ThreadStatic]
     private static int validationCallsCount;
+
+    [Serializable]
+    [HierarchyRoot]
+    public class Referrer : Entity
+    {
+      [Key, Field]
+      public int Id { get; private set; }
+
+      [Field, NotNullConstraint]
+      public Reference Reference { get; set; }
+
+      [Field, NotNullOrEmptyConstraint]
+      public string Title { get; set; }
+
+      public Referrer(Reference reference, string title)
+      {
+        Reference = reference;
+        Title = title;
+      }
+
+      public Referrer()
+      {
+      }
+    }
+
+    [Serializable]
+    [HierarchyRoot]
+    public class Reference : Entity
+    {
+      [Key, Field]
+      public int Id { get; private set; }
+
+      [Field, NotNullOrEmptyConstraint]
+      public string Title { get; set; }
+
+      public Reference(string title)
+      {
+        Title = title;
+      }
+
+      public Reference()
+      {
+      }
+    }
 
     [Serializable]
     [HierarchyRoot]
@@ -34,7 +79,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       public int ScrollingCount { get; set; }
 
       [Field]
-      public Led Led { get; set;}
+      public Led Led { get; set; }
 
       protected override void OnValidate()
       {
@@ -125,25 +170,30 @@ namespace Xtensive.Storage.Tests.Storage.Validation
       using (Session.Open(Domain)) {
         Mouse mouse;
 
-        var transactionScope = Transaction.Open();
+        using (var tx = Transaction.Open()) {
+          using (var region = Xtensive.Storage.Validation.Disable()) {
+            mouse = new Mouse {
+              ButtonCount = 2,
+              ScrollingCount = 1,
+              Led = new Led {Brightness = 7.3, Precision = 33}
+            };
+            mouse.Led.Brightness = 4.3;
 
-        // Valid mouse is created.
-        using (var region = Xtensive.Storage.Validation.Disable()) {
-          mouse = new Mouse {ButtonCount = 2, ScrollingCount = 1};
-          mouse.Led = new Led {Brightness = 7.3, Precision = 33};
-          mouse.Led.Brightness = 4.3;
+            Xtensive.Storage.Validation.Enforce();
+            Assert.AreEqual(1, validationCallsCount);
 
-          Xtensive.Storage.Validation.Enforce();
-          Assert.AreEqual(1, validationCallsCount);
+            mouse.Led.Brightness = 2.3;
 
-          mouse.Led.Brightness = 2.3;
+            // Fails here!
+            AssertEx.Throws<AggregateException>(Xtensive.Storage.Validation.Enforce);
 
-          AssertEx.Throws<AggregateException>(Xtensive.Storage.Validation.Enforce);
-        }
-        transactionScope.Complete();
+            region.Complete();
+            AssertEx.Throws<AggregateException>(region.Dispose);
+          } // Second .Dispose should do nothing!
 
-        AssertEx.Throws<InvalidOperationException>(
-          transactionScope.Dispose);
+          tx.Complete();
+          AssertEx.Throws<InvalidOperationException>(tx.Dispose);
+        } // Second .Dispose should do nothing!
       }
     }
     
@@ -276,6 +326,36 @@ namespace Xtensive.Storage.Tests.Storage.Validation
           }
 //          Assert.IsFalse(Session.Current.ValidationContext.IsValid);
         }
+      }
+    }
+
+    [Test]
+    public void ValidationInConstructor()
+    {
+      using (Session.Open(Domain)) 
+      using (Transaction.Open()) {
+        AssertEx.Throws<Exception>(() => {
+          var reference1 = new Reference();
+        });
+        using (var region = Xtensive.Storage.Validation.Disable()) {
+          var reference2 = new Reference {
+            Title = "Test"
+          };
+          region.Complete();
+        }
+        var reference = new Reference("Test");
+
+        AssertEx.Throws<Exception>(() => {
+          var referrer1 = new Referrer();
+        });
+        using (var region = Xtensive.Storage.Validation.Disable()) {
+          var referrer2 = new Referrer {
+            Title = "Test", 
+            Reference = reference
+          };
+          region.Complete();
+        }
+        var referrer = new Referrer(reference, "Test");
       }
     }
   }

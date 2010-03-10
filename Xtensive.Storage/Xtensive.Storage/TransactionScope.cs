@@ -18,6 +18,7 @@ namespace Xtensive.Storage
     private static readonly TransactionScope VoidScope = new TransactionScope();
 
     private bool isCompleted;
+    private bool isDisposed;
 
     /// <summary>
     /// <see cref="TransactionScope"/> instance that is used for all <see cref="IsVoid">nested</see> scopes.
@@ -48,6 +49,9 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void Dispose()
     {
+      if (isDisposed)
+        return;
+      isDisposed = true;
       if (Transaction==null || !Transaction.State.IsActive())
         return;
       if (isCompleted)
