@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq.Internals
+namespace Xtensive.Core.Linq
 {
   internal class InitialExtractorState : BaseExtractorState
   {
@@ -38,9 +38,9 @@ namespace Xtensive.Core.Linq.Internals
     {
       return result != null
         && result.Value == null && result.Key.Type == typeof(bool) && result.ComparisonOperation == null
-        && (result.MethodInfo == null || result.MethodInfo.Method.ReturnType == typeof(bool)
-          && (result.MethodInfo.ComparisonKind == ComparisonKind.Default
-            || result.MethodInfo.ComparisonKind == ComparisonKind.Equality));
+          && (result.MethodInfo == null || result.MethodInfo.Method.ReturnType == typeof(bool)
+            && (result.MethodInfo.ComparisonKind == ComparisonKind.Default
+              || result.MethodInfo.ComparisonKind == ComparisonKind.Equality));
     }
 
     protected override ExtractionInfo VisitBinary(BinaryExpression exp)
@@ -91,7 +91,7 @@ namespace Xtensive.Core.Linq.Internals
     {
       return nodeType==ExpressionType.GreaterThan || nodeType==ExpressionType.GreaterThanOrEqual
         || nodeType==ExpressionType.LessThan || nodeType==ExpressionType.LessThanOrEqual
-        || nodeType==ExpressionType.Equal || nodeType==ExpressionType.NotEqual;
+          || nodeType==ExpressionType.Equal || nodeType==ExpressionType.NotEqual;
     }
 
     private static ExtractionInfo ProcessComparisonMethodInBinaryExpression(ExpressionType nodeType,

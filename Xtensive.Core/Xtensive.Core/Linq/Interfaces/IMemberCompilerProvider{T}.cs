@@ -27,9 +27,9 @@ namespace Xtensive.Core.Linq
     /// Finds compiler for specified <see cref="MemberInfo"/>
     /// </summary>
     /// <param name="source"><see cref="MemberInfo"/> to search compiler for.</param>
-    /// <param name="compiler"><see cref="MethodInfo"/> of method which is called by returned delegate</param>
+    /// <param name="compilerMethod"><see cref="MethodInfo"/> of method which is called by returned delegate</param>
     /// <returns>compiler associated with <see cref="MethodInfo"/>
     /// or <see langword="null"/> if compiler is not found.</returns>
-    Func<T, T[], T> GetCompiler(MemberInfo source, out MethodInfo compiler);
+    Func<T, T[], T> GetCompiler(MemberInfo source, out MethodInfo compilerMethod);
   }
 }

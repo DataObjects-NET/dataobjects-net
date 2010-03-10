@@ -9,7 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core.Collections;
 
-namespace Xtensive.Core.Linq.Internals
+namespace Xtensive.Core.Linq
 {
   internal sealed class ExpressionComparer
   {

@@ -8,16 +8,16 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Threading;
 
-namespace Xtensive.Core.Linq.Internals
+namespace Xtensive.Core.Linq
 {
   internal sealed class CachingExpressionCompiler
   {
-    private static readonly object @lock = new object();
+    private static readonly object _lock = new object();
     private static volatile CachingExpressionCompiler instance;
 
     public static CachingExpressionCompiler Instance {
       get {
-        if (instance==null) lock (@lock) if (instance==null)
+        if (instance==null) lock (_lock) if (instance==null)
           instance = new CachingExpressionCompiler();
         return instance;
       }
@@ -31,7 +31,7 @@ namespace Xtensive.Core.Linq.Internals
       var constantExtractor = new ConstantExtractor(lambda);
       var tree = constantExtractor.Process().ToExpressionTree();
       var constants = constantExtractor.GetConstants();
-      var compiled = cache.GetValue(tree, _tree => ((LambdaExpression) _tree.Expression).Compile());
+      var compiled = cache.GetValue(tree, _tree => ((LambdaExpression) _tree.ToExpression()).Compile());
       return new Pair<Delegate, object[]>(compiled, constants);
     }
 

@@ -8,12 +8,12 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace Xtensive.Core.Linq.Internals
+namespace Xtensive.Core.Linq
 {
   [Serializable]
   internal class ComparisonMethodInfo
   {
-    private static readonly string compareOrdinalName = "CompareOrdinal";
+    private const string CompareOrdinalName = "CompareOrdinal";
 
     public readonly MethodInfo Method;
 
@@ -82,7 +82,7 @@ namespace Xtensive.Core.Linq.Internals
 
     private void EvaluateComplexity(MethodInfo method)
     {
-      if(method.DeclaringType == typeof(string) && method.Name== compareOrdinalName) {
+      if(method.DeclaringType == typeof(string) && method.Name== CompareOrdinalName) {
         IsComplex = true;
         return;
       }

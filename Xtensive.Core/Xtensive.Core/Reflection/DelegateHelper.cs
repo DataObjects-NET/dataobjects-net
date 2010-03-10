@@ -31,8 +31,10 @@ namespace Xtensive.Core.Reflection
     private static readonly Dictionary<Type, OpCode> opCodeConv = new Dictionary<Type, OpCode>();
     private static readonly Dictionary<Type, Type> typeOnStack = new Dictionary<Type, Type>();
 
-    private static readonly Type[] actionTypes;
-    private static readonly Type[] funcTypes;
+    private static readonly Type[] ActionTypes;
+    private static readonly Type[] FuncTypes;
+
+    public const int MaxNumberOfGenericDelegateParameters = 16;
 
     /// <summary>
     /// Aspected private field getter prefix.
@@ -468,15 +470,15 @@ namespace Xtensive.Core.Reflection
     public static Type MakeDelegateType(Type returnType, params Type[] parameterTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
-      if (parameterTypes.Length > 9)
+      if (parameterTypes.Length > MaxNumberOfGenericDelegateParameters)
         throw new NotSupportedException();
       if (returnType == typeof(void) || returnType == null) {
         if (parameterTypes.Length == 0)
-          return actionTypes[0];
-        return actionTypes[parameterTypes.Length].MakeGenericType(parameterTypes);
+          return ActionTypes[0];
+        return ActionTypes[parameterTypes.Length].MakeGenericType(parameterTypes);
       }
       var funcGenericParameters = parameterTypes.Append(returnType);
-      return funcTypes[funcGenericParameters.Length - 1].MakeGenericType(funcGenericParameters);
+      return FuncTypes[funcGenericParameters.Length - 1].MakeGenericType(funcGenericParameters);
     }
 
     /// <summary>
@@ -500,20 +502,24 @@ namespace Xtensive.Core.Reflection
     {
       ArgumentValidator.EnsureArgumentNotNull(delegateType, "delegateType");
       // check for non-generic Action
-      if (delegateType == actionTypes[0])
+      if (delegateType == ActionTypes[0])
         return new Pair<Type, Type[]>(typeof(void), ArrayUtils<Type>.EmptyArray);
       if (delegateType.IsGenericType) {
-        var definition = delegateType.GetGenericTypeDefinition();
-        var arguments = delegateType.GetGenericArguments();
-        int argumentsLength = arguments.Length;
+        var genericTypeDefinition = delegateType.GetGenericTypeDefinition();
+        var genericArguments = delegateType.GetGenericArguments();
+        int genericArgumentsLength = genericArguments.Length;
         // check for Func<>
-        if (argumentsLength >= 1 && argumentsLength <= 10 && funcTypes[argumentsLength-1] == definition) {
-          var parameterTypes = new Type[arguments.Length - 1];
-          Array.Copy(arguments, parameterTypes, parameterTypes.Length);
-          return new Pair<Type, Type[]>(arguments.Last(), parameterTypes);
+        if (genericArgumentsLength >= 1
+          && genericArgumentsLength <= MaxNumberOfGenericDelegateParameters + 1
+          && FuncTypes[genericArgumentsLength-1] == genericTypeDefinition) {
+          var parameterTypes = new Type[genericArguments.Length - 1];
+          Array.Copy(genericArguments, parameterTypes, parameterTypes.Length);
+          return new Pair<Type, Type[]>(genericArguments[genericArgumentsLength - 1], parameterTypes);
         }
         // check for Action<>
-        if (argumentsLength >= 1 && argumentsLength <= 9 && actionTypes[argumentsLength] == definition)
+        if (genericArgumentsLength >= 1
+          && genericArgumentsLength <= MaxNumberOfGenericDelegateParameters
+          && ActionTypes[genericArgumentsLength] == genericTypeDefinition)
           return new Pair<Type, Type[]>(typeof(void), delegateType.GetGenericArguments());
       }
       // universal (but slow) strategy - reflect "Invoke" method
@@ -576,32 +582,53 @@ namespace Xtensive.Core.Reflection
       typeOnStack.Add(typeof(float),  typeof(float));
       typeOnStack.Add(typeof(double), typeof(double));
 
-      funcTypes = new[]
+      FuncTypes = new[]
         {
           typeof (Func<>),
+
           typeof (Func<,>),
           typeof (Func<,,>),
           typeof (Func<,,,>),
           typeof (Func<,,,,>),
+
           typeof (Func<,,,,,>),
           typeof (Func<,,,,,,>),
           typeof (Func<,,,,,,,>),
           typeof (Func<,,,,,,,,>),
+
           typeof (Func<,,,,,,,,,>),
+          typeof (Func<,,,,,,,,,,>),
+          typeof (Func<,,,,,,,,,,,>),
+          typeof (Func<,,,,,,,,,,,,>),
+
+          typeof (Func<,,,,,,,,,,,,,>),
+          typeof (Func<,,,,,,,,,,,,,,>),
+          typeof (Func<,,,,,,,,,,,,,,,>),
+          typeof (Func<,,,,,,,,,,,,,,,,>),
         };
 
-      actionTypes = new[]
+      ActionTypes = new[]
         {
           typeof (Action),
           typeof (Action<>),
           typeof (Action<,>),
           typeof (Action<,,>),
           typeof (Action<,,,>),
+
           typeof (Action<,,,,>),
           typeof (Action<,,,,,>),
           typeof (Action<,,,,,,>),
           typeof (Action<,,,,,,,>),
+
           typeof (Action<,,,,,,,,>),
+          typeof (Action<,,,,,,,,,>),
+          typeof (Action<,,,,,,,,,,>),
+          typeof (Action<,,,,,,,,,,,>),
+
+          typeof (Action<,,,,,,,,,,,,>),
+          typeof (Action<,,,,,,,,,,,,,>),
+          typeof (Action<,,,,,,,,,,,,,,>),
+          typeof (Action<,,,,,,,,,,,,,,,>),
         };
     }
   }

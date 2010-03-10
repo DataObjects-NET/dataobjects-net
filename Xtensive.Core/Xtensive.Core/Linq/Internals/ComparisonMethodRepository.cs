@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Helpers;
 
-namespace Xtensive.Core.Linq.Internals
+namespace Xtensive.Core.Linq
 {
   internal static class ComparisonMethodRepository
   {

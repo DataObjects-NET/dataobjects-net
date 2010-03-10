@@ -11,7 +11,8 @@
 // Created:    2009.05.07
 
 using System.Linq.Expressions;
-using Xtensive.Core.Linq.Internals;
+using Xtensive.Core;
+using Xtensive.Core.Linq;
 
 namespace System
 {
@@ -23,7 +24,7 @@ namespace System
 <#
 PushIndent("    ");
 foreach (var delegateType in DelegateGenerator.GetDelegateTypes())
-for (int i = 0; i < DelegateGenerator.StandardMaxNumberOfArguments; i++) {
+for (int i = 0; i < DelegateGenerator.MaxNumberOfArguments; i++) {
   WriteLine("/// <summary>Compiles the specified lambda and caches the result of compilation.</summary>");
   WriteLine("/// <returns>Compiled lambda.</returns>");
   Write("public static ");

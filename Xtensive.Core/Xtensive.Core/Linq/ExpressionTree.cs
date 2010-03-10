@@ -7,12 +7,11 @@
 using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using Xtensive.Core.Linq.Internals;
 
 namespace Xtensive.Core.Linq
 {
   /// <summary>
-  /// A wrapper for <see cref="Expression"/>
+  /// A wrapper for <see cref="System.Linq.Expressions.Expression"/>.
   /// that can be used for comparing expression trees and calculating their hash codes.
   /// </summary>
   [DebuggerDisplay("{Expression}")]
@@ -23,17 +22,20 @@ namespace Xtensive.Core.Linq
     private readonly Expression expression;
 
     /// <summary>
-    /// Gets the expression wrapped by this <see cref="ExpressionTree"/>.
+    /// Gets the underlying <see cref="Expression"/>.
     /// </summary>
-    /// <value>The expression.</value>
-    public Expression Expression { get { return expression; } }
-
+    /// <returns></returns>
+    public Expression ToExpression()
+    {
+      return expression;
+    }
+    
     #region ToString, GetHashCode, Equals, ==, != implementation
 
     /// <inheritdoc/>
     public override string ToString()
     {
-      return Expression.ToString(true);
+      return expression.ToString(true);
     }
 
     /// <inheritdoc/>
@@ -54,7 +56,7 @@ namespace Xtensive.Core.Linq
     /// <inheritdoc/>
     public bool Equals(ExpressionTree other)
     {
-      return new ExpressionComparer().AreEqual(Expression, other.Expression);
+      return new ExpressionComparer().AreEqual(expression, other.expression);
     }
 
     /// <summary>

@@ -43,7 +43,7 @@ namespace Xtensive.Core.Linq
     /// This affects only generic methods not generic types.
     /// </summary>
     /// <value>The generic params count.</value>
-    public int GenericParamsCount { get; private set; }
+    public int NumberOfGenericArguments { get; private set; }
 
 
     // Constructors
@@ -58,7 +58,7 @@ namespace Xtensive.Core.Linq
       TargetType = targetType;
       TargetMember = targetMember;
       TargetKind = TargetKind.Method;
-      GenericParamsCount = 0;
+      NumberOfGenericArguments = 0;
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ namespace Xtensive.Core.Linq
       TargetType = targetType;
       TargetMember = targetMember;
       TargetKind = targetKind;
-      GenericParamsCount = 0;
+      NumberOfGenericArguments = 0;
     }
 
     /// <summary>
@@ -80,13 +80,13 @@ namespace Xtensive.Core.Linq
     /// </summary>
     /// <param name="targetType">Type of the target.</param>
     /// <param name="targetMember">The target member.</param>
-    /// <param name="genericParamsCount">The generic params count.</param>
-    public CompilerAttribute(Type targetType, string targetMember, int genericParamsCount)
+    /// <param name="numberOfGenericArguments">The generic params count.</param>
+    public CompilerAttribute(Type targetType, string targetMember, int numberOfGenericArguments)
     {
       TargetType = targetType;
       TargetMember = targetMember;
       TargetKind = TargetKind.Method;
-      GenericParamsCount = genericParamsCount;
+      NumberOfGenericArguments = numberOfGenericArguments;
     }
 
     /// <summary>
@@ -95,13 +95,13 @@ namespace Xtensive.Core.Linq
     /// <param name="targetType">Type of the target.</param>
     /// <param name="targetMember">The target member.</param>
     /// <param name="targetKind">Kind of the target.</param>
-    /// <param name="genericParamsCount">The generic params count.</param>
-    public CompilerAttribute(Type targetType, string targetMember, TargetKind targetKind, int genericParamsCount)
+    /// <param name="numberOfGenericArguments">The generic params count.</param>
+    public CompilerAttribute(Type targetType, string targetMember, TargetKind targetKind, int numberOfGenericArguments)
     {
       TargetType = targetType;
       TargetMember = targetMember;
       TargetKind = targetKind;
-      GenericParamsCount = genericParamsCount;
+      NumberOfGenericArguments = numberOfGenericArguments;
     }
   }
 }

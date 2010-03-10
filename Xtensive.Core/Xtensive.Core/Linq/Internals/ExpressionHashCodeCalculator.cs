@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq.Internals
+namespace Xtensive.Core.Linq
 {
   internal sealed class ExpressionHashCodeCalculator : ExpressionVisitor<int>
   {
@@ -97,8 +97,8 @@ namespace Xtensive.Core.Linq.Internals
     protected override int VisitMemberInit(MemberInitExpression mi)
     {
       var result = Visit(mi.NewExpression);
-        foreach (var b in mi.Bindings)
-          result ^= b.BindingType.GetHashCode() ^ b.Member.GetHashCode();
+      foreach (var b in mi.Bindings)
+        result ^= b.BindingType.GetHashCode() ^ b.Member.GetHashCode();
       return result;
     }
 

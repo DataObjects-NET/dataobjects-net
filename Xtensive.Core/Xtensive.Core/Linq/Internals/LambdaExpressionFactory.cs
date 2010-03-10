@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Threading;
 using Factory = System.Func<
@@ -18,7 +17,7 @@ using Factory = System.Func<
   System.Linq.Expressions.LambdaExpression
   >;
 
-namespace Xtensive.Core.Linq.Internals
+namespace Xtensive.Core.Linq
 {
   internal sealed class LambdaExpressionFactory
   {
@@ -27,10 +26,8 @@ namespace Xtensive.Core.Linq.Internals
 
     public static LambdaExpressionFactory Instance {
       get {
-        if (instance == null)
-          lock (_lock)
-            if (instance == null)
-              instance = new LambdaExpressionFactory();
+        if (instance == null) lock (_lock) if (instance == null)
+          instance = new LambdaExpressionFactory();
         return instance;
       }
     }
@@ -67,7 +64,7 @@ namespace Xtensive.Core.Linq.Internals
       factoryMethod = typeof (Expression).GetMethods()
         .Where(m => m.IsGenericMethod
           && m.Name == "Lambda"
-          && m.GetParameters()[1].ParameterType == typeof(IEnumerable<ParameterExpression>))
+            && m.GetParameters()[1].ParameterType == typeof(IEnumerable<ParameterExpression>))
         .Single();
     }
   }

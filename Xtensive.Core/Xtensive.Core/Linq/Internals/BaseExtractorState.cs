@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq.Internals
+namespace Xtensive.Core.Linq
 {
   internal abstract class BaseExtractorState : ExpressionVisitor<ExtractionInfo>
   {

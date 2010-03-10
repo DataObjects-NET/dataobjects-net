@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Xtensive.Core.Linq.Internals
+namespace Xtensive.Core.Linq
 {
   internal class VisitComparisonMethodState : BaseExtractorState
   {
@@ -32,19 +32,19 @@ namespace Xtensive.Core.Linq.Internals
     private static ExtractionInfo ProcessNonDefaultComparison(ExtractionInfo extractionInfo)
     {
       switch (extractionInfo.MethodInfo.ComparisonKind) {
-        case ComparisonKind.LikeEndsWith:
-        case ComparisonKind.LikeStartsWith:
-          return extractionInfo;
-        case ComparisonKind.Equality:
-          return ProcessEqualityComparisonMethod(extractionInfo);
-        case ComparisonKind.ForcedGreaterThan:
-        case ComparisonKind.ForcedGreaterThanOrEqual:
-        case ComparisonKind.ForcedLessThan:
-        case ComparisonKind.ForcedLessThanOrEqual:
-          return ProcessMethodWithFocedComparisonType(extractionInfo);
-        default:
-          throw Exceptions.InvalidArgument(extractionInfo.MethodInfo.ComparisonKind,
-            "extractionInfo.MethodInfo.ComparisonKind");
+      case ComparisonKind.LikeEndsWith:
+      case ComparisonKind.LikeStartsWith:
+        return extractionInfo;
+      case ComparisonKind.Equality:
+        return ProcessEqualityComparisonMethod(extractionInfo);
+      case ComparisonKind.ForcedGreaterThan:
+      case ComparisonKind.ForcedGreaterThanOrEqual:
+      case ComparisonKind.ForcedLessThan:
+      case ComparisonKind.ForcedLessThanOrEqual:
+        return ProcessMethodWithFocedComparisonType(extractionInfo);
+      default:
+        throw Exceptions.InvalidArgument(extractionInfo.MethodInfo.ComparisonKind,
+          "extractionInfo.MethodInfo.ComparisonKind");
       }
     }
 
@@ -103,7 +103,7 @@ namespace Xtensive.Core.Linq.Internals
       var result = objectInfo!=null ? objectInfo : argumentInfo;
       if (result==null)
         throw Exceptions.InternalError(Resources.Strings.ExCannotParseCallToComparisonMethod,
-              Log.Instance);
+          Log.Instance);
       if (result==objectInfo)
         return ExtractValueFromInstanceMethodOfKey(result, exp);
       return ExtractValueFromMethod(result, exp, keyIndex);
@@ -170,21 +170,21 @@ namespace Xtensive.Core.Linq.Internals
     private static ExtractionInfo ProcessMethodWithFocedComparisonType(ExtractionInfo extractionInfo)
     {
       switch (extractionInfo.MethodInfo.ComparisonKind) {
-        case ComparisonKind.ForcedGreaterThan:
-          extractionInfo.ComparisonOperation = ExpressionType.GreaterThan;
-          break;
-        case ComparisonKind.ForcedGreaterThanOrEqual:
-          extractionInfo.ComparisonOperation = ExpressionType.GreaterThanOrEqual;
-          break;
-        case ComparisonKind.ForcedLessThan:
-          extractionInfo.ComparisonOperation = ExpressionType.LessThan;
-          break;
-        case ComparisonKind.ForcedLessThanOrEqual:
-          extractionInfo.ComparisonOperation = ExpressionType.LessThanOrEqual;
-          break;
-        default:
-          throw Exceptions.InvalidArgument(extractionInfo.MethodInfo.ComparisonKind,
-            "extractionInfo.MethodInfo.ComparisonKind");
+      case ComparisonKind.ForcedGreaterThan:
+        extractionInfo.ComparisonOperation = ExpressionType.GreaterThan;
+        break;
+      case ComparisonKind.ForcedGreaterThanOrEqual:
+        extractionInfo.ComparisonOperation = ExpressionType.GreaterThanOrEqual;
+        break;
+      case ComparisonKind.ForcedLessThan:
+        extractionInfo.ComparisonOperation = ExpressionType.LessThan;
+        break;
+      case ComparisonKind.ForcedLessThanOrEqual:
+        extractionInfo.ComparisonOperation = ExpressionType.LessThanOrEqual;
+        break;
+      default:
+        throw Exceptions.InvalidArgument(extractionInfo.MethodInfo.ComparisonKind,
+          "extractionInfo.MethodInfo.ComparisonKind");
       }
       return extractionInfo;
     }
