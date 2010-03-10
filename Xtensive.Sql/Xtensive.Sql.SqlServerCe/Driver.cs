@@ -32,7 +32,7 @@ namespace Xtensive.Sql.SqlServerCe
         return SqlExceptionType.UniqueConstraintViolation;
       case 25025:
       case 25026:
-        return SqlExceptionType.ReferentialContraintViolation;
+        return SqlExceptionType.ReferentialConstraintViolation;
       default:
         return SqlExceptionType.Unknown;
       }

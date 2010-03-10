@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Oracle
         return SqlExceptionType.UniqueConstraintViolation;
       case 2291:
       case 2292:
-        return SqlExceptionType.ReferentialContraintViolation;
+        return SqlExceptionType.ReferentialConstraintViolation;
       case 1400:
       case 2290:
         return SqlExceptionType.CheckConstraintViolation;

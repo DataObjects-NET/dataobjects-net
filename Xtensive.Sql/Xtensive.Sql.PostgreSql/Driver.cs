@@ -53,7 +53,7 @@ namespace Xtensive.Sql.PostgreSql
         return SqlExceptionType.CheckConstraintViolation;
       case "23001": // restrict_violation
       case "23503": // foreign_key_violation
-        return SqlExceptionType.ReferentialContraintViolation;
+        return SqlExceptionType.ReferentialConstraintViolation;
       case "23505": // unique_violation
         return SqlExceptionType.UniqueConstraintViolation;
       case "40P01": // deadlock_detected

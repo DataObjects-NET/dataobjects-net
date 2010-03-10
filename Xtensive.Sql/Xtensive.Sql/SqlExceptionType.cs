@@ -39,7 +39,7 @@ namespace Xtensive.Sql
     /// <summary>
     /// Referential constraint (aka foreign key) violation.
     /// </summary>
-    ReferentialContraintViolation,
+    ReferentialConstraintViolation,
 
     /// <summary>
     /// Deadlock.

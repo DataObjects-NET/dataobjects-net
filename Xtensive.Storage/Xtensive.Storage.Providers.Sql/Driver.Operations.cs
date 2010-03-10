@@ -206,8 +206,8 @@ namespace Xtensive.Storage.Providers.Sql
         return new CheckConstraintViolationException(message, exception);
       case SqlExceptionType.UniqueConstraintViolation:
         return new UniqueConstraintViolationException(message, exception);
-      case SqlExceptionType.ReferentialContraintViolation:
-        return new ReferentialContraintViolationException(message, exception);
+      case SqlExceptionType.ReferentialConstraintViolation:
+        return new ReferentialConstraintViolationException(message, exception);
       case SqlExceptionType.Deadlock:
         return new DeadlockException(message, exception);
       case SqlExceptionType.SerializationFailure:

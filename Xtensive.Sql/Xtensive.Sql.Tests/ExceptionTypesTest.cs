@@ -106,7 +106,7 @@ namespace Xtensive.Sql.Tests
       var slaveTableRef = SqlDml.TableRef(slaveTable);
       var slaveInsert = SqlDml.Insert(slaveTableRef);
       slaveInsert.Values.Add(slaveTableRef[IdColumnName], 1);
-      AssertExceptionType(slaveInsert, SqlExceptionType.ReferentialContraintViolation);
+      AssertExceptionType(slaveInsert, SqlExceptionType.ReferentialConstraintViolation);
 
       var masterTableRef = SqlDml.TableRef(masterTable);
       var masterInsert = SqlDml.Insert(masterTableRef);
@@ -116,7 +116,7 @@ namespace Xtensive.Sql.Tests
 
       var masterDelete = SqlDml.Delete(masterTableRef);
       masterDelete.Where = masterTableRef[IdColumnName]==1;
-      AssertExceptionType(masterDelete, SqlExceptionType.ReferentialContraintViolation);
+      AssertExceptionType(masterDelete, SqlExceptionType.ReferentialConstraintViolation);
     }
 
     [Test]

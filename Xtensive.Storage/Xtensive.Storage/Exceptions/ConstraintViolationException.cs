@@ -12,7 +12,7 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// An exception that is thrown when RDBMS detects a violation of a constraint.
-  /// <seealso cref="ReferentialContraintViolationException"/>
+  /// <seealso cref="ReferentialConstraintViolationException"/>
   /// <seealso cref="UniqueConstraintViolationException"/>
   /// <seealso cref="CheckConstraintViolationException"/>
   /// </summary>

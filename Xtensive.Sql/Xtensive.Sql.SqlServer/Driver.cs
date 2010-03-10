@@ -40,7 +40,7 @@ namespace Xtensive.Sql.SqlServer
         if (errorMessage.Contains("CHECK"))
           return SqlExceptionType.CheckConstraintViolation;
         if (errorMessage.Contains("FOREIGN KEY") || errorMessage.Contains("REFERENCE"))
-          return SqlExceptionType.ReferentialContraintViolation;
+          return SqlExceptionType.ReferentialConstraintViolation;
         if (errorMessage.Contains("UNIQUE KEY") || errorMessage.Contains("PRIMARY KEY"))
           return SqlExceptionType.UniqueConstraintViolation;
         return SqlExceptionType.Unknown;
