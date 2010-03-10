@@ -1,0 +1,102 @@
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#+
+// Copyright (C) 2003-2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2010.03.10
+
+class DelegateGenerator
+{
+  public const int StandardMaxNumberOfParameters = 4;
+  public const int MaxNumberOfParameters = 9;
+
+  public static string GenerateFunc(string prefixArgument, int offset, int numberOfArguments)
+  {
+    return "Func" + GenerateFuncArguments(prefixArgument, offset, numberOfArguments);
+  }
+
+  public static string GenerateAction(string prefixArgument, int offset, int numberOfArguments)
+  {
+    return "Action" + GenerateActionArguments(prefixArgument, offset, numberOfArguments);
+  }
+  
+  public static string GenerateFuncArguments(string prefixArgument, int offset, int numberOfArguments)
+  {
+    return GenerateGenericArguments(prefixArgument, "TResult", offset, numberOfArguments);
+  }
+
+  public static string GenerateActionArguments(string prefixArgument, int offset, int numberOfArguments)
+  {
+    if (numberOfArguments==0 && string.IsNullOrEmpty(prefixArgument))
+      return string.Empty;
+    return GenerateGenericArguments(prefixArgument, null, offset, numberOfArguments);
+  }
+
+  public static string GenerateArgumentDeclaration(string prefixArg, int offset, int numberOfArguments)
+  {
+    var seq = GenerateSequence(prefixArg, null, offset, numberOfArguments, GetArgumentDeclaration);
+    return PackSequence("(", ")", ", ", seq);
+  }
+
+  public static string GenerateArgumentUsage(string prefixArg, int offset, int numberOfArguments)
+  {
+    var seq = GenerateSequence(prefixArg, null, offset, numberOfArguments, GetArgumentUsage);
+    return PackSequence("(", ")", ", ", seq);
+  }
+
+  private static string GenerateGenericArguments(
+    string prefixArgument, string suffixArgument,
+    int offset, int numberOfArguments)
+  {
+    var seq = GenerateSequence(prefixArgument, suffixArgument,
+      offset, numberOfArguments, GetGenericArgumentName);
+    return PackSequence("<", ">", ", ", seq);
+  }
+
+  private static string GetArgumentUsage(int number)
+  {
+    return string.Format("arg{0}", number);
+  }
+
+  private static string GetArgumentDeclaration(int number)
+  {
+    return string.Format("T{0} arg{0}", number);
+  }
+
+  private static string GetGenericArgumentName(int number)
+  {
+    return string.Format("T{0}", number);
+  }
+
+  private static IEnumerable<string> GenerateSequence(
+    string prefix, string suffix,
+    int offset, int numberOfItems, Func<int, string> projector)
+  {
+    if (!string.IsNullOrEmpty(prefix))
+      yield return prefix;
+    foreach (var i in Enumerable.Range(offset, numberOfItems))
+      yield return projector.Invoke(i);
+    if (!string.IsNullOrEmpty(suffix))
+      yield return suffix;
+  }
+
+  private static string PackSequence(string prologue, string epilogue,
+    string delimiter, IEnumerable<string> items)
+  {
+    var builder = new StringBuilder();
+    builder.Append(prologue);
+    foreach (var item in items) {
+      if (builder.Length > prologue.Length)
+        builder.Append(delimiter);
+      builder.Append(item);
+    }
+    builder.Append(epilogue);
+    return builder.ToString();
+  }
+}
+#>

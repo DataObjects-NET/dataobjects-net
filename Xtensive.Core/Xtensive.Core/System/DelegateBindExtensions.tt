@@ -4,7 +4,7 @@
 <#@ import namespace="System" #>
 <#@ import namespace="System.Linq" #>
 <#
-  int NumberOfParameters = 9;
+  const int NumberOfParameters = 9;
 
   Action<int, int> WriteParametersDeclaration = delegate(int firstIndex, int lastIndex) {
     if (firstIndex > lastIndex)
@@ -86,7 +86,7 @@
     }
   };
 #>
-// Copyright (C) 2009 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov

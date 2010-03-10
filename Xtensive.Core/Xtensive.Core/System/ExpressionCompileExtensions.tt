@@ -4,6 +4,8 @@
 <#@ import namespace="System" #>
 <#@ import namespace="System.Linq" #>
 <#
+const int NumberOfParameters = 9;
+
 Action<int, bool, bool> WriteGenericParameters = delegate (int numberOfArguments, bool forAction, bool writePrefix) {
   if (numberOfArguments == 0) {
     if (forAction && writePrefix)
@@ -60,12 +62,12 @@ Action<int, bool> WriteMethod = delegate (int numberOfArguments, bool forAction)
 };
 
 Action<bool> WriteMethods = delegate (bool forAction) {
-  for (int i = 0; i < 9; i++)
+  for (int i = 0; i < NumberOfParameters; i++)
     WriteMethod(i, forAction);
 };
 
 #>
-// Copyright (C) 2009 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
