@@ -6,8 +6,9 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Storage.Upgrade;
 
-namespace Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version2
+namespace Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version2Perform
 {
   [HierarchyRoot]
   public class Author : Entity
@@ -17,11 +18,6 @@ namespace Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version2
 
     [Field]
     public string Name { get; set; }
-
-    public Author(Guid id, Guid id2)
-      : base(id, id2)
-    {
-    }
   }
 
   [HierarchyRoot]

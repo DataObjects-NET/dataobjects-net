@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
     protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
-        Version1To2Hints.ForEach(hint => hints.Add(hint));
+        hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1.Order", typeof(Order)));
     }
 
     public override void OnUpgrade()
@@ -99,12 +99,6 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
         && base.IsTypeAvailable(type, upgradeStage);
     }
 
-    private static IEnumerable<UpgradeHint> Version1To2Hints {
-      get {
-        // renaming types
-        yield return new RenameTypeHint(
-          "Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1.Order", typeof (Order));
-      }
-    }
+    
   }
 }

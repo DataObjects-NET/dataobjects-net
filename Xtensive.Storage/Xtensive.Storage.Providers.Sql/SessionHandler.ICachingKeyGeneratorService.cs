@@ -13,6 +13,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Providers.Sql.Resources;
+using Xtensive.Storage.Upgrade;
 
 namespace Xtensive.Storage.Providers.Sql
 {
@@ -30,13 +31,14 @@ namespace Xtensive.Storage.Providers.Sql
       new Dictionary<KeyGenerator, CachingKeyGeneratorInfo>();
 
     /// <inheritdoc/>
-    IEnumerable<TFieldType> ICachingKeyGeneratorService.NextBulk<TFieldType>(
-      CachingKeyGenerator<TFieldType> generator)
+    IEnumerable<TFieldType> ICachingKeyGeneratorService.NextBulk<TFieldType>(CachingKeyGenerator<TFieldType> generator)
     {
       var info = GetKeyGeneratorInfo(generator);
       TFieldType hiValue;
 
-      using (Session.Open(domainHandler.Domain, SessionType.KeyGenerator))
+      var isUpgradeRunning = UpgradeContext.Current != null;
+
+      using (isUpgradeRunning ? null : Session.Open(domainHandler.Domain, SessionType.KeyGenerator))
       using (var t = Transaction.Open()) {
         var queryExecutor = Handlers.SessionHandler.GetService<IQueryExecutor>(true);
         if (!info.InsertRequest.IsNullOrEmpty())
