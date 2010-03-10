@@ -584,7 +584,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
       using (var session = Session.Open(Domain)) {
         using (var result = mapper.Compare(original, modified))
         using (VersionValidator.Attach(session, result.VersionInfoProvider)) {
-          AssertEx.ThrowsInvalidOperationException(() => {
+          AssertEx.Throws<VersionConflictException>(() => {
             using (var tx = Transaction.Open()) {
               result.Operations.Replay();
               tx.Complete();

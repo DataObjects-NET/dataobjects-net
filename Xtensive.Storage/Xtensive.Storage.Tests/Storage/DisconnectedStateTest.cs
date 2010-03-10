@@ -1480,7 +1480,7 @@ namespace Xtensive.Storage.Tests.Storage
             customer1.Name = "NewName2";
             transactionScope.Complete();
           }
-          AssertEx.Throws<InvalidOperationException>(() => state.ApplyChanges());
+          AssertEx.Throws<VersionConflictException>(() => state.ApplyChanges());
         }
       }
 
@@ -1492,7 +1492,7 @@ namespace Xtensive.Storage.Tests.Storage
             customer1.Name = "NewName1";
             transactionScope.Complete();
           }
-          AssertEx.Throws<InvalidOperationException>(() => stateClone.ApplyChanges());
+          AssertEx.Throws<VersionConflictException>(() => stateClone.ApplyChanges());
         }
       }
     }
@@ -1890,7 +1890,7 @@ namespace Xtensive.Storage.Tests.Storage
       // Merge and check
       using (var session = Session.Open(Domain)) {
         using (state2.Attach(session)) {
-          AssertEx.Throws<InvalidOperationException>(() => state2.Merge(state1, MergeMode.Strict));
+          AssertEx.Throws<VersionConflictException>(() => state2.Merge(state1, MergeMode.Strict));
           state2.Merge(state1, MergeMode.PreferTarget);
           Assert.AreEqual("Value1", Query.Single<Simple>(key).Value);
           state2.Merge(state1, MergeMode.PreferSource);

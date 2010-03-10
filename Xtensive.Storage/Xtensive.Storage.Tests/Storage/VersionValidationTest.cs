@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (VersionValidator.Attach(session, versionGetter)) {
-          AssertEx.Throws<InvalidOperationException>(() => {
+          AssertEx.Throws<VersionConflictException>(() => {
             using (var transactionScope = Transaction.Open()) {
               var customer = Query.Single<Customer>(customerKey);
               customer.Name = "Customer3";
@@ -187,7 +187,7 @@ namespace Xtensive.Storage.Tests.Storage
 
       using (var session = Session.Open(Domain)) {
         using (VersionValidator.Attach(session, versionGetter)) {
-          AssertEx.Throws<InvalidOperationException>(() => {
+          AssertEx.Throws<VersionConflictException>(() => {
             using (var transactionScope = Transaction.Open()) {
               var customer = Query.Single<Customer>(customerKey);
               customer.Remove();
