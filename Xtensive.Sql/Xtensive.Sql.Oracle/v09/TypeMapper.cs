@@ -108,6 +108,13 @@ namespace Xtensive.Sql.Oracle.v09
       parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
+    public override void SetStringParameterValue(DbParameter parameter, object value)
+    {
+      var nativeParameter = (OracleParameter) parameter;
+      nativeParameter.OracleDbType = OracleDbType.NVarchar2;
+      nativeParameter.Value = value ?? DBNull.Value;
+    }
+
     public override object ReadBoolean(DbDataReader reader, int index)
     {
       //return reader.GetDecimal(index)!=0.0m;
