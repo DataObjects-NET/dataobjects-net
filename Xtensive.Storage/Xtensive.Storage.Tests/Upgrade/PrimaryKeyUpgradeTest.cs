@@ -93,22 +93,26 @@ namespace Xtensive.Storage.Tests.Upgrade
       }
     }
 
-    private void Validate(bool keepConsistent)
+    private void Validate(bool keepData)
     {
       using (var session = Session.Open(domain))
       using (var t = Transaction.Open()) {
         var authorCount = Query.All<PrimaryKeyModel.Version2.Author>().Count(a => a.Name == "Jack London");
         var bookCount = Query.All<PrimaryKeyModel.Version2.Book>().Count();
-        Assert.AreEqual(1, authorCount);
+        Assert.AreEqual(keepData ? 1 : 0, authorCount);
         Assert.AreEqual(1, bookCount);
-        var author = Query.All<PrimaryKeyModel.Version2.Author>().First(a => a.Name == "Jack London");
-        var book = Query.All<PrimaryKeyModel.Version2.Book>().First();
-        Assert.IsNotNull(author);
-        Assert.IsNotNull(book);
-        if (keepConsistent)
+        var author = Query.All<PrimaryKeyModel.Version2.Author>().FirstOrDefault(a => a.Name == "Jack London");
+        var book = Query.All<PrimaryKeyModel.Version2.Book>().FirstOrDefault();
+        if (keepData) {
+          Assert.IsNotNull(author);
+          Assert.IsNotNull(book);
           Assert.AreSame(author, book.Author);
-        else
+        }
+        else{
+          Assert.IsNull(author);
+          Assert.IsNotNull(book);
           Assert.IsNull(book.Author);
+        }
         t.Complete();
       }
     }

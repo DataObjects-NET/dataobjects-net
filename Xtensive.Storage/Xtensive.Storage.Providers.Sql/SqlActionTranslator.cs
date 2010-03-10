@@ -62,7 +62,6 @@ namespace Xtensive.Storage.Providers.Sql
     private bool translated;
     private readonly List<Table> createdTables = new List<Table>();
     private readonly List<Sequence> createdSequences = new List<Sequence>();
-    private readonly List<PropertyChangeAction> changeColumnTypeActions = new List<PropertyChangeAction>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private UpgradeStage stage;
 
@@ -176,7 +175,6 @@ namespace Xtensive.Storage.Providers.Sql
       // Data manipulating
       stage = UpgradeStage.DataManipulate;
       // Process column type changes
-      changeColumnTypeActions.ForEach(GenerateChangeColumnTypeCommands);
       var dataManipulate = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.DataManipulate.ToString());
       if (dataManipulate!=null)
@@ -427,8 +425,8 @@ namespace Xtensive.Storage.Providers.Sql
 
       if (!action.Properties.ContainsKey(ColumnTypePropertyName))
         return;
-      
-      changeColumnTypeActions.Add(action);
+
+      GenerateChangeColumnTypeCommands(action);
     }
 
     private void VisitMoveColumnAction(MoveNodeAction action)
