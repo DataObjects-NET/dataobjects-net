@@ -10,10 +10,33 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.03.10
 
+enum DelegateType {
+  Func,
+  Action,
+}
+
 class DelegateGenerator
 {
-  public const int StandardMaxNumberOfParameters = 4;
-  public const int MaxNumberOfParameters = 9;
+  public const int StandardMaxNumberOfArguments = 4;
+  public const int MaxNumberOfArguments = 9;
+  
+  public static IEnumerable<DelegateType> GetDelegateTypes()
+  {
+    yield return DelegateType.Func;
+    yield return DelegateType.Action;
+  }
+  
+  public static string GenerateDelegate(DelegateType type, string prefixArgument, int offset, int numberOfArguments)
+  {
+    switch (type) {
+    case DelegateType.Func:
+      return GenerateFunc(prefixArgument, offset, numberOfArguments);
+    case DelegateType.Action:
+      return GenerateAction(prefixArgument, offset, numberOfArguments);
+    default:
+      throw new InvalidOperationException();
+    }
+  }
 
   public static string GenerateFunc(string prefixArgument, int offset, int numberOfArguments)
   {
@@ -23,6 +46,18 @@ class DelegateGenerator
   public static string GenerateAction(string prefixArgument, int offset, int numberOfArguments)
   {
     return "Action" + GenerateActionArguments(prefixArgument, offset, numberOfArguments);
+  }
+
+  public static string GenerateDelegateArguments(DelegateType type, string prefixArgument, int offset, int numberOfArguments)
+  {
+    switch (type) {
+    case DelegateType.Func:
+      return GenerateFuncArguments(prefixArgument, offset, numberOfArguments);
+    case DelegateType.Action:
+      return GenerateActionArguments(prefixArgument, offset, numberOfArguments);
+    default:
+      throw new InvalidOperationException();
+    }
   }
   
   public static string GenerateFuncArguments(string prefixArgument, int offset, int numberOfArguments)
@@ -49,9 +84,7 @@ class DelegateGenerator
     return PackSequence("(", ")", ", ", seq);
   }
 
-  private static string GenerateGenericArguments(
-    string prefixArgument, string suffixArgument,
-    int offset, int numberOfArguments)
+  private static string GenerateGenericArguments(string prefixArgument, string suffixArgument, int offset, int numberOfArguments)
   {
     var seq = GenerateSequence(prefixArgument, suffixArgument,
       offset, numberOfArguments, GetGenericArgumentName);
