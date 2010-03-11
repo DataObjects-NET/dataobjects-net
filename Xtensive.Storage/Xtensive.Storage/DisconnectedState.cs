@@ -29,12 +29,10 @@ namespace Xtensive.Storage
   public sealed class DisconnectedState
   {
     private OperationLog serializedOperations;
-    private KeyValuePair<string, VersionInfo>[] serializedVersions;
     private SerializableEntityState[] serializedRegistry;
     private SerializableEntityState[] serializedGlobalRegistry;
-    
-    [NonSerialized]
-    private Dictionary<Key, VersionInfo> versionCache;
+    private VersionSet versions;
+
     [NonSerialized]
     private StateRegistry transactionalState;
     [NonSerialized]
@@ -88,6 +86,24 @@ namespace Xtensive.Storage
     /// into this <see cref="DisconnectedState"/>.
     /// </summary>
     public MergeMode MergeMode { get; set; }
+
+    /// <summary>
+    /// Gets the <see cref="VersionSet"/> storing
+    /// original version of entities cached in this
+    /// <see cref="DisconnectedState"/>.
+    /// </summary>
+    public VersionSet Versions {
+      get { return versions; }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="OperationLog"/> storing
+    /// information of <legacyBold>already committed</legacyBold> operations.
+    /// So operations captured in the active transaction aren't exposed here.
+    /// </summary>
+    public OperationLog Operations {
+      get { return state.Operations; }
+    }
 
     /// <summary>
     /// Attaches the disconnected state to the current session.
@@ -157,13 +173,13 @@ namespace Xtensive.Storage
       DetachInternal();
       try {
         KeyMapping keyMapping;
-        using (VersionValidator.Attach(targetSession, GetOriginalVersion)) {
+        using (VersionValidator.Attach(targetSession, key => Versions[key])) {
           keyMapping = state.Operations.Replay(targetSession);
           state.Commit(true);
         }
         originalState.Remap(keyMapping);
         state = new StateRegistry(originalState);
-        RebuildVersionCache();
+        RebuildVersions();
         return keyMapping;
       }
       finally {
@@ -199,33 +215,8 @@ namespace Xtensive.Storage
     {
       var sourceStates = source.originalState.EntityStates;
       foreach (var entityState in sourceStates)
-        RegisterState(entityState.Key, entityState.Tuple, source.GetOriginalVersion(entityState.Key), mergeMode);
-    }
-
-    /// <summary>
-    /// Gets the original entity version.
-    /// </summary>
-    /// <param name="entity">The entity to get the original version for.</param>
-    /// <returns>Original version.</returns>
-    public VersionInfo GetOriginalVersion(Entity entity)
-    {
-      if (entity==null)
-        return new VersionInfo();
-      else
-        return GetOriginalVersion(entity.Key);
-    }
-
-    /// <summary>
-    /// Gets the original entity version for the specified key.
-    /// </summary>
-    /// <param name="key">The key of the entity to get the original version for.</param>
-    /// <returns>Original version.</returns>
-    public VersionInfo GetOriginalVersion(Key key)
-    {
-      VersionInfo originalVersion;
-      if (versionCache.TryGetValue(key, out originalVersion))
-        return originalVersion;
-      return new VersionInfo();
+        RegisterState(entityState.Key, entityState.Tuple, 
+          Versions[entityState.Key], mergeMode);
     }
 
     #region Internal \ protected methods
@@ -236,9 +227,9 @@ namespace Xtensive.Storage
 
     internal void OnTransactionOpened()
     {
-      DisposeOperationLogger();
+      DetachOperationCapturer();
       transactionalState = new StateRegistry(transactionalState ?? state);
-      CreateOperationLogger();
+      AttachOperationCapturer();
     }
 
     internal void OnTransactionCommited()
@@ -254,11 +245,11 @@ namespace Xtensive.Storage
 
     private void OnTransactionClosed()
     {
-      DisposeOperationLogger();
+      DetachOperationCapturer();
       var origin = transactionalState.Origin;
       if (origin!=state) {
         transactionalState = origin;
-        CreateOperationLogger();
+        AttachOperationCapturer();
       }
       else {
         transactionalState = null;
@@ -288,7 +279,7 @@ namespace Xtensive.Storage
 
       if (cachedState==null || !cachedState.IsLoaded) {
         originalState.Register(key, tuple);
-        versionCache[key] = version;
+        Versions.Add(key, version, true);
         return;
       }
 
@@ -302,7 +293,7 @@ namespace Xtensive.Storage
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
       else if (mergeMode==MergeMode.PreferSource) {
         originalState.Merge(key, tuple);
-        versionCache[key] = version;
+        Versions.Add(key, version, true);
       }
     }
 
@@ -343,14 +334,14 @@ namespace Xtensive.Storage
       }
     }
 
-    private void RebuildVersionCache()
+    private void RebuildVersions()
     {
-      versionCache = new Dictionary<Key, VersionInfo>();
+      versions = new VersionSet();
       foreach (var entityState in originalState.EntityStates)
         if (entityState.Tuple!=null) {
           var version = GetVersion(entityState.Key.Type, entityState.Tuple);
           if (!version.IsVoid)
-            versionCache.Add(entityState.Key, version);
+            Versions.Add(entityState.Key, version, true);
         }
     }
 
@@ -419,12 +410,12 @@ namespace Xtensive.Storage
       return new VersionInfo(versionTuple);
     }
 
-    private void CreateOperationLogger()
+    private void AttachOperationCapturer()
     {
       operationCapturer = OperationCapturer.Attach(Session, transactionalState.Operations);
     }
 
-    private void DisposeOperationLogger()
+    private void DetachOperationCapturer()
     {
       try {
         operationCapturer.DisposeSafely();
@@ -447,7 +438,7 @@ namespace Xtensive.Storage
       associationCache = new AssociationCache();
       originalState = new StateRegistry(associationCache);
       state = new StateRegistry(originalState);
-      versionCache = new Dictionary<Key, VersionInfo>();
+      versions = new VersionSet();
     }
 
 
@@ -456,9 +447,7 @@ namespace Xtensive.Storage
     [OnSerializing]
     protected void OnSerializing(StreamingContext context)
     {
-      serializedVersions = versionCache.Select(pair => 
-        new KeyValuePair<string, VersionInfo>(pair.Key.ToString(true), pair.Value))
-        .ToArray();
+      EnsureNoTransaction();
       serializedOperations = state.Operations;
       serializedRegistry = state.EntityStates
         .Select(entityState => entityState.Serialize()).ToArray();
@@ -472,7 +461,6 @@ namespace Xtensive.Storage
       serializedRegistry = null;
       serializedGlobalRegistry = null;
       serializedOperations = null;
-      serializedVersions = null;
     }
 
     [OnDeserialized]
@@ -481,10 +469,6 @@ namespace Xtensive.Storage
       var domain = Session.Demand().Domain;
 
       associationCache = new AssociationCache();
-
-      versionCache = new Dictionary<Key, VersionInfo>();
-      foreach (var pair in serializedVersions)
-        versionCache.Add(Key.Parse(domain, pair.Key), pair.Value);
 
       originalState = new StateRegistry(associationCache);
       foreach (var entityState in serializedGlobalRegistry)
