@@ -226,12 +226,14 @@ namespace Xtensive.Storage.Configuration.Elements
     {
       bool connectionUrlSpecified = !string.IsNullOrEmpty(ConnectionUrl);
       bool connectionStringSpecified = !string.IsNullOrEmpty(ConnectionString) && !string.IsNullOrEmpty(Provider);
-      if (connectionUrlSpecified==connectionStringSpecified)
+      if (connectionUrlSpecified && connectionStringSpecified)
         throw new InvalidOperationException(
           Strings.ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnectionStringElements);
-      var connectionInfo = connectionUrlSpecified
-        ? new ConnectionInfo(ConnectionUrl)
-        : new ConnectionInfo(Provider, ConnectionString);
+      ConnectionInfo connectionInfo = null;
+      if (connectionUrlSpecified)
+        connectionInfo = new ConnectionInfo(ConnectionUrl);
+      if (connectionStringSpecified)
+        connectionInfo = new ConnectionInfo(Provider, ConnectionString);
 
       var config = new DomainConfiguration {
         Name = Name,

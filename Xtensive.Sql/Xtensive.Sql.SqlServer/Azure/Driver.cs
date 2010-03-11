@@ -11,6 +11,11 @@ namespace Xtensive.Sql.SqlServer.Azure
 {
   internal class Driver : v10.Driver
   {
+    protected override Model.Extractor CreateExtractor()
+    {
+      return new Extractor(this);
+    }
+
     protected override Info.ServerInfoProvider CreateServerInfoProvider()
     {
       return new ServerInfoProvider(this);
