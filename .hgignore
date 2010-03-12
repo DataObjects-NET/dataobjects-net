@@ -21,4 +21,3 @@ Bin\*
 obj\*
 ProxyAssemblyCache\*
 Common\Xtensive.MSBuildTasks\Xtensive.MSBuildTasks.*
-glob:_ReSharper.*
