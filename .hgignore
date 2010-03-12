@@ -13,7 +13,7 @@ syntax: glob
 *.chm
 *.xml
 *.resharper
-*.resharperoptions 
+*.resharperoptions
 H2Reg_Log.txt
 
 bin\*
@@ -21,3 +21,4 @@ Bin\*
 obj\*
 ProxyAssemblyCache\*
 Common\Xtensive.MSBuildTasks\Xtensive.MSBuildTasks.*
+glob:_ReSharper.*
