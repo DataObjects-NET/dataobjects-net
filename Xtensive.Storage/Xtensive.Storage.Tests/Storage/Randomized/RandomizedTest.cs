@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -47,7 +48,7 @@ namespace Xtensive.Storage.Tests.Storage.Randomized
       actions = new List<Action> {AddNode, RemoveNode, TransferNode, AddTree};
       nodesData = new List<Pair<Key, int>>();
       using (var session = Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
+      using (var tx = Transaction.Open(IsolationLevel.ReadCommitted)) {
         isSettingUp = true;
         for (int i = 0; i < initialTreeCount; i++)
           AddTree();

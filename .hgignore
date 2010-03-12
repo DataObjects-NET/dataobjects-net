@@ -14,8 +14,8 @@ syntax: glob
 *.xml
 *.resharper
 *.resharperoptions 
+_ReSharper.*
 H2Reg_Log.txt
-
 bin\*
 Bin\*
 obj\*
