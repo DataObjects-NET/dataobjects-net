@@ -6,9 +6,9 @@
 
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issue0595Model;
+using Xtensive.Storage.Tests.Storage.CustomEntityConnectionModel;
 
-namespace Xtensive.Storage.Tests.Issue0595Model
+namespace Xtensive.Storage.Tests.Storage.CustomEntityConnectionModel
 {
   [HierarchyRoot]
   public class Book : Entity
@@ -61,10 +61,10 @@ namespace Xtensive.Storage.Tests.Issue0595Model
   }
 }
 
-namespace Xtensive.Storage.Tests.Issues
+namespace Xtensive.Storage.Tests.Storage
 {
   [TestFixture]
-  public class Issue0595_CustomEntityConnection : AutoBuildTest
+  public class CustomEntityConnection : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
