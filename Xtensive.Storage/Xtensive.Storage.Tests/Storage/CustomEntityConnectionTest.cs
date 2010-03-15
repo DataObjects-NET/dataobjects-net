@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Storage.CustomEntityConnectionModel
 namespace Xtensive.Storage.Tests.Storage
 {
   [TestFixture]
-  public class CustomEntityConnection : AutoBuildTest
+  public class CustomEntityConnectionTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
