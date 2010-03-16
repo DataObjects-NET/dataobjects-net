@@ -101,6 +101,14 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Tries to get entity.
+    /// </summary>
+    public Entity TryGetEntity()
+    {
+      return entity;
+    }
+
+    /// <summary>
     /// Gets or sets the persistence state.
     /// </summary>
     public PersistenceState PersistenceState {

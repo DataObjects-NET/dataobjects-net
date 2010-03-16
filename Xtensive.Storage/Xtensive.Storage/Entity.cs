@@ -23,6 +23,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -663,6 +664,13 @@ namespace Xtensive.Storage
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
         Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key);
+        var references = Type.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
+        if (references.Count > 0)
+          using (Session.Pin(this))
+          foreach (var referenceField in references) {
+            var referenceValue = (Entity)GetFieldValue(referenceField);
+            Session.PairSyncManager.Enlist(OperationType.Set, this, referenceValue, referenceField.Association);
+          }
         SystemBeforeInitialize(false);
       }
       catch {
