@@ -24,15 +24,13 @@ namespace Xtensive.Storage.Upgrade
     private readonly StoredDomainModel storedModel;
     private readonly StoredDomainModel currentModel;
     private readonly StorageInfo extractedModel;
-    
-    private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping
-      = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
-    private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> backwardTypeMapping
-      = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
-    private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping
-      = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
-    private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> backwardFieldMapping
-      = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
+
+    private readonly Dictionary<string, StoredTypeInfo> currentTypes;
+    private readonly Dictionary<string, StoredTypeInfo> storedTypes;
+    private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping;
+    private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> backwardTypeMapping;
+    private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping;
+    private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> backwardFieldMapping;
     
     private readonly List<Hint> schemaHints = new List<Hint>();
 
@@ -46,7 +44,9 @@ namespace Xtensive.Storage.Upgrade
       
       var fieldRenames = proccessedHints.OfType<RenameFieldHint>().ToArray();
       ValidateRenameFieldHints(fieldRenames);
-      BuildFieldMapping(fieldRenames);
+      var changeTypeHints = proccessedHints.OfType<ChangeFieldTypeHint>().ToArray();
+      UpdateChangeFieldTypeHints(changeTypeHints);
+      BuildFieldMapping(fieldRenames, changeTypeHints);
       BuildConnectorTypeMapping();
 
       proccessedHints.AddRange(GenerateRemoveTypeHints(upgradeHints));
@@ -71,9 +71,6 @@ namespace Xtensive.Storage.Upgrade
       GenerateCopyColumnHints(fieldCopyHints);
 
       GenerateClearDataHints();
-
-      var changeTypeHints = proccessedHints.OfType<ChangeFieldTypeHint>().ToArray();
-      UpdateChangeFieldTypeHints(changeTypeHints);
 
       return new HintGenerationResult(proccessedHints, schemaHints);
     }
@@ -251,27 +248,53 @@ namespace Xtensive.Storage.Upgrade
       }
     }
 
-    private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames)
+    private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames, IEnumerable<ChangeFieldTypeHint> typeChanges)
     {
       foreach (var pair in typeMapping)
-        BuildFieldMapping(renames, pair.Key, pair.Value);
+        BuildFieldMapping(renames, typeChanges, pair.Key, pair.Value);
 
       foreach (var pair in fieldMapping.ToList())
         MapNestedFields(pair.Key, pair.Value);
     }
 
-    private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames, StoredTypeInfo oldType, StoredTypeInfo newType)
+    private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames, IEnumerable<ChangeFieldTypeHint> typeChanges, StoredTypeInfo oldType, StoredTypeInfo newType)
     {
       var newFields = newType.Fields.ToDictionary(field => field.Name);
       foreach (var oldField in oldType.Fields) {
-        var maybeHint = renames
+        var renameHint = renames
           .FirstOrDefault(hint => hint.OldFieldName==oldField.Name && hint.TargetType.GetFullName()==newType.UnderlyingType);
-        var newFieldName = maybeHint!=null
-          ? maybeHint.NewFieldName
+        var newFieldName = renameHint!=null
+          ? renameHint.NewFieldName
           : oldField.Name;
         StoredFieldInfo newField;
-        if (newFields.TryGetValue(newFieldName, out newField))
-          MapField(oldField, newField);
+        if (!newFields.TryGetValue(newFieldName, out newField))
+          continue;
+        var typeChangeHint = typeChanges
+          .FirstOrDefault(hint => hint.Type.GetFullName()==newType.UnderlyingType && hint.FieldName==newField.Name);
+        if (typeChangeHint == null) {
+          // check & skip field if type changed
+          StoredTypeInfo newFieldValueType;
+          StoredTypeInfo oldFieldValueType;
+          var newValueTypeName = newField.IsEntitySet
+            ? newField.ItemType
+            : newField.ValueType;
+          var oldValueTypeName = oldField.IsEntitySet
+            ? oldField.ItemType
+            : oldField.ValueType;
+          if (currentTypes.TryGetValue(newValueTypeName, out newFieldValueType) &&
+            storedTypes.TryGetValue(oldValueTypeName, out oldFieldValueType)) {
+            StoredTypeInfo mappedNewFieldValueType;
+            if (typeMapping.TryGetValue(oldFieldValueType, out mappedNewFieldValueType)) {
+              if (mappedNewFieldValueType!=newFieldValueType)
+                continue;
+            }
+            else
+              continue;
+          }
+          else if (oldValueTypeName!=newValueTypeName)
+            continue;
+        }
+        MapField(oldField, newField);
       }
     }
 
@@ -997,10 +1020,16 @@ namespace Xtensive.Storage.Upgrade
 
     public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel, StorageInfo extractedModel)
     {
+      backwardFieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
+      fieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
+      backwardTypeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
+      typeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
       this.extractedModel = extractedModel;
       this.storedModel = storedModel;
       this.currentModel = currentModel.ToStoredModel();
       this.currentModel.UpdateReferences();
+      currentTypes = this.currentModel.Types.ToDictionary(t => t.UnderlyingType);
+      storedTypes = this.storedModel.Types.ToDictionary(t => t.UnderlyingType);
     }
   }
 }

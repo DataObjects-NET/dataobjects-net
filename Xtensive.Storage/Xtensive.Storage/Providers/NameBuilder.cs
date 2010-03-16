@@ -62,43 +62,16 @@ namespace Xtensive.Storage.Providers
     public virtual string BuildTypeName(TypeDef type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      string result;
 
-      if (type.UnderlyingType.IsGenericType) {
-        Type[] arguments = type.UnderlyingType.GetGenericArguments();
-        var names = new string[arguments.Length];
-        if (!type.UnderlyingType.IsGenericTypeDefinition) {
-          var context = BuildingContext.Demand();
-          for (int i = 0; i < arguments.Length; i++) {
-            var argument = arguments[i];
-            if (argument.IsSubclassOf(typeof (Persistent))) {
-              var argTypeDef = context.ModelDef.Types[argument];
-              names[i] = argTypeDef.Name;
-            }
-            else
-              names[i] = argument.GetShortName();
-          }
-        }
-        else
-          for (int i = 0; i < arguments.Length; i++) {
-            var argument = arguments[i];
-            names[i] = argument.GetShortName();
-          }
-        if (type.MappingName.IsNullOrEmpty()) {
-          result = type.UnderlyingType.GetShortName();
-          result = result.Substring(0, result.IndexOf("<"));
-        }
-        else
-          result = type.MappingName;
-        return ApplyNamingRules(string.Format(GenericTypePattern, result, string.Join("-", names)));
-      }
+      if (type.UnderlyingType.IsGenericType)
+        return ApplyNamingRules(BuildGenericTypeName(type.UnderlyingType, type.MappingName));
 
       if (!type.MappingName.IsNullOrEmpty())
         return ApplyNamingRules(type.MappingName);
 
-      string underlyingTypeName = type.UnderlyingType.GetShortName();
-      string @namespace = type.UnderlyingType.Namespace;
-      result = type.Name.IsNullOrEmpty() ? underlyingTypeName : type.Name;
+      var underlyingTypeName = type.UnderlyingType.GetShortName();
+      var @namespace = type.UnderlyingType.Namespace;
+      var result = type.Name.IsNullOrEmpty() ? underlyingTypeName : type.Name;
       switch (NamingConvention.NamespacePolicy) {
         case NamespacePolicy.Synonymize: {
           string synonym;
@@ -119,6 +92,41 @@ namespace Xtensive.Storage.Providers
           break;
       }
       return ApplyNamingRules(result);
+    }
+
+    private string BuildGenericTypeName(Type type, string mappingName)
+    {
+      if (!type.IsGenericType || type.IsGenericParameter)
+        return type.GetShortName();
+
+      string typeName;
+      if (mappingName.IsNullOrEmpty()) {
+        typeName = type.GetShortName();
+        typeName = typeName.Substring(0, typeName.IndexOf("<"));
+      }
+      else
+        typeName = mappingName;
+
+      var arguments = type.GetGenericArguments();
+      var names = new string[arguments.Length];
+      if (type.IsGenericTypeDefinition)
+        for (int i = 0; i < arguments.Length; i++) {
+          var argument = arguments[i];
+          names[i] = BuildGenericTypeName(argument, null);
+        }
+      else {
+        var context = BuildingContext.Demand();
+        for (int i = 0; i < arguments.Length; i++) {
+          var argument = arguments[i];
+          if (argument.IsSubclassOf(typeof (Persistent))) {
+            var argTypeDef = context.ModelDef.Types[argument];
+            names[i] = argTypeDef.Name;
+          }
+          else
+            names[i] = BuildGenericTypeName(argument, null);
+        }
+      }
+      return string.Format(GenericTypePattern, typeName, string.Join("-", names));
     }
 
     /// <summary>

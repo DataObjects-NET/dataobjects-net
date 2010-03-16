@@ -57,7 +57,7 @@ namespace Xtensive.Storage.PairIntegrity
           // Breaking existing associations
             if (master2!=null)
               context.RegisterAction(new SyncAction(masterActions.Break, association, master2, slave2));
-            if (slave1!=null)
+            if (slave1!=null && slave1!=slave2)
               context.RegisterAction(new SyncAction(slaveActions.Break, association.Reversed, slave1, master1));
             break;
         case OperationType.Remove:
