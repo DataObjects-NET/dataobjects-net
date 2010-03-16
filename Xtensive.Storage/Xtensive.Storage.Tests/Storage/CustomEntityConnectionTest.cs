@@ -81,6 +81,7 @@ namespace Xtensive.Storage.Tests.Storage
         var book = new Book();
         var author = new Author();
         new AuthorBookLink(author, book);
+        // Session.Current.Persist();
         Assert.AreEqual(1, book.Links.Count);
         Assert.AreEqual(1, author.Links.Count);
         t.Complete();
