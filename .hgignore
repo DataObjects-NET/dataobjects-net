@@ -5,19 +5,22 @@ syntax: glob
 *.csproj.user
 *.sln.cache
 *.cache
+*.resharper
+*.resharperoptions 
+
 *.exe
 *.dll
 *.obj
 *.pdb
+
 *.HxS
 *.chm
 *.xml
-*.resharper
-*.resharperoptions 
+
+*.log
 H2Reg_Log.txt
 
 bin\*
 Bin\*
 obj\*
 ProxyAssemblyCache\*
-Common\Xtensive.MSBuildTasks\Xtensive.MSBuildTasks.*
