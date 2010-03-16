@@ -139,7 +139,10 @@ namespace Xtensive.Storage
         return false;
 
       var entityState = Session.EntityStateCache[key, true];
-      return entityState!=null ? Contains(key, entityState.PersistenceState) : Contains(key, null);
+      if (entityState != null) {
+        return Contains(key, entityState.TryGetEntity());
+      }
+      return Contains(key, null);
     }
 
     /// <summary>
@@ -380,12 +383,7 @@ namespace Xtensive.Storage
       EnsureOwnerIsNotRemoved();
       if (item==null || !Field.ItemType.IsAssignableFrom(item.Type.UnderlyingType))
         return false;
-      var association = Field.Association;
-      if (association.IsPaired && association.Multiplicity.In(Multiplicity.ManyToOne, Multiplicity.OneToMany)) {
-        var candidate = (IEntity) item.GetFieldValue(association.Reversed.OwnerField);
-        return candidate == Owner;
-      }
-      return Contains(item.Key, item.PersistenceState);
+      return Contains(item.Key, item);
     }
 
     [Transactional]
@@ -574,8 +572,6 @@ namespace Xtensive.Storage
           Session.Handler.FetchEntitySet(Owner.Key, Field, maxItemCount);
     }
 
-
-
     private void EnsureCountIsLoaded()
     {
       if (State.TotalItemCount!=null)
@@ -587,14 +583,29 @@ namespace Xtensive.Storage
       }
     }
 
-    private bool Contains(Key key, PersistenceState? persistenceState)
+    private bool Contains(Key key, Entity item)
     {
-      bool foundInCache = State.Contains(key);
+      // state check
+      var foundInCache = State.Contains(key);
       if (foundInCache)
         return true;
-      if (persistenceState==PersistenceState.New || State.IsFullyLoaded)
+      var ownerState = Owner.PersistenceState;
+      var itemState = item == null 
+        ? PersistenceState.Synchronized 
+        : item.PersistenceState;
+      if (PersistenceState.New.In(ownerState, itemState) || State.IsFullyLoaded)
         return false;
 
+      // association check
+      if (item != null) {
+        var association = Field.Association;
+        if (association.IsPaired && association.Multiplicity.In(Multiplicity.ManyToOne, Multiplicity.OneToMany)) {
+          var candidate = (IEntity)item.GetFieldValue(association.Reversed.OwnerField);
+          return candidate == Owner;
+        }
+      }
+
+      // load from storage
       EnsureIsLoaded(WellKnown.EntitySetPreloadCount);
 
       foundInCache = State.Contains(key);
