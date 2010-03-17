@@ -774,4 +774,10 @@
   <data name="ExSegmentIsOutOfRange" xml:space="preserve">
     <value>Segment is out of range.</value>
   </data>
+  <data name="ExNullablePropertyXIsBoundToPropertyYThatIsNotNullable" xml:space="preserve">
+    <value>The nullable property {0} is bound to the property {1} that isn't nullable.</value>
+  </data>
+  <data name="ExPropertiesXAndYHaveDifferentPrimitiveTypes" xml:space="preserve">
+    <value>The properties {0} and {1} have different primitive types.</value>
+  </data>
 </root>

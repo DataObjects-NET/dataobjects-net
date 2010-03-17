@@ -1141,6 +1141,15 @@ namespace Xtensive.Core.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The nullable property {0} is bound to the property {1} that isn&apos;t nullable..
+        /// </summary>
+        internal static string ExNullablePropertyXIsBoundToPropertyYThatIsNotNullable {
+            get {
+                return ResourceManager.GetString("ExNullablePropertyXIsBoundToPropertyYThatIsNotNullable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Object is read-only..
         /// </summary>
         internal static string ExObjectIsReadOnly {
@@ -1236,6 +1245,15 @@ namespace Xtensive.Core.Resources {
         internal static string ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive {
             get {
                 return ResourceManager.GetString("ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The properties {0} and {1} have different primitive types..
+        /// </summary>
+        internal static string ExPropertiesXAndYHaveDifferentPrimitiveTypes {
+            get {
+                return ResourceManager.GetString("ExPropertiesXAndYHaveDifferentPrimitiveTypes", resourceCulture);
             }
         }
         

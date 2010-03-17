@@ -437,4 +437,53 @@ namespace Xtensive.Core.Tests.ObjectMapping.SourceModel
       Id = Guid.NewGuid();
     }
   }
+
+  public class NullableDateTimeContainer
+  {
+    public Guid Id { get; set; }
+
+    public DateTime? NullableDateTime { get; set; }
+
+    
+    // Constructors
+
+    public NullableDateTimeContainer()
+    {
+      Id = Guid.NewGuid();
+    }
+  }
+
+  public class InconsistentNullableContainer
+  {
+    public Guid Id { get; set; }
+
+    public int? Int { get; set; }
+
+    public char Char { get; set; }
+
+    
+    // Constructors
+
+    public InconsistentNullableContainer()
+    {
+      Id = Guid.NewGuid();
+    }
+  }
+
+  public class InconsistentPrimitiveContainer
+  {
+    public Guid Id { get; set; }
+
+    public int Int { get; set; }
+
+    public double Double { get; set; }
+
+    
+    // Constructors
+
+    public InconsistentPrimitiveContainer()
+    {
+      Id = Guid.NewGuid();
+    }
+  }
 }
