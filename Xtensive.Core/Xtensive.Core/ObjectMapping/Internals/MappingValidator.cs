@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Core.Resources;
 
@@ -96,6 +97,22 @@ namespace Xtensive.Core.ObjectMapping
         throw new InvalidOperationException(
           String.Format(Strings.ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive, property,
           sourceProperty));
+      if (IsNullable(property.SystemProperty) && !IsNullable(sourceProperty.SystemProperty))
+        throw new InvalidOperationException(String.Format(Strings.ExNullablePropertyXIsBoundToPropertyYThatIsNotNullable,
+          property, sourceProperty));
+      if (!IsNullable(property.SystemProperty) && IsNullable(sourceProperty.SystemProperty))
+        throw new InvalidOperationException(String.Format(Strings.ExNullablePropertyXIsBoundToPropertyYThatIsNotNullable,
+          sourceProperty, property));
+      if (property.Converter==MappingBuilder.DefaultPrimitiveConverter
+        && property.SystemProperty.PropertyType!=sourceProperty.SystemProperty.PropertyType) {
+        throw new InvalidOperationException(String.Format(Strings.ExPropertiesXAndYHaveDifferentPrimitiveTypes,
+          sourceProperty, property));}
+    }
+
+    private bool IsNullable(PropertyInfo property)
+    {
+      return property.PropertyType.IsGenericType
+        && property.PropertyType.GetGenericTypeDefinition()==typeof (Nullable<>);
     }
 
     #endregion

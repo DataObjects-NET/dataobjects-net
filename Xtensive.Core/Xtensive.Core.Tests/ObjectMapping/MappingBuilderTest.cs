@@ -159,6 +159,32 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var mapping = new MappingBuilder().MapType<Person, AbstractPersonDto, int>(p => p.Id, p => p.Id);
       AssertEx.ThrowsInvalidOperationException(() => mapping.Build());
     }
+
+    [Test]
+    public void InconsistentNullableMappingTest()
+    {
+      var mapping = new MappingBuilder()
+        .MapType<InconsistentNullableContainer, InconsistentNullableContainerDto, Guid>(i => i.Id, i => i.Id)
+          .IgnoreProperty(i => i.Char);
+      AssertEx.ThrowsInvalidOperationException(() => mapping.Build());
+      mapping = new MappingBuilder()
+        .MapType<InconsistentNullableContainer, InconsistentNullableContainerDto, Guid>(i => i.Id, i => i.Id)
+          .IgnoreProperty(i => i.Int);
+      AssertEx.ThrowsInvalidOperationException(() => mapping.Build());
+    }
+
+    [Test]
+    public void InconsistentPrimitiveMappingTest()
+    {
+      var mapping = new MappingBuilder()
+        .MapType<InconsistentPrimitiveContainer, InconsistentPrimitiveContainerDto, Guid>(i => i.Id, i => i.Id)
+          .IgnoreProperty(i => i.Double);
+      AssertEx.ThrowsInvalidOperationException(() => mapping.Build());
+      mapping = new MappingBuilder()
+        .MapType<InconsistentPrimitiveContainer, InconsistentPrimitiveContainerDto, Guid>(i => i.Id, i => i.Id)
+          .IgnoreProperty(i => i.Int);
+      AssertEx.ThrowsInvalidOperationException(() => mapping.Build());
+    }
     
     private static MappingDescription GetPetOwnerMapping()
     {
