@@ -378,4 +378,29 @@ namespace Xtensive.Core.Tests.ObjectMapping.TargetModel
 
   public abstract class AbstractPersonDto : PersonDto
   {}
+
+  public class NullableDateTimeContainerDto
+  {
+    public Guid Id { get; set; }
+
+    public DateTime? NullableDateTime { get; set; }
+  }
+
+  public class InconsistentNullableContainerDto
+  {
+    public Guid Id { get; set; }
+
+    public int Int { get; set; }
+
+    public char? Char { get; set; }
+  }
+
+  public class InconsistentPrimitiveContainerDto
+  {
+    public Guid Id { get; set; }
+
+    public long Int { get; set; }
+
+    public float Double { get; set; }
+  }
 }

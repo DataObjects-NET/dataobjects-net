@@ -107,12 +107,20 @@ namespace Xtensive.Core.ObjectMapping
 
     static MappingHelper()
     {
-      primitiveTypes = new SetSlim<Type> {
+      var basicPrimitiveTypes = new[] {
         typeof (Boolean), typeof (Int16), typeof (Int32), typeof (Int64), typeof (Byte), typeof (UInt16),
-        typeof (UInt32), typeof (UInt64), typeof(Guid), typeof (Byte), typeof (Char), typeof (String),
+        typeof (UInt32), typeof (UInt64), typeof (Guid), typeof (Byte), typeof (Char), typeof (String),
         typeof (Decimal), typeof (Single), typeof (Double), typeof (DateTime), typeof (TimeSpan),
         typeof (DateTimeOffset)
       };
+      primitiveTypes = new SetSlim<Type>();
+      var openNullableType = typeof (Nullable<>);
+      for (var i = 0; i < basicPrimitiveTypes.Length; i++) {
+        var basicPrimitiveType = basicPrimitiveTypes[i];
+        primitiveTypes.Add(basicPrimitiveType);
+        if (basicPrimitiveType.IsValueType)
+          primitiveTypes.Add(openNullableType.MakeGenericType(basicPrimitiveType));
+      }
       PrimitiveTypes = new ReadOnlySet<Type>(primitiveTypes, false);
     }
   }

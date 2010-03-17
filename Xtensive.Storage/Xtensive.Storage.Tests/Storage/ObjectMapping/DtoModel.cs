@@ -140,7 +140,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
 
     public CompositeKeySecondLevel0Dto SecondId { get; set; }
 
-    public DateTime Aux { get; set; }
+    public DateTime? Aux { get; set; }
   }
 
   [Serializable]

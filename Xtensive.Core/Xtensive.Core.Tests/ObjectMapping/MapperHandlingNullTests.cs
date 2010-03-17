@@ -256,5 +256,40 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var animalRemovalOperation = operations.Skip(1).Single();
       ValidateObjectRemoval(removedAnimal, animalRemovalOperation);
     }
+
+    [Test]
+    public void TransformationWhenNullablePropertyHasNullValueTest()
+    {
+      var mapping = new MappingBuilder()
+        .MapType<NullableDateTimeContainer, NullableDateTimeContainerDto, Guid>(n => n.Id, n => n.Id)
+        .Build();
+
+      var source = new NullableDateTimeContainer {NullableDateTime = null};
+      var target = (NullableDateTimeContainerDto) new DefaultMapper(mapping).Transform(source);
+
+      Assert.AreEqual(source.Id, target.Id);
+      Assert.AreEqual(null, target.NullableDateTime);
+    }
+
+    [Test]
+    public void ComparisonWhenNullablePropertyHasNullValueTest()
+    {
+      var mapping = new MappingBuilder()
+        .MapType<NullableDateTimeContainer, NullableDateTimeContainerDto, Guid>(n => n.Id, n => n.Id)
+        .Build();
+
+      var source = new NullableDateTimeContainer {NullableDateTime = DateTime.Now};
+      var original = (NullableDateTimeContainerDto) new DefaultMapper(mapping).Transform(source);
+      var modified = new NullableDateTimeContainerDto {
+        Id = original.Id,
+        NullableDateTime = null
+      };
+
+      var operations = ((DefaultOperationLog) new DefaultMapper(mapping)
+        .Compare(original, modified).Operations).ToList();
+      Assert.AreEqual(1, operations.Count);
+      ValidatePropertyOperation(original, operations[0], n => n.NullableDateTime,
+        null, OperationType.SetProperty);
+    }
   }
 }
