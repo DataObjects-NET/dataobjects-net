@@ -466,9 +466,9 @@ namespace Xtensive.Core.Tests.ObjectMapping
       var operations = ((DefaultOperationLog) mapper.Compare(null, createdObject).Operations).ToList();
       Assert.AreEqual(3, operations.Count);
       ValidateObjectCreation(createdObject, operations[0]);
-      ValidatePropertyOperation<PersonDto>(createdObject, operations[1], p => p.LastName,
+      ValidatePropertyOperation(createdObject, operations[1], p => p.LastName,
         createdObject.LastName, OperationType.SetProperty);
-      ValidatePropertyOperation<PersonDto>(createdObject, operations[2], p => p.BirthDate,
+      ValidatePropertyOperation(createdObject, operations[2], p => p.BirthDate,
         createdObject.BirthDate, OperationType.SetProperty);
     }
 
@@ -489,6 +489,42 @@ namespace Xtensive.Core.Tests.ObjectMapping
         Assert.AreEqual(source[i].Id, target[i].Id);
         Assert.AreEqual(source[i].Name, target[i].Name);
       }
+    }
+
+    [Test]
+    public void NullablePropertyTransformationTest()
+    {
+      var mapping = new MappingBuilder()
+        .MapType<NullableDateTimeContainer, NullableDateTimeContainerDto, Guid>(n => n.Id, n => n.Id)
+        .Build();
+
+      var source = new NullableDateTimeContainer {NullableDateTime = DateTime.Now};
+      var target = (NullableDateTimeContainerDto) new DefaultMapper(mapping).Transform(source);
+
+      Assert.AreEqual(source.Id, target.Id);
+      Assert.AreEqual(source.NullableDateTime, target.NullableDateTime);
+    }
+
+    [Test]
+    public void NullablePropertyComparisonTest()
+    {
+      var mapping = new MappingBuilder()
+        .MapType<NullableDateTimeContainer, NullableDateTimeContainerDto, Guid>(n => n.Id, n => n.Id)
+        .Build();
+
+      var source = new NullableDateTimeContainer {NullableDateTime = DateTime.Now};
+      var original = (NullableDateTimeContainerDto) new DefaultMapper(mapping).Transform(source);
+      var newValue = original.NullableDateTime.Value.AddDays(5);
+      var modified = new NullableDateTimeContainerDto {
+        Id = original.Id,
+        NullableDateTime = newValue
+      };
+
+      var operations = ((DefaultOperationLog) new DefaultMapper(mapping)
+        .Compare(original, modified).Operations).ToList();
+      Assert.AreEqual(1, operations.Count);
+      ValidatePropertyOperation(original, operations[0], n => n.NullableDateTime,
+        newValue, OperationType.SetProperty);
     }
     
     private static void ValidateComparisonOfObjectsWhenReferencedObjectHasBeenReplaced(DefaultMapper mapper,

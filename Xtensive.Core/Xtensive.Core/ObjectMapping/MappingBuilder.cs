@@ -246,7 +246,7 @@ namespace Xtensive.Core.ObjectMapping
         var sourceProperty = targetType.SourceType.SystemType
           .GetProperty(property.SystemProperty.Name);
         property.SourceProperty = AddSourceDescription(targetType.SourceType, sourceProperty);
-        if (property.ValueType.ObjectKind==ObjectKind.Primitive)
+        if (!property.IsCollection && property.ValueType.ObjectKind==ObjectKind.Primitive)
           property.Converter = DefaultPrimitiveConverter;
       }
     }

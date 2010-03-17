@@ -317,7 +317,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public CompositeKeySecondLevel0 SecondId { get; private set; }
 
     [Field]
-    public DateTime Aux { get; set; }
+    public DateTime? Aux { get; set; }
 
 
     // Constructor
