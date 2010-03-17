@@ -25,3 +25,7 @@ bin\*
 Bin\*
 obj\*
 ProxyAssemblyCache\*
+
+Help\*.Hx?
+Help\*.chm
+Release.Files\*
