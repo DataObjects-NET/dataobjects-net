@@ -92,7 +92,7 @@ namespace Xtensive.Storage.Providers.Sql
       var shouldUseQueryColumns = false;
       if (origin.Sources.Any(i => i.Type == ProviderType.Index))
         shouldUseQueryColumns |= true;
-      shouldUseQueryColumns |= origin.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Filter, ProviderType.Index, ProviderType.RowNumber)
+      shouldUseQueryColumns |= origin.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Join, ProviderType.Filter, ProviderType.Index, ProviderType.RowNumber)
         && query.Columns.Count != query.From.Columns.Count;
       if (query.Columns.Any(IsColumnStub) || query.GroupBy.Count > 0 || shouldUseQueryColumns) {
         foreach (var column in query.Columns) {
