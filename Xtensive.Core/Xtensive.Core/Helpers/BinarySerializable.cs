@@ -1,0 +1,74 @@
+// Copyright (C) 2003-2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2010.03.18
+
+using System;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using Xtensive.Core.Internals.DocTemplates;
+
+namespace Xtensive.Core.Helpers
+{
+  [Serializable]
+  public class BinarySerializable<T>
+  {
+    [NonSerialized]
+    private T value;
+
+    private byte[] data;
+
+    /// <summary>
+    /// Gets or sets the value.
+    /// </summary>
+    public T Value {
+      get { return value; }
+      set { this.value = value; }
+    }
+
+    [OnSerializing]
+    private void OnSerializing(StreamingContext context)
+    {
+      using (var stream = new MemoryStream()) {
+        new BinaryFormatter().Serialize(stream, value);
+        data = stream.ToArray();
+      }
+    }
+
+    [OnSerialized]
+    private void OnSerialized(StreamingContext context)
+    {
+      data = null;
+    }
+
+    [OnDeserialized]
+    private void OnDeserializing(StreamingContext context)
+    {
+      using (var stream = new MemoryStream(data))
+        value = (T) new BinaryFormatter().Deserialize(stream);
+      data = null;
+    }
+    
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    public BinarySerializable()
+    {
+      value = default(T);
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="value">The value.</param>
+    public BinarySerializable(T value)
+    {
+      this.value = value;
+    }
+  }
+}
