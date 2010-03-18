@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -34,12 +33,16 @@ namespace Xtensive.Core.Tuples
   {
     private static int totalCount;
     private int identifier;
-    private readonly int fieldCount;
+    private int fieldCount;
     internal readonly Type[] fieldTypes;
     private readonly bool[] isValueTypeFlags;
     private ITupleFactory tupleFactory;
-    private bool isCompiled;
+    private bool isInitialized;
     private int cachedHashCode;
+    internal Delegate[] GetValueDelegates;
+    internal Delegate[] GetNullableValueDelegates;
+    internal Delegate[] SetValueDelegates;
+    internal Delegate[] SetNullableValueDelegates;
 
     /// <summary>
     /// Gets the empty tuple descriptor.
@@ -78,23 +81,23 @@ namespace Xtensive.Core.Tuples
     /// Indicates whether class for handling underlying 
     /// <see cref="Tuple"/> is already compiled.
     /// </summary>
-    public bool IsCompiled
+    public bool IsInitialized
     {
       [DebuggerStepThrough]
-      get { return isCompiled; }
+      get { return isInitialized; }
     }
 
     /// <summary>
     /// Gets the type of underlying <see cref="Tuple"/>
     /// implementation. <see langword="Null"/>, if
-    /// <see cref="IsCompiled"/>==<see langword="false"/>.
+    /// <see cref="IsInitialized"/>==<see langword="false"/>.
     /// </summary>
     public Type TupleType {
-      get {
-        if (!isCompiled)
-          return null;
-        else
-          return TupleFactory.GetType();
+      get
+      {
+        return isInitialized 
+          ? TupleFactory.GetType() 
+          : null;
       }
     }
 
@@ -105,7 +108,7 @@ namespace Xtensive.Core.Tuples
     public int GetCommonPartLength(TupleDescriptor other)
     {
       ArgumentValidator.EnsureArgumentNotNull(other, "other");
-      int minCount = fieldCount < other.fieldCount ? fieldCount : other.fieldCount;
+      var minCount = fieldCount < other.fieldCount ? fieldCount : other.fieldCount;
       for (int i = 0; i < minCount; i++) {
         if (fieldTypes[i] != other.fieldTypes[i])
           return i;
@@ -180,23 +183,23 @@ namespace Xtensive.Core.Tuples
 
     #endregion
 
-    #region Compilation related members
+    #region Initialization related members
 
     /// <summary>
     /// Ensures the descriptor is compiled.
     /// </summary>
-    protected internal void EnsureIsCompiled()
+    protected internal void EnsureIsInitialized()
     {
-      if (!isCompiled)
-        TupleDescriptorCache.Compile();
-      Debug.Assert(isCompiled, "TupleDescriptor should have IsCompiled flag set to true after the compilation!");
+      if (!isInitialized)
+        TupleDescriptorCache.Initialize();
+      Debug.Assert(isInitialized, "TupleDescriptor should have IsInitialized flag set to true after the initialization!");
     }
 
-    internal void Compiled(ITupleFactory factory)
+    internal void Initialize(ITupleFactory factory)
     {
       identifier = ++totalCount;
       tupleFactory = factory;
-      isCompiled = true;
+      isInitialized = true;
     }
 
     #endregion
@@ -303,7 +306,7 @@ namespace Xtensive.Core.Tuples
     {
       if (other==null) return false;
       if (other==this) return true;
-      if (isCompiled && other.isCompiled)
+      if (isInitialized && other.isInitialized)
         return false;
       if (fieldCount != other.fieldCount)
         return false;
@@ -316,8 +319,7 @@ namespace Xtensive.Core.Tuples
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(this, obj)) return true;
-      return Equals(obj as TupleDescriptor);
+      return ReferenceEquals(this, obj) || Equals(obj as TupleDescriptor);
     }
 
     /// <inheritdoc/>
@@ -360,7 +362,7 @@ namespace Xtensive.Core.Tuples
     /// <inheritdoc/>
     public override string ToString()
     {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       for (int i = 0; i<fieldCount; i++) {
         if (i>0)
           sb.Append(", ");
@@ -409,29 +411,6 @@ namespace Xtensive.Core.Tuples
     public static TupleDescriptor Create(IEnumerable<Type> fieldTypes)
     {
       return Create(fieldTypes.ToArray());
-    }
-
-    /// <summary>
-    /// Returns an instance of existing descriptor of specified
-    /// <see cref="GeneratedTupleDescriptor"/> type.
-    /// </summary>
-    /// <returns>Instance of existing tuple descriptor
-    /// of specified type.</returns>
-    public static TupleDescriptor Create(Type descriptorType)
-    {
-      Type baseType = typeof (GeneratedTupleDescriptor);
-      if (!baseType.IsAssignableFrom(descriptorType))
-        throw new ArgumentException(
-          Strings.ExSpecifiedTypeShouldBeGeneratedTupleDescriptorOrItsDescendant, "descriptorType");
-      if (descriptorType==typeof(EmptyTupleDescriptor))
-        return Create(ArrayUtils<Type>.EmptyArray);
-      else {
-        if (!descriptorType.IsGenericType)
-          throw new ArgumentException(
-            Strings.ExSpecifiedTypeShouldBeGeneratedTupleDescriptorOrItsDescendant, "descriptorType");
-        Type[] descriptorGenericArgs = descriptorType.GetGenericArguments();
-        return Create(descriptorGenericArgs);
-      }
     }
 
     /// <summary>
@@ -575,6 +554,7 @@ namespace Xtensive.Core.Tuples
         this.fieldTypes[i] = t;
         isValueTypeFlags[i] = t.IsValueType;
       }
+      
     }
   }
 }

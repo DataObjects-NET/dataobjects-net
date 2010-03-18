@@ -17,8 +17,8 @@ namespace Xtensive.Core.Tuples
   public sealed class FastReadOnlyTuple : Tuple
   {
     private readonly TupleDescriptor descriptor;
-    private TupleFieldState[] states;
-    private object[] values;
+    private readonly TupleFieldState[] states;
+    private readonly object[] values;
     private int? cachedHash;
 
     /// <inheritdoc/>

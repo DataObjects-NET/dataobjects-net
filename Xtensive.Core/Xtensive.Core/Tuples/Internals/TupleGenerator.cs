@@ -545,7 +545,7 @@ namespace Xtensive.Core.Tuples.Internals
       // "private readonly static TDescriptor descriptor;"
       descriptorField = tupleType.DefineField(
         WellKnown.Tuple.DescriptorFieldName,
-        typeof(GeneratedTupleDescriptor),
+        typeof(TupleDescriptor),
         FieldAttributes.Private | 
         FieldAttributes.Static |
         FieldAttributes.InitOnly);

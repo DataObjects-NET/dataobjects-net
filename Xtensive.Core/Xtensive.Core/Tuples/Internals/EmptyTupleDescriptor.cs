@@ -14,7 +14,7 @@ namespace Xtensive.Core.Tuples.Internals
   /// Empty tuple descriptor.
   /// </summary>
   [Serializable]
-  public class EmptyTupleDescriptor: GeneratedTupleDescriptor
+  public class EmptyTupleDescriptor: TupleDescriptor
   {
     private readonly static EmptyTupleDescriptor instance = new EmptyTupleDescriptor();
 

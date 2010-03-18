@@ -432,7 +432,7 @@ namespace Xtensive.Core.Tuples
     /// <returns>Newly created <see cref="RegularTuple"/> object.</returns>
     public static RegularTuple Create(TupleDescriptor descriptor)
     {
-      descriptor.EnsureIsCompiled();
+      descriptor.EnsureIsInitialized();
       return (RegularTuple)descriptor.TupleFactory.CreateNew();
     }
 
