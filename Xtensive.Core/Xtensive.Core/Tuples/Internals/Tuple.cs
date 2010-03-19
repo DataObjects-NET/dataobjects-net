@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Tuples.Internals
 {

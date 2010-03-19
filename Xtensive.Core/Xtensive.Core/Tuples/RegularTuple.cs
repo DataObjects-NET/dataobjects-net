@@ -20,16 +20,10 @@ namespace Xtensive.Core.Tuples
     [IgnoreDataMember] 
     protected TupleDescriptor descriptor;
 
-    public override TupleDescriptor Descriptor
+    public sealed override TupleDescriptor Descriptor
     {
       get { return descriptor; }
     }
-    /*    /// <summary>
-        /// Sets the field state associated with the field.
-        /// </summary>
-        /// <param name="fieldIndex">Index of the field to set the state for.</param>
-        /// <param name="state">The state to set.</param>
-        protected abstract void SetFieldState(int fieldIndex, TupleFieldState state);*/
 
     protected sealed override Delegate GetGetValueDelegate(int fieldIndex)
     {

@@ -14,7 +14,7 @@ namespace Xtensive.Core.Tuples.Internals
   /// Empty tuple descriptor.
   /// </summary>
   [Serializable]
-  public class EmptyTupleDescriptor: TupleDescriptor
+  public sealed class EmptyTupleDescriptor: TupleDescriptor
   {
     private readonly static EmptyTupleDescriptor instance = new EmptyTupleDescriptor();
 
@@ -25,12 +25,6 @@ namespace Xtensive.Core.Tuples.Internals
     {
       [DebuggerStepThrough]
       get { return instance; }
-    }
-
-    /// <inheritdoc/>
-    public override bool Execute<TActionData>(ITupleActionHandler<TActionData> actionHandler, ref TActionData actionData, int fieldIndex)
-    {
-      throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
 

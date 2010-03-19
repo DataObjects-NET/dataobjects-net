@@ -16,6 +16,7 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples.Internals;
 using System.Linq;
+using WellKnown = Xtensive.Core.Reflection.WellKnown;
 
 namespace Xtensive.Core.Tuples
 {
@@ -140,10 +141,11 @@ namespace Xtensive.Core.Tuples
     /// <param name="fieldIndex">Field to execute the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method for.</param>
     /// <returns>Execute method result.</returns>
     /// <typeparam name="TActionData">The type of action data to pass to the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method.</typeparam>
-    public virtual bool Execute<TActionData>(
+    public bool Execute<TActionData>(
       ITupleActionHandler<TActionData> actionHandler, ref TActionData actionData, int fieldIndex) 
       where TActionData : struct
     {
+
       throw Exceptions.InternalError(
         "TupleDescriptor.Execute is invoked right on TupleDescriptor!", Log.Instance);
     }
@@ -156,7 +158,7 @@ namespace Xtensive.Core.Tuples
     /// <param name="actionData">Action data to pass through all the execution sequence.</param>
     /// <param name="direction">Field processing direction.</param>
     /// <typeparam name="TActionData">The type of action data to pass to the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method.</typeparam>
-    public virtual void Execute<TActionData>(
+    public void Execute<TActionData>(
       ITupleActionHandler<TActionData> actionHandler, ref TActionData actionData, Direction direction) 
       where TActionData : struct
     {
@@ -174,7 +176,7 @@ namespace Xtensive.Core.Tuples
     /// execution sequence.</returns>
     /// <typeparam name="TFunctionData">The type of function data to pass to the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method.</typeparam>
     /// <typeparam name="TResult">The type of result.</typeparam>
-    public virtual TResult Execute<TFunctionData, TResult>(
+    public TResult Execute<TFunctionData, TResult>(
       ITupleFunctionHandler<TFunctionData, TResult> functionHandler, ref TFunctionData functionData, Direction direction) 
       where TFunctionData : struct, ITupleFunctionData<TResult>
     {
@@ -200,6 +202,32 @@ namespace Xtensive.Core.Tuples
       identifier = ++totalCount;
       tupleFactory = factory;
       isInitialized = true;
+      var tupleType = factory.GetType();
+
+      GetValueDelegates = new Delegate[Count];
+      GetNullableValueDelegates = new Delegate[Count];
+      SetValueDelegates = new Delegate[Count];
+      SetNullableValueDelegates = new Delegate[Count];
+      for (int fieldIndex = 0; fieldIndex < Count; fieldIndex++) {
+        var type = fieldTypes[fieldIndex];
+        var getValueDelegateType = typeof (GetValueDelegate<>).MakeGenericType(type);
+        var getValueDelegate = Delegate.CreateDelegate(getValueDelegateType, tupleType.GetMethod(WellKnown.Tuple.GetValueX.FormatWith(fieldIndex)), true);
+        var setValueDelegateType = typeof(Action<,>).MakeGenericType(typeof(Tuple), type);
+        var setValueDelegate = Delegate.CreateDelegate(setValueDelegateType, tupleType.GetMethod(WellKnown.Tuple.SetValueX.FormatWith(fieldIndex)), true);
+        GetValueDelegates[fieldIndex] = getValueDelegate;
+        SetValueDelegates[fieldIndex] = setValueDelegate;
+        if (isValueTypeFlags[fieldIndex]) {
+          var nullableType = typeof (Nullable<>).MakeGenericType(type);
+          var accessorType = typeof (NullableAccessor<>).MakeGenericType(type);
+          var accessor = (NullableAccessor)Activator.CreateInstance(accessorType, getValueDelegate, setValueDelegate, fieldIndex);
+          GetNullableValueDelegates[fieldIndex] = accessor.GetValueDelegate;
+          SetNullableValueDelegates[fieldIndex] = accessor.SetValueDelegate;
+        }
+        else {
+          GetNullableValueDelegates[fieldIndex] = getValueDelegate;
+          SetNullableValueDelegates[fieldIndex] = setValueDelegate;
+        }
+      }
     }
 
     #endregion
