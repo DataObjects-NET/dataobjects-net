@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using Xtensive.Core;
 using Xtensive.Core.Conversion;
+using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples;
 using System.Linq;
@@ -83,9 +84,9 @@ namespace System
       ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
       var actionData = new FormatData(tuple);
       var count = tuple.Count;
-      for (int i = 0; i < count; i++)
-        if (!tuple.Descriptor.Execute(formatHandler, ref actionData, i))
-          break;
+      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<FormatData>>(
+        formatHandler, typeof(FormatHandler), "Execute", tuple.Descriptor.fieldTypes);
+      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
       return actionData.Target.RevertibleJoin(Escape, Comma);
     }
 
@@ -104,15 +105,15 @@ namespace System
       var actionData = new ParseData(source.RevertibleSplit(Escape, Comma).ToArray(), descriptor);
       var tuple = actionData.Target;
       var count = tuple.Count;
-      for (int i = 0; i < count; i++)
-        if (!tuple.Descriptor.Execute(parseHandler, ref actionData, i))
-          break;
+      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<ParseData>>(
+        formatHandler, typeof(ParseHandler), "Execute", tuple.Descriptor.fieldTypes);
+      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
       return actionData.Target;
     }
 
     #region Private methods
 
-    private class FormatHandler : ITupleActionHandler<FormatData>
+    private class FormatHandler
     {
       public bool Execute<TFieldType>(ref FormatData actionData, int fieldIndex)
       {
@@ -137,7 +138,7 @@ namespace System
       }
     }
 
-    private class ParseHandler : ITupleActionHandler<ParseData>
+    private class ParseHandler
     {
       public bool Execute<TFieldType>(ref ParseData actionData, int fieldIndex)
       {

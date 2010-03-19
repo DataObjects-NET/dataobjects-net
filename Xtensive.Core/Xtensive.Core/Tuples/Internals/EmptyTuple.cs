@@ -44,6 +44,11 @@ namespace Xtensive.Core.Tuples.Internals
       throw new ArgumentOutOfRangeException("fieldIndex");
     }
 
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      throw new ArgumentOutOfRangeException("fieldIndex");
+    }
+
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       throw new ArgumentOutOfRangeException("fieldIndex");

@@ -101,15 +101,6 @@ namespace Xtensive.Core.Tests.Reflection
           for (int i = 0; i<count; i++)
             DelegateHelper.ExecuteDelegates(delegates, ref data, Direction.Positive);
         Assert.AreEqual(count*types.Length, data.CallCount);
-
-        count = passCount;
-        descriptor.Execute(this, ref data, Direction.Positive);
-        data = ExecutionData.Create();
-        TestHelper.CollectGarbage();
-        using (new Measurement("TupleDescriptor.Execute", count))
-          for (int i = 0; i<count; i++)
-            descriptor.Execute(this, ref data, Direction.Positive);
-        Assert.AreEqual(count*types.Length, data.CallCount);
       }
     }
 

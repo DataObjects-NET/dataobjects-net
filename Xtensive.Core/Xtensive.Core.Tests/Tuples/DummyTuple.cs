@@ -49,6 +49,17 @@ namespace Xtensive.Core.Tests.Tuples
         TupleFieldState.Available;
     }
 
+    protected override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if ((fieldState & TupleFieldState.Available) == TupleFieldState.Available)
+        available[fieldIndex] = true;
+      else
+        available[fieldIndex] = false;
+
+      if ((fieldState & TupleFieldState.Null) == TupleFieldState.Null)
+        values[fieldIndex] = null;
+    }
+
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);

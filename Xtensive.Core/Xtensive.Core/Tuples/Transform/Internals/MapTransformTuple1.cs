@@ -35,6 +35,14 @@ namespace Xtensive.Core.Tuples.Transform.Internals
       return index == MapTransform.NoMapping ? TupleFieldState.Default : tuple.GetFieldState(index);
     }
 
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      int index = GetMappedFieldIndex(fieldIndex);
+      if (index == MapTransform.NoMapping) 
+        return;
+      tuple.SetFieldState(index, fieldState);
+    }
+
     /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {

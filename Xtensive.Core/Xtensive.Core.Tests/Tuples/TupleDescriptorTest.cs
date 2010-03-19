@@ -8,12 +8,9 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Comparison;
 using Xtensive.Core.Diagnostics;
-using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
-using Xtensive.Core.Tuples.Internals;
 
 namespace Xtensive.Core.Tests.Tuples
 {
@@ -137,79 +134,7 @@ namespace Xtensive.Core.Tests.Tuples
       Assert.AreEqual(d1, d2);
       if (theSame!=null)
         Assert.AreEqual(theSame, d2);
-      TestForIntergity(d1);
       return d1;
-    }
-
-    private void TestForIntergity(TupleDescriptor d)
-    {
-      Type dType = d.GetType();
-      Log.Info("Descriptor: {0}", dType.GetShortName());
-      
-      // Generic type arguments test
-      if (!dType.IsGenericType) {
-        Assert.AreEqual(0, d.Count);
-        Assert.AreEqual(typeof(EmptyTupleDescriptor), dType);
-      }
-      else {
-        Type[] dTypeGenericArgs = dType.GetGenericArguments();
-        Assert.IsTrue(
-          AdvancedComparer<IEnumerable<Type>>.Default.Equals(d, dTypeGenericArgs),
-          "Generic arguments should be the same as FieldTypes.");
-      }
-
-      // TupleDescriptor.Create(Type descriptorType) should return it back
-//      TupleDescriptor theSame = TupleDescriptor.Create(d.GetType());
-//      Assert.AreSame(d, theSame);
-
-      Pair<int, int> actionData = new Pair<int, int>(0, d.Count-1);
-
-      // Execute(actionHandler, fieldIndex) test
-      TestTupleActionHandler ah = new TestTupleActionHandler();
-      for (int i = 0; i<d.Count; i++)
-        Assert.IsFalse(d.Execute(ah, ref actionData, i));
-      Assert.IsTrue(
-        AdvancedComparer<IEnumerable<Type>>.Default.Equals(d, ah.CalledForTypes),
-        "CalledForTypes list should be the same as FieldTypes.");
-      
-      // Execute(actionHandler, Direction.Positive) test
-      ah = new TestTupleActionHandler();
-      d.Execute(ah, ref actionData, Direction.Positive);
-      Assert.IsTrue(
-        AdvancedComparer<IEnumerable<Type>>.Default.Equals(d, ah.CalledForTypes),
-        "CalledForTypes list should be the same as FieldTypes.");
-
-      // Execute(actionHandler, Direction.Negative) test
-      ah = new TestTupleActionHandler();
-      d.Execute(ah, ref actionData, Direction.Negative);
-      Assert.IsTrue(
-        AdvancedComparer<IEnumerable<Type>>.Default.Equals(d, ListExtensions.Reverse(ah.CalledForTypes)),
-        "CalledForTypes list should be the same as FieldTypes.");
-
-      // Execute(functionHandler, fieldIndex) test
-      TestTupleFunctionHandler fh = new TestTupleFunctionHandler();
-      TestTupleFunctionHandler.TestFunctionData fhd = fh.CreateData(d);
-      for (int i = 0; i<d.Count; i++)
-        Assert.IsFalse(d.Execute(fh, ref fhd, i));
-      Assert.IsTrue(
-        AdvancedComparer<IEnumerable<Type>>.Default.Equals(d, fhd.Result),
-        "CalledForTypes list should be the same as FieldTypes.");
-      
-      // Execute(functionHandler, Direction.Positive) test
-      Assert.IsTrue(
-        AdvancedComparer<IEnumerable<Type>>.Default.Equals(d, fh.Execute(d, Direction.Positive)),
-        "CalledForTypes list should be the same as FieldTypes.");
-
-      // Execute(functionHandler, Direction.Negative) test
-      Assert.IsTrue(
-        AdvancedComparer<IEnumerable<Type>>.Default.Equals(d, fh.Execute(d, Direction.Negative).Reverse()),
-        "CalledForTypes list should be the same as FieldTypes.");
-    }
-
-    private static bool EmitTest<TActionData>(ITupleActionHandler<TActionData> h, ref TActionData d, int i)
-      where TActionData: struct
-    {
-      return h.Execute<int>(ref d, i);
     }
   }
 }

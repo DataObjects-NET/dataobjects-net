@@ -61,6 +61,15 @@ namespace Xtensive.Core.Tuples.Internals
       return (TupleFieldState) intValue;
     }
 
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
+    }
+
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       fieldState = GetFieldState(fieldIndex);

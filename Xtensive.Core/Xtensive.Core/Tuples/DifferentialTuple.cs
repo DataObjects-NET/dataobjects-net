@@ -113,6 +113,14 @@ namespace Xtensive.Core.Tuples
       return tuple.GetFieldState(fieldIndex);
     }
 
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      var tuple = difference != null && difference.GetFieldState(fieldIndex).IsAvailable()
+        ? difference
+        : origin;
+      tuple.SetFieldState(fieldIndex, fieldState);
+    }
+
     /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {

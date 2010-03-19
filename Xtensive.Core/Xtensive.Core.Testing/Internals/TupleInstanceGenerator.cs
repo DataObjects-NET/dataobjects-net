@@ -12,8 +12,7 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Core.Testing
 {
   [Serializable]
-  internal class TupleInstanceGenerator : InstanceGeneratorBase<Tuple>,
-    ITupleActionHandler<TupleInstanceGenerator.TupleGeneratorData>
+  internal class TupleInstanceGenerator : InstanceGeneratorBase<Tuple>
   {
     private static readonly Dictionary<Type[], int> descriptors = new Dictionary<Type[], int>(); // Descriptor - probability
     private static readonly int commonProbability;
@@ -40,21 +39,17 @@ namespace Xtensive.Core.Testing
         if (position <= descriptor.Value) {
           Type[] types = descriptor.Key;
           Tuple tuple = Tuple.Create(types);
-          TupleGeneratorData data = new TupleGeneratorData(provider, tuple, random);
-          tuple.Descriptor.Execute(this, ref data, Direction.Positive);
+          for (int i = 0; i < types.Length; i++) {
+            var type = types[i];
+            object value = provider.GetInstanceGenerator(type).GetInstance(random);
+            tuple.SetValue(i, value);
+          }
           return tuple;
         }
         position -= descriptor.Value;
       }
       Debug.Assert(false);
       return null;
-    }
-
-    bool ITupleActionHandler<TupleGeneratorData>.Execute<TFieldType>(ref TupleGeneratorData actionData, int fieldIndex)
-    {
-      actionData.Tuple.SetValue(fieldIndex,
-        actionData.Provider.GetInstanceGenerator<TFieldType>().GetInstance(actionData.Random));
-      return true;
     }
 
 

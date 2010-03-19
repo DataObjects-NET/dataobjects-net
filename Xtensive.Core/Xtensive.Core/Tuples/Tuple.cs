@@ -73,6 +73,8 @@ namespace Xtensive.Core.Tuples
 
     /// <inheritdoc />
     public abstract TupleFieldState GetFieldState(int fieldIndex);
+    
+    protected internal abstract void SetFieldState(int fieldIndex, TupleFieldState fieldState);
 
     /// <inheritdoc/>
     public abstract object GetValue(int fieldIndex, out TupleFieldState fieldState);

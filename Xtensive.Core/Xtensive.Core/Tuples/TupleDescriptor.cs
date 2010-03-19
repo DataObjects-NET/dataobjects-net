@@ -130,61 +130,6 @@ namespace Xtensive.Core.Tuples
       return isValueTypeFlags[fieldIndex];
     }
 
-    #region Execute methods
-
-    /// <summary>
-    /// Executes the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method
-    /// of the <paramref name="actionHandler"/> for the field with specified <paramref name="fieldIndex"/>.
-    /// </summary>
-    /// <param name="actionHandler">Action handler to execute the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method of.</param>
-    /// <param name="actionData">Action data to pass.</param>
-    /// <param name="fieldIndex">Field to execute the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method for.</param>
-    /// <returns>Execute method result.</returns>
-    /// <typeparam name="TActionData">The type of action data to pass to the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method.</typeparam>
-    public bool Execute<TActionData>(
-      ITupleActionHandler<TActionData> actionHandler, ref TActionData actionData, int fieldIndex) 
-      where TActionData : struct
-    {
-
-      throw Exceptions.InternalError(
-        "TupleDescriptor.Execute is invoked right on TupleDescriptor!", Log.Instance);
-    }
-
-    /// <summary>
-    /// Executes the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method
-    /// of the <paramref name="actionHandler"/> on all the fields of the descriptor in specified <paramref name="direction"/>.
-    /// </summary>
-    /// <param name="actionHandler">Action handler to execute the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method of.</param>
-    /// <param name="actionData">Action data to pass through all the execution sequence.</param>
-    /// <param name="direction">Field processing direction.</param>
-    /// <typeparam name="TActionData">The type of action data to pass to the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method.</typeparam>
-    public void Execute<TActionData>(
-      ITupleActionHandler<TActionData> actionHandler, ref TActionData actionData, Direction direction) 
-      where TActionData : struct
-    {
-      return;
-    }
-
-    /// <summary>
-    /// Executes the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method
-    /// of the <paramref name="functionHandler"/> on all the fields of the descriptor in specified <paramref name="direction"/>.
-    /// </summary>
-    /// <param name="functionHandler">Function handler to execute the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method of.</param>
-    /// <param name="functionData">Function data to pass through all the execution sequence.</param>
-    /// <param name="direction">Field processing direction.</param>
-    /// <returns>The value of <see cref="ITupleFunctionData{TResult}.Result"/> property on completion of
-    /// execution sequence.</returns>
-    /// <typeparam name="TFunctionData">The type of function data to pass to the <see cref="ITupleActionHandler{TActionData}.Execute{TFieldType}"/> method.</typeparam>
-    /// <typeparam name="TResult">The type of result.</typeparam>
-    public TResult Execute<TFunctionData, TResult>(
-      ITupleFunctionHandler<TFunctionData, TResult> functionHandler, ref TFunctionData functionData, Direction direction) 
-      where TFunctionData : struct, ITupleFunctionData<TResult>
-    {
-      return functionData.Result;
-    }
-
-    #endregion
-
     #region Initialization related members
 
     /// <summary>

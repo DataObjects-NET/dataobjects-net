@@ -7,7 +7,6 @@
 using System;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Tuples.Internals
 {
@@ -42,6 +41,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -153,6 +161,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -292,6 +309,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -459,6 +485,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -654,6 +689,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -877,6 +921,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -1128,6 +1181,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -1407,6 +1469,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -1714,6 +1785,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -2049,6 +2129,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -2412,6 +2501,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -2803,6 +2901,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -3222,6 +3329,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -3669,6 +3785,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -4144,6 +4269,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -4647,6 +4781,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -5178,6 +5321,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -5737,6 +5889,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -6324,6 +6485,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -6939,6 +7109,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -7582,6 +7761,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -8253,6 +8441,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -8952,6 +9149,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -9679,6 +9885,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -10434,6 +10649,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -11217,6 +11441,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -12028,6 +12261,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -12867,6 +13109,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -13734,6 +13985,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -14629,6 +14889,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -15552,6 +15821,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -16503,6 +16781,15 @@ namespace Xtensive.Core.Tuples.Internals
         throw new ArgumentOutOfRangeException("fieldIndex");
       var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
       return (TupleFieldState) intValue;
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var longValue = (long)fieldState;
+      var mask = 3L << (fieldIndex << 1);
+      Flags = (Flags & ~mask) | (longValue << (fieldIndex << 1));
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)

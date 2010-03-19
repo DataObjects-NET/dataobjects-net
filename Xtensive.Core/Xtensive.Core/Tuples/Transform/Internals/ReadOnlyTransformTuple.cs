@@ -36,6 +36,11 @@ namespace Xtensive.Core.Tuples.Transform.Internals
       }
     }
 
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      throw Exceptions.ObjectIsReadOnly(null);
+    }
+
     /// <inheritdoc />
     public override void SetValue(int fieldIndex, object fieldValue)
     {

@@ -27,6 +27,11 @@ namespace Xtensive.Core.Tuples
       return InnerTuple.GetFieldState(fieldIndex);
     }
 
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      InnerTuple.SetFieldState(fieldIndex, fieldState);
+    }
+
     /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {

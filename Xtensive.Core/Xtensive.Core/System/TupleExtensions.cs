@@ -21,7 +21,6 @@ namespace System
   /// </summary>
   public static class TupleExtensions
   {
-    private static readonly InitializerHandler initializerHandler = new InitializerHandler();
     private static ThreadSafeList<ExecutionSequenceHandler<PartCopyData>[]> partCopyDelegates = 
       ThreadSafeList<ExecutionSequenceHandler<PartCopyData>[]>.Create(new object());
     private static ThreadSafeList<ExecutionSequenceHandler<MapOneCopyData>[]> mapOneCopyDelegates =
@@ -388,10 +387,12 @@ namespace System
       if (target.Descriptor.Count!=nullableMap.Count)
         throw new ArgumentException(String.Format(Strings.ExInvalidFieldMapSizeExpectedX, target.Descriptor.Count));
 
-      // TODO: declare method Initialize for Tuple and generate them
-
-      var actionData = new InitializerData(target, nullableMap);
-      target.Descriptor.Execute(initializerHandler, ref actionData, Direction.Positive);
+      for (int i = 0; i < target.Count; i++) {
+        if (nullableMap[i])
+          target.SetFieldState(i, TupleFieldState.Available | TupleFieldState.Null);
+        else
+          target.SetFieldState(i, TupleFieldState.Available);
+      }
     }
 
     #region Private: Part copy: Data & Handler
@@ -592,39 +593,6 @@ namespace System
       return false;
     }
     // ReSharper restore UnusedMember.Local
-
-    #endregion
-
-    #region Private: Initializer: Data & Handler
-
-    private struct InitializerData
-    {
-      public readonly Tuple Target;
-      private readonly BitArray nullableMap;
-
-      public bool IsNullable(int fieldIndex)
-      {
-        return nullableMap[fieldIndex];
-      }
-
-      public InitializerData(Tuple target, BitArray fieldMap)
-      {
-        Target = target;
-        nullableMap = fieldMap;
-      }
-    }
-
-    private class InitializerHandler : ITupleActionHandler<InitializerData>
-    {
-      public bool Execute<TFieldType>(ref InitializerData actionData, int fieldIndex)
-      {
-        if (actionData.IsNullable(fieldIndex))
-          actionData.Target.SetValue(fieldIndex, null);
-        else
-          actionData.Target.SetValue(fieldIndex, default(TFieldType));
-        return false;
-      }
-    }
 
     #endregion
   }

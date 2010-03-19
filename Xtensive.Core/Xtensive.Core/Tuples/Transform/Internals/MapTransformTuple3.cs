@@ -33,8 +33,14 @@ namespace Xtensive.Core.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      Pair<int, int> indexes = TypedTransform.map[fieldIndex];
+      var indexes = TypedTransform.map[fieldIndex];
       return tuples[indexes.First].GetFieldState(indexes.Second);
+    }
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
+    {
+      var indexes = TypedTransform.map[fieldIndex];
+      tuples[indexes.First].SetFieldState(indexes.Second, fieldState);
     }
 
     /// <inheritdoc/>
