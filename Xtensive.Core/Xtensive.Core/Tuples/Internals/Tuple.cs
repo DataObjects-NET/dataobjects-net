@@ -10,6 +10,11 @@ using System.Runtime.Serialization;
 
 namespace Xtensive.Core.Tuples.Internals
 {
+  public static class MaxGeneratedTupleLength
+  {
+    public const int Value = 32;
+  }
+
   [DataContract]
   [Serializable]
   public sealed class Tuple<T0> : RegularTuple
@@ -17681,8 +17686,11 @@ namespace Xtensive.Core.Tuples.Internals
       var fieldCount = descriptor.Count;
       if (fieldCount < 0)
         throw new ArgumentOutOfRangeException("fieldCount");
-      if (fieldCount > 32)
-        throw new NotImplementedException();
+      if (fieldCount > MaxGeneratedTupleLength.Value) {
+        var firstDescriptor = descriptor.TrimFields(MaxGeneratedTupleLength.Value);
+        var secondDescriptor = descriptor.SkipFields(MaxGeneratedTupleLength.Value);
+        return new TupleExtender(descriptor, Create(firstDescriptor), Create(secondDescriptor));
+      }
       if (fieldCount == 0)
         return EmptyTuple.Instance;
       Type tupleDef = null;

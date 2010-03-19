@@ -153,26 +153,63 @@ namespace Xtensive.Core.Tuples
       GetNullableValueDelegates = new Delegate[Count];
       SetValueDelegates = new Delegate[Count];
       SetNullableValueDelegates = new Delegate[Count];
-      for (int fieldIndex = 0; fieldIndex < Count; fieldIndex++) {
-        var type = fieldTypes[fieldIndex];
-        var getValueDelegateType = typeof (GetValueDelegate<>).MakeGenericType(type);
-        var getValueDelegate = Delegate.CreateDelegate(getValueDelegateType, tupleType.GetMethod(WellKnown.Tuple.GetValueX.FormatWith(fieldIndex)), true);
-        var setValueDelegateType = typeof(Action<,>).MakeGenericType(typeof(Tuple), type);
-        var setValueDelegate = Delegate.CreateDelegate(setValueDelegateType, tupleType.GetMethod(WellKnown.Tuple.SetValueX.FormatWith(fieldIndex)), true);
-        GetValueDelegates[fieldIndex] = getValueDelegate;
-        SetValueDelegates[fieldIndex] = setValueDelegate;
-        if (isValueTypeFlags[fieldIndex]) {
-          var nullableType = typeof (Nullable<>).MakeGenericType(type);
-          var accessorType = typeof (NullableAccessor<>).MakeGenericType(type);
-          var accessor = (NullableAccessor)Activator.CreateInstance(accessorType, getValueDelegate, setValueDelegate, fieldIndex);
-          GetNullableValueDelegates[fieldIndex] = accessor.GetValueDelegate;
-          SetNullableValueDelegates[fieldIndex] = accessor.SetValueDelegate;
-        }
-        else {
-          GetNullableValueDelegates[fieldIndex] = getValueDelegate;
-          SetNullableValueDelegates[fieldIndex] = setValueDelegate;
+      if (Count > MaxGeneratedTupleLength.Value) {
+        var tupleExtender = (TupleExtender)factory;
+        var firstDescriptor = tupleExtender.First.Descriptor;
+        var secondDescriptor = tupleExtender.Second.Descriptor;
+
+        for (int fieldIndex = 0; fieldIndex < Count; fieldIndex++) {
+          var type = fieldTypes[fieldIndex];
+          var extenderAccessorType = typeof (TupleExtenderAccessor<>).MakeGenericType(type);
+          var extenderAccessor = fieldIndex < MaxGeneratedTupleLength.Value
+            ? (TupleExtenderAccessor) Activator.CreateInstance(
+               extenderAccessorType,
+               firstDescriptor.GetValueDelegates[fieldIndex],
+               firstDescriptor.SetValueDelegates[fieldIndex],
+               fieldIndex)
+            : (TupleExtenderAccessor) Activator.CreateInstance(
+               extenderAccessorType,
+               secondDescriptor.GetValueDelegates[fieldIndex - MaxGeneratedTupleLength.Value],
+               secondDescriptor.SetValueDelegates[fieldIndex - MaxGeneratedTupleLength.Value],
+               fieldIndex);
+          var getValueDelegate = extenderAccessor.GetValueDelegate;
+          var setValueDelegate = extenderAccessor.SetValueDelegate;
+          GetValueDelegates[fieldIndex] = getValueDelegate;
+          SetValueDelegates[fieldIndex] = setValueDelegate;
+          if (isValueTypeFlags[fieldIndex]) {
+            var nullableType = typeof (Nullable<>).MakeGenericType(type);
+            var accessorType = typeof (NullableAccessor<>).MakeGenericType(type);
+            var accessor = (NullableAccessor)Activator.CreateInstance(accessorType, getValueDelegate, setValueDelegate, fieldIndex);
+            GetNullableValueDelegates[fieldIndex] = accessor.GetValueDelegate;
+            SetNullableValueDelegates[fieldIndex] = accessor.SetValueDelegate;
+          }
+          else {
+            GetNullableValueDelegates[fieldIndex] = getValueDelegate;
+            SetNullableValueDelegates[fieldIndex] = setValueDelegate;
+          }
         }
       }
+      else
+        for (int fieldIndex = 0; fieldIndex < Count; fieldIndex++) {
+          var type = fieldTypes[fieldIndex];
+          var getValueDelegateType = typeof (GetValueDelegate<>).MakeGenericType(type);
+          var getValueDelegate = Delegate.CreateDelegate(getValueDelegateType, tupleType.GetMethod(WellKnown.Tuple.GetValueX.FormatWith(fieldIndex)), true);
+          var setValueDelegateType = typeof(Action<,>).MakeGenericType(typeof(Tuple), type);
+          var setValueDelegate = Delegate.CreateDelegate(setValueDelegateType, tupleType.GetMethod(WellKnown.Tuple.SetValueX.FormatWith(fieldIndex)), true);
+          GetValueDelegates[fieldIndex] = getValueDelegate;
+          SetValueDelegates[fieldIndex] = setValueDelegate;
+          if (isValueTypeFlags[fieldIndex]) {
+            var nullableType = typeof (Nullable<>).MakeGenericType(type);
+            var accessorType = typeof (NullableAccessor<>).MakeGenericType(type);
+            var accessor = (NullableAccessor)Activator.CreateInstance(accessorType, getValueDelegate, setValueDelegate, fieldIndex);
+            GetNullableValueDelegates[fieldIndex] = accessor.GetValueDelegate;
+            SetNullableValueDelegates[fieldIndex] = accessor.SetValueDelegate;
+          }
+          else {
+            GetNullableValueDelegates[fieldIndex] = getValueDelegate;
+            SetNullableValueDelegates[fieldIndex] = setValueDelegate;
+          }
+        }
     }
 
     #endregion
@@ -397,6 +434,18 @@ namespace Xtensive.Core.Tuples
     {
       ArgumentValidator.EnsureArgumentIsInRange(newTupleFieldCount, 1, Count, "newTupleFieldCount");
       return Create(fieldTypes.Take(newTupleFieldCount));
+    }
+
+    /// <summary>
+    /// Skips first fields of the current tuple.
+    /// </summary>
+    /// <param name="skipFieldCount">The length of the fields to skip.</param>
+    /// <returns>Either new or existing tuple descriptor
+    /// describing the specified set of fields.</returns>
+    public TupleDescriptor SkipFields(int skipFieldCount)
+    {
+      ArgumentValidator.EnsureArgumentIsInRange(skipFieldCount, 0, Count-1, "skipFieldCount");
+      return Create(fieldTypes.Skip(skipFieldCount));
     }
 
     #endregion

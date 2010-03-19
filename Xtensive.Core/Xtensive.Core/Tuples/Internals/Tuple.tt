@@ -25,6 +25,11 @@ using System.Runtime.Serialization;
 
 namespace Xtensive.Core.Tuples.Internals
 {
+  public static class MaxGeneratedTupleLength
+  {
+    public const int Value = <#= TupleCount #>;
+  }
+
 <# for (int i = 0; i < TupleCount; i++) { #>
   [DataContract]
   [Serializable]
@@ -168,8 +173,11 @@ namespace Xtensive.Core.Tuples.Internals
       var fieldCount = descriptor.Count;
       if (fieldCount < 0)
         throw new ArgumentOutOfRangeException("fieldCount");
-      if (fieldCount > <#= TupleCount #>)
-        throw new NotImplementedException();
+      if (fieldCount > MaxGeneratedTupleLength.Value) {
+        var firstDescriptor = descriptor.TrimFields(MaxGeneratedTupleLength.Value);
+        var secondDescriptor = descriptor.SkipFields(MaxGeneratedTupleLength.Value);
+        return new TupleExtender(descriptor, Create(firstDescriptor), Create(secondDescriptor));
+      }
       if (fieldCount == 0)
         return EmptyTuple.Instance;
       Type tupleDef = null;

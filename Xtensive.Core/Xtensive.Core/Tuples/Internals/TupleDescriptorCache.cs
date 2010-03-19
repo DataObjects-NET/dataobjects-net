@@ -10,48 +10,52 @@ using System.Threading;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Threading;
+using System.Linq;
 
 namespace Xtensive.Core.Tuples.Internals
 {
   internal static class TupleDescriptorCache
   {
-    private readonly static ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+    private readonly static object _lock = new object();
     private readonly static SetSlim<TupleDescriptor> initializedDescriptors = new SetSlim<TupleDescriptor>();
     private readonly static WeakestCache<TupleDescriptor, TupleDescriptor> newDescriptors = new WeakestCache<TupleDescriptor, TupleDescriptor>(false, false, td => td);
 
     public static TupleDescriptor Register(TupleDescriptor descriptor)
     {
-      _lock.BeginRead();
-      try {
-        TupleDescriptor existing = initializedDescriptors[descriptor];
-        if (existing!=null)
+      var existing = initializedDescriptors[descriptor];
+      if (existing != null)
+        return existing;
+      existing = newDescriptors[descriptor, true];
+      if (existing != null)
+        return existing;
+      lock (_lock) {
+        existing = initializedDescriptors[descriptor];
+        if (existing != null)
           return existing;
         existing = newDescriptors[descriptor, true];
-        if (existing!=null)
+        if (existing != null)
           return existing;
-        LockCookie? c = _lock.BeginWrite();
-        try {
-          newDescriptors.Add(descriptor, true);
-          return descriptor;
+
+        if (descriptor.Count > MaxGeneratedTupleLength.Value) {
+          descriptor.TrimFields(MaxGeneratedTupleLength.Value);
+          descriptor.SkipFields(MaxGeneratedTupleLength.Value);
         }
-        finally {
-          _lock.EndWrite(c);
-        }
-      }
-      finally {
-        _lock.EndRead();
+
+        newDescriptors.Add(descriptor, true);
+        return descriptor;
       }
     }
 
     public static void Initialize()
     {
-      var c = _lock.BeginWrite();
-      try {
-        var descriptors = new List<TupleDescriptor>(newDescriptors);
+      lock (_lock) {
+        var descriptors = newDescriptors
+          .OrderBy(d => d.Count)
+          .ToList();
         var newlyCompiled = new SetSlim<TupleDescriptor>();
         try {
           foreach (TupleDescriptor tupleDescriptor in descriptors) {
-            if (tupleDescriptor==null)
+            if (tupleDescriptor == null)
               continue;
             var tuple = TupleFactory.Create(tupleDescriptor);
             tupleDescriptor.Initialize(tuple);
@@ -63,11 +67,8 @@ namespace Xtensive.Core.Tuples.Internals
           try {
             initializedDescriptors.UnionWith(newlyCompiled);
           }
-          catch {}
+          catch { }
         }
-      }
-      finally {
-        _lock.EndWrite(c);
       }
     }
   }
