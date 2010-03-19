@@ -69,6 +69,8 @@ namespace Xtensive.Storage
 
     internal IFieldValueAdapter GetFieldValueAdapter (FieldInfo field, Func<Persistent, FieldInfo, IFieldValueAdapter> ctor)
     {
+      if (field.ReflectedType.IsInterface)
+        field = Type.FieldMap[field];
       // Building adapter container if necessary
       if (fieldAdapters==null) {
         int maxAdapterIndex = Type.Fields.Select(f => f.AdapterIndex).Max();
@@ -202,6 +204,8 @@ namespace Xtensive.Storage
     [ActivateSession, Transactional]
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
+      if (field.ReflectedType.IsInterface)
+        field = Type.FieldMap[field];
       var fieldAccessor = GetFieldAccessor<T>(field);
       T result = default(T);
       try {
@@ -225,6 +229,8 @@ namespace Xtensive.Storage
     [ActivateSession, Transactional]
     protected internal object GetFieldValue(FieldInfo field)
     {
+      if (field.ReflectedType.IsInterface)
+        field = Type.FieldMap[field];
       var fieldAccessor = GetFieldAccessor(field);
       object result = fieldAccessor.DefaultUntypedValue;
       try {
@@ -256,6 +262,8 @@ namespace Xtensive.Storage
     {
       Key key = null;
       try {
+        if (field.ReflectedType.IsInterface)
+          field = Type.FieldMap[field];
         SystemBeforeGetValue(field);
         if (!field.IsEntity)
           throw new InvalidOperationException(
@@ -326,6 +334,8 @@ namespace Xtensive.Storage
     [ActivateSession, Transactional]
     protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
+      if (field.ReflectedType.IsInterface)
+        field = Type.FieldMap[field];
       SetFieldValue(field, (object) value);
     }
 
@@ -340,6 +350,8 @@ namespace Xtensive.Storage
     [ActivateSession, Transactional]
     protected internal void SetFieldValue(FieldInfo field, object value)
     {
+      if (field.ReflectedType.IsInterface)
+        field = Type.FieldMap[field];
       var fieldAccessor = GetFieldAccessor(field);
       object oldValue = fieldAccessor.DefaultUntypedValue;
       try {
@@ -404,6 +416,8 @@ namespace Xtensive.Storage
 
     internal protected bool IsFieldAvailable(FieldInfo field)
     {
+      if (field.ReflectedType.IsInterface)
+        field = Type.FieldMap[field];
       return Tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable();
     }
 
@@ -639,21 +653,19 @@ namespace Xtensive.Storage
 
     #region Private \ Internal methods
 
-    private FieldAccessor GetFieldAccessor(FieldInfo field)
+    internal FieldAccessor GetFieldAccessor(FieldInfo field)
     {
+      if (field.ReflectedType.IsInterface)
+        field = Type.FieldMap[field];
       return Session.Domain.TypeLevelCaches[field.ReflectedType.TypeId].GetFieldAccessor(field);
     }
 
-    private FieldAccessor<T> GetFieldAccessor<T>(FieldInfo field)
+    internal FieldAccessor<T> GetFieldAccessor<T>(FieldInfo field)
     {
+      if (field.ReflectedType.IsInterface)
+        field = Type.FieldMap[field];
       return (FieldAccessor<T>) Session.Domain.TypeLevelCaches[field.ReflectedType.TypeId].GetFieldAccessor(field);
     }
-
-    internal static FieldAccessor GetFieldAccessor(Domain domain, FieldInfo field)
-    {
-      return domain.TypeLevelCaches[field.ReflectedType.TypeId].GetFieldAccessor(field);
-    }
-
 
     internal PersistentFieldState GetFieldState(string fieldName)
     {
@@ -663,6 +675,8 @@ namespace Xtensive.Storage
     /// <exception cref="ArgumentException"><paramref name="field"/> belongs to a different type.</exception>
     internal PersistentFieldState GetFieldState(FieldInfo field)
     {
+      if (field.ReflectedType.IsInterface)
+        field = Type.FieldMap[field];
       if (field.ReflectedType!=Type)
         throw new ArgumentException(Strings.ExFieldBelongsToADifferentType, "field");
       var mappingInfo = field.MappingInfo;

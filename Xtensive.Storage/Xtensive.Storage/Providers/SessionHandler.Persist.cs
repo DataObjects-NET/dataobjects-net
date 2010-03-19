@@ -98,8 +98,9 @@ namespace Xtensive.Storage.Providers
         entityState.PersistenceState = PersistenceState.Synchronized;
         entityState.Entity.SystemBeforeChange();
         foreach (var restoreData in restoreGroup) {
-          Persistent.GetFieldAccessor(domain, restoreData.Second)
-            .SetUntypedValue(restoreData.First.Entity, restoreData.Third);
+          var entity = restoreData.First.Entity;
+          entity.GetFieldAccessor(restoreData.Second)
+            .SetUntypedValue(entity, restoreData.Third);
         }
         yield return new PersistAction(entityState, PersistActionKind.Update);
       }
@@ -126,8 +127,9 @@ namespace Xtensive.Storage.Providers
       // Restore loop links
       foreach (var restoreData in loopReferences) {
         // No necessity to call Entity.SystemBeforeChange, since it already is
-        Persistent.GetFieldAccessor(domain, restoreData.Second)
-          .SetUntypedValue(restoreData.First.Entity, null);
+        var entity = restoreData.First.Entity;
+        entity.GetFieldAccessor(restoreData.Second)
+          .SetUntypedValue(entity, null);
         yield return new PersistAction(restoreData.First, PersistActionKind.Update);
       }
 
@@ -178,7 +180,7 @@ namespace Xtensive.Storage.Providers
         keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.OwnerField, edge.Destination.Item.Entity));
         var entity = edge.Source.Item.Entity;
         entity.SystemBeforeChange();
-        Persistent.GetFieldAccessor(domain, associationInfo.OwnerField)
+        entity.GetFieldAccessor(associationInfo.OwnerField)
           .SetUntypedValue(entity, null);
       }
     }
