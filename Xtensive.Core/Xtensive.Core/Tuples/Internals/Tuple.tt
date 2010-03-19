@@ -1,0 +1,218 @@
+﻿<#@ template inherits="Microsoft.VisualStudio.TextTemplating.VSHost.ModelingTextTransformation" language="C#v3.5" debug="true" hostSpecific="true" #>
+<#@ output extension=".cs" #>
+<#@ Assembly Name="System.dll" #>
+<#@ Assembly Name="System.Core.dll" #>
+<#@ Assembly Name="System.Xml.dll" #>
+<#@ Assembly Name="System.Xml.Linq.dll" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Diagnostics" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
+<# const int TupleCount = 32; #>
+// Copyright (C) 2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexis Kochetov
+// Created:    2010.03.18
+
+using System;
+using System.Reflection;
+using System.Runtime.Serialization;
+
+namespace Xtensive.Core.Tuples.Internals
+{
+<# for (int i = 0; i < TupleCount; i++) { #>
+  [DataContract]
+  [Serializable]
+  public sealed class Tuple<#= GetGenericArgumentsString(i + 1) #> : RegularTuple
+  {
+    private const int count = <#= i+1#>;
+<# for (int j = 0; j <= i; j++) { #>
+    [DataMember]
+    public T<#= j #> Value<#= j #>;
+<# } #>
+    [DataMember]
+    public long Flags;
+
+    public override int Count
+    {
+      get { return count; }
+    }
+
+    public override Tuple CreateNew()
+    {
+      return new Tuple<#= GetGenericArgumentsString(i + 1) #>(descriptor);
+    }
+
+    public override Tuple Clone()
+    {
+      return new Tuple<#= GetGenericArgumentsString(i + 1) #>(this);
+    }
+
+    public override TupleFieldState GetFieldState(int fieldIndex)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+      var intValue = (int)((Flags >> (fieldIndex << 1)) & 3);
+      return (TupleFieldState) intValue;
+    }
+
+    public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
+    {
+      fieldState = GetFieldState(fieldIndex);
+      switch(fieldIndex) {
+<# for (int j = 0; j <= i; j++) { #>
+        case <#= j #>:
+          return Value<#= j #>;
+<# } #>
+      }
+      throw new ArgumentOutOfRangeException("fieldIndex");
+    }
+
+    public override void SetValue(int fieldIndex, object fieldValue)
+    {
+      if (fieldIndex < 0 || fieldIndex >= count)
+        throw new ArgumentOutOfRangeException("fieldIndex");
+
+      var mask = 3L << (fieldIndex << 1);
+      if (fieldValue == null) {
+        Flags |= mask;
+        switch (fieldIndex) {
+<# for (int j = 0; j <= i; j++) { #>
+          case <#= j #>:
+            Value<#= j #> = default(T<#= j #>);
+            break;
+<# } #>
+        }
+      }
+      else {
+        Flags = (Flags & ~mask) | (1L << (fieldIndex << 1));
+        switch (fieldIndex) {
+<# for (int j = 0; j <= i; j++) { #>
+          case <#= j #>:
+            Value<#= j #> = (T<#= j #>)fieldValue;
+            break;
+<# } #>
+        }
+      }
+    }
+
+<# for (int j = 0; j <= i; j++) { #>
+    public static T<#= j #> GetValue<#= j #>(Tuple tuple, out TupleFieldState fieldState)
+    {
+      var t = (Tuple<#= GetGenericArgumentsString(i + 1) #>)tuple;
+      fieldState = (TupleFieldState) ((t.Flags >> (<#= j #> << 1)) & 3);
+      return t.Value<#= j #>;
+    }
+<# } #>
+
+<# for (int j = 0; j <= i; j++) { #>
+    public static void SetValue<#= j #>(Tuple tuple, T<#= j #> value)
+    {
+      var t = (Tuple<#= GetGenericArgumentsString(i + 1) #>)tuple;
+      const long mask = 3L << (<#= j #> << 1);
+      if (value == null) 
+        t.Flags |= mask;
+      else
+        t.Flags = (t.Flags & ~mask) | (1L << (<#= j #> << 1));
+      t.Value<#= j #> = value;
+    }
+<# } #>
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      descriptor = TupleDescriptor.Create(new[] {
+<# for (int j = 0; j <= i; j++) { #>
+        typeof (T<#= j #>)<#= j==i ? "" : "," #>
+<# } #>
+      });
+    }
+
+
+    // Constructors
+
+    public Tuple(TupleDescriptor descriptor)
+      : base(descriptor)
+    {
+    }
+
+    private Tuple(Tuple<#= GetGenericArgumentsString(i + 1) #> template)
+      : base(template.descriptor)
+    {
+<# for (int j = 0; j <= i; j++) { #>
+      Value<#= j #> = template.Value<#= j #>;
+<# } #>
+      Flags = template.Flags;
+    }
+  }
+  
+<# } #>
+  internal static class TupleFactory
+  {
+    public static RegularTuple Create(TupleDescriptor descriptor)
+    {
+      var fieldCount = descriptor.Count;
+      if (fieldCount < 0)
+        throw new ArgumentOutOfRangeException("fieldCount");
+      if (fieldCount > <#= TupleCount #>)
+        throw new NotImplementedException();
+      if (fieldCount == 0)
+        return EmptyTuple.Instance;
+      Type tupleDef = null;
+      switch (fieldCount) {
+<# for (int i = 1; i <= TupleCount; i++) { #>
+        case <#= i #>:
+          tupleDef = typeof(Tuple<#= GetGenericTemplateString(i) #>);
+          break;
+<# } #>
+      }
+      var tupleType = tupleDef.MakeGenericType(descriptor.fieldTypes);
+      return (RegularTuple)Activator.CreateInstance(tupleType, BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new object[]{descriptor}, null);
+    }
+  }
+}
+<#+  
+  string GetGenericArgumentsString(int count) {
+	return PackSequence("<", ">", ",", Enumerable.Range(0, count).Select(i => "T"+i));
+  }
+
+  string GetGenericTemplateString(int count) {
+	return PackSequence("<", ">", ",", Enumerable.Range(0, count).Select(i => " "));
+  }
+
+  string PackSequence(string prologue, string epilogue, string delimiter, IEnumerable<string> items)
+  {
+    var builder = new StringBuilder();
+	if (prologue != null)
+      builder.Append(prologue);
+    foreach (var item in items) {
+      if (builder.Length > prologue.Length)
+        builder.Append(delimiter);
+      builder.Append(item);
+    }
+	if (epilogue != null)
+      builder.Append(epilogue);
+    return builder.ToString();
+  }
+	
+  // Insert any template procedures here
+  void getWeatherDataCodeGen(string Input) {
+	System.Xml.Linq.XDocument XmlDoc = System.Xml.Linq.XDocument.Parse(Input);
+	
+	
+	var Tables = from c in XmlDoc.Descendants("Table") 
+	   			 select new {Name = c.Attribute("name").Value, Table = c};
+
+    foreach (var aTable in Tables) {
+	#>
+	 System.Console.Write(GetDataForTable("<#= aTable.Name #>"));
+	<#+
+	}
+	
+  }
+#>

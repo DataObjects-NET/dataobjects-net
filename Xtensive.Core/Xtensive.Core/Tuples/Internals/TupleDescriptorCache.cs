@@ -16,23 +16,23 @@ namespace Xtensive.Core.Tuples.Internals
   internal static class TupleDescriptorCache
   {
     private readonly static ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
-    private readonly static SetSlim<TupleDescriptor> compiledDescriptors = new SetSlim<TupleDescriptor>();
+    private readonly static SetSlim<TupleDescriptor> initializedDescriptors = new SetSlim<TupleDescriptor>();
     private readonly static WeakestCache<TupleDescriptor, TupleDescriptor> newDescriptors = new WeakestCache<TupleDescriptor, TupleDescriptor>(false, false, td => td);
 
-    public static TupleDescriptor Register(TupleDescriptor sample)
+    public static TupleDescriptor Register(TupleDescriptor descriptor)
     {
       _lock.BeginRead();
       try {
-        TupleDescriptor existing = compiledDescriptors[sample];
+        TupleDescriptor existing = initializedDescriptors[descriptor];
         if (existing!=null)
           return existing;
-        existing = newDescriptors[sample, true];
+        existing = newDescriptors[descriptor, true];
         if (existing!=null)
           return existing;
         LockCookie? c = _lock.BeginWrite();
         try {
-          newDescriptors.Add(TupleDescriptorGenerator.Generate(sample), true);
-          return newDescriptors[sample, true];
+          newDescriptors.Add(descriptor, true);
+          return descriptor;
         }
         finally {
           _lock.EndWrite(c);
@@ -43,7 +43,7 @@ namespace Xtensive.Core.Tuples.Internals
       }
     }
 
-    public static void Compile()
+    public static void Initialize()
     {
       var c = _lock.BeginWrite();
       try {
@@ -53,16 +53,15 @@ namespace Xtensive.Core.Tuples.Internals
           foreach (TupleDescriptor tupleDescriptor in descriptors) {
             if (tupleDescriptor==null)
               continue;
-            var tupleInfo = new TupleInfo(tupleDescriptor);
-            var compiledTuple = TupleGenerator.Compile(tupleInfo);
-            tupleDescriptor.Compiled(compiledTuple);
+            var tuple = TupleFactory.Create(tupleDescriptor);
+            tupleDescriptor.Initialize(tuple);
             newlyCompiled.Add(tupleDescriptor);
           }
         }
         finally {
           newDescriptors.Clear();
           try {
-            compiledDescriptors.UnionWith(newlyCompiled);
+            initializedDescriptors.UnionWith(newlyCompiled);
           }
           catch {}
         }
