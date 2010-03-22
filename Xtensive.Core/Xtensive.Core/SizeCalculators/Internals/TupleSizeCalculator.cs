@@ -24,16 +24,11 @@ namespace Xtensive.Core.SizeCalculators
 
     #region Nested type: TupleSizeCalculatorData 
 
-    private struct TupleSizeCalculatorData : ITupleFunctionData<int>
+    private struct TupleSizeCalculatorData
     {
       public int Result;
       public readonly Tuple Tuple;
       public readonly ISizeCalculatorBase[] Calculators;
-
-      int ITupleFunctionData<int>.Result
-      {
-        get { return Result; }
-      }
 
       public TupleSizeCalculatorData(Tuple tuple, ISizeCalculatorBase[] calculators)
       {

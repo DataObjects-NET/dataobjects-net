@@ -17,7 +17,7 @@ namespace Xtensive.Core.Hashing
   {
     #region Nested types: SingleHashData, ArrayHashData
 
-    internal struct SingleHashData : ITupleFunctionData<long>
+    internal struct SingleHashData
     {
       public Tuple X;
       public long Result;
@@ -27,14 +27,9 @@ namespace Xtensive.Core.Hashing
         X = x;
         Result = 0;
       }
-
-      long ITupleFunctionData<long>.Result
-      {
-        get { return Result; }
-      }
     }
 
-    internal struct ArrayHashData : ITupleFunctionData<long[]>
+    internal struct ArrayHashData
     {
       public Tuple X;
       public int HashCount;
@@ -45,11 +40,6 @@ namespace Xtensive.Core.Hashing
         X = x;
         HashCount = hashCount;
         Result = new long[hashCount];
-      }
-
-      long[] ITupleFunctionData<long[]>.Result
-      {
-        get { return Result; }
       }
     }
 

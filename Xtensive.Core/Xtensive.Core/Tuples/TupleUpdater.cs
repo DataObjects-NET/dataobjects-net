@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Tuples.Internals
+namespace Xtensive.Core.Tuples
 {
   ///<summary>
   /// Helper for tuple updating with the functional style syntax.

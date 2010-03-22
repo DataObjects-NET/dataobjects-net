@@ -161,17 +161,20 @@ namespace Xtensive.Core.Tuples
         for (int fieldIndex = 0; fieldIndex < Count; fieldIndex++) {
           var type = fieldTypes[fieldIndex];
           var extenderAccessorType = typeof (TupleExtenderAccessor<>).MakeGenericType(type);
-          var extenderAccessor = fieldIndex < MaxGeneratedTupleLength.Value
-            ? (TupleExtenderAccessor) Activator.CreateInstance(
-               extenderAccessorType,
-               firstDescriptor.GetValueDelegates[fieldIndex],
-               firstDescriptor.SetValueDelegates[fieldIndex],
-               fieldIndex)
-            : (TupleExtenderAccessor) Activator.CreateInstance(
-               extenderAccessorType,
-               secondDescriptor.GetValueDelegates[fieldIndex - MaxGeneratedTupleLength.Value],
-               secondDescriptor.SetValueDelegates[fieldIndex - MaxGeneratedTupleLength.Value],
-               fieldIndex);
+          object extenderAccessorInstance;
+          if (fieldIndex < MaxGeneratedTupleLength.Value)
+            extenderAccessorInstance = Activator.CreateInstance(
+              extenderAccessorType,
+              firstDescriptor.GetValueDelegates[fieldIndex],
+              firstDescriptor.SetValueDelegates[fieldIndex],
+              fieldIndex);
+          else
+            extenderAccessorInstance = Activator.CreateInstance(
+              extenderAccessorType,
+              secondDescriptor.GetValueDelegates[fieldIndex - MaxGeneratedTupleLength.Value],
+              secondDescriptor.SetValueDelegates[fieldIndex - MaxGeneratedTupleLength.Value],
+              fieldIndex);
+          var extenderAccessor = (TupleExtenderAccessor)extenderAccessorInstance;
           var getValueDelegate = extenderAccessor.GetValueDelegate;
           var setValueDelegate = extenderAccessor.SetValueDelegate;
           GetValueDelegates[fieldIndex] = getValueDelegate;

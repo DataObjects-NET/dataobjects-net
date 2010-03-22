@@ -30,7 +30,7 @@ namespace Xtensive.Core.Tests.Reflection
   }
 
   [TestFixture]
-  public class DelegateHelperCreateDelegateTest: ITupleActionHandler<ExecutionData>
+  public class DelegateHelperCreateDelegateTest
   {
     public int passCount = 1000;
 
@@ -146,7 +146,7 @@ namespace Xtensive.Core.Tests.Reflection
       return false;
     }
 
-    bool ITupleActionHandler<ExecutionData>.Execute<TFieldType>(ref ExecutionData actionData, int fieldIndex)
+    bool Execute<TFieldType>(ref ExecutionData actionData, int fieldIndex)
     {
       actionData.CallCount++;
       return false;
