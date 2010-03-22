@@ -206,8 +206,6 @@ namespace Xtensive.Storage.Providers
       var nameSource = complexField;
       while (nameSource.Parent != null)
         nameSource = nameSource.Parent;
-//      if (complexField.Parent!=null)
-//        return string.Concat(complexField.Parent.Name, ".", childField.Name);
       return string.Concat(nameSource.Name, ".", childField.Name);
     }
 
@@ -223,8 +221,6 @@ namespace Xtensive.Storage.Providers
       var nameSource = complexField;
       while (nameSource.Parent != null)
         nameSource = nameSource.Parent;
-//      if (complexField.Parent != null)
-//        return string.Concat(getMappingName(complexField.Parent), ".", getMappingName(childField));
       return string.Concat(getMappingName(nameSource), ".", getMappingName(childField));
     }
 
@@ -240,15 +236,6 @@ namespace Xtensive.Storage.Providers
       ArgumentValidator.EnsureArgumentNotNull(baseColumn, "baseColumn");
 
       var result = field.MappingName ?? field.Name;
-
-//      string name = field.MappingName ?? field.Name;
-//      var currentField = field.Parent;
-//      while (currentField!=null) {
-//        name = currentField.MappingName ?? currentField.Name + "." + name;
-//        currentField = currentField.Parent;
-//      }
-//
-//      string result = field.IsStructure ? name + "." + baseColumn.Name : name;
       return ApplyNamingRules(result);
     }
 
