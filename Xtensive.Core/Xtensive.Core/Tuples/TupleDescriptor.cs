@@ -157,7 +157,8 @@ namespace Xtensive.Core.Tuples
         var tupleExtender = (TupleExtender)factory;
         var firstDescriptor = tupleExtender.First.Descriptor;
         var secondDescriptor = tupleExtender.Second.Descriptor;
-
+        if (firstDescriptor == null || secondDescriptor == null)
+          throw new InvalidOperationException();
         for (int fieldIndex = 0; fieldIndex < Count; fieldIndex++) {
           var type = fieldTypes[fieldIndex];
           var extenderAccessorType = typeof (TupleExtenderAccessor<>).MakeGenericType(type);

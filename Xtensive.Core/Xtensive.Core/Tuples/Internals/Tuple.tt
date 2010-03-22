@@ -202,6 +202,8 @@ namespace Xtensive.Core.Tuples.Internals
       if (fieldCount > MaxGeneratedTupleLength.Value) {
         var firstDescriptor = descriptor.TrimFields(MaxGeneratedTupleLength.Value);
         var secondDescriptor = descriptor.SkipFields(MaxGeneratedTupleLength.Value);
+        if (firstDescriptor == null || secondDescriptor == null)
+          throw new InvalidOperationException();
         return new TupleExtender(descriptor, Create(firstDescriptor), Create(secondDescriptor));
       }
       if (fieldCount == 0)
