@@ -6,6 +6,7 @@
 
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Xtensive.Core.Tuples.Internals
@@ -107,6 +108,27 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (0 << 1));
       t.Value0 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      return result;
     }
 
     [OnDeserialized]
@@ -251,6 +273,30 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (1 << 1));
       t.Value1 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      return result;
     }
 
     [OnDeserialized]
@@ -423,6 +469,33 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (2 << 1));
       t.Value2 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      return result;
     }
 
     [OnDeserialized]
@@ -623,6 +696,36 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (3 << 1));
       t.Value3 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      return result;
     }
 
     [OnDeserialized]
@@ -851,6 +954,39 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (4 << 1));
       t.Value4 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      return result;
     }
 
     [OnDeserialized]
@@ -1107,6 +1243,42 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (5 << 1));
       t.Value5 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      return result;
     }
 
     [OnDeserialized]
@@ -1391,6 +1563,45 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (6 << 1));
       t.Value6 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      return result;
     }
 
     [OnDeserialized]
@@ -1703,6 +1914,48 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (7 << 1));
       t.Value7 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      return result;
     }
 
     [OnDeserialized]
@@ -2043,6 +2296,51 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (8 << 1));
       t.Value8 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      return result;
     }
 
     [OnDeserialized]
@@ -2411,6 +2709,54 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (9 << 1));
       t.Value9 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      return result;
     }
 
     [OnDeserialized]
@@ -2807,6 +3153,57 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (10 << 1));
       t.Value10 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      return result;
     }
 
     [OnDeserialized]
@@ -3231,6 +3628,60 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (11 << 1));
       t.Value11 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      return result;
     }
 
     [OnDeserialized]
@@ -3683,6 +4134,63 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (12 << 1));
       t.Value12 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      return result;
     }
 
     [OnDeserialized]
@@ -4163,6 +4671,66 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (13 << 1));
       t.Value13 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      return result;
     }
 
     [OnDeserialized]
@@ -4671,6 +5239,69 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (14 << 1));
       t.Value14 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      return result;
     }
 
     [OnDeserialized]
@@ -5207,6 +5838,72 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (15 << 1));
       t.Value15 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      return result;
     }
 
     [OnDeserialized]
@@ -5771,6 +6468,75 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (16 << 1));
       t.Value16 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      return result;
     }
 
     [OnDeserialized]
@@ -6363,6 +7129,78 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (17 << 1));
       t.Value17 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      return result;
     }
 
     [OnDeserialized]
@@ -6983,6 +7821,81 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (18 << 1));
       t.Value18 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      return result;
     }
 
     [OnDeserialized]
@@ -7631,6 +8544,84 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (19 << 1));
       t.Value19 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      return result;
     }
 
     [OnDeserialized]
@@ -8307,6 +9298,87 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (20 << 1));
       t.Value20 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      return result;
     }
 
     [OnDeserialized]
@@ -9011,6 +10083,90 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (21 << 1));
       t.Value21 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      return result;
     }
 
     [OnDeserialized]
@@ -9743,6 +10899,93 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (22 << 1));
       t.Value22 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T22>.Default.Equals(Value22, tuple.Value22))
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T22>.Default.GetHashCode(Value22);
+      return result;
     }
 
     [OnDeserialized]
@@ -10503,6 +11746,96 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (23 << 1));
       t.Value23 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T23>.Default.Equals(Value23, tuple.Value23))
+        return false;
+      if (!EqualityComparer<T22>.Default.Equals(Value22, tuple.Value22))
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T22>.Default.GetHashCode(Value22);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T23>.Default.GetHashCode(Value23);
+      return result;
     }
 
     [OnDeserialized]
@@ -11291,6 +12624,99 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (24 << 1));
       t.Value24 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T24>.Default.Equals(Value24, tuple.Value24))
+        return false;
+      if (!EqualityComparer<T23>.Default.Equals(Value23, tuple.Value23))
+        return false;
+      if (!EqualityComparer<T22>.Default.Equals(Value22, tuple.Value22))
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T22>.Default.GetHashCode(Value22);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T23>.Default.GetHashCode(Value23);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T24>.Default.GetHashCode(Value24);
+      return result;
     }
 
     [OnDeserialized]
@@ -12107,6 +13533,102 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (25 << 1));
       t.Value25 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T25>.Default.Equals(Value25, tuple.Value25))
+        return false;
+      if (!EqualityComparer<T24>.Default.Equals(Value24, tuple.Value24))
+        return false;
+      if (!EqualityComparer<T23>.Default.Equals(Value23, tuple.Value23))
+        return false;
+      if (!EqualityComparer<T22>.Default.Equals(Value22, tuple.Value22))
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T22>.Default.GetHashCode(Value22);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T23>.Default.GetHashCode(Value23);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T24>.Default.GetHashCode(Value24);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T25>.Default.GetHashCode(Value25);
+      return result;
     }
 
     [OnDeserialized]
@@ -12951,6 +14473,105 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (26 << 1));
       t.Value26 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T26>.Default.Equals(Value26, tuple.Value26))
+        return false;
+      if (!EqualityComparer<T25>.Default.Equals(Value25, tuple.Value25))
+        return false;
+      if (!EqualityComparer<T24>.Default.Equals(Value24, tuple.Value24))
+        return false;
+      if (!EqualityComparer<T23>.Default.Equals(Value23, tuple.Value23))
+        return false;
+      if (!EqualityComparer<T22>.Default.Equals(Value22, tuple.Value22))
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T22>.Default.GetHashCode(Value22);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T23>.Default.GetHashCode(Value23);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T24>.Default.GetHashCode(Value24);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T25>.Default.GetHashCode(Value25);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T26>.Default.GetHashCode(Value26);
+      return result;
     }
 
     [OnDeserialized]
@@ -13823,6 +15444,108 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (27 << 1));
       t.Value27 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T27>.Default.Equals(Value27, tuple.Value27))
+        return false;
+      if (!EqualityComparer<T26>.Default.Equals(Value26, tuple.Value26))
+        return false;
+      if (!EqualityComparer<T25>.Default.Equals(Value25, tuple.Value25))
+        return false;
+      if (!EqualityComparer<T24>.Default.Equals(Value24, tuple.Value24))
+        return false;
+      if (!EqualityComparer<T23>.Default.Equals(Value23, tuple.Value23))
+        return false;
+      if (!EqualityComparer<T22>.Default.Equals(Value22, tuple.Value22))
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T22>.Default.GetHashCode(Value22);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T23>.Default.GetHashCode(Value23);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T24>.Default.GetHashCode(Value24);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T25>.Default.GetHashCode(Value25);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T26>.Default.GetHashCode(Value26);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T27>.Default.GetHashCode(Value27);
+      return result;
     }
 
     [OnDeserialized]
@@ -14723,6 +16446,111 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (28 << 1));
       t.Value28 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T28>.Default.Equals(Value28, tuple.Value28))
+        return false;
+      if (!EqualityComparer<T27>.Default.Equals(Value27, tuple.Value27))
+        return false;
+      if (!EqualityComparer<T26>.Default.Equals(Value26, tuple.Value26))
+        return false;
+      if (!EqualityComparer<T25>.Default.Equals(Value25, tuple.Value25))
+        return false;
+      if (!EqualityComparer<T24>.Default.Equals(Value24, tuple.Value24))
+        return false;
+      if (!EqualityComparer<T23>.Default.Equals(Value23, tuple.Value23))
+        return false;
+      if (!EqualityComparer<T22>.Default.Equals(Value22, tuple.Value22))
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T22>.Default.GetHashCode(Value22);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T23>.Default.GetHashCode(Value23);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T24>.Default.GetHashCode(Value24);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T25>.Default.GetHashCode(Value25);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T26>.Default.GetHashCode(Value26);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T27>.Default.GetHashCode(Value27);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T28>.Default.GetHashCode(Value28);
+      return result;
     }
 
     [OnDeserialized]
@@ -15651,6 +17479,114 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (29 << 1));
       t.Value29 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T29>.Default.Equals(Value29, tuple.Value29))
+        return false;
+      if (!EqualityComparer<T28>.Default.Equals(Value28, tuple.Value28))
+        return false;
+      if (!EqualityComparer<T27>.Default.Equals(Value27, tuple.Value27))
+        return false;
+      if (!EqualityComparer<T26>.Default.Equals(Value26, tuple.Value26))
+        return false;
+      if (!EqualityComparer<T25>.Default.Equals(Value25, tuple.Value25))
+        return false;
+      if (!EqualityComparer<T24>.Default.Equals(Value24, tuple.Value24))
+        return false;
+      if (!EqualityComparer<T23>.Default.Equals(Value23, tuple.Value23))
+        return false;
+      if (!EqualityComparer<T22>.Default.Equals(Value22, tuple.Value22))
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T22>.Default.GetHashCode(Value22);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T23>.Default.GetHashCode(Value23);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T24>.Default.GetHashCode(Value24);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T25>.Default.GetHashCode(Value25);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T26>.Default.GetHashCode(Value26);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T27>.Default.GetHashCode(Value27);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T28>.Default.GetHashCode(Value28);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T29>.Default.GetHashCode(Value29);
+      return result;
     }
 
     [OnDeserialized]
@@ -16607,6 +18543,117 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (30 << 1));
       t.Value30 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T30>.Default.Equals(Value30, tuple.Value30))
+        return false;
+      if (!EqualityComparer<T29>.Default.Equals(Value29, tuple.Value29))
+        return false;
+      if (!EqualityComparer<T28>.Default.Equals(Value28, tuple.Value28))
+        return false;
+      if (!EqualityComparer<T27>.Default.Equals(Value27, tuple.Value27))
+        return false;
+      if (!EqualityComparer<T26>.Default.Equals(Value26, tuple.Value26))
+        return false;
+      if (!EqualityComparer<T25>.Default.Equals(Value25, tuple.Value25))
+        return false;
+      if (!EqualityComparer<T24>.Default.Equals(Value24, tuple.Value24))
+        return false;
+      if (!EqualityComparer<T23>.Default.Equals(Value23, tuple.Value23))
+        return false;
+      if (!EqualityComparer<T22>.Default.Equals(Value22, tuple.Value22))
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T22>.Default.GetHashCode(Value22);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T23>.Default.GetHashCode(Value23);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T24>.Default.GetHashCode(Value24);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T25>.Default.GetHashCode(Value25);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T26>.Default.GetHashCode(Value26);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T27>.Default.GetHashCode(Value27);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T28>.Default.GetHashCode(Value28);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T29>.Default.GetHashCode(Value29);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T30>.Default.GetHashCode(Value30);
+      return result;
     }
 
     [OnDeserialized]
@@ -17591,6 +19638,120 @@ namespace Xtensive.Core.Tuples.Internals
       else
         t.Flags = (t.Flags & ~mask) | (1L << (31 << 1));
       t.Value31 = value;
+    }
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<T0,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,T15,T16,T17,T18,T19,T20,T21,T22,T23,T24,T25,T26,T27,T28,T29,T30,T31>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+      if (!EqualityComparer<T31>.Default.Equals(Value31, tuple.Value31))
+        return false;
+      if (!EqualityComparer<T30>.Default.Equals(Value30, tuple.Value30))
+        return false;
+      if (!EqualityComparer<T29>.Default.Equals(Value29, tuple.Value29))
+        return false;
+      if (!EqualityComparer<T28>.Default.Equals(Value28, tuple.Value28))
+        return false;
+      if (!EqualityComparer<T27>.Default.Equals(Value27, tuple.Value27))
+        return false;
+      if (!EqualityComparer<T26>.Default.Equals(Value26, tuple.Value26))
+        return false;
+      if (!EqualityComparer<T25>.Default.Equals(Value25, tuple.Value25))
+        return false;
+      if (!EqualityComparer<T24>.Default.Equals(Value24, tuple.Value24))
+        return false;
+      if (!EqualityComparer<T23>.Default.Equals(Value23, tuple.Value23))
+        return false;
+      if (!EqualityComparer<T22>.Default.Equals(Value22, tuple.Value22))
+        return false;
+      if (!EqualityComparer<T21>.Default.Equals(Value21, tuple.Value21))
+        return false;
+      if (!EqualityComparer<T20>.Default.Equals(Value20, tuple.Value20))
+        return false;
+      if (!EqualityComparer<T19>.Default.Equals(Value19, tuple.Value19))
+        return false;
+      if (!EqualityComparer<T18>.Default.Equals(Value18, tuple.Value18))
+        return false;
+      if (!EqualityComparer<T17>.Default.Equals(Value17, tuple.Value17))
+        return false;
+      if (!EqualityComparer<T16>.Default.Equals(Value16, tuple.Value16))
+        return false;
+      if (!EqualityComparer<T15>.Default.Equals(Value15, tuple.Value15))
+        return false;
+      if (!EqualityComparer<T14>.Default.Equals(Value14, tuple.Value14))
+        return false;
+      if (!EqualityComparer<T13>.Default.Equals(Value13, tuple.Value13))
+        return false;
+      if (!EqualityComparer<T12>.Default.Equals(Value12, tuple.Value12))
+        return false;
+      if (!EqualityComparer<T11>.Default.Equals(Value11, tuple.Value11))
+        return false;
+      if (!EqualityComparer<T10>.Default.Equals(Value10, tuple.Value10))
+        return false;
+      if (!EqualityComparer<T9>.Default.Equals(Value9, tuple.Value9))
+        return false;
+      if (!EqualityComparer<T8>.Default.Equals(Value8, tuple.Value8))
+        return false;
+      if (!EqualityComparer<T7>.Default.Equals(Value7, tuple.Value7))
+        return false;
+      if (!EqualityComparer<T6>.Default.Equals(Value6, tuple.Value6))
+        return false;
+      if (!EqualityComparer<T5>.Default.Equals(Value5, tuple.Value5))
+        return false;
+      if (!EqualityComparer<T4>.Default.Equals(Value4, tuple.Value4))
+        return false;
+      if (!EqualityComparer<T3>.Default.Equals(Value3, tuple.Value3))
+        return false;
+      if (!EqualityComparer<T2>.Default.Equals(Value2, tuple.Value2))
+        return false;
+      if (!EqualityComparer<T1>.Default.Equals(Value1, tuple.Value1))
+        return false;
+      if (!EqualityComparer<T0>.Default.Equals(Value0, tuple.Value0))
+        return false;
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+      result = HashCodeMultiplier * result ^ EqualityComparer<T0>.Default.GetHashCode(Value0);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T1>.Default.GetHashCode(Value1);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T2>.Default.GetHashCode(Value2);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T3>.Default.GetHashCode(Value3);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T4>.Default.GetHashCode(Value4);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T5>.Default.GetHashCode(Value5);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T6>.Default.GetHashCode(Value6);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T7>.Default.GetHashCode(Value7);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T8>.Default.GetHashCode(Value8);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T9>.Default.GetHashCode(Value9);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T10>.Default.GetHashCode(Value10);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T11>.Default.GetHashCode(Value11);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T12>.Default.GetHashCode(Value12);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T13>.Default.GetHashCode(Value13);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T14>.Default.GetHashCode(Value14);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T15>.Default.GetHashCode(Value15);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T16>.Default.GetHashCode(Value16);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T17>.Default.GetHashCode(Value17);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T18>.Default.GetHashCode(Value18);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T19>.Default.GetHashCode(Value19);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T20>.Default.GetHashCode(Value20);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T21>.Default.GetHashCode(Value21);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T22>.Default.GetHashCode(Value22);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T23>.Default.GetHashCode(Value23);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T24>.Default.GetHashCode(Value24);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T25>.Default.GetHashCode(Value25);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T26>.Default.GetHashCode(Value26);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T27>.Default.GetHashCode(Value27);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T28>.Default.GetHashCode(Value28);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T29>.Default.GetHashCode(Value29);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T30>.Default.GetHashCode(Value30);
+      result = HashCodeMultiplier * result ^ EqualityComparer<T31>.Default.GetHashCode(Value31);
+      return result;
     }
 
     [OnDeserialized]

@@ -45,11 +45,11 @@ namespace Xtensive.Core.Tests.Tuples
     public void BasicTest()
     {
       Tuple t = Tuple.Create(TupleDescriptor.Create<string, int, string, TimeSpan, string, string>());
-      t.SetValue(0,string.Empty);
-      t.SetValue(2,"n\\a");
+      t.SetValue(0, string.Empty);
+      t.SetValue(2, "n\\a");
       t.SetValue(3, new TimeSpan());
-      t.SetValue(4,null);
-      t.SetValue(5,"null");
+      t.SetValue(4, null);
+      t.SetValue(5, "null");
 
       var s = t.Format();
       var tt = Tuple.Parse(t.Descriptor, s);

@@ -16,7 +16,7 @@ namespace Xtensive.Core.Tuples.Internals
   [Serializable]
   public sealed class EmptyTupleDescriptor: TupleDescriptor
   {
-    private readonly static EmptyTupleDescriptor instance = new EmptyTupleDescriptor();
+    private readonly static EmptyTupleDescriptor instance;
 
     /// <summary>
     /// Provides the only instance of this class.
@@ -33,6 +33,12 @@ namespace Xtensive.Core.Tuples.Internals
     private EmptyTupleDescriptor()
       : base(ArrayUtils<Type>.EmptyArray)
     {
+    }
+
+    static EmptyTupleDescriptor()
+    {
+      instance = new EmptyTupleDescriptor();
+      instance.Initialize(EmptyTuple.Instance);
     }
   }
 }

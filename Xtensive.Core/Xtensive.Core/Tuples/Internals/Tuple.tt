@@ -21,6 +21,7 @@
 
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Xtensive.Core.Tuples.Internals
@@ -136,6 +137,31 @@ namespace Xtensive.Core.Tuples.Internals
       t.Value<#= j #> = value;
     }
 <# } #>
+
+    public override bool Equals(Tuple other)
+    {
+      if (other == null)
+        return false;
+      var tuple = other as Tuple<#= GetGenericArgumentsString(i + 1) #>;
+      if (tuple == null)
+        return base.Equals(other);
+      if (Flags != tuple.Flags)
+        return false;
+<# for (int j = i; j >= 0; j--) { #>
+      if (!EqualityComparer<T<#= j #>>.Default.Equals(Value<#= j #>, tuple.Value<#= j #>))
+        return false;
+<# } #>
+      return true;
+    }
+	
+    public override int GetHashCode()
+    {
+      int result = 0;
+<# for (int j = 0; j <= i; j++) { #>
+      result = HashCodeMultiplier * result ^ EqualityComparer<T<#= j #>>.Default.GetHashCode(Value<#= j #>);
+<# } #>
+      return result;
+    }
 
     [OnDeserialized]
     private void OnDeserialized(StreamingContext context)

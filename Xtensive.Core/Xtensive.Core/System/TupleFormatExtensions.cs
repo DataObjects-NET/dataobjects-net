@@ -106,7 +106,7 @@ namespace System
       var tuple = actionData.Target;
       var count = tuple.Count;
       var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<ParseData>>(
-        formatHandler, typeof(ParseHandler), "Execute", tuple.Descriptor.fieldTypes);
+        parseHandler, typeof(ParseHandler), "Execute", tuple.Descriptor.fieldTypes);
       DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
       return actionData.Target;
     }
@@ -128,13 +128,11 @@ namespace System
           result = AdvancedConverterProvider.Default
             .GetConverter<TFieldType, string>()
             .Convert(tuple.GetValue<TFieldType>(fieldIndex, out fieldState));
-          if (result.IsNullOrEmpty()
-            || result==NullValue
-              || result.Contains(Quote))
+          if (result.IsNullOrEmpty() || result==NullValue || result.Contains(Quote))
             result = Quote + HttpUtility.HtmlEncode(result ?? string.Empty) + Quote; // Quoting
         }
         actionData.Target[fieldIndex] = result;
-        return true;
+        return false;
       }
     }
 
@@ -144,10 +142,10 @@ namespace System
       {
         string source = actionData.Source[fieldIndex];
         if (source.IsNullOrEmpty())
-          return true;
+          return false;
         if (source==NullValue) {
           actionData.Target.SetValue(fieldIndex, null);
-          return true;
+          return false;
         }
         if (source.StartsWith(Quote) && source.EndsWith(Quote))
           source = HttpUtility.HtmlDecode(source.Substring(1, source.Length - 2));
@@ -155,7 +153,7 @@ namespace System
           AdvancedConverterProvider.Default
             .GetConverter<string, TFieldType>()
             .Convert(source));
-        return true;
+        return false;
       }
     }
 

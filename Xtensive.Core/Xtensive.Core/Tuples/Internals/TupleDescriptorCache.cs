@@ -17,8 +17,8 @@ namespace Xtensive.Core.Tuples.Internals
   internal static class TupleDescriptorCache
   {
     private readonly static object _lock = new object();
-    private readonly static SetSlim<TupleDescriptor> initializedDescriptors = new SetSlim<TupleDescriptor>();
-    private readonly static WeakestCache<TupleDescriptor, TupleDescriptor> newDescriptors = new WeakestCache<TupleDescriptor, TupleDescriptor>(false, false, td => td);
+    private readonly static SetSlim<TupleDescriptor> initializedDescriptors;
+    private readonly static WeakestCache<TupleDescriptor, TupleDescriptor> newDescriptors;
 
     public static TupleDescriptor Register(TupleDescriptor descriptor)
     {
@@ -70,6 +70,16 @@ namespace Xtensive.Core.Tuples.Internals
           catch { }
         }
       }
+    }
+
+
+    // Constructors
+
+    static TupleDescriptorCache()
+    {
+      initializedDescriptors = new SetSlim<TupleDescriptor>();
+      newDescriptors = new WeakestCache<TupleDescriptor, TupleDescriptor>(false, false, td => td);
+      initializedDescriptors.Add(EmptyTupleDescriptor.Instance);
     }
   }
 }

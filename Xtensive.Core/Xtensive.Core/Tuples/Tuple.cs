@@ -365,7 +365,7 @@ namespace Xtensive.Core.Tuples
     #region Equals, GetHashCode
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
+    public sealed override bool Equals(object obj)
     {
       return Equals(obj as Tuple);
     }
