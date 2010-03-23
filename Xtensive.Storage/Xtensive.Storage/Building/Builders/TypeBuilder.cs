@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -15,6 +16,7 @@ using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -111,8 +113,17 @@ namespace Xtensive.Storage.Building.Builders
         if (ancestor != null) {
           foreach (var srcField in ancestor.Fields.Where(f => !f.IsPrimaryKey && f.Parent == null)) {
             FieldDef fieldDef;
-            if (typeDef.Fields.TryGetValue(srcField.Name, out fieldDef))
-              BuildDeclaredField(context, typeInfo, fieldDef);
+            if (typeDef.Fields.TryGetValue(srcField.Name, out fieldDef)) {
+              if (fieldDef.UnderlyingProperty == null)
+                throw new DomainBuilderException(
+                  String.Format(Strings.ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor, fieldDef.Name, typeInfo.Name));
+              var getMethod = fieldDef.UnderlyingProperty.GetGetMethod()
+                ?? fieldDef.UnderlyingProperty.GetGetMethod(true);
+              if ((getMethod.Attributes & MethodAttributes.NewSlot) == MethodAttributes.NewSlot)
+                BuildDeclaredField(context, typeInfo, fieldDef);
+              else
+                BuildInheritedField(context, typeInfo, srcField);
+            }
             else
               BuildInheritedField(context, typeInfo, srcField);
           }
