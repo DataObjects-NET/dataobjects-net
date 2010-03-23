@@ -1178,8 +1178,8 @@ Actions:
   <data name="Null" xml:space="preserve">
     <value>null</value>
   </data>
-  <data name="ExMemberXOfTypeXIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer" xml:space="preserve">
-    <value>Member '{0}' of type '1} is not initialized. Check if constructor argument is correct or field initialized through initializer.</value>
+  <data name="ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer" xml:space="preserve">
+    <value>Member '{0}' of type '{1}' is not initialized. Check if constructor argument is correct or field initialized through initializer.</value>
   </data>
   <data name="ExInvalidNumberOfParametersInNewExpression" xml:space="preserve">
     <value>Invalid number of parameters in NewExpression.</value>
