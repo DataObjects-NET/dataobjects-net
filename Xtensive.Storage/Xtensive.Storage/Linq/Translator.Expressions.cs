@@ -804,7 +804,7 @@ namespace Xtensive.Storage.Linq
         break;
       case ExtendedExpressionType.Constructor:
         if (!((ConstructorExpression) extendedExpression).Bindings.TryGetValue(member, out result))
-          throw new InvalidOperationException(String.Format(Strings.ExMemberXOfTypeXIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer, member.Name, member.ReflectedType.Name));
+          throw new InvalidOperationException(String.Format(Strings.ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer, member.Name, member.ReflectedType.Name));
         break;
       case ExtendedExpressionType.Structure:
       case ExtendedExpressionType.StructureField:

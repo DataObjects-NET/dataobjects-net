@@ -1746,11 +1746,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Member &apos;{0}&apos; of type &apos;1} is not initialized. Check if constructor argument is correct or field initialized through initializer..
+        ///   Looks up a localized string similar to Member &apos;{0}&apos; of type &apos;{1}&apos; is not initialized. Check if constructor argument is correct or field initialized through initializer..
         /// </summary>
-        internal static string ExMemberXOfTypeXIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer {
+        internal static string ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer {
             get {
-                return ResourceManager.GetString("ExMemberXOfTypeXIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitial" +
+                return ResourceManager.GetString("ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitial" +
                         "izedThroughInitializer", resourceCulture);
             }
         }
