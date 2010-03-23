@@ -30,6 +30,12 @@ namespace Xtensive.Storage.Building.Builders
       
       // Building declared indexes both secondary and primary (for root of the hierarchy only)
       foreach (var indexDescriptor in typeDef.Indexes) {
+        // Skip indef building for inherited fields
+        var inherited = indexDescriptor.KeyFields
+          .Select(kvp => type.Fields[kvp.Key])
+          .Any(f => f.IsInherited);
+        if (inherited)
+          continue;
         var declaredIndex = BuildIndex(type, indexDescriptor, false);
 
         type.Indexes.Add(declaredIndex);

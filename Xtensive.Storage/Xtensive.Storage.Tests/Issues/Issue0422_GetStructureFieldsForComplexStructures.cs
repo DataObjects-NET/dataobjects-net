@@ -18,7 +18,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue0422_GetStructureFieldsForComplexSt
   public class EntityStructure : Structure
   {
     [Field]
-    public EntityB B { get; set; }
+    [Association(OnTargetRemove = OnRemoveAction.Clear)]
+    public EntityB EntityB { get; set; }
 
     [Field]
     public string StructureName { get; set; }
@@ -31,7 +32,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue0422_GetStructureFieldsForComplexSt
   public class ComplexStructure : Structure
   {
     [Field]
-    public EntityB B { get; set; }
+    [Association(OnTargetRemove = OnRemoveAction.Clear)]
+    public EntityB EntityB { get; set; }
 
     [Field]
     public string ComplexStructureName { get; set; }
@@ -52,7 +54,10 @@ namespace Xtensive.Storage.Tests.Issues.Issue0422_GetStructureFieldsForComplexSt
     public string Name { get; set; }
 
     [Field]
-    public ComplexStructure AdditionalInfo { get; set; }
+    public ComplexStructure ComplexStructure { get; set; }
+
+    [Field]
+    public EntityStructure EntityStructure { get; set; }
   }
 }
 
@@ -64,6 +69,8 @@ namespace Xtensive.Storage.Tests.Issues
     {
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (EntityB).Assembly, typeof (EntityB).Namespace);
+      config.NamingConvention.NamespacePolicy = NamespacePolicy.Synonymize;
+      config.NamingConvention.NamingRules = NamingRules.None;
       return config;
     }
 
@@ -83,13 +90,13 @@ namespace Xtensive.Storage.Tests.Issues
             .Range(0, 100)
             .Select(i => new EntityB {
               Name = "NameB_" + i,
-              AdditionalInfo = new ComplexStructure {
-                B = new EntityB {
+              ComplexStructure = new ComplexStructure {
+                EntityB = new EntityB {
                   Name = "NameB_1_" + i
                 },
                 ComplexStructureName = "StructureName_1_" + i,
                 EntityStructure = new EntityStructure {
-                  B = new EntityB {
+                  EntityB = new EntityB {
                     Name = "NameB_2_" + i
                   },
                   StructureAge = new DateTime(2000 + i, 10, 10),
@@ -101,10 +108,10 @@ namespace Xtensive.Storage.Tests.Issues
 
           // Query
           session.Persist();
-          var structures = Query.All<EntityB>().Select(b => b.AdditionalInfo).Skip(83).Take(1);
+          var structures = Query.All<EntityB>().Select(b => b.ComplexStructure).Skip(83).Take(1);
           var str = structures.Single();
-          var testEntities = Query.All<EntityB>().Where(b => b.AdditionalInfo==str).ToArray();
-          var actualEntities = Query.All<EntityB>().AsEnumerable().Where(b => b.AdditionalInfo==str).ToArray();
+          var testEntities = Query.All<EntityB>().Where(b => b.ComplexStructure==str).ToArray();
+          var actualEntities = Query.All<EntityB>().AsEnumerable().Where(b => b.ComplexStructure==str).ToArray();
           Assert.AreEqual(0, actualEntities.Except(testEntities).Count());
 
           // Rollback
