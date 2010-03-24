@@ -1088,6 +1088,32 @@ namespace Xtensive.Storage.Linq
       return filter;
     }
 
+    private Expression VisitIn(MethodCallExpression mc)
+    {
+      IncludeAlgorithm algorithm = IncludeAlgorithm.Auto;
+      Expression source = null;
+      Expression match = null;
+      switch (mc.Arguments.Count) {
+        case 2:
+          source = mc.Arguments[1];
+          match = mc.Arguments[0];
+          break;
+        case 3:
+          source = mc.Arguments[2];
+          match = mc.Arguments[0];
+          algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
+          break;
+        default:
+          Exceptions.InternalError(String.Format(Strings.ExUnknownInSyntax, mc.ToString(true)), Log.Instance);
+          break;
+      }
+      using (state.CreateScope()) {
+        state.IncludeAlgorithm = algorithm;
+        return VisitContains(source, match, false);
+      }
+    }
+
+
     private Expression VisitSetOperations(Expression outerSource, Expression innerSource, QueryableMethodKind methodKind)
     {
       ProjectionExpression outer;
@@ -1229,5 +1255,45 @@ namespace Xtensive.Storage.Linq
     }
 
 // ReSharper restore UnusedMember.Local
+
+    private Expression VisitContainsAny(Expression setA, Expression setB, bool isRoot, Type elementType)
+    {
+      var setAIsQuery = setA.IsQuery();
+      var parameter = Expression.Parameter(elementType, "a");
+      var containsMethod = WellKnownMembers.Enumerable.Contains.MakeGenericMethod(elementType);
+
+      if (setAIsQuery) {
+        var lambda = Expression.Lambda(Expression.Call(containsMethod, setB, parameter), parameter);
+        return VisitAny(setA, lambda, isRoot);
+      }
+      else {
+        var lambda = Expression.Lambda(Expression.Call(containsMethod, setA, parameter), parameter);
+        return VisitAny(setB, lambda, isRoot);
+      }
+    }
+
+    private Expression VisitContainsAll(Expression setA, Expression setB, bool isRoot, Type elementType)
+    {
+      var parameter = Expression.Parameter(elementType, "a");
+      var containsMethod = WellKnownMembers.Enumerable.Contains.MakeGenericMethod(elementType);
+
+      var lambda = Expression.Lambda(Expression.Call(containsMethod, setA, parameter), parameter);
+      return VisitAll(setB, lambda, isRoot);
+    }
+
+    private Expression VisitContainsNone(Expression setA, Expression setB, bool isRoot, Type elementType)
+    {
+      var setAIsQuery = setA.IsQuery();
+      var parameter = Expression.Parameter(elementType, "a");
+      var containsMethod = WellKnownMembers.Enumerable.Contains.MakeGenericMethod(elementType);
+      if (setAIsQuery) {
+        var lambda = Expression.Lambda(Expression.Not(Expression.Call(containsMethod, setB, parameter)), parameter);
+        return VisitAll(setA, lambda, isRoot);
+      }
+      else {
+        var lambda = Expression.Lambda(Expression.Not(Expression.Call(containsMethod, setA, parameter)), parameter);
+        return VisitAll(setB, lambda, isRoot);
+      }
+    }
   }
 }

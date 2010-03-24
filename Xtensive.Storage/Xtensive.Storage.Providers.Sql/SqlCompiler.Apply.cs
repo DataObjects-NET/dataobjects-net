@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Providers.Sql
         });
         var providerVisitor = new CompilableProviderVisitor((p, e) => visitor.Visit(e));
         providerVisitor.VisitCompilable(provider.Right);
-        shouldUseQueryReference = usedOuterColumns.Any(calculatedColumnIndexes.Contains) || groupByIsUsed;
+        shouldUseQueryReference = usedOuterColumns.Any(calculatedColumnIndexes.Contains) || groupByIsUsed || provider.Left.Type == ProviderType.Store;
       }
       if (!shouldUseQueryReference)
         left = new SqlProvider(left, sourceSelect.From);
