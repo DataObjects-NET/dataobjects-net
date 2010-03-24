@@ -261,6 +261,14 @@ namespace Xtensive.Storage.Linq
           return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
         else
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
+      // Visit Collection extensions
+      if (mc.Method.DeclaringType == typeof(CollectionExtensions))
+        if (mc.Method.Name == WellKnownMembers.Collection.ExtensionContainsAny.Name)
+          return VisitContainsAny(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.GetGenericArguments()[0]);
+        else if (mc.Method.Name == WellKnownMembers.Collection.ExtensionContainsAll.Name)
+          return VisitContainsAll(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.GetGenericArguments()[0]);
+        else if (mc.Method.Name == WellKnownMembers.Collection.ExtensionContainsNone.Name)
+          return VisitContainsNone(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.GetGenericArguments()[0]);
 
       // Process local collections
       if (mc.Object.IsLocalCollection(context)) {
@@ -272,7 +280,13 @@ namespace Xtensive.Storage.Linq
           return VisitContains(mc.Object, mc.Arguments[0], false);
       }
 
-      return base.VisitMethodCall(mc);
+      var result = base.VisitMethodCall(mc);
+      if (result != mc && result.NodeType == ExpressionType.Call) {
+        var visitedMethodCall = (MethodCallExpression) result;
+        if (visitedMethodCall.Arguments.Any(arg => arg.IsProjection()))
+          throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
+      }
+      return result;
     }
 
     private Expression CosntructFreeTextQueryRoot(Type elementType, Expression searchCriteria)
@@ -317,31 +331,6 @@ namespace Xtensive.Storage.Linq
       var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured).Result;
       var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
-    }
-
-    private Expression VisitIn(MethodCallExpression mc)
-    {
-      IncludeAlgorithm algorithm = IncludeAlgorithm.Auto;
-      Expression source = null;
-      Expression match = null;
-      switch (mc.Arguments.Count) {
-      case 2:
-        source = mc.Arguments[1];
-        match = mc.Arguments[0];
-        break;
-      case 3:
-        source = mc.Arguments[2];
-        match = mc.Arguments[0];
-        algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
-        break;
-      default:
-        Exceptions.InternalError(String.Format(Strings.ExUnknownInSyntax, mc.ToString(true)), Log.Instance);
-        break;
-      }
-      using (state.CreateScope()) {
-        state.IncludeAlgorithm = algorithm;
-        return VisitContains(source, match, false);
-      }
     }
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
