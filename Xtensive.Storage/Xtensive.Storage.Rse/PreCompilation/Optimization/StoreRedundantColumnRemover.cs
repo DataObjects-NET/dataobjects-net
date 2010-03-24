@@ -192,7 +192,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       CompilableProvider newSourceProvider = VisitCompilable((CompilableProvider) provider.Source);
       OnRecursionExit(provider);
       if (newSourceProvider==provider.Source) {
-        mappings[provider] = EnumerableUtils<int>.Empty.ToList();
+        mappings[provider] = new List<int>(){0};
         return provider;
       }
       return new StoreProvider(newSourceProvider);

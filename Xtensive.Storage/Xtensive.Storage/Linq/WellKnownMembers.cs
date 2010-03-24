@@ -107,6 +107,7 @@ namespace Xtensive.Storage.Linq
       public static readonly MethodInfo First;
       public static readonly Type OfTuple;
       public static readonly MethodInfo DefaultIfEmpty;
+      public static readonly MethodInfo Contains;
 
       static Enumerable()
       {
@@ -117,6 +118,22 @@ namespace Xtensive.Storage.Linq
           .First(m => m.Name==Core.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
         OfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Core.Tuples.Tuple));
         DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().Where(m => m.Name=="DefaultIfEmpty").First();
+        Contains = GetMethod(typeof(System.Linq.Enumerable), "Contains", 1, 2);
+      }
+    }
+
+    public static class Collection
+    {
+      // Collection extensions
+      public static readonly MethodInfo ExtensionContainsAll;
+      public static readonly MethodInfo ExtensionContainsAny;
+      public static readonly MethodInfo ExtensionContainsNone;
+
+      static Collection()
+      {
+        ExtensionContainsAll = GetMethod(typeof (CollectionExtensions), "ContainsAll", 1, 2);
+        ExtensionContainsAny = GetMethod(typeof (CollectionExtensions), "ContainsAny", 1, 2);
+        ExtensionContainsNone = GetMethod(typeof (CollectionExtensions), "ContainsNone", 1, 2);
       }
     }
 

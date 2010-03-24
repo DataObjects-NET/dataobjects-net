@@ -62,13 +62,14 @@ namespace Xtensive.Storage.Linq
     private static bool TypeIsStorageMappable(Type type)
     {
       // TODO: AG: Take info from storage!
-      return type.IsPrimitive
-        || type==typeof (byte[])
-          || type==typeof (decimal)
-            || type==typeof (string)
-              || type==typeof (DateTime)
-                || type==typeof (TimeSpan)
-                  || (type.IsNullable() && TypeIsStorageMappable(type.GetGenericArguments()[0]));
+      return type.IsPrimitive || 
+        type==typeof (byte[]) || 
+        type==typeof (decimal) || 
+        type==typeof (string) || 
+        type==typeof (DateTime) ||
+        type==typeof(Guid) || 
+        type==typeof (TimeSpan) || 
+        (type.IsNullable() && TypeIsStorageMappable(type.GetGenericArguments()[0]));
     }
 
 
