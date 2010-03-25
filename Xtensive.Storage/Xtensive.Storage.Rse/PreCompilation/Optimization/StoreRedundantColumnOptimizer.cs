@@ -17,6 +17,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
   [Serializable]
   public class StoreRedundantColumnOptimizer: IPreCompiler
   {
+
     /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {

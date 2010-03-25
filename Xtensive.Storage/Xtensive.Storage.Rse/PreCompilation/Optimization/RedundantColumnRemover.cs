@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
   internal abstract class RedundantColumnRemover : CompilableProviderVisitor
   {
-    private Dictionary<Provider, List<int>> mappings;
+    protected Dictionary<Provider, List<int>> mappings;
     private readonly TupleAccessGatherer mappingsGatherer;
     private readonly Dictionary<ApplyParameter, List<int>> outerColumnUsages;
     private readonly CompilableProviderVisitor outerColumnUsageVisitor;
@@ -186,22 +186,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       OnRecursionEntrance(provider);
       CompilableProvider newSourceProvider = VisitCompilable((CompilableProvider)provider.Source);
       OnRecursionExit(provider);
-      if (newSourceProvider == provider.Source)
-      {
+      if (newSourceProvider == provider.Source) {
         mappings[provider] = new List<int>() { 0 };
         return provider;
       }
       return new StoreProvider(newSourceProvider);
-    }
-
-    protected override Provider VisitRaw(RawProvider provider)
-    {
-      var mapping = mappings[provider];
-      if (mapping.SequenceEqual(Enumerable.Range(0, provider.Header.Length)))
-        return provider;
-      var mappingTransform = new MapTransform(true, provider.Header.TupleDescriptor, mapping.ToArray());
-      var newExpression = RemapRawProviderSource(provider.Source, mappingTransform);
-      return new RawProvider(provider.Header.Select(mapping), newExpression);
     }
 
     protected override Provider VisitReindex(ReindexProvider provider)
@@ -430,7 +419,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     #region Private methods
 
-    private Provider SubstituteSelect(CompilableProvider provider)
+    protected Provider SubstituteSelect(CompilableProvider provider)
     {
       mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;
@@ -443,19 +432,6 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         .Distinct()
         .OrderBy(i => i)
         .ToList();
-    }
-
-    private static Expression<Func<IEnumerable<Tuple>>> RemapRawProviderSource(Expression<Func<IEnumerable<Tuple>>> source, MapTransform mappingTransform)
-    {
-      var selectMethodInfo = typeof(Enumerable)
-        .GetMethods()
-        .Single(methodInfo => methodInfo.Name == "Select"
-          && methodInfo.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>))
-        .MakeGenericMethod(typeof(Tuple), typeof(Tuple));
-
-      Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
-      var newExpression = Expression.Call(selectMethodInfo, source.Body, Expression.Constant(selector));
-      return (Expression<Func<IEnumerable<Tuple>>>)Expression.Lambda(newExpression);
     }
 
     private static List<int> MergeMappings(Provider originalLeft, List<int> leftMap, List<int> rightMap)
