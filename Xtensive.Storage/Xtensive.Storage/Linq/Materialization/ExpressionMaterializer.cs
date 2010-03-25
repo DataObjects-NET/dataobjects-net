@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Linq.Materialization
       var processedTarget = Visit(target);
       if (expression.MarkerType!=MarkerType.None && (expression.MarkerType & MarkerType.Default)==MarkerType.None) {
         if (itemMaterializationContextParameter==null)
-          MaterializationHelper.ThrowEmptySequenceException();
+          return processedTarget;
         var columns = ColumnGatherer.GetColumns(target, ColumnExtractionModes.Distinct | ColumnExtractionModes.Ordered).ToArray();
         var sequenceCheck = Expression.Call(MaterializationHelper.IsNullMethodInfo, tupleParameter, Expression.Constant(columns));
         var throwException = Expression.Convert(Expression.Call(MaterializationHelper.ThrowEmptySequenceExceptionMethodInfo), target.Type);
