@@ -4,19 +4,16 @@
 // Created by: Ivan Galkin
 // Created:    2009.08.18
 
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
-using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.DisconnectedTests.Model;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Providers;
@@ -375,6 +372,20 @@ namespace Xtensive.Storage.DisconnectedTests.Model
       : base(idFirst, idSecond)
     {}
   }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class ChangeSet : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public ChangeSet Parent { get; set; }
+
+    [Field]
+    public ChangeSet SecondParent { get; set; }
+  }
 }
 
 #endregion
@@ -384,6 +395,10 @@ namespace Xtensive.Storage.Tests.Storage
   [TestFixture]
   public class DisconnectedStateTest : AutoBuildTest
   {
+    public override void TestFixtureSetUp()
+    {
+    }
+
     [SetUp]
     public void SetUp()
     {
@@ -399,8 +414,7 @@ namespace Xtensive.Storage.Tests.Storage
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }
-
-
+    
     [Test]
     public void TransactionsTest()
     {
@@ -2015,9 +2029,37 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
+    [Test]
+    public void MergeFailedTest()
+    {
+      var serverData = new DisconnectedState();
+      var clientData = new DisconnectedState();
+
+      Key childKey;
+
+      using (Session.Open(Domain))
+      using (var transactionScope = Transaction.Open()) {
+        var child = new ChangeSet {Parent = new ChangeSet()};
+        childKey = child.Key;
+        transactionScope.Complete();
+      }
+
+      using (Session.Open(Domain))
+      using (serverData.Attach())
+      using (serverData.Connect())
+      using (var transactionScope = Transaction.Open()) {
+        Query.Single<ChangeSet>(childKey);
+      }
+      
+      using (Session.Open(Domain))
+      using (clientData.Attach()) {
+        clientData.Merge(serverData);
+      }
+    }
+
     private void FillDataBase()
     {
-      using (var sesscionScope = Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         using (var transactionScope = Transaction.Open()) {
 
           var customer1 = new Customer {Name = "Customer1"};
