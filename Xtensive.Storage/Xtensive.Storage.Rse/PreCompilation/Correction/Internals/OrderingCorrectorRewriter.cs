@@ -105,7 +105,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       OnRecursionExit(provider);
       if (left == provider.Left && right == provider.Right)
         return provider;
-      return new ApplyProvider(provider.ApplyParameter, left, right, provider.SequenceType, provider.ApplyType);
+      return new ApplyProvider(provider.ApplyParameter, left, right, provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
     protected override Provider VisitIntersect(IntersectProvider provider)

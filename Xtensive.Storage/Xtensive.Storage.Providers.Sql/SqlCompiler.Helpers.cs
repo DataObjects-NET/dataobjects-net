@@ -188,6 +188,8 @@ namespace Xtensive.Storage.Providers.Sql
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
       var distinctIsUsed = sourceSelect.Distinct;
       var filterIsUsed = !sourceSelect.Where.IsNullReference();
+      if (sourceSelect.From == null)
+        return false;
       var columnCountIsNotSame = sourceSelect.From.Columns.Count!=sourceSelect.Columns.Count;
 
       if (origin.Type==ProviderType.Filter) {

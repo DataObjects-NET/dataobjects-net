@@ -376,7 +376,7 @@ namespace Xtensive.Storage.Linq
 
       var leftDataSource = oldResult.ItemProjector.DataSource;
       var columnIndex = leftDataSource.Header.Length;
-      var dataSource = leftDataSource.Apply(applyParameter, rightDataSource.Alias(context.GetNextAlias()), applySequenceType, JoinType.LeftOuter);
+      var dataSource = leftDataSource.Apply(applyParameter, rightDataSource.Alias(context.GetNextAlias()), !state.BuildingProjection, applySequenceType, JoinType.LeftOuter);
       var rightItemProjector = projection.ItemProjector.Remap(dataSource, columnIndex);
       var result = new ProjectionExpression(oldResult.Type, oldResult.ItemProjector.Remap(dataSource, 0), oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, result);
@@ -446,7 +446,7 @@ namespace Xtensive.Storage.Linq
 
       var leftDataSource = oldResult.ItemProjector.DataSource;
       var columnIndex = leftDataSource.Header.Length;
-      var dataSource = leftDataSource.Apply(applyParameter, rs.Alias(context.GetNextAlias()), ApplySequenceType.All, JoinType.LeftOuter);
+      var dataSource = leftDataSource.Apply(applyParameter, rs.Alias(context.GetNextAlias()), !state.BuildingProjection, ApplySequenceType.All, JoinType.LeftOuter);
       var rightItemProjector = projection.ItemProjector.Remap(dataSource, columnIndex);
       var result = new ProjectionExpression(oldResult.Type, oldResult.ItemProjector.Remap(dataSource, 0), oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, result);
@@ -929,6 +929,7 @@ namespace Xtensive.Storage.Linq
         var recordSet = outerProjection.ItemProjector.DataSource.Apply(
           applyParameter,
           innerProjection.ItemProjector.DataSource.Alias(context.GetNextAlias()),
+          false,
           ApplySequenceType.All,
           isOuter ? JoinType.LeftOuter : JoinType.Inner);
 
