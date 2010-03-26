@@ -321,7 +321,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
       if (State.Predicates.ContainsKey(provider.ApplyParameter))
         State.Predicates.Remove(provider.ApplyParameter);
       if (left != provider.Left || right != provider.Right)
-        return new ApplyProvider(provider.ApplyParameter, left, right, provider.SequenceType, provider.ApplyType);
+        return new ApplyProvider(provider.ApplyParameter, left, right, provider.IsInlined, provider.SequenceType, provider.ApplyType);
       return provider;
     }
 

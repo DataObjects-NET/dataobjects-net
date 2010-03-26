@@ -300,7 +300,7 @@ namespace Xtensive.Storage.Rse.Providers
       OnRecursionExit(provider);
       if (left == provider.Left && right == provider.Right)
         return provider;
-      return new ApplyProvider(provider.ApplyParameter, left, right, provider.SequenceType, provider.ApplyType);
+      return new ApplyProvider(provider.ApplyParameter, left, right, provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
     /// <inheritdoc/>

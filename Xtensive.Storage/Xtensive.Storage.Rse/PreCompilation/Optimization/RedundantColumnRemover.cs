@@ -17,8 +17,16 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
-  internal sealed class StoreRedundantColumnRemover : ColumnMappingInspector
+  internal sealed class RedundantColumnRemover : ColumnMappingInspector
   {
+    protected override Pair<CompilableProvider, List<int>> OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<int> requestedMapping)
+    {
+      var currentMapping = mappings[applyProvider.Right];
+      if (currentMapping.SequenceEqual(requestedMapping))
+        return base.OverrideRightApplySource(applyProvider, provider, requestedMapping);
+      var selectProvider = new SelectProvider(provider, requestedMapping.ToArray());
+      return new Pair<CompilableProvider, List<int>>(selectProvider, requestedMapping);
+    }
 
     protected override Provider VisitRaw(RawProvider provider)
     {
@@ -45,7 +53,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 
     // Constructors
 
-    public StoreRedundantColumnRemover(CompilableProvider originalProvider)
+    public RedundantColumnRemover(CompilableProvider originalProvider)
       : base(originalProvider)
     {
     }

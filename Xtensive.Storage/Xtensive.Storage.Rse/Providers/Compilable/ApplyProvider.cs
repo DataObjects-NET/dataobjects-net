@@ -79,16 +79,10 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right)
-      : this(applyParameter, left, right, ApplySequenceType.All, JoinType.Inner)
+      : this(applyParameter, left, right, false, ApplySequenceType.All, JoinType.Inner)
     {
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, ApplySequenceType applySequenceType, JoinType applyType)
-      : this(applyParameter, left, right, false, applySequenceType, applyType)
-    {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

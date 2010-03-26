@@ -208,14 +208,21 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       outerColumnUsages.Add(applyParameter, leftMapping);
       CompilableProvider newRightProvider = VisitCompilable(provider.Right);
       outerColumnUsages.Remove(applyParameter);
-      rightMapping = mappings[provider.Right];
+
+      var pair = OverrideRightApplySource(provider, newRightProvider, rightMapping);
+      if (pair.First == null)
+        rightMapping = mappings[provider.Right];
+      else {
+        newRightProvider = pair.First;
+        rightMapping = pair.Second;
+      }
       RestoreMappings(oldMappings);
 
       mappings[provider] = Merge(leftMapping, rightMapping.Select(map => map + provider.Left.Header.Length));
 
       return newLeftProvider == provider.Left && newRightProvider == provider.Right
         ? provider
-        : new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.SequenceType, provider.ApplyType);
+        : new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
     protected override Provider VisitReindex(ReindexProvider provider)
@@ -362,6 +369,11 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
         .Select(originalIndex => new { OriginalIndex = originalIndex, NewIndex = returningColumns.IndexOf(originalIndex) })
         .Select(x => x.NewIndex < 0 ? x.OriginalIndex : x.NewIndex).ToArray();
       return new SelectProvider(provider, columns);
+    }
+
+    protected virtual Pair<CompilableProvider, List<int>> OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<int> requestedMapping)
+    {
+      return new Pair<CompilableProvider, List<int>>(provider, requestedMapping);
     }
 
     #endregion

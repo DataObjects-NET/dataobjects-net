@@ -8,14 +8,14 @@ using Xtensive.Core.Tuples;
 using Xtensive.Indexing.Optimization;
 using Xtensive.Storage.Model;
 
-namespace Xtensive.Storage.Rse.PreCompilation.Optimization
+namespace Xtensive.Storage.Rse.PreCompilation.Optimization.IndexSelection
 {
   /// <summary>
   /// Resolver of a <see cref="IOptimizationInfoProvider{TKey}"/> for a specified <see cref="IndexInfo"/>.
   /// </summary>
   public interface IOptimizationInfoProviderResolver
   {
-    /// <summary>
+    /// <summary> 
     /// Resolves the <see cref="IOptimizationInfoProvider{TKey}"/> for <paramref name="indexInfo"/>.
     /// </summary>
     /// <param name="indexInfo">The description of the index.</param>

@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
             .Alias("XYZ");
           var result = customerPrimary
-            .Apply(parameter, subquery, ApplySequenceType.All, JoinType.Inner)
+            .Apply(parameter, subquery)
             .Count();
           Assert.AreEqual(total, result);
         }
@@ -77,7 +77,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Filter(t => t.GetValue(orderCustomerIndex) == parameter.Value.GetValue(customerIdIndex))
             .Alias("XYZ");
           var result = customerPrimary
-            .Apply(parameter, subquery, ApplySequenceType.All, JoinType.LeftOuter)
+            .Apply(parameter, subquery, false, ApplySequenceType.All, JoinType.LeftOuter)
             .Count();
           Assert.AreEqual(total, result);
         }
@@ -99,7 +99,7 @@ namespace Xtensive.Storage.Tests.Storage
             .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
             .Existence("LALALA");
           var result = customerPrimary
-            .Apply(parameter, subquery, ApplySequenceType.Single, JoinType.Inner)
+            .Apply(parameter, subquery, false, ApplySequenceType.Single, JoinType.Inner)
             .Count(t => (bool) t.GetValue(t.Count-1));
           Assert.AreEqual(total, result);
         }
