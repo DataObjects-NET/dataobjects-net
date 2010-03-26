@@ -95,10 +95,6 @@ namespace Xtensive.Storage.Rse.Providers
     protected override Provider VisitRaw(RawProvider provider)
     {
       return provider;
-//      var source = translate(provider, provider.Source);
-//      if (source == provider.Source)
-//        return provider;
-//      return new RawProvider(provider.Header, (Expression<Func<IEnumerable<Tuple>>>) source);
     }
 
     /// <inheritdoc/>
@@ -248,12 +244,16 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     protected override Provider VisitIndex(IndexProvider provider)
     {
+      OnRecursionEntrance(provider);
+      OnRecursionExit(provider);
       return provider;
     }
 
     /// <inheritdoc/>
     protected override Provider VisitFreeText(FreeTextProvider provider)
     {
+      OnRecursionEntrance(provider);
+      OnRecursionExit(provider);
       return provider;
     }
 

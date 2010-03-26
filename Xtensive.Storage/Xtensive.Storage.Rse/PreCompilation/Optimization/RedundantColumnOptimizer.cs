@@ -12,16 +12,16 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 namespace Xtensive.Storage.Rse.PreCompilation.Optimization
 {
   /// <summary>
-  /// <see cref="IPreCompiler"/> implementation that removes redundant columns from store provider in tree.
+  /// <see cref="IPreCompiler"/> implementation that removes redundant columns in tree.
   /// </summary>
   [Serializable]
-  public class StoreRedundantColumnOptimizer: IPreCompiler
+  public class RedundantColumnOptimizer: IPreCompiler
   {
 
     /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
-      return new StoreRedundantColumnRemover(rootProvider).RemoveRedundantColumns();
+      return new RedundantColumnRemover(rootProvider).RemoveRedundantColumns();
     }
   }
 }
