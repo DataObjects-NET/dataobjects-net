@@ -12,6 +12,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Resources;
@@ -26,7 +27,7 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class AutoPropertyReplacementAspect : LaosMethodLevelAspect
+  public sealed class AutoPropertyReplacementAspect : MethodLevelAspect
   {
     /// <summary>
     /// Gets the type where handlers are declared.
