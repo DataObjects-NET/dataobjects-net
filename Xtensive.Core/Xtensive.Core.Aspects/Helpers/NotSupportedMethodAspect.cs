@@ -11,7 +11,7 @@ using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
-  [MulticastAttributeUsage(MulticastTargets.Method | MulticastTargets.Property | MulticastTargets.InstanceConstructor)]
+  [MulticastAttributeUsage(MulticastTargets.Default | MulticastTargets.InstanceConstructor | MulticastTargets.Method | MulticastTargets.StaticConstructor)]
   [AttributeUsage(
     AttributeTargets.Property | 
     AttributeTargets.Method | 
