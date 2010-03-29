@@ -198,10 +198,8 @@ namespace Xtensive.Storage.Providers.Sql
         return pagingIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
       }
 
-      if (origin.Type==ProviderType.Select) {
-        var selectProvider = (SelectProvider) origin;
-        return containsCalculatedColumns && !calculatedColumnIndexes.All(ci => selectProvider.ColumnIndexes.Contains(ci));
-      }
+      if (origin.Type==ProviderType.Select)
+        return distinctIsUsed;
 
       if (origin.Type==ProviderType.RowNumber) {
         var usedColumnIndexes = origin.Header.Order.Select(o => o.Key);
@@ -230,6 +228,13 @@ namespace Xtensive.Storage.Providers.Sql
 
       if (origin.Type==ProviderType.Apply || origin.Type==ProviderType.Join || origin.Type==ProviderType.PredicateJoin)
         return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+
+      if (origin.Type == ProviderType.Sort) {
+        var orderingOverCalculatedColumn = origin.ExpectedOrder
+          .Select(order => order.Key)
+          .Any(calculatedColumnIndexes.Contains);
+        return orderingOverCalculatedColumn;
+      }
 
       return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
     }
