@@ -5,7 +5,7 @@
 // Created:    2008.11.18
 
 using System;
-using PostSharp.Laos;
+using PostSharp.Aspects;
 
 namespace Xtensive.Core.Aspects.Helpers.Internals
 {
@@ -13,19 +13,13 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
   /// Internally applied by <see cref="Helpers.ProtectedConstructorAspect"/>.
   /// </summary>
   [Serializable]
-  public sealed class ImplementProtectedConstructorBodyAspect : LaosTypeLevelAspect,
-    ILaosWeavableAspect
+  public sealed class ImplementProtectedConstructorBodyAspect : TypeLevelAspect
   {
     private readonly ProtectedConstructorAspect constructorAspect;
 
     public ProtectedConstructorAspect Aspect
     {
       get { return constructorAspect; }
-    }
-
-    int ILaosWeavableAspect.AspectPriority
-    {
-      get { return (int)ProtectedConstructorAspectPriority.ImplementBody; }
     }
 
 

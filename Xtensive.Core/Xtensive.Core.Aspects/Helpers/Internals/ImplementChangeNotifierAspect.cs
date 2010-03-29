@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Notifications;
 
 namespace Xtensive.Core.Aspects.Helpers.Internals
@@ -21,23 +21,33 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
   public sealed class ImplementChangeNotifierAspect: CompositionAspect
   {
     private static Dictionary<Type, ImplementChangeNotifierAspect> aspects = new Dictionary<Type, ImplementChangeNotifierAspect>();
-
-    public override CompositionAspectOptions GetOptions()
+    
+    public override object CreateImplementationObject(AspectArgs args)
     {
-      return 
-        CompositionAspectOptions.GenerateImplementationAccessor | 
-        CompositionAspectOptions.IgnoreIfAlreadyImplemented;
+      return new ChangeNotifier(args.Instance);
     }
 
-    public override object CreateImplementationObject(InstanceBoundLaosEventArgs eventArgs)
+    protected override Type[] GetPublicInterfaces(Type targetType)
     {
-      return new ChangeNotifier(eventArgs.Instance);
+      return new[] {typeof(IChangeNotifier)};
     }
 
-    public override Type GetPublicInterface(Type containerType)
-    {
-      return typeof (IChangeNotifier);
-    }
+//    public override CompositionAspectOptions GetOptions()
+//    {
+//      return 
+//        CompositionAspectOptions.GenerateImplementationAccessor | 
+//        CompositionAspectOptions.IgnoreIfAlreadyImplemented;
+//    }
+//
+//    public override object CreateImplementationObject(InstanceBoundLaosEventArgs eventArgs)
+//    {
+//      return new ChangeNotifier(eventArgs.Instance);
+//    }
+//
+//    public override Type GetPublicInterface(Type containerType)
+//    {
+//      return typeof (IChangeNotifier);
+//    }
 
     public override void RuntimeInitialize(Type type)
     {

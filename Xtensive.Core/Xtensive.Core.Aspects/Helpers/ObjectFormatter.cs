@@ -38,7 +38,7 @@ namespace Xtensive.Core.Helpers
 
     public static string ToString(object obj, bool formatContentOnly)
     {
-      StringBuilder sb = new StringBuilder();
+      var sb = new StringBuilder();
       AppendObject(sb, obj, formatContentOnly);
       return sb.ToString();
     }

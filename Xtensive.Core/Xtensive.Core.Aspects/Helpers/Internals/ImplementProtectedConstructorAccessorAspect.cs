@@ -6,25 +6,19 @@
 
 using System;
 using System.Reflection;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 
 namespace Xtensive.Core.Aspects.Helpers.Internals
 {
   [Serializable]
-  public sealed class ImplementProtectedConstructorAccessorAspect : LaosTypeLevelAspect,
-    ILaosWeavableAspect
+  public sealed class ImplementProtectedConstructorAccessorAspect : TypeLevelAspect
   {
     private readonly ProtectedConstructorAccessorAspect protectedConstructorAccessorAspect;
 
     public ProtectedConstructorAccessorAspect Aspect
     {
       get { return protectedConstructorAccessorAspect; }
-    }
-
-    int ILaosWeavableAspect.AspectPriority
-    {
-      get { return (int)ProtectedConstructorAspectPriority.ImplementAccessor; }
     }
 
     /// <inheritdoc/>

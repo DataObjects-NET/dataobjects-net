@@ -5,38 +5,37 @@
 // Created:    2008.10.30
 
 using System;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
-  [MulticastAttributeUsage(MulticastTargets.Method | MulticastTargets.Property | MulticastTargets.Constructor)]
+  [MulticastAttributeUsage(MulticastTargets.Method | MulticastTargets.Property | MulticastTargets.InstanceConstructor)]
   [AttributeUsage(
     AttributeTargets.Property | 
     AttributeTargets.Method | 
     AttributeTargets.Constructor, 
     AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public class NotSupportedMethodAspect : LaosMethodLevelAspect,
-    ILaosWeavableAspect
+  public class NotSupportedMethodAspect : MethodLevelAspect
   {
     public string Text { get; private set; }
 
-    int ILaosWeavableAspect.AspectPriority
-    {
-      get
-      {
-        return int.MinValue;
-      }
-    }
+//    int ILaosWeavableAspect.AspectPriority
+//    {
+//      get
+//      {
+//        return int.MinValue;
+//      }
+//    }
 
-    public override PostSharpRequirements GetPostSharpRequirements()
-    {
-      PostSharpRequirements requirements = base.GetPostSharpRequirements();
-      AspectHelper.AddStandardRequirements(requirements);
-      return requirements;
-    }
+//    public override PostSharpRequirements GetPostSharpRequirements()
+//    {
+//      PostSharpRequirements requirements = base.GetPostSharpRequirements();
+//      AspectHelper.AddStandardRequirements(requirements);
+//      return requirements;
+//    }
 
 
     // Constructors

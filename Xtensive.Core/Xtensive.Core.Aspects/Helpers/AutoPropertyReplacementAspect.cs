@@ -14,7 +14,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
@@ -65,15 +64,17 @@ namespace Xtensive.Core.Aspects.Helpers
       return true;
     }
 
-    /// <inheritdoc/>
-    public override PostSharpRequirements GetPostSharpRequirements()
-    {
-      PostSharpRequirements requirements = base.GetPostSharpRequirements();
-      AspectHelper.AddStandardRequirements(requirements);
-      return requirements;
-    }
 
-    /// <summary>
+
+    /// <inheritdoc/>
+//    public override PostSharpRequirements GetPostSharpRequirements()
+//    {
+//      PostSharpRequirements requirements = base.GetPostSharpRequirements();
+//      AspectHelper.AddStandardRequirements(requirements);
+//      return requirements;
+//    }
+
+/*    /// <summary>
     /// Applies this aspect to the specified <paramref name="getterOrSetter"/>.
     /// </summary>
     /// <param name="getterOrSetter">The property getter or setter to apply the aspect to.</param>
@@ -89,7 +90,7 @@ namespace Xtensive.Core.Aspects.Helpers
 
       return AppliedAspectSet.Add(getterOrSetter, 
         () => new AutoPropertyReplacementAspect(handlerType, handlerMethodSuffix));
-    }
+    }*/
 
 
     // Constructors

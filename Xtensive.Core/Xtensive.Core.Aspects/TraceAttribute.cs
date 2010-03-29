@@ -8,8 +8,8 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Helpers;
@@ -21,7 +21,7 @@ namespace Xtensive.Core.Aspects
   // [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method | MulticastTargets.Constructor)]
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class TraceAttribute : OnMethodBoundaryAspect, ILaosWeavableAspect
+  public sealed class TraceAttribute : OnMethodBoundaryAspect
   {
     private const string EnterFormat           = "{0}";
     private const string EnterFormatArgs       = "{0} ({1}) on {2}";
@@ -39,10 +39,10 @@ namespace Xtensive.Core.Aspects
     private string                              title;
     private bool                                isStatic;
 
-    int ILaosWeavableAspect.AspectPriority {
+    /*int ILaosWeavableAspect.AspectPriority {
       [DebuggerStepThrough]
       get { return (int)CoreAspectPriority.Trace; }
-    }
+    }*/
 
     public string Title {
       [DebuggerStepThrough]
@@ -183,7 +183,7 @@ namespace Xtensive.Core.Aspects
 
     #endregion
     
-    public override void OnEntry(MethodExecutionEventArgs eventArgs)
+    public override void OnEntry(MethodExecutionArgs eventArgs)
     {
       if (log==null) {
         Log.Error(Strings.LogCantLogNoLogError, title);
@@ -215,7 +215,7 @@ namespace Xtensive.Core.Aspects
         eventArgs.MethodExecutionTag = new LogIndentScope();
     }
 
-    public override void OnExit(MethodExecutionEventArgs eventArgs)
+    public override void OnExit(MethodExecutionArgs eventArgs)
     {
       if (log==null)
         return;

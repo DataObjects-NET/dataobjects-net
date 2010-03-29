@@ -8,8 +8,8 @@
 
 using System;
 using System.Reflection;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Aspects.Helpers
@@ -17,10 +17,10 @@ namespace Xtensive.Core.Aspects.Helpers
   /// <summary>
   /// Implements epilogue call in constructor.
   /// </summary>
-  [MulticastAttributeUsage(MulticastTargets.Constructor)]
+  [MulticastAttributeUsage(MulticastTargets.InstanceConstructor)]
   [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ConstructorEpilogueAspect : LaosMethodLevelAspect
+  public sealed class ConstructorEpilogueAspect : MethodLevelAspect
   {
     /// <summary>
     /// Gets the type where epilogue method is declared.
@@ -88,16 +88,16 @@ namespace Xtensive.Core.Aspects.Helpers
 
       return true;
     }
-
+//
     /// <inheritdoc/>
-    public override PostSharpRequirements GetPostSharpRequirements()
-    {
-      PostSharpRequirements requirements = base.GetPostSharpRequirements();
-      AspectHelper.AddStandardRequirements(requirements);
-      return requirements;
-    }
+//    public override PostSharpRequirements GetPostSharpRequirements()
+//    {
+//      PostSharpRequirements requirements = base.GetPostSharpRequirements();
+//      AspectHelper.AddStandardRequirements(requirements);
+//      return requirements;
+//    }
 
-    /// <summary>
+   /* /// <summary>
     /// Applies this aspect to the specified <paramref name="ctor"/>.
     /// </summary>
     /// <param name="ctor">The constructor to apply the aspect to.</param>
@@ -108,9 +108,9 @@ namespace Xtensive.Core.Aspects.Helpers
     public static ConstructorEpilogueAspect ApplyOnce(ConstructorInfo ctor, Type handlerType, string handlerMethodName)
     {
       return ApplyOnce(ctor, handlerType, handlerMethodName, null);
-    }
+    }*/
 
-    /// <summary>
+    /*/// <summary>
     /// Applies this aspect to the specified <paramref name="ctor"/>.
     /// </summary>
     /// <param name="ctor">The constructor to apply the aspect to.</param>
@@ -132,7 +132,7 @@ namespace Xtensive.Core.Aspects.Helpers
         : "{0}, {1}".FormatWith(handlerMethodName, errorHandlerMethodName);
       return AppliedAspectSet.Add(new Triplet<ConstructorInfo, Type, string>(ctor, handlerType, methodsKey), 
         () => new ConstructorEpilogueAspect(handlerType, handlerMethodName, errorHandlerMethodName));
-    }
+    }*/
 
 
     // Constructors

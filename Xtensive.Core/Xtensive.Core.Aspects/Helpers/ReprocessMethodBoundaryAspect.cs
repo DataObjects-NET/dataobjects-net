@@ -6,8 +6,8 @@
 
 using System;
 using System.Reflection;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 
 namespace Xtensive.Core.Aspects.Helpers
 {
@@ -22,7 +22,7 @@ namespace Xtensive.Core.Aspects.Helpers
   /// at exit).
   /// </remarks>
   [MulticastAttributeUsage(
-    MulticastTargets.Constructor | MulticastTargets.Method, 
+    MulticastTargets.InstanceConstructor | MulticastTargets.Method, 
     AllowMultiple = true,
     TargetMemberAttributes = 
       MulticastAttributes.Managed | 
@@ -36,15 +36,15 @@ namespace Xtensive.Core.Aspects.Helpers
     AttributeTargets.Constructor, 
     AllowMultiple = true, Inherited = false)]
   [Serializable]
-  public abstract class ReprocessMethodBoundaryAspect : LaosMethodLevelAspect
+  public abstract class ReprocessMethodBoundaryAspect : MethodLevelAspect
   {
-    /// <inheritdoc/>
+    /*/// <inheritdoc/>
     public override PostSharpRequirements GetPostSharpRequirements()
     {
       PostSharpRequirements requirements = base.GetPostSharpRequirements();
       AspectHelper.AddStandardRequirements(requirements);
       return requirements;
-    }
+    }*/
 
     /// <summary>
     /// Method executed <b>before</b> the body of methods to which this aspect is applied.

@@ -6,6 +6,7 @@
 
 using System;
 using System.Reflection;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
@@ -21,19 +22,24 @@ namespace Xtensive.Core.Aspects
   {
     // TODO: Add CompileTimeValidate
 
-    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
+    public override object CreateImplementationObject(AspectArgs args)
     {
-      var propertyInfo = element as PropertyInfo;
-      if (propertyInfo!=null)
-        return; // Will be anyway called for get\set methods with MethodInfo element further
-      var methodInfo = (MethodInfo) element;
-      var type = methodInfo.DeclaringType;
-      var icna = ImplementChangeNotifierAspect.ApplyOnce(type);
-      if (icna!=null)
-        collection.AddAspect(type, icna);
-      // AspectDebug.WriteLine("Providing NotifyOnChangeAspect for {0}.{1}", t.Name, mi.Name);
-      collection.AddAspect(methodInfo, new NotifyOnChangeAspect(this));
+      throw new NotImplementedException();
     }
+
+//    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
+//    {
+//      var propertyInfo = element as PropertyInfo;
+//      if (propertyInfo!=null)
+//        return; // Will be anyway called for get\set methods with MethodInfo element further
+//      var methodInfo = (MethodInfo) element;
+//      var type = methodInfo.DeclaringType;
+//      var icna = ImplementChangeNotifierAspect.ApplyOnce(type);
+//      if (icna!=null)
+//        collection.AddAspect(type, icna);
+      // AspectDebug.WriteLine("Providing NotifyOnChangeAspect for {0}.{1}", t.Name, mi.Name);
+//      collection.AddAspect(methodInfo, new NotifyOnChangeAspect(this));
+//    }
 
 
     // Constructors

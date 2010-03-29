@@ -7,8 +7,8 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Notifications;
 using Xtensive.Core.Reflection;
 
@@ -20,11 +20,9 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
   [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class NotifyOnChangeAspect : OnMethodBoundaryAspect, ILaosWeavableAspect
+  public sealed class NotifyOnChangeAspect : OnMethodBoundaryAspect
   {
     private ChangerAttribute changerAttribute;
-
-    int ILaosWeavableAspect.AspectPriority { get { return (int)CoreAspectPriority.Changer; } }
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
@@ -54,7 +52,7 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public override void OnEntry(MethodExecutionEventArgs eventArgs)
+    public override void OnEntry(MethodExecutionArgs eventArgs)
     {
       var composed = eventArgs.Instance as IComposed<IChangeNotifier>;
       if (composed==null)
@@ -72,7 +70,7 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public override void OnExit(MethodExecutionEventArgs eventArgs)
+    public override void OnExit(MethodExecutionArgs eventArgs)
     {
       var composed = eventArgs.Instance as IComposed<IChangeNotifier>;
       if (composed==null)

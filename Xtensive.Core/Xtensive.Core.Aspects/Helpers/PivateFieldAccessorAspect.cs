@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -21,7 +21,7 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Struct)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class PrivateFieldAccessorsAspect : LaosTypeLevelAspect
+  public sealed class PrivateFieldAccessorsAspect : TypeLevelAspect
   {
     private readonly HashSet<string> targetFields;
 
@@ -58,16 +58,16 @@ namespace Xtensive.Core.Aspects.Helpers
 
       return true;
     }
-
+/*
     /// <inheritdoc/>
     public override PostSharpRequirements GetPostSharpRequirements()
     {
       PostSharpRequirements requirements = base.GetPostSharpRequirements();
       AspectHelper.AddStandardRequirements(requirements);
       return requirements;
-    }
+    }*/
 
-    /// <summary>
+    /*/// <summary>
     /// Applies this aspect to the specified <paramref name="field"/>.
     /// </summary>
     /// <param name="field">The field to apply the aspect to.</param>
@@ -82,7 +82,7 @@ namespace Xtensive.Core.Aspects.Helpers
         (a1, a2) => a1.targetFields.UnionWith(a2.targetFields));
     }
 
-
+*/
     // Constructors
 
     /// <summary>

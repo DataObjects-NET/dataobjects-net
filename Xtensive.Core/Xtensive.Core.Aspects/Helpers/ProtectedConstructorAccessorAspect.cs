@@ -8,7 +8,6 @@ using System;
 using System.Reflection;
 using System.Linq;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers.Internals;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Collections;
@@ -42,15 +41,15 @@ namespace Xtensive.Core.Aspects.Helpers
       collection.AddAspect(surrogateType, new ImplementProtectedConstructorAccessorAspect(this));
     }
 
-    /// <inheritdoc/>
+   /* /// <inheritdoc/>
     public override PostSharpRequirements GetPostSharpRequirements()
     {
       PostSharpRequirements requirements = base.GetPostSharpRequirements();
       AspectHelper.AddStandardRequirements(requirements);
       return requirements;
-    }
+    }*/
 
-    /// <summary>
+    /*/// <summary>
     /// Applies this aspect to the specified <paramref name="type"/>.
     /// </summary>
     /// <param name="type">The type to apply the aspect to.</param>
@@ -65,7 +64,7 @@ namespace Xtensive.Core.Aspects.Helpers
       return AppliedAspectSet.Add(
         string.Format("{0}({1})", type.FullName, parameterTypes.Select(t => t.FullName).ToCommaDelimitedString()),
         () => new ProtectedConstructorAccessorAspect(parameterTypes));
-    }
+    }*/
 
 
     // Constructors
