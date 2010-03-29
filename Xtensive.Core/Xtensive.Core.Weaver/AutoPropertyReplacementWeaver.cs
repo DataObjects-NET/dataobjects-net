@@ -1,8 +1,8 @@
 // Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Nick Svetlov
-// Created:    2008.05.29
+// Created by: Alexis Kochetov
+// Created:    2010.03.29
 
 using System;
 using PostSharp.AspectInfrastructure;
@@ -32,7 +32,7 @@ namespace Xtensive.Core.Weaver
 
     protected override AspectWeaverInstance CreateAspectWeaverInstance(AspectInstanceInfo aspectInstanceInfo)
     {
-      return new AutoPropertyReplacementWeaverInstance(this, aspectInstanceInfo);
+      return new Instance(this, aspectInstanceInfo);
     }
 
 
@@ -45,7 +45,7 @@ namespace Xtensive.Core.Weaver
 
     // Nested class
 
-    private class AutoPropertyReplacementWeaverInstance : MethodLevelAspectWeaverInstance
+    private class Instance : MethodLevelAspectWeaverInstance
     {
       private readonly AutoPropertyReplacementWeaver parent;
 
@@ -54,7 +54,7 @@ namespace Xtensive.Core.Weaver
         adder.Add(TargetElement, parent.transformation.CreateInstance(this));
       }
 
-      public AutoPropertyReplacementWeaverInstance(AutoPropertyReplacementWeaver parent, AspectInstanceInfo aspectInstanceInfo)
+      public Instance(AutoPropertyReplacementWeaver parent, AspectInstanceInfo aspectInstanceInfo)
         : base(parent, aspectInstanceInfo)
       {
         this.parent = parent;
@@ -78,7 +78,7 @@ namespace Xtensive.Core.Weaver
       var handlerType = module.Cache.GetType(aspect.HandlerType);
       var handlerMethodSuffix = aspect.HandlerMethodSuffix;
             
-      return new AutoPropertyReplacementTransformationInstance(
+      return new Instance(
         this, aspectWeaverInstance, handlerType, handlerMethodSuffix);
     }
 
@@ -93,7 +93,7 @@ namespace Xtensive.Core.Weaver
 
     // Nested class
 
-    private class AutoPropertyReplacementTransformationInstance : MethodBodyTransformationInstance
+    private class Instance : MethodBodyTransformationInstance
     {
       private const string AutoPropertyBackingFieldFormat = "<{0}>k__BackingField";
       private const string HandlerGetMethodPrefix = "Get";
@@ -186,7 +186,7 @@ namespace Xtensive.Core.Weaver
 
       // Constructors
 
-      public AutoPropertyReplacementTransformationInstance(MethodBodyTransformation parent, AspectWeaverInstance aspectWeaverInstance, ITypeSignature handlerTypeSignature, string handlerMethodSuffix) 
+      public Instance(MethodBodyTransformation parent, AspectWeaverInstance aspectWeaverInstance, ITypeSignature handlerTypeSignature, string handlerMethodSuffix) 
         : base(parent, aspectWeaverInstance)
       {
         this.handlerTypeSignature = handlerTypeSignature;
