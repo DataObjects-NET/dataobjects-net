@@ -8,7 +8,6 @@ using System;
 using System.Reflection;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Aspects.Helpers.Internals;
 using Xtensive.Core.Internals.DocTemplates;
@@ -18,14 +17,9 @@ namespace Xtensive.Core.Aspects
   [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method)]
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ChangerAttribute : CompoundAspect
+  public sealed class ChangerAttribute : Aspect
   {
     // TODO: Add CompileTimeValidate
-
-    public override object CreateImplementationObject(AspectArgs args)
-    {
-      throw new NotImplementedException();
-    }
 
 //    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
 //    {

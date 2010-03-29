@@ -196,12 +196,12 @@ namespace Xtensive.Core.Aspects
           if (isStatic) {
             format = EnterFormatArgsStatic;
             args = new object[] {title, 
-              new ObjectFormatter(eventArgs.GetReadOnlyArgumentArray(), true)};
+              new ObjectFormatter(eventArgs.Arguments, true)};
           }
           else {
             format = EnterFormatArgs;
             args = new object[] {title, 
-              new ObjectFormatter(eventArgs.GetReadOnlyArgumentArray(), true), 
+              new ObjectFormatter(eventArgs.Arguments, true), 
               ObjectFormatter.ToString(eventArgs.Instance)};
           }
         }

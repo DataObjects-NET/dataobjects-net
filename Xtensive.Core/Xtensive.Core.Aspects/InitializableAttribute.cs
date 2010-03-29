@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -19,7 +19,7 @@ namespace Xtensive.Core.Aspects
 {
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [Serializable]
-  public sealed class InitializableAttribute : CompoundAspect
+  public sealed class InitializableAttribute : Aspect
   {
     public const string InitializeMethodName = "Initialize";
     public const string InitializationErrorMethodName = "InitializationError";
@@ -38,34 +38,34 @@ namespace Xtensive.Core.Aspects
     }
 
     /// <inheritdoc/>
-    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
-    {
-      Type type = element as Type;
-      if (type==null)
-        return;
-
+//    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
+//    {
+//      Type type = element as Type;
+//      if (type==null)
+//        return;
+//
       // Getting all the base types
-      Type initializeMethodDeclarer = FindFirstMethodDeclarer(type, 
-        InitializeMethodName, 
-        new[] {typeof (Type)});
-      if (initializeMethodDeclarer==null)
-        return;
-      bool hasInitializationErrorHandler = 
-        GetMethod(initializeMethodDeclarer, 
-          InitializationErrorMethodName,
-          new[] {typeof (Type), typeof(Exception)})!=null;
-
+//      Type initializeMethodDeclarer = FindFirstMethodDeclarer(type, 
+//        InitializeMethodName, 
+//        new[] {typeof (Type)});
+//      if (initializeMethodDeclarer==null)
+//        return;
+//      bool hasInitializationErrorHandler = 
+//        GetMethod(initializeMethodDeclarer, 
+//          InitializationErrorMethodName,
+//          new[] {typeof (Type), typeof(Exception)})!=null;
+//
       // Applying the aspect to all the constructors
-      foreach (var constructor in type.GetConstructors()) {
-        if (!constructor.IsPublic && !IsDefined(constructor, typeof(DebuggerNonUserCodeAttribute)))
-          continue;
-        var icea = hasInitializationErrorHandler 
-          ? ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
-          : ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodDeclarer, InitializeMethodName);
-        if (icea!=null)
-          collection.AddAspect(constructor, icea);
-      }
-    }
+//      foreach (var constructor in type.GetConstructors()) {
+//        if (!constructor.IsPublic && !IsDefined(constructor, typeof(DebuggerNonUserCodeAttribute)))
+//          continue;
+//        var icea = hasInitializationErrorHandler 
+//          ? ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
+//          : ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodDeclarer, InitializeMethodName);
+//        if (icea!=null)
+//          collection.AddAspect(constructor, icea);
+//      }
+//    }
 
     private Type FindFirstMethodDeclarer(Type descendantType, string methodName, Type[] arguments)
     {
@@ -97,13 +97,13 @@ namespace Xtensive.Core.Aspects
         null, arguments, null);
     }
 
-    public override PostSharpRequirements GetPostSharpRequirements()
-    {
-      PostSharpRequirements requirements = base.GetPostSharpRequirements();
-      AspectHelper.AddStandardRequirements(requirements);
-      return requirements;
-    }
-
+//    public override PostSharpRequirements GetPostSharpRequirements()
+//    {
+//      PostSharpRequirements requirements = base.GetPostSharpRequirements();
+//      AspectHelper.AddStandardRequirements(requirements);
+//      return requirements;
+//    }
+//
 
     // Constructors
 

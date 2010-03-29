@@ -8,8 +8,8 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
 
@@ -18,7 +18,7 @@ namespace Xtensive.Core.Aspects.Tests
   [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Property | MulticastTargets.Method | MulticastTargets.Field)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class CompileTimeWarningAttribute : CompoundAspect
+  public sealed class CompileTimeWarningAttribute : Aspect
   {
     public override bool CompileTimeValidate(object element)
     {
@@ -54,10 +54,6 @@ namespace Xtensive.Core.Aspects.Tests
           method, true, AttributeSearchOptions.Default);
       }
       return false;
-    }
-
-    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
-    {
     }
 
 

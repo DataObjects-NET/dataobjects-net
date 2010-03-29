@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using System.Linq;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects.Helpers.Internals;
 using Xtensive.Core.Internals.DocTemplates;
@@ -21,7 +22,7 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
   [Serializable]
-  public sealed class ProtectedConstructorAccessorAspect : CompoundAspect
+  public sealed class ProtectedConstructorAccessorAspect : Aspect
   {
 
     /// <summary>
@@ -34,12 +35,12 @@ namespace Xtensive.Core.Aspects.Helpers
     /// </summary>
     public Type TargetType { get; private set; }
 
-    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
+    /*public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
       TargetType = (Type)element;
       var surrogateType = AspectHelper.GetSurrogateType(TargetType.Module);
       collection.AddAspect(surrogateType, new ImplementProtectedConstructorAccessorAspect(this));
-    }
+    }*/
 
    /* /// <inheritdoc/>
     public override PostSharpRequirements GetPostSharpRequirements()

@@ -5,7 +5,9 @@
 // Created:    2010.03.29
 
 using System;
+using System.Collections.Generic;
 using PostSharp.AspectInfrastructure;
+using PostSharp.Aspects;
 using PostSharp.AspectWeaver;
 using PostSharp.AspectWeaver.AspectWeavers;
 using PostSharp.AspectWeaver.Transformations;
@@ -109,7 +111,6 @@ namespace Xtensive.Core.Weaver
 
       public override void Implement(MethodBodyTransformationContext context)
       {
-        
       }
 
       public override MethodBodyTransformationOptions GetOptions(MetadataDeclaration originalTargetElement, MethodSemantics semantic)

@@ -7,8 +7,8 @@
 using System;
 using System.Reflection;
 using System.Linq;
+using PostSharp.Aspects;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
 using Xtensive.Core.Aspects.Helpers.Internals;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Collections;
@@ -22,7 +22,7 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class ProtectedConstructorAspect : CompoundAspect
+  public sealed class ProtectedConstructorAspect : Aspect
   {
     /// <summary>
     /// Gets the constructor parameter types.
@@ -52,24 +52,24 @@ namespace Xtensive.Core.Aspects.Helpers
       return true;
     }
 
-    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
+  /*  public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {
       TargetType = (Type)element;
       var surrogateType = AspectHelper.GetSurrogateType(TargetType.Module);
       collection.AddAspect(surrogateType, new DeclareConstructorAspect(this));
       collection.AddAspect(surrogateType, new ImplementProtectedConstructorBodyAspect(this));
     }
-
-
+*/
+//
     /// <inheritdoc/>
-    public override PostSharpRequirements GetPostSharpRequirements()
-    {
-      PostSharpRequirements requirements = base.GetPostSharpRequirements();
-      AspectHelper.AddStandardRequirements(requirements);
-      return requirements;
-    }
+//    public override PostSharpRequirements GetPostSharpRequirements()
+//    {
+//      PostSharpRequirements requirements = base.GetPostSharpRequirements();
+//      AspectHelper.AddStandardRequirements(requirements);
+//      return requirements;
+//    }
 
-    /// <summary>
+    /*/// <summary>
     /// Applies this aspect to the specified <paramref name="type"/>.
     /// </summary>
     /// <param name="type">The type to apply the aspect to.</param>
@@ -84,7 +84,7 @@ namespace Xtensive.Core.Aspects.Helpers
       return AppliedAspectSet.Add(
         string.Format("{0}({1})", type.FullName, parameterTypes.Select(t => t.FullName).ToCommaDelimitedString()),
         () => new ProtectedConstructorAspect(parameterTypes));
-    }
+    }*/
 
 
     // Constructors

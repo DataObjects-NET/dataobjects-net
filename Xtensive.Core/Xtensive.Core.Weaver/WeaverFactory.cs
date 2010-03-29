@@ -5,9 +5,8 @@
 // Created:    2007.10.23
 
 using System.Linq;
+using PostSharp.AspectWeaver;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
-using PostSharp.Laos.Weaver;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Aspects.Helpers.Internals;
 
@@ -16,9 +15,26 @@ namespace Xtensive.Core.Weaver
   /// <summary>
   /// Creates the weavers defined by the 'Xtensive.Core.Weaver' plug-in.
   /// </summary>
-  public class WeaverFactory : Task, ILaosAspectWeaverFactory
+  public class WeaverFactory : PlugIn
   {
-    /// <inheritdoc/>
+    public WeaverFactory()
+      : base(Priorities.User)
+    {
+    }
+
+    protected override void Initialize()
+    {
+//      AddAspectWeaverFactory<PrivateFieldAccessorsAspect, PrivateFieldAccessors>();
+      AddAspectWeaverFactory<AutoPropertyReplacementAspect, AutoPropertyReplacementWeaver>();
+      AddAspectWeaverFactory<ConstructorEpilogueAspect, ConstructorEpilogueWeaver>();
+//      AddAspectWeaverFactory<ReprocessMethodBoundaryAspect, AutoPropertyReplacementWeaver>();
+//      AddAspectWeaverFactory<NotSupportedMethodAspect, AutoPropertyReplacementWeaver>();
+      AddAspectWeaverFactory<DeclareConstructorAspect, DeclareProtectedConstructorWeaver>();
+//      AddAspectWeaverFactory<ImplementProtectedConstructorBodyAspect, AutoPropertyReplacementWeaver>();
+//      AddAspectWeaverFactory<ImplementProtectedConstructorAccessorAspect, AutoPropertyReplacementWeaver>();
+    }
+
+    /*/// <inheritdoc/>
     public LaosAspectWeaver CreateAspectWeaver(ILaosAspect aspect)
     {
       var privateFieldAccessorsAspect = aspect as PrivateFieldAccessorsAspect;
@@ -71,6 +87,6 @@ namespace Xtensive.Core.Weaver
         return new NotSupportedMethodAspectWeaver();
 
       return null;
-    }
+    }*/
   }
 }
