@@ -14,7 +14,7 @@ using Xtensive.Core.Testing;
 namespace Xtensive.Core.Aspects.Tests
 {
   [TestFixture]
-  public class ImplementAutoPropertyReplacementTest
+  public class AutoPropertyReplacementTest
   {
     public class TestClassBase
     {

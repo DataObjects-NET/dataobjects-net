@@ -53,11 +53,11 @@ namespace Xtensive.Core.Aspects.Helpers.Internals
     {
     }
 
-    internal static ImplementChangeNotifierAspect ApplyOnce(Type type)
+   /* internal static ImplementChangeNotifierAspect ApplyOnce(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       return AppliedAspectSet.Add(type, () => new ImplementChangeNotifierAspect());
-    }
+    }*/
 
     
     // Constructors

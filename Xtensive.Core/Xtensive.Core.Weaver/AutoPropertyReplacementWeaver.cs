@@ -15,6 +15,7 @@ using PostSharp.Collections;
 using PostSharp.Extensibility;
 using PostSharp.Extensibility.Tasks;
 using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
@@ -112,8 +113,7 @@ namespace Xtensive.Core.Weaver
 
         string propertyName = methodDef.Name.Substring(splitterPos + 1);
         string fieldName = string.Format(AutoPropertyBackingFieldFormat, propertyName);
-        bool isGetter = context.MethodSemantic == MethodSemantics.Getter;
-//        bool isGetter = methodDef.Name.Substring(0, splitterPos + 1) == WellKnown.GetterPrefix;
+        bool isGetter = methodDef.Name.Substring(0, splitterPos + 1) == WellKnown.GetterPrefix;
 
         var fieldDef = typeDef.Fields.GetByName(fieldName);
         if (fieldDef == null)
@@ -121,12 +121,10 @@ namespace Xtensive.Core.Weaver
 
         var module = AspectWeaver.Module;
         var handlerTypeDef = handlerTypeSignature.GetTypeDefinition();
-
-        var methodBody = new MethodBodyDeclaration();
-        methodDef.MethodBody = methodBody;
-        InstructionBlock instructionBlock = methodBody.CreateInstructionBlock();
+        var methodBody = context.InstructionBlock.MethodBody;
+        var instructionBlock = methodBody.CreateInstructionBlock();
         methodBody.RootInstructionBlock = instructionBlock;
-        InstructionSequence sequence = methodBody.CreateInstructionSequence();
+        var sequence = methodBody.CreateInstructionSequence();
         instructionBlock.AddInstructionSequence(sequence, NodePosition.After, null);
         using (var writer = new InstructionWriter()) {
           writer.AttachInstructionSequence(sequence);
@@ -168,14 +166,14 @@ namespace Xtensive.Core.Weaver
           writer.DetachInstructionSequence();
         }
 
-//        try
-//        {
-        var project = Transformation.AspectWeaver.AspectWeaverTask.Project;
-        RemoveTask.GetTask(project).MarkForRemoval(fieldDef);
-//        }
-//        catch {
+        try
+        {
+          var project = Transformation.AspectWeaver.AspectWeaverTask.Project;
+          RemoveTask.GetTask(project).MarkForRemoval(fieldDef);
+        }
+        catch {
           // Field is already marked for removal
-//        }
+        }
       }
 
       public override MethodBodyTransformationOptions GetOptions(MetadataDeclaration originalTargetElement, MethodSemantics semantic)

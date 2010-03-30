@@ -26,10 +26,10 @@ namespace Xtensive.Core.Weaver
     {
 //      AddAspectWeaverFactory<PrivateFieldAccessorsAspect, PrivateFieldAccessors>();
       AddAspectWeaverFactory<AutoPropertyReplacementAspect, AutoPropertyReplacementWeaver>();
-      AddAspectWeaverFactory<ConstructorEpilogueAspect, ConstructorEpilogueWeaver>();
+//      AddAspectWeaverFactory<ConstructorEpilogueAspect, ConstructorEpilogueWeaver>();
 //      AddAspectWeaverFactory<ReprocessMethodBoundaryAspect, AutoPropertyReplacementWeaver>();
       AddAspectWeaverFactory<NotSupportedAttribute, NotSupportedWeaver>();
-      AddAspectWeaverFactory<DeclareConstructorAspect, DeclareProtectedConstructorWeaver>();
+//      AddAspectWeaverFactory<DeclareConstructorAspect, DeclareProtectedConstructorWeaver>();
 //      AddAspectWeaverFactory<ImplementProtectedConstructorBodyAspect, AutoPropertyReplacementWeaver>();
 //      AddAspectWeaverFactory<ImplementProtectedConstructorAccessorAspect, AutoPropertyReplacementWeaver>();
     }

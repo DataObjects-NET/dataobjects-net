@@ -66,34 +66,6 @@ namespace Xtensive.Core.Aspects.Helpers
     }
 
 
-
-    /// <inheritdoc/>
-//    public override PostSharpRequirements GetPostSharpRequirements()
-//    {
-//      PostSharpRequirements requirements = base.GetPostSharpRequirements();
-//      AspectHelper.AddStandardRequirements(requirements);
-//      return requirements;
-//    }
-
-/*    /// <summary>
-    /// Applies this aspect to the specified <paramref name="getterOrSetter"/>.
-    /// </summary>
-    /// <param name="getterOrSetter">The property getter or setter to apply the aspect to.</param>
-    /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
-    /// <param name="handlerMethodSuffix"><see cref="HandlerMethodSuffix"/> property value.</param>
-    /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
-    /// otherwise, <see langword="null" />.</returns>
-    public static AutoPropertyReplacementAspect ApplyOnce(MethodInfo getterOrSetter, Type handlerType, string handlerMethodSuffix)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(getterOrSetter, "getterOrSetter");
-      ArgumentValidator.EnsureArgumentNotNull(handlerType, "handlerType");
-      ArgumentValidator.EnsureArgumentNotNull(handlerMethodSuffix, "handlerMethodSuffix");
-
-      return AppliedAspectSet.Add(getterOrSetter, 
-        () => new AutoPropertyReplacementAspect(handlerType, handlerMethodSuffix));
-    }*/
-
-
     // Constructors
 
     /// <summary>
