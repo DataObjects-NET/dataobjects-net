@@ -24,14 +24,14 @@ namespace Xtensive.Core.Aspects.Tests
         {
           return value;
         }
-        [NotSupportedMethod("Property setter is not supported!.")]
+        [NotSupported("Property setter is not supported!.")]
         set
         {
           this.value = value;
         }
       }
 
-      [NotSupportedMethod("Method is not supported!.")]
+      [NotSupported("Method is not supported!.")]
       public string Method(int i)
       {
         return i.ToString();
@@ -51,11 +51,6 @@ namespace Xtensive.Core.Aspects.Tests
       AssertEx.ThrowsInvalidOperationException(() => testClass.Value = "12");
       Assert.AreEqual("345", testClass.Value);
       AssertEx.ThrowsInvalidOperationException(() => testClass.Method(2));
-    }
-
-    public void ExcTest()
-    {
-      throw new InvalidOperationException("sdfg");
     }
   }
 }

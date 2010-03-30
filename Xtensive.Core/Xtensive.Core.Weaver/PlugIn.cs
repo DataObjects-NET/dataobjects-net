@@ -28,7 +28,7 @@ namespace Xtensive.Core.Weaver
       AddAspectWeaverFactory<AutoPropertyReplacementAspect, AutoPropertyReplacementWeaver>();
       AddAspectWeaverFactory<ConstructorEpilogueAspect, ConstructorEpilogueWeaver>();
 //      AddAspectWeaverFactory<ReprocessMethodBoundaryAspect, AutoPropertyReplacementWeaver>();
-//      AddAspectWeaverFactory<NotSupportedMethodAspect, AutoPropertyReplacementWeaver>();
+      AddAspectWeaverFactory<NotSupportedAttribute, NotSupportedWeaver>();
       AddAspectWeaverFactory<DeclareConstructorAspect, DeclareProtectedConstructorWeaver>();
 //      AddAspectWeaverFactory<ImplementProtectedConstructorBodyAspect, AutoPropertyReplacementWeaver>();
 //      AddAspectWeaverFactory<ImplementProtectedConstructorAccessorAspect, AutoPropertyReplacementWeaver>();

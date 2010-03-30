@@ -14,29 +14,10 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Default | MulticastTargets.InstanceConstructor | MulticastTargets.Method | MulticastTargets.StaticConstructor)]
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public class NotSupportedMethod : ImplementMethodAspect
+  [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
+  public class NotSupportedAttribute : MethodLevelAspect
   {
     public string Text { get; private set; }
-
-    public override void OnExecution(MethodExecutionArgs eventArgs)
-    {
-      throw new NotSupportedException(Text);
-    }
-
-//    int ILaosWeavableAspect.AspectPriority
-//    {
-//      get
-//      {
-//        return int.MinValue;
-//      }
-//    }
-
-//    public override PostSharpRequirements GetPostSharpRequirements()
-//    {
-//      PostSharpRequirements requirements = base.GetPostSharpRequirements();
-//      AspectHelper.AddStandardRequirements(requirements);
-//      return requirements;
-//    }
 
 
     // Constructors
@@ -44,13 +25,13 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public NotSupportedMethod()
+    public NotSupportedAttribute()
     {}
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public NotSupportedMethod(string text)
+    public NotSupportedAttribute(string text)
     {
       Text = text;
     }
