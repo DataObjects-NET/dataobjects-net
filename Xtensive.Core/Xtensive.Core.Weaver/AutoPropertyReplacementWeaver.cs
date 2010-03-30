@@ -105,7 +105,7 @@ namespace Xtensive.Core.Weaver
       {
         var methodDef = (MethodDefDeclaration)context.TargetElement;
         var typeDef = methodDef.DeclaringType;
-
+         
         int splitterPos = methodDef.Name.IndexOf('_');
         if (splitterPos <= 0)
           return;

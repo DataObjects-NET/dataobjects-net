@@ -12,15 +12,16 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Aspects.Helpers
 {
   [MulticastAttributeUsage(MulticastTargets.Default | MulticastTargets.InstanceConstructor | MulticastTargets.Method | MulticastTargets.StaticConstructor)]
-  [AttributeUsage(
-    AttributeTargets.Property | 
-    AttributeTargets.Method | 
-    AttributeTargets.Constructor, 
-    AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public class NotSupportedMethodAspect : MethodLevelAspect
+  public class NotSupportedMethod : ImplementMethodAspect
   {
     public string Text { get; private set; }
+
+    public override void OnExecution(MethodExecutionArgs eventArgs)
+    {
+      throw new NotSupportedException(Text);
+    }
 
 //    int ILaosWeavableAspect.AspectPriority
 //    {
@@ -43,13 +44,13 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public NotSupportedMethodAspect()
+    public NotSupportedMethod()
     {}
 
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public NotSupportedMethodAspect(string text)
+    public NotSupportedMethod(string text)
     {
       Text = text;
     }

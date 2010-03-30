@@ -15,9 +15,9 @@ namespace Xtensive.Core.Weaver
   /// <summary>
   /// Creates the weavers defined by the 'Xtensive.Core.Weaver' plug-in.
   /// </summary>
-  public class WeaverFactory : PlugIn
+  public class PlugIn : PostSharp.AspectWeaver.PlugIn
   {
-    public WeaverFactory()
+    public PlugIn()
       : base(Priorities.User)
     {
     }

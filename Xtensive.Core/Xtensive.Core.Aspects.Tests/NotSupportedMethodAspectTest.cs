@@ -24,14 +24,14 @@ namespace Xtensive.Core.Aspects.Tests
         {
           return value;
         }
-        [NotSupportedMethodAspect("Property setter is not supported!.")]
+        [NotSupportedMethod("Property setter is not supported!.")]
         set
         {
           this.value = value;
         }
       }
 
-      [NotSupportedMethodAspect("Method is not supported!.")]
+      [NotSupportedMethod("Method is not supported!.")]
       public string Method(int i)
       {
         return i.ToString();
