@@ -13,7 +13,7 @@ using Xtensive.Core.Testing;
 namespace Xtensive.Core.Aspects.Tests
 {
   [TestFixture]
-  public class ImplementConstructorEpilogueAspectTest
+  public class ConstructorEpilogueAspectTest
   {
     public class HandlerTargetBase
     {

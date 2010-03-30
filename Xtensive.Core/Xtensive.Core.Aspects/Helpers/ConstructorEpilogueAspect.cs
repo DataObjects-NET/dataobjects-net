@@ -88,51 +88,6 @@ namespace Xtensive.Core.Aspects.Helpers
 
       return true;
     }
-//
-    /// <inheritdoc/>
-//    public override PostSharpRequirements GetPostSharpRequirements()
-//    {
-//      PostSharpRequirements requirements = base.GetPostSharpRequirements();
-//      AspectHelper.AddStandardRequirements(requirements);
-//      return requirements;
-//    }
-
-   /* /// <summary>
-    /// Applies this aspect to the specified <paramref name="ctor"/>.
-    /// </summary>
-    /// <param name="ctor">The constructor to apply the aspect to.</param>
-    /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
-    /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
-    /// <returns>If it was the first application with the specified set of arguments, the newly created aspect;
-    /// otherwise, <see langword="null" />.</returns>
-    public static ConstructorEpilogueAspect ApplyOnce(ConstructorInfo ctor, Type handlerType, string handlerMethodName)
-    {
-      return ApplyOnce(ctor, handlerType, handlerMethodName, null);
-    }*/
-
-    /*/// <summary>
-    /// Applies this aspect to the specified <paramref name="ctor"/>.
-    /// </summary>
-    /// <param name="ctor">The constructor to apply the aspect to.</param>
-    /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
-    /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
-    /// <param name="errorHandlerMethodName"><see cref="ErrorHandlerMethodName"/> property value.</param>
-    /// <returns>
-    /// If it was the first application with the specified set of arguments, the newly created aspect;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    public static ConstructorEpilogueAspect ApplyOnce(ConstructorInfo ctor, Type handlerType, string handlerMethodName, string errorHandlerMethodName)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(ctor, "ctor");
-      ArgumentValidator.EnsureArgumentNotNull(handlerType, "handlerType");
-      ArgumentValidator.EnsureArgumentNotNull(handlerMethodName, "handlerMethodName");
-
-      string methodsKey = errorHandlerMethodName.IsNullOrEmpty()
-        ? handlerMethodName
-        : "{0}, {1}".FormatWith(handlerMethodName, errorHandlerMethodName);
-      return AppliedAspectSet.Add(new Triplet<ConstructorInfo, Type, string>(ctor, handlerType, methodsKey), 
-        () => new ConstructorEpilogueAspect(handlerType, handlerMethodName, errorHandlerMethodName));
-    }*/
 
 
     // Constructors

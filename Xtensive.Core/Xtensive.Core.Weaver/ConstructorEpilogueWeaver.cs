@@ -43,7 +43,7 @@ namespace Xtensive.Core.Weaver
     // Constructors
 
     public ConstructorEpilogueWeaver()
-      : base(null, MulticastTargets.Class)
+      : base(null, MulticastTargets.InstanceConstructor)
     { }
 
 
