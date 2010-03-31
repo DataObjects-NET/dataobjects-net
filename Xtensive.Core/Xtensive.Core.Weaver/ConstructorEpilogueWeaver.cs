@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using PostSharp.AspectInfrastructure;
+using PostSharp.AspectInfrastructure.Helpers;
 using PostSharp.Aspects;
 using PostSharp.AspectWeaver;
 using PostSharp.AspectWeaver.AspectWeavers;
@@ -30,7 +31,7 @@ namespace Xtensive.Core.Weaver
     {
       base.Initialize();
 
-      transformation = new ConstructorEpilogueTransformation(this, "Applying constructor epilogue.");
+      transformation = new ConstructorEpilogueTransformation(this);
       ApplyEffectWaivers(transformation);
     }
 
@@ -68,11 +69,9 @@ namespace Xtensive.Core.Weaver
 
   internal class ConstructorEpilogueTransformation : MethodBodyTransformation
   {
-    private readonly string displayName;
-
     public override string GetDisplayName(MethodSemantics semantic)
     {
-      return displayName;
+      return "Applying constructor epilogue.";
     }
 
     public AspectWeaverTransformationInstance CreateInstance(AspectWeaverInstance aspectWeaverInstance)
@@ -89,10 +88,9 @@ namespace Xtensive.Core.Weaver
 
     // Constructors
 
-    public ConstructorEpilogueTransformation(AspectWeaver aspectWeaver, string displayName)
-      : base(aspectWeaver, displayName)
+    public ConstructorEpilogueTransformation(AspectWeaver aspectWeaver)
+      : base(aspectWeaver, null)
     {
-      this.displayName = displayName;
     }
 
     // Nested class
@@ -103,19 +101,15 @@ namespace Xtensive.Core.Weaver
       private readonly ITypeSignature handlerTypeSignature;
       private readonly string handlerMethodName;
       private readonly string errorHandlerMethodName;
-      private IMethod getTypeFromHandleMethod;
-      private IMethod errorHandlerMethod;
-      private IMethod handlerMethod;
-      private MethodDefDeclaration targetMethodDef;
-      private JoinPointKinds joinPointKinds;
-
+      
       public override void Implement(MethodBodyTransformationContext context)
       {
+        new Wrapper(this, context).Implement();
       }
 
       public override MethodBodyTransformationOptions GetOptions(MetadataDeclaration originalTargetElement, MethodSemantics semantic)
       {
-        return MethodBodyTransformationOptions.CreateMethodBody;
+        return MethodBodyTransformationOptions.None;
       }
 
 
@@ -127,182 +121,119 @@ namespace Xtensive.Core.Weaver
         this.handlerTypeSignature = handlerTypeSignature;
         this.handlerMethodName = handlerMethodName;
         this.errorHandlerMethodName = errorHandlerMethodName;
-        joinPointKinds = JoinPointKinds.AfterMethodBodySuccess;
-        if (!errorHandlerMethodName.IsNullOrEmpty())
-          joinPointKinds |= JoinPointKinds.AfterMethodBodyException;
+      }
+
+      private class Wrapper : MethodBodyWrappingImplementation
+      {
+        private readonly Instance parent;
+        private readonly MethodBodyTransformationContext context;
+        private IMethod getTypeFromHandleMethod;
+        private IMethod errorHandlerMethod;
+        private IMethod handlerMethod;
+        private MethodDefDeclaration targetMethodDef;
+
+        public void Implement()
+        {
+          Initialize();
+          var module = parent.AspectWeaver.Module;
+          var hasOnError = !parent.errorHandlerMethodName.IsNullOrEmpty();
+          var exceptionType = hasOnError 
+            ? module.Cache.GetType(typeof (Exception)) 
+            : null;
+          Implement(false, true, false, hasOnError ? new [] {exceptionType} : null);
+          Context.AddRedirection(Redirection);
+        }
+
+        private void Initialize()
+        {
+          targetMethodDef = (MethodDefDeclaration) context.TargetElement;
+
+          var baseTypeRef = parent.handlerTypeSignature.GetTypeDefinition();
+          if (baseTypeRef == null)
+            return;
+
+          var module = parent.AspectWeaver.Module;
+
+          getTypeFromHandleMethod = module.FindMethod(
+            typeof (Type).GetMethod(GetTypeFromHandleMethodName,
+                                    new[] {typeof (RuntimeTypeHandle)}), BindingOptions.Default);
+
+          var handlerSignature = new MethodSignature(
+            module, 
+            CallingConvention.HasThis, 
+            module.Cache.GetIntrinsic(IntrinsicType.Void),
+            new[] {getTypeFromHandleMethod.ReturnType}, 0);
+          handlerMethod = (IMethod) baseTypeRef.Methods.GetMethod(
+            parent.handlerMethodName,
+            handlerSignature.Translate(module),
+            BindingOptions.Default).Translate(module);
+
+          if (parent.errorHandlerMethodName.IsNullOrEmpty()) return;
+          var errorHandlerSignature = new MethodSignature(
+            module, 
+            CallingConvention.HasThis, 
+            module.Cache.GetIntrinsic(IntrinsicType.Void),
+            new[] { getTypeFromHandleMethod.ReturnType, module.FindType(typeof (Exception), BindingOptions.Default)}, 0);
+          errorHandlerMethod = (IMethod) baseTypeRef.Methods.GetMethod(
+            parent.errorHandlerMethodName,
+            errorHandlerSignature.Translate(module),
+            BindingOptions.Default).Translate(module);
+        }
+
+        protected override void WeaveOnException(InstructionBlock block, ITypeSignature exceptionType, InstructionWriter writer)
+        {
+          var module = parent.AspectWeaver.Module;
+          var methodBody = block.MethodBody;
+          var exceptionLocal = methodBody.RootInstructionBlock.DefineLocalVariable(module.Cache.GetType(typeof(Exception)), "~exception~{0}");
+          var sequence = methodBody.CreateInstructionSequence();
+          block.AddInstructionSequence( sequence, NodePosition.Before, null );
+          
+          writer.AttachInstructionSequence( sequence );
+          writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
+          writer.EmitInstructionLocalVariable(OpCodeNumber.Stloc, exceptionLocal);
+          writer.EmitInstruction(OpCodeNumber.Ldarg_0); // Push "this"
+          writer.EmitInstructionType(OpCodeNumber.Ldtoken, targetMethodDef.DeclaringType.Translate(module));
+          writer.EmitInstructionMethod(OpCodeNumber.Call, getTypeFromHandleMethod); // Push "typeof(...)"
+          writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, exceptionLocal); // Push "exception"
+          writer.EmitInstructionMethod(OpCodeNumber.Callvirt, errorHandlerMethod);
+          writer.EmitInstruction(OpCodeNumber.Rethrow);
+          writer.DetachInstructionSequence();
+        }
+
+        protected override void WeaveOnExit(InstructionBlock block, InstructionWriter writer)
+        {
+        }
+
+        protected override void WeaveOnSuccess(InstructionBlock block, InstructionWriter writer)
+        {
+          var module = parent.AspectWeaver.Module;
+          var methodBody = block.MethodBody;
+          var sequence = methodBody.CreateInstructionSequence();
+          block.AddInstructionSequence( sequence, NodePosition.Before, null );
+    
+          writer.AttachInstructionSequence( sequence );
+          writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
+          writer.EmitInstruction(OpCodeNumber.Ldarg_0); // Push "this"
+          writer.EmitInstructionType(OpCodeNumber.Ldtoken, targetMethodDef.DeclaringType.Translate(module));
+          writer.EmitInstructionMethod(OpCodeNumber.Call, getTypeFromHandleMethod); // Push "typeof(...)"
+          writer.EmitInstructionMethod(OpCodeNumber.Callvirt, handlerMethod);
+          writer.DetachInstructionSequence();
+        }
+
+        protected override void WeaveOnEntry(InstructionBlock block, InstructionWriter writer)
+        {
+        }
+
+
+        // Constructors
+
+        public Wrapper(Instance parent, MethodBodyTransformationContext context)
+          : base(parent.Transformation.AspectInfrastructureTask, context)
+        {
+          this.parent = parent;
+          this.context = context;
+        }
       }
     }
   }
-
-//  internal class ConstructorEpilogueWeaver : MethodLevelAspectWeaver,
-//    IMethodLevelAdvice
-//  {
-//    private const string GetTypeFromHandleMethodName = "GetTypeFromHandle";
-//
-//    private readonly ITypeSignature handlerTypeSignature;
-//    private readonly string handlerMethodName;
-//    private readonly string errorHandlerMethodName;
-//    private IMethod getTypeFromHandleMethod;
-//    private IMethod errorHandlerMethod;
-//    private IMethod handlerMethod;
-//    private MethodDefDeclaration targetMethodDef;
-//    private JoinPointKinds joinPointKinds;
-//
-//    #region IMethodLevelAdvice Members
-//
-//    public int Priority
-//    {
-//      get { return ((ILaosWeavableAspect) Aspect).AspectPriority; }
-//    }
-//
-//    public MethodDefDeclaration Method
-//    {
-//      get { return targetMethodDef; }
-//    }
-//
-//    public MetadataDeclaration Operand
-//    {
-//      get { return null; }
-//    }
-//
-//    public JoinPointKinds JoinPointKinds {
-//      get { return joinPointKinds; }
-//    }
-//
-//    public bool RequiresWeave(WeavingContext context)
-//    {
-//      return true;
-//    }
-//
-//    public void Weave(WeavingContext context, InstructionBlock block)
-//    {
-//      var joinPointKind = context.JoinPoint.JoinPointKind;
-//      switch (joinPointKind) {
-//      case JoinPointKinds.AfterMethodBodySuccess:
-//        WeaveOnSuccess(context, block);
-//        break;
-//      case JoinPointKinds.AfterMethodBodyException:
-//        WeaveOnError(context, block);
-//        break;
-//      default:
-//        throw new InvalidOperationException(string.Format(
-//          Strings.ExUnexpectedJoinPointKindX, joinPointKind));
-//      }
-//    }
-//
-//    #endregion
-//
-//    protected override void OnTargetAssigned(bool reassigned)
-//    {
-//      targetMethodDef = (MethodDefDeclaration) TargetMethod;
-//
-//      var baseTypeRef = handlerTypeSignature.GetTypeDefinition();
-//      if (baseTypeRef == null)
-//        return;
-//
-//      var module = Task.Project.Module;
-//
-//      getTypeFromHandleMethod = module.FindMethod(
-//        typeof (Type).GetMethod(GetTypeFromHandleMethodName, 
-//          new [] {typeof(RuntimeTypeHandle)}), BindingOptions.Default);
-//
-//      var handlerSignature =
-//        new MethodSignature(CallingConvention.HasThis, module.Cache.GetIntrinsic(IntrinsicType.Void),
-//          new[] {getTypeFromHandleMethod.ReturnType}, 0);
-//      handlerMethod = (IMethod) baseTypeRef.Methods.GetMethod(
-//        handlerMethodName,
-//        handlerSignature.Translate(module),
-//        BindingOptions.Default).Translate(module);
-//
-//      if (!errorHandlerMethodName.IsNullOrEmpty()) {
-//        var errorHandlerSignature =
-//          new MethodSignature(CallingConvention.HasThis, module.Cache.GetIntrinsic(IntrinsicType.Void),
-//            new[] {
-//              getTypeFromHandleMethod.ReturnType, 
-//              module.FindType(typeof (Exception), BindingOptions.Default)
-//            }, 0);
-//        errorHandlerMethod = (IMethod) baseTypeRef.Methods.GetMethod(
-//          errorHandlerMethodName,
-//          errorHandlerSignature.Translate(module),
-//          BindingOptions.Default).Translate(module);
-//      }
-//    }
-//
-//    public override void ValidateInteractions(LaosAspectWeaver[] aspectsOnSameTarget)
-//    {
-//      // Uncomment this method to dump method-level aspect sequence
-//
-//      if (processedMethods.Contains(targetMethodDef))
-//        return;
-//      processedMethods.Add(targetMethodDef);
-//
-//      string target = string.Format("{0}.{1}", targetMethodDef.DeclaringType.Name, targetMethodDef.Name);
-//      var sequence = new StringBuilder();
-//      foreach (var a in aspectsOnSameTarget.Select(w => w.Aspect as ILaosMethodLevelAspect))
-//        sequence.AppendFormat("{0} ({1})\n", a.GetType().Name, a.AspectPriority);
-//      ErrorLog.Write(SeverityType.Warning,
-//        "Sequence for {0} ({1}):\n{2}", target, joinPointKinds, sequence);
-//    }
-//
-//    public override void Implement()
-//    {
-//      base.Implement();
-//      if (targetMethodDef.MayHaveBody) {
-//        targetMethodDef.MethodBody.InitLocalVariables = true;
-//        Task.MethodLevelAdvices.Add(this);
-//      }
-//    }
-//
-//    private void WeaveOnSuccess(WeavingContext context, InstructionBlock block)
-//    {
-//      var module = Task.Project.Module;
-//      var writer = context.InstructionWriter;
-//      var methodBody = block.MethodBody;
-//      var sequence = methodBody.CreateInstructionSequence();
-//      block.AddInstructionSequence( sequence, NodePosition.Before, null );
-//
-//      writer.AttachInstructionSequence( sequence );
-//      writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
-//      writer.EmitInstruction(OpCodeNumber.Ldarg_0); // Push "this"
-//      writer.EmitInstructionType(OpCodeNumber.Ldtoken, targetMethodDef.DeclaringType.Translate(module));
-//      writer.EmitInstructionMethod(OpCodeNumber.Call, getTypeFromHandleMethod); // Push "typeof(...)"
-//      writer.EmitInstructionMethod(OpCodeNumber.Callvirt, handlerMethod);
-//      writer.DetachInstructionSequence();
-//    }
-//
-//    private void WeaveOnError(WeavingContext context, InstructionBlock block)
-//    {
-//      var writer = context.InstructionWriter;
-//      var module = block.Module;
-//      var methodBody = block.MethodBody;
-//      var exceptionLocal = methodBody.RootInstructionBlock.DefineLocalVariable(module.Cache.GetType(typeof(Exception)), "~exception~{0}");
-//      var sequence = methodBody.CreateInstructionSequence();
-//      block.AddInstructionSequence( sequence, NodePosition.Before, null );
-//      
-//      writer.AttachInstructionSequence( sequence );
-//      writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
-//      writer.EmitInstructionLocalVariable(OpCodeNumber.Stloc, exceptionLocal);
-//      writer.EmitInstruction(OpCodeNumber.Ldarg_0); // Push "this"
-//      writer.EmitInstructionType(OpCodeNumber.Ldtoken, targetMethodDef.DeclaringType.Translate(module));
-//      writer.EmitInstructionMethod(OpCodeNumber.Call, getTypeFromHandleMethod); // Push "typeof(...)"
-//      writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, exceptionLocal); // Push "exception"
-//      writer.EmitInstructionMethod(OpCodeNumber.Callvirt, errorHandlerMethod);
-//      writer.EmitInstruction(OpCodeNumber.Rethrow);
-//      writer.DetachInstructionSequence();
-//    }
-//
-//
-    // Constructors
-//
-//    internal ConstructorEpilogueWeaver(ITypeSignature handlerTypeSignature, string handlerMethodName, string errorHandlerMethodName)
-//    {
-//      this.handlerTypeSignature = handlerTypeSignature;
-//      this.handlerMethodName = handlerMethodName;
-//      this.errorHandlerMethodName = errorHandlerMethodName;
-//
-//      joinPointKinds = JoinPointKinds.AfterMethodBodySuccess;
-//      if (!errorHandlerMethodName.IsNullOrEmpty())
-//        joinPointKinds |= JoinPointKinds.AfterMethodBodyException;
-//    }
-//  }
 }
