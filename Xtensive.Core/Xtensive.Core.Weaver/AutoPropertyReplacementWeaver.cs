@@ -29,6 +29,9 @@ namespace Xtensive.Core.Weaver
 
       transformation = new AutoPropertyReplacementTransformation(this, "AutoProperty replacement.");
       ApplyEffectWaivers(transformation);
+      RequiresRuntimeInstance = false;
+      RequiresRuntimeInstanceInitialization = false;
+      RequiresRuntimeReflectionObject = false;
     }
 
     protected override AspectWeaverInstance CreateAspectWeaverInstance(AspectInstanceInfo aspectInstanceInfo)

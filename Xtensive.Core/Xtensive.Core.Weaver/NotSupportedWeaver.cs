@@ -31,6 +31,9 @@ namespace Xtensive.Core.Weaver
       base.Initialize();
       transformation = new NotSupportedTransformation(this);
       ApplyEffectWaivers(transformation);
+      RequiresRuntimeInstance = false;
+      RequiresRuntimeInstanceInitialization = false;
+      RequiresRuntimeReflectionObject = false;
     }
 
     public NotSupportedWeaver()

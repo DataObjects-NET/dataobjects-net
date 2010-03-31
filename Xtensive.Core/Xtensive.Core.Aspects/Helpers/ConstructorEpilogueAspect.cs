@@ -20,6 +20,7 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.InstanceConstructor)]
   [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
+  [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
   public sealed class ConstructorEpilogueAspect : MethodLevelAspect
   {
     /// <summary>

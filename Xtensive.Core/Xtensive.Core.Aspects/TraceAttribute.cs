@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using PostSharp.Aspects;
+using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
@@ -18,8 +19,9 @@ using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects
 {
-  // [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method | MulticastTargets.Constructor)]
+  [MulticastAttributeUsage(MulticastTargets.Method | MulticastTargets.InstanceConstructor | MulticastTargets.StaticConstructor)]
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
+  [ProvideAspectRole(StandardRoles.Tracing)]
   [Serializable]
   public sealed class TraceAttribute : OnMethodBoundaryAspect
   {

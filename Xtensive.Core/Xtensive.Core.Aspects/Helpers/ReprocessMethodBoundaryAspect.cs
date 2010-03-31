@@ -21,31 +21,14 @@ namespace Xtensive.Core.Aspects.Helpers
   /// line to log) or transactions (automatically start a transaction at entry and commit or rollback
   /// at exit).
   /// </remarks>
-  [MulticastAttributeUsage(
-    MulticastTargets.InstanceConstructor | MulticastTargets.Method, 
+  [MulticastAttributeUsage(MulticastTargets.InstanceConstructor | MulticastTargets.Method, 
     AllowMultiple = true,
-    TargetMemberAttributes = 
-      MulticastAttributes.Managed | 
-      MulticastAttributes.NonAbstract | 
-      MulticastAttributes.AnyScope | 
-      MulticastAttributes.AnyVisibility)] 
-  [AttributeUsage(
-    AttributeTargets.Event | 
-    AttributeTargets.Property | 
-    AttributeTargets.Method | 
-    AttributeTargets.Constructor, 
-    AllowMultiple = true, Inherited = false)]
+    TargetMemberAttributes = MulticastAttributes.Managed | MulticastAttributes.NonAbstract | MulticastAttributes.AnyScope | MulticastAttributes.AnyVisibility)] 
+  [AttributeUsage(AttributeTargets.Event | AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = true, Inherited = false)]
   [Serializable]
+  [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
   public abstract class ReprocessMethodBoundaryAspect : MethodLevelAspect
   {
-    /*/// <inheritdoc/>
-    public override PostSharpRequirements GetPostSharpRequirements()
-    {
-      PostSharpRequirements requirements = base.GetPostSharpRequirements();
-      AspectHelper.AddStandardRequirements(requirements);
-      return requirements;
-    }*/
-
     /// <summary>
     /// Method executed <b>before</b> the body of methods to which this aspect is applied.
     /// </summary>

@@ -33,6 +33,9 @@ namespace Xtensive.Core.Weaver
 
       transformation = new ConstructorEpilogueTransformation(this);
       ApplyEffectWaivers(transformation);
+      RequiresRuntimeInstance = false;
+      RequiresRuntimeInstanceInitialization = false;
+      RequiresRuntimeReflectionObject = false;
     }
 
     protected override AspectWeaverInstance CreateAspectWeaverInstance(AspectInstanceInfo aspectInstanceInfo)

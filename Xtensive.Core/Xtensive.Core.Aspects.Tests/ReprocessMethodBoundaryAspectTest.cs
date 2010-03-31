@@ -7,6 +7,8 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using PostSharp.Aspects;
+using PostSharp.Aspects.Internals;
 using PostSharp.Reflection;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
@@ -14,36 +16,63 @@ using Xtensive.Core.Reflection;
 namespace Xtensive.Core.Aspects.Tests
 {
   [TestFixture]
-  public class ImplementFastMethodBoundaryAspectTest
+  public class ReprocessMethodBoundaryAspectTest
   {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = true, Inherited = false)]
     [Serializable]
-    internal class LogMethodFastAspect : ReprocessMethodBoundaryAspect
+    internal class LogMethodFastAspect : OnMethodBoundaryAspect
     {
       public MethodBase Method { get; private set; }
 
-      public override object OnEntry(object instance)
+      [MethodExecutionHandlerOptimization(MethodExecutionHandlerOptimizations.IgnoreAllEventArgsMembers)]
+      public override void OnEntry(MethodExecutionArgs args)
       {
         Log.Info("OnEntry called on {0}.", Method.GetShortName(true));
-        return "OnEntry";
+        args.MethodExecutionTag = "OnEntry";
       }
 
-      public override void OnExit(object instance, object onEntryResult)
+      [MethodExecutionHandlerOptimization(MethodExecutionHandlerOptimizations.IgnoreAllEventArgsMembers)]
+      public override void OnExit(MethodExecutionArgs args)
       {
         Log.Info("OnExit called.");
-        Log.Info(string.Format("OnEntry result: {0}", onEntryResult));
+        Log.Info(string.Format("OnEntry result: {0}", args.MethodExecutionTag));
       }
 
-      public override void OnSuccess(object instance, object onEntryResult)
+      [MethodExecutionHandlerOptimization(MethodExecutionHandlerOptimizations.IgnoreAllEventArgsMembers)]
+      public override void OnSuccess(MethodExecutionArgs args)
       {
         Log.Info("OnSuccess called.");
       }
 
-      public override ErrorFlowBehavior OnError(object instance, Exception e)
+      [MethodExecutionHandlerOptimization(MethodExecutionHandlerOptimizations.IgnoreAllEventArgsMembers & ~MethodExecutionHandlerOptimizations.IgnoreSetFlowBehavior)]
+      public override void OnException(MethodExecutionArgs args)
       {
-        Log.Error(e);
-        return ErrorFlowBehavior.Reprocess;
+        Log.Error(args.Exception);
+        args.FlowBehavior = FlowBehavior.Continue;
       }
+
+//      public override object OnEntry(object instance)
+//      {
+//        Log.Info("OnEntry called on {0}.", Method.GetShortName(true));
+//        return "OnEntry";
+//      }
+//
+//      public override void OnExit(object instance, object onEntryResult)
+//      {
+//        Log.Info("OnExit called.");
+//        Log.Info(string.Format("OnEntry result: {0}", onEntryResult));
+//      }
+//
+//      public override void OnSuccess(object instance, object onEntryResult)
+//      {
+//        Log.Info("OnSuccess called.");
+//      }
+//
+//      public override ErrorFlowBehavior OnError(object instance, Exception e)
+//      {
+//        Log.Error(e);
+//        return ErrorFlowBehavior.Reprocess;
+//      }
 
       public override void RuntimeInitialize(MethodBase method)
       {
