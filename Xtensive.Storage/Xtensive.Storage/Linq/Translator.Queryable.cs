@@ -603,7 +603,8 @@ namespace Xtensive.Storage.Linq
           var groupingDataSource = groupingProjection.ItemProjector.DataSource;
           var groupingProvider = groupingDataSource.Provider as AggregateProvider;
           var oldApplyParameter = context.GetApplyParameter(groupingProjection.ItemProjector.DataSource);
-          if (groupingProjection.ItemProjector.Item.IsGroupingExpression() && groupingProvider!=null) {
+          var supportedAggregate = !(aggregateType == AggregateType.Count && argument != null);
+          if (groupingProjection.ItemProjector.Item.IsGroupingExpression() && groupingProvider != null && supportedAggregate) {
             var newRecordSet = new AggregateProvider(groupingProvider.Source, groupingProvider.GroupColumnIndexes, groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray()).Result;
             var newItemProjector = groupingProjection.ItemProjector.Remap(newRecordSet, 0);
             groupingProjection = new ProjectionExpression(
