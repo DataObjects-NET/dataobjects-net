@@ -27,6 +27,8 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
 
   public interface IAnimal : IEntity
   {
+    int Id { get; }
+
     [Field]
     string PetName { get; set; }
 
@@ -129,6 +131,7 @@ namespace Xtensive.Storage.Tests.Interfaces
 
           var animals = Query.All<IAnimal>();
           Assert.AreEqual(5, animals.Count());
+          animals.Select(a => a.Id).Where(i => i == 3).ToList();
 
           t.Complete();
         }
