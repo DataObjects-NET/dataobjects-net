@@ -17,7 +17,7 @@ using System.Linq;
 
 namespace Xtensive.Core.Aspects
 {
-  [MulticastAttributeUsage(MulticastTargets.Class)]
+  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface)]
   [Serializable]
   public sealed class InitializableAttribute : Aspect
   {

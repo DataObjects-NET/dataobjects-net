@@ -9,13 +9,13 @@ using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Aspects.Helpers
+namespace Xtensive.Core.Aspects
 {
   [MulticastAttributeUsage(MulticastTargets.Default | MulticastTargets.InstanceConstructor | MulticastTargets.Method | MulticastTargets.StaticConstructor)]
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
-  public class NotSupportedAttribute : MethodLevelAspect
+  public sealed class NotSupportedAttribute : MethodLevelAspect
   {
     public string Text { get; private set; }
 
