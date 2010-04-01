@@ -19,7 +19,8 @@ namespace Xtensive.Storage.Tests.Linq
     public enum BudgetType
     {
       Default,
-      Regional
+      Regional,
+      State
     }
 
     [HierarchyRoot]
@@ -34,6 +35,7 @@ namespace Xtensive.Storage.Tests.Linq
 
       [Field]
       public int? Tag { get; set; }
+
       [Field]
       public BudgetType? BudgetType { get; set; }
     }
@@ -69,7 +71,6 @@ namespace Xtensive.Storage.Tests.Linq
         var result = query.ToList();
         var firstPerson = query.SingleOrDefault();
         Assert.IsTrue(firstPerson.Name == "Alex");
-        t.Complete();
       }
     }
 
@@ -85,7 +86,6 @@ namespace Xtensive.Storage.Tests.Linq
           .Select(p => new PersonDto() { Id = p.Id, Name = p.Name, Tag = p.Tag, BudgetType = p.BudgetType})
           .Where(x => x.Tag == 5 && x.BudgetType == BudgetType.Regional).OrderBy(dto => dto.Id).Count();
         Assert.AreEqual(1, count);
-        t.Complete();
       }
     }
 
@@ -108,8 +108,42 @@ namespace Xtensive.Storage.Tests.Linq
           propertyExpression.Parameters);
         var persons = Query.All<Person>().Where(filterExpression).ToList();
         var customPersons = Query.All<Person>().Where(customFilterExpression).ToList();
+        var func = customFilterExpression.Compile();
+        func(new Person() {BudgetType = BudgetType.Regional});
+      }
+    }
 
-        t.Complete();
+    [Test]
+    public void GroupByTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        new Person() {Name = "A", BudgetType = BudgetType.Default};
+        new Person() {Name = "B", BudgetType = BudgetType.Default};
+        new Person() {Name = "C", BudgetType = BudgetType.Regional};
+        new Person() {Name = "D", BudgetType = BudgetType.State};
+        new Person() {Name = "E"};
+        new Person() {Name = "F"};
+
+        var types = Query.All<Person>()
+          .Select(p => p.BudgetType)
+          .Distinct()
+          .ToList();
+        Assert.AreEqual(4, types.Count);
+
+        var groups = Query.All<Person>()
+          .GroupBy(p => p.BudgetType)
+          .Select(g => new {g.Key, Count = g.Count()})
+          .ToList();
+        Assert.AreEqual(4, groups.Count);
+
+        var arrays = Query.All<Person>()
+          .Select(p => new PersonDto(){Id = p.Id, Name = p.Name, BudgetType = p.BudgetType})
+          .GroupBy(c => c.BudgetType)
+          .OrderBy(g => g.Key)
+          .Select(g => new[] {(object) g.Key, (object) g.Count()})
+          .ToList();
+        Assert.AreEqual(4, arrays.Count);
       }
     }
   }
