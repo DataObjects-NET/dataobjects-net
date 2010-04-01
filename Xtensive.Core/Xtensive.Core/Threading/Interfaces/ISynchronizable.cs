@@ -9,11 +9,11 @@ namespace Xtensive.Core.Threading
   /// <summary>
   /// Describes an object that supports synchronized access to it.
   /// </summary>
-  public interface ISynchronizable: IHasSyncRoot
+  public interface ISynchronizable : IHasSyncRoot
   {
     /// <summary>
     /// Indicates whether object supports synchronized access to it, or not.
     /// </summary>
-    bool IsSynchronized { get;}
+    bool IsSynchronized { get; }
   }
 }
