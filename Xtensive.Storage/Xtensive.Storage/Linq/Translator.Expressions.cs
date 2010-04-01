@@ -101,7 +101,9 @@ namespace Xtensive.Storage.Linq
         }
         break;
       }
-      return base.VisitUnary(u);
+      return u.Type == typeof(IQueryable) 
+        ? Visit(u.Operand) 
+        : base.VisitUnary(u);
     }
 
     protected override Expression VisitLambda(LambdaExpression le)
