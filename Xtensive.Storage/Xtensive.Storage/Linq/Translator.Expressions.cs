@@ -140,9 +140,13 @@ namespace Xtensive.Storage.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
-      Expression left = Visit(binaryExpression.Left);
-      Expression right = Visit(binaryExpression.Right);
-      BinaryExpression resultBinaryExpression = Expression.MakeBinary(binaryExpression.NodeType,
+      var left = Visit(binaryExpression.Left);
+      var right = Visit(binaryExpression.Right);
+      if (left.Type.StripNullable().IsEnum)
+        left = ConvertEnum(left);
+      if (right.Type.StripNullable().IsEnum)
+        right = ConvertEnum(right);
+      var resultBinaryExpression = Expression.MakeBinary(binaryExpression.NodeType,
         left,
         right,
         binaryExpression.IsLiftedToNull,
@@ -162,6 +166,17 @@ namespace Xtensive.Storage.Linq
       }
 
       return resultBinaryExpression;
+    }
+
+    private Expression ConvertEnum(Expression left)
+    {
+      var underlyingType = Enum.GetUnderlyingType(left.Type.StripNullable());
+      if (left.Type.IsNullable())
+        underlyingType = underlyingType.ToNullable();
+      left = left.NodeType == ExpressionType.Convert
+               ? Expression.Convert(((UnaryExpression)left).Operand, underlyingType)
+               : Expression.Convert(left, underlyingType);
+      return left;
     }
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>

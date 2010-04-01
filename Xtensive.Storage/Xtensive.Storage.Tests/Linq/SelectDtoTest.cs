@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Linq.Dto;
@@ -84,6 +85,30 @@ namespace Xtensive.Storage.Tests.Linq
           .Select(p => new PersonDto() { Id = p.Id, Name = p.Name, Tag = p.Tag, BudgetType = p.BudgetType})
           .Where(x => x.Tag == 5 && x.BudgetType == BudgetType.Regional).OrderBy(dto => dto.Id).Count();
         Assert.AreEqual(1, count);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void EnumTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        BudgetType budgetType = BudgetType.Regional;
+        BudgetType budgetTypeNotNullable = BudgetType.Regional;
+        BudgetType? budgetTypeNullable = BudgetType.Regional;
+        Expression<Func<Person, bool>> filterExpression = p => p.BudgetType == budgetType;
+        Expression<Func<Person, bool>> filterNullableExpression = p => p.BudgetType == budgetTypeNullable;
+        Expression<Func<Person, bool>> filterNotNullableExpression = p => budgetTypeNotNullable == budgetType;
+        Expression<Func<Person, BudgetType?>> propertyExpression = p => p.BudgetType;
+        var valueExpression = Expression.Convert(Expression.Constant(budgetType), typeof(BudgetType?));
+        var body = Expression.Convert(propertyExpression.Body, typeof(BudgetType?));
+        Expression<Func<Person, bool>> customFilterExpression = Expression.Lambda<Func<Person, bool>>(
+          Expression.Equal(body, valueExpression),
+          propertyExpression.Parameters);
+        var persons = Query.All<Person>().Where(filterExpression).ToList();
+        var customPersons = Query.All<Person>().Where(customFilterExpression).ToList();
+
         t.Complete();
       }
     }
