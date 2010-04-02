@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Linq.Materialization
 
       result = new TypeMapping(type, keyTransform, transform, keyIndexes);
 
-      if (type.Hierarchy.Root.IsLeaf)
+      if (type.Hierarchy.Root.IsLeaf && approximateType==type)
         cache.SingleItem = result;
       else
         cache.Items.Add(typeId, result);
