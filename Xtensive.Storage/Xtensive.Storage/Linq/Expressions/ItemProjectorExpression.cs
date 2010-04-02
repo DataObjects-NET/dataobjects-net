@@ -141,7 +141,7 @@ namespace Xtensive.Storage.Linq.Expressions
           var offset = dataSource.Header.Length;
           dataSource = dataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
           entityFieldExpression.RegisterEntityExpression(offset);
-          return entityFieldExpression;
+          return entityFieldExpression.Entity;
         }
         return null;
       })

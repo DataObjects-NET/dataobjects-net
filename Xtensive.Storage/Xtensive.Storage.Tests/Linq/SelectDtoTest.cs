@@ -24,6 +24,17 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [HierarchyRoot]
+    public class Manager
+      : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Name { get; set; }
+    }
+
+    [HierarchyRoot]
     public class Person
      : Entity
     {
@@ -32,6 +43,9 @@ namespace Xtensive.Storage.Tests.Linq
 
       [Field]
       public string Name { get; set; }
+
+      [Field]
+      public Manager Manager { get; set; }
 
       [Field]
       public int? Tag { get; set; }
@@ -43,6 +57,7 @@ namespace Xtensive.Storage.Tests.Linq
     public class PersonDto
     {
       public int Id { get; set; }
+      public int? ManagerId { get; set; }
       public string Name { get; set; }
       public int? Tag { get; set; }
       public BudgetType? BudgetType { get; set; }
@@ -55,7 +70,7 @@ namespace Xtensive.Storage.Tests.Linq
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(Person));
+      config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       return config;
     }
 
@@ -110,6 +125,30 @@ namespace Xtensive.Storage.Tests.Linq
         var customPersons = Query.All<Person>().Where(customFilterExpression).ToList();
         var func = customFilterExpression.Compile();
         func(new Person() {BudgetType = BudgetType.Regional});
+      }
+    }
+
+    [Test]
+    public void SelectNullableTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var manager1 = new Manager() {Name = "M0"};
+        var manager2 = new Manager() {Name = "M0"};
+        new Person() { Name = "A", Manager = manager1};
+        new Person() { Name = "B", Manager = manager1};
+        new Person() { Name = "C", Manager = manager2};
+        new Person() { Name = "D", Manager = manager2};
+        new Person() { Name = "E" };
+        new Person() { Name = "F" };
+
+        var query = Query.All<Person>()
+          .Select(p => new PersonDto {
+            Id = p.Id, 
+            Name = p.Name, 
+            ManagerId = p.Manager != null ? (int?)p.Manager.Id : null});
+        var result = query.ToList();
+        Assert.AreEqual(6, result.Count);
       }
     }
 
