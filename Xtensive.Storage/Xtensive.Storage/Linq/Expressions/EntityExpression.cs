@@ -35,7 +35,8 @@ namespace Xtensive.Storage.Linq.Expressions
       {
         fields = value;
         // Set owner only for non dynamic added properties 
-        foreach (var fieldExpression in fields.OfType<FieldExpression>().Where(f => f.UnderlyingProperty!=null))
+        var fieldExpressions = fields.OfType<FieldExpression>().Where(f => f.UnderlyingProperty!=null || PersistentType.IsInterface);
+        foreach (var fieldExpression in fieldExpressions)
           fieldExpression.Owner = this;
       }
     }

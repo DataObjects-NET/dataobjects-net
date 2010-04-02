@@ -74,8 +74,7 @@ namespace Xtensive.Storage
     internal EntityState State { get; set; }
 
     /// <exception cref="Exception">Property is already initialized.</exception>
-    [Field]
-    internal int TypeId
+    public int TypeId
     {
       [DebuggerStepThrough]
       get { return GetFieldValue<int>(WellKnown.TypeIdFieldName); }

@@ -27,6 +27,8 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
 
   public interface IAnimal : IEntity
   {
+    int Id { get; }
+
     [Field]
     string PetName { get; set; }
 
@@ -85,6 +87,18 @@ namespace Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model
 
     public IPerson Owner { get; set; }
   }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class Animal3 : Entity, IAnimal
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    public string PetName { get; set; }
+
+    public IPerson Owner { get; set; }
+  }
 }
 
 namespace Xtensive.Storage.Tests.Interfaces
@@ -126,9 +140,21 @@ namespace Xtensive.Storage.Tests.Interfaces
           Assert.AreEqual(2, p.Pets.Count);
 
           p.Remove();
+          Query.All<IAnimal>().Remove();
+
+          new Animal1();
+          new Animal1();
+          new Animal1();
+          new Animal2();
+          new Animal2();
+          new Animal2();
+          new Animal3();
+          new Animal3();
+          new Animal3();
 
           var animals = Query.All<IAnimal>();
-          Assert.AreEqual(5, animals.Count());
+          Assert.AreEqual(9, animals.Count());
+          animals.Select(a => new {a.Id, a.PetName}).Where(x => x.Id != 0).ToList();
 
           t.Complete();
         }
