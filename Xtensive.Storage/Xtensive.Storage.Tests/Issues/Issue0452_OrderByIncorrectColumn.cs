@@ -45,6 +45,9 @@ namespace Xtensive.Storage.Tests.Issues.Issue0452_OrderByIncorrectColumn_Model
   {
     [Field, Key]
     public Guid Id { get; private set; }
+
+    [Field]
+    public string Name { get; set; }
   }
 
   [Serializable]

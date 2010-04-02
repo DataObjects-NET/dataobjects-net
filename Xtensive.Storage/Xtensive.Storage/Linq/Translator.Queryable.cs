@@ -1220,20 +1220,30 @@ namespace Xtensive.Storage.Linq
         return (ProjectionExpression) VisitLocalCollectionSequenceMethodInfo.MakeGenericMethod(itemType).Invoke(this, new object[] {sequence});
       }
 
-      Expression visitedExpression = Visit(sequenceExpression).StripCasts();
+      var visitedExpression = Visit(sequenceExpression).StripCasts();
+      ProjectionExpression result = null;
 
-      if (visitedExpression.IsGroupingExpression()
-        || visitedExpression.IsSubqueryExpression())
-        return ((SubQueryExpression) visitedExpression).ProjectionExpression;
+      if (visitedExpression.IsGroupingExpression() || visitedExpression.IsSubqueryExpression())
+        result = ((SubQueryExpression) visitedExpression).ProjectionExpression;
 
       if (visitedExpression.IsEntitySetExpression()) {
         var entitySetExpression = (EntitySetExpression) visitedExpression;
         var entitySetQuery = QueryHelper.CreateEntitySetQueryExpression((Expression) entitySetExpression.Owner, entitySetExpression.Field);
-        return (ProjectionExpression) Visit(entitySetQuery);
+        result = (ProjectionExpression) Visit(entitySetQuery);
       }
 
       if (visitedExpression.IsProjection())
-        return (ProjectionExpression) visitedExpression;
+        result = (ProjectionExpression) visitedExpression;
+      if (result != null) {
+        var projectorExpression = result.ItemProjector.EnsureEntityIsJoined();
+        if (projectorExpression != result.ItemProjector)
+          result = new ProjectionExpression(
+            result.Type,
+            projectorExpression,
+            result.TupleParameterBindings,
+            result.ResultType);
+        return result;
+      }
 
       throw new InvalidOperationException(string.Format(Strings.ExExpressionXIsNotASequence, expressionPart.ToString(true)));
     }
