@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Interfaces.InterfaceTest_Model;
@@ -156,7 +157,7 @@ namespace Xtensive.Storage.Tests.Interfaces
           Assert.AreEqual(9, animals.Count());
           animals.Select(a => new {a.Id, a.PetName}).Where(x => x.Id != 0).ToList();
 
-          t.Complete();
+
         }
       }
     }

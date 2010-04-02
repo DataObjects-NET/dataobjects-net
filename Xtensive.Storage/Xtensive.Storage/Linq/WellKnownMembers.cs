@@ -188,6 +188,7 @@ namespace Xtensive.Storage.Linq
 
     // IEntity
     public static readonly PropertyInfo IEntityKey;
+    public static readonly PropertyInfo TypeId;
 
     // ApplyParameter
     public static readonly PropertyInfo ApplyParameterValue;
@@ -236,6 +237,7 @@ namespace Xtensive.Storage.Linq
     {
       // IEntity
       IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyFieldName);
+      TypeId = typeof(IEntity).GetProperty(WellKnown.TypeIdFieldName);
 
       // ApplyParameter
       ApplyParameterValue = typeof (ApplyParameter).GetProperty("Value");

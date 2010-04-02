@@ -47,11 +47,16 @@ namespace Xtensive.Storage.Linq
         && typeof (IEntity).IsAssignableFrom(operandType)) {
         TypeInfo typeInfo = context.Model.Types[operandType];
         IEnumerable<int> typeIds = typeInfo.GetDescendants().AddOne(typeInfo).Select(ti => ti.TypeId);
-        MemberExpression memberExpression = Expression.Property(tb.Expression, WellKnown.TypeIdFieldName);
+        
+        MemberExpression memberExpression = Expression.MakeMemberAccess(tb.Expression, WellKnownMembers.TypeId);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
-          boolExpression = MakeBinaryExpression(boolExpression, memberExpression, Expression.Constant(typeId),
-            ExpressionType.Equal, ExpressionType.OrElse);
+          boolExpression = MakeBinaryExpression(
+            boolExpression, 
+            memberExpression, 
+            Expression.Constant(typeId), 
+            ExpressionType.Equal, 
+            ExpressionType.OrElse);
 
         return Visit(boolExpression);
       }
