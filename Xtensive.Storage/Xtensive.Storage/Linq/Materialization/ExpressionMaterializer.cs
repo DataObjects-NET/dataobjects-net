@@ -177,7 +177,7 @@ namespace Xtensive.Storage.Linq.Materialization
       var tupleExpression = GetTupleExpression(expression);
 
       // Materialize non-owned field.
-      if (expression.Owner==null) {
+      if (expression.Owner==null || expression.UnderlyingProperty == null) {
         if (expression.Field.IsEnum) {
           var underlyingType = Enum.GetUnderlyingType(expression.Type.StripNullable());
           if (expression.Field.IsNullable)

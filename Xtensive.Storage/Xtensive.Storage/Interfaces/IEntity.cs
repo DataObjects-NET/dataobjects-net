@@ -37,6 +37,12 @@ namespace Xtensive.Storage
     TypeInfo Type { get; }
 
     /// <summary>
+    /// Gets the type id.
+    /// </summary>
+    [Field]
+    int TypeId { get; }
+
+    /// <summary>
     /// Gets persistence state of the entity.
     /// </summary>
     PersistenceState PersistenceState { get; }

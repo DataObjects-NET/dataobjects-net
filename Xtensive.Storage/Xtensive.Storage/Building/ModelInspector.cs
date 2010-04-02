@@ -167,8 +167,8 @@ namespace Xtensive.Storage.Building
         return;
 
       // Check the presence of TypeId field
-      var typeIdField = root.Fields[WellKnown.TypeIdFieldName];
-      if (typeIdField==null)
+      FieldDef typeIdField;
+      if (!root.Fields.TryGetValue(WellKnown.TypeIdFieldName, out typeIdField))
         context.ModelInspectionResult.Actions.Enqueue(new AddTypeIdFieldAction(root));
       else
         context.ModelInspectionResult.Actions.Enqueue(new MarkFieldAsSystemAction(root, typeIdField));
