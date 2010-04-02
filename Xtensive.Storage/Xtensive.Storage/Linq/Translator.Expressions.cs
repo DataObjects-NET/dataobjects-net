@@ -843,11 +843,11 @@ namespace Xtensive.Storage.Linq
         }
         break;
       }
-      if (state.BuildingProjection && result is EntityFieldExpression) {
-        var entityFieldExpression = (EntityFieldExpression) result;
-        EnsureEntityReferenceIsJoined(entityFieldExpression);
-        result = entityFieldExpression.Entity;
-      }
+//      if (state.BuildingProjection && result is EntityFieldExpression) {
+//        var entityFieldExpression = (EntityFieldExpression) result;
+//        EnsureEntityReferenceIsJoined(entityFieldExpression);
+//        result = entityFieldExpression.Entity;
+//      }
       return isMarker
         ? new MarkerExpression(result, markerType)
         : result;
