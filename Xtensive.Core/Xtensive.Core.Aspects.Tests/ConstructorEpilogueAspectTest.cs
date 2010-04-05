@@ -15,6 +15,7 @@ namespace Xtensive.Core.Aspects.Tests
   [TestFixture]
   public class ConstructorEpilogueAspectTest
   {
+    [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler", "Error")]
     public class HandlerTargetBase
     {
       public static HandlerTargetBase LastInstance = null;
@@ -39,7 +40,6 @@ namespace Xtensive.Core.Aspects.Tests
           CtorInvocationCount++;
       }
 
-      [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler", "Error")]
       public HandlerTargetBase(Exception toThrow)
       {
         if (toThrow!=null)
@@ -47,9 +47,9 @@ namespace Xtensive.Core.Aspects.Tests
       }
     }
 
+    [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler", "Error")]
     public class HandlerTarget: HandlerTargetBase
     {
-      [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler", "Error")]
       public HandlerTarget(Exception toThrow)
         : base(null)
       {

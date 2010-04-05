@@ -7,6 +7,7 @@
 using System.Linq;
 using PostSharp.AspectWeaver;
 using PostSharp.Extensibility;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Aspects.Helpers.Internals;
 

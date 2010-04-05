@@ -7,81 +7,71 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Internals.DocTemplates;
-using System.Linq;
 
 namespace Xtensive.Core.Aspects
 {
-  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface)]
+  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowExternalAssemblies = false, AllowMultiple = false)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [Serializable]
-  public sealed class InitializableAttribute : Aspect
+  public sealed class InitializableAttribute : Aspect,
+    IAspectProvider
   {
     public const string InitializeMethodName = "Initialize";
     public const string InitializationErrorMethodName = "InitializationError";
 
-    public override bool CompileTimeValidate(object element)
+    #region IAspectProvider Members
+
+    public IEnumerable<AspectInstance> ProvideAspects(object targetElement)
     {
-      var type = element as Type;
+      var type = targetElement as Type;
       if (type == null)
-        return false;
+        yield break;
 
-      // Let's ignore the types that aren't marked by IInitializable
-      if (!typeof(IInitializable).IsAssignableFrom(type))
-        return false; 
+      // Getting all the base types
+      Type initializeMethodDeclarer = FindFirstMethodDeclarer(type, InitializeMethodName, new[] {typeof (Type)});
+      if (initializeMethodDeclarer == null)
+        yield break;
+      bool hasInitializationErrorHandler =
+        GetMethod(initializeMethodDeclarer, InitializationErrorMethodName, new[] {typeof (Type), typeof (Exception)}) !=
+        null;
 
-      return true;
+      // Applying the aspect to all the constructors
+      foreach (ConstructorInfo constructor in type.GetConstructors()) {
+        if (!constructor.IsPublic && !IsDefined(constructor, typeof (DebuggerNonUserCodeAttribute)))
+          continue;
+        var constructorEpilogueAspect = hasInitializationErrorHandler
+          ? new ConstructorEpilogueAspect(initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
+          : new ConstructorEpilogueAspect(initializeMethodDeclarer, InitializeMethodName);
+        yield return new AspectInstance(constructor, constructorEpilogueAspect);
+      }
     }
 
-    /// <inheritdoc/>
-//    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
-//    {
-//      Type type = element as Type;
-//      if (type==null)
-//        return;
-//
-      // Getting all the base types
-//      Type initializeMethodDeclarer = FindFirstMethodDeclarer(type, 
-//        InitializeMethodName, 
-//        new[] {typeof (Type)});
-//      if (initializeMethodDeclarer==null)
-//        return;
-//      bool hasInitializationErrorHandler = 
-//        GetMethod(initializeMethodDeclarer, 
-//          InitializationErrorMethodName,
-//          new[] {typeof (Type), typeof(Exception)})!=null;
-//
-      // Applying the aspect to all the constructors
-//      foreach (var constructor in type.GetConstructors()) {
-//        if (!constructor.IsPublic && !IsDefined(constructor, typeof(DebuggerNonUserCodeAttribute)))
-//          continue;
-//        var icea = hasInitializationErrorHandler 
-//          ? ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
-//          : ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodDeclarer, InitializeMethodName);
-//        if (icea!=null)
-//          collection.AddAspect(constructor, icea);
-//      }
-//    }
+    #endregion
 
     private Type FindFirstMethodDeclarer(Type descendantType, string methodName, Type[] arguments)
     {
       // Looking for the first method declaration 
       // starting from the very base type
-      var bases =
+      IEnumerable<Type> bases =
         EnumerableUtils.Unfold(descendantType, type => type.BaseType)
           .Reverse()
           .Skip(1); // Skipping object type
-      foreach (var currentBase in bases) {
+      foreach (Type currentBase in bases)
+      {
         MethodInfo method = null;
-        try {
+        try
+        {
           method = GetMethod(currentBase, methodName, arguments);
         }
-        catch {}
-        if (method!=null)
+        catch
+        {}
+        if (method != null)
           return currentBase;
       }
       return null;
@@ -89,27 +79,15 @@ namespace Xtensive.Core.Aspects
 
     private static MethodInfo GetMethod(Type type, string methodName, Type[] arguments)
     {
-      return type.GetMethod(methodName,
-        BindingFlags.Instance | 
-          BindingFlags.Public | 
-            BindingFlags.NonPublic |
-              BindingFlags.ExactBinding,
+      return type.GetMethod(
+        methodName,
+        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.ExactBinding,
         null, arguments, null);
     }
 
-//    public override PostSharpRequirements GetPostSharpRequirements()
-//    {
-//      PostSharpRequirements requirements = base.GetPostSharpRequirements();
-//      AspectHelper.AddStandardRequirements(requirements);
-//      return requirements;
-//    }
-//
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
     public InitializableAttribute()
     {
     }

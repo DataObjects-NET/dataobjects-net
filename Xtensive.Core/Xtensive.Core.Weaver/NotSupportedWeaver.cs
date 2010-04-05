@@ -12,7 +12,7 @@ using PostSharp.AspectWeaver.Transformations;
 using PostSharp.CodeModel;
 using PostSharp.Collections;
 using PostSharp.Extensibility;
-using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Weaver

@@ -7,10 +7,9 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
-
-[assembly:Initializable(AttributeTargetTypes = "*")]
 
 namespace Xtensive.Core.Aspects.Tests
 {
@@ -24,14 +23,15 @@ namespace Xtensive.Core.Aspects.Tests
     }
   }
 
-  public class InitializableBase: IInitializable
+  [Initializable] // Aspect inheritance between assemblies does not work :-(
+  public class InitializableBase : IInitializable
   {
     public static int ErrorCount { get; private set; }
     public int InitializeCount { get; private set; }
 
     protected void Initialize(Type ctorType)
     {
-      if (ctorType!=GetType())
+      if (ctorType != GetType())
         return;
       InitializeCount++;
       Log.Info("Initialized: type {0}", ctorType.GetShortName());
@@ -44,7 +44,6 @@ namespace Xtensive.Core.Aspects.Tests
     }
   }
 
-  [Initializable]
   public class InitializableSample : InitializableBase
   {
     // Constructors

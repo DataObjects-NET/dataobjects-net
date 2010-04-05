@@ -18,7 +18,7 @@ namespace Xtensive.Core.Aspects.Helpers
   /// Implements epilogue call in constructor.
   /// </summary>
   [MulticastAttributeUsage(MulticastTargets.InstanceConstructor)]
-  [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
   public sealed class ConstructorEpilogueAspect : MethodLevelAspect
@@ -36,7 +36,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <summary>
     /// Gets the name of the initialization error handler method to call.
     /// </summary>
-    public string ErrorHandlerMethodName { get; private set; }
+    public string ErrorHandlerMethodName { get; protected set; }
 
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
