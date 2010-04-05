@@ -143,21 +143,22 @@ namespace Xtensive.Storage.Tests.Interfaces
           p.Remove();
           Query.All<IAnimal>().Remove();
 
-          new Animal1();
-          new Animal1();
-          new Animal1();
-          new Animal2();
-          new Animal2();
-          new Animal2();
-          new Animal3();
-          new Animal3();
-          new Animal3();
+          new Animal1() { PetName = "A" };
+          new Animal1() { PetName = "B" };
+          new Animal1() { PetName = "C" };
+          new Animal2() { PetName = "D" };
+          new Animal2() { PetName = "E" };
+          new Animal2() { PetName = "F" };
+          new Animal3() { PetName = "G" };
+          new Animal3() { PetName = "H" };
+          new Animal3() { PetName = "J" };
 
           var animals = Query.All<IAnimal>();
           Assert.AreEqual(9, animals.Count());
           animals.Select(a => new {a.Id, a.PetName}).Where(x => x.Id != 0).ToList();
-
-
+          var list = Query.All<IAnimal>().Where(a => (string)a["PetName"] == "D").ToList();
+          Assert.AreEqual(1, list.Count);
+          t.Complete();
         }
       }
     }

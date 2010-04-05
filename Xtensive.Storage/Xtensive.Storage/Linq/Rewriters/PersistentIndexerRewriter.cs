@@ -79,10 +79,10 @@ namespace Xtensive.Storage.Linq.Rewriters
       if (expression.NodeType!=ExpressionType.Call)
         return false;
       var methodCallExpression = (MethodCallExpression) expression;
-      return methodCallExpression.Object!=null
-        && methodCallExpression.Method.Name=="get_Item"
-          && methodCallExpression.Method.DeclaringType==typeof (Persistent)
-            && context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
+      return methodCallExpression.Object!=null && 
+        methodCallExpression.Method.Name=="get_Item" && 
+        methodCallExpression.Method.DeclaringType.In(typeof (Persistent), typeof(IEntity)) && 
+        context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
     }
 
     public static Expression Rewrite(Expression query, TranslatorContext context)
