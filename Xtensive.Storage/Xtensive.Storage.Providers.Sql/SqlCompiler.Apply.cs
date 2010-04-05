@@ -105,15 +105,24 @@ namespace Xtensive.Storage.Providers.Sql
         if (provider.IsInlined) {
           for (int i = 0; i < rightQuery.Columns.Count; i++) {
             var subquery = rightQuery.ShallowClone();
-            var columnRef = (SqlColumnRef) subquery.Columns[i];
-            var column = columnRef.SqlColumn;
-            subquery.Columns.Clear();
-            subquery.Columns.Add(column);
-            var columnName = ProcessAliasedName(provider.Right.Header.Columns[i].Name);
-            var userColumnRef = SqlDml.ColumnRef(SqlDml.Column(subquery), columnName);
-            var columnStub = SqlDml.ColumnStub(userColumnRef);
-            stubColumnMap.Add(columnStub, subquery);
-            query.Columns.Add(columnStub);
+            var sqlColumn = subquery.Columns[i];
+            if (IsColumnStub(sqlColumn)) {
+              var columnStub = ExtractColumnStub(sqlColumn);
+              subquery.Columns.Clear();
+              subquery.Columns.Add(columnStub.Column);
+              query.Columns.Add(subquery, sqlColumn.Name);
+            }
+            else {
+              var columnRef = (SqlColumnRef) sqlColumn;
+              var column = columnRef.SqlColumn;
+              subquery.Columns.Clear();
+              subquery.Columns.Add(column);
+              var columnName = ProcessAliasedName(provider.Right.Header.Columns[i].Name);
+              var userColumnRef = SqlDml.ColumnRef(SqlDml.Column(subquery), columnName);
+              var columnStub = SqlDml.ColumnStub(userColumnRef);
+              stubColumnMap.Add(columnStub, subquery);
+              query.Columns.Add(columnStub);
+            }
           }
         }
         else
