@@ -235,7 +235,7 @@ namespace Xtensive.Storage.Linq
           throw new NotSupportedException(String.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
       Expression source;
       using (state.CreateScope()) {
-        state.BuildingProjection = false;
+//        state.BuildingProjection = false;
         source = Visit(ma.Expression);
       }
       

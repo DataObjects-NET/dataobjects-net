@@ -86,7 +86,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     protected override IPostCompiler CreatePostCompiler(ICompiler compiler)
     {
-//      return new SqlOrderbyCorrector(Handlers, (SqlCompiler)compiler);
       return new EmptyPostCompiler();
     }
 
@@ -145,9 +144,6 @@ namespace Xtensive.Storage.Providers.Sql
     /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
     public override void BuildMapping()
     {
-//      var sessionHandler = ((SessionHandler) BuildingScope.Context.SystemSessionHandler);
-//      var modelProvider = new SqlModelProvider(sessionHandler.Connection, sessionHandler.Transaction);
-//      var storageModel = SqlModel.Build(modelProvider);
       var context = UpgradeContext.Demand();
       Schema = context.NativeExtractedSchema as Schema; // storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
       var domainModel = Handlers.Domain.Model;
@@ -175,17 +171,6 @@ namespace Xtensive.Storage.Providers.Sql
             storageColumn,
             Driver.GetTypeMapping(column));
         }
-        /*
-        foreach (var secondaryIndex in type.Indexes.Find(IndexAttributes.Real).Where(i => !i.IsPrimary)) {
-          var storageIndexName = secondaryIndex.MappingName;
-          var storageIndex = storageTable.Indexes
-            .FirstOrDefault(i => i.Name==storageIndexName);
-          if (storageIndex==null)
-            throw new DomainBuilderException(
-              string.Format(Strings.ExIndexXIsNotFound, storageIndexName));
-          mapping.RegisterMapping(secondaryIndex, storageIndex);
-        }
-        */
       }
     }
 
@@ -207,7 +192,6 @@ namespace Xtensive.Storage.Providers.Sql
         skipTakeCorrector,
         new OrderingCorrector(ResolveOrderingDescriptor, false),
         new RedundantColumnOptimizer(),
-        // new IndexRedundantColumnOptimizer(),
         new OrderingCorrector(ResolveOrderingDescriptor, true));
     }
 

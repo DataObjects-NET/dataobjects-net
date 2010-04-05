@@ -43,6 +43,12 @@ namespace Xtensive.Storage
     int TypeId { get; }
 
     /// <summary>
+    /// Gets or sets the value of the field with specified name.
+    /// </summary>
+    /// <value>Field value.</value>
+    object this[string fieldName] { get; set; }
+
+    /// <summary>
     /// Gets persistence state of the entity.
     /// </summary>
     PersistenceState PersistenceState { get; }
