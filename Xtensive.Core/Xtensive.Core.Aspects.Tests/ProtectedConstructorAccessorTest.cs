@@ -12,7 +12,7 @@ using Xtensive.Core.Reflection;
 namespace Xtensive.Core.Aspects.Tests
 {
   [TestFixture]
-  public class ImplementProtectedConstructorAccessorTest
+  public class ProtectedConstructorAccessorTest
   {
     [ProtectedConstructorAccessorAspect(typeof(int))]
     public class ProtectedCtorClassB : ProtectedCtorGenericA<int>

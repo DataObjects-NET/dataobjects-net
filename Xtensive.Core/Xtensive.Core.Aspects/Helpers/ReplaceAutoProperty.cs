@@ -23,18 +23,12 @@ namespace Xtensive.Core.Aspects.Helpers
   /// <summary>
   /// Replaces auto-property implementation to invocation of property get and set generic handlers.
   /// </summary>
-  [MulticastAttributeUsage(MulticastTargets.Method)]
-  [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+  [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.Multicast)]
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [Serializable]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
-  public sealed class AutoPropertyReplacementAspect : MethodLevelAspect
+  public sealed class ReplaceAutoProperty : MethodLevelAspect
   {
-    /// <summary>
-    /// Gets the type where handlers are declared.
-    /// </summary>
-    public Type HandlerType { get; private set; }
-
-
     /// <summary>
     /// Gets the name suffix of handler methods.
     /// </summary>
@@ -58,11 +52,9 @@ namespace Xtensive.Core.Aspects.Helpers
         return false;
       }
 
-      if (null==AspectHelper.ValidateMemberAttribute<CompilerGeneratedAttribute>(this, SeverityType.Error,
-        method, true, AttributeSearchOptions.Default))
-        return false;
-
-      return true;
+      var compilerGeneratedAttribute = accessorInfo
+        .GetAttribute<CompilerGeneratedAttribute>(AttributeSearchOptions.Default);
+      return compilerGeneratedAttribute != null;
     }
 
 
@@ -71,12 +63,15 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
     /// <param name="handlerMethodSuffix"><see cref="HandlerMethodSuffix"/> property value.</param>
-    public AutoPropertyReplacementAspect(Type handlerType, string handlerMethodSuffix)
+    public ReplaceAutoProperty(string handlerMethodSuffix)
     {
-      HandlerType = handlerType;
       HandlerMethodSuffix = handlerMethodSuffix;
+      AttributeTargetMemberAttributes = 
+        MulticastAttributes.CompilerGenerated | 
+        MulticastAttributes.Managed | 
+        MulticastAttributes.NonAbstract | 
+        MulticastAttributes.Instance;
     }
   }
 }

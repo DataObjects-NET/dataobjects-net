@@ -23,7 +23,6 @@ namespace Xtensive.Core.Aspects.Tests
     }
   }
 
-  [Initializable] // Aspect inheritance between assemblies does not work :-(
   public class InitializableBase : IInitializable
   {
     public static int ErrorCount { get; private set; }

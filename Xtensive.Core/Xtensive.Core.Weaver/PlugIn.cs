@@ -26,7 +26,7 @@ namespace Xtensive.Core.Weaver
     protected override void Initialize()
     {
 //      AddAspectWeaverFactory<PrivateFieldAccessorsAspect, PrivateFieldAccessors>();
-      AddAspectWeaverFactory<AutoPropertyReplacementAspect, AutoPropertyReplacementWeaver>();
+      AddAspectWeaverFactory<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
       AddAspectWeaverFactory<ConstructorEpilogueAspect, ConstructorEpilogueWeaver>();
 //      AddAspectWeaverFactory<ReprocessMethodBoundaryAspect, AutoPropertyReplacementWeaver>();
       AddAspectWeaverFactory<NotSupportedAttribute, NotSupportedWeaver>();

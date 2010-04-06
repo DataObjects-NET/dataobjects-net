@@ -5,11 +5,13 @@
 // Created:    2010.03.29
 
 using System;
+using System.Collections.Generic;
 using PostSharp.AspectInfrastructure;
 using PostSharp.AspectWeaver;
 using PostSharp.AspectWeaver.AspectWeavers;
 using PostSharp.AspectWeaver.Transformations;
 using PostSharp.CodeModel;
+using PostSharp.CodeModel.Helpers;
 using PostSharp.CodeModel.TypeSignatures;
 using PostSharp.Collections;
 using PostSharp.Extensibility;
@@ -19,15 +21,15 @@ using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Weaver
 {
-  internal class AutoPropertyReplacementWeaver : MethodLevelAspectWeaver
+  internal class ReplaceAutoPropertyWeaver : MethodLevelAspectWeaver
   {
-    private AutoPropertyReplacementTransformation transformation;
+    private ReplaceAutoPropertyTransformation transformation;
 
     protected override void Initialize()
     {
       base.Initialize();
 
-      transformation = new AutoPropertyReplacementTransformation(this, "AutoProperty replacement.");
+      transformation = new ReplaceAutoPropertyTransformation(this, "AutoProperty replacement.");
       ApplyEffectWaivers(transformation);
       RequiresRuntimeInstance = false;
       RequiresRuntimeInstanceInitialization = false;
@@ -42,7 +44,7 @@ namespace Xtensive.Core.Weaver
 
     // Constructors
 
-    public AutoPropertyReplacementWeaver()
+    public ReplaceAutoPropertyWeaver()
       : base(null, MulticastTargets.Class)
     {}
 
@@ -51,14 +53,14 @@ namespace Xtensive.Core.Weaver
 
     private class Instance : MethodLevelAspectWeaverInstance
     {
-      private readonly AutoPropertyReplacementWeaver parent;
+      private readonly ReplaceAutoPropertyWeaver parent;
 
       public override void ProvideAspectTransformations(AspectWeaverTransformationAdder adder)
       {
         adder.Add(TargetElement, parent.transformation.CreateInstance(this));
       }
 
-      public Instance(AutoPropertyReplacementWeaver parent, AspectInstanceInfo aspectInstanceInfo)
+      public Instance(ReplaceAutoPropertyWeaver parent, AspectInstanceInfo aspectInstanceInfo)
         : base(parent, aspectInstanceInfo)
       {
         this.parent = parent;
@@ -66,7 +68,7 @@ namespace Xtensive.Core.Weaver
     }
   }
 
-  internal class AutoPropertyReplacementTransformation : MethodBodyTransformation
+  internal class ReplaceAutoPropertyTransformation : MethodBodyTransformation
   {
     private readonly string displayName;
 
@@ -77,19 +79,17 @@ namespace Xtensive.Core.Weaver
 
     public AspectWeaverTransformationInstance CreateInstance(AspectWeaverInstance aspectWeaverInstance)
     {
-      var aspect = (AutoPropertyReplacementAspect)aspectWeaverInstance.Aspect;
+      var aspect = (ReplaceAutoProperty)aspectWeaverInstance.Aspect;
       var module = AspectWeaver.Module;
-      var handlerType = module.Cache.GetType(aspect.HandlerType);
       var handlerMethodSuffix = aspect.HandlerMethodSuffix;
             
-      return new Instance(
-        this, aspectWeaverInstance, handlerType, handlerMethodSuffix);
+      return new Instance(this, aspectWeaverInstance, handlerMethodSuffix);
     }
 
 
     // Constructors
 
-    public AutoPropertyReplacementTransformation(AspectWeaver aspectWeaver, string displayName)
+    public ReplaceAutoPropertyTransformation(AspectWeaver aspectWeaver, string displayName)
       : base(aspectWeaver, displayName)
     {
       this.displayName = displayName;
@@ -102,28 +102,26 @@ namespace Xtensive.Core.Weaver
       private const string AutoPropertyBackingFieldFormat = "<{0}>k__BackingField";
       private const string HandlerGetMethodPrefix = "Get";
       private const string HandlerSetMethodPrefix = "Set";
-      private readonly ITypeSignature handlerTypeSignature;
       private readonly string handlerMethodSuffix;
 
       public override void Implement(MethodBodyTransformationContext context)
       {
-        var methodDef = (MethodDefDeclaration)context.TargetElement;
-        var typeDef = methodDef.DeclaringType;
+        var targetMethod = (MethodDefDeclaration)context.TargetElement;
+        var targetType = AspectWeaverInstance.TargetType;
          
-        int splitterPos = methodDef.Name.IndexOf('_');
+        int splitterPos = targetMethod.Name.IndexOf('_');
         if (splitterPos <= 0)
           return;
 
-        string propertyName = methodDef.Name.Substring(splitterPos + 1);
+        string propertyName = targetMethod.Name.Substring(splitterPos + 1);
         string fieldName = string.Format(AutoPropertyBackingFieldFormat, propertyName);
-        bool isGetter = methodDef.Name.Substring(0, splitterPos + 1) == WellKnown.GetterPrefix;
+        bool isGetter = targetMethod.Name.Substring(0, splitterPos + 1) == WellKnown.GetterPrefix;
 
-        var fieldDef = typeDef.Fields.GetByName(fieldName);
+        var fieldDef = targetType.Fields.GetByName(fieldName);
         if (fieldDef == null)
           return;
 
         var module = AspectWeaver.Module;
-        var handlerTypeDef = handlerTypeSignature.GetTypeDefinition();
         var methodBody = context.InstructionBlock.MethodBody;
         var instructionBlock = methodBody.CreateInstructionBlock();
         methodBody.RootInstructionBlock = instructionBlock;
@@ -136,33 +134,29 @@ namespace Xtensive.Core.Weaver
           writer.EmitInstructionString(OpCodeNumber.Ldstr, propertyName);
           if (!isGetter)
             writer.EmitInstruction(OpCodeNumber.Ldarg_1);
-          var replacementMethodSignature = new MethodSignature(module, CallingConvention.HasThis,
-                                isGetter
-                                  ? (ITypeSignature) module.Cache.GetGenericParameter(0, GenericParameterKind.Method)
-                                  : module.Cache.GetIntrinsic(IntrinsicType.Void),
-                                isGetter
-                                  ? new ITypeSignature[] {module.Cache.GetIntrinsic(IntrinsicType.String)}
-                                  : new ITypeSignature[]
-                                      {
-                                        module.Cache.GetIntrinsic(IntrinsicType.String),
-                                        GenericParameterTypeSignature.GetInstance(module, 0, GenericParameterKind.Method)
-                                      }, 1);
-
-          var replacementMethod = handlerTypeDef.Methods.GetMethod(
-            (isGetter ? HandlerGetMethodPrefix : HandlerSetMethodPrefix) + handlerMethodSuffix,
-            replacementMethodSignature,
-            BindingOptions.Default).Translate(module);
-          var replacementMethodDef = replacementMethod as MethodDefDeclaration;
-          var replacementMethodRef = replacementMethod as MethodRefDeclaration;
-
-          if (replacementMethodRef != null)
-            writer.EmitInstructionMethod(OpCodeNumber.Callvirt,
-                                         replacementMethodRef.FindGenericInstance(new[] {fieldDef.FieldType},
-                                                                                  BindingOptions.Default));
-          else if (replacementMethodDef != null)
-            writer.EmitInstructionMethod(OpCodeNumber.Callvirt,
-                                         replacementMethodDef.FindGenericInstance(new[] {fieldDef.FieldType},
-                                                                                  BindingOptions.Default));
+          var returnType = isGetter
+            ? (ITypeSignature) module.Cache.GetGenericParameter(0, GenericParameterKind.Method)
+            : module.Cache.GetIntrinsic(IntrinsicType.Void);
+          var parameterTypes = isGetter
+           ? new ITypeSignature[] { module.Cache.GetIntrinsic(IntrinsicType.String) }
+           : new ITypeSignature[] {
+                 module.Cache.GetIntrinsic(IntrinsicType.String),
+                 GenericParameterTypeSignature.GetInstance(module, 0, GenericParameterKind.Method)
+               };
+          var methodSignature = new MethodSignature(module, CallingConvention.HasThis, returnType, parameterTypes, 1);
+          var methodName = (isGetter ? HandlerGetMethodPrefix : HandlerSetMethodPrefix) + handlerMethodSuffix;
+          var genericMethodReference = targetType.FindMethod(methodName, methodSignature);
+          if (genericMethodReference != null) {
+//            var typeMap = targetType.GetGenericContext(GenericContextOptions.None);
+//            var methodMap = new GenericMap(typeMap, new[] {fieldDef.FieldType});
+//            var genericMap = new GenericMap(new List<ITypeSignature>(), new List<ITypeSignature>() {fieldDef.FieldType});
+//            var genericContext = targetMethod.GetGenericContext(GenericContextOptions.ResolveGenericParameterDefinitions);
+//            var method = genericMethodReference.GetInstance(module, typeMap).TranslateMethod(module);
+            var method = genericMethodReference.Method.FindGenericInstance(
+              new[] {fieldDef.FieldType},
+              BindingOptions.Default);
+            writer.EmitInstructionMethod(OpCodeNumber.Callvirt, method);
+          }
           else
             throw new InvalidOperationException();
           writer.EmitInstruction(OpCodeNumber.Ret);
@@ -187,10 +181,9 @@ namespace Xtensive.Core.Weaver
 
       // Constructors
 
-      public Instance(MethodBodyTransformation parent, AspectWeaverInstance aspectWeaverInstance, ITypeSignature handlerTypeSignature, string handlerMethodSuffix) 
+      public Instance(MethodBodyTransformation parent, AspectWeaverInstance aspectWeaverInstance, string handlerMethodSuffix) 
         : base(parent, aspectWeaverInstance)
       {
-        this.handlerTypeSignature = handlerTypeSignature;
         this.handlerMethodSuffix = handlerMethodSuffix;
       }
     }

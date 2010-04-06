@@ -31,30 +31,62 @@ namespace Xtensive.Core.Aspects.Tests
       }
     }
 
-    public class TestClass: TestClassBase
+    [ReplaceAutoProperty("Property")]
+    public class TestClass : TestClassBase
     {
-      public int Property1
-      {
-        [AutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
-        get; 
-        [AutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
-        set;
-      }
+      private int manualProperty;
 
-      public int Property2
+      public int Property1 { get; set; }
+      public int Property2 { get; set; }
+
+      public int ManualProperty
       {
-        [AutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
-        get; 
-        [AutoPropertyReplacementAspect(typeof(TestClassBase), "Property")]
-        set;
+        get { return manualProperty; }
+        set { manualProperty = value; }
       }
+    }
+
+    public class DerivedClass : TestClass
+    {
+      public int Property3 { get; set; }
+    }
+
+    public class GenericClass<T> : TestClass
+    {
+      public T GenericProperty { get; set; }
+    }
+
+    [ReplaceAutoProperty("Property")]
+    public interface IPropertyMarker
+    {
+      int InterfaceProperty { get; set; }
+    }
+
+    public class Implementation : TestClassBase, 
+      IPropertyMarker
+    {
+      public int Property1 { get; set; }
+      public int Property2 { get; set; }
+
+      public int InterfaceProperty { get; set;}
+    }
+
+    public class ExplicitImplementation : Implementation,
+      IPropertyMarker
+    {
+      public new int Property1 { get; set; }
+      int IPropertyMarker.InterfaceProperty { get; set; }
     }
 
     [Test]
     public void CombinedTest()
     {
       Random r = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
-      TestClass c = new TestClass();
+      var c = new TestClass();
+      var d = new DerivedClass();
+      var i = new Implementation();
+      var e = new ExplicitImplementation();
+      var g = new GenericClass<int>();
 
       int v1 = r.Next();
       int v2 = v1 + 1;
@@ -68,6 +100,38 @@ namespace Xtensive.Core.Aspects.Tests
       Assert.AreEqual(v1, c.Property2);
       c.Property2 = v2;
       Assert.AreEqual(v2, c.Property2);
+
+      d.Property2 = v1;
+      Assert.AreEqual(v1, d.Property2);
+      d.Property2 = v2;
+      Assert.AreEqual(v2, d.Property2);
+
+      d.Property3 = v1;
+      Assert.AreEqual(v1, d.Property3);
+      d.Property3 = v2;
+      Assert.AreEqual(v2, d.Property3);
+
+      i.Property1 = v1;
+      Assert.AreEqual(v1, i.Property1);
+      i.Property2 = v2;
+      Assert.AreEqual(v2, i.Property2);
+
+      e.Property1 = v1;
+      Assert.AreEqual(v1, e.Property1);
+      e.Property2 = v2;
+      Assert.AreEqual(v2, e.Property2);
+      e.InterfaceProperty = v2;
+      Assert.AreEqual(v2, e.InterfaceProperty);
+
+      var marker = e as IPropertyMarker;
+      marker.InterfaceProperty = v1;
+      Assert.AreEqual(v1, marker.InterfaceProperty);
+      Assert.AreEqual(v2, e.InterfaceProperty);
+
+      g.GenericProperty = v1;
+      Assert.AreEqual(v1, g.GenericProperty);
+      g.GenericProperty = v2;
+      Assert.AreEqual(v2, g.GenericProperty);
     }
   }
 }

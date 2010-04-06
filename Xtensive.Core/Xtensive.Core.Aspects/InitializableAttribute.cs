@@ -90,6 +90,7 @@ namespace Xtensive.Core.Aspects
 
     public InitializableAttribute()
     {
+      AttributeInheritance = MulticastInheritance.Multicast;
     }
   }
 }
