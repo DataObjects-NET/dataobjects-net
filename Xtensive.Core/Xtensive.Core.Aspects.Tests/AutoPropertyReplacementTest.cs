@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
+using Xtensive.Core.Weaver;
 
 namespace Xtensive.Core.Aspects.Tests
 {
@@ -37,7 +38,8 @@ namespace Xtensive.Core.Aspects.Tests
       private int manualProperty;
 
       public int Property1 { get; set; }
-      public int Property2 { get; set; }
+      public virtual int Property2 { get; set; }
+      public virtual int Property3 { get; set; }
 
       public int ManualProperty
       {
@@ -48,12 +50,17 @@ namespace Xtensive.Core.Aspects.Tests
 
     public class DerivedClass : TestClass
     {
-      public int Property3 { get; set; }
+      public new int Property1 { get; set; }
+      public new int Property2 { get; set; }
+      public override int Property3 { get; set; }
+      public int Property4 { get; set; }
     }
 
     public class GenericClass<T> : TestClass
     {
       public T GenericProperty { get; set; }
+
+      public int Property { get; set; }
     }
 
     [ReplaceAutoProperty("Property")]

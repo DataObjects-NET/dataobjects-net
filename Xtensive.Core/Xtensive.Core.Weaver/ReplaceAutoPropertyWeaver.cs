@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using PostSharp.AspectInfrastructure;
 using PostSharp.AspectWeaver;
 using PostSharp.AspectWeaver.AspectWeavers;
@@ -18,6 +19,7 @@ using PostSharp.Extensibility;
 using PostSharp.Extensibility.Tasks;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
+using System.Linq;
 
 namespace Xtensive.Core.Weaver
 {
@@ -113,15 +115,41 @@ namespace Xtensive.Core.Weaver
         if (splitterPos <= 0)
           return;
 
-        string propertyName = targetMethod.Name.Substring(splitterPos + 1);
-        string fieldName = string.Format(AutoPropertyBackingFieldFormat, propertyName);
-        bool isGetter = targetMethod.Name.Substring(0, splitterPos + 1) == WellKnown.GetterPrefix;
+        var module = AspectWeaver.Module;
+        var isGetter = targetMethod.ReturnParameter.ParameterType != module.Cache.GetIntrinsic(IntrinsicType.Void);
+        var isExplicit = targetMethod.InterfaceImplementations.Count > 0 &&
+                         targetMethod.IsNew &&
+                         targetMethod.IsVirtual &&
+                         targetMethod.Visibility == Visibility.Private;
+        var propertyFilter = isGetter
+          ? (Func<MethodDefDeclaration, PropertyDeclaration, bool>)((m, p) => p.Getter == m)
+          : (m, p) => p.Setter == m;
+        var condition = propertyFilter.Bind(targetMethod);
+        var targetProperty = targetType.Properties.Single(condition);
+        var propertyName = targetProperty.Name;
+        var isNew = false;
+        if (!isExplicit) {
+          var baseType = (TypeDefDeclaration) targetType.BaseType;
+          var baseProperty = baseType.FindProperty(propertyName);
+          if (baseProperty != null)
+            if (!targetMethod.IsVirtual)
+              isNew = true;
+        }
+        var fieldName = string.Format(AutoPropertyBackingFieldFormat, propertyName);
+        if (isExplicit) {
+          var interfaceMethod = (MethodDefDeclaration)targetMethod.InterfaceImplementations.Single().ImplementedMethod;
+          var interfaceType = interfaceMethod.DeclaringType;
+          var interfaceCondition = propertyFilter.Bind(interfaceMethod);
+          var interfaceProperty = interfaceType.Properties.Single(interfaceCondition);
+          propertyName = string.Format("{0}.{1}", interfaceType.ShortName, interfaceProperty.Name);
+        }
+        else if (isNew)
+          propertyName = string.Format("{0}.{1}", targetType.ShortName, propertyName);
 
         var fieldDef = targetType.Fields.GetByName(fieldName);
         if (fieldDef == null)
           return;
 
-        var module = AspectWeaver.Module;
         var methodBody = context.InstructionBlock.MethodBody;
         var instructionBlock = methodBody.CreateInstructionBlock();
         methodBody.RootInstructionBlock = instructionBlock;
@@ -147,11 +175,6 @@ namespace Xtensive.Core.Weaver
           var methodName = (isGetter ? HandlerGetMethodPrefix : HandlerSetMethodPrefix) + handlerMethodSuffix;
           var genericMethodReference = targetType.FindMethod(methodName, methodSignature);
           if (genericMethodReference != null) {
-//            var typeMap = targetType.GetGenericContext(GenericContextOptions.None);
-//            var methodMap = new GenericMap(typeMap, new[] {fieldDef.FieldType});
-//            var genericMap = new GenericMap(new List<ITypeSignature>(), new List<ITypeSignature>() {fieldDef.FieldType});
-//            var genericContext = targetMethod.GetGenericContext(GenericContextOptions.ResolveGenericParameterDefinitions);
-//            var method = genericMethodReference.GetInstance(module, typeMap).TranslateMethod(module);
             var method = genericMethodReference.Method.FindGenericInstance(
               new[] {fieldDef.FieldType},
               BindingOptions.Default);
