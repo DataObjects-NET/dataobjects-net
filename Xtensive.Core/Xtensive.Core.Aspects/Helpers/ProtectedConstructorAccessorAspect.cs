@@ -22,18 +22,12 @@ namespace Xtensive.Core.Aspects.Helpers
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
   [Serializable]
-  public sealed class ProtectedConstructorAccessorAspect : Aspect
+  public sealed class ProtectedConstructorAccessorAspect : TypeLevelAspect
   {
-
     /// <summary>
     /// Gets the protected constructor argument types.
     /// </summary>
     public Type[] ParameterTypes { get; private set; }
-
-    /// <summary>
-    /// Gets or sets the target type.
-    /// </summary>
-    public Type TargetType { get; private set; }
 
     /*public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
     {

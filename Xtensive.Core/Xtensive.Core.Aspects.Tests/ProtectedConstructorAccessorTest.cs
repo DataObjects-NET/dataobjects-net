@@ -15,25 +15,6 @@ namespace Xtensive.Core.Aspects.Tests
   public class ProtectedConstructorAccessorTest
   {
     [ProtectedConstructorAccessorAspect(typeof(int))]
-    public class ProtectedCtorClassB : ProtectedCtorGenericA<int>
-    {
-      protected ProtectedCtorClassB(int i)
-        : base(i)
-      {
-      }
-    }
-
-    public class ProtectedCtorGenericA<T> : ProtectedCtorClassA
-    {
-      public T Ignored { get; set; }
-
-      protected ProtectedCtorGenericA(T i)
-        : base(typeof(T)==typeof(int) ? (int) (object) i : 0)
-      {
-      }
-    }
-
-    [ProtectedConstructorAccessorAspect(typeof(int))]
     public class ProtectedCtorClassA
     {
       public int I { get; set; }
@@ -44,6 +25,24 @@ namespace Xtensive.Core.Aspects.Tests
       }
     }
 
+    public class ProtectedCtorGenericA<T> : ProtectedCtorClassA
+    {
+      public T Ignored { get; set; }
+
+      protected ProtectedCtorGenericA(T i)
+        : base(typeof(T)==typeof(int) ? (int) (object) i : 0)
+      {}
+    }
+
+    [ProtectedConstructorAccessorAspect(typeof(int))]
+    public class ProtectedCtorClassB : ProtectedCtorGenericA<int>
+    {
+      protected ProtectedCtorClassB(int i)
+        : base(i)
+      {
+      }
+    }
+    
     public class CtorClassC
     {
       public double Value { get; set; }
