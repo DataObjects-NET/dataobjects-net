@@ -16,7 +16,7 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Aspects
 {
-  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowExternalAssemblies = false, AllowMultiple = false)]
+  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowExternalAssemblies = true, AllowMultiple = false)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [Serializable]
   public sealed class InitializableAttribute : Aspect,
