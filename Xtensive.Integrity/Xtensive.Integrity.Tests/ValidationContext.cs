@@ -9,16 +9,8 @@ using Xtensive.Integrity.Validation;
 
 namespace Xtensive.Integrity.Tests
 {
-  public class ValidationContext: ValidationContextBase,
-    ISessionBound
+  public class ValidationContext: ValidationContextBase
   {
-    private Session session;
-
-    public Session Session
-    {
-      get { return session; }
-    }
-
     public new void Reset()
     {
       base.Reset();
@@ -27,9 +19,7 @@ namespace Xtensive.Integrity.Tests
 
     // Constructors
 
-    public ValidationContext(Session session) 
-    {
-      this.session = session;
-    }
+    public ValidationContext() 
+    {}
   }
 }

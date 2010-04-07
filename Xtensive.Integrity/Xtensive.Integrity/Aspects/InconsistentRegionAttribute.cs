@@ -7,8 +7,9 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using PostSharp.Aspects;
+using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
-using PostSharp.Laos;   
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
@@ -22,20 +23,11 @@ namespace Xtensive.Integrity.Aspects
   /// Wraps a method of property body into so-called "inconsistent region"
   /// using <see cref="ValidationContextBase.OpenInconsistentRegion"/> method.
   /// </summary>
-  // [MulticastAttributeUsage(MulticastTargets.Property | MulticastTargets.Method)]
-  [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Constructor, 
-    AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  public sealed class InconsistentRegionAttribute : OnMethodBoundaryAspect,
-    ILaosWeavableAspect
+  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(PropertyConstraintAspect))]
+  public sealed class InconsistentRegionAttribute : OnMethodBoundaryAspect
   {
-    int ILaosWeavableAspect.AspectPriority
-    {
-      get {
-        return (int)IntegrityAspectPriority.InconsistentRegion;
-      }
-    }
-
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
@@ -45,13 +37,6 @@ namespace Xtensive.Integrity.Aspects
       if (!(method is ConstructorInfo)) {
         var methodInfo = method as MethodInfo;
         if (methodInfo.IsGetter()) {
-          // This is getter; let's check if it is explicitely marked as [InconsistentRegion]
-          var propertyInfo = methodInfo.GetProperty();
-          if (propertyInfo!=null && propertyInfo.GetAttribute<AtomicAttribute>(
-            AttributeSearchOptions.Default)!=null)
-            // Property itself is marked as [InconsistentRegion]
-            return false;
-
           // Property getter is marked as [InconsistentRegion]
           ErrorLog.Write(SeverityType.Warning, AspectMessageType.AspectPossiblyMissapplied,
             AspectHelper.FormatType(GetType()),
@@ -64,7 +49,7 @@ namespace Xtensive.Integrity.Aspects
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public override void OnEntry(MethodExecutionEventArgs eventArgs)
+    public override void OnEntry(MethodExecutionArgs eventArgs)
     {
       var validatable = (IValidationAware)eventArgs.Instance;
       var context = validatable.Context;
@@ -73,7 +58,7 @@ namespace Xtensive.Integrity.Aspects
     }
 
     /// <inheritdoc/>
-    public override void OnSuccess(MethodExecutionEventArgs eventArgs)
+    public override void OnSuccess(MethodExecutionArgs eventArgs)
     {
       var region = (InconsistentRegion) eventArgs.MethodExecutionTag;
       region.Complete();
@@ -81,7 +66,7 @@ namespace Xtensive.Integrity.Aspects
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public override void OnExit(MethodExecutionEventArgs eventArgs)
+    public override void OnExit(MethodExecutionArgs eventArgs)
     {
       var region = (InconsistentRegion) eventArgs.MethodExecutionTag;
       region.DisposeSafely();

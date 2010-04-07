@@ -7,8 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using PostSharp.Aspects;
+using PostSharp.Aspects.Advices;
+using PostSharp.Aspects.Dependencies;
+using PostSharp.Aspects.Internals;
 using PostSharp.Extensibility;
-using PostSharp.Laos;
+using PostSharp.Reflection;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
@@ -25,8 +29,10 @@ namespace Xtensive.Integrity.Aspects
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
-  [MulticastAttributeUsage(MulticastTargets.Property)]
-  public abstract class PropertyConstraintAspect : CompoundAspect
+  [MulticastAttributeUsage(MulticastTargets.Method, TargetMemberAttributes = MulticastAttributes.Instance)]
+  [ProvideAspectRole(StandardRoles.Validation)]
+  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
+  public abstract class PropertyConstraintAspect : OnMethodBoundaryAspect
   {
     private const string MessageResourceNamePropertyName = "MessageResourceName";
     private const string MessageResourceTypePropertyName = "MessageResourceType";
@@ -34,8 +40,7 @@ namespace Xtensive.Integrity.Aspects
     private const string PropertyNameParameter = "PropertyName";
     private const string ValueParameter = "value";
 
-    private ThreadSafeCached<Func<IValidationAware, object>> getter =
-      ThreadSafeCached<Func<IValidationAware, object>>.Create(new object());
+    private ThreadSafeCached<Func<IValidationAware, object>> getter = ThreadSafeCached<Func<IValidationAware, object>>.Create(new object());
 
     /// <summary>
     /// Gets the validated property.
@@ -75,29 +80,32 @@ namespace Xtensive.Integrity.Aspects
     /// </remarks>
     /// <see cref="MessageResourceName"/>
     public Type MessageResourceType { get; set; }
-    
+
     /// <inheritdoc/>
-    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
+    public sealed override void OnEntry(MethodExecutionArgs args)
     {
-      collection.AddAspect(Property.GetSetMethod(true), 
-        new ImplementPropertyConstraintAspect(this));
+      var target = (IValidationAware) args.Instance;
+      var context = target.Context;
+      var immediate = Mode==ConstrainMode.OnSetValue || context==null || context.IsConsistent;
+      if (immediate)
+        CheckValue(target, args.Arguments[0]);
+      else
+        context.EnqueueValidate(target, Check);
+
     }
 
-    /// <summary>
-    /// Method called at compile-time by the weaver to validate the application of this
-    /// custom attribute on a specific target element.
-    /// </summary>
-    /// <param name="element">Element (<see cref="T:System.Reflection.MethodBase"/>, <see cref="T:System.Reflection.FieldInfo"/>
-    /// or <see cref="T:System.Type"/> on which this instance is applied.</param>
-    /// <returns>
-    ///   <b>true</b> in case of success, <b>false</b> in case of error.
-    /// </returns>
     /// <inheritdoc/>
-    public override sealed bool CompileTimeValidate(object element)
+    public override sealed bool CompileTimeValidate(MethodBase target)
     {
-      Property = (PropertyInfo) element;
+      var methodInfo = target as MethodInfo;
+      Property = methodInfo.GetProperty();
+      var setMethod = Property.GetSetMethod();
+      
+      // Skip getters
+      if (methodInfo != setMethod)
+        return false;
 
-      if (Property.GetSetMethod()==null) {
+      if (setMethod==null) {
         ErrorLog.Write(SeverityType.Error, string.Format(
           Strings.AspectExFieldConstraintCanNotBeAppliedToReadOnlyPropertyX, 
           AspectHelper.FormatMember(Property.DeclaringType, Property)));
@@ -142,6 +150,11 @@ namespace Xtensive.Integrity.Aspects
           AspectHelper.FormatMember(Property.DeclaringType, Property));
 
       return true;
+    }
+
+    public override void RuntimeInitialize(MethodBase method)
+    {
+      OnRuntimeInitialize();
     }
 
     /// <summary>
@@ -262,16 +275,6 @@ namespace Xtensive.Integrity.Aspects
         Message = ResourceHelper.GetStringResource(MessageResourceType, MessageResourceName);
       if (string.IsNullOrEmpty(Message))
         Message = GetDefaultMessage();
-    }
-
-    internal void OnSetValue(IValidationAware target, object value)
-    {
-      var context = target.Context;
-      bool immediate = Mode==ConstrainMode.OnSetValue || context==null || context.IsConsistent;
-      if (immediate)
-        CheckValue(target, value);
-      else
-        context.EnqueueValidate(target, Check);
     }
 
 // ReSharper disable UnusedPrivateMember
