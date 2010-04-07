@@ -21,14 +21,12 @@ namespace Xtensive.Indexing.Tests
     private int age;
     private string name;
 
-    [Changer]
     public string Name
     {
       get { return name; }
       set { name = value; }
     }
 
-    [Changer]
     public int Age
     {
       get { return age; }
@@ -276,6 +274,7 @@ namespace Xtensive.Indexing.Tests
       Assert.AreEqual(set.Count, setIndex.Count);
     }
 
+    [Ignore]
     [Test]
     public void KeyViolationSetTest()
     {
