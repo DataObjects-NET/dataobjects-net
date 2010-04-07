@@ -110,10 +110,17 @@ namespace Xtensive.Core.Weaver
           module.Cache.GetIntrinsic(IntrinsicType.Void),
           argumentTypes,
           0);
-  
-        var ctor = genericType.Methods.GetMethod(WellKnown.CtorName,
-          ctorSignature.Translate(module),
-          BindingOptions.Default);
+
+        IMethod constructor;
+        try {
+          constructor = genericType.Methods.GetMethod(WellKnown.CtorName,
+            ctorSignature.Translate(module),
+            BindingOptions.ExistenceMask);
+        }
+        catch (Exception e) {
+          ErrorLog.Debug("..Error: {0}", e);
+          return;
+        }
   
         var factoryMathodDef = new MethodDefDeclaration();
         factoryMathodDef.Name = DelegateHelper.AspectedFactoryMethodName;
@@ -144,7 +151,7 @@ namespace Xtensive.Core.Weaver
           for (short i = 0; i < argumentTypes.Length; i++)
             writer.EmitInstructionParameter(OpCodeNumber.Ldarg, factoryMathodDef.Parameters[i]);
 
-          writer.EmitInstructionMethod(OpCodeNumber.Newobj, ctor);
+          writer.EmitInstructionMethod(OpCodeNumber.Newobj, constructor);
           writer.EmitInstruction(OpCodeNumber.Ret);
           writer.DetachInstructionSequence();
         }

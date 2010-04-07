@@ -14,12 +14,20 @@ namespace Xtensive.Core.Aspects.Tests
   [TestFixture]
   public class ImplementFactoryMethodTest
   {
+    [ImplementConstructor(typeof(int))]
     [ImplementFactoryMethod(typeof(int))]
-    public class ProtectedCtorClassA
+    public class BaseClass
+    {
+      protected BaseClass(int i, bool ignore)
+      {}
+    }
+
+    public class ProtectedCtorClassA : BaseClass
     {
       public int I { get; set; }
 
       protected ProtectedCtorClassA(int i)
+        : base(i, true)
       {
         I = i;
       }
@@ -38,6 +46,22 @@ namespace Xtensive.Core.Aspects.Tests
     {
       protected ProtectedCtorClassB(int i)
         : base(i)
+      {
+      }
+    }
+
+    public class ProtectedCtorClassC : BaseClass
+    {
+      protected ProtectedCtorClassC(int i, bool ignore)
+        : base(i, ignore)
+      {
+      }
+    }
+
+    [ImplementFactoryMethod(typeof(int))]
+    public class ProtectedCtorClassD
+    {
+      protected ProtectedCtorClassD(int i, bool ignore)
       {
       }
     }
