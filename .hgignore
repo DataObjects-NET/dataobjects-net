@@ -24,6 +24,7 @@ H2Reg_Log.txt
 bin\*
 Bin\*
 obj\*
+TestResults\*
 ProxyAssemblyCache\*
 
 Help\*.Hx?
