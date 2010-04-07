@@ -11,7 +11,9 @@ namespace Xtensive.Core.Aspects
   /// <see cref="InitializableAttribute"/> must implement
   /// "initializable" pattern.
   /// </summary>
+  [Initializable]
   public interface IInitializable
   {
+
   }
 }

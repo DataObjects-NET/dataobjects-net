@@ -347,7 +347,7 @@ namespace Xtensive.Core.Reflection
     /// </summary>
     /// <param name="namePrefix">Prefix to include into type name.</param>
     /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
-    /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name <see cref="DelegateHelper.AspectedProtectedConstructorCallerName"/> will be created for each constructor.</param>
+    /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name <see cref="DelegateHelper.AspectedFactoryMethodName"/> will be created for each constructor.</param>
     /// <returns><see cref="Type"/> object of newly created type.</returns>
     public static Type CreateDummyType(string namePrefix, Type inheritFrom, bool implementProtectedConstructorAccessor)
     {
@@ -376,7 +376,7 @@ namespace Xtensive.Core.Reflection
     /// </summary>
     /// <param name="typeName">Type name.</param>
     /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
-    /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name <see cref="DelegateHelper.AspectedProtectedConstructorCallerName"/> will be created for each constructor.</param>
+    /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name <see cref="DelegateHelper.AspectedFactoryMethodName"/> will be created for each constructor.</param>
     /// <returns>New type.</returns>
     public static Type CreateInheritedDummyType(string typeName, Type inheritFrom, bool implementProtectedConstructorAccessor)
     {
@@ -409,7 +409,7 @@ namespace Xtensive.Core.Reflection
 
           // Create ProtectedConstructorAccessor
           if (implementProtectedConstructorAccessor) {
-            MethodBuilder methodBuilder = typeBuilder.DefineMethod(DelegateHelper.AspectedProtectedConstructorCallerName, 
+            MethodBuilder methodBuilder = typeBuilder.DefineMethod(DelegateHelper.AspectedFactoryMethodName, 
               MethodAttributes.Private | MethodAttributes.Static, 
               CallingConventions.Standard, typeBuilder.UnderlyingSystemType, parameterTypes);
             ILGenerator accessorIL = methodBuilder.GetILGenerator();

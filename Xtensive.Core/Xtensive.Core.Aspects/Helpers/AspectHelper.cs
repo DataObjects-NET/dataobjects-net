@@ -173,7 +173,7 @@ namespace Xtensive.Core.Aspects.Helpers
 
     #region AddStandardRequirements method
 
-    /// <summary>
+    /*/// <summary>
     /// Adds the standard requirements to the specified <paramref name="requirements"/>.
     /// </summary>
     /// <param name="requirements">The requirements to modify.</param>
@@ -191,7 +191,7 @@ namespace Xtensive.Core.Aspects.Helpers
       if (!requirements.Tasks.Contains(XtensiveCoreWeaverWeaverFactory))
         requirements.Tasks.Add(XtensiveCoreWeaverWeaverFactory);
     }
-
+*/
     #endregion
 
     /// <summary>
@@ -235,7 +235,7 @@ namespace Xtensive.Core.Aspects.Helpers
       MemberInfo member, bool mustHave, AttributeSearchOptions searchOptions)
       where TAttribute: Attribute
     {
-      TAttribute attribute = member.GetAttribute<TAttribute>(searchOptions);
+      var attribute = member.GetAttribute<TAttribute>(searchOptions);
       if ((attribute!=null) != mustHave) {
         ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
           FormatType(aspect.GetType()),
