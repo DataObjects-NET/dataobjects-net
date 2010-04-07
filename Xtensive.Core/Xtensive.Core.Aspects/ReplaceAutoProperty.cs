@@ -3,22 +3,18 @@
 // For conditions of distribution and use, see license.
 // Created by: Nick Svetlov
 // Created:    2008.05.29
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Nick Svetlov
-// Created:    2008.05.29
 
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
+using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Aspects.Resources;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Core.Aspects.Helpers
+namespace Xtensive.Core.Aspects
 {
   /// <summary>
   /// Replaces auto-property implementation to invocation of property get and set generic handlers.

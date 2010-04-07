@@ -12,7 +12,7 @@ using Xtensive.Core.Testing;
 namespace Xtensive.Core.Aspects.Tests
 {
   [TestFixture]
-  public class NotSupportedMethodAspectTest
+  public class NotSupportedTest
   {
     class TestClass
     {

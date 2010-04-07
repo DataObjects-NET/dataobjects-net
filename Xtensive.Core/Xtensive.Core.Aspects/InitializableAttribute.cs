@@ -16,7 +16,7 @@ using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Aspects
 {
-  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowExternalAssemblies = true, AllowMultiple = false)]
+  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [Serializable]
   public sealed class InitializableAttribute : Aspect,
@@ -46,8 +46,8 @@ namespace Xtensive.Core.Aspects
         if (!constructor.IsPublic && !IsDefined(constructor, typeof (DebuggerNonUserCodeAttribute)))
           continue;
         var constructorEpilogueAspect = hasInitializationErrorHandler
-          ? new ConstructorEpilogueAspect(initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
-          : new ConstructorEpilogueAspect(initializeMethodDeclarer, InitializeMethodName);
+          ? new ImplementConstructorEpilogue(initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
+          : new ImplementConstructorEpilogue(initializeMethodDeclarer, InitializeMethodName);
         yield return new AspectInstance(constructor, constructorEpilogueAspect);
       }
     }

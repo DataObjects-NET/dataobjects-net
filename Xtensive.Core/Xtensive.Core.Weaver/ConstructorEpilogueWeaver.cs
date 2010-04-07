@@ -13,11 +13,13 @@ using PostSharp.AspectWeaver;
 using PostSharp.AspectWeaver.AspectWeavers;
 using PostSharp.AspectWeaver.Transformations;
 using PostSharp.CodeModel;
+using PostSharp.CodeModel.Helpers;
 using PostSharp.CodeModel.TypeSignatures;
 using PostSharp.CodeWeaver;
 using PostSharp.Collections;
 using PostSharp.Extensibility;
 using PostSharp.Extensibility.Tasks;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Weaver.Resources;
 
@@ -79,7 +81,7 @@ namespace Xtensive.Core.Weaver
 
     public AspectWeaverTransformationInstance CreateInstance(AspectWeaverInstance aspectWeaverInstance)
     {
-      var aspect = (ConstructorEpilogueAspect)aspectWeaverInstance.Aspect;
+      var aspect = (ImplementConstructorEpilogue)aspectWeaverInstance.Aspect;
       var module = AspectWeaver.Module;
       var handlerType = module.Cache.GetType(aspect.HandlerType);
       var handlerMethodName = aspect.HandlerMethodName;
@@ -155,6 +157,7 @@ namespace Xtensive.Core.Weaver
           if (baseTypeRef == null)
             return;
 
+          var genericType = GenericHelper.GetTypeCanonicalGenericInstance(baseTypeRef);
           var module = parent.AspectWeaver.Module;
 
           getTypeFromHandleMethod = module.FindMethod(
@@ -166,7 +169,7 @@ namespace Xtensive.Core.Weaver
             CallingConvention.HasThis, 
             module.Cache.GetIntrinsic(IntrinsicType.Void),
             new[] {getTypeFromHandleMethod.ReturnType}, 0);
-          handlerMethod = (IMethod) baseTypeRef.Methods.GetMethod(
+          handlerMethod = (IMethod) genericType.Methods.GetMethod(
             parent.handlerMethodName,
             handlerSignature.Translate(module),
             BindingOptions.Default).Translate(module);
@@ -177,7 +180,7 @@ namespace Xtensive.Core.Weaver
             CallingConvention.HasThis, 
             module.Cache.GetIntrinsic(IntrinsicType.Void),
             new[] { getTypeFromHandleMethod.ReturnType, module.FindType(typeof (Exception), BindingOptions.Default)}, 0);
-          errorHandlerMethod = (IMethod) baseTypeRef.Methods.GetMethod(
+          errorHandlerMethod = (IMethod) genericType.Methods.GetMethod(
             parent.errorHandlerMethodName,
             errorHandlerSignature.Translate(module),
             BindingOptions.Default).Translate(module);

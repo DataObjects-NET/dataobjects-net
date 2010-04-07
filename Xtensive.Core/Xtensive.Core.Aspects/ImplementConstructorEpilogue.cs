@@ -10,9 +10,10 @@ using System;
 using System.Reflection;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
+using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Core.Aspects.Helpers
+namespace Xtensive.Core.Aspects
 {
   /// <summary>
   /// Implements epilogue call in constructor.
@@ -21,7 +22,7 @@ namespace Xtensive.Core.Aspects.Helpers
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
-  public sealed class ConstructorEpilogueAspect : MethodLevelAspect
+  public sealed class ImplementConstructorEpilogue : MethodLevelAspect
   {
     /// <summary>
     /// Gets the type where epilogue method is declared.
@@ -98,7 +99,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// </summary>
     /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
     /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
-    public ConstructorEpilogueAspect(Type handlerType, string handlerMethodName)
+    public ImplementConstructorEpilogue(Type handlerType, string handlerMethodName)
       : this(handlerType, handlerMethodName, null)
     {
     }
@@ -109,7 +110,7 @@ namespace Xtensive.Core.Aspects.Helpers
     /// <param name="handlerType"><see cref="HandlerType"/> property value.</param>
     /// <param name="handlerMethodName"><see cref="HandlerMethodName"/> property value.</param>
     /// <param name="errorHandlerMethodName"><see cref="ErrorHandlerMethodName"/> property value.</param>
-    public ConstructorEpilogueAspect(Type handlerType, string handlerMethodName, string errorHandlerMethodName)
+    public ImplementConstructorEpilogue(Type handlerType, string handlerMethodName, string errorHandlerMethodName)
     {
       HandlerType = handlerType;
       HandlerMethodName = handlerMethodName;

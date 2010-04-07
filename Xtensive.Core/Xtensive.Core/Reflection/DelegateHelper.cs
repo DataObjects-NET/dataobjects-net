@@ -49,10 +49,10 @@ namespace Xtensive.Core.Reflection
       "~Xtensive.Core.Aspects.PrivateFieldAccessorAspect~Set_";
 
     /// <summary>
-    /// Aspected protected constructor caller name.
+    /// Aspected factory method name.
     /// </summary>
-    public static readonly string AspectedProtectedConstructorCallerName =
-      "~Xtensive.Core.Aspects.ProtectedConstructorAccessor";
+    public static readonly string AspectedFactoryMethodName = 
+      "~Xtensive.Core.Aspects.FactoryMethod";
 
     #endregion
 
@@ -455,7 +455,7 @@ namespace Xtensive.Core.Reflection
           if (result != null)
             return (TDelegate) (object) result;
           methodKey = String.Intern(methodKey);
-          result = (Delegate)(object)CreateDelegate<TDelegate>(null, type, AspectedProtectedConstructorCallerName, ArrayUtils<Type>.EmptyArray);
+          result = (Delegate)(object)CreateDelegate<TDelegate>(null, type, AspectedFactoryMethodName, ArrayUtils<Type>.EmptyArray);
           AddCachedDelegate(methodKey, result);
         }
       return (TDelegate) (object) result;

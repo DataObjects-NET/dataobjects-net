@@ -13,9 +13,9 @@ using Xtensive.Core.Testing;
 namespace Xtensive.Core.Aspects.Tests
 {
   [TestFixture]
-  public class ConstructorEpilogueAspectTest
+  public class ImplementConstructorEpilogueTest
   {
-    [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler", "Error")]
+    [ImplementConstructorEpilogue(typeof(HandlerTargetBase), "Handler", "Error")]
     public class HandlerTargetBase
     {
       public static HandlerTargetBase LastInstance = null;
@@ -47,7 +47,7 @@ namespace Xtensive.Core.Aspects.Tests
       }
     }
 
-    [ConstructorEpilogueAspect(typeof(HandlerTargetBase), "Handler", "Error")]
+    [ImplementConstructorEpilogue(typeof(HandlerTargetBase), "Handler", "Error")]
     public class HandlerTarget: HandlerTargetBase
     {
       public HandlerTarget(Exception toThrow)

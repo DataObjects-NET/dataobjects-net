@@ -17,6 +17,7 @@ using PostSharp.CodeModel.TypeSignatures;
 using PostSharp.Collections;
 using PostSharp.Extensibility;
 using PostSharp.Extensibility.Tasks;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
 using System.Linq;
