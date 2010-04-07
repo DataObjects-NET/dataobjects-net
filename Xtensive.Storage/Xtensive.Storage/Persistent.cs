@@ -11,7 +11,6 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
-using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Internals;
@@ -28,10 +27,8 @@ namespace Xtensive.Storage
   /// </summary>
   /// <seealso cref="Entity"/>
   /// <seealso cref="Structure"/>
-  [Initializable]
   [SystemType]
   public abstract class Persistent : SessionBound,
-    IAtomicityAware,
     IValidationAware,
     INotifyPropertyChanged,
     IInitializable,
@@ -571,22 +568,6 @@ namespace Xtensive.Storage
     public override int GetHashCode()
     {
       return base.GetHashCode();
-    }
-
-    #endregion
-
-    #region IAtomicityAware members
-
-    [Infrastructure]
-    AtomicityContextBase IContextBound<AtomicityContextBase>.Context
-    {
-      get { return Session.AtomicityContext; }
-    }
-
-    [Infrastructure]
-    bool IAtomicityAware.IsCompatibleWith(AtomicityContextBase context)
-    {
-      return context==Session.AtomicityContext;
     }
 
     #endregion

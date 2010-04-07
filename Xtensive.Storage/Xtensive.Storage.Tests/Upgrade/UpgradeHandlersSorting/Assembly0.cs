@@ -9,10 +9,6 @@ using System.Diagnostics;
 using Xtensive.Storage;
 using Xtensive.Storage.Aspects;
 
-//#if _TEST_COMPILATION
-[assembly: Persistent(AttributeTargetAssemblies = "Assembly0")]
-//#endif
-
 namespace UpgradeHandlersSorting.Model
 {
   [Serializable]

@@ -1,7 +1,7 @@
 // Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: 
+// Created by: Alexis Kochetov
 // Created:    2008.08.21
 
 using System;
@@ -16,7 +16,6 @@ namespace Xtensive.Storage.Tests.Storage.AspectsTest
   public class AspectsTest : AutoBuildTest
   {
     [Serializable]
-    [Persistent]
     [HierarchyRoot]
     public class BusinessObject : Entity
     {

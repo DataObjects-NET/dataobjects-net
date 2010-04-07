@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
-using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
 
 // General Information about an assembly is controlled through the following 
@@ -43,9 +42,6 @@ using Xtensive.Core.Aspects;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: CLSCompliant(true)]    
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
-
-// This ensures the RecordSetProvider & its ancestors will be "initializable"
-[assembly:Initializable(AttributeTargetTypes = "*")]
 
 #if !CUSTOMKEY
 [assembly: InternalsVisibleTo("Xtensive.Storage.Tests, PublicKey=" + 

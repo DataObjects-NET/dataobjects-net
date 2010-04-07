@@ -667,7 +667,7 @@ namespace Xtensive.Storage
       Func<Tuple, Entity> itemCtor = null;
       if (field.Association.AuxiliaryType!=null)
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
-          field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName,
+          field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedFactoryMethodName,
           ArrayUtils<Type>.EmptyArray);
       return new EntitySetTypeState(seek, seekTransform, itemCtor,entitySet.GetItemCountQueryDelegate(field));
     }

@@ -37,9 +37,6 @@ using Xtensive.Core.Aspects;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: CLSCompliant(true)]
 
-// This ensures the RecordSetProvider & its ancestors will be "initializable"
-[assembly: Initializable(AttributeTargetTypes = "*")]
-
 #if !CUSTOMKEY
 [assembly: InternalsVisibleTo("Xtensive.Storage.Tests, PublicKey=" + 
 "0024000004800000940000000602000000240000525341310004000001000100fbdd689d62e9c6" +
