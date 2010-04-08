@@ -34,11 +34,8 @@ namespace Xtensive.Storage
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class TransactionalAttribute : OnMethodBoundaryAspect
   {
-    [NonSerialized]
     private bool activateSession;
-    [NonSerialized]
     private bool openTransaction;
-    [NonSerialized]
     private TransactionOpenMode mode;
 
     /// <summary>

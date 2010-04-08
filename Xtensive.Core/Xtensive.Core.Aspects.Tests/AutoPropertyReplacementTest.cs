@@ -19,6 +19,26 @@ namespace Xtensive.Core.Aspects.Tests
     public class TestClassBase
     {
       public Dictionary<string, object> properties = new Dictionary<string, object>();
+
+      public T GetProperty<T>(int id)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void SetProperty<T>(int id, T value)
+      {
+        throw new NotImplementedException();
+      }
+
+      public object GetProperty(string name)
+      {
+        throw new NotImplementedException();
+      }
+
+      public void SetProperty(string name, object value)
+      {
+        throw new NotImplementedException();
+      }
       
       public T GetProperty<T>(string name)
       {

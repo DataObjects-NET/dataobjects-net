@@ -40,6 +40,8 @@ namespace Xtensive.Core.Aspects
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
+      if (AspectHelper.IsInfrastructureMethod(method))
+        return false;
       var accessorInfo = method as MethodInfo;
       if (accessorInfo == null) {
         ErrorLog.Write(SeverityType.Error, AspectMessageType.AspectRequiresToBe,
