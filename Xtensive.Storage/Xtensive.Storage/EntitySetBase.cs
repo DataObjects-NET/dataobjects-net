@@ -18,7 +18,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
@@ -31,6 +31,10 @@ namespace Xtensive.Storage
   /// <summary>
   /// Base class for <see cref="EntitySet{TItem}"/>.
   /// </summary>
+  [ImplementConstructor(typeof(Entity), typeof(FieldInfo))]
+  [ImplementConstructor(typeof(SerializationInfo), typeof(StreamingContext))]
+  [ImplementFactoryMethod(typeof(Entity), typeof(FieldInfo))]
+  [ImplementFactoryMethod(typeof(SerializationInfo), typeof(StreamingContext))]
   public abstract class EntitySetBase : SessionBound,
     IFieldValueAdapter,
     INotifyPropertyChanged,

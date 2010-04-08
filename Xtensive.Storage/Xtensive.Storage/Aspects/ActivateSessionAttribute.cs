@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Aspects
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Indicates whether a session should be activated on the method's or property's boundaries.

@@ -6,13 +6,14 @@
 
 using System;
 using PostSharp.Aspects;
+using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Aspects
 {
   [MulticastAttributeUsage(MulticastTargets.Default | MulticastTargets.InstanceConstructor | MulticastTargets.Method | MulticastTargets.StaticConstructor)]
-  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   [Serializable]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
   public sealed class NotSupportedAttribute : MethodLevelAspect

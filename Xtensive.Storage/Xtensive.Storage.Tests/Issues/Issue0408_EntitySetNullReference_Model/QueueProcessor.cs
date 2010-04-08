@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xtensive.Storage;
-using Xtensive.Storage.Aspects;
 using System.Diagnostics;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model

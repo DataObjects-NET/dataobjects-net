@@ -23,7 +23,8 @@ namespace Xtensive.Core.Aspects.Tests
     }
   }
 
-  public class InitializableBase : IInitializable
+  [Initializable]
+  public class InitializableBase
   {
     public static int ErrorCount { get; private set; }
     public int InitializeCount { get; private set; }

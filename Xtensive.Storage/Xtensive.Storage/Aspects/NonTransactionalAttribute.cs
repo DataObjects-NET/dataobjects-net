@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Storage.Aspects
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Indicates whether transactional aspect should not be applied to the method, property or constructor.

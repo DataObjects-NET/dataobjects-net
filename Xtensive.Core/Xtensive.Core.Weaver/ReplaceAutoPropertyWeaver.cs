@@ -130,7 +130,7 @@ namespace Xtensive.Core.Weaver
         var propertyName = targetProperty.Name;
         var isNew = false;
         if (!isExplicit) {
-          var baseType = (TypeDefDeclaration) targetType.BaseType;
+          var baseType = targetType.BaseType.GetTypeDefinition();
           var baseProperty = baseType.FindProperty(propertyName);
           if (baseProperty != null)
             if (!targetMethod.IsVirtual)

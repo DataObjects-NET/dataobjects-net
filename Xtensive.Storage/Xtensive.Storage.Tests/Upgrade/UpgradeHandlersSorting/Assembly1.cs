@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Storage;
 using Xtensive.Storage.Upgrade;
-using Xtensive.Storage.Aspects;
 
 #if _TEST_COMPILATION
 [assembly: Persistent(AttributeTargetAssemblies = "Assembly1")]

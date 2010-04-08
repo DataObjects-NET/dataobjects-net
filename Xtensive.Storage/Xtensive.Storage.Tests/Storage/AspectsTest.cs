@@ -9,7 +9,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Aspects;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 
 namespace Xtensive.Storage.Tests.Storage.AspectsTest
 {

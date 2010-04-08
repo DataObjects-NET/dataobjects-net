@@ -52,6 +52,7 @@ namespace Xtensive.Core.Aspects.Tests
       public new int Property1 { get; set; }
       public new int Property2 { get; set; }
       public override int Property3 { get; set; }
+      [NotSupported]
       public int Property4 { get; set; }
     }
 

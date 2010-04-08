@@ -8,7 +8,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Testing;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
 

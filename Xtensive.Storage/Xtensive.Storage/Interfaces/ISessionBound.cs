@@ -5,7 +5,7 @@
 // Created:    2009.12.14
 
 using Xtensive.Core.IoC;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 
 namespace Xtensive.Storage
 {

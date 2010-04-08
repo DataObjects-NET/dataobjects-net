@@ -64,6 +64,8 @@ namespace Xtensive.Storage
   [DebuggerDisplay("{Key}")]
   [ImplementConstructor(typeof(EntityState))]
   [ImplementConstructor(typeof(SerializationInfo), typeof(StreamingContext))]
+  [ImplementFactoryMethod(typeof(EntityState))]
+  [ImplementFactoryMethod(typeof(SerializationInfo), typeof(StreamingContext))]
   public abstract class Entity : Persistent,
     IEntity,
     ISerializable,

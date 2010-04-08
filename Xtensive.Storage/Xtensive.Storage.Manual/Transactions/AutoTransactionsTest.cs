@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Aspects;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.Transactions.AutoTransactions

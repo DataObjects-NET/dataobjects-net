@@ -8,18 +8,21 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using PostSharp.Aspects;
+using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 
-namespace Xtensive.Storage.Aspects
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Activates session on method boundary.
   /// Opens the transaction, if this is necessary.
   /// </summary>
+  [Serializable]
   [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false,
     TargetMemberAttributes = 
       MulticastAttributes.Instance |
@@ -28,7 +31,7 @@ namespace Xtensive.Storage.Aspects
       MulticastAttributes.Managed | 
       MulticastAttributes.NonAbstract)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-  [Serializable]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class TransactionalAttribute : OnMethodBoundaryAspect
   {
     [NonSerialized]
