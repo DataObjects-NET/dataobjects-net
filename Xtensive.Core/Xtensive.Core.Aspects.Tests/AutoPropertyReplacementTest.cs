@@ -10,7 +10,6 @@ using NUnit.Framework;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
-using Xtensive.Core.Weaver;
 
 namespace Xtensive.Core.Aspects.Tests
 {

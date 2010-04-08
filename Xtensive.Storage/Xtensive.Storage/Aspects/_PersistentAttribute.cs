@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using PostSharp.Aspects;
+using PostSharp.Extensibility;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Aspects.Helpers;
@@ -28,7 +30,7 @@ namespace Xtensive.Storage.Aspects
   /// <remarks>
   /// <list>
   ///   <listheader>PersistentAttribute applies following aspects on a target class:</listheader>
-  ///   <item><see cref="TransactionalAspect"/> on all methods of <see cref="ISessionBound"/></item>
+  ///   <item><see cref="TransactionalAttribute"/> on all methods of <see cref="ISessionBound"/></item>
   ///   <item><see cref="AutoPropertyReplacementAspect"/> on auto-properties with <see cref="FieldAttribute">[Field] attribute</see></item>
   ///   <item><see cref="ProtectedConstructorAspect"/> on <see cref="Persistent"/> and <see cref="EntitySet{TItem}"/> classes</item>
   ///   <item><see cref="ProtectedConstructorAccessorAspect"/> on <see cref="Persistent"/> and <see cref="EntitySet{TItem}"/> classes</item>
@@ -38,7 +40,7 @@ namespace Xtensive.Storage.Aspects
   /// </remarks>
   [MulticastAttributeUsage(MulticastTargets.Class)]
   [Serializable]
-  public sealed class PersistentAttribute : CompoundAspect
+  public sealed class _PersistentAttribute : Aspect, IAspectProvider
   {
     #region Nested type: MethodAttributeSet
 
@@ -86,11 +88,11 @@ namespace Xtensive.Storage.Aspects
     #region ProvideXxx methods      
 
     /// <inheritdoc/>
-    public override void ProvideAspects(object element, LaosReflectionAspectCollection collection)
+    public IEnumerable<AspectInstance> ProvideAspects(object element)
     {
       var type = (Type) element;
-      if (sessionBoundType.IsAssignableFrom(type))
-        ProvideTransactionalAspects(type, collection);
+//      if (sessionBoundType.IsAssignableFrom(type))
+//        ProvideTransactionalAspects(type, collection);
       if (persistentType.IsAssignableFrom(type))
         ProvidePersistentAspects(type, collection);
       if (entitySetType.IsAssignableFrom(type))
@@ -160,7 +162,7 @@ namespace Xtensive.Storage.Aspects
           activateSession = attributeSet.ActivateSession.Activate;
 
         if (activateSession || openTransaction) {
-          var aspect = TransactionalAspect.ApplyOnce(method, activateSession, openTransaction, mode);
+          var aspect = TransactionalAttribute.ApplyOnce(method, activateSession, openTransaction, mode);
           if (aspect!=null)
             collection.AddAspect(method, aspect);
         }
@@ -172,7 +174,7 @@ namespace Xtensive.Storage.Aspects
       ProvidePersistentFieldAspects(type, collection);
       ProvideConstructorAspect(type, collection);
       ProvideConstructorAccessorAspect(type, collection);
-      new InitializableAttribute().ProvideAspects(type, collection);
+//      new InitializableAttribute().ProvideAspects(type, collection);
     }
 
     private static void ProvideEntitySetAspects(Type type, LaosReflectionAspectCollection collection)
@@ -224,7 +226,7 @@ namespace Xtensive.Storage.Aspects
           var constraints = propertyInfo.GetAttributes<PropertyConstraintAspect>(AttributeSearchOptions.InheritNone);
           bool hasConstraints = !(constraints==null || constraints.Length==0);
           if (hasConstraints) {
-            var transactionalAspect = TransactionalAspect.ApplyOnce(setter, true, true, TransactionOpenMode.Auto);
+            var transactionalAspect = TransactionalAttribute.ApplyOnce(setter, true, true, TransactionOpenMode.Auto);
             if (transactionalAspect!=null)
               collection.AddAspect(setter, transactionalAspect);
           }

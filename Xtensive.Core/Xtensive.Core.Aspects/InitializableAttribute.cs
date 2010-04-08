@@ -19,6 +19,7 @@ namespace Xtensive.Core.Aspects
   [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [Serializable]
+  [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
   public sealed class InitializableAttribute : Aspect,
     IAspectProvider
   {

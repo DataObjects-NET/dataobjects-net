@@ -5,6 +5,7 @@
 // Created:    2009.12.14
 
 using Xtensive.Core.IoC;
+using Xtensive.Storage.Aspects;
 
 namespace Xtensive.Storage
 {
@@ -13,6 +14,7 @@ namespace Xtensive.Storage
   /// which methods must be processed by PostSharp
   /// to ensure its <see cref="Session"/> is active inside method bodies.
   /// </summary>
+  [Transactional]
   public interface ISessionBound : IContextBound<Session>
   {
     /// <summary>
