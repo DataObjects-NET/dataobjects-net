@@ -5,6 +5,14 @@
 // Created:    2007.07.04
 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
+using PostSharp.Aspects;
+using PostSharp.Extensibility;
+using Xtensive.Core.Aspects;
+using Xtensive.Core.Reflection;
+using Xtensive.Integrity.Aspects;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -13,9 +21,12 @@ namespace Xtensive.Storage
   /// and defines its persistence-related properties.
   /// </summary>
   [Serializable]
+  [MulticastAttributeUsage(MulticastTargets.Property, AllowMultiple = false, Inheritance = MulticastInheritance.Strict, PersistMetaData = true)]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-  public sealed class FieldAttribute : StorageAttribute
+  public sealed class FieldAttribute : Aspect,
+    IAspectProvider
   {
+    private const string HandlerMethodSuffix = "FieldValue";
     internal int? length;
     internal int? scale;
     internal int? precision;
@@ -91,5 +102,38 @@ namespace Xtensive.Storage
     /// <see cref="Entity"/> and <see cref="EntitySet{TItem}"/> fields are always loaded on demand.
     /// </remarks>
     public bool LazyLoad { get; set; }
+  
+    public IEnumerable<AspectInstance> ProvideAspects(object targetElement)
+    {
+      var result = new List<AspectInstance>();
+      var propertyInfo = (PropertyInfo) targetElement;
+      var type = propertyInfo.DeclaringType;
+      if (!typeof(Persistent).IsAssignableFrom(type))
+        return result;
+
+      var keyAttribute = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritNone);
+      var getter = propertyInfo.GetGetMethod(true);
+      var setter = propertyInfo.GetSetMethod(true);
+      var replacer = new ReplaceAutoProperty(HandlerMethodSuffix);
+      if (getter != null)
+        result.Add(new AspectInstance(getter, replacer));
+      if (setter != null) {
+        if (keyAttribute != null) {
+          var errorMessage = string.Format(Strings.ExKeyFieldXInTypeYShouldNotHaveSetAccessor, propertyInfo.Name, type.Name);
+          var notSupportedAspect = new NotSupportedAttribute(errorMessage);
+          result.Add(new AspectInstance(setter, notSupportedAspect));
+        }
+        result.Add(new AspectInstance(setter, replacer));
+
+        // If there are constraints, we must "wrap" setter into transaction
+        var constraints = propertyInfo.GetAttributes<PropertyConstraintAspect>(AttributeSearchOptions.InheritNone);
+        bool hasConstraints = !(constraints == null || constraints.Length == 0);
+        if (hasConstraints) {
+          var transactionalAspect = new TransactionalAttribute();
+          result.Add(new AspectInstance(setter, transactionalAspect));
+        }
+      }
+      return result;
+    }
   }
 }

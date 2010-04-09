@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Storage;
 using Xtensive.Storage.Upgrade;
-using Xtensive.Storage.Aspects;
 
 #if _TEST_COMPILATION
 [assembly: Persistent(AttributeTargetAssemblies = "Assembly2")]

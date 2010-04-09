@@ -8,7 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core.Aspects;
 using Xtensive.Integrity.Transactions;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.AutoTransactionsTestModel;
 
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Tests.Storage
   public class MySessionBound : SessionBound
   {
 
-    [ActivateSession(false), Transactional(false)]
+    [ActivateSession(false), NonTransactional]
     public void CheckSessionActivation()
     {
       TestSession = Session;
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Tests.Storage
       CallAllMethods();
     }
 
-    [ActivateSession(true), Transactional(false)]
+    [ActivateSession(true), NonTransactional]
     public void CheckAutoTransactions()
     {
       TestSession = Session;
@@ -162,7 +162,7 @@ namespace Xtensive.Storage.Tests.Storage
       set { CheckState(TransactionState.None, SessionState.NotActive); }
     }
 
-    [Transactional(false)]
+    [NonTransactional]
     public int PublicNotTransactionalProperty
     {
       get { return CheckState(TransactionState.None, SessionState.Active); }
@@ -211,13 +211,13 @@ namespace Xtensive.Storage.Tests.Storage
       CheckState(TransactionState.None, SessionState.NotActive);
     }
 
-    [Transactional(false)]
+    [NonTransactional]
     public void PublicNotTransactionalMethod()
     {
       CheckState(TransactionState.None, SessionState.Active);
     }
 
-    [Transactional(true)]
+    [Transactional]
     private void PrivateTransactionalMethod()
     {
       CheckState(TransactionState.Open, SessionState.Active);

@@ -18,7 +18,7 @@ namespace Xtensive.Core.Aspects
   /// Implemented constructor will call the constructor with the same set of arguments from the base type.
   /// </summary>
   [MulticastAttributeUsage(MulticastTargets.Class, Inheritance = MulticastInheritance.Strict)]
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof(ImplementFactoryMethod))]
   [Serializable]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]

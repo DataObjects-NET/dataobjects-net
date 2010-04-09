@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information

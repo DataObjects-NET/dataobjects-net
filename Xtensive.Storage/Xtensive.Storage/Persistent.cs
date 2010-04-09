@@ -12,7 +12,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Validation;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
@@ -28,10 +28,10 @@ namespace Xtensive.Storage
   /// <seealso cref="Entity"/>
   /// <seealso cref="Structure"/>
   [SystemType]
+  [Initializable]
   public abstract class Persistent : SessionBound,
     IValidationAware,
     INotifyPropertyChanged,
-    IInitializable,
     IDataErrorInfo,
     IUsesSystemLogicOnlyRegions
   {
@@ -182,7 +182,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the field value.
     /// </summary>
-    /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
     /// <returns>Field value.</returns>
     protected internal object GetFieldValue(string fieldName)
