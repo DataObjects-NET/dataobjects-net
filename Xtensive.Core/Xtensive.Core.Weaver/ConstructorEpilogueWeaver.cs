@@ -5,23 +5,16 @@
 // Created:    2010.03.29
 
 using System;
-using System.Collections.Generic;
 using PostSharp.AspectInfrastructure;
 using PostSharp.AspectInfrastructure.Helpers;
-using PostSharp.Aspects;
 using PostSharp.AspectWeaver;
 using PostSharp.AspectWeaver.AspectWeavers;
 using PostSharp.AspectWeaver.Transformations;
 using PostSharp.CodeModel;
 using PostSharp.CodeModel.Helpers;
-using PostSharp.CodeModel.TypeSignatures;
-using PostSharp.CodeWeaver;
 using PostSharp.Collections;
 using PostSharp.Extensibility;
-using PostSharp.Extensibility.Tasks;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core.Weaver.Resources;
 
 namespace Xtensive.Core.Weaver
 {

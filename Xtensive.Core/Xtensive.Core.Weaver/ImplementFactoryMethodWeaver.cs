@@ -115,10 +115,9 @@ namespace Xtensive.Core.Weaver
         try {
           constructor = genericType.Methods.GetMethod(WellKnown.CtorName,
             ctorSignature.Translate(module),
-            BindingOptions.ExistenceMask);
-        }
-        catch (Exception e) {
-          ErrorLog.Debug("..Error: {0}", e);
+            BindingOptions.Default);
+        } catch (Exception e) {
+          ErrorLog.Write(SeverityType.Warning, "{0}", e);
           return;
         }
   

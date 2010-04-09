@@ -121,10 +121,10 @@ namespace Xtensive.Core.Weaver
         IMethod baseConstructor = null;
         try {
           baseConstructor = baseType.Methods.GetMethod(WellKnown.CtorName,
-            ctorDef,
-            BindingOptions.Default);
+            ctorDef.Translate(module).TranslateMethodSignature(baseType.Module),
+            BindingOptions.Default).TranslateMethod(baseType.Module);
         } catch (Exception e) {
-          ErrorLog.Debug("Error: {0}", e);
+          ErrorLog.Write(SeverityType.Error, "{0}", e);
           return;
         }
 

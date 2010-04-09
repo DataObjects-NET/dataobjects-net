@@ -31,6 +31,8 @@ namespace Xtensive.Integrity.Aspects
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
   [MulticastAttributeUsage(MulticastTargets.Method, TargetMemberAttributes = MulticastAttributes.Instance)]
   [ProvideAspectRole(StandardRoles.Validation)]
+  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
+  [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Any, StandardRoles.Validation)]
   [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
   public abstract class PropertyConstraintAspect : OnMethodBoundaryAspect
   {
@@ -82,6 +84,9 @@ namespace Xtensive.Integrity.Aspects
     public Type MessageResourceType { get; set; }
 
     /// <inheritdoc/>
+    [ProvideAspectRole(StandardRoles.Validation)]
+    [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
+    [MethodExecutionHandlerOptimization(MethodExecutionHandlerOptimizations.IgnoreAllEventArgsMembers & ~(MethodExecutionHandlerOptimizations.IgnoreGetInstance | MethodExecutionHandlerOptimizations.IgnoreGetArguments))]
     public sealed override void OnEntry(MethodExecutionArgs args)
     {
       var target = (IValidationAware) args.Instance;

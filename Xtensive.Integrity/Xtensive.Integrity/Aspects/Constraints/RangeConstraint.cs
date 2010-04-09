@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using PostSharp.Aspects.Dependencies;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Threading;
@@ -19,6 +20,8 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures field value fits in the specified range.
   /// </summary>
   [Serializable]
+  [ProvideAspectRole(StandardRoles.Validation)]
+  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
   public sealed class RangeConstraint : PropertyConstraintAspect, IDeserializationCallback
   {
     private const string MinParameter = "Min";
