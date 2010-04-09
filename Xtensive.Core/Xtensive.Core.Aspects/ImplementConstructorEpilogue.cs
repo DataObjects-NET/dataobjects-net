@@ -18,7 +18,7 @@ namespace Xtensive.Core.Aspects
   /// <summary>
   /// Implements epilogue call in constructor.
   /// </summary>
-  [MulticastAttributeUsage(MulticastTargets.InstanceConstructor)]
+  [MulticastAttributeUsage(MulticastTargets.InstanceConstructor, AllowExternalAssemblies = true)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
