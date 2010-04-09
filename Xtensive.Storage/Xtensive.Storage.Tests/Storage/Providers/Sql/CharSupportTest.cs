@@ -22,6 +22,9 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql.CharSupportTestModel
 
     [Field]
     public char Char {get; set;}
+
+    [Field]
+    public char? MaybeChar { get; set;}
   }
 }
 
@@ -90,6 +93,23 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
           .ToList();
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual(y, result[0]);
+        transaction.Complete();
+      }
+    }
+
+    [Test]
+    public void CharConstantTest()
+    {
+      using (Session.Open(Domain))
+      using (var transaction = Transaction.Open()) {
+        var rs = GetRecordSet<MyEntity>();
+        var result = rs
+          .Select(rs.Header.IndexOf(charColumn))
+          .Filter(t => t.GetValueOrDefault<char>(0)=='Y')
+          .Select(i => i.GetValueOrDefault<char>(0))
+          .ToList();
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual('Y', result[0]);
         transaction.Complete();
       }
     }
