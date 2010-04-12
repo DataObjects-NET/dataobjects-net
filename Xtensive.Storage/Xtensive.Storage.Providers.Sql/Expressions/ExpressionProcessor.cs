@@ -162,13 +162,26 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
 
       if (IsCharToIntConvert(expression.Left) && IsCharToIntConvert(expression.Right)) {
         // chars are compared as integers, but we store them as strings and should compare them like strings.
-        left = Visit(((UnaryExpression) expression.Left).Operand, isEqualityCheck);
-        right = Visit(((UnaryExpression) expression.Right).Operand, isEqualityCheck);
-      } else if (isBooleanFixRequired) {
+        left = Visit(GetOperand(expression.Left), isEqualityCheck);
+        right = Visit(GetOperand(expression.Right), isEqualityCheck);
+      }
+      else if (IsCharToIntConvert(expression.Left) && IsIntConstant(expression.Right)) {
+        // another case of char comparison
+        left = Visit(GetOperand(expression.Left), isEqualityCheck);
+        right = ConvertIntConstantToSingleCharString(expression.Right);
+      }
+      else if (IsIntConstant(expression.Left) && IsCharToIntConvert(expression.Right)) {
+        // another case of char comparison
+        left = ConvertIntConstantToSingleCharString(expression.Left);
+        right = Visit(GetOperand(expression.Right), isEqualityCheck);
+      }
+      else if (isBooleanFixRequired) {
         // boolean expressions should be compared as integers
         left = booleanExpressionConverter.BooleanToInt(Visit(expression.Left, isEqualityCheck));
         right = booleanExpressionConverter.BooleanToInt(Visit(expression.Right, isEqualityCheck));
-      } else {
+      }
+      else {
+        // regular case
         left = Visit(expression.Left, isEqualityCheck);
         right = Visit(expression.Right, isEqualityCheck);
       }

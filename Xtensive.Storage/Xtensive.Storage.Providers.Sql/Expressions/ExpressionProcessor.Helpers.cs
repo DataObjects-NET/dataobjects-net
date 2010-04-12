@@ -174,9 +174,25 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
         ((UnaryExpression) e).Operand.Type==typeof (char);
     }
 
+    private static bool IsIntConstant(Expression expression)
+    {
+      return expression.NodeType==ExpressionType.Constant && expression.Type==typeof (int);
+    }
+
     private static bool IsBooleanExpression(Expression expression)
     {
       return expression.Type.StripNullable()==typeof (bool);
+    }
+
+    private static SqlExpression ConvertIntConstantToSingleCharString(Expression expression)
+    {
+      var value = (int) ((ConstantExpression) expression).Value;
+      return SqlDml.Literal(new string(new[] {(char) value}));
+    }
+
+    private static Expression GetOperand(Expression expression)
+    {
+      return ((UnaryExpression) expression).Operand;
     }
 
     private static bool IsEmptyStringLiteral(SqlExpression expression)
