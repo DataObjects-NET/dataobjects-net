@@ -107,7 +107,7 @@ namespace Xtensive.Core.Weaver
         ctorDef.CallingConvention = CallingConvention.HasThis;
         ctorDef.Attributes = MethodAttributes.Family | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
         typeDef.Methods.Add(ctorDef);
-        ctorDef.CustomAttributes.Add(helper.GetDebuggerNonUserCodeAttribute());
+//        ctorDef.CustomAttributes.Add(helper.GetDebuggerNonUserCodeAttribute());
         ctorDef.CustomAttributes.Add(helper.GetCompilerGeneratedAttribute());
         ctorDef.ReturnParameter = new ParameterDeclaration();
         ctorDef.ReturnParameter.Name = string.Empty;
