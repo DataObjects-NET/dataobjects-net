@@ -72,17 +72,17 @@ namespace Xtensive.Storage
     [DebuggerStepThrough]
     public override void OnEntry(MethodExecutionArgs args)
     {
-      var sessionBound = (ISessionBound) args.Instance;
-      var session = sessionBound.Session;
+      var sessionBound = args.Instance as ISessionBound;
+      var session = sessionBound == null
+        ? Session.Demand()
+        : sessionBound.Session;
       IDisposable sessionScope = null;
       if (activateSession)
         sessionScope = session.Activate(true);
       if (!openTransaction)
         args.MethodExecutionTag = sessionScope;
       else {
-        var transactionScope = session == null
-          ? Transaction.Open(mode)
-          : Transaction.Open(session, mode);
+        var transactionScope = Transaction.Open(session, mode);
         args.MethodExecutionTag = transactionScope.Join(sessionScope);
       }
     }

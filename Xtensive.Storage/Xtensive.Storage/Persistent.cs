@@ -29,6 +29,7 @@ namespace Xtensive.Storage
   /// <seealso cref="Structure"/>
   [SystemType]
   [Initializable]
+  [PersistentAspect]
   public abstract class Persistent : SessionBound,
     IValidationAware,
     INotifyPropertyChanged,
