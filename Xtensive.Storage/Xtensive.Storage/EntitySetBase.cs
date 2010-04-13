@@ -31,10 +31,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Base class for <see cref="EntitySet{TItem}"/>.
   /// </summary>
-  [ImplementConstructor(typeof(Entity), typeof(FieldInfo))]
-  [ImplementConstructor(typeof(SerializationInfo), typeof(StreamingContext))]
-  [ImplementFactoryMethod(typeof(Entity), typeof(FieldInfo))]
-  [ImplementFactoryMethod(typeof(SerializationInfo), typeof(StreamingContext))]
+  [EntitySetAspect]
   public abstract class EntitySetBase : SessionBound,
     IFieldValueAdapter,
     INotifyPropertyChanged,

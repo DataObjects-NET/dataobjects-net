@@ -55,12 +55,7 @@ namespace Xtensive.Storage
   /// </code>
   /// </example>
   [SystemType]
-  [ImplementConstructor(typeof(Tuple))]
-  [ImplementConstructor(typeof(Persistent), typeof(FieldInfo))]
-  [ImplementConstructor(typeof(SerializationInfo), typeof(StreamingContext))]
-  [ImplementFactoryMethod(typeof(Tuple))]
-  [ImplementFactoryMethod(typeof(Persistent), typeof(FieldInfo))]
-  [ImplementFactoryMethod(typeof(SerializationInfo), typeof(StreamingContext))]
+  [StructureAspect]
   public abstract class Structure : Persistent,
     IEquatable<Structure>,
     IFieldValueAdapter
