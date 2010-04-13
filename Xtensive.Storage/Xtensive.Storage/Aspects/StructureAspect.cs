@@ -18,7 +18,7 @@ using System.Linq;
 namespace Xtensive.Storage
 {
   [Serializable]
-  [MulticastAttributeUsage(MulticastTargets.Class, AllowMultiple = false, Inheritance = MulticastInheritance.Strict)]
+  [MulticastAttributeUsage(MulticastTargets.Class, AllowMultiple = false, Inheritance = MulticastInheritance.Multicast)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
   public class StructureAspect : Aspect, IAspectProvider
   {
