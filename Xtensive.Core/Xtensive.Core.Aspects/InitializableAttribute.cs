@@ -30,32 +30,34 @@ namespace Xtensive.Core.Aspects
 
     public IEnumerable<AspectInstance> ProvideAspects(object targetElement)
     {
+      var result = new List<AspectInstance>();
       var type = targetElement as Type;
       if (type == null)
-        yield break;
+        return result;
 
       // Getting all the base types
-      Type initializeMethodDeclarer = FindFirstMethodDeclarer(type, InitializeMethodName, new[] {typeof (Type)});
+      var initializeMethodDeclarer = FindFirstMethodDeclarer(type, InitializeMethodName, new[] {typeof (Type)});
       if (initializeMethodDeclarer == null)
-        yield break;
+        return result;
       bool hasInitializationErrorHandler =
         GetMethod(initializeMethodDeclarer, InitializationErrorMethodName, new[] {typeof (Type), typeof (Exception)}) !=
         null;
 
       // Applying the aspect to all the constructors
-      foreach (ConstructorInfo constructor in type.GetConstructors()) {
-        if (!constructor.IsPublic && !IsDefined(constructor, typeof (DebuggerNonUserCodeAttribute)))
+      foreach (ConstructorInfo constructor in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
+        if (constructor.IsPrivate)
           continue;
         var constructorEpilogueAspect = hasInitializationErrorHandler
           ? new ImplementConstructorEpilogue(initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
           : new ImplementConstructorEpilogue(initializeMethodDeclarer, InitializeMethodName);
-        yield return new AspectInstance(constructor, constructorEpilogueAspect);
+        result.Add(new AspectInstance(constructor, constructorEpilogueAspect));
       }
+      return result;
     }
 
     #endregion
 
-    private Type FindFirstMethodDeclarer(Type descendantType, string methodName, Type[] arguments)
+    private static Type FindFirstMethodDeclarer(Type descendantType, string methodName, Type[] arguments)
     {
       // Looking for the first method declaration 
       // starting from the very base type

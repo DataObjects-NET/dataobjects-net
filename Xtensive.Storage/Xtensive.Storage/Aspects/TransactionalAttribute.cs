@@ -28,6 +28,8 @@ namespace Xtensive.Storage
       MulticastAttributes.Instance |
       MulticastAttributes.Static |
       MulticastAttributes.UserGenerated | 
+      MulticastAttributes.Public |
+      MulticastAttributes.Internal |
       MulticastAttributes.Managed | 
       MulticastAttributes.NonAbstract)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]

@@ -63,7 +63,7 @@ namespace Xtensive.Core.Aspects.Tests
     {
     }
 
-    protected InitializableSample(int i, bool ignored)
+    private InitializableSample(int i, bool ignored)
     {
     }
   }
