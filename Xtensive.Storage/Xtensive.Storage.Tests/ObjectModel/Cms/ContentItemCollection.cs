@@ -11,7 +11,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Tests.ObjectModel.Cms
 {
   public class ContentItemCollection<TContentItem>
-    : EntitySet<TContentItem>
+    : EntitySet<TContentItem>, IEntitySet
     where TContentItem : ContentItem
   {
 

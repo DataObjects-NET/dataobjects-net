@@ -10,15 +10,17 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using PostSharp.Aspects;
+using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Aspects
 {
-  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false)]
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [Serializable]
+  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false, PersistMetaData = true)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ImplementConstructor))]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
   public sealed class InitializableAttribute : Aspect,
     IAspectProvider
@@ -44,7 +46,7 @@ namespace Xtensive.Core.Aspects
         null;
 
       // Applying the aspect to all the constructors
-      foreach (ConstructorInfo constructor in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
+      foreach (ConstructorInfo constructor in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)) {
         if (constructor.IsPrivate)
           continue;
         var constructorEpilogueAspect = hasInitializationErrorHandler

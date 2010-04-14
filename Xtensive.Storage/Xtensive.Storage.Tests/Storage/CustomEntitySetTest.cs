@@ -42,7 +42,8 @@ namespace Xtensive.Storage.Tests.Storage.CustomEntitySetModel
     public CustomEntitySet<Master> ManyToMany { get; private set; }
   }
 
-  public class CustomEntitySet<T> : EntitySet<T> where T : Entity
+  public class CustomEntitySet<T> : EntitySet<T>, IEntitySet
+    where T : Entity
   {
     public CustomEntitySet(Entity owner, FieldInfo field)
       : base(owner, field)

@@ -96,6 +96,7 @@ namespace Xtensive.Core.Weaver
       private const string ParameterNamePrefix = "arg";
       private readonly ITypeSignature[] argumentTypes;
 
+
       public override void Implement(StructuralTransformationContext context)
       {
         var typeDef = (TypeDefDeclaration)context.TargetElement;

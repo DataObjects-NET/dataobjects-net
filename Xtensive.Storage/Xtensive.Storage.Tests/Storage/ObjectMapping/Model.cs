@@ -237,7 +237,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping.Model
     public PublisherSet Suppliers { get; private set; }
   }
 
-  public class PublisherSet : EntitySet<Publisher>
+  public class PublisherSet : EntitySet<Publisher>, IEntitySet
   {
     public PublisherSet(Entity owner, FieldInfo field)
       : base(owner, field)

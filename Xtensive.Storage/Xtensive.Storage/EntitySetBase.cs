@@ -31,8 +31,6 @@ namespace Xtensive.Storage
   /// <summary>
   /// Base class for <see cref="EntitySet{TItem}"/>.
   /// </summary>
-  [EntitySetAspect]
-  [Initializable]
   public abstract class EntitySetBase : SessionBound,
     IFieldValueAdapter,
     INotifyPropertyChanged,
@@ -723,6 +721,7 @@ namespace Xtensive.Storage
           owner.Type.Key.TupleDescriptor, 
           itemType.Key.TupleDescriptor);
       }
+      Initialize(typeof(EntitySetBase));
     }
 
     /// <summary>

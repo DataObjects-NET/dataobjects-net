@@ -28,8 +28,7 @@ namespace Xtensive.Storage
       MulticastAttributes.Instance |
       MulticastAttributes.Static |
       MulticastAttributes.UserGenerated | 
-      MulticastAttributes.Public |
-      MulticastAttributes.Internal |
+      MulticastAttributes.AnyVisibility |
       MulticastAttributes.Managed | 
       MulticastAttributes.NonAbstract)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -64,9 +63,14 @@ namespace Xtensive.Storage
 
     public override bool CompileTimeValidate(MethodBase method)
     {
+      if (!method.IsPublic) {
+        var ta = method.GetAttribute<TransactionalAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
+        if (ta == null)
+          return false;
+      }
       if (AspectHelper.IsInfrastructureMethod(method))
         return false;
-      return activateSession || activateSession;
+      return activateSession || openTransaction;
     }
 
     /// <inheritdoc/>

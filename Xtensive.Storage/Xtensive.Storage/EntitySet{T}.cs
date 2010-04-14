@@ -63,7 +63,8 @@ namespace Xtensive.Storage
   public class EntitySet<TItem> : EntitySetBase,
     ICollection<TItem>, 
     ICountable<TItem>, 
-    IQueryable<TItem>
+    IQueryable<TItem>,
+    IEntitySet
     where TItem : IEntity
   {
     private static readonly MethodInfo GetItemCountQueryMethod = typeof(EntitySet<TItem>)

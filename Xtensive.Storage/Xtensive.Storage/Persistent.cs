@@ -707,9 +707,9 @@ namespace Xtensive.Storage
     protected void Initialize(Type ctorType)
     {
       var type = GetType();
-      if (type.IsGenericType ? ctorType!=type.GetGenericTypeDefinition() : ctorType!=type)
+      if (ctorType != type)
         return;
-      bool successfully = false;
+      var successfully = false;
       try {
         SystemInitialize(false);
         successfully = true;

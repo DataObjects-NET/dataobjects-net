@@ -11,7 +11,7 @@ using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 namespace Xtensive.Storage.Tests.ObjectModel.Cms
 {
   public class ContentDirectoryCollection<TContentItem>
-    : EntitySet<TContentItem>
+    : EntitySet<TContentItem>, IEntitySet
     where TContentItem : ContentDirectory
   {
     protected override void OnAdding(Entity item)

@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using PostSharp.Aspects;
+using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Tuples;
@@ -19,7 +20,8 @@ namespace Xtensive.Storage
 {
   [Serializable]
   [MulticastAttributeUsage(MulticastTargets.Class, AllowMultiple = false, Inheritance = MulticastInheritance.Multicast)]
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof(InitializableAttribute))]
   public class EntitySetAspect : Aspect, IAspectProvider
   {
     public IEnumerable<AspectInstance> ProvideAspects(object targetElement)
