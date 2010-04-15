@@ -1506,6 +1506,8 @@ namespace Xtensive.Storage.Tests.Storage
             customer1.Name = "NewName1";
             transactionScope.Complete();
           }
+          // Must throw an exception, but currently doesn't, because
+          // change attempt isn't detected (old value "NewName1" = new "NewName1").
           AssertEx.Throws<VersionConflictException>(() => stateClone.ApplyChanges());
         }
       }

@@ -203,7 +203,7 @@ namespace Xtensive.Storage
         if (!transaction.Outer.IsActuallyStarted)
           StartTransaction(transaction.Outer);
         Persist(PersistReason.NestedTransaction);
-        Handler.MakeSavepoint(transaction.SavepointName);
+        Handler.CreateSavepoint(transaction.SavepointName);
       }
       else
         Handler.BeginTransaction(transaction.IsolationLevel);

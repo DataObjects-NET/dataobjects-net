@@ -157,6 +157,7 @@ namespace Xtensive.Storage
     /// <returns>Resulting key mapping.</returns>
     public KeyMapping ApplyChanges()
     {
+      EnsureIsAttached();
       return ApplyChanges(Session);
     }
 
@@ -167,10 +168,12 @@ namespace Xtensive.Storage
     /// <returns>Resulting key mapping.</returns>
     public KeyMapping ApplyChanges(Session targetSession)
     {
-      EnsureIsAttached();
+      ArgumentValidator.EnsureArgumentNotNull(targetSession, "targetSession");
       EnsureNoTransaction();
       var attachedSession = Session;
-      DetachInternal();
+      if (attachedSession!=null)
+        DetachInternal();
+      using (targetSession.Activate())
       try {
         KeyMapping keyMapping;
         using (VersionValidator.Attach(targetSession, key => Versions[key])) {
@@ -183,7 +186,8 @@ namespace Xtensive.Storage
         return keyMapping;
       }
       finally {
-        AttachInternal(attachedSession);
+        if (attachedSession!=null)
+          AttachInternal(attachedSession);
       }
     }
 
@@ -192,9 +196,18 @@ namespace Xtensive.Storage
     /// </summary>
     public void CancelChanges()
     {
-      EnsureIsAttached();
       EnsureNoTransaction();
       state = new StateRegistry(originalState);
+    }
+
+    /// <summary>
+    /// Clones this instance.
+    /// </summary>
+    /// <returns>A clone of this instance.</returns>
+    public DisconnectedState Clone()
+    {
+      EnsureNoTransaction();
+      return Cloner.Default.Clone(this);
     }
 
     /// <summary>
@@ -271,22 +284,29 @@ namespace Xtensive.Storage
     /// <exception cref="VersionConflictException">Version check failed.</exception>
     internal void RegisterState(Key key, Tuple tuple, VersionInfo version, MergeMode mergeMode)
     {
-      DisconnectedEntityState cachedState;
+      DisconnectedEntityState entityState;
       if (transactionalState!=null)
-        cachedState = transactionalState.Get(key);
+        entityState = transactionalState.Get(key);
       else
-        cachedState = state.Get(key);
+        entityState = state.Get(key);
 
-      if (cachedState==null || !cachedState.IsLoaded) {
+      if (entityState==null || !entityState.IsLoaded) {
         originalState.Register(key, tuple);
         Versions.Add(key, version, true);
         return;
       }
 
-      var targetVersion = GetVersion(cachedState.Key.Type, cachedState.Tuple);
-      var sourceVersion = GetVersion(key.Type, tuple);
+      var originalEntityState = originalState.Get(key);
+      bool isNew = false;
+      if (originalEntityState==null || !originalEntityState.IsLoaded)
+        isNew = true;
 
-      if (targetVersion==sourceVersion)
+      var existingVersion = isNew 
+        ? VersionInfo.Void 
+        : GetVersion(originalEntityState.Key.Type, originalEntityState.Tuple);
+      var newVersion      = GetVersion(key.Type, tuple);
+
+      if (existingVersion==newVersion)
         originalState.MergeUnavailableFields(key, tuple);
       else if (mergeMode==MergeMode.Strict)
         throw new VersionConflictException(string.Format(

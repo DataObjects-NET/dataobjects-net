@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Providers
     /// </summary>
     /// <param name="key">The key.</param>
     /// <returns>The key of fetched <see cref="EntityState"/>.</returns>
-    public virtual EntityState FetchInstance(Key key)
+    public virtual EntityState FetchEntityState(Key key)
     {
       var type = key.TypeRef.Type;
       prefetchManager.Prefetch(key, type,

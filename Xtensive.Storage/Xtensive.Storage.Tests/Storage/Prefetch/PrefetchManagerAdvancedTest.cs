@@ -176,7 +176,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
-        session.Handler.FetchInstance(orderKey);
+        session.Handler.FetchEntityState(orderKey);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, null));
         var graphContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(1, graphContainers.Count);
@@ -329,7 +329,7 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
 
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        var fetchedEntityState = session.Handler.FetchInstance(orderKey);
+        var fetchedEntityState = session.Handler.FetchEntityState(orderKey);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, OrderType, session,
           PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       }

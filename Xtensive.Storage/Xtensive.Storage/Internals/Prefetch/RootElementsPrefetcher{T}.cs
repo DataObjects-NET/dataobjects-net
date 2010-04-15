@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     private int prefetchTaskExecutionCount;
     private bool isDisposed;
 
-    public IEnumerator<T> GetEnumerator()
+    private IEnumerable<T> GetItems()
     {
       if (source==null)
         yield break;
@@ -68,6 +68,12 @@ namespace Xtensive.Storage.Internals.Prefetch
       ProcessFetchedElements(true);
       while (processedElements.Count > 0)
         yield return processedElements.Dequeue();
+    }
+
+    public IEnumerator<T> GetEnumerator()
+    {
+      foreach (var pair in GetItems().ToTransactional())
+        yield return pair;
     }
 
     IEnumerator IEnumerable.GetEnumerator()

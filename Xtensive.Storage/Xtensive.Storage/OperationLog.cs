@@ -56,7 +56,7 @@ namespace Xtensive.Storage
       var operationContext = new OperationExecutionContext(session);
 
       using (session.Activate())
-      using (var ts = Transaction.Open(TransactionOpenMode.New)) { 
+      using (var tx = Transaction.Open(TransactionOpenMode.New)) { 
         foreach (var operation in operations)
           operation.Prepare(operationContext);
 
@@ -67,7 +67,7 @@ namespace Xtensive.Storage
         foreach (var operation in operations)
           operation.Execute(operationContext);
 
-        ts.Complete();
+        tx.Complete();
       }
 
       return new KeyMapping(operationContext.KeyMapping);
