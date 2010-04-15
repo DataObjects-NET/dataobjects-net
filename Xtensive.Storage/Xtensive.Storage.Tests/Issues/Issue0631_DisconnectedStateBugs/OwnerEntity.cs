@@ -9,12 +9,8 @@ using System;
 namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
 {
   [HierarchyRoot]
-  public class SampleEntity : EntityBase
+  public class OwnerEntity : EntityBase
   {
-    public SampleEntity(Guid id) : base(id)
-    {
-    }
-
     [Field]
     public string Text { get; set; }
 
@@ -28,10 +24,17 @@ namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
     public Guid Guid { get; set; }
 
     [Field]
-    public AnotherEntity LinkedItem { get; set; }
+    public OwnedEntity OwnedItem { get; set; }
 
     [Field]
     [Association(PairTo = "Owner")]
-    public EntitySet<AnotherEntity> ItemGroup { get; private set; }
+    public EntitySet<OwnedEntity> OwnedItems { get; private set; }
+
+
+    // Constructors
+    
+    public OwnerEntity(Guid id) : base(id)
+    {
+    }
   }
 }

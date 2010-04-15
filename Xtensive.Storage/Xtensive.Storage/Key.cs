@@ -79,7 +79,7 @@ namespace Xtensive.Storage
         if (session.IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
 
-        var entityState = session.Handler.FetchInstance(this);
+        var entityState = session.Handler.FetchEntityState(this);
         if (entityState==null)
           throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
         TypeRef = new TypeReference(entityState.Type, TypeReferenceAccuracy.ExactType);

@@ -386,7 +386,7 @@ namespace Xtensive.Storage
           if (session.IsDebugEventLoggingEnabled)
             Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key,
               key.HasExactType ? Strings.Known : Strings.Unknown);
-            state = session.Handler.FetchInstance(key);
+            state = session.Handler.FetchEntityState(key);
         }
 
         if (state==null || state.IsNotAvailableOrMarkedAsRemoved || !key.TypeRef.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType)) 

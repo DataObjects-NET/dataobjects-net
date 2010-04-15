@@ -236,7 +236,7 @@ namespace Xtensive.Storage
     {
       persistenceState = PersistenceState.Synchronized;
       Tuple = null;
-      Session.Handler.FetchInstance(key);
+      Session.Handler.FetchEntityState(key);
     }
 
     /// <inheritdoc/>

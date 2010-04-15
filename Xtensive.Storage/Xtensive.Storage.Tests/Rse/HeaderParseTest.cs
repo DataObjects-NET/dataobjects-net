@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Tests.Rse
 
           // Select *
           RecordSet rsMain = ii.ToRecordSet();
-          session.UpdateCacheFrom(rsMain);
+          session.UpdateCache(rsMain);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Rse
 
           // Select Id, TypeId, Title
           RecordSet rsTitle = rsMain.Select(0, 1, 2);
-          session.UpdateCacheFrom(rsTitle);
+          session.UpdateCache(rsTitle);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Rse
 
           // Select Id, TypeId, Text
           RecordSet rsText = rsMain.Select(0, 1, 3);
-          session.UpdateCacheFrom(rsText);
+          session.UpdateCache(rsText);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsFalse(state.Tuple.GetFieldState(2).IsAvailable());
@@ -73,7 +73,7 @@ namespace Xtensive.Storage.Tests.Rse
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
           RecordSet rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
-          session.UpdateCacheFrom(rsJoin);
+          session.UpdateCache(rsJoin);
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());

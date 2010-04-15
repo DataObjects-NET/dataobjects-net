@@ -25,7 +25,7 @@ namespace Xtensive.Storage.Providers
     /// Makes the savepoint.
     /// </summary>
     /// <param name="name">The name.</param>
-    public abstract void MakeSavepoint(string name);
+    public abstract void CreateSavepoint(string name);
 
     /// <summary>
     /// Rollbacks to savepoint.

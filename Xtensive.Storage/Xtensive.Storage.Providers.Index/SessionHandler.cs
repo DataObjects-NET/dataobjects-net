@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    public override void MakeSavepoint(string name)
+    public override void CreateSavepoint(string name)
     {
       // TODO: Implement transactions
     }
