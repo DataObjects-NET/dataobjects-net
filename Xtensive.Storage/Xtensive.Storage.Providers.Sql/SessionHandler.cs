@@ -89,7 +89,7 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override void MakeSavepoint(string name)
+    public override void CreateSavepoint(string name)
     {
       lock (connectionSyncRoot) {
         EnsureConnectionIsOpen();

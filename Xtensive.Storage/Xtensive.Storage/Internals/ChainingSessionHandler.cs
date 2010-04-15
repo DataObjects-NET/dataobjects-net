@@ -55,9 +55,9 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override void MakeSavepoint(string name)
+    public override void CreateSavepoint(string name)
     {
-      chainedHandler.MakeSavepoint(name);
+      chainedHandler.CreateSavepoint(name);
     }
 
     /// <inheritdoc/>
@@ -104,9 +104,9 @@ namespace Xtensive.Storage.Internals
     }
 
     /// <inheritdoc/>
-    public override EntityState FetchInstance(Key key)
+    public override EntityState FetchEntityState(Key key)
     {
-      return chainedHandler.FetchInstance(key);
+      return chainedHandler.FetchEntityState(key);
     }
 
     /// <inheritdoc/>

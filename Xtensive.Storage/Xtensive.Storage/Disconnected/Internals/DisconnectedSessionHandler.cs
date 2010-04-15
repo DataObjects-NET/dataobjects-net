@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Disconnected
     }
 
     /// <inheritdoc/>
-    public override void MakeSavepoint(string name)
+    public override void CreateSavepoint(string name)
     {
       disconnectedState.OnTransactionOpened();
     }
@@ -93,16 +93,31 @@ namespace Xtensive.Storage.Disconnected
 
     internal override bool TryGetEntityState(Key key, out EntityState entityState)
     {
-      if (Session.EntityStateCache.TryGetItem(key, true, out entityState))
+      if (TryGetEntityStateFromSessionCache(key, out entityState))
         return true;
       
       var cachedEntityState = disconnectedState.GetState(key);
       if (cachedEntityState!=null && cachedEntityState.IsLoaded) {
         var tuple = cachedEntityState.Tuple!=null ? cachedEntityState.Tuple.Clone() : null;
-        entityState = Session.UpdateEntityState(key, tuple, true);
+        entityState = UpdateEntityStateInSessionCache(key, tuple, true);
         return true;
       }
       entityState = null;
+      return false;
+    }
+
+    internal override bool TryGetEntitySetState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
+    {
+      if (TryGetEntitySetStateFromSessionCache(key, fieldInfo, out entitySetState))
+        return true;
+      
+      var cachedState = disconnectedState.GetState(key);
+      if (cachedState!=null) {
+        var setState = cachedState.GetEntitySetState(fieldInfo);
+        entitySetState = UpdateEntitySetStateInSessionCache(key, fieldInfo, setState.Items.Keys, setState.IsFullyLoaded);
+        return true;
+      }
+      entitySetState = null;
       return false;
     }
 
@@ -117,11 +132,10 @@ namespace Xtensive.Storage.Disconnected
           cachedEntityState.Key.TypeRef = key.TypeRef;
       }
 
-      // tuple==null && key is not cached || cached entity state is removed
       if (cachedEntityState==null || cachedEntityState.IsRemoved || cachedEntityState.Tuple == null)
-        return Session.UpdateEntityState(key, null, true);
+        return UpdateEntityStateInSessionCache(key, null, true);
       
-      var entityState = Session.UpdateEntityState(cachedEntityState.Key, cachedEntityState.Tuple.Clone(), true);
+      var entityState = UpdateEntityStateInSessionCache(cachedEntityState.Key, cachedEntityState.Tuple.Clone(), true);
       
       // Fetch version roots
       if (entityState.Type.HasVersionRoots) {
@@ -131,23 +145,6 @@ namespace Xtensive.Storage.Disconnected
           entity.GetVersionRoots().ToList();
       }
       return entityState;
-    }
-
-    internal override bool TryGetEntitySetState(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
-    {
-      if (chainedHandler.TransactionIsStarted)
-        return base.TryGetEntitySetState(key, fieldInfo, out entitySetState);
-
-      if (base.TryGetEntitySetState(key, fieldInfo, out entitySetState))
-        return true;
-      var cachedState = disconnectedState.GetState(key);
-      if (cachedState!=null) {
-        var setState = cachedState.GetEntitySetState(fieldInfo);
-        entitySetState = UpdateEntitySetState(key, fieldInfo, setState.Items.Keys.ToList(), setState.IsFullyLoaded);
-        return true;
-      }
-      entitySetState = null;
-      return !disconnectedState.IsConnected;
     }
 
     internal override EntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo,
@@ -161,22 +158,22 @@ namespace Xtensive.Storage.Disconnected
       var cachedState = disconnectedState.RegisterSetState(key, fieldInfo, isFullyLoaded, entityKeys, auxEntities);
       
       // Update session cache
-      return UpdateEntitySetState(key, fieldInfo, cachedState.Items.Keys, cachedState.IsFullyLoaded);
+      return UpdateEntitySetStateInSessionCache(key, fieldInfo, cachedState.Items.Keys, cachedState.IsFullyLoaded);
     }
 
     /// <inheritdoc/>
-    public override EntityState FetchInstance(Key key)
+    public override EntityState FetchEntityState(Key key)
     {
       var cachedState = disconnectedState.GetState(key);
       
-      // If state is cached return it
+      // If state is cached, let's return it
       if (cachedState!=null && cachedState.IsLoaded) {
         var tuple = cachedState.Tuple!=null ? cachedState.Tuple.Clone() : null;
         var entityState = Session.UpdateEntityState(cachedState.Key, tuple, true);
         return cachedState.IsRemoved ? null : entityState;
       }
 
-      // If state isn't cached try cache get it form storage
+      // If state isn't cached, let's try to to get it from storage
       if ((cachedState!=null && !cachedState.IsLoaded) || disconnectedState.IsConnected) {
         BeginChainedTransaction();
         var type = key.TypeRef.Type;
@@ -227,7 +224,7 @@ namespace Xtensive.Storage.Disconnected
           var list = new List<ReferenceInfo>();
           var state = disconnectedState.GetState(target.Key);
           foreach (var reference in state.GetReferences(association.OwnerField)) {
-            var item = FetchInstance(reference.Key);
+            var item = FetchEntityState(reference.Key);
             list.Add(new ReferenceInfo(item.Entity, target, association));
           }
           return list;
@@ -235,7 +232,7 @@ namespace Xtensive.Storage.Disconnected
         case Multiplicity.OneToMany:
           var key = target.GetReferenceKey(association.Reversed.OwnerField);
           if (key!=null)
-            return EnumerableUtils.One(new ReferenceInfo(FetchInstance(key).Entity, target, association));
+            return EnumerableUtils.One(new ReferenceInfo(FetchEntityState(key).Entity, target, association));
           break;
       }
       throw new ArgumentException("association.Multiplicity");

@@ -5,12 +5,14 @@
 // Created:    2008.11.07
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 
@@ -90,7 +92,19 @@ namespace Xtensive.Storage
       return UpdateEntityState(key, tuple, false);
     }
 
-    internal void UpdateCacheFrom(RecordSet source)
+    internal EntitySetState UpdateEntitySetState(Key key, FieldInfo fieldInfo, IEnumerable<Key> items, bool isFullyLoaded)
+    {
+      var entityState = EntityStateCache[key, true];
+      if (entityState==null)
+        return null;
+      var entity = entityState.Entity;
+      if (entity==null)
+        return null;
+      var entitySet = (EntitySetBase) entity.GetFieldValue(fieldInfo);
+      return entitySet.UpdateState(items, isFullyLoaded);
+    }
+
+    internal void UpdateCache(RecordSet source)
     {
       var reader = Domain.RecordSetReader;
       foreach (var record in reader.Read(source, source.Header)) {
