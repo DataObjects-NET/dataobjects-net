@@ -5,6 +5,7 @@
 // Created:    2009.08.13
 
 using System;
+using System.Collections;
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
@@ -76,6 +77,46 @@ namespace Xtensive.Storage
       return new VersionInfo(resultVersion.ToRegular());
     }
 
+    /// <summary>
+    /// Checks whether this <see cref="VersionInfo"/>
+    /// conflicts with <paramref name="other"/> <see cref="VersionInfo"/>.
+    /// There is no conflict, if all mutually available fields in
+    /// <see cref="Value"/>s are equal, and count of fields is the same.
+    /// </summary>
+    /// <param name="other">The other <see cref="VersionInfo"/>.</param>
+    /// <returns>Check result.</returns>
+    public bool ConflictsWith(VersionInfo other)
+    {
+      if (Equals(other))
+        return false;
+
+      var tuple = Value;
+      var otherTuple = other.Value;
+
+      if (tuple==null) {
+        if (otherTuple==null)
+          return false;
+        else
+          return true;
+      }
+      else if (otherTuple==null)
+        return true;
+      
+      if (tuple.Count!=otherTuple.Count)
+        return true;
+
+      int count = tuple.Count;
+      var availableFlags      = tuple.GetFieldStateMap(TupleFieldState.Available);
+      var otherAvailableFlags = otherTuple.GetFieldStateMap(TupleFieldState.Available);
+      
+      for (int i = 0; i<count; i++) {
+        if (availableFlags[i] && otherAvailableFlags[i])
+          if (!Equals(tuple.GetValue(i), otherTuple.GetValue(i)))
+            return true;
+      }
+      return false;
+    }
+
     #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
@@ -99,17 +140,15 @@ namespace Xtensive.Storage
     }
 
     /// <see cref="ClassDocTemplate.OperatorEq" copy="true" />
-    [DebuggerStepThrough]
     public static bool operator ==(VersionInfo left, VersionInfo right)
     {
-      return left.Equals(right);
+      return !left.ConflictsWith(right);
     }
 
     /// <see cref="ClassDocTemplate.OperatorNeq" copy="true" />
-    [DebuggerStepThrough]
     public static bool operator !=(VersionInfo left, VersionInfo right)
     {
-      return !left.Equals(right);
+      return left.ConflictsWith(right);
     }
 
     /// <inheritdoc/>

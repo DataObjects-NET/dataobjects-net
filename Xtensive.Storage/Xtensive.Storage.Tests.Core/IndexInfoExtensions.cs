@@ -6,12 +6,11 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests
 {
-  internal static class IndexInfoExtensions
+  public static class IndexInfoExtensions
   {
     private const int IndentMultiplier = 2;
 
@@ -23,7 +22,7 @@ namespace Xtensive.Storage.Tests
       Dump(index, 0);
     }
 
-    private static void Dump(IndexInfo index, int indent)
+    public static void Dump(IndexInfo index, int indent)
     {
       Console.Out.WriteLine("");
       WriteLine("Name: " + index.Name, indent);

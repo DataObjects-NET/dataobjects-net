@@ -8,13 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Core.Helpers;
 using Xtensive.Storage.Model;
-using Xtensive.Core.Collections;
 
 namespace Xtensive.Storage.Tests
 {
-  internal static class DomainModelExtensions
+  public static class DomainModelExtensions
   {
     public static void Dump(this DomainModel target)
     {
@@ -81,7 +79,7 @@ namespace Xtensive.Storage.Tests
       }
     }
 
-    private static void DumpAncestor(this TypeInfo target, int indent)
+    public static void DumpAncestor(this TypeInfo target, int indent)
     {
       TypeInfo ancestor = target.GetAncestor();
       if (ancestor!=null)
@@ -91,7 +89,7 @@ namespace Xtensive.Storage.Tests
       }
     }
 
-    private static void DumpDescendants(this TypeInfo target, int indent)
+    public static void DumpDescendants(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Descendants:");
       HashSet<TypeInfo> direct = new HashSet<TypeInfo>(target.GetDescendants());
@@ -103,7 +101,7 @@ namespace Xtensive.Storage.Tests
       }
     }
 
-    private static void DumpInterfaces(this TypeInfo target, int indent)
+    public static void DumpInterfaces(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Interfaces:");
       HashSet<TypeInfo> direct = new HashSet<TypeInfo>(target.GetInterfaces());
@@ -115,7 +113,7 @@ namespace Xtensive.Storage.Tests
       }
     }
 
-    private static void DumpImplementors(this TypeInfo target, int indent)
+    public static void DumpImplementors(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Implementors:");
       HashSet<TypeInfo> direct = new HashSet<TypeInfo>(target.GetImplementors());
@@ -127,19 +125,19 @@ namespace Xtensive.Storage.Tests
       }
     }
 
-    private static void DumpName(this Node target, int indent)
+    public static void DumpName(this Node target, int indent)
     {
       WriteLine(indent, target.Name);
     }
 
-    private static void DumpMappingName(this MappingNode target, int indent)
+    public static void DumpMappingName(this MappingNode target, int indent)
     {
       if (target.MappingName.IsNullOrEmpty())
         return;
       WriteLine(indent, "MappingName: " + target.MappingName);
     }
 
-    private static void Dump(this HierarchyInfo target, int indent)
+    public static void Dump(this HierarchyInfo target, int indent)
     {
       WriteLine(indent, "InheritanceSchema: " + target.InheritanceSchema);
       WriteLine(indent, "KeyFields:");
@@ -148,7 +146,7 @@ namespace Xtensive.Storage.Tests
       }
     }
 
-    private static void Dump(this AssociationInfo target, int indent)
+    public static void Dump(this AssociationInfo target, int indent)
     {
       WriteLine(indent, "Referencing type: " + target.OwnerType.Name);
       WriteLine(indent, "Referencing field: " + target.OwnerField.Name);
@@ -160,7 +158,7 @@ namespace Xtensive.Storage.Tests
         WriteLine(indent, "Reversed: " + target.Reversed.Name);
     }
 
-    private static void Dump(this TypeInfo target, int indent)
+    public static void Dump(this TypeInfo target, int indent)
     {
       if (target.IsEntity) {
         WriteLine(indent, "Hierarchy: " + target.Hierarchy.Root.Name);
@@ -198,7 +196,7 @@ namespace Xtensive.Storage.Tests
       }
     }
 
-    private static void Dump(this IndexInfo target, int indent)
+    public static void Dump(this IndexInfo target, int indent)
     {
       WriteLine(indent, "ShortName: " + target.ShortName);
       WriteLine(indent, "Attributes: " + target.Attributes);
@@ -232,7 +230,7 @@ namespace Xtensive.Storage.Tests
       }
     }
 
-    private static void Dump(this FieldInfo target, int indent)
+    public static void Dump(this FieldInfo target, int indent)
     {
       WriteLine(indent, "OriginalName: " + target.OriginalName);
       WriteLine(indent, "ValueType: " + target.ValueType.Name);
@@ -249,7 +247,7 @@ namespace Xtensive.Storage.Tests
       WriteLine(indent, "MappingInfo: " + target.MappingInfo);
     }
 
-    private static void Dump(this ColumnInfo target, int indent)
+    public static void Dump(this ColumnInfo target, int indent)
     {
       WriteLine(indent, "ValueType: " + target.ValueType.Name);
       WriteLine(indent, "Attributes: " + target.Attributes);
