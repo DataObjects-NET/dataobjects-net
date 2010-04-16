@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Xtensive.Core.Aspects;
 using Xtensive.Storage;
 using System.Diagnostics;
 
@@ -19,6 +20,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     [Field]
     public Container ProcessedContainer { get; set; }
 
+    [Infrastructure]
     public static IList<object> GetWork(string key, Domain domain)
     {
       using (Session.Open(domain))
@@ -33,6 +35,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
       }
     }
 
+    [Infrastructure]
     public static void Execute(string key, object workUnit, Domain domain)
     {
       using (Session.Open(domain))

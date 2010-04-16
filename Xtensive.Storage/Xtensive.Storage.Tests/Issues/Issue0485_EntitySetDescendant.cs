@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0485_EntitySetDescendant_Model
 
   }
 
-  public class EntitySetDescendant<T> : EntitySet<T>, IEntitySet
+  public class EntitySetDescendant<T> : EntitySet<T>
     where T : IEntity
   {
     protected EntitySetDescendant(Entity owner, FieldInfo field)

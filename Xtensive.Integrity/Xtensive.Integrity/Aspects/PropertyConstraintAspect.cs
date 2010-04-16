@@ -86,7 +86,7 @@ namespace Xtensive.Integrity.Aspects
     /// <inheritdoc/>
     [ProvideAspectRole(StandardRoles.Validation)]
     [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-    [MethodExecutionHandlerOptimization(MethodExecutionHandlerOptimizations.IgnoreAllEventArgsMembers & ~(MethodExecutionHandlerOptimizations.IgnoreGetInstance | MethodExecutionHandlerOptimizations.IgnoreGetArguments))]
+    [MethodExecutionAdviceOptimization(MethodExecutionAdviceOptimizations.IgnoreAllEventArgsMembers & ~(MethodExecutionAdviceOptimizations.IgnoreGetInstance | MethodExecutionAdviceOptimizations.IgnoreGetArguments))]
     public sealed override void OnEntry(MethodExecutionArgs args)
     {
       var target = (IValidationAware) args.Instance;

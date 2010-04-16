@@ -110,7 +110,7 @@ namespace Xtensive.Core.Weaver
       public override void Implement(MethodBodyTransformationContext context)
       {
         var targetMethod = (MethodDefDeclaration)context.TargetElement;
-        var targetType = AspectWeaverInstance.TargetType;
+        var targetType = targetMethod.DeclaringType;
          
         int splitterPos = targetMethod.Name.IndexOf('_');
         if (splitterPos <= 0)

@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_
     public int Id { get; private set; }
   }
 
-  public class ContainerItemSet : EntitySet<ContainerItem>, IEntitySet
+  public class ContainerItemSet : EntitySet<ContainerItem>
   {
     protected ContainerItemSet(Entity owner, FieldInfo field)
       : base(owner, field)

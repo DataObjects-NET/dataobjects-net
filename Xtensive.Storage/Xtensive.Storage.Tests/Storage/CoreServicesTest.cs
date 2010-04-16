@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
     }
   }
 
-  public class MyEntitySet<T> : EntitySet<T>, IEntitySet
+  public class MyEntitySet<T> : EntitySet<T>
     where T : IEntity
   {
 
