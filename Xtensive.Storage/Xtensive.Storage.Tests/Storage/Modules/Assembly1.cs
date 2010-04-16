@@ -11,7 +11,6 @@ using Xtensive.Storage;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Upgrade;
-using Xtensive.Storage.Aspects;
 
 namespace Modules.Model
 {

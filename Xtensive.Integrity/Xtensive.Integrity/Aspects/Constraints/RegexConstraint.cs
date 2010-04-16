@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using PostSharp.Aspects.Dependencies;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Resources;
 
@@ -16,6 +17,8 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// Ensures property value matches specified regular expression.
   /// </summary>
   [Serializable]
+  [ProvideAspectRole(StandardRoles.Validation)]
+  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
   public sealed class RegexConstraint : PropertyConstraintAspect
   {
     private const string PatternParameter = "Pattern";

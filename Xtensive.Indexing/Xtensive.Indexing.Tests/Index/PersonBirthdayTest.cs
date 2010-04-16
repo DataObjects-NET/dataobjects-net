@@ -61,14 +61,12 @@ namespace Xtensive.Indexing.Tests.Index
 
       #region IPerson Members
 
-      [Changer]
       public string Name
       {
         get { return name; }
         set { name = value; }
       }
 
-      [Changer]
       public DateTime Birthday
       {
         get { return age; }

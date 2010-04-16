@@ -11,9 +11,8 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
-using Xtensive.Integrity.Atomicity;
 using Xtensive.Integrity.Validation;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
@@ -28,13 +27,12 @@ namespace Xtensive.Storage
   /// </summary>
   /// <seealso cref="Entity"/>
   /// <seealso cref="Structure"/>
-  [Initializable]
   [SystemType]
+  [Initializable]
+  [PersistentAspect]
   public abstract class Persistent : SessionBound,
-    IAtomicityAware,
     IValidationAware,
     INotifyPropertyChanged,
-    IInitializable,
     IDataErrorInfo,
     IUsesSystemLogicOnlyRegions
   {
@@ -185,7 +183,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the field value.
     /// </summary>
-    /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
     /// <returns>Field value.</returns>
     protected internal object GetFieldValue(string fieldName)
@@ -575,22 +572,6 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region IAtomicityAware members
-
-    [Infrastructure]
-    AtomicityContextBase IContextBound<AtomicityContextBase>.Context
-    {
-      get { return Session.AtomicityContext; }
-    }
-
-    [Infrastructure]
-    bool IAtomicityAware.IsCompatibleWith(AtomicityContextBase context)
-    {
-      return context==Session.AtomicityContext;
-    }
-
-    #endregion
-
     #region IValidationAware members
 
     /// <summary>
@@ -726,9 +707,9 @@ namespace Xtensive.Storage
     protected void Initialize(Type ctorType)
     {
       var type = GetType();
-      if (type.IsGenericType ? ctorType!=type.GetGenericTypeDefinition() : ctorType!=type)
+      if (ctorType != type)
         return;
-      bool successfully = false;
+      var successfully = false;
       try {
         SystemInitialize(false);
         successfully = true;

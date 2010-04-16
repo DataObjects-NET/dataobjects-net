@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -30,7 +30,7 @@ using Xtensive.Storage.Aspects;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("84eed58e-4fbe-43bf-82d3-769cd23184ea")]
-[assembly: ReferencingAssembliesRequirePostSharpAttribute("Xtensive.Core.Weaver.WeaverFactory", "Xtensive.Core.Weaver")]
+//[assembly: ReferencingAssembliesRequirePostSharpAttribute("Xtensive.Core.Weaver.WeaverFactory", "Xtensive.Core.Weaver")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -45,9 +45,6 @@ using Xtensive.Storage.Aspects;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: CLSCompliant(true)]
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
-
-// This ensures the methods of Persistent & SessionBound will be aspected
-[assembly : Persistent(AttributeTargetAssemblies = "Xtensive.Storage")]
 
 #if !CUSTOMKEY
 [assembly: InternalsVisibleTo("Xtensive.Storage.Tests.Core, PublicKey=" + 

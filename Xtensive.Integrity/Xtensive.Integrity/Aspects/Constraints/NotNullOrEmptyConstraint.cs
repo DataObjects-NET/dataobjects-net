@@ -5,6 +5,7 @@
 // Created:    2009.05.27
 
 using System;
+using PostSharp.Aspects.Dependencies;
 using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Aspects.Constraints
@@ -14,6 +15,8 @@ namespace Xtensive.Integrity.Aspects.Constraints
   /// <see langword="null" /> or <see cref="string.Empty"/>.
   /// </summary>
   [Serializable]
+  [ProvideAspectRole(StandardRoles.Validation)]
+  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
   public sealed class NotNullOrEmptyConstraint : PropertyConstraintAspect
   {
     /// <inheritdoc/>

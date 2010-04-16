@@ -110,7 +110,7 @@ namespace Xtensive.Core.Weaver
       public override void Implement(MethodBodyTransformationContext context)
       {
         var targetMethod = (MethodDefDeclaration)context.TargetElement;
-        var targetType = AspectWeaverInstance.TargetType;
+        var targetType = targetMethod.DeclaringType;
          
         int splitterPos = targetMethod.Name.IndexOf('_');
         if (splitterPos <= 0)
@@ -130,7 +130,7 @@ namespace Xtensive.Core.Weaver
         var propertyName = targetProperty.Name;
         var isNew = false;
         if (!isExplicit) {
-          var baseType = (TypeDefDeclaration) targetType.BaseType;
+          var baseType = targetType.BaseType.GetTypeDefinition();
           var baseProperty = baseType.FindProperty(propertyName);
           if (baseProperty != null)
             if (!targetMethod.IsVirtual)
@@ -151,11 +151,13 @@ namespace Xtensive.Core.Weaver
         if (fieldDef == null)
           return;
 
-        var methodBody = context.InstructionBlock.MethodBody;
-        var instructionBlock = methodBody.CreateInstructionBlock();
-        methodBody.RootInstructionBlock = instructionBlock;
+//        var methodBody = new MethodBodyDeclaration {/*MaxStack = 8*/};
+//        targetMethod.MethodBody = methodBody;
+        var methodBody = targetMethod.MethodBody;
+        methodBody.MaxStack = 8;
+        methodBody.RootInstructionBlock = methodBody.CreateInstructionBlock();
         var sequence = methodBody.CreateInstructionSequence();
-        instructionBlock.AddInstructionSequence(sequence, NodePosition.After, null);
+        methodBody.RootInstructionBlock.AddInstructionSequence(sequence, NodePosition.After, null);
         using (var writer = new InstructionWriter()) {
           writer.AttachInstructionSequence(sequence);
 
@@ -174,12 +176,13 @@ namespace Xtensive.Core.Weaver
                };
           var methodSignature = new MethodSignature(module, CallingConvention.HasThis, returnType, parameterTypes, 1);
           var methodName = (isGetter ? HandlerGetMethodPrefix : HandlerSetMethodPrefix) + handlerMethodSuffix;
-          var genericMethodReference = targetType.FindMethod(methodName, methodSignature);
-          if (genericMethodReference != null) {
-            var method = genericMethodReference.Method.FindGenericInstance(
-              new[] {fieldDef.FieldType},
-              BindingOptions.Default);
-            writer.EmitInstructionMethod(OpCodeNumber.Callvirt, method);
+          var reference = targetType.FindMethod(methodName, methodSignature);
+          if (reference != null) {
+            var redirection = IntroduceMemberHelper.GetRedirection(reference.Method, AspectWeaverInstance);
+            if (redirection != null)
+              reference = new GenericMethodReference(redirection, reference.GenericMap);
+            var method = reference.Method.MethodSpecs.GetGenericInstance(new[] {fieldDef.FieldType}, true).Translate(module);
+            writer.EmitInstructionMethod(OpCodeNumber.Call, method);
           }
           else
             throw new InvalidOperationException();

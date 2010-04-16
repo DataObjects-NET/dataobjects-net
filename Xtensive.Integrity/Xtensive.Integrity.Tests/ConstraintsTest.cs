@@ -8,13 +8,12 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using PostSharp.Laos;
+using PostSharp.Aspects;
 using Xtensive.Core;
-using Xtensive.Core.Aspects;
-using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
+using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
 
@@ -50,36 +49,31 @@ namespace Xtensive.Integrity.Tests
 
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = true, Inherited = false)]
     [Serializable]
-    internal class LogMethodFastAspect : ReprocessMethodBoundaryAspect, ILaosWeavableAspect
+    internal class LogMethodFastAspect : OnMethodBoundaryAspect
     {
       public MethodBase Method { get; private set; }
 
-      public int AspectPriority
-      {
-        get { return -200000; }
-      }
-
-      public override object OnEntry(object instance)
+      public override void OnEntry(MethodExecutionArgs args)
       {
         Log.Info("OnEntry called on {0}.", Method.GetShortName(true));
-        return "OnEntry";
+        args.MethodExecutionTag = "OnEntry";
       }
 
-      public override void OnExit(object instance, object onEntryResult)
+      public override void OnExit(MethodExecutionArgs args)
       {
         Log.Info("OnExit called.");
-        Log.Info(string.Format("OnEntry result: {0}", onEntryResult));
+        Log.Info(string.Format("OnEntry result: {0}", args.MethodExecutionTag));
       }
 
-      public override void OnSuccess(object instance, object onEntryResult)
+      public override void OnSuccess(MethodExecutionArgs args)
       {
         Log.Info("OnSuccess called.");
       }
 
-      public override ErrorFlowBehavior OnError(object instance, Exception e)
+      public override void OnException(MethodExecutionArgs args)
       {
-        Log.Error(e);
-        return ErrorFlowBehavior.Rethrow;
+        Log.Error(args.Exception);
+        args.FlowBehavior = FlowBehavior.RethrowException;
       }
 
       public override void RuntimeInitialize(MethodBase method)
@@ -93,10 +87,9 @@ namespace Xtensive.Integrity.Tests
 
     internal class Person : ValidatableObject
     {
-      [Trace]
       [NotNullOrEmptyConstraint]
       [LengthConstraint(Max = 20, Mode = ConstrainMode.OnSetValue)]
-      public string Name { [LogMethodFastAspect] get; [LogMethodFastAspect] set;}
+      public string Name { get; set;}
 
       [RangeConstraint(Min = 0, Message = "Incorrect age ({value}), age can not be less than {Min}.")]
       public int Age { get; set;}

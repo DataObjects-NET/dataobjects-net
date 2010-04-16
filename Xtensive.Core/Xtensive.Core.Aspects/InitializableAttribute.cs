@@ -10,15 +10,18 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using PostSharp.Aspects;
+using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Aspects
 {
-  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false)]
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [Serializable]
+  [MulticastAttributeUsage(MulticastTargets.Class | MulticastTargets.Interface, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false, PersistMetaData = true)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ImplementConstructor))]
+  [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
   public sealed class InitializableAttribute : Aspect,
     IAspectProvider
   {
@@ -29,32 +32,34 @@ namespace Xtensive.Core.Aspects
 
     public IEnumerable<AspectInstance> ProvideAspects(object targetElement)
     {
+      var result = new List<AspectInstance>();
       var type = targetElement as Type;
       if (type == null)
-        yield break;
+        return result;
 
       // Getting all the base types
-      Type initializeMethodDeclarer = FindFirstMethodDeclarer(type, InitializeMethodName, new[] {typeof (Type)});
+      var initializeMethodDeclarer = FindFirstMethodDeclarer(type, InitializeMethodName, new[] {typeof (Type)});
       if (initializeMethodDeclarer == null)
-        yield break;
+        return result;
       bool hasInitializationErrorHandler =
         GetMethod(initializeMethodDeclarer, InitializationErrorMethodName, new[] {typeof (Type), typeof (Exception)}) !=
         null;
 
       // Applying the aspect to all the constructors
-      foreach (ConstructorInfo constructor in type.GetConstructors()) {
-        if (!constructor.IsPublic && !IsDefined(constructor, typeof (DebuggerNonUserCodeAttribute)))
+      foreach (ConstructorInfo constructor in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)) {
+        if (constructor.IsPrivate)
           continue;
         var constructorEpilogueAspect = hasInitializationErrorHandler
           ? new ImplementConstructorEpilogue(initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
           : new ImplementConstructorEpilogue(initializeMethodDeclarer, InitializeMethodName);
-        yield return new AspectInstance(constructor, constructorEpilogueAspect);
+        result.Add(new AspectInstance(constructor, constructorEpilogueAspect));
       }
+      return result;
     }
 
     #endregion
 
-    private Type FindFirstMethodDeclarer(Type descendantType, string methodName, Type[] arguments)
+    private static Type FindFirstMethodDeclarer(Type descendantType, string methodName, Type[] arguments)
     {
       // Looking for the first method declaration 
       // starting from the very base type

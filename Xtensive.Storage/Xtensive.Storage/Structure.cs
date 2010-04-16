@@ -14,7 +14,7 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Validation;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage
@@ -55,6 +55,7 @@ namespace Xtensive.Storage
   /// </code>
   /// </example>
   [SystemType]
+  [StructureAspect]
   public abstract class Structure : Persistent,
     IEquatable<Structure>,
     IFieldValueAdapter

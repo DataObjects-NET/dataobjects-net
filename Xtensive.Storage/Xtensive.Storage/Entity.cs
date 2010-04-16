@@ -62,6 +62,7 @@ namespace Xtensive.Storage
   [Serializable]
   [SystemType]
   [DebuggerDisplay("{Key}")]
+  [EntityAspect]
   public abstract class Entity : Persistent,
     IEntity,
     ISerializable,
@@ -154,12 +155,13 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public bool IsRemoved {
       get {
+        if (Session == null || State == null)
+          return true;
         if (Session.IsPersisting)
           // Removed = "already removed from storage" here
           return State.IsNotAvailable;
-        else
           // Removed = "either already removed, or marked as removed" here
-          return State.IsNotAvailableOrMarkedAsRemoved;
+        return State.IsNotAvailableOrMarkedAsRemoved;
       }
     }
 
@@ -573,6 +575,8 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected override sealed Pair<Key, Delegate> GetSubscription(object eventKey)
     {
+      if (State == null)
+        return new Pair<Key, Delegate>();
       var entityKey = Key;
       return new Pair<Key, Delegate>(entityKey,
         Session.EntityEventBroker.GetSubscriber(entityKey, eventKey));

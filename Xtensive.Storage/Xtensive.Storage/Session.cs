@@ -16,7 +16,6 @@ using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC;
-using Xtensive.Integrity.Atomicity;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Internals;
@@ -327,7 +326,6 @@ namespace Xtensive.Storage
       EntityChangeRegistry = new EntityChangeRegistry();
 
       // Etc...
-      AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       EntityEventBroker = new EntityEventBroker();

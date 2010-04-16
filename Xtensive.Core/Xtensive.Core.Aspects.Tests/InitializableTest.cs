@@ -23,7 +23,8 @@ namespace Xtensive.Core.Aspects.Tests
     }
   }
 
-  public class InitializableBase : IInitializable
+  [Initializable]
+  public class InitializableBase
   {
     public static int ErrorCount { get; private set; }
     public int InitializeCount { get; private set; }
@@ -62,7 +63,37 @@ namespace Xtensive.Core.Aspects.Tests
     {
     }
 
-    protected InitializableSample(int i, bool ignored)
+    private InitializableSample(int i, bool ignored)
+    {
+    }
+  }
+
+  public class InitializableGeneric<T> : InitializableBase
+  {
+    public InitializableGeneric(object arg)
+    {
+    }
+
+    public InitializableGeneric(int i)
+      : this(i, true)
+    {
+      ArgumentValidator.EnsureArgumentIsInRange(i, 0, int.MaxValue, "i");
+    }
+
+    private InitializableGeneric(int i, bool ignored)
+    {
+    }
+  }
+
+  public class InitializableDerived : InitializableGeneric<int>
+  {
+    public InitializableDerived(int i)
+      : base(i)
+    {
+    }
+
+    public InitializableDerived(Guid guid)
+      : base(0)
     {
     }
   }

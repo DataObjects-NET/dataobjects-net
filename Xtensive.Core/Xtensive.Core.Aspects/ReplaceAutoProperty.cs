@@ -8,6 +8,7 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using PostSharp.Aspects;
+using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Aspects.Resources;
@@ -19,9 +20,10 @@ namespace Xtensive.Core.Aspects
   /// <summary>
   /// Replaces auto-property implementation to invocation of property get and set generic handlers.
   /// </summary>
-  [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.Multicast)]
-  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [Serializable]
+  [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.Multicast)]
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof(NotSupportedAttribute))]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
   public sealed class ReplaceAutoProperty : MethodLevelAspect
   {
@@ -38,6 +40,8 @@ namespace Xtensive.Core.Aspects
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
+      if (AspectHelper.IsInfrastructureMethod(method))
+        return false;
       var accessorInfo = method as MethodInfo;
       if (accessorInfo == null) {
         ErrorLog.Write(SeverityType.Error, AspectMessageType.AspectRequiresToBe,

@@ -6,7 +6,7 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -46,6 +46,3 @@ using Xtensive.Storage.Aspects;
 [assembly : AssemblyFileVersion("1.0.0.0")]
 [assembly : CLSCompliant(true)]
 [assembly : SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
-
-// This ensures the methods of Persistent & SessionBound will be aspected
-[assembly : Persistent(AttributeTargetAssemblies = "Xtensive.Storage.Tests")]

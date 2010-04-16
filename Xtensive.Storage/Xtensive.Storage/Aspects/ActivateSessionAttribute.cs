@@ -7,14 +7,13 @@
 using System;
 using Xtensive.Core.Internals.DocTemplates;
 
-namespace Xtensive.Storage.Aspects
+namespace Xtensive.Storage
 {
   /// <summary>
   /// Indicates whether a session should be activated on the method's or property's boundaries.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, 
-    AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   public sealed class ActivateSessionAttribute : StorageAttribute
   {
     /// <summary>
@@ -30,8 +29,7 @@ namespace Xtensive.Storage.Aspects
     /// </summary>
     public ActivateSessionAttribute() :
       this(true)
-    {
-    }
+    {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

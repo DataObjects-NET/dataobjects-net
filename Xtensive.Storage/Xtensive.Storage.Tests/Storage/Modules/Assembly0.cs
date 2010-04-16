@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Storage;
-using Xtensive.Storage.Aspects;
 
 namespace Modules.Model
 {

@@ -19,8 +19,9 @@ namespace Xtensive.Storage.Rse.Providers
   /// Abstract base class for any <see cref="RecordSet"/> <see cref="RecordSet.Provider"/>.
   /// </summary>
   [Serializable]
+  [Initializable]
   [DebuggerDisplay("{DebuggerDisplayName}, Source count = {Sources.Length}")]
-  public abstract class Provider : IInitializable
+  public abstract class Provider
   {
     protected const string ToString_ProviderTypeSuffix = "Provider";
     protected const string ToString_Parameters = " ({0})";

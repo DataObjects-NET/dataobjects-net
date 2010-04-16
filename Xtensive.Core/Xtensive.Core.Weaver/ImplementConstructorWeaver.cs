@@ -96,6 +96,7 @@ namespace Xtensive.Core.Weaver
       private const string ParameterNamePrefix = "arg";
       private readonly ITypeSignature[] argumentTypes;
 
+
       public override void Implement(StructuralTransformationContext context)
       {
         var typeDef = (TypeDefDeclaration)context.TargetElement;
@@ -107,7 +108,6 @@ namespace Xtensive.Core.Weaver
         ctorDef.CallingConvention = CallingConvention.HasThis;
         ctorDef.Attributes = MethodAttributes.Family | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
         typeDef.Methods.Add(ctorDef);
-        ctorDef.CustomAttributes.Add(helper.GetDebuggerNonUserCodeAttribute());
         ctorDef.CustomAttributes.Add(helper.GetCompilerGeneratedAttribute());
         ctorDef.ReturnParameter = new ParameterDeclaration();
         ctorDef.ReturnParameter.Name = string.Empty;
@@ -115,16 +115,25 @@ namespace Xtensive.Core.Weaver
         ctorDef.ReturnParameter.Attributes = ParameterAttributes.Retval;
   
         for (int i = 0; i < argumentTypes.Length; i++)
-          ctorDef.Parameters.Add(new ParameterDeclaration(i, ParameterNamePrefix + i, argumentTypes[i]));
+          ctorDef.Parameters.Add(new ParameterDeclaration(i, ParameterNamePrefix + i, argumentTypes[i].TranslateType(module)));
         ctorDef.MethodBody = new MethodBodyDeclaration();
         ctorDef.MethodBody.RootInstructionBlock = ctorDef.MethodBody.CreateInstructionBlock();
         IMethod baseConstructor = null;
+
+        var ctorSignature =
+          new MethodSignature(
+            argumentTypes[0].Module,
+            CallingConvention.HasThis,
+            module.Cache.GetIntrinsic(IntrinsicType.Void),
+            argumentTypes,
+            0);
+
         try {
           baseConstructor = baseType.Methods.GetMethod(WellKnown.CtorName,
-            ctorDef,
-            BindingOptions.Default);
+           ctorSignature.Translate(module),
+           BindingOptions.Default).TranslateMethod(module);
         } catch (Exception e) {
-          ErrorLog.Debug("Error: {0}", e);
+          ErrorLog.Write(SeverityType.Error, "{0}", e);
           return;
         }
 
@@ -136,7 +145,7 @@ namespace Xtensive.Core.Weaver
           for (short i = 0; i < argumentTypes.Length; i++)
             writer.EmitInstructionParameter(OpCodeNumber.Ldarg_S, ctorDef.Parameters[i]);
 
-          writer.EmitInstructionMethod(OpCodeNumber.Call, (IMethod) baseConstructor.Translate(module));
+          writer.EmitInstructionMethod(OpCodeNumber.Call, baseConstructor);
           writer.EmitInstruction(OpCodeNumber.Ret);
           writer.DetachInstructionSequence();
         }

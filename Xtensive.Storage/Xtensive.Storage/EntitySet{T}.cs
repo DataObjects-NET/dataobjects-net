@@ -246,11 +246,12 @@ namespace Xtensive.Storage
     #endregion
     
     /// <inheritdoc/>
+    [Infrastructure]
     protected sealed override Func<long> GetItemCountQueryDelegate(FieldInfo field)
     {
       return (Func<long>) Delegate.CreateDelegate(typeof (Func<long>), field, GetItemCountQueryMethod);
     }
-    
+
     private static IQueryable<TItem> GetItemsQuery(FieldInfo field)
     {
       var owner = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
@@ -273,9 +274,7 @@ namespace Xtensive.Storage
     /// <param name="field">Field corresponds to this entity set.</param>
     protected EntitySet(Entity owner, FieldInfo field)
       : base(owner, field)
-    {
-      Initialize(typeof (EntitySet<TItem>));
-    }
+    {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>

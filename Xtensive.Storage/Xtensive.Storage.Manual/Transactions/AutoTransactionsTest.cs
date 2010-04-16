@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Aspects;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
@@ -62,7 +62,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
       Assert.AreNotSame(outerTransaction, Transaction.Current);
     }
 
-    [Transactional(false)]
+    [NonTransactional]
     [ActivateSession(true)] // Actually unnecessary - this is default option
     public void NonTransactionalMethod(Transaction expectedTransaction)
     {

@@ -17,10 +17,10 @@ namespace Xtensive.Core.Aspects
   /// Implements protected constructor with a set of specified parameter types.
   /// Implemented constructor will call the constructor with the same set of arguments from the base type.
   /// </summary>
-  [MulticastAttributeUsage(MulticastTargets.Class, Inheritance = MulticastInheritance.Strict)]
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof(ImplementFactoryMethod))]
   [Serializable]
+  [MulticastAttributeUsage(MulticastTargets.Class, Inheritance = MulticastInheritance.Strict)]
+  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof(ImplementFactoryMethod))]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
   public sealed class ImplementConstructor : TypeLevelAspect
   {

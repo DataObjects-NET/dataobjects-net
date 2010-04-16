@@ -5,23 +5,16 @@
 // Created:    2010.03.29
 
 using System;
-using System.Collections.Generic;
 using PostSharp.AspectInfrastructure;
 using PostSharp.AspectInfrastructure.Helpers;
-using PostSharp.Aspects;
 using PostSharp.AspectWeaver;
 using PostSharp.AspectWeaver.AspectWeavers;
 using PostSharp.AspectWeaver.Transformations;
 using PostSharp.CodeModel;
 using PostSharp.CodeModel.Helpers;
-using PostSharp.CodeModel.TypeSignatures;
-using PostSharp.CodeWeaver;
 using PostSharp.Collections;
 using PostSharp.Extensibility;
-using PostSharp.Extensibility.Tasks;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core.Weaver.Resources;
 
 namespace Xtensive.Core.Weaver
 {
@@ -193,15 +186,17 @@ namespace Xtensive.Core.Weaver
           var exceptionLocal = methodBody.RootInstructionBlock.DefineLocalVariable(module.Cache.GetType(typeof(Exception)), "~exception~{0}");
           var sequence = methodBody.CreateInstructionSequence();
           block.AddInstructionSequence( sequence, NodePosition.Before, null );
-          
+
+          var declaringType = GenericHelper.GetTypeCanonicalGenericInstance(targetMethodDef.DeclaringType)
+            .TranslateType(module);
           writer.AttachInstructionSequence( sequence );
           writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
           writer.EmitInstructionLocalVariable(OpCodeNumber.Stloc, exceptionLocal);
           writer.EmitInstruction(OpCodeNumber.Ldarg_0); // Push "this"
-          writer.EmitInstructionType(OpCodeNumber.Ldtoken, targetMethodDef.DeclaringType.Translate(module));
+          writer.EmitInstructionType(OpCodeNumber.Ldtoken, declaringType);
           writer.EmitInstructionMethod(OpCodeNumber.Call, getTypeFromHandleMethod); // Push "typeof(...)"
           writer.EmitInstructionLocalVariable(OpCodeNumber.Ldloc, exceptionLocal); // Push "exception"
-          writer.EmitInstructionMethod(OpCodeNumber.Callvirt, errorHandlerMethod);
+          writer.EmitInstructionMethod(OpCodeNumber.Call, errorHandlerMethod);
           writer.EmitInstruction(OpCodeNumber.Rethrow);
           writer.DetachInstructionSequence();
         }
@@ -216,13 +211,15 @@ namespace Xtensive.Core.Weaver
           var methodBody = block.MethodBody;
           var sequence = methodBody.CreateInstructionSequence();
           block.AddInstructionSequence( sequence, NodePosition.Before, null );
-    
+
+          var declaringType = GenericHelper.GetTypeCanonicalGenericInstance(targetMethodDef.DeclaringType)
+            .TranslateType(module);
           writer.AttachInstructionSequence( sequence );
           writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
           writer.EmitInstruction(OpCodeNumber.Ldarg_0); // Push "this"
-          writer.EmitInstructionType(OpCodeNumber.Ldtoken, targetMethodDef.DeclaringType.Translate(module));
+          writer.EmitInstructionType(OpCodeNumber.Ldtoken, declaringType);
           writer.EmitInstructionMethod(OpCodeNumber.Call, getTypeFromHandleMethod); // Push "typeof(...)"
-          writer.EmitInstructionMethod(OpCodeNumber.Callvirt, handlerMethod);
+          writer.EmitInstructionMethod(OpCodeNumber.Call, handlerMethod);
           writer.DetachInstructionSequence();
         }
 

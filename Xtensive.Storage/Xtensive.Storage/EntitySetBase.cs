@@ -18,7 +18,7 @@ using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
 using Xtensive.Core.Tuples.Transform;
-using Xtensive.Storage.Aspects;
+using Xtensive.Storage;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
@@ -31,6 +31,8 @@ namespace Xtensive.Storage
   /// <summary>
   /// Base class for <see cref="EntitySet{TItem}"/>.
   /// </summary>
+  [EntitySetAspect]
+  [Initializable]
   public abstract class EntitySetBase : SessionBound,
     IFieldValueAdapter,
     INotifyPropertyChanged,
@@ -667,7 +669,7 @@ namespace Xtensive.Storage
       Func<Tuple, Entity> itemCtor = null;
       if (field.Association.AuxiliaryType!=null)
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
-          field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedProtectedConstructorCallerName,
+          field.Association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedFactoryMethodName,
           ArrayUtils<Type>.EmptyArray);
       return new EntitySetTypeState(seek, seekTransform, itemCtor,entitySet.GetItemCountQueryDelegate(field));
     }
@@ -721,7 +723,7 @@ namespace Xtensive.Storage
           owner.Type.Key.TupleDescriptor, 
           itemType.Key.TupleDescriptor);
       }
-      Initialize(typeof (EntitySetBase));
+      Initialize(typeof(EntitySetBase));
     }
 
     /// <summary>
