@@ -1,9 +1,9 @@
-﻿<#@ template inherits="Microsoft.VisualStudio.TextTemplating.VSHost.ModelingTextTransformation" language="C#v3.5" debug="true" hostSpecific="true" #>
+﻿<#@ template language="C#v3.5" debug="true" hostSpecific="true" #>
 <#@ output extension=".cs" #>
-<#@ Assembly Name="System.dll" #>
-<#@ Assembly Name="System.Core.dll" #>
-<#@ Assembly Name="System.Xml.dll" #>
-<#@ Assembly Name="System.Xml.Linq.dll" #>
+<#@ Assembly Name="System" #>
+<#@ Assembly Name="System.Core" #>
+<#@ Assembly Name="System.Xml" #>
+<#@ Assembly Name="System.Xml.Linq" #>
 <#@ import namespace="System" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.IO" #>
