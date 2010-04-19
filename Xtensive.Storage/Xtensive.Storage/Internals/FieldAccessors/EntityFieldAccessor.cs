@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Storage.Resources;
+using Xtensive.Core.Tuples;
 
 namespace Xtensive.Storage.Internals.FieldAccessors
 {

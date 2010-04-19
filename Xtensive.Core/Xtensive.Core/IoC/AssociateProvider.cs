@@ -29,7 +29,7 @@ namespace Xtensive.Core.IoC
     IDeserializationCallback
   {
     [ThreadStatic]
-    private static ISet<TypePair> inProgress = new SetSlim<TypePair>();
+    private static SetSlim<TypePair> inProgress = new SetSlim<TypePair>();
     [NonSerialized]
     private object _lock;
     [NonSerialized]

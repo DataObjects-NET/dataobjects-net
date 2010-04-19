@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Upgrade
           book.Author = authorMap[book.RcAuthor.Id];
       }
 
-      protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(Core.Collections.ISet<UpgradeHint> hints)
       {
         hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version1.Book", typeof(Book2)));
         hints.Add(new RemoveTypeHint("Xtensive.Storage.Tests.Upgrade.PrimaryKeyModel.Version1.Category"));

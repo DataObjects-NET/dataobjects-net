@@ -10,7 +10,9 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Rse.Helpers;
+using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {

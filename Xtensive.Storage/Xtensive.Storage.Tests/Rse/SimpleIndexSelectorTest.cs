@@ -12,6 +12,7 @@ using NUnit.Framework;
 using Rhino.Mocks;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;

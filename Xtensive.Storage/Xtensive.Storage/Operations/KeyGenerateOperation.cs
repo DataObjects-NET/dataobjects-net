@@ -8,6 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage.Operations
 {

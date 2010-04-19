@@ -11,6 +11,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Resources;

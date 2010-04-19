@@ -14,6 +14,7 @@ using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -112,7 +113,7 @@ namespace Xtensive.Storage.Linq
         throw new NotSupportedException();
     }
 
-    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, ISet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, ref IEnumerable<Type> types)
+    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, Core.Collections.ISet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, ref IEnumerable<Type> types)
     {
       if (type.IsAssignableFrom(typeof (Key)))
         throw new InvalidOperationException(String.Format(Strings.ExUnableToStoreUntypedKeyToStorage, typeof (Ref<>).GetShortName()));
@@ -202,7 +203,7 @@ namespace Xtensive.Storage.Linq
         TupleDescriptor = TupleDescriptor.Create(types);
       }
       else {
-        ISet<Type> processedTypes = new Set<Type>();
+        Core.Collections.ISet<Type> processedTypes = new Set<Type>();
         LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, ref index, null, ref types);
         TupleDescriptor = TupleDescriptor.Create(types);
         Expression = itemExpression;

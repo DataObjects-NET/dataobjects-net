@@ -6,6 +6,7 @@
 
 using NUnit.Framework;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Core.Tests.Tuples.Transform

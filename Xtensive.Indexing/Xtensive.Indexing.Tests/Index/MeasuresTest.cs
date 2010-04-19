@@ -46,14 +46,14 @@ namespace Xtensive.Indexing.Tests.Index
       IUniqueOrderedIndex<TKey, TItem> list = new SortedListIndex<TKey, TItem>(listConfiguration);
       IUniqueOrderedIndex<TKey, TItem> index = new Index<TKey, TItem>(indexConfiguration);
 
-      ISet<TItem> instances = new SetSlim<TItem>(InstanceGeneratorProvider.Default.GetInstanceGenerator<TItem>().GetInstances(random, count));
-      ISet<TItem> missingInstances = new SetSlim<TItem>(InstanceGeneratorProvider.Default.GetInstanceGenerator<TItem>().GetInstances(random, count));
+      Core.Collections.ISet<TItem> instances = new SetSlim<TItem>(InstanceGeneratorProvider.Default.GetInstanceGenerator<TItem>().GetInstances(random, count));
+      Core.Collections.ISet<TItem> missingInstances = new SetSlim<TItem>(InstanceGeneratorProvider.Default.GetInstanceGenerator<TItem>().GetInstances(random, count));
       instances.ExceptWith(missingInstances);
 
       Process(instances, missingInstances, itemComparer, keyExtractor, list, index);
     }
 
-    private void Process<TKey, TItem>(ISet<TItem> instances, ISet<TItem> missingInstances, AdvancedComparer<TItem> itemComparer,
+    private void Process<TKey, TItem>(Core.Collections.ISet<TItem> instances, Core.Collections.ISet<TItem> missingInstances, AdvancedComparer<TItem> itemComparer,
       Converter<TItem, TKey> keyExtractor,
       params IUniqueOrderedIndex<TKey, TItem>[] indexes)
     {

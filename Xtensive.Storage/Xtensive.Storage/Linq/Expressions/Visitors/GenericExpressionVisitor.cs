@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core.Linq;
+using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {

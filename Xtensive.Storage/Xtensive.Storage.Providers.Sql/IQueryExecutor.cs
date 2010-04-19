@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql

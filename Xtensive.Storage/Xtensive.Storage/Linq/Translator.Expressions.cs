@@ -15,6 +15,7 @@ using Xtensive.Core.Linq;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
@@ -374,7 +375,7 @@ namespace Xtensive.Storage.Linq
       var constructorParameters = newExpression.Constructor.GetParameters();
       if (constructorParameters.Length!=arguments.Count)
         throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, Log.Instance);
-      ISet<MemberInfo> duplicateMembers = new SetSlim<MemberInfo>();
+      var duplicateMembers = new SetSlim<MemberInfo>();
       var bindings = new Dictionary<MemberInfo, Expression>();
       for (int i = 0; i < constructorParameters.Length; i++) {
         int parameterIndex = i;

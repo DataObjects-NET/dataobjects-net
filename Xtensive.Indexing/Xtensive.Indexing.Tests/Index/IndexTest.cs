@@ -39,8 +39,8 @@ namespace Xtensive.Indexing.Tests.Index
     private void AddInternal<T>(int count)
     {
       Index<T, T> index = GetIndex<T>();
-      ISet<T> instances = GetUniqueInstances<T>(count);
-      ISet<T> missingInstances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> missingInstances = GetUniqueInstances<T>(count);
       instances.ExceptWith(missingInstances);
       foreach (T instance in instances)
         index.Add(instance);
@@ -69,8 +69,8 @@ namespace Xtensive.Indexing.Tests.Index
     private void RemoveInternal<T>(int count)
     {
       Index<T, T> index = GetIndex<T>();
-      ISet<T> instances = GetUniqueInstances<T>(count);
-      ISet<T> missingInstances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> missingInstances = GetUniqueInstances<T>(count);
       instances.ExceptWith(missingInstances);
       foreach (T instance in instances)
         index.Add(instance);
@@ -137,7 +137,7 @@ namespace Xtensive.Indexing.Tests.Index
     private void RemoveDebugInternal<T>(int count)
     {
       Index<T, T> index = GetIndex<T>();
-      ISet<T> instances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
       foreach (T instance in instances)
         index.Add(instance);
 
@@ -181,8 +181,8 @@ namespace Xtensive.Indexing.Tests.Index
       testConfiguration.Measures.Add(new MinMeasure<T, T>("Min", converter));
       testConfiguration.Measures.Add(new MaxMeasure<T, T>("Max", converter));
       Index<T, T> index = new Index<T, T>(testConfiguration);
-      ISet<T> instances = GetUniqueInstances<T>(count);
-      ISet<T> missingInstances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> missingInstances = GetUniqueInstances<T>(count);
       instances.ExceptWith(missingInstances);
       T minValue = AdvancedComparer<T>.Default.ValueRangeInfo.MaxValue;
       T maxValue = AdvancedComparer<T>.Default.ValueRangeInfo.MinValue;

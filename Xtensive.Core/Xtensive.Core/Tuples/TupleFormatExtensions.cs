@@ -4,6 +4,7 @@
 // Created by: Elena Vakhtina
 // Created:    2008.11.11
 
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,9 +14,10 @@ using Xtensive.Core.Conversion;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using System.Linq;
 
-namespace System
+namespace Xtensive.Core.Tuples
 {
   /// <summary>
   /// Extension methods for <see cref="Tuple"/>.
@@ -97,7 +99,7 @@ namespace System
     /// <param name="descriptor">The descriptor of <see cref="Tuple"/> to parse.</param>
     /// <param name="source">The string to parse.</param>
     /// <returns>A <see cref="Tuple"/> parsed from the <paramref name="source"/> string.</returns>
-    /// <exception cref="InvalidOperationException"><paramref name="source"/> string 
+    /// <exception cref="System.InvalidOperationException"><paramref name="source"/> string 
     /// can't be parsed to a <see cref="Tuple"/> with specified <paramref name="descriptor"/>.</exception>
     public static Tuple Parse(this TupleDescriptor descriptor, string source)
     {

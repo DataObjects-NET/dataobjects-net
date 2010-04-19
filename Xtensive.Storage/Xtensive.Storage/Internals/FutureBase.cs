@@ -10,6 +10,7 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Linq;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;

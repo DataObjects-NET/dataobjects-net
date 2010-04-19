@@ -5,6 +5,7 @@
 // Created:    2009.08.05
 
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage.Providers.Sql
 {

@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Linq.Materialization;
 using Xtensive.Storage.Linq.Rewriters;

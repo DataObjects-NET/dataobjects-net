@@ -18,6 +18,7 @@ using Xtensive.Core.Helpers;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;

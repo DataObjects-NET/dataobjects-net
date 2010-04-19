@@ -14,6 +14,7 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Linq.Normalization;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Rse;

@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Indexing;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage.Providers.Index
 {

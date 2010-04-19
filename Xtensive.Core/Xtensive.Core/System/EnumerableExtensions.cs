@@ -300,7 +300,7 @@ namespace System
       }
       return true;
     }
-
+#if! NET40
     /// <summary>
     /// Constructs <see cref="IEnumerable{T}"/> from
     /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>
@@ -328,6 +328,7 @@ namespace System
         while (leftEnum.MoveNext() && rightEnum.MoveNext())
           yield return projector(leftEnum.Current, rightEnum.Current);
     }
+#endif
 
     /// <summary>
     /// Constructs <see cref="IEnumerable{T}"/> from

@@ -9,6 +9,7 @@ using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Resources;
+using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Storage
 {
