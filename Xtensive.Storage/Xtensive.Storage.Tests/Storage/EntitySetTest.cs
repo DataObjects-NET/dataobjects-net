@@ -18,6 +18,16 @@ using Xtensive.Storage.Tests.Storage.EntitySetModel;
 
 namespace Xtensive.Storage.Tests.Storage.EntitySetModel
 {
+  [HierarchyRoot]
+  public class Publisher : Entity
+  {
+    [Field, Key]
+    public int ID { get; private set; }
+
+    [Field]
+    public EntitySet<Book> Books { get; private set; }
+  }
+
   [Serializable]
   [HierarchyRoot]
   public class Book : Entity
@@ -129,6 +139,50 @@ namespace Xtensive.Storage.Tests.Storage
           books.Add(b);
           Assert.AreEqual(PersistenceState.New, b.PersistenceState);
           t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void PairedEntitySetTest()
+    {
+      Author author;
+      using (var session = Session.Open(Domain)) {
+        using (var t = Transaction.Open()) {
+          author = new Author();
+          for (int i = 0; i < 100; i++) {
+            var book = new Book() { Name = i };
+            author.Books.Add(book);
+          }
+          t.Complete();
+        }
+        using (var t = Transaction.Open()) {
+          var list = author.Books.ToList();
+          foreach (var book in list)
+          {
+            Assert.IsNotNull(book);
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void NonPairedEntitySetTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var publisher = new Publisher();
+        for (int i = 0; i < 100; i++) {
+          var book = new Book() {Name = i};
+          publisher.Books.Add(book);
+        }
+        t.Complete();
+      }
+      using (var t = Transaction.Open()) {
+        var publisher = Query.All<Publisher>().First();
+        var list = publisher.Books.ToList();
+        foreach (var book in list) {
+          Assert.IsNotNull(book);
         }
       }
     }
