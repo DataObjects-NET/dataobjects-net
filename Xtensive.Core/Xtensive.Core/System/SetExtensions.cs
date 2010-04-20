@@ -36,7 +36,7 @@ namespace System
       if (set.Count==0 || items.IsNullOrEmpty())
         return true;
 
-      var itemsAsSet = items as Collections.Generic.ISet<TItem>;
+      var itemsAsSet = items as Xtensive.Core.Collections.ISet<TItem>;
       if (itemsAsSet != null)
         return (set.Count > itemsAsSet.Count ? set.ContainsNone(itemsAsSet) : itemsAsSet.ContainsNone(set));
 
