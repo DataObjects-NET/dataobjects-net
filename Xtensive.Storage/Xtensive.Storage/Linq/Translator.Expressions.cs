@@ -784,8 +784,10 @@ namespace Xtensive.Storage.Linq
       expression = expression.StripCasts();
       if (expression.IsAnonymousConstructor()) {
         var newExpression = (NewExpression) expression;
+#if !NET40
         if (member.MemberType==MemberTypes.Property)
           member = ((PropertyInfo) member).GetGetMethod();
+#endif
         int memberIndex = newExpression.Members.IndexOf(member);
         if (memberIndex < 0)
           throw new InvalidOperationException(
@@ -849,11 +851,6 @@ namespace Xtensive.Storage.Linq
         }
         break;
       }
-//      if (state.BuildingProjection && result is EntityFieldExpression) {
-//        var entityFieldExpression = (EntityFieldExpression) result;
-//        EnsureEntityReferenceIsJoined(entityFieldExpression);
-//        result = entityFieldExpression.Entity;
-//      }
       return isMarker
         ? new MarkerExpression(result, markerType)
         : result;
