@@ -11,6 +11,7 @@ using System.Linq;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;

@@ -11,6 +11,7 @@ using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Internals;

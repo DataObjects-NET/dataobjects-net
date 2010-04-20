@@ -72,7 +72,7 @@ namespace Xtensive.Indexing.Tests.Index
         File.Delete(fileName);
       }
       Index<T, T> index = GetIndex<T>();
-      ISet<T> instances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
 
       foreach (T item in instances) {
         index.Add(item);
@@ -113,7 +113,7 @@ namespace Xtensive.Indexing.Tests.Index
     private void MemorySerializeInternal<T>(int count)
     {
       Index<T, T> index = GetIndex<T>();
-      ISet<T> instances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
 
       foreach (T item in instances) {
         index.Add(item);
@@ -157,9 +157,9 @@ namespace Xtensive.Indexing.Tests.Index
         File.Delete(fileName);
       }
       Index<T, T> index = GetIndex<T>();
-      ISet<T> instances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
 
-      ISet<T> missingInstances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> missingInstances = GetUniqueInstances<T>(count);
       missingInstances.ExceptWith(instances);
 
       foreach (T item in instances) {
@@ -234,7 +234,7 @@ namespace Xtensive.Indexing.Tests.Index
     private void DebugInternal<T>(int count)
     {
       Index<T, T> index = GetIndex<T>();
-      ISet<T> instances = GetUniqueInstances<T>(count);
+      Core.Collections.ISet<T> instances = GetUniqueInstances<T>(count);
 
       foreach (T item in instances) {
         index.Add(item);

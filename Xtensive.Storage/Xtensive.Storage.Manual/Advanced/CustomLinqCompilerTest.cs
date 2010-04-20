@@ -64,7 +64,6 @@ namespace Xtensive.Storage.Manual.Advanced.CustomLinqCompiler
       var methodInfo = typeof (string).GetMethod("Concat", 
         new[] {typeof (string), typeof (string), typeof (string)} );
       var concatExpression = Expression.Call(
-        Expression.Constant(null, typeof(string)), 
         methodInfo, 
         firstNameExpression, 
         spaceExpression, 

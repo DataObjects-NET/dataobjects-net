@@ -5,6 +5,7 @@
 // Created:    2009.04.06
 
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Storage.Model;
 

@@ -10,6 +10,7 @@ using Xtensive.Core.Comparison;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 
 namespace Xtensive.Core.Tests.Tuples.Transform

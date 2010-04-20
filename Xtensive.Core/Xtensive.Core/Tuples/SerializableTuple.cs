@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Collections;
 
 namespace Xtensive.Core.Tuples

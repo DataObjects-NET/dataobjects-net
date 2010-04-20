@@ -11,6 +11,7 @@ using NUnit.Framework;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Core.Tests.Tuples
 {

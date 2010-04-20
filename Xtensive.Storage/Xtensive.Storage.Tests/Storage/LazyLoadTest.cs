@@ -8,6 +8,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.BookAuthorModel;
 

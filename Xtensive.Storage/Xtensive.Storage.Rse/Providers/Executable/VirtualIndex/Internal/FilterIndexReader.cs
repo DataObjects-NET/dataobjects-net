@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Indexing;
 

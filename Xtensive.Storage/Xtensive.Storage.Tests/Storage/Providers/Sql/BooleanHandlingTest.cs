@@ -9,6 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Tests.Storage.Providers.Sql.BooleanHandlingTestModel;

@@ -16,6 +16,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Integrity.Aspects;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Integrity.Validation;
+using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Integrity.Tests
 {

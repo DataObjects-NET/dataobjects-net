@@ -7,8 +7,9 @@
 using System;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 
-namespace System
+namespace Xtensive.Core.Tuples
 {
   /// <summary>
   /// Extension methods for <see cref="TupleFieldState"/>.

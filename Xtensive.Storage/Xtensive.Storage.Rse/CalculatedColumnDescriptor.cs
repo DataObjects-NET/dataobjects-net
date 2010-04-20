@@ -10,6 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage.Rse
 {

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using System.Linq;
 
 namespace Xtensive.Storage.Rse.Providers.Executable

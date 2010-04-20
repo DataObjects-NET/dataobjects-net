@@ -7,6 +7,7 @@
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Storage.Providers.Sql

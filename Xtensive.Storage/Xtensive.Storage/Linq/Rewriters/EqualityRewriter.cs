@@ -8,6 +8,7 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
+using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage.Linq.Expressions
 {

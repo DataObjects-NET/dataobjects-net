@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;
@@ -49,7 +48,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
       return true;
     }
 
-    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(Core.Collections.ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
         hints.Add(new RenameTypeHint("Xtensive.Storage.Tests.Upgrade.Recycled.Model.Version1.Order", typeof(Order)));

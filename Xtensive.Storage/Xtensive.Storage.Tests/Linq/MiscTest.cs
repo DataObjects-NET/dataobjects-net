@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Tests.Linq
 
       var genericSelectMethodInfo = selectMethodInfo.MakeGenericMethod(entityType, propertyInfo.PropertyType);
 
-      var selectExpression = Expression.Call(Expression.Constant(null), genericSelectMethodInfo, queryAllExpression, lambda);
+      var selectExpression = Expression.Call(genericSelectMethodInfo, queryAllExpression, lambda);
 
       return (IQueryable) FastExpression
         .Lambda(selectExpression, EnumerableUtils<ParameterExpression>.Empty)

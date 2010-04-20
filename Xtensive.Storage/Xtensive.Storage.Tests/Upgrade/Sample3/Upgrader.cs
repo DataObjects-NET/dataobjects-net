@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
       return true;
     }
 
-    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(Core.Collections.ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
         Version1To2Hints.ForEach(hint => hints.Add(hint));

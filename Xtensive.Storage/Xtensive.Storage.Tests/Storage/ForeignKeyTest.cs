@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Tests.Storage.ForeignKeys

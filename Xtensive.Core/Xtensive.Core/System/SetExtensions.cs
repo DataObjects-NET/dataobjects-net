@@ -11,7 +11,7 @@ using Xtensive.Core.Resources;
 namespace System
 {
   /// <summary>
-  /// <see cref="ISet{TItem}"/> related extension methods.
+  /// <see cref="Xtensive.Core.Collections.ISet{TItem}"/> related extension methods.
   /// </summary>
   public static class SetExtensions
   {
@@ -28,7 +28,7 @@ namespace System
     /// <see langword="True"/> if the specified <paramref name="set"/> and the specified 
     /// set of <paramref name="items"/> are disjoint; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsDisjointWith<TItem>(this ISet<TItem> set, IEnumerable<TItem> items)
+    public static bool IsDisjointWith<TItem>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(set, items) && set.Count==0)
         return true;
@@ -36,7 +36,7 @@ namespace System
       if (set.Count==0 || items.IsNullOrEmpty())
         return true;
 
-      var itemsAsSet = items as ISet<TItem>;
+      var itemsAsSet = items as Xtensive.Core.Collections.ISet<TItem>;
       if (itemsAsSet != null)
         return (set.Count > itemsAsSet.Count ? set.ContainsNone(itemsAsSet) : itemsAsSet.ContainsNone(set));
 
@@ -54,7 +54,7 @@ namespace System
     /// <see langword="True"/> if the specified <paramref name="set"/> and the specified 
     /// set of <paramref name="items"/> are equal; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsEqualTo<TItem>(this ISet<TItem> set, IEnumerable<TItem> items)
+    public static bool IsEqualTo<TItem>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(set, items))
         return true;
@@ -64,7 +64,7 @@ namespace System
       if (set.IsNullOrEmpty() && items.IsNullOrEmpty())
         return true;
 
-      var itemsAsSet = items as ISet<TItem> ?? new SetSlim<TItem>(items, set.Comparer);
+      var itemsAsSet = items as Xtensive.Core.Collections.ISet<TItem> ?? new SetSlim<TItem>(items, set.Comparer);
       return set.Count != itemsAsSet.Count ? false : set.ContainsAll(itemsAsSet);
     }
 
@@ -79,7 +79,7 @@ namespace System
     /// <see langword="True"/> if the specified <paramref name="set"/> is a proper subset of the specified 
     /// set of <paramref name="items"/>; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsProperSubsetOf<TItem>(this ISet<TItem> set, IEnumerable<TItem> items)
+    public static bool IsProperSubsetOf<TItem>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(set, items))
         return false;
@@ -99,7 +99,7 @@ namespace System
       if (itemCount.HasValue && set.Count >= itemCount.GetValueOrDefault())
         return false;
 
-      var itemsAsSet = items as ISet<TItem> ?? new SetSlim<TItem>(items, set.Comparer);
+      var itemsAsSet = items as Xtensive.Core.Collections.ISet<TItem> ?? new SetSlim<TItem>(items, set.Comparer);
       return itemsAsSet.ContainsAll(set);
     }
 
@@ -114,7 +114,7 @@ namespace System
     /// <see langword="True"/> if the specified <paramref name="set"/> is a proper subset of the specified 
     /// set of <paramref name="items"/>; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsProperSupersetOf<TItem>(this ISet<TItem> set, IEnumerable<TItem> items)
+    public static bool IsProperSupersetOf<TItem>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(set, items))
         return false;
@@ -148,10 +148,10 @@ namespace System
     /// <see langword="True"/> if the specified <paramref name="set"/> is subset of the specified 
     /// set of <paramref name="items"/>; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsSubsetOf<TItem>(this ISet<TItem> set, IEnumerable<TItem> items)
+    public static bool IsSubsetOf<TItem>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       AssertAreComparable(set, items);
-      ISet<TItem> superSet = items as ISet<TItem> ?? new SetSlim<TItem>(items, set.Comparer);
+      Xtensive.Core.Collections.ISet<TItem> superSet = items as Xtensive.Core.Collections.ISet<TItem> ?? new SetSlim<TItem>(items, set.Comparer);
       return IsSupersetOf(superSet, set);
     }
 
@@ -166,7 +166,7 @@ namespace System
     /// <see langword="True"/> if the specified <paramref name="set"/> is subset of the specified 
     /// set of <paramref name="items"/>; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsSupersetOf<TItem>(this ISet<TItem> set, IEnumerable<TItem> items)
+    public static bool IsSupersetOf<TItem>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(set, items))
         return true;
@@ -197,7 +197,7 @@ namespace System
     /// <see langword="True"/> if the specified <paramref name="set"/> overlaps the specified 
     /// set of <paramref name="items"/>; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsOverlappingWith<TItem>(this ISet<TItem> set, IEnumerable<TItem> items)
+    public static bool IsOverlappingWith<TItem>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(set, items))
         return true;
@@ -211,7 +211,7 @@ namespace System
       if (itemsAreEmpty)
         return true;
 
-      var itemsAsSet = items as ISet<TItem>;
+      var itemsAsSet = items as Xtensive.Core.Collections.ISet<TItem>;
       return
         itemsAsSet!=null && itemCount.HasValue && set.Count < itemCount.GetValueOrDefault()
           ? itemsAsSet.ContainsAny(set)
@@ -233,8 +233,8 @@ namespace System
     /// <returns>A set derived from union of the specified <paramref name="set"/> 
     /// and the specified set of <paramref name="items"/>.
     /// </returns>
-    public static TSet Union<TItem, TSet>(this ISet<TItem> set, IEnumerable<TItem> items)
-      where TSet: ISet<TItem>, new()
+    public static TSet Union<TItem, TSet>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
+      where TSet: Xtensive.Core.Collections.ISet<TItem>, new()
     {
       return (TSet)UnionWith(UnionWith(new TSet(), set), items);
     }
@@ -248,7 +248,7 @@ namespace System
     /// <returns>A set derived from union of the specified <paramref name="target"/> 
     /// and the specified set of <paramref name="items"/>.
     /// </returns>
-    public static ISet<TItem> UnionWith<TItem>(this ISet<TItem> target, IEnumerable<TItem> items)
+    public static Xtensive.Core.Collections.ISet<TItem> UnionWith<TItem>(this Xtensive.Core.Collections.ISet<TItem> target, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(target, items))
         return target;
@@ -277,8 +277,8 @@ namespace System
     /// <returns>A set derived from intersection of the specified <paramref name="set"/> 
     /// and the specified set of <paramref name="items"/>.
     /// </returns>
-    public static TSet Intersect<TItem, TSet>(this ISet<TItem> set, IEnumerable<TItem> items)
-      where TSet: ISet<TItem>, new()
+    public static TSet Intersect<TItem, TSet>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
+      where TSet: Xtensive.Core.Collections.ISet<TItem>, new()
     {
       return (TSet)IntersectWith(UnionWith(new TSet(), set), items);
     }
@@ -294,7 +294,7 @@ namespace System
     /// <returns>A set derived from intersection of the specified <paramref name="set"/> 
     /// and the specified set of <paramref name="items"/>.
     /// </returns>
-    public static ISet<TItem> AddIntersectionOf<TItem>(this ISet<TItem> target, ISet<TItem> set, IEnumerable<TItem> items)
+    public static Xtensive.Core.Collections.ISet<TItem> AddIntersectionOf<TItem>(this Xtensive.Core.Collections.ISet<TItem> target, Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(set, items))
         return UnionWith(target, set);
@@ -303,7 +303,7 @@ namespace System
       if (set.Count==0 || items.IsNullOrEmpty())
         return target;
 
-      var itemsAsSet = items as ISet<TItem>;
+      var itemsAsSet = items as Xtensive.Core.Collections.ISet<TItem>;
       if (itemsAsSet != null && itemsAsSet.Count > set.Count) {
         foreach (TItem item in set)
           if (itemsAsSet.Contains(item))
@@ -327,7 +327,7 @@ namespace System
     /// <returns>A set derived from intersection of the specified <paramref name="target"/> 
     /// and the specified set of <paramref name="items"/>.
     /// </returns>
-    public static ISet<TItem> IntersectWith<TItem>(this ISet<TItem> target, IEnumerable<TItem> items)
+    public static Xtensive.Core.Collections.ISet<TItem> IntersectWith<TItem>(this Xtensive.Core.Collections.ISet<TItem> target, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(target, items))
         return target;
@@ -340,7 +340,7 @@ namespace System
         return target;
       }
 
-      var set = items as ISet<TItem>;
+      var set = items as Xtensive.Core.Collections.ISet<TItem>;
       return set != null ? IntersectWithSet(target, set) : IntersectWithEnumerable(target, items);
     }
 
@@ -359,8 +359,8 @@ namespace System
     /// <returns>A set derived from excepting of the specified set of <paramref name="items"/>
     /// from the specified <paramref name="set"/>.
     /// </returns>
-    public static TSet Except<TItem, TSet>(this ISet<TItem> set, IEnumerable<TItem> items)
-      where TSet: ISet<TItem>, new()
+    public static TSet Except<TItem, TSet>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
+      where TSet: Xtensive.Core.Collections.ISet<TItem>, new()
     {
       return (TSet)ExceptWith(UnionWith(new TSet(), set), items);
     }
@@ -376,7 +376,7 @@ namespace System
     /// <returns>A set derived from excepting of the specified set of <paramref name="items"/>
     /// from the specified <paramref name="set"/>.
     /// </returns>
-    public static ISet<TItem> AddExceptionOf<TItem>(this ISet<TItem> target, ISet<TItem> set, IEnumerable<TItem> items)
+    public static Xtensive.Core.Collections.ISet<TItem> AddExceptionOf<TItem>(this Xtensive.Core.Collections.ISet<TItem> target, Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(set, items))
         return target;
@@ -387,13 +387,13 @@ namespace System
       if (items.IsNullOrEmpty())
         return UnionWith(target, set);
 
-      ISet<TItem> itemsAsSet;
-      if (!(items is ISet<TItem>)) {
+      Xtensive.Core.Collections.ISet<TItem> itemsAsSet;
+      if (!(items is Xtensive.Core.Collections.ISet<TItem>)) {
         itemsAsSet = new SetSlim<TItem>(set.Comparer);
         AddIntersectionOf(itemsAsSet, set, items);
       }
       else
-        itemsAsSet = items as ISet<TItem>;
+        itemsAsSet = items as Xtensive.Core.Collections.ISet<TItem>;
 
       foreach (TItem item in set)
         if (!itemsAsSet.Contains(item))
@@ -411,7 +411,7 @@ namespace System
     /// <returns>A set derived from excepting of the specified set of <paramref name="items"/>
     /// from the specified <paramref name="target"/>.
     /// </returns>
-    public static ISet<TItem> ExceptWith<TItem>(this ISet<TItem> target, IEnumerable<TItem> items)
+    public static Xtensive.Core.Collections.ISet<TItem> ExceptWith<TItem>(this Xtensive.Core.Collections.ISet<TItem> target, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(target, items)) {
         target.Clear();
@@ -422,7 +422,7 @@ namespace System
       if (items.IsNullOrEmpty())
         return target;
 
-      var set = items as ISet<TItem>;
+      var set = items as Xtensive.Core.Collections.ISet<TItem>;
       return set == null ? ExceptWithEnumerable(target, items) : ExceptWithSet(target, set);
     }
 
@@ -445,8 +445,8 @@ namespace System
     /// the elements of the specified set of <paramref name="items"/> not contained in
     /// the  specified <paramref name="set"/> to <paramref name="set"/>.
     /// </returns>
-    public static TSet SymmetricExcept<TItem, TSet>(this ISet<TItem> set, IEnumerable<TItem> items)
-      where TSet: ISet<TItem>, new()
+    public static TSet SymmetricExcept<TItem, TSet>(this Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
+      where TSet: Xtensive.Core.Collections.ISet<TItem>, new()
     {
       return (TSet)SymmetricExceptWith(UnionWith(new TSet(), set), items);
     }
@@ -466,7 +466,7 @@ namespace System
     /// the elements of the specified set of <paramref name="items"/> not contained in
     /// the  specified <paramref name="set"/> to <paramref name="set"/>.
     /// </returns>
-    public static ISet<TItem> AddSymmetricExceptionOf<TItem>(this ISet<TItem> target, ISet<TItem> set, IEnumerable<TItem> items)
+    public static Xtensive.Core.Collections.ISet<TItem> AddSymmetricExceptionOf<TItem>(this Xtensive.Core.Collections.ISet<TItem> target, Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(set, items))
         return target;
@@ -500,7 +500,7 @@ namespace System
     /// the elements of the specified set of <paramref name="items"/> not contained in
     /// the  specified <paramref name="target"/> to <paramref name="target"/>.
     /// </returns>
-    public static ISet<TItem> SymmetricExceptWith<TItem>(this ISet<TItem> target, IEnumerable<TItem> items)
+    public static Xtensive.Core.Collections.ISet<TItem> SymmetricExceptWith<TItem>(this Xtensive.Core.Collections.ISet<TItem> target, IEnumerable<TItem> items)
     {
       if (ReferenceEquals(target, items)) {
         target.Clear();
@@ -520,19 +520,19 @@ namespace System
 
     #region Private \ internal methods
 
-    private static void AssertAreComparable<TItem>(ISet<TItem> set, IEnumerable<TItem> items)
+    private static void AssertAreComparable<TItem>(Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
       if (!AreComparable(set, items))
         throw new InvalidOperationException(Strings.ExInconsistentComparisons);
     }
 
-    private static bool AreComparable<TItem>(ISet<TItem> set, IEnumerable<TItem> items)
+    private static bool AreComparable<TItem>(Xtensive.Core.Collections.ISet<TItem> set, IEnumerable<TItem> items)
     {
-      ISet<TItem> set2 = items as ISet<TItem>;
+      Xtensive.Core.Collections.ISet<TItem> set2 = items as Xtensive.Core.Collections.ISet<TItem>;
       return set2 == null || Equals(set.Comparer, set2.Comparer);
     }
 
-    private static ISet<TItem> IntersectWithSet<TItem>(ISet<TItem> target, ISet<TItem> set)
+    private static Xtensive.Core.Collections.ISet<TItem> IntersectWithSet<TItem>(Xtensive.Core.Collections.ISet<TItem> target, Xtensive.Core.Collections.ISet<TItem> set)
     {
       if (target.Count*2 > set.Count)
         return IntersectWithEnumerable(target, set);
@@ -543,7 +543,7 @@ namespace System
       return target;
     }
 
-    private static ISet<TItem> IntersectWithEnumerable<TItem>(ISet<TItem> target, IEnumerable<TItem> items)
+    private static Xtensive.Core.Collections.ISet<TItem> IntersectWithEnumerable<TItem>(Xtensive.Core.Collections.ISet<TItem> target, IEnumerable<TItem> items)
     {
       SetSlim<TItem> tmp = new SetSlim<TItem>(target.Comparer);
       foreach (TItem item in items) {
@@ -554,7 +554,7 @@ namespace System
       return UnionWith(target, tmp);
     }
 
-    private static ISet<TItem> ExceptWithSet<TItem>(ISet<TItem> target, ISet<TItem> set)
+    private static Xtensive.Core.Collections.ISet<TItem> ExceptWithSet<TItem>(Xtensive.Core.Collections.ISet<TItem> target, Xtensive.Core.Collections.ISet<TItem> set)
     {
       if (target.Count*2 > set.Count) {
         return ExceptWithEnumerable(target, set);
@@ -565,7 +565,7 @@ namespace System
       return target;
     }
 
-    private static ISet<TItem> ExceptWithEnumerable<TItem>(ISet<TItem> target, IEnumerable<TItem> items)
+    private static Xtensive.Core.Collections.ISet<TItem> ExceptWithEnumerable<TItem>(Xtensive.Core.Collections.ISet<TItem> target, IEnumerable<TItem> items)
     {
       foreach (TItem item in items)
         if (target.Contains(item))

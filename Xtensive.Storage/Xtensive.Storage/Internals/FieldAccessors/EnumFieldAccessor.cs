@@ -8,6 +8,7 @@ using System;
 using Xtensive.Core.Conversion;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Internals.FieldAccessors

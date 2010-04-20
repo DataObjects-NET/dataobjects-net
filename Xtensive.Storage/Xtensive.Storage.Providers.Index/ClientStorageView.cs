@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Modelling.Actions;

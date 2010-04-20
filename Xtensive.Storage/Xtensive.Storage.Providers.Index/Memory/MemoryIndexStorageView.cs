@@ -14,6 +14,7 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Indexing;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using System.Transactions;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage.Providers.Index.Resources;

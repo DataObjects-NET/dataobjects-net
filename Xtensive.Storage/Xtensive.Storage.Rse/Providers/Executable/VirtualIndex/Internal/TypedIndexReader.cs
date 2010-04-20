@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Indexing;
 using Xtensive.Core.Helpers;
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Sql.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers.Sql.Expressions;

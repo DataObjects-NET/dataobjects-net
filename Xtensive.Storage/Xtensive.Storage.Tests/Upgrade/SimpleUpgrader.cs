@@ -5,7 +5,6 @@
 // Created:    2010.01.15
 
 using System;
-using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Modelling.Comparison.Hints;

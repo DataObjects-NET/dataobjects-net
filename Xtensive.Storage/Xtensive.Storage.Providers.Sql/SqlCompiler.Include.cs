@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Rse;

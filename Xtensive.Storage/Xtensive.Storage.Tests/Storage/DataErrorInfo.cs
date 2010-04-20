@@ -12,6 +12,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Integrity.Aspects.Constraints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.DataErrorInfoTestModel;
+using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Storage.Tests.Storage.DataErrorInfoTestModel
 {

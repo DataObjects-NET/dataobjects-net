@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Resources;
+using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction.ApplyProviderCorrection
 {

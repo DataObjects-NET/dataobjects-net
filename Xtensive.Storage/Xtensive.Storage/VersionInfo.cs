@@ -10,6 +10,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using System.Runtime.Serialization;
 
 namespace Xtensive.Storage

@@ -10,6 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Helpers;
+using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
 {

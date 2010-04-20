@@ -9,6 +9,7 @@ using Xtensive.Core;
 using Xtensive.Core.Arithmetic;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;

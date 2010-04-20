@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Sql;
 using Xtensive.Storage.Internals;
 using IsolationLevel = System.Transactions.IsolationLevel;

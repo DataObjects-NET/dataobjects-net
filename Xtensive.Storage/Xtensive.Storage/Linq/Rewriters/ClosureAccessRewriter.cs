@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Internals;
+using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
 namespace Xtensive.Storage.Linq.Rewriters
 {

@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Tests.Performance

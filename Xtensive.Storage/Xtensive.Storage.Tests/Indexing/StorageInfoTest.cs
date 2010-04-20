@@ -10,6 +10,7 @@ using Xtensive.Core.Testing;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Indexing.Model;
+using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Storage.Tests.Indexing
 {

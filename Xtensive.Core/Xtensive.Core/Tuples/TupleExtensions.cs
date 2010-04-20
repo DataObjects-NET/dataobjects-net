@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.05.31
 
+using System;
 using System.Collections;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -11,10 +12,11 @@ using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 
 
-namespace System
+namespace Xtensive.Core.Tuples
 {
   /// <summary>
   /// Various extension methods for <see cref="Tuple"/> and <see cref="Tuple"/> types.

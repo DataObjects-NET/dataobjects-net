@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Sql;
 
 namespace Xtensive.Storage.Providers.Sql

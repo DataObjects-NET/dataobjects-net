@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Tuples;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Linq.Expressions;
 using Xtensive.Storage.Linq.Expressions.Visitors;
 using Xtensive.Storage.Rse;
