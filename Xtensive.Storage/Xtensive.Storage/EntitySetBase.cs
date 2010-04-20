@@ -570,9 +570,17 @@ namespace Xtensive.Storage
 
     private void EnsureIsLoaded(int? maxItemCount)
     {
-      if (!CheckStateIsLoaded())
-        using (Session.Activate())
-          Session.Handler.FetchEntitySet(Owner.Key, Field, maxItemCount);
+      if (CheckStateIsLoaded()) {
+        if (State.IsFullyLoaded)
+          return;
+        var requestedItemCount = maxItemCount.HasValue
+          ? (int) maxItemCount
+          : int.MaxValue;
+        if (State.CachedItemCount > requestedItemCount)
+          return;
+      }
+      using (Session.Activate())
+        Session.Handler.FetchEntitySet(Owner.Key, Field, maxItemCount);
     }
 
     private void EnsureCountIsLoaded()
