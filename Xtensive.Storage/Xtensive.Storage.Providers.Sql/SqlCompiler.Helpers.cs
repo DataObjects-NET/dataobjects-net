@@ -12,6 +12,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Storage.Providers.Sql.Expressions;
+using Xtensive.Storage.Rse;
 using Xtensive.Storage.Rse.Helpers;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
@@ -226,8 +227,24 @@ namespace Xtensive.Storage.Providers.Sql
         return distinctIsUsed || pagingIsUsed || groupByIsUsed || orderingOverCalculatedColumn;
       }
 
-      if (origin.Type==ProviderType.Apply || origin.Type==ProviderType.Join || origin.Type==ProviderType.PredicateJoin)
+      if (origin.Type == ProviderType.Apply)
         return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+
+      if (origin.Type == ProviderType.Join) {
+        var shouldUseQueryReference = containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+        if (shouldUseQueryReference)
+          return true;
+        var joinProvider = (JoinProvider) origin;
+        return joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed; 
+      }
+
+      if (origin.Type == ProviderType.PredicateJoin) {
+        var shouldUseQueryReference = containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+        if (shouldUseQueryReference)
+          return true;
+        var joinProvider = (PredicateJoinProvider) origin;
+        return joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed;
+      }
 
       if (origin.Type == ProviderType.Sort) {
         var orderingOverCalculatedColumn = origin.ExpectedOrder
