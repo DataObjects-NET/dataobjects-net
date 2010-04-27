@@ -118,7 +118,7 @@ namespace Xtensive.Storage.Providers.Sql
       if (!registry.States.TryGetValue(name, out isLocked))
         InitializeTable(descriptor);
       else if (isLocked)
-        throw new InvalidOperationException(string.Format(Strings.ExTemporaryTableXIsLocked, name));
+        return null;
 
       registry.States[name] = true;
       AcquireTable(descriptor);

@@ -208,15 +208,20 @@ namespace Xtensive.Storage.Rse.Providers
     /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator()
     {
+      const string enumerationMarker = "Enumerated";
       var context = EnumerationScope.CurrentContext;
-      OnBeforeEnumerate(context);
+      var enumerated = context.GetValue<bool>(this, enumerationMarker);
+      if (!enumerated)
+        OnBeforeEnumerate(context);
       try {
+        context.SetValue(this, enumerationMarker, true);
         var enumerable = Enumerate(context);
         foreach (var tuple in enumerable)
           yield return tuple;
       }
       finally {
-        OnAfterEnumerate(context);
+        if (!enumerated)
+          OnAfterEnumerate(context);
       }
     }
 

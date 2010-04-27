@@ -659,6 +659,7 @@ namespace Xtensive.Storage.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Query.All<Customer>().GroupBy(c => c.Orders.Count > 10);
+      var list = result.ToList();
       DumpGrouping(result);
     }
 
