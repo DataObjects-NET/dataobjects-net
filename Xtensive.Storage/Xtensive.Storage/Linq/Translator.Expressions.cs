@@ -958,18 +958,18 @@ namespace Xtensive.Storage.Linq
     private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right,
       ExpressionType operationType, ExpressionType concatenationExpression)
     {
-      BinaryExpression newExpression = operationType==ExpressionType.Equal
+      var binaryExpression = operationType==ExpressionType.Equal
         ? Expression.Equal(left, right)
         : Expression.NotEqual(left, right);
 
       if (previous==null)
-        return newExpression;
+        return binaryExpression;
 
       switch (concatenationExpression) {
       case ExpressionType.AndAlso:
-        return Expression.AndAlso(previous, newExpression);
+        return Expression.AndAlso(previous, binaryExpression);
       case ExpressionType.OrElse:
-        return Expression.OrElse(previous, newExpression);
+        return Expression.OrElse(previous, binaryExpression);
       default:
         throw new ArgumentOutOfRangeException("concatenationExpression");
       }

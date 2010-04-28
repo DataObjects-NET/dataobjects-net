@@ -43,7 +43,6 @@ namespace Xtensive.Storage
       [ThreadStatic]
       public static CtorTransactionInfo Current;
 
-      public Persistent Persistent;
       public TransactionScope TransactionScope;
       public InconsistentRegion InconsistentRegion;
     }
@@ -746,36 +745,40 @@ namespace Xtensive.Storage
 
     internal void EnterCtorTransactionScope()
     {
-      CtorTransactionInfo.Current = new CtorTransactionInfo {
-        Persistent = this,
-        TransactionScope = Transaction.Current==null ? Transaction.Open() : null,
-        InconsistentRegion = Validation.Disable()
+      var cti = CtorTransactionInfo.Current;
+      if (cti != null)
+        return;
+      CtorTransactionInfo.Current = new CtorTransactionInfo() {
+        TransactionScope = Transaction.Current == null
+          ? Transaction.Open()
+          : null,
+        InconsistentRegion = Validation.Disable(Session)
       };
     }
 
     internal void LeaveCtorTransactionScope(bool successfully)
     {
       var cti = CtorTransactionInfo.Current;
-      if (cti!=null && cti.Persistent==this) {
-        CtorTransactionInfo.Current = null;
-        try {
-          if (successfully)
-            try {
-              cti.InconsistentRegion.Complete();
-            }
-            catch {
-              successfully = false;
-              throw;
-            }
-        }
-        finally {
-          cti.InconsistentRegion.Dispose();
-          var transactionScope = cti.TransactionScope;
-          if (transactionScope!=null) {
-            if (successfully)
-              transactionScope.Complete();
-            transactionScope.Dispose();
+      if (cti == null)
+        return;
+      CtorTransactionInfo.Current = null;
+      try {
+        if (successfully)
+          try {
+            cti.InconsistentRegion.Complete();
           }
+          catch {
+            successfully = false;
+            throw;
+          }
+      }
+      finally {
+        cti.InconsistentRegion.Dispose();
+        var transactionScope = cti.TransactionScope;
+        if (transactionScope != null) {
+          if (successfully)
+            transactionScope.Complete();
+          transactionScope.Dispose();
         }
       }
     }

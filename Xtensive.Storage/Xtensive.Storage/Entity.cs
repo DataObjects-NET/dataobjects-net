@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
@@ -460,20 +461,18 @@ namespace Xtensive.Storage
 
     internal override sealed void SystemInitializationError(Exception error)
     {
-      try {
-        if (Session.IsSystemLogicOnly)
-          return;
+      if (Session.IsSystemLogicOnly)
+        return;
 
-        var subscriptionInfo = GetSubscription(EntityEventBroker.InitializationErrorPersistentEventKey);
-        if (subscriptionInfo.Second!=null)
-          ((Action<Key>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First);
-        OnInitializationError(error);
-      }
-      finally {
-        if (!IsRemoved)
-          Remove();
-      }
+      var subscriptionInfo = GetSubscription(EntityEventBroker.InitializationErrorPersistentEventKey);
+      if (subscriptionInfo.Second!=null)
+        ((Action<Key>) subscriptionInfo.Second)
+          .Invoke(subscriptionInfo.First);
+      OnInitializationError(error);
+
+      State.PersistenceState = PersistenceState.Removed;
+      ((IInvalidatable)State).Invalidate();
+      Session.EntityStateCache.Remove(State);
     }
 
     internal override sealed void SystemBeforeGetValue(FieldInfo fieldInfo)

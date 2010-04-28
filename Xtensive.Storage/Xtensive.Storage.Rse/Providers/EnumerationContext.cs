@@ -101,7 +101,9 @@ namespace Xtensive.Storage.Rse.Providers
     {
       object result;
       cache.TryGetValue(new Pair<object, string>(key, name), out result);
-      return (T) result;
+      return result == null 
+        ? default(T) 
+        : (T) result;
     }
 
     /// <summary>

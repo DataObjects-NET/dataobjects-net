@@ -598,15 +598,21 @@ namespace Xtensive.Storage.Linq
       var columnType = dataSource.Header.TupleDescriptor[0];
       if (!isRoot) {
         // Optimization. Use grouping AggregateProvider.
+        // TODO: Fix following code. Should use provider tree rewriting
         if (source is ParameterExpression) {
           var groupingParameter = (ParameterExpression) source;
           var groupingProjection = context.Bindings[groupingParameter];
           var groupingDataSource = groupingProjection.ItemProjector.DataSource;
+          var supportedAggregate = !(aggregateType == AggregateType.Count && argument != null);
           var groupingProvider = groupingDataSource.Provider as AggregateProvider;
           var oldApplyParameter = context.GetApplyParameter(groupingProjection.ItemProjector.DataSource);
-          var supportedAggregate = !(aggregateType == AggregateType.Count && argument != null);
           if (groupingProjection.ItemProjector.Item.IsGroupingExpression() && groupingProvider != null && supportedAggregate) {
-            var newRecordSet = new AggregateProvider(groupingProvider.Source, groupingProvider.GroupColumnIndexes, groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray()).Result;
+            var filterRemover = new SubqueryFilterRemover(oldApplyParameter);
+            var newSourñe = filterRemover.VisitCompilable(innerProjection.ItemProjector.DataSource.Provider);
+            var newRecordSet = new AggregateProvider(
+              newSourñe, 
+              groupingProvider.GroupColumnIndexes, 
+              groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray()).Result;
             var newItemProjector = groupingProjection.ItemProjector.Remap(newRecordSet, 0);
             groupingProjection = new ProjectionExpression(
               groupingProjection.Type, 
@@ -662,39 +668,63 @@ namespace Xtensive.Storage.Linq
     {
       var sequence = VisitSequence(source);
 
-      ProjectionExpression keyProjection;
+      ProjectionExpression groupingSourceProjection;
       using (context.Bindings.PermanentAdd(keySelector.Parameters[0], sequence)) {
         using (state.CreateScope()) {
           state.CalculateExpressions = true;
           var itemProjector = (ItemProjectorExpression) VisitLambda(keySelector);
-          keyProjection = new ProjectionExpression(
+          groupingSourceProjection = new ProjectionExpression(
             typeof (IQueryable<>).MakeGenericType(keySelector.Body.Type),
             itemProjector,
             sequence.TupleParameterBindings);
         }
       }
 
-      var keyColumns = keyProjection.ItemProjector.GetColumns(ColumnExtractionModes.KeepSegment
-        | ColumnExtractionModes.TreatEntityAsKey
-          | ColumnExtractionModes.KeepTypeId)
-        .ToArray();
-      var keyDataSource = keyProjection.ItemProjector.DataSource.Aggregate(keyColumns);
-      var remappedKeyItemProjector = keyProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
+      var keyColumns = groupingSourceProjection.ItemProjector.GetColumns(
+        ColumnExtractionModes.KeepSegment | 
+        ColumnExtractionModes.TreatEntityAsKey | 
+        ColumnExtractionModes.KeepTypeId).ToArray();
+      var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);
+      var remappedKeyItemProjector = groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
 
-      var newItemProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context);
+      var groupingProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context);
+      var groupingProjection = new ProjectionExpression(groupingSourceProjection.Type, groupingProjector, sequence.TupleParameterBindings);
 
-      keyProjection = new ProjectionExpression(keyProjection.Type, newItemProjector, sequence.TupleParameterBindings);
-
-      ProjectionExpression subqueryProjection;
-      var groupingParameter = Expression.Parameter(keyProjection.ItemProjector.Item.Type, "groupingParameter");
-
-      var applyParameter = context.GetApplyParameter(keyProjection);
-      using (context.Bindings.Add(groupingParameter, keyProjection))
-      using (state.CreateScope()) {
-        state.Parameters = state.Parameters.AddOne(groupingParameter).ToArray();
-        var lambda = FastExpression.Lambda(Expression.Equal(groupingParameter, keySelector.Body), keySelector.Parameters);
-        subqueryProjection = VisitWhere(VisitSequence(source), lambda);
-      }
+      var comparisonInfos = keyColumns
+        .Select((subqueryIndex, groupIndex) => new {
+          SubQueryIndex = subqueryIndex, 
+          GroupIndex = groupIndex, 
+          keyDataSource.Header.Columns[groupIndex].Type })
+        .ToList();
+      var applyParameter = context.GetApplyParameter(groupingProjection);
+      var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
+      var filterBody = comparisonInfos.Aggregate(
+        (Expression)null, 
+        (current, comparisonInfo) => MakeBinaryExpression(
+          current, 
+          tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex), 
+          Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue)
+            .MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex), 
+          ExpressionType.Equal, 
+          ExpressionType.AndAlso));
+      var filter = FastExpression.Lambda(filterBody, tupleParameter);
+      var subqueryProjection = new ProjectionExpression(
+        sequence.Type, 
+        new ItemProjectorExpression(
+          sequence.ItemProjector.Item,
+          groupingSourceProjection.ItemProjector.DataSource.Filter((Expression<Func<Tuple, bool>>)filter),
+          context),
+        sequence.TupleParameterBindings,
+        sequence.ResultType
+        );
+//      var groupingParameter = Expression.Parameter(groupingProjection.ItemProjector.Item.Type, "groupingParameter");
+//      var applyParameter = context.GetApplyParameter(groupingProjection);
+//      using (context.Bindings.Add(groupingParameter, groupingProjection))
+//      using (state.CreateScope()) {
+//        state.Parameters = state.Parameters.AddOne(groupingParameter).ToArray();
+//        var lambda = FastExpression.Lambda(Expression.Equal(groupingParameter, keySelector.Body), keySelector.Parameters);
+//        subqueryProjection = VisitWhere(VisitSequence(source), lambda);
+//      }
 
       var keyType = keySelector.Type.GetGenericArguments()[1];
       var elementType = elementSelector==null
@@ -711,8 +741,9 @@ namespace Xtensive.Storage.Linq
         subqueryProjection = VisitSelect(subqueryProjection, elementSelector);
 
       var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo(sequence);
+      var groupingParameter = Expression.Parameter(groupingProjection.ItemProjector.Item.Type, "groupingParameter");
       var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, selectManyInfo);
-      var groupingItemProjector = new ItemProjectorExpression(groupingExpression, newItemProjector.DataSource, context);
+      var groupingItemProjector = new ItemProjectorExpression(groupingExpression, groupingProjector.DataSource, context);
       returnType = resultSelector==null
         ? returnType
         : resultSelector.Parameters[1].Type;
