@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2010.04.07
 
+using System;
 using Xtensive.Core.Aspects;
 
 namespace Xtensive.Core.Weaver
@@ -17,7 +18,7 @@ namespace Xtensive.Core.Weaver
       : base(Priorities.User)
     {
     }
-
+    // $(ProjectDir)..\..\Xtensive.Licensing\Protect.bat "$(TargetPath)"
     protected override void Initialize()
     {
       AddAspectWeaverFactory<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
