@@ -18,7 +18,7 @@ namespace Xtensive.Core.Weaver
       : base(Priorities.User)
     {
     }
-    // $(ProjectDir)..\..\Xtensive.Licensing\Protect.bat "$(TargetPath)"
+    // $(ProjectDir)..\..\Xtensive.Licensing\Protect.bat "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)"
     protected override void Initialize()
     {
       AddAspectWeaverFactory<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
