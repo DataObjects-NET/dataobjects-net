@@ -69,19 +69,21 @@ namespace Xtensive.Core.Weaver
     private void RunLicensingAgent(LicenseInfo licenseInfo)
     {
       string path = Path.Combine(Path.GetDirectoryName(typeof (PlugIn).Assembly.Location), "LicenseManager.exe");
+      ErrorLog.Debug(path);
       if (!File.Exists(path))
         throw new FileNotFoundException("LicenseManager.exe");
 
       if (!Environment.UserInteractive || Environment.OSVersion.Platform!=PlatformID.Win32NT || path.IsNullOrEmpty())
         return;
       var startInfo = new ProcessStartInfo(path) {
-        UseShellExecute = false,
-        CreateNoWindow = true
+        UseShellExecute = false
       };
+      ErrorLog.Debug("Starting program...");
+      Console.Out.WriteLine("IDDQD");
       Process.Start(startInfo);
-      using (var client = new PipeClient()) {
+      ErrorLog.Debug("Program Started...");
+      using (var client = new PipeClient())
         client.SendLicenseInfo(licenseInfo);
-      }
     }
 
     #endregion
