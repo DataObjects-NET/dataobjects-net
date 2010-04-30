@@ -5,6 +5,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Sql.Resources;
 
 namespace Xtensive.Sql
 {
@@ -222,11 +223,11 @@ namespace Xtensive.Sql
     public SqlValueType(SqlType type, string typeName, int? length, int? precision, int? scale)
     {
       if ((type==SqlType.Unknown)!=(typeName!=null))
-        throw new ArgumentException();
+        throw new ArgumentException(Strings.ExInvalidArgumentsNonNullTypeNameIsAllowedIfAndOnlyIfTypeEqualsSqlTypeUnknown);
       if (precision.HasValue && precision != 0 && length.HasValue && length != 0)
-        throw new ArgumentException();
+        throw new ArgumentException(Strings.ExInvalidArgumentsPrecisionAndLengthShouldNotBeUsedTogether);
       if (precision.HasValue!=scale.HasValue)
-        throw new ArgumentException();
+        throw new ArgumentException(Strings.ExInvalidArgumentsScaleAndPrecisionShouldBeUsedTogether);
       if (typeName!=null)
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, "typeName");
       if (length!=null)

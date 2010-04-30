@@ -142,6 +142,33 @@ namespace Xtensive.Sql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid arguments: non-null &apos;typeName&apos; is allowed if and only if &apos;type&apos; equals &apos;SqlType.Unknown&apos;.
+        /// </summary>
+        internal static string ExInvalidArgumentsNonNullTypeNameIsAllowedIfAndOnlyIfTypeEqualsSqlTypeUnknown {
+            get {
+                return ResourceManager.GetString("ExInvalidArgumentsNonNullTypeNameIsAllowedIfAndOnlyIfTypeEqualsSqlTypeUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid arguments: &apos;precision&apos; and &apos;length&apos; should not be used together.
+        /// </summary>
+        internal static string ExInvalidArgumentsPrecisionAndLengthShouldNotBeUsedTogether {
+            get {
+                return ResourceManager.GetString("ExInvalidArgumentsPrecisionAndLengthShouldNotBeUsedTogether", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid arguments: &apos;scale&apos; and &apos;precision&apos; should be used together.
+        /// </summary>
+        internal static string ExInvalidArgumentsScaleAndPrecisionShouldBeUsedTogether {
+            get {
+                return ResourceManager.GetString("ExInvalidArgumentsScaleAndPrecisionShouldBeUsedTogether", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid constraint type..
         /// </summary>
         internal static string ExInvalidConstraintType {

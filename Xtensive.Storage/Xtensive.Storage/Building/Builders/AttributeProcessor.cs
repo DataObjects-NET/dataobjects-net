@@ -175,7 +175,7 @@ namespace Xtensive.Storage.Building.Builders
       if (attribute.scale==null)
         return;
 
-      if (attribute.Scale <= 0)
+      if (attribute.Scale < 0)
         throw new DomainBuilderException(
           string.Format(Strings.ExInvalidScaleAttributeOnFieldX, fieldDef.Name));
 
