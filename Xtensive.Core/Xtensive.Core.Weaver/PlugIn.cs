@@ -22,7 +22,9 @@ namespace Xtensive.Core.Weaver
   {
     // $(ProjectDir)..\..\Xtensive.Licensing\Protect.bat "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)"
 
-    public override bool Execute()
+    #region Non-public methods
+
+    protected override void Initialize()
     {
       // TODO: Check license
       var properties = new Dictionary<string, string>();
@@ -37,10 +39,10 @@ namespace Xtensive.Core.Weaver
       properties.TryGetValue(LicenseInfo.LicenseeKey, out licensee);
       properties.TryGetValue(LicenseInfo.LicenseTypeKey, out licenseTypeString);
       properties.TryGetValue(LicenseInfo.NumberOfDevelopersKey, out numberOfDevelopersString);
-      var licenseType = licenseTypeString.IsNullOrEmpty()
+      LicenseType licenseType = licenseTypeString.IsNullOrEmpty()
         ? LicenseType.Trial
         : (LicenseType) Enum.Parse(typeof (LicenseType), licenseTypeString);
-      var numberOfDevelopers = numberOfDevelopersString.IsNullOrEmpty()
+      int numberOfDevelopers = numberOfDevelopersString.IsNullOrEmpty()
         ? -1
         : int.Parse(numberOfDevelopersString);
       var licenseInfo = new LicenseInfo {
@@ -52,13 +54,6 @@ namespace Xtensive.Core.Weaver
         NumberOfDevelopers = numberOfDevelopers
       };
       RunLicensingAgent(licenseInfo);
-      return base.Execute();
-    }
-    
-    #region Non-public methods
-
-    protected override void Initialize()
-    {
       AddAspectWeaverFactory<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
       AddAspectWeaverFactory<ImplementConstructorEpilogue, ConstructorEpilogueWeaver>();
       AddAspectWeaverFactory<NotSupportedAttribute, NotSupportedWeaver>();
