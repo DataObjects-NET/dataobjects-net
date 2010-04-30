@@ -282,4 +282,13 @@
   <data name="ExConstraintBelongsToOtherDomain" xml:space="preserve">
     <value>Constraint belongs to other domain.</value>
   </data>
+  <data name="ExInvalidArgumentsScaleAndPrecisionShouldBeUsedTogether" xml:space="preserve">
+    <value>Invalid arguments: 'scale' and 'precision' should be used together</value>
+  </data>
+  <data name="ExInvalidArgumentsPrecisionAndLengthShouldNotBeUsedTogether" xml:space="preserve">
+    <value>Invalid arguments: 'precision' and 'length' should not be used together</value>
+  </data>
+  <data name="ExInvalidArgumentsNonNullTypeNameIsAllowedIfAndOnlyIfTypeEqualsSqlTypeUnknown" xml:space="preserve">
+    <value>Invalid arguments: non-null 'typeName' is allowed if and only if 'type' equals 'SqlType.Unknown'</value>
+  </data>
 </root>
