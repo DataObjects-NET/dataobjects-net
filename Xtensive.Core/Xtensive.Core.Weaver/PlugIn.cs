@@ -39,7 +39,7 @@ namespace Xtensive.Core.Weaver
       string numberOfDevelopersString;
       properties.TryGetValue(LicenseInfo.LicenseeKey, out licensee);
       properties.TryGetValue(LicenseInfo.LicenseTypeKey, out licenseTypeString);
-      properties.TryGetValue(LicenseInfo.NumberOfDevelopersKey, out numberOfDevelopersString);
+      properties.TryGetValue(LicenseInfo.NumberOfHWLicensesKey, out numberOfDevelopersString);
       LicenseType licenseType = licenseTypeString.IsNullOrEmpty()
         ? LicenseType.Trial
         : (LicenseType) Enum.Parse(typeof (LicenseType), licenseTypeString);
@@ -52,7 +52,7 @@ namespace Xtensive.Core.Weaver
         TrialDays = Status.Evaluation_Time,
         TrialDaysCurrent = Status.Evaluation_Time_Current,
         Licensee = licensee,
-        NumberOfDevelopers = numberOfDevelopers
+        NumberOfHWLicenses = numberOfDevelopers
       };
       RunLicensingAgent(licenseInfo);
       AddAspectWeaverFactory<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
