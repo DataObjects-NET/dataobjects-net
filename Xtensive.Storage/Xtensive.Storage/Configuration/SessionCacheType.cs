@@ -10,7 +10,7 @@ namespace Xtensive.Storage.Configuration
 {
 
   /// <summary>
-  /// Enumerate possible types of session caches.
+  /// Enumerates possible types of session caches.
   /// </summary>
   public enum SessionCacheType
   {
