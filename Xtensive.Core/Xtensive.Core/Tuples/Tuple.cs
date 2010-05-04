@@ -168,20 +168,16 @@ namespace Xtensive.Core.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValueOrDefault<T>(int fieldIndex)
     {
-      TupleFieldState fieldState;
       var isNullable = null == default(T); // Is nullable value type or class
       var getter = (isNullable
         ? GetGetNullableValueDelegate(fieldIndex)
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
       if (getter != null) {
+        TupleFieldState fieldState;
         var result = getter.Invoke(this, out fieldState);
-        if (isNullable) {
-          if ((fieldState ^ TupleFieldState.Available) != TupleFieldState.Default)
-            return default(T);
-        }
-        else if ((fieldState & TupleFieldState.Null) != TupleFieldState.Default)
-          throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
-        return result;
+        return fieldState == TupleFieldState.Available 
+          ? result 
+          : default(T);
       }
       return GetValueOrDefaultInternal<T>(isNullable, fieldIndex);
     }
@@ -273,13 +269,9 @@ namespace Xtensive.Core.Tuples
           ? default(T)
           : (T) value;
       }
-      if (isNullable) {
-        if ((fieldState ^ TupleFieldState.Available) != TupleFieldState.Default)
-          return default(T);
-      }
-      else if ((fieldState & TupleFieldState.Null) != TupleFieldState.Default)
-        throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
-      return result;
+      return fieldState == TupleFieldState.Available
+        ? result
+        : default(T);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
