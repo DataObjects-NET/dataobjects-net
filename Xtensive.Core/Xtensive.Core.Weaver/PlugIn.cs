@@ -27,33 +27,33 @@ namespace Xtensive.Core.Weaver
     protected override void Initialize()
     {
       // TODO: Check license
-      var properties = new Dictionary<string, string>();
-      for (int i = 0; i < Status.KeyValueList.Count; i++) {
-        string key = Status.KeyValueList.GetKey(i).ToString();
-        string value = Status.KeyValueList.GetByIndex(i).ToString();
-        properties.Add(key, value);
-      }
-      string licensee;
-      string licenseTypeString;
-      string numberOfDevelopersString;
-      properties.TryGetValue(LicenseInfo.LicenseeKey, out licensee);
-      properties.TryGetValue(LicenseInfo.LicenseTypeKey, out licenseTypeString);
-      properties.TryGetValue(LicenseInfo.NumberOfDevelopersKey, out numberOfDevelopersString);
-      LicenseType licenseType = licenseTypeString.IsNullOrEmpty()
-        ? LicenseType.Trial
-        : (LicenseType) Enum.Parse(typeof (LicenseType), licenseTypeString);
-      int numberOfDevelopers = numberOfDevelopersString.IsNullOrEmpty()
-        ? -1
-        : int.Parse(numberOfDevelopersString);
-      var licenseInfo = new LicenseInfo {
-        LicenseType = licenseType,
-        ExpireOn = Status.Expiration_Date,
-        TrialDays = Status.Evaluation_Time,
-        TrialDaysCurrent = Status.Evaluation_Time_Current,
-        Licensee = licensee,
-        NumberOfDevelopers = numberOfDevelopers
-      };
-      RunLicensingAgent(licenseInfo);
+//      var properties = new Dictionary<string, string>();
+//      for (int i = 0; i < Status.KeyValueList.Count; i++) {
+//        string key = Status.KeyValueList.GetKey(i).ToString();
+//        string value = Status.KeyValueList.GetByIndex(i).ToString();
+//        properties.Add(key, value);
+//      }
+//      string licensee;
+//      string licenseTypeString;
+//      string numberOfDevelopersString;
+//      properties.TryGetValue(LicenseInfo.LicenseeKey, out licensee);
+//      properties.TryGetValue(LicenseInfo.LicenseTypeKey, out licenseTypeString);
+//      properties.TryGetValue(LicenseInfo.NumberOfDevelopersKey, out numberOfDevelopersString);
+//      LicenseType licenseType = licenseTypeString.IsNullOrEmpty()
+//        ? LicenseType.Trial
+//        : (LicenseType) Enum.Parse(typeof (LicenseType), licenseTypeString);
+//      int numberOfDevelopers = numberOfDevelopersString.IsNullOrEmpty()
+//        ? -1
+//        : int.Parse(numberOfDevelopersString);
+//      var licenseInfo = new LicenseInfo {
+//        LicenseType = licenseType,
+//        ExpireOn = Status.Expiration_Date,
+//        TrialDays = Status.Evaluation_Time,
+//        TrialDaysCurrent = Status.Evaluation_Time_Current,
+//        Licensee = licensee,
+//        NumberOfDevelopers = numberOfDevelopers
+//      };
+//      RunLicensingAgent(licenseInfo);
       AddAspectWeaverFactory<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
       AddAspectWeaverFactory<ImplementConstructorEpilogue, ConstructorEpilogueWeaver>();
       AddAspectWeaverFactory<NotSupportedAttribute, NotSupportedWeaver>();
