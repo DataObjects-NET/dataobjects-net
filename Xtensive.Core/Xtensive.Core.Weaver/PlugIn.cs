@@ -76,8 +76,11 @@ namespace Xtensive.Core.Weaver
         UseShellExecute = false
       };
       Process.Start(startInfo);
-      using (var client = new PipeClient())
-        client.SendLicenseInfo(licenseInfo);
+      try {
+        using (var client = new PipeClient())
+          client.SendLicenseInfo(licenseInfo);
+      }
+      catch (TimeoutException) {}
     }
 
     #endregion
