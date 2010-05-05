@@ -6,10 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using License;
 using LicenseManager;
+using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
 using Xtensive.Licensing;
 
@@ -27,7 +29,12 @@ namespace Xtensive.Core.Weaver
     protected override void Initialize()
     {
       base.Initialize();
-      // TODO: Check license
+      var dataObjectsPath = Environment.GetEnvironmentVariable("DataObjectsDotNetPath");
+      if (dataObjectsPath.IsNullOrEmpty() || !Directory.Exists(dataObjectsPath))
+        throw new InvalidOperationException("DataObjects.Net is not installed. Please install.");
+      var licensePath = Path.Combine(dataObjectsPath, "Bin", "Latest", LicenseInfo.LicenseName);
+      if (File.Exists(licensePath))
+        Status.LoadLicense(licensePath);
       var properties = new Dictionary<string, string>();
       for (int i = 0; i < Status.KeyValueList.Count; i++) {
         string key = Status.KeyValueList.GetKey(i).ToString();
@@ -40,13 +47,20 @@ namespace Xtensive.Core.Weaver
       properties.TryGetValue(LicenseInfo.LicenseeKey, out licensee);
       properties.TryGetValue(LicenseInfo.LicenseTypeKey, out licenseTypeString);
       properties.TryGetValue(LicenseInfo.NumberOfHWLicensesKey, out numberOfDevelopersString);
-      LicenseType licenseType = licenseTypeString.IsNullOrEmpty()
+      var licenseType = licenseTypeString.IsNullOrEmpty()
         ? LicenseType.Trial
         : (LicenseType) Enum.Parse(typeof (LicenseType), licenseTypeString);
       int numberOfDevelopers = numberOfDevelopersString.IsNullOrEmpty()
         ? -1
         : int.Parse(numberOfDevelopersString);
+      var valid = Status.Licensed;
+      if (!valid) {
+        valid = Status.Evaluation_Lock_Enabled && Status.Evaluation_Time >= Status.Evaluation_Time_Current;
+        if (Status.Expiration_Date_Lock_Enable)
+          valid &= Status.Expiration_Date.ToUniversalTime().Date >= DateTime.UtcNow.Date;
+      }
       var licenseInfo = new LicenseInfo {
+        IsValid =  valid,
         LicenseType = licenseType,
         ExpireOn = Status.Expiration_Date,
         TrialDays = Status.Evaluation_Time,
@@ -54,19 +68,21 @@ namespace Xtensive.Core.Weaver
         Licensee = licensee,
         NumberOfHWLicenses = numberOfDevelopers
       };
-      RunLicensingAgent(licenseInfo);
-      AddAspectWeaverFactory<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
-      AddAspectWeaverFactory<ImplementConstructorEpilogue, ConstructorEpilogueWeaver>();
-      AddAspectWeaverFactory<NotSupportedAttribute, NotSupportedWeaver>();
-      AddAspectWeaverFactory<ImplementConstructor, ImplementConstructorWeaver>();
-      AddAspectWeaverFactory<ImplementFactoryMethod, ImplementFactoryMethodWeaver>();
+      
+      RunLicensingAgent(licenseInfo, dataObjectsPath);
+      if (!licenseInfo.IsValid)
+        ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license is invalid.");
+      else {
+        AddAspectWeaverFactory<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
+        AddAspectWeaverFactory<ImplementConstructorEpilogue, ConstructorEpilogueWeaver>();
+        AddAspectWeaverFactory<NotSupportedAttribute, NotSupportedWeaver>();
+        AddAspectWeaverFactory<ImplementConstructor, ImplementConstructorWeaver>();
+        AddAspectWeaverFactory<ImplementFactoryMethod, ImplementFactoryMethodWeaver>();
+      }
     }
 
-    private static void RunLicensingAgent(LicenseInfo licenseInfo)
+    private static void RunLicensingAgent(LicenseInfo licenseInfo, string dataObjectsPath)
     {
-      var dataObjectsPath = Environment.GetEnvironmentVariable("DataObjectsDotNetPath");
-      if (dataObjectsPath.IsNullOrEmpty() || !Directory.Exists(dataObjectsPath))
-        throw new InvalidOperationException("DataObjects.Net is not installed. Please install.");
       var path = Path.Combine(dataObjectsPath, "Bin", "Latest", "Xtensive.Licensing.Manager.exe");
       if (!File.Exists(path))
         throw new FileNotFoundException("Xtensive.Licensing.Manager.exe");
