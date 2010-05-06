@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
       int sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = mappings[provider].Where(i => i < sourceLength).ToList();
       var source = VisitCompilable(provider.Source);
-      mappings[provider] = mappings[provider.Source];
+      mappings[provider] = Merge(mappings[provider], mappings[provider.Source]);
       if (source == provider.Source)
         return provider;
       return new IncludeProvider(source, provider.Algorithm, provider.IsInlined,
