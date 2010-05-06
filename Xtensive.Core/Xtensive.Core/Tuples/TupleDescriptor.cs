@@ -192,10 +192,12 @@ namespace Xtensive.Core.Tuples
       Debug.Assert(isCompiled, "TupleDescriptor should have IsCompiled flag set to true after the compilation!");
     }
 
-    internal void Compiled(ITupleFactory factory)
+    internal void Compiled(ITupleFactory tupleFactory)
     {
+      if (tupleFactory == null) 
+        throw new ArgumentNullException("tupleFactory");
+      this.tupleFactory = tupleFactory;
       identifier = ++totalCount;
-      tupleFactory = factory;
       isCompiled = true;
     }
 
