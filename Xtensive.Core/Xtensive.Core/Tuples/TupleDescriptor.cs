@@ -144,6 +144,8 @@ namespace Xtensive.Core.Tuples
 
     internal void Initialize(ITupleFactory factory)
     {
+      if (factory == null) 
+        throw new ArgumentNullException("factory");
       identifier = ++totalCount;
       tupleFactory = factory;
       isInitialized = true;
