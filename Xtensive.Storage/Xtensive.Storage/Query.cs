@@ -257,39 +257,72 @@ namespace Xtensive.Storage
     /// <param name="key">An cache item's key.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>The future that will be executed when its result is requested.</returns>
-    public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(object key,
-      Expression<Func<TResult>> query)
+    public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
     {
       var session = Session.Demand();
-      var domain = Domain.Demand();
+      var domain = session.Domain;
+      var target = query.Target;
       var cache = domain.QueryCache;
-      object target = null;
       Pair<object, TranslatedQuery> item;
       ParameterizedQuery<TResult> parameterizedQuery = null;
       lock (cache)
         if (cache.TryGetItem(key, true, out item))
           parameterizedQuery = (ParameterizedQuery<TResult>) item.Second;
       if (parameterizedQuery == null) {
-        Parameter parameter;
-        var preparedQuery = ReplaceClosure(query.Body, out target, out parameter);
-        var transaltedQuery = session.Handler.QueryProvider.Translate<TResult>(preparedQuery);
-        parameterizedQuery = new ParameterizedQuery<TResult>(transaltedQuery, parameter);
+        ExtendedExpressionReplacer replacer;
+        var queryParameter = BuildQueryParameter(target, out replacer);
+        using (var queryCachingScope = new QueryCachingScope(queryParameter, replacer, false)) {
+          using (new ParameterContext().Activate()) {
+            if (queryParameter!=null)
+              queryParameter.Value = target;
+            query.Invoke();
+          }
+          parameterizedQuery = (ParameterizedQuery<TResult>) queryCachingScope.ParameterizedQuery;
           lock (cache)
             if (!cache.TryGetItem(key, false, out item))
               cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
-      }
-      else {
-        var targetSearcher = new DelegatingExpressionVisitor();
-        targetSearcher.Visit(query, exp => {
-          if (exp.NodeType == ExpressionType.Constant && exp.Type.IsClosure())
-            if (target == null)
-              target = ((ConstantExpression) exp).Value;
-        });
+        }
       }
       var parameterContext = CreateParameterContext(target, parameterizedQuery);
       var result = new FutureScalar<TResult>(parameterizedQuery, parameterContext);
       session.RegisterDelayedQuery(result.Task);
       return result;
+//      var result = new FutureScalar<TResult>(parameterizedQuery, parameterContext);
+      //      session.RegisterDelayedQuery(result.Task);
+      //      return result;
+
+//      return ExecuteInternal(parameterizedQuery, target);
+
+//      var session = Session.Demand();
+//      var domain = Domain.Demand();
+//      var cache = domain.QueryCache;
+//      object target = null;
+//      Pair<object, TranslatedQuery> item;
+//      ParameterizedQuery<TResult> parameterizedQuery = null;
+//      lock (cache)
+//        if (cache.TryGetItem(key, true, out item))
+//          parameterizedQuery = (ParameterizedQuery<TResult>) item.Second;
+//      if (parameterizedQuery == null) {
+//        Parameter parameter;
+//        var preparedQuery = ReplaceClosure(query.Body, out target, out parameter);
+//        var transaltedQuery = session.Handler.QueryProvider.Translate<TResult>(preparedQuery);
+//        parameterizedQuery = new ParameterizedQuery<TResult>(transaltedQuery, parameter);
+//          lock (cache)
+//            if (!cache.TryGetItem(key, false, out item))
+//              cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
+//      }
+//      else {
+//        var targetSearcher = new DelegatingExpressionVisitor();
+//        targetSearcher.Visit(query, exp => {
+//          if (exp.NodeType == ExpressionType.Constant && exp.Type.IsClosure())
+//            if (target == null)
+//              target = ((ConstantExpression) exp).Value;
+//        });
+//      }
+//      var parameterContext = CreateParameterContext(target, parameterizedQuery);
+//      var result = new FutureScalar<TResult>(parameterizedQuery, parameterContext);
+//      session.RegisterDelayedQuery(result.Task);
+//      return result;
     }
 
     /// <summary>
@@ -299,13 +332,9 @@ namespace Xtensive.Storage
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>The future that will be executed when its result is requested.</returns>
-    public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(Expression<Func<TResult>> query)
+    public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
     {
-      var session = Session.Demand();
-      var translatedQuery = session.Handler.QueryProvider.Translate<TResult>(query.Body);
-      var result = new FutureScalar<TResult>(translatedQuery, null);
-      session.RegisterDelayedQuery(result.Task);
-      return result;
+      return ExecuteFutureScalar(query.Method, query);
     }
 
     /// <summary>
@@ -442,10 +471,7 @@ namespace Xtensive.Storage
 
     private static TResult ExecuteInternal<TResult>(ParameterizedQuery<TResult> query, object target)
     {
-      var context = new ParameterContext();
-      using (context.Activate())
-        if (query.QueryParameter != null)
-          query.QueryParameter.Value = target;
+      var context = CreateParameterContext(target, query);
       return query.Execute(context);
     }
 
@@ -503,15 +529,12 @@ namespace Xtensive.Storage
       return result;
     }
 
-    private static ParameterContext CreateParameterContext<TResult>(object target,
-      ParameterizedQuery<TResult> parameterizedQuery)
+    private static ParameterContext CreateParameterContext<TResult>(object target, ParameterizedQuery<TResult> query)
     {
-      ParameterContext parameterContext = null;
-      if (parameterizedQuery.QueryParameter != null) {
-        parameterContext = new ParameterContext();
+      var parameterContext = new ParameterContext();
+      if (query.QueryParameter != null)
         using (parameterContext.Activate())
-          parameterizedQuery.QueryParameter.Value = target;
-      }
+          query.QueryParameter.Value = target;
       return parameterContext;
     }
 

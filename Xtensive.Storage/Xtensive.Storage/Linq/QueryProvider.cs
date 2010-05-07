@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Linq;
+using Xtensive.Storage.Internals;
 
 namespace Xtensive.Storage.Linq
 {
@@ -63,6 +64,9 @@ namespace Xtensive.Storage.Linq
     public TResult Execute<TResult>(Expression expression)
     {
       var query = Translate<TResult>(expression);
+      var cachingScope = QueryCachingScope.Current;
+      if (cachingScope != null && !cachingScope.Execute)
+        return default(TResult);
       return query.Execute(new ParameterContext());
     }
 

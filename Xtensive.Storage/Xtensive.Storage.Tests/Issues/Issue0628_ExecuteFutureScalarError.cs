@@ -46,10 +46,14 @@ namespace Xtensive.Storage.Tests.Issues
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
         var item = new Item() {Tag = 10};
-        var countSimple = (Query.All<Item>() as IQueryable).Count();
-        var countFuture = Query.ExecuteFutureScalar(() => (Query.All<Item>() as IQueryable).Count());
+        var countSimple = Query.All<Item>().Count(i => i.Tag == 10);
+        var countFuture1 = Query.ExecuteFutureScalar(() => (Query.All<Item>() as IQueryable).Count());
+        var countFuture2 = Query.ExecuteFutureScalar(() => (Query.All<Item>() as IQueryable).Count());
+        var countFuture3 = Query.ExecuteFutureScalar(() => (Query.All<Item>() as IQueryable).Count());
         Assert.AreEqual(1, countSimple);
-        Assert.AreEqual(countSimple, countFuture);
+        Assert.AreEqual(countSimple, countFuture1.Value);
+        Assert.AreEqual(countSimple, countFuture2.Value);
+        Assert.AreEqual(countSimple, countFuture3.Value);
         
         t.Complete();
       }  
