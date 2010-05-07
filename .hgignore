@@ -6,7 +6,7 @@ syntax: glob
 *.sln.cache
 *.cache
 *.resharper
-*.resharperoptions 
+*.resharperoptions
 _ReSharper.*
 
 *.exe
@@ -30,3 +30,7 @@ ProxyAssemblyCache\*
 Help\*.Hx?
 Help\*.chm
 Release.Files\*
+
+Lib/.NET Reactor/license.v3lic
+Lib/.NET Reactor/reactor.license
+Lib/.NET Reactor/reactor.v3lic
