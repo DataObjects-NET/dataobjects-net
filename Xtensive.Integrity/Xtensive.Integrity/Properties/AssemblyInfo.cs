@@ -40,4 +40,4 @@ using PostSharp.Extensibility;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: CLSCompliant(true)]    
-[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+

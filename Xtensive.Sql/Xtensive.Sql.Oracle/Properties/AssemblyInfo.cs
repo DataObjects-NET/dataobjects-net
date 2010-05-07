@@ -38,4 +38,3 @@ using System.Security.Permissions;
 // by using the '*' as shown below:
 [assembly : AssemblyVersion("1.0.0.0")]
 [assembly : CLSCompliant(true)]
-[assembly : SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
