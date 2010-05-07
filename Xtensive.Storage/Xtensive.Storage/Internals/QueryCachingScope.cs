@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Internals
 
     public Parameter QueryParameter { get; private set; }
     public ExtendedExpressionReplacer QueryParameterReplacer { get; private set; }
+    public bool Execute { get; private set; }
 
     /// <exception cref="NotSupportedException">Second attempt to set this property.</exception>
     public TranslatedQuery ParameterizedQuery {
@@ -41,9 +42,15 @@ namespace Xtensive.Storage.Internals
     // Constructors
 
     public QueryCachingScope(Parameter queryParameter, ExtendedExpressionReplacer queryParameterReplacer)
+      : this(queryParameter, queryParameterReplacer, true)
+    {
+    }
+
+    public QueryCachingScope(Parameter queryParameter, ExtendedExpressionReplacer queryParameterReplacer, bool execute)
     {
       QueryParameter = queryParameter;
       QueryParameterReplacer = queryParameterReplacer;
+      Execute = execute;
     }
   }
 }
