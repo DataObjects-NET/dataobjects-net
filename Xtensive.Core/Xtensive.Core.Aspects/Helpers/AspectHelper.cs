@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects.Resources;
+using Xtensive.Core;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Collections;

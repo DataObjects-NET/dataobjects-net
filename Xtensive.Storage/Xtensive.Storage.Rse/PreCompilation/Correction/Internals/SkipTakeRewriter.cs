@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Core.Linq;
+using Xtensive.Core;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Resources;

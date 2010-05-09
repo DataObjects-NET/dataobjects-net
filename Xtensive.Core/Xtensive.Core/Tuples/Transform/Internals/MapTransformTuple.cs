@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Tuples.Transform.Internals

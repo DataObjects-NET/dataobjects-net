@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Collections;

@@ -10,6 +10,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage.ObjectMapping

@@ -7,6 +7,7 @@
 using System;
 using System.Data.Common;
 using Xtensive.Core.Aspects;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC;
 using Xtensive.Storage.Providers;

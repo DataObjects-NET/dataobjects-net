@@ -5,11 +5,11 @@
 // Reimplemented by: Dmitri Maximov
 // Created:    2007.07.04
 
+using System;
 using System.Collections.Generic;
-using Xtensive.Core;
 using Xtensive.Core.Resources;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="ICollection{T}"/> related extension methods.

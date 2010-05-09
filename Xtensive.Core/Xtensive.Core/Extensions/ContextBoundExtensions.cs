@@ -4,10 +4,11 @@
 // Created by: Alex Yakunin
 // Created:    2008.05.27
 
+using System;
 using System.Diagnostics;
 using Xtensive.Core.IoC;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="IContextBound{TContext}"/> related extension methods.

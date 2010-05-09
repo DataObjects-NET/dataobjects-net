@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;

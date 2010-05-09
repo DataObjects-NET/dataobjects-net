@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Issues.Issue0631_DisconnectedStateBugs
 {

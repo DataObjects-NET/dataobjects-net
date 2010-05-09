@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Disposing;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Upgrade.FullText
 {

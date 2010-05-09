@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;

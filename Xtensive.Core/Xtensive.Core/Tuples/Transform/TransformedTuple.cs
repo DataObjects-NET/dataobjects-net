@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Tuples.Transform

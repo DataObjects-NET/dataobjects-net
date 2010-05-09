@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Configuration

@@ -10,11 +10,12 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.07
 
+using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Linq;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// Extension methods for compiling strictly typed lambda expressions.

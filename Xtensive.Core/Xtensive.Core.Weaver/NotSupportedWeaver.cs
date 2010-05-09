@@ -14,6 +14,7 @@ using PostSharp.Collections;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Core.Weaver
 {

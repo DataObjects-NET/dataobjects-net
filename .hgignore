@@ -29,6 +29,7 @@ ProxyAssemblyCache\*
 
 Help\*.Hx?
 Help\*.chm
+Manual\Temp\*
 Release.Files\*
 
 Lib/.NET Reactor/license.v3lic

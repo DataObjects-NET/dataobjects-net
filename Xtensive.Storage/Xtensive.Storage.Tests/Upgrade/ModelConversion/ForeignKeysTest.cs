@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Disposing;
+using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Upgrade;
 using Xtensive.Storage.Indexing.Model;

@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="Dictionary{TKey,TValue}"/> related extensions.

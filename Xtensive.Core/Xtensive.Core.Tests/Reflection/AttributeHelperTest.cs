@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Reflection;
 

@@ -5,6 +5,7 @@
 // Created:    2009.12.29
 
 using System;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 

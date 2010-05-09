@@ -4,10 +4,10 @@
 // Created by: Alex Kofman
 // Created:    2008.07.30
 
+using System;
 using System.Text;
-using Xtensive.Core;
 
-namespace System
+namespace Xtensive.Core
 {  
   /// <summary>
   /// <see cref="StringBuilder"/> related extension methods.

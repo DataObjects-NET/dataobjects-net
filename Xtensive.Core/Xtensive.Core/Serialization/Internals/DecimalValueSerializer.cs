@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Core.Serialization
 {

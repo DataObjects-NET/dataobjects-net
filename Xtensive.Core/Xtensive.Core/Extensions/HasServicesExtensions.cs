@@ -4,11 +4,11 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.15
 
-using Xtensive.Core;
+using System;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="IHasServices"/> related extension methods.

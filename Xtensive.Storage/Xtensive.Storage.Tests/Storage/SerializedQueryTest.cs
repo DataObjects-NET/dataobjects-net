@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Linq.SerializableExpressions;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Storage.Configuration;

@@ -4,10 +4,10 @@
 // Created by: Alexey Gamzov
 // Created:    2008.02.27
 
+using System;
 using System.Collections.Generic;
-using Xtensive.Core;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="ArraySegment{T}"/> related extension methods.

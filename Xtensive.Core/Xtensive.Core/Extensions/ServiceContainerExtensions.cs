@@ -4,12 +4,12 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.02
 
-using Xtensive.Core;
+using System;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Resources;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="IServiceContainer"/> related extension methods.

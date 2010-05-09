@@ -11,6 +11,7 @@ using System.Reflection;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects.Helpers;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Aspects

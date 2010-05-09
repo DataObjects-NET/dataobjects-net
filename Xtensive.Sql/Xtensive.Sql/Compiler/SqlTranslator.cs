@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Reflection;
 using Xtensive.Sql.Info;

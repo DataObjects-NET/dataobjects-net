@@ -8,6 +8,7 @@ using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using System;
 using Xtensive.Core.Disposing;
+using Xtensive.Core;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Providers;

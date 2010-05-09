@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Threading;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Testing.Resources;
 using Xtensive.Core.Helpers;
 

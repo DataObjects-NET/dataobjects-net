@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
-using Xtensive.Core.Linq;
 using Xtensive.Storage.Rse;
 using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 

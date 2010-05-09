@@ -4,9 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.06
 
+using System;
 using Xtensive.Core;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// Extension methods for binding delegates to parameters.

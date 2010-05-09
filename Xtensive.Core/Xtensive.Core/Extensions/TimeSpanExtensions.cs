@@ -4,7 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.30
 
-namespace System
+using System;
+
+namespace Xtensive.Core
 {
   /// <summary>
   /// Various extension methods for <see cref="TimeSpan"/>s.
@@ -12,18 +14,22 @@ namespace System
   public static class TimeSpanExtensions
   {
     /// <summary>
-    /// Converts the specified <see cref="TimeSpan"/> to string using the specified string.
-    /// Format string can contain any of these placeholders:
-    /// {0} - negative sign, if argument represents a negative <see cref="TimeSpan"/>; <see cref="string.Empty"/>, otherwise.
-    /// {1} - absolute value of <see cref="TimeSpan.Days"/> property.
-    /// {2} - absolute value of <see cref="TimeSpan.Hours"/> property.
-    /// {3} - absolute value of <see cref="TimeSpan.Minutes"/> property.
-    /// {4} - absolute value of <see cref="TimeSpan.Seconds"/> property.
-    /// {5} - absolute value of <see cref="TimeSpan.Milliseconds"/> property.
+    /// Converts the specified <see cref="TimeSpan"/> to string using the specified format string.
     /// </summary>
     /// <param name="value">The value.</param>
-    /// <param name="format">The format.</param>
-    /// <returns>A string representation of <paramref name="value"/>.</returns>
+    /// <param name="format">The format string.</param>
+    /// <returns>Formatted representation of the <paramref name="value"/>.</returns>
+    /// <remarks>
+    /// Format string can contain any of these placeholders:
+    /// <list type="table">
+    /// <item><term>{0}</term><description>negative sign, if argument represents a negative <see cref="TimeSpan"/>; <see cref="string.Empty"/>, otherwise.</description></item>
+    /// <item><term>{1}</term><description>absolute value of <see cref="TimeSpan.Days"/> property.</description></item>
+    /// <item><term>{2}</term><description>absolute value of <see cref="TimeSpan.Hours"/> property.</description></item>
+    /// <item><term>{3}</term><description>absolute value of <see cref="TimeSpan.Minutes"/> property.</description></item>
+    /// <item><term>{4}</term><description>absolute value of <see cref="TimeSpan.Seconds"/> property.</description></item>
+    /// <item><term>{5}</term><description>absolute value of <see cref="TimeSpan.Milliseconds"/> property.</description></item>
+    /// </list>
+    /// </remarks>
     public static string ToString(this TimeSpan value, string format)
     {
       int days = value.Days;

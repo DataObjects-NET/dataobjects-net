@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Storage.Randomized
 {

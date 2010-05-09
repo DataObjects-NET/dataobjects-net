@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.Reflection

@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Core.Disposing;
 using Xtensive.Modelling.Comparison.Hints;

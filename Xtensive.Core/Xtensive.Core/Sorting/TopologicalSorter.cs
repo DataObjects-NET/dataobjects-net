@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core.Sorting

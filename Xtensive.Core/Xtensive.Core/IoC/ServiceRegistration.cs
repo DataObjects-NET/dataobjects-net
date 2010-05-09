@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Helpers;

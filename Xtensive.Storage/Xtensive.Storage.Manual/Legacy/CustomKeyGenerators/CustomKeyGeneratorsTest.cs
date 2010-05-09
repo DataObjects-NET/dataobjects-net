@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.IoC;
 using Xtensive.Storage.Configuration;
 

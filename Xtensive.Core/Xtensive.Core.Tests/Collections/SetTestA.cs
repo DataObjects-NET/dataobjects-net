@@ -1,6 +1,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Core.Tests.Collections
 {

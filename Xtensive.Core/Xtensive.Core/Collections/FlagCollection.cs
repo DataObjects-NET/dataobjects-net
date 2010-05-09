@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using Xtensive.Core.Conversion;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;

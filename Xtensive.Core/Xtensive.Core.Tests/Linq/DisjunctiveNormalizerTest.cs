@@ -13,6 +13,7 @@ using NUnit.Framework;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Linq.Normalization;
 using Xtensive.Core.Testing;
+using ExpressionExtensions = Xtensive.Core.ExpressionExtensions;
 
 namespace Xtensive.Core.Tests.Linq
 {
@@ -285,7 +286,7 @@ namespace Xtensive.Core.Tests.Linq
     {
       var expected = Expression.Lambda<Func<bool>>(expression).Compile()();
       var actual = Expression.Lambda<Func<bool>>(normalized.ToExpression()).Compile()();
-      Log.Info("{0} = {1}", expression.ToString(true), expected);
+      Log.Info("{0} = {1}", ExpressionExtensions.ToString(expression, true), expected);
       Log.Info("{0} = {1}", normalized.ToString(true), actual);
       Assert.AreEqual(expected, actual);
     }
@@ -294,7 +295,7 @@ namespace Xtensive.Core.Tests.Linq
     {
       var normalized = new DisjunctiveNormalizer().Normalize(toNormalize);
 
-      Log.Info("Expression: {0}", toNormalize.ToString(true));
+      Log.Info("Expression: {0}", ExpressionExtensions.ToString(toNormalize, true));
       Log.Info("Normalized: {0}", normalized.ToString(true));
       Log.Info("Expected:   {0}", expected.ToString(true));
       Assert.AreEqual(expected.ToString(true), normalized.ToString(true));
@@ -308,7 +309,7 @@ namespace Xtensive.Core.Tests.Linq
       return inCspNotation
         ? exp.Operands.Select(
           c => c.Operands.Select(
-            e => e.ToString(true))
+            e => ExpressionExtensions.ToString(e, true))
             .Join(" & ", "({0})"))
           .Join(" | ", "{0}")
         : exp.ToString();

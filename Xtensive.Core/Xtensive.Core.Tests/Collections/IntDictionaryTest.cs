@@ -11,6 +11,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Core.Testing;
 
 namespace Xtensive.Core.Tests.Collections

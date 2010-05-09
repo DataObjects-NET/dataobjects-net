@@ -7,8 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core.Linq;
-using Xtensive.Core.Tuples;
+using Xtensive.Core;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 

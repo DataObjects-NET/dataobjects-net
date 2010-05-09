@@ -4,16 +4,16 @@
 // Created by: Alex Yakunin
 // Created:    2008.05.16
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Resources;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="IEnumerable{T}"/> related extension methods.

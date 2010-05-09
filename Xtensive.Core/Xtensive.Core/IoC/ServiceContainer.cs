@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
+using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC.Configuration;
 using Xtensive.Core.Reflection;

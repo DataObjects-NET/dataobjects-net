@@ -4,9 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.06.20
 
-using Xtensive.Core;
-
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   ///   <see cref="Direction"/> related extension methods.

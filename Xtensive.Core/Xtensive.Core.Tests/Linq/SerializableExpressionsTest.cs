@@ -11,6 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters.Soap;
 using NUnit.Framework;
 using Xtensive.Core.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Linq.SerializableExpressions;
 

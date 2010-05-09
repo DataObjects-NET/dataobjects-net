@@ -4,14 +4,14 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.18
 
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.UI;
-using Xtensive.Core;
 using Xtensive.Core.Resources;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="string"/> related extension methods.

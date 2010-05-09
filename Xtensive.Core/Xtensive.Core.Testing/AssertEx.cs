@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Testing.Resources;
 

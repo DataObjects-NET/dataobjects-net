@@ -13,6 +13,7 @@ using License;
 using LicenseManager;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
+using Xtensive.Core;
 using Xtensive.Licensing;
 
 namespace Xtensive.Core.Weaver

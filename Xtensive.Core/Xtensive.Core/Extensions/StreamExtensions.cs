@@ -4,11 +4,11 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.11
 
+using System;
 using System.IO;
-using Xtensive.Core;
 using Xtensive.Core.Resources;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// Helper class providing a set of useful stream operations.

@@ -9,6 +9,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xtensive.Core.Collections;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Serialization.Binary;
 
 namespace Xtensive.Core.Tests.Collections

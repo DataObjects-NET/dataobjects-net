@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Linq;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Linq.CustomExpressionCompilersModel;

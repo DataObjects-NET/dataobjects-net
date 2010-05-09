@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Sql.Model

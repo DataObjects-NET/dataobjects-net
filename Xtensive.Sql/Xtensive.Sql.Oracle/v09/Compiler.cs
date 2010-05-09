@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core.Collections;
+using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;

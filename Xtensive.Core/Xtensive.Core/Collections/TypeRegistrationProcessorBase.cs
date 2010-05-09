@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Collections

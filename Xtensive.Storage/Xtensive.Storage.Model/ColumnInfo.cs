@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 

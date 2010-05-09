@@ -4,13 +4,13 @@
 // Created by: Alex Yakunin
 // Created:    2008.05.14
 
+using System;
 using System.Collections.Generic;
-using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Resources;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="IDisposable"/> related extension methods.

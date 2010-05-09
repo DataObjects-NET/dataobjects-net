@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Upgrade;

@@ -4,13 +4,14 @@
 // Created by: Alexis Kochetov
 // Created:    2009.04.21
 
+using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Linq;
 using Xtensive.Core.Linq.SerializableExpressions;
 using Xtensive.Core.Linq.SerializableExpressions.Internals;
 using Xtensive.Core.Resources;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="Expression"/> related extension methods.

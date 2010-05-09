@@ -9,6 +9,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Xtensive.Core.Diagnostics.Configuration;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.IoC;
 using DiagnosticsSection=Xtensive.Core.Diagnostics.Configuration.ConfigurationSection;

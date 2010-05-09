@@ -4,10 +4,10 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.04
 
-using Xtensive.Core;
+using System;
 using Xtensive.Core.Resources;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="ILockable"/> related extension methods.

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Tests.ObjectModel;

@@ -4,11 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2007.10.24
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
 
-namespace System
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="Xtensive.Core.Collections.ISet{TItem}"/> related extension methods.
