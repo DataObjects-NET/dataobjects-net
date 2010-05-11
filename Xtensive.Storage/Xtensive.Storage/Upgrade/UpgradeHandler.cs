@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext;
       switch (context.Stage) {
-        case UpgradeStage.Validation:
+        case UpgradeStage.Initializing:
           break;
         case UpgradeStage.Upgrading:
           AddAutoHints(context.Hints);
@@ -100,7 +100,7 @@ namespace Xtensive.Storage.Upgrade
     {
       var context = UpgradeContext;
       switch (context.Stage) {
-        case UpgradeStage.Validation:
+        case UpgradeStage.Initializing:
           break;
         case UpgradeStage.Upgrading:
           OnUpgrade();
@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Upgrade
       if (type.Assembly!=Assembly)
         throw new ArgumentOutOfRangeException("type");
       switch (upgradeStage) {
-      case UpgradeStage.Validation:
+      case UpgradeStage.Initializing:
         return type.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.InheritNone)!=null;
       case UpgradeStage.Upgrading:
         return true;

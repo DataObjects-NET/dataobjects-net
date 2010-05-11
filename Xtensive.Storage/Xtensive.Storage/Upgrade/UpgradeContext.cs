@@ -241,7 +241,7 @@ namespace Xtensive.Storage.Upgrade
     internal UpgradeContext(DomainConfiguration originalConfiguration)
     {
       OriginalConfiguration = originalConfiguration;
-      Stage = UpgradeStage.Validation;
+      Stage = UpgradeStage.Initializing;
       Hints = new SetSlim<UpgradeHint>();
 
       using (Activate()) {

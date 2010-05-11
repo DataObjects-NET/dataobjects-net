@@ -286,42 +286,6 @@ namespace Xtensive.Storage
       var result = new FutureScalar<TResult>(parameterizedQuery, parameterContext);
       session.RegisterDelayedQuery(result.Task);
       return result;
-//      var result = new FutureScalar<TResult>(parameterizedQuery, parameterContext);
-      //      session.RegisterDelayedQuery(result.Task);
-      //      return result;
-
-//      return ExecuteInternal(parameterizedQuery, target);
-
-//      var session = Session.Demand();
-//      var domain = Domain.Demand();
-//      var cache = domain.QueryCache;
-//      object target = null;
-//      Pair<object, TranslatedQuery> item;
-//      ParameterizedQuery<TResult> parameterizedQuery = null;
-//      lock (cache)
-//        if (cache.TryGetItem(key, true, out item))
-//          parameterizedQuery = (ParameterizedQuery<TResult>) item.Second;
-//      if (parameterizedQuery == null) {
-//        Parameter parameter;
-//        var preparedQuery = ReplaceClosure(query.Body, out target, out parameter);
-//        var transaltedQuery = session.Handler.QueryProvider.Translate<TResult>(preparedQuery);
-//        parameterizedQuery = new ParameterizedQuery<TResult>(transaltedQuery, parameter);
-//          lock (cache)
-//            if (!cache.TryGetItem(key, false, out item))
-//              cache.Add(new Pair<object, TranslatedQuery>(key, parameterizedQuery));
-//      }
-//      else {
-//        var targetSearcher = new DelegatingExpressionVisitor();
-//        targetSearcher.Visit(query, exp => {
-//          if (exp.NodeType == ExpressionType.Constant && exp.Type.IsClosure())
-//            if (target == null)
-//              target = ((ConstantExpression) exp).Value;
-//        });
-//      }
-//      var parameterContext = CreateParameterContext(target, parameterizedQuery);
-//      var result = new FutureScalar<TResult>(parameterizedQuery, parameterContext);
-//      session.RegisterDelayedQuery(result.Task);
-//      return result;
     }
 
     /// <summary>
