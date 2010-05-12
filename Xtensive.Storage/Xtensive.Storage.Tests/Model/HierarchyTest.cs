@@ -106,8 +106,10 @@ namespace Xtensive.Storage.Tests.Model.Hierarchies
     {
       if (!IsEnabled)
         return;
-      TypeDef type;
+      if (context.BuilderConfiguration.SchemaUpgradeMode == SchemaUpgradeMode.ValidateCompatible)
+        return;
 
+      TypeDef type;
       type = model.Types[typeof(A)];
       Assert.IsFalse(context.ModelDef.FindRoot(type)==type);
 

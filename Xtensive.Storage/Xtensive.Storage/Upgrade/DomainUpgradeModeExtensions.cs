@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Upgrade
     public static bool RequiresInitialization(this DomainUpgradeMode upgradeMode)
     {
       switch (upgradeMode) {
+        case DomainUpgradeMode.Skip:          
         case DomainUpgradeMode.Perform:
         case DomainUpgradeMode.PerformSafely:
         case DomainUpgradeMode.Validate:
