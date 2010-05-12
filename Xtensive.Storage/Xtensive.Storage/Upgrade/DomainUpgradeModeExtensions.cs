@@ -12,25 +12,37 @@ namespace Xtensive.Storage.Upgrade
   public static class DomainUpgradeModeExtensions
   {
     /// <summary>
-    /// Determines whether <paramref name="upgradeMode"/> is a single single stage upgrade mode.
+    /// Determines whether <paramref name="upgradeMode"/> requires <see cref="UpgradeStage.Upgrading"/> stage.
     /// </summary>
     /// <param name="upgradeMode">The upgrade mode.</param>
-    /// <returns>
-    /// <see langword="true"/> if <paramref name="upgradeMode"/> is a single single stage upgrade mode;
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool IsSingleStage(this DomainUpgradeMode upgradeMode)
+    public static bool RequiresUpgrade(this DomainUpgradeMode upgradeMode)
     {
       switch (upgradeMode) {
-      case DomainUpgradeMode.Skip:
-      case DomainUpgradeMode.Validate:
-      case DomainUpgradeMode.Recreate:
-      case DomainUpgradeMode.LegacySkip:
-      case DomainUpgradeMode.LegacyValidate:
-        return true;
-      default:
-        return false;
+        case DomainUpgradeMode.Perform:
+        case DomainUpgradeMode.PerformSafely:
+          return true;
+        default:
+          return false;
       }      
+    }
+
+
+    /// <summary>
+    /// Determines whether <paramref name="upgradeMode"/> requires <see cref="UpgradeStage.Initializing"/> stage.
+    /// </summary>
+    /// <param name="upgradeMode">The upgrade mode.</param>
+    public static bool RequiresInitialization(this DomainUpgradeMode upgradeMode)
+    {
+      switch (upgradeMode) {
+        case DomainUpgradeMode.Skip:          
+        case DomainUpgradeMode.Perform:
+        case DomainUpgradeMode.PerformSafely:
+        case DomainUpgradeMode.Validate:
+        case DomainUpgradeMode.Recreate:
+          return true;
+        default:
+          return false;
+      }
     }
 
     /// <summary>

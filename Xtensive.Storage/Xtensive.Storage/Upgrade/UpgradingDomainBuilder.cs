@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Upgrade
       var context = new UpgradeContext(configuration);
       using (context.Activate()) {
         try {
-          BuildStageDomain(UpgradeStage.Validation).DisposeSafely();
+          BuildStageDomain(UpgradeStage.Initializing).DisposeSafely();
         }
         catch (Exception e) {
           if (GetInnermostException(e) is SchemaSynchronizationException) {
@@ -167,53 +167,53 @@ namespace Xtensive.Storage.Upgrade
     private static SchemaUpgradeMode GetUpgradingStageUpgradeMode(DomainUpgradeMode upgradeMode)
     {
       switch (upgradeMode) {
-      case DomainUpgradeMode.PerformSafely:
-        return SchemaUpgradeMode.PerformSafely;
-      case DomainUpgradeMode.Perform:
-        return SchemaUpgradeMode.Perform;
-      default:
-        throw new ArgumentOutOfRangeException("upgradeMode");
+        case DomainUpgradeMode.PerformSafely:
+          return SchemaUpgradeMode.PerformSafely;
+        case DomainUpgradeMode.Perform:
+          return SchemaUpgradeMode.Perform;
+        default:
+          throw new ArgumentOutOfRangeException("upgradeMode");
       }
     }
 
     private static SchemaUpgradeMode GetFinalStageUpgradeMode(DomainUpgradeMode upgradeMode)
     {
       switch (upgradeMode) {
-      case DomainUpgradeMode.Skip:
-      case DomainUpgradeMode.LegacySkip:
-        return SchemaUpgradeMode.Skip;
-      case DomainUpgradeMode.Validate:
-        return SchemaUpgradeMode.ValidateExact;
-      case DomainUpgradeMode.LegacyValidate:
-        return SchemaUpgradeMode.ValidateLegacy;
-      case DomainUpgradeMode.Recreate:
-        return SchemaUpgradeMode.Recreate;
-      case DomainUpgradeMode.Perform:
-      case DomainUpgradeMode.PerformSafely:
-        // We need Perform here because after Upgrading stage
-        // there may be some recycled columns/tables.
-        // Perform will wipe them out.
-        return SchemaUpgradeMode.Perform;
-      default:
-        throw new ArgumentOutOfRangeException("upgradeMode");
+        case DomainUpgradeMode.Skip:
+        case DomainUpgradeMode.LegacySkip:
+          return SchemaUpgradeMode.Skip;
+        case DomainUpgradeMode.Validate:
+          return SchemaUpgradeMode.ValidateExact;
+        case DomainUpgradeMode.LegacyValidate:
+          return SchemaUpgradeMode.ValidateLegacy;
+        case DomainUpgradeMode.Recreate:
+          return SchemaUpgradeMode.Recreate;
+        case DomainUpgradeMode.Perform:
+        case DomainUpgradeMode.PerformSafely:
+          // We need Perform here because after Upgrading stage
+          // there may be some recycled columns/tables.
+          // Perform will wipe them out.
+          return SchemaUpgradeMode.Perform;
+        default:
+          throw new ArgumentOutOfRangeException("upgradeMode");
       }
     }
 
     private static SchemaUpgradeMode? GetUpgradeMode(UpgradeStage stage, DomainUpgradeMode upgradeMode)
     {
       switch (stage) {
-      case UpgradeStage.Validation:
-        if (upgradeMode.IsSingleStage())
-          return null; // Nothing to do in these modes here
-        return SchemaUpgradeMode.ValidateCompatible;
-      case UpgradeStage.Upgrading:
-        if (upgradeMode.IsSingleStage())
-          return null; // Nothing to do in these modes here
-        return GetUpgradingStageUpgradeMode(upgradeMode);
-      case UpgradeStage.Final:
-        return GetFinalStageUpgradeMode(upgradeMode);
-      default:
-        throw new ArgumentOutOfRangeException("context.Stage");
+        case UpgradeStage.Initializing:
+          return upgradeMode.RequiresInitialization()
+            ? SchemaUpgradeMode.ValidateCompatible
+            : (SchemaUpgradeMode?)null;
+        case UpgradeStage.Upgrading:
+          return upgradeMode.RequiresUpgrade() 
+            ? GetUpgradingStageUpgradeMode(upgradeMode)
+            : (SchemaUpgradeMode?) null;
+        case UpgradeStage.Final:
+          return GetFinalStageUpgradeMode(upgradeMode);
+        default:
+          throw new ArgumentOutOfRangeException("context.Stage");
       }      
     }
   }

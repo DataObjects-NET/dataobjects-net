@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Building
     ValidateCompatible,
 
     /// <summary>
-    /// Validate scheme to be compatible with the domain model.
+    /// Validate schema to be compatible with the domain model.
     /// </summary>
     ValidateLegacy,
 

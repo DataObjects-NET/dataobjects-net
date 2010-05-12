@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Upgrade
     /// schema isn't upgraded, but only checked for compatibility with
     /// the model containing system types only (<see cref="SchemaUpgradeMode.ValidateCompatible"/>).
     /// </summary>
-    Validation = 0x0,
+    Initializing = 0x0,
     /// <summary>
     /// The second upgrade stage.
     /// All the types are visible, including upgrade-only types;

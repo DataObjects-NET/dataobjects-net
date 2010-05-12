@@ -40,8 +40,9 @@ namespace Xtensive.Storage.Upgrade
       var context = UpgradeContext;
       var upgradeMode = context.OriginalConfiguration.UpgradeMode;
       switch (context.Stage) {
-      case UpgradeStage.Validation:
-        CheckMetadata();
+      case UpgradeStage.Initializing:
+        if (upgradeMode.In(DomainUpgradeMode.Perform, DomainUpgradeMode.PerformSafely))
+          CheckMetadata();
         ExtractDomainModel();
         break;
       case UpgradeStage.Upgrading:
