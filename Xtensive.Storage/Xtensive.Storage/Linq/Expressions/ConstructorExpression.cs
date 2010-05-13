@@ -34,12 +34,24 @@ namespace Xtensive.Storage.Linq
 
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      return this;
+      Func<Expression, Expression> genericBinder =
+        e => GenericExpressionVisitor<IMappedExpression>.Process(e, mapped => mapped.BindParameter(parameter, processedExpressions));
+      return new ConstructorExpression(
+        Type,
+        Bindings.ToDictionary(kvp => kvp.Key, kvp => genericBinder(kvp.Value)),
+        Constructor,
+        ConstructorArguments.Select(genericBinder).ToList());
     }
 
     public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      return this;
+      Func<Expression, Expression> genericRemover =
+        e => GenericExpressionVisitor<IMappedExpression>.Process(e, mapped => mapped.RemoveOuterParameter(processedExpressions));
+      return new ConstructorExpression(
+        Type,
+        Bindings.ToDictionary(kvp => kvp.Key, kvp => genericRemover(kvp.Value)),
+        Constructor,
+        ConstructorArguments.Select(genericRemover).ToList());
     }
 
     public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
