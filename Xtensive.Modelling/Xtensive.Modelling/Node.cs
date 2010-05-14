@@ -54,6 +54,7 @@ namespace Xtensive.Modelling
     private PropertyAccessorDictionary propertyAccessors;
     internal Node parent;
     private string name;
+    private string escapedName;
     private NodeState state;
     private int index;
 
@@ -98,7 +99,11 @@ namespace Xtensive.Modelling
     public string EscapedName
     {
       [DebuggerStepThrough]
-      get { return new[] {Name}.RevertibleJoin(PathEscape, PathDelimiter); }
+      get {
+        if (escapedName==null)
+          escapedName = new[] {Name}.RevertibleJoin(PathEscape, PathDelimiter);
+        return escapedName;
+      }
     }
 
     /// <inheritdoc/>
@@ -186,16 +191,14 @@ namespace Xtensive.Modelling
           return cachedPath;
         if (Parent==null)
           return string.Empty;
-        else {
-          string parentPath = Parent.Path;
-          if (parentPath.Length!=0)
-            parentPath += PathDelimiter;
-          return string.Concat(
-            parentPath, 
-            Nesting.EscapedPropertyName,
-            Nesting.IsNestedToCollection ? PathDelimiter.ToString() : string.Empty,
-            Nesting.IsNestedToCollection ? EscapedName : string.Empty);
-        }
+        string parentPath = Parent.Path;
+        if (parentPath.Length!=0)
+          parentPath += PathDelimiter;
+        return string.Concat(
+          parentPath,
+          Nesting.EscapedPropertyName,
+          Nesting.IsNestedToCollection ? PathDelimiter.ToString() : string.Empty,
+          Nesting.IsNestedToCollection ? EscapedName : string.Empty);
       }
     }
 
@@ -210,6 +213,7 @@ namespace Xtensive.Modelling
       this.EnsureNotLocked();
       if (newParent==Parent && newName==Name && newIndex==Index)
         return;
+      escapedName = null;
       if (this is IUnnamedNode)
         newName = newIndex.ToString();
       ValidateMove(newParent, newName, newIndex);

@@ -424,9 +424,9 @@ namespace Xtensive.Storage
 
     private static VersionInfo GetVersion(TypeInfo type, Tuple tuple)
     {
-      if (type.VersionInfoTupleExtractor==null)
+      if (type.VersionExtractor==null)
         return new VersionInfo();
-      var versionTuple = type.VersionInfoTupleExtractor.Apply(TupleTransformType.Tuple, tuple);
+      var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, tuple);
       return new VersionInfo(versionTuple);
     }
 
