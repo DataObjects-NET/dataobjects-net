@@ -97,6 +97,15 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Instance must be locked before this operation..
+        /// </summary>
+        internal static string ExInstanceMustBeLockedBeforeThisOperation {
+            get {
+                return ResourceManager.GetString("ExInstanceMustBeLockedBeforeThisOperation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Item with key &apos;{0}&apos; was not found..
         /// </summary>
         internal static string ExItemWithKeyXWasNotFound {

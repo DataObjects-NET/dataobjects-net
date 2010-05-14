@@ -15,6 +15,7 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
+using Xtensive.Storage.Model.Resources;
 
 namespace Xtensive.Storage.Model
 {
@@ -53,11 +54,15 @@ namespace Xtensive.Storage.Model
     private Type                               underlyingType;
     private HierarchyInfo                      hierarchy;
     private int                                typeId = NoTypeId;
+    private object                             typeDiscriminatorValue;
     private MapTransform                       primaryKeyInjector;
     private bool                               isLeaf;
-    private KeyInfo                    key;
+    private KeyInfo                            key;
     private bool                               hasVersionRoots;
     private Dictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
+    private Tuple                              tuplePrototype;
+    private MapTransform                       versionExtractor;
+
 
     #region IsXxx properties
 
@@ -169,7 +174,8 @@ namespace Xtensive.Storage.Model
         if (typeId != NoTypeId)
           throw Exceptions.AlreadyInitialized("TypeId");
         typeId = value;
-        BuildTuplePrototype();
+        lock (this)
+          tuplePrototype = null;
       }
     }
 
@@ -268,19 +274,26 @@ namespace Xtensive.Storage.Model
     {
       [DebuggerStepThrough]
       get { return hierarchy; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         hierarchy = value;
       }
     }
 
-    private object typeDiscriminatorValue;
-
-    public object TypeDiscriminatorValue
+    public KeyInfo Key
     {
+      get { return IsLocked ? key : GetKey(); }
+    }
+
+    /// <summary>
+    /// Gets or sets the type discriminator value.
+    /// </summary>
+    public object TypeDiscriminatorValue {
       get { return typeDiscriminatorValue; }
-      set { typeDiscriminatorValue = value; }
+      set {
+        this.EnsureNotLocked();
+        typeDiscriminatorValue = value;
+      }
     }
 
     /// <summary>
@@ -291,17 +304,24 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the persistent type prototype.
     /// </summary>
-    public Tuple TuplePrototype { get; private set; }
-
-    public KeyInfo Key
-    {
-      get { return IsLocked ? key : GetKey(); }
+    public Tuple TuplePrototype {
+      get {
+        if (tuplePrototype==null)
+          BuildTuplePrototypeAndVersionExtractor();
+        return tuplePrototype;
+      }
     }
 
     /// <summary>
     /// Gets the version tuple extractor.
     /// </summary>
-    public MapTransform VersionInfoTupleExtractor { get; private set; }
+    public MapTransform VersionExtractor {
+      get {
+        if (tuplePrototype==null)
+          BuildTuplePrototypeAndVersionExtractor();
+        return versionExtractor;
+      }
+    }
 
     /// <summary>
     /// Gets a value indicating whether this instance has version fields.
@@ -342,7 +362,8 @@ namespace Xtensive.Storage.Model
     /// </returns>
     public Tuple CreateEntityTuple(Tuple primaryKey)
     {
-      return primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, TuplePrototype);
+      var prototype = TuplePrototype; // Ensures primaryKeyInjector is built as well
+      return primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, prototype);
     }
 
     /// <summary>
@@ -533,14 +554,10 @@ namespace Xtensive.Storage.Model
 
       structureFieldMapping = BuildStructureFieldMapping();
 
-      if (IsEntity || IsStructure)
-        BuildTuplePrototype();
-      
       if (IsEntity) {
         if (!HasVersionRoots) {
           versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
           versionColumns = new ReadOnlyList<Pair<ColumnInfo, int>>(GetVersionColumns());
-          CreateVersionExtractor();
         }
         else {
           versionFields = new ReadOnlyList<FieldInfo>(new List<FieldInfo>());
@@ -620,6 +637,17 @@ namespace Xtensive.Storage.Model
         from c in Columns select c.ValueType);
     }
 
+    private void BuildTuplePrototypeAndVersionExtractor()
+    {
+      if (!IsLocked)
+        throw Exceptions.InternalError(
+          Strings.ExInstanceMustBeLockedBeforeThisOperation, Log.Instance);
+      lock (this) {
+        BuildTuplePrototype();
+        BuildVersionExtractor();
+      }
+    }
+
     private void BuildTuplePrototype()
     {
       // Building nullable map
@@ -659,21 +687,21 @@ namespace Xtensive.Storage.Model
           keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
         primaryKeyInjector = new MapTransform(false, TupleDescriptor, keyFieldMap);
       }
-      TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
+      tuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
     }
 
-    private void CreateVersionExtractor()
+    private void BuildVersionExtractor()
     {
       // Building version tuple extractor
       var versionColumns = GetVersionColumns();
-      if (versionColumns.Count==0) {
-        VersionInfoTupleExtractor = null;
+      if (versionColumns==null || versionColumns.Count==0) {
+        versionExtractor = null;
         return;
       }
       var types = versionColumns.Select(pair => pair.First.ValueType);
       var map = versionColumns.Select(pair => pair.Second).ToArray();
       var versionTupleDescriptor = TupleDescriptor.Create(types.ToArray());
-      VersionInfoTupleExtractor = new MapTransform(true, versionTupleDescriptor, map);
+      versionExtractor = new MapTransform(true, versionTupleDescriptor, map);
     }
 
     private Dictionary<Pair<FieldInfo>, FieldInfo> BuildStructureFieldMapping()

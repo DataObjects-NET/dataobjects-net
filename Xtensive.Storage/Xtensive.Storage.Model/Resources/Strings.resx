@@ -165,4 +165,7 @@
   <data name="ExDefaultTypeIsAlreadyRegistered" xml:space="preserve">
     <value>Default type is already registered.</value>
   </data>
+	<data name="ExInstanceMustBeLockedBeforeThisOperation">
+		<value xml:space="preserve">Instance must be locked before this operation.</value>
+	</data>
 </root>

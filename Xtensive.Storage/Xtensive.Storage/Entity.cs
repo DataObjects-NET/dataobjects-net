@@ -109,7 +109,7 @@ namespace Xtensive.Storage
           }
           return version;
         }
-        if (Type.VersionInfoTupleExtractor==null)
+        if (Type.VersionExtractor==null)
           return new VersionInfo(); // returns empty VersionInfo
         var tuple = State.Tuple;
         var versionColumns = Type.GetVersionColumns();
@@ -125,7 +125,7 @@ namespace Xtensive.Storage
           Session.Handler.Prefetch(Key, Type, new FieldDescriptorCollection(columnsToPrefetch));
           Session.Handler.ExecutePrefetchTasks(true);
         }
-        var versionTuple = Type.VersionInfoTupleExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
+        var versionTuple = Type.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
         return new VersionInfo(versionTuple);
       }
     }

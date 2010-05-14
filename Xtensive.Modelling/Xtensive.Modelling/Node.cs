@@ -54,6 +54,7 @@ namespace Xtensive.Modelling
     private PropertyAccessorDictionary propertyAccessors;
     internal Node parent;
     private string name;
+    private string escapedName;
     private NodeState state;
     private int index;
 
@@ -98,7 +99,11 @@ namespace Xtensive.Modelling
     public string EscapedName
     {
       [DebuggerStepThrough]
-      get { return new[] {Name}.RevertibleJoin(PathEscape, PathDelimiter); }
+      get {
+        if (escapedName==null)
+          escapedName = new[] {Name}.RevertibleJoin(PathEscape, PathDelimiter);
+        return escapedName;
+      }
     }
 
     /// <inheritdoc/>
@@ -186,16 +191,14 @@ namespace Xtensive.Modelling
           return cachedPath;
         if (Parent==null)
           return string.Empty;
-        else {
-          string parentPath = Parent.Path;
-          if (parentPath.Length!=0)
-            parentPath += PathDelimiter;
-          return string.Concat(
-            parentPath, 
-            Nesting.EscapedPropertyName,
-            Nesting.IsNestedToCollection ? PathDelimiter.ToString() : string.Empty,
-            Nesting.IsNestedToCollection ? EscapedName : string.Empty);
-        }
+        string parentPath = Parent.Path;
+        if (parentPath.Length!=0)
+          parentPath += PathDelimiter;
+        return string.Concat(
+          parentPath,
+          Nesting.EscapedPropertyName,
+          Nesting.IsNestedToCollection ? PathDelimiter.ToString() : string.Empty,
+          Nesting.IsNestedToCollection ? EscapedName : string.Empty);
       }
     }
 
@@ -216,6 +219,7 @@ namespace Xtensive.Modelling
       if (State==NodeState.Initializing) {
         parent = newParent;
         name = newName;
+        escapedName = null;
         index = newIndex;
         UpdateModel();
         OnPropertyChanged("Parent");
@@ -507,8 +511,10 @@ namespace Xtensive.Modelling
             newCollection[i].PerformShift(1);
           oldCollection.Remove(this);
           index = newIndex;
-          if (nameIsChanging)
+          if (nameIsChanging) {
             name = newName;
+            escapedName = null;
+          }
           newCollection.Add(this);
         }
       }
@@ -543,13 +549,15 @@ namespace Xtensive.Modelling
             collection[i].PerformShift(shift);
         collection.Move(this, newIndex);
         name = newName;
+        escapedName = null;
         index = newIndex;
         if (nameIsChanging)
           collection.AddName(this);
         // collection.CheckIntegrity();
       }
-      parent = (Node) newParent;
+      parent = newParent;
       name = newName;
+      escapedName = null;
       index = newIndex;
       UpdateModel();
     }
@@ -571,6 +579,7 @@ namespace Xtensive.Modelling
           if (collection!=null) {
             collection.RemoveName(this);
             name = newName;
+            escapedName = null;
             index = newIndex;
             collection.AddName(this);
           }

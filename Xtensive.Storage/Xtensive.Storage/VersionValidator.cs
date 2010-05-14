@@ -79,7 +79,7 @@ namespace Xtensive.Storage
 
     private void EnqueueVersionValidation(Entity entity)
     {
-      if (entity.Type.VersionInfoTupleExtractor==null
+      if (entity.Type.VersionExtractor==null
         || queuedVersions.ContainsKey(entity.Key)
         || processed.Contains(entity.Key))
         return;
@@ -139,7 +139,7 @@ namespace Xtensive.Storage
     {
       if (state==null)
         return new VersionInfo();
-      var versionTuple = type.VersionInfoTupleExtractor.Apply(TupleTransformType.Tuple, state);
+      var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, state);
       return new VersionInfo(versionTuple);
     }
 
@@ -176,7 +176,7 @@ namespace Xtensive.Storage
       // there is nothing to validate"
       if (entity.PersistenceState==PersistenceState.New)
         return;
-      if (entity.Type.VersionInfoTupleExtractor==null)
+      if (entity.Type.VersionExtractor==null)
         return;
       if (entity.State.IsStale && !entity.Type.HasVersionRoots)
         return;
