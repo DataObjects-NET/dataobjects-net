@@ -6,9 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web.UI;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Resources;
 
 namespace Xtensive.Core
@@ -60,15 +61,37 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(format, "format");
       
       var arguments = new List<object>();
-      string rewrittenFormat = formatWithRegex.Replace(format, m => {
-        string propertyName = m.Groups[1].Value.Trim();
+      var rewrittenFormat = formatWithRegex.Replace(format, m => {
+        var propertyName = m.Groups[1].Value.Trim();
         if (propertyName.Length==0)
           return m.Value;
-        arguments.Add((propertyName=="0" || propertyName==ThisMemberName) ? arg0 : DataBinder.Eval(arg0, propertyName));
+        arguments.Add(
+          (propertyName=="0" || propertyName==ThisMemberName) 
+            ? arg0 
+            : Eval(arg0, propertyName));
         return "{" + (arguments.Count - 1) + m.Groups[2].Value;
       });
 
       return string.Format(rewrittenFormat, arguments.ToArray());
+    }
+
+    private static object Eval(object arg, string expression)
+    {
+      if (expression==null)
+        throw new ArgumentNullException("expression");
+      expression = expression.Trim();
+      if (expression.Length==0)
+        throw new ArgumentNullException("expression");
+      if (arg==null)
+        return null;
+      var expressionParts = expression.Split('.');
+      var propertyValue = arg;
+      for (int i = 0; (i < expressionParts.Length) && (propertyValue != null); i++) {
+        var propName = expressionParts[i];
+        var propertyInfo = propertyValue.GetType().GetProperty(propName);
+        propertyValue = propertyInfo.GetValue(propertyValue, ArrayUtils<object>.EmptyArray);
+      }
+      return propertyValue;
     }
     
     /// <summary>
@@ -391,6 +414,55 @@ namespace Xtensive.Core
           sb.Append(c);
       }
       return new Pair<string>(sb.ToString(), null);
+    }
+
+    /// <summary>
+    /// Escapes the specified source string.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="escape">The escape char.</param>
+    /// <param name="escapedChars">Chars to escape.</param>
+    public static string Escape(this string source, char escape, char[] escapedChars)
+    {
+      if (source==null)
+        throw new ArgumentNullException("source");
+      if (escapedChars==null)
+        throw new ArgumentNullException("escapedChars");
+      var chars = escapedChars.Append(escape);
+      var sb = new StringBuilder();
+      foreach (var c in source) {
+        var found = false;
+        for (int i = 0; i < chars.Length && !found; i++)
+          found = chars[i] == c;
+        if (found)
+          sb.Append(escape);
+        sb.Append(c);
+      }
+      return sb.ToString();
+    }
+
+    /// <summary>
+    /// Unescapes the specified source string.
+    /// </summary>
+    /// <param name="source">The source.</param>
+    /// <param name="escape">The escape char.</param>
+    public static string Unescape(this string source, char escape)
+    {
+      if (source==null)
+        throw new ArgumentNullException("source");
+      var sb = new StringBuilder(source.Length);
+      var previousCharIsEscape = false;
+      foreach (var c in source) {
+        if (previousCharIsEscape) {
+          sb.Append(c);
+          previousCharIsEscape = false;
+        }
+        else if (c==escape)
+          previousCharIsEscape = true;
+        else
+          sb.Append(c);
+      }
+      return sb.ToString();
     }
   }
 }

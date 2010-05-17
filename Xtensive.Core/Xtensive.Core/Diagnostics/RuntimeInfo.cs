@@ -20,9 +20,9 @@ namespace Xtensive.Core.Diagnostics
       public TwoPointers Pointer2;
     }
 
-    private static int pointerSize = 4;
-    private static int defaultStructLayoutPack = 4;
-    private static int minimalObjectSize = 12;
+    private static int pointerSize;
+    private static int defaultStructLayoutPack;
+    private static int minimalObjectSize;
 
     /// <summary>
     /// Gets the size of the pointer (reference field) in bytes.

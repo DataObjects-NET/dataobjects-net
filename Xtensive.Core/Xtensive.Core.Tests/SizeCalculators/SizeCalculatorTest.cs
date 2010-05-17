@@ -96,8 +96,9 @@ namespace Xtensive.Core.Tests.SizeCalculators
       int size = calculator.GetValueSize(new TestStruct());
       Log.Info("Default size: {0}", minSize);
       Log.Info("Value size:   {0}", size);
-      Assert.AreEqual(minSize, RuntimeInfo.PointerSize * 4);
-      Assert.AreEqual(size, minSize);
+      Log.Info("Bool size:   {0}", sizeof(bool));
+      Assert.AreEqual(SizeCalculatorBase<int>.GetPackedStructSize(RuntimeInfo.PointerSize * 2 + sizeof(Int32) + sizeof(bool) + sizeof(bool)), minSize);
+      Assert.AreEqual(minSize, size);
     }
 
     [Test]
@@ -113,9 +114,9 @@ namespace Xtensive.Core.Tests.SizeCalculators
       Log.Info("Default size: {0}", minSize);
       Log.Info("Value size 1: {0}", size1);
       Log.Info("Value size 2: {0}", size2);
-      Assert.AreEqual(minSize, RuntimeInfo.PointerSize * 4);
-      Assert.AreEqual(size1, RuntimeInfo.PointerSize);
-      Assert.AreEqual(size2, minSize);
+      Assert.AreEqual(RuntimeInfo.PointerSize * 3 + sizeof(Int32), minSize);
+      Assert.AreEqual(RuntimeInfo.PointerSize, size1);
+      Assert.AreEqual(minSize, size2);
     }
 
     [Test]
@@ -129,7 +130,7 @@ namespace Xtensive.Core.Tests.SizeCalculators
       int size = calculator.GetValueSize(new Pair<TestStruct,object>(new TestStruct(), new TestStruct()));
       Log.Info("Default size: {0}", minSize);
       Log.Info("Value size:   {0}", size);
-      Assert.AreEqual(minSize, RuntimeInfo.PointerSize * 5);
+      Assert.AreEqual(SizeCalculatorBase<int>.GetPackedStructSize(RuntimeInfo.PointerSize * 3 + sizeof(Int32) + sizeof(bool) + sizeof(bool)), minSize);
       Assert.IsTrue(size > minSize*2);
     }
 

@@ -26,7 +26,7 @@ namespace Xtensive.Core.Tests.Diagnostics
         m.OperationCount = 10;
         Assert.AreEqual(m.OperationCount,10);
         Log.Info("Ignore: MemoryAllocated = " + m.MemoryAllocated.ToString());
-        Assert.IsTrue(m.MemoryAllocated < 1000000);
+        Assert.IsTrue(m.MemoryAllocated < 2000000);
         Log.Info("Before array allocation: "+m.ToString());
         object[] a = new object[1000];
         Thread.Sleep(10);
@@ -47,6 +47,7 @@ namespace Xtensive.Core.Tests.Diagnostics
         byte[] a = new byte[100000];
         a[0] = 1;
         long diff = m.MemoryAllocated-before;
+        Log.Info("Difference: " + diff);
         Assert.IsTrue(diff>100000);
         Assert.IsTrue(diff<110000);
         Log.Info("After array allocation: "+m.ToString());

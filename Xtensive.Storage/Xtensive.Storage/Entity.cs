@@ -470,6 +470,8 @@ namespace Xtensive.Storage
           .Invoke(subscriptionInfo.First);
       OnInitializationError(error);
 
+      if (State == null)
+        return;
       State.PersistenceState = PersistenceState.Removed;
       ((IInvalidatable)State).Invalidate();
       Session.EntityStateCache.Remove(State);

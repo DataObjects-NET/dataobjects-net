@@ -29,7 +29,7 @@ namespace Xtensive.Core.Tuples
     private static readonly ParseHandler parseHandler 
       = new ParseHandler();
     private const string NullValue = "null";
-    private const string Quote = "\"";
+    private const char Quote = '"';
     private const char Escape = '\\';
     private const char Comma = ',';
 
@@ -131,7 +131,7 @@ namespace Xtensive.Core.Tuples
             .GetConverter<TFieldType, string>()
             .Convert(tuple.GetValue<TFieldType>(fieldIndex, out fieldState));
           if (result.IsNullOrEmpty() || result==NullValue || result.Contains(Quote))
-            result = Quote + HttpUtility.HtmlEncode(result ?? string.Empty) + Quote; // Quoting
+            result = Quote + (result ?? string.Empty).Escape(Escape, new char[Quote]) + Quote; // Quoting
         }
         actionData.Target[fieldIndex] = result;
         return false;
@@ -149,8 +149,8 @@ namespace Xtensive.Core.Tuples
           actionData.Target.SetValue(fieldIndex, null);
           return false;
         }
-        if (source.StartsWith(Quote) && source.EndsWith(Quote))
-          source = HttpUtility.HtmlDecode(source.Substring(1, source.Length - 2));
+        if (source[0]==Quote && source[source.Length -1 ] == Quote)
+          source = source.Substring(1, source.Length - 2).Unescape(Escape);
         actionData.Target.SetValue(fieldIndex, 
           AdvancedConverterProvider.Default
             .GetConverter<string, TFieldType>()
