@@ -114,12 +114,14 @@ namespace Xtensive.Storage.Building.Builders
                   var typeIndexes = new Queue<IndexInfo>();
                   var type = implementor;
                   var typedIndex = (IndexInfo)null;
+                  var foundFields = new List<FieldInfo>();
                   while (interfaceFields.Count > 0) {
-                    var foundFields = new List<FieldInfo>();
+                    foundFields.Clear();
                     foreach (var field in interfaceFields) {
                       FieldInfo typeField;
-                      if (type.FieldMap.TryGetValue(field, out typeField) && (typeField.IsDeclared || typeField.IsSystem || typeField.IsPrimaryKey))
-                        foundFields.Add(field);
+                      if (type.FieldMap.TryGetValue(field, out typeField))
+                        if ((typeField.IsDeclared || typeField.IsSystem || typeField.IsPrimaryKey))
+                          foundFields.Add(field);
                     }
                     if (foundFields.Count > 0) {
                       var typeIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);

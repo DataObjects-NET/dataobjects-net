@@ -5,6 +5,7 @@
 // Created:    2010.04.13
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
 using PostSharp.Aspects;
@@ -37,11 +38,30 @@ namespace Xtensive.Storage
     {
       var result = new List<AspectInstance>();
       var propertyInfo = (PropertyInfo) targetElement;
-      var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritFromAllBase);
+      var type = propertyInfo.DeclaringType;
+      var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritNone);
+      var allFieldAttributes = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritFromAllBase);
+      const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+      if (allFieldAttributes != null && allFieldAttributes.Length > 0) {
+        if (fieldAttribute == null)
+          fieldAttribute = allFieldAttributes.First();
+        else if (allFieldAttributes.Any(a => !a.IsCompatibleWith(fieldAttribute))) {
+          var typeName = type.GetShortName();
+          var propName = propertyInfo.GetShortName(false);
+          var interfaceName = type.GetInterfaces()
+            .First(i => typeof (IEntity).IsAssignableFrom(i)&& i.GetProperty(propName, bindingFlags) != null)
+            .GetShortName();
+          ErrorLog.Write(
+            SeverityType.Error, 
+            "\"{0}.{1}\" has [Field] incompatible with \"{2}.{1}\"", 
+            typeName, 
+            propName, 
+            interfaceName);
+        }
+      }
       if (fieldAttribute == null)
         return result;
 
-      var type = propertyInfo.DeclaringType;
       var keyAttribute = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritNone);
       var getter = propertyInfo.GetGetMethod(true);
       var setter = propertyInfo.GetSetMethod(true);
