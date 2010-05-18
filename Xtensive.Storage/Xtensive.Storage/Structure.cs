@@ -16,6 +16,7 @@ using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -61,6 +62,8 @@ namespace Xtensive.Storage
   {
     private readonly Tuple tuple;
     private readonly TypeInfo type;
+    private Persistent owner;
+    private Entity entity;
 
     /// <inheritdoc/>
     public override TypeInfo Type {
@@ -70,11 +73,32 @@ namespace Xtensive.Storage
 
     /// <inheritdoc/>
     [Infrastructure]
-    public Persistent Owner { get; private set; }
+    public Persistent Owner
+    {
+      get { return owner; }
+      private set {
+        entity = null;
+        owner = value;
+      }
+    }
 
     /// <inheritdoc/>
     [Infrastructure]
     public FieldInfo Field { get; private set; }
+
+    /// <summary>
+    /// Gets the entity.
+    /// </summary>
+    [Infrastructure]
+    public Entity Entity
+    {
+      get
+      {
+        if (Owner == null)
+          return null;
+        return entity ?? (entity = (Owner as Entity) ?? ((Structure) Owner).Entity);
+      }
+    }
 
     /// <summary>
     /// Gets a value indicating whether this <see cref="Structure"/> instance is bound to entity.
@@ -272,10 +296,16 @@ namespace Xtensive.Storage
     [ActivateSession, Transactional]
     private bool InnerEquals(Structure other, bool thisIsBound, bool otherIsBound)
     {
-      if (thisIsBound)
+      if (thisIsBound) {
         EnsureIsFetched(Field);
-      if (otherIsBound)
+        if (Entity.IsRemoved)
+          throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+      }
+      if (otherIsBound) {
         other.EnsureIsFetched(other.Field);
+        if (other.Entity.IsRemoved)
+          throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+      }
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
