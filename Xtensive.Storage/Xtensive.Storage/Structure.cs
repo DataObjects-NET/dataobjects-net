@@ -84,8 +84,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public bool IsBoundToEntity {
       get {
-        return (Owner!=null) && 
-          ((Owner is Entity) || ((Structure) Owner).IsBoundToEntity);
+        return (Owner!=null) && ((Owner is Entity) || ((Structure) Owner).IsBoundToEntity);
       }
     }
 
@@ -265,15 +264,20 @@ namespace Xtensive.Storage
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      if (IsBoundToEntity || other.IsBoundToEntity)
-        return InnerEquals(other);
-      else
-        return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
+      var thisIsBound = IsBoundToEntity;
+      var otherisBound = other.IsBoundToEntity;
+      if (thisIsBound || otherisBound)
+        return InnerEquals(other, thisIsBound, otherisBound);
+      return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
     [ActivateSession, Transactional]
-    private bool InnerEquals(Structure other)
+    private bool InnerEquals(Structure other, bool thisIsBound, bool otherIsBound)
     {
+      if (thisIsBound)
+        EnsureIsFetched(Field);
+      if (otherIsBound)
+        other.EnsureIsFetched(other.Field);
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
