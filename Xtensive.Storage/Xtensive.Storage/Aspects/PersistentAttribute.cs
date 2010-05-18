@@ -181,30 +181,36 @@ namespace Xtensive.Storage.Aspects
     {
       ProvideConstructorAccessorAspect(type, collection);
       ProvideConstructorAspect(type, collection);
-      // Not necessary now:
-      // new InitializableAttribute().ProvideAspects(type, collection);
     }
 
     private static void ProvidePersistentFieldAspects(Type type, LaosReflectionAspectCollection collection)
     {
+      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
       foreach (var propertyInfo in type.GetProperties(
-        BindingFlags.Public |
-        BindingFlags.NonPublic |
-        BindingFlags.Instance |
-        BindingFlags.DeclaredOnly)) 
+        bindingFlags)) 
       {
         var keyFieldAttribute = type.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritNone);
-        try {
-          var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(
-            AttributeSearchOptions.InheritFromAllBase);
-          if (fieldAttribute==null)
-            continue;
+        var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritNone);
+        var allFieldAttributes = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritFromAllBase);
+        if (allFieldAttributes != null && allFieldAttributes.Length > 0) {
+          if (fieldAttribute == null)
+            fieldAttribute = allFieldAttributes.First();
+          else if (allFieldAttributes.Any(a => !a.IsCompatibleWith(fieldAttribute))) {
+            var typeName = type.GetShortName();
+            var propName = propertyInfo.GetShortName(false);
+            var interfaceName = type.GetInterfaces()
+              .First(i => typeof (IEntity).IsAssignableFrom(i)&& i.GetProperty(propName, bindingFlags) != null)
+              .GetShortName();
+            ErrorLog.Write(
+              SeverityType.Error, 
+              "\"{0}.{1}\" has [Field] incompatible with \"{2}.{1}\"", 
+              typeName, 
+              propName, 
+              interfaceName);
+          }
         }
-        catch (InvalidOperationException) {
-          ErrorLog.Write(SeverityType.Error, AspectMessageType.AspectMustBeSingle,
-            AspectHelper.FormatType(typeof(FieldAttribute)),
-            AspectHelper.FormatMember(propertyInfo.DeclaringType, propertyInfo));
-        }
+        if (fieldAttribute == null)
+          continue;
         var getter = propertyInfo.GetGetMethod(true);
         var setter = propertyInfo.GetSetMethod(true);
         if (getter!=null) {

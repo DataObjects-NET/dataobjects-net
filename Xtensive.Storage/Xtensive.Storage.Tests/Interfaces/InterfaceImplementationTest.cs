@@ -43,6 +43,7 @@ namespace Xtensive.Storage.Tests.Interfaces
 
     public class C : A, ITagged
     {
+      [Field(Indexed = true)]
       public string Tag { get; set; }
     }
   }

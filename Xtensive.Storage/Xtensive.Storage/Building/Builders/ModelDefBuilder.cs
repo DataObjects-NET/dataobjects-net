@@ -137,8 +137,8 @@ namespace Xtensive.Storage.Building.Builders
           continue;
 
         // FieldAttribute presence is required
-        var fa = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll);
-        if (fa==null)
+        var fas = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritAll);
+        if (fas==null || fas.Length == 0)
           continue;
 
         var field = DefineField(propertyInfo);
@@ -250,8 +250,10 @@ namespace Xtensive.Storage.Building.Builders
       var fieldDef = new FieldDef(propertyInfo);
       fieldDef.Name = BuildingContext.Demand().NameBuilder.BuildFieldName(fieldDef);
 
-      var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritAll);
-      if (fieldAttribute!=null) {
+      var fieldAttributes = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritAll);
+      if (fieldAttributes!=null && fieldAttributes.Length > 0) {
+        var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritNone)
+          ?? fieldAttributes.First();
         AttributeProcessor.Process(fieldDef, fieldAttribute);
         var associationAttribute = propertyInfo.GetAttribute<AssociationAttribute>(AttributeSearchOptions.InheritAll);
         if (associationAttribute!=null)
