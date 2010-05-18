@@ -172,6 +172,14 @@ namespace Xtensive.Storage.Building.Builders
           implementor.FieldMap.Add(field, implField);
         else
           implementor.FieldMap.Override(field, implField);
+
+        var declaringType = implField.DeclaringType;
+        var declaringField = implField.DeclaringField;
+        if (implField.IsInherited && declaringType.IsEntity) {
+          declaringField.IsInterfaceImplementation = true;
+          if (!declaringType.FieldMap.ContainsKey(field))
+            declaringType.FieldMap.Add(field, declaringField);
+        }
       }
     }
 
