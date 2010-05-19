@@ -24,7 +24,7 @@ namespace Xtensive.Storage
   [MulticastAttributeUsage(MulticastTargets.Class, AllowMultiple = false, Inheritance = MulticastInheritance.Multicast)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof(InitializableAttribute))]
-  public class EntitySetAspect : Aspect, IAspectProvider
+  internal class EntitySetAspect : Aspect, IAspectProvider
   {
     public IEnumerable<AspectInstance> ProvideAspects(object targetElement)
     {
