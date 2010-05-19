@@ -295,7 +295,7 @@ namespace Xtensive.Storage
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
-    [ActivateSession, Transactional]
+    [Transactional]
     private bool InnerEquals(Structure other, bool thisIsBound, bool otherIsBound)
     {
       if (thisIsBound) {

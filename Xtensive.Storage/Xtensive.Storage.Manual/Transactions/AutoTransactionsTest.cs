@@ -64,7 +64,6 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
     }
 
     [NonTransactional]
-    [ActivateSession(true)] // Actually unnecessary - this is default option
     public void NonTransactionalMethod(Transaction expectedTransaction)
     {
       Assert.AreSame(Session, Session.Current);

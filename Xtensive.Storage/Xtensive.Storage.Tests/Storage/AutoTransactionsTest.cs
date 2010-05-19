@@ -62,11 +62,10 @@ namespace Xtensive.Storage.Tests.Storage
     }
   }    
 
-  
   public class MySessionBound : SessionBound
   {
 
-    [ActivateSession(false), NonTransactional]
+    [Transactional(ActivateSession = false, OpenTransaction = false)]
     public void CheckSessionActivation()
     {
       CheckState(this, TransactionState.None, SessionState.NotActive);
@@ -78,7 +77,8 @@ namespace Xtensive.Storage.Tests.Storage
       CallAllMethods();
     }
 
-    [ActivateSession(true), NonTransactional]
+    [NonTransactional]
+    [SuppressActivation(typeof(Session))]
     public void CheckAutoTransactions()
     {
       CheckState(this, TransactionState.None, SessionState.Active);
@@ -88,6 +88,12 @@ namespace Xtensive.Storage.Tests.Storage
       CheckState(this, TransactionState.None, SessionState.Active);
 
       CallAllMethods();
+
+      PrivateStaticMethod();
+      PublicStaticMethod();
+      PrivateTransactionalStaticMethod();
+      PublicNonTransactionalStaticMethod();
+
       CallConstructors();
     }
 
@@ -225,16 +231,38 @@ namespace Xtensive.Storage.Tests.Storage
       CheckState(this, TransactionState.None, SessionState.NotActive);
     }
 
-    [ActivateSession(false)]
+    [Transactional(ActivateSession = false)]
     public void PublicNotSessionMethod()
     {
       CheckState(this, TransactionState.Open, SessionState.NotActive);
     }
 
-    [ActivateSession(false), Transactional]
+    [Transactional(ActivateSession = false)]
     internal void InternalTransactionalNotSessionMethod()
     {
       CheckState(this, TransactionState.Open, SessionState.NotActive);
+    }
+
+    public static void PublicStaticMethod()
+    {
+      CheckState(null, TransactionState.None, SessionState.Active);
+    }
+
+    [NonTransactional]
+    public static void PublicNonTransactionalStaticMethod()
+    {
+      CheckState(null, TransactionState.None, SessionState.Active);
+    }
+
+    private static void PrivateStaticMethod()
+    {
+      CheckState(null, TransactionState.None, SessionState.Active);
+    }
+
+    [Transactional]
+    private static void PrivateTransactionalStaticMethod()
+    {
+      CheckState(null, TransactionState.Open, SessionState.Active);
     }
 
 
@@ -267,9 +295,13 @@ namespace Xtensive.Storage.Tests.Storage
     [Infrastructure]
     public static int CheckState(ISessionBound sessionBound, TransactionState transactionState, SessionState sessionState)
     {
-      var session = sessionBound.Session;
-      if (CheckSession)
+      var session = sessionBound == null
+        ? Session.Current
+        : sessionBound.Session;
+      if (CheckSession) {
+        Assert.IsNotNull(session);
         Assert.IsTrue(session.IsActive);
+      }
 
       bool isTransactionOpen = session.Transaction!=null 
         && session.Transaction.State==Integrity.Transactions.TransactionState.Active;

@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// which methods must be processed by PostSharp
   /// to ensure its <see cref="Session"/> is active inside method bodies.
   /// </summary>
-  [Transactional]
+  [TransactionalType]
   public interface ISessionBound : IContextBound<Session>
   {
     /// <summary>

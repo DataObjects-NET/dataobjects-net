@@ -199,7 +199,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    [ActivateSession, Transactional]
+    [Transactional]
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
@@ -224,7 +224,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    [ActivateSession, Transactional]
+    [Transactional]
     protected internal object GetFieldValue(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
@@ -329,7 +329,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
-    [ActivateSession, Transactional]
+    [Transactional]
     protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
       if (field.ReflectedType.IsInterface)
@@ -345,7 +345,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
-    [ActivateSession, Transactional]
+    [Transactional]
     protected internal void SetFieldValue(FieldInfo field, object value)
     {
       if (field.ReflectedType.IsInterface)
@@ -587,7 +587,7 @@ namespace Xtensive.Storage
       InnerOnValidate();
     }
 
-    [ActivateSession, Transactional]
+    [Transactional]
     private void InnerOnValidate()
     {
       if (!CanBeValidated) // True for Structures which aren't bound to entities
@@ -610,7 +610,7 @@ namespace Xtensive.Storage
     #region IDataErrorInfo members
 
     /// <inheritdoc/>
-    [ActivateSession, Transactional]
+    [Transactional]
     string IDataErrorInfo.this[string columnName] {
       get {
         return GetErrorMessage(this.GetPropertyValidationError(columnName));
@@ -618,7 +618,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [ActivateSession, Transactional]
+    [Transactional]
     string IDataErrorInfo.Error {
       get { 
         try {

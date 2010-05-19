@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
     /// <summary>
     /// Process one document: override it with your implementation
     /// </summary>
-    [ActivateSession, Transactional]
+    [Transactional]
     public virtual void ProcessDocument(Document inputDocument) 
     { 
       throw new NotImplementedException();  

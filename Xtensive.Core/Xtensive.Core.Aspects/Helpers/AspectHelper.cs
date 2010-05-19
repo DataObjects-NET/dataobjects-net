@@ -172,29 +172,6 @@ namespace Xtensive.Core.Aspects.Helpers
 
     #endregion
 
-    #region AddStandardRequirements method
-
-    /*/// <summary>
-    /// Adds the standard requirements to the specified <paramref name="requirements"/>.
-    /// </summary>
-    /// <param name="requirements">The requirements to modify.</param>
-    public static void AddStandardRequirements(PostSharpRequirements requirements)
-    {
-      if (typeof(AspectHelper).Assembly.GetName().Name==XtensiveDataObjectsDotNet) {
-        // That's necessary for ILMerged asssembly
-        if (!requirements.PlugIns.Contains(XtensiveDataObjectsDotNet))
-          requirements.PlugIns.Add(XtensiveDataObjectsDotNet);
-      }
-      else {
-        if (!requirements.PlugIns.Contains(XtensiveCoreWeaver))
-          requirements.PlugIns.Add(XtensiveCoreWeaver);
-      }
-      if (!requirements.Tasks.Contains(XtensiveCoreWeaverWeaverFactory))
-        requirements.Tasks.Add(XtensiveCoreWeaverWeaverFactory);
-    }
-*/
-    #endregion
-
     /// <summary>
     /// Validates the type of the member.
     /// </summary>
@@ -219,32 +196,6 @@ namespace Xtensive.Core.Aspects.Helpers
         return false;
       }
       return true;
-    }
-
-    /// <summary>
-    /// Validates presence of the attribute.
-    /// </summary>
-    /// <param name="aspect">The aspect.</param>
-    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
-    /// <param name="member">The member to validate the presence of attribute on.</param>
-    /// <param name="mustHave">If set to <see langword="true"/>, member type 
-    /// must have <typeparamref name="TAttribute"/> applied;
-    /// otherwise, it must not have it.</param>
-    /// <returns><see langword="true" /> if validation has passed;
-    /// otherwise, <see langword="false" />.</returns>
-    public static TAttribute ValidateMemberAttribute<TAttribute>(Attribute aspect, SeverityType severityType, 
-      MemberInfo member, bool mustHave, AttributeSearchOptions searchOptions)
-      where TAttribute: Attribute
-    {
-      var attribute = member.GetAttribute<TAttribute>(searchOptions);
-      if ((attribute!=null) != mustHave) {
-        ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
-          FormatType(aspect.GetType()),
-          FormatMember(member.DeclaringType, member),
-          mustHave ? string.Empty : Strings.Not,
-          FormatType(typeof(TAttribute)));
-      }
-      return attribute;
     }
 
     /// <summary>
@@ -274,76 +225,7 @@ namespace Xtensive.Core.Aspects.Helpers
       return true;
     }
 
-    /// <summary>
-    /// Validates the attributes of the field.
-    /// </summary>
-    /// <param name="aspect">The aspect.</param>
-    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
-    /// <param name="field">The field to validate the attributes of.</param>
-    /// <param name="containsFlags">If set to <see langword="true"/>, field attributes
-    /// must contain <paramref name="fieldAttributes"/> flags;
-    /// otherwise, it must not contain them.</param>
-    /// <param name="fieldAttributes">Expected (or not) attributes of the field.</param>
-    /// <returns><see langword="true" /> if validation has passed;
-    /// otherwise, <see langword="false" />.</returns>
-    public static bool ValidateFieldAttributes(Attribute aspect, SeverityType severityType, 
-      FieldInfo field, bool containsFlags, FieldAttributes fieldAttributes)
-    {
-      if (((field.Attributes & fieldAttributes)!=0) != containsFlags) {
-        ErrorLog.Write(severityType, Strings.AspectExRequiresToBe,
-          FormatType(aspect.GetType()),
-          FormatMember(field.DeclaringType, field),
-          containsFlags ? string.Empty : Strings.Not,
-          fieldAttributes);
-        return false;
-      }
-      return true;
-    }
-
-    /// <summary>
-    /// Validates the accessor of the property.
-    /// </summary>
-    /// <param name="aspect">The aspect.</param>
-    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
-    /// <param name="property">The property to validate the accessor of.</param>
-    /// <param name="mustHave">If set to <see langword="true"/>, property 
-    /// must contain setter or getter;
-    /// otherwise, it must not contain it.</param>
-    /// <param name="nonPublic">Indicates whether expected accessor must be non-public or not.
-    /// <see langword="null" /> means this does not matter.</param>
-    /// <param name="setter">If <see langword="true" />, property setter will be checked;
-    /// otherwise, getter.</param>
-    /// <returns><see langword="true" /> if validation has passed;
-    /// otherwise, <see langword="false" />.</returns>
-    public static bool ValidatePropertyAccessor(Attribute aspect, SeverityType severityType, 
-      PropertyInfo property, bool mustHave, bool? nonPublic, bool setter)
-    {
-      MethodInfo accessor = null;
-      string sVisibility  = string.Empty;
-      string sAccessor    = setter ? Strings.Setter : Strings.Getter;
-      bool bNonPublic = nonPublic.HasValue ? nonPublic.Value : true;
-      if (nonPublic.HasValue) {
-        accessor = setter ? 
-          property.GetSetMethod(nonPublic.Value) : 
-          property.GetGetMethod(nonPublic.Value);
-        sVisibility = (nonPublic.Value ? Strings.NonPublic : Strings.Public) + " ";
-      }
-      else {
-        accessor = setter ? 
-          property.GetSetMethod(bNonPublic) :
-          property.GetGetMethod(bNonPublic);
-      }
-      if ((accessor!=null) != mustHave) {
-        ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
-          FormatType(aspect.GetType()),
-          FormatMember(property.DeclaringType, property),
-          mustHave ? string.Empty : Strings.Not,
-          sVisibility+sAccessor);
-        return false;
-      }
-      return true;
-    }
-
+    
     /// <summary>
     /// Validates the attributes of the method.
     /// </summary>
@@ -413,120 +295,7 @@ namespace Xtensive.Core.Aspects.Helpers
       }
       return true;      
     }
-
-    /// <summary>
-    /// Validates the method of <see cref="IContextBound{TContext}"/> object.
-    /// </summary>
-    /// <typeparam name="TContext">The type of the context.</typeparam>
-    /// <param name="aspect">The aspect.</param>
-    /// <param name="method">The method.</param>
-    /// <returns>
-    /// <see langword="true"/> if validation has passed; otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool ValidateContextBoundMethod<TContext>(Attribute aspect, MethodBase method)
-      where TContext : class, IContext
-    {
-      return ValidateContextBoundMethod<TContext>(aspect, method, false, false);
-    }
-
-    /// <summary>
-    /// Validates the method of <see cref="IContextBound{TContext}"/> object.
-    /// </summary>
-    /// <typeparam name="TContext">The type of the context.</typeparam>
-    /// <param name="aspect">The aspect.</param>
-    /// <param name="method">The method.</param>
-    /// <param name="allowConstructor">Indicates whether <see cref="ConstructorInfo"/> is allowed in <paramref name="method"/>.</param>
-    /// <param name="allowStatic">Indicates whether <paramref name="method"/> can be static.</param>
-    /// <returns>
-    /// <see langword="true"/> if validation has passed; otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool ValidateContextBoundMethod<TContext>(Attribute aspect, MethodBase method, bool allowConstructor, bool allowStatic)
-      where TContext : class, IContext
-    {
-      if (IsInfrastructureMethod(method))
-        return false;
-      foreach (var attribute in 
-        method.GetAttributes<SuppressActivationAttribute>(AttributeSearchOptions.Default)
-        .Concat(method.DeclaringType.GetAttributes<SuppressActivationAttribute>(AttributeSearchOptions.InheritNone)))
-        if (attribute.ContextType == typeof(TContext))
-          return false;
-
-      if (!allowConstructor && !ValidateMemberType(aspect, SeverityType.Error,
-        method, false, MemberTypes.Constructor))
-        return false;
-      if (!allowStatic && !ValidateMethodAttributes(aspect, SeverityType.Error,
-        method, false, MethodAttributes.Static))
-        return false;
-      if (!ValidateMethodAttributes(aspect, SeverityType.Error,
-        method, false, MethodAttributes.Abstract))
-        return false;
-      if (!ValidateBaseType(aspect, SeverityType.Error,
-        method.DeclaringType, true, typeof(IContextBound<TContext>)))
-        return false;
-
-      return true;
-    }
-
-    /// <summary>
-    /// Validates the presence of specified constructor on the <paramref name="type"/>.
-    /// </summary>
-    /// <param name="aspect">The aspect.</param>
-    /// <param name="severityType">The severity of the message to write to <see cref="ErrorLog"/>.</param>
-    /// <param name="type">The type to get the constructor of.</param>
-    /// <param name="mustHave">If set to <see langword="true"/>, type
-    /// must have specified constructor;
-    /// otherwise, it must not have it.</param>
-    /// <param name="bindingFlags">Binding flags.</param>
-    /// <param name="parameterTypes">The types of constructor arguments.</param>
-    /// <param name="constructor">The found constructor, or <see langword="null" /> if specified method was not found.</param>
-    /// <returns>
-    /// <see langword="true" /> if validation has passed; otherwise, <see langword="false" />.    
-    /// </returns>
-    public static bool ValidateConstructor(Attribute aspect, SeverityType severityType, 
-      Type type, bool mustHave, BindingFlags bindingFlags, Type[] parameterTypes, out ConstructorInfo constructor)
-    {
-      constructor = null;
-      try {
-        constructor = type.GetConstructor(
-          bindingFlags | BindingFlags.CreateInstance,
-          null,
-          parameterTypes,
-          null);
-      }
-      catch (NullReferenceException) { }
-      catch (ArgumentNullException) { }
-      catch (AmbiguousMatchException) { }
-      
-      if ((constructor!=null) != mustHave) {
-        ErrorLog.Write(severityType, Strings.AspectExRequiresToHave,
-          FormatType(aspect.GetType()), 
-          FormatType(type), 
-          mustHave ? string.Empty : Strings.Not,
-          FormatConstructor(null, type, parameterTypes));
-
-        return false;
-      }
-      return true;
-    }
-
-
-    /// <summary>
-    /// Validates the method, that should not be infrastructure.
-    /// </summary>
-    /// <param name="aspect">The aspect.</param>
-    /// <param name="method">The method to validate.</param>
-    /// <returns>
-    /// <see langword="true"/> if method is valid, otherwise <see langword="false"/>.
-    /// </returns>
-    public static bool ValidateNotInfrastructure(Attribute aspect, MethodBase method)
-    {
-      if (IsInfrastructureMethod(method)) {
-        ErrorLog.Write(SeverityType.Error, Strings.AspectXCanNotBeAppliedToInfrastructureMethod, aspect.GetType().GetShortName());
-        return false;
-      }
-      return true;
-    }
-
+    
     /// <summary>
     /// Determines whether the specified method is infrastructure method.
     /// </summary>
@@ -539,6 +308,26 @@ namespace Xtensive.Core.Aspects.Helpers
       return 
         method.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritAll)!=null ||
         method.DeclaringType.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritNone)!=null;
+    }
+
+    /// <summary>
+    /// Determines whether the specified method should not activate contexts with specified type.
+    /// </summary>
+    /// <param name="method">The method to check.</param>
+    /// <param name="contextType">Type of the context.</param>
+    /// <returns>
+    ///   <see langword="true"/> if the specified method should suppress context activation; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool ContextActivationIsSuppressed(MethodBase method, Type contextType)
+    {
+      var attributes = method
+        .GetAttributes<SuppressActivationAttribute>(AttributeSearchOptions.Default)
+        .Concat(method.DeclaringType.GetAttributes<SuppressActivationAttribute>(AttributeSearchOptions.InheritNone))
+        .ToList();
+      if (attributes.Count == 0)
+        return false;
+      return attributes
+        .Any(attribute => attribute.ContextType==contextType);
     }
   }
 }
