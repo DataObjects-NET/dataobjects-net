@@ -540,22 +540,5 @@ namespace Xtensive.Core.Aspects.Helpers
         method.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritAll)!=null ||
         method.DeclaringType.GetAttribute<InfrastructureAttribute>(AttributeSearchOptions.InheritNone)!=null;
     }
-
-    public static Type GetSurrogateType(Module module)
-    {
-      lock (lockObject) {
-        Type result;
-        var key = module.Name;
-        if (surrogateTypeCache.TryGetValue(key, out result))
-          return result;
-        result = (
-            from t in module.GetTypes()
-            where !typeof (Attribute).IsAssignableFrom(t) && t.IsClass
-            select t
-          ).First();
-        surrogateTypeCache.Add(key, result);
-        return result;
-      }
-    }
   }
 }

@@ -52,23 +52,23 @@ namespace Xtensive.Storage
 
     public override void CompileTimeInitialize(MethodBase method, AspectInfo aspectInfo)
     {
-      activateSession = typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) && !method.IsStatic;
+      activateSession = typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) && !method.IsStatic && method.IsPublic;
       openTransaction = true;
       var activateSessionAttribute = method.GetAttribute<ActivateSessionAttribute>(AttributeSearchOptions.InheritAll);
-      var nonTransactionalAttribute = method.GetAttribute<NonTransactionalAttribute>(AttributeSearchOptions.InheritAll);
+      var nonTransactionalAttribute = method.GetAttribute<NonTransactionalAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
       if (activateSessionAttribute != null)
         activateSession &= activateSessionAttribute.Activate;
       if (nonTransactionalAttribute != null)
         openTransaction = false;
+      if (openTransaction && !method.IsPublic) {
+        var ta = method.GetAttribute<TransactionalAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
+        if (ta == null)
+          openTransaction = false;
+      }
     }
 
     public override bool CompileTimeValidate(MethodBase method)
     {
-      if (!method.IsPublic) {
-        var ta = method.GetAttribute<TransactionalAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
-        if (ta == null)
-          return false;
-      }
       if (AspectHelper.IsInfrastructureMethod(method))
         return false;
       return activateSession || openTransaction;

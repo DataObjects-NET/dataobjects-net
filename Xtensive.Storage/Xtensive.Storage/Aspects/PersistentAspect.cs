@@ -25,7 +25,7 @@ namespace Xtensive.Storage
       MulticastAttributes.NonAbstract | 
       MulticastAttributes.Managed)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-  public class PersistentAspect : Aspect,
+  internal class PersistentAspect : Aspect,
     IAspectProvider
   {
     private const string HandlerMethodSuffix = "FieldValue";
