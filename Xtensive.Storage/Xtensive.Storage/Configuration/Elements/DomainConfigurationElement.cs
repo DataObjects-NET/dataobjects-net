@@ -29,6 +29,7 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string KeyCacheSizeElementName = "keyCacheSize";
     private const string KeyGeneratorCacheSizeElementName = "generatorCacheSize";
     private const string QueryCacheSizeElementName = "queryCacheSize";
+    private const string RseQueryCacheSizeElementName = "rseQueryCacheSize";
     private const string RecordSetMappingCacheSizeElementName = "recordSetMappingCacheSizeSize";
     private const string AutoValidationElementName = "autoValidation";
     private const string DefaultSchemaElementName = "defaultSchema";
@@ -133,6 +134,17 @@ namespace Xtensive.Storage.Configuration.Elements
     {
       get { return (int) this[QueryCacheSizeElementName]; }
       set { this[QueryCacheSizeElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.RseQueryCacheSize" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(RseQueryCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultRseQueryCacheSize)]
+    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
+    public int RseQueryCacheSize
+    {
+      get { return (int) this[RseQueryCacheSizeElementName]; }
+      set { this[RseQueryCacheSizeElementName] = value; }
     }
 
     /// <summary>
@@ -242,6 +254,7 @@ namespace Xtensive.Storage.Configuration.Elements
         KeyCacheSize = KeyCacheSize,
         KeyGeneratorCacheSize = KeyGeneratorCacheSize,
         QueryCacheSize = QueryCacheSize,
+        RseQueryCacheSize = RseQueryCacheSize,
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,
         AutoValidation = AutoValidation,
         DefaultSchema = DefaultSchema,

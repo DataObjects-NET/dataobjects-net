@@ -175,7 +175,8 @@ namespace Xtensive.Storage.Providers
       CompilationContext = new CompilationContext(
         CreateCompiler,
         CreatePreCompiler,
-        CreatePostCompiler);
+        CreatePostCompiler,
+        Domain.Configuration.RseQueryCacheSize);
     }
 
     /// <exception cref="InvalidOperationException">One of compiler containers is 
