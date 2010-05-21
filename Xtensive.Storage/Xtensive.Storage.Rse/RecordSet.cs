@@ -65,13 +65,14 @@ namespace Xtensive.Storage.Rse
         if (compilationContext==null)
           throw new InvalidOperationException();
         compiled = compilationContext.Compile(Provider);
-        if (ctx.CheckOptions(EnumerationContextOptions.PreloadEnumerator)) {
-          // preloading all data into memory first.
+        if (ctx.CheckOptions(EnumerationContextOptions.GreedyEnumerator)) {
+          // Way 1: preloading all the data into memory and returning it inside this scope
           foreach (var tuple in compiled.ToList())
             yield return tuple;
           yield break;
         }
       }
+      // Way 2: batched enumeration with periodical context activation
       EnumerationScope currentScope = null;
       var batched = compiled.Batch(2).ApplyBeforeAndAfter(
         () => currentScope = ctx.Activate(), () => currentScope.DisposeSafely());

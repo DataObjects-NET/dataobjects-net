@@ -16,19 +16,9 @@ namespace Xtensive.Storage.Rse.Providers
   public enum EnumerationContextOptions
   {
     /// <summary>
-    /// Empty option set.
-    /// </summary>
-    Empty = 0x0,
-
-    /// <summary>
     /// Indicates that <see cref="IEnumerator{T}"/> of the root provider
     /// should be fully read before returning data to user.
     /// </summary>
-    PreloadEnumerator = 0x1,
-
-    /// <summary>
-    /// Default option set is <see cref="Empty"/>.
-    /// </summary>
-    Default = Empty,
+    GreedyEnumerator = 0x1,
   }
 }

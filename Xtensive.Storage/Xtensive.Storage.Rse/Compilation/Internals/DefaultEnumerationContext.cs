@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Rse.Compilation
     private static readonly GlobalTemporaryData GlobalTemporaryDataInstance = new GlobalTemporaryData();
 
     /// <inheritdoc/>
-    public override EnumerationContextOptions Options { get { return EnumerationContextOptions.Default; } }
+    public override EnumerationContextOptions Options { get { return 0; } }
 
     /// <inheritdoc/>
     public override GlobalTemporaryData GlobalTemporaryData { get { return GlobalTemporaryDataInstance; } }

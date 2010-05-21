@@ -71,18 +71,19 @@ namespace Xtensive.Storage.Providers
     /// Gets the enumeration context options.
     /// </summary>
     /// <returns>Options for new enumeration context.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><c>Session.Configuration.ReaderPreloading</c> is out of range.</exception>
     protected virtual EnumerationContextOptions GetEnumerationContextOptions()
     {
-      var options = EnumerationContextOptions.Default;
+      var options = (EnumerationContextOptions) 0;
       switch (Session.Configuration.ReaderPreloading) {
       case ReaderPreloadingPolicy.Auto:
         bool marsSupported = Handlers.DomainHandler.ProviderInfo
           .Supports(ProviderFeatures.MultipleActiveResultSets);
         if (!marsSupported)
-          options |= EnumerationContextOptions.PreloadEnumerator;
+          options |= EnumerationContextOptions.GreedyEnumerator;
         break;
       case ReaderPreloadingPolicy.Always:
-        options |= EnumerationContextOptions.PreloadEnumerator;
+        options |= EnumerationContextOptions.GreedyEnumerator;
         break;
       case ReaderPreloadingPolicy.Never:
         break;
