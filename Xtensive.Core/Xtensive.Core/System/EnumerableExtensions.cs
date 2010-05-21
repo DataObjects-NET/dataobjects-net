@@ -505,7 +505,7 @@ namespace System
             batch.Add(enumerator.Current);
             currentCount++;
           } while (currentCount < currentBatchSize && enumerator.MoveNext());
-          if(currentBatchSize < maximalBatchSize) {
+          if (currentBatchSize < maximalBatchSize) {
             currentBatchSize *= 2;
             if(currentBatchSize > maximalBatchSize)
               currentBatchSize = maximalBatchSize;
