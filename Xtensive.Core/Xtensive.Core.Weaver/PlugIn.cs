@@ -22,17 +22,19 @@ namespace Xtensive.Core.Weaver
   /// </summary>
   public sealed class PlugIn : PostSharp.AspectWeaver.PlugIn
   {
-    // "$(ProjectDir)Protection\Protect.bat" "License.nrproj" "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)"
+    private const string DataObjectsDotNetPath = "DataObjectsDotNetPath";
+    private const string BinLatest = @"Bin\Latest";
+    private const string XtensiveLicensingManagerExe = "Xtensive.Licensing.Manager.exe";
 
-    #region Non-public methods
-
+    /// <exception cref="InvalidOperationException">Something went wrong.</exception>
     protected override void Initialize()
     {
       base.Initialize();
-      var dataObjectsPath = Environment.GetEnvironmentVariable("DataObjectsDotNetPath");
-      if (dataObjectsPath.IsNullOrEmpty() || !Directory.Exists(dataObjectsPath))
-        throw new InvalidOperationException("DataObjects.Net is not installed. Please install.");
-      var licensePath = Path.Combine(dataObjectsPath, "Bin", "Latest", LicenseInfo.LicenseName);
+      var installationPath = Environment.GetEnvironmentVariable(DataObjectsDotNetPath);
+      if (installationPath.IsNullOrEmpty() || !Directory.Exists(installationPath))
+        throw new InvalidOperationException(
+          @"DataObjects.Net is not installed. Please install it or run Install\Install.bat.");
+      var licensePath = Path.Combine(installationPath, BinLatest, LicenseInfo.LicenseName);
       if (File.Exists(licensePath))
         Status.LoadLicense(licensePath);
       var properties = new Dictionary<string, string>();
@@ -69,7 +71,7 @@ namespace Xtensive.Core.Weaver
         NumberOfHWLicenses = numberOfDevelopers
       };
       
-      RunLicensingAgent(licenseInfo, dataObjectsPath);
+      RunLicensingAgent(licenseInfo, installationPath);
       if (!licenseInfo.IsValid)
         ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license is invalid.");
       else {
@@ -83,9 +85,9 @@ namespace Xtensive.Core.Weaver
 
     private static void RunLicensingAgent(LicenseInfo licenseInfo, string dataObjectsPath)
     {
-      var path = Path.Combine(dataObjectsPath, "Bin", "Latest", "Xtensive.Licensing.Manager.exe");
+      var path = Path.Combine(dataObjectsPath, BinLatest, XtensiveLicensingManagerExe);
       if (!File.Exists(path))
-        throw new FileNotFoundException("Xtensive.Licensing.Manager.exe");
+        throw new FileNotFoundException(XtensiveLicensingManagerExe);
       if (!Environment.UserInteractive || Environment.OSVersion.Platform!=PlatformID.Win32NT || path.IsNullOrEmpty())
         return;
       var startInfo = new ProcessStartInfo(path) {
@@ -99,14 +101,11 @@ namespace Xtensive.Core.Weaver
       catch (TimeoutException) {}
     }
 
-    #endregion
-
-    #region Constructors
+    
+    // Constructors
 
     public PlugIn()
       : base(Priorities.User)
     {}
-
-    #endregion
   }
 }
