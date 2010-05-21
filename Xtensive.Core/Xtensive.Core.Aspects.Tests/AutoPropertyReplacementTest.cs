@@ -55,7 +55,7 @@ namespace Xtensive.Core.Aspects.Tests
     public class TestClass : TestClassBase
     {
       private int manualProperty;
-
+      [SampleAspect]
       public int Property1 { get; set; }
       public virtual int Property2 { get; set; }
       public virtual int Property3 { get; set; }

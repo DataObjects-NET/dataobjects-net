@@ -29,6 +29,8 @@ namespace Xtensive.Storage
       MulticastAttributes.Managed |
       MulticastAttributes.NonAbstract)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
+  [ProvideAspectRole(StandardRoles.TransactionHandling)]
+  [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, StandardRoles.Validation)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof (ReplaceAutoProperty))]
   public sealed class TransactionalTypeAttribute : Aspect, IAspectProvider
   {

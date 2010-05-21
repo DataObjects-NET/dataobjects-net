@@ -7,11 +7,17 @@
 using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using PostSharp.Aspects.Dependencies;
+using Xtensive.Core.Aspects;
 using Xtensive.Integrity.Aspects;
 
 namespace Xtensive.Storage.Manual.Validation
 {
   [Serializable]
+  [ProvideAspectRole(StandardRoles.Validation)]
+  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
+  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public class PhoneNumberConstraint : PropertyConstraintAspect
   {
     private const string PhoneNumberPattern = "^[2-9]\\d{2}-\\d{3}-\\d{4}$";

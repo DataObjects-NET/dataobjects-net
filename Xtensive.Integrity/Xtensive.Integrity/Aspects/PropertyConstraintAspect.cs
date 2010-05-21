@@ -32,8 +32,8 @@ namespace Xtensive.Integrity.Aspects
   [MulticastAttributeUsage(MulticastTargets.Method, TargetMemberAttributes = MulticastAttributes.Instance)]
   [ProvideAspectRole(StandardRoles.Validation)]
   [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-  [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Any, StandardRoles.Validation)]
   [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public abstract class PropertyConstraintAspect : OnMethodBoundaryAspect
   {
     private const string MessageResourceNamePropertyName = "MessageResourceName";
@@ -84,8 +84,6 @@ namespace Xtensive.Integrity.Aspects
     public Type MessageResourceType { get; set; }
 
     /// <inheritdoc/>
-    [ProvideAspectRole(StandardRoles.Validation)]
-    [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
     [MethodExecutionAdviceOptimization(MethodExecutionAdviceOptimizations.IgnoreAllEventArgsMembers & ~(MethodExecutionAdviceOptimizations.IgnoreGetInstance | MethodExecutionAdviceOptimizations.IgnoreGetArguments))]
     public sealed override void OnEntry(MethodExecutionArgs args)
     {

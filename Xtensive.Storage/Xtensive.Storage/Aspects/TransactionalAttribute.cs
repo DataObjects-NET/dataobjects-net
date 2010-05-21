@@ -26,13 +26,14 @@ namespace Xtensive.Storage
   [Serializable]
   [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.None, AllowMultiple = false, 
     TargetMemberAttributes = 
-      MulticastAttributes.Instance |
-      MulticastAttributes.Static |
-      MulticastAttributes.UserGenerated | 
+      MulticastAttributes.AnyGeneration |
+      MulticastAttributes.AnyScope |
       MulticastAttributes.AnyVisibility |
       MulticastAttributes.Managed | 
       MulticastAttributes.NonAbstract)]
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [ProvideAspectRole(StandardRoles.TransactionHandling)]
+  [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, StandardRoles.Validation)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class TransactionalAttribute : OnMethodBoundaryAspect
   {

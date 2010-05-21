@@ -14,6 +14,7 @@ using PostSharp.AspectWeaver.Transformations;
 using PostSharp.CodeModel;
 using PostSharp.CodeModel.Helpers;
 using PostSharp.CodeModel.TypeSignatures;
+using PostSharp.CodeWeaver;
 using PostSharp.Collections;
 using PostSharp.Extensibility;
 using PostSharp.Extensibility.Tasks;
@@ -151,13 +152,22 @@ namespace Xtensive.Core.Weaver
         if (fieldDef == null)
           return;
 
-//        var methodBody = new MethodBodyDeclaration {/*MaxStack = 8*/};
-//        targetMethod.MethodBody = methodBody;
         var methodBody = targetMethod.MethodBody;
         methodBody.MaxStack = 8;
-        methodBody.RootInstructionBlock = methodBody.CreateInstructionBlock();
+        var block = methodBody.CreateInstructionBlock();
         var sequence = methodBody.CreateInstructionSequence();
-        methodBody.RootInstructionBlock.AddInstructionSequence(sequence, NodePosition.After, null);
+        block.AddInstructionSequence(sequence, NodePosition.After, null);
+        var principalBlock = (InstructionBlock) null;
+        var childrenEnumerator = methodBody.RootInstructionBlock.GetChildrenEnumerator(true);
+        while(childrenEnumerator.MoveNext()) {
+          var current = childrenEnumerator.Current;
+          if (current.Comment == "Old Root Block")
+            principalBlock = current;
+        }
+        if (principalBlock == null)
+          principalBlock = methodBody.RootInstructionBlock;
+        principalBlock.AddChildBlock(block, NodePosition.After, null);
+
         using (var writer = new InstructionWriter()) {
           writer.AttachInstructionSequence(sequence);
 
@@ -196,7 +206,7 @@ namespace Xtensive.Core.Weaver
           RemoveTask.GetTask(project).MarkForRemoval(fieldDef);
         }
         catch {
-          // Field is already marked for removal
+//           Field is already marked for removal
         }
       }
 

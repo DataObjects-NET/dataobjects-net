@@ -6,6 +6,7 @@
 
 using System;
 using PostSharp.Aspects.Dependencies;
+using Xtensive.Core.Aspects;
 using Xtensive.Integrity.Resources;
 
 namespace Xtensive.Integrity.Aspects.Constraints
@@ -17,6 +18,8 @@ namespace Xtensive.Integrity.Aspects.Constraints
   [Serializable]
   [ProvideAspectRole(StandardRoles.Validation)]
   [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
+  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class NotNullOrEmptyConstraint : PropertyConstraintAspect
   {
     /// <inheritdoc/>

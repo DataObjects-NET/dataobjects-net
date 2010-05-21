@@ -23,7 +23,7 @@ namespace Xtensive.Core.Weaver
   /// </summary>
   public sealed class PlugIn : PostSharp.AspectWeaver.PlugIn
   {
-    // $(ProjectDir)..\..\Xtensive.Licensing\Protect.bat "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)"
+    // "$(ProjectDir)Protection\Protect.bat" "License.nrproj" "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)"
 
     #region Non-public methods
 
