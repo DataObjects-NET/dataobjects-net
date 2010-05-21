@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Caching;
 using Xtensive.Core.Internals.DocTemplates;
@@ -25,20 +24,48 @@ namespace Xtensive.Storage.Rse.Compilation
   /// </remarks>
   public abstract class CompilationContext : Context<CompilationScope>
   {
+    /// <summary>
+    /// Gets the size of compilation cache.
+    /// Currently it is 256 (compilation results).
+    /// </summary>
+    public const int DefaultCacheSize = 256;
+    
+    private static Func<CompilationContext> resolver;
+    private readonly ICache<CompilableProvider, CacheEntry> cache;
+    private readonly object _lock = new object();
     private readonly Func<ICompiler> compilerProvider;
     private readonly Func<IPreCompiler> preCompilerProvider;
     private readonly Func<ICompiler, IPostCompiler> postCompilerProvider;
 
+    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    public readonly static DefaultCompilationContext Default = 
+      new DefaultCompilationContext();
+
     #region Nested type: CacheEntry
 
-    private class CacheEntry 
+    /// <summary>
+    /// Describes RSE compilation cache entry.
+    /// </summary>
+    protected class CacheEntry 
     {
+      /// <summary>
+      /// Entry key.
+      /// </summary>
       public readonly CompilableProvider Key;
+
+      /// <summary>
+      /// Entry value.
+      /// </summary>
       public readonly ExecutableProvider Value;
 
 
       // Constructors
-      
+
+      /// <summary>
+      /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+      /// </summary>
+      /// <param name="key">The key.</param>
+      /// <param name="value">The value.</param>
       public CacheEntry(CompilableProvider key, ExecutableProvider value)
       {
         Key = key;
@@ -47,19 +74,6 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     #endregion
-
-    /// <summary>
-    /// Gets the size of compilation cache.
-    /// Currently it is 1024 (compilation results).
-    /// </summary>
-    public readonly static int CacheSize = 1024;
-    private static Func<CompilationContext> resolver;
-
-    private readonly ICache<CompilableProvider, CacheEntry> cache;
-    private readonly object _lock = new object();
-
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
-    public readonly static DefaultCompilationContext Default = new DefaultCompilationContext();
 
 
     /// <summary>
@@ -147,6 +161,18 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <returns>Newly created <see cref="EnumerationContext"/> object.</returns>
     public abstract EnumerationContext CreateEnumerationContext();
 
+    /// <summary>
+    /// Creates RSE compilation cache.
+    /// </summary>
+    /// <param name="cacheSize">Size of the cache.</param>
+    /// <returns>RSE compilation cache.</returns>
+    protected virtual ICache<CompilableProvider, CacheEntry> CreateCache(int cacheSize)
+    {
+      return 
+        new LruCache<CompilableProvider, CacheEntry>(cacheSize, i => i.Key,
+          new WeakestCache<CompilableProvider, CacheEntry>(false, false, i => i.Key));
+    }
+
     #region IContext<...> members
 
     /// <inheritdoc/>
@@ -167,7 +193,7 @@ namespace Xtensive.Storage.Rse.Compilation
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="compilerProvider">The compiler provider.</param>
     /// <param name="preCompilerProvider">The pre-compiler provider.</param>
@@ -176,12 +202,27 @@ namespace Xtensive.Storage.Rse.Compilation
       Func<ICompiler> compilerProvider,
       Func<IPreCompiler> preCompilerProvider,
       Func<ICompiler, IPostCompiler> postCompilerProvider)
+      : this(compilerProvider, preCompilerProvider, postCompilerProvider, DefaultCacheSize)
+    {
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="compilerProvider">The compiler provider.</param>
+    /// <param name="preCompilerProvider">The pre-compiler provider.</param>
+    /// <param name="postCompilerProvider">The post-compiler provider.</param>
+    /// <param name="cacheSize">Size of the cache.</param>
+    protected CompilationContext(
+      Func<ICompiler> compilerProvider,
+      Func<IPreCompiler> preCompilerProvider,
+      Func<ICompiler, IPostCompiler> postCompilerProvider,
+      int cacheSize)
     {
       this.compilerProvider = compilerProvider;
       this.preCompilerProvider = preCompilerProvider;
       this.postCompilerProvider = postCompilerProvider;
-      cache = new LruCache<CompilableProvider, CacheEntry>(CacheSize, i => i.Key,
-        new WeakestCache<CompilableProvider, CacheEntry>(false, false, i => i.Key));
+      cache = CreateCache(cacheSize);
     }
   }
 }

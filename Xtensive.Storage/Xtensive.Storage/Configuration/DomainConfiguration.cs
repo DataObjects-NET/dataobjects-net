@@ -46,9 +46,15 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Default <see cref="DomainConfiguration.QueryCacheSize"/> value: 
-    /// <see langword="1024" />.
+    /// <see langword="256" />.
     /// </summary>
-    public const int DefaultQueryCacheSize = 1024;
+    public const int DefaultQueryCacheSize = 256;
+
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.RseQueryCacheSize"/> value: 
+    /// <see langword="256" />.
+    /// </summary>
+    public const int DefaultRseQueryCacheSize = 256;
 
     /// <summary>
     /// Default <see cref="DomainConfiguration.RecordSetMappingCacheSize"/> value: 
@@ -75,6 +81,7 @@ namespace Xtensive.Storage.Configuration
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
     private int queryCacheSize = DefaultQueryCacheSize;
+    private int rseQueryCacheSize = DefaultRseQueryCacheSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
     private bool autoValidation = true;
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
@@ -227,6 +234,21 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
+    /// Gets or sets the size of the RSE query cache.
+    /// Default value is <see cref="DefaultRseQueryCacheSize"/>.
+    /// </summary>
+    public int RseQueryCacheSize
+    {
+      get { return rseQueryCacheSize; }
+      set 
+      {
+        this.EnsureNotLocked();
+        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
+        rseQueryCacheSize = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the size of the record set mapping cache.
     /// Default value is <see cref="DefaultRecordSetMappingCacheSize"/>.
     /// </summary>
@@ -349,6 +371,7 @@ namespace Xtensive.Storage.Configuration
       keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       queryCacheSize = configuration.QueryCacheSize;
+      rseQueryCacheSize = configuration.RseQueryCacheSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
       upgradeMode = configuration.upgradeMode;

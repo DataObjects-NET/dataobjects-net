@@ -27,7 +27,8 @@ namespace Xtensive.Storage.Providers
     public CompilationContext(
       Func<ICompiler> compilerProvider, 
       Func<IPreCompiler> optimizerProvider,
-      Func<ICompiler,IPostCompiler> postCompilerProvider)
+      Func<ICompiler,IPostCompiler> postCompilerProvider,
+      int cacheSize)
       : base(compilerProvider, optimizerProvider, postCompilerProvider)
     {}
   }
