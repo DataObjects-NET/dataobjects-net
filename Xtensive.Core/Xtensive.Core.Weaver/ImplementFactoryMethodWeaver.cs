@@ -166,5 +166,4 @@ namespace Xtensive.Core.Weaver
       }
     }
   }
-
 }
