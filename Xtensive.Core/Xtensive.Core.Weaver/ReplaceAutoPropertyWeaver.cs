@@ -206,7 +206,7 @@ namespace Xtensive.Core.Weaver
           RemoveTask.GetTask(project).MarkForRemoval(fieldDef);
         }
         catch {
-//           Field is already marked for removal
+//          Field is already marked for removal
         }
       }
 
