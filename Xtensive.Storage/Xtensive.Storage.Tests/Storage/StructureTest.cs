@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
   [Serializable]
   public class Point : Structure
   {
-    [Field]
+    [Field(Indexed = true)]
     public int X { get; set; }
 
     [Field]
@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
   }
 
   [Serializable]
+  [Index("Vertex.Y")]
   [HierarchyRoot]
   public class Ray : Entity
   {

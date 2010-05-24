@@ -274,8 +274,8 @@ namespace Xtensive.Storage.Providers
         result = index.MappingName;
       else {
         if (index.KeyFields.Count == 1) {
-          FieldDef field = type.Fields[index.KeyFields[0].Key];
-          if (field.IsEntity)
+          FieldDef field;
+          if (type.Fields.TryGetValue(index.KeyFields[0].Key, out field) && field.IsEntity)
             result = string.Format("FK_{0}", field.Name);
         }
         if (result.IsNullOrEmpty()) {
@@ -339,7 +339,7 @@ namespace Xtensive.Storage.Providers
           var keyFields = new HashSet<FieldInfo>();
           foreach (var keyColumn in index.KeyColumns.Keys) {
             var field = keyColumn.Field;
-            while (field.Parent != null)
+            while (field.Parent != null && !field.Parent.IsStructure)
               field = field.Parent;
             keyFields.Add(field);
           }

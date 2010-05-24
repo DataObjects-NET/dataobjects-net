@@ -31,6 +31,7 @@ namespace Xtensive.Storage.Model
     Version = 0x10000,
     TypeDiscriminator = 0x20000,
     Computed = 0x40000,
-    Indexed = 0x80000
+    Indexed = 0x80000,
+    Nested = 0x100000
   }
 }

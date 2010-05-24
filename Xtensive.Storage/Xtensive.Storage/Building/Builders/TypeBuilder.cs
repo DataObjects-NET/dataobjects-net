@@ -18,6 +18,7 @@ using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using FieldAttributes = Xtensive.Storage.Model.FieldAttributes;
 using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Building.Builders
@@ -292,6 +293,17 @@ namespace Xtensive.Storage.Building.Builders
             AssociationBuilder.BuildAssociation(origin, clone);
             context.DiscardedAssociations.Add(origin);
           }
+        }
+        if (!clone.IsStructure && !clone.IsEntitySet && clone.Attributes.HasFlag(FieldAttributes.Indexed)) {
+          var typeDef = context.ModelDef.Types[target.DeclaringType.UnderlyingType];
+          var attribute = new IndexAttribute(clone.Name);
+          var index = ModelDefBuilder.DefineIndex(typeDef, attribute);
+          if (typeDef.Indexes.Contains(index.Name))
+            throw new DomainBuilderException(
+              string.Format(Strings.ExIndexWithNameXIsAlreadyRegistered, index.Name));
+
+          typeDef.Indexes.Add(index);
+          Log.Info(Strings.LogIndexX, index.Name);
         }
       }
     }
