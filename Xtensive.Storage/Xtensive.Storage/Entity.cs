@@ -544,9 +544,9 @@ namespace Xtensive.Storage
       OnSettingFieldValue(field, value);
     }
 
-    internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
+    internal override sealed void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue)
     {
-      if (!Equals(oldValue, newValue) || field.IsStructure) 
+      if (!Equals(oldValue, newValue) || fieldInfo.IsStructure) 
         if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
           Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
           // to avoid post-first property set flush.
@@ -558,13 +558,13 @@ namespace Xtensive.Storage
 
       if (Session.Domain.Configuration.AutoValidation)
         this.Validate();
-      Session.NotifyFieldValueSet(this, field, oldValue, newValue);
+      Session.NotifyFieldValueSet(this, fieldInfo, oldValue, newValue);
       var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object, object>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, field, oldValue, newValue);
-      NotifyFieldChanged(field);
-      OnSetFieldValue(field, oldValue, newValue);
+          .Invoke(subscriptionInfo.First, fieldInfo, oldValue, newValue);
+      NotifyFieldChanged(fieldInfo);
+      OnSetFieldValue(fieldInfo, oldValue, newValue);
     }
 
     internal override sealed void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception)

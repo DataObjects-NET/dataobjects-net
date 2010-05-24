@@ -1,7 +1,7 @@
 // Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: 
+// Created by: Alexis Kochetov
 // Created:    2008.05.28
 
 using System;
@@ -10,6 +10,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.StructureModel;
+using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Tests.Storage.StructureModel
 {
@@ -21,6 +22,16 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
 
     [Field]
     public int Y { get; set; }
+
+    protected override void OnSettingFieldValue(FieldInfo field, object value)
+    {
+      Log.Debug("Structure field setting. Field: {0}; Value: {1}", field.Name, value);
+    }
+
+    protected override void OnSetFieldValue(FieldInfo field, object oldValue, object newValue)
+    {
+      Log.Debug("Structure field set. Field: {0}; Value: {1}", field.Name, newValue);
+    }
 
     public Point()
     {
@@ -46,6 +57,17 @@ namespace Xtensive.Storage.Tests.Storage.StructureModel
 
     [Field]
     public Core.Direction Direction { get; set; }
+
+    protected override void OnSettingFieldValue(FieldInfo field, object value)
+    {
+      Log.Debug("Entity field setting. Field: {0}; Value: {1}", field.Name, value);
+    }
+
+    protected override void OnSetFieldValue(FieldInfo field, object oldValue, object newValue)
+    {
+      Log.Debug("Entity field set. Field: {0}; Value: {1}", field.Name, newValue);
+    }
+
 
     public Ray()
     {
@@ -91,6 +113,19 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.AreEqual(p1.Y, p2.Y);
           Assert.IsTrue(p1.Equals(p2));
         }
+      }
+    }
+
+    [Test]
+    public void NotificationTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var ray = new Ray();
+        ray.Vertex = new Point(10,20);
+        ray.Vertex.X = 30;
+        ray.Vertex.Y = 40;
+        t.Complete();
       }
     }
 

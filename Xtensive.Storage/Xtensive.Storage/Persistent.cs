@@ -519,7 +519,7 @@ namespace Xtensive.Storage
 
     internal abstract void SystemBeforeSetValue(FieldInfo field, object value);
 
-    internal abstract void SystemSetValue(FieldInfo field, object oldValue, object newValue);
+    internal abstract void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue);
 
     internal abstract void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception);
 
