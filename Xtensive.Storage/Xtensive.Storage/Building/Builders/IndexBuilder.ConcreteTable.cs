@@ -35,7 +35,8 @@ namespace Xtensive.Storage.Building.Builders
         var declaredIndex = BuildIndex(type, indexDescriptor, type.UnderlyingType.IsAbstract); 
 
         type.Indexes.Add(declaredIndex);
-        context.Model.RealIndexes.Add(declaredIndex);
+        if (!declaredIndex.IsAbstract)
+          context.Model.RealIndexes.Add(declaredIndex);
       }
 
       // Building primary index for non root entities
@@ -46,7 +47,8 @@ namespace Xtensive.Storage.Building.Builders
        
         // Registering built primary index
         type.Indexes.Add(inheritedIndex);
-        context.Model.RealIndexes.Add(inheritedIndex);
+        if (!inheritedIndex.IsAbstract)
+          context.Model.RealIndexes.Add(inheritedIndex);
       }
 
       // Building inherited from interfaces indexes
@@ -58,7 +60,8 @@ namespace Xtensive.Storage.Building.Builders
           if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
             continue;
           type.Indexes.Add(index);
-          context.Model.RealIndexes.Add(index);
+          if (!index.IsAbstract)
+            context.Model.RealIndexes.Add(index);
         }
       }
 
@@ -95,7 +98,8 @@ namespace Xtensive.Storage.Building.Builders
           continue;
         var secondaryIndex = BuildInheritedIndex(type, ancestorIndex, type.UnderlyingType.IsAbstract);
         type.Indexes.Add(secondaryIndex);
-        context.Model.RealIndexes.Add(secondaryIndex);
+        if (!secondaryIndex.IsAbstract)
+          context.Model.RealIndexes.Add(secondaryIndex);
         // Build typed index for secondary one
         if (!context.UntypedIndexes.Contains(secondaryIndex))
           continue;

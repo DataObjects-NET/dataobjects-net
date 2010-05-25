@@ -151,10 +151,13 @@ namespace Xtensive.Storage.Providers.Sql
 
       foreach (var type in domainModel.Types) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
+        if (primaryIndex == null || Mapping[primaryIndex] != null)
+          continue;
+        if (primaryIndex.IsAbstract)
+          continue;
         if (context.Configuration.UpgradeMode.IsLegacy() && type.IsSystem)
           continue;
-        if (primaryIndex==null || Mapping[primaryIndex]!=null)
-          continue;
+        
         var storageTableName = primaryIndex.ReflectedType.MappingName;
         var storageTable = Schema.Tables[storageTableName];
         if (storageTable==null)

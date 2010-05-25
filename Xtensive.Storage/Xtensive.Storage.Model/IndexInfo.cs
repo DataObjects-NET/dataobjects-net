@@ -235,6 +235,15 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets or sets a value indicating whether this instance is abstract.
+    /// </summary>
+    public bool IsAbstract
+    {
+      [DebuggerStepThrough]
+      get { return (attributes & IndexAttributes.Abstract) > 0; }
+    }
+
+    /// <summary>
     /// Gets or sets the attributes.
     /// </summary>
     public IndexAttributes Attributes

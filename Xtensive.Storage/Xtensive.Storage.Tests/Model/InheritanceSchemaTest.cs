@@ -34,19 +34,14 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
   {
   }
 
-  [Serializable]
-  [TableMapping("A-Root")]
   [HierarchyRoot]
-  public class A : Entity
+  public abstract class A : Entity
   {
     [Field, Key]
     public long ID { get; private set; }
   }
 
-  [Serializable]
   [Index("Tag")]
-//  [Index("Name")]
-  // TODO: Alex Kochetov: Log error if duplicate index is specified.
   public class B : A, IHasName, IHasName2
   {
     public string Name { get; set; }
@@ -55,7 +50,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public int Tag { get; set; }
   }
 
-  [Serializable]
   [Index("Age")]
   public class C : A
   {
@@ -63,7 +57,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public int Age { get; set; }
   }
 
-  [Serializable]
   [Index("Tag")]
   public class D : C, ICreature
   {
@@ -73,12 +66,10 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public virtual string Tag { get; set; }
   }
 
-  [Serializable]
   public class E : D
   {
   }
 
-  [Serializable]
   public class F : A, ICreature, IHasName2
   {
     string IHasName.Name
@@ -90,9 +81,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public string Name { get; set; }
   }
 
-  [Serializable]
-  //  [Index("Name")]
-  // TODO: Alex Kochetov: Log error if duplicate index is specified.
   [HierarchyRoot]
   public class X : Entity, IHasName
   {
@@ -102,12 +90,10 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaModel
     public string Name { get; set; }
   }
 
-  [Serializable]
   public class Y : X
   {
   }
 
-  [Serializable]
   public class Z : Y
   {
   }
@@ -192,10 +178,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
     protected override DomainConfiguration BuildConfiguration()
     {
       var dc = base.BuildConfiguration();
-//      dc.NamingConvention.LetterCasePolicy = LetterCasePolicy.Uppercase;
-//      dc.NamingConvention.NamingRules = NamingRules.UnderscoreDots | NamingRules.UnderscoreHyphens;
-//      dc.NamingConvention.NamespacePolicy = NamespacePolicy.Hash;
-//      dc.NamingConvention.NamespaceSynonyms.Add("Xtensive.Storage.Tests.Model.DefaultPlacement", "X");
       ConcreteTableInheritanceBuilder.IsEnabled = false;
       SingleTableInheritanceBuilder.IsEnabled = false;
       return dc;
