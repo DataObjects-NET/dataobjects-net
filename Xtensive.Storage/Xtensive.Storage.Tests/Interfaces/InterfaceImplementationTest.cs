@@ -46,11 +46,48 @@ namespace Xtensive.Storage.Tests.Interfaces
       [Field(Indexed = true)]
       public string Tag { get; set; }
     }
+
+    [Index("Title", "Name", "Tag")]
+    [HierarchyRoot]
+    public class D : Entity, IHasName, ITagged
+    {
+      [Key, Field]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Title { get; set; }
+
+      public string Name { get; set; }
+
+      public string Tag { get; set; }
+    }
   }
 
   [TestFixture]
   public class InterfaceImplementationTest
   {
+    [Test]
+    public void CompsiteIndexTest()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof(IHasName).Assembly, typeof(IHasName).Namespace);
+      var domain = GetClassTableDomain(config);
+      using (var session = Session.Open(domain))
+      using (var t = Transaction.Open()) {
+        var d = new D();
+        d.Title = "A";
+        d.Name = "B";
+        d.Tag = "C";
+        t.Complete();
+      }
+      using (var session = Session.Open(domain))
+      using (var t = Transaction.Open()) {
+        var d = Query.All<D>().Single();
+        Assert.IsNotNull(d);
+        t.Complete();
+      }
+    }
+
     [Test]
     public void CombinedTest()
     {
