@@ -23,8 +23,7 @@ namespace Xtensive.Core.Weaver
   /// </summary>
   public sealed class PlugIn : PostSharp.AspectWeaver.PlugIn
   {
-    private const string DataObjectsDotNetPath = "DataObjectsDotNetPath";
-    private const string BinLatest = @"Bin\Latest";
+    // "$(ProjectDir)..\..\Xtensive.Licensing\Protection\Protect.bat" "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)" "true"
     private const string XtensiveLicensingManagerExe = "Xtensive.Licensing.Manager.exe";
 
     /// <exception cref="InvalidOperationException">Something went wrong.</exception>
@@ -33,9 +32,11 @@ namespace Xtensive.Core.Weaver
       base.Initialize();
       var licenseInfo = LicenseValidator.GetLicense();
       RunLicensingAgent(licenseInfo);
-      if (!licenseInfo.IsValid)
+      if (!licenseInfo.IsValid) {
         ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license is invalid.");
-      else {
+      }
+      else
+      {
         AddAspectWeaverFactory<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
         AddAspectWeaverFactory<ImplementConstructorEpilogue, ConstructorEpilogueWeaver>();
         AddAspectWeaverFactory<NotSupportedAttribute, NotSupportedWeaver>();
@@ -52,7 +53,7 @@ namespace Xtensive.Core.Weaver
         throw new FileNotFoundException(path);
       if (!Environment.UserInteractive || Environment.OSVersion.Platform!=PlatformID.Win32NT || path.IsNullOrEmpty())
         return;
-      var startInfo = new ProcessStartInfo(path) {
+      var startInfo = new ProcessStartInfo(path, "wait") {
         UseShellExecute = false
       };
       Process.Start(startInfo);
