@@ -32,7 +32,7 @@ namespace Xtensive.Core.Weaver
       base.Initialize();
       var licenseInfo = LicenseValidator.GetLicense();
       RunLicensingAgent(licenseInfo);
-      if (!licenseInfo.CorporateLicenseIsValid) {
+      if (!licenseInfo.CompanyLicenseIsValid) {
         ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license is invalid.");
       }
       else
