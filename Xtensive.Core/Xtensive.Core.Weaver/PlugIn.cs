@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using License;
-using LicenseManager;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
 using Xtensive.Core;
@@ -57,11 +56,6 @@ namespace Xtensive.Core.Weaver
         UseShellExecute = false
       };
       Process.Start(startInfo);
-      try {
-        using (var client = new PipeClient())
-          client.SendLicenseInfo(licenseInfo);
-      }
-      catch (TimeoutException) {}
     }
 
     
