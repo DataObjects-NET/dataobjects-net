@@ -91,7 +91,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
       if (entities.Count == 0)
         return;
 
-      var entityType = entities[0].Type;
+      var entityType = entities[0].TypeInfo;
       var sequence = entityType.GetRemovalAssociationSequence();
       if (sequence==null || sequence.Count==0)
         return;
@@ -148,7 +148,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
         return;
       var item = itemList[0];
       Action<SessionHandler, IEnumerable<Key>> action;
-      if (Session.Domain.PrefetchActionMap.TryGetValue(item.Type, out action))
+      if (Session.Domain.PrefetchActionMap.TryGetValue(item.TypeInfo, out action))
         action(Session.Handler, itemList.Select(i => i.Key));
     }
 

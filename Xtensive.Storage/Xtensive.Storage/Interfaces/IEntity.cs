@@ -26,32 +26,32 @@ namespace Xtensive.Storage
     Key Key { get; }
 
     /// <summary>
-    /// Gets <see cref="VersionInfo"/> object describing 
-    /// current version of the <see cref="Entity"/>.
-    /// </summary>
-    VersionInfo VersionInfo { get; }
-
-    /// <summary>
-    /// Gets <see cref="TypeInfo"/> object describing <see cref="Entity"/> structure.
-    /// </summary>
-    TypeInfo Type { get; }
-
-    /// <summary>
     /// Gets the type id.
     /// </summary>
     [Field]
     int TypeId { get; }
 
     /// <summary>
-    /// Gets or sets the value of the field with specified name.
+    /// Gets <see cref="Model.TypeInfo"/> object describing <see cref="Entity"/> structure.
     /// </summary>
-    /// <value>Field value.</value>
-    object this[string fieldName] { get; set; }
+    TypeInfo TypeInfo { get; }
+
+    /// <summary>
+    /// Gets <see cref="VersionInfo"/> object describing 
+    /// current version of the <see cref="Entity"/>.
+    /// </summary>
+    VersionInfo VersionInfo { get; }
 
     /// <summary>
     /// Gets persistence state of the entity.
     /// </summary>
     PersistenceState PersistenceState { get; }
+
+    /// <summary>
+    /// Gets or sets the value of the field with specified name.
+    /// </summary>
+    /// <value>Field value.</value>
+    object this[string fieldName] { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether this entity is removed.

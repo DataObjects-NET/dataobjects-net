@@ -159,9 +159,9 @@ namespace Xtensive.Storage.Providers
           Key foreignKey = processingEntityState.Entity.GetReferenceKey(association.OwnerField);
           Node<EntityState, AssociationInfo> destination;
           if (foreignKey!=null && sortData.TryGetValue(foreignKey, out destination))
-            if (foreignKey.Equals(data.Value.Item.Key) && processingEntityState.Entity.Type.Hierarchy.InheritanceSchema == InheritanceSchema.ClassTable) {
+            if (foreignKey.Equals(data.Value.Item.Key) && processingEntityState.Entity.TypeInfo.Hierarchy.InheritanceSchema == InheritanceSchema.ClassTable) {
               // Check if self-reference with inheritance.
-              if (association.OwnerField.ValueType!=processingEntityState.Entity.Type.Hierarchy.Root.UnderlyingType)
+              if (association.OwnerField.ValueType!=processingEntityState.Entity.TypeInfo.Hierarchy.Root.UnderlyingType)
                 data.Value.AddConnection(destination, association);
             }
             else

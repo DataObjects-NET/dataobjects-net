@@ -206,10 +206,10 @@ namespace Xtensive.Storage.Tests.Storage
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
           MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
-          myEntity.Session.Services.Get<DirectPersistentAccessor>().SetFieldValue(myEntity, myEntity.Type.Fields["Value"], "Value");
+          myEntity.Session.Services.Get<DirectPersistentAccessor>().SetFieldValue(myEntity, myEntity.TypeInfo.Fields["Value"], "Value");
           Assert.AreEqual("Value", myEntity.Value);
           MyStructure myStructure = (MyStructure) accessor.CreateStructure(typeof(MyStructure));
-          myStructure.Session.Services.Get<DirectPersistentAccessor>().SetFieldValue(myStructure, myStructure.Type.Fields["Value"], "Value");
+          myStructure.Session.Services.Get<DirectPersistentAccessor>().SetFieldValue(myStructure, myStructure.TypeInfo.Fields["Value"], "Value");
           Assert.AreEqual("Value", myStructure.Value);
           t.Complete();
         }
@@ -244,7 +244,7 @@ namespace Xtensive.Storage.Tests.Storage
           MyEntity item2 = (MyEntity)pa.CreateEntity(typeof (MyEntity));
 
           var entitySetAccessor = Session.Current.Services.Get<DirectEntitySetAccessor>();
-          var field = container.Type.Fields["Items"];
+          var field = container.TypeInfo.Fields["Items"];
           var entitySet = entitySetAccessor.GetEntitySet(container, field);
           entitySetAccessor.Add(entitySet, item1);
           entitySetAccessor.Add(entitySet, item2);

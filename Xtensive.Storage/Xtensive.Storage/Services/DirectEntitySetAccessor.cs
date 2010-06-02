@@ -149,9 +149,9 @@ namespace Xtensive.Storage.Services
     {
       ValidateArguments(target);
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
-      if (!target.Type.Fields.Contains(field))
+      if (!target.TypeInfo.Fields.Contains(field))
         throw new InvalidOperationException(string.Format(
-          Strings.ExTypeXDoesNotContainYField, target.Type.Name, field.Name));
+          Strings.ExTypeXDoesNotContainYField, target.TypeInfo.Name, field.Name));
       if (!field.IsEntitySet)
         throw new InvalidOperationException(string.Format(
           Strings.ExFieldXIsNotAnEntitySetField, field.Name));
