@@ -505,7 +505,7 @@
     <value>Session is not open. Use Session.Open(...) to open it.</value>
   </data>
   <data name="ExPersistentAttributeIsNotSetOnTypeXOrAssemblyYIsNotProcessedByPostSharp" xml:space="preserve">
-    <value>[Persistent] attribute isn't applied on type '{0}', or assembly '{1}' is not processed by PostSharp. See section 2 of Manual for details.</value>
+    <value>Assembly '{1}' is not processed by PostSharp. See section 2 of Manual for details.</value>
   </data>
   <data name="ExActiveSerializationContextIsNotFound" xml:space="preserve">
     <value>Active serialization context is not found.</value>
