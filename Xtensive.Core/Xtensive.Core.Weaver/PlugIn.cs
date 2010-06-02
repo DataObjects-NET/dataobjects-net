@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using License;
 using PostSharp.Extensibility;
@@ -23,14 +24,39 @@ namespace Xtensive.Core.Weaver
   /// </summary>
   public sealed class PlugIn : PostSharp.AspectWeaver.PlugIn
   {
+    private static readonly byte[] tokenExpected = new byte[]{0x93, 0xa6, 0xc5,0x3d, 0x77, 0xa5, 0x29, 0x6c};
     // "$(ProjectDir)..\..\Xtensive.Licensing\Protection\Protect.bat" "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)" "true"
     private const string XtensiveLicensingManagerExe = "Xtensive.Licensing.Manager.exe";
+
+    // Check that public key token matches what's expected.
+    private static bool IsPublicTokenConsistent(byte[] assemblyToken)
+    {
+      // Check that lengths match
+      if (assemblyToken!= null && tokenExpected.Length == assemblyToken.Length) {
+        // Check that token contents match
+        return !assemblyToken.Where((t, i) => tokenExpected[i]!=t).Any();
+      }
+      return false;
+    }
 
     /// <exception cref="InvalidOperationException">Something went wrong.</exception>
     protected override void Initialize()
     {
       base.Initialize();
       var licenseInfo = LicenseValidator.GetLicense();
+      var isConsistent = base.Project.Module.Assembly.IsStronglyNamed 
+        && IsPublicTokenConsistent(base.Project.Module.Assembly.GetPublicKeyToken());
+      if (!isConsistent) {
+        var declarations = base.Project.Module.AssemblyRefs
+          .Where(a => a.Name.StartsWith("Xtensive") && !a.Name.EndsWith("Tests") && !a.Name.Contains("Sample"))
+          .ToList();
+        if (declarations.Count!=0)
+          isConsistent = declarations.All(a => IsPublicTokenConsistent(a.GetPublicKeyToken()));
+      }
+      if (!isConsistent) {
+        ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license validation failed.");
+        return;
+      }
       RunLicensingAgent(licenseInfo);
       if (!licenseInfo.IsValid) {
         ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license is invalid.");
