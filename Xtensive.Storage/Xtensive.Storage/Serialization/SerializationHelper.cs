@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Serialization
   {    
     public static void GetEntityValueData(Entity entity, SerializationInfo info, StreamingContext context)
     {
-      foreach (FieldInfo field in entity.Type.Fields) {
+      foreach (FieldInfo field in entity.TypeInfo.Fields) {
         if (!IsSerializable(field))
           continue;
           
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Serialization
 
     public static void DeserializeEntityFields(Entity entity, SerializationInfo info, StreamingContext context)
     {
-      foreach (FieldInfo field in entity.Type.Fields) {
+      foreach (FieldInfo field in entity.TypeInfo.Fields) {
         if (field.IsPrimaryKey)
           continue;
 

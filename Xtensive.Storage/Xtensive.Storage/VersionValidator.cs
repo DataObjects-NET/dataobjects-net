@@ -78,7 +78,7 @@ namespace Xtensive.Storage
 
     private void EnqueueVersionValidation(Entity entity)
     {
-      if (entity.Type.VersionExtractor==null
+      if (entity.TypeInfo.VersionExtractor==null
         || queuedVersions.ContainsKey(entity.Key)
         || processed.Contains(entity.Key))
         return;
@@ -109,7 +109,7 @@ namespace Xtensive.Storage
 //      var changedItem =
 //        registry.GetItems(PersistenceState.Modified)
 //          .Concat(registry.GetItems(PersistenceState.Removed))
-//          .Where(item => item.Type.VersionExtractor!=null
+//          .Where(item => item.TypeInfo.VersionExtractor!=null
 //            && !processed.Contains(item.Key));
 //      foreach (var item in changedItem) {
 //        if (queuedVersions.ContainsKey(item.Key)
@@ -175,9 +175,9 @@ namespace Xtensive.Storage
       // there is nothing to validate"
       if (entity.PersistenceState==PersistenceState.New)
         return;
-      if (entity.Type.VersionExtractor==null)
+      if (entity.TypeInfo.VersionExtractor==null)
         return;
-      if (entity.State.IsStale && !entity.Type.HasVersionRoots)
+      if (entity.State.IsStale && !entity.TypeInfo.HasVersionRoots)
         return;
       // Here we know the actual version is stored in VersionInfo
       if (knownVersions.ContainsKey(entity.Key))

@@ -141,10 +141,10 @@ namespace Xtensive.Storage.Tests.Model
         using (Transaction.Open()) {
           var a1 = new A();
           var a2 = new A();
-          var rs = a1.Type.Indexes.PrimaryIndex.ToRecordSet();
+          var rs = a1.TypeInfo.Indexes.PrimaryIndex.ToRecordSet();
 
           foreach (Tuple tuple in rs) {
-            var rs2 = a1.Type.Indexes.PrimaryIndex.ToRecordSet();
+            var rs2 = a1.TypeInfo.Indexes.PrimaryIndex.ToRecordSet();
             foreach (Tuple tuple2 in rs2) {
               Log.Debug(tuple2.ToString());
             }

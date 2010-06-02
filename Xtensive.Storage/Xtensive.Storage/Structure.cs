@@ -61,14 +61,14 @@ namespace Xtensive.Storage
     IFieldValueAdapter
   {
     private readonly Tuple tuple;
-    private readonly TypeInfo type;
+    private readonly TypeInfo typeInfo;
     private Persistent owner;
     private Entity entity;
 
     /// <inheritdoc/>
-    public override TypeInfo Type {
+    public override TypeInfo TypeInfo {
       [DebuggerStepThrough]
-      get { return type; }
+      get { return typeInfo; }
     }
 
     /// <inheritdoc/>
@@ -181,7 +181,7 @@ namespace Xtensive.Storage
       }
       if (Owner == null) 
         return;
-      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
       Owner.SystemBeforeGetValue(ownerField);
     }
 
@@ -196,7 +196,7 @@ namespace Xtensive.Storage
       }
       if (Owner == null)
         return;
-      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
       Owner.SystemGetValue(ownerField, value);
     }
 
@@ -204,7 +204,7 @@ namespace Xtensive.Storage
     {
       if (Owner == null)
         return;
-      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
       Owner.SystemGetValueCompleted(ownerField, value, exception);
     }
 
@@ -225,7 +225,7 @@ namespace Xtensive.Storage
       }
       if (Owner == null)
         return;
-      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
       Owner.SystemBeforeSetValue(ownerField, value);
     }
 
@@ -244,7 +244,7 @@ namespace Xtensive.Storage
       }
       if (Owner == null)
         return;
-      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
       Owner.SystemSetValue(ownerField, oldValue, newValue);
     }
 
@@ -252,7 +252,7 @@ namespace Xtensive.Storage
     {
       if (Owner == null)
         return;
-      var ownerField = Owner.Type.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
       Owner.SystemSetValueCompleted(ownerField, oldValue, newValue, exception);
     }
 
@@ -344,8 +344,8 @@ namespace Xtensive.Storage
     protected Structure()
     {
       try {
-        type = GetTypeInfo();
-        tuple = type.TuplePrototype.Clone();
+        typeInfo = GetTypeInfo();
+        tuple = typeInfo.TuplePrototype.Clone();
       }
       catch {
         LeaveCtorTransactionScope(false);
@@ -360,7 +360,7 @@ namespace Xtensive.Storage
     protected Structure(Tuple data)
     {
       try {
-        type = GetTypeInfo();
+        typeInfo = GetTypeInfo();
         tuple = data;
       }
       catch {
@@ -379,11 +379,11 @@ namespace Xtensive.Storage
     {
       bool successfully = false;
       try {
-        type = GetTypeInfo();
+        typeInfo = GetTypeInfo();
         Owner = owner;
         Field = field;
         if (owner==null || field==null)
-          tuple = type.TuplePrototype.Clone();
+          tuple = typeInfo.TuplePrototype.Clone();
         else
           tuple = field.ExtractValue(
             new ReferencedTuple(() => Owner.Tuple));

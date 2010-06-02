@@ -51,10 +51,10 @@ namespace Xtensive.Storage
     private IFieldValueAdapter[] fieldAdapters;
 
     /// <summary>
-    /// Gets <see cref="TypeInfo"/> object describing structure of persistent object.
+    /// Gets <see cref="Model.TypeInfo"/> object describing structure of persistent object.
     /// </summary>
     [Infrastructure]
-    public abstract TypeInfo Type { get; }
+    public abstract TypeInfo TypeInfo { get; }
 
     /// <summary>
     /// Gets the underlying tuple.
@@ -69,10 +69,10 @@ namespace Xtensive.Storage
     internal IFieldValueAdapter GetFieldValueAdapter (FieldInfo field, Func<Persistent, FieldInfo, IFieldValueAdapter> ctor)
     {
       if (field.ReflectedType.IsInterface)
-        field = Type.FieldMap[field];
+        field = TypeInfo.FieldMap[field];
       // Building adapter container if necessary
       if (fieldAdapters==null) {
-        int maxAdapterIndex = Type.Fields.Select(f => f.AdapterIndex).Max();
+        int maxAdapterIndex = TypeInfo.Fields.Select(f => f.AdapterIndex).Max();
         fieldAdapters = new IFieldValueAdapter[maxAdapterIndex + 1];
       }
 
@@ -122,7 +122,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public T GetProperty<T>(string fieldName)
     {
-      FieldInfo field = Type.Fields[fieldName];
+      FieldInfo field = TypeInfo.Fields[fieldName];
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty!=null) {
         // Public accessor check
@@ -150,7 +150,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     public void SetProperty<T>(string fieldName, T value)
     {
-      FieldInfo field = Type.Fields[fieldName];
+      FieldInfo field = TypeInfo.Fields[fieldName];
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty!=null) {
         // Public accessor check
@@ -178,7 +178,7 @@ namespace Xtensive.Storage
     /// <returns>Field value.</returns>
     protected internal T GetFieldValue<T>(string fieldName)
     {
-      return GetFieldValue<T>(Type.Fields[fieldName]);
+      return GetFieldValue<T>(TypeInfo.Fields[fieldName]);
     }
 
     /// <summary>
@@ -189,7 +189,7 @@ namespace Xtensive.Storage
     /// <returns>Field value.</returns>
     protected internal object GetFieldValue(string fieldName)
     {
-      return GetFieldValue(Type.Fields[fieldName]);
+      return GetFieldValue(TypeInfo.Fields[fieldName]);
     }
 
     /// <summary>
@@ -204,7 +204,7 @@ namespace Xtensive.Storage
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
-        field = Type.FieldMap[field];
+        field = TypeInfo.FieldMap[field];
       var fieldAccessor = GetFieldAccessor<T>(field);
       T result = default(T);
       try {
@@ -229,7 +229,7 @@ namespace Xtensive.Storage
     protected internal object GetFieldValue(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
-        field = Type.FieldMap[field];
+        field = TypeInfo.FieldMap[field];
       var fieldAccessor = GetFieldAccessor(field);
       object result = fieldAccessor.DefaultUntypedValue;
       try {
@@ -262,7 +262,7 @@ namespace Xtensive.Storage
       Key key = null;
       try {
         if (field.ReflectedType.IsInterface)
-          field = Type.FieldMap[field];
+          field = TypeInfo.FieldMap[field];
         SystemBeforeGetValue(field);
         if (!field.IsEntity)
           throw new InvalidOperationException(
@@ -308,7 +308,7 @@ namespace Xtensive.Storage
     /// <param name="value">The value to set.</param>
     protected internal void SetFieldValue<T>(string fieldName, T value)
     {
-      SetFieldValue(Type.Fields[fieldName], value);
+      SetFieldValue(TypeInfo.Fields[fieldName], value);
     }
 
     /// <summary>
@@ -319,7 +319,7 @@ namespace Xtensive.Storage
     /// <param name="value">The value to set.</param>
     protected internal void SetFieldValue(string fieldName, object value)
     {
-      SetFieldValue(Type.Fields[fieldName], value);
+      SetFieldValue(TypeInfo.Fields[fieldName], value);
     }
 
     /// <summary>
@@ -334,7 +334,7 @@ namespace Xtensive.Storage
     protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
       if (field.ReflectedType.IsInterface)
-        field = Type.FieldMap[field];
+        field = TypeInfo.FieldMap[field];
       SetFieldValue(field, (object) value);
     }
 
@@ -350,7 +350,7 @@ namespace Xtensive.Storage
     protected internal void SetFieldValue(FieldInfo field, object value)
     {
       if (field.ReflectedType.IsInterface)
-        field = Type.FieldMap[field];
+        field = TypeInfo.FieldMap[field];
       var fieldAccessor = GetFieldAccessor(field);
       object oldValue = fieldAccessor.DefaultUntypedValue;
       try {
@@ -365,7 +365,7 @@ namespace Xtensive.Storage
               var structureInstance = persistent as Structure;
               while (structureInstance != null && structureInstance.Owner != null) {
                 var pair = new Pair<FieldInfo>(structureInstance.Field, entityField);
-                entityField = structureInstance.Owner.Type.StructureFieldMapping[pair];
+                entityField = structureInstance.Owner.TypeInfo.StructureFieldMapping[pair];
                 persistent = structureInstance.Owner;
                 structureInstance = persistent as Structure;
               }
@@ -410,13 +410,13 @@ namespace Xtensive.Storage
 
     internal protected bool IsFieldAvailable(string name)
     {
-      return IsFieldAvailable(Type.Fields[name]);
+      return IsFieldAvailable(TypeInfo.Fields[name]);
     }
 
     internal protected bool IsFieldAvailable(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
-        field = Type.FieldMap[field];
+        field = TypeInfo.FieldMap[field];
       return Tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable();
     }
 
@@ -655,28 +655,28 @@ namespace Xtensive.Storage
     internal FieldAccessor GetFieldAccessor(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
-        field = Type.FieldMap[field];
+        field = TypeInfo.FieldMap[field];
       return Session.Domain.TypeLevelCaches[field.ReflectedType.TypeId].GetFieldAccessor(field);
     }
 
     internal FieldAccessor<T> GetFieldAccessor<T>(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
-        field = Type.FieldMap[field];
+        field = TypeInfo.FieldMap[field];
       return (FieldAccessor<T>) Session.Domain.TypeLevelCaches[field.ReflectedType.TypeId].GetFieldAccessor(field);
     }
 
     internal PersistentFieldState GetFieldState(string fieldName)
     {
-      return GetFieldState(Type.Fields[fieldName]);
+      return GetFieldState(TypeInfo.Fields[fieldName]);
     }
 
     /// <exception cref="ArgumentException"><paramref name="field"/> belongs to a different type.</exception>
     internal PersistentFieldState GetFieldState(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
-        field = Type.FieldMap[field];
-      if (field.ReflectedType!=Type)
+        field = TypeInfo.FieldMap[field];
+      if (field.ReflectedType!=TypeInfo)
         throw new ArgumentException(Strings.ExFieldBelongsToADifferentType, "field");
       var mappingInfo = field.MappingInfo;
       if (mappingInfo.Length==0)

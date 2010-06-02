@@ -153,7 +153,7 @@ namespace Xtensive.Storage.Linq.Materialization
     {
       context.Session.Handler.Prefetch(
         entitySet.Owner.Key, 
-        entitySet.Owner.Type, 
+        entitySet.Owner.TypeInfo, 
         new FieldDescriptorCollection(
           new PrefetchFieldDescriptor(entitySet.Field, WellKnown.EntitySetPreloadCount)));
       return entitySet;

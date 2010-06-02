@@ -98,7 +98,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public VersionInfo VersionInfo {
       get {
-        if (Type.HasVersionRoots) {
+        if (TypeInfo.HasVersionRoots) {
           var version = new VersionInfo();
           foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
             if (root is IHasVersionRoots)
@@ -107,10 +107,10 @@ namespace Xtensive.Storage
           }
           return version;
         }
-        if (Type.VersionExtractor==null)
+        if (TypeInfo.VersionExtractor==null)
           return new VersionInfo(); // returns empty VersionInfo
         var tuple = State.Tuple;
-        var versionColumns = Type.GetVersionColumns();
+        var versionColumns = TypeInfo.GetVersionColumns();
         List<PrefetchFieldDescriptor> columnsToPrefetch = null;
         foreach (var pair in versionColumns) {
           if (!tuple.GetFieldState(pair.Second).IsAvailable()) {
@@ -120,16 +120,16 @@ namespace Xtensive.Storage
           }
         }
         if (columnsToPrefetch!=null) {
-          Session.Handler.Prefetch(Key, Type, new FieldDescriptorCollection(columnsToPrefetch));
+          Session.Handler.Prefetch(Key, TypeInfo, new FieldDescriptorCollection(columnsToPrefetch));
           Session.Handler.ExecutePrefetchTasks(true);
         }
-        var versionTuple = Type.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
+        var versionTuple = TypeInfo.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
         return new VersionInfo(versionTuple);
       }
     }
 
     /// <inheritdoc/>
-    public override sealed TypeInfo Type
+    public override sealed TypeInfo TypeInfo
     {
       [DebuggerStepThrough]
       get { return State.Type; }
@@ -245,7 +245,7 @@ namespace Xtensive.Storage
     {
       using (new ParameterContext().Activate()) {
         keyParameter.Value = Key.Value;
-        object key = new Triplet<TypeInfo, LockMode, LockBehavior>(Type, lockMode, lockBehavior);
+        object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
         Func<object, object> generator = tripletObj => {
           var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
           return IndexProvider.Get(triplet.First.Indexes.PrimaryIndex).Result.Seek(keyParameter.Value)
@@ -303,11 +303,11 @@ namespace Xtensive.Storage
       bool changed = false;
       try {
         State.IsVersionInfoUpdated = true; // Prevents recursion
-        if (!Type.HasVersionRoots) 
+        if (!TypeInfo.HasVersionRoots) 
           changed = SystemUpdateVersionInfo(changedEntity, changedField);
         else {
           foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
-            if (root.Type.HasVersionRoots)
+            if (root.TypeInfo.HasVersionRoots)
               throw new NotSupportedException(Strings.ExVersionRootObjectCantImplementIHasVersionRoots);
             changed |= root.UpdateVersionInfo(changedEntity, changedField);
           }
@@ -330,7 +330,7 @@ namespace Xtensive.Storage
     /// </returns>
     protected virtual bool HandleUpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
     {
-      foreach (var field in Type.GetVersionFields())
+      foreach (var field in TypeInfo.GetVersionFields())
         SetFieldValue(field, VersionGenerator.Next(GetFieldValue(field)));
       return true;
     }
@@ -369,7 +369,7 @@ namespace Xtensive.Storage
       if (!Session.IsSystemLogicOnly)
         Session.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
 
-      bool changed = Type.HasVersionFields 
+      bool changed = TypeInfo.HasVersionFields 
         ? HandleUpdateVersionInfo(changedEntity, changedField) 
         : true; // No [Version] fields = VersionInfo is composed of other (incl. changed)
                 // fields, so let's consider it is changed.
@@ -425,7 +425,7 @@ namespace Xtensive.Storage
       if (Session.IsSystemLogicOnly || materialize) 
         return;
 
-      bool hasKeyGenerator = Session.Domain.KeyGenerators[Type.Key]!=null;
+      bool hasKeyGenerator = Session.Domain.KeyGenerators[TypeInfo.Key]!=null;
       if (hasKeyGenerator)
         Session.NotifyKeyGenerated(Key);
       Session.NotifyEntityCreated(this);
@@ -662,7 +662,7 @@ namespace Xtensive.Storage
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
         Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key);
-        var references = Type.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
+        var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
         if (references.Count > 0)
           using (Session.Pin(this))
           foreach (var referenceField in references) {
