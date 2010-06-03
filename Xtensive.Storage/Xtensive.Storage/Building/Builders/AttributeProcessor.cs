@@ -154,8 +154,9 @@ namespace Xtensive.Storage.Building.Builders
 
     private static void ProcessNullable(FieldDef fieldDef, FieldAttribute attribute)
     {
-      if (fieldDef.IsEntity && attribute.nullable.HasValue)
-        fieldDef.IsNullable = attribute.nullable.Value;
+      if (attribute.nullable.HasValue)
+        if (fieldDef.IsEntity || fieldDef.ValueType==typeof(string))
+          fieldDef.IsNullable = attribute.nullable.Value;
     }
 
     private static void ProcessLength(FieldDef fieldDef, FieldAttribute attribute)
