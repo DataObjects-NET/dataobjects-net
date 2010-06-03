@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Internals
       return value;
     }
 
-    //TODO: Refactor this to support interface fetching and do not cache mapping by header!!!! Similar functionality is in MaterializationContext
+    // TODO: Refactor this to support interface fetching and do not cache mapping by header!!!! Similar functionality is in MaterializationContext
     internal RecordSetMapping GetMapping(RecordSetHeader header)
     {
       RecordSetMapping result;

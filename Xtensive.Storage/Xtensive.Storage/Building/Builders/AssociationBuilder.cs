@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Building.Builders
       context.Model.Associations.Add(association);
       field.Association = association;
 
-      Pair<AssociationInfo, string> pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();
+      var pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();
       if (pairTo.First!=null)
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, pairTo.Second));
     }
@@ -53,11 +53,16 @@ namespace Xtensive.Storage.Building.Builders
         throw new DomainBuilderException(
           string.Format(Strings.ExPairedFieldXHasWrongTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
 
-      FieldInfo pairedField = slave.OwnerField;
+      var pairedField = slave.OwnerField;
 
-      AssociationInfo master = masterField.Association;
-      if (master.Reversed!=null && master.Reversed!=slave)
-        throw new InvalidOperationException(String.Format(Strings.ExMasterAssociationIsAlreadyPaired, master.Name, master.Reversed.Name));
+      var master = masterField.Association;
+      if (master.Reversed!=null) {
+        if (master.Reversed!=slave
+          || (masterField.IsEntitySet && pairedField.IsEntitySet) // Unclear which side is virtual
+          || (masterField.IsEntity    && pairedField.IsEntity))   // Unclear which side is virtual
+          throw new InvalidOperationException(String.Format(
+            Strings.ExMasterAssociationIsAlreadyPaired, master.Name, master.Reversed.Name));
+      }
 
       slave.IsMaster = false;
       master.IsMaster = true;

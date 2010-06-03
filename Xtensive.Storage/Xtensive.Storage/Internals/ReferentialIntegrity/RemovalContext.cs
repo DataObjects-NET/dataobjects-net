@@ -54,7 +54,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     public void Enqueue(Entity entity)
     {
-      var type = entity.Type;
+      var type = entity.TypeInfo;
       if (types.Count > 0) {
         if (types.Peek() != type)
           types.Enqueue(type);
@@ -72,7 +72,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     public void Enqueue(IEnumerable<Entity> entities)
     {
-      foreach (var group in entities.GroupBy(e => e.Type)) {
+      foreach (var group in entities.GroupBy(e => e.TypeInfo)) {
         var type = group.Key;
         if (types.Count > 0) {
           if (types.Peek() != type)

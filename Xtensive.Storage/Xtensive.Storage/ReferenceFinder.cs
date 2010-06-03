@@ -67,7 +67,7 @@ namespace Xtensive.Storage
     public static IEnumerable<ReferenceInfo> GetReferencesTo(Entity target)
     {
       var handler = Session.Demand().Handler;
-      foreach (var association in target.Type.GetTargetAssociations())
+      foreach (var association in target.TypeInfo.GetTargetAssociations())
         foreach (var item in handler.GetReferencesTo(target, association))
           yield return item;
     }
@@ -85,9 +85,9 @@ namespace Xtensive.Storage
     public static IEnumerable<ReferenceInfo> GetReferencesTo(Entity target, AssociationInfo association)
     {
       var handler = Session.Demand().Handler;
-      if (!association.TargetType.UnderlyingType.IsAssignableFrom(target.Type.UnderlyingType))
+      if (!association.TargetType.UnderlyingType.IsAssignableFrom(target.TypeInfo.UnderlyingType))
         throw new InvalidOperationException(
-          String.Format(Strings.TypeXDoesNotParticipateInTheSpecifiedAssociation, target.Type.Name));
+          String.Format(Strings.TypeXDoesNotParticipateInTheSpecifiedAssociation, target.TypeInfo.Name));
       return handler.GetReferencesTo(target, association);
     }
 

@@ -39,7 +39,7 @@ namespace Xtensive.Storage.Manual.Prefetch
     public EntitySet<Person> Employees { get; private set; }
 
     public Key ManagerKey { 
-      get { return GetReferenceKey(Type.Fields["Manager"]); } 
+      get { return GetReferenceKey(TypeInfo.Fields["Manager"]); } 
     }
   }
 

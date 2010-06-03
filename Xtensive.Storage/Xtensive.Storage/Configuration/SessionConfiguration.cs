@@ -215,8 +215,8 @@ namespace Xtensive.Storage.Configuration
     protected override ConfigurationBase CreateClone()
     {
       // Currently disabled
-      //if (Type != SessionType.User)
-      //  throw new InvalidOperationException(Resources.Strings.ExUnableToCloneNonUserSessionConfiguration);
+      // if (Type != SessionType.User)
+      //   throw new InvalidOperationException(Resources.Strings.ExUnableToCloneNonUserSessionConfiguration);
       return new SessionConfiguration(Name);
     }
 

@@ -384,7 +384,7 @@ namespace Xtensive.Storage
     internal bool Contains(Entity item)
     {
       EnsureOwnerIsNotRemoved();
-      if (item==null || !Field.ItemType.IsAssignableFrom(item.Type.UnderlyingType))
+      if (item==null || !Field.ItemType.IsAssignableFrom(item.TypeInfo.UnderlyingType))
         return false;
       return Contains(item.Key, item);
     }
@@ -729,7 +729,7 @@ namespace Xtensive.Storage
         var itemType =  Field.ItemType.GetTypeInfo(Session.Domain);
         auxilaryTypeKeyTransform = new CombineTransform(
           false, 
-          owner.Type.Key.TupleDescriptor, 
+          owner.TypeInfo.Key.TupleDescriptor, 
           itemType.Key.TupleDescriptor);
       }
       Initialize(typeof(EntitySetBase));

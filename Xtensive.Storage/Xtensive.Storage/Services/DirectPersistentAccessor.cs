@@ -224,9 +224,9 @@ namespace Xtensive.Storage.Services
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
-      if (!target.Type.Fields.Contains(field))
+      if (!target.TypeInfo.Fields.Contains(field))
         throw new InvalidOperationException(string.Format(
-          Strings.ExTypeXDoesNotContainYField, target.Type.Name, field.Name));
+          Strings.ExTypeXDoesNotContainYField, target.TypeInfo.Name, field.Name));
     }
 
     #endregion
