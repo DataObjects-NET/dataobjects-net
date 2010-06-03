@@ -93,13 +93,13 @@ namespace Xtensive.Storage.Tests.Issues
             from doctor in speciality.Doctors
             select new {
               speciality.Title,
-              FulllName = doctor.FullName,
+              doctor.FullName,
               doctor.Email
             };
 
           foreach (var item in list) {
             Console.WriteLine("{0} {1} {2}", 
-              item.Title, item.FulllName, item.Email);
+              item.Title, item.FullName, item.Email);
           }
           Assert.AreEqual(2, list.Count());
           t.Complete();
