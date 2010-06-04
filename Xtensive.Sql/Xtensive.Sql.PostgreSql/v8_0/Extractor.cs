@@ -24,13 +24,13 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     private static ThreadSafeDictionary<Type, Schema> pgCatalogs = ThreadSafeDictionary<Type, Schema>.Create(new object());
 
     // The identifier of the current user
-    private int mUserSysId = -1;
-    private readonly Dictionary<int, string> mUserLookup = new Dictionary<int, string>();
+    private long mUserSysId = -1;
+    private readonly Dictionary<long, string> mUserLookup = new Dictionary<long, string>();
 
     protected Catalog catalog;
     protected Schema schema;
 
-    protected int PgClassOid { get; private set; }
+    protected long PgClassOid { get; private set; }
     protected Schema PgCatalogSchema { get; private set; }
 
     private class ExpressionIndexInfo
@@ -62,7 +62,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       using (var cmd = Connection.CreateCommand(q))
       using (var dr = cmd.ExecuteReader())
         while (dr.Read()) {
-          int oid = Convert.ToInt32(dr[0]);
+          long oid = Convert.ToInt64(dr[0]);
           string name = dr.GetString(1);
           if (name=="pg_class")
             PgClassOid = oid;
@@ -291,7 +291,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
             string name = dr[0].ToString();
-            int sysid = Convert.ToInt32(dr[1]);
+            long sysid = Convert.ToInt64(dr[1]);
             mUserLookup.Add(sysid, name);
             if (name==me)
               mUserSysId = sysid;
@@ -306,7 +306,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     /// <param name="catalog"></param>
     protected void ExtractSchemas(Catalog catalog)
     {
-      int me = GetMyUserSysId();
+      long me = GetMyUserSysId();
 
       //schemas
 
@@ -335,9 +335,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
-            int oid = Convert.ToInt32(dr["oid"]);
+            long oid = Convert.ToInt64(dr["oid"]);
             string name = dr["nspname"].ToString();
-            int owner = Convert.ToInt32(dr["nspowner"]);
+            long owner = Convert.ToInt64(dr["nspowner"]);
             Schema sch;
             if (catalog.Schemas[name]==null) {
               sch = catalog.CreateSchema(name);
@@ -384,10 +384,10 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
-            int reloid = Convert.ToInt32(dr["reloid"]);
+            long reloid = Convert.ToInt64(dr["reloid"]);
             string relkind = dr["relkind"].ToString();
             string relname = dr["relname"].ToString();
-            int relnamespace = Convert.ToInt32(dr["relnamespace"]);
+            long relnamespace = Convert.ToInt64(dr["relnamespace"]);
             Schema sch = schemas[relnamespace];
             Debug.Assert(sch!=null);
             if (relkind=="r") {
@@ -417,7 +417,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
       #region Table and view columns
 
-      var tableColumns = new Dictionary<int, Dictionary<int, TableColumn>>();
+      var tableColumns = new Dictionary<long, Dictionary<long, TableColumn>>();
       if (tables.Count > 0 || views.Count > 0) {
         SqlTableRef att = PgAttribute;
         SqlTableRef ad = PgAttrDef;
@@ -441,15 +441,15 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
-            int attrelid = Convert.ToInt32(dr["attrelid"]);
-            int attnum = Convert.ToInt32(dr["attnum"]);
+            long attrelid = Convert.ToInt64(dr["attrelid"]);
+            long attnum = Convert.ToInt64(dr["attnum"]);
             string attname = dr["attname"].ToString();
             if (tables.ContainsKey(attrelid)) {
               Table t = tables[attrelid];
               Debug.Assert(t!=null);
               TableColumn col = t.CreateColumn(attname);
               if (!tableColumns.ContainsKey(attrelid)) {
-                tableColumns.Add(attrelid, new Dictionary<int, TableColumn>());
+                tableColumns.Add(attrelid, new Dictionary<long, TableColumn>());
               }
               tableColumns[attrelid].Add(attnum, col);
 
@@ -513,8 +513,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
-            int tableOid = Convert.ToInt32(dr["indrelid"]);
-            int indexOid = Convert.ToInt32(dr["indexrelid"]);
+            long tableOid = Convert.ToInt64(dr["indrelid"]);
+            long indexOid = Convert.ToInt64(dr["indexrelid"]);
             string indexName = dr["relname"].ToString();
             bool isUnique = dr.GetBoolean(dr.GetOrdinal("indisunique"));
             bool isClustered = dr.GetBoolean(dr.GetOrdinal("indisclustered"));
@@ -632,8 +632,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
-            int oid = Convert.ToInt32(dr["oid"]);
-            int typnamespace = Convert.ToInt32(dr["typnamespace"]);
+            long oid = Convert.ToInt64(dr["oid"]);
+            long typnamespace = Convert.ToInt64(dr["typnamespace"]);
             string typname = dr["typname"].ToString();
             string basetypname = dr["basetypname"].ToString();
             int typmod = Convert.ToInt32(dr["typmod"]);
@@ -675,8 +675,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
             string conname = dr["conname"].ToString();
             bool condeferrable = dr.GetBoolean(dr.GetOrdinal("condeferrable"));
             bool condeferred = dr.GetBoolean(dr.GetOrdinal("condeferred"));
-            int conrelid = Convert.ToInt32(dr["conrelid"]);
-            int contypid = Convert.ToInt32(dr["contypid"]);
+            long conrelid = Convert.ToInt64(dr["conrelid"]);
+            long contypid = Convert.ToInt64(dr["contypid"]);
             object conkey = dr["conkey"];
 
             if (conrelid!=0) //table constraint
@@ -690,7 +690,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
                 c.IsInitiallyDeferred = condeferred;
               }
               else {
-                Dictionary<int, TableColumn> keyColumns = tableColumns[conrelid];
+                Dictionary<long, TableColumn> keyColumns = tableColumns[conrelid];
                 if (contype=='u' || contype=='p') //unique / primary key
                 {
                   UniqueConstraint c;
@@ -709,7 +709,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
                 else if (contype=='f') //foreign key
                 {
                   object confkey = dr["confkey"];
-                  int confrelid = Convert.ToInt32(dr["confrelid"]);
+                  long confrelid = Convert.ToInt64(dr["confrelid"]);
                   char confupdtype = dr["confupdtype"].ToString()[0];
                   char confdeltype = dr["confdeltype"].ToString()[0];
                   char confmatchtype = dr["confmatchtype"].ToString()[0];
@@ -722,7 +722,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
                   fk.MatchType = GetMatchType(confmatchtype);
                   fk.ReferencedTable = tables[confrelid];
 
-                  Dictionary<int, TableColumn> fkeyColumns = tableColumns[confrelid];
+                  Dictionary<long, TableColumn> fkeyColumns = tableColumns[confrelid];
 
                   int[] colIndexes = ReadIntArray(conkey);
                   for (int i = 0; i < colIndexes.Length; i++) {
@@ -880,11 +880,11 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     /// <summary>
     /// Gets and caches the inner identifier of the current database user.
     /// </summary>
-    private int GetMyUserSysId()
+    private long GetMyUserSysId()
     {
       if (mUserSysId < 0)
         using (var cmd = Connection.CreateCommand("SELECT usesysid FROM pg_user WHERE usename = user"))
-          mUserSysId = Convert.ToInt32(cmd.ExecuteScalar());
+          mUserSysId = Convert.ToInt64(cmd.ExecuteScalar());
       return mUserSysId;
     }
 
