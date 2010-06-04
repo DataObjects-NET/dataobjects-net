@@ -29,31 +29,17 @@ namespace Xtensive.Core.Caching
     where TItem : class
   {
     /// <summary>
-    /// Default <see cref="EfficiencyFactor"/> value.
-    /// Value is <see langword="1"/>.
-    /// </summary>
-    public const int DefaultEfficiencyFactor = 1;
-
-    /// <summary>
     /// Minimal <see cref="Count"/> value, until which <see cref="CollectGarbage"/> doesn't start at all.
     /// Value is <see langword="1024"/>.
     /// </summary>
     protected const int NoGcCount = 1024;
 
-    /// <summary>
-    /// Maximal <see cref="Count"/> value, at which <see cref="CollectGarbage"/> starts immediately.
-    /// Value is <see langword="64*1024*1024"/>.
-    /// </summary>
-    protected const int ImmediateGcCount = 64*1024*1024;
-
     private const int GcOperationCost = 2;
     private readonly bool trackKeyResurrection;
     private readonly bool trackItemResurrection;
-    private readonly int efficiencyFactor;
     private readonly Converter<TItem, TKey> keyExtractor;
     private Dictionary<object, WeakEntry> items;
     private int time;
-    private int timeShift = 1;
 
     #region Nested type: WeakEntry
 
@@ -217,14 +203,6 @@ namespace Xtensive.Core.Caching
       get { return trackItemResurrection; }
     }
 
-    /// <summary>
-    /// Gets the time shift factor offset.
-    /// </summary>
-    public int EfficiencyFactor {
-      [DebuggerStepThrough]
-      get { return efficiencyFactor; }
-    }
-
     /// <inheritdoc/>
     public int Count {
       [DebuggerStepThrough]
@@ -253,7 +231,7 @@ namespace Xtensive.Core.Caching
     /// <inheritdoc/>
     public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
-      OnOperation();
+      RegisterOperation(1);
       WeakEntry entry;
       if (items.TryGetValue(key, out entry)) {
         var pair = entry.Value;
@@ -295,7 +273,7 @@ namespace Xtensive.Core.Caching
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
       ArgumentValidator.EnsureArgumentNotNull(key, "KeyExtractor.Invoke(item)");
-      OnOperation2();
+      RegisterOperation(4);
       WeakEntry entry;
       if (items.TryGetValue(key, out entry)) {
         var pair = entry.Value;
@@ -357,12 +335,8 @@ namespace Xtensive.Core.Caching
     public virtual void CollectGarbage()
     {
       int count = items.Count;
-      if (count<=NoGcCount)
-        return;
-
       Exception error = null;
       int removedCount = 0;
-      double effeciency = 0;
       try {
         // Filtering
         var newItems = new Dictionary<object, WeakEntry>(new WeakEntryEqualityComparer());;
@@ -376,24 +350,6 @@ namespace Xtensive.Core.Caching
         }
         removedCount = count - newItems.Count;
 
-        // Updating timeShift
-        if (efficiencyFactor<0)
-          timeShift = -efficiencyFactor; // Constant timeShift is defined
-        else {
-          // Relative effeciency factor is defined
-          if (removedCount < 1)
-            removedCount = 1;
-          effeciency =
-            ((double) GcOperationCost * removedCount + time) /
-              ((double) GcOperationCost * count + time);
-          timeShift = ((int) Math.Ceiling(Math.Log(1 / effeciency, 2)));
-          timeShift += efficiencyFactor;
-          if (timeShift > 7)
-            timeShift = 7;
-          if (timeShift < 1)
-            timeShift = 1;
-        }
-
         // Done
         items = newItems;
         time = 0;
@@ -405,8 +361,7 @@ namespace Xtensive.Core.Caching
       finally {
         // Logging
         if (Log.IsLogged(LogEventTypes.Debug)) {
-          Log.Debug("WeakestCache.CollectGarbage: removed: {0} from {1}, efficiency: {2}, time shift: {3}",
-            removedCount, count, effeciency, timeShift);
+          Log.Debug("WeakestCache.CollectGarbage: removed: {0} from {1}", removedCount, count);
           if (error!=null)
             Log.Debug(error, "Caught at WeakestCache.CollectGarbage");
         }
@@ -438,29 +393,13 @@ namespace Xtensive.Core.Caching
 
     #region Private \ internal methods
 
-    private void OnOperation()
+    private void RegisterOperation(int weight)
     {
-      time++;
+      time+=weight;
       var count = items.Count;
       if (count<=NoGcCount)
         return;
-      var counted = time >> timeShift;
-      if (counted > count)
-        CollectGarbage();
-      else if (count > ImmediateGcCount)
-        CollectGarbage();
-    }
-
-    private void OnOperation2()
-    {
-      time += 2;
-      var count = items.Count;
-      if (count<=NoGcCount)
-        return;
-      var counted = time >> timeShift;
-      if (counted > count)
-        CollectGarbage();
-      else if (count > ImmediateGcCount)
+      if (time > ((count << 1) + count))
         CollectGarbage();
     }
 
@@ -470,31 +409,16 @@ namespace Xtensive.Core.Caching
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
     /// <param name="trackKeyResurrection">The <see cref="TrackKeyResurrection"/> property value.</param>
     /// <param name="trackItemResurrection">The <see cref="TrackItemResurrection"/> property value.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
     public WeakestCache(bool trackKeyResurrection, bool trackItemResurrection, Converter<TItem, TKey> keyExtractor)
-      : this(trackKeyResurrection, trackItemResurrection, DefaultEfficiencyFactor, keyExtractor)
-    {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
-    /// </summary>
-    /// <param name="trackKeyResurrection">The <see cref="TrackKeyResurrection"/> property value.</param>
-    /// <param name="trackItemResurrection">The <see cref="TrackItemResurrection"/> property value.</param>
-    /// <param name="efficiencyFactor">The <see cref="EfficiencyFactor"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
-    public WeakestCache(bool trackKeyResurrection, bool trackItemResurrection, int efficiencyFactor, Converter<TItem, TKey> keyExtractor)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.trackKeyResurrection = trackKeyResurrection;
       this.trackItemResurrection = trackItemResurrection;
-      this.efficiencyFactor = efficiencyFactor;
-      if (efficiencyFactor<0)
-        timeShift = -efficiencyFactor-1; // Constant timeShift is defined
       this.keyExtractor = keyExtractor;
       items = new Dictionary<object, WeakEntry>(1024, new WeakEntryEqualityComparer());
     }
