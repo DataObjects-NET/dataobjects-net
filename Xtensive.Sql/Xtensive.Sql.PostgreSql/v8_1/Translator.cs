@@ -34,6 +34,15 @@ namespace Xtensive.Sql.PostgreSql.v8_1
       }
     }
 
+    public override string Translate(SqlLockType lockType)
+    {
+      if (lockType.Supports(SqlLockType.SkipLocked))
+        return base.Translate(lockType);
+      return string.Format("FOR {0}{1}",
+        lockType.Supports(SqlLockType.Shared) ? "SHARE" : "UPDATE",
+        lockType.Supports(SqlLockType.ThrowIfLocked) ? " NOWAIT" : "");
+    }
+
     // Constructors
 
     public Translator(SqlDriver driver)
