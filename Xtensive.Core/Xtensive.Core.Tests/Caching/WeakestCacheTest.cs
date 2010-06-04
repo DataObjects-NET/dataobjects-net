@@ -5,10 +5,12 @@
 // Created:    2008.09.29
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Core.Caching;
 using System.Linq;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Testing;
 
 namespace Xtensive.Core.Tests.Caching
@@ -76,6 +78,21 @@ namespace Xtensive.Core.Tests.Caching
 
       Assert.AreEqual(1, cache.Count);
       Assert.IsNull(cache[new Item("1"), true]);
+    }
+
+    [Test]
+    public void ProfileTest()
+    {
+      var cache = new WeakestCache<Item, Item>(false, false, i => i);
+      var measurement = new Measurement();
+      for (int i = 0,j = 0; i < 1000000; i++, j++) {
+        var item = new Item(i.ToString());
+        cache.Add(item);
+        if (j == 100000) {
+          j = 0;
+          Console.Out.WriteLine(measurement.ToString());
+        }
+      }
     }
   }
 }
