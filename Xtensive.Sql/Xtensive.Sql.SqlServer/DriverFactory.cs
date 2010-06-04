@@ -76,11 +76,9 @@ namespace Xtensive.Sql.SqlServer
           ConnectionString = connectionString,
         };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
-        if (IsAzure(connection)) {
-          coreServerInfo.MultipleActiveResultSets = false;
-          return new Azure.Driver(coreServerInfo);
-        }
         coreServerInfo.MultipleActiveResultSets = builder.MultipleActiveResultSets;
+        if (IsAzure(connection))
+          return new Azure.Driver(coreServerInfo);
         switch (version.Major) {
         case 9:
           return new v09.Driver(coreServerInfo);
