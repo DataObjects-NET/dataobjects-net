@@ -24,13 +24,13 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     private static ThreadSafeDictionary<Type, Schema> pgCatalogs = ThreadSafeDictionary<Type, Schema>.Create(new object());
 
     // The identifier of the current user
-    private int mUserSysId = -1;
-    private readonly Dictionary<int, string> mUserLookup = new Dictionary<int, string>();
+    private long mUserSysId = -1;
+    private readonly Dictionary<long, string> mUserLookup = new Dictionary<long, string>();
 
     protected Catalog catalog;
     protected Schema schema;
 
-    protected int PgClassOid { get; private set; }
+    protected long PgClassOid { get; private set; }
     protected Schema PgCatalogSchema { get; private set; }
 
     private class ExpressionIndexInfo
@@ -62,7 +62,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       using (var cmd = Connection.CreateCommand(q))
       using (var dr = cmd.ExecuteReader())
         while (dr.Read()) {
-          int oid = Convert.ToInt32(dr[0]);
+          long oid = Convert.ToInt64(dr[0]);
           string name = dr.GetString(1);
           if (name=="pg_class")
             PgClassOid = oid;
@@ -192,7 +192,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     protected void CreateOidColumn(Table t)
     {
-      t.CreateColumn("oid", new SqlValueType(SqlType.Int32));
+      t.CreateColumn("oid", new SqlValueType(SqlType.Int64));
     }
 
     protected void CreateInt2Column(Table t, string name)
@@ -291,7 +291,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
             string name = dr[0].ToString();
-            int sysid = Convert.ToInt32(dr[1]);
+            long sysid = Convert.ToInt64(dr[1]);
             mUserLookup.Add(sysid, name);
             if (name==me)
               mUserSysId = sysid;
@@ -306,25 +306,13 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     /// <param name="catalog"></param>
     protected void ExtractSchemas(Catalog catalog)
     {
-      Func<IEnumerable<int>, SqlRow> oidRowCreator = oids => {
-        SqlRow row = SqlDml.Row();
-        foreach (int oid in oids) {
-          row.Add(oid);
-        }
-        //make sure it is not empty, so that "IN" expression always works
-        //add an invalid OID value 
-        if (row.Count==0)
-          row.Add(-1000);
-        return row;
-      };
-
-      int me = GetMyUserSysId();
+      long me = GetMyUserSysId();
 
       //schemas
 
       #region Schemas
 
-      var schemas = new Dictionary<int, Schema>();
+      var schemas = new Dictionary<long, Schema>();
       {
         SqlTableRef nsp1 = PgNamespace;
         SqlTableRef nsp2 = PgNamespace;
@@ -347,9 +335,9 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
-            int oid = Convert.ToInt32(dr["oid"]);
+            long oid = Convert.ToInt64(dr["oid"]);
             string name = dr["nspname"].ToString();
-            int owner = Convert.ToInt32(dr["nspowner"]);
+            long owner = Convert.ToInt64(dr["nspowner"]);
             Schema sch;
             if (catalog.Schemas[name]==null) {
               sch = catalog.CreateSchema(name);
@@ -370,16 +358,18 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
       #region Tables, views, sequences
 
-      var tables = new Dictionary<int, Table>();
-      var views = new Dictionary<int, View>();
-      var sequences = new Dictionary<int, Sequence>();
-      var expressionIndexes = new Dictionary<int, ExpressionIndexInfo>();
+      var tables = new Dictionary<long, Table>();
+      var views = new Dictionary<long, View>();
+      var sequences = new Dictionary<long, Sequence>();
+      var expressionIndexes = new Dictionary<long, ExpressionIndexInfo>();
 
       if (schemas.Count > 0) {
         SqlTableRef rel = PgClass;
         SqlTableRef spc = PgTablespace;
         SqlSelect q = SqlDml.Select(rel.LeftOuterJoin(spc, spc["oid"]==rel["reltablespace"]));
-        q.Where = rel["relowner"]==me && SqlDml.In(rel["relkind"], SqlDml.Row('r', 'v', 'S')) && SqlDml.In(rel["relnamespace"], oidRowCreator(schemas.Keys));
+        q.Where = rel["relowner"]==me
+          && SqlDml.In(rel["relkind"], SqlDml.Row('r', 'v', 'S'))
+          && SqlDml.In(rel["relnamespace"], CreateOidRow(schemas.Keys));
         q.Columns.Add(rel["oid"], "reloid");
         q.Columns.Add(rel["relname"]);
         q.Columns.Add(rel["relkind"]);
@@ -394,10 +384,10 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
-            int reloid = Convert.ToInt32(dr["reloid"]);
+            long reloid = Convert.ToInt64(dr["reloid"]);
             string relkind = dr["relkind"].ToString();
             string relname = dr["relname"].ToString();
-            int relnamespace = Convert.ToInt32(dr["relnamespace"]);
+            long relnamespace = Convert.ToInt64(dr["relnamespace"]);
             Schema sch = schemas[relnamespace];
             Debug.Assert(sch!=null);
             if (relkind=="r") {
@@ -427,7 +417,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
       #region Table and view columns
 
-      var tableColumns = new Dictionary<int, Dictionary<int, TableColumn>>();
+      var tableColumns = new Dictionary<long, Dictionary<long, TableColumn>>();
       if (tables.Count > 0 || views.Count > 0) {
         SqlTableRef att = PgAttribute;
         SqlTableRef ad = PgAttrDef;
@@ -435,7 +425,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         SqlSelect q = SqlDml.Select(att
           .LeftOuterJoin(ad, att["attrelid"]==ad["adrelid"] && att["attnum"]==ad["adnum"])
           .InnerJoin(typ, typ["oid"]==att["atttypid"]));
-        q.Where = att["attisdropped"]==false && att["attnum"] > 0 && (SqlDml.In(att["attrelid"], oidRowCreator(tables.Keys)) || SqlDml.In(att["attrelid"], oidRowCreator(views.Keys)));
+        q.Where = att["attisdropped"]==false && att["attnum"] > 0
+          && (SqlDml.In(att["attrelid"], CreateOidRow(tables.Keys)) || SqlDml.In(att["attrelid"], CreateOidRow(views.Keys)));
         q.Columns.Add(att["attrelid"]);
         q.Columns.Add(att["attnum"]);
         q.Columns.Add(att["attname"]);
@@ -450,15 +441,15 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
-            int attrelid = Convert.ToInt32(dr["attrelid"]);
-            int attnum = Convert.ToInt32(dr["attnum"]);
+            long attrelid = Convert.ToInt64(dr["attrelid"]);
+            long attnum = Convert.ToInt64(dr["attnum"]);
             string attname = dr["attname"].ToString();
             if (tables.ContainsKey(attrelid)) {
               Table t = tables[attrelid];
               Debug.Assert(t!=null);
               TableColumn col = t.CreateColumn(attname);
               if (!tableColumns.ContainsKey(attrelid)) {
-                tableColumns.Add(attrelid, new Dictionary<int, TableColumn>());
+                tableColumns.Add(attrelid, new Dictionary<long, TableColumn>());
               }
               tableColumns[attrelid].Add(attnum, col);
 
@@ -504,7 +495,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         SqlSelect q = SqlDml.Select(ind
           .InnerJoin(rel, rel["oid"]==ind["indexrelid"])
           .LeftOuterJoin(spc, spc["oid"]==rel["reltablespace"]));
-        q.Where = SqlDml.In(ind["indrelid"], oidRowCreator(tables.Keys)) && !SqlDml.Exists(subSelect);
+        q.Where = SqlDml.In(ind["indrelid"], CreateOidRow(tables.Keys)) && !SqlDml.Exists(subSelect);
         q.Columns.Add(ind["indrelid"]);
         q.Columns.Add(ind["indexrelid"]);
         q.Columns.Add(rel["relname"]);
@@ -522,8 +513,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
-            int tableOid = Convert.ToInt32(dr["indrelid"]);
-            int indexOid = Convert.ToInt32(dr["indexrelid"]);
+            long tableOid = Convert.ToInt64(dr["indrelid"]);
+            long indexOid = Convert.ToInt64(dr["indexrelid"]);
             string indexName = dr["relname"].ToString();
             bool isUnique = dr.GetBoolean(dr.GetOrdinal("indisunique"));
             bool isClustered = dr.GetBoolean(dr.GetOrdinal("indisclustered"));
@@ -623,13 +614,13 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
       #region Domains
 
-      var domains = new Dictionary<int, Domain>();
+      var domains = new Dictionary<long, Domain>();
       if (schemas.Count > 0) {
         SqlTableRef typ = PgType;
         SqlTableRef basetyp = PgType;
         SqlSelect q = SqlDml.Select(typ.InnerJoin(basetyp, basetyp["oid"]==typ["typbasetype"]));
         q.Where = typ["typisdefined"]==true && typ["typtype"]=='d'
-          && SqlDml.In(typ["typnamespace"], oidRowCreator(schemas.Keys))
+          && SqlDml.In(typ["typnamespace"], CreateOidRow(schemas.Keys))
             && typ["typowner"]==me;
         q.Columns.Add(typ["oid"]);
         q.Columns.Add(typ["typname"], "typname");
@@ -641,8 +632,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
-            int oid = Convert.ToInt32(dr["oid"]);
-            int typnamespace = Convert.ToInt32(dr["typnamespace"]);
+            long oid = Convert.ToInt64(dr["oid"]);
+            long typnamespace = Convert.ToInt64(dr["typnamespace"]);
             string typname = dr["typname"].ToString();
             string basetypname = dr["basetypname"].ToString();
             int typmod = Convert.ToInt32(dr["typmod"]);
@@ -670,8 +661,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       if (tables.Count > 0 || domains.Count > 0) {
         SqlTableRef con = PgConstraint;
         SqlSelect q = SqlDml.Select(con);
-        q.Where = SqlDml.In(con["conrelid"], oidRowCreator(tables.Keys))
-          || SqlDml.In(con["contypid"], oidRowCreator(domains.Keys));
+        q.Where = SqlDml.In(con["conrelid"], CreateOidRow(tables.Keys))
+          || SqlDml.In(con["contypid"], CreateOidRow(domains.Keys));
         q.Columns.AddRange(con["conname"], con["contype"], con["condeferrable"],
           con["condeferred"], con["conrelid"], con["contypid"], con["conkey"], con["consrc"],
           con["confrelid"], con["confkey"], con["confupdtype"],
@@ -684,8 +675,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
             string conname = dr["conname"].ToString();
             bool condeferrable = dr.GetBoolean(dr.GetOrdinal("condeferrable"));
             bool condeferred = dr.GetBoolean(dr.GetOrdinal("condeferred"));
-            int conrelid = Convert.ToInt32(dr["conrelid"]);
-            int contypid = Convert.ToInt32(dr["contypid"]);
+            long conrelid = Convert.ToInt64(dr["conrelid"]);
+            long contypid = Convert.ToInt64(dr["contypid"]);
             object conkey = dr["conkey"];
 
             if (conrelid!=0) //table constraint
@@ -699,7 +690,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
                 c.IsInitiallyDeferred = condeferred;
               }
               else {
-                Dictionary<int, TableColumn> keyColumns = tableColumns[conrelid];
+                Dictionary<long, TableColumn> keyColumns = tableColumns[conrelid];
                 if (contype=='u' || contype=='p') //unique / primary key
                 {
                   UniqueConstraint c;
@@ -718,7 +709,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
                 else if (contype=='f') //foreign key
                 {
                   object confkey = dr["confkey"];
-                  int confrelid = Convert.ToInt32(dr["confrelid"]);
+                  long confrelid = Convert.ToInt64(dr["confrelid"]);
                   char confupdtype = dr["confupdtype"].ToString()[0];
                   char confdeltype = dr["confdeltype"].ToString()[0];
                   char confmatchtype = dr["confmatchtype"].ToString()[0];
@@ -731,7 +722,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
                   fk.MatchType = GetMatchType(confmatchtype);
                   fk.ReferencedTable = tables[confrelid];
 
-                  Dictionary<int, TableColumn> fkeyColumns = tableColumns[confrelid];
+                  Dictionary<long, TableColumn> fkeyColumns = tableColumns[confrelid];
 
                   int[] colIndexes = ReadIntArray(conkey);
                   for (int i = 0; i < colIndexes.Length; i++) {
@@ -793,10 +784,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       }
 
       #endregion
-    }
-
-    protected void ExtractStoredProcedures(Schema schema)
-    {
     }
 
     protected virtual void AddSpecialIndexQueryColumns(SqlSelect query, SqlTableRef spc, SqlTableRef rel, SqlTableRef ind, SqlTableRef depend)
@@ -893,21 +880,24 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     /// <summary>
     /// Gets and caches the inner identifier of the current database user.
     /// </summary>
-    protected int GetMyUserSysId()
+    private long GetMyUserSysId()
     {
       if (mUserSysId < 0)
         using (var cmd = Connection.CreateCommand("SELECT usesysid FROM pg_user WHERE usename = user"))
-          mUserSysId = Convert.ToInt32(cmd.ExecuteScalar());
+          mUserSysId = Convert.ToInt64(cmd.ExecuteScalar());
       return mUserSysId;
     }
 
-    protected virtual string QuoteIdentifier(params string[] names)
+    private SqlRow CreateOidRow(IEnumerable<long> oids)
     {
-      string[] names2 = new string[names.Length];
-      for (int i = 0; i < names.Length; i++) {
-        names2[i] = names[i].Replace("\"", "\"\"");
-      }
-      return ("\"" + string.Join("\".\"", names2) + "\"");
+      var result = SqlDml.Row();
+      foreach (var oid in oids)
+        result.Add(oid);
+      // make sure it is not empty, so that "IN" expression always works
+      // add an invalid OID value 
+      if (result.Count == 0)
+        result.Add(-1000);
+      return result;
     }
 
     // Constructor
