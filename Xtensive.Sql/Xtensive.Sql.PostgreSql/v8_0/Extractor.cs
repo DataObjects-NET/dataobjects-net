@@ -192,7 +192,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
     protected void CreateOidColumn(Table t)
     {
-      t.CreateColumn("oid", new SqlValueType(SqlType.Int32));
+      t.CreateColumn("oid", new SqlValueType(SqlType.Int64));
     }
 
     protected void CreateInt2Column(Table t, string name)
@@ -306,25 +306,13 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     /// <param name="catalog"></param>
     protected void ExtractSchemas(Catalog catalog)
     {
-      Func<IEnumerable<int>, SqlRow> oidRowCreator = oids => {
-        SqlRow row = SqlDml.Row();
-        foreach (int oid in oids) {
-          row.Add(oid);
-        }
-        //make sure it is not empty, so that "IN" expression always works
-        //add an invalid OID value 
-        if (row.Count==0)
-          row.Add(-1000);
-        return row;
-      };
-
       int me = GetMyUserSysId();
 
       //schemas
 
       #region Schemas
 
-      var schemas = new Dictionary<int, Schema>();
+      var schemas = new Dictionary<long, Schema>();
       {
         SqlTableRef nsp1 = PgNamespace;
         SqlTableRef nsp2 = PgNamespace;
@@ -370,16 +358,18 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
       #region Tables, views, sequences
 
-      var tables = new Dictionary<int, Table>();
-      var views = new Dictionary<int, View>();
-      var sequences = new Dictionary<int, Sequence>();
-      var expressionIndexes = new Dictionary<int, ExpressionIndexInfo>();
+      var tables = new Dictionary<long, Table>();
+      var views = new Dictionary<long, View>();
+      var sequences = new Dictionary<long, Sequence>();
+      var expressionIndexes = new Dictionary<long, ExpressionIndexInfo>();
 
       if (schemas.Count > 0) {
         SqlTableRef rel = PgClass;
         SqlTableRef spc = PgTablespace;
         SqlSelect q = SqlDml.Select(rel.LeftOuterJoin(spc, spc["oid"]==rel["reltablespace"]));
-        q.Where = rel["relowner"]==me && SqlDml.In(rel["relkind"], SqlDml.Row('r', 'v', 'S')) && SqlDml.In(rel["relnamespace"], oidRowCreator(schemas.Keys));
+        q.Where = rel["relowner"]==me
+          && SqlDml.In(rel["relkind"], SqlDml.Row('r', 'v', 'S'))
+          && SqlDml.In(rel["relnamespace"], CreateOidRow(schemas.Keys));
         q.Columns.Add(rel["oid"], "reloid");
         q.Columns.Add(rel["relname"]);
         q.Columns.Add(rel["relkind"]);
@@ -435,7 +425,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         SqlSelect q = SqlDml.Select(att
           .LeftOuterJoin(ad, att["attrelid"]==ad["adrelid"] && att["attnum"]==ad["adnum"])
           .InnerJoin(typ, typ["oid"]==att["atttypid"]));
-        q.Where = att["attisdropped"]==false && att["attnum"] > 0 && (SqlDml.In(att["attrelid"], oidRowCreator(tables.Keys)) || SqlDml.In(att["attrelid"], oidRowCreator(views.Keys)));
+        q.Where = att["attisdropped"]==false && att["attnum"] > 0
+          && (SqlDml.In(att["attrelid"], CreateOidRow(tables.Keys)) || SqlDml.In(att["attrelid"], CreateOidRow(views.Keys)));
         q.Columns.Add(att["attrelid"]);
         q.Columns.Add(att["attnum"]);
         q.Columns.Add(att["attname"]);
@@ -504,7 +495,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
         SqlSelect q = SqlDml.Select(ind
           .InnerJoin(rel, rel["oid"]==ind["indexrelid"])
           .LeftOuterJoin(spc, spc["oid"]==rel["reltablespace"]));
-        q.Where = SqlDml.In(ind["indrelid"], oidRowCreator(tables.Keys)) && !SqlDml.Exists(subSelect);
+        q.Where = SqlDml.In(ind["indrelid"], CreateOidRow(tables.Keys)) && !SqlDml.Exists(subSelect);
         q.Columns.Add(ind["indrelid"]);
         q.Columns.Add(ind["indexrelid"]);
         q.Columns.Add(rel["relname"]);
@@ -623,13 +614,13 @@ namespace Xtensive.Sql.PostgreSql.v8_0
 
       #region Domains
 
-      var domains = new Dictionary<int, Domain>();
+      var domains = new Dictionary<long, Domain>();
       if (schemas.Count > 0) {
         SqlTableRef typ = PgType;
         SqlTableRef basetyp = PgType;
         SqlSelect q = SqlDml.Select(typ.InnerJoin(basetyp, basetyp["oid"]==typ["typbasetype"]));
         q.Where = typ["typisdefined"]==true && typ["typtype"]=='d'
-          && SqlDml.In(typ["typnamespace"], oidRowCreator(schemas.Keys))
+          && SqlDml.In(typ["typnamespace"], CreateOidRow(schemas.Keys))
             && typ["typowner"]==me;
         q.Columns.Add(typ["oid"]);
         q.Columns.Add(typ["typname"], "typname");
@@ -670,8 +661,8 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       if (tables.Count > 0 || domains.Count > 0) {
         SqlTableRef con = PgConstraint;
         SqlSelect q = SqlDml.Select(con);
-        q.Where = SqlDml.In(con["conrelid"], oidRowCreator(tables.Keys))
-          || SqlDml.In(con["contypid"], oidRowCreator(domains.Keys));
+        q.Where = SqlDml.In(con["conrelid"], CreateOidRow(tables.Keys))
+          || SqlDml.In(con["contypid"], CreateOidRow(domains.Keys));
         q.Columns.AddRange(con["conname"], con["contype"], con["condeferrable"],
           con["condeferred"], con["conrelid"], con["contypid"], con["conkey"], con["consrc"],
           con["confrelid"], con["confkey"], con["confupdtype"],
@@ -795,10 +786,6 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       #endregion
     }
 
-    protected void ExtractStoredProcedures(Schema schema)
-    {
-    }
-
     protected virtual void AddSpecialIndexQueryColumns(SqlSelect query, SqlTableRef spc, SqlTableRef rel, SqlTableRef ind, SqlTableRef depend)
     {
     }
@@ -893,7 +880,7 @@ namespace Xtensive.Sql.PostgreSql.v8_0
     /// <summary>
     /// Gets and caches the inner identifier of the current database user.
     /// </summary>
-    protected int GetMyUserSysId()
+    private int GetMyUserSysId()
     {
       if (mUserSysId < 0)
         using (var cmd = Connection.CreateCommand("SELECT usesysid FROM pg_user WHERE usename = user"))
@@ -901,13 +888,16 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       return mUserSysId;
     }
 
-    protected virtual string QuoteIdentifier(params string[] names)
+    private SqlRow CreateOidRow(IEnumerable<long> oids)
     {
-      string[] names2 = new string[names.Length];
-      for (int i = 0; i < names.Length; i++) {
-        names2[i] = names[i].Replace("\"", "\"\"");
-      }
-      return ("\"" + string.Join("\".\"", names2) + "\"");
+      var result = SqlDml.Row();
+      foreach (var oid in oids)
+        result.Add(oid);
+      // make sure it is not empty, so that "IN" expression always works
+      // add an invalid OID value 
+      if (result.Count == 0)
+        result.Add(-1000);
+      return result;
     }
 
     // Constructor

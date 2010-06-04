@@ -238,19 +238,17 @@ namespace Xtensive.Sql.PostgreSql.v8_0
           var builder = new StringBuilder();
           builder.Append(")");
           AppendIndexStorageParameters(builder, index);
-
-          if (!String.IsNullOrEmpty(index.Filegroup)) {
+          if (!string.IsNullOrEmpty(index.Filegroup))
             builder.Append(" TABLESPACE " + QuoteIdentifier(index.Filegroup));
-          }
-
-          //cluster in a separate command
-          if (index.IsClustered) {
-            builder.AppendFormat(BatchItemDelimiter + " CLUSTER {0} ON {1}"
-              , QuoteIdentifier(index.Name)
-              , QuoteIdentifier(index.DataTable.Schema.Name, index.DataTable.Name)
-              );
-          }
           return builder.ToString();
+        case CreateIndexSection.Exit:
+          // cluster in a separate command
+          if (index.IsClustered)
+            return string.Format(
+              BatchItemDelimiter + " CLUSTER {0} ON {1}",
+              QuoteIdentifier(index.Name),
+              QuoteIdentifier(index.DataTable.Schema.Name, index.DataTable.Name));
+          return string.Empty;
         case CreateIndexSection.Where:
           return " WHERE ";
         default:
@@ -749,16 +747,17 @@ namespace Xtensive.Sql.PostgreSql.v8_0
       case SqlDateTimePart.DayOfWeek:
         return "DOW";
       }
+
       return base.Translate(part);
     }
 
     public override string Translate(SqlLockType lockType)
     {
-      if (lockType.Supports(SqlLockType.SkipLocked))
+      if (lockType.Supports(SqlLockType.SkipLocked)
+        || lockType.Supports(SqlLockType.Shared)
+        || lockType.Supports(SqlLockType.ThrowIfLocked))
         return base.Translate(lockType);
-      return string.Format("FOR {0}{1}",
-        lockType.Supports(SqlLockType.Shared) ? "SHARE" : "UPDATE",
-        lockType.Supports(SqlLockType.ThrowIfLocked) ? " NOWAIT" : "");
+      return "FOR UPDATE";
     }
 
     private static string TranslateClrType(Type type)
