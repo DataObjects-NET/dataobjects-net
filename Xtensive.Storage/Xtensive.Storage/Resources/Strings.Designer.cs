@@ -1900,6 +1900,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Paired field for field &apos;{0}.{1}&apos; should be assignable to type &apos;{2}&apos;..
+        /// </summary>
+        internal static string ExPairedFieldForFieldXYShouldBeAssignableToTypeZ {
+            get {
+                return ResourceManager.GetString("ExPairedFieldForFieldXYShouldBeAssignableToTypeZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Paired field &apos;{0}&apos; has wrong type. A descendant of Entity or EntitySet is expected..
         /// </summary>
         internal static string ExPairedFieldXHasWrongTypeItShouldBeReferenceToEntityOrAEntitySet {
@@ -3745,6 +3754,15 @@ namespace Xtensive.Storage.Resources {
         internal static string Null {
             get {
                 return ResourceManager.GetString("Null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paired field for field &apos;{0}.{1}&apos; should be EntitySet of type assignable to &apos;{2}&apos;..
+        /// </summary>
+        internal static string PairedFieldForFieldXYShouldBeEntitySetOfTypeAssignableToZ {
+            get {
+                return ResourceManager.GetString("PairedFieldForFieldXYShouldBeEntitySetOfTypeAssignableToZ", resourceCulture);
             }
         }
         
