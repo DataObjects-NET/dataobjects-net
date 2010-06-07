@@ -11,11 +11,11 @@ using Xtensive.Storage.Aspects;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Xtensive.Storage.Tests.Part2")]
+[assembly: AssemblyTitle("Xtensive.Storage.Tests.Sandbox")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Xtensive LLC")]
-[assembly: AssemblyProduct("Xtensive.Storage.Tests.Part2")]
+[assembly: AssemblyProduct("Xtensive.Storage.Tests.Sandbox")]
 [assembly: AssemblyCopyright("Copyright © Xtensive LLC 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -44,4 +44,4 @@ using Xtensive.Storage.Aspects;
 [assembly : SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
 
 // This ensures the methods of Persistent & SessionBound will be aspected
-[assembly: Persistent(AttributeTargetAssemblies = "Xtensive.Storage.Tests.Part2")]
+[assembly: Persistent(AttributeTargetAssemblies = "Xtensive.Storage.Tests.Sandbox")]
