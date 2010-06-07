@@ -10,11 +10,11 @@ using System.Security.Permissions;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Xtensive.Storage.Tests.Part2")]
+[assembly: AssemblyTitle("Xtensive.Storage.Tests.Sandbox")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Xtensive LLC")]
-[assembly: AssemblyProduct("Xtensive.Storage.Tests.Part2")]
+[assembly: AssemblyProduct("Xtensive.Storage.Tests.Sandbox")]
 [assembly: AssemblyCopyright("Copyright © Xtensive LLC 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -40,4 +40,3 @@ using System.Security.Permissions;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly : CLSCompliant(true)]
-
