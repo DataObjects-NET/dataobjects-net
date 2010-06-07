@@ -591,16 +591,14 @@ namespace Xtensive.Sql.PostgreSql.v8_0
           using (var cmd = Connection.CreateCommand(q))
           using (DbDataReader dr = cmd.ExecuteReader()) {
             while (dr.Read()) {
-              var exprIndexInfo = expressionIndexes[Convert.ToInt32(dr.GetInt64(1))];
+              var exprIndexInfo = expressionIndexes[Convert.ToInt64(dr[1])];
               string[] indKeyArray = exprIndexInfo.Columns.Split(' ');
               for (int j = 0; j < indKeyArray.Length; j++) {
                 int colIndex = Int32.Parse(indKeyArray[j]);
-                if (colIndex > 0) {
-                  exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt32(dr.GetInt64(0))][colIndex], true);
-                }
-                else {
+                if (colIndex > 0)
+                  exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt64(dr[0])][colIndex], true);
+                else
                   exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dr[(j + 1).ToString()].ToString()));
-                }
               }
             }
           }
