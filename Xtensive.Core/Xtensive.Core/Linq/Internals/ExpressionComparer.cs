@@ -111,8 +111,9 @@ namespace Xtensive.Core.Linq
     {
       return VisitNew(x.NewExpression, y.NewExpression)
         && x.Initializers.Count==y.Initializers.Count
-          && x.Initializers.Zip(y.Initializers)
-            .All(p => p.First.AddMethod==p.Second.AddMethod && CompareExpressionSequences(p.First.Arguments, p.Second.Arguments));
+        && x.Initializers
+          .Zip(y.Initializers)
+          .All(p => VisitElementInit(p.First, p.Second));
     }
 
     /// <summary>
@@ -125,8 +126,43 @@ namespace Xtensive.Core.Linq
     {
       return VisitNew(x.NewExpression, y.NewExpression)
         && x.Bindings.Count==y.Bindings.Count
-          && x.Bindings.Zip(y.Bindings)
-            .All(p => p.First.BindingType==p.Second.BindingType && p.First.Member==p.Second.Member);
+        && x.Bindings
+          .Zip(y.Bindings)
+          .All(p => VisitMemberBinding(p.First, p.Second));
+    }
+
+    private bool VisitMemberBinding(MemberBinding x, MemberBinding y)
+    {
+      var result = x.BindingType==y.BindingType && x.Member==y.Member;
+      if (!result)
+        return false;
+      switch (x.BindingType) {
+        case MemberBindingType.Assignment:
+          var ax = (MemberAssignment)x;
+          var ay = (MemberAssignment)y;
+          return Visit(ax.Expression, ay.Expression);
+        case MemberBindingType.MemberBinding:
+          var mbx = (MemberMemberBinding)x;
+          var mby = (MemberMemberBinding)y;
+          return mbx.Bindings.Count==mby.Bindings.Count
+                 && mbx.Bindings
+                    .Zip(mby.Bindings)
+                    .All(p => VisitMemberBinding(p.First, p.Second));
+        case MemberBindingType.ListBinding:
+          var mlx = (MemberListBinding)x;
+          var mly = (MemberListBinding)y;
+          return mlx.Initializers.Count==mly.Initializers.Count
+                 && mlx.Initializers
+                    .Zip(mly.Initializers)
+                    .All(p => VisitElementInit(p.First, p.Second));
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+    }
+
+    private bool VisitElementInit(ElementInit x, ElementInit y)
+    {
+      return x.AddMethod==y.AddMethod && CompareExpressionSequences(x.Arguments, y.Arguments);
     }
 
     private bool VisitInvocation(InvocationExpression x, InvocationExpression y)
