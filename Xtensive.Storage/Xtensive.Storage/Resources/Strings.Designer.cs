@@ -629,6 +629,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ConnectionInfo is missing. If you are using configuration file you should specify either &apos;connectionUrl&apos; element or &apos;connectionString&apos; and &apos;provider&apos; elements.
+        /// </summary>
+        internal static string ExConnectionInfoIsMissing {
+            get {
+                return ResourceManager.GetString("ExConnectionInfoIsMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ConnectionInfo is wrong. You should set either ConnectionUrl element or Provider and ConnectionString elements..
         /// </summary>
         internal static string ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnectionStringElements {
