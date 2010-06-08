@@ -14,6 +14,7 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
+using Xtensive.Storage.Resources;
 using ModelTypeInfo = Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage.Upgrade
@@ -35,6 +36,8 @@ namespace Xtensive.Storage.Upgrade
     public static Domain Build(DomainConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      if (configuration.ConnectionInfo==null)
+        throw new ArgumentNullException("configuration.ConnectionInfo", Strings.ExConnectionInfoIsMissing);
       configuration.Lock();
       var context = new UpgradeContext(configuration);
       using (context.Activate()) {
