@@ -122,13 +122,13 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets the connection info (URL).
+    /// Gets or sets the connection info.
     /// </summary>
     /// <example>
     /// <code lang="cs" source="..\Xtensive.Storage\Xtensive.Storage.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Connection URL examples" />
     /// <code lang="cs">
     /// var configuration = new DomainConfiguration();
-    /// configuration.ConnectionInfo = new UrlInfo(connectionUrl);
+    /// configuration.ConnectionInfo = new ConnectionInfo(connectionUrl);
     /// </code>
     /// </example>
     public ConnectionInfo ConnectionInfo

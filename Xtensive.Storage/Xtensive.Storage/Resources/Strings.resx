@@ -1427,4 +1427,7 @@ Actions:
 	<data name="PairedFieldForFieldXYShouldBeEntitySetOfTypeAssignableToZ">
 		<value><![CDATA[Paired field for field '{0}.{1}' should be EntitySet of type assignable to '{2}'.]]></value>
 	</data>
+	<data name="ExConnectionInfoIsMissing">
+		<value><![CDATA[ConnectionInfo is missing. If you are using configuration file you should specify either 'connectionUrl' element or 'connectionString' and 'provider' elements]]></value>
+	</data>
 </root>
