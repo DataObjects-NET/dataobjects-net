@@ -28,6 +28,9 @@ namespace Xtensive.Core.Weaver
     // "$(ProjectDir)..\..\Xtensive.Licensing\Protection\Protect.bat" "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)" "true"
     private const string XtensiveLicensingManagerExe = "Xtensive.Licensing.Manager.exe";
 
+    public static LicenseInfo CurrentLicense;
+    public static HashSet<string> ErrorMessages = new HashSet<string>();
+
     // Check that public key token matches what's expected.
     private static bool IsPublicTokenConsistent(byte[] assemblyToken)
     {
@@ -44,16 +47,17 @@ namespace Xtensive.Core.Weaver
     {
       base.Initialize();
       var licenseInfo = LicenseValidator.GetLicense();
-      var isConsistent = base.Project.Module.Assembly.IsStronglyNamed 
+      var isXtensiveAssembly = base.Project.Module.Assembly.IsStronglyNamed 
         && IsPublicTokenConsistent(base.Project.Module.Assembly.GetPublicKeyToken());
-      if (!isConsistent) {
+      if (!isXtensiveAssembly) {
+        CurrentLicense = licenseInfo;
         var declarations = base.Project.Module.AssemblyRefs
           .Where(a => a.Name.StartsWith("Xtensive") && !a.Name.EndsWith("Tests") && !a.Name.Contains("Sample"))
           .ToList();
         if (declarations.Count!=0)
-          isConsistent = declarations.All(a => IsPublicTokenConsistent(a.GetPublicKeyToken()));
+          isXtensiveAssembly = declarations.All(a => IsPublicTokenConsistent(a.GetPublicKeyToken()));
       }
-      if (!isConsistent) {
+      if (!isXtensiveAssembly) {
         ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license validation failed.");
         return;
       }
