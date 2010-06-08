@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
@@ -54,8 +55,20 @@ namespace Xtensive.Storage.Building.Builders
           string.Format(Strings.ExPairedFieldXHasWrongTypeItShouldBeReferenceToEntityOrAEntitySet, masterFieldName));
 
       var pairedField = slave.OwnerField;
-
       var master = masterField.Association;
+      var pairedFieldOwner = pairedField.DeclaringType.UnderlyingType;
+
+      if (masterField.IsEntity && !pairedFieldOwner.IsAssignableFrom(masterField.ValueType))
+        throw new DomainBuilderException(string.Format(
+          Strings.ExPairedFieldForFieldXYShouldBeAssignableToTypeZ,
+          pairedField.DeclaringType.UnderlyingType.GetShortName(),
+          pairedField.Name, pairedFieldOwner.GetShortName()));
+      if (masterField.IsEntitySet && !pairedFieldOwner.IsAssignableFrom(masterField.ItemType))
+        throw new DomainBuilderException(string.Format(
+          Strings.PairedFieldForFieldXYShouldBeEntitySetOfTypeAssignableToZ,
+          pairedField.DeclaringType.UnderlyingType.GetShortName(),
+          pairedField.Name, pairedFieldOwner.GetShortName()));
+
       if (master.Reversed!=null) {
         if (master.Reversed!=slave
           || (masterField.IsEntitySet && pairedField.IsEntitySet) // Unclear which side is virtual

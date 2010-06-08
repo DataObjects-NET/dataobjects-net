@@ -32,6 +32,7 @@ namespace Xtensive.Core.Linq
       var tree = constantExtractor.Process().ToExpressionTree();
       var constants = constantExtractor.GetConstants();
       var compiled = cache.GetValue(tree, _tree => ((LambdaExpression) _tree.ToExpression()).Compile());
+//      var compiled = ((LambdaExpression) tree.ToExpression()).Compile();
       return new Pair<Delegate, object[]>(compiled, constants);
     }
 
