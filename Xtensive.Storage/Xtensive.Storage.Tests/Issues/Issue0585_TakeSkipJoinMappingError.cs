@@ -108,7 +108,7 @@ namespace Xtensive.Storage.Tests.Issues
       [Field]
       public string Name { get; set; }
 
-      [Field, Association(OnTargetRemove = OnRemoveAction.Clear, PairTo = "Roles")]
+      [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
       public EntitySet<User> Users { get; private set; }
 
       [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
