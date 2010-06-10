@@ -8,7 +8,6 @@ using System;
 using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Configuration;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Configuration
@@ -32,7 +31,12 @@ namespace Xtensive.Storage.Configuration
     ///<summary>
     /// Default isolation level.
     ///</summary>
-    public const IsolationLevel DefaultDefaultIsolationLevelValue = IsolationLevel.RepeatableRead;
+    public const IsolationLevel DefaultDefaultIsolationLevel = IsolationLevel.RepeatableRead;
+
+    /// <summary>
+    /// Default command timeout 
+    /// </summary>
+    public const int DefaultDefaultCommandTimeout = 30;
 
     /// <summary>
     /// Default batch size.
@@ -48,7 +52,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static readonly SessionConfiguration Default;
-    
+
     private SessionOptions options = SessionOptions.Default;
     private string userName = string.Empty;
     private string password = string.Empty;
@@ -56,10 +60,11 @@ namespace Xtensive.Storage.Configuration
     private int batchSize = DefaultBatchSize;
     private int entityChangeRegistrySize = DefaultEntityChangeRegistrySize;
     private SessionCacheType cacheType = SessionCacheType.Default;
-    private IsolationLevel defaultIsolationLevel = DefaultDefaultIsolationLevelValue; // what a fancy name?
+    private IsolationLevel defaultIsolationLevel = DefaultDefaultIsolationLevel; // what a fancy name?
+    private int defaultCommandTimeout = DefaultDefaultCommandTimeout;
     private ReaderPreloadingPolicy readerPreloading = ReaderPreloadingPolicy.Default;
     private Type serviceContainerType;
-    
+
     /// <summary>
     /// Gets the session name.
     /// </summary>
@@ -115,13 +120,25 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets the default isolation level. 
-    /// Default value is <see cref="DefaultDefaultIsolationLevelValue"/>.
+    /// Default value is <see cref="DefaultDefaultIsolationLevel"/>.
     /// </summary>
     public IsolationLevel DefaultIsolationLevel {
       get { return defaultIsolationLevel; }
       set {
         this.EnsureNotLocked();
         defaultIsolationLevel = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the default command timeout.
+    /// Default value is <see cref="DefaultDefaultCommandTimeout"/>.
+    /// </summary>
+    public int DefaultCommandTimeout {
+      get { return defaultCommandTimeout; }
+      set {
+        this.EnsureNotLocked();
+        defaultCommandTimeout = value;
       }
     }
 
@@ -196,8 +213,7 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets or sets the type of the service container.
     /// </summary>
-    public Type ServiceContainerType 
-    {
+    public Type ServiceContainerType {
       get { return serviceContainerType; }
       set {
         this.EnsureNotLocked();
@@ -208,7 +224,8 @@ namespace Xtensive.Storage.Configuration
     /// <inheritdoc/>
     public override void Validate()
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThan(CacheSize, -1, "CacheSize");
+      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(CacheSize, 0, "CacheSize");
+      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(DefaultCommandTimeout, 0, "DefaultCommandTimeout");
     }
 
     /// <inheritdoc/>
@@ -234,6 +251,7 @@ namespace Xtensive.Storage.Configuration
       EntityChangeRegistrySize = configuration.EntityChangeRegistrySize;
       ReaderPreloading = configuration.readerPreloading;
       DefaultIsolationLevel = configuration.DefaultIsolationLevel;
+      DefaultCommandTimeout = configuration.DefaultCommandTimeout;
       ServiceContainerType = configuration.ServiceContainerType;
     }
 

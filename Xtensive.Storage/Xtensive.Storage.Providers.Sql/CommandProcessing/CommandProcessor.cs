@@ -175,7 +175,9 @@ namespace Xtensive.Storage.Providers.Sql
 
     private Command CreateCommand()
     {
-      return new Command(driver, session, connection.CreateCommand());
+      var dbCommand = connection.CreateCommand();
+      dbCommand.CommandTimeout = session.CommandTimeout;
+      return new Command(driver, session, dbCommand);
     }
 
     #endregion

@@ -37,7 +37,9 @@ namespace Xtensive.Storage.Providers.Sql
       var sqlConnection = Connection;
       if (sqlConnection==null)
         throw new InvalidOperationException(Strings.ExConnectionIsNotOpen);
-      return sqlConnection.CreateCommand();
+      var dbCommand = sqlConnection.CreateCommand();
+      dbCommand.CommandTimeout = Session.CommandTimeout;
+      return dbCommand;
     }
   }
 }

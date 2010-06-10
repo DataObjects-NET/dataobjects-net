@@ -6,6 +6,7 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -128,9 +129,16 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets the attached <see cref="Disconnected.DisconnectedState"/> object, if any.
+    /// Gets the attached <see cref="Storage.DisconnectedState"/> object, if any.
     /// </summary>
     public DisconnectedState DisconnectedState { get; internal set; }
+
+    /// <summary>
+    /// Gets or sets timeout for all <see cref="IDbCommand"/>s that
+    /// are executed within this session.
+    /// <seealso cref="IDbCommand.CommandTimeout"/>
+    /// </summary>
+    public int CommandTimeout { get; set; }
 
     /// <summary>
     /// Gets or sets the <see cref="Current"/> session resolver to use
@@ -295,6 +303,18 @@ namespace Xtensive.Storage
 
     #endregion
 
+    /// <summary>
+    /// Temporary overrides <see cref="CommandTimeout"/>.
+    /// </summary>
+    /// <param name="newTimeout">New <see cref="CommandTimeout"/> value.</param>
+    /// <returns>Command timeout overriding scope.</returns>
+    public IDisposable OverrideCommandTimeout(int newTimeout)
+    {
+      var oldTimeout = CommandTimeout;
+      CommandTimeout = newTimeout;
+      return new Disposable(_ => { CommandTimeout = oldTimeout; });
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -329,6 +349,7 @@ namespace Xtensive.Storage
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       EntityEventBroker = new EntityEventBroker();
+      CommandTimeout = configuration.DefaultCommandTimeout;
       if (activate)
         sessionScope = new SessionScope(this);
       //CurrentOperationContext = OperationContext.Default;

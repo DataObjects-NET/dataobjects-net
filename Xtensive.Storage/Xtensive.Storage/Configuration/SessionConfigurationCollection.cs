@@ -149,10 +149,8 @@ namespace Xtensive.Storage.Configuration
       system = BuildConfiguration(WellKnown.Sessions.System);
       service = BuildConfiguration(WellKnown.Sessions.Service);
       keyGenerator = BuildConfiguration(WellKnown.Sessions.KeyGenerator);
-      foreach (var item in this) {
-        if (item.IsLocked)
-          continue;
-        ApplyDefaultSettings(item);
+      foreach (var item in this.Where(item => !item.IsLocked)) {
+        //ApplyDefaultSettings(item);
         if (item == system || item == keyGenerator)
           item.Options = item.Options & ~SessionOptions.AutoShortenTransactions;
         item.Lock(recursive);
@@ -196,7 +194,7 @@ namespace Xtensive.Storage.Configuration
       if (config.CacheType != Default.CacheType && config.CacheType == SessionCacheType.Default)
         config.CacheType = Default.CacheType;
       if (config.DefaultIsolationLevel != Default.DefaultIsolationLevel
-        && config.DefaultIsolationLevel == SessionConfiguration.DefaultDefaultIsolationLevelValue)
+        && config.DefaultIsolationLevel == SessionConfiguration.DefaultDefaultIsolationLevel)
         config.DefaultIsolationLevel = Default.DefaultIsolationLevel;
       config.Options = config.Options | Default.Options;
     }
