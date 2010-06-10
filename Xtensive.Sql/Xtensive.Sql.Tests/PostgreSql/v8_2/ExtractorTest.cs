@@ -8,20 +8,14 @@ using System;
 using System.Diagnostics;
 using NUnit.Framework;
 
-namespace Xtensive.Sql.Tests.PostgreSql.v8_3
+namespace Xtensive.Sql.Tests.PostgreSql.v8_2
 {
   [TestFixture]
-  public class ExtractorTest : v8_2.ExtractorTest
+  public class ExtractorTest : v8_1.ExtractorTest
   {
     protected override string Url
     {
-      get { return TestUrl.PostgreSql83; }
-    }
-
-    [Test]
-    public void FullTextIndexExtractorTest()
-    {
-      var schema = Driver.ExtractDefaultSchema(Connection);
+      get { return TestUrl.PostgreSql82; }
     }
   }
 }
