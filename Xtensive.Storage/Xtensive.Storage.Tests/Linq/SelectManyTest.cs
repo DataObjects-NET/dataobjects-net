@@ -247,15 +247,16 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (NullReferenceException))]
+//    [ExpectedException(typeof (NullReferenceException))]
     public void OuterJoinEntityTest()
     {
       int assertCount =
         Query.All<Order>().Count() +
           Query.All<Customer>().Count(c => !Query.All<Order>().Any(o => o.Customer==c));
-      var result = from c in Query.All<Customer>()
-      from o in Query.All<Order>().Where(o => o.Customer==c).DefaultIfEmpty()
-      select new {c.ContactName, o.OrderDate};
+      var result = 
+        from c in Query.All<Customer>()
+        from o in Query.All<Order>().Where(o => o.Customer==c).DefaultIfEmpty()
+        select new {c.ContactName, o.OrderDate};
       var list = result.ToList();
       Assert.AreEqual(assertCount, list.Count);
       QueryDumper.Dump(list);

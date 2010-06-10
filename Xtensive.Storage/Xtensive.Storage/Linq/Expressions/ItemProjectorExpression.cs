@@ -144,6 +144,11 @@ namespace Xtensive.Storage.Linq.Expressions
           entityFieldExpression.RegisterEntityExpression(offset);
           return entityFieldExpression.Entity;
         }
+        if (e is FieldExpression) {
+          var fe = (FieldExpression) e;
+          if (fe.ExtendedType==ExtendedExpressionType.Field)
+            return fe.RemoveOwner();
+        }
         return null;
       })
         .Replace(Item);
