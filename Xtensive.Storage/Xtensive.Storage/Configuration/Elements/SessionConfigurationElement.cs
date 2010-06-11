@@ -104,10 +104,9 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.DefaultCommandTimeout" copy="true" />
     /// </summary>
-    [ConfigurationProperty(CommandTimeoutElementName,
-      DefaultValue = SessionConfiguration.DefaultDefaultCommandTimeout)]
-    public int DefaultCommandTimeout {
-      get { return (int) this[CommandTimeoutElementName]; }
+    [ConfigurationProperty(CommandTimeoutElementName, DefaultValue = null)]
+    public int? DefaultCommandTimeout {
+      get { return (int?) this[CommandTimeoutElementName]; }
       set { this[CommandTimeoutElementName] = value; }
     }
 

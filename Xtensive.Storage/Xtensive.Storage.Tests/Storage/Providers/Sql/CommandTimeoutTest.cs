@@ -43,11 +43,12 @@ namespace Xtensive.Storage.Tests.Storage.Providers.Sql
         using (var session = Session.Open(domain)) {
           var oldValue = session.CommandTimeout;
           const int newValue = 50;
+          const int newValue2 = 100;
           session.CommandTimeout = newValue;
           var sqlAccessor = session.Services.Get<DirectSqlAccessor>();
           Assert.AreEqual(newValue, sqlAccessor.CreateCommand().CommandTimeout);
-          using (session.OverrideCommandTimeout(oldValue))
-            Assert.AreEqual(oldValue, sqlAccessor.CreateCommand().CommandTimeout);
+          using (session.OverrideCommandTimeout(newValue2))
+            Assert.AreEqual(newValue2, sqlAccessor.CreateCommand().CommandTimeout);
         }
       }
     }

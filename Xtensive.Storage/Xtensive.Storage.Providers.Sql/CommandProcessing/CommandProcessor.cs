@@ -175,7 +175,8 @@ namespace Xtensive.Storage.Providers.Sql
     private Command CreateCommand()
     {
       var dbCommand = connection.CreateCommand();
-      dbCommand.CommandTimeout = session.CommandTimeout;
+      if (session.CommandTimeout!=null)
+        dbCommand.CommandTimeout = session.CommandTimeout.Value;
       return new Command(driver, session, dbCommand);
     }
 
