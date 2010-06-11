@@ -253,28 +253,10 @@ namespace Xtensive.Storage.Upgrade
 
     private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames, IEnumerable<ChangeFieldTypeHint> typeChanges)
     {
-      var mappedTypes = typeMapping.Select(pair => pair.Key).ToList();
-      var sortedMappedTypes = TopologicalSorter.Sort(mappedTypes, (l, r) => HasStructureFieldDependency(l, r));
-      var sortedMappedPairs = sortedMappedTypes
-        .Select(type => new KeyValuePair<StoredTypeInfo, StoredTypeInfo>(type, typeMapping[type]));
-
-      foreach (var pair in sortedMappedPairs)
+      foreach (var pair in typeMapping)
         BuildFieldMapping(renames, typeChanges, pair.Key, pair.Value);
       foreach (var pair in fieldMapping.ToList()) // Will be modified, so .ToList is necessary
         MapNestedFields(pair.Key, pair.Value);
-    }
-
-    private bool HasStructureFieldDependency(StoredTypeInfo dependency, StoredTypeInfo dependent)
-    {
-      if (!dependency.IsStructure)
-        return false; // Not interesting case
-      if (!dependent.IsStructure)
-        return true; // Let's consider any Type depends on any Structure
-      foreach (var field in dependent.AllFields) {
-        if (field.DeclaringType==dependent)
-          return true;
-      }
-      return false;
     }
 
     private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames, IEnumerable<ChangeFieldTypeHint> typeChanges, StoredTypeInfo oldType, StoredTypeInfo newType)

@@ -94,7 +94,7 @@ namespace Xtensive.Storage
         return notAvailable ? null : entity;
       }
       internal set {
-        if (entity!=null)
+        if (entity!=value && entity!=null)
           throw Exceptions.AlreadyInitialized("Entity");
         entity = value;
       }
