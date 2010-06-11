@@ -25,6 +25,7 @@ namespace Xtensive.Storage.Model
   {
     private readonly Type baseType = typeof (object);
     private readonly Dictionary<Type, TypeInfo> typeTable = new Dictionary<Type, TypeInfo>();
+    private readonly Dictionary<string, TypeInfo> fullNameTable = new Dictionary<string, TypeInfo>();
     private readonly Dictionary<TypeInfo, TypeInfo> ancestorTable = new Dictionary<TypeInfo, TypeInfo>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> descendantTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> interfaceTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
@@ -112,6 +113,69 @@ namespace Xtensive.Storage.Model
     public ICountable<TypeInfo> Interfaces
     {
       get { return Find(TypeAttributes.Interface); }
+    }
+
+    /// <summary>
+    /// Removes element from the the collection.
+    /// </summary>
+    /// <param name="value">Item to remove.</param>
+    /// <exception cref="NotSupportedException">Always</exception>
+    public override bool Remove(TypeInfo value)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <summary>
+    /// Removes the element at the specified index of the
+    /// collection instance.
+    /// </summary>
+    /// <param name="index">The zero-based index of the element to remove.</param>
+    /// <exception cref="NotSupportedException">Always</exception>
+    public override void RemoveAt(int index)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <summary>
+    /// Removes all objects from the
+    /// collection instance.
+    /// </summary>
+    /// <exception cref="NotSupportedException">Always</exception>
+    public override void Clear()
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <summary>
+    /// Determines whether collection contains a specific item.
+    /// </summary>
+    /// <param name="item">Value to search for.</param>
+    /// <returns>
+    ///   <see langword="True"/> if the object is found; otherwise, <see langword="false"/>.
+    /// </returns>
+    public override bool Contains(TypeInfo item)
+    {
+      if (item==null)
+        return false;
+      TypeInfo result;
+      if (!TryGetValue(item.UnderlyingType, out result))
+        return false;
+      return result==item;
+    }
+
+    #region FIndXxx methods
+
+    /// <summary>
+    /// Finds the type by its full name.
+    /// </summary>
+    /// <param name="fullName">The full name of the type to find.</param>
+    /// <returns>Found type, if any; 
+    /// <see langword="null" />, if there is no type with specified full name.</returns>
+    public TypeInfo Find(string fullName)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(fullName, "fullName");
+      TypeInfo result;
+      return fullNameTable.TryGetValue(fullName, out result) ? result : null;
     }
 
     /// <summary>
@@ -261,6 +325,98 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Finds the ancestor of the specified <paramref name="type"/>.
+    /// </summary>
+    /// <param name="type">The type to search ancestor for.</param>
+    /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="type"/> or 
+    /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
+    private TypeInfo FindAncestor(Type type)
+    {
+      if (type == baseType || type.BaseType == null)
+        return null;
+      return Contains(type.BaseType) ? this[type.BaseType] : FindAncestor(type.BaseType);
+    }
+
+    /// <summary>
+    /// Find the <see cref="IList{T}"/> of interfaces that specified <paramref name="type"/> implements.
+    /// </summary>
+    /// <param name="type">The type to search interfaces for.</param>
+    /// <returns><see cref="IList{T}"/> of <see name="TypeDef"/> instance that are implemented by the specified <paramref name="type"/>.</returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
+    private IEnumerable<TypeInfo> FindInterfaces(Type type)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+
+      var @interfaces = type.GetInterfaces();
+      for (int index = 0; index < @interfaces.Length; index++) {
+        TypeInfo result;
+        if (TryGetValue(@interfaces[index], out result))
+          yield return result;
+      }
+    }
+
+    #endregion
+
+    #region IFilterable<TypeAttributes,TypeInfo> Members
+
+    /// <summary>
+    /// Finds all <see cref="TypeInfo"/> instances according to specified criteria.
+    /// </summary>
+    /// <param name="criteria">The attributes.</param>
+    /// <returns><see cref="ICountable{TItem}"/> that contains all found instances.</returns>
+    public ICountable<TypeInfo> Find(TypeAttributes criteria)
+    {
+      // We don't have any instance that has attributes == TypeAttributes.None
+      if (criteria == TypeAttributes.None)
+        return new EmptyCountable<TypeInfo>();
+
+      return Find(criteria, MatchType.Partial);
+    }
+
+    public ICountable<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
+    {
+      if (criteria == TypeAttributes.None)
+        return new EmptyCountable<TypeInfo>();
+
+      switch (matchType) {
+      case MatchType.Partial:
+        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) > 0));
+      case MatchType.Full:
+        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) == criteria));
+      default:
+        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) == 0));
+      }
+
+    }
+
+    #endregion
+
+    /// <inheritdoc/>
+    protected override void OnInserted(TypeInfo value, int index)
+    {
+      base.OnInserted(value, index);
+      typeTable.Add(value.UnderlyingType, value);
+      fullNameTable.Add(value.UnderlyingType.FullName, value);
+
+//      if (value.IsEntity) {
+//        descendants[value] = new HashSet<TypeInfo>();
+//        interfaces[value] = new HashSet<TypeInfo>();
+//        RegisterDescendant(value);
+//      }
+//      if (value.IsStructure) {
+//        descendants[value] = new HashSet<TypeInfo>();
+//        RegisterDescendant(value);
+//      }
+//      if (value.IsInterface) {
+//        descendants[value] = new HashSet<TypeInfo>();
+//        interfaces[value] = new HashSet<TypeInfo>();
+//        implementors[value] = new HashSet<TypeInfo>();
+//        RegisterInterface(value);
+//      }
+    }
+
+    /// <summary>
     /// Generates the type ids.
     /// </summary>
     public void BuildTypeIdIndex()
@@ -321,144 +477,6 @@ namespace Xtensive.Storage.Model
         implementorTable[@interface] = implementors;
       }
       implementors.Add(implementor);
-    }
-
-    /// <summary>
-    /// Finds the ancestor of the specified <paramref name="type"/>.
-    /// </summary>
-    /// <param name="type">The type to search ancestor for.</param>
-    /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="type"/> or 
-    /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
-    private TypeInfo FindAncestor(Type type)
-    {
-      if (type == baseType || type.BaseType == null)
-        return null;
-      return Contains(type.BaseType) ? this[type.BaseType] : FindAncestor(type.BaseType);
-    }
-
-    /// <summary>
-    /// Find the <see cref="IList{T}"/> of interfaces that specified <paramref name="type"/> implements.
-    /// </summary>
-    /// <param name="type">The type to search interfaces for.</param>
-    /// <returns><see cref="IList{T}"/> of <see name="TypeDef"/> instance that are implemented by the specified <paramref name="type"/>.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
-    private IEnumerable<TypeInfo> FindInterfaces(Type type)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-
-      var @interfaces = type.GetInterfaces();
-      for (int index = 0; index < @interfaces.Length; index++) {
-        TypeInfo result;
-        if (TryGetValue(@interfaces[index], out result))
-          yield return result;
-      }
-    }
-
-    /// <summary>
-    /// Removes element from the the collection.
-    /// </summary>
-    /// <param name="value">Item to remove.</param>
-    /// <exception cref="NotSupportedException">Always</exception>
-    public override bool Remove(TypeInfo value)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <summary>
-    /// Removes the element at the specified index of the
-    /// collection instance.
-    /// </summary>
-    /// <param name="index">The zero-based index of the element to remove.</param>
-    /// <exception cref="NotSupportedException">Always</exception>
-    public override void RemoveAt(int index)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <summary>
-    /// Removes all objects from the
-    /// collection instance.
-    /// </summary>
-    /// <exception cref="NotSupportedException">Always</exception>
-    public override void Clear()
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <summary>
-    /// Determines whether collection contains a specific item.
-    /// </summary>
-    /// <param name="item">Value to search for.</param>
-    /// <returns>
-    ///   <see langword="True"/> if the object is found; otherwise, <see langword="false"/>.
-    /// </returns>
-    public override bool Contains(TypeInfo item)
-    {
-      if (item==null)
-        return false;
-      TypeInfo result;
-      if (!TryGetValue(item.UnderlyingType, out result))
-        return false;
-      return result==item;
-    }
-
-    #region IFilterable<TypeAttributes,TypeInfo> Members
-
-    /// <summary>
-    /// Finds all <see cref="TypeInfo"/> instances according to specified criteria.
-    /// </summary>
-    /// <param name="criteria">The attributes.</param>
-    /// <returns><see cref="ICountable{TItem}"/> that contains all found instances.</returns>
-    public ICountable<TypeInfo> Find(TypeAttributes criteria)
-    {
-      // We don't have any instance that has attributes == TypeAttributes.None
-      if (criteria == TypeAttributes.None)
-        return new EmptyCountable<TypeInfo>();
-
-      return Find(criteria, MatchType.Partial);
-    }
-
-    public ICountable<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
-    {
-      if (criteria == TypeAttributes.None)
-        return new EmptyCountable<TypeInfo>();
-
-      switch (matchType) {
-      case MatchType.Partial:
-        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) > 0));
-      case MatchType.Full:
-        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) == criteria));
-      default:
-        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) == 0));
-      }
-
-    }
-
-    #endregion
-
-
-    /// <inheritdoc/>
-    protected override void OnInserted(TypeInfo value, int index)
-    {
-      base.OnInserted(value, index);
-      typeTable.Add(value.UnderlyingType, value);
-
-//      if (value.IsEntity) {
-//        descendants[value] = new HashSet<TypeInfo>();
-//        interfaces[value] = new HashSet<TypeInfo>();
-//        RegisterDescendant(value);
-//      }
-//      if (value.IsStructure) {
-//        descendants[value] = new HashSet<TypeInfo>();
-//        RegisterDescendant(value);
-//      }
-//      if (value.IsInterface) {
-//        descendants[value] = new HashSet<TypeInfo>();
-//        interfaces[value] = new HashSet<TypeInfo>();
-//        implementors[value] = new HashSet<TypeInfo>();
-//        RegisterInterface(value);
-//      }
     }
   }
 }

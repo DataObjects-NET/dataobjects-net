@@ -1433,4 +1433,7 @@ Actions:
   <data name="ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrConnectionStringElement" xml:space="preserve">
     <value>ConnectionInfo is wrong. You should set either  'connectionUrl' element or 'connectionString' element.</value>
   </data>
+	<data name="ExTypeWithNameXIsNotRegistered">
+		<value><![CDATA[Type with name '{0}' isn't registered in the Domain.]]></value>
+	</data>
 </root>
