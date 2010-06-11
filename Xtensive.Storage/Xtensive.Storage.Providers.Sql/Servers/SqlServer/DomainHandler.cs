@@ -4,9 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
-using Xtensive.Core.Collections;
 using Xtensive.Storage.Rse.Compilation;
-using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Providers.Sql.Servers.SqlServer
 {
