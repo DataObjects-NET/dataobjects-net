@@ -246,6 +246,8 @@ namespace Xtensive.Storage.Tests.Storage
 
     public MySessionBound()
     {
+      TestSession = Session;
+
       CheckState(TransactionState.None, SessionState.NotActive);
     }
 
