@@ -2567,6 +2567,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type with name &apos;{0}&apos; isn&apos;t registered in the Domain..
+        /// </summary>
+        internal static string ExTypeWithNameXIsNotRegistered {
+            get {
+                return ResourceManager.GetString("ExTypeWithNameXIsNotRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type with type TypeId=&apos;{0}&apos; is not found..
         /// </summary>
         internal static string ExTypeWithTypeIdXIsNotFound {

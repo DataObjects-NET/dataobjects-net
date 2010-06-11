@@ -32,9 +32,10 @@ namespace Xtensive.Storage
     private const char KeyFormatDelimiter = ':';
 
     protected Tuple value;
-    internal TypeReference TypeRef;
     private int? hashCode;
     private string cachedFormatResult;
+
+    internal TypeReference TypeRef { get; set; }
 
     /// <summary>
     /// Gets the key value.
@@ -210,9 +211,8 @@ namespace Xtensive.Storage
     {
       if (cachedFormatResult==null) {
         return new[] {
-          TypeRef.Type.UnderlyingType.AssemblyQualifiedName,
-          TypeRef.Accuracy.ToString(),
-          Value.Format()
+          Value.Format(),
+          TypeRef.Type.Hierarchy.Root.UnderlyingType.FullName
         }.RevertibleJoin(KeyFormatEscape, KeyFormatDelimiter);
       }
       return cachedFormatResult;
@@ -243,21 +243,23 @@ namespace Xtensive.Storage
     /// <see cref="Key"/> instance corresponding to the specified
     /// <paramref name="source"/> string.
     /// </returns>
+    /// <exception cref="InvalidOperationException">Invalid key format.</exception>
     public static Key Parse(Domain domain, string source)
     {
       if (source==null)
         return null;
       var parts = source.RevertibleSplit(KeyFormatEscape, KeyFormatDelimiter).ToList();
-      if (parts.Count != 3 || parts.Contains(null))
+      if (parts.Count != 2 || parts.Contains(null))
         throw new InvalidOperationException(Strings.ExInvalidKeyString);
-      var typeName = parts[0];
-      var accuracyString = parts[1];
-      var valueString = parts[2];
+      var valueString = parts[0];
+      var typeName = parts[1];
 
-      var type = domain.Model.Types[System.Type.GetType(typeName, true)];
-      var accuracy = (TypeReferenceAccuracy)Enum.Parse(typeof(TypeReferenceAccuracy), accuracyString, true);
-      var value = type.Key.TupleDescriptor.Parse(valueString);
-      return Create(domain, type, accuracy, value);
+      var typeInfo = domain.Model.Types.Find(typeName);
+      if (typeInfo==null)
+        throw new InvalidOperationException(
+          Strings.ExTypeWithNameXIsNotRegistered.FormatWith(typeName));
+      var value = typeInfo.Key.TupleDescriptor.Parse(valueString);
+      return Create(domain, typeInfo, TypeReferenceAccuracy.Hierarchy, value);
     }
 
     #endregion
