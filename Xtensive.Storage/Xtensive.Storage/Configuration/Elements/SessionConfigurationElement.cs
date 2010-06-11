@@ -6,8 +6,11 @@
 
 using System;
 using System.Configuration;
+using System.IO;
 using System.Transactions;
+using Xtensive.Core;
 using Xtensive.Core.Configuration;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Configuration.Elements
 {
@@ -28,6 +31,8 @@ namespace Xtensive.Storage.Configuration.Elements
     private const string ReaderPreloadingElementName = "readerPreloading";
     private const string ServiceContainerTypeElementName = "serviceContainerType";
     private const string EntityChangeRegistrySizeElementName = "entityChangeRegistrySize";
+    private const string ConnectionStringElementName = "connectionString";
+    private const string ConnectionUrlElementName = "connectionUrl";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -99,10 +104,9 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.DefaultCommandTimeout" copy="true" />
     /// </summary>
-    [ConfigurationProperty(CommandTimeoutElementName,
-      DefaultValue = SessionConfiguration.DefaultDefaultCommandTimeout)]
-    public int DefaultCommandTimeout {
-      get { return (int) this[CommandTimeoutElementName]; }
+    [ConfigurationProperty(CommandTimeoutElementName, DefaultValue = null)]
+    public int? DefaultCommandTimeout {
+      get { return (int?) this[CommandTimeoutElementName]; }
       set { this[CommandTimeoutElementName] = value; }
     }
 
@@ -144,6 +148,18 @@ namespace Xtensive.Storage.Configuration.Elements
       set { this[EntityChangeRegistrySizeElementName] = value; }
     }
 
+    [ConfigurationProperty(ConnectionStringElementName, DefaultValue = null)]
+    public string ConnectionString {
+      get { return (string) this[ConnectionStringElementName]; }
+      set { this[ConnectionUrlElementName] = value; }
+    }
+
+    [ConfigurationProperty(ConnectionUrlElementName, DefaultValue = null)]
+    public string ConnectionUrl {
+      get { return (string) this[ConnectionUrlElementName]; }
+      set { this[ConnectionUrlElementName] = value; }
+    }
+
     /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="SessionConfiguration"/> object.
@@ -151,20 +167,44 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <returns>The result of conversion.</returns>
     public SessionConfiguration ToNative()
     {
+      var connectionInfo = GetConnectionInfo();
+
       var result = new SessionConfiguration(Name) {
         UserName = UserName,
         Password = Password,
         CacheSize = CacheSize,
         BatchSize = BatchSize,
-        CacheType =  (SessionCacheType) Enum.Parse(typeof (SessionCacheType), CacheType, true),
+        CacheType = (SessionCacheType) Enum.Parse(typeof (SessionCacheType), CacheType, true),
         Options = (SessionOptions) Enum.Parse(typeof (SessionOptions), Options, true),
         DefaultIsolationLevel = (IsolationLevel) Enum.Parse(typeof (IsolationLevel), DefaultIsolationLevel, true),
         ReaderPreloading = (ReaderPreloadingPolicy) Enum.Parse(typeof (ReaderPreloadingPolicy), ReaderPreloading, true),
         ServiceContainerType = Type.GetType(ServiceContainerType),
         EntityChangeRegistrySize = EntityChangeRegistrySize,
         DefaultCommandTimeout = DefaultCommandTimeout,
+        ConnectionInfo = connectionInfo,
       };
       return result;
+    }
+
+    private ConnectionInfo GetConnectionInfo()
+    {
+      // Minor hack:
+      // We should not require user to specify provider name.
+      // We actually know it when opening new session.
+      // However, we do not know it in this method
+      // We are going easy way and substituting a fake provider.
+      // SQL SessionHandler is aware of this and always uses correct provider.
+
+      var connectionStringSpecified = !string.IsNullOrEmpty(ConnectionString);
+      var connectionUrlSpecified = !string.IsNullOrEmpty(ConnectionUrl);
+      if (connectionStringSpecified && connectionUrlSpecified)
+        throw new InvalidOperationException(
+          Strings.ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrConnectionStringElement);
+      if (connectionStringSpecified)
+        return new ConnectionInfo("_dummy_", ConnectionString);
+      if (connectionUrlSpecified)
+        return new ConnectionInfo(ConnectionUrl);
+      return null;
     }
   }
 }

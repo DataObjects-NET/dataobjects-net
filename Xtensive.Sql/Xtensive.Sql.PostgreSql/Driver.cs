@@ -15,9 +15,9 @@ namespace Xtensive.Sql.PostgreSql
       return new TypeMapper(this);
     }
 
-    public override SqlConnection CreateConnection()
+    protected override SqlConnection CreateConnection(string connectionString)
     {
-      return new Connection(this);
+      return new Connection(this, connectionString);
     }
 
     public override SqlExceptionType GetExceptionType(Exception exception)

@@ -34,11 +34,6 @@ namespace Xtensive.Storage.Configuration
     public const IsolationLevel DefaultDefaultIsolationLevel = IsolationLevel.RepeatableRead;
 
     /// <summary>
-    /// Default command timeout 
-    /// </summary>
-    public const int DefaultDefaultCommandTimeout = 30;
-
-    /// <summary>
     /// Default batch size.
     /// </summary>
     public const int DefaultBatchSize = 25;
@@ -61,9 +56,10 @@ namespace Xtensive.Storage.Configuration
     private int entityChangeRegistrySize = DefaultEntityChangeRegistrySize;
     private SessionCacheType cacheType = SessionCacheType.Default;
     private IsolationLevel defaultIsolationLevel = DefaultDefaultIsolationLevel; // what a fancy name?
-    private int defaultCommandTimeout = DefaultDefaultCommandTimeout;
+    private int? defaultCommandTimeout = null;
     private ReaderPreloadingPolicy readerPreloading = ReaderPreloadingPolicy.Default;
     private Type serviceContainerType;
+    private ConnectionInfo connectionInfo;
 
     /// <summary>
     /// Gets the session name.
@@ -134,7 +130,7 @@ namespace Xtensive.Storage.Configuration
     /// Gets or sets the default command timeout.
     /// Default value is <see cref="DefaultDefaultCommandTimeout"/>.
     /// </summary>
-    public int DefaultCommandTimeout {
+    public int? DefaultCommandTimeout {
       get { return defaultCommandTimeout; }
       set {
         this.EnsureNotLocked();
@@ -221,11 +217,23 @@ namespace Xtensive.Storage.Configuration
       }
     }
 
+    /// <summary>
+    /// Gets or sets the custom <see cref="ConnectionInfo"/> for session.
+    /// </summary>
+    public ConnectionInfo ConnectionInfo {
+      get { return connectionInfo; }
+      set {
+        this.EnsureNotLocked();
+        connectionInfo = value;
+      }
+    }
+
     /// <inheritdoc/>
     public override void Validate()
     {
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(CacheSize, 0, "CacheSize");
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(DefaultCommandTimeout, 0, "DefaultCommandTimeout");
+      if (DefaultCommandTimeout!=null)
+        ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(DefaultCommandTimeout.Value, 0, "DefaultCommandTimeout");
     }
 
     /// <inheritdoc/>
@@ -253,6 +261,7 @@ namespace Xtensive.Storage.Configuration
       DefaultIsolationLevel = configuration.DefaultIsolationLevel;
       DefaultCommandTimeout = configuration.DefaultCommandTimeout;
       ServiceContainerType = configuration.ServiceContainerType;
+      ConnectionInfo = configuration.connectionInfo;
     }
 
     /// <summary>

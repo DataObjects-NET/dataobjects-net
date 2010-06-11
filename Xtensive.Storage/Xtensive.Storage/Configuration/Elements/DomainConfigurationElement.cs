@@ -236,16 +236,7 @@ namespace Xtensive.Storage.Configuration.Elements
     /// <returns>The result of conversion.</returns>
     public DomainConfiguration ToNative()
     {
-      bool connectionUrlSpecified = !string.IsNullOrEmpty(ConnectionUrl);
-      bool connectionStringSpecified = !string.IsNullOrEmpty(ConnectionString) && !string.IsNullOrEmpty(Provider);
-      if (connectionUrlSpecified && connectionStringSpecified)
-        throw new InvalidOperationException(
-          Strings.ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnectionStringElements);
-      ConnectionInfo connectionInfo = null;
-      if (connectionUrlSpecified)
-        connectionInfo = new ConnectionInfo(ConnectionUrl);
-      if (connectionStringSpecified)
-        connectionInfo = new ConnectionInfo(Provider, ConnectionString);
+      var connectionInfo = GetConnectionInfo();
 
       var config = new DomainConfiguration {
         Name = Name,
@@ -269,6 +260,20 @@ namespace Xtensive.Storage.Configuration.Elements
       foreach (var session in Sessions)
         config.Sessions.Add(session.ToNative());
       return config;
+    }
+
+    private ConnectionInfo GetConnectionInfo()
+    {
+      bool connectionUrlSpecified = !string.IsNullOrEmpty(ConnectionUrl);
+      bool connectionStringSpecified = !string.IsNullOrEmpty(ConnectionString) && !string.IsNullOrEmpty(Provider);
+      if (connectionUrlSpecified && connectionStringSpecified)
+        throw new InvalidOperationException(
+          Strings.ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnectionStringElements);
+      if (connectionUrlSpecified)
+        return new ConnectionInfo(ConnectionUrl);
+      if (connectionStringSpecified)
+        return new ConnectionInfo(Provider, ConnectionString);
+      return null;
     }
   }
 }

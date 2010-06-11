@@ -7,6 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Storage.Providers.Sql.Resources;
 
@@ -17,12 +18,11 @@ namespace Xtensive.Storage.Providers.Sql
     public SqlConnection CreateConnection(Session session)
     {
       try {
-        if (isDebugLoggingEnabled) {
+        var connectionInfo = GetConnectionInfo(session);
+        if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXCreatingConnectionY,
-            session.GetFullNameSafely(),
-            session.Domain.Configuration.ConnectionInfo);
-        }
-        return underlyingDriver.CreateConnection();
+            session.GetFullNameSafely(), connectionInfo);
+        return underlyingDriver.CreateConnection(connectionInfo);
       }
       catch (Exception exception) {
         throw TranslateException(null, exception);
@@ -34,8 +34,7 @@ namespace Xtensive.Storage.Providers.Sql
       try {
         if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXOpeningConnectionY,
-            session.GetFullNameSafely(),
-            session.Domain.Configuration.ConnectionInfo);
+            session.GetFullNameSafely(), GetConnectionInfo(session));
         connection.Open();
       }
       catch (Exception exception) {
@@ -48,8 +47,7 @@ namespace Xtensive.Storage.Providers.Sql
       try {
         if (isDebugLoggingEnabled)
           Log.Debug(Strings.LogSessionXClosingConnectionY, 
-            session.GetFullNameSafely(),
-            session.Domain.Configuration.ConnectionInfo);
+            session.GetFullNameSafely(), GetConnectionInfo(session));
         if (connection.State==ConnectionState.Open)
           connection.Close();
         connection.Dispose();
@@ -76,8 +74,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXCommitTransaction, 
-            session.GetFullNameSafely());
+          Log.Debug(Strings.LogSessionXCommitTransaction, session.GetFullNameSafely());
         connection.Commit();
       }
       catch (Exception exception) {
@@ -89,8 +86,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRollbackTransaction, 
-            session.GetFullNameSafely());
+          Log.Debug(Strings.LogSessionXRollbackTransaction, session.GetFullNameSafely());
         connection.Rollback();
       }
       catch (Exception exception) {
@@ -102,8 +98,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXMakeSavepointY,
-            session.GetFullNameSafely(), name);
+          Log.Debug(Strings.LogSessionXMakeSavepointY, session.GetFullNameSafely(), name);
         connection.MakeSavepoint(name);
       }
       catch (Exception exception) {
@@ -115,8 +110,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXRollbackToSavepointY,
-            session.GetFullNameSafely(), name);
+          Log.Debug(Strings.LogSessionXRollbackToSavepointY, session.GetFullNameSafely(), name);
         connection.RollbackToSavepoint(name);
       }
       catch (Exception exception) {
@@ -128,8 +122,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXReleaseSavepointY,
-            session.GetFullNameSafely(), name);
+          Log.Debug(Strings.LogSessionXReleaseSavepointY, session.GetFullNameSafely(), name);
         connection.ReleaseSavepoint(name);
       }
       catch (Exception exception) {
@@ -141,8 +134,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXQueryY, 
-            session.GetFullNameSafely(), command.ToHumanReadableString());
+          LogCommand(session, command);
         return command.ExecuteNonQuery();
       }
       catch (Exception exception) {
@@ -154,8 +146,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXQueryY, 
-            session.GetFullNameSafely(), command.ToHumanReadableString());
+          LogCommand(session, command);
         return command.ExecuteScalar();
       }
       catch (Exception exception) {
@@ -167,8 +158,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       try {
         if (isDebugLoggingEnabled)
-          Log.Debug(Strings.LogSessionXQueryY, 
-            session.GetFullNameSafely(), command.ToHumanReadableString());
+          LogCommand(session, command);
         return command.ExecuteReader();
       }
       catch (Exception exception) {
@@ -217,6 +207,17 @@ namespace Xtensive.Storage.Providers.Sql
       default:
         return new StorageException(message, exception);
       }
+    }
+
+    private ConnectionInfo GetConnectionInfo(Session session)
+    {
+      return session.Configuration.ConnectionInfo
+        ?? session.Domain.Configuration.ConnectionInfo;
+    }
+
+    private void LogCommand(Session session, DbCommand command)
+    {
+      Log.Debug(Strings.LogSessionXQueryY, session.GetFullNameSafely(), command.ToHumanReadableString());
     }
   }
 }

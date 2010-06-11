@@ -12,9 +12,9 @@ namespace Xtensive.Sql.SqlServer
 {
   internal abstract class Driver : SqlDriver
   {
-    public override SqlConnection CreateConnection()
+    protected override SqlConnection CreateConnection(string connectionString)
     {
-      return new Connection(this);
+      return new Connection(this, connectionString);
     }
 
     public override SqlExceptionType GetExceptionType(Exception exception)

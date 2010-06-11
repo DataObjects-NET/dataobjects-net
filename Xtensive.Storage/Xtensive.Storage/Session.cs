@@ -138,7 +138,7 @@ namespace Xtensive.Storage
     /// are executed within this session.
     /// <seealso cref="IDbCommand.CommandTimeout"/>
     /// </summary>
-    public int CommandTimeout { get; set; }
+    public int? CommandTimeout { get; set; }
 
     /// <summary>
     /// Gets or sets the <see cref="Current"/> session resolver to use
@@ -308,7 +308,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="newTimeout">New <see cref="CommandTimeout"/> value.</param>
     /// <returns>Command timeout overriding scope.</returns>
-    public IDisposable OverrideCommandTimeout(int newTimeout)
+    public IDisposable OverrideCommandTimeout(int? newTimeout)
     {
       var oldTimeout = CommandTimeout;
       CommandTimeout = newTimeout;

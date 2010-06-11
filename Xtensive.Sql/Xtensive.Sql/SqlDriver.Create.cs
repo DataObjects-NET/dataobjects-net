@@ -71,6 +71,7 @@ namespace Xtensive.Sql
       var connectionString = connectionInfo.ConnectionString
         ?? factory.BuildConnectionString(connectionInfo.ConnectionUrl);
       var driver = factory.CreateDriver(connectionString);
+      driver.factory = factory;
       driver.Initialize();
       return driver;
     }

@@ -51,10 +51,10 @@ namespace Xtensive.Sql.SqlServerCe
 
     // Constructors
 
-    public Connection(SqlDriver driver)
-      : base(driver)
+    public Connection(SqlDriver driver, string connectionString)
+      : base(driver, connectionString)
     {
-      underlyingConnection = new SqlCeConnection(driver.CoreServerInfo.ConnectionString);
+      underlyingConnection = new SqlCeConnection(connectionString);
     }
   }
 }

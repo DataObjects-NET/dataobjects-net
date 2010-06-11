@@ -11,7 +11,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Tests.PostgreSql.v8_0
 {
-  [TestFixture]
+  [TestFixture, Explicit]
   public class ExtractorTest : SqlTest
   {
     protected override string Url

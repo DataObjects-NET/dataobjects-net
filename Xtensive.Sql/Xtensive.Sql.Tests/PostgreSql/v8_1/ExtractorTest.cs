@@ -10,7 +10,7 @@ using NUnit.Framework;
 
 namespace Xtensive.Sql.Tests.PostgreSql.v8_1
 {
-  [TestFixture]
+  [TestFixture, Explicit]
   public class ExtractorTest : v8_0.ExtractorTest
   {
     protected override string Url

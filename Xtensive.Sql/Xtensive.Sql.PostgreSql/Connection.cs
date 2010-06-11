@@ -77,10 +77,10 @@ namespace Xtensive.Sql.PostgreSql
 
     // Constructors
 
-    public Connection(SqlDriver driver)
-      : base(driver)
+    public Connection(SqlDriver driver, string connectionString)
+      : base(driver, connectionString)
     {
-      underlyingConnection = new NpgsqlConnection(driver.CoreServerInfo.ConnectionString);
+      underlyingConnection = new NpgsqlConnection(connectionString);
     }
   }
 }
