@@ -331,7 +331,6 @@ namespace Xtensive.Storage
       EntityEventBroker = new EntityEventBroker();
       if (activate)
         sessionScope = new SessionScope(this);
-      //CurrentOperationContext = OperationContext.Default;
       BlockingOperationContext = new BlockingOperationContext(this);
 
       // Creating Services
