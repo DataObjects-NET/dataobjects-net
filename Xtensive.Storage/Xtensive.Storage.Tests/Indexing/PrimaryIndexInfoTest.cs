@@ -62,6 +62,7 @@ namespace Xtensive.Storage.Tests.Indexing
       Assert.AreEqual(1, index.KeyColumns.Count);
       colRef.Remove();
       Assert.AreEqual(0, index.KeyColumns.Count);
+      column.Remove();
     }
 
     [Test]
@@ -143,6 +144,5 @@ namespace Xtensive.Storage.Tests.Indexing
     {
       storage.Dump();
     }
-
   }
 }

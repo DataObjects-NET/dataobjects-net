@@ -346,6 +346,7 @@ namespace Xtensive.Storage
       EntityChangeRegistry = new EntityChangeRegistry();
 
       // Etc...
+      // AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       EntityEventBroker = new EntityEventBroker();
