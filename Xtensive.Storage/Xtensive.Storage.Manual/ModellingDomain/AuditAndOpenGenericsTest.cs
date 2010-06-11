@@ -13,7 +13,6 @@ using Xtensive.Storage.Building;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Core.Reflection;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
 {
@@ -53,8 +52,18 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
         Id, TimeStamp, Duration.TotalMilliseconds);
     }
 
+    // Only this assmebly may create or modify this instance
     internal TransactionInfo()
-    {} // Only this assmebly may create or modify it
+    {
+      var thisType = typeof (TransactionInfo);
+      try {
+        Initialize(thisType);
+      }
+      catch (Exception e) {
+        InitializationError(thisType, e);
+        throw;
+      }
+    }
   }
 
   public enum EntityChangeType
@@ -121,8 +130,18 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
         Entity.IsRemoved() ? "removed " +EntityKey : Entity.ToString());
     }
 
+    // Only this assmebly may create or modify this instance
     internal AuditRecord()
-    {} // Only this assmebly may create or modify it
+    {
+      var thisType = typeof (AuditRecord<>);
+      try {
+        Initialize(thisType);
+      }
+      catch (Exception e) {
+        InitializationError(thisType, e);
+        throw;
+      }
+    }
   }
 
   [Serializable]

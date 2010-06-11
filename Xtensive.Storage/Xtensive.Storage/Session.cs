@@ -327,13 +327,12 @@ namespace Xtensive.Storage
       EntityChangeRegistry = new EntityChangeRegistry();
 
       // Etc...
-      AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
+      // AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       EntityEventBroker = new EntityEventBroker();
       if (activate)
         sessionScope = new SessionScope(this);
-      //CurrentOperationContext = OperationContext.Default;
       BlockingOperationContext = new BlockingOperationContext(this);
 
       // Creating Services
