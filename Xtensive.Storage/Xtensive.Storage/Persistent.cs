@@ -6,7 +6,9 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
@@ -38,13 +40,21 @@ namespace Xtensive.Storage
     IDataErrorInfo,
     IUsesSystemLogicOnlyRegions
   {
+    [DebuggerDisplay("Id = {Id}")]
     private class CtorTransactionInfo
     {
       [ThreadStatic]
       public static CtorTransactionInfo Current;
+      // public static int CurrentId;
 
+      // public int Id;
       public TransactionScope TransactionScope;
       public InconsistentRegion InconsistentRegion;
+
+      public CtorTransactionInfo()
+      {
+        // Id = Interlocked.Increment(ref CurrentId);
+      }
     }
 
 

@@ -352,7 +352,6 @@ namespace Xtensive.Storage
       CommandTimeout = configuration.DefaultCommandTimeout;
       if (activate)
         sessionScope = new SessionScope(this);
-      //CurrentOperationContext = OperationContext.Default;
       BlockingOperationContext = new BlockingOperationContext(this);
 
       // Creating Services
