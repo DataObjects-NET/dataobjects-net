@@ -294,7 +294,7 @@ namespace Xtensive.Storage.Building.Builders
             context.DiscardedAssociations.Add(origin);
           }
         }
-        if (!clone.IsStructure && !clone.IsEntitySet && clone.Attributes.HasFlag(FieldAttributes.Indexed)) {
+        if (!clone.IsStructure && !clone.IsEntitySet && 0!=(clone.Attributes & FieldAttributes.Indexed)) {
           var typeDef = context.ModelDef.Types[target.DeclaringType.UnderlyingType];
           var attribute = new IndexAttribute(clone.Name);
           var index = ModelDefBuilder.DefineIndex(typeDef, attribute);
