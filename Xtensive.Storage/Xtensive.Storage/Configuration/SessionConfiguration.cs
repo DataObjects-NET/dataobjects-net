@@ -64,6 +64,7 @@ namespace Xtensive.Storage.Configuration
     private int defaultCommandTimeout = DefaultDefaultCommandTimeout;
     private ReaderPreloadingPolicy readerPreloading = ReaderPreloadingPolicy.Default;
     private Type serviceContainerType;
+    private ConnectionInfo connectionInfo;
 
     /// <summary>
     /// Gets the session name.
@@ -221,6 +222,17 @@ namespace Xtensive.Storage.Configuration
       }
     }
 
+    /// <summary>
+    /// Gets or sets the custom <see cref="ConnectionInfo"/> for session.
+    /// </summary>
+    public ConnectionInfo ConnectionInfo {
+      get { return connectionInfo; }
+      set {
+        this.EnsureNotLocked();
+        connectionInfo = value;
+      }
+    }
+
     /// <inheritdoc/>
     public override void Validate()
     {
@@ -253,6 +265,7 @@ namespace Xtensive.Storage.Configuration
       DefaultIsolationLevel = configuration.DefaultIsolationLevel;
       DefaultCommandTimeout = configuration.DefaultCommandTimeout;
       ServiceContainerType = configuration.ServiceContainerType;
+      ConnectionInfo = configuration.connectionInfo;
     }
 
     /// <summary>

@@ -99,10 +99,10 @@ namespace Xtensive.Sql.Oracle
 
     // Constructors
 
-    public Connection(SqlDriver driver)
-      : base(driver)
+    public Connection(SqlDriver driver, string connectionString)
+      : base(driver, connectionString)
     {
-      underlyingConnection = new OracleConnection(driver.CoreServerInfo.ConnectionString);
+      underlyingConnection = new OracleConnection(connectionString);
     }
   }
 }

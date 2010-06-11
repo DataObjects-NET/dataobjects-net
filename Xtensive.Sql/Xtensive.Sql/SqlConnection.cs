@@ -235,7 +235,7 @@ namespace Xtensive.Sql
 
     // Constructors
 
-    protected SqlConnection(SqlDriver driver)
+    protected SqlConnection(SqlDriver driver, string connectionString)
       : base(driver)
     {
     }

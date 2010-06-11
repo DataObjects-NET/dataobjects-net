@@ -638,7 +638,17 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ConnectionInfo is wrong. You should set either ConnectionUrl element or Provider and ConnectionString elements..
+        ///   Looks up a localized string similar to ConnectionInfo is wrong. You should set either  &apos;connectionUrl&apos; element or &apos;connectionString&apos; element..
+        /// </summary>
+        internal static string ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrConnectionStringElement {
+            get {
+                return ResourceManager.GetString("ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrConnectionStringEl" +
+                        "ement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ConnectionInfo is wrong. You should set either &apos;connectionUrl&apos; element or &apos;provider&apos; and &apos;connectionString&apos; elements..
         /// </summary>
         internal static string ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnectionStringElements {
             get {

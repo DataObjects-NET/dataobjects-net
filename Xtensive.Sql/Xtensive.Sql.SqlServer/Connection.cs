@@ -72,10 +72,10 @@ namespace Xtensive.Sql.SqlServer
 
     // Constructors
 
-    public Connection(SqlDriver driver)
-      : base(driver)
+    public Connection(SqlDriver driver, string connectionString)
+      : base(driver, connectionString)
     {
-      underlyingConnection = new SqlServerConnection(driver.CoreServerInfo.ConnectionString);
+      underlyingConnection = new SqlServerConnection(connectionString);
     }
   }
 }

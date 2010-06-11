@@ -17,6 +17,8 @@ namespace Xtensive.Sql
   /// </summary>
   public abstract partial class SqlDriver
   {
+    private SqlDriverFactory factory;
+
     /// <summary>
     /// Gets an instance that provides the most essential information about underlying RDBMS.
     /// </summary>
@@ -99,9 +101,24 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Creates the connection.
+    /// Creates the connection using default connection information
     /// </summary>
-    public abstract SqlConnection CreateConnection();
+    public SqlConnection CreateConnection()
+    {
+      return CreateConnection(CoreServerInfo.ConnectionString);
+    }
+
+    /// <summary>
+    /// Creates the connection using specified connection information.
+    /// </summary>
+    /// <param name="connectionInfo"></param>
+    /// <returns></returns>
+    public SqlConnection CreateConnection(ConnectionInfo connectionInfo)
+    {
+      var connectionString = connectionInfo.ConnectionString
+        ?? factory.BuildConnectionString(connectionInfo.ConnectionUrl);
+      return CreateConnection(connectionString);
+    }
 
     /// <summary>
     /// Gets the type of the exception.
@@ -142,6 +159,14 @@ namespace Xtensive.Sql
     /// </summary>
     /// <returns>Created server info provider.</returns>
     protected abstract ServerInfoProvider CreateServerInfoProvider();
+
+    /// <summary>
+    /// Creates connection from the specified <paramref name="connectionString"/>.
+    /// </summary>
+    /// <param name="connectionString">Connection string</param>
+    /// <returns>Created connection.</returns>
+    protected abstract SqlConnection CreateConnection(string connectionString);
+
 
     #region Private / internal methods
 
