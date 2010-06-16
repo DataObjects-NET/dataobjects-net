@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -46,6 +47,9 @@ namespace Xtensive.Core.Diagnostics
     public FileLog(string name, string fileName)
       : base(name)
     {
+      fileName = Path.IsPathRooted(fileName)
+          ? fileName
+          : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
       lock (logs) {
         if (logs.TryGetValue(fileName, out primaryLog))
           return;
