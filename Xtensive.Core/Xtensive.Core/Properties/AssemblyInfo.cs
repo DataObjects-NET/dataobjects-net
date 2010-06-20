@@ -39,9 +39,5 @@ using System.Security.Permissions;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
-#if !NET40
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
 [assembly: AllowPartiallyTrustedCallers]
-#else
-[assembly: SecurityTransparent]
-#endif
