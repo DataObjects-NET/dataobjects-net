@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Permissions;
 
 // General Information about an assembly is controlled through the following 
@@ -33,5 +34,7 @@ using System.Security.Permissions;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+#if !NET40
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+[assembly: AllowPartiallyTrustedCallers]
+#endif

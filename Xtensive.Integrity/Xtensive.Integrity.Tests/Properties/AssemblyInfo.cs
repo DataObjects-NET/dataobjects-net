@@ -39,5 +39,3 @@ using System.Security.Permissions;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: CLSCompliant(true)]    
-[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
