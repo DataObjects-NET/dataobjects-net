@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.03.10
 
-#if! NET40
+#if !NET40
 namespace Xtensive.Core
 {
   /// <summary>
