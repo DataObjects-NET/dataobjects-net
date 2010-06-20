@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Security.Permissions;
 using NUnit.Framework;
 using Xtensive.Core.Comparison;
