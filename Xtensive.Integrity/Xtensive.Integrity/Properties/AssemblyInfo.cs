@@ -41,5 +41,7 @@ using PostSharp.Extensibility;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: ReferencingAssembliesRequirePostSharp("PostSharp.Laos", "PostSharp.Laos")]
-[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
 [assembly: AllowPartiallyTrustedCallers]
+#if !NET40
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+#endif
