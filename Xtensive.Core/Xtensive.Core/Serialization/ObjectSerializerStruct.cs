@@ -6,6 +6,8 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Security;
+using System.Security.Permissions;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Serialization
@@ -73,6 +75,11 @@ namespace Xtensive.Core.Serialization
     }
 
     /// <see cref="SerializableDocTemplate.GetObjectData" copy="true"/>
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) 
     {
       info.AddValue("Serializer", Serializer);

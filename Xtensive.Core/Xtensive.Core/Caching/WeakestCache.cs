@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Security;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
@@ -21,6 +22,9 @@ namespace Xtensive.Core.Caching
   /// </summary>
   /// <typeparam name="TKey">The key of the item.</typeparam>
   /// <typeparam name="TItem">The type of the item to cache.</typeparam>
+#if NET40
+  [SecuritySafeCritical]
+#endif
   public class WeakestCache<TKey, TItem> :
     ICache<TKey, TItem>,
     IHasGarbage,
@@ -44,6 +48,9 @@ namespace Xtensive.Core.Caching
     #region Nested type: WeakEntry
 
     [DebuggerDisplay("Key = {Key}, Item = {Item}, HashCode = {hashCode}")]
+  #if NET40
+    [SecuritySafeCritical]
+  #endif
     internal sealed class WeakEntry : 
       IEquatable<WeakEntry>,
       IDisposable
@@ -79,6 +86,9 @@ namespace Xtensive.Core.Caching
         }
       }
 
+    #if NET40
+      [SecuritySafeCritical]
+    #endif
       public void Dispose()
       {
         keyHandle.Free();
@@ -229,6 +239,9 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
+  #if NET40
+    [SecuritySafeCritical]
+  #endif
     public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       RegisterOperation(1);
@@ -268,6 +281,9 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
+  #if NET40
+    [SecuritySafeCritical]
+  #endif
     public virtual TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
@@ -299,6 +315,9 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
+  #if NET40
+    [SecuritySafeCritical]
+  #endif
     public virtual void RemoveKey(TKey key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
@@ -310,6 +329,9 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
+  #if NET40
+    [SecuritySafeCritical]
+  #endif
     public virtual void Clear()
     {
       try {
@@ -332,6 +354,9 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
+  #if NET40
+    [SecuritySafeCritical]
+  #endif
     public virtual void CollectGarbage()
     {
       int count = items.Count;
@@ -380,6 +405,9 @@ namespace Xtensive.Core.Caching
     }
 
     /// <inheritdoc/>
+  #if NET40
+    [SecuritySafeCritical]
+  #endif
     public virtual IEnumerator<TItem> GetEnumerator()
     {
       foreach (var pair in items) {
@@ -428,6 +456,9 @@ namespace Xtensive.Core.Caching
     /// <summary>
     /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true"/>
     /// </summary>
+  #if NET40
+    [SecuritySafeCritical]
+  #endif
     protected virtual void Dispose(bool disposing)
     {
       if (items!=null) {
