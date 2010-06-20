@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core.Conversion;
 using Xtensive.Core;
@@ -389,7 +390,11 @@ namespace Xtensive.Core.Collections
     }
 
     /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    #if NET40
+    [SecurityCritical]
+    #else
     [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("IsLocked", IsLocked);

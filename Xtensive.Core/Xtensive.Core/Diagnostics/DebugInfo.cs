@@ -9,8 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
-using System.Threading;
+using System.Security;
 
 namespace Xtensive.Core.Diagnostics
 {
@@ -66,6 +65,9 @@ namespace Xtensive.Core.Diagnostics
     /// </remarks>
     public static bool IsRunningOnBuildServer
     {
+    #if NET40
+      [SecuritySafeCritical]
+    #endif
       get {
         if (isRunningOnBuildServer==0) {
           int newIsRunningOnBuildServer = -1;

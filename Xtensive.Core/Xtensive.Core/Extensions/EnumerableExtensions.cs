@@ -300,7 +300,7 @@ namespace Xtensive.Core
       }
       return true;
     }
-#if! NET40
+#if !NET40
     /// <summary>
     /// Constructs <see cref="IEnumerable{T}"/> from
     /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>

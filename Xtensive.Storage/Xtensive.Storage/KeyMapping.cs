@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -57,7 +58,11 @@ namespace Xtensive.Storage
     // Serialization
 
     /// <inheritdoc/>
-    [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.SerializationFormatter)]
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
       var serializedMapping = new Dictionary<Ref<Entity>, Ref<Entity>>();

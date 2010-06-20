@@ -19,7 +19,7 @@ namespace Xtensive.Core.Caching
   /// </summary>
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
-  public class InfiniteCache<TKey, TItem>:
+  public sealed class InfiniteCache<TKey, TItem>:
     ICache<TKey, TItem>
     where TItem : class 
   {

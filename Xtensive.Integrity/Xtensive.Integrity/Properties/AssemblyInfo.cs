@@ -6,6 +6,7 @@ using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
+using System.Security;
 using PostSharp.Extensibility;
 
 // General Information about an assembly is controlled through the following 
@@ -39,5 +40,7 @@ using PostSharp.Extensibility;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: CLSCompliant(true)]    
-
+[assembly: AllowPartiallyTrustedCallers]
+#if !NET40
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+#endif

@@ -9,6 +9,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Security;
+using System.Security.Permissions;
 using NUnit.Framework;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Diagnostics;
@@ -116,6 +118,11 @@ namespace Xtensive.Core.Tests.Serialization
         Right = new Node(id, this, random, count);
     }
 
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Id", Id);

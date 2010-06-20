@@ -6,6 +6,7 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core.Aspects;
 
@@ -40,7 +41,10 @@ using Xtensive.Core.Aspects;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
-[assembly: CLSCompliant(true)]
+[assembly: AllowPartiallyTrustedCallers]
+#if !NET40
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+#endif
 
 #if !CUSTOMKEY
 [assembly: InternalsVisibleTo("Xtensive.Storage.Tests.Core, PublicKey=" + 

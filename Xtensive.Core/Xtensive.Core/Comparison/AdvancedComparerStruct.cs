@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Security;
+using System.Security.Permissions;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Core.Comparison
@@ -112,6 +114,11 @@ namespace Xtensive.Core.Comparison
     }
 
     /// <inheritdoc/>
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Comparer", Comparer);

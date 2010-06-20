@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Security;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Threading;
 
@@ -33,6 +34,9 @@ namespace Xtensive.Core.Serialization.Implementation
     }
 
     /// <inheritdoc/>
+  #if NET40
+    [SecuritySafeCritical]
+  #endif
     public override Type BindToType(string assemblyName, string typeName) 
     {
       var a = cachedAssemblies.GetValue(
