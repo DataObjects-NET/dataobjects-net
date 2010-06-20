@@ -6,6 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace Xtensive.Core.Internals.DocTemplates
 {
@@ -20,6 +21,11 @@ namespace Xtensive.Core.Internals.DocTemplates
     /// </summary>
     /// <param name="info">Serialization info to store serialization data in.</param>
     /// <param name="context">Streaming context.</param>
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       throw new NotImplementedException();

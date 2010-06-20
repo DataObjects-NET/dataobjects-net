@@ -6,6 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
@@ -63,6 +64,11 @@ namespace Xtensive.Modelling.Tests.IndexingModel
     }
 
     /// <inheritdoc/>
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("NodePath", NodePath);
