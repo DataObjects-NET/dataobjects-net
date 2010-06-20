@@ -6,6 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;

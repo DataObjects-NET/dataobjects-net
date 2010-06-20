@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;

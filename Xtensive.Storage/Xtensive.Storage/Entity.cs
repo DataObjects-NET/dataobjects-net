@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
