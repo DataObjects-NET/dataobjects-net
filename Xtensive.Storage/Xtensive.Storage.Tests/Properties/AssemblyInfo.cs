@@ -47,5 +47,7 @@ using System.Security.Permissions;
 #if !NET40
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
 [assembly: AllowPartiallyTrustedCallers]
+#else
+[assembly: SecurityTransparent]
 #endif
 
