@@ -40,5 +40,7 @@ using System.Security.Permissions;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
 [assembly: AllowPartiallyTrustedCallers]
+#if !NET40
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
+#endif
