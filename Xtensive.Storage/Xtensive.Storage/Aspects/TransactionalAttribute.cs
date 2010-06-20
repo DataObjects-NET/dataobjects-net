@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
@@ -35,6 +36,9 @@ namespace Xtensive.Storage
   [ProvideAspectRole(StandardRoles.TransactionHandling)]
   [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, StandardRoles.Validation)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
+#if NET40
+  [SecuritySafeCritical]
+#endif
   public sealed class TransactionalAttribute : OnMethodBoundaryAspect
   {
     /// <summary>

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Security;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
 using Xtensive.Core.Tuples;
@@ -29,6 +30,9 @@ namespace Xtensive.Storage.Serialization
       }
     }
 
+    #if NET40
+    [SecuritySafeCritical]
+    #endif
     public static void GetEntityReferenceData(Entity entity, SerializationInfo info, StreamingContext context)
     {
       EntityReference reference = new EntityReference(entity);

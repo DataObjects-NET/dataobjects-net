@@ -6,17 +6,26 @@
 
 using System;
 using System.Data.SqlServerCe;
+using System.Security;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.SqlServerCe
 {
   internal abstract class Driver : SqlDriver
   {
+    /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     protected override SqlConnection CreateConnection(string connectionString)
     {
       return new Connection(this, connectionString);
     }
 
+    /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override SqlExceptionType GetExceptionType(Exception exception)
     {
       var nativeException = exception as SqlCeException;
@@ -40,6 +49,7 @@ namespace Xtensive.Sql.SqlServerCe
 
     // Constructors
 
+    /// <inheritdoc/>
     protected Driver(CoreServerInfo coreServerInfo)
       : base(coreServerInfo)
     {

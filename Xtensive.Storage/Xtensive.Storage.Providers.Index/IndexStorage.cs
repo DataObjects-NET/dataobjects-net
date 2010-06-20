@@ -6,6 +6,7 @@
 
 using System;
 using System.Runtime.Remoting.Lifetime;
+using System.Security;
 using System.Transactions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -60,6 +61,9 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
+#if NET40
+    [SecurityCritical]
+#endif
     public override object InitializeLifetimeService()
     {
       var lease = (ILease)base.InitializeLifetimeService();

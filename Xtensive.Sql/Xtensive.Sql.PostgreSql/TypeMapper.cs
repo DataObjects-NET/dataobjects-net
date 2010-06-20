@@ -7,6 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Security;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -74,6 +75,9 @@ namespace Xtensive.Sql.PostgreSql
       parameter.Value = value ?? DBNull.Value;
     }
 
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override void SetTimeSpanParameterValue(DbParameter parameter, object value)
     {
       var nativeParameter = (NpgsqlParameter) parameter;
@@ -129,6 +133,9 @@ namespace Xtensive.Sql.PostgreSql
       return SqlHelper.GuidFromString(reader.GetString(index));
     }
 
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override object ReadTimeSpan(DbDataReader reader, int index)
     {
       var nativeReader = (NpgsqlDataReader) reader;

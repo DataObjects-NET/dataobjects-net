@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
@@ -25,6 +26,9 @@ namespace Xtensive.Core.Aspects
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof(NotSupportedAttribute))]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
+#if NET40
+  [SecuritySafeCritical]
+#endif
   public sealed class ReplaceAutoProperty : MethodLevelAspect
   {
     /// <summary>

@@ -8,6 +8,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlServerCe;
+using System.Security;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.ValueTypeMapping;
 
@@ -35,6 +36,9 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
       return false;
     }
 
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override void SetStringParameterValue(DbParameter parameter, object value)
     {
       string text = value as string;
@@ -47,6 +51,9 @@ namespace Xtensive.Sql.SqlServerCe.v3_5
         base.SetStringParameterValue(parameter, value);
     }
 
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override void SetByteArrayParameterValue(DbParameter parameter, object value)
     {
       var array = value as byte[];

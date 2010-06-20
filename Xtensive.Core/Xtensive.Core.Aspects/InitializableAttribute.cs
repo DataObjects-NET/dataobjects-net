@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
@@ -22,6 +23,9 @@ namespace Xtensive.Core.Aspects
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ImplementConstructor))]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
+#if NET40
+  [SecuritySafeCritical]
+#endif
   public sealed class InitializableAttribute : Aspect,
     IAspectProvider
   {

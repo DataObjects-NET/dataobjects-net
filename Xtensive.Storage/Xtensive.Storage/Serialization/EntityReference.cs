@@ -22,6 +22,9 @@ namespace Xtensive.Storage.Serialization
     private const string KeyValueName = WellKnown.KeyFieldName;
     private readonly Entity entity;
 
+    #if NET40
+    [SecurityCritical]
+    #endif
     public object GetRealObject(StreamingContext context)
     {
       return entity;

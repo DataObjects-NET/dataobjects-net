@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.11
 
+using System.Security;
 using Npgsql;
 using System.Data;
 using System.Data.Common;
@@ -22,12 +23,18 @@ namespace Xtensive.Sql.PostgreSql
     public override DbTransaction ActiveTransaction { get { return activeTransaction; } }
     
     /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override DbParameter CreateParameter()
     {
       return new NpgsqlParameter();
     }
 
     /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override void BeginTransaction()
     {
  	    EnsureTrasactionIsNotActive();
@@ -35,6 +42,9 @@ namespace Xtensive.Sql.PostgreSql
     }
 
     /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       EnsureTrasactionIsNotActive();
@@ -77,7 +87,10 @@ namespace Xtensive.Sql.PostgreSql
 
     // Constructors
 
-    public Connection(SqlDriver driver, string connectionString)
+#if NET40
+  [SecuritySafeCritical]
+#endif
+   public Connection(SqlDriver driver, string connectionString)
       : base(driver, connectionString)
     {
       underlyingConnection = new NpgsqlConnection(connectionString);

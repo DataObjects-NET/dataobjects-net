@@ -8,6 +8,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlServerCe;
+using System.Security;
 
 namespace Xtensive.Sql.SqlServerCe
 {
@@ -23,12 +24,18 @@ namespace Xtensive.Sql.SqlServerCe
     public override DbTransaction ActiveTransaction { get { return activeTransaction; } }
 
     /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override DbParameter CreateParameter()
     {
       return new SqlCeParameter();
     }
 
     /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override void BeginTransaction()
     {
       EnsureTrasactionIsNotActive();
@@ -36,6 +43,9 @@ namespace Xtensive.Sql.SqlServerCe
     }
 
     /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       EnsureTrasactionIsNotActive();
@@ -51,6 +61,10 @@ namespace Xtensive.Sql.SqlServerCe
 
     // Constructors
 
+    /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public Connection(SqlDriver driver, string connectionString)
       : base(driver, connectionString)
     {

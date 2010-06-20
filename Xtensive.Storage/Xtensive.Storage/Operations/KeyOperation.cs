@@ -52,21 +52,15 @@ namespace Xtensive.Storage.Operations
 
     // Serialization
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    /// </summary>
     #if NET40
     [SecurityCritical]
     #else
     [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
     #endif
-    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      GetObjectData(info, context);
-    }
-
-    /// <summary>
-    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
-    /// </summary>
-    protected virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Key", Key.Format());
     }
