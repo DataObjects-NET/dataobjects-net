@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using System;
+using System.Security;
 using Npgsql;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
@@ -21,6 +22,9 @@ namespace Xtensive.Sql.PostgreSql
     private const string DatabaseAndSchemaQuery = "select current_database(), current_schema()";
 
     /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override string BuildConnectionString(UrlInfo url)
     {
       SqlHelper.ValidateConnectionUrl(url);
@@ -49,6 +53,9 @@ namespace Xtensive.Sql.PostgreSql
     }
 
     /// <inheritdoc/>
+#if NET40
+    [SecuritySafeCritical]
+#endif
     public override SqlDriver CreateDriver(string connectionString)
     {
       using (var connection = new NpgsqlConnection(connectionString)) {

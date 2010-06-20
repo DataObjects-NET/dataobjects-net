@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
@@ -25,6 +26,9 @@ namespace Xtensive.Storage
       MulticastAttributes.NonAbstract | 
       MulticastAttributes.Managed)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+#if NET40
+  [SecuritySafeCritical]
+#endif
   internal class PersistentAspect : Aspect,
     IAspectProvider
   {

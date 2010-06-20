@@ -8,6 +8,7 @@
 
 using System;
 using System.Reflection;
+using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects.Helpers;
@@ -23,6 +24,9 @@ namespace Xtensive.Core.Aspects
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [Serializable]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
+#if NET40
+  [SecuritySafeCritical]
+#endif
   public sealed class ImplementConstructorEpilogue : MethodLevelAspect
   {
     /// <summary>

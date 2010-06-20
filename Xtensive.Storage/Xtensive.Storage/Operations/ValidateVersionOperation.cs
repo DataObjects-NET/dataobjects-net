@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Operations
     #else
     [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
     #endif
-    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Version", Version);
     }

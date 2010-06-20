@@ -5,6 +5,7 @@
 // Created:    2008.06.02
 
 using System;
+using System.Security;
 using PostSharp.Aspects;
 using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
@@ -20,6 +21,9 @@ namespace Xtensive.Core.Aspects
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ImplementConstructor))]
   [RequirePostSharp("Xtensive.Core.Weaver", "Xtensive.PlugIn")]
+#if NET40
+  [SecuritySafeCritical]
+#endif
   public sealed class ImplementFactoryMethod : TypeLevelAspect
   {
     /// <summary>
