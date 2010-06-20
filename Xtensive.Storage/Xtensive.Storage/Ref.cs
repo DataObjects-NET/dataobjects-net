@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Resources;
@@ -153,6 +154,11 @@ namespace Xtensive.Storage
     }
 
     /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Key", key.Format());

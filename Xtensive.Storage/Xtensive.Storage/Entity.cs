@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Caching;
@@ -582,6 +583,11 @@ namespace Xtensive.Storage
     #region Serialization-related methods
 
     [Infrastructure]
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
       using (this.OpenSystemLogicOnlyRegion()) {

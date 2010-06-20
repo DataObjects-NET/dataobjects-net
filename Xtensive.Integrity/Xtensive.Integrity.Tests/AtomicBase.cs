@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
@@ -154,6 +155,11 @@ namespace Xtensive.Integrity.Tests
 
     #region ISerializable Members
     
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Properties", properties);
