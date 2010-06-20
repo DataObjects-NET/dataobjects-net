@@ -44,6 +44,8 @@ using Xtensive.Storage.Aspects;
 #if !NET40
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
 [assembly: AllowPartiallyTrustedCallers]
+#else
+[assembly: SecurityTransparent]
 #endif
 
 // This ensures the methods of Persistent & SessionBound will be aspected
