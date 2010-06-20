@@ -41,12 +41,8 @@ using Xtensive.Storage.Aspects;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-#if !NET40
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, Execution = true)]
 [assembly: AllowPartiallyTrustedCallers]
-#else
-[assembly: SecurityTransparent]
-#endif
 
 // This ensures the methods of Persistent & SessionBound will be aspected
 [assembly: Persistent(AttributeTargetAssemblies = "Xtensive.Storage.Tests.Sandbox")]
