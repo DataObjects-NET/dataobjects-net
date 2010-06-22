@@ -5,7 +5,9 @@
 // Created:    2009.04.27
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Storage.Rse.Providers;
 
 namespace Xtensive.Storage.Linq.Expressions.Visitors
@@ -113,6 +115,37 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
     protected override Expression VisitColumnExpression(ColumnExpression expression)
     {
       return expression;
+    }
+
+    protected override Expression VisitConstructorExpression(ConstructorExpression expression)
+    {
+      var arguments = new List<Expression>();
+      var bindings = new Dictionary<MemberInfo, Expression>();
+      bool recreate = false;
+      foreach (var argument in expression.ConstructorArguments) {
+        var result = Visit(argument);
+        if (result != argument)
+          recreate = true;
+        arguments.Add(result);
+      }
+      foreach (var binding in expression.Bindings) {
+        var result = Visit(binding.Value);
+        if (result != binding.Value)
+          recreate = true;
+        bindings.Add(binding.Key, result);
+      }
+      if (!recreate)
+        return expression;
+      return new ConstructorExpression(
+        expression.Type,
+        bindings,
+        expression.Constructor,
+        arguments);
+    }
+
+    protected override Expression VisitMarker(MarkerExpression expression)
+    {
+      throw new NotImplementedException();
     }
 
     // Constructors
