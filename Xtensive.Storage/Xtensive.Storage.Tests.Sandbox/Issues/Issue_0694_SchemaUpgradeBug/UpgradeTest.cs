@@ -31,7 +31,9 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (Session.Open(domain)) {
         using (var tx = Transaction.Open()) {
-          var person = new M1.Person();
+          var status = new M1.Status() {Title = "Status"};
+          var media = new M1.Media() {Title = "Media", Data = "Data"};
+          media.Statuses.Add(status);
           tx.Complete();
         }
       }
@@ -43,7 +45,20 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (Session.Open(domain)) {
         using (Transaction.Open()) {
-          Assert.AreEqual(1, Query.All<M2.Person>().Count());
+          var status = Query.All<M2.Status>().SingleOrDefault();
+          var newMedia = Query.All<M2.NewMedia>().SingleOrDefault();
+          var newMediaTricky = Query.All<M2.Content>().Where(c => c.Title == "Media").SingleOrDefault();
+
+          int statusCount = Query.All<M2.Status>().Count();
+          int statusAssociationCount = status.AssociatedContent.Count();
+          int newMediaCount = Query.All<M2.NewMedia>().Count();
+
+          Assert.IsNotNull(status);
+          Assert.IsNull(newMedia);
+          Assert.IsNull(newMediaTricky); // Fails!
+          Assert.AreEqual(1, statusCount);
+          Assert.AreEqual(0, newMediaCount);
+          Assert.AreEqual(0, statusAssociationCount); // Fails!
         }
       }
     }
@@ -53,7 +68,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
       if (domain != null)
         domain.DisposeSafely();
 
-      string ns = typeof(M1.Person).Namespace;
+      string ns = typeof(M1.Content).Namespace;
       string nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
