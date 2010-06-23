@@ -240,7 +240,8 @@ namespace Xtensive.Storage.Providers
     }
 
     /// <summary>
-    /// Gets the name for <see cref="ColumnInfo"/> object concatenating <see cref="TypeInfo.Name"/> with original column name.
+    /// Gets the name for <see cref="ColumnInfo"/> object concatenating 
+    /// <see cref="Node.Name"/> of its declaring type with the original column name.
     /// </summary>
     /// <param name="column">The <see cref="ColumnInfo"/> object.</param>
     /// <returns>The built name.</returns>

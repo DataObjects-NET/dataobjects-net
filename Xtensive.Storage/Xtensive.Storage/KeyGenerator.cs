@@ -97,8 +97,7 @@ namespace Xtensive.Storage
     /// Initializer.
     /// </summary>
     /// <param name="handlers">Handler accessor.</param>
-    /// <param name="keyInfoiderInfo">The <see cref="KeyInfo"/>
-    /// instance that describes generator.</param>
+    /// <param name="keyInfo">The <see cref="KeyInfo"/> instance that describes generator.</param>
     /// <exception cref="NotSupportedException">Instance is already initialized.</exception>
     protected internal virtual void Initialize(HandlerAccessor handlers, KeyInfo keyInfo)
     {

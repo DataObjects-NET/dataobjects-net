@@ -44,7 +44,6 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <summary>
     /// Registers the prefetch of the field specified by <paramref name="expression"/>.
     /// </summary>
-    /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <returns><see langword="this"/></returns>
@@ -57,7 +56,6 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <summary>
     /// Registers the prefetch of the field specified by <paramref name="expression"/>.
     /// </summary>
-    /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TItem">The type of a sequence item.</typeparam>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <param name="entitySetItemCountLimit">The limit of count of items to be loaded during the 
@@ -66,7 +64,7 @@ namespace Xtensive.Storage.Internals.Prefetch
     public Prefetcher<T, TElement> Prefetch<TItem>(Expression<Func<T, IEnumerable<TItem>>> expression,
       int entitySetItemCountLimit)
     {
-      Prefetch(expression, (int?) entitySetItemCountLimit);
+      Prefetch(expression, (int?)entitySetItemCountLimit);
       return this;
     }
 
@@ -75,7 +73,6 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// registers the delegate prefetching fields of an object referenced by element of
     /// the sequence.
     /// </summary>
-    /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TItem">The type of a sequence item.</typeparam>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <param name="nestedPrefetcher">The delegate prefetching fields of a referenced object.</param>
@@ -92,7 +89,6 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// Registers the delegate prefetching fields of an object referenced by element of
     /// the sequence specified by <paramref name="selector"/>.
     /// </summary>
-    /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TSelectorResult">The result's type of a referenced object's selector.</typeparam>
     /// <param name="selector">The selector of a sequence.</param>
     /// <param name="nestedPrefetcher">The delegate prefetching fields of a referenced object.</param>
@@ -109,7 +105,6 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// Registers the delegate prefetching fields of an object referenced by the value
     /// specified by <paramref name="selector"/>.
     /// </summary>
-    /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
     /// <typeparam name="TSelectorResult">The result's type of a referenced object's selector.</typeparam>
     /// <param name="selector">The selector of a field value.</param>
     /// <param name="nestedPrefetcher">The delegate prefetching fields of a referenced object.</param>

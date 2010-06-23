@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Services
     /// Creates new entity instance of the specified type.
     /// </summary>
     /// <param name="entityType">The type of entity to create. Must be descendant of the <see cref="Entity"/> type.</param>
-    /// <returnsCreated entity.</returns>
+    /// <returns>Newly created entity.</returns>
     public Entity CreateEntity(Type entityType)
     {
       using (this.OpenSystemLogicOnlyRegion()) {

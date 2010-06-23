@@ -80,9 +80,11 @@ namespace Xtensive.Storage.Tests.Upgrade.Recycled
 
       var log = new List<string>();
       foreach (var order in orders) {
+#pragma warning disable 612,618
         order.Customer = customerMap[order.RcCustomer.Id];
         order.Employee = employeeMap[order.RcEmployee.Id];
         log.Add(order.ToString());
+#pragma warning restore 612,618
       }
       foreach (var order in orders)
         log.Add(order.ToString());

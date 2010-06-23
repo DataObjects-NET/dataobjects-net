@@ -87,7 +87,8 @@ namespace Xtensive.Storage.Providers.Sql
 
     /// <summary>
     /// Executes all registred requests,
-    /// optionally skipping the last requests according to a <see cref="allowPartialExecution"/> argument.
+    /// optionally skipping the last requests according to 
+    /// <paramref name="allowPartialExecution"/> argument.
     /// </summary>
     /// <param name="allowPartialExecution">
     /// if set to <see langword="true"/> command processor is allowed to skip last request,

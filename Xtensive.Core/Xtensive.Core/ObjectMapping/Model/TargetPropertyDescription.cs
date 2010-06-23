@@ -88,7 +88,6 @@ namespace Xtensive.Core.ObjectMapping.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="systemProperty">The value of
     /// <param name="systemProperty">The system property.</param>
     /// <param name="reflectedType">The the type that was used to obtain this description.</param>
     public TargetPropertyDescription(PropertyInfo systemProperty, TargetTypeDescription reflectedType)

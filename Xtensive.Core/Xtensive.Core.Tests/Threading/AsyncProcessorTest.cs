@@ -72,7 +72,9 @@ namespace Xtensive.Core.Tests.Threading
         results.Add(processor.Execute(() => ++completedTaskCount, false));
         results.Add(processor.Execute(() => {
           throw new AssertionException(string.Empty);
+#pragma warning disable 162
           return ++completedTaskCount;
+#pragma warning restore 162
         }, false));
         processor.Execute(() => { completedTaskCount++; }, false);
         results.Add(processor.Execute(() => ++completedTaskCount, false));
@@ -103,7 +105,7 @@ namespace Xtensive.Core.Tests.Threading
         results.Add(processor.Execute(() => ++completedTaskCount, false));
         processor.Execute(() => {
           throw new AssertionException(string.Empty);
-          completedTaskCount++;
+          // completedTaskCount++;
         }, false);
         processor.Execute(() => { completedTaskCount++; }, false);
         results.Add(processor.Execute(() => ++completedTaskCount, false));
@@ -223,7 +225,9 @@ namespace Xtensive.Core.Tests.Threading
         int completedTaskCount = 0;
         TaskResult<int> result = processor.Execute(() => {
           throw new AssertionException(string.Empty);
+#pragma warning disable 162
           return completedTaskCount++;
+#pragma warning restore 162
         }, !syncMode);
         Assert.IsTrue(processor.HasError);
         AssertEx.Throws<AssertionException>(() => { var t = result.Result; });
@@ -245,7 +249,7 @@ namespace Xtensive.Core.Tests.Threading
         int completedTaskCount = 0;
         processor.Execute(() => {
           throw new AssertionException(string.Empty);
-          completedTaskCount++;
+          // completedTaskCount++;
         }, !syncMode);
         Assert.IsTrue(processor.HasError);
         Assert.AreEqual(0, completedTaskCount);

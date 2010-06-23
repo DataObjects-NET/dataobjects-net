@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Model
     : NodeCollection<FieldInfo>,
       IFilterable<FieldAttributes, FieldInfo>
   {
-    internal static FieldInfoCollection Empty;
+    internal new static FieldInfoCollection Empty;
 
     /// <inheritdoc/>
     public ICountable<FieldInfo> Find(FieldAttributes criteria)

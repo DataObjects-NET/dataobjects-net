@@ -7,7 +7,7 @@
 using System.Reflection;
 using Xtensive.Core.Diagnostics;
 
-namespace Xtensive.Storage.Tests
+namespace Xtensive.Storage.Tests.Sandbox
 {
   /// <summary>
   /// Log for this namespace.

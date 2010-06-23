@@ -5,10 +5,8 @@
 // Created:    2007.08.28
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Core.Collections;
 using Xtensive.Indexing.BloomFilter;
 
 namespace Xtensive.Indexing.Implementation

@@ -27,7 +27,7 @@ namespace Xtensive.Integrity.Validation
     /// </para>
     /// <para>
     /// If this method isn't called before region disposal, 
-    /// validation context will receive <see cref="ValidationContextBase.IsValid"/>
+    /// validation context will receive <see cref="ValidationContextBase.IsConsistent"/>
     /// status, and any further attempts to validate there will fail.
     /// </para>
     /// </remarks>

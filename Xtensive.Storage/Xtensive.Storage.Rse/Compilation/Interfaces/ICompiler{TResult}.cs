@@ -21,7 +21,7 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <param name="provider">The provider to compile.</param>
     /// <returns>Compiled provider, if compiler can handle the compilation of specified provider;
     /// otherwise, <see langword="null"/>.</returns>
-    TResult Compile(CompilableProvider provider);
+    new TResult Compile(CompilableProvider provider);
 
     /// <summary>
     /// Wraps the specified <paramref name="provider"/>
@@ -32,6 +32,6 @@ namespace Xtensive.Storage.Rse.Compilation
     /// <param name="provider">The provider to wrap to a compatible provider.</param>
     /// <returns>Wrapping provider compatible with this compiler;
     /// <see langword="null"/>, if wrapping is not possible.</returns>
-    TResult ToCompatible(ExecutableProvider provider);
+    new TResult ToCompatible(ExecutableProvider provider);
   }
 }

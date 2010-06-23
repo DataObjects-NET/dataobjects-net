@@ -323,7 +323,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Sets the field value.
     /// </summary>
-    /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
     /// <param name="value">The value to set.</param>
     protected internal void SetFieldValue(string fieldName, object value)
@@ -352,7 +351,6 @@ namespace Xtensive.Storage
     /// Field value type must be specified precisely. 
     /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
-    /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
     [ActivateSession, Transactional]

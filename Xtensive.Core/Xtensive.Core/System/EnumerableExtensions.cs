@@ -579,7 +579,7 @@ namespace System
     /// the invocation.</param>
     /// <param name="afterAction">The delegate that will be invoked after 
     /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit 
-    /// the invocation.
+    /// the invocation.</param>
     /// <returns>The source sequence.</returns>
     public static IEnumerable<IEnumerable<T>> ApplyBeforeAndAfter<T>(this IEnumerable<IEnumerable<T>> source,
       Action beforeAction, Action afterAction)
@@ -635,7 +635,7 @@ namespace System
     }
 
     /// <summary>
-    /// Determines whenever specified sequence contains at least <see cref="numberOfElements"/>.
+    /// Determines whenever specified sequence contains at least <paramref name="numberOfElements"/>.
     /// </summary>
     /// <typeparam name="TItem">The type of the item.</typeparam>
     /// <param name="sequence">The sequence.</param>

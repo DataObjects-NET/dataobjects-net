@@ -78,7 +78,7 @@ namespace Xtensive.Core.Linq
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.
-    /// Otherwise, <see langword="false">.
+    /// Otherwise, <see langword="false"/>.
     /// </returns>
     public static bool operator != (ExpressionTree left, ExpressionTree right)
     {

@@ -25,7 +25,7 @@ namespace Xtensive.Core.Linq
     /// <summary>
     /// Gets a value indicating whether this visitor is caching.
     /// When visitor is caching, visit result 
-    /// is cached and resolved by internal cache.</param>
+    /// is cached and resolved by internal cache.
     /// </summary>
     public bool IsCaching
     {

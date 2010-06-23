@@ -107,7 +107,7 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Indicates whether debug event logging is enabled.
-    /// Caches <see cref="Log.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
+    /// Caches <see cref="ILogBase.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
     /// </summary>
     public bool IsDebugEventLoggingEnabled { get; private set; }
 

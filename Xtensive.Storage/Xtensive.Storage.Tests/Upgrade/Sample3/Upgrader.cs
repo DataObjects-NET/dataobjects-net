@@ -58,6 +58,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
 
     public override void OnUpgrade()
     {
+#pragma warning disable 612,618
       var deps = Query.All<Employee>().ToList();
       foreach (var employee in deps)
         employee.DepartmentName = employee.RcDepartment;
@@ -66,6 +67,7 @@ namespace Xtensive.Storage.Tests.Upgrade.Sample3
           Amount = order.Amount,
           ProductName = order.ProductName
         });
+#pragma warning restore 612,618
     }
 
     private static IEnumerable<UpgradeHint> Version1To2Hints {

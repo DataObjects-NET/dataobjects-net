@@ -10,7 +10,7 @@ using Xtensive.Core.Tuples;
 namespace Xtensive.Storage.Rse.Providers
 {
   /// <summary>
-  /// Returned as service (see <see cref="Provider.GetService{T}"/>) 
+  /// Returned as service (see <see cref="ExecutableProvider.GetService{T}"/>) 
   /// by providers supporting random access to their items.
   /// </summary>
   public interface IListProvider: ICountable
