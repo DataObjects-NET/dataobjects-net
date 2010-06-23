@@ -42,7 +42,6 @@ namespace Xtensive.Indexing
     /// <param name="name">The name of the index.</param>
     /// <param name="owner">The collection to be indexed.</param>
     /// <param name="extractKey">Key extractor.</param>
-    /// otherwise, <see langword="false"/>.</param>
     /// <returns>
     ///   <see cref="IIndex{TKey,TItem}"/> instance.
     /// </returns>
@@ -60,7 +59,6 @@ namespace Xtensive.Indexing
     /// <param name="name">The name of the index.</param>
     /// <param name="owner">The collection to be indexed.</param>
     /// <param name="extractKey">Key extractor.</param>
-    /// otherwise, <see langword="false"/>.</param>
     /// <returns>
     ///   <see cref="IIndex{TKey,TItem}"/> instance.
     /// </returns>

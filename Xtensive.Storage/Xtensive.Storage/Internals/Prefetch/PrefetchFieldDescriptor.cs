@@ -75,7 +75,6 @@ namespace Xtensive.Storage.Internals.Prefetch
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="field">The field whose value will be fetched.</param>
-    /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
     public PrefetchFieldDescriptor(FieldInfo field)
       : this(field, null, true, true, null)
     {}

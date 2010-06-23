@@ -16,7 +16,7 @@ namespace Xtensive.Indexing.Measures
   public interface IMeasure<TItem, TResult>: IMeasure<TItem>
   {
     /// <summary>
-    /// Gets the delegate measuring <typeparam name="TItem"/> - i.e. converting it to <typeparamref name="TResult"/>.
+    /// Gets the delegate measuring <typeparamref name="TItem"/> - i.e. converting it to <typeparamref name="TResult"/>.
     /// </summary>
     /// <value>The measuring delegate.</value>
     Converter<TItem, TResult> ResultExtractor { get; }

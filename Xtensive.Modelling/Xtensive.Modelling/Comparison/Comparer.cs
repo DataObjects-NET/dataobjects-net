@@ -598,7 +598,7 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// Determines whether <see cref="Hints"/> contains data change hints.
     /// </summary>
-    /// <param name="difference">The difference.</param>
+    /// <param name="source">The source node.</param>
     /// <returns>
     /// <see langword="true"/> if data change hints exists; otherwise, <see langword="false"/>.
     /// </returns>

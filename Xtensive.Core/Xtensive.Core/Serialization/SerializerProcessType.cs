@@ -7,7 +7,7 @@
 namespace Xtensive.Core.Serialization
 {
   /// <summary>
-  /// Enumerates possible <see cref="Serializer"/> process types.
+  /// Enumerates possible serialization process types.
   /// </summary>
   public enum SerializerProcessType
   {
@@ -17,12 +17,12 @@ namespace Xtensive.Core.Serialization
     None = 0,
 
     /// <summary>
-    /// <see cref="Serializer"/> is serializing the graph.
+    /// Serializer is serializing the graph.
     /// </summary>
     Serialization = 1,
 
     /// <summary>
-    /// <see cref="Serializer"/> is deserializing the graph.
+    /// Serializer is deserializing the graph.
     /// </summary>
     Deserialization = -1,
   }

@@ -53,7 +53,7 @@ namespace Xtensive.Sql.Model
     }
     
     /// <summary>
-    /// Gets the <see typeparam name="T"/> at the specified index.
+    /// Gets the <typeparamref name="TNode"/> at the specified index.
     /// </summary>
     public TNode this[string index] {
       get {

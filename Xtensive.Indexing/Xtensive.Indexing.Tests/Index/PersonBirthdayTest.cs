@@ -313,7 +313,7 @@ namespace Xtensive.Indexing.Tests.Index
         return ageSumm/count;
       }
 
-      public IEnumerator<RegularPerson> GetEnumerator()
+      public new IEnumerator<RegularPerson> GetEnumerator()
       {
         throw new NotImplementedException();
       }

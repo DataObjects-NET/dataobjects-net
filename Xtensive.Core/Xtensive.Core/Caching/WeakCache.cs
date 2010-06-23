@@ -32,22 +32,10 @@ namespace Xtensive.Core.Caching
     where TItem : class
   {
     /// <summary>
-    /// Default <see cref="EfficiencyFactor"/> value.
-    /// Value is <see langword="1"/>.
-    /// </summary>
-    public const int DefaultEfficiencyFactor = 1;
-
-    /// <summary>
     /// Minimal <see cref="Count"/> value, until which <see cref="CollectGarbage"/> doesn't start at all.
     /// Value is <see langword="1024"/>.
     /// </summary>
     protected const int NoGcCount = 1024;
-
-    /// <summary>
-    /// Maximal <see cref="Count"/> value, at which <see cref="CollectGarbage"/> starts immediately.
-    /// Value is <see langword="64*1024*1024"/>.
-    /// </summary>
-    protected const int ImmediateGcCount = 64*1024*1024;
 
     private const int GcOperationCost = 2;
     private readonly bool trackResurrection;

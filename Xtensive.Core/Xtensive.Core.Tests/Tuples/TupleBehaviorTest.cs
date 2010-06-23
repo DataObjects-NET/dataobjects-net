@@ -25,7 +25,7 @@ namespace Xtensive.Core.Tests.Tuples
     }
 
     [Test]
-    public void Test()
+    public new void Test()
     {
       base.Test();
     }
@@ -49,25 +49,25 @@ namespace Xtensive.Core.Tests.Tuples
     }
 
     [Test]
-    public void BehaviorTest()
+    public new void BehaviorTest()
     {
       base.BehaviorTest();
     }
 
     [Test]
-    public void EmptyFieldsTest()
+    public new void EmptyFieldsTest()
     {
       base.EmptyFieldsTest();
     }
 
     [Test]
-    public void RandomTest()
+    public new void RandomTest()
     {
       base.RandomTest();
     }
 
     [Test]
-    public void CopyTest()
+    public new void CopyTest()
     {
       Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
       int loopCount = 10;

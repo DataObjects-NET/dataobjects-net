@@ -18,7 +18,9 @@ namespace Xtensive.Storage.Linq.Expressions
     // Constructors
 
     protected ExtendedExpression(ExtendedExpressionType expressionType, Type type)
+#pragma warning disable 612,618
       : base((ExpressionType) expressionType, type)
+#pragma warning restore 612,618
     {
       ExtendedType = expressionType;
     }

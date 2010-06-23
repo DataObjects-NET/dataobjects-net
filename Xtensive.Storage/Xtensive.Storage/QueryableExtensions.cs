@@ -169,7 +169,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>
     /// <param name="source">Source value.</param>
-    /// <param name="source">Translation algorithm.</param>
+    /// <param name="algorithm">Translation algorithm.</param>
     /// <param name="values">List of values to check.</param>
     /// <returns><see langword="True"/> if <paramref name="source"/> contains in the list of values, otherwise returns <see langword="false"/>.</returns>
     /// <remarks>LINQ translator detects this method and converts it to appropriate <see langword="Contains"/> method.</remarks>
@@ -183,7 +183,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>
     /// <param name="source">Source value.</param>
-    /// <param name="source">Translation algorithm.</param>
+    /// <param name="algorithm">Translation algorithm.</param>
     /// <param name="values">List of values to check.</param>
     /// <returns><see langword="True"/> if <paramref name="source"/> contains in the list of values, otherwise returns <see langword="false"/>.</returns>
     /// <remarks>LINQ translator detects this method and converts it to appropriate <see langword="Contains"/> method.</remarks>

@@ -128,7 +128,7 @@ namespace Xtensive.Core.Arithmetic
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="implementation"><see cref="Implementation"/> property value.</param>
+    /// <param name="implementation"><see cref="MethodCacheBase{TImplementation}.Implementation"/> property value.</param>
     public Arithmetic(IArithmetic<T> implementation)
       : base(implementation)
     {

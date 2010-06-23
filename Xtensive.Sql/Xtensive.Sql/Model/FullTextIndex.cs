@@ -49,8 +49,8 @@ namespace Xtensive.Sql.Model
     /// Creates the full-text index column.
     /// </summary>
     /// <param name="column">The column.</param>
-    /// <returns></returns>
-    public IndexColumn CreateIndexColumn(DataTableColumn column)
+    /// <returns>Newly created <see cref="IndexColumn"/> object.</returns>
+    public new IndexColumn CreateIndexColumn(DataTableColumn column)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
       return new IndexColumn(this, column, true);
