@@ -12,7 +12,7 @@ namespace Xtensive.Storage.Tests
   /// <summary>
   /// Log for this namespace.
   /// </summary>
-  internal sealed class Log : LogTemplate<Log>
+  public sealed class Log : LogTemplate<Log>
   {
     // Copy-paste this code!
     /// <summary>
