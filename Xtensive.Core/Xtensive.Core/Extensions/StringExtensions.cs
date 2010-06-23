@@ -25,7 +25,8 @@ namespace Xtensive.Core
       RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     /// <summary>
-    /// Formats the specified <paramref name="format"/> string using <see cref="string.Format(string,object[])" method/>.
+    /// Formats the specified <paramref name="format"/> string 
+    /// using <see cref="string.Format(string,object[])"/> method.
     /// </summary>
     /// <param name="format">The format string.</param>
     /// <param name="formatProvider">The format provider.</param>
@@ -39,7 +40,8 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Formats the specified <paramref name="format"/> string using <see cref="string.Format(string,object[])" method/>.
+    /// Formats the specified <paramref name="format"/> string 
+    /// using <see cref="string.Format(string,object[])"/> method.
     /// </summary>
     /// <param name="format">The format string.</param>
     /// <param name="arguments">The arguments.</param>
@@ -51,7 +53,8 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Formats the specified <paramref name="format"/> string using <see cref="string.Format(string,object)" method/>.
+    /// Formats the specified <paramref name="format"/> string 
+    /// using <see cref="string.Format(string,object)"/> method.
     /// </summary>
     /// <param name="format">The format string.</param>
     /// <param name="arg0">The first argument.</param>
@@ -74,28 +77,10 @@ namespace Xtensive.Core
 
       return string.Format(rewrittenFormat, arguments.ToArray());
     }
-
-    private static object Eval(object arg, string expression)
-    {
-      if (expression==null)
-        throw new ArgumentNullException("expression");
-      expression = expression.Trim();
-      if (expression.Length==0)
-        throw new ArgumentNullException("expression");
-      if (arg==null)
-        return null;
-      var expressionParts = expression.Split('.');
-      var propertyValue = arg;
-      for (int i = 0; (i < expressionParts.Length) && (propertyValue != null); i++) {
-        var propName = expressionParts[i];
-        var propertyInfo = propertyValue.GetType().GetProperty(propName);
-        propertyValue = propertyInfo.GetValue(propertyValue, ArrayUtils<object>.EmptyArray);
-      }
-      return propertyValue;
-    }
     
     /// <summary>
-    /// Formats the specified <paramref name="format"/> string using <see cref="string.Format(string,object,object)" method/>.
+    /// Formats the specified <paramref name="format"/> string 
+    /// using <see cref="string.Format(string,object,object)"/> method.
     /// </summary>
     /// <param name="format">The format string.</param>
     /// <param name="arg0">The first argument.</param>
@@ -108,7 +93,8 @@ namespace Xtensive.Core
     }
     
     /// <summary>
-    /// Formats the specified <paramref name="format"/> string using <see cref="string.Format(string,object,object,object)" method/>.
+    /// Formats the specified <paramref name="format"/> string 
+    /// using <see cref="string.Format(string,object,object,object)"/> method.
     /// </summary>
     /// <param name="format">The format string.</param>
     /// <param name="arg0">The first argument.</param>
@@ -119,6 +105,27 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(format, "format");
       return string.Format(format, arg0, arg1, arg2);
+    }
+
+    /// <exception cref="ArgumentNullException"><paramref name="expression" /> is <c>null</c>.</exception>
+    private static object Eval(object arg, string expression)
+    {
+      if (expression == null)
+        throw new ArgumentNullException("expression");
+      expression = expression.Trim();
+      if (expression.Length == 0)
+        throw new ArgumentNullException("expression");
+      if (arg == null)
+        return null;
+      var expressionParts = expression.Split('.');
+      object propertyValue = arg;
+      foreach (string propertyName in expressionParts) {
+        if (propertyValue == null)
+          break;
+        var propertyInfo = propertyValue.GetType().GetProperty(propertyName);
+        propertyValue = propertyInfo.GetValue(propertyValue, ArrayUtils<object>.EmptyArray);
+      }
+      return propertyValue;
     }
     
     /// <summary>

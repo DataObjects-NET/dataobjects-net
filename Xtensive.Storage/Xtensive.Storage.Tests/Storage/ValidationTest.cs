@@ -319,7 +319,7 @@ namespace Xtensive.Storage.Tests.Storage.Validation
             using (var region = Xtensive.Storage.Validation.Disable()) {
               var mouse = new Mouse();
               throw new Exception("Test");
-              region.Complete();
+              // region.Complete();
             }
           }
           catch (Exception exception) {

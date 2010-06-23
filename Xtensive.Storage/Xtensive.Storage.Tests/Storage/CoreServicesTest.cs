@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
       set
       {
         throw new InvalidOperationException();
-        SetFieldValue("Value", value);
+        // SetFieldValue("Value", value);
       }
     }
 
@@ -90,7 +90,7 @@ namespace Xtensive.Storage.Tests.Storage.CoreServicesModel
       set
       {
         throw new InvalidOperationException();
-        SetFieldValue("Value", value);
+        // SetFieldValue("Value", value);
       }
     }
 

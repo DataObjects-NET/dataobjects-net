@@ -28,14 +28,13 @@ namespace Xtensive.Storage.Upgrade
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <param name="providerInfo">The provider info.</param>
     /// <param name="buildForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for associations.</param>
     /// <param name="foreignKeyNameGenerator">The foreign key name generator.</param>
     /// <param name="buildHierarchyForeignKeys">If set to <see langword="true"/>, foreign keys
     /// will be created for hierarchies.</param>
     /// <param name="hierarchyForeignKeyNameGenerator">The hierarchy foreign key name generator.</param>
-    /// <param name="generatorResolver">The persistent generator filter.</param>
-    /// <param name="providerInfo">The provider info.</param>
     /// <param name="typeBuilder">The type builder.</param>
     public DomainModelConverter(
       ProviderInfo providerInfo, 

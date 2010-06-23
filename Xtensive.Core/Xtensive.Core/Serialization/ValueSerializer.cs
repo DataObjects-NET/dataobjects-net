@@ -30,7 +30,7 @@ namespace Xtensive.Core.Serialization
 
     /// <summary>
     /// Gets default serializer for type <typeparamref name="T"/>
-    /// (uses <see cref="ObjectSerializerProviderBase.Default"/>).
+    /// (uses <see cref="ValueSerializerProvider.Default"/>).
     /// </summary>
     public static ValueSerializer<T> Default {
       [DebuggerStepThrough]
@@ -45,7 +45,7 @@ namespace Xtensive.Core.Serialization
     public IValueSerializerProvider Provider { get; private set; }
 
     /// <summary>
-    /// Gets <see cref="IValueSerializer{T}.Serialize(T)"/> method delegate.
+    /// Gets <see cref="IValueSerializer{T}.Serialize(Stream,T)"/> method delegate.
     /// </summary>
     public Action<Stream, T> Serialize;
 

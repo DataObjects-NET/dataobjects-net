@@ -243,7 +243,6 @@ namespace Xtensive.Core.Tuples
     /// <param name="difference">Tuple with differences to merge with.</param>
     /// <param name="startIndex">The index in the <paramref name="difference"/> tuple at which merging begins.</param>
     /// <param name="length">The number of elements to process.</param>
-    /// from <paramref name="difference"/> and <paramref name="origin"/> are available.</param>
     public static void MergeWith(this Tuple origin, Tuple difference, int startIndex, int length)
     {
       MergeWith(origin, difference, startIndex, length, MergeBehavior.Default);
@@ -286,6 +285,7 @@ namespace Xtensive.Core.Tuples
     /// </summary>
     /// <param name="origin">Tuple containing original values and receiving the data.</param>
     /// <param name="difference">Tuple with differences to merge with.</param>
+    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values 
     /// from <paramref name="difference"/> and <paramref name="origin"/> are available.</param>
     public static void MergeWith(this Tuple origin, Tuple difference, MergeBehavior behavior)
     {

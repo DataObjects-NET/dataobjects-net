@@ -522,7 +522,7 @@ namespace Xtensive.Core.Tests.Linq
       Assert.IsNull(comparisonInfo);
 
       // The expression does not contain any comparison operations.
-      comparison = () => (xi + zi) is int;
+      comparison = () => true; // (xi + zi) is int;
       comparisonInfo = ExtractComparisonInfo(comparison, "xi");
       Assert.IsNull(comparisonInfo);
 

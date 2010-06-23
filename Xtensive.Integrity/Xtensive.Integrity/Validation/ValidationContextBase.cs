@@ -42,7 +42,7 @@ namespace Xtensive.Integrity.Validation
     /// The validation of all queued to-validate objects will be performed during disposal.
     /// </para>
     /// </remarks>
-    /// <exception cref="InvalidOperationException">Context <see cref="IsValid">is invalid</see>.</exception>
+    /// <exception cref="InvalidOperationException">Context <see cref="IsConsistent">is invalid</see>.</exception>
     public InconsistentRegion OpenInconsistentRegion()
     {
       if (!IsConsistent)

@@ -52,7 +52,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <summary>
     /// Translates <see cref="AggregateColumn"/> to corresponding <see cref="SqlExpression"/>.
     /// </summary>
-    /// <param name="source">The source <see cref="SqlProvider">.</param>
+    /// <param name="source">The source <see cref="SqlProvider"/>.</param>
     /// <param name="sourceColumns">The source columns.</param>
     /// <param name="aggregateColumn">The aggregate column.</param>
     /// <returns>Aggregate processing result (expression).</returns>

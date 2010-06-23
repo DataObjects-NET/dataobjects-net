@@ -54,6 +54,7 @@ namespace Xtensive.Storage.Tests.Upgrade
 
       public override void OnUpgrade()
       {
+#pragma warning disable 612,618
         var authorMap = new Dictionary<Guid, Author2>();
         var rcAuthors = Query.All<RcAuthor>();
         var books = Query.All<Book2>();
@@ -63,6 +64,7 @@ namespace Xtensive.Storage.Tests.Upgrade
         }
         foreach (var book in books)
           book.Author = authorMap[book.RcAuthor.Id];
+#pragma warning restore 612,618
       }
 
       protected override void AddUpgradeHints(Core.Collections.ISet<UpgradeHint> hints)

@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Dml
       visitor.Visit(this);
     }
 
-    public IEnumerator<ISqlQueryExpression> GetEnumerator()
+    public new IEnumerator<ISqlQueryExpression> GetEnumerator()
     {
       yield return this;
     }

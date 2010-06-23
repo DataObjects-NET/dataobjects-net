@@ -429,7 +429,6 @@ namespace Xtensive.Indexing
     /// <param name="name">Index name.</param>
     /// <param name="collection">The collection to bind the index to.</param>
     /// <param name="implementation">The index implementor.</param>
-    /// otherwise, <see langword="false"/>.</param>
     public CollectionIndex(string name, ICollectionChangeNotifier<TItem> collection, IUniqueIndex<TKey, TItem> implementation) : 
       this(name, collection, implementation, true)
     {
@@ -441,7 +440,6 @@ namespace Xtensive.Indexing
     /// <param name="name">Index name.</param>
     /// <param name="collection">The collection to bind the index to.</param>
     /// <param name="implementation">The index implementor.</param>
-    /// otherwise, <see langword="false"/>.</param>
     public CollectionIndex(string name, ICollectionChangeNotifier<TItem> collection, INonUniqueIndex<TKey, TItem> implementation) : 
       this(name, collection, implementation, false)
     {

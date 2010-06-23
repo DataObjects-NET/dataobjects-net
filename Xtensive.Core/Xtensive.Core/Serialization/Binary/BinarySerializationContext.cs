@@ -20,7 +20,7 @@ namespace Xtensive.Core.Serialization.Binary
     /// <summary>
     /// Gets the current <see cref="BinarySerializationContext"/>.
     /// </summary>        
-    public static BinarySerializationContext Current {
+    public static new BinarySerializationContext Current {
       [DebuggerStepThrough]
       get { return (BinarySerializationContext) Scope<SerializationContext>.CurrentContext; }
     }

@@ -109,6 +109,7 @@ namespace Xtensive.Storage.Building.Definitions
 
     /// <summary>
     /// An indexer that provides access to collection items.
+    /// </summary>
     /// <exception cref="ArgumentException"> when item was not found.</exception>
     public TypeDef this[Type key]
     {

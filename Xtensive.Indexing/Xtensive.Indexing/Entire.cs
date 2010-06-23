@@ -18,7 +18,7 @@ namespace Xtensive.Indexing
 {
   /// <summary>
   /// Provides additional positive and negative infinity 
-  /// values or infinitesimal shift values to its type parameter <see cref="T"/>.
+  /// values or infinitesimal shift values to its type parameter <typeparamref name="T"/>.
   /// Much like <see cref="Nullable{T}"/>, but for describing
   /// <see cref="Entire{T}"/> value type.
   /// </summary>
@@ -106,7 +106,7 @@ namespace Xtensive.Indexing
     #region Operators, conversion
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Entire{T}"/> to <see cref="T"/>.
+    /// Performs an explicit conversion from <see cref="Entire{T}"/> to <typeparamref name="T"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -116,7 +116,7 @@ namespace Xtensive.Indexing
     }
 
     /// <summary>
-    /// Performs an implicit conversion from <see cref="T"/> to <see cref="Entire{T}"/>.
+    /// Performs an implicit conversion from <typeparamref name="T"/> to <see cref="Entire{T}"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>

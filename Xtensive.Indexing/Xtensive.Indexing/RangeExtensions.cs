@@ -461,7 +461,8 @@ namespace Xtensive.Indexing
     }
 
     /// <summary>
-    /// Determines whether specified <see cref="range"/> has equals endpoints and does not contains infinities or shifts for <see cref="Entire{T}"/>.
+    /// Determines whether specified <paramref name="range"/> has equals endpoints 
+    /// and does not contains infinities or shifts for <see cref="Entire{T}"/>.
     /// </summary>
     /// <typeparam name="T">Endpoint type.</typeparam>
     /// <param name="range">The range.</param>

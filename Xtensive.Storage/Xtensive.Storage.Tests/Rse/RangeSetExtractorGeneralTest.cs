@@ -35,7 +35,9 @@ namespace Xtensive.Storage.Tests.Rse
       Expression<Func<Tuple, bool>> predicate =
          (t) => t.GetValue<string>(nameIdx).CompareTo("abc") >= 0 
            & (t.GetValue<int>(lengthIdx).CompareTo(1) < 0 | t.GetValue<int?>(lengthIdx) >= 3)
+#pragma warning disable 184
            || !(10 >= t.GetValue<int?>(lengthIdx)) && !(new bool()) || lengthIdx is string;
+#pragma warning restore 184
 
       var expectedRanges = CreateRangesForComplexTest(indexInfo, LengthField);
       TestExpression(predicate, indexInfo, rsHeader, expectedRanges);
@@ -71,7 +73,7 @@ namespace Xtensive.Storage.Tests.Rse
 
       Expression<Func<Tuple, bool>> predicate0 =
         (t) => !(t.GetValue<string>(nameIdx).CompareTo("abc") < 0 || t.GetValue<int?>(lengthIdx) >= 3
-            || !(true && t.GetValue<int?>(lengthIdx) >= 1))
+          || !(true && t.GetValue<int?>(lengthIdx) >= 1))
           || !(lengthIdx is int && !(lengthIdx is string));
 
       Expression<Func<Tuple, bool>> predicate1 =
