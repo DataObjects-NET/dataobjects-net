@@ -8,6 +8,7 @@ syntax: glob
 *.resharper
 *.resharperoptions 
 _ReSharper.*
+.vs10x
 
 *.exe
 *.dll
