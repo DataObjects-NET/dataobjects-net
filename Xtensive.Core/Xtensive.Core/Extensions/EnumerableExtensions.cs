@@ -636,7 +636,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Determines whenever specified sequence contains at least <see cref="numberOfElements"/>.
+    /// Determines whenever specified sequence contains at least <paramref name="numberOfElements"/>.
     /// </summary>
     /// <typeparam name="TItem">The type of the item.</typeparam>
     /// <param name="sequence">The sequence.</param>
