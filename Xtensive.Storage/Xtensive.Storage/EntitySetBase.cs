@@ -419,6 +419,9 @@ namespace Xtensive.Storage
             var underlyindEntityState = new EntityState(Session, combinedKey, combinedTuple) {
               PersistenceState = PersistenceState.New
             };
+
+            // Issue 690 bugfix, do not remove :-)
+            // var underlyindEntityState = Session.CreateEntityState(combinedKey);
           }
 
           State.Add(item.Key);
@@ -466,6 +469,9 @@ namespace Xtensive.Storage
             var underlyindEntityState = new EntityState(Session, combinedKey, null) {
               PersistenceState = PersistenceState.Removed
             };
+
+            // Issue 690 bugfix, do not remove :-)
+            // Session.UpdateEntityState(combinedKey, null);
           }
 
           State.Remove(item.Key);
