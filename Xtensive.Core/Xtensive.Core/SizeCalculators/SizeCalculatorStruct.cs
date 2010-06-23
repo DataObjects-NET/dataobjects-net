@@ -6,6 +6,8 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Security;
+using System.Security.Permissions;
 using Xtensive.Core.Internals.DocTemplates;
 using S=Xtensive.Core.SizeCalculators;
 
@@ -75,6 +77,11 @@ namespace Xtensive.Core.SizeCalculators
     }
 
     /// <inheritdoc/>
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("SizeCalculator", SizeCalculator);

@@ -6,6 +6,8 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Security;
+using System.Security.Permissions;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
@@ -56,6 +58,11 @@ namespace Xtensive.Storage.Operations
     // Serialization
 
     /// <inheritdoc/>
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);

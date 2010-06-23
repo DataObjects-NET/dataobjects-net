@@ -7,6 +7,8 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Security;
+using System.Security.Permissions;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Xtensive.Storage.Model;
@@ -121,6 +123,11 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);

@@ -75,20 +75,20 @@ namespace Xtensive.Storage.Providers
       switch (NamingConvention.NamespacePolicy) {
         case NamespacePolicy.Synonymize: {
           string synonym;
-          if (NamingConvention.NamespaceSynonyms.TryGetValue(@namespace, out synonym)) {
-            if (synonym.IsNullOrEmpty())
-              throw new InvalidOperationException(Resources.Strings.ExIncorrectNamespaceSynonyms);
-          }
-          else
+          if (!NamingConvention.NamespaceSynonyms.TryGetValue(@namespace, out synonym))
             synonym = @namespace;
-          result = string.Format("{0}.{1}", synonym, result);
+          if (!synonym.IsNullOrEmpty())
+            result = string.Format("{0}.{1}", synonym, result);
         }
           break;
         case NamespacePolicy.AsIs:
-          result = string.Format("{0}.{1}", @namespace, result);
+          if (!@namespace.IsNullOrEmpty())
+            result = string.Format("{0}.{1}", @namespace, result);
           break;
         case NamespacePolicy.Hash:
-          result = string.Format("{0}.{1}", GetHash(@namespace), result);
+          var hash = GetHash(@namespace);
+          if (!@hash.IsNullOrEmpty())
+            result = string.Format("{0}.{1}", hash, result);
           break;
       }
       return ApplyNamingRules(result);

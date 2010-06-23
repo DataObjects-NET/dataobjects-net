@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Providers.Sql
         .ToList();
       var translator = new SqlActionTranslator(
         upgradeActions,
-        GetSqlStorageSchema(),
+        GetNativeExtractedSchema(),
         sourceSchema, targetSchema, DomainHandler.ProviderInfo, Driver,
         Handlers.NameBuilder.TypeIdColumnName,
         enforceChangedColumns,
@@ -78,7 +78,7 @@ namespace Xtensive.Storage.Providers.Sql
     /// <inheritdoc/>
     public override StorageInfo GetExtractedSchema()
     {
-      var schema = GetSqlStorageSchema();
+      var schema = GetNativeExtractedSchema();
       var converter = new SqlModelConverter(schema, DomainHandler.ProviderInfo);
       return converter.GetConversionResult();
     }
@@ -113,13 +113,13 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private Schema GetSqlStorageSchema()
+    private Schema GetNativeExtractedSchema()
     {
       var context = UpgradeContext.Demand();
       var schema = context.NativeExtractedSchema as Schema;
       if (schema==null) {
         schema = DomainHandler.Driver.ExtractSchema(SessionHandler.Connection);
-        SaveSchemaInContext(schema);
+        SaveNativeExtractedSchema(schema);
       }
       return schema;
     }

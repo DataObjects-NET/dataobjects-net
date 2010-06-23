@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Security;
+using System.Security.Permissions;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
@@ -272,6 +274,11 @@ namespace Xtensive.Core.Comparison
     }
 
     /// <inheritdoc/>
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);

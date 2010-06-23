@@ -67,10 +67,10 @@ namespace Xtensive.Storage.Providers
     protected abstract TypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale);
 
     /// <summary>
-    /// Saves the schema in context.
+    /// Saves the native extracted schema in context.
     /// </summary>
     /// <param name="schema">The schema.</param>
-    protected void SaveSchemaInContext(object schema)
+    protected virtual void SaveNativeExtractedSchema(object schema)
     {
       var context = UpgradeContext.Demand();
       context.NativeExtractedSchema = schema;

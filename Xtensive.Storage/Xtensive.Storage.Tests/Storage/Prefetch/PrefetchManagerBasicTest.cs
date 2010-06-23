@@ -18,6 +18,7 @@ using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Rse;
+using Xtensive.Storage.Services;
 using Xtensive.Storage.Tests.Storage.Prefetch.Model;
 
 namespace Xtensive.Storage.Tests.Storage.Prefetch
@@ -630,12 +631,15 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       var orderKey = GetFirstKey<Order>();
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        Query.Single<Order>(orderKey).Remove();
-        tx.Complete();
-      }
+        using (var tNested = Transaction.Open(TransactionOpenMode.New)) {
+          Query.Single<Order>(orderKey).Remove();
+          tNested.Complete();
+        }
 
-      using (var session = Session.Open(Domain))
-      using (var tx = Transaction.Open()) {
+        // Ensures cache invalidation
+        var ssa = DirectStateAccessor.Get(session);
+        ssa.Invalidate();
+
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
         prefetchManager.ExecuteTasks();

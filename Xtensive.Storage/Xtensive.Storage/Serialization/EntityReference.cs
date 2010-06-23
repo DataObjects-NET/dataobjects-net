@@ -6,6 +6,8 @@
 
 using System;
 using System.Runtime.Serialization;
+using System.Security;
+using System.Security.Permissions;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Serialization
@@ -25,6 +27,11 @@ namespace Xtensive.Storage.Serialization
       return entity;
     }
       
+    #if NET40
+    [SecurityCritical]
+    #else
+    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
+    #endif
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue(KeyValueName, entity.Key.Format());

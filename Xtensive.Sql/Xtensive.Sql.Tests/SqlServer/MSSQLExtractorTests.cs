@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Tests.SqlServer
         throw new AssertionException("One of arrays is null.");
       if (a1.Length!=a2.Length)
         throw new AssertionException("Lengths are different.");
-      for (int i=0;i<a1.Length;i++)
+      for (int i = 0; i < a1.Length; i++)
         Assert.AreEqual(a1.GetValue(i), a2.GetValue(i));
     }
 
@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Tests.SqlServer
       IEnumerator enumerator2 = col2.GetEnumerator();
       enumerator1.Reset();
       enumerator2.Reset();
-      while(enumerator1.MoveNext()) {
+      while (enumerator1.MoveNext()) {
         if (!enumerator2.MoveNext())
           throw new AssertionException("Different count.");
         Assert.AreEqual(enumerator1.Current, enumerator2.Current);
@@ -48,8 +48,11 @@ namespace Xtensive.Sql.Tests.SqlServer
   {
     private const string connectionUrl = TestUrl.SqlServer2005;
 
-    public virtual string CleanUpScript { get { return null; } }
-    
+    public virtual string CleanUpScript
+    {
+      get { return null; }
+    }
+
     protected SqlConnection CreateConnection()
     {
       var driver = SqlDriver.Create(connectionUrl);
@@ -101,18 +104,19 @@ namespace Xtensive.Sql.Tests.SqlServer
 
   public class MSSQLExtractor_TestSchemaExtraction : MSSQLExtractorTestBase
   {
-
     public override string CleanUpScript
     {
-      get {
-        return 
+      get
+      {
+        return
           "\n drop table role1.table1" +
-            "\n drop table role2.table2" +
-              "\n drop table role3.table3" +
-                "\n drop table role3.table31" +
-                  "\n exec sp_droprole role1" +
-                    "\n exec sp_droprole role2" +
-                      "\n exec sp_droprole role3"; ;
+          "\n drop table role2.table2" +
+          "\n drop table role3.table3" +
+          "\n drop table role3.table31" +
+          "\n exec sp_droprole role1" +
+          "\n exec sp_droprole role2" +
+          "\n exec sp_droprole role3";
+        ;
       }
     }
 
@@ -120,13 +124,13 @@ namespace Xtensive.Sql.Tests.SqlServer
     public virtual void Main()
     {
       ExecuteQuery(
-        " exec sp_addrole 'role1'" + 
-          "\n exec sp_addrole 'role2'" +
-            "\n exec sp_addrole 'role3'" +
-              "\n create table role1.table1(test int, test2 int, test3 int)" +
-                "\n create table role2.table2(test int, test2 int, test3 int)" +
-                  "\n create table role3.table3(test int, test2 int, test3 int)" + 
-                    "\n create table role3.table31(test int, test2 int, test3 int)");
+        " exec sp_addrole 'role1'" +
+        "\n exec sp_addrole 'role2'" +
+        "\n exec sp_addrole 'role3'" +
+        "\n create table role1.table1(test int, test2 int, test3 int)" +
+        "\n create table role2.table2(test int, test2 int, test3 int)" +
+        "\n create table role3.table3(test int, test2 int, test3 int)" +
+        "\n create table role3.table31(test int, test2 int, test3 int)");
 
       var model = ExtractModel();
 
@@ -164,33 +168,33 @@ namespace Xtensive.Sql.Tests.SqlServer
     [Test]
     public void Main()
     {
-      string createTableQuery = 
-        "CREATE TABLE dataTypesTestTable (" + 
-          "[int_l4] [int] NULL ," + 
-            "[binary_l50] [binary] (50) NULL ," + 
-              "[bit_l1] [bit] NULL , " + 
-                "[char_10] [char] (10) COLLATE Cyrillic_General_CI_AS NULL ," + 
-                  "[datetime_l8] [datetime] NULL ," + 
-                    "[decimal_p18_s0] [decimal](18, 0) NULL ," + 
-                      "[decimal_p12_s11_l9] [decimal](12, 11) NULL ," + 
-                        "[float_p53] [float] NULL ," + 
-                          "[image_16] [image] NULL ," + 
-                            "[money_p19_s4_l8] [money] NULL ," + 
-                              "[nchar_l100] [nchar] (100) COLLATE Cyrillic_General_CI_AS NULL ," + 
-                                "[ntext] [ntext] COLLATE Cyrillic_General_CI_AS NULL ," + 
-                                  "[numeric_p5_s5] [numeric](5, 5) NULL ," + 
-                                    "[nvarchar_l50] [nvarchar] (50) COLLATE Cyrillic_General_CI_AS NULL ," + 
-                                      "[real_p24_s0_l4] [real] NULL ," + 
-                                        "[smalldatetime_l4] [smalldatetime] NULL ," + 
-                                          "[smallint_l2] [smallint] NULL ," + 
-                                            "[small_money_p10_s4_l4] [smallmoney] NULL ," + 
-                                              "[sql_variant_] [sql_variant] NULL ," + 
-                                                "[text_16] [text] COLLATE Cyrillic_General_CI_AS NULL ," + 
-                                                  "[timestamp_l8] [timestamp] NULL ," + 
-                                                    "[tinyint_1_p3_s0_l1] [tinyint] NULL ," + 
-                                                      "[uniqueidentifier_l16] [uniqueidentifier] NULL ," + 
-                                                        "[varbinary_l150] [varbinary] (150) NULL ," + 
-                                                          "[varchar_l50] [varchar] (50) COLLATE Cyrillic_General_CI_AS NULL)";
+      string createTableQuery =
+        "CREATE TABLE dataTypesTestTable (" +
+        "[int_l4] [int] NULL ," +
+        "[binary_l50] [binary] (50) NULL ," +
+        "[bit_l1] [bit] NULL , " +
+        "[char_10] [char] (10) COLLATE Cyrillic_General_CI_AS NULL ," +
+        "[datetime_l8] [datetime] NULL ," +
+        "[decimal_p18_s0] [decimal](18, 0) NULL ," +
+        "[decimal_p12_s11_l9] [decimal](12, 11) NULL ," +
+        "[float_p53] [float] NULL ," +
+        "[image_16] [image] NULL ," +
+        "[money_p19_s4_l8] [money] NULL ," +
+        "[nchar_l100] [nchar] (100) COLLATE Cyrillic_General_CI_AS NULL ," +
+        "[ntext] [ntext] COLLATE Cyrillic_General_CI_AS NULL ," +
+        "[numeric_p5_s5] [numeric](5, 5) NULL ," +
+        "[nvarchar_l50] [nvarchar] (50) COLLATE Cyrillic_General_CI_AS NULL ," +
+        "[real_p24_s0_l4] [real] NULL ," +
+        "[smalldatetime_l4] [smalldatetime] NULL ," +
+        "[smallint_l2] [smallint] NULL ," +
+        "[small_money_p10_s4_l4] [smallmoney] NULL ," +
+        "[sql_variant_] [sql_variant] NULL ," +
+        "[text_16] [text] COLLATE Cyrillic_General_CI_AS NULL ," +
+        "[timestamp_l8] [timestamp] NULL ," +
+        "[tinyint_1_p3_s0_l1] [tinyint] NULL ," +
+        "[uniqueidentifier_l16] [uniqueidentifier] NULL ," +
+        "[varbinary_l150] [varbinary] (150) NULL ," +
+        "[varchar_l50] [varchar] (50) COLLATE Cyrillic_General_CI_AS NULL)";
       ExecuteQuery(createTableQuery);
       var model = ExtractModel();
 
@@ -244,11 +248,12 @@ namespace Xtensive.Sql.Tests.SqlServer
   {
     public override string CleanUpScript
     {
-      get {
-        return "\n drop table role1.table1" + 
-          "\n drop view role1.view1" + 
-            "\n drop view role1.view2" + 
-              "\n exec sp_droprole role1";
+      get
+      {
+        return "\n drop table role1.table1" +
+               "\n drop view role1.view1" +
+               "\n drop view role1.view2" +
+               "\n exec sp_droprole role1";
       }
     }
 
@@ -257,15 +262,15 @@ namespace Xtensive.Sql.Tests.SqlServer
     {
       ExecuteQuery(
         " EXEC sp_addrole 'role1'" +
-          "\n CREATE TABLE role1.table1(column1 int, column2 int)");
+        "\n CREATE TABLE role1.table1(column1 int, column2 int)");
 
       ExecuteQuery(
         "CREATE VIEW role1.view1 " +
-          "\n as Select column1 From role1.table1");
+        "\n as Select column1 From role1.table1");
 
       ExecuteQuery(
         "CREATE VIEW role1.view2 " +
-          "\n as Select column1, column2 From role1.table1");
+        "\n as Select column1, column2 From role1.table1");
 
       var model = ExtractModel();
       Schema schema = model.Schemas["role1"];
@@ -287,11 +292,11 @@ namespace Xtensive.Sql.Tests.SqlServer
       {
         return
           "   drop table A1" +
-            "\n drop table A2" +
-              "\n drop table A3" + 
-                "\n drop table B1" +
-                  "\n drop table B2" + 
-                    "\n drop table B3";
+          "\n drop table A2" +
+          "\n drop table A3" +
+          "\n drop table B1" +
+          "\n drop table B2" +
+          "\n drop table B3";
       }
     }
 
@@ -299,28 +304,28 @@ namespace Xtensive.Sql.Tests.SqlServer
     public void Main()
     {
       string query = "\n create table B1 (b_id int primary key)" +
-        "\n create table A1 (b_id int references B1(b_id))" +
-          "\n create table B2 (" +
-            "\n   b_id_1 int, " +
-              "\n   b_id_2 int, " +
-                "\n   CONSTRAINT [B2_PK] PRIMARY KEY  CLUSTERED (b_id_1, b_id_2)  ON [PRIMARY])" +
-                  "\n create table A2 (" +
-                    "\n   b_id_1 int,    " +
-                      "\n   b_id_2 int,    " +
-                        "\n   constraint [A2_FK] FOREIGN KEY (b_id_1, b_id_2) " +
-                          "\n                    REFERENCES B2 (b_id_1, b_id_2) ON DELETE CASCADE ON UPDATE NO ACTION)" +
-                            "\n create table B3 (" + 
-                              "\n   b_id_1 int," +
-                                "\n   b_id_2 int," +
-                                  "\n   b_id_3 int," +
-                                    "\n   CONSTRAINT [B3_PK] PRIMARY KEY  CLUSTERED (b_id_1, b_id_2, b_id_3)  ON [PRIMARY])" +
-                                      "\n create table A3 (" +
-                                        "\n   A_col1 int," +
-                                          "\n   b_id_3 int," +
-                                            "\n   b_id_1 int," +
-                                              "\n   b_id_2 int," +
-                                                "\n   constraint [A3_FK] FOREIGN KEY (b_id_1, b_id_2, b_id_3) " +
-                                                  "\n                    REFERENCES B3 (b_id_1, b_id_2, b_id_3) ON DELETE NO ACTION ON UPDATE CASCADE)";
+                     "\n create table A1 (b_id int references B1(b_id))" +
+                     "\n create table B2 (" +
+                     "\n   b_id_1 int, " +
+                     "\n   b_id_2 int, " +
+                     "\n   CONSTRAINT [B2_PK] PRIMARY KEY  CLUSTERED (b_id_1, b_id_2)  ON [PRIMARY])" +
+                     "\n create table A2 (" +
+                     "\n   b_id_1 int,    " +
+                     "\n   b_id_2 int,    " +
+                     "\n   constraint [A2_FK] FOREIGN KEY (b_id_1, b_id_2) " +
+                     "\n                    REFERENCES B2 (b_id_1, b_id_2) ON DELETE CASCADE ON UPDATE NO ACTION)" +
+                     "\n create table B3 (" +
+                     "\n   b_id_1 int," +
+                     "\n   b_id_2 int," +
+                     "\n   b_id_3 int," +
+                     "\n   CONSTRAINT [B3_PK] PRIMARY KEY  CLUSTERED (b_id_1, b_id_2, b_id_3)  ON [PRIMARY])" +
+                     "\n create table A3 (" +
+                     "\n   A_col1 int," +
+                     "\n   b_id_3 int," +
+                     "\n   b_id_1 int," +
+                     "\n   b_id_2 int," +
+                     "\n   constraint [A3_FK] FOREIGN KEY (b_id_1, b_id_2, b_id_3) " +
+                     "\n                    REFERENCES B3 (b_id_1, b_id_2, b_id_3) ON DELETE NO ACTION ON UPDATE CASCADE)";
       ExecuteQuery(query);
 
 
@@ -328,14 +333,14 @@ namespace Xtensive.Sql.Tests.SqlServer
       Schema schema = model.DefaultSchema;
 
       // Validating.
-      ForeignKey fk1 = (ForeignKey)schema.Tables["A1"].TableConstraints[0];
+      ForeignKey fk1 = (ForeignKey) schema.Tables["A1"].TableConstraints[0];
       Assert.IsNotNull(fk1);
       Assert.IsTrue(fk1.Columns[0].Name=="b_id");
       Assert.IsTrue(fk1.ReferencedColumns[0].Name=="b_id");
       Assert.IsTrue(fk1.ReferencedColumns.Count==1);
       Assert.IsTrue(fk1.Columns.Count==1);
 
-      ForeignKey fk2 = (ForeignKey)schema.Tables["A2"].TableConstraints[0];
+      ForeignKey fk2 = (ForeignKey) schema.Tables["A2"].TableConstraints[0];
       Assert.IsNotNull(fk1);
       Assert.IsTrue(fk2.Name=="A2_FK");
       Assert.IsTrue(fk2.Columns[0].Name=="b_id_1");
@@ -347,7 +352,7 @@ namespace Xtensive.Sql.Tests.SqlServer
       Assert.IsTrue(fk2.OnDelete==ReferentialAction.Cascade);
       Assert.IsTrue(fk2.OnUpdate==ReferentialAction.NoAction);
 
-      ForeignKey fk3 = (ForeignKey)schema.Tables["A3"].TableConstraints[0];
+      ForeignKey fk3 = (ForeignKey) schema.Tables["A3"].TableConstraints[0];
       Assert.IsNotNull(fk3);
       Assert.IsTrue(fk3.Name=="A3_FK");
       Assert.IsTrue(fk3.Columns[0].Name=="b_id_1");
@@ -369,29 +374,29 @@ namespace Xtensive.Sql.Tests.SqlServer
     {
       get { return "drop table A"; }
     }
-    
+
     [Test]
     public void Main()
     {
       ExecuteQuery(
         "   Create table A (" +
-          "\n col_11 int, col_12 int, col_13 int," +
-            "\n col_21 int, col_22 int, col_23 int," +
-              "\n CONSTRAINT A_UNIQUE_1 UNIQUE(col_11,col_12,col_13)," +
-                "\n CONSTRAINT A_UNIQUE_2 UNIQUE(col_21,col_22,col_23))");
+        "\n col_11 int, col_12 int, col_13 int," +
+        "\n col_21 int, col_22 int, col_23 int," +
+        "\n CONSTRAINT A_UNIQUE_1 UNIQUE(col_11,col_12,col_13)," +
+        "\n CONSTRAINT A_UNIQUE_2 UNIQUE(col_21,col_22,col_23))");
 
       var model = ExtractModel();
       Schema schema = model.DefaultSchema;
 
       // Validating.
-      UniqueConstraint A_UNIQUE_1 = (UniqueConstraint)schema.Tables["A"].TableConstraints["A_UNIQUE_1"];
+      UniqueConstraint A_UNIQUE_1 = (UniqueConstraint) schema.Tables["A"].TableConstraints["A_UNIQUE_1"];
       Assert.IsNotNull(A_UNIQUE_1);
       Assert.IsTrue(A_UNIQUE_1.Columns[0].Name=="col_11");
       Assert.IsTrue(A_UNIQUE_1.Columns[1].Name=="col_12");
       Assert.IsTrue(A_UNIQUE_1.Columns[2].Name=="col_13");
       Assert.IsTrue(A_UNIQUE_1.Columns.Count==3);
 
-      UniqueConstraint A_UNIQUE_2 = (UniqueConstraint)schema.Tables["A"].TableConstraints["A_UNIQUE_2"];
+      UniqueConstraint A_UNIQUE_2 = (UniqueConstraint) schema.Tables["A"].TableConstraints["A_UNIQUE_2"];
       Assert.IsNotNull(A_UNIQUE_2);
       Assert.IsTrue(A_UNIQUE_2.Columns[0].Name=="col_21");
       Assert.IsTrue(A_UNIQUE_2.Columns[1].Name=="col_22");
@@ -412,12 +417,12 @@ namespace Xtensive.Sql.Tests.SqlServer
     {
       ExecuteQuery(
         " create table table1 (" +
-          "\n column1 int, " +
-            "\n column2 int) " +
-              "\n create index table1_index1_desc_asc   on table1 (column1 desc, column2 asc)" +
-                "\n create unique index table1_index1_u_asc_desc on table1 (column1 asc, column2 desc)" +
-                  "\n create unique index table1_index_with_included_columns on table1 (column1 asc)" +
-                    "\n include (column2)");
+        "\n column1 int, " +
+        "\n column2 int) " +
+        "\n create index table1_index1_desc_asc   on table1 (column1 desc, column2 asc)" +
+        "\n create unique index table1_index1_u_asc_desc on table1 (column1 asc, column2 desc)" +
+        "\n create unique index table1_index_with_included_columns on table1 (column1 asc)" +
+        "\n include (column2)");
 
       var model = ExtractModel();
       Schema schema = model.DefaultSchema;
@@ -446,15 +451,17 @@ namespace Xtensive.Sql.Tests.SqlServer
   {
     public override string CleanUpScript
     {
-      get {
-        return 
+      get
+      {
+        return
           "\n drop table schema1.table1" +
-            "\n drop table schema2.table2" +
-              "\n drop table schema3.table3" +
-                "\n drop table schema3.table31" +
-                  "\n drop schema schema1" +
-                    "\n drop schema schema2" +
-                      "\n drop schema schema3"; ;
+          "\n drop table schema2.table2" +
+          "\n drop table schema3.table3" +
+          "\n drop table schema3.table31" +
+          "\n drop schema schema1" +
+          "\n drop schema schema2" +
+          "\n drop schema schema3";
+        ;
       }
     }
 
@@ -466,9 +473,9 @@ namespace Xtensive.Sql.Tests.SqlServer
       ExecuteQuery(" create schema schema3");
       string createTablesSql =
         "\n create table schema1.table1(test int, test2 int, test3 int)" +
-          "\n create table schema2.table2(test int, test2 int, test3 int)" +
-            "\n create table schema3.table3(test int, test2 int, test3 int)" + 
-              "\n create table schema3.table31(test int, test2 int, test3 int)";
+        "\n create table schema2.table2(test int, test2 int, test3 int)" +
+        "\n create table schema3.table3(test int, test2 int, test3 int)" +
+        "\n create table schema3.table31(test int, test2 int, test3 int)";
       ExecuteQuery(createTablesSql);
 
       var model = ExtractModel();
@@ -527,23 +534,22 @@ namespace Xtensive.Sql.Tests.SqlServer
 
   public class MSSQLExtractor2005_TestExtractingViews : MSSQLExtractor_TestExtractingViews
   {
-
   }
 
   public class MSSQLExtractor2005_TestExtractingForeignKeys : MSSQLExtractor_TestExtractingForeignKeys
   {
-
   }
 
   public class MSSQLExtractor2005_TestExtractingForeignKeys2 : MSSQLExtractorTestBase
   {
-
     public override string CleanUpScript
     {
-      get { return
-        "\n Drop Table A" +
+      get
+      {
+        return
+          "\n Drop Table A" +
           "\n Drop Table B" +
-            "\n Drop Table B2";
+          "\n Drop Table B2";
       }
     }
 
@@ -552,38 +558,36 @@ namespace Xtensive.Sql.Tests.SqlServer
     {
       ExecuteQuery(
         "   Create Table B (b_id int primary key)" +
-          "\n Create Table B2(b_id_1 int primary key)" +
-            "\n Create Table A(" + 
-              "\n b_id   int ," + 
-                "\n b_id_1 int ," +
-                  "\n Constraint [A_FK_1] Foreign key(b_id) references B(b_id) ON DELETE SET NULL ," +
-                    "\n Constraint [A_FK_2] Foreign key(b_id_1) references B2(b_id_1) ON DELETE SET DEFAULT" +
-                      "\n )");
+        "\n Create Table B2(b_id_1 int primary key)" +
+        "\n Create Table A(" +
+        "\n b_id   int ," +
+        "\n b_id_1 int ," +
+        "\n Constraint [A_FK_1] Foreign key(b_id) references B(b_id) ON DELETE SET NULL ," +
+        "\n Constraint [A_FK_2] Foreign key(b_id_1) references B2(b_id_1) ON DELETE SET DEFAULT" +
+        "\n )");
       var model = ExtractModel();
       Schema schema = model.DefaultSchema;
-      Assert.IsTrue(((ForeignKey)schema.Tables["A"].TableConstraints["A_FK_1"]).OnDelete == ReferentialAction.SetNull);
-      Assert.IsTrue(((ForeignKey)schema.Tables["A"].TableConstraints["A_FK_2"]).OnDelete == ReferentialAction.SetDefault);
+      Assert.IsTrue(((ForeignKey) schema.Tables["A"].TableConstraints["A_FK_1"]).OnDelete==ReferentialAction.SetNull);
+      Assert.IsTrue(((ForeignKey) schema.Tables["A"].TableConstraints["A_FK_2"]).OnDelete==ReferentialAction.SetDefault);
     }
   }
 
   public class MSSQLExtractor2005_TestExtractingUniqueConstraints : MSSQLExtractor_TestExtractingUniqueConstraints
   {
-
   }
 
   public class MSSQLExtractor2005_TestIndexesExtracted : MSSQLExtractor_TestIndexesExtracted
   {
-
   }
 
   public class MSSQLExtractor2005_TestPartitionsExtracted : MSSQLExtractorTestBase
   {
-
     public override string CleanUpScript
     {
-      get { 
+      get
+      {
         return "IF DB_ID (N'MSSQL2005Extr_PartitionsTest') IS NOT NULL" +
-          "\n DROP DATABASE MSSQL2005Extr_PartitionsTest;"; 
+               "\n DROP DATABASE MSSQL2005Extr_PartitionsTest;";
       }
     }
 
@@ -652,35 +656,35 @@ namespace Xtensive.Sql.Tests.SqlServer
       );";
       ExecuteQuery(createTestDatabaseSql, connection);
       ExecuteQuery("use MSSQL2005Extr_PartitionsTest");
-      
+
       // Create partition function.
       ExecuteQuery(
-        "CREATE PARTITION FUNCTION MSSQL2005Extr_PartitionsTest_PFA_LEFT_1_20_30_40 (int)" + 
-          "\n AS RANGE LEFT FOR VALUES (500);", connection);
+        "CREATE PARTITION FUNCTION MSSQL2005Extr_PartitionsTest_PFA_LEFT_1_20_30_40 (int)" +
+        "\n AS RANGE LEFT FOR VALUES (500);", connection);
 
       // Create partition scheme.
       ExecuteQuery(
-        "CREATE PARTITION SCHEME MSSQL2005Extr_PartitionsTest_PFA_Schema" + 
-          "\n AS PARTITION MSSQL2005Extr_PartitionsTest_PFA_LEFT_1_20_30_40" +
-            "\n TO ( " + 
-              "\n MSSQL2005Extr_PartitionsTest_FG1, " + 
-                "\n MSSQL2005Extr_PartitionsTest_FG2);"
-        ,connection);
+        "CREATE PARTITION SCHEME MSSQL2005Extr_PartitionsTest_PFA_Schema" +
+        "\n AS PARTITION MSSQL2005Extr_PartitionsTest_PFA_LEFT_1_20_30_40" +
+        "\n TO ( " +
+        "\n MSSQL2005Extr_PartitionsTest_FG1, " +
+        "\n MSSQL2005Extr_PartitionsTest_FG2);"
+        , connection);
 
       // Create partitioned tables
       ExecuteQuery(
-        "CREATE TABLE MSSQL2005Extr_PartitionsTest_Table (col1 int, col2 char(10))" + 
-          "\n ON MSSQL2005Extr_PartitionsTest_PFA_Schema (col1)", connection) ;
-      
+        "CREATE TABLE MSSQL2005Extr_PartitionsTest_Table (col1 int, col2 char(10))" +
+        "\n ON MSSQL2005Extr_PartitionsTest_PFA_Schema (col1)", connection);
+
       ExecuteQuery(
         "CREATE TABLE MSSQL2005Extr_PartitionsTest_Table2 (col1 int, col2 int)" +
-          "ON MSSQL2005Extr_PartitionsTest_PFA_Schema (col2) ;");
+        "ON MSSQL2005Extr_PartitionsTest_PFA_Schema (col2) ;");
 
       var model = ExtractModel();
       Schema schema = model.DefaultSchema;
 
       Assert.IsNotNull(schema.Tables["MSSQL2005Extr_PartitionsTest_Table"].PartitionDescriptor);
-      
+
       Assert.IsTrue(
         schema.Tables["MSSQL2005Extr_PartitionsTest_Table"]
           .PartitionDescriptor
@@ -706,11 +710,11 @@ namespace Xtensive.Sql.Tests.SqlServer
           .PartitionDescriptor
           .PartitionSchema
           .Filegroups,
-        new string[] { "MSSQL2005Extr_PartitionsTest_FG1", "MSSQL2005Extr_PartitionsTest_FG2" });
+        new string[] {"MSSQL2005Extr_PartitionsTest_FG1", "MSSQL2005Extr_PartitionsTest_FG2"});
 
       Assert.IsTrue(schema.Tables["MSSQL2005Extr_PartitionsTest_Table"]
-        .PartitionDescriptor
-        .PartitionMethod == PartitionMethod.Range);
+                      .PartitionDescriptor
+                      .PartitionMethod==PartitionMethod.Range);
     }
   }
 }

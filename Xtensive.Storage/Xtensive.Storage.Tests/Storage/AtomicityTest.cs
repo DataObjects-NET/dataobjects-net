@@ -28,7 +28,6 @@ namespace Xtensive.Storage.Tests.Storage.Atomicity
     [Field]
     public int Raisin { get; set;}
 
-    [Atomic]
     public void Cook(int amountOfVanilla, int raisinQuantity, Action beforeCheck)
     {
       Vanilla = amountOfVanilla;
@@ -42,10 +41,9 @@ namespace Xtensive.Storage.Tests.Storage.Atomicity
       IsTasty = amountOfVanilla > 0 && raisinQuantity > 0;
     }
 
-    [Atomic]
     public void ThrowAway()
     {
-      this.Remove();
+      Remove();
       throw new InvalidOperationException("Food can not be thrown away!");
     }
 
