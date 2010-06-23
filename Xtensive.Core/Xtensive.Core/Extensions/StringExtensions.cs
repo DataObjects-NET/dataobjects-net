@@ -25,7 +25,8 @@ namespace Xtensive.Core
       RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     /// <summary>
-    /// Formats the specified <paramref name="format"/> string using <see cref="string.Format(string,object[])"/> method.
+    /// Formats the specified <paramref name="format"/> string 
+    /// using <see cref="string.Format(string,object[])"/> method.
     /// </summary>
     /// <param name="format">The format string.</param>
     /// <param name="formatProvider">The format provider.</param>
@@ -39,7 +40,8 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Formats the specified <paramref name="format"/> string using <see cref="string.Format(string,object[])"/> method.
+    /// Formats the specified <paramref name="format"/> string 
+    /// using <see cref="string.Format(string,object[])"/> method.
     /// </summary>
     /// <param name="format">The format string.</param>
     /// <param name="arguments">The arguments.</param>
@@ -51,7 +53,8 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Formats the specified <paramref name="format"/> string using <see cref="string.Format(string,object)"/> method.
+    /// Formats the specified <paramref name="format"/> string 
+    /// using <see cref="string.Format(string,object)"/> method.
     /// </summary>
     /// <param name="format">The format string.</param>
     /// <param name="arg0">The first argument.</param>
@@ -74,9 +77,10 @@ namespace Xtensive.Core
 
       return string.Format(rewrittenFormat, arguments.ToArray());
     }
-
+    
     /// <summary>
-    /// Formats the specified <paramref name="format"/> string using <see cref="string.Format(string,object,object)"/> method.
+    /// Formats the specified <paramref name="format"/> string 
+    /// using <see cref="string.Format(string,object,object)"/> method.
     /// </summary>
     /// <param name="format">The format string.</param>
     /// <param name="arg0">The first argument.</param>
@@ -89,7 +93,8 @@ namespace Xtensive.Core
     }
     
     /// <summary>
-    /// Formats the specified <paramref name="format"/> string using <see cref="string.Format(string,object,object,object)"/> method.
+    /// Formats the specified <paramref name="format"/> string 
+    /// using <see cref="string.Format(string,object,object,object)"/> method.
     /// </summary>
     /// <param name="format">The format string.</param>
     /// <param name="arg0">The first argument.</param>
