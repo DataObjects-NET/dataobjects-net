@@ -56,7 +56,7 @@ namespace Xtensive.Integrity.Validation
     }
 
     /// <summary>
-    /// Partially validates the <paramref name="target"/> with specified delegate using default <see cref="ValidationMode"/>.
+    /// Partially validates the <paramref name="target"/> with specified delegate.
     /// </summary>
     /// <param name="target">The object to validate.</param>
     /// <param name="validator">The delegate to invoke for validation. 
@@ -86,7 +86,7 @@ namespace Xtensive.Integrity.Validation
     }
 
     /// <summary>
-    /// Validates the specified <paramref name="target"/> using default <see cref="ValidationMode"/>.
+    /// Validates the specified <paramref name="target"/>.
     /// </summary>
     /// <param name="target">The object to validate.</param>
     /// <returns>

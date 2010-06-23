@@ -155,6 +155,7 @@ namespace Xtensive.Core
         string.Format(Strings.ExArgumentMustBeGreaterThanX, boundary));
     }
 
+    /// <summary>
     /// Ensures argument (<paramref name="value"/>) is greater then or equal
     /// the specified <paramref name="boundary"/> value.
     /// </summary>

@@ -20,12 +20,12 @@ namespace Xtensive.Storage
   public static class TupleEnumerableExtensions
   {
     /// <summary>
-    /// Converts <see cref="IEnumerable{T}"/> to <see cref="IEnumerable{Tuple}"/>.
+    /// Converts <see cref="IEnumerable{T}"/> to <see cref="IEnumerable{T}"/> of <see cref="Tuple"/>s.
     /// Supports only primitive types, <see cref="Structure"/>, <see cref="Entity"/>
     /// </summary>
     /// <typeparam name="T">Type of enumerable items.</typeparam>
     /// <param name="source">Source enumerable.</param>
-    /// <returns>New <see cref="Enumerable<Tuple>"/></returns>
+    /// <returns>A sequence of <see cref="Tuple"/> objects.</returns>
     /// <exception cref="NotSupportedException"><typeparamref name="T"/> is not supported.</exception>
     public static IEnumerable<Tuple> AsTupleEnumerable<T>(this IEnumerable<T> source)
     {

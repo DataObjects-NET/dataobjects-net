@@ -37,7 +37,6 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="domain">The domain.</param>
     /// <param name="activate">Determines whether created session should be activated or not.</param>
-    /// </param>
     /// <returns>
     /// New <see cref="Session"/> object.
     /// </returns>
@@ -59,7 +58,6 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="domain">The domain.</param>    
     /// <param name="type">The type of session.</param>
-    /// </param>
     /// <returns>
     /// New <see cref="Session"/> object.
     /// </returns>
@@ -80,7 +78,6 @@ namespace Xtensive.Storage
     /// <param name="domain">The domain.</param>    
     /// <param name="type">The type of session.</param>
     /// <param name="activate">Determines whether created session should be activated or not.</param>
-    /// </param>
     /// <returns>
     /// New <see cref="Session"/> object.
     /// </returns>

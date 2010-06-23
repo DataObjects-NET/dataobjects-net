@@ -98,8 +98,8 @@ namespace Xtensive.Core.Parameters
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="name">The <see cref="Parameter.Name"/> property value.</param>
-    /// Action argument is parameter's value within disposed scope.</param>
     /// <param name="onOutOfScope">Out of scope action. 
+    /// Action argument is parameter's value within disposed scope.</param>
     public Parameter(string name, Action<TValue> onOutOfScope)
       : base(name)
     {

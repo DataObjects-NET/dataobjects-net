@@ -123,7 +123,9 @@ namespace Xtensive.Storage.Manual.Upgrade
           var order = Query.All<Model_4.Order>().First();
 
           AssertEx.Throws<Exception>(() => {
+#pragma warning disable 612,618
             var name = order.ProductName;
+#pragma warning restore 612,618
           });
 
           transactionScope.Complete();

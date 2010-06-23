@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Rse.Compilation
     }
 
     /// <summary>
-    /// Compiles the specified provider by passing it to <see cref="Compiler"/>.
+    /// Compiles the specified provider by passing it to <see cref="ICompiler"/>.
     /// <see cref="ICompiler.Compile"/> method.
     /// </summary>
     /// <param name="provider">The provider to compile.</param>

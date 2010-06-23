@@ -428,7 +428,7 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Registers the connection between ancestor & descendant.
+    /// Registers the connection between ancestor &amp; descendant.
     /// </summary>
     /// <param name="ancestor">The ancestor.</param>
     /// <param name="descendant">The descendant.</param>

@@ -9,7 +9,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Indexing.Measures
 {
   /// <summary>
-  /// A set of measures that serves the collection of <see cref="TItem"/>s.
+  /// A set of measures that serves the collection of <typeparamref name="TItem"/>s.
   /// </summary>
   /// <typeparam name="TItem">The type of collection item.</typeparam>
   public interface IMeasureSet<TItem> : IConfigurationSet<IMeasure<TItem>>

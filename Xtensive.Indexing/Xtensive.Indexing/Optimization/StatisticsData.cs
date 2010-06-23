@@ -27,7 +27,10 @@ namespace Xtensive.Indexing.Optimization
     /// </summary>
     public readonly double SeekCount;
 
-    // Constrcutors    /// <summary>
+    
+    // Constrcutors    
+    
+    /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="recordCount">The record count.</param>

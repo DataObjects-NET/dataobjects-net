@@ -8,6 +8,7 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Core.IoC;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Helpers;

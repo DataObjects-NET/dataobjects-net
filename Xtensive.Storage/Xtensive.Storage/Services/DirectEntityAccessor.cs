@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Services
   public sealed class DirectEntityAccessor: DirectPersistentAccessor
   {
     /// <summary>
-    /// Invoked to update <see cref="targetEntity"/>'s <see cref="Entity.VersionInfo"/>.
+    /// Invoked to update <paramref name="targetEntity"/>'s <see cref="Entity.VersionInfo"/>.
     /// </summary>
     /// <param name="targetEntity">The changed entity.</param>
     /// <param name="changedField">The changed field.</param>

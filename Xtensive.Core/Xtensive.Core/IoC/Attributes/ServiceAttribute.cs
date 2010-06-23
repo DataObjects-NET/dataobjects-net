@@ -60,7 +60,7 @@ namespace Xtensive.Core.IoC
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="type">The type of the service.</param>
-    /// <param name="type">The name of the service.</param>
+    /// <param name="name">The name of the service.</param>
     public ServiceAttribute(Type type, string name)
     {
       Type = type;

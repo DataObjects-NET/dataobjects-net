@@ -7,7 +7,7 @@
 namespace Xtensive.Storage.Rse.Providers
 {
   /// <summary>
-  /// Returned as service (see <see cref="Provider.GetService{T}"/>) 
+  /// Returned as service (see <see cref="ExecutableProvider.GetService{T}"/>) 
   /// by providers that compute and cache the result before the enumeration.
   /// </summary>
   public interface ICachingProvider

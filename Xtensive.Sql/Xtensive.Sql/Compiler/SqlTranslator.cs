@@ -63,7 +63,7 @@ namespace Xtensive.Sql.Compiler
 
     /// <summary>
     /// Gets the time span format string.
-    /// See <see cref="TimeSpanExtensions.ToString(System.TimeSpan,string)"/> for details.
+    /// See <see cref="SqlHelper.TimeSpanToString"/> for details.
     /// </summary>
     public abstract string TimeSpanFormatString { get; }
     

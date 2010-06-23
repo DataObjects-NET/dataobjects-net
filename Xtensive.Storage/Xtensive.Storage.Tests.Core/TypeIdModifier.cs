@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests
 
   public class IncludeTypeIdModifier : TypeIdModifier
   {
-    public static bool IsEnabled;
+    public new static bool IsEnabled;
 
     public override void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
@@ -63,7 +63,7 @@ namespace Xtensive.Storage.Tests
 
   public class ExcludeTypeIdModifier : TypeIdModifier
   {
-    public static bool IsEnabled;
+    public new static bool IsEnabled;
 
     public override void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {

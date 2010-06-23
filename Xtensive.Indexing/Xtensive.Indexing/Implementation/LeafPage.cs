@@ -81,7 +81,7 @@ namespace Xtensive.Indexing.Implementation
     }
 
     /// <summary>
-    /// Gets the <see cref="TItem"/> at the specified index.
+    /// Gets the <typeparamref name="TItem"/> at the specified index.
     /// </summary>
     /// <param name="index">The index of the item.</param>
     public TItem this[int index]

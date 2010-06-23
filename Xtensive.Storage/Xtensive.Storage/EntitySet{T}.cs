@@ -115,7 +115,7 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Adds the <see cref="items"/> to this <see cref="EntitySet{TItem}"/>.
+    /// Adds the <paramref name="items"/> to this <see cref="EntitySet{TItem}"/>.
     /// </summary>
     /// <typeparam name="TElement">The type of the element.</typeparam>
     /// <param name="items">The items to add.</param>

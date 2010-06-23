@@ -128,7 +128,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets the default command timeout.
-    /// Default value is <see cref="DefaultDefaultCommandTimeout"/>.
+    /// Default value is <see cref="DefaultCommandTimeout"/>.
     /// </summary>
     public int? DefaultCommandTimeout {
       get { return defaultCommandTimeout; }

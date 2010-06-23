@@ -105,7 +105,7 @@ namespace Xtensive.Core.Collections
     }
 
     /// <summary>
-    /// Gets the <see cref="TValue"/> with the specified key.
+    /// Gets the <typeparamref name="TValue"/> with the specified key.
     /// </summary>
     public TValue this[TKey key] {
       get {

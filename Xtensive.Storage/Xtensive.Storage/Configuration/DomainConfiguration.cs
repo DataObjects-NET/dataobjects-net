@@ -219,7 +219,7 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets or sets the size of the query cache (see <see cref="CachedQuery"/>).
+    /// Gets or sets the size of the query cache (see <see cref="Query.Execute{TElement}(System.Func{System.Linq.IQueryable{TElement}})"/>).
     /// Default value is <see cref="DefaultQueryCacheSize"/>.
     /// </summary>
     public int QueryCacheSize
@@ -292,7 +292,7 @@ namespace Xtensive.Storage.Configuration
 
     /// <summary>
     /// Gets or sets a value indicating foreign key mode. 
-    /// Default value is <see cref="DefaultForeignKeyMode"/>.
+    /// Default value is <see cref="Storage.ForeignKeyMode.Default"/>.
     /// </summary>
     public ForeignKeyMode ForeignKeyMode
     {

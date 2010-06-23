@@ -39,25 +39,25 @@ namespace Xtensive.Core.Tests.Tuples
     }
 
     [Test]
-    public void Test()
+    public new void Test()
     {
       base.Test();
     }
 
     [Test]
-    public void BehaviorTest()
+    public new void BehaviorTest()
     {
       base.BehaviorTest();
     }
 
     [Test]
-    public void EmptyFieldsTest()
+    public new void EmptyFieldsTest()
     {
       base.EmptyFieldsTest();
     }
 
     [Test]
-    public void RandomTest()
+    public new void RandomTest()
     {
       base.RandomTest();
     }
@@ -67,7 +67,7 @@ namespace Xtensive.Core.Tests.Tuples
       return new DifferentialTuple(Tuple.Create(descriptor));
     }
 
-    protected virtual Tuple CreateTestTuple(Tuple source)
+    protected override Tuple CreateTestTuple(Tuple source)
     {
       return new DifferentialTuple(source);
     }

@@ -22,7 +22,7 @@ namespace Xtensive.Core.Linq
     private static readonly MethodInfo TupleGenericAccessor;
 
     ///<summary>
-    /// Makes <see cref="Tuple.GetValueOrDefault{T}<>"/> method call.
+    /// Makes <see cref="Tuple.GetValueOrDefault{T}"/> method call.
     ///</summary>
     ///<param name="target">Target expression.</param>
     ///<param name="accessorType">Type of accessor.</param>

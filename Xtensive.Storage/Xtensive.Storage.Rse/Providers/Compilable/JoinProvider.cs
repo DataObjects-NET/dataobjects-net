@@ -108,7 +108,6 @@ namespace Xtensive.Storage.Rse.Providers.Compilable
     /// <param name="joinType">The join operation type.</param>
     /// <param name="joinAlgorithm">The join algorithm.</param>
     /// <param name="equalIndexes">Transformed to the <see cref="EqualIndexes"/> property value.</param>
-    /// otherwise, inner join will be performed.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
     public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType,
       JoinAlgorithm joinAlgorithm, params int[] equalIndexes)

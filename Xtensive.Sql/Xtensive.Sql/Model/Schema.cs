@@ -50,7 +50,6 @@ namespace Xtensive.Sql.Model
     /// Creates the view.
     /// </summary>
     /// <param name="name">The name.</param>
-    /// <param name="definition">The select statement.</param>
     public View CreateView(string name)
     {
       return new View(this, name);

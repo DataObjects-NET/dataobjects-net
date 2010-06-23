@@ -31,9 +31,13 @@ namespace Xtensive.Storage.Manual.Upgrade.Model_4
     {
       foreach (var order in Query.All<Order>()) {
         var product = Query.All<Product>()
+#pragma warning disable 612,618
           .SingleOrDefault(p => p.Name==order.ProductName);
+#pragma warning restore 612,618
         if (product==null)
+#pragma warning disable 612,618
           product = new Product { Name = order.ProductName };
+#pragma warning restore 612,618
         order.Product = product;
       }
     }

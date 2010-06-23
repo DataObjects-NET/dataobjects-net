@@ -8,7 +8,7 @@ namespace Xtensive.Core.Collections
 {
   public interface ITopDeque<K,V> : ICountable<V>
   {
-    int Count { get; }
+    new int Count { get; }
 
     V this[K key] { get; set; }
     bool TryGetValue(K key, out V value);
