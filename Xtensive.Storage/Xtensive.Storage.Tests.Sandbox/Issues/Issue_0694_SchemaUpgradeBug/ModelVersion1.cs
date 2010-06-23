@@ -5,14 +5,51 @@
 // Created:    2009.05.20
 
 using System;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1
 {
+  [HierarchyRoot]
+  public sealed class Status : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Title { get; set; }
+
+    [Field]
+    [Association(PairTo = "Statuses")]
+    public EntitySet<Content> AssociatedContent { get; private set; }
+
+    public override string ToString()
+    {
+      return Title;
+    }
+  }
+
   [Serializable]
   [HierarchyRoot]
-  public class Person : Entity
+  public class Content : Entity
   {
     [Key, Field]
     public long Id { get; private set; }
+
+    [Field]
+    public string Title { get; set; }
+
+    [Field]
+    public EntitySet<Status> Statuses { get; private set; }
+
+    public override string ToString()
+    {
+      return "{0} (Statuses: {1})".FormatWith(Title, Statuses.ToCommaDelimitedString());
+    }
+  }
+
+  public class Media : Content
+  {
+    [Field]
+    public string Data { get; set; }
   }
 }
