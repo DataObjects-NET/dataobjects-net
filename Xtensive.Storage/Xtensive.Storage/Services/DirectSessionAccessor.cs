@@ -48,9 +48,30 @@ namespace Xtensive.Storage.Services
     public IDisposable ChangeSessionHandler(SessionHandler newHandler)
     {
       var result = new Disposable<Session, SessionHandler>(Session, Session.Handler,
-        (disposing, session, previousHandler) => session.Handler = previousHandler);
+        (disposing, session, oldHandler) => session.Handler = oldHandler);
       Session.Handler = newHandler;
       newHandler.Session = Session;
+      return result;
+    }
+
+    /// <summary>
+    /// Sets the value of <see cref="Session.Transaction"/> to <see langword="null" />.
+    /// </summary>
+    /// <returns>
+    /// An object implementing <see cref="IDisposable"/> which
+    /// disposal will restore previous state of
+    /// <see cref="Session.Transaction"/> property;
+    /// <see langword="null" />, if <see cref="Session.Transaction"/> 
+    /// is already <see langword="null" />.
+    /// </returns>
+    public IDisposable NullifySessionTransaction()
+    {
+      var transaction = Session.Transaction;
+      if (transaction==null)
+        return null;
+      var result = new Disposable<Session, Transaction>(Session, transaction,
+        (disposing, session, oldTransaction) => session.SetTransaction(oldTransaction));
+      Session.SetTransaction(null);
       return result;
     }
 

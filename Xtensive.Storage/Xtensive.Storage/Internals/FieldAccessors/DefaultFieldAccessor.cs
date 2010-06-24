@@ -14,9 +14,18 @@ namespace Xtensive.Storage.Internals.FieldAccessors
 {
   internal class DefaultFieldAccessor<T> : FieldAccessor<T>
   {
-    private static readonly bool isObject = (typeof (T)==typeof (object));
-    private static readonly bool isString = (typeof (T)==typeof (string));
+    private static readonly bool isValueType = (typeof (T).IsValueType);
+    private static readonly bool isObject    = (typeof (T)==typeof (object));
+    private static readonly bool isString    = (typeof (T)==typeof (string));
     private static readonly bool isByteArray = (typeof (T)==typeof (byte[]));
+
+    /// <inheritdoc/>
+    public override bool Equals(object oldValue, object newValue)
+    {
+      if (isValueType || isString)
+        return object.Equals(oldValue, newValue);
+      return false;
+    }
 
     /// <inheritdoc/>
     public override T GetValue(Persistent obj)

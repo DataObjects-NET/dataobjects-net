@@ -17,6 +17,7 @@ namespace Xtensive.Storage
   {
     private static readonly TransactionScope VoidScope = new TransactionScope();
 
+    private IDisposable disposable;
     private bool isCompleted;
     private bool isDisposed;
 
@@ -52,12 +53,22 @@ namespace Xtensive.Storage
       if (isDisposed)
         return;
       isDisposed = true;
-      if (Transaction==null || !Transaction.State.IsActive())
-        return;
-      if (isCompleted)
-        Transaction.Commit();
-      else
-        Transaction.Rollback();
+      try {
+        if (Transaction==null || !Transaction.State.IsActive())
+          return;
+        if (isCompleted)
+          Transaction.Commit();
+        else
+          Transaction.Rollback();
+      }
+      finally {
+        try {
+          disposable.DisposeSafely(true);
+        }
+        finally {
+          disposable = null;
+        }
+      }
     }
 
 
@@ -67,9 +78,10 @@ namespace Xtensive.Storage
     {
     }
 
-    internal TransactionScope(Transaction transaction)
+    internal TransactionScope(Transaction transaction, IDisposable disposable)
     {
       Transaction = transaction;
+      this.disposable = disposable;
     }
   }
 }

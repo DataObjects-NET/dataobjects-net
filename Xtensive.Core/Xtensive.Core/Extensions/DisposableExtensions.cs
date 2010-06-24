@@ -45,6 +45,23 @@ namespace Xtensive.Core
     /// Safely disposes an <see cref="IDisposable"/> object.
     /// </summary>
     /// <param name="disposable">Object to dispose (can be <see langword="null"/>).</param>
+    /// <param name="silently">If set to <see langword="true"/>, it won't throw an exception in any case.</param>
+    public static void DisposeSafely(this IDisposable disposable, bool silently)
+    {
+      try {
+        if (disposable!=null)
+          disposable.Dispose();
+      }
+      catch {
+        if (!silently)
+          throw;
+      }
+    }
+
+    /// <summary>
+    /// Safely disposes an <see cref="IDisposable"/> object.
+    /// </summary>
+    /// <param name="disposable">Object to dispose (can be <see langword="null"/>).</param>
     /// <param name="log">Log to write errors to.</param>
     /// <param name="disposerName">Name (or type name) of the object that invoked this method.</param>
     public static Exception DisposeSafely(this IDisposable disposable, ILog log, string disposerName)

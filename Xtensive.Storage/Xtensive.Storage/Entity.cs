@@ -548,12 +548,11 @@ namespace Xtensive.Storage
 
     internal override sealed void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue)
     {
-      if (!Equals(oldValue, newValue) || fieldInfo.IsStructure) 
-        if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
-          Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
-          // to avoid post-first property set flush.
-          State.PersistenceState = PersistenceState.Modified;
-        }
+      if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
+        Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
+        // to avoid post-first property set flush.
+        State.PersistenceState = PersistenceState.Modified;
+      }
       
       if (Session.IsSystemLogicOnly)
         return;

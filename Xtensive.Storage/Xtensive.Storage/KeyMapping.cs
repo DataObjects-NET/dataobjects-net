@@ -9,8 +9,10 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
+using System.Text;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage
 {
@@ -43,6 +45,14 @@ namespace Xtensive.Storage
       return key;
     }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      var sb = new StringBuilder("{0}:\r\n".FormatWith(Strings.KeyMapping));
+      foreach (var pair in map)
+        sb.AppendFormat("  {0} => {1}", pair.Key, pair.Value);
+      return sb.ToString().Trim();
+    }
 
     // Constructors
 

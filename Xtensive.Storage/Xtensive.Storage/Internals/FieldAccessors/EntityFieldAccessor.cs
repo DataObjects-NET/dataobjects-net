@@ -13,6 +13,11 @@ namespace Xtensive.Storage.Internals.FieldAccessors
   internal class EntityFieldAccessor<T> : FieldAccessor<T>
   {
     /// <inheritdoc/>
+    public override bool Equals(object oldValue, object newValue)
+    {
+      return ReferenceEquals(oldValue, newValue);
+    }
+    /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
     public override void SetValue(Persistent obj, T value)
     {

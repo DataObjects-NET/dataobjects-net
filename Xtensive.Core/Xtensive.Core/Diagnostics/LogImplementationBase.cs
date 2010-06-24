@@ -99,7 +99,7 @@ namespace Xtensive.Core.Diagnostics
       return new Disposable<IDisposable>(
         new LogIndentScope(),
         delegate(bool disposing, IDisposable disposable) {
-          disposable.DisposeSafely();
+          disposable.DisposeSafely(true);
           Debug(string.Format(Strings.LogRegionEnd, title));
         });
     }
@@ -133,7 +133,7 @@ namespace Xtensive.Core.Diagnostics
       return new Disposable<IDisposable>(
         new LogIndentScope(),
         delegate(bool disposing, IDisposable disposable) {
-          disposable.DisposeSafely();
+          disposable.DisposeSafely(true);
           Info(string.Format(Strings.LogRegionEnd, title));
         });
     }
