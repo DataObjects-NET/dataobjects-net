@@ -23,6 +23,12 @@ namespace Xtensive.Storage.Internals.FieldAccessors
       ThreadSafeDictionary<Type, Biconverter<T, object>>.Create(new object());
 
     /// <inheritdoc/>
+    public override bool Equals(object oldValue, object newValue)
+    {
+      return object.Equals(oldValue, newValue);
+    }
+
+    /// <inheritdoc/>
     public override T GetValue(Persistent obj)
     {
       var field = Field;

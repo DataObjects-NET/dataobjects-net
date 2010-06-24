@@ -34,17 +34,21 @@ namespace Xtensive.Storage
     private VersionSet versions;
 
     [NonSerialized]
+    private Session session;
+    [NonSerialized]
+    private IDisposable sessionHandlerSubstitutionScope;
+    [NonSerialized]
+    internal IDisposable transactionReplacementScope;
+    [NonSerialized]
+    internal IDisposable logIndentScope;
+    [NonSerialized]
+    private DisconnectedSessionHandler handler;
+    [NonSerialized]
     private StateRegistry transactionalState;
     [NonSerialized]
     private StateRegistry state;
     [NonSerialized]
     private StateRegistry originalState;
-    [NonSerialized]
-    private IDisposable sessionHandlerSubstitutionScope;
-    [NonSerialized]
-    private DisconnectedSessionHandler handler;
-    [NonSerialized]
-    private Session session;
     [NonSerialized]
     private OperationCapturer operationCapturer;
     [NonSerialized]
@@ -79,6 +83,17 @@ namespace Xtensive.Storage
     /// </summary>
     public bool IsLocalTransactionOpen {
       get { return transactionalState!=null; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether disconnected state
+    /// was attached to a <see cref="Session"/> with already
+    /// running transaction.
+    /// </summary>
+    public bool IsAttachedWhenTransactionWasOpen {
+      get {
+        return IsAttached && transactionReplacementScope!=null;
+      }
     }
 
     /// <summary>
@@ -127,9 +142,6 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       EnsureNotAttached();
-      if (session.Transaction!=null)
-        throw new InvalidOperationException(Strings.ExTransactionIsRunning);
-      
       AttachInternal(session);
       return new Disposable<DisconnectedState>(this, (b, _this) => _this.DetachInternal());
     }
@@ -147,8 +159,17 @@ namespace Xtensive.Storage
       if (IsConnected)
         return null;
       
-      IsConnected = true;
-      return new Disposable<DisconnectedState>(this, (b, _this) => _this.CloseConnection());
+      if (Session.IsDebugEventLoggingEnabled)
+        Log.Debug(Strings.LogSessionXDisconnectedStateConnect, Session);
+      ConnectInternal();
+
+      return new Disposable(disposing => {
+        if (!IsConnected)
+          return;
+        if (Session.IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXDisconnectedStateDisconnect, Session);
+        DisconnectInternal();
+      });
     }
 
     /// <summary>
@@ -170,15 +191,23 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(targetSession, "targetSession");
       EnsureNoTransaction();
-      var attachedSession = Session;
-      if (attachedSession!=null)
-        DetachInternal();
+
+      IDisposable disposable = null;
+      using (OpenDetachRegion())
       using (targetSession.Activate())
       try {
+        if (targetSession.IsDebugEventLoggingEnabled) {
+          disposable = Log.DebugRegion(Strings.LogSessionXDisconnectedStateApplyChanges, targetSession);
+          Log.Debug("{0}", Operations);
+        }
         KeyMapping keyMapping;
         using (VersionValidator.Attach(targetSession, key => Versions[key])) {
           keyMapping = state.Operations.Replay(targetSession);
           state.Commit(true);
+        }
+        if (targetSession.IsDebugEventLoggingEnabled) {
+          Log.Debug(Strings.LogChangesAreSuccessfullyApplied);
+          Log.Debug("{0}", keyMapping);
         }
         originalState.Remap(keyMapping);
         state = new StateRegistry(originalState);
@@ -186,8 +215,7 @@ namespace Xtensive.Storage
         return keyMapping;
       }
       finally {
-        if (attachedSession!=null)
-          AttachInternal(attachedSession);
+        disposable.DisposeSafely();
       }
     }
 
@@ -197,6 +225,7 @@ namespace Xtensive.Storage
     public void CancelChanges()
     {
       EnsureNoTransaction();
+      Log.Debug(Strings.LogDisconnectedStateCancelChanges);
       state = new StateRegistry(originalState);
     }
 
@@ -284,6 +313,9 @@ namespace Xtensive.Storage
     /// <exception cref="VersionConflictException">Version check failed.</exception>
     internal void RegisterState(Key key, Tuple tuple, VersionInfo version, MergeMode mergeMode)
     {
+      if (tuple==null)
+        return;
+
       DisconnectedEntityState entityState;
       if (transactionalState!=null)
         entityState = transactionalState.Get(key);
@@ -365,14 +397,6 @@ namespace Xtensive.Storage
         }
     }
 
-    private void CloseConnection()
-    {
-      if (!IsConnected)
-        return;
-      IsConnected = false;
-      handler.EndChainedTransaction();
-    }
-
     private void EnsureNotAttached()
     {
       if (IsAttached)
@@ -393,8 +417,37 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(Strings.ExTransactionIsRunning);
     }
 
+    private IDisposable OpenDetachRegion()
+    {
+      var oldSession = Session;
+      bool wasConnected = false;
+      if (oldSession!=null) {
+        if (IsConnected) {
+          wasConnected = true;
+          DisconnectInternal();
+        }
+        DetachInternal();
+      }
+      return new Disposable(disposing => {
+        if (oldSession!=null)
+          AttachInternal(oldSession);
+        if (wasConnected)
+          ConnectInternal();
+      });
+    }
+
     private void AttachInternal(Session session)
     {
+      if (session.IsDebugEventLoggingEnabled)
+        logIndentScope = Log.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session);
+      else
+        logIndentScope = null;
+      if (session.Transaction!=null) {
+        session.Persist();
+        session.Invalidate();
+      }
+      var directSessionAccessor = session.Services.Demand<DirectSessionAccessor>();
+      transactionReplacementScope = directSessionAccessor.NullifySessionTransaction();
       handler = new DisconnectedSessionHandler(session.Handler, this);
       sessionHandlerSubstitutionScope = session.Services.Get<DirectSessionAccessor>()
         .ChangeSessionHandler(handler);
@@ -405,21 +458,48 @@ namespace Xtensive.Storage
     private void DetachInternal()
     {
       EnsureIsAttached();
+      bool transactionWasOpen = transactionReplacementScope!=null;
       try {
         try {
-          if (IsConnected)
-            CloseConnection();
+          try {
+            if (IsConnected)
+              DisconnectInternal();
+          }
+          finally {
+            sessionHandlerSubstitutionScope.DisposeSafely();
+          }
         }
         finally {
-          sessionHandlerSubstitutionScope.DisposeSafely();
+          transactionReplacementScope.DisposeSafely();
         }
       }
       finally {
-        session.DisconnectedState = null;
-        session = null;
-        handler = null;
-        sessionHandlerSubstitutionScope = null;
+        try {
+          logIndentScope.DisposeSafely();
+        }
+        finally {
+          var oldSession = session;
+          session.DisconnectedState = null;
+          sessionHandlerSubstitutionScope = null;
+          transactionReplacementScope = null;
+          logIndentScope = null;
+          session = null;
+          handler = null;
+          if (transactionWasOpen)
+            oldSession.Invalidate();
+        }
       }
+    }
+
+    private void ConnectInternal()
+    {
+      IsConnected = true;
+    }
+
+    private void DisconnectInternal()
+    {
+      IsConnected = false;
+      handler.CommitChainedTransaction();
     }
 
     private static VersionInfo GetVersion(TypeInfo type, Tuple tuple)

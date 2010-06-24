@@ -253,11 +253,17 @@ namespace Xtensive.Storage
       transaction.Begin();
       Transaction = transaction;
 
+      IDisposable logIndentScope = null;
       if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXOpenedTransaction, this);
+        logIndentScope = Log.DebugRegion(Strings.LogSessionXTransaction, this);
       NotifyTransactionOpened(transaction);
 
-      return new TransactionScope(transaction);
+      return new TransactionScope(transaction, logIndentScope);
+    }
+
+    internal void SetTransaction(Transaction transaction)
+    {
+      Transaction = transaction;
     }
 
     #region NotifyXxx methods

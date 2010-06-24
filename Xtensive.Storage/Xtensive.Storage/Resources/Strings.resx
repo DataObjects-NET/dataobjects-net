@@ -1328,8 +1328,8 @@ Actions:
   <data name="ExUseMethodXOnFirstInsteadOfSingle" xml:space="preserve">
     <value>Unable to translate '{0}'. Use method ('{1}') on First/FirstOrDefault instead of Single/SingleOrDefault.</value>
   </data>
-  <data name="LogSessionXOpenedTransaction" xml:space="preserve">
-    <value>Session '{0}'. Opened transaction.</value>
+  <data name="LogSessionXTransaction" xml:space="preserve">
+    <value>Session '{0}'. Transaction</value>
   </data>
   <data name="ExUnknownInSyntax" xml:space="preserve">
     <value>Unable to translate '{0}' expression. Unknown "In" syntax.</value>
@@ -1433,7 +1433,37 @@ Actions:
   <data name="ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrConnectionStringElement" xml:space="preserve">
     <value>ConnectionInfo is wrong. You should set either  'connectionUrl' element or 'connectionString' element.</value>
   </data>
-	<data name="ExTypeWithNameXIsNotRegistered">
-		<value><![CDATA[Type with name '{0}' isn't registered in the Domain.]]></value>
+  <data name="ExTypeWithNameXIsNotRegistered" xml:space="preserve">
+    <value>Type with name '{0}' isn't registered in the Domain.</value>
+  </data>
+  <data name="LogSessionXInvalidate" xml:space="preserve">
+    <value>Session '{0}'. Invalidate.</value>
+  </data>
+  <data name="LogSessionXDisconnectedStateAttach" xml:space="preserve">
+    <value>Session '{0}'. DisconnectedState.Attach</value>
+  </data>
+  <data name="LogSessionXDisconnectedStateConnect">
+    <value>Session '{0}'. DisconnectedState.Connect()</value>
+  </data>
+  <data name="LogSessionXDisconnectedStateDisconnect">
+    <value>Session '{0}'. DisconnectedState is disconnected</value>
+  </data>
+  <data name="LogSessionXDisconnectedStateApplyChanges">
+		<value>Session '{0}'. DisconnectedState.ApplyChanges</value>
+	</data>
+	<data name="Operations">
+		<value xml:space="preserve">Operations</value>
+	</data>
+	<data name="KeyMapping">
+		<value xml:space="preserve">Key mapping</value>
+	</data>
+	<data name="LogDisconnectedStateCancelChanges">
+		<value xml:space="preserve">DisconnectedState.CancelChanges</value>
+	</data>
+	<data name="LogChangesAreSuccessfullyApplied">
+		<value xml:space="preserve">Changes are successfully applied.</value>
+	</data>
+	<data name="ExKeyMustHaveExactType">
+		<value xml:space="preserve">Key must have exact type here.</value>
 	</data>
 </root>

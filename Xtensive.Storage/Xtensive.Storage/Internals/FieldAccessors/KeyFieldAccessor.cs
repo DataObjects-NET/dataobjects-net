@@ -6,13 +6,18 @@
 
 using System;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals.FieldAccessors
 {
   internal class KeyFieldAccessor<T> : FieldAccessor<T> 
   {
     private static readonly T @default;
+
+    /// <inheritdoc/>
+    public override bool Equals(object oldValue, object newValue)
+    {
+      return object.Equals(oldValue, newValue);
+    }
 
     /// <inheritdoc/>
     public override T GetValue(Persistent obj)

@@ -29,7 +29,9 @@ namespace Xtensive.Storage.Disconnected
     #region Transactions
 
     /// <inheritdoc/>
-    public override bool TransactionIsStarted { get { return disconnectedState.IsLocalTransactionOpen; } }
+    public override bool TransactionIsStarted {
+      get { return disconnectedState.IsLocalTransactionOpen; }
+    }
 
     /// <inheritdoc/>
     public override void BeginTransaction(IsolationLevel isolationLevel)
@@ -58,7 +60,7 @@ namespace Xtensive.Storage.Disconnected
     /// <inheritdoc/>
     public override void CommitTransaction()
     {
-      if (chainedHandler.TransactionIsStarted)
+      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
         chainedHandler.CommitTransaction();
       disconnectedState.OnTransactionCommited();
     }
@@ -66,25 +68,24 @@ namespace Xtensive.Storage.Disconnected
     /// <inheritdoc/>
     public override void RollbackTransaction()
     {
-      if (chainedHandler.TransactionIsStarted)
+      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
         chainedHandler.RollbackTransaction();
       disconnectedState.OnTransactionRollbacked();
     }
 
     public void BeginChainedTransaction()
     {
-      if (!chainedHandler.TransactionIsStarted) {
-        if (!disconnectedState.IsConnected)
-          throw new ConnectionRequiredException();
-        chainedHandler.BeginTransaction(Session.Configuration.DefaultIsolationLevel);
-      }
+      if (chainedHandler.TransactionIsStarted)
+        return;
+      if (!disconnectedState.IsConnected)
+        throw new ConnectionRequiredException();
+      chainedHandler.BeginTransaction(Session.Configuration.DefaultIsolationLevel);
     }
 
-    // We assume that chained transactions are always readonly, so there is no rollback.
-
-    public void EndChainedTransaction()
+    public void CommitChainedTransaction()
     {
-      if (chainedHandler.TransactionIsStarted)
+      // We assume that chained transactions are always readonly, so there is no rollback.
+      if (chainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
         chainedHandler.CommitTransaction();
     }
 

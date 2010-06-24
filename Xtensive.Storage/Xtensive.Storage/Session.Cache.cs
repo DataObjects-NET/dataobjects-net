@@ -25,6 +25,8 @@ namespace Xtensive.Storage
 
     internal void Invalidate()
     {
+      if (IsDebugEventLoggingEnabled)
+        Log.Debug(Strings.LogSessionXInvalidate, this);
       ClearChangeRegistry();
       foreach (var invalidable in EntityStateCache.Cast<IInvalidatable>())
         invalidable.Invalidate();

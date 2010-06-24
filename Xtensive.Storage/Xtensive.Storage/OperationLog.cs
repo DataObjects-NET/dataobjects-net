@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
 
@@ -77,6 +78,17 @@ namespace Xtensive.Storage
     public object Replay(object target)
     {
       return Replay((Session) target);
+    }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      var sb = new StringBuilder("{0}:\r\n".FormatWith(Strings.Operations));
+      foreach (var o in operations) {
+        sb.Append("  ");
+        sb.AppendLine(o.ToString());
+      }
+      return sb.ToString().Trim();
     }
 
     #region IEnumerable<...> implementation
