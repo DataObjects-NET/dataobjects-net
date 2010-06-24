@@ -9,6 +9,7 @@ using Xtensive.Core;
 
 namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1
 {
+  [Serializable]
   [HierarchyRoot]
   public sealed class Status : Entity
   {
@@ -47,6 +48,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Versio
     }
   }
 
+  [Serializable]
   public class Media : Content
   {
     [Field]
