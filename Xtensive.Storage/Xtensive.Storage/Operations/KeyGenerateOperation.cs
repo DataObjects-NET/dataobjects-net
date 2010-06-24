@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Operations
   {
     /// <inheritdoc/>
     public override string Title {
-      get { return "Create entity"; }
+      get { return "Generate Key"; }
     }
 
     /// <inheritdoc/>
