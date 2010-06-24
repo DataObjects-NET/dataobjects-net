@@ -123,7 +123,7 @@ namespace Xtensive.Storage.Tests.Issues
       var sb = new StringBuilder();
       foreach (var o in operations)
         sb.AppendLine(o.ToString());
-      Log.Info("Operations:\r\n{0}", sb.ToString().Indent(4));
+      Log.Info("Operations:\r\n{0}", sb.ToString().Indent(2));
     }
   }
 }
