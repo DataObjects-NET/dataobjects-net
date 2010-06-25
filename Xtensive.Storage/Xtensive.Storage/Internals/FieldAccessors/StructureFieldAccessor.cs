@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Internals.FieldAccessors
   internal class StructureFieldAccessor<T> : CachingFieldAccessor<T>
   {
     /// <inheritdoc/>
-    public override bool Equals(object oldValue, object newValue)
+    public override bool AreSameValues(object oldValue, object newValue)
     {
       return ReferenceEquals(oldValue, newValue);
     }

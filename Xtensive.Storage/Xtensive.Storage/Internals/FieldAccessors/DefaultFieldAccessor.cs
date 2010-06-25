@@ -20,7 +20,7 @@ namespace Xtensive.Storage.Internals.FieldAccessors
     private static readonly bool isByteArray = (typeof (T)==typeof (byte[]));
 
     /// <inheritdoc/>
-    public override bool Equals(object oldValue, object newValue)
+    public override bool AreSameValues(object oldValue, object newValue)
     {
       if (isValueType || isString)
         return object.Equals(oldValue, newValue);

@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Internals.FieldAccessors
     private static readonly T @default;
 
     /// <inheritdoc/>
-    public override bool Equals(object oldValue, object newValue)
+    public override bool AreSameValues(object oldValue, object newValue)
     {
       return object.Equals(oldValue, newValue);
     }

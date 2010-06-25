@@ -360,7 +360,7 @@ namespace Xtensive.Storage
         field = TypeInfo.FieldMap[field];
       var fieldAccessor = GetFieldAccessor(field);
       object oldValue = GetFieldValue(field);
-      if (fieldAccessor.Equals(oldValue, value))
+      if (fieldAccessor.AreSameValues(oldValue, value))
         return;
       try {
         using (var context = OpenOperationContext()) {
