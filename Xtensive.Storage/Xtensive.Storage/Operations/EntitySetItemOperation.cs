@@ -58,12 +58,7 @@ namespace Xtensive.Storage.Operations
     // Serialization
 
     /// <inheritdoc/>
-    #if NET40
-    [SecurityCritical]
-    #else
-    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
-    #endif
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);
       info.AddValue("ItemKey", ItemKey.Format());
