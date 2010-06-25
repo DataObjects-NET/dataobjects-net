@@ -145,7 +145,10 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 
     protected override Expression VisitMarker(MarkerExpression expression)
     {
-      throw new NotImplementedException();
+      var target = Visit(expression.Target);
+      return target == expression.Target 
+        ? expression 
+        : new MarkerExpression(target, expression.MarkerType);
     }
 
     // Constructors
