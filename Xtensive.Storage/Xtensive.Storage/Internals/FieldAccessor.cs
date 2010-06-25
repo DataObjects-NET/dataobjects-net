@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Internals
 
     public object DefaultUntypedValue { get; private set; }
 
-    public abstract bool Equals(object oldValue, object newValue);
+    public abstract bool AreSameValues(object oldValue, object newValue);
 
     public abstract void SetUntypedValue(Persistent obj, object value);
 

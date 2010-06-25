@@ -23,7 +23,7 @@ namespace Xtensive.Storage.Internals.FieldAccessors
       ThreadSafeDictionary<Type, Biconverter<T, object>>.Create(new object());
 
     /// <inheritdoc/>
-    public override bool Equals(object oldValue, object newValue)
+    public override bool AreSameValues(object oldValue, object newValue)
     {
       return object.Equals(oldValue, newValue);
     }
