@@ -359,7 +359,9 @@ namespace Xtensive.Storage
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
       var fieldAccessor = GetFieldAccessor(field);
-      object oldValue = fieldAccessor.DefaultUntypedValue;
+      object oldValue = GetFieldValue(field);
+      if (fieldAccessor.AreSameValues(oldValue, value))
+        return;
       try {
         using (var context = OpenOperationContext()) {
           if (context.IsLoggingEnabled) {
@@ -382,7 +384,6 @@ namespace Xtensive.Storage
             }
           }
           SystemBeforeSetValue(field, value);
-          oldValue = GetFieldValue(field);
           var structure = value as Structure;
           var association = field.Association;
           if (association != null && association.IsPaired) {

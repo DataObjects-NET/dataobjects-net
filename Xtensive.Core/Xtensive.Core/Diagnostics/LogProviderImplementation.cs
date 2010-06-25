@@ -83,6 +83,9 @@ namespace Xtensive.Core.Diagnostics
       case LogProviderType.Error:
         log = new ErrorLog(key);
         break;
+      case LogProviderType.DebugOnlyConsole:
+        log = new DebugOnlyConsoleLog(key);
+        break;
       default:
         return new NullLog(key);
       }

@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Indexing
     protected ColumnInfo column4;
     protected ColumnInfo column5;
 
-    [TestFixtureSetUp]
+    [SetUp]
     public void CreateModel()
     {
       storage = new StorageInfo("storage") { Actions = new ActionSequence() };
@@ -89,6 +89,7 @@ namespace Xtensive.Storage.Tests.Indexing
     [Test]
     public void RemoveReferencedSecondaryIndexTest()
     {
+      column5.Remove();
       si2.Remove();
       AssertEx.Throws<AggregateException>(storage.Validate);
     }
@@ -98,6 +99,5 @@ namespace Xtensive.Storage.Tests.Indexing
     {
       storage.Dump();
     }
-
   }
 }

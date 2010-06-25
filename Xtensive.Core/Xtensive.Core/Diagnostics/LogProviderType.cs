@@ -30,6 +30,10 @@ namespace Xtensive.Core.Diagnostics
     /// <summary>
     /// Refers to <see cref="FileLog"/> provider.
     /// </summary>
-    File = 4
+    File = 4,
+    /// <summary>
+    /// Refers to <see cref="DebugOnlyConsoleLog"/> provider.
+    /// </summary>
+    DebugOnlyConsole = 5,
   }
 }

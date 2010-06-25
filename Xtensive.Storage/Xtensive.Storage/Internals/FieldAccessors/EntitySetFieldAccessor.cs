@@ -12,6 +12,12 @@ namespace Xtensive.Storage.Internals.FieldAccessors
   internal class EntitySetFieldAccessor<T> : CachingFieldAccessor<T> 
   {
     /// <inheritdoc/>
+    public override bool AreSameValues(object oldValue, object newValue)
+    {
+      return ReferenceEquals(oldValue, newValue);
+    }
+
+    /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Always thrown by this method.</exception>
     public override void SetValue(Persistent obj, T value)
     {

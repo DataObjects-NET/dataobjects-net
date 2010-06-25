@@ -548,12 +548,11 @@ namespace Xtensive.Storage
 
     internal override sealed void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue)
     {
-      if (!Equals(oldValue, newValue) || fieldInfo.IsStructure) 
-        if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
-          Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
-          // to avoid post-first property set flush.
-          State.PersistenceState = PersistenceState.Modified;
-        }
+      if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
+        Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
+        // to avoid post-first property set flush.
+        State.PersistenceState = PersistenceState.Modified;
+      }
       
       if (Session.IsSystemLogicOnly)
         return;
@@ -681,7 +680,10 @@ namespace Xtensive.Storage
           using (Session.Pin(this))
           foreach (var referenceField in references) {
             var referenceValue = (Entity)GetFieldValue(referenceField);
-            Session.PairSyncManager.Enlist(OperationType.Set, this, referenceValue, referenceField.Association);
+            using (var silentContext = OpenOperationContext()) {
+              Session.PairSyncManager.Enlist(OperationType.Set, this, referenceValue, referenceField.Association);
+              // No silentContext.Complete() - we must silently skip all these operations
+            }
           }
         SystemBeforeInitialize(false);
       }

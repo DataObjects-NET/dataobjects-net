@@ -60,7 +60,15 @@ namespace Xtensive.Storage.Operations
     #else
     [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
     #endif
-    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      GetObjectData(info, context);
+    }
+
+    /// <summary>
+    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    /// </summary>
+    protected virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Key", Key.Format());
     }
