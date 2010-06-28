@@ -65,15 +65,15 @@ namespace Xtensive.Storage
     ///   ...
     ///   
     ///   // One-to-one association with "User" propery of "Account" class.
-    ///   [Association, Association(PairTo = "User")]
+    ///   [Association(PairTo = "User")]
     ///   public Account Account { get; private set; }
     ///   
     ///   // One-to-many association
-    ///   [Association, Association(PairTo = "Author")]
+    ///   [Association(PairTo = "Author")]
     ///   public EntitySet&lt;BlogPost&gt; BlogPostss { get; private set; }
     ///   
     ///   // Many-to-many association
-    ///   [Association, Association(PairTo = "Friends")]
+    ///   [Association(PairTo = "Friends")]
     ///   public EntitySet&lt;User&gt; Friends { get; private set; }
     /// }
     /// </code>
