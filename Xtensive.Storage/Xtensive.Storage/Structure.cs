@@ -200,11 +200,11 @@ namespace Xtensive.Storage
       Owner.SystemGetValue(ownerField, value);
     }
 
-    internal override sealed void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception)
+    internal override sealed void SystemGetValueCompleted(FieldInfo field, object value, Exception exception)
     {
       if (Owner == null)
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
       Owner.SystemGetValueCompleted(ownerField, value, exception);
     }
 
@@ -245,7 +245,7 @@ namespace Xtensive.Storage
         Owner.SystemBeforeTupleChange();
     }
 
-    internal override sealed void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue)
+    internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
     {
       if (!Session.IsSystemLogicOnly) {
         if (CanBeValidated && Session.Domain.Configuration.AutoValidation)
@@ -253,22 +253,22 @@ namespace Xtensive.Storage
         var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
         if (subscriptionInfo.Second != null)
           ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, Field, fieldInfo, oldValue, newValue);
+            .Invoke(subscriptionInfo.First, Field, field, oldValue, newValue);
 
-        NotifyFieldChanged(fieldInfo);
+        NotifyFieldChanged(field);
         OnSetFieldValue(Field, oldValue, newValue);
       }
       if (Owner == null)
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
       Owner.SystemSetValue(ownerField, oldValue, newValue);
     }
 
-    internal override sealed void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception)
+    internal override sealed void SystemSetValueCompleted(FieldInfo field, object oldValue, object newValue, Exception exception)
     {
       if (Owner == null)
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
       Owner.SystemSetValueCompleted(ownerField, oldValue, newValue, exception);
     }
 

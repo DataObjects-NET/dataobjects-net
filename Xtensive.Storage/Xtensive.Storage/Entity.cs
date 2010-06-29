@@ -505,11 +505,11 @@ namespace Xtensive.Storage
       OnGetFieldValue(field, value);
     }
 
-    internal override sealed void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception)
+    internal override sealed void SystemGetValueCompleted(FieldInfo field, object value, Exception exception)
     {
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyFieldValueGetCompleted(this, fieldInfo, value, exception);
+      Session.NotifyFieldValueGetCompleted(this, field, value, exception);
     }
 
     internal override sealed void SystemSetValueAttempt(FieldInfo field, object value)
@@ -555,7 +555,7 @@ namespace Xtensive.Storage
       }
     }
 
-    internal override sealed void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue)
+    internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
         Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
@@ -568,20 +568,20 @@ namespace Xtensive.Storage
 
       if (Session.Domain.Configuration.AutoValidation)
         this.Validate();
-      Session.NotifyFieldValueSet(this, fieldInfo, oldValue, newValue);
+      Session.NotifyFieldValueSet(this, field, oldValue, newValue);
       var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object, object>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, fieldInfo, oldValue, newValue);
-      NotifyFieldChanged(fieldInfo);
-      OnSetFieldValue(fieldInfo, oldValue, newValue);
+          .Invoke(subscriptionInfo.First, field, oldValue, newValue);
+      NotifyFieldChanged(field);
+      OnSetFieldValue(field, oldValue, newValue);
     }
 
-    internal override sealed void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception)
+    internal override sealed void SystemSetValueCompleted(FieldInfo field, object oldValue, object newValue, Exception exception)
     {
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyFieldValueSetCompleted(this, fieldInfo, oldValue, newValue, exception);
+      Session.NotifyFieldValueSetCompleted(this, field, oldValue, newValue, exception);
     }
 
     /// <inheritdoc/>
