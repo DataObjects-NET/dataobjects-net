@@ -8,7 +8,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
