@@ -101,7 +101,14 @@ namespace Xtensive.Storage
     public event EventHandler<EntityFieldValueGetCompletedEventArgs> EntityFieldValueGetCompleted;
 
     /// <summary>
+    /// Occurs when is field value is about to be set.
+    /// This event is raised on any set attempt (even if new value is the same as the current one).
+    /// </summary>
+    public event EventHandler<EntityFieldValueEventArgs> EntityFieldValueSettingAttempt;
+
+    /// <summary>
     /// Occurs when is field value is about to be changed.
+    /// This event is raised only on actual change attempt (i.e. when new value differs from the current one).
     /// </summary>
     public event EventHandler<EntityFieldValueEventArgs> EntityFieldValueSetting;
 
@@ -251,9 +258,15 @@ namespace Xtensive.Storage
         EntityFieldValueGetCompleted(this, new EntityFieldValueGetCompletedEventArgs(entity, field, value, exception));
     }
 
+    internal void NotifyFieldValueSettingAttempt(Entity entity, FieldInfo field, object value)
+    {
+      if (EntityFieldValueSettingAttempt != null)
+        EntityFieldValueSettingAttempt(this, new EntityFieldValueEventArgs(entity, field, value));
+    }
+
     internal void NotifyFieldValueSetting(Entity entity, FieldInfo field, object value)
     {
-      if (EntityFieldValueSetting!=null)
+      if (EntityFieldValueSetting != null)
         EntityFieldValueSetting(this, new EntityFieldValueEventArgs(entity, field, value));
     }
 

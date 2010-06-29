@@ -31,6 +31,11 @@ namespace Xtensive.Storage
     public static readonly object GetFieldEventKey = new object();
 
     /// <summary>
+    /// The key of 'Setting field attempt' event.
+    /// </summary>
+    public static readonly object SettingFieldAttemptEventKey = new object();
+
+    /// <summary>
     /// The key of 'Setting field' event.
     /// </summary>
     public static readonly object SettingFieldEventKey = new object();

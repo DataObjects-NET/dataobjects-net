@@ -517,16 +517,7 @@ namespace Xtensive.Storage
       Session.NotifyFieldValueGetCompleted(this, fieldInfo, value, exception);
     }
 
-    internal override sealed void SystemBeforeChange()
-    {
-      Session.NotifyEntityChanging(this);
-      if (PersistenceState!=PersistenceState.New) {
-        // Ensures there will be a DifferentialTuple, not the regular one
-        var dTuple = State.DifferentialTuple;
-      }
-    }
-
-    internal override sealed void SystemBeforeSetValue(FieldInfo field, object value)
+    internal override sealed void SystemSetValueAttempt(FieldInfo field, object value)
     {
       EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled)
@@ -539,11 +530,35 @@ namespace Xtensive.Storage
       if (Session.IsSystemLogicOnly)
         return;
 
+      Session.NotifyFieldValueSettingAttempt(this, field, value);
+      var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldAttemptEventKey);
+      if (subscriptionInfo.Second != null)
+        ((Action<Key, FieldInfo, object>)subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
+      OnSettingFieldValueAttempt(field, value);
+    }
+
+    internal override sealed void SystemBeforeSetValue(FieldInfo field, object value)
+    {
+      EnsureNotRemoved();
+
+      if (Session.IsSystemLogicOnly)
+        return;
+
       Session.NotifyFieldValueSetting(this, field, value);
       var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
       OnSettingFieldValue(field, value);
+    }
+
+    internal override sealed void SystemBeforeTupleChange()
+    {
+      Session.NotifyEntityChanging(this);
+      if (PersistenceState != PersistenceState.New)
+      {
+        // Ensures there will be a DifferentialTuple, not the regular one
+        var dTuple = State.DifferentialTuple;
+      }
     }
 
     internal override sealed void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue)
@@ -679,7 +694,7 @@ namespace Xtensive.Storage
         if (references.Count > 0)
           using (Session.Pin(this))
           foreach (var referenceField in references) {
-            var referenceValue = (Entity)GetFieldValue(referenceField);
+            var referenceValue = (Entity) GetFieldValue(referenceField);
             using (var silentContext = OpenOperationContext()) {
               Session.PairSyncManager.Enlist(OperationType.Set, this, referenceValue, referenceField.Association);
               // No silentContext.Complete() - we must silently skip all these operations

@@ -14,6 +14,8 @@ namespace Xtensive.Storage.Disconnected
   internal sealed class SerializableEntityState
   {
     public string Key { get; set; }
+
+    public string Type { get; set; }
     
     public SerializableTuple Tuple { get; set; }
     
