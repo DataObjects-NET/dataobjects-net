@@ -156,7 +156,11 @@ namespace Xtensive.Storage.Disconnected
 
     public SerializableEntityState Serialize()
     {
+      if (!Key.HasExactType && tuple!=null)
+        throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType, Log.Instance);
+
       var key = Key.ToString(true);
+      var type = Key.TypeRef.Type.UnderlyingType.FullName;
       var serializedTuple =
         tuple==null
           ? new SerializableTuple()
@@ -199,6 +203,7 @@ namespace Xtensive.Storage.Disconnected
 
       return new SerializableEntityState() {
         Key = key,
+        Type = type,
         Tuple = serializedTuple,
         IsRemoved = IsRemoved,
         References = refs,
@@ -209,6 +214,10 @@ namespace Xtensive.Storage.Disconnected
     public static DisconnectedEntityState Deserialize(SerializableEntityState serialized, StateRegistry registry, Domain domain)
     {
       var key = Key.Parse(domain, serialized.Key);
+      var type = domain.Model.Types.Find(serialized.Type);
+      // Getting key with exact type
+      key = Storage.Key.Create(domain, type, TypeReferenceAccuracy.ExactType, key.Value);
+
       var origin = registry.Origin!=null ? registry.Origin.Get(key) : null;
       var state = origin!=null
         ? new DisconnectedEntityState(origin)

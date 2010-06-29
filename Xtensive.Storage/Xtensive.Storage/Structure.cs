@@ -208,10 +208,20 @@ namespace Xtensive.Storage
       Owner.SystemGetValueCompleted(ownerField, value, exception);
     }
 
-    internal override sealed void SystemBeforeChange()
+    internal override sealed void SystemSetValueAttempt(FieldInfo fieldInfo, object value)
     {
-      if (Owner!=null)
-        Owner.SystemBeforeChange();
+      if (!Session.IsSystemLogicOnly)
+      {
+        var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldAttemptEventKey);
+        if (subscriptionInfo.Second != null)
+          ((Action<Key, FieldInfo, FieldInfo, object>)subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field, fieldInfo, value);
+        OnSettingFieldValue(fieldInfo, value);
+      }
+      if (Owner == null)
+        return;
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
+      Owner.SystemSetValueAttempt(ownerField, value);
     }
 
     internal override sealed void SystemBeforeSetValue(FieldInfo fieldInfo, object value)
@@ -229,7 +239,13 @@ namespace Xtensive.Storage
       Owner.SystemBeforeSetValue(ownerField, value);
     }
 
-    internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
+    internal override sealed void SystemBeforeTupleChange()
+    {
+      if (Owner != null)
+        Owner.SystemBeforeTupleChange();
+    }
+
+    internal override sealed void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue)
     {
       if (!Session.IsSystemLogicOnly) {
         if (CanBeValidated && Session.Domain.Configuration.AutoValidation)
@@ -237,14 +253,14 @@ namespace Xtensive.Storage
         var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
         if (subscriptionInfo.Second != null)
           ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, Field, field, oldValue, newValue);
+            .Invoke(subscriptionInfo.First, Field, fieldInfo, oldValue, newValue);
 
-        NotifyFieldChanged(field);
+        NotifyFieldChanged(fieldInfo);
         OnSetFieldValue(Field, oldValue, newValue);
       }
       if (Owner == null)
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, fieldInfo)];
       Owner.SystemSetValue(ownerField, oldValue, newValue);
     }
 

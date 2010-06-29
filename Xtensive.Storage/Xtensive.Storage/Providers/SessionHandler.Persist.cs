@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Providers
       foreach (var restoreGroup in loopReferences.GroupBy(restoreData =>restoreData.First)) {
         var entityState = restoreGroup.Key;
         entityState.PersistenceState = PersistenceState.Synchronized;
-        entityState.Entity.SystemBeforeChange();
+        entityState.Entity.SystemBeforeTupleChange();
         foreach (var restoreData in restoreGroup) {
           var entity = restoreData.First.Entity;
           entity.GetFieldAccessor(restoreData.Second)
@@ -126,7 +126,7 @@ namespace Xtensive.Storage.Providers
       // TODO: Group by entity
       // Restore loop links
       foreach (var restoreData in loopReferences) {
-        // No necessity to call Entity.SystemBeforeChange, since it already is
+        // No necessity to call Entity.SystemBeforeTupleChange, since it already is
         var entity = restoreData.First.Entity;
         entity.GetFieldAccessor(restoreData.Second)
           .SetUntypedValue(entity, null);
@@ -179,7 +179,7 @@ namespace Xtensive.Storage.Providers
         AssociationInfo associationInfo = edge.ConnectionItem;
         keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.OwnerField, edge.Destination.Item.Entity));
         var entity = edge.Source.Item.Entity;
-        entity.SystemBeforeChange();
+        entity.SystemBeforeTupleChange();
         entity.GetFieldAccessor(associationInfo.OwnerField)
           .SetUntypedValue(entity, null);
       }

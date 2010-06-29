@@ -1466,6 +1466,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
               customer1Key = Query.All<Customer>().First(customer => customer.Name=="Customer1").Key;
+              Log.Info("Key: {0}", customer1Key);
             }
             transactionScope.Complete();
           }
