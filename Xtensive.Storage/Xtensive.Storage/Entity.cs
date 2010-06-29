@@ -474,22 +474,22 @@ namespace Xtensive.Storage
       Session.EntityStateCache.Remove(State);
     }
 
-    internal override sealed void SystemBeforeGetValue(FieldInfo fieldInfo)
+    internal override sealed void SystemBeforeGetValue(FieldInfo field)
     {
       EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.SessionXGettingValueKeyYFieldZ, Session, Key, fieldInfo);
-      EnsureIsFetched(fieldInfo);
+        Log.Debug(Strings.SessionXGettingValueKeyYFieldZ, Session, Key, field);
+      EnsureIsFetched(field);
 
       if (Session.IsSystemLogicOnly)
         return;
 
-      Session.NotifyFieldValueGetting(this, fieldInfo);
+      Session.NotifyFieldValueGetting(this, field);
       var subscriptionInfo = GetSubscription(EntityEventBroker.GettingFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, fieldInfo);
-      OnGettingFieldValue(fieldInfo);
+          .Invoke(subscriptionInfo.First, field);
+      OnGettingFieldValue(field);
     }
 
     internal override sealed void SystemGetValue(FieldInfo field, object value)
