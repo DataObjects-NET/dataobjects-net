@@ -535,7 +535,7 @@ namespace Xtensive.Storage
 
     internal abstract void SystemGetValue(FieldInfo field, object value);
 
-    internal abstract void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception);
+    internal abstract void SystemGetValueCompleted(FieldInfo field, object value, Exception exception);
 
     internal abstract void SystemSetValueAttempt(FieldInfo field, object value);
 
@@ -543,9 +543,9 @@ namespace Xtensive.Storage
 
     internal abstract void SystemBeforeTupleChange();
 
-    internal abstract void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue);
+    internal abstract void SystemSetValue(FieldInfo field, object oldValue, object newValue);
 
-    internal abstract void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception);
+    internal abstract void SystemSetValueCompleted(FieldInfo field, object oldValue, object newValue, Exception exception);
 
     #endregion
 
