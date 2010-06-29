@@ -554,8 +554,7 @@ namespace Xtensive.Storage
     internal override sealed void SystemBeforeTupleChange()
     {
       Session.NotifyEntityChanging(this);
-      if (PersistenceState != PersistenceState.New)
-      {
+      if (PersistenceState != PersistenceState.New) {
         // Ensures there will be a DifferentialTuple, not the regular one
         var dTuple = State.DifferentialTuple;
       }
