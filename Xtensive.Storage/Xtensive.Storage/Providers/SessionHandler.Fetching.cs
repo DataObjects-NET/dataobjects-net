@@ -4,9 +4,11 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.19
 
+using System;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Internals.Prefetch;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Providers
 {
@@ -27,6 +29,7 @@ namespace Xtensive.Storage.Providers
     public virtual StrongReferenceContainer Prefetch(Key key, TypeInfo type,
       FieldDescriptorCollection descriptors)
     {
+      EnsureTransactionIsOpened();
       return prefetchManager.Prefetch(key, type, descriptors);
     }
 
@@ -38,6 +41,7 @@ namespace Xtensive.Storage.Providers
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public virtual StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
+      EnsureTransactionIsOpened();
       return prefetchManager.ExecuteTasks(skipPersist);
     }
 
@@ -48,6 +52,7 @@ namespace Xtensive.Storage.Providers
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public StrongReferenceContainer ExecutePrefetchTasks()
     {
+      EnsureTransactionIsOpened();
       return ExecutePrefetchTasks(false);
     }
 
@@ -58,6 +63,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>The key of fetched <see cref="EntityState"/>.</returns>
     public virtual EntityState FetchEntityState(Key key)
     {
+      EnsureTransactionIsOpened();
       var type = key.TypeRef.Type;
       prefetchManager.Prefetch(key, type,
         PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type));
@@ -73,6 +79,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="field">The field to fetch.</param>
     public virtual void FetchField(Key key, FieldInfo field)
     {
+      EnsureTransactionIsOpened();
       var type = key.TypeRef.Type;
       prefetchManager.Prefetch(key, type,
         new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, false, false)));
@@ -86,6 +93,7 @@ namespace Xtensive.Storage.Providers
     /// <param name="field">The field.</param>
     public virtual void FetchEntitySet(Key ownerKey, FieldInfo field, int? itemCountLimit)
     {
+      EnsureTransactionIsOpened();
       var ownerType = ownerKey.TypeRef.Type;
       Session.Handler.Prefetch(ownerKey, ownerType,
         new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, itemCountLimit)));

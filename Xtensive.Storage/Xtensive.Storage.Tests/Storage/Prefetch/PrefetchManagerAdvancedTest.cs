@@ -531,9 +531,11 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
       using (var session = Session.Open(Domain)) {
         using (Transaction.Open())
           Query.Single<Order>(orderKey);
-
-        session.Handler.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
-        AssertEx.Throws<InvalidOperationException>(() => session.Handler.ExecutePrefetchTasks());
+        
+        AssertEx.Throws<InvalidOperationException>(() => {
+          session.Handler.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField));
+          session.Handler.ExecutePrefetchTasks();
+        });
       }
     }
 
@@ -561,8 +563,10 @@ namespace Xtensive.Storage.Tests.Storage.Prefetch
         using (Transaction.Open())
           Query.Single<Order>(orderKey);
 
-        session.Handler.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
-        AssertEx.Throws<InvalidOperationException>(() => session.Handler.ExecutePrefetchTasks());
+        AssertEx.Throws<InvalidOperationException>(() => {
+          session.Handler.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
+          session.Handler.ExecutePrefetchTasks();
+        });
       }
     }
 
