@@ -74,6 +74,9 @@ namespace Xtensive.Storage.DisconnectedTests.Model
 
     [Field(Length = 50)]
     public string Name { get; set; }
+
+//    [Field, Version]
+//    public int Version { get; private set; }
   }
 
   [Serializable]

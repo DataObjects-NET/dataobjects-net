@@ -479,7 +479,7 @@ namespace Xtensive.Storage.Manual.ObjectMapper
             tx.Complete();
           }
         }
-        catch (InvalidOperationException) {
+        catch (VersionConflictException) {
           wasThrown = true;
         }
         Assert.IsTrue(wasThrown);
