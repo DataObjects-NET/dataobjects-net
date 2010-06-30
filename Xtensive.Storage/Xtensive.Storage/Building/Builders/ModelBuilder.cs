@@ -160,7 +160,10 @@ namespace Xtensive.Storage.Building.Builders
           if (association.IsPaired)
             continue;
           if (!association.OnOwnerRemove.HasValue)
-            association.OnOwnerRemove = OnRemoveAction.Clear;
+            association.OnOwnerRemove = 
+              association.OwnerField.IsNullable
+              ? OnRemoveAction.Clear
+              : OnRemoveAction.None;
           if (!association.OnTargetRemove.HasValue)
             association.OnTargetRemove = OnRemoveAction.Deny;
         }

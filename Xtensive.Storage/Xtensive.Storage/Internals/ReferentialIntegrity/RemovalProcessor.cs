@@ -35,6 +35,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
     private static readonly CascadeActionProcessor cascadeActionProcessor = new CascadeActionProcessor();
     private static readonly DenyActionProcessor    denyActionProcessor    = new DenyActionProcessor();
     private static readonly ClearActionProcessor   clearActionProcessor   = new ClearActionProcessor();
+    private static readonly NoneActionProcessor    noneActionProcessor    = new NoneActionProcessor();
     
     public RemovalContext Context { get; set; }
 
@@ -159,8 +160,10 @@ namespace Xtensive.Storage.ReferentialIntegrity
           return clearActionProcessor;
         case OnRemoveAction.Cascade:
           return cascadeActionProcessor;
-        default:
+        case OnRemoveAction.Deny:
           return denyActionProcessor;
+        default:
+          return noneActionProcessor;
       }
     }
 

@@ -25,7 +25,11 @@ namespace Xtensive.Storage.Internals
     static AssociationActionProvider()
     {
       GetReferenceAction      = (association, owner) => (IEntity) ((Entity)owner).GetFieldValue(association.OwnerField);
-      ClearReferenceAction    = (association, owner, target) => ((Entity)owner).SetFieldValue(association.OwnerField, null);
+      ClearReferenceAction    = (association, owner, target) => {
+        var nullIsEntity = owner as IHasNullEntity;
+        var nullValue = nullIsEntity==null ? null : nullIsEntity.NullEntity;
+        ((Entity) owner).SetFieldValue(association.OwnerField, nullValue);
+      };
       SetReferenceAction      = (association, owner, target) => ((Entity)owner).SetFieldValue(association.OwnerField, (object) target);
       AddReferenceAction      = (association, owner, target) => ((EntitySetBase) ((Entity)owner).GetFieldValue(association.OwnerField)).Add((Entity)target);
       RemoveReferenceAction   = (association, owner, target) => ((EntitySetBase) ((Entity)owner).GetFieldValue(association.OwnerField)).Remove((Entity)target);

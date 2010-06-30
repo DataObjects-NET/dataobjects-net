@@ -8,12 +8,10 @@ using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
-  internal class DenyActionProcessor : ActionProcessor
+  internal class NoneActionProcessor : ActionProcessor
   {
     public override void Process(RemovalContext context, AssociationInfo association, Entity removingObject, Entity target, Entity referencingObject, Entity referencedObject)
     {
-      if (!context.Contains(target) && referencingObject!=referencedObject)
-        throw new ReferentialIntegrityException(association, removingObject, referencingObject, referencedObject);
     }
   }
 }
