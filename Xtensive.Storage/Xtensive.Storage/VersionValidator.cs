@@ -77,24 +77,17 @@ namespace Xtensive.Storage
 
     #region Valiadtor logic
 
-    private void EnqueueVersionValidation(Entity entity)
+    private void Initialize()
     {
-      if (entity.TypeInfo.VersionExtractor==null
-        || queuedVersions.ContainsKey(entity.Key)
-        || processed.Contains(entity.Key))
-        return;
-      VersionInfo version;
-      if (knownVersions.TryGetValue(entity.Key, out version))
-        queuedVersions.Add(entity.Key, version);
-      else {
-        var queryTask = CreateFetchVersionTask(entity.Key);
-        Session.RegisterDelayedQuery(queryTask);
-        fetchVersionTasks.Add(entity.Key, queryTask);
-      }
+      knownVersions = new Dictionary<Key, VersionInfo>();
+      processed = new HashSet<Key>();
     }
 
-    private void CreateFetchVersionTasks()
+    private void FetchVersions()
     {
+      queuedVersions = new Dictionary<Key, VersionInfo>();
+      fetchVersionTasks = new Dictionary<Key, QueryTask>();
+
       var registry = Session.EntityChangeRegistry;
       foreach (var item in registry.GetItems(PersistenceState.New))
         processed.Add(item.Key);
@@ -106,25 +99,46 @@ namespace Xtensive.Storage
         EnqueueVersionValidation(item.Entity);
         processed.Add(item.Key);
       }
+      if (fetchVersionTasks.Count > 0)
+        Session.Handler.ExecuteQueryTasks(fetchVersionTasks.Values, true);
+    }
 
-//      var changedItem =
-//        registry.GetItems(PersistenceState.Modified)
-//          .Concat(registry.GetItems(PersistenceState.Removed))
-//          .Where(item => item.TypeInfo.VersionExtractor!=null
-//            && !processed.Contains(item.Key));
-//      foreach (var item in changedItem) {
-//        if (queuedVersions.ContainsKey(item.Key)
-//          || fetchVersionTasks.ContainsKey(item.Key))
-//          continue;
-//        VersionInfo version;
-//        if (actualVersions.TryGetValue(item.Key, out version))
-//          queuedVersions.Add(item.Key, version);
-//        else {
-//          var queryTask = CreateFetchVersionTask(item.Key);
-//          Session.RegisterDelayedQuery(queryTask);
-//          fetchVersionTasks.Add(item.Key, queryTask);
-//        }
-//      }
+    private void FetchLeftVersions()
+    {
+      queuedVersions = new Dictionary<Key, VersionInfo>();
+      fetchVersionTasks = new Dictionary<Key, QueryTask>();
+
+      foreach (var pair in knownVersions) {
+        EnqueueVersionValidation(pair.Key);
+        processed.Add(pair.Key);
+      }
+      if (fetchVersionTasks.Count > 0)
+        Session.Handler.ExecuteQueryTasks(fetchVersionTasks.Values, true);
+    }
+
+    private void EnqueueVersionValidation(Entity entity)
+    {
+      if (entity.TypeInfo.VersionExtractor==null
+          || queuedVersions.ContainsKey(entity.Key)
+          || processed.Contains(entity.Key))
+        return;
+      VersionInfo version;
+      if (knownVersions.TryGetValue(entity.Key, out version))
+        queuedVersions.Add(entity.Key, version);
+      else {
+        var task = CreateFetchVersionTask(entity.Key);
+        Session.RegisterDelayedQuery(task);
+        fetchVersionTasks.Add(entity.Key, task);
+      }
+    }
+
+    private void EnqueueVersionValidation(Key key)
+    {
+      if (processed.Contains(key))
+        return;
+      var task = CreateFetchVersionTask(key);
+      Session.RegisterDelayedQuery(task);
+      fetchVersionTasks.Add(key, task);
     }
 
     private QueryTask CreateFetchVersionTask(Key key)
@@ -135,12 +149,31 @@ namespace Xtensive.Storage
       return new QueryTask(execProvider, null);
     }
 
-    private static VersionInfo FetchVersion(TypeInfo type, Tuple state)
+    private void ValidateFetchedVersions()
+    {
+      Session.ExecuteDelayedQueries();
+      if (fetchVersionTasks.Count > 0)
+        foreach (var task in fetchVersionTasks) {
+          var key = task.Key;
+          var version = ExtractVersion(task.Key.Type, task.Value.Result.FirstOrDefault());
+          queuedVersions.Add(key, version);
+        }
+      foreach (var pair in queuedVersions)
+        ValidateVersion(pair.Key, pair.Value, true);
+    }
+
+    private static VersionInfo ExtractVersion(TypeInfo type, Tuple state)
     {
       if (state==null)
         return new VersionInfo();
       var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, state);
       return new VersionInfo(versionTuple);
+    }
+
+    private void DropFetchVersionsData()
+    {
+      queuedVersions = null;
+      fetchVersionTasks = null;
     }
 
     #endregion
@@ -149,12 +182,29 @@ namespace Xtensive.Storage
 
     private void OnTransactionOpened(object sender, TransactionEventArgs e)
     {
-      processed = new HashSet<Key>();
-      knownVersions = new Dictionary<Key, VersionInfo>();
+      if (e.Transaction.IsNested)
+        return;
+      Initialize();
+    }
+
+    private void OnTransactionCommitting(object sender, TransactionEventArgs e)
+    {
+      if (e.Transaction.IsNested)
+        return;
+      Session.Persist();
+      try {
+        FetchLeftVersions();
+        ValidateFetchedVersions();
+      }
+      finally {
+        DropFetchVersionsData();
+      }
     }
 
     private void OnTransactionClosed(object sender, TransactionEventArgs e)
     {
+      if (e.Transaction.IsNested)
+        return;
       processed = null;
       knownVersions = null;
     }
@@ -190,23 +240,17 @@ namespace Xtensive.Storage
 
     private void OnPersisting(object sender, EventArgs e)
     {
-      queuedVersions = new Dictionary<Key, VersionInfo>();
-      fetchVersionTasks = new Dictionary<Key, QueryTask>();
-      CreateFetchVersionTasks();
-      if (fetchVersionTasks.Count > 0)
-        Session.Handler.ExecuteQueryTasks(fetchVersionTasks.Values, true);
+      FetchVersions();
     }
 
     private void OnPersisted(object sender, EventArgs e)
     {
-      if (fetchVersionTasks.Count > 0)
-        foreach (var task in fetchVersionTasks) {
-          var key = task.Key;
-          var version = FetchVersion(task.Key.Type, task.Value.Result.FirstOrDefault());
-          queuedVersions.Add(key, version);
-        }
-      foreach (var pair in queuedVersions)
-        ValidateVersion(pair.Key, pair.Value, true);
+      try {
+        ValidateFetchedVersions();
+      }
+      finally {
+        DropFetchVersionsData();
+      }
     }
 
     #endregion
@@ -220,6 +264,7 @@ namespace Xtensive.Storage
       isAttached = true;
       try {
         Session.TransactionOpened += OnTransactionOpened;
+        Session.TransactionCommitting += OnTransactionCommitting;
         Session.TransactionCommitted += OnTransactionClosed;
         Session.TransactionRollbacked += OnTransactionClosed;
         Session.EntityVersionInfoChanging += OnEntityVersionInfoChanging;
@@ -238,6 +283,7 @@ namespace Xtensive.Storage
       if (isAttached) {
         isAttached = false;
         Session.TransactionOpened -= OnTransactionOpened;
+        Session.TransactionCommitting -= OnTransactionCommitting;
         Session.TransactionCommitted -= OnTransactionClosed;
         Session.TransactionRollbacked -= OnTransactionClosed;
         Session.EntityVersionInfoChanging -= OnEntityVersionInfoChanging;
@@ -317,14 +363,26 @@ namespace Xtensive.Storage
 
       this.expectedVersionProvider = expectedVersionProvider;
       AttachEventHandlers();
+      if (session.Transaction!=null)
+        Initialize();
     }
-  
+
     // Dispose
     
     /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
     public void Dispose()
     {
-      DetachEventHandlers();
+      try {
+        if (Session.Transaction!=null) {
+          Session.Persist();
+          FetchLeftVersions();
+          ValidateFetchedVersions();
+        }
+      }
+      finally {
+        DropFetchVersionsData();
+        DetachEventHandlers();
+      }
     }
   }
 }

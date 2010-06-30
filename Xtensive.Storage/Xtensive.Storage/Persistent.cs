@@ -8,7 +8,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
@@ -358,10 +357,9 @@ namespace Xtensive.Storage
     {
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
+      SystemSetValueAttempt(field, value);
       var fieldAccessor = GetFieldAccessor(field);
       object oldValue = GetFieldValue(field);
-      if (fieldAccessor.AreSameValues(oldValue, value))
-        return;
       try {
         using (var context = OpenOperationContext()) {
           if (context.IsLoggingEnabled) {
@@ -383,6 +381,10 @@ namespace Xtensive.Storage
                 context.LogOperation(new EntityFieldSetOperation(entity.Key, entityField, value));
             }
           }
+          if (fieldAccessor.AreSameValues(oldValue, value)) {
+            context.Complete();
+            return;
+          }
           SystemBeforeSetValue(field, value);
           var structure = value as Structure;
           var association = field.Association;
@@ -394,13 +396,13 @@ namespace Xtensive.Storage
               newKey = newReference.Key;
             if (currentKey != newKey) {
               Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
-              SystemBeforeChange();
+              SystemBeforeTupleChange();
               fieldAccessor.SetUntypedValue(this, value);
             }
           }
           else {
             if (!Equals(value, oldValue) || field.IsStructure) {
-              SystemBeforeChange();
+              SystemBeforeTupleChange();
               fieldAccessor.SetUntypedValue(this, value);
             }
           }
@@ -409,8 +411,7 @@ namespace Xtensive.Storage
           context.Complete();
         }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
         SystemSetValueCompleted(field, oldValue, value, e);
         throw;
       }
@@ -468,7 +469,19 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Called before field value is about to be set.
+    /// This event is raised on any set attempt (even if new value is the same as the current one).
+    /// </summary>
+    /// <remarks>
+    /// Override it to perform some actions before setting field value, e.g. to check access permissions.
+    /// </remarks>
+    protected virtual void OnSettingFieldValueAttempt(FieldInfo field, object value)
+    {
+    }
+
+    /// <summary>
     /// Called before field value is about to be changed.
+    /// This event is raised only on actual change attempt (i.e. when new value differs from the current one).
     /// </summary>
     /// <remarks>
     /// Override it to perform some actions before changing field value, e.g. to check access permissions.
@@ -522,15 +535,17 @@ namespace Xtensive.Storage
 
     internal abstract void SystemGetValue(FieldInfo field, object value);
 
-    internal abstract void SystemGetValueCompleted(FieldInfo fieldInfo, object value, Exception exception);
+    internal abstract void SystemGetValueCompleted(FieldInfo field, object value, Exception exception);
 
-    internal abstract void SystemBeforeChange();
+    internal abstract void SystemSetValueAttempt(FieldInfo field, object value);
 
     internal abstract void SystemBeforeSetValue(FieldInfo field, object value);
 
-    internal abstract void SystemSetValue(FieldInfo fieldInfo, object oldValue, object newValue);
+    internal abstract void SystemBeforeTupleChange();
 
-    internal abstract void SystemSetValueCompleted(FieldInfo fieldInfo, object oldValue, object newValue, Exception exception);
+    internal abstract void SystemSetValue(FieldInfo field, object oldValue, object newValue);
+
+    internal abstract void SystemSetValueCompleted(FieldInfo field, object oldValue, object newValue, Exception exception);
 
     #endregion
 

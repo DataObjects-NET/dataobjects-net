@@ -74,6 +74,9 @@ namespace Xtensive.Storage.DisconnectedTests.Model
 
     [Field(Length = 50)]
     public string Name { get; set; }
+
+//    [Field, Version]
+//    public int Version { get; private set; }
   }
 
   [Serializable]
@@ -1466,6 +1469,7 @@ namespace Xtensive.Storage.Tests.Storage
           using (var transactionScope = Transaction.Open()) {
             using (state.Connect()) {
               customer1Key = Query.All<Customer>().First(customer => customer.Name=="Customer1").Key;
+              Log.Info("Key: {0}", customer1Key);
             }
             transactionScope.Complete();
           }
