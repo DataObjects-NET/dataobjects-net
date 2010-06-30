@@ -360,8 +360,6 @@ namespace Xtensive.Storage
       SystemSetValueAttempt(field, value);
       var fieldAccessor = GetFieldAccessor(field);
       object oldValue = GetFieldValue(field);
-      if (fieldAccessor.AreSameValues(oldValue, value))
-        return;
       try {
         using (var context = OpenOperationContext()) {
           if (context.IsLoggingEnabled) {
@@ -382,6 +380,10 @@ namespace Xtensive.Storage
               if (entity != null)
                 context.LogOperation(new EntityFieldSetOperation(entity.Key, entityField, value));
             }
+          }
+          if (fieldAccessor.AreSameValues(oldValue, value)) {
+            context.Complete();
+            return;
           }
           SystemBeforeSetValue(field, value);
           var structure = value as Structure;
@@ -409,8 +411,7 @@ namespace Xtensive.Storage
           context.Complete();
         }
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
         SystemSetValueCompleted(field, oldValue, value, e);
         throw;
       }

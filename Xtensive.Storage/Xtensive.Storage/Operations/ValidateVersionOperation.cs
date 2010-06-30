@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Operations
   /// Describes <see cref="Entity"/> version validation operation.
   /// </summary>
   [Serializable]
-  internal sealed class ValidateVersionOperation : EntityOperation,
+  public sealed class ValidateVersionOperation : EntityOperation,
     IUniqueOperation
   {
     /// <summary>
