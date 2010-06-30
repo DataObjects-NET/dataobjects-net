@@ -9,9 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using License;
 using PostSharp.Extensibility;
+using PostSharp.Sdk.AspectWeaver;
 using Xtensive.Core.Aspects;
 using Xtensive.Core;
 using Xtensive.Licensing;
@@ -22,7 +21,7 @@ namespace Xtensive.Core.Weaver
   /// <summary>
   /// Creates the weavers defined by the 'Xtensive.Core.Weaver' plug-in.
   /// </summary>
-  public sealed class PlugIn : PostSharp.AspectWeaver.PlugIn
+  public sealed class PlugIn : AspectWeaverPlugIn
   {
     private static readonly byte[] tokenExpected = new byte[]{0x93, 0xa6, 0xc5,0x3d, 0x77, 0xa5, 0x29, 0x6c};
     // "$(ProjectDir)..\..\Xtensive.Licensing\Protection\Protect.bat" "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)" "true"
@@ -67,11 +66,11 @@ namespace Xtensive.Core.Weaver
       }
       else
       {
-        AddAspectWeaverFactory<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
-        AddAspectWeaverFactory<ImplementConstructorEpilogue, ConstructorEpilogueWeaver>();
-        AddAspectWeaverFactory<NotSupportedAttribute, NotSupportedWeaver>();
-        AddAspectWeaverFactory<ImplementConstructor, ImplementConstructorWeaver>();
-        AddAspectWeaverFactory<ImplementFactoryMethod, ImplementFactoryMethodWeaver>();
+        BindAspectWeaver<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
+        BindAspectWeaver<ImplementConstructorEpilogue, ConstructorEpilogueWeaver>();
+        BindAspectWeaver<NotSupportedAttribute, NotSupportedWeaver>();
+        BindAspectWeaver<ImplementConstructor, ImplementConstructorWeaver>();
+        BindAspectWeaver<ImplementFactoryMethod, ImplementFactoryMethodWeaver>();
       }
     }
 
@@ -93,7 +92,7 @@ namespace Xtensive.Core.Weaver
     // Constructors
 
     public PlugIn()
-      : base(Priorities.User)
+      : base(StandardPriorities.User)
     {}
   }
 }

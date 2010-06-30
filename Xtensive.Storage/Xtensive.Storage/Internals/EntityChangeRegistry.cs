@@ -6,17 +6,20 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Collections;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Internals
 {
   /// <summary>
   /// Registers <see cref="EntityState"/> changes.
   /// </summary>
-  public class EntityChangeRegistry
+  public sealed class EntityChangeRegistry : SessionBound
   {
     private readonly List<EntityState> @new = new List<EntityState>();
     private readonly List<EntityState> modified = new List<EntityState>();
     private readonly List<EntityState> removed = new List<EntityState>();
+    private readonly HashSet<Key> removedSet = new HashSet<Key>();
     private int count;
 
     /// <summary>
@@ -30,9 +33,18 @@ namespace Xtensive.Storage.Internals
     /// <param name="item">The item.</param>
     internal void Register(EntityState item)
     {
+      // Workaround for Issue 690
+      if (item.PersistenceState==PersistenceState.New)
+        if (removedSet.Contains(item.Key))
+          Session.Persist();
+
       var container = GetContainer(item.PersistenceState);
       container.Add(item);
       count++;
+
+      // Workaround for Issue 690
+      if (item.PersistenceState==PersistenceState.Removed)
+        removedSet.Add(item.Key);
     }
 
     /// <summary>
@@ -55,6 +67,7 @@ namespace Xtensive.Storage.Internals
       @new.Clear();
       modified.Clear();
       removed.Clear();
+      removedSet.Clear();
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="state"/> is out of range.</exception>
@@ -70,6 +83,19 @@ namespace Xtensive.Storage.Internals
       default:
         throw new ArgumentOutOfRangeException("state");
       }
+    }
+
+    
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="session"><see cref="Xtensive.Storage.Session"/>, to which current instance 
+    /// is bound.</param>
+    public EntityChangeRegistry(Session session)
+      : base(session)
+    {
     }
   }
 }

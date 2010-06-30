@@ -66,7 +66,6 @@ namespace Xtensive.Storage
     private static Func<Session> resolver;
     private static long lastUsedIdentifier;
 
-    private readonly Pinner pinner = new Pinner();
     private SessionScope sessionScope;
     private ExtensionCollection extensions;
     private volatile bool isDisposed;
@@ -181,13 +180,15 @@ namespace Xtensive.Storage
 
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
-    internal bool IsDelayedQueryRunning { get; private set; }
+    internal Pinner Pinner { get; private set; }
 
     internal CompilationContext CompilationContext { get { return Handlers.DomainHandler.CompilationContext; } }
 
     internal IOperationContext CurrentOperationContext { get; set; }
 
     internal IOperationContext BlockingOperationContext { get; private set; }
+
+    internal bool IsDelayedQueryRunning { get; private set; }
 
     private void EnsureNotDisposed()
     {
@@ -334,6 +335,7 @@ namespace Xtensive.Storage
       Configuration = configuration;
       Name = configuration.Name;
       Identifier = Interlocked.Increment(ref lastUsedIdentifier);
+      CommandTimeout = configuration.DefaultCommandTimeout;
 
       // Handlers
       Handlers = domain.Handlers;
@@ -343,17 +345,18 @@ namespace Xtensive.Storage
 
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
-      EntityChangeRegistry = new EntityChangeRegistry();
+      EntityChangeRegistry = new EntityChangeRegistry(this);
 
       // Etc...
       // AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
+      EntityEventBroker = new EntityEventBroker();
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
-      EntityEventBroker = new EntityEventBroker();
-      CommandTimeout = configuration.DefaultCommandTimeout;
+      Pinner = new Pinner(this);
+      BlockingOperationContext = new BlockingOperationContext(this);
+
       if (activate)
         sessionScope = new SessionScope(this);
-      BlockingOperationContext = new BlockingOperationContext(this);
 
       // Creating Services
       var serviceContainerType = Configuration.ServiceContainerType ?? typeof (ServiceContainer);

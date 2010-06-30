@@ -7,14 +7,14 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using PostSharp.AspectInfrastructure;
-using PostSharp.AspectWeaver;
-using PostSharp.AspectWeaver.AspectWeavers;
-using PostSharp.AspectWeaver.Transformations;
-using PostSharp.CodeModel;
-using PostSharp.CodeModel.Helpers;
-using PostSharp.CodeWeaver;
 using PostSharp.Extensibility;
+using PostSharp.Sdk.AspectInfrastructure;
+using PostSharp.Sdk.AspectWeaver;
+using PostSharp.Sdk.AspectWeaver.AspectWeavers;
+using PostSharp.Sdk.AspectWeaver.Transformations;
+using PostSharp.Sdk.CodeModel;
+using PostSharp.Sdk.CodeWeaver;
+using PostSharp.Sdk.Collections;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Reflection;
 
@@ -29,7 +29,7 @@ namespace Xtensive.Core.Weaver
       base.Initialize();
 
       transformation = new ImplementFactoryMethodTransformation(this);
-      ApplyEffectWaivers(transformation);
+      ApplyWaivedEffects(transformation);
       RequiresRuntimeInstance = false;
       RequiresRuntimeInstanceInitialization = false;
       RequiresRuntimeReflectionObject = false;
@@ -97,7 +97,7 @@ namespace Xtensive.Core.Weaver
       private const string ParameterNamePrefix = "arg";
       private readonly ITypeSignature[] argumentTypes;
 
-      public override void Implement(StructuralTransformationContext context)
+      public override void Implement(TransformationContext context)
       {
         var typeDef = (TypeDefDeclaration)context.TargetElement;
         var genericType = GenericHelper.GetTypeCanonicalGenericInstance(typeDef);
@@ -143,7 +143,7 @@ namespace Xtensive.Core.Weaver
         var instructionBlock = body.CreateInstructionBlock();
         body.RootInstructionBlock = instructionBlock;
         var sequence = body.CreateInstructionSequence();
-        instructionBlock.AddInstructionSequence(sequence, PostSharp.Collections.NodePosition.Before, null);
+        instructionBlock.AddInstructionSequence(sequence, NodePosition.Before, null);
         using (var writer = new InstructionWriter()) {
           writer.AttachInstructionSequence(sequence);
 

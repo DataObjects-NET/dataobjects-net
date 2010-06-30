@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void Test()
     {
-      using (var s = Session.Open(Domain)) {
+      using (var session = Session.Open(Domain)) {
         var person  = new Person() { Name = "Name" };
         var key     = person.Key;
         var version = person.VersionInfo;

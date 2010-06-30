@@ -5,22 +5,17 @@
 // Created:    2010.03.29
 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using PostSharp.AspectInfrastructure;
-using PostSharp.AspectWeaver;
-using PostSharp.AspectWeaver.AspectWeavers;
-using PostSharp.AspectWeaver.Transformations;
-using PostSharp.CodeModel;
-using PostSharp.CodeModel.Helpers;
-using PostSharp.CodeModel.TypeSignatures;
-using PostSharp.CodeWeaver;
-using PostSharp.Collections;
 using PostSharp.Extensibility;
-using PostSharp.Extensibility.Tasks;
+using PostSharp.Reflection;
+using PostSharp.Sdk.AspectInfrastructure;
+using PostSharp.Sdk.AspectWeaver;
+using PostSharp.Sdk.AspectWeaver.AspectWeavers;
+using PostSharp.Sdk.AspectWeaver.Transformations;
+using PostSharp.Sdk.CodeModel;
+using PostSharp.Sdk.CodeModel.TypeSignatures;
+using PostSharp.Sdk.Collections;
+using PostSharp.Sdk.Extensibility.Tasks;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Aspects.Helpers;
-using Xtensive.Core.Reflection;
 using System.Linq;
 
 namespace Xtensive.Core.Weaver
@@ -33,8 +28,8 @@ namespace Xtensive.Core.Weaver
     {
       base.Initialize();
 
-      transformation = new ReplaceAutoPropertyTransformation(this, "AutoProperty replacement.");
-      ApplyEffectWaivers(transformation);
+      transformation = new ReplaceAutoPropertyTransformation(this);
+      ApplyWaivedEffects(transformation);
       RequiresRuntimeInstance = false;
       RequiresRuntimeInstanceInitialization = false;
       RequiresRuntimeReflectionObject = false;
@@ -74,6 +69,7 @@ namespace Xtensive.Core.Weaver
 
   internal class ReplaceAutoPropertyTransformation : MethodBodyTransformation
   {
+    private const string AutoPropertyReplacement = "AutoProperty replacement.";
     private readonly string displayName;
 
     public override string GetDisplayName(MethodSemantics semantic)
@@ -93,10 +89,10 @@ namespace Xtensive.Core.Weaver
 
     // Constructors
 
-    public ReplaceAutoPropertyTransformation(AspectWeaver aspectWeaver, string displayName)
-      : base(aspectWeaver, displayName)
+    public ReplaceAutoPropertyTransformation(AspectWeaver aspectWeaver)
+      : base(aspectWeaver)
     {
-      this.displayName = displayName;
+      displayName = AutoPropertyReplacement;
     }
 
     // Nested class
@@ -188,7 +184,7 @@ namespace Xtensive.Core.Weaver
           var methodName = (isGetter ? HandlerGetMethodPrefix : HandlerSetMethodPrefix) + handlerMethodSuffix;
           var reference = targetType.FindMethod(methodName, methodSignature);
           if (reference != null) {
-            var redirection = IntroduceMemberHelper.GetRedirection(reference.Method, AspectWeaverInstance);
+            var redirection = (MethodDefDeclaration) AspectInfrastructureTask.GetRedirectedDeclaration(reference.Method, true);
             if (redirection != null)
               reference = new GenericMethodReference(redirection, reference.GenericMap);
             var method = reference.Method.MethodSpecs.GetGenericInstance(new[] {fieldDef.FieldType}, true).Translate(module);

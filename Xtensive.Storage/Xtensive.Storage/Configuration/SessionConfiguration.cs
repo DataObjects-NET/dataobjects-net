@@ -202,7 +202,7 @@ namespace Xtensive.Storage.Configuration
     /// <summary>
     /// Gets a value indicating whether session uses autoshortened transactions.
     /// </summary>
-    public bool UsesAutoshortenedTransactions {
+    public bool UsesAutoShortenedTransactions {
       get { return (options & SessionOptions.AutoShortenTransactions)==SessionOptions.AutoShortenTransactions; }
     }
 

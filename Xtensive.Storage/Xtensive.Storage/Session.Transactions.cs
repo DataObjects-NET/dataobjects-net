@@ -115,7 +115,7 @@ namespace Xtensive.Storage
 
     internal void BeginTransaction(Transaction transaction)
     {
-      if (!Configuration.UsesAutoshortenedTransactions)
+      if (!Configuration.UsesAutoShortenedTransactions)
         StartTransaction(transaction);
     }
 
@@ -155,7 +155,7 @@ namespace Xtensive.Storage
     internal void CompleteTransaction(Transaction transaction)
     {
       queryTasks.Clear();
-      pinner.ClearRoots();
+      Pinner.ClearRoots();
 
       Transaction = transaction.Outer;
 

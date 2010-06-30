@@ -5,15 +5,14 @@
 // Created:    2010.03.29
 
 using System;
-using PostSharp.AspectInfrastructure;
-using PostSharp.AspectInfrastructure.Helpers;
-using PostSharp.AspectWeaver;
-using PostSharp.AspectWeaver.AspectWeavers;
-using PostSharp.AspectWeaver.Transformations;
-using PostSharp.CodeModel;
-using PostSharp.CodeModel.Helpers;
-using PostSharp.Collections;
-using PostSharp.Extensibility; 
+using PostSharp.Extensibility;
+using PostSharp.Reflection;
+using PostSharp.Sdk.AspectInfrastructure;
+using PostSharp.Sdk.AspectWeaver;
+using PostSharp.Sdk.AspectWeaver.AspectWeavers;
+using PostSharp.Sdk.AspectWeaver.Transformations;
+using PostSharp.Sdk.CodeModel;
+using PostSharp.Sdk.Collections;
 using Xtensive.Core.Aspects;
 using Xtensive.Core;
 
@@ -28,7 +27,7 @@ namespace Xtensive.Core.Weaver
       base.Initialize();
 
       transformation = new ConstructorEpilogueTransformation(this);
-      ApplyEffectWaivers(transformation);
+      ApplyWaivedEffects(transformation);
       RequiresRuntimeInstance = false;
       RequiresRuntimeInstanceInitialization = false;
       RequiresRuntimeReflectionObject = false;
@@ -68,9 +67,11 @@ namespace Xtensive.Core.Weaver
 
   internal class ConstructorEpilogueTransformation : MethodBodyTransformation
   {
+    private const string ApplyingConstructorEpilogue = "Applying constructor epilogue.";
+
     public override string GetDisplayName(MethodSemantics semantic)
     {
-      return "Applying constructor epilogue.";
+      return ApplyingConstructorEpilogue;
     }
 
     public AspectWeaverTransformationInstance CreateInstance(AspectWeaverInstance aspectWeaverInstance)
@@ -88,7 +89,7 @@ namespace Xtensive.Core.Weaver
     // Constructors
 
     public ConstructorEpilogueTransformation(AspectWeaver aspectWeaver)
-      : base(aspectWeaver, null)
+      : base(aspectWeaver)
     {
     }
 
@@ -180,7 +181,7 @@ namespace Xtensive.Core.Weaver
             BindingOptions.Default).Translate(module);
         }
 
-        protected override void WeaveOnException(InstructionBlock block, ITypeSignature exceptionType, InstructionWriter writer)
+        protected override void ImplementOnException(InstructionBlock block, ITypeSignature exceptionType, InstructionWriter writer)
         {
           var module = parent.AspectWeaver.Module;
           var methodBody = block.MethodBody;
@@ -202,11 +203,11 @@ namespace Xtensive.Core.Weaver
           writer.DetachInstructionSequence();
         }
 
-        protected override void WeaveOnExit(InstructionBlock block, InstructionWriter writer)
+        protected override void ImplementOnExit(InstructionBlock block, InstructionWriter writer)
         {
         }
 
-        protected override void WeaveOnSuccess(InstructionBlock block, InstructionWriter writer)
+        protected override void ImplementOnSuccess(InstructionBlock block, InstructionWriter writer)
         {
           var module = parent.AspectWeaver.Module;
           var methodBody = block.MethodBody;
@@ -224,7 +225,7 @@ namespace Xtensive.Core.Weaver
           writer.DetachInstructionSequence();
         }
 
-        protected override void WeaveOnEntry(InstructionBlock block, InstructionWriter writer)
+        protected override void ImplementOnEntry(InstructionBlock block, InstructionWriter writer)
         {
         }
 

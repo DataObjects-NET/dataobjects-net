@@ -80,27 +80,27 @@ namespace Xtensive.Storage.Providers
       var domain = Session.Domain;
 
       // Topological sorting
-      List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;
-      List<EntityState> sortedEntities;
-      List<EntityState> unreferencedEntities;
-      SortAndRemoveLoopEdges(entityStates, out sortedEntities, out unreferencedEntities, out loopReferences);
+      List<Triplet<EntityState, FieldInfo, Entity>> refsToRestore;
+      List<EntityState> sortedStates;
+      List<EntityState> unreferencedStates;
+      SortAndRemoveLoopEdges(entityStates, out sortedStates, out unreferencedStates, out refsToRestore);
 
       // Insert 
-      sortedEntities.Reverse();
-      sortedEntities.AddRange(unreferencedEntities);
+      sortedStates.Reverse();
+      sortedStates.AddRange(unreferencedStates);
 
-      foreach (var state in sortedEntities)
+      foreach (var state in sortedStates)
         yield return new PersistAction(state, PersistActionKind.Insert);
 
       // Restore loop links
-      foreach (var restoreGroup in loopReferences.GroupBy(restoreData =>restoreData.First)) {
-        var entityState = restoreGroup.Key;
+      foreach (var tripletGroup in refsToRestore.GroupBy(restoreData =>restoreData.First)) {
+        var entityState = tripletGroup.Key;
         entityState.PersistenceState = PersistenceState.Synchronized;
         entityState.Entity.SystemBeforeTupleChange();
-        foreach (var restoreData in restoreGroup) {
-          var entity = restoreData.First.Entity;
-          entity.GetFieldAccessor(restoreData.Second)
-            .SetUntypedValue(entity, restoreData.Third);
+        foreach (var triplet in tripletGroup) {
+          var entity = triplet.First.Entity;
+          entity.GetFieldAccessor(triplet.Second)
+            .SetUntypedValue(entity, triplet.Third);
         }
         yield return new PersistAction(entityState, PersistActionKind.Update);
       }
@@ -115,69 +115,78 @@ namespace Xtensive.Storage.Providers
         state.RollbackDifference();
 
       // Topological sorting
-      List<Triplet<EntityState, FieldInfo, Entity>> loopReferences;
-      List<EntityState> sortedEntities;
-      List<EntityState> unreferencedEntities;
-      SortAndRemoveLoopEdges(entityStates, out sortedEntities, out unreferencedEntities, out loopReferences);
+      List<Triplet<EntityState, FieldInfo, Entity>> refsToRestore;
+      List<EntityState> sortedStates;
+      List<EntityState> unreferencedStates;
+      SortAndRemoveLoopEdges(entityStates, out sortedStates, out unreferencedStates, out refsToRestore);
 
       // Insert 
-      sortedEntities.InsertRange(0, unreferencedEntities);
+      sortedStates.InsertRange(0, unreferencedStates);
 
       // TODO: Group by entity
       // Restore loop links
-      foreach (var restoreData in loopReferences) {
+      foreach (var triplet in refsToRestore) {
         // No necessity to call Entity.SystemBeforeTupleChange, since it already is
-        var entity = restoreData.First.Entity;
-        entity.GetFieldAccessor(restoreData.Second)
+        var entity = triplet.First.Entity;
+        entity.GetFieldAccessor(triplet.Second)
           .SetUntypedValue(entity, null);
-        yield return new PersistAction(restoreData.First, PersistActionKind.Update);
+        yield return new PersistAction(triplet.First, PersistActionKind.Update);
       }
 
-      foreach (var state in sortedEntities)
+      foreach (var state in sortedStates)
         yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
     private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates,
-      out List<EntityState> sortResult, out List<EntityState> unreferencedData,
-      out List<Triplet<EntityState, FieldInfo, Entity>> keysToRestore)
+      out List<EntityState> sortedStates, 
+      out List<EntityState> unreferencedStates,
+      out List<Triplet<EntityState, FieldInfo, Entity>> refsToRestore)
     {
       var domain = Session.Domain;
 
-      var sortData = new Dictionary<Key, Node<EntityState, AssociationInfo>>();
-      unreferencedData = new List<EntityState>();
-      foreach (var data in entityStates) {
-        if (data.Type.GetTargetAssociations().Count==0 && data.Type.GetOwnerAssociations().Count==0)
-          unreferencedData.Add(data);
+      var nodes = new Dictionary<Key, Node<EntityState, AssociationInfo>>();
+      unreferencedStates = new List<EntityState>();
+      foreach (var entityState in entityStates) {
+        if (entityState.Type.GetTargetAssociations().Count==0 && entityState.Type.GetOwnerAssociations().Count==0)
+          unreferencedStates.Add(entityState);
         else
-          sortData.Add(data.Key, new Node<EntityState, AssociationInfo>(data));
+          nodes.Add(entityState.Key, new Node<EntityState, AssociationInfo>(entityState));
       }
 
       // Add connections
-      foreach (var data in sortData) {
-        var processingEntityState = data.Value.Item;
-        foreach (var association in processingEntityState.Type.GetOwnerAssociations().Where(associationInfo => associationInfo.OwnerField.IsEntity)) {
-          Key foreignKey = processingEntityState.Entity.GetReferenceKey(association.OwnerField);
+      foreach (var pair in nodes) {
+        var key = pair.Key;
+        var node = pair.Value;
+        var entityState = node.Item;
+        var references =
+          from association in entityState.Type.GetOwnerAssociations()
+          where association.OwnerField.IsEntity
+          select association;
+
+        foreach (var association in references) {
+          var ownerField = association.OwnerField;
+          var targetKey = entityState.Entity.GetReferenceKey(ownerField);
           Node<EntityState, AssociationInfo> destination;
-          if (foreignKey!=null && sortData.TryGetValue(foreignKey, out destination))
-            if (foreignKey.Equals(data.Value.Item.Key) && processingEntityState.Entity.TypeInfo.Hierarchy.InheritanceSchema == InheritanceSchema.ClassTable) {
-              // Check if self-reference with inheritance.
-              if (association.OwnerField.ValueType!=processingEntityState.Entity.TypeInfo.Hierarchy.Root.UnderlyingType)
-                data.Value.AddConnection(destination, association);
-            }
-            else
-              data.Value.AddConnection(destination, association);
+          if (targetKey!=null && nodes.TryGetValue(targetKey, out destination)) {
+            var hierarchy = entityState.Entity.TypeInfo.Hierarchy;
+            // If there is self-referencing field of hierarchy root type (inportant!),
+            // we consider there is no dependency, since such insert sequence will pass
+            // without any modifications
+            if (targetKey.Equals(key))
+              if (hierarchy.InheritanceSchema!=InheritanceSchema.ClassTable || ownerField.ValueType==hierarchy.Root.UnderlyingType)                continue;            node.AddConnection(destination, association);
+          }
         }
       }
 
       // Sort
       List<NodeConnection<EntityState, AssociationInfo>> removedEdges;
-      sortResult = TopologicalSorter.Sort(sortData.Values, out removedEdges, true);
+      sortedStates = TopologicalSorter.Sort(nodes.Values, out removedEdges, true);
 
       // Remove loop links
-      keysToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
+      refsToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
       foreach (var edge in removedEdges) {
         AssociationInfo associationInfo = edge.ConnectionItem;
-        keysToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.OwnerField, edge.Destination.Item.Entity));
+        refsToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(edge.Source.Item, associationInfo.OwnerField, edge.Destination.Item.Entity));
         var entity = edge.Source.Item.Entity;
         entity.SystemBeforeTupleChange();
         entity.GetFieldAccessor(associationInfo.OwnerField)

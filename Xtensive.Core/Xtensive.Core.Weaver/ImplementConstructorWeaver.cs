@@ -7,17 +7,17 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using PostSharp.AspectInfrastructure;
-using PostSharp.AspectWeaver;
-using PostSharp.AspectWeaver.AspectWeavers;
-using PostSharp.AspectWeaver.Transformations;
-using PostSharp.CodeModel;
-using PostSharp.CodeWeaver;
-using PostSharp.Collections;
 using PostSharp.Extensibility;
+using PostSharp.Sdk.AspectInfrastructure;
+using PostSharp.Sdk.AspectWeaver;
+using PostSharp.Sdk.AspectWeaver.AspectWeavers;
+using PostSharp.Sdk.AspectWeaver.Transformations;
+using PostSharp.Sdk.CodeModel;
+using PostSharp.Sdk.CodeWeaver;
+using PostSharp.Sdk.Collections;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Reflection;
-using Xtensive.Licensing;
+using LicenseType = Xtensive.Licensing.LicenseType;
 
 namespace Xtensive.Core.Weaver
 {
@@ -30,7 +30,7 @@ namespace Xtensive.Core.Weaver
       base.Initialize();
 
       transformation = new ImplementConstructorTransformation(this);
-      ApplyEffectWaivers(transformation);
+      ApplyWaivedEffects(transformation);
       RequiresRuntimeInstance = false;
       RequiresRuntimeInstanceInitialization = false;
       RequiresRuntimeReflectionObject = false;
@@ -98,10 +98,9 @@ namespace Xtensive.Core.Weaver
       private const string ParameterNamePrefix = "arg";
       private readonly ITypeSignature[] argumentTypes;
 
-
-      public override void Implement(StructuralTransformationContext context)
+      public override void Implement(TransformationContext context)
       {
-        var typeDef = (TypeDefDeclaration)context.TargetElement;
+        var typeDef = (TypeDefDeclaration) context.TargetElement;
         var currentLicense = PlugIn.CurrentLicense;
         if (currentLicense != null && new []{LicenseType.Basic, LicenseType.Standard, LicenseType.Trial}.Contains(currentLicense.LicenseType)) {
           var severityType = currentLicense.LicenseType == LicenseType.Trial 
@@ -173,7 +172,7 @@ namespace Xtensive.Core.Weaver
         }
 
         var sequence = ctorDef.MethodBody.CreateInstructionSequence();
-        ctorDef.MethodBody.RootInstructionBlock.AddInstructionSequence(sequence, PostSharp.Collections.NodePosition.After, null);
+        ctorDef.MethodBody.RootInstructionBlock.AddInstructionSequence(sequence, NodePosition.After, null);
         using (var writer = new InstructionWriter()) {
           writer.AttachInstructionSequence(sequence);
           writer.EmitInstruction(OpCodeNumber.Ldarg_0);
