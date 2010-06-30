@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Model
     private bool                        isMaster = true;
     private OnRemoveAction?             onTargetRemove;
     private OnRemoveAction?             onOwnerRemove;
-    private SegmentTransform            foreignKeyExtractorTransform;
+    private SegmentTransform            foreignKeyExtractor;
 
     /// <summary>
     /// Gets the owner type.
@@ -176,9 +176,9 @@ namespace Xtensive.Storage.Model
     /// <param name="type">The type.</param>
     public Tuple ExtractForeignKey(TypeInfo type, Tuple tuple)
     {
-      // foreignKeyExtractorTransform can be null if OwnerType is interface
-      if (foreignKeyExtractorTransform != null)
-        return foreignKeyExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+      // foreignKeyExtractor can be null if OwnerType is interface
+      if (foreignKeyExtractor != null)
+        return foreignKeyExtractor.Apply(TupleTransformType.TransformedTuple, tuple);
 
       if (OwnerType.IsInterface) {
         var field = type.FieldMap[OwnerField];
@@ -199,7 +199,7 @@ namespace Xtensive.Storage.Model
         case Multiplicity.ManyToOne:
           UnderlyingIndex = OwnerType.Indexes.PrimaryIndex;
           if (!OwnerType.IsInterface)
-            foreignKeyExtractorTransform = OwnerField.valueExtractorTransform;
+            foreignKeyExtractor = OwnerField.valueExtractor;
           break;
         case Multiplicity.OneToMany:
           UnderlyingIndex = Reversed.OwnerType.Indexes.GetIndex(Reversed.OwnerField.Name);
@@ -213,7 +213,7 @@ namespace Xtensive.Storage.Model
 
           if (!OwnerType.IsInterface) {
             var foreignKeySegment = new Segment<int>(OwnerType.Columns.Count(c => c.IsPrimaryKey), TargetType.Columns.Count(c => c.IsPrimaryKey));
-            foreignKeyExtractorTransform = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
+            foreignKeyExtractor = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
           }
           break;
       }

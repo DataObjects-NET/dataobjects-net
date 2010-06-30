@@ -44,7 +44,7 @@ namespace Xtensive.Storage.Model
     private AssociationInfo               association;
     private Type                          itemType;
     private string                        originalName;
-    internal SegmentTransform             valueExtractorTransform;
+    internal SegmentTransform             valueExtractor;
     private int                           adapterIndex = -1;
     private ColumnInfoCollection          columns;
     private int                           fieldId;
@@ -486,7 +486,7 @@ namespace Xtensive.Storage.Model
     /// <returns><see cref="Tuple"/> instance with the extracted value.</returns>
     public Tuple ExtractValue (Tuple tuple)
     {
-      return valueExtractorTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+      return valueExtractor.Apply(TupleTransformType.TransformedTuple, tuple);
     }
 
     /// <summary>
@@ -560,7 +560,7 @@ namespace Xtensive.Storage.Model
             Fields.First().MappingInfo.Offset, Fields.Sum(f => f.IsPrimitive ? f.MappingInfo.Length : 0));
 
       if (IsEntity || IsStructure) {
-        valueExtractorTransform = new SegmentTransform(
+        valueExtractor = new SegmentTransform(
           false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
       }
     }
