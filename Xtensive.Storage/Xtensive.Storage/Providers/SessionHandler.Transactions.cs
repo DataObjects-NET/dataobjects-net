@@ -4,7 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.19
 
+using System;
 using System.Transactions;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Providers
 {
@@ -61,5 +63,14 @@ namespace Xtensive.Storage.Providers
       prefetchManager.Clear();
     }
 
+    /// <summary>
+    /// Ensures the transaction is opened.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Transaction is not opened.</exception>
+    protected void EnsureTransactionIsOpened()
+    {
+      if (Session.Transaction == null)
+        throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
+    }
   }
 }

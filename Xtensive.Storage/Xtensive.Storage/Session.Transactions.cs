@@ -115,7 +115,7 @@ namespace Xtensive.Storage
 
     internal void BeginTransaction(Transaction transaction)
     {
-      if (!Configuration.UsesAutoshortenedTransactions)
+      if (!Configuration.UsesAutoShortenedTransactions)
         StartTransaction(transaction);
     }
 
