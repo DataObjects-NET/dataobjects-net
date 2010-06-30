@@ -8,11 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core.Disposing;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Internals
 {
-  internal sealed class Pinner
+  internal sealed class Pinner : SessionBound
   {
     private readonly HashSet<EntityState> roots = new HashSet<EntityState>();
 
@@ -44,8 +45,8 @@ namespace Xtensive.Storage.Internals
       activeRegistry = registry;
       PinAll();
 
-      PinnedItems = new EntityChangeRegistry();
-      PersistableItems = new EntityChangeRegistry();
+      PinnedItems = new EntityChangeRegistry(Session);
+      PersistableItems = new EntityChangeRegistry(Session);
       
       ProcessRegistry(PersistenceState.New);
       ProcessRegistry(PersistenceState.Modified);
@@ -136,5 +137,18 @@ namespace Xtensive.Storage.Internals
     }
 
     #endregion
+
+    
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="session"><see cref="Xtensive.Storage.Session"/>, to which current instance 
+    /// is bound.</param>
+    public Pinner(Session session)
+      : base(session)
+    {
+    }
   }
 }
