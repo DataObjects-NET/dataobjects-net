@@ -231,7 +231,7 @@ namespace Xtensive.Storage
         if (subscriptionInfo.Second != null)
           ((Action<Key, FieldInfo, FieldInfo, object>) subscriptionInfo.Second)
             .Invoke(subscriptionInfo.First, Field, field, value);
-        OnSettingFieldValue(Field, value);
+        OnSettingFieldValue(field, value);
       }
       if (Owner == null)
         return;
@@ -256,7 +256,7 @@ namespace Xtensive.Storage
             .Invoke(subscriptionInfo.First, Field, field, oldValue, newValue);
 
         NotifyFieldChanged(field);
-        OnSetFieldValue(Field, oldValue, newValue);
+        OnSetFieldValue(field, oldValue, newValue);
       }
       if (Owner == null)
         return;
