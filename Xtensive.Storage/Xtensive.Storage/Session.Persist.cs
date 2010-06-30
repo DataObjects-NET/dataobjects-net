@@ -58,7 +58,7 @@ namespace Xtensive.Storage
       if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
 
-      bool performPinning = pinner.RootCount > 0;
+      bool performPinning = Pinner.RootCount > 0;
 
       if (performPinning)
         switch (reason) {
@@ -78,8 +78,8 @@ namespace Xtensive.Storage
 
           EntityChangeRegistry itemsToPersist;
           if (performPinning) {
-            pinner.Process(EntityChangeRegistry);
-            itemsToPersist = pinner.PersistableItems;
+            Pinner.Process(EntityChangeRegistry);
+            itemsToPersist = Pinner.PersistableItems;
           }
           else
             itemsToPersist = EntityChangeRegistry;
@@ -96,8 +96,8 @@ namespace Xtensive.Storage
               item.Update(null);
 
             if (performPinning) {
-              EntityChangeRegistry = pinner.PinnedItems;
-              pinner.Reset();
+              EntityChangeRegistry = Pinner.PinnedItems;
+              Pinner.Reset();
             }
             else
               EntityChangeRegistry.Clear();
@@ -131,7 +131,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var targetEntity = (Entity) target;
       targetEntity.EnsureNotRemoved();
-      return pinner.RegisterRoot(targetEntity.State);
+      return Pinner.RegisterRoot(targetEntity.State);
     }
   }
 }
