@@ -5,13 +5,14 @@
 // Created:    2008.10.30
 
 using System;
-using PostSharp.AspectInfrastructure;
-using PostSharp.AspectWeaver;
-using PostSharp.AspectWeaver.AspectWeavers;
-using PostSharp.AspectWeaver.Transformations;
-using PostSharp.CodeModel;
-using PostSharp.Collections;
 using PostSharp.Extensibility;
+using PostSharp.Reflection;
+using PostSharp.Sdk.AspectInfrastructure;
+using PostSharp.Sdk.AspectWeaver;
+using PostSharp.Sdk.AspectWeaver.AspectWeavers;
+using PostSharp.Sdk.AspectWeaver.Transformations;
+using PostSharp.Sdk.CodeModel;
+using PostSharp.Sdk.Collections;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core;
@@ -31,7 +32,7 @@ namespace Xtensive.Core.Weaver
     {
       base.Initialize();
       transformation = new NotSupportedTransformation(this);
-      ApplyEffectWaivers(transformation);
+      ApplyWaivedEffects(transformation);
       RequiresRuntimeInstance = false;
       RequiresRuntimeInstanceInitialization = false;
       RequiresRuntimeReflectionObject = false;
@@ -61,6 +62,7 @@ namespace Xtensive.Core.Weaver
   internal class NotSupportedTransformation : MethodBodyTransformation
   {
     const string DisplayName = "NotSupported.";
+
     public override string GetDisplayName(MethodSemantics semantic)
     {
       return DisplayName;
@@ -72,7 +74,7 @@ namespace Xtensive.Core.Weaver
     }
 
     public NotSupportedTransformation(AspectWeaver aspectWeaver)
-      : base(aspectWeaver, DisplayName)
+      : base(aspectWeaver)
     {}
 
     private class Instance : MethodBodyTransformationInstance
