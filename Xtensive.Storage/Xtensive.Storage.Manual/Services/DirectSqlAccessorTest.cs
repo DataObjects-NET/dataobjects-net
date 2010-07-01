@@ -54,7 +54,7 @@ namespace Xtensive.Storage.Manual.Services
           
           // Direct SQL command execution
           var command = session.Services.Demand<DirectSqlAccessor>().CreateCommand();
-          command.CommandText = "DELETE FROM [dbo].[Article];";
+          command.CommandText = "DELETE FROM [dbo].[DirectSqlAccessorTest.Article];";
           command.ExecuteNonQuery();
 
           // Let's invalidate session cache after this

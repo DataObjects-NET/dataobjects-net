@@ -12,17 +12,16 @@ namespace Xtensive.Storage.PairIntegrity
   internal struct SyncActionSet
   {
     public Func<AssociationInfo, IEntity, IEntity> GetValue { get; private set; }
-
-    public Action<AssociationInfo, IEntity, IEntity> Break { get; private set; }
-
-    public Action<AssociationInfo, IEntity, IEntity> Create { get; private set; }
+    public Action<AssociationInfo, IEntity, IEntity, SyncContext> Break { get; private set; }
+    public Action<AssociationInfo, IEntity, IEntity, SyncContext> Create { get; private set; }
 
 
     // Constructors
 
-    public SyncActionSet(Func<AssociationInfo, IEntity, IEntity> getValue, 
-      Action<AssociationInfo, IEntity, IEntity> @break,
-      Action<AssociationInfo, IEntity, IEntity> create)
+    public SyncActionSet(
+      Func<AssociationInfo, IEntity, IEntity> getValue,
+      Action<AssociationInfo, IEntity, IEntity, SyncContext> @break,
+      Action<AssociationInfo, IEntity, IEntity, SyncContext> create)
       : this()
     {
       GetValue = getValue;

@@ -5,7 +5,6 @@
 // Created:    2009.10.23
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage

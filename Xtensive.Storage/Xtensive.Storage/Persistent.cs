@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.PairIntegrity;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage;
@@ -355,6 +356,11 @@ namespace Xtensive.Storage
     [Transactional]
     protected internal void SetFieldValue(FieldInfo field, object value)
     {
+      SetFieldValue(field, value, null);
+    }
+
+    internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext)
+    {
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
       SystemSetValueAttempt(field, value);
@@ -395,9 +401,11 @@ namespace Xtensive.Storage
             if (newReference != null)
               newKey = newReference.Key;
             if (currentKey != newKey) {
-              Session.PairSyncManager.Enlist(OperationType.Set, (Entity) this, newReference, association);
-              SystemBeforeTupleChange();
-              fieldAccessor.SetUntypedValue(this, value);
+              Session.PairSyncManager.ProcessRecursively(
+                syncContext, OperationType.Set, association, (Entity) this, newReference, () => {
+                  SystemBeforeTupleChange();
+                  fieldAccessor.SetUntypedValue(this, value);
+                });
             }
           }
           else {

@@ -12,7 +12,7 @@ namespace Xtensive.Storage.PairIntegrity
   [Serializable]
   internal struct SyncAction
   {
-    public Action<AssociationInfo, IEntity, IEntity> Action { get; private set; }
+    public Action<AssociationInfo, IEntity, IEntity, SyncContext> Action { get; private set; }
 
     public AssociationInfo Association { get; private set; }
 
@@ -20,7 +20,7 @@ namespace Xtensive.Storage.PairIntegrity
 
     public IEntity Target { get; private set; }
 
-    public SyncAction(Action<AssociationInfo, IEntity, IEntity> action,
+    public SyncAction(Action<AssociationInfo, IEntity, IEntity, SyncContext> action,
       AssociationInfo association, IEntity owner, IEntity target)
       : this()
     {
