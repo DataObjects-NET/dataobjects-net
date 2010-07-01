@@ -5,11 +5,20 @@
 // Created:    2008.01.11
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage.Model
 {
+  /// <summary>
+  /// A collection of hierarchies.
+  /// </summary>
   [Serializable]
-  public class HierarchyInfoCollection : NodeCollection<HierarchyInfo>
+  public sealed class HierarchyInfoCollection : NodeCollection<HierarchyInfo>
   {
+    /// <inheritdoc/>
+    public HierarchyInfoCollection(Node owner, string name)
+      : base(owner, name)
+    {
+    }
   }
 }

@@ -11,7 +11,7 @@ using System.Linq;
 namespace Xtensive.Storage.Model
 {
   [Serializable]
-  public class AssociationInfoCollection : NodeCollection<AssociationInfo>
+  public sealed class AssociationInfoCollection : NodeCollection<AssociationInfo>
   {
     /// <summary>
     /// Finds the associations for the specified <see cref="TypeInfo"/>.
@@ -40,6 +40,15 @@ namespace Xtensive.Storage.Model
 
       var filter = target ? (Func<AssociationInfo, TypeInfo>) (a => a.TargetType) : (a => a.OwnerType);
       return this.Where(a => candidates.Contains(filter(a)));
+    }
+
+
+    // Constructors
+
+    /// <inheritdoc/>
+    public AssociationInfoCollection(Node owner, string name)
+      : base(owner, name)
+    {
     }
   }
 }

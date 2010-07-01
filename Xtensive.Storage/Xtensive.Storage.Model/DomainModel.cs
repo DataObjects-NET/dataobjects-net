@@ -77,10 +77,10 @@ namespace Xtensive.Storage.Model
     /// </summary>
     public DomainModel()
     {
-      Types = new TypeInfoCollection();
-      RealIndexes = new IndexInfoCollection();
-      Hierarchies = new HierarchyInfoCollection();
-      Associations = new AssociationInfoCollection();
+      Types = new TypeInfoCollection(this, "Types");
+      RealIndexes = new IndexInfoCollection(this, "RealIndexes");
+      Hierarchies = new HierarchyInfoCollection(this, "Hierarchies");
+      Associations = new AssociationInfoCollection(this, "Associations");
       FullTextIndexes = new FullTextIndexInfoCollection();
     }
   }

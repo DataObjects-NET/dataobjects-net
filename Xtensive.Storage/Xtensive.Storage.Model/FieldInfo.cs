@@ -492,14 +492,12 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets field columns.
     /// </summary>
-    public ColumnInfoCollection Columns
-    {
-      get
-      {
+    public ColumnInfoCollection Columns {
+      get {
         if (columns != null)
           return columns;
 
-        var result = new ColumnInfoCollection();
+        var result = new ColumnInfoCollection(this, "Columns");
         GetColumns(result);
         return result;
       }
@@ -524,7 +522,7 @@ namespace Xtensive.Storage.Model
       Fields.UpdateState(true);
       if (column!=null) 
         column.UpdateState(true);
-      columns = new ColumnInfoCollection();
+      columns = new ColumnInfoCollection(this, "Columns");
       GetColumns(columns);
 
       CreateMappingInfo();
@@ -669,7 +667,9 @@ namespace Xtensive.Storage.Model
       Attributes = attributes;
       this.declaringType = declaringType;
       this.reflectedType = reflectedType;
-      Fields = IsEntity || IsStructure ? new FieldInfoCollection() : FieldInfoCollection.Empty;
+      Fields = IsEntity || IsStructure 
+        ? new FieldInfoCollection(this, "Fields") 
+        : FieldInfoCollection.Empty;
     }
   }
 }

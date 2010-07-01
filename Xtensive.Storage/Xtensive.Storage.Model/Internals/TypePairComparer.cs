@@ -10,7 +10,7 @@ using Xtensive.Core.Comparison;
 
 namespace Xtensive.Storage.Model.Internals
 {
-  internal class TypePairComparer: AdvancedComparerBase<Pair<TypeInfo, TypeInfo>>
+  internal sealed class TypePairComparer: AdvancedComparerBase<Pair<TypeInfo, TypeInfo>>
   {
     private readonly Comparer<int> comparer = Comparer<int>.Default;
 

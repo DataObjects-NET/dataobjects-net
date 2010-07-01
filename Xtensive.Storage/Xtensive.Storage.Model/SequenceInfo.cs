@@ -14,7 +14,7 @@ namespace Xtensive.Storage.Model
   /// <summary>
   /// Provides information about sequence associated with <see cref="KeyInfo"/>.
   /// </summary>
-  public class SequenceInfo : MappingNode
+  public sealed class SequenceInfo : MappingNode
   {
     private long seed = 1;
     private long increment = 1;

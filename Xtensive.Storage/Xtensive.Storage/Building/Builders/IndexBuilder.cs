@@ -775,7 +775,7 @@ namespace Xtensive.Storage.Building.Builders
     private static IEnumerable<ColumnInfo> GatherValueColumns(IEnumerable<ColumnInfo> columns)
     {
       var nameBuilder = BuildingContext.Demand().NameBuilder;
-      var valueColumns = new ColumnInfoCollection();
+      var valueColumns = new ColumnInfoCollection(null, "ValueColumns");
       foreach (var column in columns)  {
         if (valueColumns.Contains(column.Name)) {
           if (column.IsSystem)
@@ -865,10 +865,13 @@ namespace Xtensive.Storage.Building.Builders
             foreach (var pair in indexInfo.KeyColumns) {
               if (indexInfo.IsPrimary)
                 continue;
-              if (pair.Key.Indexes.Count==0)
-                pair.Key.Indexes = new NodeCollection<IndexInfo> {indexInfo};
-              else if (!pair.Key.Indexes.Contains(indexInfo))
-                pair.Key.Indexes.Add(indexInfo);
+              var columnInfo = pair.Key;
+              if (columnInfo.Indexes.Count==0)
+                columnInfo.Indexes = new NodeCollection<IndexInfo>(columnInfo, "Indexes") {
+                  indexInfo
+                };
+              else if (!columnInfo.Indexes.Contains(indexInfo))
+                columnInfo.Indexes.Add(indexInfo);
             }
           }
         }
@@ -884,11 +887,15 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var indexInfo in typeInfo.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           var descendantIndex = descendant.Indexes.Where(i => i.DeclaringIndex==indexInfo.DeclaringIndex).FirstOrDefault();
           if (descendantIndex!=null)
-            foreach (var pair in descendantIndex.KeyColumns)
-              if (pair.Key.Indexes.Count==0)
-                pair.Key.Indexes = new NodeCollection<IndexInfo> {indexInfo};
+            foreach (var pair in descendantIndex.KeyColumns) {
+              var columnInfo = pair.Key;
+              if (columnInfo.Indexes.Count==0)
+                columnInfo.Indexes = new NodeCollection<IndexInfo>(columnInfo, "Indexes") {
+                  indexInfo
+                };
               else
-                pair.Key.Indexes.Add(indexInfo);
+                columnInfo.Indexes.Add(indexInfo);
+            }
         }
       }
     }
