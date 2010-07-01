@@ -22,6 +22,7 @@ using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
 using OperationType=Xtensive.Storage.PairIntegrity.OperationType;
@@ -389,6 +390,11 @@ namespace Xtensive.Storage
     [Transactional]
     internal bool Add(Entity item)
     {
+      return Add(item, null);
+    }
+
+    internal bool Add(Entity item, SyncContext syncContext)
+    {
       if (Contains(item))
         return false;
 
@@ -399,27 +405,33 @@ namespace Xtensive.Storage
 
           SystemBeforeAdd(item);
 
+          Action finalizer = () => {
+            if (Field.Association.AuxiliaryType!=null && Field.Association.IsMaster) {
+              var combinedTuple = auxilaryTypeKeyTransform.Apply(
+                TupleTransformType.Tuple,
+                Owner.Key.Value,
+                item.Key.Value);
+
+              var combinedKey = Key.Create(
+                Session.Domain,
+                Field.Association.AuxiliaryType,
+                TypeReferenceAccuracy.ExactType,
+                combinedTuple);
+
+              var underlyindEntityState = new EntityState(Session, combinedKey, combinedTuple) {
+                PersistenceState = PersistenceState.New
+              };
+            }
+
+            State.Add(item.Key);
+            Owner.UpdateVersionInfo(Owner, Field);
+          };
+          
           if (Field.Association.IsPaired)
-            Session.PairSyncManager.Enlist(OperationType.Add, Owner, item, Field.Association);
-          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
-            var combinedTuple = auxilaryTypeKeyTransform.Apply(
-             TupleTransformType.Tuple,
-             Owner.Key.Value,
-             item.Key.Value);
-
-            var combinedKey = Key.Create(
-              Session.Domain,
-              Field.Association.AuxiliaryType,
-              TypeReferenceAccuracy.ExactType,
-              combinedTuple);
-
-            var underlyindEntityState = new EntityState(Session, combinedKey, combinedTuple) {
-              PersistenceState = PersistenceState.New
-            };
-          }
-
-          State.Add(item.Key);
-          Owner.UpdateVersionInfo(Owner, Field);
+            Session.PairSyncManager.ProcessRecursively(
+              syncContext, OperationType.Add, Field.Association, Owner, item, finalizer);
+          else
+            finalizer.Invoke();
 
           SystemAdd(item);
           SystemAddCompleted(item, null);
@@ -436,6 +448,11 @@ namespace Xtensive.Storage
     [Transactional]
     internal bool Remove(Entity item)
     {
+      return Remove(item, null);
+    }
+
+    internal bool Remove(Entity item, SyncContext syncContext)
+    {
       if (!Contains(item))
         return false;
 
@@ -443,30 +460,38 @@ namespace Xtensive.Storage
         using (var context = OpenOperationContext()) {
           if (context.IsLoggingEnabled)
             context.LogOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, item.Key));
+
           SystemBeforeRemove(item);
 
+          Action finalizer = () => {
+            if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
+              var combinedTuple = auxilaryTypeKeyTransform.Apply(
+                TupleTransformType.Tuple,
+                Owner.Key.Value,
+                item.Key.Value);
+
+              var combinedKey = Key.Create(
+                Session.Domain,
+                Field.Association.AuxiliaryType,
+                TypeReferenceAccuracy.ExactType,
+                combinedTuple);
+
+              var underlyindEntityState = new EntityState(Session, combinedKey, null)
+              {
+                PersistenceState = PersistenceState.Removed
+              };
+            }
+
+            State.Remove(item.Key);
+            Owner.UpdateVersionInfo(Owner, Field);
+          };
+
           if (Field.Association.IsPaired)
-            Session.PairSyncManager.Enlist(OperationType.Remove, Owner, item, Field.Association);
+            Session.PairSyncManager.ProcessRecursively(
+              syncContext, OperationType.Remove, Field.Association, Owner, item, finalizer);
+          else
+            finalizer.Invoke();
 
-          if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
-            var combinedTuple = auxilaryTypeKeyTransform.Apply(
-              TupleTransformType.Tuple, 
-              Owner.Key.Value, 
-              item.Key.Value);
-
-            var combinedKey = Key.Create(
-              Session.Domain, 
-              Field.Association.AuxiliaryType, 
-              TypeReferenceAccuracy.ExactType, 
-              combinedTuple);
-
-            var underlyindEntityState = new EntityState(Session, combinedKey, null) {
-              PersistenceState = PersistenceState.Removed
-            };
-          }
-
-          State.Remove(item.Key);
-          Owner.UpdateVersionInfo(Owner, Field);
           SystemRemove(item);
           SystemRemoveCompleted(item, null);
           context.Complete();

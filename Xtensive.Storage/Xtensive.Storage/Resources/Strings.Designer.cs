@@ -1982,7 +1982,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [Persistent] attribute isn&apos;t applied on type &apos;{0}&apos;, or assembly &apos;{1}&apos; is not processed by PostSharp. See section 2 of Manual for details..
+        ///   Looks up a localized string similar to Assembly &apos;{1}&apos; is not processed by PostSharp. See section 2 of Manual for details..
         /// </summary>
         internal static string ExPersistentAttributeIsNotSetOnTypeXOrAssemblyYIsNotProcessedByPostSharp {
             get {
@@ -3791,6 +3791,15 @@ namespace Xtensive.Storage.Resources {
         internal static string LogSkippingSchemaSynchronization {
             get {
                 return ResourceManager.GetString("LogSkippingSchemaSynchronization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SyncContext must have no pending actions at this point..
+        /// </summary>
+        internal static string LogSyncContextMustHaveNoPendingActions {
+            get {
+                return ResourceManager.GetString("LogSyncContextMustHaveNoPendingActions", resourceCulture);
             }
         }
         

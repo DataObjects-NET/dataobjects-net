@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Tests.Storage
           Assert.IsNotNull(directSql.Transaction);
 
           var command = session.Services.Demand<DirectSqlAccessor>().CreateCommand();
-          command.CommandText = "DELETE FROM [dbo].[Article];";
+          command.CommandText = "DELETE FROM [dbo].[DirectSqlTest.Article];";
           command.ExecuteNonQuery();
 
           // Cache invalidation (~ like on rollback, but w/o rollback)

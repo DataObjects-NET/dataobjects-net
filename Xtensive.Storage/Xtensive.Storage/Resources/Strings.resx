@@ -1466,4 +1466,7 @@ Actions:
 	<data name="ExKeyMustHaveExactType">
 		<value xml:space="preserve">Key must have exact type here.</value>
 	</data>
+	<data name="LogSyncContextMustHaveNoPendingActions">
+		<value xml:space="preserve">SyncContext must have no pending actions at this point.</value>
+	</data>
 </root>

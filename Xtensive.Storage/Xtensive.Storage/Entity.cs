@@ -688,7 +688,8 @@ namespace Xtensive.Storage
           foreach (var referenceField in references) {
             var referenceValue = (Entity) GetFieldValue(referenceField);
             using (var silentContext = OpenOperationContext()) {
-              Session.PairSyncManager.Enlist(OperationType.Set, this, referenceValue, referenceField.Association);
+              Session.PairSyncManager.ProcessRecursively(
+                null, OperationType.Set, referenceField.Association, this, referenceValue, null);
               // No silentContext.Complete() - we must silently skip all these operations
             }
           }
