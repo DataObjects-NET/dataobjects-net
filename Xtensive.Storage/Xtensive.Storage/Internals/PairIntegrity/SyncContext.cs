@@ -4,47 +4,57 @@
 // Created by: Dmitri Maximov
 // Created:    2008.10.08
 
+using System;
 using System.Collections.Generic;
-using Xtensive.Core.Collections;
-using Xtensive.Storage.Model;
+using System.ComponentModel;
+using System.Diagnostics;
+using Xtensive.Core;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.PairIntegrity
 {
+  [DebuggerDisplay("SyncContext #{Identifier}")]
   internal class SyncContext
   {
-    private readonly List<SyncAction> actions = new List<SyncAction>(3);
-    private int actionIndex;
+    private static volatile int identifier;
+    public int Identifier = identifier++;
 
-    public bool Contains(Entity entity, AssociationInfo association)
-    {
-      return IndexOf(entity, association) >= 0;
-    }
+    private List<SyncAction> actions = new List<SyncAction>(3);
+    private Stack<Action> finalizers = new Stack<Action>(3);
+    private int currentActionIndex;
 
-    private int IndexOf(Entity entity, AssociationInfo association)
-    {
-      for (int i = 0; i < actions.Count; i++) {
-        SyncAction item = actions[i];
-        if (item.Owner == entity && item.Association == association)
-          return i;
-      }
-      return -1;
-    }
-
-    public bool HasNextAction()
-    {
-      return actionIndex < actions.Count && actions[actionIndex].Action!=null;
-    }
-
-    public void ExecuteNextAction()
-    {
-      int nextActionIndex = actionIndex++;
-      var nextAction = actions[nextActionIndex];
-      nextAction.Action(nextAction.Association, nextAction.Owner, nextAction.Target);
-    }
-
-    public void RegisterAction(SyncAction action)
+    public void Enqueue(SyncAction action)
     {
       actions.Add(action);
+    }
+
+    public void ProcessPendingActionsRecursively(Action finalizer)
+    {
+      finalizers.Push(finalizer);
+      if (HasPendingActions()) {
+        ExecuteNextPendingAction();
+        if (HasPendingActions())
+          // Must be empty because of recursion!
+          throw Exceptions.InternalError(Strings.LogSyncContextMustHaveNoPendingActions, Log.Instance);
+      }
+      else {
+        while (finalizers.Count > 0) {
+          var action = finalizers.Pop();
+          if (action!=null)
+            action.Invoke();
+        }
+      }
+    }
+
+    private bool HasPendingActions()
+    {
+      return currentActionIndex < actions.Count;
+    }
+
+    private void ExecuteNextPendingAction()
+    {
+      var action = actions[currentActionIndex++];
+      action.Action.Invoke(action.Association, action.Owner, action.Target, this);
     }
   }
 }

@@ -9,9 +9,7 @@ namespace Xtensive.Storage.PairIntegrity
   internal enum OperationType
   {
     Add = 0,
-
     Set = 1,
-
     Remove = 2,
   }
 }

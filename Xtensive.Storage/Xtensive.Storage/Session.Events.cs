@@ -150,7 +150,7 @@ namespace Xtensive.Storage
     /// <summary>
     /// Occurs when <see cref="EntitySetBase"/> item removed.
     /// </summary>
-    public event EventHandler<EntitySetItemEventArgs> EntitySetItemRemoved;
+    public event EventHandler<EntitySetItemEventArgs> EntitySetItemRemove;
 
     /// <summary>
     /// Occurs when <see cref="EntitySetBase"/> item removing is completed.
@@ -308,8 +308,8 @@ namespace Xtensive.Storage
 
     internal void NotifyEntitySetItemRemoved(Entity entity, EntitySetBase entitySet, Entity item)
     {
-      if (EntitySetItemRemoved != null)
-        EntitySetItemRemoved(this, new EntitySetItemEventArgs(entitySet, item));
+      if (EntitySetItemRemove != null)
+        EntitySetItemRemove(this, new EntitySetItemEventArgs(entitySet, item));
     }
 
     internal void NotifyEntitySetItemRemoveCompleted(EntitySetBase entitySet, Entity item, Exception exception)
