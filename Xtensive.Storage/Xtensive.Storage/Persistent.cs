@@ -12,17 +12,17 @@ using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.PairIntegrity;
-using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Services;
 using AggregateException = Xtensive.Core.AggregateException;
-using OperationType=Xtensive.Storage.PairIntegrity.OperationType;
+using OperationType = Xtensive.Storage.PairIntegrity.OperationType;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage
 {

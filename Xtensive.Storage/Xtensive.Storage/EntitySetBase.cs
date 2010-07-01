@@ -17,16 +17,16 @@ using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
-using Xtensive.Storage.PairIntegrity;
-using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Core.Tuples.Transform;
 using Xtensive.Storage;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
+using Xtensive.Storage.PairIntegrity;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
-using OperationType=Xtensive.Storage.PairIntegrity.OperationType;
+using OperationType = Xtensive.Storage.PairIntegrity.OperationType;
+using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage
 {
