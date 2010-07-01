@@ -36,5 +36,14 @@ namespace Xtensive.Storage.Model
           return new BufferedEnumerable<IndexInfo>(this.Where(f => (f.Attributes & criteria) == 0));
       }
     }
+
+
+    // Constructors
+
+    /// <inheritdoc/>
+    public IndexInfoCollection(Node owner, string name)
+      : base(owner, name)
+    {
+    }
   }
 }

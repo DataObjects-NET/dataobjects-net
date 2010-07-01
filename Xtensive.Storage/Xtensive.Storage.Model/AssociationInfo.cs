@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Model
   /// Describes single association.
   /// </summary>
   [Serializable]
-  public class AssociationInfo : Node
+  public sealed class AssociationInfo : Node
   {
     private Multiplicity                multiplicity;
     private AssociationInfo             reversed;

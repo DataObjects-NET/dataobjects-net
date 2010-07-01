@@ -7,9 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
+using Xtensive.Core;
 using Xtensive.Core.Collections;
-using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Notifications;
 using Xtensive.Storage.Model.Resources;
@@ -33,6 +32,27 @@ namespace Xtensive.Storage.Model
     public readonly static NodeCollection<TNode> Empty;
 
     /// <summary>
+    /// Gets the owner.
+    /// </summary>
+    public Node Owner { get; private set; }
+
+    /// <summary>
+    /// Gets the name of this collection.
+    /// </summary>
+    public string Name { get; private set; }
+
+    /// <summary>
+    /// Gets the full name.
+    /// </summary>
+    public string FullName {
+      get {
+        return Owner==null 
+          ? Name
+          : Strings.NodeCollectionFullNameFormat.FormatWith(Owner.Name, Name);
+      }
+    }
+
+    /// <summary>
     /// Adds new element to the collection.
     /// </summary>
     /// <param name="item">Item to add.</param>
@@ -45,11 +65,11 @@ namespace Xtensive.Storage.Model
       }
       catch (ArgumentException e){
         throw new InvalidOperationException(
-          string.Format(Strings.ItemWithNameXAlreadyExists, item.Name), e);
+          string.Format(Strings.ExItemWithNameXAlreadyExistsInY, item.Name, FullName), e);
       }
       catch (InvalidOperationException e) {
         throw new InvalidOperationException(
-          string.Format(Strings.ItemWithNameXAlreadyExists, item.Name), e);
+          string.Format(Strings.ExItemWithNameXAlreadyExistsInY, item.Name, FullName), e);
       }
     }
 
@@ -154,15 +174,20 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public NodeCollection()
+    /// <param name="owner">The owner.</param>
+    /// <param name="name">The name.</param>
+    public NodeCollection(Node owner, string name)
     {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      Owner = owner;
+      Name = name;
     }
 
     // Type initializer
     
     static NodeCollection()
     {
-      Empty = new NodeCollection<TNode>();
+      Empty = new NodeCollection<TNode>(null, "Empty");
     }
   }
 }

@@ -630,7 +630,7 @@ namespace Xtensive.Storage.Model
     private void CreateTupleDescriptor()
     {
       var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
-      columns = new ColumnInfoCollection();
+      columns = new ColumnInfoCollection(this, "Columns");
       columns.AddRange(orderedColumns);
       TupleDescriptor = TupleDescriptor.Create(
         from c in Columns select c.ValueType);
@@ -735,11 +735,11 @@ namespace Xtensive.Storage.Model
     {
       this.model = model;
       attributes = typeAttributes;
-      columns = new ColumnInfoCollection();
-      fields = new FieldInfoCollection();
+      columns = new ColumnInfoCollection(this, "Columns");
+      fields = new FieldInfoCollection(this, "Fields");
       fieldMap = IsEntity ? new FieldMap() : FieldMap.Empty;
-      indexes = new TypeIndexInfoCollection();
-      affectedIndexes = new NodeCollection<IndexInfo>();
+      indexes = new TypeIndexInfoCollection(this, "Indexes");
+      affectedIndexes = new NodeCollection<IndexInfo>(this, "AffectedIndexes");
     }
   }
 }

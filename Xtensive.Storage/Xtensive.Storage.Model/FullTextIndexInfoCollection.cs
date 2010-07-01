@@ -7,14 +7,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core.Helpers;
 
 namespace Xtensive.Storage.Model
 {
   [Serializable]
-  public class FullTextIndexInfoCollection : LockableBase,
+  public sealed class FullTextIndexInfoCollection : LockableBase,
     IEnumerable<FullTextIndexInfo>
   {
     private readonly HashSet<FullTextIndexInfo> container = new HashSet<FullTextIndexInfo>();
@@ -23,10 +22,9 @@ namespace Xtensive.Storage.Model
     /// <summary>
     /// Gets the <see cref="Xtensive.Storage.Model.FullTextIndexInfo"/> by the specified type.
     /// </summary>
-    public FullTextIndexInfo this[TypeInfo type]
-    {
-      get
-      {
+    /// <exception cref="KeyNotFoundException">Index is not found.</exception>
+    public FullTextIndexInfo this[TypeInfo type] {
+      get {
         FullTextIndexInfo fulltextIndex;
         if (!TryGetValue(type, out fulltextIndex))
           throw new KeyNotFoundException();
@@ -58,6 +56,7 @@ namespace Xtensive.Storage.Model
       indexMap.Add(typeInfo, fullTextIndexInfo);
     }
 
+    #region IEnumerable<...> members
 
     /// <inheritdoc/>
     public IEnumerator<FullTextIndexInfo> GetEnumerator()
@@ -70,5 +69,7 @@ namespace Xtensive.Storage.Model
     {
       return GetEnumerator();
     }
+
+    #endregion
   }
 }

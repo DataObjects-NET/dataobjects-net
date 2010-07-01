@@ -25,8 +25,8 @@ namespace Xtensive.Storage.Model
     private IndexAttributes attributes;
     private ColumnGroup columnGroup;
     private DirectionCollection<ColumnInfo> keyColumns = new DirectionCollection<ColumnInfo>();
-    private ColumnInfoCollection valueColumns = new ColumnInfoCollection();
-    private ColumnInfoCollection includedColumns = new ColumnInfoCollection();
+    private ColumnInfoCollection valueColumns;
+    private ColumnInfoCollection includedColumns;
     private readonly CollectionBaseSlim<IndexInfo> underlyingIndexes = new CollectionBaseSlim<IndexInfo>();
     private readonly TypeInfo declaringType;
     private readonly TypeInfo reflectedType;
@@ -342,12 +342,19 @@ namespace Xtensive.Storage.Model
 
     // Constructors
 
+    private IndexInfo()
+    {
+      includedColumns = new ColumnInfoCollection(this, "IncludedColumns");
+      valueColumns = new ColumnInfoCollection(this, "ValueColumns");
+    }
+
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="declaringType">The <see cref="TypeInfo"/> that declares this instance.</param>
     /// <param name="indexAttributes"><see cref="IndexAttributes"/> attributes for this instance.</param>
     public IndexInfo(TypeInfo declaringType, IndexAttributes indexAttributes)
+      : this()
     {
       this.declaringType = declaringType;
       attributes = indexAttributes;
@@ -362,6 +369,7 @@ namespace Xtensive.Storage.Model
     /// <param name="ancestorIndex">The ancestors index.</param>
     /// <param name="indexAttributes"><see cref="IndexAttributes"/> attributes for this instance.</param>
     public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo ancestorIndex)
+      : this()
     {
       declaringType = ancestorIndex.DeclaringType;
       this.reflectedType = reflectedType;
@@ -379,6 +387,7 @@ namespace Xtensive.Storage.Model
     /// <param name="baseIndex">Base index.</param>
     /// <param name="baseIndexes">The base indexes.</param>
     public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo baseIndex, params IndexInfo[] baseIndexes)
+      : this()
     {
       declaringType = baseIndex.DeclaringType;
       this.reflectedType = reflectedType;

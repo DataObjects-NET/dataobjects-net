@@ -13,10 +13,10 @@ namespace Xtensive.Storage.Model
   /// Describes a full-text index in terms of storage.
   /// </summary>
   [Serializable]
-  public class FullTextIndexInfo : Node 
+  public sealed class FullTextIndexInfo : Node 
   {
     private readonly IndexInfo primaryIndex;
-    private readonly FullTextColumnInfoCollection columns = new FullTextColumnInfoCollection();
+    private readonly FullTextColumnInfoCollection columns;
 
     /// <summary>
     /// Gets the primary index.
@@ -52,7 +52,8 @@ namespace Xtensive.Storage.Model
     public FullTextIndexInfo(IndexInfo primaryIndex, string name)
       : base(name)
     {
-      this.primaryIndex=primaryIndex;
+      this.primaryIndex = primaryIndex;
+      columns = new FullTextColumnInfoCollection(this, "Columns");
     }
   }
 }

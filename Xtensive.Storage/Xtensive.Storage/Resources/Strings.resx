@@ -282,8 +282,8 @@
   <data name="ExReferencedFieldXAndPairedFieldAreEqual" xml:space="preserve">
     <value>Referenced field '{0}' and paired field are equal.</value>
   </data>
-  <data name="ExPairedFieldXWasNotFoundInYType" xml:space="preserve">
-    <value>Paired field '{0}' was not found in '{1}' type.</value>
+  <data name="ExPairedFieldXYWasNotFoundInZType" xml:space="preserve">
+    <value>Paired field '{0}.{1}' was not found in '{2}' type.</value>
   </data>
   <data name="ExAssociationAttributeCanNotBeAppliedToXField" xml:space="preserve">
     <value>'AssociationAttribute' can't be applied to '{0}' field.</value>

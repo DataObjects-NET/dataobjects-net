@@ -51,12 +51,19 @@ namespace Xtensive.Storage.Model
     }
 
 
-
     // Constructors
+
+    /// <inheritdoc/>
+    public FieldInfoCollection(Node owner, string name)
+      : base(owner, name)
+    {
+    }
+
+    // Type initializer
 
     static FieldInfoCollection()
     {
-      Empty = new FieldInfoCollection();
+      Empty = new FieldInfoCollection(null, "Empty");
     }
   }
 }

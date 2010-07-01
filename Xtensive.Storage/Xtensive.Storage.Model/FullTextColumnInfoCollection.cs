@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Storage.Model
 {
   [Serializable]
-  public class FullTextColumnInfoCollection : NodeCollection<FullTextColumnInfo>
+  public sealed class FullTextColumnInfoCollection : NodeCollection<FullTextColumnInfo>
   {
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException"></exception>
@@ -24,6 +24,15 @@ namespace Xtensive.Storage.Model
     public override void RemoveAt(int index)
     {
       throw new NotSupportedException();
+    }
+
+
+    // Constructors
+
+    /// <inheritdoc/>
+    public FullTextColumnInfoCollection(Node owner, string name)
+      : base(owner, name)
+    {
     }
   }
 }
