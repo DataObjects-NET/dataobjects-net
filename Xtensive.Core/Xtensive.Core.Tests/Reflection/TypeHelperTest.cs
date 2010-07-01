@@ -344,6 +344,18 @@ namespace Xtensive.Core.Tests.Reflection
       fName = t.FullName;
       wsName = TypeHelper.AddSuffix(fName, "#");
       AssertEx.IsPatternMatch(wsName, t.Namespace + ".A#`2[[*]]");
+
+      t = typeof (A<int, string>.B<bool>);
+      fName = t.GetFullName();
+      Assert.AreEqual(t.Namespace + ".A<System.Int32,System.String>+B<System.Boolean>", fName);
+      sName = t.GetShortName();
+      Assert.AreEqual("A<Int32,String>+B<Boolean>", sName);
+
+      t = t.GetGenericTypeDefinition().GetGenericArguments()[2];
+      fName = t.GetFullName();
+      Assert.AreEqual("T3", fName);
+      sName = t.GetShortName();
+      Assert.AreEqual("T3", sName);
     }
 
     [Test]

@@ -11,7 +11,7 @@ namespace Xtensive.Storage
   /// Any references to such entities are replaced to  <see cref="NullEntity"/> property value
   /// during reference cleanup process.
   /// </summary>
-  public interface IHasNullEntity : IEntity
+  public interface IHasNullEntity
   {
     /// <summary>
     /// Gets the special "null entity".
