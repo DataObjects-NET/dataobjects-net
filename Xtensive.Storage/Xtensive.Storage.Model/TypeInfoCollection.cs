@@ -478,5 +478,14 @@ namespace Xtensive.Storage.Model
       }
       implementors.Add(implementor);
     }
+
+    
+    // Constructors
+    
+    /// <inheritdoc/>
+    public TypeInfoCollection(Node owner, string name)
+      : base(owner, name)
+    {
+    }
   }
 }

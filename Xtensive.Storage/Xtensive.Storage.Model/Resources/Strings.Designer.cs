@@ -115,6 +115,15 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Item with name &apos;{0}&apos; already exists in &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExItemWithNameXAlreadyExistsInY {
+            get {
+                return ResourceManager.GetString("ExItemWithNameXAlreadyExistsInY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Key contains multiple fields with IsTypeId==true flag..
         /// </summary>
         internal static string ExKeyContainsMultipleFieldsWithIsTypeIdTrueFlag {
@@ -160,11 +169,11 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Item with name &apos;{0}&apos; already exists..
+        ///   Looks up a localized string similar to {0}.{1}.
         /// </summary>
-        internal static string ItemWithNameXAlreadyExists {
+        internal static string NodeCollectionFullNameFormat {
             get {
-                return ResourceManager.GetString("ItemWithNameXAlreadyExists", resourceCulture);
+                return ResourceManager.GetString("NodeCollectionFullNameFormat", resourceCulture);
             }
         }
         

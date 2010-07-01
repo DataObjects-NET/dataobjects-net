@@ -1946,11 +1946,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Paired field &apos;{0}&apos; was not found in &apos;{1}&apos; type..
+        ///   Looks up a localized string similar to Paired field &apos;{0}.{1}&apos; was not found in &apos;{2}&apos; type..
         /// </summary>
-        internal static string ExPairedFieldXWasNotFoundInYType {
+        internal static string ExPairedFieldXYWasNotFoundInZType {
             get {
-                return ResourceManager.GetString("ExPairedFieldXWasNotFoundInYType", resourceCulture);
+                return ResourceManager.GetString("ExPairedFieldXYWasNotFoundInZType", resourceCulture);
             }
         }
         

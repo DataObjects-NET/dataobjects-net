@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Building.Definitions
     /// </summary>
     internal DomainModelDef()
     {
-      types = new TypeDefCollection();
+      types = new TypeDefCollection(this, "Types");
       hierarchies = new HierarchyDefCollection();
       fullTextIndexes = new FullTextIndexDefCollection();
 

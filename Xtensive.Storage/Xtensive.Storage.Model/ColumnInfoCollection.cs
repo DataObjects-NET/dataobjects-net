@@ -45,5 +45,14 @@ namespace Xtensive.Storage.Model
     }
 
     #endregion
+
+    
+    // Constructors
+    
+    /// <inheritdoc/>
+    public ColumnInfoCollection(Node owner, string name)
+      : base(owner, name)
+    {
+    }
   }
 }

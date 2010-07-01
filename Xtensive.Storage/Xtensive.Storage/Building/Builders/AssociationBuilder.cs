@@ -48,7 +48,8 @@ namespace Xtensive.Storage.Building.Builders
       FieldInfo masterField;
       if (!slave.TargetType.Fields.TryGetValue(masterFieldName, out masterField))
         throw new DomainBuilderException(
-          string.Format(Strings.ExPairedFieldXWasNotFoundInYType, masterFieldName, slave.TargetType.Name));
+          string.Format(Strings.ExPairedFieldXYWasNotFoundInZType, 
+            slave.OwnerType.Name, masterFieldName, slave.TargetType.Name));
 
       if (masterField.IsPrimitive || masterField.IsStructure)
         throw new DomainBuilderException(

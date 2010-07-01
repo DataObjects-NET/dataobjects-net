@@ -144,10 +144,8 @@ namespace Xtensive.Storage.Building.Definitions
 
     // Constructors
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TypeDefCollection"/> class.
-    /// </summary>
-    internal TypeDefCollection()
+    internal TypeDefCollection(Node owner, string name)
+      : base(owner, name)
     {
       typeIndex = new Dictionary<Type, TypeDef>();
     }

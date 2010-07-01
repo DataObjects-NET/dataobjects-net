@@ -219,9 +219,11 @@ namespace Xtensive.Storage.Building.Definitions
           : TypeAttributes.Entity;
       if (type.IsGenericTypeDefinition)
         Attributes = Attributes | TypeAttributes.GenericTypeDefinition;
-      fields = new NodeCollection<FieldDef>();
-      indexes = new NodeCollection<IndexDef>();
-      implementors = IsInterface ? new NodeCollection<TypeDef>() : NodeCollection<TypeDef>.Empty;
+      fields = new NodeCollection<FieldDef>(this, "Fields");
+      indexes = new NodeCollection<IndexDef>(this, "Indexes");
+      implementors = IsInterface 
+        ? new NodeCollection<TypeDef>(this, "Implementors") 
+        : NodeCollection<TypeDef>.Empty;
     }
   }
 }

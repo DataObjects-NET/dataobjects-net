@@ -11,7 +11,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage.Model
 {
   [Serializable]
-  public class FullTextColumnInfo : Node
+  public sealed class FullTextColumnInfo : Node
   {
     public ColumnInfo Column { get; private set; }
     public string Configuration { get; set; }

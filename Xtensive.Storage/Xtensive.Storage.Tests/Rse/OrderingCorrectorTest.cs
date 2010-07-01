@@ -38,7 +38,7 @@ namespace Xtensive.Storage.Tests.Rse
       if (!IsEnabled)
         return;
       foreach (var type in model.Types) {
-        var indexCache = new NodeCollection<IndexDef>();
+        var indexCache = new NodeCollection<IndexDef>(null, "IndexCache");
         indexCache.AddRange(from index in type.Indexes where index.IsPrimary select index);
         type.Indexes.Clear();
         type.Indexes.AddRange(indexCache);
