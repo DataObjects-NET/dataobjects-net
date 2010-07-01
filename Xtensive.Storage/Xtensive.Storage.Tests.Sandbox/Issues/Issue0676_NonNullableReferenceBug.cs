@@ -30,9 +30,6 @@ namespace Xtensive.Storage.Tests.Issues.Issue0676.Model
     [Field(Nullable = false)]
     public Animal MateDenyRemove { get; set; }
 
-    /// <summary>
-    /// Gets or sets Name.
-    /// </summary>
     [Field]
     public string Name { get; set; }
 
@@ -107,9 +104,6 @@ namespace Xtensive.Storage.Tests.Issues.Issue0676.Model
     [Association(OnTargetRemove = OnRemoveAction.Clear)]
     public Person Mate { get; set; }
 
-    /// <summary>
-    /// Gets or sets Name.
-    /// </summary>
     [Field]
     public string Name { get; set; }
 
