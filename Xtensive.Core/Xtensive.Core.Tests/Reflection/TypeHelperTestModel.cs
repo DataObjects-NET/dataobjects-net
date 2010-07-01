@@ -15,6 +15,10 @@ namespace Xtensive.Core.Tests.Reflection
 
   public class A<T1, T2>
   {
+    public class B<T3>
+    {
+    }
+
     public T1 F1;
     public T2 F2;
 

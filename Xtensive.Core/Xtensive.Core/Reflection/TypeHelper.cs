@@ -639,7 +639,26 @@ namespace Xtensive.Core.Reflection
     {
       if (type==null)
         return null;
-      string result = type.Namespace + "." + type.Name;
+      if (type.IsGenericParameter)
+        return type.Name;
+      var declaringType = type.DeclaringType;
+      if (declaringType!=null) {
+        if (declaringType.IsGenericTypeDefinition)
+          declaringType =
+            declaringType.MakeGenericType(
+              type.GetGenericArguments()
+                .Take(declaringType.GetGenericArguments().Length)
+                .ToArray());
+        return "{0}+{1}".FormatWith(declaringType.GetFullName(), type.GetFullNameBase());
+      }
+      return type.GetFullNameBase();
+    }
+
+    private static string GetFullNameBase(this Type type)
+    {
+      string result = type.DeclaringType!=null // Is nested
+        ? type.Name
+        : type.Namespace + "." + type.Name;
       int arrayBracketPosition = result.IndexOf('[');
       if (arrayBracketPosition > 0)
         result = result.Substring(0, arrayBracketPosition);
@@ -647,6 +666,10 @@ namespace Xtensive.Core.Reflection
       if (arguments==null)
         arguments = ArrayUtils<Type>.EmptyArray;
       if (arguments.Length > 0) {
+        if (type.DeclaringType!=null)
+          arguments = arguments
+            .Skip(type.DeclaringType.GetGenericArguments().Length)
+            .ToArray();
         var sb = new StringBuilder();
         sb.Append(TrimGenericSuffix(result));
         sb.Append("<");
@@ -654,7 +677,7 @@ namespace Xtensive.Core.Reflection
         foreach (Type argument in arguments) {
           sb.Append(comma);
           if (!type.IsGenericTypeDefinition)
-            sb.Append(GetFullName(argument));
+            sb.Append(GetFullNameBase(argument));
           comma = ",";
         }
         sb.Append(">");
@@ -685,6 +708,23 @@ namespace Xtensive.Core.Reflection
     {
       if (type==null)
         return null;
+      if (type.IsGenericParameter)
+        return type.Name;
+      var declaringType = type.DeclaringType;
+      if (declaringType!=null) {
+        if (declaringType.IsGenericTypeDefinition)
+          declaringType =
+            declaringType.MakeGenericType(
+              type.GetGenericArguments()
+                .Take(declaringType.GetGenericArguments().Length)
+                .ToArray());
+        return "{0}+{1}".FormatWith(declaringType.GetShortName(), type.GetShortNameBase());
+      }
+      return type.GetShortNameBase();
+    }
+
+    private static string GetShortNameBase(this Type type)
+    {
       string result = type.Name;
       int arrayBracketPosition = result.IndexOf('[');
       if (arrayBracketPosition > 0)
@@ -693,6 +733,10 @@ namespace Xtensive.Core.Reflection
       if (arguments==null)
         arguments = ArrayUtils<Type>.EmptyArray;
       if (arguments.Length > 0) {
+        if (type.DeclaringType!=null)
+          arguments = arguments
+            .Skip(type.DeclaringType.GetGenericArguments().Length)
+            .ToArray();
         var sb = new StringBuilder();
         sb.Append(TrimGenericSuffix(result));
         sb.Append("<");
@@ -700,7 +744,7 @@ namespace Xtensive.Core.Reflection
         foreach (Type argument in arguments) {
           sb.Append(comma);
           if (!type.IsGenericTypeDefinition)
-            sb.Append(GetShortName(argument));
+            sb.Append(GetShortNameBase(argument));
           comma = ",";
         }
         sb.Append(">");

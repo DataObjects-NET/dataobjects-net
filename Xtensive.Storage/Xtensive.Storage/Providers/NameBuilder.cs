@@ -414,7 +414,7 @@ namespace Xtensive.Storage.Providers
     public virtual string ApplyNamingRules(string name)
     {
       string result = name;
-      result = result.Replace('+', '_');
+      result = result.Replace('+', '.');
 
       if (NamingConvention.LetterCasePolicy==LetterCasePolicy.Uppercase)
         result = result.ToUpperInvariant();
