@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Model.Stored
 
     /// <summary>
     /// If is not <see langword="null"/> declares this instance as hierarchy root
-    /// and value of this property speicifes <see cref="InheritanceSchema"/>.
+    /// and value of this property specifies <see cref="InheritanceSchema"/>.
     /// </summary>
     public string HierarchyRoot;
 
@@ -91,13 +91,11 @@ namespace Xtensive.Storage.Model.Stored
     /// Gets the name of the generic definition type.
     /// </summary>
     [XmlIgnore]
-    public string GenericDefinitionTypeName
-    {
-      get
-      {
+    public string GenericTypeDefinitionName {
+      get {
         if (UnderlyingType == null)
           return null;
-        var indexOfGenericSection = UnderlyingType.IndexOf("<");
+        var indexOfGenericSection = UnderlyingType.LastIndexOf("<");
         if (indexOfGenericSection < 0)
           return UnderlyingType;
         var name = UnderlyingType.Substring(0, indexOfGenericSection);
@@ -109,16 +107,16 @@ namespace Xtensive.Storage.Model.Stored
     /// Gets the name of the generic argument type.
     /// </summary>
     [XmlIgnore]
-    public string GenericArgumentTypeName
+    public string[] GenericArgumentNames
     {
       get
       {
         if (UnderlyingType == null)
           return null;
-        var indexOfGenericSection = UnderlyingType.IndexOf("<");
+        var indexOfGenericSection = UnderlyingType.LastIndexOf("<");
         var arguments = UnderlyingType.Substring(indexOfGenericSection);
         arguments = arguments.Substring(1, arguments.Length - 2);
-        return arguments;
+        return arguments.Split(',');
       }
     }
 

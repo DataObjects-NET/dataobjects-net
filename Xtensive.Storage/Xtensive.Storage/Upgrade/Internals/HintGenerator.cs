@@ -10,7 +10,6 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Reflection;
-using Xtensive.Core.Sorting;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Model.Stored;
@@ -54,13 +53,16 @@ namespace Xtensive.Storage.Upgrade
       
       var removeTypeHints = proccessedHints.OfType<RemoveTypeHint>().ToArray();
       ValidateRemoveTypeHints(removeTypeHints);
+
       proccessedHints.AddRange(UpdateRemoveTypeHints(removeTypeHints));
 
       var moveFieldHints = proccessedHints.OfType<MoveFieldHint>().ToArray();
+
       proccessedHints.AddRange(TransalateMoveFieldHints(moveFieldHints));
       proccessedHints.AddRange(GenerateTypeIdRemovalHints());
       
       var removeFieldHints = proccessedHints.OfType<RemoveFieldHint>().ToArray();
+
       ValidateRemoveFieldHints(removeFieldHints);
       UpdateRemoveFieldHints(removeFieldHints);
 
@@ -68,9 +70,10 @@ namespace Xtensive.Storage.Upgrade
       GenerateRenameColumnHints();
 
       var fieldCopyHints = proccessedHints.OfType<CopyFieldHint>().ToArray();
+      
       ValidateCopyFieldHints(fieldCopyHints);
       GenerateCopyColumnHints(fieldCopyHints);
-
+      
       GenerateClearDataHints();
 
       return new HintGenerationResult(proccessedHints, schemaHints);
@@ -554,7 +557,6 @@ namespace Xtensive.Storage.Upgrade
       return result;
     }
 
-
     private IEnumerable<UpgradeHint> GenerateTypeIdRemovalHints()
     {
       var result = new List<UpgradeHint>();
@@ -866,31 +868,24 @@ namespace Xtensive.Storage.Upgrade
         : (newTypes.TryGetValue(oldTypeName, out newType) ? newType : null);
     }
 
-    private static Dictionary<string, List<string>> GetGenericTypes(StoredDomainModel model)
+    private static Dictionary<string, string[]> GetGenericTypes(StoredDomainModel model)
     {
-      var genericTypes = new Dictionary<string, List<string>>();
+      var genericTypes = new Dictionary<string, string[]>();
       foreach (var typeInfo in model.Types.Where(type => type.IsGeneric)) {
-        List<string> argumentTypes;
-        if (!genericTypes.TryGetValue(typeInfo.GenericDefinitionTypeName, out argumentTypes)) {
-          argumentTypes = new List<string>();
-          genericTypes.Add(typeInfo.GenericDefinitionTypeName, argumentTypes);
-        }
-        argumentTypes.Add(typeInfo.GenericArgumentTypeName);
+        var typeDefinitionName = typeInfo.GenericTypeDefinitionName;
+        if (!genericTypes.ContainsKey(typeDefinitionName))
+          genericTypes.Add(typeDefinitionName, typeInfo.GenericArgumentNames);
       }
       return genericTypes;
     }
 
-    private static Dictionary<Type, List<Type>> GetGenericTypes(DomainModel model)
+    private static Dictionary<Type, Type[]> GetGenericTypes(DomainModel model)
     {
-      var genericTypes = new Dictionary<Type, List<Type>>();
+      var genericTypes = new Dictionary<Type, Type[]>();
       foreach (var typeInfo in model.Types.Where(type => type.UnderlyingType.IsGenericType)) {
-        var generifDefType = typeInfo.UnderlyingType.GetGenericTypeDefinition();
-        List<Type> argumentTypes;
-        if (!genericTypes.TryGetValue(generifDefType, out argumentTypes)) {
-          argumentTypes = new List<Type>();
-          genericTypes.Add(generifDefType, argumentTypes);
-        }
-        argumentTypes.Add(typeInfo.UnderlyingType.GetGenericArguments()[0]);
+        var typeDefinition = typeInfo.UnderlyingType.GetGenericTypeDefinition();
+        if (!genericTypes.ContainsKey(typeDefinition))
+          genericTypes.Add(typeDefinition, typeInfo.UnderlyingType.GetGenericArguments());
       }
       return genericTypes;
     }
