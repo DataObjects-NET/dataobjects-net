@@ -545,7 +545,7 @@ namespace Xtensive.Modelling
           for (int i = minIndex; i <= maxIndex; i++)
             collection[i].PerformShift(shift);
         else
-          for (int i = maxIndex; i >= maxIndex; i--)
+          for (int i = maxIndex; i >= minIndex; i--)
             collection[i].PerformShift(shift);
         collection.Move(this, newIndex);
         name = newName;
