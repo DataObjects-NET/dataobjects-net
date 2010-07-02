@@ -12,8 +12,34 @@ namespace Xtensive.Storage.Upgrade
   /// Abstract base class for any upgrade hint.
   /// </summary>
   [Serializable]
-  public abstract class UpgradeHint
+  public abstract class UpgradeHint :
+    IEquatable<UpgradeHint>
   {
+    /// <inheritdoc/>
+    public virtual bool Equals(UpgradeHint other)
+    {
+      return ReferenceEquals(this, other);
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      if (ReferenceEquals(this, obj))
+        return true;
+      if (obj.GetType()!=typeof (UpgradeHint))
+        return false;
+      return Equals((UpgradeHint) obj);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      return base.GetHashCode();
+    }
+
+
     // Constructors
 
     internal UpgradeHint()

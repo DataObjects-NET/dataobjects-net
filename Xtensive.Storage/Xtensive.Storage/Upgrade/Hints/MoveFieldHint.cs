@@ -16,7 +16,8 @@ namespace Xtensive.Storage.Upgrade
   /// Move field hint.
   /// </summary>
   [Serializable]
-  public class MoveFieldHint : UpgradeHint
+  public class MoveFieldHint : UpgradeHint,
+    IEquatable<MoveFieldHint>
   {
     private const string ToStringFormat = "Move field: {0}.{1} -> {2}.{3}";
 
@@ -38,11 +39,45 @@ namespace Xtensive.Storage.Upgrade
     public string TargetField { get; private set; }
 
     /// <inheritdoc/>
+    public bool Equals(MoveFieldHint other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return base.Equals(other)
+        && other.SourceType == SourceType
+        && other.SourceField == SourceField
+        && other.TargetType == TargetType
+        && other.TargetField == TargetField;
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(UpgradeHint other)
+    {
+      return Equals(other as MoveFieldHint);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      unchecked
+      {
+        int result = base.GetHashCode();
+        result = (result * 397) ^ (SourceType != null ? SourceType.GetHashCode() : 0);
+        result = (result * 397) ^ (SourceField != null ? SourceField.GetHashCode() : 0);
+        result = (result * 397) ^ (TargetType != null ? TargetType.GetHashCode() : 0);
+        result = (result * 397) ^ (TargetField != null ? TargetField.GetHashCode() : 0);
+        return result;
+      }
+    }
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat,
         SourceType, SourceField, TargetType.GetFullName(), TargetField);
     }
+
 
     // Constructors
 

@@ -149,7 +149,7 @@ namespace Xtensive.Storage.Model.Stored
 
     private void UpdateHierarchySchema(StoredHierarchyInfo hierarchy)
     {
-      hierarchy.Schema = (InheritanceSchema) Enum.Parse(typeof (InheritanceSchema), hierarchy.Root.HierarchyRoot);
+      hierarchy.InheritanceSchema = (InheritanceSchema) Enum.Parse(typeof (InheritanceSchema), hierarchy.Root.HierarchyRoot);
     }
 
     private void UpdateHierarchyTypes(StoredHierarchyInfo hierarchy)

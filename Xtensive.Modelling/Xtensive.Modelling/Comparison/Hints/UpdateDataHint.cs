@@ -26,24 +26,24 @@ namespace Xtensive.Modelling.Comparison.Hints
     public ReadOnlyList<Pair<string, object>> UpdateParameter { get; private set; }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(
-        "Update {0} set ({1}) where ({2})",
-        SourceTablePath,
-        string.Join(", ", UpdateParameter.Select(pair =>
-          string.Format("{0}={1}", pair.First, pair.Second ?? "Default"))
-          .ToArray()),
-        string.Join(" and ", Identities.Select(pair => pair.ToString()).ToArray()));
-    }
-
-    /// <inheritdoc/>
     public override IEnumerable<HintTarget> GetTargets()
     {
       var targets = base.GetTargets();
       foreach (var pair in UpdateParameter)
         targets.AddOne(new HintTarget(ModelType.Source, pair.First));
       return targets;
+    }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(
+        "Update '{0}' set ({1}) where ({2})",
+        SourceTablePath,
+        string.Join(", ", UpdateParameter.Select(pair =>
+          string.Format("{0}={1}", pair.First, pair.Second ?? "Default"))
+          .ToArray()),
+        string.Join(" and ", Identities.Select(pair => pair.ToString()).ToArray()));
     }
 
 

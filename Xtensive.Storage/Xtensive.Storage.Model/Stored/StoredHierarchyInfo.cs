@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.22
 
+using System.Xml.Serialization;
+
 namespace Xtensive.Storage.Model.Stored
 {
   /// <summary>
@@ -19,7 +21,8 @@ namespace Xtensive.Storage.Model.Stored
     /// <summary>
     /// <see cref="HierarchyInfo.InheritanceSchema"/>
     /// </summary>
-    public InheritanceSchema Schema;
+    [XmlElement("Schema")]
+    public InheritanceSchema InheritanceSchema;
 
     /// <summary>
     /// <see cref="HierarchyInfo.Types"/>.

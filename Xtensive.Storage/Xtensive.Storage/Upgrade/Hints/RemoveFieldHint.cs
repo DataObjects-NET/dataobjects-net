@@ -16,7 +16,8 @@ namespace Xtensive.Storage.Upgrade
   /// Remove field hint.
   /// </summary>
   [Serializable]
-  public class RemoveFieldHint : UpgradeHint
+  public class RemoveFieldHint : UpgradeHint,
+    IEquatable<RemoveFieldHint>
   {
     private const string ToStringFormat = "Remove field: {0}.{1}";
 
@@ -36,10 +37,40 @@ namespace Xtensive.Storage.Upgrade
     public ReadOnlyList<string> AffectedColumns { get; internal set; }
 
     /// <inheritdoc/>
+    public bool Equals(RemoveFieldHint other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return base.Equals(other) 
+        && other.Type==Type 
+        && other.Field==Field;
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(UpgradeHint other)
+    {
+      return Equals(other as RemoveFieldHint);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = base.GetHashCode();
+        result = (result * 397) ^ (Type!=null ? Type.GetHashCode() : 0);
+        result = (result * 397) ^ (Field!=null ? Field.GetHashCode() : 0);
+        return result;
+      }
+    }
+
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat, Type, Field);
     }
+
 
     // Constructors
 

@@ -25,7 +25,9 @@ namespace Xtensive.Core.Collections
     ISynchronizable,
     IReadOnly
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly IList<T> innerList;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly bool isFixedSize;
 
     /// <summary>

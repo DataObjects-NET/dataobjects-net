@@ -10,6 +10,7 @@ using System.Reflection;
 using Xtensive.Core;
 using M1 = Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1;
 using M2 = Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version2;
+using M3 = Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version3;
 using NUnit.Framework;
 
 namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
@@ -38,27 +39,54 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
         }
       }
     }
-    
+
     [Test]
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (Session.Open(domain)) {
-        using (Transaction.Open()) {
+      using (Session.Open(domain))
+      {
+        using (Transaction.Open())
+        {
           var status = Query.All<M2.Status>().SingleOrDefault();
           var newMedia = Query.All<M2.NewMedia>().SingleOrDefault();
           var newMediaTricky = Query.All<M2.Content>().Where(c => c.Title == "Media").SingleOrDefault();
 
           int statusCount = Query.All<M2.Status>().Count();
-          int statusAssociationCount = status.AssociatedContent.Count();
+          int statusAssociationCount = status != null ? status.AssociatedContent.Count() : 0;
           int newMediaCount = Query.All<M2.NewMedia>().Count();
 
           Assert.IsNotNull(status);
           Assert.IsNull(newMedia);
-          Assert.IsNull(newMediaTricky); // Fails!
+          Assert.IsNull(newMediaTricky);
           Assert.AreEqual(1, statusCount);
           Assert.AreEqual(0, newMediaCount);
-          Assert.AreEqual(0, statusAssociationCount); // Fails!
+          Assert.AreEqual(0, statusAssociationCount);
+        }
+      }
+    }
+    
+    [Test]
+    public void UpgradeToVersion3Test()
+    {
+      BuildDomain("3", DomainUpgradeMode.Perform);
+      using (Session.Open(domain)) {
+        using (Transaction.Open()) {
+          // No version-to-version hints, so all the types are removed
+          var status = Query.All<M3.Status>().FirstOrDefault();
+          var newMedia = Query.All<M3.NewMedia>().FirstOrDefault();
+          var newMediaTricky = Query.All<M3.Content>().FirstOrDefault();
+
+          int statusCount = Query.All<M3.Status>().Count();
+          int statusAssociationCount = status!=null ? status.AssociatedContent.Count() : 0;
+          int newMediaCount = Query.All<M3.NewMedia>().Count();
+
+          Assert.IsNull(status);
+          Assert.IsNull(newMedia);
+          Assert.IsNull(newMediaTricky);
+          Assert.AreEqual(0, statusCount);
+          Assert.AreEqual(0, newMediaCount);
+          Assert.AreEqual(0, statusAssociationCount);
         }
       }
     }
