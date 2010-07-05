@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Serialization.Binary;
 using Xtensive.Modelling.Actions;
@@ -143,12 +144,14 @@ namespace Xtensive.Modelling.Comparison
       using (NullActionHandler.Instance.Activate()) {
         try {
           var actions = new GroupingNodeAction();
+
           ProcessStage(UpgradeStage.CleanupData, actions);
           ProcessStage(UpgradeStage.Prepare, actions);
           ProcessStage(UpgradeStage.TemporaryRename, actions);
           ProcessStage(UpgradeStage.Upgrade, actions);
           ProcessStage(UpgradeStage.CopyData, actions);
           ProcessStage(UpgradeStage.Cleanup, actions);
+
           var validationHints = new HintSet(CurrentModel, TargetModel);
           Hints.OfType<IgnoreHint>().ForEach(validationHints.Add);
           var diff = comparer.Compare(CurrentModel, TargetModel, validationHints);
@@ -232,13 +235,13 @@ namespace Xtensive.Modelling.Comparison
     protected virtual void VisitNodeDifference(NodeDifference difference)
     {
       var any = difference.Target ?? difference.Source;
-      var isInvertUpgrade =
+      var isInverseOrderUpgrade =
         Stage==UpgradeStage.Prepare
         || Stage==UpgradeStage.Cleanup
         || Stage==UpgradeStage.TemporaryRename;
 
       using (OpenActionGroup(string.Format(NodeGroupComment, any.Name))) {
-        if (isInvertUpgrade) {
+        if (isInverseOrderUpgrade) {
           ProcessProperties(difference);
           if (IsAllowedForCurrentStage(difference))
             ProcessMovement(difference);
@@ -277,7 +280,7 @@ namespace Xtensive.Modelling.Comparison
       case UpgradeStage.Prepare:
         if (isRemoved && !difference.IsRemoveOnCleanup) {
           if (!Context.IsRemoved || difference.IsDependentOnParent) {
-            AddAction(UpgradeActionType.Regular,
+            AddAction(UpgradeActionType.PreCondition,
               new RemoveNodeAction { Path = (source ?? target).Path });
           }
         }
