@@ -95,13 +95,13 @@ namespace Xtensive.Storage.Tests.Upgrade
       using (var t = Transaction.Open()) {
         var authorCount = Query.All<PrimaryKeyModel.Version2Perform.Author>().Count(a => a.Name == "Jack London");
         var bookCount = Query.All<PrimaryKeyModel.Version2Perform.Book>().Count();
+        // Nothing is kept, since there is no upgrade handler
         Assert.AreEqual(0, authorCount);
-        Assert.AreEqual(1, bookCount);
+        Assert.AreEqual(0, bookCount);
         var author = Query.All<PrimaryKeyModel.Version2Perform.Author>().FirstOrDefault(a => a.Name == "Jack London");
         var book = Query.All<PrimaryKeyModel.Version2Perform.Book>().FirstOrDefault();
         Assert.IsNull(author);
-        Assert.IsNotNull(book);
-        Assert.IsNull(book.Author);
+        Assert.IsNull(book);
         t.Complete();
       }
     }
