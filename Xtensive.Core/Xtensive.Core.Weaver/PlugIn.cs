@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -60,8 +61,30 @@ namespace Xtensive.Core.Weaver
         ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license validation failed.");
         return;
       }
+//      if (licenseInfo != null)
+//        if (licenseInfo.IsValid && licenseInfo.HardwareKeyIsValid) {
+//          var random = new Random(DateTime.Now.Millisecond);
+//          if (random.Next(0, 100) == 73) {
+//            var licensesPath = LicenseValidator.GetLicensesPath();
+//            var companyLicenseData = LicenseValidator.GetCompanyLicenseData(licensesPath);
+//            var hardwareId = LicenseValidator.TrialLicense.HardwareId;
+//            var request = new InternetActivationRequest(companyLicenseData, hardwareId);
+//            var worker = new BackgroundWorker();
+//            worker.DoWork += (o, args) => {
+//              args.Result = InternetActivator.Check((InternetActivationRequest) args.Argument);
+//            };
+//            worker.RunWorkerCompleted += (_, eventArgs) => {
+//              var result = (InternetActivationResult<bool?>) eventArgs.Result;
+//              if (!result.HasError && result.Data.HasValue && !result.Data.Value) {
+//                LicenseValidator.InvalidateLicense();
+//                licenseInfo.HardwareKeyIsValid = false;
+//              }
+//            };
+//            worker.RunWorkerAsync(request);
+//          }
+//        }
       RunLicensingAgent(licenseInfo);
-      if (!licenseInfo.IsValid) {
+      if (licenseInfo == null || !licenseInfo.IsValid) {
         ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license is invalid.");
       }
       else
