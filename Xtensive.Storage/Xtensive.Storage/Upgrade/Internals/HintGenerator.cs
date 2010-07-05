@@ -327,9 +327,8 @@ namespace Xtensive.Storage.Upgrade
               // Mapped to nothing = removed
               continue;
             if (mappedOldValueType!=newValueType && !newValueType.AllDescendants.Contains(mappedOldValueType))
-              ;
-            // This isn't a Dog -> Animal type mapping
-            continue;
+              // This isn't a Dog -> Animal type mapping
+              continue;
           }
           else
             // We deal with regular field
