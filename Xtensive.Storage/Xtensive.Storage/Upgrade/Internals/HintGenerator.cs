@@ -379,51 +379,63 @@ namespace Xtensive.Storage.Upgrade
 
     private IEnumerable<UpgradeHint> RewriteGenericTypeHints(IEnumerable<UpgradeHint> hints)
     {
-      var renameTypeHints = hints.OfType<RenameTypeHint>();
-      var renameGenericTypeHints = renameTypeHints.Where(hint => hint.NewType.IsGenericTypeDefinition);
-      var renameFieldHints = hints.OfType<RenameFieldHint>().Where(hint => hint.TargetType.IsGenericTypeDefinition);
+      var renameTypeHints = hints.OfType<RenameTypeHint>().ToList();
+      var renameGenericTypeHints = renameTypeHints.Where(hint => hint.NewType.IsGenericTypeDefinition).ToList();
+      var renameFieldHints = hints.OfType<RenameFieldHint>().Where(hint => hint.TargetType.IsGenericTypeDefinition).ToList();
 
       // Build generic types mapping
-      var genericTypesMapping = new Dictionary<Pair<string, Type>, List<Pair<string, Type>>>();
+      var genericTypeMapping = new List<Triplet<string, Type, List<Pair<string, Type>>>>();
       var oldGenericTypes = GetGenericTypes(storedModel);
       var newGenericTypes = GetGenericTypes(BuildingContext.Demand().Model);
-      var typeHints = renameTypeHints.ToDictionary(h => h.OldType);
-      var newTypes = newGenericTypes.Keys.ToDictionary(t => t.GetFullName());
-      foreach (var oldGenericDefName in oldGenericTypes.Keys) {
-        var newGenericDefType = GetNewType(oldGenericDefName, newTypes, typeHints);
+      var renamedTypesLookup = renameTypeHints.ToDictionary(h => h.OldType);
+      var newTypesLookup     = newGenericTypes.GetClasses().ToDictionary(t => t.GetFullName());
+      foreach (var oldGenericDefName in oldGenericTypes.GetClasses()) {
+        var newGenericDefType = GetNewType(oldGenericDefName, newTypesLookup, renamedTypesLookup);
         if (newGenericDefType==null)
           continue;
-        var genericArgumentsMapping = new List<Pair<string, Type>>();
-        foreach (var oldGenericArgumentName in oldGenericTypes[oldGenericDefName]) {
-          var newGenericArgumentType = GetNewType(oldGenericArgumentName, newGenericTypes[newGenericDefType].ToDictionary(t => t.GetFullName()), typeHints);
-          if (newGenericArgumentType!=null)
-            genericArgumentsMapping.Add(new Pair<string, Type>(oldGenericArgumentName, newGenericArgumentType));
+        foreach (var pair in oldGenericTypes.GetItems(oldGenericDefName)) {
+          var genericArgumentsMapping = new List<Pair<string, Type>>();
+          foreach (string oldGenericArgumentType in pair.Second) {
+            var newGenericArgumentType = GetNewType(oldGenericArgumentType, newTypesLookup, renamedTypesLookup);
+            if (newGenericArgumentType==null)
+              break;
+            genericArgumentsMapping.Add(new Pair<string, Type>(oldGenericArgumentType, newGenericArgumentType));
+          }
+          if (genericArgumentsMapping.Count == pair.Second.Length)
+            genericTypeMapping.Add(new Triplet<string, Type, List<Pair<string, Type>>>(
+              oldGenericDefName, newGenericDefType, genericArgumentsMapping));
         }
-        if (genericArgumentsMapping.Count > 0)
-          genericTypesMapping.Add(new Pair<string, Type>(oldGenericDefName, newGenericDefType), genericArgumentsMapping);
       }
 
       // Build rename generic type hints
       var rewrittenHints = new List<UpgradeHint>();
-      foreach (var genericTypePair in genericTypesMapping)
-        foreach (var genericArgumentPair in genericTypePair.Value) {
-          var oldTypeFullName = GetGenericTypeFullName(genericTypePair.Key.First, genericArgumentPair.First);
-          var newType = genericTypePair.Key.Second.MakeGenericType(genericArgumentPair.Second);
-          if (oldTypeFullName != newType.GetFullName())
-            rewrittenHints.Add(new RenameTypeHint(oldTypeFullName, newType));
-        }
+      foreach (var triplet in genericTypeMapping) {
+        var oldGenericArguments = triplet.Third.Select(pair => pair.First).ToArray();
+        var newGenericArguments = triplet.Third.Select(pair => pair.Second).ToArray();
+        var oldTypeFullName = GetGenericTypeFullName(triplet.First, oldGenericArguments);
+        var newType = triplet.Second.MakeGenericType(newGenericArguments);
+        if (oldTypeFullName != newType.GetFullName())
+          rewrittenHints.Add(new RenameTypeHint(oldTypeFullName, newType));
+      }
+
+      var genericTypeDefLookup = (
+        from triplet in genericTypeMapping
+        group triplet by triplet.Second.GetGenericTypeDefinition()
+        into g
+        select new {Definition = g.Key, Instances = g.ToArray()}
+        ).ToDictionary(g => g.Definition);
       
       // Build rename generic type field hints
       foreach (var hint in renameFieldHints) {
         var newGenericDefType = hint.TargetType;
-        var genericTypePair = genericTypesMapping.Keys.FirstOrDefault(pair => pair.Second==newGenericDefType);
-        var oldGenericTypeName = genericTypePair.First;
-        if (oldGenericTypeName==null)
+        var instanceGroup = genericTypeDefLookup.GetValueOrDefault(newGenericDefType);
+        if (instanceGroup==null)
           continue;
-        var genericArgumentMapping = genericTypesMapping[genericTypePair];
-        foreach (var pair in genericArgumentMapping)
-          rewrittenHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(pair.Second), 
+        foreach (var triplet in instanceGroup.Instances) {
+          var newGenericArguments = triplet.Third.Select(pair => pair.Second).ToArray();
+          rewrittenHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(newGenericArguments), 
             hint.OldFieldName, hint.NewFieldName));
+        }
       }
 
       // Return new hint set
@@ -890,40 +902,30 @@ namespace Xtensive.Storage.Upgrade
         : (newTypes.TryGetValue(oldTypeName, out newType) ? newType : null);
     }
 
-    private StoredTypeInfo GetNewType(string oldTypeName, Dictionary<string, StoredTypeInfo> newTypes, Dictionary<string, RenameTypeHint> hints)
+    private static ClassifiedCollection<string,  Pair<string, string[]>> GetGenericTypes(StoredDomainModel model)
     {
-      RenameTypeHint hint;
-      StoredTypeInfo newType;
-      return hints.TryGetValue(oldTypeName, out hint)
-        ? currentModel.Types.FirstOrDefault(t => t.Name == hint.NewType.GetFullName())
-        : (newTypes.TryGetValue(oldTypeName, out newType) ? newType : null);
-    }
-
-    private static Dictionary<string, string[]> GetGenericTypes(StoredDomainModel model)
-    {
-      var genericTypes = new Dictionary<string, string[]>();
+      var genericTypes = new ClassifiedCollection<string,  Pair<string, string[]>>(pair => new [] {pair.First});
       foreach (var typeInfo in model.Types.Where(type => type.IsGeneric)) {
         var typeDefinitionName = typeInfo.GenericTypeDefinition;
-        if (!genericTypes.ContainsKey(typeDefinitionName))
-          genericTypes.Add(typeDefinitionName, typeInfo.GenericArguments);
+        genericTypes.Add(new Pair<string, string[]>(typeDefinitionName, typeInfo.GenericArguments));
       }
       return genericTypes;
     }
 
-    private static Dictionary<Type, Type[]> GetGenericTypes(DomainModel model)
+    private static ClassifiedCollection<Type,  Pair<Type, Type[]>> GetGenericTypes(DomainModel model)
     {
-      var genericTypes = new Dictionary<Type, Type[]>();
+      var genericTypes = new ClassifiedCollection<Type,  Pair<Type, Type[]>>(pair => new [] {pair.First});
       foreach (var typeInfo in model.Types.Where(type => type.UnderlyingType.IsGenericType)) {
         var typeDefinition = typeInfo.UnderlyingType.GetGenericTypeDefinition();
-        if (!genericTypes.ContainsKey(typeDefinition))
-          genericTypes.Add(typeDefinition, typeInfo.UnderlyingType.GetGenericArguments());
+        genericTypes.Add(new Pair<Type, Type[]>(typeDefinition, typeInfo.UnderlyingType.GetGenericArguments()));
       }
       return genericTypes;
     }
 
-    private static string GetGenericTypeFullName(string genericDefinitionTypeName, string genericArgumentTypeName)
+    private static string GetGenericTypeFullName(string genericDefinitionTypeName, string[] genericArgumentNames)
     {
-      return string.Format("{0}<{1}>", genericDefinitionTypeName.Replace("<>", string.Empty), genericArgumentTypeName);
+      return string.Format("{0}<{1}>", genericDefinitionTypeName.Replace("<>", string.Empty), 
+        genericArgumentNames.ToCommaDelimitedString());
     }
 
     private static string GetTablePath(string name)
