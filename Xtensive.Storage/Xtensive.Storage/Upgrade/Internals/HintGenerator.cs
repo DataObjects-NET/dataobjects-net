@@ -28,9 +28,9 @@ namespace Xtensive.Storage.Upgrade
     private readonly Dictionary<string, StoredTypeInfo> currentTypes;
     private readonly Dictionary<string, StoredTypeInfo> storedTypes;
     private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping;
-    private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> backwardTypeMapping;
+    private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> reverseTypeMapping;
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping;
-    private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> backwardFieldMapping;
+    private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> reverseFieldMapping;
     
     private readonly List<Hint> schemaHints = new List<Hint>();
 
@@ -47,23 +47,14 @@ namespace Xtensive.Storage.Upgrade
       var removeTypeHints = hints.GetItems<RemoveTypeHint>().ToList();
       BuildTypeMapping(renameTypeHints, removeTypeHints);
 
-      // And adding more remove type hints based on this
-      var newRemoveTypeHints = GenerateAdditionalRemoveTypeHints(removeTypeHints);
-      hints.AddRange(newRemoveTypeHints);
-
       // Field-level processing
       
-      // Adding hints for fields of removed types
-//      var removeFieldHints = hints.GetItems<RemoveFieldHint>().ToList();
-//      var newRemoveFieldHints = GenerateAdditionalRemoveFieldHints(removeTypeHints, removeFieldHints).ToList();
-//      hints.AddRange(newRemoveFieldHints);
-
       // Building field mapping
       var renameFieldHints = hints.GetItems<RenameFieldHint>().ToList();
       var changeFieldTypeHints = hints.GetItems<ChangeFieldTypeHint>().ToList();
       BuildFieldMapping(renameFieldHints, changeFieldTypeHints);
 
-      // Updating mapping for connector types
+      // Updating mappings for connector types
       BuildConnectorTypeMapping();
       
       // Processing field movements
@@ -71,7 +62,7 @@ namespace Xtensive.Storage.Upgrade
       hints.AddRange(RewriteMoveFieldHints(moveFieldHints));
       hints.AddRange(GenerateTypeIdFieldRemoveHintsForConcreteTable());
       
-      // Generating sche,a hints
+      // Generating schema hints
 
       GenerateRenameTableHints();
       GenerateRenameColumnHints();
@@ -79,8 +70,8 @@ namespace Xtensive.Storage.Upgrade
       var copyFieldHints = hints.GetItems<CopyFieldHint>().ToList();
       GenerateCopyColumnHints(copyFieldHints);
 
-      removeTypeHints = hints.GetItems<RemoveTypeHint>().ToList();
-      GenerateDeleteRecordHints(removeTypeHints);
+      var removedTypes = GetRemovedTypes(storedModel);
+      GenerateDeleteRecordHints(removedTypes);
       
       // Adding useful info
 
@@ -137,7 +128,7 @@ namespace Xtensive.Storage.Upgrade
         var targetType = currentModel.Types.SingleOrDefault(type => type.UnderlyingType==targetTypeName);
         if (targetType==null)
           throw TypeNotFound(targetTypeName);
-        var sourceType = backwardTypeMapping[targetType];
+        var sourceType = reverseTypeMapping[targetType];
         var sourceTypeName = sourceType.UnderlyingType;
         if (!sourceType.Fields.Any(field => field.Name==hint.OldFieldName))
           throw FieldNotFound(sourceTypeName, hint.OldFieldName);
@@ -210,8 +201,8 @@ namespace Xtensive.Storage.Upgrade
       if (typeMapping.ContainsKey(oldType))
         throw new InvalidOperationException(String.Format(Strings.ExTypeMappingDoesNotContainXType, oldType));
       typeMapping[oldType] = newType;
-      backwardTypeMapping[newType] = oldType;
-      backwardTypeMapping[newType] = oldType;
+      reverseTypeMapping[newType] = oldType;
+      reverseTypeMapping[newType] = oldType;
     }
 
     private void MapField(StoredFieldInfo oldField, StoredFieldInfo newField)
@@ -219,7 +210,7 @@ namespace Xtensive.Storage.Upgrade
       if (fieldMapping.ContainsKey(oldField))
         throw new InvalidOperationException(String.Format(Strings.ExFieldMappingDoesNotContainField, oldField));
       fieldMapping[oldField] = newField;
-      backwardFieldMapping[newField] = oldField;
+      reverseFieldMapping[newField] = oldField;
     }
 
     private void MapNestedFields(StoredFieldInfo oldField, StoredFieldInfo newField)
@@ -454,58 +445,6 @@ namespace Xtensive.Storage.Upgrade
 
     #region Hint generation
 
-    private IEnumerable<RemoveTypeHint> GenerateAdditionalRemoveTypeHints(IEnumerable<RemoveTypeHint> hints)
-    {
-      var result = new List<RemoveTypeHint>();
-      var oldTypes = GetStoredEntityTypes(GetNonConnectorTypes(storedModel)).ToList();
-      foreach (var oldType in oldTypes)
-        if (!typeMapping.ContainsKey(oldType))
-          result.Add(new RemoveTypeHint(oldType.UnderlyingType));
-      return result;
-    }
-
-    private IEnumerable<RemoveFieldHint> GenerateAdditionalRemoveFieldHints(IEnumerable<RemoveTypeHint> removeTypeHints, 
-      IEnumerable<RemoveFieldHint> removeFieldHints)
-    {
-      var result = new List<RemoveFieldHint>();
-      foreach (var removeTypeHint in removeTypeHints)
-        result.AddRange(GenerateRemoveFieldHints(removeTypeHint));
-      return result;
-    }
-
-    private IEnumerable<RemoveFieldHint> GenerateRemoveFieldHints(RemoveTypeHint hint)
-    {
-      var typeName = hint.Type;
-      var storedType = storedModel.Types.SingleOrDefault(type =>
-        type.UnderlyingType == typeName);
-      if (storedType == null)
-        throw TypeNotFound(typeName);
-      var inheritanceSchema = storedType.Hierarchy.InheritanceSchema;
-      var removeFieldHints = new List<RemoveFieldHint>();
-
-      switch (inheritanceSchema) {
-        case InheritanceSchema.ClassTable:
-          foreach (var fieldInfo in storedType.Fields.Where(field => field.Fields.Length == 0))
-            removeFieldHints.Add(new RemoveFieldHint(storedType.UnderlyingType, fieldInfo.Name));
-          break;
-        case InheritanceSchema.SingleTable:
-          foreach (var fieldInfo in storedType.Fields.Where(field => field.Fields.Length == 0))
-            removeFieldHints.Add(new RemoveFieldHint(storedType.UnderlyingType, fieldInfo.Name));
-          break;
-        case InheritanceSchema.ConcreteTable:
-          var typeToProcess = GetAffectedMappedTypes(storedType,
-            storedType.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable);
-          foreach (var typeInfo in typeToProcess)
-            foreach (var fieldInfo in storedType.Fields.Where(field => field.Fields.Length == 0))
-              removeFieldHints.Add(new RemoveFieldHint(typeInfo.UnderlyingType, fieldInfo.Name));
-          break;
-        default:
-          throw Exceptions.InternalError(String.Format(
-            Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), Log.Instance);
-      }
-      return removeFieldHints;
-    }
-
     private IEnumerable<UpgradeHint> GenerateTypeIdFieldRemoveHintsForConcreteTable()
     {
       // Removes TypeId field ( = column) from hierarchies with ConcreteTable inheritance mapping
@@ -579,7 +518,7 @@ namespace Xtensive.Storage.Upgrade
         return;
       foreach (var newTargetType in GetAffectedMappedTypes(newType, includeInheritors)) {
         StoredTypeInfo oldTargetType;
-        if (!backwardTypeMapping.TryGetValue(newTargetType, out oldTargetType))
+        if (!reverseTypeMapping.TryGetValue(newTargetType, out oldTargetType))
           continue;
         RegisterRenameFieldHint(oldTargetType.MappingName, newTargetType.MappingName,
           oldField.MappingName, newField.MappingName);
@@ -644,11 +583,8 @@ namespace Xtensive.Storage.Upgrade
       }
     }
 
-    private void GenerateDeleteRecordHints(IEnumerable<RemoveTypeHint> removeTypeHints)
+    private void GenerateDeleteRecordHints(List<StoredTypeInfo> removedTypes)
     {
-      var removedTypeNames = removeTypeHints.Select(hint => hint.Type).ToHashSet();
-      var removedTypes = storedModel.Types.Where(type => removedTypeNames.Contains(type.UnderlyingType)).ToList();
-
       removedTypes.ForEach(GenerateDeleteByPrimaryKeyHints);
       removedTypes.ForEach(GenerateDeleteByForegnKeyHints);
     }
@@ -925,12 +861,14 @@ namespace Xtensive.Storage.Upgrade
       return model.Types.Where(type => !connectorTypes.Contains(type));
     }
 
-    private static IEnumerable<StoredTypeInfo> GetStoredEntityTypes(IEnumerable<StoredTypeInfo> types)
+    private List<StoredTypeInfo> GetRemovedTypes(StoredDomainModel model)
     {
-      return
-        from type in types
+      return (
+        from type in GetNonConnectorTypes(model)
         where type.IsEntity && (!type.IsAbstract) && (!type.IsGeneric) && (!type.IsInterface)
-        select type;
+        where IsRemoved(type)
+        select type
+        ).ToList();
     }
 
     private static IEnumerable<StoredTypeInfo> GetAffectedMappedTypes(StoredTypeInfo type, bool includeInheritors)
@@ -1116,9 +1054,9 @@ namespace Xtensive.Storage.Upgrade
 
     public HintGenerator(StoredDomainModel storedModel, DomainModel currentModel, StorageInfo extractedModel)
     {
-      backwardFieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
+      reverseFieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
       fieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
-      backwardTypeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
+      reverseTypeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
       typeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
       this.extractedModel = extractedModel;
       this.storedModel = storedModel;

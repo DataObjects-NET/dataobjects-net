@@ -303,8 +303,7 @@ namespace Xtensive.Storage.Building.Builders
               Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema);
           break;
         case SchemaUpgradeMode.ValidateCompatible:
-          if (result.Status!=SchemaComparisonStatus.Equal &&
-            result.Status!=SchemaComparisonStatus.TargetIsSubset)
+          if (result.Status!=SchemaComparisonStatus.Equal && result.Status!=SchemaComparisonStatus.TargetIsSubset)
             throw new SchemaSynchronizationException(
               Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
           break;
