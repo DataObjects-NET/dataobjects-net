@@ -276,7 +276,10 @@ namespace Xtensive.Modelling
       if (path.IsNullOrEmpty())
         return this;
       var parts = path.RevertibleSplitFirstAndTail(Node.PathEscape, Node.PathDelimiter);
-      var next = (IPathNode) GetProperty(parts.First);
+      var accessor = PropertyAccessors.GetValueOrDefault(parts.First);
+      if (accessor==null)
+        return null;
+      var next = (IPathNode) accessor.Getter.Invoke(this);
       if (parts.Second==null)
         return next;
       return next.Resolve(parts.Second);

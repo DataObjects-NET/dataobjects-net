@@ -707,7 +707,7 @@ namespace Xtensive.Modelling.Comparison
       if (source.Model==Source) {
         var renameHint = Hints.GetHint<RenameHint>(source);
         if (renameHint!=null)
-          return Target.Resolve(renameHint.TargetPath).Name;
+          return Target.Resolve(renameHint.TargetPath, true).Name;
       }
       return source.Name;
     }

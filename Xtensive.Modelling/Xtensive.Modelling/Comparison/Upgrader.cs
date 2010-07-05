@@ -341,22 +341,28 @@ namespace Xtensive.Modelling.Comparison
     /// <param name="source">The renamed node.</param>
     protected void RegisterTemporaryRename(Node source)
     {
-      TemporaryRenames.Add(source.Path, CurrentModel.Resolve(source.Path) as Node);
+      TemporaryRenames.Add(source.Path, CurrentModel.Resolve(source.Path, true) as Node);
 
       var children = source.PropertyAccessors.Values
         .Where(pa => !pa.IsImmutable).Select(pa=>pa.Getter.Invoke(source));
       foreach (var child in children) {
         var childNode = child as Node;
         if (childNode != null) {
-          if (!TemporaryRenames.ContainsKey(childNode.Path))
-            TemporaryRenames.Add(childNode.Path, CurrentModel.Resolve(childNode.Path) as Node);
+          if (!TemporaryRenames.ContainsKey(childNode.Path)) {
+            var currentModelChildNode = CurrentModel.Resolve(childNode.Path) as Node;
+            if (currentModelChildNode!=null)
+              TemporaryRenames.Add(childNode.Path, currentModelChildNode);
+          }
           continue;
         }
         var childNodeCollection = child as NodeCollection;
         if (childNodeCollection != null)
           foreach (Node node in childNodeCollection)
-            if (!TemporaryRenames.ContainsKey(node.Path))
-              TemporaryRenames.Add(node.Path, CurrentModel.Resolve(node.Path) as Node);
+            if (!TemporaryRenames.ContainsKey(node.Path)) {
+              var currentModelChildNode = CurrentModel.Resolve(node.Path) as Node;
+              if (currentModelChildNode!=null)
+                TemporaryRenames.Add(node.Path, currentModelChildNode);
+            }
       }
     }
 
@@ -566,7 +572,7 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>Temporary node name.</returns>
     protected virtual string GetTemporaryName(Node node)
     {
-      var currentNode = CurrentModel.Resolve(node.Path) as Node;
+      var currentNode = CurrentModel.Resolve(node.Path, true) as Node;
       var currentCollection = currentNode.Parent.GetProperty(currentNode.Nesting.PropertyName) as NodeCollection;
       if (currentCollection==null)
         return node.Name;

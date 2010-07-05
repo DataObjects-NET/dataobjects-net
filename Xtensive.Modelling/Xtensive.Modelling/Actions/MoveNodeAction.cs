@@ -77,7 +77,7 @@ namespace Xtensive.Modelling.Actions
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var node = (Node) item;
-      var newParent = parent==null ? node.Parent : (Node) model.Resolve(parent);
+      var newParent = parent==null ? node.Parent : (Node) model.Resolve(parent, true);
       if ((node is IModel) && (newParent is IModel))
         newParent = null;
       var newName = name ?? node.Name;

@@ -50,7 +50,7 @@ namespace Xtensive.Modelling.Actions
     public virtual void Execute(IModel model)
     {
       ArgumentValidator.EnsureArgumentNotNull(model, "model");
-      var item = model.Resolve(path);
+      var item = model.Resolve(path, true);
       ActionHandler.Current.Execute(this);
       PerformExecute(model, item);
     }

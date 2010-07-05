@@ -303,6 +303,11 @@ namespace Xtensive.Storage.Upgrade
         var newField = newFields.GetValueOrDefault(newFieldName);
         if (newField==null)
           continue;
+        if (oldField.IsStructure) {
+          // If it is structure, we map it immediately
+          MapField(oldField, newField);
+          continue;
+        }
         var typeChangeHint = typeChanges
           .FirstOrDefault(hint => hint.Type.GetFullName()==newType.UnderlyingType && hint.FieldName==newField.Name);
         if (typeChangeHint==null) {
@@ -321,9 +326,10 @@ namespace Xtensive.Storage.Upgrade
             if (mappedOldValueType==null)
               // Mapped to nothing = removed
               continue;
-            if (mappedOldValueType!=newValueType && !newValueType.AllDescendants.Contains(mappedOldValueType));
-              // This isn't a Dog -> Animal type mapping
-              continue;
+            if (mappedOldValueType!=newValueType && !newValueType.AllDescendants.Contains(mappedOldValueType))
+              ;
+            // This isn't a Dog -> Animal type mapping
+            continue;
           }
           else
             // We deal with regular field
