@@ -61,6 +61,7 @@ namespace Xtensive.Storage.Tests.Linq
       public string Name { get; set; }
       public int? Tag { get; set; }
       public BudgetType? BudgetType { get; set; }
+      public string Description { get; set; }
     }
   }
 
@@ -141,7 +142,7 @@ namespace Xtensive.Storage.Tests.Linq
         new Person() { Name = "D", Manager = manager2};
         new Person() { Name = "E" };
         new Person() { Name = "F" };
-
+        
         var query = Query.All<Person>()
           .Select(p => new PersonDto {
             Id = p.Id, 
@@ -184,6 +185,40 @@ namespace Xtensive.Storage.Tests.Linq
           .ToList();
         Assert.AreEqual(4, arrays.Count);
       }
+    }
+
+    [Test]
+    public void MethodProjectionTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        new Person() { Name = "A", BudgetType = BudgetType.Default };
+        new Person() { Name = "B", BudgetType = BudgetType.Default };
+        new Person() { Name = "C", BudgetType = BudgetType.Regional };
+        new Person() { Name = "D", BudgetType = BudgetType.State };
+        new Person() { Name = "E" };
+        new Person() { Name = "F" };
+        new Person() { Name = null };
+        new Person() { Name = null };
+
+        var selectedMethod = Query.All<Person>()
+          .Select(p => new PersonDto() {Id = p.Id, Name = p.Name, Description = GetDescription(p)})
+          .OrderBy(x => x.Name)
+          .ToList();
+
+        var selectedMethod2 = Query.All<Person>()
+         .Select(p => new PersonDto() { Id = p.Id, Name = p.Name, Description = p.Name ?? GetDescription(p) })
+         .Where(x => x.Name == null)
+         .ToList();
+      }
+    }
+
+    public string GetDescription(Person p)
+    {
+      if (!p.BudgetType.HasValue)
+        return "Empty Budget";
+      else
+        return p.BudgetType + " Budget";
     }
   }
 }
