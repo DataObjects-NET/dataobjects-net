@@ -49,7 +49,7 @@ namespace Xtensive.Modelling.Actions
       if (!(source is PathNodeReference))
         return source;
       var pnr = (PathNodeReference) source;
-      return model.Resolve(pnr.Path);
+      return model.Resolve(pnr.Path, true);
     }
 
     #region Equality members

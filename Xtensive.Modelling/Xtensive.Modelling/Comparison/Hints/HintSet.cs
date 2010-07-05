@@ -85,13 +85,10 @@ namespace Xtensive.Modelling.Comparison.Hints
         foreach (var target in targets) {
           Node node;
           if (target.Model==ModelType.Source)
-            node = (Node) SourceModel.Resolve(target.Path);
+            node = (Node) SourceModel.Resolve(target.Path, true);
           else
-            node = (Node) TargetModel.Resolve(target.Path);
+            node = (Node) TargetModel.Resolve(target.Path, true);
           nodes.Add(node);
-          if (node==null)
-            throw new InvalidOperationException(string.Format(
-              Strings.ExPathXNotFound, target.Path));
           
           if (!hintMap.ContainsKey(node))
             hintMap.Add(node, new Dictionary<Type, object>());
