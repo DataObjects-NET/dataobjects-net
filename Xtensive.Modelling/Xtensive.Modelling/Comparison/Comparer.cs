@@ -315,8 +315,8 @@ namespace Xtensive.Modelling.Comparison
       if (targetValue!=null && sourceValue!=null) {
         var isDataDependent = IsDependOnData(target);
         var isImmutable = IsImmutable(target);
-        Difference referencedPropertyDifference = null;
-        if (Results.TryGetValue(targetValue, out referencedPropertyDifference))
+        var referencedPropertyDifference = Results.GetValueOrDefault(targetValue);
+        if (referencedPropertyDifference!=null)
           return HasChanges(referencedPropertyDifference, isDataDependent, isImmutable) 
             ? new ValueDifference(sourceValue, targetValue) 
             : null;
@@ -652,8 +652,8 @@ namespace Xtensive.Modelling.Comparison
       try {
         Context.Difference = differenceGenerator.Invoke(source, target);
         if (!(Context.Difference is ValueDifference)) {
-          Difference difference = null;
-          if (Results.TryGetValue(target ?? source, out difference))
+          var difference = Results.GetValueOrDefault(target ?? source);
+          if (difference!=null)
             Context.Difference = difference;
         }
         return result;
@@ -707,7 +707,7 @@ namespace Xtensive.Modelling.Comparison
       if (source.Model==Source) {
         var renameHint = Hints.GetHint<RenameHint>(source);
         if (renameHint!=null)
-          return Target.Resolve(renameHint.TargetPath).Name;
+          return Target.Resolve(renameHint.TargetPath, true).Name;
       }
       return source.Name;
     }

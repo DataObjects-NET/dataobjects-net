@@ -26,9 +26,13 @@ namespace Xtensive.Core.Collections
     ISynchronizable,
     IReadOnly
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly IDictionary<TKey, TValue> innerDictionary;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly bool isFixedSize;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private ReadOnlyCollection<TKey> innerKeyDictionary;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private ReadOnlyCollection<TValue> innerValueDictionary;
 
     /// <inheritdoc/>

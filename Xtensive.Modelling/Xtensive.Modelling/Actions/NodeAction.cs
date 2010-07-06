@@ -50,7 +50,7 @@ namespace Xtensive.Modelling.Actions
     public virtual void Execute(IModel model)
     {
       ArgumentValidator.EnsureArgumentNotNull(model, "model");
-      var item = model.Resolve(path);
+      var item = model.Resolve(path, true);
       ActionHandler.Current.Execute(this);
       PerformExecute(model, item);
     }
@@ -84,11 +84,15 @@ namespace Xtensive.Modelling.Actions
     public override string ToString()
     {
       var sb = new StringBuilder();
+      if (this is GroupingNodeAction)
+        sb.Append("[");
       sb.Append(GetActionName());
       var parameters = new List<Pair<string>>();
       GetParameters(parameters);
       foreach (var kvp in parameters)
         sb.AppendFormat(", {0}={1}", kvp.First, kvp.Second);
+      if (this is GroupingNodeAction)
+        sb.Append("]");
       var nestedActions = GetNestedActions();
       foreach (var action in nestedActions)
         sb.AppendLine().Append(action.ToString().Indent(2));

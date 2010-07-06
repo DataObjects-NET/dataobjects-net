@@ -97,10 +97,12 @@ namespace Xtensive.Storage.Building
     private static IList<NodeAction> GetUnsafeActions(ActionSequence upgradeActions)
     {
       var unsafeActions = new List<NodeAction>();
+      var upgradeContext = UpgradeContext.Demand();
+      var hints = upgradeContext.Hints;
       
       // Unsafe type changes
       var typeChangeAction = GetTypeChangeActions(upgradeActions);
-      var columnsWithHint = UpgradeContext.Demand().Hints
+      var columnsWithHint = hints
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
         .ToHashSet();
@@ -112,7 +114,7 @@ namespace Xtensive.Storage.Building
 
       // Unsafe column removes
       var columnActions = GetColumnActions(upgradeActions).ToList();
-      columnsWithHint = UpgradeContext.Demand().Hints
+      columnsWithHint = hints
         .OfType<RemoveFieldHint>()
         .SelectMany(hint => hint.AffectedColumns)
         .ToHashSet();
@@ -123,7 +125,7 @@ namespace Xtensive.Storage.Building
       
       // Unsafe type removes
       var tableActions = GetTableActions(upgradeActions);
-      var tableWithHints = UpgradeContext.Demand().Hints
+      var tableWithHints = hints
         .OfType<RemoveTypeHint>()
         .SelectMany(hint => hint.AffectedTables)
         .ToHashSet();

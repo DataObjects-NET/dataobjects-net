@@ -55,6 +55,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
     {
       if (runningVersion=="2")
         Version1To2Hints.ForEach(hint => hints.Add(hint));
+      else if (runningVersion=="3")
+        return;
     }
 
     public override void OnUpgrade()

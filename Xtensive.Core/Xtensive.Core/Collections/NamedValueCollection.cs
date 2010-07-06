@@ -5,6 +5,7 @@
 // Created:    2008.08.26
 
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Xtensive.Core.Collections
 {
@@ -12,8 +13,10 @@ namespace Xtensive.Core.Collections
   /// <see cref="Dictionary{TKey,TValue}"/>-based 
   /// <see cref="INamedValueCollection"/> implementation.
   /// </summary>
+  [DebuggerDisplay("Count = {Count}")]
   public class NamedValueCollection : INamedValueCollection
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly Dictionary<string, object> values = new Dictionary<string, object>();
 
     /// <inheritdoc/>

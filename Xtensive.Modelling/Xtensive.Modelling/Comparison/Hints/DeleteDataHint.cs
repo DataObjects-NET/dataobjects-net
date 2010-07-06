@@ -21,7 +21,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     public override string ToString()
     {
       return string.Format(
-        "Delete from {0} where ({1})",
+        "Delete from '{0}' where ({1})",
         SourceTablePath,
         string.Join(" and ",
           Identities.Select(pair => pair.ToString()).ToArray()));

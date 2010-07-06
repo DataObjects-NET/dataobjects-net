@@ -16,7 +16,8 @@ namespace Xtensive.Storage.Upgrade
   /// Remove type hint.
   /// </summary>
   [Serializable]
-  public class RemoveTypeHint : UpgradeHint
+  public class RemoveTypeHint : UpgradeHint,
+    IEquatable<RemoveTypeHint>
   {
     private const string ToStringFormat = "Remove type: {0}";
 
@@ -29,6 +30,33 @@ namespace Xtensive.Storage.Upgrade
     /// Gets affected column paths.
     /// </summary>
     public ReadOnlyList<string> AffectedTables { get; internal set; }
+
+    /// <inheritdoc/>
+    public bool Equals(RemoveTypeHint other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return base.Equals(other) 
+        && other.Type == Type;
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(UpgradeHint other)
+    {
+      return Equals(other as RemoveTypeHint);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = base.GetHashCode();
+        result = (result * 397) ^ (Type != null ? Type.GetHashCode() : 0);
+        return result;
+      }
+    }
 
     /// <inheritdoc/>
     public override string ToString()

@@ -158,7 +158,9 @@ namespace Xtensive.Modelling
       if (path.IsNullOrEmpty())
         return this;
       var parts = path.RevertibleSplitFirstAndTail(Node.PathEscape, Node.PathDelimiter);
-      var next = this[parts.First];
+      Node next;
+      if (!TryGetValue(parts.First, out next))
+        return null;
       if (parts.Second==null)
         return next;
       return next.Resolve(parts.Second);

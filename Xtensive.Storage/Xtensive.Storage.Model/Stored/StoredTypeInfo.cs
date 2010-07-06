@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Model.Stored
     /// Gets the name of the generic definition type.
     /// </summary>
     [XmlIgnore]
-    public string GenericTypeDefinitionName {
+    public string GenericTypeDefinition {
       get {
         if (UnderlyingType == null)
           return null;
@@ -107,10 +107,8 @@ namespace Xtensive.Storage.Model.Stored
     /// Gets the name of the generic argument type.
     /// </summary>
     [XmlIgnore]
-    public string[] GenericArgumentNames
-    {
-      get
-      {
+    public string[] GenericArguments {
+      get {
         if (UnderlyingType == null)
           return null;
         var indexOfGenericSection = UnderlyingType.LastIndexOf("<");
