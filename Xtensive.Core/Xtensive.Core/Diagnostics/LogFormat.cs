@@ -23,13 +23,18 @@ namespace Xtensive.Core.Diagnostics
     Comprehensive = 0,
 
     /// <summary>
+    /// Release log format.
+    /// </summary>
+    Release = 1,
+
+    /// <summary>
     /// Simple log format.
     /// </summary>
-    Simple = 1,
+    Simple = 2,
 
     /// <summary>
     /// Custom log format.
     /// </summary>
-    Custom = 2,
+    Custom = 1024,
   }
 }

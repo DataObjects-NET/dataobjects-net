@@ -47,12 +47,19 @@ namespace Xtensive.Storage.Building
         ? EnumerableUtils<NodeAction>.Empty 
         : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
       };
-      var status = GetComparisonStatus(actions, schemaUpgradeMode);
+      var comparisonStatus = GetComparisonStatus(actions, schemaUpgradeMode);
       var unsafeActions = GetUnsafeActions(actions);
-      var typeChanges = GetTypeChangeActions(actions);
+      var columnTypeChangeActions = GetTypeChangeActions(actions);
       
       if (schemaUpgradeMode!=SchemaUpgradeMode.ValidateLegacy)
-        return new SchemaComparisonResult(status, hints, difference, actions, typeChanges.Any(), unsafeActions, true);
+        return new SchemaComparisonResult(
+          comparisonStatus, 
+          columnTypeChangeActions.Any(), 
+          null, 
+          hints, 
+          difference, 
+          actions, 
+          unsafeActions);
 
       var systemTables = model.Types
         .Where(type => type.IsSystem)
@@ -65,26 +72,38 @@ namespace Xtensive.Storage.Building
           var table = action.Difference.Target as TableInfo;
           return table!=null && !systemTables.Contains(table.Name);
         }).ToList();
-      var createColumneActions = actions.Flatten()
+      var createColumnActions = actions.Flatten()
         .OfType<CreateNodeAction>()
         .Where(action => {
           var column = action.Difference.Target as ColumnInfo;
           return column!=null && !systemTables.Contains(column.Parent.Name);
         }).ToList();
-      typeChanges = typeChanges.Where(action => {
+      columnTypeChangeActions = columnTypeChangeActions.Where(action => {
         var sourceType = action.Difference.Source as TypeInfo;
         var targetType = action.Difference.Target as TypeInfo;
-        return sourceType==null || targetType==null
-          || sourceType.IsTypeUndefined || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
+        return sourceType==null 
+          || targetType==null
+          || sourceType.IsTypeUndefined 
+          || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
       });
 
-      var isCompatible = !createTableActions.Any() && !createColumneActions.Any() && !typeChanges.Any();
+      var isCompatibleInLegacyMode = 
+        !createTableActions.Any() && 
+        !createColumnActions.Any() && 
+        !columnTypeChangeActions.Any();
       unsafeActions = 
         createTableActions.Cast<NodeAction>()
-        .Concat(createColumneActions.Cast<NodeAction>())
-        .Concat(typeChanges.Cast<NodeAction>())
+        .Concat(createColumnActions.Cast<NodeAction>())
+        .Concat(columnTypeChangeActions.Cast<NodeAction>())
         .ToList();
-      return new SchemaComparisonResult(status, hints, difference, actions, typeChanges.Any(), unsafeActions, isCompatible);
+      return new SchemaComparisonResult(
+        comparisonStatus, 
+        columnTypeChangeActions.Any(), 
+        isCompatibleInLegacyMode, 
+        hints, 
+        difference, 
+        actions, 
+        unsafeActions);
     }
 
     private static IList<GroupingNodeAction> GetSystemTableActions(ActionSequence actions, HashSet<string> systemTableNames)

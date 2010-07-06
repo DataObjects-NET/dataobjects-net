@@ -115,6 +115,9 @@ namespace Xtensive.Storage.Tests.Issues
         }
         Dump(ds.Operations);
         ds.ApplyChanges();
+        
+        Assert.IsTrue(ds.IsAttached);
+        Assert.AreEqual(0, ds.Operations.Count);
       }
     }
 
