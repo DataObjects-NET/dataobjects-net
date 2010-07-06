@@ -475,6 +475,8 @@ namespace Xtensive.Storage.Upgrade
         var targetTypeIdField = targetType.Fields.Single(f => f.IsTypeId);
         if (targetTypeIdField.IsPrimaryKey)
           continue;
+        if (!extractedModel.Tables.Contains(type.MappingName))
+          continue;
         if (!extractedModel.Tables[type.MappingName].Columns.Contains(typeIdField.MappingName))
           continue;
         var hint = new RemoveFieldHint(type.UnderlyingType, typeIdField.Name);
