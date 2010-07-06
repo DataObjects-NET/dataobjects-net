@@ -52,7 +52,9 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public UpdateDataHint(string sourceTablePath,  IList<IdentityPair> identities,
+    public UpdateDataHint(
+      string sourceTablePath,  
+      IList<IdentityPair> identities,
       IList<Pair<string, object>> updateParameters)
       : base(sourceTablePath, identities)
     {

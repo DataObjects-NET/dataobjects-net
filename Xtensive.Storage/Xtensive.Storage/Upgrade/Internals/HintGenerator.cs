@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Upgrade
       GenerateCopyColumnHints(copyFieldHints);
 
       var removedTypes = GetRemovedTypes(storedModel);
-      GenerateDeleteRecordHints(removedTypes);
+      GenerateRecordCleanupHints(removedTypes);
       
       // Adding useful info
 
@@ -595,13 +595,13 @@ namespace Xtensive.Storage.Upgrade
       }
     }
 
-    private void GenerateDeleteRecordHints(List<StoredTypeInfo> removedTypes)
+    private void GenerateRecordCleanupHints(List<StoredTypeInfo> removedTypes)
     {
-      removedTypes.ForEach(GenerateDeleteByPrimaryKeyHints);
-      removedTypes.ForEach(GenerateDeleteByForegnKeyHints);
+      removedTypes.ForEach(GenerateCleanupByForegnKeyHints);
+      removedTypes.ForEach(GenerateCleanupByPrimaryKeyHints);
     }
 
-    private void GenerateDeleteByPrimaryKeyHints(StoredTypeInfo removedType)
+    private void GenerateCleanupByPrimaryKeyHints(StoredTypeInfo removedType)
     {
       var typesToProcess = new List<StoredTypeInfo>();
       var hierarchy = removedType.Hierarchy;
@@ -633,34 +633,70 @@ namespace Xtensive.Storage.Upgrade
       }
     }
     
-    private void GenerateDeleteByForegnKeyHints(StoredTypeInfo removedType)
+    private void GenerateCleanupByForegnKeyHints(StoredTypeInfo removedType)
     {
-      var affectedAssociations = storedModel.Associations
-        .Where(association => association.ReferencedType==removedType)
-        .Concat(removedType.AllAncestors.SelectMany(ancestor =>
-          storedModel.Associations
-            .Where(association => association.ReferencedType==ancestor)));
-      foreach (var association in affectedAssociations) {
-        var typesToProcess = new List<StoredTypeInfo>();
+      var removedTypeAndAncestors = removedType.AllAncestors.AddOne(removedType).ToHashSet();
+      var affectedAssociations = (
+        from association in storedModel.Associations
+        let requiresInverseCleanup = 
+          association.IsMaster &&
+          association.ConnectorType!=null &&
+          removedTypeAndAncestors.Contains(association.ReferencingField.DeclaringType)
+        where
+          // Regular association X.Y, Y must be cleaned up
+          removedTypeAndAncestors.Contains(association.ReferencedType) ||
+          // X.EntitySet<Y>, where X is in removedTypeAndAncestors,
+          // connectorType.X must be cleaned up as well
+          requiresInverseCleanup
+        select new {association, requiresInverseCleanup}
+        ).ToList();
+      foreach (var pair in affectedAssociations) {
+        var association = pair.association;
+        bool requiresInverseCleanup = pair.requiresInverseCleanup;
         if (association.ConnectorType==null) {
-          var rootType = association.ReferencingField.DeclaringType;
-          typesToProcess.AddRange(GetAffectedMappedTypes(rootType,
-            rootType.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable));
+          // This is regular reference
+          var declaringType = association.ReferencingField.DeclaringType;
+          var inheritanceSchema = declaringType.Hierarchy.InheritanceSchema;
+          GenerateClearReferenceHints(
+            removedType, 
+            GetAffectedMappedTypes(declaringType, inheritanceSchema==InheritanceSchema.ConcreteTable).ToArray(),
+            association,
+            requiresInverseCleanup);
         }
         else
-          typesToProcess.Add(association.ConnectorType);
-        foreach (var currentType in typesToProcess)
-          GenerateClearReferenceHint(removedType, currentType, association);
+          // This is EntitySet
+          GenerateClearReferenceHints(
+            removedType, 
+            new [] {association.ConnectorType},
+            association,
+            requiresInverseCleanup);
       }
     }
 
-    private void GenerateClearReferenceHint(StoredTypeInfo removedType, StoredTypeInfo updatedType,
-      StoredAssociationInfo association)
+    private void GenerateClearReferenceHints(
+      StoredTypeInfo removedType, 
+      StoredTypeInfo[] updatedTypes,
+      StoredAssociationInfo association,
+      bool inverse)
+    {
+      foreach (var updatedType in updatedTypes)
+        GenerateClearReferenceHint(
+          removedType,
+          updatedType,
+          association,
+          inverse);
+    }
+
+    private void GenerateClearReferenceHint(
+      StoredTypeInfo removedType, 
+      StoredTypeInfo updatedType,
+      StoredAssociationInfo association,
+      bool inverse)
     {
       var identityFieldsOfRemovedType = removedType.AllFields.Where(f => f.IsPrimaryKey).ToList();
       var identityFieldsOfUpdatedType = association.ConnectorType!=null
         ? association.ConnectorType.Fields
-          .Single(field => field.Name==(association.IsMaster ? WellKnown.SlaveFieldName : WellKnown.MasterFieldName))
+          .Single(field => field.Name==((association.IsMaster ^ inverse) ? WellKnown.SlaveFieldName : WellKnown.MasterFieldName))
           .Fields
         : association.ReferencingField.Fields;
       var pairedIdentityFields = JoinFieldsByOriginalName(identityFieldsOfRemovedType, identityFieldsOfUpdatedType);

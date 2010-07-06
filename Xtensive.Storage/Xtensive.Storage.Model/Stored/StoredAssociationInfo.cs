@@ -6,6 +6,7 @@
 
 using System.ComponentModel;
 using System.Xml.Serialization;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Model.Stored
 {
@@ -14,6 +15,8 @@ namespace Xtensive.Storage.Model.Stored
   /// </summary>
   public sealed class StoredAssociationInfo : StoredNode
   {
+    private const string FormatString = "{0}.{1}";
+
     /// <summary>
     /// <see cref="AssociationInfo.OwnerField"/>.
     /// </summary>
@@ -80,9 +83,10 @@ namespace Xtensive.Storage.Model.Stored
     [XmlElement("ConnectorType")]
     public string ConnectorTypeName;
 
+    /// <inheritdoc/>
     public override string ToString()
     {
-      return Name;
+      return Name ?? FormatString.FormatWith(ReferencingField.DeclaringType.Name, ReferencingField.Name);
     }
   }
 }
