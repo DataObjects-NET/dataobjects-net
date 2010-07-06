@@ -187,6 +187,14 @@ namespace Xtensive.Storage.Linq.Materialization
             expression.Type);
           return result;
         }
+        if (typeof(Key).IsAssignableFrom(expression.Field.ValueType)) {
+          Expression<Func<Domain, string, Key>> keyParseLambda = (d, s) => Key.Parse(d, s);
+          Expression<Func<ItemMaterializationContext, Domain>> domainExtractorLambda = imc => imc.Session.Domain;
+          var result = keyParseLambda.BindParameters(
+            domainExtractorLambda.BindParameters(itemMaterializationContextParameter),
+            tupleExpression.MakeTupleAccess(typeof (string), expression.Mapping.Offset));
+          return result;
+        }
 
         var tupleAccess = tupleExpression.MakeTupleAccess(expression.Type, expression.Mapping.Offset);
         return tupleAccess;
