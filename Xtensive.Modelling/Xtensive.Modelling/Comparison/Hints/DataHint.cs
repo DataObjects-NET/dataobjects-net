@@ -17,7 +17,6 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// An abstract base class for all data hints.
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("{GetType().Name}, {SourceTablePath}")]
   public abstract class DataHint : Hint
   {
     /// <summary>

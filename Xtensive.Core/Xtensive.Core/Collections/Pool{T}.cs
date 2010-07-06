@@ -19,7 +19,9 @@ namespace Xtensive.Core.Collections
   {
     private const int DefaultCapacity = 16;
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private int capacity;
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private SetSlim<T> items = new SetSlim<T>();
     private SetSlim<T> availableItems = new SetSlim<T>();
 

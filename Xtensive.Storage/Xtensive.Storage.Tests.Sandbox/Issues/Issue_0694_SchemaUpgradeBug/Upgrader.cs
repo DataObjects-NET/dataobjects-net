@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Upgrade;
 using M1 = Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1;
@@ -54,6 +55,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
     {
       if (runningVersion=="2")
         Version1To2Hints.ForEach(hint => hints.Add(hint));
+      else if (runningVersion=="3")
+        return;
     }
 
     public override void OnUpgrade()
@@ -62,10 +65,34 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0694_SchemaUpgradeBug
 #pragma warning restore 612,618
     }
 
-    private static IEnumerable<UpgradeHint> Version1To2Hints {
+    private static List<UpgradeHint> Version1To2Hints {
       get {
-        yield break;
+        var hints = GetTypeRenameHints(".Version1", ".Version2");
+        return hints;
       }
+    }
+
+    private static List<UpgradeHint> GetTypeRenameHints(string oldVersionSuffix, string newVersionSuffix)
+    {
+      var upgradeContext = UpgradeContext.Demand();
+      var oldTypes = upgradeContext.ExtractedDomainModel.Types;
+      var hints = new List<UpgradeHint>();
+      foreach (var type in oldTypes) {
+        var fullName = type.UnderlyingType;
+        int lastDotIndex = fullName.LastIndexOf(".");
+        if (lastDotIndex<0)
+          lastDotIndex = 1;
+        var ns = fullName.Substring(0, lastDotIndex);
+        var name = fullName.Substring(lastDotIndex + 1);
+        if (ns.EndsWith(oldVersionSuffix)) {
+          string newNs = ns.Substring(0, ns.Length - oldVersionSuffix.Length) + newVersionSuffix;
+          string newFullName = newNs + "." + name;
+          Type newType = upgradeContext.Configuration.Types.SingleOrDefault(t => t.FullName==newFullName);
+          if (newType!=null)
+            hints.Add(new RenameTypeHint(fullName, newType));
+        }
+      }
+      return hints;
     }
 
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)

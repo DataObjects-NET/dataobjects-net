@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -60,12 +61,31 @@ namespace Xtensive.Core.Weaver
         ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license validation failed.");
         return;
       }
+
+      if (licenseInfo != null)
+        try {
+          if (licenseInfo.IsValid && licenseInfo.HardwareKeyIsValid) {
+            var random = new Random(DateTime.Now.Millisecond);
+            if (random.Next(0, 100)==31) {
+              var licensesPath = LicenseValidator.GetLicensesPath();
+              var companyLicenseData = LicenseValidator.GetCompanyLicenseData(licensesPath);
+              var hardwareId = LicenseValidator.TrialLicense.HardwareId;
+              var request = new InternetActivationRequest(companyLicenseData, hardwareId);
+              var result = InternetActivator.Check(request);
+              if (result.Data.HasValue && !result.Data.Value) {
+                LicenseValidator.InvalidateLicense(licenseInfo.HardwareId);
+                licenseInfo.HardwareKeyIsValid = false;
+              }
+            }
+          }
+        }
+        catch {}
+
       RunLicensingAgent(licenseInfo);
-      if (!licenseInfo.IsValid) {
+      if (licenseInfo == null || !licenseInfo.IsValid) {
         ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license is invalid.");
       }
-      else
-      {
+      else {
         BindAspectWeaver<ReplaceAutoProperty, ReplaceAutoPropertyWeaver>();
         BindAspectWeaver<ImplementConstructorEpilogue, ConstructorEpilogueWeaver>();
         BindAspectWeaver<NotSupportedAttribute, NotSupportedWeaver>();

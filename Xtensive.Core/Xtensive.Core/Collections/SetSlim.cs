@@ -18,9 +18,9 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TItem">The type of the item.</typeparam>
   [Serializable]
-  [DebuggerDisplay("Count = {Count}")]
   public class SetSlim<TItem> : SetBase<TItem>
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly Dictionary<TItem, TItem> dictionary;
 
     /// <inheritdoc/>

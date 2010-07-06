@@ -25,6 +25,7 @@ namespace Xtensive.Core.Collections
     ICollection,
     IHasSyncRoot
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly List<TItem> items;
 
     #region Properties: IsReadOnly, SyncRoot, IsSyncronized

@@ -24,6 +24,7 @@ namespace Xtensive.Core.Collections
   [DebuggerDisplay("Count = {Count}")]
   public class BindingCollection<TKey, TValue> : ICountable<KeyValuePair<TKey, TValue>>
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     protected readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();
     protected readonly HashSet<TKey> permanentBindings = new HashSet<TKey>();
 

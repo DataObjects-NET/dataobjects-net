@@ -12,6 +12,7 @@ using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Sorting;
+using Xtensive.Modelling;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -52,9 +53,10 @@ namespace Xtensive.Storage.Providers.Sql
     private readonly StorageInfo targetModel;
     private readonly Driver driver;
     
+    private readonly List<string> cleanupDataCommands = new List<string>();
     private readonly List<string> preUpgradeCommands = new List<string>();
     private readonly List<string> upgradeCommands = new List<string>();
-    private readonly List<string> dataManipulateCommands = new List<string>();
+    private readonly List<string> copyDataCommands = new List<string>();
     private readonly List<string> postUpgradeCommands = new List<string>();
     private readonly List<string> nonTransactionalEpilogCommands = new List<string>();
     private readonly List<string> nonTransactionalPrologCommands = new List<string>();
@@ -68,6 +70,18 @@ namespace Xtensive.Storage.Providers.Sql
     private bool IsSequencesAllowed
     {
       get { return providerInfo.Supports(ProviderFeatures.Sequences); }
+    }
+
+    /// <summary>
+    /// Gets the data cleanup commands.
+    /// </summary>
+    public List<string> CleanupDataCommands
+    {
+      get
+      {
+        EnsureCommandsAreTranslated();
+        return cleanupDataCommands;
+      }
     }
 
     /// <summary>
@@ -96,14 +110,14 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <summary>
-    /// Gets the data manipulate commands.
+    /// Gets the data copy commands.
     /// </summary>
-    public List<string> DataManipulateCommands
+    public List<string> CopyDataCommands
     {
       get
       {
         EnsureCommandsAreTranslated();
-        return dataManipulateCommands;
+        return copyDataCommands;
       }
     }
 
@@ -150,16 +164,22 @@ namespace Xtensive.Storage.Providers.Sql
     /// </summary>
     public void Translate()
     {
-      // Prepairing
-      stage = UpgradeStage.Prepare;
+      // Data cleanup
+      stage = UpgradeStage.CleanupData;
       // Turn off deferred contraints
       if (providerInfo.Supports(ProviderFeatures.DeferrableConstraints))
         RegisterCommand(SqlDdl.Command(SqlCommandType.SetConstraintsAllImmediate), NonTransactionalStage.None);
+      var cleanupData = actions.OfType<GroupingNodeAction>()
+        .FirstOrDefault(ga => ga.Comment==UpgradeStage.CleanupData.ToString());
+      if (cleanupData!=null)
+        VisitAction(cleanupData);
+      ProcessClearDataActions();
+      // Prepairing
+      stage = UpgradeStage.Prepare;
       var prepare = actions.OfType<GroupingNodeAction>()
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Prepare.ToString());
       if (prepare!=null)
         VisitAction(prepare);
-      ProcessClearDataActions();
       // Mutual renaming
       stage = UpgradeStage.TemporaryRename;
       var cycleRename = actions.OfType<GroupingNodeAction>()
@@ -172,11 +192,10 @@ namespace Xtensive.Storage.Providers.Sql
         .FirstOrDefault(ga => ga.Comment==UpgradeStage.Upgrade.ToString());
       if (upgrade!=null)
         VisitAction(upgrade);
-      // Data manipulating
-      stage = UpgradeStage.DataManipulate;
-      // Process column type changes
+      // Copying data
+      stage = UpgradeStage.CopyData;
       var dataManipulate = actions.OfType<GroupingNodeAction>()
-        .FirstOrDefault(ga => ga.Comment==UpgradeStage.DataManipulate.ToString());
+        .FirstOrDefault(ga => ga.Comment==UpgradeStage.CopyData.ToString());
       if (dataManipulate!=null)
         VisitAction(dataManipulate);
       // Cleanup
@@ -247,7 +266,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var propertyChangeAction = action as PropertyChangeAction;
       if (propertyChangeAction != null) {
-        var changedNode = targetModel.Resolve(propertyChangeAction.Path);
+        var changedNode = targetModel.Resolve(propertyChangeAction.Path, true);
         if (changedNode.GetType()==typeof (SequenceInfo))
           VisitAlterSequenceAction(propertyChangeAction);
         else if (changedNode.GetType()==typeof (ColumnInfo))
@@ -300,12 +319,12 @@ namespace Xtensive.Storage.Providers.Sql
       var hint = action.DataHint as CopyDataHint;
       var copiedColumns = hint.CopiedColumns
         .Select(pair => new Pair<ColumnInfo>(
-          sourceModel.Resolve(pair.First) as ColumnInfo,
-          targetModel.Resolve(pair.Second) as ColumnInfo)).ToArray();
+          sourceModel.Resolve(pair.First, true) as ColumnInfo,
+          targetModel.Resolve(pair.Second, true) as ColumnInfo)).ToArray();
       var identityColumns = hint.Identities
         .Select(pair => new Pair<ColumnInfo>(
-          sourceModel.Resolve(pair.Source) as ColumnInfo,
-          targetModel.Resolve(pair.Target) as ColumnInfo)).ToArray();
+          sourceModel.Resolve(pair.Source, true) as ColumnInfo,
+          targetModel.Resolve(pair.Target, true) as ColumnInfo)).ToArray();
       if (copiedColumns.Length == 0 || identityColumns.Length == 0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
@@ -365,7 +384,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void VisitAlterTableAction(MoveNodeAction action)
     {
-      var oldTableInfo = sourceModel.Resolve(action.Path) as TableInfo;
+      var oldTableInfo = sourceModel.Resolve(action.Path, true) as TableInfo;
       var table = FindTable(oldTableInfo.Name);
       RegisterCommand(SqlDdl.Rename(table, action.Name), NonTransactionalStage.None);
       oldTableInfo.Name = action.Name;
@@ -434,7 +453,7 @@ namespace Xtensive.Storage.Providers.Sql
       var movementInfo = ((NodeDifference) action.Difference).MovementInfo;
       if ((movementInfo & MovementInfo.NameChanged)!=0) {
         // Process name changing
-        var oldColumnInfo = sourceModel.Resolve(action.Path) as ColumnInfo;
+        var oldColumnInfo = sourceModel.Resolve(action.Path, true) as ColumnInfo;
         var column = FindColumn(oldColumnInfo.Parent.Name, oldColumnInfo.Name);
         RenameColumn(column, action.Name);
         oldColumnInfo.Name = action.Name;
@@ -599,7 +618,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void VisitAlterSequenceAction(PropertyChangeAction action)
     {
-      var sequenceInfo = targetModel.Resolve(action.Path) as SequenceInfo;
+      var sequenceInfo = targetModel.Resolve(action.Path, true) as SequenceInfo;
 
       // Check if sequence is not newly created
       if ((IsSequencesAllowed 
@@ -681,13 +700,13 @@ namespace Xtensive.Storage.Providers.Sql
     private void ProcessDeleteDataAction(DataAction action)
     {
       var hint = action.DataHint as DeleteDataHint;
-      var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath) as TableInfo;
+      var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath, true) as TableInfo;
       var table = SqlDml.TableRef(FindTable(soureTableInfo.Name));
       var delete = SqlDml.Delete(table);
       
       delete.Where = CreateConditionalExpression(hint, table);
 
-      RegisterCommand(delete, UpgradeStage.Prepare, NonTransactionalStage.None);
+      RegisterCommand(delete, UpgradeStage.CleanupData, NonTransactionalStage.None);
     }
 
     /// <exception cref="InvalidOperationException">Can not create update command 
@@ -695,13 +714,13 @@ namespace Xtensive.Storage.Providers.Sql
     private void ProcessUpdateDataAction(DataAction action)
     {
       var hint = action.DataHint as  UpdateDataHint;
-      var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath) as TableInfo;
+      var soureTableInfo = sourceModel.Resolve(hint.SourceTablePath, true) as TableInfo;
       var table = SqlDml.TableRef(FindTable(soureTableInfo.Name));
       var update = SqlDml.Update(table);
 
       var updatedColumns = hint.UpdateParameter
         .Select(pair => new Pair<ColumnInfo, object>(
-          sourceModel.Resolve(pair.First) as ColumnInfo,
+          sourceModel.Resolve(pair.First, true) as ColumnInfo,
           pair.Second)).ToArray();
       if (updatedColumns.Length==0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
@@ -713,7 +732,7 @@ namespace Xtensive.Storage.Providers.Sql
 
       update.Where = CreateConditionalExpression(hint, table);
       
-      RegisterCommand(update, UpgradeStage.Prepare, NonTransactionalStage.None);
+      RegisterCommand(update, UpgradeStage.CleanupData, NonTransactionalStage.None);
     }
 
     private void ProcessClearAncestorsActions(List<DataAction> originalActions)
@@ -724,7 +743,7 @@ namespace Xtensive.Storage.Providers.Sql
       // Merge actions
       var deleteActions = new Dictionary<TableInfo, List<string>>();
       foreach (var action in originalActions) {
-        var sourceTableInfo = sourceModel.Resolve(action.DataHint.SourceTablePath) as TableInfo;
+        var sourceTableInfo = sourceModel.Resolve(action.DataHint.SourceTablePath, true) as TableInfo;
         List<string> list;
         if (!deleteActions.TryGetValue(sourceTableInfo, out list)) {
           list = new List<string>();
@@ -733,11 +752,11 @@ namespace Xtensive.Storage.Providers.Sql
         list.AddRange(action.DataHint.Identities.Select(pair => pair.Target));
       }
 
-      // Sort actions topologicaly according to foreign keys
-      var nodes = new List<Node<TableInfo, ForeignKeyInfo>>();
+      // Sort actions topologicaly according with foreign keys
+      var nodes = new List<Core.Sorting.Node<TableInfo, ForeignKeyInfo>>();
       var foreignKeys = sourceModel.Tables.SelectMany(table => table.ForeignKeys).ToList();
       foreach (var pair in deleteActions)
-        nodes.Add(new Node<TableInfo, ForeignKeyInfo>(pair.Key));
+        nodes.Add(new Core.Sorting.Node<TableInfo, ForeignKeyInfo>(pair.Key));
       foreach (var foreignKey in foreignKeys) {
         ForeignKeyInfo foreignKeyInfo = foreignKey;
         var referencedNode = nodes.FirstOrDefault(node => node.Item==foreignKeyInfo.PrimaryKey.Parent);
@@ -757,14 +776,14 @@ namespace Xtensive.Storage.Providers.Sql
         var typeIds = deleteActions[table];
         foreach (var typeId in typeIds)
           delete.Where |= tableRef[typeIdColumnName]==typeId;
-        RegisterCommand(delete, UpgradeStage.Prepare, NonTransactionalStage.None);
+        RegisterCommand(delete, UpgradeStage.CleanupData, NonTransactionalStage.None);
       }
     }
 
     private void GenerateChangeColumnTypeCommands(PropertyChangeAction action)
     {
-      var targetColumn = targetModel.Resolve(action.Path) as ColumnInfo;
-      var sourceColumn = sourceModel.Resolve(action.Path) as ColumnInfo;
+      var targetColumn = targetModel.Resolve(action.Path, true) as ColumnInfo;
+      var sourceColumn = sourceModel.Resolve(action.Path, true) as ColumnInfo;
       var column = FindColumn(targetColumn.Parent.Name, targetColumn.Name);
       var table = column.Table;
       var originalName = column.Name;
@@ -796,7 +815,7 @@ namespace Xtensive.Storage.Providers.Sql
           getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], type));
           copyValues.Values[tableRef[originalName]] = getValue;
         }
-        RegisterCommand(copyValues, UpgradeStage.DataManipulate, NonTransactionalStage.None);
+        RegisterCommand(copyValues, UpgradeStage.CopyData, NonTransactionalStage.None);
       }
 
       // Drop old column
@@ -997,12 +1016,12 @@ namespace Xtensive.Storage.Providers.Sql
         var identityColumnPairs = hint.Identities
           .Where(pair => !pair.IsIdentifiedByConstant).Select(pair =>
             new Pair<ColumnInfo, ColumnInfo>(
-              sourceModel.Resolve(pair.Target) as ColumnInfo,
-              sourceModel.Resolve(pair.Source) as ColumnInfo)).ToArray();
+              sourceModel.Resolve(pair.Target, true) as ColumnInfo,
+              sourceModel.Resolve(pair.Source, true) as ColumnInfo)).ToArray();
         var identityConstantPairs = hint.Identities
           .Where(pair => pair.IsIdentifiedByConstant).Select(pair =>
             new Pair<ColumnInfo, string>(
-              sourceModel.Resolve(pair.Source) as ColumnInfo,
+              sourceModel.Resolve(pair.Source, true) as ColumnInfo,
               pair.Target)).ToArray();
         var selectColumns = identityColumnPairs.Select(columnPair => columnPair.First)
           .Concat(identityConstantPairs.Select(constantPair => constantPair.First)).ToArray();
@@ -1024,7 +1043,7 @@ namespace Xtensive.Storage.Providers.Sql
         var identityConstantPairs = hint.Identities
           .Where(pair => pair.IsIdentifiedByConstant).Select(pair =>
             new Pair<ColumnInfo, string>(
-              sourceModel.Resolve(pair.Source) as ColumnInfo,
+              sourceModel.Resolve(pair.Source, true) as ColumnInfo,
               pair.Target)).ToArray();
         if (identityConstantPairs.Count() == 0)
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
@@ -1052,6 +1071,9 @@ namespace Xtensive.Storage.Providers.Sql
           return;
       }
       switch (stage) {
+        case UpgradeStage.CleanupData:
+          cleanupDataCommands.Add(commandText);
+          break;
         case UpgradeStage.Prepare:
         case UpgradeStage.TemporaryRename:
           preUpgradeCommands.Add(commandText);
@@ -1059,8 +1081,8 @@ namespace Xtensive.Storage.Providers.Sql
         case UpgradeStage.Upgrade:
           upgradeCommands.Add(commandText);
           break;
-        case UpgradeStage.DataManipulate:
-          dataManipulateCommands.Add(commandText);
+        case UpgradeStage.CopyData:
+          copyDataCommands.Add(commandText);
           break;
         case UpgradeStage.Cleanup:
           postUpgradeCommands.Add(commandText);

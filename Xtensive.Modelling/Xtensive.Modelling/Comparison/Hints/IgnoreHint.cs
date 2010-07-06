@@ -18,7 +18,6 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// Add possibilities to ignore specified node in comparison.
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("{Path}")]
   public class IgnoreHint : Hint
   {
     /// <summary>
@@ -30,6 +29,12 @@ namespace Xtensive.Modelling.Comparison.Hints
     public override IEnumerable<HintTarget> GetTargets()
     {
       yield return new HintTarget(ModelType.Source, Path);
+    }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format("Ignore '{0}'", Path);
     }
 
 

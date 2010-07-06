@@ -12,6 +12,10 @@ namespace Xtensive.Modelling.Comparison
   public enum UpgradeStage
   {
     /// <summary>
+    /// Record-level cleanup.
+    /// </summary>
+    CleanupData,
+    /// <summary>
     /// Remove unnecesery structures.
     /// </summary>
     Prepare,
@@ -24,9 +28,9 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     Upgrade,
     /// <summary>
-    /// Manipulate data.
+    /// Copy data.
     /// </summary>
-    DataManipulate,
+    CopyData,
     /// <summary>
     /// Remove structures thats have not been 
     /// removed on <see cref="UpgradeStage.Prepare"/> stage.

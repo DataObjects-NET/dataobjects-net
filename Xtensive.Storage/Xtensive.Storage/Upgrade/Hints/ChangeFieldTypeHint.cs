@@ -16,7 +16,8 @@ namespace Xtensive.Storage.Upgrade
   /// Change field type enforced (ignore type conversion verification) hint.
   /// </summary>
   [Serializable]
-  public sealed class ChangeFieldTypeHint : UpgradeHint
+  public sealed class ChangeFieldTypeHint : UpgradeHint,
+    IEquatable<ChangeFieldTypeHint>
   {
     private const string ToStringFormat = "Change type of field: {0}.{1}";
 
@@ -34,7 +35,36 @@ namespace Xtensive.Storage.Upgrade
     /// Gets affected column paths.
     /// </summary>
     public ReadOnlyList<string> AffectedColumns { get; internal set; }
-    
+
+    /// <inheritdoc/>
+    public bool Equals(ChangeFieldTypeHint other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return base.Equals(other) 
+        && other.Type==Type 
+        && other.FieldName==FieldName;
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(UpgradeHint other)
+    {
+      return Equals(other as ChangeFieldTypeHint);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = base.GetHashCode();
+        result = (result * 397) ^ (Type!=null ? Type.GetHashCode() : 0);
+        result = (result * 397) ^ (FieldName!=null ? FieldName.GetHashCode() : 0);
+        return result;
+      }
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {

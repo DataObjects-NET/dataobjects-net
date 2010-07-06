@@ -14,7 +14,8 @@ namespace Xtensive.Storage.Upgrade
   /// Rename field hint.
   /// </summary>
   [Serializable]
-  public sealed class RenameFieldHint : UpgradeHint
+  public sealed class RenameFieldHint : UpgradeHint,
+    IEquatable<RenameFieldHint>
   {
     private const string ToStringFormat = "Rename field: {0} {1} -> {2}";
 
@@ -34,10 +35,42 @@ namespace Xtensive.Storage.Upgrade
     public string NewFieldName { get; private set; }
 
     /// <inheritdoc/>
+    public bool Equals(RenameFieldHint other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return base.Equals(other) 
+        && other.TargetType==TargetType 
+        && other.OldFieldName==OldFieldName
+        && other.NewFieldName==NewFieldName;
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(UpgradeHint other)
+    {
+      return Equals(other as RenameFieldHint);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = base.GetHashCode();
+        result = (result * 397) ^ (TargetType!=null ? TargetType.GetHashCode() : 0);
+        result = (result * 397) ^ (OldFieldName!=null ? OldFieldName.GetHashCode() : 0);
+        result = (result * 397) ^ (NewFieldName!=null ? NewFieldName.GetHashCode() : 0);
+        return result;
+      }
+    }
+
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat, TargetType.FullName, OldFieldName, NewFieldName);
     }
+
 
     // Constructors
 

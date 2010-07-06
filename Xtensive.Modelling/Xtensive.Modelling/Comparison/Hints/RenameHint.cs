@@ -15,7 +15,6 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// Rename hint.
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("{SourcePath}, {TargetPath}")]
   public class RenameHint : Hint
   {
     /// <summary>
@@ -35,6 +34,11 @@ namespace Xtensive.Modelling.Comparison.Hints
       yield return new HintTarget(ModelType.Target, TargetPath);
     }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format("Rename '{0}' -> '{1}'", SourcePath, TargetPath);
+    }
 
     // Constructors
 

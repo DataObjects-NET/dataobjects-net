@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling.Attributes;
+using Xtensive.Core;
 
 namespace Xtensive.Modelling.Tests.DatabaseModel
 {
@@ -50,8 +51,8 @@ namespace Xtensive.Modelling.Tests.DatabaseModel
     protected override void OnPropertyChanged(string name)
     {
       base.OnPropertyChanged(name);
-      PropertyAccessor accessor;
-      if (PropertyAccessors.TryGetValue(name, out accessor)) {
+      var accessor = PropertyAccessors.GetValueOrDefault(name);
+      if (accessor!=null) {
         if (!accessor.HasGetter)
           return;
         if (accessor.IsSystem)

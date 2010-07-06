@@ -30,6 +30,7 @@ namespace Xtensive.Core.Collections
       /// <summary>
       /// Inner dictionary.
       /// </summary>
+      [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
       protected readonly IDictionary<TKey, TValue> dictionary;
 
       /// <inheritdoc/>
