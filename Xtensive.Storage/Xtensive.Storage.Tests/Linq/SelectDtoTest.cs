@@ -32,6 +32,9 @@ namespace Xtensive.Storage.Tests.Linq
 
       [Field]
       public string Name { get; set; }
+
+      [Field,Association(PairTo = "Manager")]
+      public EntitySet<Person> Persons { get; private set; }
     }
 
     [HierarchyRoot]
@@ -52,6 +55,12 @@ namespace Xtensive.Storage.Tests.Linq
 
       [Field]
       public BudgetType? BudgetType { get; set; }
+    }
+
+    public class ManagerDto
+    {
+      public int Id { get; set; }
+      public int? FirstPersonId { get; set; }
     }
 
     public class PersonDto
@@ -210,6 +219,34 @@ namespace Xtensive.Storage.Tests.Linq
          .Select(p => new PersonDto() { Id = p.Id, Name = p.Name, Description = p.Name ?? GetDescription(p) })
          .Where(x => x.Name == null)
          .ToList();
+      }
+    }
+
+    [Test]
+    public void FirstOrDefaultTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var t = Transaction.Open()) {
+        var manager = new Manager() {
+          Name = "Manager"
+        };
+        var looser = new Manager() {
+          Name = "Looser"
+        };
+        new Person() { Name = "A", BudgetType = BudgetType.Default, Manager = manager};
+        new Person() { Name = "B", BudgetType = BudgetType.Default, Manager = manager};
+        new Person() { Name = "C", BudgetType = BudgetType.Regional, Manager = manager };
+        new Person() { Name = "D", BudgetType = BudgetType.State, Manager = manager };
+        new Person() { Name = "E" };
+        new Person() { Name = "F" };
+
+        var list = Query.All<Manager>()
+          .Select(m => new { Entity = m, FirstPerson = m.Persons.FirstOrDefault() })
+          .Select(g => new ManagerDto() {
+              Id = g.Entity.Id,
+              FirstPersonId = g.FirstPerson != null ? (int?)g.FirstPerson.Id : null,
+            })
+          .ToList();
       }
     }
 
