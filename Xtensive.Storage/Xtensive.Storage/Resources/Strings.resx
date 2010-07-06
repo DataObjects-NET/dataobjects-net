@@ -561,11 +561,13 @@
   <data name="ExSpecifiedValuesArentEnoughToCreateKeyForTypeX" xml:space="preserve">
     <value>Specified values aren't enough to create key for type '{0}'.</value>
   </data>
-  <data name="ExExtractedSchemaIsNotCompatibleWithTheTargetSchema" xml:space="preserve">
-    <value>Extracted schema is not compatible with the target schema.</value>
+  <data name="ExExtractedSchemaIsNotCompatibleWithTheTargetSchema_DetailsX" xml:space="preserve">
+    <value>Extracted schema is not compatible with the target schema. Details:
+{0}</value>
   </data>
-  <data name="ExCannotUpgradeSchemaSafely" xml:space="preserve">
-    <value>Cannot upgrade schema safely{0}.</value>
+  <data name="ExCanNotUpgradeSchemaSafely_DetailsX" xml:space="preserve">
+    <value>Cannot upgrade schema safely. Details:
+{0}</value>
   </data>
   <data name="ExUpgradeOfAssemblyXFromVersionYToZIsNotSupported" xml:space="preserve">
     <value>Upgrade of assembly '{0}' from version '{1}' to '{2}' is not supported.</value>
@@ -600,17 +602,22 @@
   <data name="ExMoreThanOneEnabledXIsProvidedForAssemblyY" xml:space="preserve">
     <value>More than one enabled {0} is provided for assembly '{1}'.</value>
   </data>
-  <data name="ExExtractedSchemaIsNotEqualToTheTargetSchema" xml:space="preserve">
-    <value>Extracted schema is not equal to the target schema.</value>
+  <data name="ExExtractedSchemaIsNotEqualToTheTargetSchema_DetailsX" xml:space="preserve">
+    <value>Extracted schema is not equal to the target schema. Details:
+{0}</value>
   </data>
   <data name="SchemaComparisonResultFormat" xml:space="preserve">
-    <value>Status: {0}
-Hints:
-{1}
-Difference:
-{2}
-Actions:
-{3}</value>
+    <value>Schema comparison result: {0}
+Has unsafe actions: {1}
+Has column type changes: {2} 
+Compatible in ValidateLegacy mode: {3}
+
+Unsafe actions:
+{4}
+Schema hints:
+{5}
+Schema difference:
+{6}</value>
   </data>
   <data name="LogComparisonResultX" xml:space="preserve">
     <value>Comparison result:
@@ -785,13 +792,7 @@ Actions:
   <data name="EntityWithKeyXDoesNotExist" xml:space="preserve">
     <value>Entity with Key = '{0}' does not exist.</value>
   </data>
-  <data name="CanUpgradeTypeSafely" xml:space="preserve">
-    <value>Can upgrade safely</value>
-  </data>
-  <data name="CantUpgradeTypeSafely" xml:space="preserve">
-    <value>Can't upgrade safely</value>
-  </data>
-  <data name="ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet" xml:space="preserve">
+	<data name="ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet" xml:space="preserve">
     <value>There is no current HttpRequest, or SessionManager is not bound to it yet.</value>
   </data>
   <data name="ExQueryContainsClosuresOfDifferentTypes" xml:space="preserve">
@@ -1415,8 +1416,9 @@ Actions:
   <data name="ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt" xml:space="preserve">
     <value>Active Transaction is required for this operation. Use Transaction.Open(...) to open it.</value>
   </data>
-  <data name="ExLegacySchemaIsNotCompatibleX" xml:space="preserve">
-    <value>Legacy schema is not compatible ({0}).</value>
+  <data name="ExLegacySchemaIsNotCompatible_DetailsX" xml:space="preserve">
+    <value>Legacy schema is not compatible. Details: 
+{0}</value>
   </data>
   <data name="LogSkippingSchemaSynchronization" xml:space="preserve">
     <value>Skipping schema synchronization.</value>

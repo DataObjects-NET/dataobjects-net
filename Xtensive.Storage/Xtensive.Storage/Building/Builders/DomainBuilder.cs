@@ -278,7 +278,7 @@ namespace Xtensive.Storage.Building.Builders
         if (schemaUpgradeMode==SchemaUpgradeMode.Recreate) {
           var emptySchema = new StorageInfo();
           result = SchemaComparer.Compare(extractedSchema, emptySchema, null, schemaUpgradeMode, context.Model);
-          if (result.Status!=SchemaComparisonStatus.Equal || result.HasTypeChanges) {
+          if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges) {
             if (Log.IsLogged(LogEventTypes.Info))
               Log.Info(Strings.LogClearingComparisonResultX, result);
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, emptySchema);
@@ -298,34 +298,29 @@ namespace Xtensive.Storage.Building.Builders
 
         switch (schemaUpgradeMode) {
         case SchemaUpgradeMode.ValidateExact:
-          if (result.Status!=SchemaComparisonStatus.Equal || result.HasTypeChanges)
+          if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges)
             throw new SchemaSynchronizationException(
-              Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema);
+              Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema_DetailsX.FormatWith(result));
           break;
         case SchemaUpgradeMode.ValidateCompatible:
-          if (result.Status!=SchemaComparisonStatus.Equal && result.Status!=SchemaComparisonStatus.TargetIsSubset)
+          if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal && result.SchemaComparisonStatus!=SchemaComparisonStatus.TargetIsSubset)
             throw new SchemaSynchronizationException(
-              Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema);
+              Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema_DetailsX.FormatWith(result));
           break;
         case SchemaUpgradeMode.Recreate:
         case SchemaUpgradeMode.Perform:
           upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         case SchemaUpgradeMode.PerformSafely:
-          var firstBreakingAction = result.BreakingActions.FirstOrDefault();
-          if (firstBreakingAction!=null)
+          if (result.HasUnsafeActions)
             throw new SchemaSynchronizationException(
-              string.Format(Strings.ExCannotUpgradeSchemaSafely, GetErrorMessage(firstBreakingAction)));
+              Strings.ExCanNotUpgradeSchemaSafely_DetailsX.FormatWith(result));
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           break;
         case SchemaUpgradeMode.ValidateLegacy:
-          firstBreakingAction = result.BreakingActions.FirstOrDefault();
-          var firstBreakingActionDescription = firstBreakingAction!=null
-            ? GetErrorMessage(firstBreakingAction)
-            : string.Empty;
-          if (!result.IsCompatible)
-            throw new SchemaSynchronizationException(string.Format(
-              Strings.ExLegacySchemaIsNotCompatibleX, firstBreakingActionDescription));
+          if (result.IsCompatibleInLegacyMode!=true)
+            throw new SchemaSynchronizationException(
+              Strings.ExLegacySchemaIsNotCompatible_DetailsX.FormatWith(result));
           break;
         default:
           throw new ArgumentOutOfRangeException("schemaUpgradeMode");

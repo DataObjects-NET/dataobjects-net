@@ -133,24 +133,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t upgrade safely.
-        /// </summary>
-        internal static string CantUpgradeTypeSafely {
-            get {
-                return ResourceManager.GetString("CantUpgradeTypeSafely", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can upgrade safely.
-        /// </summary>
-        internal static string CanUpgradeTypeSafely {
-            get {
-                return ResourceManager.GetString("CanUpgradeTypeSafely", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Columns.
         /// </summary>
         internal static string Columns {
@@ -512,11 +494,12 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot upgrade schema safely{0}..
+        ///   Looks up a localized string similar to Cannot upgrade schema safely. Details:
+        ///{0}.
         /// </summary>
-        internal static string ExCannotUpgradeSchemaSafely {
+        internal static string ExCanNotUpgradeSchemaSafely_DetailsX {
             get {
-                return ResourceManager.GetString("ExCannotUpgradeSchemaSafely", resourceCulture);
+                return ResourceManager.GetString("ExCanNotUpgradeSchemaSafely_DetailsX", resourceCulture);
             }
         }
         
@@ -1018,20 +1001,22 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Extracted schema is not compatible with the target schema..
+        ///   Looks up a localized string similar to Extracted schema is not compatible with the target schema. Details:
+        ///{0}.
         /// </summary>
-        internal static string ExExtractedSchemaIsNotCompatibleWithTheTargetSchema {
+        internal static string ExExtractedSchemaIsNotCompatibleWithTheTargetSchema_DetailsX {
             get {
-                return ResourceManager.GetString("ExExtractedSchemaIsNotCompatibleWithTheTargetSchema", resourceCulture);
+                return ResourceManager.GetString("ExExtractedSchemaIsNotCompatibleWithTheTargetSchema_DetailsX", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Extracted schema is not equal to the target schema..
+        ///   Looks up a localized string similar to Extracted schema is not equal to the target schema. Details:
+        ///{0}.
         /// </summary>
-        internal static string ExExtractedSchemaIsNotEqualToTheTargetSchema {
+        internal static string ExExtractedSchemaIsNotEqualToTheTargetSchema_DetailsX {
             get {
-                return ResourceManager.GetString("ExExtractedSchemaIsNotEqualToTheTargetSchema", resourceCulture);
+                return ResourceManager.GetString("ExExtractedSchemaIsNotEqualToTheTargetSchema_DetailsX", resourceCulture);
             }
         }
         
@@ -1711,11 +1696,12 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Legacy schema is not compatible ({0})..
+        ///   Looks up a localized string similar to Legacy schema is not compatible. Details: 
+        ///{0}.
         /// </summary>
-        internal static string ExLegacySchemaIsNotCompatibleX {
+        internal static string ExLegacySchemaIsNotCompatible_DetailsX {
             get {
-                return ResourceManager.GetString("ExLegacySchemaIsNotCompatibleX", resourceCulture);
+                return ResourceManager.GetString("ExLegacySchemaIsNotCompatible_DetailsX", resourceCulture);
             }
         }
         
@@ -1982,7 +1968,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Assembly &apos;{1}&apos; is not processed by PostSharp. See section 2 of Manual for details..
+        ///   Looks up a localized string similar to [Persistent] attribute isn&apos;t applied on type &apos;{0}&apos;, or assembly &apos;{1}&apos; is not processed by PostSharp. See section 2 of Manual for details..
         /// </summary>
         internal static string ExPersistentAttributeIsNotSetOnTypeXOrAssemblyYIsNotProcessedByPostSharp {
             get {
@@ -3921,13 +3907,17 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Status: {0}
-        ///Hints:
-        ///{1}
-        ///Difference:
-        ///{2}
-        ///Actions:
-        ///{3}.
+        ///   Looks up a localized string similar to Schema comparison result: {0}
+        ///Has unsafe actions: {1}
+        ///Has column type changes: {2} 
+        ///Compatible in ValidateLegacy mode: {3}
+        ///
+        ///Unsafe actions:
+        ///{4}
+        ///Schema hints:
+        ///{5}
+        ///Schema difference:
+        ///{6}.
         /// </summary>
         internal static string SchemaComparisonResultFormat {
             get {
