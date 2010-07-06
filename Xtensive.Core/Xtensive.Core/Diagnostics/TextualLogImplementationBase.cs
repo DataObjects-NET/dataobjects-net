@@ -78,41 +78,43 @@ namespace Xtensive.Core.Diagnostics
     /// <inheritdoc/>
     public sealed override void LogEvent(LogEventTypes eventType, object message, Exception exception, IRealLog sentTo, LogCaptureScope capturedBy)
     {
-      DateTime currentTime;
-      double elapsed;
-      string currentFormat;
-      lock (this) {
-        currentTime = HighResolutionTime.Now;
-        elapsed = (currentTime - zeroTime).TotalSeconds;
-        currentFormat = GetCurrentFormat();
-      }
+      if (IsLogged(eventType)) {
+        DateTime currentTime;
+        double elapsed;
+        string currentFormat;
+        lock (this) {
+          currentTime = HighResolutionTime.Now;
+          elapsed = (currentTime - zeroTime).TotalSeconds;
+          currentFormat = GetCurrentFormat();
+        }
 
-      var thread = Thread.CurrentThread;
-      string text;
-      if (currentFormat.EndsWith("{5}")) {
-        string prefix = string.Format(
-          currentFormat,
-          elapsed,
-          thread.Name ?? thread.ManagedThreadId.ToString(),
-          eventType.ToShortString(),
-          Log.Name,
-          LogIndentScope.CurrentIndentString,
-          string.Empty,
-          currentTime);
-        text = prefix + (exception ?? message).ToString().Indent(prefix.Length, false);
-      }
-      else 
-        text = string.Format(
-          currentFormat,
-          elapsed,
-          thread.Name ?? thread.ManagedThreadId.ToString(),
-          eventType.ToShortString(),
-          Log.Name,
-          LogIndentScope.CurrentIndentString,
-          (exception ?? message),
-          currentTime);
+        var thread = Thread.CurrentThread;
+        string text;
+        if (currentFormat.EndsWith("{5}")) {
+          string prefix = string.Format(
+            currentFormat,
+            elapsed,
+            thread.Name ?? thread.ManagedThreadId.ToString(),
+            eventType.ToShortString(),
+            Log.Name,
+            LogIndentScope.CurrentIndentString,
+            string.Empty,
+            currentTime);
+          text = prefix + (exception ?? message).ToString().Indent(prefix.Length, false);
+        }
+        else 
+          text = string.Format(
+            currentFormat,
+            elapsed,
+            thread.Name ?? thread.ManagedThreadId.ToString(),
+            eventType.ToShortString(),
+            Log.Name,
+            LogIndentScope.CurrentIndentString,
+            (exception ?? message),
+            currentTime);
 
-      LogEventText(text);
+        LogEventText(text);
+      }
       base.LogEvent(eventType, message, exception, sentTo, capturedBy);
     }
 
