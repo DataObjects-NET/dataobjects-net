@@ -46,7 +46,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     public override string ToString()
     {
       return string.Format(
-        "Copy from ({0}) to ({1}) where ({2})",
+        "Copy from '{0}' to '{1}' where ({2})",
         string.Join(", ", CopiedColumns.Select(pair => pair.First)
           .ToArray()),
         string.Join(", ", CopiedColumns.Select(pair => pair.Second)

@@ -228,7 +228,7 @@ namespace Xtensive.Core.Reflection
       var ei = member as EventInfo;
       if (mi!=null) {
         var type = mi.DeclaringType.UnderlyingSystemType;
-        foreach (var iType in type.GetInterfaces(true)) {
+        foreach (var iType in type.GetInterfaces()) {
           var map = type.GetInterfaceMap(iType.UnderlyingSystemType);
           for (int i = 0; i < map.InterfaceMethods.Length; i++) {
             var tmi = map.TargetMethods[i];

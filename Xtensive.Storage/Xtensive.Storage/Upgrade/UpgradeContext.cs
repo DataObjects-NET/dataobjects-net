@@ -17,7 +17,6 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Reflection;

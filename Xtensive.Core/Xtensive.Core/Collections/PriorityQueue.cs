@@ -35,10 +35,13 @@ namespace Xtensive.Core.Collections
     private const float trimThresholdFactor = 0.9f;
 
     // Fields
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private Pair<T, TPriority>[] items;   // Actual data buffer
     private int version; // Version to detect consistency while enumeration executes
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private int count; // Count of items in queue
     private readonly float growFactor = defaultGrowFactor;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly Direction direction;
     private readonly PriorityQueueItemComparer<T, TPriority> comparer;
 

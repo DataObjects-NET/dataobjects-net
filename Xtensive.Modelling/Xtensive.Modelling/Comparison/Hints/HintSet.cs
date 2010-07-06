@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -22,9 +23,11 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <see cref="Hint"/> set.
   /// </summary>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public class HintSet : LockableBase,
     IHintSet
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private static ThreadSafeCached<HintSet> cachedEmpty = 
       ThreadSafeCached<HintSet>.Create(new object());
 
@@ -41,7 +44,9 @@ namespace Xtensive.Modelling.Comparison.Hints
       }
     }
 
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly HashSet<Hint> hints = new HashSet<Hint>();
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly Dictionary<Node, Dictionary<Type, object>> hintMap =
       new Dictionary<Node, Dictionary<Type, object>>();
     
@@ -136,12 +141,12 @@ namespace Xtensive.Modelling.Comparison.Hints
 
       if (!hintMap.ContainsKey(node))
         hintMap.Add(node, new Dictionary<Type, object>());
-      Dictionary<Type, object> nodeHintMap;
-      if (!hintMap.TryGetValue(node, out nodeHintMap))
+      var nodeHintMap = hintMap.GetValueOrDefault(node);
+      if (nodeHintMap==null)
         return null;
       var hintType = typeof(THint);
-      object hintOrList;
-      if (!nodeHintMap.TryGetValue(hintType, out hintOrList))
+      var hintOrList = nodeHintMap.GetValueOrDefault(hintType);
+      if (hintOrList==null)
         return null;
       var hint = hintOrList as THint;
       if (hint!=null)
@@ -157,12 +162,12 @@ namespace Xtensive.Modelling.Comparison.Hints
 
       if (!hintMap.ContainsKey(node))
         hintMap.Add(node, new Dictionary<Type, object>());
-      Dictionary<Type, object> nodeHintMap;
-      if (!hintMap.TryGetValue(node, out nodeHintMap))
+      var nodeHintMap = hintMap.GetValueOrDefault(node);
+      if (nodeHintMap==null)
         return ArrayUtils<THint>.EmptyArray;
       var hintType = typeof (THint);
-      object hintOrList;
-      if (!nodeHintMap.TryGetValue(hintType, out hintOrList))
+      var hintOrList = nodeHintMap.GetValueOrDefault(hintType);
+      if (hintOrList==null)
         return ArrayUtils<THint>.EmptyArray;
       var hint = hintOrList as THint;
       if (hint!=null)
@@ -184,8 +189,8 @@ namespace Xtensive.Modelling.Comparison.Hints
 
       if (!hintMap.ContainsKey(node))
         hintMap.Add(node, new Dictionary<Type, object>());
-      Dictionary<Type, object> nodeHintMap;
-      if (!hintMap.TryGetValue(node, out nodeHintMap))
+      var nodeHintMap = hintMap.GetValueOrDefault(node);
+      if (nodeHintMap==null)
         return false;
 
       return nodeHintMap.Values.Count > 0;

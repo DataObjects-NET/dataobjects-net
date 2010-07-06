@@ -62,9 +62,10 @@ namespace Xtensive.Storage.Providers.Sql
         context.TransactionScope = Transaction.Open(SessionHandler.Session);
       }
 
+      Execute(translator.CleanupDataCommands);
       Execute(translator.PreUpgradeCommands);
       Execute(translator.UpgradeCommands);
-      Execute(translator.DataManipulateCommands);
+      Execute(translator.CopyDataCommands);
       Execute(translator.PostUpgradeCommands);
 
       if (translator.NonTransactionalEpilogCommands.Count > 0) {
@@ -131,9 +132,10 @@ namespace Xtensive.Storage.Providers.Sql
 
       var batch = 
         EnumerableUtils.One(Driver.BatchBegin)
+        .Concat(translator.CleanupDataCommands)
         .Concat(translator.PreUpgradeCommands)
         .Concat(translator.UpgradeCommands)
-        .Concat(translator.DataManipulateCommands)
+        .Concat(translator.CopyDataCommands)
         .Concat(translator.PostUpgradeCommands)
         .Concat(EnumerableUtils.One(Driver.BatchEnd))
         .ToArray();

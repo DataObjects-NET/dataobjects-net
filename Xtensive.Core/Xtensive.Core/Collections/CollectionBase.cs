@@ -20,8 +20,11 @@ namespace Xtensive.Core.Collections
   public class CollectionBase<TItem>: CollectionBaseSlim<TItem>,
     ICollectionChangeNotifier<TItem>
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private EventHandler<ChangeNotifierEventArgs> itemChangedHandler;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private EventHandler<ChangeNotifierEventArgs> itemChangingHandler;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private CollectionEventBroker<TItem> eventBroker;
 
     /// <summary>

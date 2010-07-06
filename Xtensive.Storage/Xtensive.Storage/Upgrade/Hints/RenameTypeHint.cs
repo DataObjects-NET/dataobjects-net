@@ -15,7 +15,8 @@ namespace Xtensive.Storage.Upgrade
   /// Rename type hint.
   /// </summary>
   [Serializable]
-  public sealed class RenameTypeHint : UpgradeHint
+  public sealed class RenameTypeHint : UpgradeHint,
+    IEquatable<RenameTypeHint>
   {
     private const string ToStringFormat = "Rename type: {0} -> {1}";
 
@@ -30,10 +31,40 @@ namespace Xtensive.Storage.Upgrade
     public string OldType { get; private set; }
 
     /// <inheritdoc/>
+    public bool Equals(RenameTypeHint other)
+    {
+      if (ReferenceEquals(null, other))
+        return false;
+      if (ReferenceEquals(this, other))
+        return true;
+      return base.Equals(other) 
+        && other.NewType==NewType
+        && other.OldType==OldType;
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(UpgradeHint other)
+    {
+      return Equals(other as RenameTypeHint);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      unchecked {
+        int result = base.GetHashCode();
+        result = (result * 397) ^ (NewType!=null ? NewType.GetHashCode() : 0);
+        result = (result * 397) ^ (OldType!=null ? OldType.GetHashCode() : 0);
+        return result;
+      }
+    }
+
+    /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(ToStringFormat, OldType, NewType.GetFullName());
     }
+
 
     // Constructors
 

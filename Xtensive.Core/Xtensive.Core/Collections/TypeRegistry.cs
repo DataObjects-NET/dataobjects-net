@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
@@ -21,9 +22,12 @@ namespace Xtensive.Core.Collections
     ICountable<Type>,
     ICloneable
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly List<Type> types = new List<Type>();
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly HashSet<Type> typeSet = new HashSet<Type>();
     private readonly List<TypeRegistration> actions = new List<TypeRegistration>();
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
     private readonly ITypeRegistrationProcessor processor;
     private bool isProcessingPendingActions = false;

@@ -36,6 +36,8 @@ namespace Xtensive.Core.Reflection
     private static ModuleBuilder moduleBuilder;
     private static ThreadSafeDictionary<Type, Type[]> orderedInterfaces = 
       ThreadSafeDictionary<Type, Type[]>.Create(new object());
+    private static ThreadSafeDictionary<Type, Type[]> orderedCompatibles = 
+      ThreadSafeDictionary<Type, Type[]>.Create(new object());
 
     /// <summary>
     /// Searches for associated class for <paramref name="forType"/>, creates its instance, if found.
@@ -617,17 +619,33 @@ namespace Xtensive.Core.Reflection
 
     /// <summary>
     /// Gets the interfaces of the specified type.
+    /// Interfaces will be ordered from the very base ones to ancestors.
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
-    /// <param name="orderByInheritance">Indicates interfaces must be ordered from the very base ones 
-    /// to very ancestors.</param>
-    /// <returns>The interfaces of the specified type.</returns>
-    public static Type[] GetInterfaces(this Type type, bool orderByInheritance)
+    public static Type[] GetInterfaces(this Type type)
     {
-      if (!orderByInheritance)
-        return type.GetInterfaces();
       return orderedInterfaces.GetValue(type,
         _type => _type.GetInterfaces().OrderByInheritance().ToArray());
+    }
+
+    /// <summary>
+    /// Gets the sequence of type itself, all its base types and interfaces.
+    /// Types will be ordered from the very base ones to ancestors with the specified type in the end of sequence.
+    /// </summary>
+    /// <param name="type">The type to get compatible types for.</param>
+    /// <returns>The interfaces of the specified type.</returns>
+    public static Type[] GetCompatibles(this Type type)
+    {
+      return orderedCompatibles.GetValue(type,
+        _type => {
+          var interfaces = _type.GetInterfaces();
+          var bases = EnumerableUtils.Unfold(_type.BaseType, t => t.BaseType);
+          return bases
+            .Concat(interfaces)
+            .OrderByInheritance()
+            .AddOne(_type)
+            .ToArray();
+        });
     }
 
     /// <summary>

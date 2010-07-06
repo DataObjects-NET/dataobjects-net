@@ -27,6 +27,7 @@ namespace Xtensive.Core.Collections
     ISynchronizable,
     IReadOnly
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly ICollection<T> innerCollection;
 
     /// <inheritdoc/>

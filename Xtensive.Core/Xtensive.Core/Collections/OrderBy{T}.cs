@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Xtensive.Core.Collections
@@ -17,6 +18,7 @@ namespace Xtensive.Core.Collections
   /// <typeparam name="T">The type of order by clause item.</typeparam>
   public struct OrderBy<T>
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly IEnumerable<KeyValuePair<T, Direction>> order;
 
     /// <summary>

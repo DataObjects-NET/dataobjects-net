@@ -19,6 +19,7 @@ namespace Xtensive.Core.Collections
   [DebuggerDisplay("Count = {Count}")]
   public class ReadOnlySet<T>: ISet<T>, IReadOnly
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly ISet<T> innerSet;
 
     /// <inheritdoc/>

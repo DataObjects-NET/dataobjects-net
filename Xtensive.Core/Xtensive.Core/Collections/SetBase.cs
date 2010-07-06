@@ -13,6 +13,7 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TItem">Type of values to store to set.</typeparam>
   [Serializable]
+  [DebuggerDisplay("Count = {Count}")]
   public abstract class SetBase<TItem> : LockableBase, 
     ISet<TItem>
   {

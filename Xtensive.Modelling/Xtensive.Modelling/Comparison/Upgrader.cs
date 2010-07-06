@@ -143,10 +143,11 @@ namespace Xtensive.Modelling.Comparison
       using (NullActionHandler.Instance.Activate()) {
         try {
           var actions = new GroupingNodeAction();
+          ProcessStage(UpgradeStage.CleanupData, actions);
           ProcessStage(UpgradeStage.Prepare, actions);
           ProcessStage(UpgradeStage.TemporaryRename, actions);
           ProcessStage(UpgradeStage.Upgrade, actions);
-          ProcessStage(UpgradeStage.DataManipulate, actions);
+          ProcessStage(UpgradeStage.CopyData, actions);
           ProcessStage(UpgradeStage.Cleanup, actions);
           var validationHints = new HintSet(CurrentModel, TargetModel);
           Hints.OfType<IgnoreHint>().ForEach(validationHints.Add);
@@ -265,20 +266,20 @@ namespace Xtensive.Modelling.Comparison
         || (isImmutable && difference.HasChanges && !isCreated);
 
       switch (Stage) {
-      case UpgradeStage.Prepare:
-        if (isRemoved && !difference.IsRemoveOnCleanup) {
-          if (!Context.IsRemoved || difference.IsDependentOnParent) {
-            AddAction(UpgradeActionType.PreCondition,
-              new RemoveNodeAction() {
-                Path = (source ?? target).Path
-              });
-          }
-        }
-        else if (difference.IsDataChanged) {
+      case UpgradeStage.CleanupData:
+        if (difference.IsDataChanged) {
           Hints.GetHints<UpdateDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
             .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
           Hints.GetHints<DeleteDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
             .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
+        }
+        break;
+      case UpgradeStage.Prepare:
+        if (isRemoved && !difference.IsRemoveOnCleanup) {
+          if (!Context.IsRemoved || difference.IsDependentOnParent) {
+            AddAction(UpgradeActionType.Regular,
+              new RemoveNodeAction { Path = (source ?? target).Path });
+          }
         }
         break;
       case UpgradeStage.Cleanup:
@@ -297,9 +298,13 @@ namespace Xtensive.Modelling.Comparison
             Path = source.Path,
             Parent = source.Parent==null ? string.Empty : source.Parent.Path,
             Name = temporaryName,
-            Index = source.Index,
+            Index = null,
             NewPath = GetPathWithoutName(source) + temporaryName
           });
+        break;
+      case UpgradeStage.CopyData:
+        Hints.GetHints<CopyDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
+          .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
         break;
       case UpgradeStage.Upgrade:
         if (target==null)
@@ -323,10 +328,6 @@ namespace Xtensive.Modelling.Comparison
           };
           AddAction(UpgradeActionType.PostCondition, action);
         }
-        break;
-      case UpgradeStage.DataManipulate:
-        Hints.GetHints<CopyDataHint>(difference.Source).Where(hint => hint.SourceTablePath==difference.Source.Path)
-            .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
         break;
       }
     }
@@ -467,13 +468,15 @@ namespace Xtensive.Modelling.Comparison
         isRemoved && !difference.IsRemoveOnCleanup || (isImmutable && !isCreated);
 
       switch (Stage) {
+      case UpgradeStage.CleanupData:
+          return difference.IsDataChanged;
       case UpgradeStage.Prepare:
-          return isRemoveOnPrepare || difference.IsDataChanged;
+          return isRemoveOnPrepare;
       case UpgradeStage.TemporaryRename:
         return isNameChanged && IsCyclicRename(difference);
       case UpgradeStage.Upgrade:
         return !isRemoveOnPrepare && (isCreated || isNameChanged);
-      case UpgradeStage.DataManipulate:
+      case UpgradeStage.CopyData:
         return difference.IsDataChanged;
       case UpgradeStage.Cleanup:
         return isRemoved;

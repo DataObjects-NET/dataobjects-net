@@ -17,12 +17,14 @@ namespace Xtensive.Core.Collections
   /// </summary>
   /// <typeparam name="TItem">The type of the item.</typeparam>
   [Serializable]
-  [DebuggerDisplay("Count = {Count}")]
   public class Set<TItem> : SetSlim<TItem>,
     ICollectionChangeNotifier<TItem>
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private EventHandler<ChangeNotifierEventArgs> itemChangedHandler;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private EventHandler<ChangeNotifierEventArgs> itemChangingHandler;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private CollectionEventBroker<TItem> eventBroker;
 
     /// <inheritdoc/>

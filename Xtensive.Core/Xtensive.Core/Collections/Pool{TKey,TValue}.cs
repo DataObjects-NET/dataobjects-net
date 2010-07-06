@@ -28,13 +28,21 @@ namespace Xtensive.Core.Collections
   {
     private const int DefaultCapacity = 64;
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly int capacity;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private int availableCount;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private int count;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly TimeSpan itemExpirationPeriod;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly TimeSpan garbageCollectionPeriod;
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private Dictionary<TKey, PoolEntry<TItem>> pool = new Dictionary<TKey, PoolEntry<TItem>>();
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private Dictionary<TItem, TKey> keys = new Dictionary<TItem, TKey>();
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private object _lock = new object();
     private int  version = 0;
     private Thread cleanupThread;
