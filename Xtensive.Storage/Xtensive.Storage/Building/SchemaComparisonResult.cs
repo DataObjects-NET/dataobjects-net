@@ -26,10 +26,32 @@ namespace Xtensive.Storage.Building
     /// <summary>
     /// Gets the comparison status.
     /// </summary>
-    public SchemaComparisonStatus Status { get; private set; }
+    public SchemaComparisonStatus SchemaComparisonStatus { get; private set; }
 
     /// <summary>
-    /// Gets upgrade hints.
+    /// Gets or sets a value indicating whether there are unsafe actions.
+    /// </summary>
+    public bool HasUnsafeActions { get; private set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether there are column type changes.
+    /// </summary>
+    public bool HasColumnTypeChanges { get; private set; }
+
+    /// <summary>
+    /// Indicates whether storage schema is compatible with domain model.
+    /// </summary>
+    public bool? IsCompatibleInLegacyMode { get; private set; }
+
+    /// <summary>
+    /// Gets the list of unsafe actions.
+    /// </summary>
+    public ReadOnlyList<NodeAction> UnsafeActions { get; private set;}
+
+    #region Additional information
+
+    /// <summary>
+    /// Gets the upgrade hints.
     /// </summary>
     public HintSet Hints { get; private set; }
 
@@ -39,35 +61,23 @@ namespace Xtensive.Storage.Building
     public Difference Difference { get; private set; }
 
     /// <summary>
-    /// Gets upgrade actions.
+    /// Gets all upgrade actions.
     /// </summary>
     public ActionSequence UpgradeActions { get; private set; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether extracted column types are different with target column types.
-    /// </summary>
-    public bool HasTypeChanges { get; private set; }
+    #endregion
 
-    /// <summary>
-    /// Gets unsafe actions.
-    /// </summary>
-    public ReadOnlyList<NodeAction> BreakingActions { get; private set;}
-
-    /// <summary>
-    /// Indicates whether storage schema is compatible with domain model.
-    /// </summary>
-    public bool IsCompatible { get; private set; }
-    
     /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(Strings.SchemaComparisonResultFormat,
-        Status + (BreakingActions.Any()
-          ? ", " + Strings.CantUpgradeTypeSafely
-          : ", " + Strings.CanUpgradeTypeSafely),
+        SchemaComparisonStatus,
+        HasUnsafeActions.ToString().ToLower(),
+        HasColumnTypeChanges.ToString().ToLower(),
+        IsCompatibleInLegacyMode.HasValue ? IsCompatibleInLegacyMode.Value.ToString() : Strings.Unknown,
+        UnsafeActions.Any() ? UnsafeActions.ToDelimitedString("\r\n").Indent(2) : string.Empty,
         Hints!=null ? Hints.ToString().Indent(2) : string.Empty,
-        Difference!=null ? Difference.ToString().Indent(2) : string.Empty,
-        UpgradeActions!=null ? UpgradeActions.ToString().Indent(2) : string.Empty);
+        Difference!=null ? Difference.ToString().Indent(2) : string.Empty);
     }
 
 
@@ -76,26 +86,32 @@ namespace Xtensive.Storage.Building
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="status">The comparison status.</param>
+    /// <param name="schemaComparisonStatus">The comparison status.</param>
+    /// <param name="hasColumnTypeChanges">Indicates whether there are column type changes.</param>
+    /// <param name="isCompatibleInLegacyMode">Indicates whether schemes are compatible in legacy mode.</param>
     /// <param name="hints">The upgrade hints.</param>
     /// <param name="difference">The difference.</param>
     /// <param name="upgradeActions">The upgrade actions.</param>
-    /// <param name="hasTypeChanges">if set to <see langword="true"/> extracted column type are
-    /// different with target column types.</param>
-    /// <param name="breakingActions">The breaking actions.</param>
-    /// <param name="isCompatible">if set to <see langword="true"/> [is compatible].</param>
-    public SchemaComparisonResult(SchemaComparisonStatus status, HintSet hints, Difference difference, 
-      ActionSequence upgradeActions, bool hasTypeChanges, IList<NodeAction> breakingActions, bool isCompatible)
+    /// <param name="unsafeActions">The unsafe (breaking) actions.</param>
+    public SchemaComparisonResult(
+      SchemaComparisonStatus schemaComparisonStatus, 
+      bool hasColumnTypeChanges, 
+      bool? isCompatibleInLegacyMode, 
+      HintSet hints, 
+      Difference difference, 
+      ActionSequence upgradeActions, 
+      IList<NodeAction> unsafeActions)
     {
+      SchemaComparisonStatus = schemaComparisonStatus;
+      IsCompatibleInLegacyMode = isCompatibleInLegacyMode;
+      HasColumnTypeChanges = hasColumnTypeChanges;
+      Hints = hints;
       Difference = difference;
       UpgradeActions = upgradeActions;
-      HasTypeChanges = hasTypeChanges;
-      Status = status;
-      Hints = hints;
-      IsCompatible = isCompatible;
-      BreakingActions = breakingActions!=null 
-        ? new ReadOnlyList<NodeAction>(breakingActions) 
+      UnsafeActions = unsafeActions!=null 
+        ? new ReadOnlyList<NodeAction>(unsafeActions) 
         : new ReadOnlyList<NodeAction>(new List<NodeAction>());
+      HasUnsafeActions = UnsafeActions.Any();
     }
   }
 }
