@@ -684,7 +684,7 @@ namespace Xtensive.Storage.Providers.Sql
       var updateActions = clearDataActions.Where(action => action.DataHint is UpdateDataHint).ToList();
       var deleteFromConnectorTableActions = new List<DataAction>();
       var deleteFromAncestorTableActions = new List<DataAction>();
-      foreach (var deleteAction in clearDataActions.Where(action=>action.DataHint is DeleteDataHint)) {
+      foreach (var deleteAction in clearDataActions.Where(action => action.DataHint is DeleteDataHint)) {
         var hint = deleteAction.DataHint as DeleteDataHint;
         if (hint.Identities.Any(pair => !pair.IsIdentifiedByConstant))
           deleteFromConnectorTableActions.Add(deleteAction);
