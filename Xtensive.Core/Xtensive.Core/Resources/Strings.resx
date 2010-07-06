@@ -661,7 +661,10 @@
     <value>Unable to cast null value to {0}; use {0}? instead.</value>
   </data>
   <data name="ComprehensiveLogFormat" xml:space="preserve">
-    <value>{0,6:F2}s/T{1,-5} {2,5} {3,-24} {4}{5}</value>
+    <value>{0,6:F2}s @{1,-5} {2,5} {3,-24} {4}{5}</value>
+  </data>
+  <data name="ReleaseLogFormat">
+    <value xml:space="preserve">{6:s} @{1,-5} {2,5} {3,-24} {4}{5}</value>
   </data>
   <data name="SimpleLogFormat" xml:space="preserve">
     <value>{3}: {5}</value>

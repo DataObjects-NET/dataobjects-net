@@ -45,7 +45,9 @@ namespace Xtensive.Modelling.Comparison.Hints
     }
 
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    private readonly HashSet<Hint> hints = new HashSet<Hint>();
+    private readonly List<Hint> list = new List<Hint>();
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly HashSet<Hint> set = new HashSet<Hint>();
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly Dictionary<Node, Dictionary<Type, object>> hintMap =
       new Dictionary<Node, Dictionary<Type, object>>();
@@ -55,7 +57,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// </summary>
     /// <value></value>
     public int Count {
-      get { return hints.Count; }
+      get { return set.Count; }
     }
 
     /// <inheritdoc/>
@@ -76,7 +78,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       ArgumentValidator.EnsureArgumentNotNull(hint, "hint");
 
-      if (hints.Contains(hint))
+      if (set.Contains(hint))
         throw new InvalidOperationException(Strings.ExItemAlreadyExists);
 
       try {
@@ -113,19 +115,21 @@ namespace Xtensive.Modelling.Comparison.Hints
         }
       }
       catch (Exception) {
-        var oldHints = hints.ToList();
+        var oldHints = list.ToList(); // Cloning  the list
         Clear();
         foreach (var oldHint in oldHints)
           Add(oldHint);
         throw;
       }
-      hints.Add(hint);
+      set.Add(hint);
+      list.Add(hint);
     }
 
     /// <inheritdoc/>
     public void Clear()
     {
-      hints.Clear();
+      set.Clear();
+      list.Clear();
       hintMap.Clear();
     }
 
@@ -198,7 +202,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <inheritdoc/>
     public IEnumerator<Hint> GetEnumerator()
     {
-      return hints.GetEnumerator();
+      return list.GetEnumerator();
     }
 
     /// <inheritdoc/>
@@ -216,7 +220,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       base.Lock(recursive);
       if (recursive)
-        foreach (var hint in hints) {
+        foreach (var hint in list) {
           var lockable = hint as ILockable;
           if (lockable!=null)
             lockable.Lock(recursive);
@@ -229,7 +233,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     public override string ToString()
     {
       return string.Join(Environment.NewLine, 
-        hints.Select(hint => hint.ToString()).ToArray());
+        list.Select(hint => hint.ToString()).ToArray());
     }
 
 

@@ -9,7 +9,6 @@ using System.Threading;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Resources;
 using Xtensive.Core.Threading;
-using Xtensive.Core.Helpers;
 
 namespace Xtensive.Core.Diagnostics
 {
@@ -79,39 +78,41 @@ namespace Xtensive.Core.Diagnostics
     /// <inheritdoc/>
     public sealed override void LogEvent(LogEventTypes eventType, object message, Exception exception, IRealLog sentTo, LogCaptureScope capturedBy)
     {
-      if (IsLogged(eventType)) {
-        double elapsed;
-        string currentFormat;
-        lock (this) {
-          elapsed = (HighResolutionTime.Now - zeroTime).TotalSeconds;
-          currentFormat = GetCurrentFormat();
-        }
-
-        var thread = Thread.CurrentThread;
-        string text;
-        if (currentFormat.EndsWith("{5}")) {
-          string prefix = string.Format(
-            currentFormat,
-            elapsed,
-            thread.Name ?? thread.ManagedThreadId.ToString(),
-            eventType.ToShortString(),
-            Log.Name,
-            LogIndentScope.CurrentIndentString,
-            string.Empty);
-          text = prefix + (exception ?? message).ToString().Indent(prefix.Length, false);
-        }
-        else
-          text = string.Format(
-            currentFormat,
-            elapsed,
-            thread.Name ?? thread.ManagedThreadId.ToString(),
-            eventType.ToShortString(),
-            Log.Name,
-            LogIndentScope.CurrentIndentString,
-            (exception ?? message));
-
-        LogEventText(text);
+      DateTime currentTime;
+      double elapsed;
+      string currentFormat;
+      lock (this) {
+        currentTime = HighResolutionTime.Now;
+        elapsed = (currentTime - zeroTime).TotalSeconds;
+        currentFormat = GetCurrentFormat();
       }
+
+      var thread = Thread.CurrentThread;
+      string text;
+      if (currentFormat.EndsWith("{5}")) {
+        string prefix = string.Format(
+          currentFormat,
+          elapsed,
+          thread.Name ?? thread.ManagedThreadId.ToString(),
+          eventType.ToShortString(),
+          Log.Name,
+          LogIndentScope.CurrentIndentString,
+          string.Empty,
+          currentTime);
+        text = prefix + (exception ?? message).ToString().Indent(prefix.Length, false);
+      }
+      else 
+        text = string.Format(
+          currentFormat,
+          elapsed,
+          thread.Name ?? thread.ManagedThreadId.ToString(),
+          eventType.ToShortString(),
+          Log.Name,
+          LogIndentScope.CurrentIndentString,
+          (exception ?? message),
+          currentTime);
+
+      LogEventText(text);
       base.LogEvent(eventType, message, exception, sentTo, capturedBy);
     }
 
@@ -124,6 +125,8 @@ namespace Xtensive.Core.Diagnostics
     private string GetCurrentFormat()
     {
       switch (format) {
+      case LogFormat.Release:
+        return Strings.ReleaseLogFormat;
       case LogFormat.Simple:
         return Strings.SimpleLogFormat;
       case LogFormat.Custom:
