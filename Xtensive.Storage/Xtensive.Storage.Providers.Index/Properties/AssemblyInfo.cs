@@ -18,7 +18,7 @@ using Xtensive.Core.Aspects;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Xtensive.Storage.Providers.Index")]
-[assembly: AssemblyCopyright("Copyright © Xtensive LLC 2008")]
+
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

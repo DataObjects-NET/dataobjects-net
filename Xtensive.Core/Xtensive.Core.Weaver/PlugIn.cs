@@ -10,6 +10,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using PostSharp.Extensibility;
 using PostSharp.Sdk.AspectWeaver;
 using Xtensive.Core.Aspects;
@@ -24,6 +26,7 @@ namespace Xtensive.Core.Weaver
   /// </summary>
   public sealed class PlugIn : AspectWeaverPlugIn
   {
+    private static readonly Regex dateExtractor = new Regex(@"\d{2}.\d{2}.\d{4}$", RegexOptions.Compiled);
     private static readonly byte[] tokenExpected = new byte[]{0x93, 0xa6, 0xc5,0x3d, 0x77, 0xa5, 0x29, 0x6c};
     // "$(ProjectDir)..\..\Xtensive.Licensing\Protection\Protect.bat" "$(TargetPath)" "$(ProjectDir)obj\$(ConfigurationName)\$(TargetFileName)" "true"
     private const string XtensiveLicensingManagerExe = "Xtensive.Licensing.Manager.exe";
@@ -56,6 +59,23 @@ namespace Xtensive.Core.Weaver
           .ToList();
         if (declarations.Count!=0)
           isXtensiveAssembly = declarations.All(a => IsPublicTokenConsistent(a.GetPublicKeyToken()));
+        if (isXtensiveAssembly) {
+          var assemblyVersions = declarations
+            .Select(r => r.GetSystemAssembly())
+            .Select(a => a.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false).Single())
+            .Cast<AssemblyInformationalVersionAttribute>()
+            .Select(av => av.InformationalVersion)
+            .ToList();
+          var maxAssemblyDate = assemblyVersions
+            .Select(s => dateExtractor.Match(s))
+            .Select(m => m.Success ? m.Value : "01.01.2010")
+            .Select(DateTime.Parse)
+            .Max();
+          if (licenseInfo.ExpireOn < maxAssemblyDate) {
+            ErrorLog.Write(SeverityType.Fatal, "Your subscription expired {0} and is not valid for {1}.", licenseInfo.ExpireOn.ToShortDateString(), assemblyVersions.First());
+            return;
+          }
+        }
       }
       if (!isXtensiveAssembly) {
         ErrorLog.Write(SeverityType.Fatal, "DataObjects.Net license validation failed.");
