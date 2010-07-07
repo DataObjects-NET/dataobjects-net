@@ -24,23 +24,14 @@ using System.Reflection;
   path = Path.GetFullPath(path);
   string revisionNumberRegex = null;
 
-  if (Directory.Exists(Path.Combine(path, @"\.svn")) ||
-      Directory.Exists(Path.Combine(path, @"\_svn"))) {
-    p.StartInfo.FileName = Environment.GetEnvironmentVariable("SubWCRevPath") ?? "SubWCRev.exe";
-    p.StartInfo.Arguments = "\"" + path + "\"";
-    revisionNumberRegex = @"Last committed at revision (\d+)()";
-  }
-  else {
-    p.StartInfo.FileName = "hg.exe";
-    p.StartInfo.Arguments = "log -l 1 \"" + path + "\"";
-    revisionNumberRegex = @"changeset\: +(\d+)\:([a-fA-F\d]+)";
-  }
+  p.StartInfo.FileName = "hg.exe";
+  p.StartInfo.Arguments = "log -l 1 \"" + path + "\"";
+  revisionNumberRegex = @"changeset\: +(\d+)\:([a-fA-F\d]+)";
   string revision1 = "0";
   string revision2 = "0";
   try {
     p.Start();
-    var match = Regex.Match(p.StandardOutput.ReadToEnd(),
-      revisionNumberRegex, RegexOptions.Multiline);
+    var match = Regex.Match(p.StandardOutput.ReadToEnd(), revisionNumberRegex, RegexOptions.Multiline);
     revision1 = match.Groups[1].Value;
     revision2 = match.Groups[2].Value;
     if (revision2==null || revision2.Length==0)
@@ -51,6 +42,19 @@ using System.Reflection;
   }
   catch {
   }
+  p.StartInfo.Arguments = "log -l 1";
+  string revision3 = "0";
+  try {
+    p.Start();
+    var match = Regex.Match(p.StandardOutput.ReadToEnd(),revisionNumberRegex, RegexOptions.Multiline);
+    revision3 = match.Groups[1].Value;
+    p.WaitForExit();
+  }
+  catch {
+  }
+
 #>
 
+[assembly: AssemblyCopyright("Copyright © Xtensive LLC 2003-<#= DateTime.Now.Year #>")]
 [assembly: AssemblyFileVersion("1.0.<#= revision1 #>.<#= revision2 #>")]
+[assembly: AssemblyInformationalVersion("DataObjects.Net 4.3 build #<#= revision3 #> at <#= DateTime.Now.ToShortDateString() #>")]

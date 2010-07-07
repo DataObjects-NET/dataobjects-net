@@ -20,7 +20,7 @@ using Xtensive.Storage;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Xtensive LLC")]
 [assembly: AssemblyProduct("Xtensive.Storage")]
-[assembly: AssemblyCopyright("Copyright © Xtensive LLC 2008")]
+
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
