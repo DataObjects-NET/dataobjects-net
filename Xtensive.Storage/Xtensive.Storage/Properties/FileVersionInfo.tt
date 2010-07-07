@@ -54,3 +54,4 @@ using System.Reflection;
 #>
 
 [assembly: AssemblyFileVersion("1.0.<#= revision1 #>.<#= revision2 #>")]
+[assembly: AssemblyInformationalVersion("DataObjects.Net 4.3 build at <#= DateTime.Now.ToShortDateString() #>")]

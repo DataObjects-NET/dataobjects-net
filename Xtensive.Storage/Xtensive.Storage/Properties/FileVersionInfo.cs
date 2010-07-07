@@ -7,4 +7,5 @@
 using System.Reflection;
 
 
-[assembly: AssemblyFileVersion("1.0.5291.34972")]
+[assembly: AssemblyFileVersion("1.0.5401.38746")]
+[assembly: AssemblyInformationalVersion("DataObjects.Net 4.3 build at 07.07.2010")]
