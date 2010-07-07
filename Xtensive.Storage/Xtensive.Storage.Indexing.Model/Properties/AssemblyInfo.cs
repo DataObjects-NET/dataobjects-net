@@ -17,7 +17,7 @@ using System.Security.Permissions;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Xtensive LLC")]
 [assembly: AssemblyProduct("Xtensive.Indexing.Storage.Model")]
-[assembly: AssemblyCopyright("Copyright © Xtensive LLC 2009")]
+
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
