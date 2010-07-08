@@ -10,7 +10,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode.Mo
 {
   [Serializable]
   [HierarchyRoot]
-  public class Acticle : Entity
+  public class Article : Entity
   {
     [Key, Field]
     public long Id { get; private set; }

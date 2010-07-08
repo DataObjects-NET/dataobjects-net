@@ -166,11 +166,7 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       base.TestFixtureTearDown();
     }
 
-    [Test]
-    public virtual void MainTest()
-    {
-      Domain.Model.Dump();
-    }
+    
   }
 
   public class ClassTableInheritanceTest : InheritanceSchemaTestBase
@@ -181,6 +177,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       ConcreteTableInheritanceBuilder.IsEnabled = false;
       SingleTableInheritanceBuilder.IsEnabled = false;
       return dc;
+    }
+
+    [Test]
+    public virtual void MainTest()
+    {
+      Domain.Model.Dump();
     }
   }
 
@@ -193,6 +195,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       SingleTableInheritanceBuilder.IsEnabled = false;
       return configuration;
     }
+
+    [Test]
+    public virtual void MainTest()
+    {
+      Domain.Model.Dump();
+    }
   }
 
   public class SingleTableInheritanceTest : InheritanceSchemaTestBase
@@ -203,6 +211,12 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       ConcreteTableInheritanceBuilder.IsEnabled = false;
       SingleTableInheritanceBuilder.IsEnabled = true;
       return configuration;
+    }
+
+    [Test]
+    public virtual void MainTest()
+    {
+      Domain.Model.Dump();
     }
   }
 }

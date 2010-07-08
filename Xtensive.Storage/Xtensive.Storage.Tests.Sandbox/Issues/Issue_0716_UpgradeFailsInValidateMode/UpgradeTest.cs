@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (Session.Open(domain)) {
         using (var tx = Transaction.Open()) {
-          var acticle = new M1.Acticle();
+          var acticle = new M1.Article();
           tx.Complete();
         }
       }
@@ -53,7 +53,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
       if (domain != null)
         domain.DisposeSafely();
 
-      string ns = typeof(M1.Acticle).Namespace;
+      string ns = typeof(M1.Article).Namespace;
       string nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
