@@ -83,6 +83,8 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
         var name = fullName.Substring(lastDotIndex + 1);
         if (ns.EndsWith(oldVersionSuffix)) {
           string newNs = ns.Substring(0, ns.Length - oldVersionSuffix.Length) + newVersionSuffix;
+          if (name == "Acticle")
+            name = "Article";
           string newFullName = newNs + "." + name;
           Type newType = upgradeContext.Configuration.Types.SingleOrDefault(t => t.FullName==newFullName);
           if (newType!=null)
