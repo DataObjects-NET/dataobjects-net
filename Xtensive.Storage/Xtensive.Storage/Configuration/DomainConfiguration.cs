@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Configuration
     private int queryCacheSize = DefaultQueryCacheSize;
     private int rseQueryCacheSize = DefaultRseQueryCacheSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
-    private bool autoValidation = true;
+    private bool autoValidation = DefaultAutoValidation;
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
     private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
     private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
@@ -375,8 +375,9 @@ namespace Xtensive.Storage.Configuration
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
       upgradeMode = configuration.upgradeMode;
-      foreignKeyMode = configuration.foreignKeyMode;
+      autoValidation = configuration.autoValidation;
       validationMode = configuration.validationMode;
+      foreignKeyMode = configuration.foreignKeyMode;
       ServiceContainerType = configuration.ServiceContainerType;
     }
 
