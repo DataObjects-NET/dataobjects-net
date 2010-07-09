@@ -1,4 +1,4 @@
-﻿<#@ template language="C#v3.5" debug="true" hostSpecific="true" #>
+﻿<#@ template language="C#" debug="true" hostSpecific="true" #>
 <#@ output extension=".cs" #>
 <#@ Assembly Name="System" #>
 <#@ Assembly Name="System.Core" #>
