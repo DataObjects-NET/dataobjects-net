@@ -375,8 +375,9 @@ namespace Xtensive.Storage.Configuration
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
       upgradeMode = configuration.upgradeMode;
-      foreignKeyMode = configuration.foreignKeyMode;
+      autoValidation = configuration.autoValidation;
       validationMode = configuration.validationMode;
+      foreignKeyMode = configuration.foreignKeyMode;
       ServiceContainerType = configuration.ServiceContainerType;
     }
 
