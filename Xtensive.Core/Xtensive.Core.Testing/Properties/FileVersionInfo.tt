@@ -1,5 +1,7 @@
 ﻿<#@ template language="C#" hostspecific="True" #>
 <#@ assembly name="System.Core" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.IO" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Diagnostics" #>
@@ -13,48 +15,80 @@
 using System.Reflection;
 
 <#
+  Func<string, Tuple<string,string>> getRevision = repoPath => {
   var p = new Process();
   p.StartInfo.UseShellExecute = false;
   p.StartInfo.RedirectStandardOutput = true;
   p.StartInfo.CreateNoWindow = true;
 
-  string path = Host.TemplateFile;
-  path = Path.Combine(Path.GetPathRoot(path), Path.GetDirectoryName(path));
-  path = Path.Combine(path, @"..");
-  path = Path.GetFullPath(path);
   string revisionNumberRegex = null;
-
   p.StartInfo.FileName = "hg.exe";
-  p.StartInfo.Arguments = "log -l 1 \"" + path + "\"";
+  p.StartInfo.Arguments = "log -l 1 \"" + repoPath + "\"";
   revisionNumberRegex = @"changeset\: +(\d+)\:([a-fA-F\d]+)";
-  string revision1 = "0";
-  string revision2 = "0";
+  var revision = Tuple.Create("0","0");
   try {
     p.Start();
     var match = Regex.Match(p.StandardOutput.ReadToEnd(), revisionNumberRegex, RegexOptions.Multiline);
-    revision1 = match.Groups[1].Value;
-    revision2 = match.Groups[2].Value;
-    if (revision2==null || revision2.Length==0)
-      revision2 = "0";
+    revision = Tuple.Create(match.Groups[1].Value, match.Groups[2].Value);
+    if (revision.Item2==null || revision.Item2.Length==0)
+      revision = Tuple.Create(revision.Item1,"0");
     else
-      revision2 = Convert.ToInt32(revision2.Substring(0,4), 16).ToString();
+      revision = Tuple.Create(revision.Item1, 
+        Convert.ToInt32(revision.Item2.Substring(0,4), 16).ToString());
     p.WaitForExit();
   }
   catch {
   }
-  p.StartInfo.Arguments = "log -l 1";
-  string revision3 = "0";
-  try {
-    p.Start();
-    var match = Regex.Match(p.StandardOutput.ReadToEnd(),revisionNumberRegex, RegexOptions.Multiline);
-    revision3 = match.Groups[1].Value;
-    p.WaitForExit();
-  }
-  catch {
-  }
+  return revision;
+  };
 
+  Func<string> getTemplateFolderPath = () => {
+    string path = Host.TemplateFile;
+    return Path.Combine(Path.GetPathRoot(path), Path.GetDirectoryName(path));
+  };
+
+  Func<string> getProjectPath = () => Path.GetFullPath(Path.Combine(getTemplateFolderPath(), "..\\.."));
+
+  Func<string> getHgRootPath = () => {
+    string path = getTemplateFolderPath();
+    while (true) {
+      string hgFolderPath = Path.Combine(path, ".hg");
+      if (Directory.Exists(hgFolderPath))
+        return path;
+      string nextPath = Path.GetFullPath(Path.Combine(path, ".."));
+      if (nextPath==path)
+        return null;
+      path = nextPath;
+    }
+  };
+  
+  Func<string, Dictionary<string,string>> getVersionInfo = (_versionInfoPath) => {
+    var result = new Dictionary<string,string>();
+    foreach (string line in File.ReadAllLines(_versionInfoPath)) {
+      int columnIndex = line.IndexOf(":");
+      if (columnIndex<0)
+        continue;
+      result.Add(
+        line.Substring(0, columnIndex).Trim(), 
+        line.Substring(columnIndex+1).Trim());
+    }
+    return result;
+  };
+
+  string projectPath = getProjectPath();
+  string hgRootPath = getHgRootPath();
+  string versionInfoPath = Path.Combine(hgRootPath, "VersionInfo.txt");
+
+  var projectRevision = getRevision(projectPath);
+  var rootRevision = getRevision(hgRootPath);
+  var versionInfo = getVersionInfo(versionInfoPath);
+  string version = versionInfo["Version"];
+  string buildType = versionInfo["BuildType"];
+  string versionAndBuildType = buildType.Length==0
+    ? "v" + version
+    : "v" + version + " " + buildType;
 #>
 
 [assembly: AssemblyCopyright("Copyright © Xtensive LLC 2003-<#= DateTime.Now.Year #>")]
-[assembly: AssemblyFileVersion("1.0.<#= revision1 #>.<#= revision2 #>")]
-[assembly: AssemblyInformationalVersion("DataObjects.Net 4.3 build #<#= revision3 #> at <#= DateTime.Now.ToShortDateString() #>")]
+[assembly: AssemblyFileVersion("1.0.<#= projectRevision.Item1 #>.<#= projectRevision.Item2 #>")]
+[assembly: AssemblyInformationalVersion("Part of DataObjects.Net <#= versionAndBuildType #> build <#= rootRevision.Item1 #> at <#= DateTime.Now.ToShortDateString() #>")]
