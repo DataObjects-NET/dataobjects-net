@@ -77,11 +77,13 @@ using System.Reflection;
 
   string projectPath = getProjectPath();
   string hgRootPath = getHgRootPath();
-  string versionInfoPath = Path.Combine(hgRootPath, "VersionInfo.txt");
+  string versionInfoPath = Path.Combine(hgRootPath, "ProductInfo.txt");
 
   var projectRevision = getRevision(projectPath);
   var rootRevision = getRevision(hgRootPath);
   var versionInfo = getVersionInfo(versionInfoPath);
+  string name = versionInfo["Name"];
+  string codeName = versionInfo["CodeName"];
   string version = versionInfo["Version"];
   string buildType = versionInfo["BuildType"];
   string versionAndBuildType = buildType.Length==0
@@ -91,4 +93,4 @@ using System.Reflection;
 
 [assembly: AssemblyCopyright("Copyright © Xtensive LLC 2003-<#= DateTime.Now.Year #>")]
 [assembly: AssemblyFileVersion("1.0.<#= projectRevision.Item1 #>.<#= projectRevision.Item2 #>")]
-[assembly: AssemblyInformationalVersion("Part of DataObjects.Net <#= versionAndBuildType #> build <#= rootRevision.Item1 #>, build date: <#= DateTime.Now.ToShortDateString() #>")]
+[assembly: AssemblyInformationalVersion("Part of <#= name #> <#= versionAndBuildType #> build <#= rootRevision.Item1 #>, build date: <#= DateTime.Now.ToShortDateString() #>")]
