@@ -91,4 +91,4 @@ using System.Reflection;
 
 [assembly: AssemblyCopyright("Copyright © Xtensive LLC 2003-<#= DateTime.Now.Year #>")]
 [assembly: AssemblyFileVersion("1.0.<#= projectRevision.Item1 #>.<#= projectRevision.Item2 #>")]
-[assembly: AssemblyInformationalVersion("Part of DataObjects.Net <#= versionAndBuildType #> build <#= rootRevision.Item1 #> at <#= DateTime.Now.ToShortDateString() #>")]
+[assembly: AssemblyInformationalVersion("Part of DataObjects.Net <#= versionAndBuildType #> build <#= rootRevision.Item1 #>, build date: <#= DateTime.Now.ToShortDateString() #>")]
