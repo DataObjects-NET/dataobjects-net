@@ -83,7 +83,7 @@ namespace Xtensive.Storage.Configuration
     private int queryCacheSize = DefaultQueryCacheSize;
     private int rseQueryCacheSize = DefaultRseQueryCacheSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
-    private bool autoValidation = true;
+    private bool autoValidation = DefaultAutoValidation;
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
     private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
     private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
