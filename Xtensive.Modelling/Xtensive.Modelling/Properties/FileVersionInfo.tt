@@ -70,7 +70,7 @@ using System.Reflection;
         continue;
       result.Add(
         line.Substring(0, columnIndex).Trim(), 
-        line.Substring(columnIndex+1).Trim());
+        line.Substring(columnIndex+1).Trim().Replace("\"", ""));
     }
     return result;
   };
@@ -84,6 +84,7 @@ using System.Reflection;
   var versionInfo = getVersionInfo(versionInfoPath);
   string name = versionInfo["Name"];
   string codeName = versionInfo["CodeName"];
+  string platform = versionInfo["Platform"];
   string version = versionInfo["Version"];
   string buildType = versionInfo["BuildType"];
   string versionAndBuildType = buildType.Length==0
@@ -93,4 +94,4 @@ using System.Reflection;
 
 [assembly: AssemblyCopyright("Copyright © Xtensive LLC 2003-<#= DateTime.Now.Year #>")]
 [assembly: AssemblyFileVersion("1.0.<#= projectRevision.Item1 #>.<#= projectRevision.Item2 #>")]
-[assembly: AssemblyInformationalVersion("Part of <#= name #> <#= versionAndBuildType #> build <#= rootRevision.Item1 #>, build date: <#= DateTime.Now.ToShortDateString() #>")]
+[assembly: AssemblyInformationalVersion("Part of <#= name #> <#= versionAndBuildType #> build <#= rootRevision.Item1 #> for <#= platform #>, build date: <#= DateTime.Now.ToShortDateString() #>")]
