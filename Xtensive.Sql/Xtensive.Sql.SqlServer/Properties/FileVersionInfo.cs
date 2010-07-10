@@ -8,5 +8,5 @@ using System.Reflection;
 
 
 [assembly: AssemblyCopyright("Copyright © Xtensive LLC 2003-2010")]
-[assembly: AssemblyFileVersion("1.0.5448.1995")]
-[assembly: AssemblyInformationalVersion("Part of DataObjects.Net v4.3.0 RC6 build 5449, build date: 10.07.2010")]
+[assembly: AssemblyFileVersion("1.0.5450.18862")]
+[assembly: AssemblyInformationalVersion("Part of DataObjects.Net v4.3.0 RC6 build 5451 for .NET 4.0, build date: 10.07.2010")]
