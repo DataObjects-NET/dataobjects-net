@@ -85,6 +85,7 @@ using System.Reflection;
   string name = versionInfo["Name"];
   string codeName = versionInfo["CodeName"];
   string platform = versionInfo["Platform"];
+  string platformCode = versionInfo["PlatformCode"];
   string version = versionInfo["Version"];
   string buildType = versionInfo["BuildType"];
   string versionAndBuildType = buildType.Length==0
