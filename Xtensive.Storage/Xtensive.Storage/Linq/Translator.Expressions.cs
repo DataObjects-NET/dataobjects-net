@@ -951,7 +951,9 @@ namespace Xtensive.Storage.Linq
         ? context.Bindings[state.Parameters[0]].ItemProjector
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
       int offset = originalItemProjector.DataSource.Header.Length;
-      originalItemProjector.DataSource = originalItemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
+      originalItemProjector.DataSource = entityFieldExpression.Field.IsNullable
+        ? originalItemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs)
+        : originalItemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       entityFieldExpression.RegisterEntityExpression(offset);
     }
 
