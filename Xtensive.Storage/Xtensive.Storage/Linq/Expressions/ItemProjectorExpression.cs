@@ -125,7 +125,7 @@ namespace Xtensive.Storage.Linq.Expressions
             .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
             .ToArray();
           var offset = dataSource.Header.Length;
-          dataSource = dataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
+          dataSource = dataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
           EntityExpression.Fill(entityExpression, offset);
           return entityExpression;
         }
@@ -139,7 +139,9 @@ namespace Xtensive.Storage.Linq.Expressions
             .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
             .ToArray();
           var offset = dataSource.Header.Length;
-          dataSource = dataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs);
+          dataSource = entityFieldExpression.Field.IsNullable 
+            ? dataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs)
+            : dataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
           entityFieldExpression.RegisterEntityExpression(offset);
           return entityFieldExpression.Entity;
         }
