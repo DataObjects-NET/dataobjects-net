@@ -12,6 +12,7 @@ using PostSharp.Sdk.AspectWeaver;
 using PostSharp.Sdk.AspectWeaver.AspectWeavers;
 using PostSharp.Sdk.AspectWeaver.Transformations;
 using PostSharp.Sdk.CodeModel;
+using PostSharp.Sdk.CodeModel.SerializationTypes;
 using PostSharp.Sdk.CodeModel.TypeSignatures;
 using PostSharp.Sdk.Collections;
 using PostSharp.Sdk.Extensibility.Tasks;
@@ -143,6 +144,15 @@ namespace Xtensive.Core.Weaver
         }
         else if (isNew)
           propertyName = string.Format("{0}.{1}", targetType.ShortName, propertyName);
+
+        if (isExplicit || isNew) {
+          if (isGetter) {
+            var overrideAttributeType = (IType)module.FindType(typeof(OverrideFieldNameAttribute));
+            var overrideDeclaration = new CustomAttributeDeclaration(module.FindMethod(overrideAttributeType, ".ctor", 1));
+            overrideDeclaration.ConstructorArguments.Add(new MemberValuePair(MemberKind.Parameter, 0, "name", IntrinsicSerializationType.CreateValue(module, propertyName)));
+            targetProperty.CustomAttributes.Add(overrideDeclaration);
+          }
+        }
 
         var fieldDef = targetType.Fields.GetByName(fieldName);
         if (fieldDef == null)

@@ -232,7 +232,7 @@ namespace Xtensive.Storage.Linq
         }
       }
       else if (ma.Expression.GetMemberType()==MemberType.Entity && ma.Member.Name!="Key")
-        if (!context.Model.Types[ma.Expression.Type].Fields.Contains(ma.Member.Name))
+        if (!context.Model.Types[ma.Expression.Type].Fields.Contains(context.Domain.NameBuilder.BuildFieldName((PropertyInfo)ma.Member)))
           throw new NotSupportedException(String.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
       Expression source;
       using (state.CreateScope()) {
@@ -802,7 +802,7 @@ namespace Xtensive.Storage.Linq
       if (extendedExpression==null)
         return null;
       Expression result = null;
-      Func<PersistentFieldExpression, bool> propertyFilter = f => f.Name==member.Name;
+      Func<PersistentFieldExpression, bool> propertyFilter = f => f.Name== context.Domain.NameBuilder.BuildFieldName((PropertyInfo)member);
       switch (extendedExpression.ExtendedType) {
       case ExtendedExpressionType.FreeText:
         switch (member.Name) {

@@ -59,6 +59,8 @@ namespace Xtensive.Core.Aspects.Tests
       public int Property1 { get; set; }
       public virtual int Property2 { get; set; }
       public virtual int Property3 { get; set; }
+      internal virtual int Property4 { get; set; }
+      private int Property5 { get; set; }
 
       public int ManualProperty
       {
@@ -72,8 +74,10 @@ namespace Xtensive.Core.Aspects.Tests
       public new int Property1 { get; set; }
       public new int Property2 { get; set; }
       public override int Property3 { get; set; }
+      internal new virtual int Property4 { get;set; }
+      public int Property5 { get; set; }
       [NotSupported]
-      public int Property4 { get; set; }
+      public int Property8 { get; set; }
     }
 
     public class GenericClass<T> : TestClass

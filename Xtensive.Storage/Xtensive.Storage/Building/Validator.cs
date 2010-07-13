@@ -236,7 +236,7 @@ namespace Xtensive.Storage.Building
     {
       ColumnNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
       TypeNamingRule = new Regex(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-      FieldNamingRule = new Regex(@"^[\w][\w\-]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+      FieldNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
       ValidFieldTypes.Add(typeof (string));
       ValidFieldTypes.Add(typeof (byte[]));

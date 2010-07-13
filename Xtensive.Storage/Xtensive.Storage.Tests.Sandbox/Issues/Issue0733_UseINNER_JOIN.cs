@@ -8,45 +8,32 @@ using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues.Issue0733_UseINNER_JOIN_Model;
+using Xtensive.Storage.Tests.Issues.Issue0737_PersistentFieldState_Model;
 using System.Linq;
 
 namespace Xtensive.Storage.Tests.Issues
 {
-  namespace Issue0733_UseINNER_JOIN_Model
+  namespace Issue0737_PersistentFieldState_Model
   {
     [HierarchyRoot]
-    public class Person : Entity
+    public class Derived : Entity
     {
       [Key,Field]
       public int Id { get; private set; }
 
       [Field]
-      public string Name { get; set; }
-
-      [Field(Nullable = false)]
-      public City City { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class City : Entity
-    {
-      [Key,Field]
-      public int Id { get; private set; }
-
-      [Field]
-      public string Name { get; set; }
+      public string State { get; set; }
     }
   }
 
   [Serializable]
-  public class Issue0733_UseINNER_JOIN : AutoBuildTest
+  public class Issue0737_PersistentFieldState : AutoBuildTest
   {
 
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
+      config.Types.Register(typeof(Derived).Assembly, typeof(Derived).Namespace);
       return config;
     }
 
@@ -55,16 +42,10 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var msk = new City() {Name = "Moscow"};
-        var ekb = new City() {Name = "Yekaterinburg"};
-        for (int i = 0; i < 1000; i++) {
-          new Person() {Name = "Alex " + i, City = msk};
-          new Person() {Name = "Ivan " + i, City = ekb};
-        }
+        var derived = new Derived() {State = "new"};
 
-        var list = Query.All<Person>()
-          .OrderBy(p => p.City.Name)
-          .Take(100)
+        var list = Query.All<Derived>()
+          .Where(d => d.State == "new")
           .ToList();
       }
     }

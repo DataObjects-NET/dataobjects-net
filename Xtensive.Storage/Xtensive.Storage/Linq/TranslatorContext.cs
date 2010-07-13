@@ -33,6 +33,8 @@ namespace Xtensive.Storage.Linq
     public ProviderInfo ProviderInfo { get; private set; }
 
     public Expression Query { get; private set; }
+    
+    public Domain Domain { get; set; }
 
     public DomainModel Model { get; private set; }
 
@@ -117,6 +119,7 @@ namespace Xtensive.Storage.Linq
       Evaluator = new ExpressionEvaluator(query);
       query = PersistentIndexerRewriter.Rewrite(query, this);
       Query = query;
+      Domain = domain;
 
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"column"});

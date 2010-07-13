@@ -1231,7 +1231,7 @@ namespace Xtensive.Storage.Linq
             var field = context
               .Model
               .Types[memberAccess.Expression.Type]
-              .Fields[memberAccess.Member.Name];
+              .Fields[context.Domain.NameBuilder.BuildFieldName((PropertyInfo)memberAccess.Member)];
             sequenceExpression = QueryHelper.CreateEntitySetQueryExpression(memberAccess.Expression, field);
           }
         }
