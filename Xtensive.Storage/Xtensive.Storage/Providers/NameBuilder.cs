@@ -6,10 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
+using Xtensive.Core.Aspects;
+using Xtensive.Core.Caching;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building;
@@ -17,6 +20,7 @@ using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 using System.Linq;
+using FieldInfo = Xtensive.Storage.Model.FieldInfo;
 
 namespace Xtensive.Storage.Providers
 {
@@ -27,9 +31,8 @@ namespace Xtensive.Storage.Providers
   /// </summary>
   public class NameBuilder : HandlerBase
   {
-    private static readonly Regex explicitFieldNameRegex = new Regex(@"(?<name>\w+\.\w+)$", 
-      RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
-
+    private Dictionary<Pair<Type, string>, string> fieldNameCache = new Dictionary<Pair<Type, string>, string>();
+    private readonly object _lock = new object();
     private HashAlgorithm hashAlgorithm;
     private const string AssociationPattern = "{0}-{1}-{2}";
     private const string GeneratorPattern = "{0}-Generator";
@@ -177,10 +180,36 @@ namespace Xtensive.Storage.Providers
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       string result = field.Name;
       if (field.UnderlyingProperty != null)
-        result = field.UnderlyingProperty.Name;
-      if (explicitFieldNameRegex.IsMatch(result))
-        result = explicitFieldNameRegex.Match(result).Groups["name"].Value.Replace('.','_');
+        return BuildFieldNameInternal(field.UnderlyingProperty);
       return result;
+    }
+
+    private string BuildFieldNameInternal(PropertyInfo propertyInfo)
+    {
+      var key = new Pair<Type, string>(propertyInfo.ReflectedType, propertyInfo.Name);
+      string result;
+      if (fieldNameCache.TryGetValue(key, out result))
+        return result;
+      var attribute = propertyInfo.GetAttribute<OverrideFieldNameAttribute>(AttributeSearchOptions.InheritNone);
+      if (attribute!=null) {
+        result = attribute.Name;
+        fieldNameCache.Add(key, result);
+        return result;
+      }
+      return propertyInfo.Name;
+    }
+
+    /// <summary>
+    /// Builds the name of the field.
+    /// </summary>
+    /// <param name="propertyInfo">The property info.</param>
+    public string BuildFieldName(PropertyInfo propertyInfo)
+    {
+      var key = new Pair<Type, string>(propertyInfo.ReflectedType, propertyInfo.Name);
+      string result;
+      return fieldNameCache.TryGetValue(key, out result) 
+        ? result 
+        : propertyInfo.Name;
     }
 
     /// <summary>
@@ -191,7 +220,7 @@ namespace Xtensive.Storage.Providers
     /// <returns>The built name.</returns>
     public virtual string BuildExplicitFieldName(TypeInfo type, string name)
     {
-      return type.IsInterface ? type.UnderlyingType.Name + "_" + name : name;
+      return type.IsInterface ? type.UnderlyingType.Name + "." + name : name;
     }
 
     /// <summary>

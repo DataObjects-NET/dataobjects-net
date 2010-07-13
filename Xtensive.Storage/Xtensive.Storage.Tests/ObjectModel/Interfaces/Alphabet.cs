@@ -46,32 +46,20 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [Serializable]
   public class B : A, INamed, ITagged
   {
-    string INamed.Name
-    {
-      get { return GetFieldValue<string>("INamed_Name"); } 
-      set { SetFieldValue("INamed_Name", value); }
-    }
+    string INamed.Name { get; set; }
     public string Tag { get; set; }
   }
 
   [Serializable]
   public class C : A, ITagged
   {
-    string ITagged.Tag
-    {
-      get { return GetFieldValue<string>("ITagged_Tag"); } 
-      set { SetFieldValue("ITagged_Tag", value); } 
-    }
+    string ITagged.Tag { get; set; }
   }
 
   [Serializable]
   public class D : B, INamed, IComposite
   {
-    string INamed.Name
-    {
-      get { return GetFieldValue<string>("INamed_Name"); }
-      set { SetFieldValue("INamed_Name", value); }
-    }
+    string INamed.Name { get; set; }
     public string First { get; set; }
     public string Second { get; set;}
   }
@@ -79,11 +67,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [Serializable]
   public class E : D, IComposite
   {
-    string IComposite.First
-    {
-      get { return GetFieldValue<string>("IComposite_First"); }
-      set { SetFieldValue("IComposite_First", value); }
-    }
+    string IComposite.First { get; set; }
   }
 
   [Serializable]
@@ -98,32 +82,20 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [Serializable]
   public class  G : F, INamed, ITagged
   {
-    string INamed.Name
-    {
-      get { return GetFieldValue<string>("INamed_Name"); }
-      set { SetFieldValue("INamed_Name", value); }
-    }
+    string INamed.Name { get; set; }
     public string Tag { get; set; }
   }
 
   [Serializable]
   public class H : F, ITagged
   {
-    string ITagged.Tag
-    {
-      get { return GetFieldValue<string>("ITagged_Tag"); }
-      set { SetFieldValue("ITagged_Tag", value); }
-    }
+    string ITagged.Tag { get; set; }
   }
 
   [Serializable]
   public class I : G, INamed, IComposite
   {
-    string INamed.Name
-    {
-      get { return GetFieldValue<string>("INamed_Name"); }
-      set { SetFieldValue("INamed_Name", value); }
-    }
+    string INamed.Name { get; set; }
     public string First { get; set; }
     public string Second { get; set; }
   }
@@ -131,11 +103,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [Serializable]
   public class J : I, IComposite
   {
-    string IComposite.First
-    {
-      get { return GetFieldValue<string>("IComposite_First"); }
-      set { SetFieldValue("IComposite_First", value); }
-    }
+    string IComposite.First { get; set; }
   }
 
   [Serializable]
@@ -150,32 +118,20 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [Serializable]
   public class L : K, INamed, ITagged
   {
-    string INamed.Name
-    {
-      get { return GetFieldValue<string>("INamed_Name"); }
-      set { SetFieldValue("INamed_Name", value); }
-    }
+    string INamed.Name { get; set; }
     public string Tag { get; set; }
   }
 
   [Serializable]
   public class M : K, ITagged
   {
-    string ITagged.Tag
-    {
-      get { return GetFieldValue<string>("ITagged_Tag"); }
-      set { SetFieldValue("ITagged_Tag", value); }
-    }
+    string ITagged.Tag { get; set; }
   }
 
   [Serializable]
   public class N : L, INamed, IComposite
   {
-    string INamed.Name
-    {
-      get { return GetFieldValue<string>("INamed_Name"); }
-      set { SetFieldValue("INamed_Name", value); }
-    }
+    string INamed.Name { get; set; }
     public string First { get; set; }
     public string Second { get; set; }
   }
@@ -183,11 +139,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [Serializable]
   public class O : N, IComposite
   {
-    string IComposite.First
-    {
-      get { return GetFieldValue<string>("IComposite_First"); }
-      set { SetFieldValue("IComposite_First", value); }
-    }
+    string IComposite.First { get; set; }
   }
 
   [Serializable]
@@ -208,11 +160,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [TypeDiscriminatorValue(1)]
   public class Q : P, INamed, ITagged
   {
-    string INamed.Name
-    {
-      get { return GetFieldValue<string>("INamed_Name"); }
-      set { SetFieldValue("INamed_Name", value); }
-    }
+    string INamed.Name { get; set; }
     public string Tag { get; set; }
   }
 
@@ -220,22 +168,14 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [TypeDiscriminatorValue(2)]
   public class R : P, ITagged
   {
-    string ITagged.Tag
-    {
-      get { return GetFieldValue<string>("ITagged_Tag"); }
-      set { SetFieldValue("ITagged_Tag", value); }
-    }
+    string ITagged.Tag { get; set; }
   }
 
   [Serializable]
   [TypeDiscriminatorValue(3)]
   public class S : Q, INamed, IComposite
   {
-    string INamed.Name
-    {
-      get { return GetFieldValue<string>("INamed_Name"); }
-      set { SetFieldValue("INamed_Name", value); }
-    }
+    string INamed.Name { get; set; }
     public string First { get; set; }
     public string Second { get; set; }
   }
@@ -244,11 +184,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [TypeDiscriminatorValue(4)]
   public class T : S, IComposite
   {
-    string IComposite.First
-    {
-      get { return GetFieldValue<string>("IComposite_First"); }
-      set { SetFieldValue("IComposite_First", value); }
-    }
+    string IComposite.First { get; set; }
   }
 
   [Serializable]
@@ -269,11 +205,7 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [TypeDiscriminatorValue(1)]
   public class V : U, INamed, ITagged
   {
-    string INamed.Name
-    {
-      get { return GetFieldValue<string>("INamed_Name"); }
-      set { SetFieldValue("INamed_Name", value); }
-    }
+    string INamed.Name { get; set; }
     public string Tag { get; set; }
   }
 
@@ -281,22 +213,14 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [TypeDiscriminatorValue(2)]
   public class W : U, ITagged
   {
-    string ITagged.Tag
-    {
-      get { return GetFieldValue<string>("ITagged_Tag"); }
-      set { SetFieldValue("ITagged_Tag", value); }
-    }
+    string ITagged.Tag { get; set; }
   }
 
   [Serializable]
   [TypeDiscriminatorValue(3)]
   public class X : V, INamed, IComposite
   {
-    string INamed.Name
-    {
-      get { return GetFieldValue<string>("INamed_Name"); }
-      set { SetFieldValue("INamed_Name", value); }
-    }
+    string INamed.Name { get; set; }
     public string First { get; set; }
     public string Second { get; set; }
   }
@@ -305,10 +229,6 @@ namespace Xtensive.Storage.Tests.ObjectModel.Interfaces.Alphabet
   [TypeDiscriminatorValue(4)]
   public class Y : X, IComposite
   {
-    string IComposite.First
-    {
-      get { return GetFieldValue<string>("IComposite_First"); }
-      set { SetFieldValue("IComposite_First", value); }
-    }
+    string IComposite.First { get; set; }
   }
 }
