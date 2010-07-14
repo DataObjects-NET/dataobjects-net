@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -68,8 +69,8 @@ namespace Xtensive.Core.Weaver
             .ToList();
           var maxAssemblyDate = assemblyVersions
             .Select(s => dateExtractor.Match(s))
-            .Select(m => m.Success ? m.Value : "01.01.2010")
-            .Select(DateTime.Parse)
+            .Select(m => m.Success ? m.Value : "01/01/2010")
+            .Select(s => DateTime.Parse(s, DateTimeFormatInfo.InvariantInfo))
             .Max();
           if (licenseInfo.ExpireOn < maxAssemblyDate) {
             ErrorLog.Write(SeverityType.Fatal, "Your subscription expired {0} and is not valid for {1}.", licenseInfo.ExpireOn.ToShortDateString(), assemblyVersions.First());
