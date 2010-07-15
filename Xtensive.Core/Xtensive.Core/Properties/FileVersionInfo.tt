@@ -4,6 +4,7 @@
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.IO" #>
 <#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Globalization" #>
 <#@ import namespace="System.Diagnostics" #>
 <#@ import namespace="System.Text.RegularExpressions" #>
 // Copyright (C) 2007-2009 Xtensive LLC.
@@ -62,9 +63,9 @@ using System.Reflection;
     }
   };
   
-  Func<string, Dictionary<string,string>> getVersionInfo = (_versionInfoPath) => {
+  Func<string, Dictionary<string,string>> getProductInfo = (_productInfoPath) => {
     var result = new Dictionary<string,string>();
-    foreach (string line in File.ReadAllLines(_versionInfoPath)) {
+    foreach (string line in File.ReadAllLines(_productInfoPath)) {
       int columnIndex = line.IndexOf(":");
       if (columnIndex<0)
         continue;
@@ -77,17 +78,18 @@ using System.Reflection;
 
   string projectPath = getProjectPath();
   string hgRootPath = getHgRootPath();
-  string versionInfoPath = Path.Combine(hgRootPath, "ProductInfo.txt");
+  string productInfoPath = Path.Combine(hgRootPath, "ProductInfo.txt");
 
   var projectRevision = getRevision(projectPath);
   var rootRevision = getRevision(hgRootPath);
-  var versionInfo = getVersionInfo(versionInfoPath);
-  string name = versionInfo["Name"];
-  string codeName = versionInfo["CodeName"];
-  string platform = versionInfo["Platform"];
-  string platformCode = versionInfo["PlatformCode"];
-  string version = versionInfo["Version"];
-  string buildType = versionInfo["BuildType"];
+  var productInfo = getProductInfo(productInfoPath);
+  string name = productInfo["Name"];
+  string codeName = productInfo["CodeName"];
+  string platform = productInfo["Platform"];
+  string platformCode = productInfo["PlatformCode"];
+  string version = productInfo["Version"];
+  string buildType = productInfo["BuildType"];
+  string buildTypeTitle = productInfo["BuildTypeTitle"];
   string versionAndBuildType = buildType.Length==0
     ? "v" + version
     : "v" + version + " " + buildType;
@@ -95,4 +97,4 @@ using System.Reflection;
 
 [assembly: AssemblyCopyright("Copyright © Xtensive LLC 2003-<#= DateTime.Now.Year #>")]
 [assembly: AssemblyFileVersion("1.0.<#= projectRevision.Item1 #>.<#= projectRevision.Item2 #>")]
-[assembly: AssemblyInformationalVersion("Part of <#= name #> <#= versionAndBuildType #>, build <#= rootRevision.Item1 #> for <#= platform #>, build date: <#= DateTime.Now.ToShortDateString() #>")]
+[assembly: AssemblyInformationalVersion("<#= name #> <#= versionAndBuildType #> component, build <#= rootRevision.Item1 #> for <#= platform #>, build date: <#= DateTime.Now.ToString("d", DateTimeFormatInfo.InvariantInfo) #>")]
