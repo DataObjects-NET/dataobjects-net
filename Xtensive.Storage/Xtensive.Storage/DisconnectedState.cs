@@ -5,6 +5,7 @@
 // Created:    2009.10.23
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -26,7 +27,7 @@ namespace Xtensive.Storage
   /// Disconnected state.
   /// </summary>
   [Serializable]
-  public sealed class DisconnectedState
+  public sealed class DisconnectedState : IEnumerable<Entity>
   {
     private OperationLog serializedOperations;
     private SerializableEntityState[] serializedRegistry;
@@ -261,6 +262,74 @@ namespace Xtensive.Storage
           Versions[entityState.Key], mergeMode);
     }
 
+    /// <summary>
+    /// Gets the state of the entity cached in <see cref="DisconnectedState"/>.
+    /// </summary>
+    /// <param name="key">The key of the entity.</param>
+    /// <returns>Persistence state;
+    /// <see langword="null" />, if entity isn't cached.</returns>
+    public PersistenceState? GetPersistenceState(Key key)
+    {
+      return GetPersistenceState(GetState(key));
+    }
+
+    /// <summary>
+    /// Gets the sequence of all keys and entity persistence states cached by this <see cref="DisconnectedState"/>.
+    /// </summary>
+    /// <returns>The sequence of all keys and entity persistence states.</returns>
+    public IEnumerable<KeyValuePair<Key, PersistenceState>> AllPersistenceStates()
+    {
+      EnsureIsAttached();
+      var allKeys = new HashSet<Key>();
+      var currentState = state;
+      while (currentState!=null) {
+        allKeys.UnionWith(currentState.Keys);
+        currentState = currentState.Origin;
+      }
+      return 
+        from key in allKeys
+        let entityState = GetState(key)
+        let persistenceState = GetPersistenceState(entityState)
+        where persistenceState.HasValue
+        select new KeyValuePair<Key, PersistenceState>(entityState.Key, persistenceState.GetValueOrDefault());
+    }
+
+    /// <summary>
+    /// Gets the sequence of all the entities of the specified type cached by <see cref="DisconnectedState"/>,
+    /// except removed ones.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <returns>The sequence of all the entities of the specified type.</returns>
+    public IEnumerable<TEntity> All<TEntity>()
+      where TEntity : class, IEntity
+    {
+      return this.OfType<TEntity>();
+    }
+
+    #region IEnumerable<...> methods
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    /// <inheritdoc/>
+    public IEnumerator<Entity> GetEnumerator()
+    {
+      EnsureIsAttached();
+      Session.Persist();
+      var all =
+        from pair in AllPersistenceStates()
+        where pair.Value!=PersistenceState.Removed
+        let entity = Query.SingleOrDefault(pair.Key)
+        where entity!=null
+        select entity;
+      return all.GetEnumerator();
+    }
+
+    #endregion
+
     #region Internal \ protected methods
 
     internal AssociationCache AssociationCache {
@@ -296,6 +365,26 @@ namespace Xtensive.Storage
       else {
         transactionalState = null;
       }
+    }
+
+    internal PersistenceState? GetPersistenceState(DisconnectedEntityState entityState)
+    {
+      if (entityState==null)
+        return null;
+      if (!entityState.IsLoaded)
+        return null;
+      if (entityState.IsRemoved)
+        return PersistenceState.Removed;
+      var originalEntityState = originalState.Get(entityState.Key);
+      if (originalEntityState==null || originalEntityState.IsRemoved || !originalEntityState.IsLoaded)
+        return PersistenceState.New;
+      var differentialTuple = entityState.Tuple as DifferentialTuple;
+      while (differentialTuple!=null) {
+        if (differentialTuple.Difference!=null)
+          return PersistenceState.Modified;
+        differentialTuple = differentialTuple.Origin as DifferentialTuple;
+      }
+      return PersistenceState.Synchronized;
     }
 
     internal DisconnectedEntityState GetState(Key key)
@@ -372,17 +461,17 @@ namespace Xtensive.Storage
       EnsureIsAttached();
 
       switch (persistAction) {
-        case PersistActionKind.Insert:
-          transactionalState.Insert(entityState.Key, entityState.Tuple.ToRegular());
-          break;
-        case PersistActionKind.Update:
-          transactionalState.Update(entityState.Key, entityState.DifferentialTuple.Difference.ToRegular());
-          break;
-        case PersistActionKind.Remove:
-          transactionalState.Remove(entityState.Key);
-          break;
-        default:
-          throw new ArgumentOutOfRangeException("persistAction");
+      case PersistActionKind.Insert:
+        transactionalState.Insert(entityState.Key, entityState.Tuple.ToRegular());
+        break;
+      case PersistActionKind.Update:
+        transactionalState.Update(entityState.Key, entityState.DifferentialTuple.Difference.ToRegular());
+        break;
+      case PersistActionKind.Remove:
+        transactionalState.Remove(entityState.Key);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("persistAction");
       }
     }
 
