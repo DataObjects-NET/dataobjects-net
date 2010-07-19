@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
           ds.ApplyChanges();
         }
         Assert.AreEqual(2, Query.All<Book>().Count());
-        tx.Complete();
+        // tx.Complete();
       }
     }
 
@@ -116,19 +116,21 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
       var ds = new DisconnectedState();
       Book book;
       Key bookKey;
-      using (var session = Session.Open(Domain)) {
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
         using (ds.Attach(session)) {
           using (ds.Connect())
-          using (var tx = Transaction.Open()) {
+          using (var tx2 = Transaction.Open(TransactionOpenMode.New)) {
             book = new Book() {Title = "New Book"};
             bookKey = book.Key;
-            tx.Complete();
+            tx2.Complete();
           }
           var mapping = ds.ApplyChanges();
           bookKey = mapping.TryRemapKey(bookKey);
         }
         Assert.IsFalse(book.IsRemoved);
         Assert.AreSame(book, Query.Single(bookKey));
+        // tx.Complete();
       }
     }
   }
