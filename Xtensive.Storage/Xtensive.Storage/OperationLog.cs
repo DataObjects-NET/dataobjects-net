@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
 
