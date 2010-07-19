@@ -70,9 +70,14 @@ namespace Xtensive.Storage
           operation.Execute(operationContext);
 
         tx.Complete();
-      }
 
-      return new KeyMapping(operationContext.KeyMapping);
+        var keyMapping = new KeyMapping(operationContext.KeyMapping);
+        session.RemapEntityKeys(keyMapping);
+        if (keyMapping.Map.Count!=0 && tx.Transaction.IsNested)
+          session.NotifyChanged();
+
+        return keyMapping;
+      }
     }
 
     /// <inheritdoc/>

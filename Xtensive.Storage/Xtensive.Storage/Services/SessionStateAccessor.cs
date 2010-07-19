@@ -74,6 +74,16 @@ namespace Xtensive.Storage.Services
       Session.Invalidate();
     }
 
+    /// <summary>
+    /// Remaps the keys of cached entities
+    /// accordingly with the specified <paramref name="keyMapping"/>.
+    /// </summary>
+    /// <param name="keyMapping">The key mapping.</param>
+    public void RemapEntityKeys(KeyMapping keyMapping)
+    {
+      Session.RemapEntityKeys(keyMapping);
+    }
+
     #region IEnuemrable<...> members
 
     /// <inheritdoc/>

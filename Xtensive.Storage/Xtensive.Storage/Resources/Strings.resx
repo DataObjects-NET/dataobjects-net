@@ -1471,4 +1471,7 @@ Schema difference:
 	<data name="LogSyncContextMustHaveNoPendingActions">
 		<value xml:space="preserve">SyncContext must have no pending actions at this point.</value>
 	</data>
+	<data name="LogSessionXRemappingEntityKeys">
+		<value><![CDATA[Session '{0}'. Remapping entity keys.]]></value>
+	</data>
 </root>
