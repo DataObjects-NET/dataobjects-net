@@ -29,7 +29,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
   }
 
   [TestFixture]
-  public class DiscinnectedStateTest2 : AutoBuildTest
+  public class DisconnectedStateTest2 : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
