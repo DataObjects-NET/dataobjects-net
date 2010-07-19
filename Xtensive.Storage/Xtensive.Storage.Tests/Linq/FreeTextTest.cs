@@ -123,6 +123,18 @@ namespace Xtensive.Storage.Tests.Linq
         Assert.IsNotNull(product);
       }
     }
+
+    [Test]
+    public void OrderByTest()
+    {
+      var result = from ft in Query.FreeText<Product>(() => "lager")
+                   where ft.Entity.Id > 0 && ft.Entity.UnitPrice > 10
+                   orderby ft.Entity.Category.CategoryName , ft.Entity.ReorderLevel
+                   select new {Product = ft.Entity, ft.Entity.Category};
+      var list = result.ToList();
+      Assert.AreEqual(2, list.Count);
+    }
+
     private IEnumerable<FullTextMatch<Category>> TakeMatchesIncorrect(string searchCriteria)
     {
       return Query.Execute(() => Query.FreeText<Category>(searchCriteria));

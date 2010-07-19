@@ -12,7 +12,6 @@ using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
-using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Disconnected
@@ -28,6 +27,7 @@ namespace Xtensive.Storage.Disconnected
 
     public StateRegistry Origin { get { return origin; } }
 
+    public IEnumerable<Key> Keys { get { return items.Keys; } }
     public IEnumerable<DisconnectedEntityState> EntityStates { get { return items.Values; } }
     public OperationLog Operations { get; set; }
 
