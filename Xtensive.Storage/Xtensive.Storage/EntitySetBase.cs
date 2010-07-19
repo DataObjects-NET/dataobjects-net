@@ -324,9 +324,13 @@ namespace Xtensive.Storage
       if (!Session.EntityEventBroker.HasSubscribers)
         return;
       var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
-      if (subscriptionInfo.Second != null)
-        ((NotifyCollectionChangedEventHandler) subscriptionInfo.Second)
-          .Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+      if (subscriptionInfo.Second != null) {
+        var handler = (NotifyCollectionChangedEventHandler) subscriptionInfo.Second;
+        if (action==NotifyCollectionChangedAction.Reset)
+          handler.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        else
+          handler.Invoke(this, new NotifyCollectionChangedEventArgs(action, item));
+      }
       NotifyPropertyChanged("Count");
     }
 

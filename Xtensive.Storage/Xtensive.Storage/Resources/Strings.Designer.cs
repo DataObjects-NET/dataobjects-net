@@ -1968,7 +1968,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [Persistent] attribute isn&apos;t applied on type &apos;{0}&apos;, or assembly &apos;{1}&apos; is not processed by PostSharp. See section 2 of Manual for details..
+        ///   Looks up a localized string similar to Assembly &apos;{1}&apos; is not processed by PostSharp. See section 2 of Manual for details..
         /// </summary>
         internal static string ExPersistentAttributeIsNotSetOnTypeXOrAssemblyYIsNotProcessedByPostSharp {
             get {
@@ -3687,6 +3687,15 @@ namespace Xtensive.Storage.Resources {
         internal static string LogSessionXPersistingReasonY {
             get {
                 return ResourceManager.GetString("LogSessionXPersistingReasonY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Remapping entity keys..
+        /// </summary>
+        internal static string LogSessionXRemappingEntityKeys {
+            get {
+                return ResourceManager.GetString("LogSessionXRemappingEntityKeys", resourceCulture);
             }
         }
         
