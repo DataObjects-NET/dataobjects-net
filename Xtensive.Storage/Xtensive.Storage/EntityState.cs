@@ -25,7 +25,7 @@ namespace Xtensive.Storage
     IEquatable<EntityState>,
     IInvalidatable
   {
-    private readonly Key key;
+    private Key key;
     private PersistenceState persistenceState;
     private Entity entity;
     private bool isStale;
@@ -251,6 +251,22 @@ namespace Xtensive.Storage
       persistenceState = PersistenceState.Synchronized;
       isVersionInfoUpdated = false;
       base.Invalidate();
+    }
+
+    internal void RemapKey(Key newKey)
+    {
+      key = newKey;
+      var tuple = Tuple;
+      if (tuple==null)
+        return;
+      var dTuple = tuple as DifferentialTuple;
+      if (dTuple!=null)
+        tuple = dTuple.Origin;
+      tuple = Type.InjectPrimaryKey(tuple, key.Value);
+      if (dTuple!=null)
+        Tuple = new DifferentialTuple(tuple, dTuple.Difference);
+      else
+        Tuple = tuple;
     }
 
     #region Equality members
