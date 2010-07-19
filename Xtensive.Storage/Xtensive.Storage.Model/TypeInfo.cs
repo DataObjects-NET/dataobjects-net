@@ -379,19 +379,6 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Injects the primary key into specified <paramref name="entityTuple"/>
-    /// </summary>
-    /// <param name="primaryKey">The primary key to inject.</param>
-    /// <returns>
-    /// The <paramref name="entityTuple"/> with "injected" <paramref name="primaryKey"/>.
-    /// </returns>
-    public Tuple InjectPrimaryKey(Tuple entityTuple, Tuple primaryKey)
-    {
-      var prototype = TuplePrototype; // Ensures primaryKeyInjector is built as well
-      return primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, entityTuple);
-    }
-
-    /// <summary>
     /// Gets the direct descendants of this instance.
     /// </summary>
     public IEnumerable<TypeInfo> GetDescendants()
