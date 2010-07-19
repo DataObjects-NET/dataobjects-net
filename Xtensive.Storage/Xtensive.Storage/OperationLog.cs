@@ -55,26 +55,35 @@ namespace Xtensive.Storage
     public KeyMapping Replay(Session session)
     {
       var operationContext = new OperationExecutionContext(session);
+      KeyMapping keyMapping = null;
+      Transaction transaction = null;
+      using (session.Activate()) {
+        try {
+          using (var tx = Transaction.Open(TransactionOpenMode.New)) {
+            transaction = tx.Transaction;
 
-      using (session.Activate())
-      using (var tx = Transaction.Open(TransactionOpenMode.New)) { 
-        foreach (var operation in operations)
-          operation.Prepare(operationContext);
+            foreach (var operation in operations)
+              operation.Prepare(operationContext);
 
-        operationContext.KeysToPrefetch
-          .Prefetch<Entity,Key>(key => key)
-          .Execute();
+            operationContext.KeysToPrefetch
+              .Prefetch<Entity, Key>(key => key)
+              .Execute();
 
-        foreach (var operation in operations)
-          operation.Execute(operationContext);
+            foreach (var operation in operations)
+              operation.Execute(operationContext);
 
-        tx.Complete();
+            keyMapping = new KeyMapping(operationContext.KeyMapping);
 
-        var keyMapping = new KeyMapping(operationContext.KeyMapping);
-        session.RemapEntityKeys(keyMapping);
-        if (keyMapping.Map.Count!=0 && tx.Transaction.IsNested)
-          session.NotifyChanged();
-
+            tx.Complete();
+          }
+        }
+        finally {
+          bool requiresRemapping = keyMapping!=null && keyMapping.Map.Count!=0;
+          if (requiresRemapping && transaction!=null && transaction.State==TransactionState.Committed && transaction.IsNested) {
+            session.RemapEntityKeys(keyMapping);
+            session.NotifyChanged();
+          }
+        }
         return keyMapping;
       }
     }
