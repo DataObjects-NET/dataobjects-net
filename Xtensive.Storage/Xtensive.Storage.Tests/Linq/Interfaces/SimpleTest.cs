@@ -34,6 +34,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
       Assert.IsTrue(list.All(i => i != null));
     }
 
+#if NET40 
     [Test]
     public void QueryUnknownTypeDynamicTest()
     {
@@ -44,6 +45,7 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
         result.Add(new DTO() {Freight = anonym.Freight});
       Assert.Greater(result.Count, 0);
     }
+#endif
 
     [Test]
     public void QueryUnknownTypeCastTest()
