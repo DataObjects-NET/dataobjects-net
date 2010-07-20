@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Operations
       var key = context.TryRemapKey(Key);
       var type = domain.Model.Types[TypeName];
       key = Key.Create(domain, type, TypeReferenceAccuracy.ExactType, key.Value);
-      session.CreateEntityState(key);
+      session.CreateOrInitializeExistingEntity(type.UnderlyingType, key);
     }
 
     

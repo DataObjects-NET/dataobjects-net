@@ -1474,4 +1474,7 @@ Schema difference:
 	<data name="LogSessionXRemappingEntityKeys">
 		<value><![CDATA[Session '{0}'. Remapping entity keys.]]></value>
 	</data>
+	<data name="ExEntityIsAlreadyDetachedFromSession">
+		<value xml:space="preserve">Entity is already detached from Session. Likely, this is result of creation of new Entity with the same Key.</value>
+	</data>
 </root>

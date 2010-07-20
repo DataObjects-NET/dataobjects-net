@@ -45,6 +45,17 @@ namespace Xtensive.Storage
       return key;
     }
 
+    /// <summary>
+    /// Remaps the keys of cached entities
+    /// in the specified <paramref name="session"/>
+    /// accordingly with this key mapping.
+    /// </summary>
+    /// <param name="session">The session to remap entity keys in.</param>
+    public void RemapEntityKeys(Session session)
+    {
+      session.RemapEntityKeys(this);
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -53,6 +64,7 @@ namespace Xtensive.Storage
         sb.AppendFormat("  {0} => {1}", pair.Key, pair.Value);
       return sb.ToString().Trim();
     }
+
 
     // Constructors
 

@@ -28,9 +28,27 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
     }
   }
 
+  [Serializable]
+  [HierarchyRoot]
+  public class GuidBook : Entity
+  {
+    [Key, Field]
+    public Guid Id { get; private set; }
+
+    [Field]
+    public string Title { get; set; }
+
+    public override string ToString()
+    {
+      return Title;
+    }
+  }
+
   [TestFixture]
   public class DisconnectedStateTest2 : AutoBuildTest
   {
+    private const string NewBookTitle = "New Book";
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
@@ -111,7 +129,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
     }
 
     [Test]
-    public void NewEntityRemapTest()
+    public void NewEntityRemapTest1()
     {
       var ds = new DisconnectedState();
       Book book;
@@ -121,16 +139,145 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
         using (ds.Attach(session)) {
           using (ds.Connect())
           using (var tx2 = Transaction.Open(TransactionOpenMode.New)) {
-            book = new Book() {Title = "New Book"};
+            book = new Book() {Title = NewBookTitle};
             bookKey = book.Key;
             tx2.Complete();
           }
           var mapping = ds.ApplyChanges();
           bookKey = mapping.TryRemapKey(bookKey);
         }
+        Assert.AreEqual(bookKey, book.Key);
+        Assert.AreEqual(book.Title, NewBookTitle);
         Assert.IsFalse(book.IsRemoved);
         Assert.AreSame(book, Query.Single(bookKey));
         // tx.Complete();
+      }
+    }
+
+    [Test]
+    public void NewEntityRemapTest2()
+    {
+      var ds = new DisconnectedState();
+      Book book;
+      Key bookKey;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session)) {
+          using (ds.Connect()) {
+            book = new Book() {Title = NewBookTitle};
+            bookKey = book.Key;
+
+            var mapping = ds.ApplyChanges();
+            bookKey = mapping.TryRemapKey(bookKey);
+
+            Assert.AreEqual(bookKey, book.Key);
+            Assert.AreEqual(book.Title, NewBookTitle);
+            Assert.IsFalse(book.IsRemoved);
+            Assert.AreSame(book, Query.Single(bookKey));
+          }
+        }
+        // tx.Complete();
+      }
+    }
+
+    [Test]
+    public void NewEntityRemapTest3()
+    {
+      var ds = new DisconnectedState();
+      Book book;
+      Key bookKey;
+      using (var session = Session.Open(Domain)) {
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          book = new Book() {Title = NewBookTitle};
+          bookKey = book.Key;
+
+          var mapping = ds.ApplyChanges();
+          bookKey = mapping.TryRemapKey(bookKey);
+
+          Assert.AreEqual(bookKey, book.Key);
+          Assert.AreEqual(book.Title, NewBookTitle);
+          Assert.IsFalse(book.IsRemoved);
+          Assert.AreSame(book, Query.Single(bookKey));
+        }
+        book.Remove();
+      }
+    }
+
+
+    [Test]
+    public void NewGuidEntityRemapTest1()
+    {
+      var ds = new DisconnectedState();
+      GuidBook book;
+      Key bookKey;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session)) {
+          using (ds.Connect())
+          using (var tx2 = Transaction.Open(TransactionOpenMode.New)) {
+            book = new GuidBook() {Title = NewBookTitle};
+            bookKey = book.Key;
+            tx2.Complete();
+          }
+          var mapping = ds.ApplyChanges();
+          bookKey = mapping.TryRemapKey(bookKey);
+        }
+        Assert.AreEqual(bookKey, book.Key);
+        Assert.AreEqual(book.Title, NewBookTitle);
+        Assert.IsFalse(book.IsRemoved);
+        Assert.AreSame(book, Query.Single(bookKey));
+        // tx.Complete();
+      }
+    }
+
+    [Test]
+    public void NewGuidEntityRemapTest2()
+    {
+      var ds = new DisconnectedState();
+      GuidBook book;
+      Key bookKey;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session)) {
+          using (ds.Connect()) {
+            book = new GuidBook() {Title = NewBookTitle};
+            bookKey = book.Key;
+
+            var mapping = ds.ApplyChanges();
+            bookKey = mapping.TryRemapKey(bookKey);
+
+            Assert.AreEqual(bookKey, book.Key);
+            Assert.AreEqual(book.Title, NewBookTitle);
+            Assert.IsFalse(book.IsRemoved);
+            Assert.AreSame(book, Query.Single(bookKey));
+          }
+        }
+        // tx.Complete();
+      }
+    }
+
+    [Test]
+    public void NewGuidEntityRemapTest3()
+    {
+      var ds = new DisconnectedState();
+      GuidBook book;
+      Key bookKey;
+      using (var session = Session.Open(Domain)) {
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          book = new GuidBook() {Title = NewBookTitle};
+          bookKey = book.Key;
+
+          var mapping = ds.ApplyChanges();
+          bookKey = mapping.TryRemapKey(bookKey);
+
+          Assert.AreEqual(bookKey, book.Key);
+          Assert.AreEqual(book.Title, NewBookTitle);
+          Assert.IsFalse(book.IsRemoved);
+          Assert.AreSame(book, Query.Single(bookKey));
+        }
+        book.Remove();
       }
     }
   }

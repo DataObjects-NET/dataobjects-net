@@ -71,10 +71,28 @@ namespace Xtensive.Storage
     IDeserializationCallback
   {
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
+    private EntityState state;
 
     #region Internal properties
 
-    internal EntityState State { get; set; }
+    /// <exception cref="InvalidOperationException">Entity is already detached from Session.</exception>
+    internal EntityState State {
+      get {
+        if (state==null)
+          return null;
+        var entityBoundToState = state.TryGetEntity();
+        if (entityBoundToState!=this && entityBoundToState!=null)
+          throw new InvalidOperationException(Strings.ExEntityIsAlreadyDetachedFromSession);
+        return state;
+      }
+      set {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        if (state!=null)
+          throw Exceptions.AlreadyInitialized("State");
+        state = value;
+        state.Entity = this;
+      }
+    }
 
     /// <exception cref="Exception">Property is already initialized.</exception>
     public int TypeId
@@ -587,6 +605,8 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     protected override sealed Pair<Key, Delegate> GetSubscription(object eventKey)
     {
+      if (state==null || state.TryGetEntity()!=this)
+        return new Pair<Key, Delegate>();
       var entityKey = Key;
       return new Pair<Key, Delegate>(entityKey,
         Session.EntityEventBroker.GetSubscriber(entityKey, eventKey));

@@ -35,7 +35,10 @@ namespace Xtensive.Storage
     /// Gets the key.
     /// </summary>
     public Key Key {
+      [DebuggerStepThrough]
       get { return key; }
+      [DebuggerStepThrough]
+      internal set { key = value; }
     }
 
     /// <summary>
@@ -54,7 +57,7 @@ namespace Xtensive.Storage
       [DebuggerStepThrough]
       get { return State; }
       [DebuggerStepThrough]
-      private set { State = value; }
+      internal set { State = value; }
     }
 
     /// <summary>
@@ -94,8 +97,6 @@ namespace Xtensive.Storage
         return notAvailable ? null : entity;
       }
       internal set {
-        if (entity!=value && entity!=null)
-          throw Exceptions.AlreadyInitialized("Entity");
         entity = value;
       }
     }
@@ -256,17 +257,19 @@ namespace Xtensive.Storage
     internal void RemapKey(Key newKey)
     {
       key = newKey;
-      var tuple = Tuple;
-      if (tuple==null)
-        return;
-      var dTuple = tuple as DifferentialTuple;
-      if (dTuple!=null)
-        tuple = dTuple.Origin;
-      tuple = Type.InjectPrimaryKey(tuple, key.Value);
-      if (dTuple!=null)
-        Tuple = new DifferentialTuple(tuple, dTuple.Difference);
-      else
-        Tuple = tuple;
+      if (IsActual) {
+        var tuple = Tuple;
+        if (tuple==null)
+          return;
+        var dTuple = tuple as DifferentialTuple;
+        if (dTuple!=null)
+          tuple = dTuple.Origin;
+        tuple = Type.InjectPrimaryKey(tuple, key.Value);
+        if (dTuple!=null)
+          Tuple = new DifferentialTuple(tuple, dTuple.Difference);
+        else
+          Tuple = tuple;
+      }
     }
 
     #region Equality members
