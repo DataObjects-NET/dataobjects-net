@@ -65,6 +65,7 @@ namespace Xtensive.Storage
       return sb.ToString().Trim();
     }
 
+
     // Constructors
 
     /// <summary>
