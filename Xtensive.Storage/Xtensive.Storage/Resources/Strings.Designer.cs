@@ -2779,6 +2779,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to cast item of type &apos;{0}&apos; to &apos;{1}&apos; in queries..
+        /// </summary>
+        internal static string ExUnableToCastItemOfTypeXToY {
+            get {
+                return ResourceManager.GetString("ExUnableToCastItemOfTypeXToY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to clone non-user session configuration..
         /// </summary>
         internal static string ExUnableToCloneNonUserSessionConfiguration {
