@@ -902,6 +902,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Entity is already detached from Session. Likely, this is result of creation of new Entity with the same Key..
+        /// </summary>
+        internal static string ExEntityIsAlreadyDetachedFromSession {
+            get {
+                return ResourceManager.GetString("ExEntityIsAlreadyDetachedFromSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Entity is in inconsistent state..
         /// </summary>
         internal static string ExEntityIsInInconsistentState {

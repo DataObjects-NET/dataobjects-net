@@ -41,8 +41,7 @@ namespace Xtensive.Storage.Services
             string.Format(Strings.TypeXIsNotAnYDescendant, entityType, typeof (Entity)));
 
         var key = Key.Create(entityType);
-        var state = Session.CreateEntityState(key);
-        return Activator.CreateEntity(entityType, state);
+        return Session.CreateOrInitializeExistingEntity(entityType, key);
       }
     }
 
@@ -63,8 +62,7 @@ namespace Xtensive.Storage.Services
 
         var domain = Session.Domain;
         var key = Key.Create(domain, domain.Model.Types[entityType], TypeReferenceAccuracy.ExactType, tuple);
-        var state = Session.CreateEntityState(key);
-        return Activator.CreateEntity(entityType, state);
+        return Session.CreateOrInitializeExistingEntity(entityType, key);
       }
     }
 
@@ -82,8 +80,7 @@ namespace Xtensive.Storage.Services
           throw new InvalidOperationException(string.Format(Strings.ExKeyXShouldHaveExactType, key));
         var entityType = key.TypeRef.Type;
         var domain = Session.Domain;
-        var state = Session.CreateEntityState(key);
-        return Activator.CreateEntity(entityType.UnderlyingType, state);
+        return Session.CreateOrInitializeExistingEntity(entityType.UnderlyingType, key);
       }
     }
 
