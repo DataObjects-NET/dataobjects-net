@@ -1968,7 +1968,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to [Persistent] attribute isn&apos;t applied on type &apos;{0}&apos;, or assembly &apos;{1}&apos; is not processed by PostSharp. See section 2 of Manual for details..
+        ///   Looks up a localized string similar to Assembly &apos;{1}&apos; is not processed by PostSharp. See section 2 of Manual for details..
         /// </summary>
         internal static string ExPersistentAttributeIsNotSetOnTypeXOrAssemblyYIsNotProcessedByPostSharp {
             get {
@@ -2766,6 +2766,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters {
             get {
                 return ResourceManager.GetString("ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to cast item of type &apos;{0}&apos; to &apos;{1}&apos; in queries..
+        /// </summary>
+        internal static string ExUnableToCastItemOfTypeXToY {
+            get {
+                return ResourceManager.GetString("ExUnableToCastItemOfTypeXToY", resourceCulture);
             }
         }
         

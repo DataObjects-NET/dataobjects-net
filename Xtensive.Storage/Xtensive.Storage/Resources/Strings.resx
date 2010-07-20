@@ -1471,4 +1471,7 @@ Schema difference:
 	<data name="LogSyncContextMustHaveNoPendingActions">
 		<value xml:space="preserve">SyncContext must have no pending actions at this point.</value>
 	</data>
+	<data name="ExUnableToCastItemOfTypeXToY">
+		<value><![CDATA[Unable to cast item of type '{0}' to '{1}' in queries.]]></value>
+	</data>
 </root>
