@@ -168,7 +168,13 @@ namespace Xtensive.Storage
       case TransactionState.RolledBack:
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXRolledBackTransaction, this);
-        NotifyTransactionRollbacked(transaction);
+        try {
+          NotifyTransactionRollbacked(transaction);
+        }
+        finally {
+          if (IsDisconnected)
+            NotifyChanged();
+        }
         break;
       default:
         throw new ArgumentOutOfRangeException("transaction.State");

@@ -55,10 +55,9 @@ namespace Xtensive.Storage.Serialization
         : DeserializeKeyFields(typeInfo, info, context);
       var key = Key.Create(domain, typeInfo, TypeReferenceAccuracy.ExactType, keyValue);
 
-//      if (useGenerator)
-//        session.NotifyKeyGenerated(key);
-      entity.State = session.CreateEntityState(key);
-      entity.SystemBeforeInitialize(false);
+      var entityState = session.CreateEntityState(key);
+      entity.State = entityState;
+      session.InitializeEntity(entity, false);
     }
 
     public static Tuple DeserializeKeyFields(TypeInfo entityType, SerializationInfo info, StreamingContext context)
