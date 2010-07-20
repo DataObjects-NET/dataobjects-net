@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
+using System.Linq;
 
 namespace Xtensive.Storage
 {
@@ -234,6 +235,23 @@ namespace Xtensive.Storage
         var triplet = keyValuePair.Key;
         if (triplet.Third==eventKey)
           yield return new Triplet<Key, FieldInfo, Delegate>(triplet.First, triplet.Second, keyValuePair.Value);
+      }
+    }
+
+    /// <summary>
+    /// Remaps the event keys in accordance with specified <paramref name="keyMapping"/>.
+    /// </summary>
+    /// <param name="keyMapping">The key mapping.</param>
+    public void RemapKeys(KeyMapping keyMapping)
+    {
+      if (subscribers==null || subscribers.Count==0)
+        return;
+      var copy = new Dictionary<Triplet<Key, FieldInfo, object>, Delegate>(subscribers);
+      subscribers.Clear();
+      foreach (var kvp in copy) {
+        var triplet = kvp.Key;
+        var key = keyMapping.TryRemapKey(triplet.First);
+        AddSubscriber(key, triplet.Second, triplet.Third, kvp.Value);
       }
     }
   }

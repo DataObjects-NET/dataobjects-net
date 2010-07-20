@@ -38,19 +38,22 @@ namespace Xtensive.Storage
     {
       if (keyMapping.Map.Count==0)
         return;
-      Persist();
-      Invalidate();
-      if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.LogSessionXRemappingEntityKeys, this);
-      var oldCacheContent = EntityStateCache.ToDictionary(entityState => entityState.Key);
-      EntityStateCache.Clear();
-      foreach (var pair in oldCacheContent) {
-        var key = pair.Key;
-        var entityState = pair.Value;
-        var remappedKey = keyMapping.TryRemapKey(key);
-        if (remappedKey!=key)
-          entityState.RemapKey(remappedKey);
-        EntityStateCache.Add(entityState);
+      using (Activate()) {
+        Persist();
+        Invalidate();
+        if (IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXRemappingEntityKeys, this);
+        var oldCacheContent = EntityStateCache.ToDictionary(entityState => entityState.Key);
+        EntityStateCache.Clear();
+        foreach (var pair in oldCacheContent) {
+          var key = pair.Key;
+          var entityState = pair.Value;
+          var remappedKey = keyMapping.TryRemapKey(key);
+          if (remappedKey!=key)
+            entityState.RemapKey(remappedKey);
+          EntityStateCache.Add(entityState);
+        }
+        EntityEventBroker.RemapKeys(keyMapping);
       }
     }
 
