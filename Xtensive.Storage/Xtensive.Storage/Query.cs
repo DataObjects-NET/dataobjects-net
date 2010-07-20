@@ -39,6 +39,11 @@ namespace Xtensive.Storage
     /// a <see cref="IQueryable{T}"/> enumerating all the instances
     /// of type <typeparamref name="T"/>.
     /// </summary>
+    /// <typeparam name="T">Type of the sequence element.</typeparam>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> enumerating all the instances
+    /// of type <typeparamref name="T"/>.
+    /// </returns>
     public static IQueryable<T> All<T>()
       where T: class, IEntity
     {
@@ -46,10 +51,15 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// The "starting point" for dynamic LINQ query
+    /// The "starting point" for dynamic LINQ query -
+    /// a <see cref="IQueryable"/> enumerating all the instances
+    /// of type <paramref name="elementType"/>.
     /// </summary>
-    /// <param name="elementType">Type of the element.</param>
-    /// <returns></returns>
+    /// <param name="elementType">Type of the sequence element.</param>
+    /// <returns>
+    /// An <see cref="IQueryable"/> enumerating all the instances
+    /// of type <paramref name="elementType"/>.
+    /// </returns>
     public static IQueryable All(Type elementType)
     {
       var queryAll = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
@@ -62,8 +72,10 @@ namespace Xtensive.Storage
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
     /// <param name="searchCriteria">The search criteria in free text form.</param>
-    /// <returns>An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
-    /// allowing to continue building the query.</returns>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
     public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria) 
       where T: Entity
     {
@@ -78,8 +90,10 @@ namespace Xtensive.Storage
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
     /// <param name="searchCriteria">The search criteria in free text form.</param>
-    /// <returns>An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
-    /// allowing to continue building the query.</returns>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
     public static IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria) 
       where T: Entity
     {
@@ -111,7 +125,7 @@ namespace Xtensive.Storage
     /// <param name="key">The key to resolve.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
-    /// <see langword="null" />, if there is no such entity.
+    /// <see langword="null"/>, if there is no such entity.
     /// </returns>
     public static Entity SingleOrDefault(Key key)
     {
@@ -122,36 +136,39 @@ namespace Xtensive.Storage
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
     /// in the current <see cref="Session"/>.
     /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
-    /// <see langword="null" />, if there is no such entity.
+    /// <see langword="null"/>, if there is no such entity.
     /// </returns>
     public static T Single<T>(Key key)
       where T : class, IEntity
     {
       return (T) (object) Single(key);
     }
-    
+
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
     /// in the current <see cref="Session"/>.
     /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="keyValues">Key values.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
-    /// <see langword="null" />, if there is no such entity.
+    /// <see langword="null"/>, if there is no such entity.
     /// </returns>
     public static T Single<T>(params object[] keyValues)
       where T : class, IEntity
     {
       return (T) (object) Single(GetKeyByValues<T>(keyValues));
     }
-    
+
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
     /// in the current <see cref="Session"/>.
     /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
@@ -166,6 +183,7 @@ namespace Xtensive.Storage
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
     /// in the current <see cref="Session"/>.
     /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="keyValues">Key values.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
@@ -177,13 +195,13 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Finds compiled query in cache by provided <paramref name="query"/> delegate 
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
     /// (in fact, by its <see cref="MethodInfo"/> instance)
-    /// and executes them if it's already cached; 
+    /// and executes them if it's already cached;
     /// otherwise executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
-    /// <typeparam name="TElement">The type of the result element.</typeparam>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
     public static IEnumerable<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
@@ -193,12 +211,12 @@ namespace Xtensive.Storage
 
     /// <summary>
     /// Finds compiled query in cache by provided <paramref name="key"/>
-    /// and executes them if it's already cached; 
+    /// and executes them if it's already cached;
     /// otherwise executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
-    /// <typeparam name="TElement">The type of the result element.</typeparam>
-    /// <param name="key">An cache item's key.</param>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
     public static IEnumerable<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
@@ -228,7 +246,7 @@ namespace Xtensive.Storage
     /// and caches the result.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="key">An cache item's key.</param>
+    /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
     public static TResult Execute<TResult>(object key, Func<TResult> query)
@@ -266,9 +284,11 @@ namespace Xtensive.Storage
     /// The query associated with the future scalar will be cached.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="key">An cache item's key.</param>
+    /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
-    /// <returns>The future that will be executed when its result is requested.</returns>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
     public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
     {
       var session = Session.Demand();
@@ -307,7 +327,9 @@ namespace Xtensive.Storage
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
-    /// <returns>The future that will be executed when its result is requested.</returns>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
     public static FutureScalar<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
     {
       return ExecuteFutureScalar(query.Method, query);
@@ -317,10 +339,12 @@ namespace Xtensive.Storage
     /// Creates future query and registers it for the later execution.
     /// The associated query will be cached.
     /// </summary>
-    /// <typeparam name="TElement">The type of the result element.</typeparam>
-    /// <param name="key">An cache item's key.</param>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
-    /// <returns>The future that will be executed when its result is requested.</returns>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
     public static IEnumerable<TElement> ExecuteFuture<TElement>(object key, Func<IQueryable<TElement>> query)
     {
       var session = Session.Demand();
@@ -335,9 +359,11 @@ namespace Xtensive.Storage
     /// Creates future query and registers it for the later execution.
     /// The associated query will be cached.
     /// </summary>
-    /// <typeparam name="TElement">The type of the result element.</typeparam>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
-    /// <returns>The future that will be executed when its result is requested.</returns>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
     public static IEnumerable<TElement> ExecuteFuture<TElement>(Func<IQueryable<TElement>> query)
     {
       return ExecuteFuture(query.Method, query);
