@@ -48,13 +48,34 @@ namespace Xtensive.Storage.Tests.Linq.Interfaces
 #endif
 
     [Test]
-    public void QueryUnknownTypeCastTest()
+    public void QueryOfUnknownTypeCastTest()
     {
       var type = typeof(Order);
       var queryable = Query.All(type);
       var result = queryable.Cast<IHasFreight>()
         .Select(i => new DTO() {Freight = i.Freight})
         .ToList();
+    }
+
+    [Test]
+    public void ComplexQueryOfUnknownTypeTest()
+    {
+      var type = typeof(Order);
+      var queryable = Query.All(type);
+      var result = queryable.Cast<IHasFreight>()
+        .Select(i => new {
+          i, 
+          c1 = queryable.Count(),
+          c2 = Query.All(type).Count()
+        })
+        .ToList();
+
+      int expectedCount = result.Count;
+      Assert.Greater(expectedCount, 0);
+      foreach (var item in result) {
+        Assert.AreEqual(expectedCount, item.c1);
+        Assert.AreEqual(expectedCount, item.c2);
+      }
     }
 
     [Test]
