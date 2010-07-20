@@ -26,17 +26,29 @@ namespace Xtensive.Storage
     /// </summary>
     public void NotifyChanged()
     {
-      var subscribers = EntityEventBroker.GetSubscribers(EntityEventBroker.PropertyChangedEventKey);
-      foreach (var triplet in subscribers) {
-        if (triplet.Third != null)
-          ((PropertyChangedEventHandler)triplet.Third)
-            .Invoke(this, new PropertyChangedEventArgs(null));
-      }
-      subscribers = EntityEventBroker.GetSubscribers(EntityEventBroker.CollectionChangedEventKey);
-      foreach (var triplet in subscribers) {
-        if (triplet.Third != null)
-          ((NotifyCollectionChangedEventHandler) triplet.Third)
-            .Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+      using (Activate()) 
+      using (var transactionScope = Transaction.Open(this)) {
+        var subscribers = EntityEventBroker.GetSubscribers(EntityEventBroker.PropertyChangedEventKey);
+        foreach (var triplet in subscribers) {
+          if (triplet.Third!=null) {
+            var handler = (PropertyChangedEventHandler) triplet.Third;
+            var key = triplet.First;
+            var entityState = EntityStateCache[key, false];
+            var sender = entityState!=null ? entityState.Entity : Query.SingleOrDefault(key);
+            handler.Invoke(sender, new PropertyChangedEventArgs(null));
+          }
+        }
+        subscribers = EntityEventBroker.GetSubscribers(EntityEventBroker.CollectionChangedEventKey);
+        foreach (var triplet in subscribers) {
+          if (triplet.Third!=null) {
+            var handler = (NotifyCollectionChangedEventHandler) triplet.Third;
+            var key = triplet.First;
+            var entityState = EntityStateCache[key, false];
+            var owner = entityState!=null ? entityState.Entity : Query.SingleOrDefault(key);
+            var sender = owner.IsRemoved() ? null : owner.GetFieldValue(triplet.Second);
+            handler.Invoke(sender, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+          }
+        }
       }
     }
 
