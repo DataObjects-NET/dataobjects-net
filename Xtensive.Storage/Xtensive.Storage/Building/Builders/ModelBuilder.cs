@@ -221,10 +221,16 @@ namespace Xtensive.Storage.Building.Builders
 
         // Updating fields names only if types differ.
         if (masterType != slaveType) {
-          if (!masterType.Name.Contains("."))
-            masterFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(masterType.Name);
-          if (!slaveType.Name.Contains("."))
-            slaveFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(slaveType.Name);
+          try {
+            if (!masterType.Name.Contains("."))
+              masterFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(masterType.Name);
+          }
+          catch(DomainBuilderException){}
+          try {
+            if (!slaveType.Name.Contains("."))
+              slaveFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(slaveType.Name);
+          }
+          catch (DomainBuilderException){}
         }
 
         context.ModelDef.Hierarchies.Add(hierarchy);
