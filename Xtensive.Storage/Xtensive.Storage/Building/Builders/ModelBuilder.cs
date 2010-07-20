@@ -219,6 +219,14 @@ namespace Xtensive.Storage.Building.Builders
         var masterFieldDef = underlyingTypeDef.Fields[WellKnown.MasterFieldName];
         var slaveFieldDef = underlyingTypeDef.Fields[WellKnown.SlaveFieldName];
 
+        // Updating fields names only if types differ.
+        if (masterType != slaveType) {
+          if (!masterType.Name.Contains("."))
+            masterFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(masterType.Name);
+          if (!slaveType.Name.Contains("."))
+            slaveFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(slaveType.Name);
+        }
+
         context.ModelDef.Hierarchies.Add(hierarchy);
         context.ModelDef.Types.Add(underlyingTypeDef);
         list.Add(new Pair<AssociationInfo, TypeDef>(association, underlyingTypeDef));
