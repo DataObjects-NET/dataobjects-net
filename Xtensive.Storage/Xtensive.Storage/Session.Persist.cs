@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Core.Disposing;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Services;
@@ -131,7 +132,10 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var targetEntity = (Entity) target;
       targetEntity.EnsureNotRemoved();
-      return Pinner.RegisterRoot(targetEntity.State);
+      if (IsDisconnected)
+        return new Disposable(b => {return;}); // No need to pin in this case
+      else
+        return Pinner.RegisterRoot(targetEntity.State);
     }
   }
 }

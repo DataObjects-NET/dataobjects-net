@@ -65,6 +65,7 @@ namespace Xtensive.Storage.Rse.PreCompilation.Optimization
     /// <inheritdoc/>
     protected override Provider VisitFreeText(FreeTextProvider provider)
     {
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;
     }
 
