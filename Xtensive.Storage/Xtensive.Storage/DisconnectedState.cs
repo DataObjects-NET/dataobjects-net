@@ -218,16 +218,8 @@ namespace Xtensive.Storage
         disposable.DisposeSafely();
       }
       // Remapping Entity keys, if necessary
-      if (IsAttached && keyMapping.Map.Count!=0) {
-        using (session.Activate()){
-          try {
-            session.RemapEntityKeys(keyMapping);
-          }
-          finally {
-            session.NotifyChanged();
-          }
-        }
-      }
+      if (IsAttached && keyMapping.Map.Count!=0)
+        session.RemapEntityKeys(keyMapping);
       return keyMapping;
     }
 
