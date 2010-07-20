@@ -413,7 +413,8 @@ namespace Xtensive.Storage
           SystemBeforeAdd(item);
 
           Action finalizer = () => {
-            if (Field.Association.AuxiliaryType!=null && Field.Association.IsMaster) {
+            var auxiliaryType = Field.Association.AuxiliaryType;
+            if (auxiliaryType!=null && Field.Association.IsMaster) {
               var combinedTuple = auxilaryTypeKeyTransform.Apply(
                 TupleTransformType.Tuple,
                 Owner.Key.Value,
@@ -421,13 +422,11 @@ namespace Xtensive.Storage
 
               var combinedKey = Key.Create(
                 Session.Domain,
-                Field.Association.AuxiliaryType,
+                auxiliaryType,
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);
 
-              var underlyindEntityState = new EntityState(Session, combinedKey, combinedTuple) {
-                PersistenceState = PersistenceState.New
-              };
+              Session.CreateOrInitializeExistingEntity(auxiliaryType.UnderlyingType, combinedKey);
             }
 
             State.Add(item.Key);
@@ -471,7 +470,8 @@ namespace Xtensive.Storage
           SystemBeforeRemove(item);
 
           Action finalizer = () => {
-            if (Field.Association.AuxiliaryType != null && Field.Association.IsMaster) {
+            var auxiliaryType = Field.Association.AuxiliaryType;
+            if (auxiliaryType != null && Field.Association.IsMaster) {
               var combinedTuple = auxilaryTypeKeyTransform.Apply(
                 TupleTransformType.Tuple,
                 Owner.Key.Value,
@@ -479,14 +479,11 @@ namespace Xtensive.Storage
 
               var combinedKey = Key.Create(
                 Session.Domain,
-                Field.Association.AuxiliaryType,
+                auxiliaryType,
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);
 
-              var underlyindEntityState = new EntityState(Session, combinedKey, null)
-              {
-                PersistenceState = PersistenceState.Removed
-              };
+              Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey);
             }
 
             State.Remove(item.Key);

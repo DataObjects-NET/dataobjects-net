@@ -60,31 +60,22 @@ namespace Xtensive.Storage
       KeyMapping keyMapping = null;
       Transaction transaction = null;
       using (session.Activate()) {
-        try {
-          using (var tx = Transaction.Open(TransactionOpenMode.New)) {
-            transaction = tx.Transaction;
+        using (var tx = Transaction.Open(TransactionOpenMode.New)) {
+          transaction = tx.Transaction;
 
-            foreach (var operation in operations)
-              operation.Prepare(operationContext);
+          foreach (var operation in operations)
+            operation.Prepare(operationContext);
 
-            operationContext.KeysToPrefetch
-              .Prefetch<Entity, Key>(key => key)
-              .Execute();
+          operationContext.KeysToPrefetch
+            .Prefetch<Entity, Key>(key => key)
+            .Execute();
 
-            foreach (var operation in operations)
-              operation.Execute(operationContext);
+          foreach (var operation in operations)
+            operation.Execute(operationContext);
 
-            keyMapping = new KeyMapping(operationContext.KeyMapping);
+          keyMapping = new KeyMapping(operationContext.KeyMapping);
 
-            tx.Complete();
-          }
-        }
-        finally {
-          bool requiresRemapping = keyMapping!=null && keyMapping.Map.Count!=0;
-          if (requiresRemapping && transaction!=null && transaction.State==TransactionState.Committed && transaction.IsNested) {
-            session.RemapEntityKeys(keyMapping);
-            session.NotifyChanged();
-          }
+          tx.Complete();
         }
         return keyMapping;
       }

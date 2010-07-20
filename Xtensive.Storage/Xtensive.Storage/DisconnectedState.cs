@@ -195,6 +195,7 @@ namespace Xtensive.Storage
       EnsureNoTransaction();
 
       IDisposable disposable = null;
+      KeyMapping keyMapping;
       using (OpenDetachRegion())
       using (targetSession.Activate())
       try {
@@ -202,7 +203,6 @@ namespace Xtensive.Storage
           disposable = Log.DebugRegion(Strings.LogSessionXDisconnectedStateApplyChanges, targetSession);
           Log.Debug("{0}", Operations);
         }
-        KeyMapping keyMapping;
         using (VersionValidator.Attach(targetSession, key => Versions[key])) {
           keyMapping = state.Operations.Replay(targetSession);
           state.Commit(true);
@@ -214,11 +214,22 @@ namespace Xtensive.Storage
         originalState.Remap(keyMapping);
         state = new StateRegistry(originalState);
         RebuildVersions();
-        return keyMapping;
       }
       finally {
         disposable.DisposeSafely();
       }
+      // Remapping Entity keys, if necessary
+      if (IsAttached && keyMapping.Map.Count!=0) {
+        using (session.Activate()){
+          try {
+            session.RemapEntityKeys(keyMapping);
+          }
+          finally {
+            session.NotifyChanged();
+          }
+        }
+      }
+      return keyMapping;
     }
 
     /// <summary>

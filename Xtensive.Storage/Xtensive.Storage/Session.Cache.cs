@@ -16,6 +16,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 using Xtensive.Storage.Rse;
+using Activator = Xtensive.Storage.Internals.Activator;
 
 namespace Xtensive.Storage
 {
@@ -59,11 +60,63 @@ namespace Xtensive.Storage
         Persist(PersistReason.ChangeRegistrySizeLimit);
     }
 
+    internal Entity CreateEntity(Type type, Key key)
+    {
+      var state = CreateEntityState(key);
+      return Activator.CreateEntity(type, state);
+    }
+
+    internal Entity CreateOrInitializeExistingEntity(Type type, Key key)
+    {
+      var state = CreateEntityState(key);
+      var entity = state.TryGetEntity();
+      if (entity==null)
+        return Activator.CreateEntity(type, state);
+      else {
+        InitializeEntity(entity, false);
+        return entity;
+      }
+    }
+
+    internal void RemoveOrCreateRemovedEntity(Type type, Key key)
+    {
+      // Checking for deleted entity with the same key
+      var result = EntityStateCache[key, false];
+      if (result != null) {
+        if (result.PersistenceState==PersistenceState.Removed)
+          return;
+        result.Entity.Remove();
+        return;
+      }
+
+      EnforceChangeRegistrySizeLimit(); // Must be done before new entity registration
+      result = new EntityState(this, key, null) {
+        PersistenceState = PersistenceState.Removed
+      };
+      EntityStateCache.Add(result);
+
+      if (IsDebugEventLoggingEnabled)
+        Log.Debug(Strings.SessionXCachingY, this, result);
+      return;
+    }
+
+    internal void InitializeEntity(Entity entity, bool materialize)
+    {
+      try {
+        entity.SystemBeforeInitialize(materialize);
+      }
+      catch (Exception error) {
+        entity.SystemInitializationError(error);
+        throw;
+      }
+      entity.SystemInitialize(materialize);
+    }
+
     internal EntityState CreateEntityState(Key key)
     {
       // Checking for deleted entity with the same key
-      var cachedState = EntityStateCache[key, false];
-      if (cachedState != null && cachedState.PersistenceState==PersistenceState.Removed)
+      var result = EntityStateCache[key, false];
+      if (result != null && result.PersistenceState==PersistenceState.Removed)
         Persist();
       else
         EnforceChangeRegistrySizeLimit(); // Must be done before new entity registration
@@ -75,10 +128,17 @@ namespace Xtensive.Storage
         // A tuple with all the fields set to default values rather then N/A
         tuple = key.Type.CreateEntityTuple(key.Value);
 
-      var result = new EntityState(this, key, tuple) {
-        PersistenceState = PersistenceState.New
-      };
-      EntityStateCache.Add(result);
+      if (result==null) {
+        result = new EntityState(this, key, tuple) {
+          PersistenceState = PersistenceState.New
+        };
+        EntityStateCache.Add(result);
+      }
+      else {
+        result.Key = key;
+        result.Tuple = tuple;
+        result.PersistenceState = PersistenceState.New;
+      }
 
       if (IsDebugEventLoggingEnabled)
         Log.Debug(Strings.SessionXCachingY, this, result);
