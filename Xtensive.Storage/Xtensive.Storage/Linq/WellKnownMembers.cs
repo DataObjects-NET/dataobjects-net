@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Parameters;
 using Xtensive.Core.Reflection;
 using Xtensive.Core.Tuples;
@@ -31,7 +32,7 @@ namespace Xtensive.Storage.Linq
 
       static Query()
       {
-        All = typeof(Storage.Query).GetMethod("All");
+        All = typeof(Storage.Query).GetMethod("All", ArrayUtils<Type>.EmptyArray);
         FreeTextString = typeof (Storage.Query).GetMethods().Where(m => m.Name=="FreeText").Single(ft => ft.GetParameterTypes()[0]==typeof (string));
         FreeTextExpression = typeof (Storage.Query).GetMethods().Where(m => m.Name=="FreeText").Single(ft => ft.GetParameterTypes()[0]==typeof (Expression<Func<string>>));
         var singleMethods = typeof (Storage.Query).GetMethods().Where(m => m.Name=="Single" && m.IsGenericMethod);

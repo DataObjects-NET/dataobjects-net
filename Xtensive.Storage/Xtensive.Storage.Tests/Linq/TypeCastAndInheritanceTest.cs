@@ -196,12 +196,12 @@ namespace Xtensive.Storage.Tests.Linq
     public void CastSimpleTest()
     {
       var discontinuedProducts = Query.All<DiscontinuedProduct>().Cast<Product>();
-      AssertEx.Throws<TranslationException>(() => QueryDumper.Dump(discontinuedProducts));
+      var list = discontinuedProducts.ToList();
+      Assert.Greater(list.Count, 0);
     }
 
 
     [Test]
-    [ExpectedException(typeof (TranslationException))]
     public void CastCountTest()
     {
       var discontinuedProductCount1 = Query.All<DiscontinuedProduct>().Count();

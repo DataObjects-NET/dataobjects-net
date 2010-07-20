@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Linq
       using (state.CreateScope()) {
         switch (methodKind) {
         case QueryableMethodKind.Cast:
-          break;
+            return VisitCast(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
         case QueryableMethodKind.AsQueryable:
           return VisitAsQueryable(mc.Arguments[0]);
         case QueryableMethodKind.AsEnumerable:
@@ -288,6 +288,58 @@ namespace Xtensive.Storage.Linq
       var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
       var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
       return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
+    }
+
+    /// <exception cref="InvalidCastException">Unable to cast item.</exception>
+    /// <exception cref="NotSupportedException">Cast supports only 'Entity' conversion.</exception>
+    private ProjectionExpression VisitCast(Expression source, Type targetType, Type sourceType)
+    {
+      if (!targetType.IsAssignableFrom(sourceType))
+        throw new InvalidCastException(string.Format(Strings.ExUnableToCastItemOfTypeXToY, sourceType, targetType));
+
+      var visitedSource = VisitSequence(source);
+      var itemProjector = visitedSource.ItemProjector.EnsureEntityIsJoined();
+      var projection = new ProjectionExpression(visitedSource.Type, itemProjector, visitedSource.TupleParameterBindings, visitedSource.ResultType);
+      if (targetType==sourceType)
+        return projection;
+      
+      var sourceEntity = (EntityExpression)projection.ItemProjector.Item.StripMarkers().StripCasts();
+      var recordSet = projection.ItemProjector.DataSource;
+      var targetTypeInfo = context.Model.Types[targetType];
+      var sourceTypeInfo = context.Model.Types[sourceType];
+      var map = Enumerable.Repeat(-1, recordSet.Header.Columns.Count).ToArray();
+      var targetFieldIndex = 0;
+      foreach (var targetField in targetTypeInfo.Fields.Where(f => f.Parent == null)) {
+        var sourceFieldInfo =  targetType.IsInterface 
+          ? sourceTypeInfo.FieldMap[targetField]
+          : sourceTypeInfo.Fields[targetField.Name];
+        var sourceField = sourceEntity.Fields.Single(f => f.Name == sourceFieldInfo.Name);
+        var sourceFieldIndex = sourceField.Mapping.Offset;
+        map[sourceFieldIndex] = targetFieldIndex++;
+      }
+      var targetEntity = EntityExpression.Create(targetTypeInfo, 0, false);
+      Expression expression;
+      using (new RemapScope())
+        expression = targetEntity.Remap(map, new Dictionary<Expression, Expression>());
+      var replacer = new ExtendedExpressionReplacer(e => e == sourceEntity ? expression : null);
+      var targetItem = replacer.Replace(projection.ItemProjector.Item);
+      var targetItemProjector = new ItemProjectorExpression(targetItem, recordSet, context);
+      var targetProjectionType = typeof(IQueryable<>).MakeGenericType(targetType);
+      return new ProjectionExpression(targetProjectionType, targetItemProjector, projection.TupleParameterBindings, projection.ResultType);
+//      if (targetType.IsSubclassOf(sourceType)) {
+//        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
+//        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+//        offset = recordSet.Header.Columns.Count;
+//        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+//        var keyPairs = keySegment
+//          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+//          .ToArray();
+//        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+//      }
+//      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+//      entityExpression.Remap()
+//      var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
+//      return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
     }
 
 

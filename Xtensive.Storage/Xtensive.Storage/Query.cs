@@ -45,6 +45,18 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// The "starting point" for dynamic LINQ query
+    /// </summary>
+    /// <param name="elementType">Type of the element.</param>
+    /// <returns></returns>
+    public static IQueryable All(Type elementType)
+    {
+      var queryAll = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
+      var queryable = (IQueryable)queryAll.Invoke(null, ArrayUtils<object>.EmptyArray);
+      return queryable;
+    }
+
+    /// <summary>
     /// Performs full-text query for the text specified in free text form.
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>

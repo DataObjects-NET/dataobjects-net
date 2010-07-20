@@ -1477,4 +1477,7 @@ Schema difference:
 	<data name="ExEntityIsAlreadyDetachedFromSession">
 		<value xml:space="preserve">Entity is already detached from Session. Likely, this is result of creation of new Entity with the same Key.</value>
 	</data>
+	<data name="ExUnableToCastItemOfTypeXToY">
+		<value><![CDATA[Unable to cast item of type '{0}' to '{1}' in queries.]]></value>
+	</data>
 </root>
