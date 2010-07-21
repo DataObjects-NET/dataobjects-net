@@ -97,8 +97,8 @@ namespace Xtensive.Storage.Disconnected
       if (TryGetEntityStateFromSessionCache(key, out entityState))
         return true;
       
-      var cachedEntityState = disconnectedState.GetState(key);
-      if (cachedEntityState!=null && cachedEntityState.IsLoaded) {
+      var cachedEntityState = disconnectedState.GetEntityState(key);
+      if (cachedEntityState!=null && cachedEntityState.IsLoadedOrRemoved) {
         var tuple = cachedEntityState.Tuple!=null ? cachedEntityState.Tuple.Clone() : null;
         entityState = UpdateEntityStateInSessionCache(key, tuple, true);
         return true;
@@ -112,7 +112,7 @@ namespace Xtensive.Storage.Disconnected
       if (TryGetEntitySetStateFromSessionCache(key, fieldInfo, out entitySetState))
         return true;
       
-      var cachedState = disconnectedState.GetState(key);
+      var cachedState = disconnectedState.GetEntityState(key);
       if (cachedState!=null) {
         var setState = cachedState.GetEntitySetState(fieldInfo);
         entitySetState = UpdateEntitySetStateInSessionCache(key, fieldInfo, setState.Items.Keys, setState.IsFullyLoaded);
@@ -125,8 +125,8 @@ namespace Xtensive.Storage.Disconnected
     internal override EntityState RegisterEntityState(Key key, Tuple tuple)
     {
       var cachedEntityState = tuple==null 
-        ? disconnectedState.GetState(key) 
-        : disconnectedState.RegisterState(key, tuple);
+        ? disconnectedState.GetEntityState(key) 
+        : disconnectedState.RegisterEntityState(key, tuple);
      
       if (cachedEntityState!=null) {
         if (!cachedEntityState.Key.HasExactType)
@@ -151,12 +151,12 @@ namespace Xtensive.Storage.Disconnected
     internal override EntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo,
       bool isFullyLoaded, List<Key> entityKeys, List<Pair<Key, Tuple>> auxEntities)
     {
-      var cachedOwner = disconnectedState.GetState(key);
+      var cachedOwner = disconnectedState.GetEntityState(key);
       if (cachedOwner==null || cachedOwner.IsRemoved)
         return null;
 
       // Merge with disconnected state cache
-      var cachedState = disconnectedState.RegisterSetState(key, fieldInfo, isFullyLoaded, entityKeys, auxEntities);
+      var cachedState = disconnectedState.RegisterEntitySetState(key, fieldInfo, isFullyLoaded, entityKeys, auxEntities);
       
       // Update session cache
       return UpdateEntitySetStateInSessionCache(key, fieldInfo, cachedState.Items.Keys, cachedState.IsFullyLoaded);
@@ -165,17 +165,17 @@ namespace Xtensive.Storage.Disconnected
     /// <inheritdoc/>
     public override EntityState FetchEntityState(Key key)
     {
-      var cachedState = disconnectedState.GetState(key);
+      var cachedState = disconnectedState.GetEntityState(key);
       
       // If state is cached, let's return it
-      if (cachedState!=null && cachedState.IsLoaded) {
+      if (cachedState!=null && cachedState.IsLoadedOrRemoved) {
         var tuple = cachedState.Tuple!=null ? cachedState.Tuple.Clone() : null;
         var entityState = Session.UpdateEntityState(cachedState.Key, tuple, true);
         return cachedState.IsRemoved ? null : entityState;
       }
 
       // If state isn't cached, let's try to to get it from storage
-      if ((cachedState!=null && !cachedState.IsLoaded) || disconnectedState.IsConnected) {
+      if ((cachedState!=null && !cachedState.IsLoadedOrRemoved) || disconnectedState.IsConnected) {
         BeginChainedTransaction();
         var type = key.TypeRef.Type;
         Prefetch(key, type, PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(type));
@@ -223,7 +223,7 @@ namespace Xtensive.Storage.Disconnected
         case Multiplicity.ManyToMany:
           Session.Persist();
           var list = new List<ReferenceInfo>();
-          var state = disconnectedState.GetState(target.Key);
+          var state = disconnectedState.GetEntityState(target.Key);
           foreach (var reference in state.GetReferences(association.OwnerField)) {
             var item = FetchEntityState(reference.Key);
             list.Add(new ReferenceInfo(item.Entity, target, association));

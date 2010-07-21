@@ -74,7 +74,9 @@ namespace Xtensive.Storage
     /// <returns>Check result.</returns>
     public bool Contains(Entity entity)
     {
-      return Contains(entity!=null ? entity.Key : null);
+      if (entity==null)
+        return false;
+      return Contains(entity.Key);
     }
 
     /// <summary>
@@ -177,36 +179,35 @@ namespace Xtensive.Storage
     {
       ArgumentValidator.EnsureArgumentNotNull(entity, "entity");
       var key = entity.Key;
-      if (!Contains(key)) {
-        versions.Add(key, entity.VersionInfo);
-        return true;
-      }
-      else if (overwrite) {
-        versions[key] = entity.VersionInfo;
-        return true;
-      }
-      else
-        return false;
+      var version = entity.VersionInfo;
+      Add(key, version, overwrite);
     }
 
     /// <summary>
     /// Adds the specified key and <see cref="VersionInfo"/> pair to this set.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <param name="value">The version related to this key.</param>
+    /// <param name="version">The version related to this key.</param>
     /// <param name="overwrite">Indicates whether to overwrite an existing
     /// key-version pair or not, if it exists.</param>
     /// <returns><see langword="True" />, if operation was successful;
     /// otherwise, <see langword="false" />.</returns>
-    public bool Add(Key key, VersionInfo value, bool overwrite)
+    public bool Add(Key key, VersionInfo version, bool overwrite)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       if (!Contains(key)) {
-        versions.Add(key, value);
-        return true;
+        if (version.IsVoid)
+          return false;
+        else {
+          versions.Add(key, version);
+          return true;
+        }
       }
       else if (overwrite) {
-        versions[key] = value;
+        if (version.IsVoid)
+          versions.Remove(key);
+        else
+          versions[key] = version;
         return true;
       }
       else
@@ -222,6 +223,7 @@ namespace Xtensive.Storage
     /// otherwise, <see langword="false" />.</returns>
     public bool Remove(Entity entity)
     {
+      ArgumentValidator.EnsureArgumentNotNull(entity, "entity");
       return Remove(entity.Key);
     }
 

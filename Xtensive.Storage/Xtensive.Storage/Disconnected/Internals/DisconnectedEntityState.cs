@@ -61,7 +61,9 @@ namespace Xtensive.Storage.Disconnected
 
     public DisconnectedEntityState Origin { get; private set; }
 
-    public bool IsLoaded { get { return IsRemoved || tuple!=null || Tuple!=null; } }
+    public bool IsLoadedOrRemoved {
+      get { return tuple!=null || IsRemoved || Tuple!=null; }
+    }
 
     public DisconnectedEntitySetState GetEntitySetState(FieldInfo field)
     {
@@ -136,7 +138,7 @@ namespace Xtensive.Storage.Disconnected
     {
       if (Origin==null)
         return;
-      if (IsRemoved && Origin.IsLoaded) {
+      if (IsRemoved && Origin.IsLoadedOrRemoved) {
         Origin.Remove();
         return;
       }
@@ -153,6 +155,65 @@ namespace Xtensive.Storage.Disconnected
         else 
           Origin.Update(tuple.Difference);
     }
+
+    private static bool MergeTuples(Tuple origin, Tuple newValue)
+    {
+      bool isMerged = false;
+      for (int i = 0; i < origin.Count; i++)
+        if (!origin.GetFieldState(i).IsAvailable() && newValue.GetFieldState(i).IsAvailable()) {
+          origin.SetValue(i, newValue.GetValue(i));
+          isMerged = true;
+        }
+      return isMerged;
+    }
+
+    internal void Remap(Key oldKey, Key newKey)
+    {
+      Key realEntityKey;
+      if (Key==oldKey) {
+        if (tuple!=null)
+          newKey.Value.CopyTo(tuple, 0, oldKey.Value.Count);
+        Key = newKey;
+      }
+      if (references.Count > 0)
+        foreach (var backReferences in references.Values)
+          ReplaceKey(oldKey, newKey, backReferences);
+      if (setStates.Count > 0)
+        foreach (var setState in setStates.Values)
+          ReplaceKey(oldKey, newKey, setState.Items);
+    }
+
+    private static void ReplaceKey(Key oldKey, Key newKey, IDictionary<Key, Key> keys)
+    {
+      if (keys.Remove(oldKey))
+        keys.Add(newKey, newKey);
+    }
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="key">The key.</param>
+    public DisconnectedEntityState(Key key)
+    {
+      Key = key;
+    }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="origin">The origin state.</param>
+    public DisconnectedEntityState(DisconnectedEntityState origin)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
+
+      Origin = origin;
+      Key = origin.Key;
+    }
+
+    #region Serializing members
 
     public SerializableEntityState Serialize()
     {
@@ -216,7 +277,7 @@ namespace Xtensive.Storage.Disconnected
       var key = Key.Parse(domain, serialized.Key);
       var type = domain.Model.Types.Find(serialized.Type);
       // Getting key with exact type
-      key = Storage.Key.Create(domain, type, TypeReferenceAccuracy.ExactType, key.Value);
+      key = Key.Create(domain, type, TypeReferenceAccuracy.ExactType, key.Value);
 
       var origin = registry.Origin!=null ? registry.Origin.Get(key) : null;
       var state = origin!=null
@@ -271,62 +332,6 @@ namespace Xtensive.Storage.Disconnected
       return state;
     }
 
-    private static bool MergeTuples(Tuple origin, Tuple newValue)
-    {
-      bool isMerged = false;
-      for (int i = 0; i < origin.Count; i++)
-        if (!origin.GetFieldState(i).IsAvailable() 
-          && newValue.GetFieldState(i).IsAvailable()) {
-          origin.SetValue(i, newValue.GetValue(i));
-          isMerged = true;
-        }
-      return isMerged;
-    }
-
-    internal void Remap(Key oldKey, Key newKey)
-    {
-      Key realEntityKey;
-      if (Key==oldKey) {
-        if (tuple!=null)
-          newKey.Value.CopyTo(tuple, 0, oldKey.Value.Count);
-        Key = newKey;
-      }
-      if (references.Count > 0)
-        foreach (var backReferences in references.Values)
-          ReplaceKey(oldKey, newKey, backReferences);
-      if (setStates.Count > 0)
-        foreach (var setState in setStates.Values)
-          ReplaceKey(oldKey, newKey, setState.Items);
-    }
-
-    private static void ReplaceKey(Key oldKey, Key newKey, IDictionary<Key, Key> keys)
-    {
-      if (keys.Remove(oldKey))
-        keys.Add(newKey, newKey);
-    }
-
-
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="key">The key.</param>
-    public DisconnectedEntityState(Key key)
-    {
-      Key = key;
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="origin">The origin state.</param>
-    public DisconnectedEntityState(DisconnectedEntityState origin)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
-
-      Origin = origin;
-      Key = origin.Key;
-    }
+    #endregion
   }
 }

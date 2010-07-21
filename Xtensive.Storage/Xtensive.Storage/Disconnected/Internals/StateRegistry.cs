@@ -59,7 +59,7 @@ namespace Xtensive.Storage.Disconnected
         return;
 
       var state = GetOrCreate(key);
-      if (state.IsLoaded)
+      if (state.IsLoadedOrRemoved)
         throw new InvalidOperationException(string.Format(
           Strings.ExStateWithKeyXIsAlreadyExists, key));
 
@@ -75,7 +75,7 @@ namespace Xtensive.Storage.Disconnected
         return;
 
       var state = GetOrCreate(key);
-      if (!state.IsLoaded)
+      if (!state.IsLoadedOrRemoved)
         throw new InvalidOperationException(Strings.ExStateIsNotLoaded);
 
       var prevValue = state.Tuple.ToRegular();
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Disconnected
         return;
       
       var state = GetOrCreate(key);
-      if (!state.IsLoaded)
+      if (!state.IsLoadedOrRemoved)
         throw new InvalidOperationException(Strings.ExStateIsNotLoaded);
       
       OnStateChanged(key, state.Tuple, null);
@@ -122,7 +122,7 @@ namespace Xtensive.Storage.Disconnected
         throw new InvalidOperationException(Strings.ExCantMergeState);
 
       var state = GetOrCreate(key);
-      if (state.IsRemoved || !state.IsLoaded)
+      if (state.IsRemoved || !state.IsLoadedOrRemoved)
         throw new InvalidOperationException(Strings.ExCantMergeState);
 
       if (state.MergeValue(newValue))
@@ -135,7 +135,7 @@ namespace Xtensive.Storage.Disconnected
         throw new InvalidOperationException(Strings.ExCantMergeState);
 
       var state = GetOrCreate(key);
-      if (state.IsRemoved || !state.IsLoaded)
+      if (state.IsRemoved || !state.IsLoadedOrRemoved)
         throw new InvalidOperationException(Strings.ExCantMergeState);
 
       var preValue = state.Tuple.Clone();
