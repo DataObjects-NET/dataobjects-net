@@ -90,6 +90,12 @@ namespace Xtensive.Storage.Linq
       return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.SubQuery;
     }
 
+    public static bool IsFullTextMatchExpression(this Expression expression)
+    {
+      expression = expression.StripMarkers();
+      return (ExtendedExpressionType)expression.NodeType == ExtendedExpressionType.FullText;
+    }
+
     public static bool IsEntityExpression(this Expression expression)
     {
       expression = expression.StripMarkers();
@@ -160,6 +166,8 @@ namespace Xtensive.Storage.Linq
         return MemberType.Grouping;
       if (e.IsSubqueryExpression())
         return MemberType.Subquery;
+      if (e.IsFullTextMatchExpression())
+        return MemberType.FullTextMatch;
       if (type.IsArray)
         return MemberType.Array;
 

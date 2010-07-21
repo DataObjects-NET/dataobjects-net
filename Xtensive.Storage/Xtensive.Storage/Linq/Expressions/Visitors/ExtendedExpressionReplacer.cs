@@ -62,12 +62,12 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
       return expression;
     }
 
-    protected override Expression VisitFreeTextExpression(FreeTextExpression expression)
+    protected override Expression VisitFreeTextExpression(FullTextExpression expression)
     {
       var rankExpression = (ColumnExpression) Visit(expression.RankExpression);
       var entityExpression = (EntityExpression) Visit(expression.EntityExpression);
       if (rankExpression!=expression.RankExpression || entityExpression!=expression.EntityExpression)
-        return new FreeTextExpression(expression.FullTextIndex, entityExpression, rankExpression, expression.OuterParameter);
+        return new FullTextExpression(expression.FullTextIndex, entityExpression, rankExpression, expression.OuterParameter);
       return expression;
     }
 

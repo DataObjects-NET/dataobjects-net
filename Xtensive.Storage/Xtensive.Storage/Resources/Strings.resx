@@ -1338,8 +1338,8 @@ Schema difference:
   <data name="ExFieldMustBePersistent" xml:space="preserve">
     <value>Field '{0}' must be persistent (marked by [Field] attribute).</value>
   </data>
-  <data name="ExEntityDoesNotHasFullTextIndex" xml:space="preserve">
-    <value>Entity of type '{0}' does not has full-text index.</value>
+  <data name="ExEntityDoesNotHaveFullTextIndex" xml:space="preserve">
+    <value>Entity of type '{0}' does not have full-text index.</value>
   </data>
   <data name="ExEntitiesXAndXBelongToDifferentHierarchies" xml:space="preserve">
     <value>Unable to translate '{0}'. Entities '{1}' and '{2}' belong to different hierarchies.</value>

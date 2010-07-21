@@ -229,7 +229,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         columns.AddRange(expressionColumns.Select(i=>new Pair<int, Expression>(i, parameterizedExpression)));
     }
 
-    protected override Expression VisitFreeTextExpression(FreeTextExpression expression)
+    protected override Expression VisitFreeTextExpression(FullTextExpression expression)
     {
       VisitEntityExpression(expression.EntityExpression);
       VisitColumnExpression(expression.RankExpression);

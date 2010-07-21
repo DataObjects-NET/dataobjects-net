@@ -66,6 +66,14 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void AnySubqueryTest()
+    {
+      var result = Query.All<Customer>().Where(c=>c.Orders.Any()).ToList();
+      var expected = Orders.Select(o => o.Customer).Distinct().ToList();
+      Assert.AreEqual(0, expected.Except(result).Count());
+    }
+
+    [Test]
     public void AllWithSubqueryTest()
     {
       var result = Query.All<Customer>()
@@ -115,7 +123,6 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
-    [Ignore("Not implemented")]
     public void ContainsWithLocalCollectionTest()
     {
       var customerIDs = new[] {"ALFKI", "ANATR", "AROUT", "BERGS"};
