@@ -9,6 +9,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
+using System.Linq;
 
 namespace Xtensive.Storage
 {
@@ -28,8 +29,10 @@ namespace Xtensive.Storage
     {
       using (Activate()) 
       using (var transactionScope = Transaction.Open(this)) {
-        var subscribers = EntityEventBroker.GetSubscribers(EntityEventBroker.PropertyChangedEventKey);
-        foreach (var triplet in subscribers) {
+        var entitySubscribers    = EntityEventBroker.GetSubscribers(EntityEventBroker.PropertyChangedEventKey).ToList();
+        var entitySetSubscribers = EntityEventBroker.GetSubscribers(EntityEventBroker.CollectionChangedEventKey).ToList();
+
+        foreach (var triplet in entitySubscribers) {
           if (triplet.Third!=null) {
             var handler = (PropertyChangedEventHandler) triplet.Third;
             var key = triplet.First;
@@ -38,8 +41,8 @@ namespace Xtensive.Storage
             handler.Invoke(sender, new PropertyChangedEventArgs(null));
           }
         }
-        subscribers = EntityEventBroker.GetSubscribers(EntityEventBroker.CollectionChangedEventKey);
-        foreach (var triplet in subscribers) {
+
+        foreach (var triplet in entitySetSubscribers) {
           if (triplet.Third!=null) {
             var handler = (NotifyCollectionChangedEventHandler) triplet.Third;
             var key = triplet.First;
