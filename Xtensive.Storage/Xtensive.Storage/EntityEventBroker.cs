@@ -250,6 +250,9 @@ namespace Xtensive.Storage
       subscribers.Clear();
       foreach (var kvp in copy) {
         var triplet = kvp.Key;
+        var subscriber = kvp.Value;
+        if (subscriber==null) // Strange, but there is report is can be null: http://goo.gl/W6xo 
+          continue;
         var key = keyMapping.TryRemapKey(triplet.First);
         AddSubscriber(key, triplet.Second, triplet.Third, kvp.Value);
       }
