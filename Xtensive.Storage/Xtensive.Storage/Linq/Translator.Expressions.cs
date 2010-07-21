@@ -318,7 +318,7 @@ namespace Xtensive.Storage.Linq
         throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var fullTextIndex = type.FullTextIndex;
       if (fullTextIndex==null)
-        throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHasFullTextIndex, elementType.FullName));
+        throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
 
       if (QueryCachingScope.Current!=null
         && searchCriteria.NodeType==ExpressionType.Constant
@@ -349,7 +349,7 @@ namespace Xtensive.Storage.Linq
       var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
       var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
       var rankExpression = ColumnExpression.Create(typeof (double), fullFeatured ? entityExpression.Fields.Max(field=>field.Mapping.Offset + field.Mapping.Length) : entityExpression.Key.Mapping.Length);
-      var freeTextExpression = new FreeTextExpression(fullTextIndex, entityExpression, rankExpression, null);
+      var freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured).Result;
       var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
@@ -655,11 +655,27 @@ namespace Xtensive.Storage.Linq
     {
       Type originalBodyType = body.Type;
       Expression reduceCastBody = body.StripCasts();
+//      var visitor = new ExtendedExpressionVisitor();
+//      visitor.
+      //      reduceCastBody.
       if (state.CalculateExpressions
         && reduceCastBody.GetMemberType()==MemberType.Unknown
-          && reduceCastBody.NodeType!=ExpressionType.ArrayIndex
-            && (ExtendedExpressionType) reduceCastBody.NodeType!=ExtendedExpressionType.Constructor
-              && reduceCastBody.NodeType!=ExpressionType.New) {
+        && reduceCastBody.NodeType!=ExpressionType.ArrayIndex
+        && (ExtendedExpressionType) reduceCastBody.NodeType!=ExtendedExpressionType.Constructor
+        && reduceCastBody.NodeType!=ExpressionType.New) {
+        var found = false;
+        var entityFinder = new ExtendedExpressionReplacer(
+            e => {
+              if ((int)e.NodeType == (int)ExtendedExpressionType.Entity) {
+                found = true;
+                return e;
+              }
+              return null;
+            });
+        entityFinder.Replace(reduceCastBody);
+        if (found)
+          return body;
+
         if (body.Type.IsEnum)
           body = Expression.Convert(body, Enum.GetUnderlyingType(body.Type));
         UnaryExpression convertExpression = Expression.Convert(body, typeof (object));
@@ -801,12 +817,12 @@ namespace Xtensive.Storage.Linq
       Expression result = null;
       Func<PersistentFieldExpression, bool> propertyFilter = f => f.Name==member.Name;
       switch (extendedExpression.ExtendedType) {
-      case ExtendedExpressionType.FreeText:
+      case ExtendedExpressionType.FullText:
         switch (member.Name) {
         case "Rank":
-          return ((FreeTextExpression) expression).RankExpression;
+          return ((FullTextExpression) expression).RankExpression;
         case "Entity":
-          return ((FreeTextExpression) expression).EntityExpression;
+          return ((FullTextExpression) expression).EntityExpression;
         }
         break;
       case ExtendedExpressionType.Grouping:
