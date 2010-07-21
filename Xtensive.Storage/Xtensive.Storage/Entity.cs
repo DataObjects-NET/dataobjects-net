@@ -120,6 +120,8 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public VersionInfo VersionInfo {
       get {
+        if (IsRemoved)
+          return VersionInfo.Void;
         if (TypeInfo.HasVersionRoots) {
           var version = new VersionInfo();
           foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
