@@ -21,6 +21,7 @@ namespace Xtensive.Storage.Linq
     Anonymous,
     Grouping,
     Subquery,
+    FullTextMatch,
     Array,
   }
 }

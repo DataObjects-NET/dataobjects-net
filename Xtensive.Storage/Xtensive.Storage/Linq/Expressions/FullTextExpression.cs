@@ -13,7 +13,7 @@ using Xtensive.Storage.Model;
 namespace Xtensive.Storage.Linq.Expressions
 {
   [Serializable]
-  internal class FreeTextExpression : ParameterizedExpression,
+  internal class FullTextExpression : ParameterizedExpression,
     IMappedExpression
   {
     public FullTextIndexInfo FullTextIndex { get; private set; }
@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
       var entityExpression = (EntityExpression) EntityExpression.BindParameter(parameter, processedExpressions);
       var rankExpression = (ColumnExpression) RankExpression.BindParameter(parameter, processedExpressions);
-      return new FreeTextExpression(FullTextIndex, entityExpression, rankExpression, parameter);
+      return new FullTextExpression(FullTextIndex, entityExpression, rankExpression, parameter);
     }
 
     public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
@@ -47,7 +47,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
       var entityExpression = (EntityExpression) EntityExpression.RemoveOuterParameter(processedExpressions);
       var rankExpression = (ColumnExpression) RankExpression.RemoveOuterParameter(processedExpressions);
-      return new FreeTextExpression(FullTextIndex, entityExpression, rankExpression, null);
+      return new FullTextExpression(FullTextIndex, entityExpression, rankExpression, null);
     }
 
     public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Linq.Expressions
 
       var remappedEntityExpression = (EntityExpression) EntityExpression.Remap(offset, processedExpressions);
       var remappedRankExpression = (ColumnExpression) RankExpression.Remap(offset, processedExpressions);
-      return new FreeTextExpression(FullTextIndex, remappedEntityExpression, remappedRankExpression, OuterParameter);
+      return new FullTextExpression(FullTextIndex, remappedEntityExpression, remappedRankExpression, OuterParameter);
     }
 
     public Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
@@ -75,11 +75,11 @@ namespace Xtensive.Storage.Linq.Expressions
 
       var remappedEntityExpression = (EntityExpression) EntityExpression.Remap(map, processedExpressions);
       var remappedRankExpression = (ColumnExpression) RankExpression.Remap(map, processedExpressions);
-      return new FreeTextExpression(FullTextIndex, remappedEntityExpression, remappedRankExpression, OuterParameter);
+      return new FullTextExpression(FullTextIndex, remappedEntityExpression, remappedRankExpression, OuterParameter);
     }
 
-    public FreeTextExpression(FullTextIndexInfo fullTextIndex, EntityExpression entityExpression, ColumnExpression rankExpression, ParameterExpression parameter)
-      : base(ExtendedExpressionType.FreeText, typeof (FullTextMatch<>).MakeGenericType(fullTextIndex.PrimaryIndex.ReflectedType.UnderlyingType), parameter, false)
+    public FullTextExpression(FullTextIndexInfo fullTextIndex, EntityExpression entityExpression, ColumnExpression rankExpression, ParameterExpression parameter)
+      : base(ExtendedExpressionType.FullText, typeof (FullTextMatch<>).MakeGenericType(fullTextIndex.PrimaryIndex.ReflectedType.UnderlyingType), parameter, false)
     {
       FullTextIndex = fullTextIndex;
       RankExpression = rankExpression;

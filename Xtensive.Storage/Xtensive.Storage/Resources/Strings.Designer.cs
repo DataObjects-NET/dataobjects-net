@@ -893,11 +893,11 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Entity of type &apos;{0}&apos; does not has full-text index..
+        ///   Looks up a localized string similar to Entity of type &apos;{0}&apos; does not have full-text index..
         /// </summary>
-        internal static string ExEntityDoesNotHasFullTextIndex {
+        internal static string ExEntityDoesNotHaveFullTextIndex {
             get {
-                return ResourceManager.GetString("ExEntityDoesNotHasFullTextIndex", resourceCulture);
+                return ResourceManager.GetString("ExEntityDoesNotHaveFullTextIndex", resourceCulture);
             }
         }
         
