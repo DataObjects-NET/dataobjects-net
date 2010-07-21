@@ -129,6 +129,43 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
     }
 
     [Test]
+    public void SequentialApplyChangesTest_NewEntity()
+    {
+      var ds = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          var book = new Book() {Title = NewBookTitle};
+          session.Persist();
+          book.Title += " Changed";
+          ds.ApplyChanges();
+          book.Title += " Changed";
+          ds.ApplyChanges();
+        }
+        // tx.Complete();
+      }
+    }
+
+    [Test]
+    public void SequentialApplyChangesTest_ExistingEntity()
+    {
+      var ds = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          var book = Query.All<Book>().First();
+          book.Title += " Changed";
+          ds.ApplyChanges();
+          book.Title += " Changed";
+          ds.ApplyChanges();
+        }
+        // tx.Complete();
+      }
+    }
+
+    [Test]
     public void NewEntityRemapTest1()
     {
       var ds = new DisconnectedState();
