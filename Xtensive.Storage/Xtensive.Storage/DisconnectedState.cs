@@ -203,10 +203,10 @@ namespace Xtensive.Storage
           disposable = Log.DebugRegion(Strings.LogSessionXDisconnectedStateApplyChanges, targetSession);
           Log.Debug("{0}", Operations);
         }
-        using (VersionValidator.Attach(targetSession, key => Versions[key])) {
+        // using (VersionValidator.Attach(targetSession, key => Versions[key])) {
           keyMapping = state.Operations.Replay(targetSession);
           state.Commit(true);
-        }
+        // }
         if (targetSession.IsDebugEventLoggingEnabled) {
           Log.Debug(Strings.LogChangesAreSuccessfullyApplied);
           Log.Debug("{0}", keyMapping);
