@@ -42,7 +42,7 @@ namespace Xtensive.Storage
     IUsesSystemLogicOnlyRegions
   {
     // [DebuggerDisplay("Id = {Id}")]
-    private class CtorTransactionInfo
+    private sealed class CtorTransactionInfo
     {
       [ThreadStatic]
       public static CtorTransactionInfo Current;
@@ -51,6 +51,7 @@ namespace Xtensive.Storage
       // public int Id;
       public TransactionScope TransactionScope;
       public InconsistentRegion InconsistentRegion;
+      public CtorTransactionInfo Previous;
 
       public CtorTransactionInfo()
       {
@@ -778,14 +779,12 @@ namespace Xtensive.Storage
 
     internal void EnterCtorTransactionScope()
     {
-      var cti = CtorTransactionInfo.Current;
-      if (cti != null)
-        return;
       CtorTransactionInfo.Current = new CtorTransactionInfo() {
         TransactionScope = Transaction.Current == null
           ? Transaction.Open()
           : null,
-        InconsistentRegion = Validation.Disable(Session)
+        InconsistentRegion = Validation.Disable(Session),
+        Previous = CtorTransactionInfo.Current,
       };
     }
 
@@ -794,7 +793,7 @@ namespace Xtensive.Storage
       var cti = CtorTransactionInfo.Current;
       if (cti == null)
         return;
-      CtorTransactionInfo.Current = null;
+      CtorTransactionInfo.Current = cti.Previous;
       try {
         if (successfully)
           try {

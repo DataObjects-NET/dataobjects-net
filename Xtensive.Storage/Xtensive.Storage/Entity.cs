@@ -659,30 +659,18 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      try {
-        var key = Key.Create(Session.Domain, GetType());
-        State = Session.CreateEntityState(key);
-        SystemBeforeInitialize(false);
-      }
-      catch {
-        LeaveCtorTransactionScope(false);
-        throw;
-      }
+      var key = Key.Create(Session.Domain, GetType());
+      State = Session.CreateEntityState(key);
+      SystemBeforeInitialize(false);
     }
 
     // Is used for EntitySetItem<,> instance construction
     internal Entity(Tuple keyTuple)
     {
-      try {
-        ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
-        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
-        State = Session.CreateEntityState(key);
-        SystemBeforeInitialize(false);
-      }
-      catch {
-        LeaveCtorTransactionScope(false);
-        throw;
-      }
+      ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
+      var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
+      State = Session.CreateEntityState(key);
+      SystemBeforeInitialize(false);
     }
 
     /// <summary>
@@ -704,27 +692,21 @@ namespace Xtensive.Storage
     /// </example>
     protected Entity(params object[] values)
     {
-      try {
-        ArgumentValidator.EnsureArgumentNotNull(values, "values");
-        Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
-        State = Session.CreateEntityState(key);
-        var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
-        if (references.Count > 0)
-          using (Session.Pin(this))
-          foreach (var referenceField in references) {
-            var referenceValue = (Entity) GetFieldValue(referenceField);
-            using (var silentContext = OpenOperationContext()) {
-              Session.PairSyncManager.ProcessRecursively(
-                null, OperationType.Set, referenceField.Association, this, referenceValue, null);
-              // No silentContext.Complete() - we must silently skip all these operations
-            }
+      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+      Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
+      State = Session.CreateEntityState(key);
+      var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
+      if (references.Count > 0)
+        using (Session.Pin(this))
+        foreach (var referenceField in references) {
+          var referenceValue = (Entity) GetFieldValue(referenceField);
+          using (var silentContext = OpenOperationContext()) {
+            Session.PairSyncManager.ProcessRecursively(
+              null, OperationType.Set, referenceField.Association, this, referenceValue, null);
+            // No silentContext.Complete() - we must silently skip all these operations
           }
-        SystemBeforeInitialize(false);
-      }
-      catch {
-        LeaveCtorTransactionScope(false);
-        throw;
-      }
+        }
+      SystemBeforeInitialize(false);
     }
 
     /// <summary>
@@ -732,18 +714,17 @@ namespace Xtensive.Storage
     /// Used internally to initialize the entity on materialization.
     /// </summary>
     /// <param name="state">The initial state of this instance fetched from storage.</param>
+    [Infrastructure]
     protected Entity(EntityState state)
     {
-      bool successfully = false;
       try {
         State = state;
         SystemBeforeInitialize(true);
-        successfully = true;
+        Initialize(GetType());
       }
-      finally {
-        // Required, since generated .ctors in descendants 
-        // don't call Initialize / InitializationFailed
-        LeaveCtorTransactionScope(successfully); 
+      catch (Exception error) {
+        InitializationError(GetType(), error);
+        throw;
       }
     }
 
@@ -752,18 +733,15 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="info">The <see cref="SerializationInfo"/>.</param>
     /// <param name="context">The <see cref="StreamingContext"/>.</param>
+    [Infrastructure]
     protected Entity(SerializationInfo info, StreamingContext context)
     {
       bool successfully = false;
       try {
-        using (this.OpenSystemLogicOnlyRegion()) {
-          DeserializationContext.Demand().SetEntityData(this, info, context);
-        }
+        DeserializationContext.Demand().SetObjectData(this, info, context);
         successfully = true;
       }
       finally {
-        // Required, since generated .ctors in descendants 
-        // don't call Initialize / InitializationFailed
         LeaveCtorTransactionScope(successfully);
       }
     }
