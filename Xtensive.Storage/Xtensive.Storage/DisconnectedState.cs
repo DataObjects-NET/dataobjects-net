@@ -551,7 +551,7 @@ namespace Xtensive.Storage
       if (!versionConflict)
         originalState.MergeUnavailableFields(key, tuple);
       if (mergeMode==MergeMode.PreferSource) {
-        originalState.Merge(key, tuple);
+        originalState.UpdateOrigin(key, tuple);
         Versions.Add(key, version, true);
       }
     }
@@ -580,7 +580,7 @@ namespace Xtensive.Storage
 
       switch (persistAction) {
       case PersistActionKind.Insert:
-        transactionalState.Insert(entityState.Key, entityState.Tuple.ToRegular());
+        transactionalState.Create(entityState.Key, entityState.Tuple.ToRegular(), false);
         break;
       case PersistActionKind.Update:
         transactionalState.Update(entityState.Key, entityState.DifferentialTuple.Difference.ToRegular());
