@@ -102,6 +102,30 @@ namespace Xtensive.Storage.Disconnected
         tuple.Difference.MergeWith(difference, MergeBehavior.PreferDifference);
     }
 
+    public bool UpdateOrigin(Tuple difference, MergeBehavior mergeBehavior)
+    {
+      if (Origin!=null)
+        return Origin.UpdateOrigin(difference, mergeBehavior);
+
+      bool wasChanged = false;
+      var origin = tuple.Origin;
+      if (mergeBehavior==MergeBehavior.PreferOrigin) {
+        for (int i = 0; i < origin.Count; i++)
+          if (!origin.GetFieldState(i).IsAvailable() && difference.GetFieldState(i).IsAvailable()) {
+            origin.SetValue(i, difference.GetValue(i));
+            wasChanged = true;
+          }
+      }
+      else { // PreferDifference
+        for (int i = 0; i < origin.Count; i++)
+          if (difference.GetFieldState(i).IsAvailable()) {
+            origin.SetValue(i, difference.GetValue(i));
+            wasChanged = true;
+          }
+      }
+      return wasChanged;
+    }
+
     /// <exception cref="InvalidOperationException">State is not loaded.</exception>
     public void Remove()
     {
@@ -110,26 +134,6 @@ namespace Xtensive.Storage.Disconnected
       foreach (var state in setStates)
         state.Value.Items.Clear();
       references.Clear();
-    }
-
-    public bool MergeValue(Tuple newValue)
-    {
-      if (Origin!=null)
-        throw new InvalidOperationException(Strings.ExCanNotMergeTheState);
-      
-      return MergeTuples(tuple.Origin, newValue);
-    }
-
-    public void SetNewValue(Tuple newValue)
-    {
-      if (Origin!=null)
-        throw new InvalidOperationException(Strings.ExCanNotMergeTheState);
-      
-      if (tuple==null)
-        tuple = new DifferentialTuple(newValue.Clone());
-      else
-        for (int i = 0; i < tuple.Count; i++)
-          tuple.SetValue(i, newValue.GetValue(i));
     }
 
     /// <summary>
@@ -157,16 +161,7 @@ namespace Xtensive.Storage.Disconnected
           Origin.Update(tuple.Difference);
     }
 
-    private static bool MergeTuples(Tuple origin, Tuple newValue)
-    {
-      bool isMerged = false;
-      for (int i = 0; i < origin.Count; i++)
-        if (!origin.GetFieldState(i).IsAvailable() && newValue.GetFieldState(i).IsAvailable()) {
-          origin.SetValue(i, newValue.GetValue(i));
-          isMerged = true;
-        }
-      return isMerged;
-    }
+    #region Private \ internal methods
 
     internal void Remap(Key oldKey, Key newKey)
     {
@@ -189,6 +184,8 @@ namespace Xtensive.Storage.Disconnected
       if (keys.Remove(oldKey))
         keys.Add(newKey, newKey);
     }
+
+    #endregion
 
 
     // Constructors
