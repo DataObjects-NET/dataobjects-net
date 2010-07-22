@@ -398,10 +398,10 @@ namespace Xtensive.Storage
           tuple = field.ExtractValue(
             new ReferencedTuple(() => Owner.Tuple));
         SystemBeforeInitialize(true);
-        Initialize(GetType());
+        InitializeOnMaterialize();
       }
       catch (Exception error) {
-        InitializationError(GetType(), error);
+        InitializationErrorOnMaterialize(error);
         throw;
       }
     }
