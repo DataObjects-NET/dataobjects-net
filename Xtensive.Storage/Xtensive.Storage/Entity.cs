@@ -720,10 +720,10 @@ namespace Xtensive.Storage
       try {
         State = state;
         SystemBeforeInitialize(true);
-        Initialize(GetType());
+        InitializeOnMaterialize();
       }
       catch (Exception error) {
-        InitializationError(GetType(), error);
+        InitializationErrorOnMaterialize(error);
         throw;
       }
     }
