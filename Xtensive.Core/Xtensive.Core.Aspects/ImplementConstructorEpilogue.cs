@@ -47,6 +47,8 @@ namespace Xtensive.Core.Aspects
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
+      if (AspectHelper.IsInfrastructureMethod(method))
+        return false;
       if (!AspectHelper.ValidateMemberType(this, SeverityType.Error,
         method, true, MemberTypes.Constructor))
         return false;
