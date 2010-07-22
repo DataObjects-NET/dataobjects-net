@@ -764,6 +764,47 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected void InitializationError(Type ctorType, Exception error)
     {
+      var type = GetType();
+      if (ctorType != type)
+        return;
+      try {
+        SystemInitializationError(error);
+      }
+      finally {
+        LeaveCtorTransactionScope(false);
+      }
+    }
+
+    #endregion
+
+    #region Initialization on materialization
+
+    /// <summary>
+    /// Initializes this instance on materialization.
+    /// </summary>
+    [Infrastructure]
+    protected void InitializeOnMaterialize()
+    {
+      var successfully = false;
+      try {
+        SystemInitialize(true);
+        successfully = true;
+      }
+      finally {
+        LeaveCtorTransactionScope(successfully);
+      }
+    }
+
+    /// <summary>
+    /// Called on initialization error on materialization.
+    /// </summary>
+    /// <param name="error">The error that happened on initialization.</param>
+    /// <remarks>
+    /// This method is called when custom constructor is finished.
+    /// </remarks>
+    [Infrastructure]
+    protected void InitializationErrorOnMaterialize(Exception error)
+    {
       try {
         SystemInitializationError(error);
       }
