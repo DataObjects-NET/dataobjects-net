@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexis Kochetov
-// Created:    2010.07.12
+// Created:    2010.07.23
 
 using System;
 using System.Diagnostics;
@@ -15,52 +15,27 @@ namespace Xtensive.Storage.Tests.Issues
 {
   namespace Issue0765_LinqTranslationError_Model
   {
-    public interface IHasFullTextIndex : IEntity
-    {
-      [Field]
-      bool IsFtEnabled { get; set; }
-
-      [Field]
-      bool? IsFtIndexUpToDate { get; set; }
-
-      [Field(Length = Int32.MaxValue)]
-      [FullText("French")]
-      string FullText { get; set; }
-    }
-
     [HierarchyRoot]
-    public partial class Document : Entity, IHasFullTextIndex
+    public class Document : Entity
     {
       [Field, Key]
       public long Id { get; private set; }
-
-      [Field]
-      public bool IsFtEnabled { get; set; }
-
-      [Field]
-      public bool? IsFtIndexUpToDate { get; set; }
 
       [Field(Length = Int32.MaxValue)]
       public string FullText { get; set; }
     }
 
-    public class Invoice : Document, IHasFullTextIndex
+    public class Invoice : Document
     {
       [Field(Length = 80)]
       public String DocumentId { get; set; }
 
       [Field(Length = 80)]
       public String Supplier { get; set; }
-
-      public override string ToString()
-      {
-        string s = String.Format("{0}/{1} ", Supplier, DocumentId);
-        return s + base.ToString();
-      }
     }
 
     [HierarchyRoot]
-    public class InvoiceExtract : Entity, IHasFullTextIndex
+    public class InvoiceExtract : Entity
     {
       [Field, Key]
       public long Id { get; private set; }
@@ -71,16 +46,8 @@ namespace Xtensive.Storage.Tests.Issues
       [Field]
       public string Name { get; set; }
 
-      #region Full-Text
-      [Field]
-      public bool IsFtEnabled { get; set; }
-
-      [Field]
-      public bool? IsFtIndexUpToDate { get; set; }
-
       [Field(Length = Int32.MaxValue)]
       public string FullText { get; set; }
-      #endregion
     }
   }
 
