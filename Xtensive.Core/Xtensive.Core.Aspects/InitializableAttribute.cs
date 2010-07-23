@@ -15,6 +15,7 @@ using PostSharp.Aspects.Dependencies;
 using PostSharp.Extensibility;
 using Xtensive.Core.Aspects.Helpers;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Aspects
 {
@@ -32,8 +33,6 @@ namespace Xtensive.Core.Aspects
     public const string InitializeMethodName = "Initialize";
     public const string InitializationErrorMethodName = "InitializationError";
 
-    #region IAspectProvider Members
-
     public IEnumerable<AspectInstance> ProvideAspects(object targetElement)
     {
       var result = new List<AspectInstance>();
@@ -42,44 +41,41 @@ namespace Xtensive.Core.Aspects
         return result;
 
       // Getting all the base types
-      var initializeMethodDeclarer = FindFirstMethodDeclarer(type, InitializeMethodName, new[] {typeof (Type)});
+      var initializeMethodDeclarer = GetFirstMethodDeclarer(type, InitializeMethodName, new[] {typeof (Type)});
       if (initializeMethodDeclarer == null)
         return result;
       bool hasInitializationErrorHandler =
-        GetMethod(initializeMethodDeclarer, InitializationErrorMethodName, new[] {typeof (Type), typeof (Exception)}) !=
-        null;
+        GetMethod(initializeMethodDeclarer, InitializationErrorMethodName, new[] {typeof (Type), typeof (Exception)}) != null;
 
       // Applying the aspect to all the constructors
-      foreach (ConstructorInfo constructor in type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)) {
-        if (constructor.IsPrivate)
+      var ctors = type.GetConstructors(
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+      foreach (var ctor in ctors) {
+        if (ctor.IsPrivate)
+          continue;
+        if (AspectHelper.IsInfrastructureMethod(ctor))
           continue;
         var constructorEpilogueAspect = hasInitializationErrorHandler
           ? new ImplementConstructorEpilogue(initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
           : new ImplementConstructorEpilogue(initializeMethodDeclarer, InitializeMethodName);
-        result.Add(new AspectInstance(constructor, constructorEpilogueAspect));
+        result.Add(new AspectInstance(ctor, constructorEpilogueAspect));
       }
       return result;
     }
 
-    #endregion
-
-    private static Type FindFirstMethodDeclarer(Type descendantType, string methodName, Type[] arguments)
+    private static Type GetFirstMethodDeclarer(Type descendantType, string methodName, Type[] arguments)
     {
-      // Looking for the first method declaration 
-      // starting from the very base type
-      IEnumerable<Type> bases =
-        EnumerableUtils.Unfold(descendantType, type => type.BaseType)
-          .Reverse()
-          .Skip(1); // Skipping object type
-      foreach (Type currentBase in bases)
-      {
+      // Looking for the first method declaration starting from the very base type
+      var bases = EnumerableUtils
+        .Unfold(descendantType, type => type.BaseType)
+        .Reverse()
+        .Skip(1); // Skipping object type
+      foreach (Type currentBase in bases) {
         MethodInfo method = null;
-        try
-        {
+        try {
           method = GetMethod(currentBase, methodName, arguments);
         }
-        catch
-        {}
+        catch {}
         if (method != null)
           return currentBase;
       }

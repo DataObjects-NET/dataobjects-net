@@ -49,14 +49,14 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
         return VisitStructureExpression((StructureExpression) expression);
       case ExtendedExpressionType.Constructor:
         return VisitConstructorExpression((ConstructorExpression) expression);
-      case ExtendedExpressionType.FreeText:
-        return VisitFreeTextExpression((FreeTextExpression) expression);
+      case ExtendedExpressionType.FullText:
+        return VisitFreeTextExpression((FullTextExpression) expression);
       default:
         return base.VisitUnknown(expression);
       }
     }
 
-    protected virtual Expression VisitFreeTextExpression(FreeTextExpression expression)
+    protected virtual Expression VisitFreeTextExpression(FullTextExpression expression)
     {
       return expression;
     }

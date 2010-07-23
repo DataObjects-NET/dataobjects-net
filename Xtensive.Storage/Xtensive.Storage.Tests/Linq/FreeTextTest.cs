@@ -98,6 +98,36 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void JoinCategoryTest()
+    {
+      var keywords = "lager";
+      var result =
+        from p in Query.FreeText<Product>(keywords)
+        where p.Entity.ProductName != typeof (Product).Name
+        join c in Query.All<Category>() on p.Entity.Category.Id equals c.Id
+        orderby p.Rank
+        select new {Id = c.Id, Name = c.CategoryName, Rank = p.Rank, Descr = GetProductDescription(p.Entity)};
+      var list = result.ToList();
+    }
+
+    [Test]
+    public void JoinCategory2Test()
+    {
+      var keywords = "lager";
+      var result = Query.FreeText<Product>(keywords)
+        .Where(p => p.Entity.ProductName!=typeof (Product).Name)
+        .Join(Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new {p.Rank, c})
+        .OrderBy(@t => @t.Rank)
+        .Select(@t => new {Id = @t.c.Id, Name = @t.c.CategoryName, Rank = @t.Rank});
+      var list = result.ToList();
+    }
+
+    private static string GetProductDescription(Product p)
+    {
+      return p.ProductName + ":" + p.UnitPrice;
+    }
+
+    [Test]
     public void JoinProductsWithRanks1Test()
     {
       var result =

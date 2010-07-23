@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Linq.Expressions
         if (e is EntityFieldExpression) {
           var entityFieldExpression = (EntityFieldExpression)e;
           if (entityFieldExpression.Entity != null)
-            return null;
+            return entityFieldExpression.Entity;
           var typeInfo = entityFieldExpression.PersistentType;
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
           var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(Context.GetNextAlias());
