@@ -931,10 +931,10 @@ namespace Xtensive.Storage.Linq
       ItemProjectorExpression itemProjector = entityExpression.OuterParameter==null
         ? context.Bindings[state.Parameters[0]].ItemProjector
         : context.Bindings[entityExpression.OuterParameter].ItemProjector;
-      EnsureEntityFieldsAreJoined(entityExpression, itemProjector, false);
+      EnsureEntityFieldsAreJoined(entityExpression, itemProjector);
     }
 
-    public static void EnsureEntityFieldsAreJoined(EntityExpression entityExpression, ItemProjectorExpression itemProjector, bool leftJoin)
+    public static void EnsureEntityFieldsAreJoined(EntityExpression entityExpression, ItemProjectorExpression itemProjector)
     {
       TypeInfo typeInfo = entityExpression.PersistentType;
       if (
@@ -947,8 +947,7 @@ namespace Xtensive.Storage.Linq
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
         .ToArray();
       int offset = itemProjector.DataSource.Header.Length;
-      itemProjector.DataSource =
-        leftJoin
+      itemProjector.DataSource = entityExpression.IsNullable
           ? itemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs)
           : itemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       EntityExpression.Fill(entityExpression, offset);
@@ -969,7 +968,7 @@ namespace Xtensive.Storage.Linq
         ? context.Bindings[state.Parameters[0]].ItemProjector
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
       int offset = originalItemProjector.DataSource.Header.Length;
-      originalItemProjector.DataSource = entityFieldExpression.Field.IsNullable
+      originalItemProjector.DataSource = entityFieldExpression.IsNullable
         ? originalItemProjector.DataSource.LeftJoin(joinedRs, JoinAlgorithm.Default, keyPairs)
         : originalItemProjector.DataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       entityFieldExpression.RegisterEntityExpression(offset);

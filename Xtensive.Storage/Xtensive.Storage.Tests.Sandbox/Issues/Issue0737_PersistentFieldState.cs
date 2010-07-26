@@ -57,14 +57,14 @@ namespace Xtensive.Storage.Tests.Issues
       using (var t = Transaction.Open()) {
         var msk = new City() {Name = "Moscow"};
         var ekb = new City() {Name = "Yekaterinburg"};
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
           new Person() {Name = "Alex " + i, City = msk};
           new Person() {Name = "Ivan " + i, City = ekb};
         }
 
         var list = Query.All<Person>()
           .OrderBy(p => p.City.Name)
-          .Take(100)
+          .Take(10)
           .ToList();
       }
     }
