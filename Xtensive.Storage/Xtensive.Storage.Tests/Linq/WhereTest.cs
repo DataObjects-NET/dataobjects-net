@@ -606,6 +606,14 @@ namespace Xtensive.Storage.Tests.Linq
     }
 
     [Test]
+    public void DateTimeTest()
+    {
+      var orders = Query.All<Order>();
+      var order = orders.Where(o => ((DateTime?)o.OrderDate) < ((DateTime?)new DateTime(2010, 12, 31))).First();
+      Assert.IsNotNull(order);
+    }
+
+    [Test]
     public void DateTimeDayTest()
     {
       var orders = Query.All<Order>();

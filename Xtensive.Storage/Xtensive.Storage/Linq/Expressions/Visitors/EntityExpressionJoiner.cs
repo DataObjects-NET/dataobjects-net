@@ -16,7 +16,7 @@ namespace Xtensive.Storage.Linq.Expressions.Visitors
 
     protected override System.Linq.Expressions.Expression VisitEntityExpression(EntityExpression expression)
     {
-      Translator.EnsureEntityFieldsAreJoined(expression, itemProjectorExpression, true);
+      Translator.EnsureEntityFieldsAreJoined(expression, itemProjectorExpression);
       return base.VisitEntityExpression(expression);
     }
 
