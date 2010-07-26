@@ -21,9 +21,15 @@ namespace Xtensive.Storage.Linq.Expressions
     public KeyExpression Key { get; private set; }
     public EntityExpression Entity { get; private set; }
 
+    public bool IsNullable 
+    { 
+      get { return Owner != null && Owner.IsNullable || Field.IsNullable; }
+    }
+
     public void RegisterEntityExpression(int offset)
     {
       Entity = EntityExpression.Create(this, offset);
+      Entity.IsNullable = IsNullable;
     }
 
     public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)

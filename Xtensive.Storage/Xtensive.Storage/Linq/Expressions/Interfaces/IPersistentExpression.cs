@@ -13,5 +13,6 @@ namespace Xtensive.Storage.Linq.Expressions
   {
     TypeInfo PersistentType { get; }
     List<PersistentFieldExpression> Fields { get; }
+    bool IsNullable { get; }
   }
 }

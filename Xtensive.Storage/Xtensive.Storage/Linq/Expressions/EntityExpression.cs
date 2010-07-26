@@ -41,6 +41,8 @@ namespace Xtensive.Storage.Linq.Expressions
       }
     }
 
+    public bool IsNullable { get; set; }
+
     public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
