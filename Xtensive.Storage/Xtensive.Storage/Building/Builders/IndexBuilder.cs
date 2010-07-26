@@ -485,7 +485,7 @@ namespace Xtensive.Storage.Building.Builders
         throw new InvalidOperationException();
       var nameBuilder = BuildingContext.Demand().NameBuilder;
       var attributes = realIndex.Attributes
-        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique)
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Typed | IndexAttributes.Virtual;
       var result = new IndexInfo(reflectedType, attributes, realIndex, ArrayUtils<IndexInfo>.EmptyArray);
 
@@ -520,7 +520,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       var nameBuilder = BuildingContext.Demand().NameBuilder;
       var attributes = indexToFilter.Attributes
-        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique )
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Filtered | IndexAttributes.Virtual;
       var result = new IndexInfo(reflectedType, attributes, indexToFilter, ArrayUtils<IndexInfo>.EmptyArray) {FilterByTypes = filterByTypes.ToList()};
 
@@ -670,7 +670,7 @@ namespace Xtensive.Storage.Building.Builders
     {
       var nameBuilder = BuildingContext.Demand().NameBuilder;
       var attributes = indexToApplyView.Attributes
-        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique )
+        & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.View | IndexAttributes.Virtual;
       var result = new IndexInfo(reflectedType, attributes, indexToApplyView, ArrayUtils<IndexInfo>.EmptyArray);
 
