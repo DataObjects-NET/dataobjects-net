@@ -28,15 +28,20 @@ namespace Xtensive.Storage
   /// Disconnected state.
   /// </summary>
   [Serializable]
-  public sealed class DisconnectedState : IEnumerable<Entity>
+  public sealed class DisconnectedState : IEnumerable<Entity>,
+    IVersionSetProvider
   {
     private OperationLog serializedOperations;
     private SerializableEntityState[] serializedRegistry;
     private SerializableEntityState[] serializedGlobalRegistry;
     private VersionSet versions;
+    private VersionsUsageOptions versionsUsageOptions = VersionsUsageOptions.Default;
+    private VersionsProviderSelector versionsProviderSelector = VersionsProviderSelector.Default;
 
     [NonSerialized]
     private Session session;
+    [NonSerialized]
+    private IVersionSetProvider versionsProvider;
     [NonSerialized]
     private IDisposable sessionHandlerSubstitutionScope;
     [NonSerialized]
@@ -55,7 +60,7 @@ namespace Xtensive.Storage
     private OperationCapturer operationCapturer;
     [NonSerialized]
     private AssociationCache associationCache;
-    
+
 
     /// <summary>
     /// Gets the session this instance attached to.
@@ -63,6 +68,84 @@ namespace Xtensive.Storage
     public Session Session {
       get { return session; }
     }
+
+    /// <summary>
+    /// Gets or sets the <see cref="VersionSet"/> storing
+    /// original version of entities cached in this
+    /// <see cref="DisconnectedState"/>.
+    /// </summary>
+    public VersionSet Versions {
+      get { return versions; }
+      set {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        versions = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the <see cref="Versions"/> provider used by this instance to
+    /// refresh <see cref="Versions"/> content during <see cref="ApplyChanges()"/>
+    /// method execution.
+    /// <see langword="null" /> indicates that provider shouldn't be used.
+    /// </summary>
+    /// <remarks>
+    /// When the value of this property is set, value of
+    /// <see cref="VersionsProviderSelector"/> is automatically set to
+    /// <see cref="Storage.VersionsProviderSelector.Manual"/>.
+    /// </remarks>
+    public IVersionSetProvider VersionsProvider {
+      get {
+        switch (versionsProviderSelector) {
+        case VersionsProviderSelector.Session:
+          return session;
+          break;
+        case VersionsProviderSelector.DisconnectedState:
+          return this;
+          break;
+        case VersionsProviderSelector.Manual:
+          return versionsProvider;
+          break;
+        default: // None
+          return null;
+          break;
+        }
+      }
+      set {
+        versionsProvider = value;
+        versionsProviderSelector = VersionsProviderSelector.Manual;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the versions provider selection mode.
+    /// </summary>
+    public VersionsProviderSelector VersionsProviderSelector {
+      get { return versionsProviderSelector; }
+      set { versionsProviderSelector = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the versions usage options.
+    /// </summary>
+    public VersionsUsageOptions VersionsUsageOptions {
+      get { return versionsUsageOptions; }
+      set { versionsUsageOptions = value; }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="OperationLog"/> storing
+    /// information of <legacyBold>already committed</legacyBold> operations.
+    /// So operations captured in the active transaction aren't exposed here.
+    /// </summary>
+    public OperationLog Operations {
+      get { return state.Operations; }
+    }
+
+    /// <summary>
+    /// Gets or sets the merge mode to use when loading state of new entities 
+    /// into this <see cref="DisconnectedState"/>.
+    /// </summary>
+    public MergeMode MergeMode { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether this instance is attached to <see cref="Session"/>.
@@ -96,30 +179,6 @@ namespace Xtensive.Storage
       get {
         return IsAttached && transactionReplacementScope!=null;
       }
-    }
-
-    /// <summary>
-    /// Gets or sets the merge mode to use when loading state of new entities 
-    /// into this <see cref="DisconnectedState"/>.
-    /// </summary>
-    public MergeMode MergeMode { get; set; }
-
-    /// <summary>
-    /// Gets the <see cref="VersionSet"/> storing
-    /// original version of entities cached in this
-    /// <see cref="DisconnectedState"/>.
-    /// </summary>
-    public VersionSet Versions {
-      get { return versions; }
-    }
-
-    /// <summary>
-    /// Gets the <see cref="OperationLog"/> storing
-    /// information of <legacyBold>already committed</legacyBold> operations.
-    /// So operations captured in the active transaction aren't exposed here.
-    /// </summary>
-    public OperationLog Operations {
-      get { return state.Operations; }
     }
 
     /// <summary>
@@ -198,26 +257,39 @@ namespace Xtensive.Storage
       KeyMapping keyMapping;
       using (OpenDetachRegion())
       using (targetSession.Activate())
-      try {
-        if (targetSession.IsDebugEventLoggingEnabled) {
-          disposable = Log.DebugRegion(Strings.LogSessionXDisconnectedStateApplyChanges, targetSession);
-          Log.Debug("{0}", Operations);
+        try {
+          if (targetSession.IsDebugEventLoggingEnabled) {
+            disposable = Log.DebugRegion(Strings.LogSessionXDisconnectedStateApplyChanges, targetSession);
+            Log.Debug("{0}", Operations);
+          }
+          var originalVersions = Versions; // Necessary, because it will be changed later
+          var versionValidator = (VersionsUsageOptions & VersionsUsageOptions.Validate)!=0
+            ? VersionValidator.Attach(targetSession, key => originalVersions[key])
+            : null;
+          using (versionValidator)
+          using (var tx = Transaction.Open()) {
+            keyMapping = state.Operations.Replay(targetSession);
+            // Updating internal state.
+            // Note that if commit will fail, the state will be inconsistent with DB.
+            state.Commit(true);
+            originalState.Remap(keyMapping);
+            state = new StateRegistry(originalState);
+            // Updating (refetching / rebuilding) versions
+            var currentVersionProvider = VersionsProviderSelector==VersionsProviderSelector.Session
+              ? targetSession // not session, but targetSession
+              : VersionsProvider;
+            if (currentVersionProvider!=null && (VersionsUsageOptions & VersionsUsageOptions.Update)!=0)
+              Versions = currentVersionProvider.CreateVersionSet(AllKeys());
+            tx.Complete();
+          }
+          if (targetSession.IsDebugEventLoggingEnabled) {
+            Log.Debug(Strings.LogChangesAreSuccessfullyApplied);
+            Log.Debug("{0}", keyMapping);
+          }
         }
-        // using (VersionValidator.Attach(targetSession, key => Versions[key])) {
-          keyMapping = state.Operations.Replay(targetSession);
-          state.Commit(true);
-        // }
-        if (targetSession.IsDebugEventLoggingEnabled) {
-          Log.Debug(Strings.LogChangesAreSuccessfullyApplied);
-          Log.Debug("{0}", keyMapping);
+        finally {
+          disposable.DisposeSafely();
         }
-        originalState.Remap(keyMapping);
-        state = new StateRegistry(originalState);
-        RebuildVersions();
-      }
-      finally {
-        disposable.DisposeSafely();
-      }
       // Remapping Entity keys, if necessary
       if (IsAttached && keyMapping.Map.Count!=0)
         session.RemapEntityKeys(keyMapping);
@@ -260,10 +332,16 @@ namespace Xtensive.Storage
     /// <param name="mergeMode">The merge mode to use.</param>
     public void Merge(DisconnectedState source, MergeMode mergeMode)
     {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      EnsureNoTransaction();
+
       var sourceStates = source.originalState.EntityStates;
       foreach (var entityState in sourceStates)
-        RegisterState(entityState.Key, entityState.Tuple, 
-          Versions[entityState.Key], mergeMode);
+        RegisterEntityState(
+          entityState.Key, 
+          entityState.Tuple, 
+          source.Versions[entityState.Key], 
+          mergeMode);
     }
 
     /// <summary>
@@ -274,7 +352,43 @@ namespace Xtensive.Storage
     /// <see langword="null" />, if entity isn't cached.</returns>
     public PersistenceState? GetPersistenceState(Key key)
     {
-      return GetPersistenceState(GetState(key));
+      return GetPersistenceState(GetEntityState(key));
+    }
+
+    /// <summary>
+    /// Gets the sequence of all keys of entities cached by this <see cref="DisconnectedState"/>.
+    /// Removed entity keys aren't included to this sequence.
+    /// </summary>
+    /// <returns>The sequence of all keys of entities cached by this <see cref="DisconnectedState"/>.</returns>
+    public IEnumerable<Key> AllKeys()
+    {
+      return AllKeys(false);
+    }
+
+    /// <summary>
+    /// Gets the sequence of all keys of entities cached by this <see cref="DisconnectedState"/>.
+    /// </summary>
+    /// <param name="includingRemovedEntityKeys">If set to <see langword="true"/> removed entity keys will also be included.</param>
+    /// <returns>
+    /// The sequence of all keys of entities cached by this <see cref="DisconnectedState"/>.
+    /// </returns>
+    public IEnumerable<Key> AllKeys(bool includingRemovedEntityKeys)
+    {
+      var keys = new HashSet<Key>();
+      var currentState = GetCurrentState();
+      while (currentState!=null) {
+        keys.UnionWith(currentState.Keys);
+        currentState = currentState.Origin;
+      }
+      if (!includingRemovedEntityKeys)
+        return keys;
+      else
+        return 
+          from key in keys
+          let entityState = GetEntityState(key)
+          let persistenceState = GetPersistenceState(entityState)
+          where persistenceState.HasValue
+          select key;
     }
 
     /// <summary>
@@ -283,16 +397,9 @@ namespace Xtensive.Storage
     /// <returns>The sequence of all keys and entity persistence states.</returns>
     public IEnumerable<KeyValuePair<Key, PersistenceState>> AllPersistenceStates()
     {
-      EnsureIsAttached();
-      var allKeys = new HashSet<Key>();
-      var currentState = state;
-      while (currentState!=null) {
-        allKeys.UnionWith(currentState.Keys);
-        currentState = currentState.Origin;
-      }
       return 
-        from key in allKeys
-        let entityState = GetState(key)
+        from key in AllKeys(true)
+        let entityState = GetEntityState(key)
         let persistenceState = GetPersistenceState(entityState)
         where persistenceState.HasValue
         select new KeyValuePair<Key, PersistenceState>(entityState.Key, persistenceState.GetValueOrDefault());
@@ -309,6 +416,29 @@ namespace Xtensive.Storage
     {
       return this.OfType<TEntity>();
     }
+
+    #region IVersionSetProvider members
+
+    /// <inheritdoc/>
+    public VersionSet CreateVersionSet(IEnumerable<Key> keys)
+    {
+      var result = new VersionSet();
+      foreach (var key in keys) {
+        var entityState = GetEntityState(key);
+        if (entityState==null)
+          continue;
+        var tuple = entityState.Tuple;
+        if (tuple==null)
+          continue;
+        var version = GetVersion(entityState.Key.Type, tuple);
+        if (version.IsVoid)
+          continue;
+        result.Add(entityState.Key, version, true);
+      }
+      return result;
+    }
+
+    #endregion
 
     #region IEnumerable<...> methods
 
@@ -375,12 +505,12 @@ namespace Xtensive.Storage
     {
       if (entityState==null)
         return null;
-      if (!entityState.IsLoaded)
+      if (!entityState.IsLoadedOrRemoved)
         return null;
       if (entityState.IsRemoved)
         return PersistenceState.Removed;
       var originalEntityState = originalState.Get(entityState.Key);
-      if (originalEntityState==null || originalEntityState.IsRemoved || !originalEntityState.IsLoaded)
+      if (originalEntityState==null || originalEntityState.IsRemoved || !originalEntityState.IsLoadedOrRemoved)
         return PersistenceState.New;
       var differentialTuple = entityState.Tuple as DifferentialTuple;
       while (differentialTuple!=null) {
@@ -391,65 +521,58 @@ namespace Xtensive.Storage
       return PersistenceState.Synchronized;
     }
 
-    internal DisconnectedEntityState GetState(Key key)
+    private StateRegistry GetCurrentState()
+    {
+      return transactionalState ?? state;
+    }
+
+    internal DisconnectedEntityState GetEntityState(Key key)
     {
       EnsureIsAttached();
-      return transactionalState.Get(key);
+      return GetCurrentState().Get(key);
     }
     
-    internal DisconnectedEntityState RegisterState(Key key, Tuple tuple)
+    internal DisconnectedEntityState RegisterEntityState(Key key, Tuple tuple)
     {
-      RegisterState(key, tuple, GetVersion(key.TypeRef.Type, tuple), MergeMode);
-      return GetState(key);
+      RegisterEntityState(key, tuple, GetVersion(key.TypeRef.Type, tuple), MergeMode);
+      return GetEntityState(key);
     }
 
     /// <exception cref="VersionConflictException">Version check failed.</exception>
-    internal void RegisterState(Key key, Tuple tuple, VersionInfo version, MergeMode mergeMode)
+    internal void RegisterEntityState(Key key, Tuple tuple, VersionInfo version, MergeMode mergeMode)
     {
-      if (tuple==null)
-        return;
-
-      DisconnectedEntityState entityState;
-      if (transactionalState!=null)
-        entityState = transactionalState.Get(key);
-      else
-        entityState = state.Get(key);
-
-      if (entityState==null || !entityState.IsLoaded) {
-        originalState.Register(key, tuple);
-        Versions.Add(key, version, true);
-        return;
-      }
-
-      var originalEntityState = originalState.Get(key);
-      bool isNew = false;
-      if (originalEntityState==null || !originalEntityState.IsLoaded)
-        isNew = true;
-
-      var existingVersion = isNew 
-        ? VersionInfo.Void 
-        : GetVersion(originalEntityState.Key.Type, originalEntityState.Tuple);
-      var newVersion      = GetVersion(key.Type, tuple);
-
-      if (existingVersion==newVersion)
-        originalState.MergeUnavailableFields(key, tuple);
-      else if (mergeMode==MergeMode.Strict)
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      var existingVersion = Versions[key];
+      var versionConflict = 
+        (VersionsUsageOptions & VersionsUsageOptions.Validate)!=0 
+        && (!existingVersion.IsVoid)
+        && existingVersion!=version;
+      if (versionConflict && mergeMode==MergeMode.Strict)
         throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
-      else if (mergeMode==MergeMode.PreferSource) {
-        originalState.Merge(key, tuple);
+
+      if (tuple==null)
+        return;
+      var entityState = originalState.Get(key); // originalState must be used here, not the current one!
+
+      if (entityState==null || !entityState.IsLoadedOrRemoved)
+        originalState.Create(key, tuple, true);
+      else if (mergeMode!=MergeMode.PreferOriginal)
+        originalState.UpdateOrigin(key, tuple, MergeBehavior.PreferDifference); 
+      else // mergeMode==MergeMode.PreferOrigin
+        originalState.UpdateOrigin(key, tuple, MergeBehavior.PreferOrigin);
+      if ((VersionsUsageOptions & VersionsUsageOptions.Update)!=0 && (existingVersion.IsVoid || mergeMode==MergeMode.PreferNew))
         Versions.Add(key, version, true);
-      }
     }
 
-    internal DisconnectedEntitySetState RegisterSetState(Key key, FieldInfo fieldInfo, bool isFullyLoaded, 
+    internal DisconnectedEntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo, bool isFullyLoaded, 
       List<Key> entities, List<Pair<Key, Tuple>> auxEntities)
     {
       EnsureIsAttached();
 
       if (auxEntities!=null)
         foreach (var entity in auxEntities)
-          RegisterState(entity.First, entity.Second);
+          RegisterEntityState(entity.First, entity.Second);
 
       var state = this.state.GetOrCreate(key);
       var setState = state.GetEntitySetState(fieldInfo);
@@ -466,7 +589,7 @@ namespace Xtensive.Storage
 
       switch (persistAction) {
       case PersistActionKind.Insert:
-        transactionalState.Insert(entityState.Key, entityState.Tuple.ToRegular());
+        transactionalState.Create(entityState.Key, entityState.Tuple.ToRegular(), false);
         break;
       case PersistActionKind.Update:
         transactionalState.Update(entityState.Key, entityState.DifferentialTuple.Difference.ToRegular());
@@ -477,17 +600,6 @@ namespace Xtensive.Storage
       default:
         throw new ArgumentOutOfRangeException("persistAction");
       }
-    }
-
-    private void RebuildVersions()
-    {
-      versions = new VersionSet();
-      foreach (var entityState in originalState.EntityStates)
-        if (entityState.Tuple!=null) {
-          var version = GetVersion(entityState.Key.Type, entityState.Tuple);
-          if (!version.IsVoid)
-            Versions.Add(entityState.Key, version, true);
-        }
     }
 
     private void EnsureNotAttached()
@@ -545,6 +657,8 @@ namespace Xtensive.Storage
       sessionHandlerSubstitutionScope = session.Services.Get<DirectSessionAccessor>()
         .ChangeSessionHandler(handler);
       session.DisconnectedState = this;
+      if (versionsProvider==this)
+        versionsProvider = session;
       this.session = session;
     }
 
@@ -572,6 +686,8 @@ namespace Xtensive.Storage
         }
         finally {
           var oldSession = session;
+          if (versionsProvider==oldSession)
+            versionsProvider = this;
           session.DisconnectedState = null;
           sessionHandlerSubstitutionScope = null;
           transactionReplacementScope = null;
@@ -632,6 +748,7 @@ namespace Xtensive.Storage
       originalState = new StateRegistry(associationCache);
       state = new StateRegistry(originalState);
       versions = new VersionSet();
+      versionsProvider = this;
     }
 
 
@@ -661,6 +778,7 @@ namespace Xtensive.Storage
     {
       var domain = Session.Demand().Domain;
 
+      versionsProvider = this;
       associationCache = new AssociationCache();
 
       originalState = new StateRegistry(associationCache);
