@@ -54,94 +54,69 @@ namespace Xtensive.Storage.Disconnected
       return state;
     }
 
-    public void Insert(Key key, Tuple tuple)
+    public void Create(Key key, Tuple tuple, bool isLoaded)
     {
-      if (Origin==null)
-        return;
+      if (isLoaded)
+        EnsureOriginIsNull();
+      else
+        EnsureOriginNotNull();
 
       var state = GetOrCreate(key);
-      if (state.IsLoaded)
+      if (state.IsLoadedOrRemoved)
         throw new InvalidOperationException(string.Format(
           Strings.ExStateWithKeyXIsAlreadyExists, key));
 
-      state.Tuple = tuple.Clone();
-      OnStateChanged(key, null, state.Tuple);
-      foreach (var fieldInfo in associationCache.GetEntitySetFields(key.TypeRef.Type))
-        state.GetEntitySetState(fieldInfo).IsFullyLoaded = true;
+      state.Tuple = tuple;
+      OnStateChanged(key, null, tuple);
+
+      if (!isLoaded)
+        foreach (var fieldInfo in associationCache.GetEntitySetFields(key.TypeRef.Type))
+          state.GetEntitySetState(fieldInfo).IsFullyLoaded = true;
     }
 
     public void Update(Key key, Tuple difference)
     {
-      if (Origin==null)
-        return;
+      EnsureOriginNotNull();
 
       var state = GetOrCreate(key);
-      if (!state.IsLoaded)
+      if (!state.IsLoadedOrRemoved)
         throw new InvalidOperationException(Strings.ExStateIsNotLoaded);
 
-      var prevValue = state.Tuple.ToRegular();
-      state.Update(difference.Clone());
-      var newValue = state.Tuple.ToRegular();
+      var oldTuple = state.Tuple.ToRegular();
+      state.Update(difference);
+      var newTuple = state.Tuple.ToRegular();
 
       var type = state.Key.TypeRef.Type;
       var baseType = type.UnderlyingType.BaseType;
-      var isAuxEntity = baseType.IsGenericType && baseType.GetGenericTypeDefinition()==typeof (EntitySetItem<,>);
+      var isAuxEntity = baseType.IsGenericType && baseType.GetGenericTypeDefinition()==typeof(EntitySetItem<,>);
       if (isAuxEntity)
         return;
-      OnStateChanged(key, prevValue, newValue);
+      OnStateChanged(key, oldTuple, newTuple);
     }
 
     public void Remove(Key key)
     {
-      if (Origin==null)
-        return;
+      EnsureOriginNotNull();
       
       var state = GetOrCreate(key);
-      if (!state.IsLoaded)
+      if (!state.IsLoadedOrRemoved)
         throw new InvalidOperationException(Strings.ExStateIsNotLoaded);
       
       OnStateChanged(key, state.Tuple, null);
       state.Remove();
     }
 
-    public void Register(Key key, Tuple tuple)
-    {
-      if (Origin!=null)
-        throw new InvalidOperationException(Strings.ExCantRegisterState);
-
-      var state = GetOrCreate(key);
-      if (state.IsRemoved)
-        return;
-
-      state.Tuple = tuple.Clone();
-      OnStateChanged(key, null, state.Tuple);
-    }
-
-    public void MergeUnavailableFields(Key key, Tuple newValue)
+    public void UpdateOrigin(Key key, Tuple tuple, MergeBehavior mergeBehavior)
     {
       if (Origin!=null)
         throw new InvalidOperationException(Strings.ExCantMergeState);
 
       var state = GetOrCreate(key);
-      if (state.IsRemoved || !state.IsLoaded)
+      if (state.IsRemoved || !state.IsLoadedOrRemoved)
         throw new InvalidOperationException(Strings.ExCantMergeState);
 
-      if (state.MergeValue(newValue))
+      if (state.UpdateOrigin(tuple, mergeBehavior))
         OnStateChanged(key, null, state.Tuple);
-    }
-
-    public void Merge(Key key, Tuple newValue)
-    {
-      if (Origin!=null)
-        throw new InvalidOperationException(Strings.ExCantMergeState);
-
-      var state = GetOrCreate(key);
-      if (state.IsRemoved || !state.IsLoaded)
-        throw new InvalidOperationException(Strings.ExCantMergeState);
-
-      var preValue = state.Tuple.Clone();
-      state.SetNewValue(newValue);
-      OnStateChanged(key, preValue, state.Tuple);
     }
 
     public void Commit(bool clearLoggedOperations)
@@ -188,27 +163,27 @@ namespace Xtensive.Storage.Disconnected
       items.Add(state.Key, state);
     }
 
-    public void OnStateChanged(Key key, Tuple prevValue, Tuple newValue)
+    public void OnStateChanged(Key key, Tuple oldTuple, Tuple newTuple)
     {
       // Inserting
-      if (prevValue==null) {
-        foreach (var item in associationCache.GetEntitySetItems(key, newValue))
+      if (oldTuple==null) {
+        foreach (var item in associationCache.GetEntitySetItems(key, newTuple))
           InsertIntoEntitySet(item.OwnerKey, item.Field, item.ItemKey);
-        foreach (var reference in associationCache.GetReferencesFrom(key, newValue))
+        foreach (var reference in associationCache.GetReferencesFrom(key, newTuple))
           AddReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
       }
       // Deleting
-      else if (newValue==null) {
-        foreach (var item in associationCache.GetEntitySetItems(key, prevValue))
+      else if (newTuple==null) {
+        foreach (var item in associationCache.GetEntitySetItems(key, oldTuple))
           RemoveFromEntitySet(item.OwnerKey, item.Field, item.ItemKey);
-        foreach (var reference in associationCache.GetReferencesFrom(key, prevValue))
+        foreach (var reference in associationCache.GetReferencesFrom(key, oldTuple))
           RemoveReference(reference.TargetKey, reference.Field, reference.ReferencingKey);
       }
       // Updating
       else {
         foreach (var pair in associationCache.GetEntitySets(key.Type)) {
-          var prevOwnerKey = associationCache.GetKeyFieldValue(pair.First, prevValue);
-          var ownerKey = associationCache.GetKeyFieldValue(pair.First, newValue);
+          var prevOwnerKey = associationCache.GetKeyFieldValue(pair.First, oldTuple);
+          var ownerKey = associationCache.GetKeyFieldValue(pair.First, newTuple);
           if (ownerKey!=prevOwnerKey) {
             if (prevOwnerKey!=null)
               RemoveFromEntitySet(prevOwnerKey, pair.Second, key);
@@ -217,8 +192,8 @@ namespace Xtensive.Storage.Disconnected
           }
         }
         foreach (var field in associationCache.GetReferencingFields(key.Type)) {
-          var prevOwnerKey = associationCache.GetKeyFieldValue(field, prevValue);
-          var ownerKey = associationCache.GetKeyFieldValue(field, newValue);
+          var prevOwnerKey = associationCache.GetKeyFieldValue(field, oldTuple);
+          var ownerKey = associationCache.GetKeyFieldValue(field, newTuple);
           if (ownerKey!=prevOwnerKey) {
             if (prevOwnerKey!=null)
               RemoveReference(prevOwnerKey, field, key);
@@ -227,6 +202,20 @@ namespace Xtensive.Storage.Disconnected
           }
         }
       }
+    }
+
+    #region Private \ internal methods
+
+    private void EnsureOriginNotNull()
+    {
+      if (Origin==null)
+        throw Exceptions.InternalError(Strings.ExOriginIsNull, Log.Instance);
+    }
+
+    private void EnsureOriginIsNull()
+    {
+      if (Origin!=null)
+        throw Exceptions.InternalError(Strings.ExOriginIsNotNull, Log.Instance);
     }
 
     private void InsertIntoEntitySet(Key ownerKey, FieldInfo field, Key itemKey)
@@ -260,6 +249,8 @@ namespace Xtensive.Storage.Disconnected
       if (references.ContainsKey(itemKey))
         references.Remove(itemKey);
     }
+
+    #endregion
 
 
     // Constructors

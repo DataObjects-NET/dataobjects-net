@@ -1914,6 +1914,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Origin is not null..
+        /// </summary>
+        internal static string ExOriginIsNotNull {
+            get {
+                return ResourceManager.GetString("ExOriginIsNotNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Origin is null..
+        /// </summary>
+        internal static string ExOriginIsNull {
+            get {
+                return ResourceManager.GetString("ExOriginIsNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Object is outside of initial transaction scope..
         /// </summary>
         internal static string ExOutOfTransactionScope {

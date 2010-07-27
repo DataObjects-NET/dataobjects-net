@@ -1480,4 +1480,10 @@ Schema difference:
 	<data name="ExUnableToCastItemOfTypeXToY">
 		<value><![CDATA[Unable to cast item of type '{0}' to '{1}' in queries.]]></value>
 	</data>
+	<data name="ExOriginIsNull">
+		<value xml:space="preserve">Origin is null.</value>
+	</data>
+	<data name="ExOriginIsNotNull">
+		<value xml:space="preserve">Origin is not null.</value>
+	</data>
 </root>

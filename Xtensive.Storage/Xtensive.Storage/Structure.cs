@@ -374,9 +374,18 @@ namespace Xtensive.Storage
     /// <param name="data">Underlying <see cref="Tuple"/> value.</param>
     protected Structure(Tuple data)
     {
-      typeInfo = GetTypeInfo();
-      tuple = data;
-      SystemBeforeInitialize(false);
+      try {
+        typeInfo = GetTypeInfo();
+        tuple = data;
+        SystemBeforeInitialize(false);
+      }
+      catch (Exception error) {
+        InitializationError(GetType(), error); 
+        // GetType() call is correct here: no code will be executed further,
+        // if base constructor will fail, but since descendant's constructor is aspected,
+        // we must "simulate" its own call of InitializationError method.
+        throw;
+      }
     }
 
     /// <summary>
