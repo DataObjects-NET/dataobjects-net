@@ -5,6 +5,7 @@
 // Created:    2007.08.10
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -55,10 +56,11 @@ namespace Xtensive.Storage
   /// <seealso cref="SessionBound" />
   [DebuggerDisplay("FullName = {FullName}")]
   public sealed partial class Session : DomainBound,
+    IVersionSetProvider,
     IIdentified<long>,
     IContext<SessionScope>, 
-    IDisposable,
-    IHasExtensions
+    IHasExtensions,
+    IDisposable
   {
     private const string IdentifierFormat = "#{0}";
     private const string FullNameFormat   = "{0}, #{1}";
@@ -291,7 +293,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region IHasExtensions Members
+    #region IHasExtensions members
 
     /// <inheritdoc/>
     public IExtensionCollection Extensions {
@@ -299,6 +301,25 @@ namespace Xtensive.Storage
         if (extensions==null)
           extensions = new ExtensionCollection();
         return extensions;
+      }
+    }
+
+    #endregion
+
+    #region IVersionSetProvider members
+
+    /// <inheritdoc/>
+    public VersionSet CreateVersionSet(IEnumerable<Key> keys)
+    {
+      using (Activate())
+      using (var tx = Transaction.Open()) {
+        var entities = keys.Prefetch();
+        var result = new VersionSet();
+        foreach (var entity in entities)
+          if (entity!=null)
+            result.Add(entity, false);
+        tx.Complete();
+        return result;
       }
     }
 

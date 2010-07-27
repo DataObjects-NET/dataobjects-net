@@ -67,8 +67,8 @@ namespace Xtensive.Storage
             operation.Prepare(operationContext);
 
           operationContext.KeysToPrefetch
-            .Prefetch<Entity, Key>(key => key)
-            .Execute();
+            .Prefetch()
+            .Run();
 
           foreach (var operation in operations)
             operation.Execute(operationContext);

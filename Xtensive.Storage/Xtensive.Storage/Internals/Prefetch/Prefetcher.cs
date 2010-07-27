@@ -137,23 +137,13 @@ namespace Xtensive.Storage.Internals.Prefetch
         fieldDescriptors, sessionHandler);
       foreach (var prefetchManyDelegate in prefetchManyProcessorCreators)
         result = prefetchManyDelegate.Invoke(result, sessionHandler);
-      return result.GetEnumerator();
+      return result.ToTransactional().GetEnumerator();
     }
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
-    }
-
-    /// <summary>
-    /// Executes prefetech tasks.
-    /// </summary>
-    public void Execute()
-    {
-      foreach (var element in this) {
-        // Doing nothing.
-      }
     }
 
     #region Private \ internal methods
