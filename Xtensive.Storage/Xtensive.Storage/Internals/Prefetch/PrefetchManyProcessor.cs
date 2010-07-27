@@ -33,6 +33,11 @@ namespace Xtensive.Storage.Internals.Prefetch
     private readonly IEnumerable<TElement> source;
     private readonly SessionHandler sessionHandler;
 
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
     public IEnumerator<TElement> GetEnumerator()
     {
       TElement result;
@@ -56,11 +61,6 @@ namespace Xtensive.Storage.Internals.Prefetch
       var result = remainingCountOfChildElements.Last.Value.RootElement;
       remainingCountOfChildElements.RemoveLast();
       return result;
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
     }
 
     private IEnumerable<TSelectorResult> ExtractChildElements()

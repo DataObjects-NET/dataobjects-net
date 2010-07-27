@@ -72,7 +72,7 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     public IEnumerator<T> GetEnumerator()
     {
-      foreach (var pair in GetItems().ToTransactional())
+      foreach (var pair in GetItems())
         yield return pair;
     }
 
