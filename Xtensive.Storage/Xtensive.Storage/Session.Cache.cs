@@ -99,7 +99,7 @@ namespace Xtensive.Storage
       EntityStateCache.Add(result);
 
       if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.SessionXCachingY, this, result);
+        Log.Debug(Strings.LogSessionXCachingY, this, result);
       return;
     }
 
@@ -144,7 +144,7 @@ namespace Xtensive.Storage
       }
 
       if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.SessionXCachingY, this, result);
+        Log.Debug(Strings.LogSessionXCachingY, this, result);
       return result;
     }
 
@@ -168,7 +168,7 @@ namespace Xtensive.Storage
         result.Update(tuple);
         result.IsStale = isStale;
         if (IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.SessionXUpdatingCacheY, this, result);
+          Log.Debug(Strings.LogSessionXUpdatingCacheY, this, result);
       }
       return result;
     }
@@ -213,7 +213,7 @@ namespace Xtensive.Storage
       };
       EntityStateCache.Add(result);
       if (IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.SessionXCachingY, this, result);
+        Log.Debug(Strings.LogSessionXCachingY, this, result);
       return result;
     }
 

@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Operations
   /// Describes arbitrary method call operation.
   /// </summary>
   [Serializable]
-  public sealed class MethodCallOperation : IOperation
+  public sealed class MethodCallOperation : Operation
   {
     private readonly Action<OperationExecutionContext, object[]> prepareAction;
     private readonly Action<OperationExecutionContext, object[]> executeAction;
@@ -46,12 +46,12 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public string Title {
+    public override string Title {
       get { return "Method call"; }
     }
 
     /// <inheritdoc/>
-    public string Description {
+    public override string Description {
       get {
         return "{0}: {1}({2})".FormatWith(
           Title, executeAction.Method.GetShortName(true), arguments.ToCommaDelimitedString());
@@ -59,14 +59,14 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public void Prepare(OperationExecutionContext context)
+    public override void Prepare(OperationExecutionContext context)
     {
       if (prepareAction!=null)
         prepareAction.Invoke(context, arguments);
     }
 
     /// <inheritdoc/>
-    public void Execute(OperationExecutionContext context)
+    public override void Execute(OperationExecutionContext context)
     {
       executeAction.Invoke(context, arguments);
     }

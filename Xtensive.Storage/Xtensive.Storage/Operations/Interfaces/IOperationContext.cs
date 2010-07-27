@@ -31,12 +31,28 @@ namespace Xtensive.Storage.Operations
     bool IsIntermediate { get; }
 
     /// <summary>
+    /// Gets a value indicating whether context is blocking - i.e.
+    /// with <see cref="IsLoggingEnabled"/>==<see langword="false" />, and
+    /// nested contexts won't be created inside it.
+    /// </summary>
+    bool IsBlocking { get; }
+
+    /// <summary>
     /// Logs the operation.
     /// When <see cref="IsLoggingEnabled"/> is off, this method logs only
     /// <see cref="IPrecondition"/> operations (e.g. version checks).
     /// </summary>
     /// <param name="operation">The operation to log.</param>
     void LogOperation(IOperation operation);
+
+    /// <summary>
+    /// Logs the entity identifier.
+    /// </summary>
+    /// <param name="key">The key of the entity to log the identifier for.</param>
+    /// <param name="identifier">The entity identifier.
+    /// <see langword="null" /> indicates identifier must be assigned automatically 
+    /// as sequential number inside the current operation context.</param>
+    void LogEntityIdentifier(Key key, string identifier);
 
     /// <summary>
     /// Completes registration of operations that were logged in the context.

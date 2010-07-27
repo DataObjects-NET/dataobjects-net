@@ -6,6 +6,7 @@ syntax: glob
 *.sln.cache
 *.cache
 *.resharper
+*.ReSharper
 *.resharperoptions
 _ReSharper.*
 *.vs10x

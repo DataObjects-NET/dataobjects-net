@@ -7,6 +7,7 @@
 using System.ComponentModel;
 using Xtensive.Core;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Operations;
 using Xtensive.Storage.Rse;
 
 namespace Xtensive.Storage
@@ -76,5 +77,21 @@ namespace Xtensive.Storage
     /// <param name="lockBehavior">The lock behavior.</param>
     void Lock(LockMode lockMode, LockBehavior lockBehavior);
 
+    /// <summary>
+    /// Identifies the entity by identifier of specified type.
+    /// This identifier is used by <see cref="Xtensive.Storage.Operations"/> framework
+    /// to bind it with the identical entity while replaying the operation.
+    /// </summary>
+    /// <param name="identifierType">Type of the identifier.</param>
+    void IdentifyAs(EntityIdentifierType identifierType);
+
+    /// <summary>
+    /// Identifies the entity by specified identifier.
+    /// This identifier is used by <see cref="Xtensive.Storage.Operations"/> framework
+    /// to bind it with the identical entity while replaying the operation.
+    /// </summary>
+    /// <param name="identifier">The entity identifier.
+    /// <see langword="null" /> indicates no identifier must be associated with the entity.</param>
+    void IdentifyAs(string identifier);
   }
 }
