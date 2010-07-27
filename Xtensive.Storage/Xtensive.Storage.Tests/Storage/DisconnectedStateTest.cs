@@ -650,7 +650,7 @@ namespace Xtensive.Storage.Tests.Storage
       }
       // Fetch all instances to cache
       var state = new DisconnectedState();
-      state.MergeMode = MergeMode.PreferTarget;
+      state.MergeMode = MergeMode.PreferOriginal;
 
       using (var session = Session.Open(Domain)) {
         using (state.Attach(session)) {
@@ -1911,9 +1911,9 @@ namespace Xtensive.Storage.Tests.Storage
       using (var session = Session.Open(Domain)) {
         using (state2.Attach(session)) {
           AssertEx.Throws<VersionConflictException>(() => state2.Merge(state1, MergeMode.Strict));
-          state2.Merge(state1, MergeMode.PreferTarget);
+          state2.Merge(state1, MergeMode.PreferOriginal);
           Assert.AreEqual("Value1", Query.Single<Simple>(key).Value);
-          state2.Merge(state1, MergeMode.PreferSource);
+          state2.Merge(state1, MergeMode.PreferNew);
           Assert.AreEqual("Value2", Query.Single<Simple>(key).Value);
         }
       }
