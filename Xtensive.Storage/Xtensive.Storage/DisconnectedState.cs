@@ -36,7 +36,7 @@ namespace Xtensive.Storage
     private SerializableEntityState[] serializedGlobalRegistry;
     private VersionSet versions;
     private VersionsUsageOptions versionsUsageOptions = VersionsUsageOptions.Default;
-    private VersionsProviderSelector versionsProviderSelector = VersionsProviderSelector.Default;
+    private VersionsProviderType versionsProviderType = VersionsProviderType.Default;
 
     [NonSerialized]
     private Session session;
@@ -90,19 +90,19 @@ namespace Xtensive.Storage
     /// </summary>
     /// <remarks>
     /// When the value of this property is set, value of
-    /// <see cref="VersionsProviderSelector"/> is automatically set to
-    /// <see cref="Storage.VersionsProviderSelector.Manual"/>.
+    /// <see cref="VersionsProviderType"/> is automatically set to
+    /// <see cref="Storage.VersionsProviderType.Other"/>.
     /// </remarks>
     public IVersionSetProvider VersionsProvider {
       get {
-        switch (versionsProviderSelector) {
-        case VersionsProviderSelector.Session:
+        switch (versionsProviderType) {
+        case VersionsProviderType.Session:
           return session;
           break;
-        case VersionsProviderSelector.DisconnectedState:
+        case VersionsProviderType.DisconnectedState:
           return this;
           break;
-        case VersionsProviderSelector.Manual:
+        case VersionsProviderType.Other:
           return versionsProvider;
           break;
         default: // None
@@ -112,16 +112,16 @@ namespace Xtensive.Storage
       }
       set {
         versionsProvider = value;
-        versionsProviderSelector = VersionsProviderSelector.Manual;
+        versionsProviderType = VersionsProviderType.Other;
       }
     }
 
     /// <summary>
     /// Gets or sets the versions provider selection mode.
     /// </summary>
-    public VersionsProviderSelector VersionsProviderSelector {
-      get { return versionsProviderSelector; }
-      set { versionsProviderSelector = value; }
+    public VersionsProviderType VersionsProviderType {
+      get { return versionsProviderType; }
+      set { versionsProviderType = value; }
     }
 
     /// <summary>
@@ -275,7 +275,7 @@ namespace Xtensive.Storage
             originalState.Remap(keyMapping);
             state = new StateRegistry(originalState);
             // Updating (refetching / rebuilding) versions
-            var currentVersionProvider = VersionsProviderSelector==VersionsProviderSelector.Session
+            var currentVersionProvider = VersionsProviderType==VersionsProviderType.Session
               ? targetSession // not session, but targetSession
               : VersionsProvider;
             if (currentVersionProvider!=null && (VersionsUsageOptions & VersionsUsageOptions.Update)!=0)
@@ -528,7 +528,6 @@ namespace Xtensive.Storage
 
     internal DisconnectedEntityState GetEntityState(Key key)
     {
-      EnsureIsAttached();
       return GetCurrentState().Get(key);
     }
     
