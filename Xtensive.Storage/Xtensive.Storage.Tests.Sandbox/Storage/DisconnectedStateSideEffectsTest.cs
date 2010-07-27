@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
 
@@ -102,6 +103,25 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
           ds.ApplyChanges();
           book.Title += " Changed";
           ds.ApplyChanges();
+        }
+        // tx.Complete();
+      }
+    }
+
+    [Test]
+    public void SequentialApplyChangesTest_DisconnectedStateAsVersionProvider()
+    {
+      var ds = new DisconnectedState();
+      ds.VersionsProviderType = VersionsProviderType.DisconnectedState;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          var book = Query.All<Book>().First();
+          book.Title += " Changed";
+          ds.ApplyChanges();
+          book.Title += " Changed";
+          AssertEx.Throws<VersionConflictException>(() => ds.ApplyChanges());
         }
         // tx.Complete();
       }

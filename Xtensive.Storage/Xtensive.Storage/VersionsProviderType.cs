@@ -12,7 +12,7 @@ namespace Xtensive.Storage
   /// <summary>
   /// Enumerates possible <see cref="DisconnectedState.VersionsProvider"/> selection modes.
   /// </summary>
-  public enum VersionsProviderSelector
+  public enum VersionsProviderType
   {
     /// <summary>
     /// Default mode.
@@ -30,6 +30,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="DisconnectedState.VersionsProvider"/> is specified manually.
     /// </summary>
-    Manual = 0x100,
+    Other = 0x100,
   }
 }
