@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
@@ -60,10 +61,12 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override string ToString()
     {
-      var sb = new StringBuilder("{0}:\r\n".FormatWith(Strings.KeyMapping));
-      foreach (var pair in map)
-        sb.AppendFormat("  {0} => {1}", pair.Key, pair.Value);
-      return sb.ToString().Trim();
+      return "{0}:\r\n".FormatWith(Strings.KeyMapping) + (
+        from pair in map
+        let pairKeyString = pair.Key.ToString()
+        orderby pairKeyString
+        select "  {0} => {1}".FormatWith(pairKeyString, pair.Value)
+        ).ToDelimitedString(Environment.NewLine);
     }
 
 

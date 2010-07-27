@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
+using Xtensive.Core.Collections;
 using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage
@@ -11,6 +12,8 @@ namespace Xtensive.Storage
   /// <summary>
   /// Contract for an operation that could be executed later
   /// after being logged in <see cref="OperationLog"/>.
+  /// You shouldn't implement this interface directly. 
+  /// Inherit from <see cref="Operation"/> instead.
   /// </summary>
   public interface IOperation
   {
@@ -23,6 +26,12 @@ namespace Xtensive.Storage
     /// Gets the description of the operation.
     /// </summary>
     string Description { get; }
+
+    /// <summary>
+    /// Gets or sets the identified entities.
+    /// Value of this property can be assigned just once.
+    /// </summary>
+    ReadOnlyDictionary<string, Key> IdentifiedEntities { get; set; }
 
     /// <summary>
     /// Prepares the operation using specified execution context.

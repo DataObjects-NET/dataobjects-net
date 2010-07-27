@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2010.02.18
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
@@ -18,6 +19,8 @@ namespace Xtensive.Storage.Operations
 
     public bool IsIntermediate { get { return false; } }
 
+    public bool IsBlocking { get { return true; } }
+
     public void LogOperation(IOperation operation)
     {
       var currentOperationContext = session.CurrentOperationContext;
@@ -26,8 +29,16 @@ namespace Xtensive.Storage.Operations
         currentOperationContext.LogOperation(operation);
     }
 
+    public void LogEntityIdentifier(Key key, string identifier)
+    {
+      var currentOperationContext = session.CurrentOperationContext;
+      if (currentOperationContext!=null)
+        currentOperationContext.LogEntityIdentifier(key, identifier);
+    }
+
     public void Complete()
-    {}
+    {
+    }
 
     public IEnumerator<IOperation> GetEnumerator()
     {

@@ -282,6 +282,39 @@ namespace Xtensive.Storage
       }
     }
 
+    /// <inheritdoc/>
+    public void IdentifyAs(EntityIdentifierType identifierType)
+    {
+      if (!Session.OperationCompletedHasSubscribers)
+        return;
+      var currentOperationContext = Session.CurrentOperationContext;
+      if (currentOperationContext==null)
+        return;
+      switch (identifierType) {
+      case EntityIdentifierType.Auto:
+        var topmostOperationContext = currentOperationContext.GetTopmostOperationContext();
+        string identifier = "#{0}".FormatWith(topmostOperationContext.CurrentIdentifier++.ToString("0000"));
+        currentOperationContext.LogEntityIdentifier(Key, identifier);
+        break;
+      case EntityIdentifierType.None:
+        currentOperationContext.LogEntityIdentifier(Key, null);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("identifierType");
+      }
+    }
+
+    /// <inheritdoc/>
+    public void IdentifyAs(string identifier)
+    {
+      if (!Session.OperationCompletedHasSubscribers)
+        return;
+      var currentOperationContext = Session.CurrentOperationContext;
+      if (currentOperationContext==null)
+        return;
+      currentOperationContext.LogEntityIdentifier(Key, identifier);
+    }
+
     #endregion
 
     #region Protected event-like methods
@@ -463,6 +496,7 @@ namespace Xtensive.Storage
         }
         context.Complete();
       }
+      IdentifyAs(EntityIdentifierType.Auto);
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializingPersistentEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
@@ -504,7 +538,7 @@ namespace Xtensive.Storage
     {
       EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled)
-        Log.Debug(Strings.SessionXGettingValueKeyYFieldZ, Session, Key, field);
+        Log.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
       EnsureIsFetched(field);
 
       if (Session.IsSystemLogicOnly)
