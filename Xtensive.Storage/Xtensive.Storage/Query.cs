@@ -26,7 +26,9 @@ using Activator=System.Activator;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Access point to a single <see cref="Key"/> resolving.
+  /// Single access point allowing to run LINQ queries,
+  /// create future (delayed) and compiled queries,
+  /// and finally, resolve <see cref="Key"/>s to <see cref="Entity">entities</see>.
   /// </summary>
   public static class Query
   {
