@@ -489,14 +489,16 @@ namespace Xtensive.Storage
         Session.NotifyKeyGenerated(Key);
       Session.NotifyEntityCreated(this);
 
-      using (var context = OpenOperationContext()) {
-        if (context.IsLoggingEnabled) {
-          context.LogOperation(new KeyGenerateOperation(Key));
-          context.LogOperation(new EntityCreateOperation(Key));
+      using (var operationContext = OpenOperationContext()) {
+        // BindCtorTransactionScopeToOperationContext(operationContext);
+        if (operationContext.IsLoggingEnabled) {
+          operationContext.LogOperation(new KeyGenerateOperation(Key));
+          operationContext.LogOperation(new EntityCreateOperation(Key));
         }
-        context.Complete();
+        IdentifyAs(EntityIdentifierType.Auto);
+        operationContext.Complete();
       }
-      IdentifyAs(EntityIdentifierType.Auto);
+
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializingPersistentEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
