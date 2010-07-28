@@ -314,25 +314,24 @@ namespace Xtensive.Storage.Providers.Sql
       var rootSelectProvider = RootProvider as SelectProvider;
       var currentIsRoot = RootProvider==provider;
       if (currentIsRoot || (rootSelectProvider!=null && rootSelectProvider.Source==provider)) {
-        if (query.OrderBy.Count==0) {
-          if (currentIsRoot) {
-            foreach (KeyValuePair<int, Direction> pair in provider.Header.Order)
-              query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
-          }
-          else {
-            var columnExpressions = ExtractColumnExpressions(query, provider);
-            var shouldUseColumnPosition = provider.Header.Order.Any(o => o.Key >= columnExpressions.Count);
-            if (shouldUseColumnPosition)
-              foreach (KeyValuePair<int, Direction> pair in provider.Header.Order) {
-                if (pair.Key >= columnExpressions.Count)
-                  query.OrderBy.Add(pair.Key + 1, pair.Value==Direction.Positive);
-                else
-                  query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
-              }
-            else
-              foreach (KeyValuePair<int, Direction> pair in provider.Header.Order)
+        query.OrderBy.Clear(); 
+        if (currentIsRoot) {
+          foreach (KeyValuePair<int, Direction> pair in provider.Header.Order)
+            query.OrderBy.Add(query.Columns[pair.Key], pair.Value==Direction.Positive);
+        }
+        else {
+          var columnExpressions = ExtractColumnExpressions(query, provider);
+          var shouldUseColumnPosition = provider.Header.Order.Any(o => o.Key >= columnExpressions.Count);
+          if (shouldUseColumnPosition)
+            foreach (KeyValuePair<int, Direction> pair in provider.Header.Order) {
+              if (pair.Key >= columnExpressions.Count)
+                query.OrderBy.Add(pair.Key + 1, pair.Value==Direction.Positive);
+              else
                 query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
-          }
+            }
+          else
+            foreach (KeyValuePair<int, Direction> pair in provider.Header.Order)
+              query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
         }
       }
       return CreateProvider(query, provider, compiledSource);
