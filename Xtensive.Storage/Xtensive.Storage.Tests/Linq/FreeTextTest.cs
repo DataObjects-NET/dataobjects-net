@@ -122,6 +122,39 @@ namespace Xtensive.Storage.Tests.Linq
       var list = result.ToList();
     }
 
+    [Test]
+    public void JoinCategory3Test()
+    {
+
+      /*[23.07.2010 13:56:17] Alexander Ustinov:         (from ftx in (
+                            from ft in Query.FreeText<Data.Common.FullTextRecord>(() => "мегаполис тюмень центральный горького корп")
+                            where ft.Entity.ObjectType==typeof (Data.Rng.Customer).FullName
+                            select new {ft.Rank, ft.Entity}
+                          )
+              join customer in Query.All<Data.Rng.Customer>() on ftx.Entity.ObjectId equals customer.Id
+              from gasObject in Query.All<Data.Rng.GasObject>().Where(go => go.Customer==customer).DefaultIfEmpty()
+              select new RngCustomerBriefInfo {
+                ID = customer.Id,
+                Rank = ftx.Rank,
+                Number = gasObject==null ? String.Empty : gasObject.AccountNumber,
+                Name = customer.Name,
+                Address = AbonentMatchDataProvider.GetGasObjectAddress(gasObject)
+              }).Take(100).OrderByDescending(i => i.Rank).OrderByDescending(i => i.ID);*/
+      var keywords = "lager";
+      var result = (
+          from ft in Query.FreeText<Product>(keywords)
+          where ft.Entity.ProductName != typeof(Product).Name
+          join c in Query.All<Category>() on ft.Entity.Category equals c
+          select new {ID = c.Id, Rank = ft.Rank, Name = ft.Entity.ProductName}
+        ).Take(100).OrderByDescending(i => i.Rank).ThenByDescending(i => i.ID);
+//      var result = Query.FreeText<Product>(keywords)
+//        .Where(p => p.Entity.ProductName != typeof(Product).Name)
+//        .Join(Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new { p.Rank, c })
+//        .OrderBy(@t => @t.Rank)
+//        .Select(@t => new { Id = @t.c.Id, Name = @t.c.CategoryName, Rank = @t.Rank });
+      var list = result.ToList();
+    }
+
     private static string GetProductDescription(Product p)
     {
       return p.ProductName + ":" + p.UnitPrice;
