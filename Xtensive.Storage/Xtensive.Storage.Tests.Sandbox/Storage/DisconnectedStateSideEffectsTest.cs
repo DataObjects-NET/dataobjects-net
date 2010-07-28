@@ -71,6 +71,9 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
   [HierarchyRoot]
   public class Author : Entity
   {
+    public readonly static string Error = "error";
+    public readonly static string Famous = "famous";
+
     [Key, Field]
     public int Id { get; private set; }
 
@@ -90,6 +93,18 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     {
       return Title;
     }
+
+    public Author(string title)
+    {
+      Title = title;
+      if (title.ToLower().Contains(Error))
+        throw new ArgumentException("Title is wrong.", "title");
+      if (title.ToLower().Contains(Famous)) {
+        var book = new Book() {
+          Title = "A book of famous author '{0}'".FormatWith(title)
+        };
+      }
+    }
   }
 
   [TestFixture]
@@ -105,7 +120,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
       return configuration;
     }
 
-    protected override Domain  BuildDomain(DomainConfiguration configuration)
+    protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
       using (var session = Session.Open(domain))
@@ -160,12 +175,12 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
       using (var session = Session.Open(Domain))
       using (ds.Attach(session))
       using (ds.Connect()) {
-        var author = new Author();
+        var author = new Author("Author");
       }
     }
 
     [Test]
-    public void CreateNewEntitiesAsSideEffectTest()
+    public void CreateNewEntitiesAsSetFieldSideEffectTest()
     {
       var ds = new DisconnectedState();
       using (var session = Session.Open(Domain))
@@ -187,6 +202,33 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
           Assert.IsNotNull(vol1);
           Assert.IsNotNull(vol2);
           Assert.IsNull(vol3);
+        }
+        // tx.Complete();
+      }
+    }
+
+    [Test]
+    public void CreateNewEntitiesAsCtorSideEffectTest()
+    {
+      var ds = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          var author1 = new Author("Author 1");
+          AssertEx.ThrowsArgumentException(() => new Author("Author 2 ({0})".FormatWith(Author.Error)));
+          var author3 = new Author("Author 3 ({0})".FormatWith(Author.Famous));
+          ds.ApplyChanges();
+        }
+        {
+          var author1 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();
+          var author2 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 2")).SingleOrDefault();
+          var author3 = Query.All<Author>().Where(b => b.Title.StartsWith("Author 3")).SingleOrDefault();
+          var author3book = Query.All<Book>().Where(b => b.Title.Contains("Author 3")).SingleOrDefault();
+          Assert.IsNotNull(author1);
+          Assert.IsNull(author2);
+          Assert.IsNotNull(author3);
+          Assert.IsNotNull(author3book);
         }
         // tx.Complete();
       }
