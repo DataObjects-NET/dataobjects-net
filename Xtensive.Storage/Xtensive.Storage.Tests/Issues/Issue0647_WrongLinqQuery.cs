@@ -82,6 +82,60 @@ namespace Xtensive.Storage.Tests.Issues
       public string DisplayName { get; set; }
     }
 
+    [HierarchyRoot]
+    public class RowLevelPermission : EntityBase
+    {
+      public RowLevelPermission(Guid id)
+        : base(id)
+      {
+      }
+
+      [Field(Length = 400, Nullable = false)]
+      public string Name { get; set; }
+
+      [Field(Nullable = false)]
+      public Role Role { get; set; }
+
+      [Field]
+      [Association(PairTo = "Owner")]
+      public EntitySet<MlRowlevelPermissionDocEntityField> Fields { get; private set; }
+
+      [HierarchyRoot]
+      public class MlRowlevelPermissionDocEntityField : Multilink<RowLevelPermission, Document>
+      {
+        /// <summary>Initializes a new instance of the <see cref="Multilink{TOwner,TLinked}"/> class.</summary>
+        /// <param name="id">Идентификатор создаваемого элемента.</param>
+        public MlRowlevelPermissionDocEntityField(Guid id)
+          : base(id)
+        {
+        }
+      }
+    }
+
+    [Serializable]
+    public abstract class Multilink<TOwner, TLinked> : EntityBase
+      where TOwner : EntityBase
+      where TLinked : EntityBase
+    {
+      protected Multilink(Guid id)
+        : base(id)
+      {
+      }
+
+      [Field]
+      [Association(OnOwnerRemove = OnRemoveAction.Clear, OnTargetRemove = OnRemoveAction.Cascade)]
+      public TOwner Owner { get; set; }
+
+      [Field]
+      [Association(OnOwnerRemove = OnRemoveAction.Clear, OnTargetRemove = OnRemoveAction.Deny)]
+      public TLinked Linked { get; set; }
+
+      public override string ToString()
+      {
+        return string.Format("{0}, Owner: {1}, Linked: {2}", base.ToString(), Owner, Linked);
+      }
+    }
+
 
     [HierarchyRoot]
     [Index("Role", "Entity", Unique = true)]
@@ -137,11 +191,6 @@ namespace Xtensive.Storage.Tests.Issues
       {
         var effectiveEntity = entity;
 
-        //var q = from role in Query.All<Role>()
-        //        join perm in Query.All<FunctionalPermission>() on role equals perm.Role
-        //        where role.Name.In(roles) && perm.Entity.SysName == effectiveEntity
-        //        select perm;
-
         var q = from perm in Query.All<FunctionalPermission>()
                 where perm.Role.Name.In(roles) && perm.Entity.SysName == effectiveEntity
                 select perm;
@@ -185,22 +234,18 @@ namespace Xtensive.Storage.Tests.Issues
 
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        //var u = Query.All<User>().First();
-
         Assert.IsFalse(FunctionalPermission.CanRead("Control", new string[] { }));
-
-        //var r1 = Query.Single<Role>(globalId);
-        //u.Roles.Add(new User.MlUserRole(Guid.NewGuid()) { Owner = u, Linked = r1 });
-
         Assert.IsTrue(FunctionalPermission.CanRead("Control", new[] { "1" }));
         Assert.IsFalse(FunctionalPermission.CanControl("Control", new[] { "1" }));
-
-        //var r2 = Query.Single<Role>(globalId2);
-        //u.Roles.Add(new User.MlUserRole(Guid.NewGuid()) { Owner = u, Linked = r2 });
-
         Assert.IsFalse(FunctionalPermission.CanCreate("Control", new[] { "1", "2" }));
         Assert.IsFalse(FunctionalPermission.CanRead("Control", new[] { "1", "2" }));
         Assert.IsTrue(FunctionalPermission.CanDelete("Control", new[] { "1", "2" }));
+
+        var roles = new[] { "1", "2" };
+        var q = from perm in Query.All<RowLevelPermission>()
+                where perm.Role.Name.In(roles) && perm.Fields.Any(m => m.Linked.SysName == "Control")
+                select perm;
+        var result = q.ToList();
       }
     }
   }
