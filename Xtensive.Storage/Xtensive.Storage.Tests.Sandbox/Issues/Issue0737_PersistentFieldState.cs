@@ -8,52 +8,45 @@ using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Issues.Issue0764_LinqTranslationError_Model;
+using Xtensive.Storage.Tests.Issues.Issue0733_UseINNER_JOIN_Model;
 using System.Linq;
 
 namespace Xtensive.Storage.Tests.Issues
 {
-  namespace Issue0764_LinqTranslationError_Model
+  namespace Issue0733_UseINNER_JOIN_Model
   {
-    [Serializable]
     [HierarchyRoot]
-    public class MyEntity : Entity
+    public class Person : Entity
     {
-      [Field, Key]
+      [Key,Field]
       public int Id { get; private set; }
 
       [Field]
-      public string Text { get; set; }
+      public string Name { get; set; }
 
-      [Field, Association(PairTo = "LinkSource", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
-      public EntitySet<Link> LinksFromThis { get; private set; }
-
-      [Field, Association(PairTo = "LinkDestination", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
-      public EntitySet<Link> LinksToThis { get; private set; }
+      [Field(Nullable = false)]
+      public City City { get; set; }
     }
 
     [HierarchyRoot]
-    public class Link : Entity
+    public class City : Entity
     {
-      [Field, Key]
-      public long Id { get; private set; }
+      [Key,Field]
+      public int Id { get; private set; }
 
       [Field]
-      public MyEntity LinkSource { get; set; }
-
-      [Field]
-      public MyEntity LinkDestination { get; set; }
+      public string Name { get; set; }
     }
   }
 
   [Serializable]
-  public class Issue0764_LinqTranslationError : AutoBuildTest
+  public class Issue0733_UseINNER_JOIN : AutoBuildTest
   {
 
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof(MyEntity).Assembly, typeof(MyEntity).Namespace);
+      config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       return config;
     }
 
@@ -62,16 +55,17 @@ namespace Xtensive.Storage.Tests.Issues
     {
       using (var session = Session.Open(Domain))
       using (var t = Transaction.Open()) {
-        var source = new MyEntity() { Text = "Source" };
-        var destination = new MyEntity() { Text = "Destination" };
-        var link = new Link() {LinkSource = source, LinkDestination = destination};
+        var msk = new City() {Name = "Moscow"};
+        var ekb = new City() {Name = "Yekaterinburg"};
+        for (int i = 0; i < 1000; i++) {
+          new Person() {Name = "Alex " + i, City = msk};
+          new Person() {Name = "Ivan " + i, City = ekb};
+        }
 
-        var query = 
-          from l in Query.All<Link>()
-          where l.LinkSource == source && l.LinkDestination.Text == "Destination"
-          select l.LinkDestination;
-
-        query.ToList();
+        var list = Query.All<Person>()
+          .OrderBy(p => p.City.Name)
+          .Take(100)
+          .ToList();
       }
     }
   }
