@@ -86,13 +86,8 @@ namespace Xtensive.Storage.Building.Definitions
     public HierarchyDef FindHierarchy(TypeDef item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
-
-      var candidate = item;
-
-      foreach (var hierarchy in Hierarchies)
-        if (hierarchy.Root.UnderlyingType.IsAssignableFrom(item.UnderlyingType))
-          return hierarchy;
-      return null;
+      return Hierarchies
+        .FirstOrDefault(hierarchy => hierarchy.Root.UnderlyingType.IsAssignableFrom(item.UnderlyingType));
     }
 
     private void OnTypesCleared(object sender, ChangeNotifierEventArgs e)
