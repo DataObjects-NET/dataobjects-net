@@ -659,18 +659,35 @@ namespace Xtensive.Storage
     /// </summary>
     protected Entity()
     {
-      var key = Key.Create(Session.Domain, GetType());
-      State = Session.CreateEntityState(key);
-      SystemBeforeInitialize(false);
+      try {
+        var key = Key.Create(Session.Domain, GetType());
+        State = Session.CreateEntityState(key);
+        SystemBeforeInitialize(false);
+      }
+      catch (Exception error) {
+        InitializationError(GetType(), error); 
+        // GetType() call is correct here: no code will be executed further,
+        // if base constructor will fail, but since descendant's constructor is aspected,
+        // we must "simulate" its own call of InitializationError method.
+        throw;
+      }
     }
 
     // Is used for EntitySetItem<,> instance construction
+    [Infrastructure]
     internal Entity(Tuple keyTuple)
     {
-      ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
-      var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
-      State = Session.CreateEntityState(key);
-      SystemBeforeInitialize(false);
+      try {
+        ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
+        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
+        State = Session.CreateEntityState(key);
+        SystemBeforeInitialize(false);
+        Initialize(GetType());
+      }
+      catch (Exception error) {
+        InitializationError(GetType(), error); 
+        throw;
+      }
     }
 
     /// <summary>
@@ -692,21 +709,32 @@ namespace Xtensive.Storage
     /// </example>
     protected Entity(params object[] values)
     {
-      ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      Key key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
-      State = Session.CreateEntityState(key);
-      var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
-      if (references.Count > 0)
-        using (Session.Pin(this))
-        foreach (var referenceField in references) {
-          var referenceValue = (Entity) GetFieldValue(referenceField);
-          using (var silentContext = OpenOperationContext()) {
-            Session.PairSyncManager.ProcessRecursively(
-              null, OperationType.Set, referenceField.Association, this, referenceValue, null);
-            // No silentContext.Complete() - we must silently skip all these operations
+      try {
+        ArgumentValidator.EnsureArgumentNotNull(values, "values");
+        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
+        State = Session.CreateEntityState(key);
+        var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
+        if (references.Count > 0) {
+          using (Session.Pin(this)) {
+            foreach (var referenceField in references) {
+              var referenceValue = (Entity) GetFieldValue(referenceField);
+              using (var silentContext = OpenOperationContext()) {
+                Session.PairSyncManager.ProcessRecursively(
+                  null, OperationType.Set, referenceField.Association, this, referenceValue, null);
+                // No silentContext.Complete() - we must silently skip all these operations
+              }
+            }
           }
         }
-      SystemBeforeInitialize(false);
+        SystemBeforeInitialize(false);
+      }
+      catch (Exception error) {
+        InitializationError(GetType(), error); 
+        // GetType() call is correct here: no code will be executed further,
+        // if base constructor will fail, but since descendant's constructor is aspected,
+        // we must "simulate" its own call of InitializationError method.
+        throw;
+      }
     }
 
     /// <summary>
