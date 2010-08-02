@@ -90,48 +90,39 @@ namespace Xtensive.Storage.Providers.Sql
     public List<SqlExpression> ExtractColumnExpressions(SqlSelect query, CompilableProvider origin)
     {
       var result = new List<SqlExpression>(query.Columns.Count);
-      var shouldUseQueryColumns = false;
-      if (origin.Sources.Any(i => i.Type == ProviderType.Index))
-        shouldUseQueryColumns |= true;
-      shouldUseQueryColumns |= origin.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Join, ProviderType.Filter, ProviderType.Index, ProviderType.RowNumber)
-        && query.Columns.Count != query.From.Columns.Count;
-      if (query.Columns.Any(IsColumnStub) || query.GroupBy.Count > 0 || shouldUseQueryColumns) {
-        foreach (var column in query.Columns) {
-          SqlExpression expression;
-          if (IsColumnStub(column)) {
-            expression = stubColumnMap[ExtractColumnStub(column)];
-            var subQuery = expression as SqlSubQuery;
-            if (!subQuery.IsNullReference()) {
-              var subSelect = subQuery.Query as SqlSelect;
-              if (subSelect != null) {
-                if (subSelect.Columns.Count == 1 && subSelect.From == null) {
-                  var userColumn = subSelect.Columns[0] as SqlUserColumn;
-                  if (!userColumn.IsNullReference()) {
-                    var cast = userColumn.Expression as SqlCast;
-                    if (!cast.IsNullReference() &&  cast.Type.Type == SqlType.Boolean) {
-                      var sqlCase = cast.Operand as SqlCase;
-                      if(!sqlCase.IsNullReference() && sqlCase.Count == 1) {
-                        var pair = sqlCase.First();
-                        var key = pair.Key as SqlUnary;
-                        if (!key.IsNullReference() && pair.Value is SqlLiteral<int>)
-                          expression = cast;
-                      }
+      foreach (var column in query.Columns) {
+        SqlExpression expression;
+        if (IsColumnStub(column)) {
+          expression = stubColumnMap[ExtractColumnStub(column)];
+          var subQuery = expression as SqlSubQuery;
+          if (!subQuery.IsNullReference()) {
+            var subSelect = subQuery.Query as SqlSelect;
+            if (subSelect != null) {
+              if (subSelect.Columns.Count == 1 && subSelect.From == null) {
+                var userColumn = subSelect.Columns[0] as SqlUserColumn;
+                if (!userColumn.IsNullReference()) {
+                  var cast = userColumn.Expression as SqlCast;
+                  if (!cast.IsNullReference() &&  cast.Type.Type == SqlType.Boolean) {
+                    var sqlCase = cast.Operand as SqlCase;
+                    if(!sqlCase.IsNullReference() && sqlCase.Count == 1) {
+                      var pair = sqlCase.First();
+                      var key = pair.Key as SqlUnary;
+                      if (!key.IsNullReference() && pair.Value is SqlLiteral<int>)
+                        expression = cast;
                     }
                   }
                 }
               }
             }
           }
-          else
-            expression = column;
-          var columnRef = expression as SqlColumnRef;
-          if (!columnRef.IsNullReference())
-            expression = columnRef.SqlColumn;
-          result.Add(expression);
         }
+        else
+          expression = column;
+        var columnRef = expression as SqlColumnRef;
+        if (!columnRef.IsNullReference())
+          expression = columnRef.SqlColumn;
+        result.Add(expression);
       }
-      else
-        result.AddRange(query.From.Columns.Cast<SqlExpression>());
       return result;
     }
 

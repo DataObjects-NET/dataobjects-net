@@ -177,6 +177,8 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public bool IsRemoved {
       get {
+        if (Session == null || State == null)
+          return true;
         if (Session.IsPersisting)
           // Removed = "already removed from storage" here
           return State.IsNotAvailable;
@@ -489,6 +491,8 @@ namespace Xtensive.Storage
           .Invoke(subscriptionInfo.First);
       OnInitializationError(error);
 
+      if (State == null)
+        return;
       State.PersistenceState = PersistenceState.Removed;
       ((IInvalidatable)State).Invalidate();
       Session.EntityStateCache.Remove(State);

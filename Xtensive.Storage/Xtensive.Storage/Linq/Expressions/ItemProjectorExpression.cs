@@ -130,7 +130,9 @@ namespace Xtensive.Storage.Linq.Expressions
           return entityExpression;
         }
         if (e is EntityFieldExpression) {
-          var entityFieldExpression = (EntityFieldExpression) e;
+          var entityFieldExpression = (EntityFieldExpression)e;
+          if (entityFieldExpression.Entity != null)
+            return entityFieldExpression.Entity;
           var typeInfo = entityFieldExpression.PersistentType;
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
           var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(Context.GetNextAlias());
@@ -144,6 +146,11 @@ namespace Xtensive.Storage.Linq.Expressions
             : dataSource.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
           entityFieldExpression.RegisterEntityExpression(offset);
           return entityFieldExpression.Entity;
+        }
+        if (e is FieldExpression) {
+          var fe = (FieldExpression) e;
+          if (fe.ExtendedType==ExtendedExpressionType.Field)
+            return fe.RemoveOwner();
         }
         return null;
       })

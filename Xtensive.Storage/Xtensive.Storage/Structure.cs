@@ -13,6 +13,8 @@ using Xtensive.Core.Aspects;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
+using Xtensive.Storage.Serialization;
+using Xtensive.Storage.Services;
 using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Model;

@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issues.Issue0725.Model;
 using Xtensive.Core;
 
@@ -36,14 +37,14 @@ namespace Xtensive.Storage.Tests.Issues
   [TestFixture]
   public class Issue0725_DisconnectedStateDisconnectBugs : AutoBuildTest
   {
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(Unit).Assembly, typeof(Unit).Namespace);
       return configuration;
     }
 
-    protected override Domain BuildDomain(Configuration.DomainConfiguration configuration)
+    protected override Domain BuildDomain(DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
       using (var session = Session.Open(domain))

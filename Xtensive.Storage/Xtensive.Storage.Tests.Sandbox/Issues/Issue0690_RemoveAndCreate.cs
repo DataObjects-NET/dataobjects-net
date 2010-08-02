@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Issue0690_Model;
 
 namespace Xtensive.Storage.Tests.Issue0690_Model
@@ -46,7 +47,7 @@ namespace Xtensive.Storage.Tests.Issues
   [TestFixture]
   public class Issue0690_RemoveAndCreate : AutoBuildTest
   {
-    protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (Book).Assembly, typeof (Book).Namespace);

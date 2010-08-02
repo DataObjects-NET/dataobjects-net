@@ -194,7 +194,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the field value.
     /// </summary>
-    /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
     /// <returns>Field value.</returns>
     protected internal object GetFieldValue(string fieldName)
