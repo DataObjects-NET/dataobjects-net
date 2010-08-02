@@ -59,6 +59,8 @@ namespace Xtensive.Core.Aspects
       foreach (var constructor in type.GetConstructors()) {
         if (!constructor.IsPublic && !IsDefined(constructor, typeof(DebuggerNonUserCodeAttribute)))
           continue;
+        if (AspectHelper.IsInfrastructureMethod(constructor))
+          continue;
         var icea = hasInitializationErrorHandler 
           ? ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodDeclarer, InitializeMethodName, InitializationErrorMethodName)
           : ConstructorEpilogueAspect.ApplyOnce(constructor, initializeMethodDeclarer, InitializeMethodName);
