@@ -127,29 +127,29 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     public EntitySet<OrderDetail> Details { get; private set; }
 
     [Serializable]
-    class CreateOrderItemOperation : IOperation
+    class CreateOrderItemOperation : Operation
     {
       private Ref<Product> product;
       private Ref<Order> order;
       private readonly int count;
 
-      public string Title {
+      public override string Title {
         get { return "Create order item"; }
       }
 
-      public string Description {
+      public override string Description {
         get {
           return "{0}, Product = {1}, Order = {2}".FormatWith(Title, product, order);
         }
       }
 
-      public void Prepare(OperationExecutionContext context)
+      public override void Prepare(OperationExecutionContext context)
       {
         context.RegisterKey(product, false);
         context.RegisterKey(order, false);
       }
 
-      public void Execute(OperationExecutionContext context)
+      public override void Execute(OperationExecutionContext context)
       {
         var p = Query.Single<Product>(context.TryRemapKey(product));
         var o = Query.Single<Order>(context.TryRemapKey(order));

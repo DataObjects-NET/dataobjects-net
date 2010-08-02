@@ -792,7 +792,7 @@ Schema difference:
   <data name="EntityWithKeyXDoesNotExist" xml:space="preserve">
     <value>Entity with Key = '{0}' does not exist.</value>
   </data>
-	<data name="ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet" xml:space="preserve">
+  <data name="ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet" xml:space="preserve">
     <value>There is no current HttpRequest, or SessionManager is not bound to it yet.</value>
   </data>
   <data name="ExQueryContainsClosuresOfDifferentTypes" xml:space="preserve">
@@ -1113,7 +1113,7 @@ Schema difference:
   <data name="LogSessionXMaterializingYKeyZ" xml:space="preserve">
     <value>Session '{0}'. Materializing {1}: Key = '{2}'.</value>
   </data>
-  <data name="SessionXGettingValueKeyYFieldZ" xml:space="preserve">
+  <data name="LogSessionXGettingValueKeyYFieldZ" xml:space="preserve">
     <value>Session '{0}'. Getting value: Key = '{1}', Field = '{2}'.</value>
   </data>
   <data name="LogSessionXSettingValueKeyYFieldZ" xml:space="preserve">
@@ -1134,14 +1134,14 @@ Schema difference:
   <data name="LogSessionXResolvingKeyYKeyIsAlreadyResolved" xml:space="preserve">
     <value>Session '{0}'. Resolving key '{1}'. Key is already resolved.</value>
   </data>
-  <data name="SessionXCachingY" xml:space="preserve">
+  <data name="LogSessionXCachingY" xml:space="preserve">
     <value>Session '{0}'. Caching: {1}.</value>
   </data>
-  <data name="SessionXUpdatingCacheY" xml:space="preserve">
+  <data name="LogSessionXUpdatingCacheY" xml:space="preserve">
     <value>Session '{0}'. Updating cache: {1}.</value>
   </data>
   <data name="LogSessionXPersistingReasonY" xml:space="preserve">
-    <value>Session '{0}'. Persisting (reason: '{1}').</value>
+    <value>Session '{0}'. Persisting (reason: {1}).</value>
   </data>
   <data name="Partial" xml:space="preserve">
     <value>partial</value>
@@ -1451,39 +1451,45 @@ Schema difference:
     <value>Session '{0}'. DisconnectedState is disconnected</value>
   </data>
   <data name="LogSessionXDisconnectedStateApplyChanges">
-		<value>Session '{0}'. DisconnectedState.ApplyChanges</value>
-	</data>
-	<data name="Operations">
-		<value xml:space="preserve">Operations</value>
-	</data>
-	<data name="KeyMapping">
-		<value xml:space="preserve">Key mapping</value>
-	</data>
-	<data name="LogDisconnectedStateCancelChanges">
-		<value xml:space="preserve">DisconnectedState.CancelChanges</value>
-	</data>
-	<data name="LogChangesAreSuccessfullyApplied">
-		<value xml:space="preserve">Changes are successfully applied.</value>
-	</data>
-	<data name="ExKeyMustHaveExactType">
-		<value xml:space="preserve">Key must have exact type here.</value>
-	</data>
-	<data name="LogSyncContextMustHaveNoPendingActions">
-		<value xml:space="preserve">SyncContext must have no pending actions at this point.</value>
-	</data>
-	<data name="LogSessionXRemappingEntityKeys">
-		<value><![CDATA[Session '{0}'. Remapping entity keys.]]></value>
-	</data>
-	<data name="ExEntityIsAlreadyDetachedFromSession">
-		<value xml:space="preserve">Entity is already detached from Session. Likely, this is result of creation of new Entity with the same Key.</value>
-	</data>
-	<data name="ExUnableToCastItemOfTypeXToY">
-		<value><![CDATA[Unable to cast item of type '{0}' to '{1}' in queries.]]></value>
-	</data>
-	<data name="ExOriginIsNull">
-		<value xml:space="preserve">Origin is null.</value>
-	</data>
-	<data name="ExOriginIsNotNull">
-		<value xml:space="preserve">Origin is not null.</value>
-	</data>
+    <value>Session '{0}'. DisconnectedState.ApplyChanges</value>
+  </data>
+  <data name="Operations">
+    <value xml:space="preserve">Operations</value>
+  </data>
+  <data name="KeyMapping">
+    <value xml:space="preserve">Key mapping</value>
+  </data>
+  <data name="LogDisconnectedStateCancelChanges">
+    <value xml:space="preserve">DisconnectedState.CancelChanges</value>
+  </data>
+  <data name="LogChangesAreSuccessfullyApplied">
+    <value xml:space="preserve">Changes are successfully applied.</value>
+  </data>
+  <data name="ExKeyMustHaveExactType">
+    <value xml:space="preserve">Key must have exact type here.</value>
+  </data>
+  <data name="LogSyncContextMustHaveNoPendingActions">
+    <value xml:space="preserve">SyncContext must have no pending actions at this point.</value>
+  </data>
+  <data name="LogSessionXRemappingEntityKeys">
+    <value><![CDATA[Session '{0}'. Remapping entity keys.]]></value>
+  </data>
+  <data name="ExEntityIsAlreadyDetachedFromSession">
+    <value xml:space="preserve">Entity is already detached from Session. Likely, this is result of creation of new Entity with the same Key.</value>
+  </data>
+  <data name="ExUnableToCastItemOfTypeXToY">
+    <value><![CDATA[Unable to cast item of type '{0}' to '{1}' in queries.]]></value>
+  </data>
+  <data name="ExOriginIsNull">
+    <value xml:space="preserve">Origin is null.</value>
+  </data>
+  <data name="ExOriginIsNotNull">
+    <value xml:space="preserve">Origin is not null.</value>
+  </data>
+  <data name="ExOnlyOnePrimaryOperationCanBeLogged">
+    <value xml:space="preserve">Only one primary operation can be logged by each OperationContext instance.</value>
+  </data>
+  <data name="LogSessionXEntityWithKeyYIdentifiedAsZ">
+    <value>Session '{0}'. Identifying entity: Key = '{1}', identified as '{2}'.</value>
+  </data>
 </root>

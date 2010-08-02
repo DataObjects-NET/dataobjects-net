@@ -1905,6 +1905,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only one primary operation can be logged by each OperationContext instance..
+        /// </summary>
+        internal static string ExOnlyOnePrimaryOperationCanBeLogged {
+            get {
+                return ResourceManager.GetString("ExOnlyOnePrimaryOperationCanBeLogged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}.{1}&apos; OnOwnerRemove action is not equal to &apos;{2}.{3}&apos; OnTargetRemove action..
         /// </summary>
         internal static string ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction {
@@ -3619,6 +3628,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Caching: {1}..
+        /// </summary>
+        internal static string LogSessionXCachingY {
+            get {
+                return ResourceManager.GetString("LogSessionXCachingY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Session &apos;{0}&apos;. Committed transaction..
         /// </summary>
         internal static string LogSessionXCommittedTransaction {
@@ -3682,6 +3700,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Identifying entity: Key = &apos;{1}&apos;, identified as &apos;{2}&apos;..
+        /// </summary>
+        internal static string LogSessionXEntityWithKeyYIdentifiedAsZ {
+            get {
+                return ResourceManager.GetString("LogSessionXEntityWithKeyYIdentifiedAsZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Getting value: Key = &apos;{1}&apos;, Field = &apos;{2}&apos;..
+        /// </summary>
+        internal static string LogSessionXGettingValueKeyYFieldZ {
+            get {
+                return ResourceManager.GetString("LogSessionXGettingValueKeyYFieldZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Session &apos;{0}&apos;. Invalidate..
         /// </summary>
         internal static string LogSessionXInvalidate {
@@ -3718,7 +3754,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Persisting (reason: &apos;{1}&apos;)..
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Persisting (reason: {1})..
         /// </summary>
         internal static string LogSessionXPersistingReasonY {
             get {
@@ -3804,6 +3840,15 @@ namespace Xtensive.Storage.Resources {
         internal static string LogSessionXTransaction {
             get {
                 return ResourceManager.GetString("LogSessionXTransaction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Updating cache: {1}..
+        /// </summary>
+        internal static string LogSessionXUpdatingCacheY {
+            get {
+                return ResourceManager.GetString("LogSessionXUpdatingCacheY", resourceCulture);
             }
         }
         
@@ -3967,33 +4012,6 @@ namespace Xtensive.Storage.Resources {
         internal static string SchemaComparisonResultFormat {
             get {
                 return ResourceManager.GetString("SchemaComparisonResultFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Caching: {1}..
-        /// </summary>
-        internal static string SessionXCachingY {
-            get {
-                return ResourceManager.GetString("SessionXCachingY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Getting value: Key = &apos;{1}&apos;, Field = &apos;{2}&apos;..
-        /// </summary>
-        internal static string SessionXGettingValueKeyYFieldZ {
-            get {
-                return ResourceManager.GetString("SessionXGettingValueKeyYFieldZ", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Updating cache: {1}..
-        /// </summary>
-        internal static string SessionXUpdatingCacheY {
-            get {
-                return ResourceManager.GetString("SessionXUpdatingCacheY", resourceCulture);
             }
         }
         

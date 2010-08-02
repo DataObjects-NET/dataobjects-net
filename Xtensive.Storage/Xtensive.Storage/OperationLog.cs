@@ -55,7 +55,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public KeyMapping Replay(Session session)
     {
-      var operationContext = new OperationExecutionContext(session);
+      var executionContext = new OperationExecutionContext(session);
       KeyMapping keyMapping = null;
       Transaction transaction = null;
       using (session.Activate()) {
@@ -63,16 +63,33 @@ namespace Xtensive.Storage
           transaction = tx.Transaction;
 
           foreach (var operation in operations)
-            operation.Prepare(operationContext);
+            operation.Prepare(executionContext);
 
-          operationContext.KeysToPrefetch
+          executionContext.KeysToPrefetch
             .Prefetch()
             .Run();
 
-          foreach (var operation in operations)
-            operation.Execute(operationContext);
+          foreach (var operation in operations) {
+            var identifierToKey = new Dictionary<string, Key>();
+            var handler = new EventHandler<OperationEventArgs>((sender, e) => {
+              foreach (var pair in e.Operation.IdentifiedEntities)
+                identifierToKey.Add(pair.Key, pair.Value);
+            });
 
-          keyMapping = new KeyMapping(operationContext.KeyMapping);
+            session.OperationCompleted += handler;
+            operation.Execute(executionContext);
+            session.OperationCompleted -= handler;
+
+            foreach (var pair in operation.IdentifiedEntities) {
+              string identifier = pair.Key;
+              var oldKey = pair.Value;
+              var newKey = identifierToKey.GetValueOrDefault(identifier);
+              if (newKey!=null)
+                executionContext.AddKeyMapping(oldKey, newKey);
+            }
+          }
+
+          keyMapping = new KeyMapping(executionContext.KeyMapping);
 
           tx.Complete();
         }
@@ -90,10 +107,8 @@ namespace Xtensive.Storage
     public override string ToString()
     {
       var sb = new StringBuilder("{0}:\r\n".FormatWith(Strings.Operations));
-      foreach (var o in operations) {
-        sb.Append("  ");
-        sb.AppendLine(o.ToString());
-      }
+      foreach (var o in operations)
+        sb.AppendLine(o.ToString().Indent(2));
       return sb.ToString().Trim();
     }
 

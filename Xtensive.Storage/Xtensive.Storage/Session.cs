@@ -187,9 +187,9 @@ namespace Xtensive.Storage
 
     internal CompilationContext CompilationContext { get { return Handlers.DomainHandler.CompilationContext; } }
 
-    internal IOperationContext CurrentOperationContext { get; set; }
+    internal OperationContext CurrentOperationContext { get; set; }
 
-    internal IOperationContext BlockingOperationContext { get; private set; }
+    internal BlockingOperationContext BlockingOperationContext { get; private set; }
 
     internal bool IsDelayedQueryRunning { get; private set; }
 

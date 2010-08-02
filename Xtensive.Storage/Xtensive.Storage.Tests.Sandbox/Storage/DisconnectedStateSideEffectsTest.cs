@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Operations;
 
 namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
 {
@@ -18,6 +19,10 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
   [HierarchyRoot]
   public class Book : Entity
   {
+    public readonly static string Volume1Suffix = string.Empty;
+    public readonly static string Volume2Suffix = " - Vol. 2";
+    public readonly static string Volume3Suffix = " - Vol. 3";
+
     [Key, Field]
     public int Id { get; private set; }
 
@@ -32,6 +37,26 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
       base.OnSetFieldValue(field, oldValue, newValue);
       if (field.Name=="Version")
         return;
+      if (field.Name=="Title") {
+        var newTitle = ((string) newValue);
+        if (newTitle.EndsWith(Volume2Suffix)) {
+          var vol1 = new Book {
+            Title = newTitle.Substring(0, newTitle.Length - Volume2Suffix.Length) + Volume1Suffix
+          };
+          var vol3 = new Book {
+            Title = newTitle.Substring(0, newTitle.Length - Volume2Suffix.Length) + Volume3Suffix
+          };
+          // A lot of .IdentifyAs - to test all branches there
+          vol1.IdentifyAs("ToBeCreated");
+          vol3.IdentifyAs("ToBeCreated");
+          vol1.IdentifyAs(EntityIdentifierType.None);
+          vol3.IdentifyAs(EntityIdentifierType.None);
+          vol1.IdentifyAs("ToBeCreated");
+          vol3.IdentifyAs("ToBeCreated");
+          vol1.IdentifyAs(EntityIdentifierType.Auto);
+          vol3.IdentifyAs("ToBeRemoved");
+        }
+      }
       if (!Session.IsDisconnected)
         Version++;
     }
@@ -70,6 +95,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
   [TestFixture]
   public class DisconnectedStateSideEffectsTest : AutoBuildTest
   {
+    private const string DataObjectsNetManual = "DataObjects.Net Manual";
     private const string NewBookTitle = "New Book";
 
     protected override DomainConfiguration BuildConfiguration()
@@ -135,6 +161,34 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
       using (ds.Attach(session))
       using (ds.Connect()) {
         var author = new Author();
+      }
+    }
+
+    [Test]
+    public void CreateNewEntitiesAsSideEffectTest()
+    {
+      var ds = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          var vol2 = Query.All<Book>().First();
+          vol2.Title = DataObjectsNetManual + Book.Volume2Suffix;
+          var vol1 = ds.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume1Suffix)).Single();
+          var vol3 = ds.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume3Suffix)).Single();
+          vol1.Title += "+";
+          vol3.Remove();
+          ds.ApplyChanges();
+        }
+        {
+          var vol1 = Query.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume1Suffix + "+")).SingleOrDefault();
+          var vol2 = Query.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume2Suffix)).SingleOrDefault();
+          var vol3 = Query.All<Book>().Where(b => b.Title==(DataObjectsNetManual + Book.Volume3Suffix)).SingleOrDefault();
+          Assert.IsNotNull(vol1);
+          Assert.IsNotNull(vol2);
+          Assert.IsNull(vol3);
+        }
+        // tx.Complete();
       }
     }
   }
