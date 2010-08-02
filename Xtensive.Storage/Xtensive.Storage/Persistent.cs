@@ -38,8 +38,8 @@ namespace Xtensive.Storage
     IDataErrorInfo,
     IUsesSystemLogicOnlyRegions
   {
-    [DebuggerDisplay("Id = {Id}")]
-    private class CtorTransactionInfo
+    // [DebuggerDisplay("Id = {Id}")]
+    private sealed class CtorTransactionInfo
     {
       [ThreadStatic]
       public static CtorTransactionInfo Current;
@@ -48,6 +48,7 @@ namespace Xtensive.Storage
       // public int Id;
       public TransactionScope TransactionScope;
       public InconsistentRegion InconsistentRegion;
+      public CtorTransactionInfo Previous;
 
       public CtorTransactionInfo()
       {
@@ -192,7 +193,6 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the field value.
     /// </summary>
-    /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
     /// <returns>Field value.</returns>
     protected internal object GetFieldValue(string fieldName)
@@ -762,6 +762,47 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected void InitializationError(Type ctorType, Exception error)
     {
+      var type = GetType();
+      if (ctorType != type)
+        return;
+      try {
+        SystemInitializationError(error);
+      }
+      finally {
+        LeaveCtorTransactionScope(false);
+      }
+    }
+
+    #endregion
+
+    #region Initialization on materialization
+
+    /// <summary>
+    /// Initializes this instance on materialization.
+    /// </summary>
+    [Infrastructure]
+    protected void InitializeOnMaterialize()
+    {
+      var successfully = false;
+      try {
+        SystemInitialize(true);
+        successfully = true;
+      }
+      finally {
+        LeaveCtorTransactionScope(successfully);
+      }
+    }
+
+    /// <summary>
+    /// Called on initialization error on materialization.
+    /// </summary>
+    /// <param name="error">The error that happened on initialization.</param>
+    /// <remarks>
+    /// This method is called when custom constructor is finished.
+    /// </remarks>
+    [Infrastructure]
+    protected void InitializationErrorOnMaterialize(Exception error)
+    {
       try {
         SystemInitializationError(error);
       }
@@ -776,14 +817,12 @@ namespace Xtensive.Storage
 
     internal void EnterCtorTransactionScope()
     {
-      var cti = CtorTransactionInfo.Current;
-      if (cti != null)
-        return;
       CtorTransactionInfo.Current = new CtorTransactionInfo() {
         TransactionScope = Transaction.Current == null
           ? Transaction.Open()
           : null,
-        InconsistentRegion = Validation.Disable(Session)
+        InconsistentRegion = Validation.Disable(Session),
+        Previous = CtorTransactionInfo.Current,
       };
     }
 
@@ -792,7 +831,7 @@ namespace Xtensive.Storage
       var cti = CtorTransactionInfo.Current;
       if (cti == null)
         return;
-      CtorTransactionInfo.Current = null;
+      CtorTransactionInfo.Current = cti.Previous;
       try {
         if (successfully)
           try {
