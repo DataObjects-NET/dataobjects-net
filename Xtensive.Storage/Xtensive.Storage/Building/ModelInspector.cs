@@ -29,6 +29,19 @@ namespace Xtensive.Storage.Building
       }
     }
 
+    public static void InspectAbstractTypes()
+    {
+      var context = BuildingContext.Demand();
+      foreach (var typeDef in context.ModelDef.Types.Where(td => td.IsAbstract)) {
+        var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
+        if (hierarchyDef != null) {
+          var node = context.DependencyGraph.TryGetNode(typeDef);
+          if (node == null || !node.IncomingEdges.Any(e => e.Kind == EdgeKind.Inheritance))
+            throw new DomainBuilderException(string.Format("Abstract class {0} does not have registered implementors.", typeDef.Name));
+        }
+      }
+    }
+
     private static void InspectHierarchies()
     {
       foreach (var hierarchy in BuildingContext.Demand().ModelDef.Hierarchies)
