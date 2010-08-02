@@ -804,7 +804,9 @@ namespace Xtensive.Storage
     {
       bool successfully = false;
       try {
-        DeserializationContext.Demand().SetObjectData(this, info, context);
+        using (this.OpenSystemLogicOnlyRegion()) {
+          DeserializationContext.Demand().SetObjectData(this, info, context);
+        }
         successfully = true;
       }
       finally {
