@@ -17,6 +17,8 @@ using Xtensive.Integrity.Validation;
 using Xtensive.Storage.Aspects;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Serialization;
+using Xtensive.Storage.Services;
 
 namespace Xtensive.Storage
 {
@@ -359,14 +361,9 @@ namespace Xtensive.Storage
     /// </summary>
     protected Structure()
     {
-      try {
-        typeInfo = GetTypeInfo();
-        tuple = typeInfo.TuplePrototype.Clone();
-      }
-      catch {
-        LeaveCtorTransactionScope(false);
-        throw;
-      }
+      typeInfo = GetTypeInfo();
+      tuple = typeInfo.TuplePrototype.Clone();
+      SystemBeforeInitialize(false);
     }
 
     /// <summary>
@@ -375,14 +372,9 @@ namespace Xtensive.Storage
     /// <param name="data">Underlying <see cref="Tuple"/> value.</param>
     protected Structure(Tuple data)
     {
-      try {
-        typeInfo = GetTypeInfo();
-        tuple = data;
-      }
-      catch {
-        LeaveCtorTransactionScope(false);
-        throw;
-      }
+      typeInfo = GetTypeInfo();
+      tuple = data;
+      SystemBeforeInitialize(false);
     }
 
     /// <summary>
@@ -391,9 +383,9 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="owner">The owner of this instance.</param>
     /// <param name="field">The owner field that describes this instance.</param>
+    [Infrastructure]
     protected Structure(Persistent owner, FieldInfo field)
     {
-      bool successfully = false;
       try {
         typeInfo = GetTypeInfo();
         Owner = owner;
@@ -403,21 +395,27 @@ namespace Xtensive.Storage
         else
           tuple = field.ExtractValue(
             new ReferencedTuple(() => Owner.Tuple));
-        SystemBeforeInitialize(false);
-        successfully = true;
+        SystemBeforeInitialize(true);
+        Initialize(GetType());
       }
-      finally {
-        // Required, since generated .ctors in descendants 
-        // don't call Initialize / InitializationFailed
-        LeaveCtorTransactionScope(successfully);
+      catch (Exception error) {
+        InitializationError(GetType(), error);
+        throw;
       }
     }
 
     /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    [Infrastructure]
     protected Structure(SerializationInfo info, StreamingContext context)
     {
-      // TODO: Implement!
-      throw new NotImplementedException();
+      bool successfully = false;
+      try {
+        DeserializationContext.Demand().SetObjectData(this, info, context);
+        successfully = true;
+      }
+      finally {
+        LeaveCtorTransactionScope(successfully);
+      }
     }
   }
 }

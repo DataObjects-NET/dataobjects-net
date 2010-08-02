@@ -6,15 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC;
-using Xtensive.Integrity.Validation;
-using Xtensive.Storage.Model;
-using Xtensive.Storage.Resources;
-using Xtensive.Storage.Serialization;
 
 namespace Xtensive.Storage.Serialization
 {
@@ -24,11 +18,12 @@ namespace Xtensive.Storage.Serialization
   [Serializable]
   public class DeserializationContext: Context<DeserializationScope>
   {
-    private readonly Dictionary<Entity, SerializationInfo> deserializationData = 
-      new Dictionary<Entity, SerializationInfo>();
-
+    private readonly Dictionary<Persistent, SerializationInfo> serializationInfos = 
+      new Dictionary<Persistent, SerializationInfo>();
     private bool isDeserialized = false;
     private StreamingContext? streamingContext;
+
+    #region Current, Demand & activation-related methods
 
     /// <summary>
     /// Gets the current <see cref="DeserializationContext"/>.
@@ -52,9 +47,24 @@ namespace Xtensive.Storage.Serialization
       return currentContext;
     }
 
-    internal void SetEntityData(Entity entity, SerializationInfo serializationInfo, StreamingContext context)
+
+    /// <inheritdoc/>
+    protected override DeserializationScope CreateActiveScope()
     {
-      deserializationData[entity] = serializationInfo;
+      return new DeserializationScope(this);
+    }    
+
+    /// <inheritdoc/>
+    public override bool IsActive
+    {
+      get { return DeserializationScope.CurrentContext==this; }
+    }
+
+    #endregion
+
+    internal void SetObjectData(Persistent persistent, SerializationInfo info, StreamingContext context)
+    {
+      serializationInfos[persistent] = info;
       if (streamingContext==null)
         streamingContext = context;
     }
@@ -66,7 +76,7 @@ namespace Xtensive.Storage.Serialization
 
       using (var region = Validation.Disable()) {
         InitializeEntities();
-        DeserializeEntityFields();
+        DeserializeEntities();
         region.Complete();
       }
       isDeserialized = true;
@@ -78,7 +88,7 @@ namespace Xtensive.Storage.Serialization
     /// <param name="entity">The <see cref="Entity"/> to initialize.</param>
     internal protected void InitializeEntity(Entity entity)
     {
-      InitializeEntity(entity, deserializationData[entity], streamingContext.Value);
+      InitializeEntity(entity, serializationInfos[entity], streamingContext.Value);
     }
 
 
@@ -105,33 +115,30 @@ namespace Xtensive.Storage.Serialization
     /// <remarks>
     /// <see cref="Entity.Key"/> is already deserialized and all another <see cref="Entity">Entities</see> is already initialized on this step.
     /// </remarks>
-    protected virtual void DeserializeEntityFields(Entity entity, SerializationInfo serializationInfo, StreamingContext context)
+    protected virtual void DeserializeEntities(Entity entity, SerializationInfo serializationInfo, StreamingContext context)
     {
       SerializationHelper.DeserializeEntityFields(entity, serializationInfo, context);
     }
 
     private void InitializeEntities()
     {
-      foreach (KeyValuePair<Entity, SerializationInfo> pair in deserializationData)
-        InitializeEntity(pair.Key, pair.Value, streamingContext.Value);
+      foreach (var pair in serializationInfos) {
+        var entity = pair.Key as Entity;
+        var info = pair.Value;
+        if (entity!=null) {
+          InitializeEntity(entity, info, streamingContext.Value);
+        }
+      }
     }
 
-    private void DeserializeEntityFields()
+    private void DeserializeEntities()
     {
-      foreach (KeyValuePair<Entity, SerializationInfo> pair in deserializationData) 
-        DeserializeEntityFields(pair.Key, pair.Value, streamingContext.Value);
-    }
-
-    /// <inheritdoc/>
-    protected override DeserializationScope CreateActiveScope()
-    {
-      return new DeserializationScope(this);
-    }    
-
-    /// <inheritdoc/>
-    public override bool IsActive
-    {
-      get { return DeserializationScope.CurrentContext==this; }
+      foreach (var pair in serializationInfos) {
+        var entity = pair.Key as Entity;
+        var info = pair.Value;
+        if (entity!=null)
+          DeserializeEntities(entity, info, streamingContext.Value);
+      }
     }
   } 
 }
