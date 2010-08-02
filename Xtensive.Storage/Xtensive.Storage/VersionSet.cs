@@ -180,7 +180,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(entity, "entity");
       var key = entity.Key;
       var version = entity.VersionInfo;
-      return Add(key, version, overwrite);
+      Add(key, version, overwrite);
     }
 
     /// <summary>

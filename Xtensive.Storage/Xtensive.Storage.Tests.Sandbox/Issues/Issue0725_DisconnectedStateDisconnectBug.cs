@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0725.Model
 namespace Xtensive.Storage.Tests.Issues
 {
   [TestFixture]
-  public class Issue0725_DisconnectedStateDisconnectBugs : AutoBuildTest
+  public class Issue0725_DiscinnectedStateDisconnectBugs : AutoBuildTest
   {
     protected override Xtensive.Storage.Configuration.DomainConfiguration BuildConfiguration()
     {

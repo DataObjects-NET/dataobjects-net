@@ -55,10 +55,7 @@ namespace Xtensive.Storage.Disconnected
 
     public void Create(Key key, Tuple tuple, bool isLoaded)
     {
-      if (isLoaded)
-        EnsureOriginIsNull();
-      else
-        EnsureOriginNotNull();
+      EnsureOriginNotNull();
 
       var state = GetOrCreate(key);
       if (state.IsLoadedOrRemoved)

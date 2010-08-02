@@ -34,8 +34,6 @@ namespace Xtensive.Storage
     private SerializableEntityState[] serializedRegistry;
     private SerializableEntityState[] serializedGlobalRegistry;
     private VersionSet versions;
-    private VersionsUsageOptions versionsUsageOptions = VersionsUsageOptions.Default;
-    private VersionsProviderSelector versionsProviderSelector = VersionsProviderSelector.Default;
 
     [NonSerialized]
     private Session session;
@@ -60,12 +58,45 @@ namespace Xtensive.Storage
     [NonSerialized]
     private AssociationCache associationCache;
 
+    
 
     /// <summary>
     /// Gets the session this instance attached to.
     /// </summary>
     public Session Session {
       get { return session; }
+    }
+
+    /// <summary>
+    /// Gets or sets the <see cref="Versions"/> provider used by this instance to
+    /// refresh <see cref="Versions"/> content during <see cref="ApplyChanges()"/>
+    /// method execution.
+    /// <see langword="null" /> indicates version validation is turned off.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Normally this property is be set to some <see cref="Storage.Session"/> instance
+    /// to enable precise <see cref="Versions"/> re-building. By default, versions
+    /// are rebuilt using information cached by this instance itself.
+    /// </para>
+    /// <para>
+    /// So default value of this property is <see langword="this" /> (i.e. this instance itself).
+    /// </para>
+    /// <para>
+    /// Value of this property is automatically set to <see cref="Session"/> value, when you
+    /// invoke <see cref="Attach()"/> method 
+    /// - but only if old value of this property is  equal to <see langword="this" />.
+    /// </para>
+    /// <para>
+    /// And, vice versa, it is set to <see langword="this" />, when <see cref="DisconnectedState"/>
+    /// is detached from <see cref="Session"/>
+    /// - but only if old value of this property is equal to <see langword="Session" />.
+    /// </para>
+    /// </remarks>
+    public IVersionSetProvider VersionsProvider
+    {
+      get { return versionsProvider; }
+      set { versionsProvider = value; }
     }
 
     /// <summary>
@@ -82,56 +113,6 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="Versions"/> provider used by this instance to
-    /// refresh <see cref="Versions"/> content during <see cref="ApplyChanges()"/>
-    /// method execution.
-    /// <see langword="null" /> indicates that provider shouldn't be used.
-    /// </summary>
-    /// <remarks>
-    /// When the value of this property is set, value of
-    /// <see cref="VersionsProviderSelector"/> is automatically set to
-    /// <see cref="Storage.VersionsProviderSelector.Manual"/>.
-    /// </remarks>
-    public IVersionSetProvider VersionsProvider {
-      get {
-        switch (versionsProviderSelector) {
-        case VersionsProviderSelector.Session:
-          return session;
-          break;
-        case VersionsProviderSelector.DisconnectedState:
-          return this;
-          break;
-        case VersionsProviderSelector.Manual:
-          return versionsProvider;
-          break;
-        default: // None
-          return null;
-          break;
-        }
-      }
-      set {
-        versionsProvider = value;
-        versionsProviderSelector = VersionsProviderSelector.Manual;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the versions provider selection mode.
-    /// </summary>
-    public VersionsProviderSelector VersionsProviderSelector {
-      get { return versionsProviderSelector; }
-      set { versionsProviderSelector = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the versions usage options.
-    /// </summary>
-    public VersionsUsageOptions VersionsUsageOptions {
-      get { return versionsUsageOptions; }
-      set { versionsUsageOptions = value; }
-    }
-
-    /// <summary>
     /// Gets the <see cref="OperationLog"/> storing
     /// information of <legacyBold>already committed</legacyBold> operations.
     /// So operations captured in the active transaction aren't exposed here.
@@ -145,6 +126,32 @@ namespace Xtensive.Storage
     /// into this <see cref="DisconnectedState"/>.
     /// </summary>
     public MergeMode MergeMode { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether  version validation is enabled or not.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Actually this property fully relies on <see cref="VersionsProvider"/> property value:
+    /// when it isn't <see langword="null" />, it returns <see langword="true" />.
+    /// </para>
+    /// <para>
+    /// And, vice versa, it sets <see cref="VersionsProvider"/> property value
+    /// to either <see langword="null" /> (assigned value is <see langword="false" />) 
+    /// or <see langword="this" /> (assigned value is <see langword="true" /> and <see cref="IsAttached"/> is <see langword="false" />)
+    /// / <see cref="Session"/> (assigned value is <see langword="true" /> and <see cref="IsAttached"/> is <see langword="true" />) 
+    /// on assignment.
+    /// </para>
+    /// </remarks>
+    public bool IsVersionValidationEnabled {
+      get { return versionsProvider!=null; }
+      set { 
+        versionsProvider = 
+          value 
+          ? ((IVersionSetProvider) Session ?? this) 
+          : null; 
+      }
+    }
 
     /// <summary>
     /// Gets a value indicating whether this instance is attached to <see cref="Session"/>.
@@ -261,30 +268,17 @@ namespace Xtensive.Storage
             disposable = Log.DebugRegion(Strings.LogSessionXDisconnectedStateApplyChanges, targetSession);
             Log.Debug("{0}", Operations);
           }
-          var originalVersions = Versions; // Necessary, because it will be changed later
-          var versionValidator = (VersionsUsageOptions & VersionsUsageOptions.Validate)!=0
-            ? VersionValidator.Attach(targetSession, key => originalVersions[key])
-            : null;
-          using (versionValidator)
-          using (var tx = Transaction.Open()) {
+          using (IsVersionValidationEnabled ? VersionValidator.Attach(targetSession, key => Versions[key]) : null) {
             keyMapping = state.Operations.Replay(targetSession);
-            // Updating internal state.
-            // Note that if commit will fail, the state will be inconsistent with DB.
             state.Commit(true);
-            originalState.Remap(keyMapping);
-            state = new StateRegistry(originalState);
-            // Updating (refetching / rebuilding) versions
-            var currentVersionProvider = VersionsProviderSelector==VersionsProviderSelector.Session
-              ? targetSession // not session, but targetSession
-              : VersionsProvider;
-            if (currentVersionProvider!=null && (VersionsUsageOptions & VersionsUsageOptions.Update)!=0)
-              Versions = currentVersionProvider.CreateVersionSet(AllKeys());
-            tx.Complete();
           }
           if (targetSession.IsDebugEventLoggingEnabled) {
             Log.Debug(Strings.LogChangesAreSuccessfullyApplied);
             Log.Debug("{0}", keyMapping);
           }
+          originalState.Remap(keyMapping);
+          state = new StateRegistry(originalState);
+          RebuildVersions();
         }
         finally {
           disposable.DisposeSafely();
@@ -373,6 +367,7 @@ namespace Xtensive.Storage
     /// </returns>
     public IEnumerable<Key> AllKeys(bool includingRemovedEntityKeys)
     {
+      EnsureIsAttached();
       var keys = new HashSet<Key>();
       var currentState = GetCurrentState();
       while (currentState!=null) {
@@ -432,9 +427,8 @@ namespace Xtensive.Storage
         var version = GetVersion(entityState.Key.Type, tuple);
         if (version.IsVoid)
           continue;
-        result.Add(entityState.Key, version, true);
+        Versions.Add(entityState.Key, version, true);
       }
-      return result;
     }
 
     #endregion
@@ -540,28 +534,26 @@ namespace Xtensive.Storage
     /// <exception cref="VersionConflictException">Version check failed.</exception>
     internal void RegisterEntityState(Key key, Tuple tuple, VersionInfo version, MergeMode mergeMode)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      var existingVersion = Versions[key];
-      var versionConflict = 
-        (VersionsUsageOptions & VersionsUsageOptions.Validate)!=0 
-        && (!existingVersion.IsVoid)
-        && existingVersion!=version;
+      var versionConflict = Versions[key]!=version;
       if (versionConflict && mergeMode==MergeMode.Strict)
         throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
 
       if (tuple==null)
         return;
-      var entityState = originalState.Get(key); // originalState must be used here, not the current one!
+      var entityState = GetCurrentState().Get(key);
 
-      if (entityState==null || !entityState.IsLoadedOrRemoved)
-        originalState.Create(key, tuple, true);
-      else if (mergeMode!=MergeMode.PreferOriginal)
-        originalState.UpdateOrigin(key, tuple, MergeBehavior.PreferDifference); 
-      else // mergeMode==MergeMode.PreferOrigin
-        originalState.UpdateOrigin(key, tuple, MergeBehavior.PreferOrigin);
-      if ((VersionsUsageOptions & VersionsUsageOptions.Update)!=0 && (existingVersion.IsVoid || mergeMode==MergeMode.PreferNew))
+      if (entityState==null || !entityState.IsLoadedOrRemoved) {
+        originalState.Register(key, tuple);
         Versions.Add(key, version, true);
+        return;
+      }
+      if (!versionConflict)
+        originalState.MergeUnavailableFields(key, tuple);
+      if (mergeMode==MergeMode.PreferSource) {
+        originalState.UpdateOrigin(key, tuple);
+        Versions.Add(key, version, true);
+      }
     }
 
     internal DisconnectedEntitySetState RegisterEntitySetState(Key key, FieldInfo fieldInfo, bool isFullyLoaded, 

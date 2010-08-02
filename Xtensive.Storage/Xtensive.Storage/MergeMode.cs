@@ -7,8 +7,8 @@
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Enumerate possible ways of merging new entity states 
-  /// into the <see cref="DisconnectedState"/>.
+  /// Enumerate possible ways of merging entity states in
+  /// <see cref="DisconnectedState"/>.
   /// </summary>
   public enum MergeMode
   {
@@ -18,20 +18,16 @@ namespace Xtensive.Storage
     /// </summary>
     Default = Strict,
     /// <summary>
-    /// An exception must be thrown on any version conflict.
+    /// Prevents merge on any version conflict.
     /// </summary>
     Strict = 0,
     /// <summary>
-    /// New (source) field values are preferred;
-    /// new value will overwrite existing one, 
-    /// if both values are available for a particular field.
+    /// Source value will be used on version conflict.
     /// </summary>
-    PreferNew = 1,
+    PreferSource = 1,
     /// <summary>
-    /// Original (existing) field values are preferred;
-    /// new value will not overwrite existing one, 
-    /// if both values are available for a particular field.
+    /// Target value will be used on version conflict.
     /// </summary>
-    PreferOriginal = 2,
+    PreferTarget = 2,
   }
 }

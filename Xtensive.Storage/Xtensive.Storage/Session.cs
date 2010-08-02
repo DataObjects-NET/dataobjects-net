@@ -317,8 +317,7 @@ namespace Xtensive.Storage
         var entities = keys.Prefetch();
         var result = new VersionSet();
         foreach (var entity in entities)
-          if (entity!=null)
-            result.Add(entity, false);
+          result.Add(entity, false);
         tx.Complete();
         return result;
       }
