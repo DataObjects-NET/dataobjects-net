@@ -20,6 +20,8 @@ using Xtensive.Integrity.Validation;
 using Xtensive.Storage;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Serialization;
+using Xtensive.Storage.Services;
 
 namespace Xtensive.Storage
 {
