@@ -20,7 +20,7 @@ namespace Xtensive.Sql.SqlServer.v09
 {
   internal class Translator : SqlTranslator
   {
-    public override string DateTimeFormatString { get { return @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'' as datetime)'"; } }
+    public override string DateTimeFormatString { get { return @"'cast ('\'yyyy\-MM\-ddTHH\:mm\:ss\.fff\'' as datetime)'"; } }
     public override string TimeSpanFormatString { get { return string.Empty; } }
     public override string FloatFormatString { get { return "'cast('" + base.FloatFormatString  + "'e0 as real')"; } }
     public override string DoubleFormatString { get { return "'cast('" + base.DoubleFormatString + "'e0 as float')"; } }

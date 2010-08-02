@@ -21,6 +21,11 @@ namespace Xtensive.Storage.Linq.Expressions
     private List<PersistentFieldExpression> fields;
     public TypeInfo PersistentType { get; private set; }
 
+    public bool IsNullable
+    {
+      get { return Owner != null && Owner.IsNullable; }
+    }
+
     public List<PersistentFieldExpression> Fields
     {
       get { return fields; }
