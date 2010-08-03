@@ -30,10 +30,16 @@ namespace Xtensive.Storage.Services
     /// </returns>
     public IDisposable OpenSystemLogicOnlyRegion()
     {
-      var result = new Disposable<Session, bool>(Session, Session.IsSystemLogicOnly,
-        (disposing, session, previousState) => session.IsSystemLogicOnly = previousState);
-      Session.IsSystemLogicOnly = true;
-      return result;
+      return Session.OpenSystemLogicOnlyRegion();
+    }
+
+    /// <summary>
+    /// Temporarily disables the operation logging.
+    /// </summary>
+    /// <returns>A disposable object defining the scope of this operation.</returns>
+    public IDisposable DisableOperationLogging()
+    {
+      return Session.DisableOperationLogging();
     }
 
     /// <summary>

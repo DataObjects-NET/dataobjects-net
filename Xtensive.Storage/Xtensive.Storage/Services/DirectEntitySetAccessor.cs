@@ -20,8 +20,7 @@ namespace Xtensive.Storage.Services
   [Service(typeof(DirectEntitySetAccessor))]
   [Infrastructure]
   public sealed class DirectEntitySetAccessor : SessionBound,
-    ISessionService,
-    IUsesSystemLogicOnlyRegions
+    ISessionService
   {
     /// <summary>
     /// Gets the entity set for the specified property.
@@ -31,7 +30,7 @@ namespace Xtensive.Storage.Services
     /// <returns></returns>
     public EntitySetBase GetEntitySet(Entity target, FieldInfo field)
     {
-      using (this.OpenSystemLogicOnlyRegion()) {
+      using (Session.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, field);
         return (EntitySetBase) target.GetFieldValue(field);
       }
@@ -60,7 +59,7 @@ namespace Xtensive.Storage.Services
     /// </returns>
     public bool Add(EntitySetBase target, Entity item)
     {
-      using (this.OpenSystemLogicOnlyRegion()) {
+      using (Session.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, item);
         return target.Add(item);
       }
@@ -93,7 +92,7 @@ namespace Xtensive.Storage.Services
     /// </returns>
     public bool Remove(EntitySetBase target, Entity item)
     {
-      using (this.OpenSystemLogicOnlyRegion()) {
+      using (Session.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, item);
         return target.Remove(item);
       }
@@ -121,7 +120,7 @@ namespace Xtensive.Storage.Services
     /// <param name="target">The target.</param>
     public void Clear(EntitySetBase target)
     {
-      using (this.OpenSystemLogicOnlyRegion()) {
+      using (Session.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target);
         target.Clear();
       }
