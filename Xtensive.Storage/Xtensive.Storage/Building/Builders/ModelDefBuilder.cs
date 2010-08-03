@@ -32,9 +32,7 @@ namespace Xtensive.Storage.Building.Builders
           var typeFilter = GetTypeFilter();
           var genericTypes = new List<Type>();
           var genericTypeDefinitions = new List<Type>();
-          foreach (var type in context.Configuration.Types) {
-            if (!typeFilter.Invoke(type)) 
-              continue;
+          foreach (var type in context.Configuration.Types.Where(typeFilter)) {
             if (type.IsGenericType)
               if (type.IsGenericTypeDefinition)
                 genericTypeDefinitions.Add(type);
@@ -48,14 +46,8 @@ namespace Xtensive.Storage.Building.Builders
           List<Node<Type, object>> loops;
           var sortedTypes = TopologicalSorter.Sort(
             typesToSort,
-            (first, second) => {
-                var arguments = second.GetGenericArguments();
-                foreach (var argument in arguments) {
-                  if (argument.IsAssignableFrom(first))
-                    return true;
-                }
-                return false;
-              }, out loops);
+            (first, second) => second.GetGenericArguments().Any(argument => argument.IsAssignableFrom(first)), 
+            out loops);
           foreach (var type in sortedTypes)
             ProcessType(type);
           foreach (var type in genericTypeDefinitions)
@@ -70,12 +62,13 @@ namespace Xtensive.Storage.Building.Builders
     {
       var modelDef = BuildingContext.Demand().ModelDef;
 
-      if (modelDef.Types.Contains(type))
-        return modelDef.Types[type];
+      var typeDef = modelDef.Types.TryGetValue(type);
+      if (typeDef != null)
+        return typeDef;
 
+      
       using (Log.InfoRegion(Strings.LogDefiningX, type.GetFullName())) {
-
-        var typeDef = DefineType(type);
+        typeDef = DefineType(type);
         if (modelDef.Types.Contains(typeDef.Name))
           throw new DomainBuilderException(string.Format(Strings.ExTypeWithNameXIsAlreadyDefined, typeDef.Name));
 
@@ -276,7 +269,7 @@ namespace Xtensive.Storage.Building.Builders
     public static FieldDef DefineField(Type declaringType, string name, Type valueType)
     {
       // Prefer standard field definition flow if corresponding property exists
-      PropertyInfo propertyInfo = declaringType.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic);
+      var propertyInfo = declaringType.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic);
       if (propertyInfo!=null)
         return DefineField(propertyInfo);
 
