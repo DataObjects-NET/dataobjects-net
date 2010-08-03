@@ -117,11 +117,6 @@ namespace Xtensive.Storage
     public bool IsPersisting { get; private set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether only a system logic is enabled.
-    /// </summary>
-    public bool IsSystemLogicOnly { get; internal set; }
-
-    /// <summary>
     /// Gets or sets a value indicating whether session is disconnected:
     /// a <see cref="DisconnectedState"/> is attached to it (not <see langword="null" />).
     /// </summary>

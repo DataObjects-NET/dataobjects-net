@@ -58,7 +58,7 @@ namespace Xtensive.Storage
     /// </returns>
     protected IOperationContext OpenOperationContext(bool isIntermediate)
     {
-      if (!Session.OperationCompletedHasSubscribers)
+      if (!Session.IsOperationLoggingEnabled)
         return Session.BlockingOperationContext;
       if (Session.CurrentOperationContext==null)
         return new OperationContext(Session, isIntermediate);

@@ -285,7 +285,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void IdentifyAs(EntityIdentifierType identifierType)
     {
-      if (!Session.OperationCompletedHasSubscribers)
+      if (!Session.IsOperationLoggingEnabled)
         return;
       var currentOperationContext = Session.CurrentOperationContext;
       if (currentOperationContext==null)
@@ -307,7 +307,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void IdentifyAs(string identifier)
     {
-      if (!Session.OperationCompletedHasSubscribers)
+      if (!Session.IsOperationLoggingEnabled)
         return;
       var currentOperationContext = Session.CurrentOperationContext;
       if (currentOperationContext==null)
@@ -668,7 +668,7 @@ namespace Xtensive.Storage
     #endif
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      using (this.OpenSystemLogicOnlyRegion()) {
+      using (Session.OpenSystemLogicOnlyRegion()) {
         SerializationContext.Demand().GetEntityData(this, info, context);
       }
     }
@@ -676,7 +676,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     void IDeserializationCallback.OnDeserialization(object sender)
     {
-      using (this.OpenSystemLogicOnlyRegion()) {
+      using (Session.OpenSystemLogicOnlyRegion()) {
         DeserializationContext.Demand().OnDeserialization();
       }
     }
@@ -804,7 +804,7 @@ namespace Xtensive.Storage
     {
       bool successfully = false;
       try {
-        using (this.OpenSystemLogicOnlyRegion()) {
+        using (Session.OpenSystemLogicOnlyRegion()) {
           DeserializationContext.Demand().SetObjectData(this, info, context);
         }
         successfully = true;

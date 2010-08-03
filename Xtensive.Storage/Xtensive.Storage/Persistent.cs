@@ -38,8 +38,7 @@ namespace Xtensive.Storage
   public abstract class Persistent : SessionBound,
     IValidationAware,
     INotifyPropertyChanged,
-    IDataErrorInfo,
-    IUsesSystemLogicOnlyRegions
+    IDataErrorInfo
   {
     // [DebuggerDisplay("Id = {Id}")]
     private sealed class CtorTransactionInfo
