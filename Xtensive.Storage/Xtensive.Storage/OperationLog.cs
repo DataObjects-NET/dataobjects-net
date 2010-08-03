@@ -77,9 +77,9 @@ namespace Xtensive.Storage
                 identifierToKey.Add(pair.Key, pair.Value);
             });
 
-            session.OperationCompleted += handler;
+            session.OutermostOperationCompleted += handler;
             operation.Execute(executionContext);
-            session.OperationCompleted -= handler;
+            session.OutermostOperationCompleted -= handler;
 
             foreach (var pair in operation.IdentifiedEntities) {
               string identifier = pair.Key;

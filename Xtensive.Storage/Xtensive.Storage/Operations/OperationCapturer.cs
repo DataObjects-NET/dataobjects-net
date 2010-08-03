@@ -27,7 +27,7 @@ namespace Xtensive.Storage.Operations
 
     #region Session event handlers
 
-    private void OperationCompleted(object sender, OperationEventArgs e)
+    private void OutermostOperationCompleted(object sender, OperationEventArgs e)
     {
       Operations.Log(e.Operation);
     }
@@ -38,12 +38,12 @@ namespace Xtensive.Storage.Operations
 
     private void AttachEventHandlers()
     {
-      Session.OperationCompleted += OperationCompleted;
+      Session.OutermostOperationCompleted += OutermostOperationCompleted;
     }
 
     private void DetachEventHandlers()
     {
-      Session.OperationCompleted -= OperationCompleted;
+      Session.OutermostOperationCompleted -= OutermostOperationCompleted;
     }
 
     #endregion

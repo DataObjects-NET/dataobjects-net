@@ -155,10 +155,10 @@ namespace Xtensive.Storage.Operations
       }
 
       session.CurrentOperationContext = parentOperationContext;
-      if (session.OperationCompletedHasSubscribers) {
+      if (session.IsOperationLoggingEnabled) {
         if (completed && operations!=null)
           foreach (var operation in operations)
-            session.NotifyOperationCompleted(operation);
+            session.NotifyOutermostOperationCompleted(operation);
       }
     }
   }

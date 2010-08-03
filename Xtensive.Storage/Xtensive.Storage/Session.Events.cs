@@ -10,6 +10,7 @@ using System.ComponentModel;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Operations;
 using System.Linq;
+using Xtensive.Core;
 
 namespace Xtensive.Storage
 {
@@ -25,19 +26,44 @@ namespace Xtensive.Storage
     /// <see cref="INotifyCollectionChanged"/> subscribers stating that
     /// all entities and collections are changed.
     /// </summary>
+    /// <param name="options">The options.</param>
     public void NotifyChanged()
+    {
+      NotifyChanged(
+        NotifyChangedOptions.SkipRemovedEntities | 
+        NotifyChangedOptions.Prefetch);
+    }
+
+    /// <summary>
+    /// Raises events on all <see cref="INotifyPropertyChanged"/> and
+    /// <see cref="INotifyCollectionChanged"/> subscribers stating that
+    /// all entities and collections are changed.
+    /// </summary>
+    /// <param name="options">The options.</param>
+    public void NotifyChanged(NotifyChangedOptions options)
     {
       using (Activate()) 
       using (var transactionScope = Transaction.Open(this)) {
         var entitySubscribers    = EntityEventBroker.GetSubscribers(EntityEventBroker.PropertyChangedEventKey).ToList();
         var entitySetSubscribers = EntityEventBroker.GetSubscribers(EntityEventBroker.CollectionChangedEventKey).ToList();
 
+        if ((options & NotifyChangedOptions.Prefetch)==NotifyChangedOptions.Prefetch) {
+          var keys =
+            from triplet in entitySubscribers
+            select triplet.First;
+          keys.Prefetch().Run();
+        }
+
+        var skipRemovedEntities = 
+          (options & NotifyChangedOptions.SkipRemovedEntities)==NotifyChangedOptions.SkipRemovedEntities;
         foreach (var triplet in entitySubscribers) {
           if (triplet.Third!=null) {
             var handler = (PropertyChangedEventHandler) triplet.Third;
             var key = triplet.First;
             var entityState = EntityStateCache[key, false];
             var sender = entityState!=null ? entityState.Entity : Query.SingleOrDefault(key);
+            if (skipRemovedEntities && sender.IsRemoved())
+              continue;
             handler.Invoke(sender, new PropertyChangedEventArgs(null));
           }
         }
@@ -48,7 +74,10 @@ namespace Xtensive.Storage
             var key = triplet.First;
             var entityState = EntityStateCache[key, false];
             var owner = entityState!=null ? entityState.Entity : Query.SingleOrDefault(key);
-            var sender = owner.IsRemoved() ? null : owner.GetFieldValue(triplet.Second);
+            var ownerIsRemoved = owner.IsRemoved();
+            if (skipRemovedEntities && ownerIsRemoved)
+              continue;
+            var sender = ownerIsRemoved ? null : owner.GetFieldValue(triplet.Second);
             handler.Invoke(sender, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
           }
         }
@@ -188,26 +217,24 @@ namespace Xtensive.Storage
     public event EventHandler<EntitySetItemActionCompletedEventArgs> EntitySetItemAddCompleted;
 
     /// <summary>
-    /// Occurs when the <see cref="IOperation"/> is being registered.
+    /// Occurs when outermost <see cref="IOperation"/> is being registered.
     /// </summary>
-    public event EventHandler<OperationEventArgs> OperationCompleted;
+    public event EventHandler<OperationEventArgs> OutermostOperationCompleted;
 
     /// <summary>
-    /// <see cref="OperationCompleted"/> event has subscribers.
+    /// Occurs when nested <see cref="IOperation"/> is being registered.
     /// </summary>
-    internal bool OperationCompletedHasSubscribers {
-      get { return OperationCompleted!=null; }
-    }
+    public event EventHandler<OperationEventArgs> NestedOperationCompleted;
 
     private void NotifyPersisting()
     {
-      if (!IsSystemLogicOnly && Persisting!=null)
+      if (Persisting!=null && !IsSystemLogicOnly)
         Persisting(this, EventArgs.Empty);
     }
 
     private void NotifyPersisted()
     {
-      if (!IsSystemLogicOnly && Persisted!=null)
+      if (Persisted!=null && !IsSystemLogicOnly)
         Persisted(this, EventArgs.Empty);
     }
 
@@ -219,93 +246,93 @@ namespace Xtensive.Storage
 
     internal void NotifyKeyGenerated(Key key)
     {
-      if (KeyGenerated != null)
+      if (KeyGenerated!=null && !IsSystemLogicOnly)
         KeyGenerated(this, new KeyEventArgs(key));
     }
 
     internal void NotifyEntityMaterialized(EntityState entityState)
     {
-      if (EntityMaterialized!=null)
+      if (EntityMaterialized!=null && !IsSystemLogicOnly)
         EntityMaterialized(this, new EntityEventArgs(entityState.Entity));
     }
 
     internal void NotifyEntityCreated(Entity entity)
     {
-      if (EntityCreated!=null)
+      if (EntityCreated!=null && !IsSystemLogicOnly)
         EntityCreated(this, new EntityEventArgs(entity));
     }
 
     internal void NotifyEntityChanging(Entity entity)
     {
-      if (EntityChanging!=null)
+      if (EntityChanging!=null && !IsSystemLogicOnly)
         EntityChanging(this, new EntityEventArgs(entity));
     }
 
     internal void NotifyEntityVersionInfoChanging(Entity changedEntity, FieldInfo changedField, bool changed)
     {
-      if (EntityVersionInfoChanging!=null)
+      if (EntityVersionInfoChanging!=null && !IsSystemLogicOnly)
         EntityVersionInfoChanging(this, new EntityVersionInfoChangedEventArgs(
           changedEntity, changedField, changed));
     }
 
     internal void NotifyEntityVersionInfoChanged(Entity changedEntity, FieldInfo changedField, bool changed)
     {
-      if (EntityVersionInfoChanged!=null)
+      if (EntityVersionInfoChanged!=null && !IsSystemLogicOnly)
         EntityVersionInfoChanged(this, new EntityVersionInfoChangedEventArgs(
           changedEntity, changedField, changed));
     }
 
     internal void NotifyFieldValueGetting(Entity entity, FieldInfo field)
     {
-      if (EntityFieldValueGetting!=null)
+      if (EntityFieldValueGetting!=null && !IsSystemLogicOnly)
         EntityFieldValueGetting(this, new EntityFieldEventArgs(entity, field));
     }
 
     internal void NotifyFieldValueGet(Entity entity, FieldInfo field, object value)
     {
-      if (EntityFieldValueGet!=null)
+      if (EntityFieldValueGet!=null && !IsSystemLogicOnly)
         EntityFieldValueGet(this, new EntityFieldValueEventArgs(entity, field, value));
     }
 
     internal void NotifyFieldValueGetCompleted(Entity entity, FieldInfo field, object value, Exception exception)
     {
-      if (EntityFieldValueGetCompleted != null)
+      if (EntityFieldValueGetCompleted!=null && !IsSystemLogicOnly)
         EntityFieldValueGetCompleted(this, new EntityFieldValueGetCompletedEventArgs(entity, field, value, exception));
     }
 
     internal void NotifyFieldValueSettingAttempt(Entity entity, FieldInfo field, object value)
     {
-      if (EntityFieldValueSettingAttempt != null)
+      if (EntityFieldValueSettingAttempt!=null && !IsSystemLogicOnly)
         EntityFieldValueSettingAttempt(this, new EntityFieldValueEventArgs(entity, field, value));
     }
 
     internal void NotifyFieldValueSetting(Entity entity, FieldInfo field, object value)
     {
-      if (EntityFieldValueSetting != null)
+      if (EntityFieldValueSetting!=null && !IsSystemLogicOnly)
         EntityFieldValueSetting(this, new EntityFieldValueEventArgs(entity, field, value));
     }
 
     internal void NotifyFieldValueSet(Entity entity, FieldInfo field, object oldValue, object newValue)
     {
-      if (EntityFieldValueSet!=null)
+      if (EntityFieldValueSet!=null && !IsSystemLogicOnly)
         EntityFieldValueSet(this, new EntityFieldValueSetEventArgs(entity, field, oldValue, newValue));
     }
 
     internal void NotifyFieldValueSetCompleted(Entity entity, FieldInfo field, object oldValue, object newValue, Exception exception)
     {
-      if (EntityFieldValueSetCompleted != null)
+      if (EntityFieldValueSetCompleted!=null && !IsSystemLogicOnly)
         EntityFieldValueSetCompleted(this, new EntityFieldValueSetCompletedEventArgs(entity, field, oldValue, newValue, exception));
     }
 
     internal void NotifyEntityRemoving(Entity entity)
     {
-      if (EntityRemoving!=null)
+      if (EntityRemoving!=null && !IsSystemLogicOnly)
         EntityRemoving(this, new EntityEventArgs(entity));
     }
 
     internal void NotifyEntityRemove(Entity entity)
     {
-      if (EntityRemove!=null)
+      if (EntityRemove!=null && !IsSystemLogicOnly)
         EntityRemove(this, new EntityEventArgs(entity));
     }
 
@@ -317,44 +344,50 @@ namespace Xtensive.Storage
 
     internal void NotifyEntitySetItemRemoving(EntitySetBase entitySet, Entity item)
     {
-      if (EntitySetItemRemoving != null)
+      if (EntitySetItemRemoving!=null && !IsSystemLogicOnly)
         EntitySetItemRemoving(this, new EntitySetItemEventArgs(entitySet, item));
     }
 
     internal void NotifyEntitySetItemRemoved(Entity entity, EntitySetBase entitySet, Entity item)
     {
-      if (EntitySetItemRemove != null)
+      if (EntitySetItemRemove!=null && !IsSystemLogicOnly)
         EntitySetItemRemove(this, new EntitySetItemEventArgs(entitySet, item));
     }
 
     internal void NotifyEntitySetItemRemoveCompleted(EntitySetBase entitySet, Entity item, Exception exception)
     {
-      if (EntitySetItemRemoveCompleted != null)
+      if (EntitySetItemRemoveCompleted!=null && !IsSystemLogicOnly)
         EntitySetItemRemoveCompleted(this, new EntitySetItemActionCompletedEventArgs(entitySet, item, exception));
     }
 
     internal void NotifyEntitySetItemAdding(EntitySetBase entitySet, Entity item)
     {
-      if (EntitySetItemAdding != null)
+      if (EntitySetItemAdding!=null && !IsSystemLogicOnly)
         EntitySetItemAdding(this, new EntitySetItemEventArgs(entitySet, item));
     }
 
     internal void NotifyEntitySetItemAdd(EntitySetBase entitySet, Entity item)
     {
-      if (EntitySetItemAdd != null)
+      if (EntitySetItemAdd!=null && !IsSystemLogicOnly)
         EntitySetItemAdd(this, new EntitySetItemEventArgs(entitySet, item));
     }
 
     internal void NotifyEntitySetItemAddCompleted(EntitySetBase entitySet, Entity item, Exception exception)
     {
-      if (EntitySetItemAddCompleted != null)
+      if (EntitySetItemAddCompleted!=null && !IsSystemLogicOnly)
         EntitySetItemAddCompleted(this, new EntitySetItemActionCompletedEventArgs(entitySet, item, exception));
     }
 
-    internal void NotifyOperationCompleted(IOperation operation)
+    internal void NotifyOutermostOperationCompleted(IOperation operation)
     {
-      if (OperationCompleted != null)
-        OperationCompleted(this, new OperationEventArgs(operation));
+      if (IsOutermostOperationLoggingEnabled)
+        OutermostOperationCompleted(this, new OperationEventArgs(operation));
+    }
+
+    internal void NotifyNestedOperationCompleted(IOperation operation)
+    {
+      if (IsNestedOperationLoggingEnabled)
+        NestedOperationCompleted(this, new OperationEventArgs(operation));
     }
   }
 }
