@@ -16,6 +16,7 @@ using Xtensive.Core.Caching;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building;
+using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Model;
@@ -122,7 +123,7 @@ namespace Xtensive.Storage.Providers
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
           if (argument.IsSubclassOf(typeof (Persistent))) {
-            var argTypeDef = context.ModelDef.Types[argument];
+            var argTypeDef = ModelDefBuilder.ProcessType(argument);
             names[i] = argTypeDef.Name;
           }
           else
