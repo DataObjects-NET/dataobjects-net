@@ -158,7 +158,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
 
       protected override Operation CloneSelf(Operation clone)
       {
-        if (clone!=null)
+        if (clone==null)
           clone = new CreateOrderItemOperation(product, order, count);
         return clone;
       }

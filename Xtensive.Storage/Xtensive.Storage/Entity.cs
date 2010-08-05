@@ -291,7 +291,7 @@ namespace Xtensive.Storage
         return;
       switch (identifierType) {
       case EntityIdentifierType.Auto:
-        string identifier = "#{0}".FormatWith(operations.NextIdentifier().ToString("0000"));
+        string identifier = "#{0}".FormatWith(operations.GetNextIdentifier().ToString("0000"));
         operations.RegisterEntityIdentifier(Key, identifier);
         break;
       case EntityIdentifierType.None:

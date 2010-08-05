@@ -6,8 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using Xtensive.Core;
 using Xtensive.Core.Disposing;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Operations
 {
@@ -22,8 +23,43 @@ namespace Xtensive.Storage.Operations
     public List<IPrecondition> Preconditions;
     public List<IOperation> NestedOperations;
     public List<IOperation> UndoOperations;
-    public Dictionary<string, Key> IdentifiedEntities;
+    public Dictionary<string, Key> KeyByIdentifier;
+    public Dictionary<Key, string> IdentifierByKey;
     public long CurrentIdentifier;
+
+    /// <inheritdoc/>
+    public void RegisterEntityIdentifier(Key key, string identifier)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+
+      // Initializing dictionaries, if necessary
+      if (IdentifierByKey == null) {
+        IdentifierByKey = new Dictionary<Key, string>();
+        KeyByIdentifier = new Dictionary<string, Key>();
+      }
+
+      // Removing existing records about the same entity or identifier
+      string existingIdentifier = IdentifierByKey.GetValueOrDefault(key);
+      if (existingIdentifier != null) {
+        KeyByIdentifier.Remove(existingIdentifier);
+        IdentifierByKey.Remove(key);
+      }
+      if (identifier==null)
+        return;
+
+      var existingKey = KeyByIdentifier.GetValueOrDefault(identifier);
+      if (existingKey != null) {
+        KeyByIdentifier.Remove(identifier);
+        IdentifierByKey.Remove(existingKey);
+      }
+
+      KeyByIdentifier.Add(identifier, key);
+      IdentifierByKey.Add(key, identifier);
+
+      if (Owner.Session.IsDebugEventLoggingEnabled)
+        Log.Debug(Strings.LogSessionXEntityWithKeyYIdentifiedAsZ,
+          Owner.Session, key, identifier);
+    }
 
     
     // Constructors

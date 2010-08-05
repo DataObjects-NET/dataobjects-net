@@ -11,7 +11,6 @@ namespace Xtensive.Storage.Operations
 {
   internal sealed class BlockingOperationRegistrationScope : CompletableScope
   {
-    private bool isDisposed;
     private OperationRegistry owner;
     
     public override void Complete()
@@ -31,10 +30,7 @@ namespace Xtensive.Storage.Operations
 
     public override void Dispose()
     {
-      if (isDisposed)
-        return;
-      isDisposed = true;
-      owner.SetCurrentScope(this);
+      owner.RemoveCurrentScope(this);
     }
   }
 }

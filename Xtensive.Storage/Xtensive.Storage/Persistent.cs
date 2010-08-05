@@ -371,7 +371,7 @@ namespace Xtensive.Storage
       object oldValue = GetFieldValue(field);
       try {
         var operations = Session.Operations;
-        using (var context = operations.BeginRegistration(Operations.OperationType.System)) {
+        using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
           if (operations.CanRegisterOperation) {
             var entity = this as Entity;
             if (entity != null)
@@ -392,7 +392,7 @@ namespace Xtensive.Storage
             }
           }
           if (fieldAccessor.AreSameValues(oldValue, value)) {
-            context.Complete();
+            scope.Complete();
             return;
           }
           SystemBeforeSetValue(field, value);
@@ -420,7 +420,7 @@ namespace Xtensive.Storage
           }
           SystemSetValue(field, oldValue, value);
           SystemSetValueCompleted(field, oldValue, value, null);
-          context.Complete();
+          scope.Complete();
         }
       }
       catch (Exception e) {
@@ -829,6 +829,12 @@ namespace Xtensive.Storage
         InconsistentRegion = Validation.Disable(Session),
         Previous = CtorTransactionInfo.Current,
       };
+    }
+
+    internal void BindCtorTransactionScopeToOperationScope(CompletableScope scope)
+    {
+      var ctorTransactionInfo = CtorTransactionInfo.Current;
+      ctorTransactionInfo.OperationScope = scope;
     }
 
     internal void LeaveCtorTransactionScope(bool successfully)

@@ -26,7 +26,7 @@ namespace Xtensive.Storage.Operations
     /// <summary>
     /// Gets the session this instance is bound to.
     /// </summary>
-    protected Session Session { get; set; }
+    internal Session Session { get; private set; }
 
     #region IsXxx properties
 
@@ -44,7 +44,10 @@ namespace Xtensive.Storage.Operations
     /// using <see cref="RegisterOperation"/> method.
     /// </summary>
     public bool CanRegisterOperation {
-      get { return scopes.TailOrDefault is OperationRegistrationScope; }
+      get {
+        var scope = scopes.TailOrDefault;
+        return scope!=null && scope is OperationRegistrationScope;
+      }
     }
 
     /// <summary>
@@ -57,11 +60,20 @@ namespace Xtensive.Storage.Operations
     }
 
     internal bool IsOutermostOperationRegistrationEnabled {
-      get { return (OutermostOperationCompleted!=null || NestedOperationCompleted!=null) && IsRegistrationEnabled; }
+      get {
+        return (
+          OutermostOperationCompleted!=null || OutermostOperationStarting!=null || 
+          NestedOperationCompleted!=null || NestedOperationStarting!=null
+          ) && IsRegistrationEnabled;
+      }
     }
 
     internal bool IsNestedOperationRegistrationEnabled {
-      get { return NestedOperationCompleted!=null && IsRegistrationEnabled; }
+      get { 
+        return 
+          (NestedOperationStarting!=null || NestedOperationCompleted!=null)
+          && IsRegistrationEnabled; 
+      }
     }
 
     internal bool IsUndoOperationRegistrationEnabled {
@@ -133,9 +145,7 @@ namespace Xtensive.Storage.Operations
       var scope = scopes.HeadOrDefault as OperationRegistrationScope;
       if (scope==null)
         return;
-      if (scope.IdentifiedEntities==null)
-        scope.IdentifiedEntities = new Dictionary<string, Key>();
-      scope.IdentifiedEntities[identifier] = key;
+      scope.RegisterEntityIdentifier(key, identifier);
     }
 
     /// <summary>
@@ -144,9 +154,14 @@ namespace Xtensive.Storage.Operations
     /// <returns>An <see cref="IDisposable"/> object enabling the logging back on its disposal.</returns>
     public IDisposable DisableOperationRegistration()
     {
-      var result = new Disposable<OperationRegistry, bool>(this, isOperationRegistrationEnabled,
-        (disposing, session, previousState) => isOperationRegistrationEnabled = previousState);
+      bool oldIsOperationRegistrationEnabled = isOperationRegistrationEnabled;
+      bool oldIsUndoOperationRegistrationEnabled = isUndoOperationRegistrationEnabled;
+      var result = new Disposable(disposing => {
+          isOperationRegistrationEnabled = oldIsOperationRegistrationEnabled;
+          isUndoOperationRegistrationEnabled = oldIsUndoOperationRegistrationEnabled;
+        });
       isOperationRegistrationEnabled = false;
+      isUndoOperationRegistrationEnabled = false;
       return result;
     }
 
@@ -157,7 +172,7 @@ namespace Xtensive.Storage.Operations
     public IDisposable DisableUndoOperationRegistration()
     {
       var result = new Disposable<OperationRegistry, bool>(this, isOperationRegistrationEnabled,
-        (disposing, session, previousState) => isOperationRegistrationEnabled = previousState);
+        (disposing, _this, previousState) => _this.isOperationRegistrationEnabled = previousState);
       isOperationRegistrationEnabled = false;
       return result;
     }
@@ -171,15 +186,16 @@ namespace Xtensive.Storage.Operations
     {
       var currentScope = GetCurrentScope();
       if (currentScope == null) {
-        if (IsOutermostOperationRegistrationEnabled)
-          return SetCurrentScope(new OperationRegistrationScope(this, operationType));
-        else
+        if (!IsOutermostOperationRegistrationEnabled)
           return SetCurrentScope(blockingScope);
+        else
+          return SetCurrentScope(new OperationRegistrationScope(this, operationType));
       }
       var currentOperationRegistrationScope = currentScope as OperationRegistrationScope;
       if (currentOperationRegistrationScope == null || !IsNestedOperationRegistrationEnabled)
-        return blockingScope;
-      return SetCurrentScope(new OperationRegistrationScope(this, operationType));
+        return SetCurrentScope(blockingScope);
+      else
+        return SetCurrentScope(new OperationRegistrationScope(this, operationType));
     }
 
     internal void CloseOperationRegistrationScope(OperationRegistrationScope scope)
@@ -195,17 +211,19 @@ namespace Xtensive.Storage.Operations
           operation.NestedOperations = new ReadOnlyList<IOperation>(scope.NestedOperations);
         if (scope.UndoOperations!=null)
           operation.UndoOperations = new ReadOnlyList<IOperation>(scope.UndoOperations);
-        if (scope.IdentifiedEntities!=null)
-          operation.IdentifiedEntities = new ReadOnlyDictionary<string, Key>(scope.IdentifiedEntities);
+        if (scope.KeyByIdentifier!=null)
+          operation.IdentifiedEntities = new ReadOnlyDictionary<string, Key>(scope.KeyByIdentifier);
       }
       finally {
         RemoveCurrentScope(scope);
         if (operation != null) {
           // Adding it to parent scope's NestedOperations collection
           var parentScope = (OperationRegistrationScope) GetCurrentScope();
-          if (parentScope.NestedOperations==null)
-            parentScope.NestedOperations = new List<IOperation>();
-          parentScope.NestedOperations.Add(operation);
+          if (parentScope != null) {
+            if (parentScope.NestedOperations==null)
+              parentScope.NestedOperations = new List<IOperation>();
+            parentScope.NestedOperations.Add(operation);
+          }
           // Notifying...
           if (operation.IsOutermost)
             NotifyOutermostOperationCompleted(operation, scope.IsCompleted);
@@ -244,25 +262,25 @@ namespace Xtensive.Storage.Operations
 
     internal void NotifyOutermostOperationStarting(IOperation operation)
     {
-      if (IsOutermostOperationRegistrationEnabled)
+      if (OutermostOperationStarting!=null && IsRegistrationEnabled)
         OutermostOperationStarting(this, new OperationEventArgs(operation));
     }
 
     internal void NotifyOutermostOperationCompleted(IOperation operation, bool isCompleted)
     {
-      if (IsOutermostOperationRegistrationEnabled)
+      if (OutermostOperationCompleted!=null && IsRegistrationEnabled)
         OutermostOperationCompleted(this, new OperationCompletedEventArgs(operation, isCompleted));
     }
 
     internal void NotifyNestedOperationStarting(IOperation operation)
     {
-      if (IsNestedOperationRegistrationEnabled)
+      if (NestedOperationStarting!=null && IsRegistrationEnabled)
         NestedOperationStarting(this, new OperationEventArgs(operation));
     }
 
     internal void NotifyNestedOperationCompleted(IOperation operation, bool isCompleted)
     {
-      if (IsNestedOperationRegistrationEnabled)
+      if (NestedOperationCompleted!=null && IsRegistrationEnabled)
         NestedOperationCompleted(this, new OperationCompletedEventArgs(operation, isCompleted));
     }
 
@@ -302,7 +320,7 @@ namespace Xtensive.Storage.Operations
       scopes.ExtractTail();
     }
 
-    internal long NextIdentifier()
+    internal long GetNextIdentifier()
     {
       var scope = scopes.HeadOrDefault as OperationRegistrationScope;
       return scope==null ? -1 : scope.CurrentIdentifier++;
