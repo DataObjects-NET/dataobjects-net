@@ -24,7 +24,7 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public override void Prepare(OperationExecutionContext context)
+    protected override void PrepareSelf(OperationExecutionContext context)
     {
       if (context.KeyMapping.ContainsKey(Key))
         return;
@@ -87,8 +87,16 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public override void Execute(OperationExecutionContext context)
+    protected override void ExecuteSelf(OperationExecutionContext context)
     {
+    }
+
+    /// <inheritdoc/>
+    protected override Operation CloneSelf(Operation clone)
+    {
+      if (clone==null)
+        clone = new KeyGenerateOperation(Key);
+      return clone;
     }
 
 

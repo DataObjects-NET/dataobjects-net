@@ -37,6 +37,8 @@ namespace Xtensive.Storage
     private VersionSet versions;
     private VersionsUsageOptions versionsUsageOptions = VersionsUsageOptions.Default;
     private VersionsProviderType versionsProviderType = VersionsProviderType.Default;
+    private OperationLogType logType;
+
 
     [NonSerialized]
     private Session session;
@@ -146,6 +148,22 @@ namespace Xtensive.Storage
     /// into this <see cref="DisconnectedState"/>.
     /// </summary>
     public MergeMode MergeMode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the type of the <see cref="OperationLog"/> to use.
+    /// </summary>
+    public OperationLogType LogType {
+      get { return logType; }
+      set {
+        if (value==OperationLogType.UndoOperationLog)
+          throw new ArgumentOutOfRangeException("value");
+        EnsureNoTransaction();
+        if (state.Operations.Count!=0)
+          throw new InvalidOperationException(Strings.ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty);
+        logType = value;
+        state.Operations = new OperationLog(logType);
+      }
+    }
 
     /// <summary>
     /// Gets a value indicating whether this instance is attached to <see cref="Session"/>.
@@ -744,7 +762,7 @@ namespace Xtensive.Storage
     public DisconnectedState()
     {
       associationCache = new AssociationCache();
-      originalState = new StateRegistry(associationCache);
+      originalState = new StateRegistry(this, associationCache);
       state = new StateRegistry(originalState);
       versions = new VersionSet();
       versionsProvider = this;
@@ -780,7 +798,7 @@ namespace Xtensive.Storage
       versionsProvider = this;
       associationCache = new AssociationCache();
 
-      originalState = new StateRegistry(associationCache);
+      originalState = new StateRegistry(this, associationCache);
       foreach (var entityState in serializedGlobalRegistry)
         originalState.AddState(DisconnectedEntityState.Deserialize(entityState, originalState, domain));
       serializedGlobalRegistry = null;

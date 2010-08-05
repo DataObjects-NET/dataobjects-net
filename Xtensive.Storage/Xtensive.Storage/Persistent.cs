@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Validation;
@@ -50,7 +51,7 @@ namespace Xtensive.Storage
       // public int Id;
       public TransactionScope TransactionScope;
       public InconsistentRegion InconsistentRegion;
-      public IOperationContext OperationContext;
+      public CompletableScope OperationScope;
       public CtorTransactionInfo Previous;
 
       public CtorTransactionInfo()
@@ -369,11 +370,12 @@ namespace Xtensive.Storage
       var fieldAccessor = GetFieldAccessor(field);
       object oldValue = GetFieldValue(field);
       try {
-        using (var context = OpenOperationContext()) {
-          if (context.IsLoggingEnabled) {
+        var operations = Session.Operations;
+        using (var context = operations.BeginRegistration(Operations.OperationType.System)) {
+          if (operations.CanRegisterOperation) {
             var entity = this as Entity;
             if (entity != null)
-              context.LogOperation(new EntityFieldSetOperation(entity.Key, field, value));
+              operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, field, value));
             else {
               var persistent = this;
               var entityField = field;
@@ -386,7 +388,7 @@ namespace Xtensive.Storage
               }
               entity = persistent as Entity;
               if (entity != null)
-                context.LogOperation(new EntityFieldSetOperation(entity.Key, entityField, value));
+                operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, entityField, value));
             }
           }
           if (fieldAccessor.AreSameValues(oldValue, value)) {
@@ -829,12 +831,6 @@ namespace Xtensive.Storage
       };
     }
 
-    internal void BindCtorTransactionScopeToOperationContext(IOperationContext context)
-    {
-      var ctorTransactionInfo = CtorTransactionInfo.Current;
-      ctorTransactionInfo.OperationContext = context;
-    }
-
     internal void LeaveCtorTransactionScope(bool successfully)
     {
       var cti = CtorTransactionInfo.Current;
@@ -855,8 +851,8 @@ namespace Xtensive.Storage
             throw;
           }
         }
-        if (cti.OperationContext!=null)
-          cti.OperationContext.Complete();
+        if (cti.OperationScope!=null)
+          cti.OperationScope.Complete();
       }
       finally {
         try {
@@ -869,8 +865,8 @@ namespace Xtensive.Storage
         }
         finally {
           try {
-            if (cti.OperationContext != null)
-              cti.OperationContext.Dispose();
+            if (cti.OperationScope != null)
+              cti.OperationScope.Dispose();
           }
           catch {
             successfully = false;

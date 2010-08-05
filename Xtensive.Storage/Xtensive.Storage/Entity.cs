@@ -34,6 +34,7 @@ using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Serialization;
 using Xtensive.Storage.Services;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
+using OperationType = Xtensive.Storage.Operations.OperationType;
 
 namespace Xtensive.Storage
 {
@@ -285,19 +286,16 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void IdentifyAs(EntityIdentifierType identifierType)
     {
-      if (!Session.IsOperationLoggingEnabled)
-        return;
-      var currentOperationContext = Session.CurrentOperationContext;
-      if (currentOperationContext==null)
+      var operations = Session.Operations;
+      if (!operations.CanRegisterOperation)
         return;
       switch (identifierType) {
       case EntityIdentifierType.Auto:
-        var topmostOperationContext = currentOperationContext.GetTopmostOperationContext();
-        string identifier = "#{0}".FormatWith(topmostOperationContext.CurrentIdentifier++.ToString("0000"));
-        currentOperationContext.LogEntityIdentifier(Key, identifier);
+        string identifier = "#{0}".FormatWith(operations.NextIdentifier().ToString("0000"));
+        operations.RegisterEntityIdentifier(Key, identifier);
         break;
       case EntityIdentifierType.None:
-        currentOperationContext.LogEntityIdentifier(Key, null);
+        operations.RegisterEntityIdentifier(Key, null);
         break;
       default:
         throw new ArgumentOutOfRangeException("identifierType");
@@ -307,12 +305,10 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void IdentifyAs(string identifier)
     {
-      if (!Session.IsOperationLoggingEnabled)
+      var operations = Session.Operations;
+      if (!operations.CanRegisterOperation)
         return;
-      var currentOperationContext = Session.CurrentOperationContext;
-      if (currentOperationContext==null)
-        return;
-      currentOperationContext.LogEntityIdentifier(Key, identifier);
+      operations.RegisterEntityIdentifier(Key, identifier);
     }
 
     #endregion
@@ -489,14 +485,19 @@ namespace Xtensive.Storage
         Session.NotifyKeyGenerated(Key);
       Session.NotifyEntityCreated(this);
 
-      using (var operationContext = OpenOperationContext()) {
-        // BindCtorTransactionScopeToOperationContext(operationContext);
-        if (operationContext.IsLoggingEnabled) {
-          operationContext.LogOperation(new KeyGenerateOperation(Key));
-          operationContext.LogOperation(new EntityCreateOperation(Key));
-        }
+      var operations = Session.Operations;
+      // Operation 1:
+      using (var scope = operations.BeginRegistration(OperationType.System)) {
+        if (operations.CanRegisterOperation)
+          operations.RegisterOperation(new KeyGenerateOperation(Key));
+        scope.Complete();
+      }
+      // Operation 2:
+      using (var scope = operations.BeginRegistration(OperationType.System)) {
+        if (operations.CanRegisterOperation)
+          operations.RegisterOperation(new EntityCreateOperation(Key));
         IdentifyAs(EntityIdentifierType.Auto);
-        operationContext.Complete();
+        scope.Complete();
       }
 
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializingPersistentEventKey);
@@ -756,9 +757,10 @@ namespace Xtensive.Storage
           using (Session.Pin(this)) {
             foreach (var referenceField in references) {
               var referenceValue = (Entity) GetFieldValue(referenceField);
-              using (var silentContext = OpenOperationContext()) {
+              var operations = Session.Operations;
+              using (var scope = operations.DisableOperationRegistration()) {
                 Session.PairSyncManager.ProcessRecursively(
-                  null, OperationType.Set, referenceField.Association, this, referenceValue, null);
+                  null, PairIntegrity.OperationType.Set, referenceField.Association, this, referenceValue, null);
                 // No silentContext.Complete() - we must silently skip all these operations
               }
             }

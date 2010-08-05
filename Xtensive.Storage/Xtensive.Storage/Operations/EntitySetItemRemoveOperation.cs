@@ -22,13 +22,20 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public override void Execute(OperationExecutionContext context)
+    protected override void ExecuteSelf(OperationExecutionContext context)
     {
       var session = context.Session;
       var item = Query.Single(session, context.TryRemapKey(ItemKey));
       GetEntitySet(context).Remove(item);
     }
 
+    /// <inheritdoc/>
+    protected override Operation CloneSelf(Operation clone)
+    {
+      if (clone==null)
+        clone = new EntitySetItemRemoveOperation(Key, Field, ItemKey);
+      return clone;
+    }
     
     // Constructors
 

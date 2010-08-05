@@ -5,6 +5,7 @@
 // Created:    2009.08.20
 
 using System;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Integrity.Validation
@@ -13,7 +14,7 @@ namespace Xtensive.Integrity.Validation
   /// Inconsistent region implementation.
   /// Returned by <see cref="ValidationContextBase.OpenInconsistentRegion"/> method.
   /// </summary>
-  public sealed class InconsistentRegion : IDisposable
+  public sealed class InconsistentRegion : CompletableScope
   {
     private static readonly InconsistentRegion voidRegionInstance = new InconsistentRegion();
     private readonly ValidationContextBase context;
@@ -51,13 +52,12 @@ namespace Xtensive.Integrity.Validation
     /// If this method isn't called before region disposal, validation will be performed on transaction commit.
     /// </para>
     /// </remarks>
-    public void Complete()
+    public override void Complete()
     {
-      if (!IsVoid)
-        IsCompleted = true;
+      if (IsCompleted || IsVoid)
+        return;
+      base.Complete();
     }
-
-    internal bool IsCompleted { get; set; }
 
 
     // Constructors

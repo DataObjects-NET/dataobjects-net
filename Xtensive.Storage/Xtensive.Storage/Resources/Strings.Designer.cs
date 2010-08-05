@@ -1471,6 +1471,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid scope disposal order..
+        /// </summary>
+        internal static string ExInvalidScopeDisposalOrder {
+            get {
+                return ResourceManager.GetString("ExInvalidScopeDisposalOrder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The Session of specified ISessionBound object is invalid..
         /// </summary>
         internal static string ExInvalidSession {
@@ -1860,6 +1869,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No operation registration scope. Use OperationRegistry.BeginRegistration method to open it..
+        /// </summary>
+        internal static string ExNoOperationRegistrationScope {
+            get {
+                return ResourceManager.GetString("ExNoOperationRegistrationScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;NotNullable&apos; constraint violation on field &apos;{0}&apos;..
         /// </summary>
         internal static string ExNotNullableConstraintViolationOnFieldX {
@@ -1901,6 +1919,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExOnlyEqualityRangesAreSupported {
             get {
                 return ResourceManager.GetString("ExOnlyEqualityRangesAreSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Only one operation can be registered in each scope..
+        /// </summary>
+        internal static string ExOnlyOneOperationCanBeRegisteredInEachScope {
+            get {
+                return ResourceManager.GetString("ExOnlyOneOperationCanBeRegisteredInEachScope", resourceCulture);
             }
         }
         
@@ -2162,6 +2189,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExResultTypeIncorrect {
             get {
                 return ResourceManager.GetString("ExResultTypeIncorrect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running operation registration must be finished before invocation of this method..
+        /// </summary>
+        internal static string ExRunningOperationRegistrationMustBeFinished {
+            get {
+                return ResourceManager.GetString("ExRunningOperationRegistrationMustBeFinished", resourceCulture);
             }
         }
         
@@ -3235,6 +3271,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExXNameCantBeEmpty {
             get {
                 return ResourceManager.GetString("ExXNameCantBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must either apply or cancel cached changes before changing this property..
+        /// </summary>
+        internal static string ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty {
+            get {
+                return ResourceManager.GetString("ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty", resourceCulture);
             }
         }
         

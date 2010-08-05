@@ -216,16 +216,6 @@ namespace Xtensive.Storage
     /// </summary>
     public event EventHandler<EntitySetItemActionCompletedEventArgs> EntitySetItemAddCompleted;
 
-    /// <summary>
-    /// Occurs when outermost <see cref="IOperation"/> is being registered.
-    /// </summary>
-    public event EventHandler<OperationEventArgs> OutermostOperationCompleted;
-
-    /// <summary>
-    /// Occurs when nested <see cref="IOperation"/> is being registered.
-    /// </summary>
-    public event EventHandler<OperationEventArgs> NestedOperationCompleted;
-
     private void NotifyPersisting()
     {
       if (Persisting!=null && !IsSystemLogicOnly)
@@ -376,18 +366,6 @@ namespace Xtensive.Storage
     {
       if (EntitySetItemAddCompleted!=null && !IsSystemLogicOnly)
         EntitySetItemAddCompleted(this, new EntitySetItemActionCompletedEventArgs(entitySet, item, exception));
-    }
-
-    internal void NotifyOutermostOperationCompleted(IOperation operation)
-    {
-      if (IsOutermostOperationLoggingEnabled)
-        OutermostOperationCompleted(this, new OperationEventArgs(operation));
-    }
-
-    internal void NotifyNestedOperationCompleted(IOperation operation)
-    {
-      if (IsNestedOperationLoggingEnabled)
-        NestedOperationCompleted(this, new OperationEventArgs(operation));
     }
   }
 }

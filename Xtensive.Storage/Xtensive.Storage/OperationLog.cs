@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Xtensive.Core;
+using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Integrity.Transactions;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.Resources;
@@ -30,6 +31,9 @@ namespace Xtensive.Storage
     public long Count {
       get { return operations.Count; }
     }
+
+    /// <inheritdoc/>
+    public OperationLogType LogType { get; private set; }
 
     /// <inheritdoc/>
     public void Log(IOperation operation)
@@ -56,10 +60,16 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public KeyMapping Replay(Session session)
     {
+      if (session.Operations.IsRegisteringOperation)
+        throw new InvalidOperationException(Strings.ExRunningOperationRegistrationMustBeFinished);
+      
       var executionContext = new OperationExecutionContext(session);
+      bool isSystemOperationLog = LogType==OperationLogType.SystemOperationLog;
       KeyMapping keyMapping = null;
       Transaction transaction = null;
+
       using (session.Activate()) {
+        using (isSystemOperationLog ? session.OpenSystemLogicOnlyRegion() : null) 
         using (var tx = Transaction.Open(TransactionOpenMode.New)) {
           transaction = tx.Transaction;
 
@@ -72,14 +82,20 @@ namespace Xtensive.Storage
 
           foreach (var operation in operations) {
             var identifierToKey = new Dictionary<string, Key>();
-            var handler = new EventHandler<OperationEventArgs>((sender, e) => {
+            var handler = new EventHandler<OperationCompletedEventArgs>((sender, e) => {
               foreach (var pair in e.Operation.IdentifiedEntities)
                 identifierToKey.Add(pair.Key, pair.Value);
             });
 
-            session.OutermostOperationCompleted += handler;
-            operation.Execute(executionContext);
-            session.OutermostOperationCompleted -= handler;
+            session.Operations.OutermostOperationCompleted += handler;
+            // session.Operations.NestedOperationCompleted += handler;
+            try {
+              operation.Execute(executionContext);
+            }
+            finally {
+              // session.Operations.NestedOperationCompleted -= handler;
+              session.Operations.OutermostOperationCompleted -= handler;
+            }
 
             foreach (var pair in operation.IdentifiedEntities) {
               string identifier = pair.Key;
@@ -144,5 +160,17 @@ namespace Xtensive.Storage
     }
 
     #endregion
+
+
+    // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="logType">Type of the log.</param>
+    public OperationLog(OperationLogType logType)
+    {
+      LogType = logType;
+    }
   }
 }

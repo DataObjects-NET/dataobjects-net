@@ -57,9 +57,19 @@ namespace Xtensive.Core.Collections
     T Head { get; }
 
     /// <summary>
+    /// Gets head element in the <see cref="IDeque{T}"/>, or <see langword="default(T)" />, if deque is empty.
+    /// </summary>
+    T HeadOrDefault { get; }
+
+    /// <summary>
     /// Gets tail element in the <see cref="IDeque{T}"/>.
     /// </summary>
     T Tail { get; }
+
+    /// <summary>
+    /// Gets tail element in the <see cref="IDeque{T}"/>, or <see langword="default(T)" />, if deque is empty.
+    /// </summary>
+    T TailOrDefault { get; }
 
     /// <summary>
     /// Adds <paramref name="element"/> to the <see cref="IDeque{T}"/> head.

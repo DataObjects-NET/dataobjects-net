@@ -27,9 +27,25 @@ namespace Xtensive.Storage.Operations
 
     #region Session event handlers
 
-    private void OutermostOperationCompleted(object sender, OperationEventArgs e)
+    private void OperationCompleted(object sender, OperationCompletedEventArgs e)
     {
-      Operations.Log(e.Operation);
+      var operation = e.Operation;
+      switch (Operations.LogType) {
+      case OperationLogType.OutermostOperationLog:
+        Operations.Log(operation.Clone(true));
+        break;
+      case OperationLogType.SystemOperationLog:
+        if (operation.Type==OperationType.System)
+          Operations.Log(operation.Clone(false));
+        break;
+      default:
+        break;
+      }
+    }
+
+    private void UndoOperation(object sender, OperationEventArgs e)
+    {
+      Operations.Log(e.Operation.Clone(false));
     }
 
     #endregion
@@ -38,12 +54,38 @@ namespace Xtensive.Storage.Operations
 
     private void AttachEventHandlers()
     {
-      Session.OutermostOperationCompleted += OutermostOperationCompleted;
+      switch (Operations.LogType) {
+      case OperationLogType.OutermostOperationLog:
+        Session.Operations.OutermostOperationCompleted += OperationCompleted;
+        break;
+      case OperationLogType.SystemOperationLog:
+        Session.Operations.OutermostOperationCompleted += OperationCompleted;
+        Session.Operations.NestedOperationCompleted += OperationCompleted;
+        break;
+      case OperationLogType.UndoOperationLog:
+        Session.Operations.UndoOperation += UndoOperation;
+        break;
+      default:
+        break;
+      }
     }
 
     private void DetachEventHandlers()
     {
-      Session.OutermostOperationCompleted -= OutermostOperationCompleted;
+      switch (Operations.LogType) {
+      case OperationLogType.OutermostOperationLog:
+        Session.Operations.OutermostOperationCompleted -= OperationCompleted;
+        break;
+      case OperationLogType.SystemOperationLog:
+        Session.Operations.OutermostOperationCompleted -= OperationCompleted;
+        Session.Operations.NestedOperationCompleted -= OperationCompleted;
+        break;
+      case OperationLogType.UndoOperationLog:
+        Session.Operations.UndoOperation -= UndoOperation;
+        break;
+      default:
+        break;
+      }
     }
 
     #endregion

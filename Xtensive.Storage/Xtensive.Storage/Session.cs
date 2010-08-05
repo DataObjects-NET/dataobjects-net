@@ -181,9 +181,7 @@ namespace Xtensive.Storage
 
     internal CompilationContext CompilationContext { get { return Handlers.DomainHandler.CompilationContext; } }
 
-    internal OperationContext CurrentOperationContext { get; set; }
-
-    internal BlockingOperationContext BlockingOperationContext { get; private set; }
+    internal OperationRegistry Operations { get; set; }
 
     internal bool IsDelayedQueryRunning { get; private set; }
 
@@ -369,7 +367,7 @@ namespace Xtensive.Storage
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       Pinner = new Pinner(this);
-      BlockingOperationContext = new BlockingOperationContext(this);
+      Operations = new OperationRegistry(this);
 
       if (activate)
         sessionScope = new SessionScope(this);

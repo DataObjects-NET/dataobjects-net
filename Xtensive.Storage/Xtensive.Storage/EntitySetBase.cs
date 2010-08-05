@@ -116,15 +116,16 @@ namespace Xtensive.Storage
     public void Clear()
     {
       EnsureOwnerIsNotRemoved();
-      using (var context = OpenOperationContext()) {
-        if (context.IsLoggingEnabled)
-          context.LogOperation(
+      var operations = Session.Operations;
+      using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+        if (operations.CanRegisterOperation)
+          operations.RegisterOperation(
             new EntitySetClearOperation(Owner.Key, Field));
         SystemBeforeClear();
         foreach (var entity in Entities.ToList())
           Remove(entity);
         SystemClear();
-        context.Complete();
+        scope.Complete();
       }
     }
 
@@ -406,9 +407,10 @@ namespace Xtensive.Storage
         return false;
 
       try {
-        using (var context = OpenOperationContext()) {
-          if (context.IsLoggingEnabled)
-            context.LogOperation(new EntitySetItemAddOperation(Owner.Key, Field, item.Key));
+        var operations = Session.Operations;
+        using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+          if (operations.CanRegisterOperation)
+            operations.RegisterOperation(new EntitySetItemAddOperation(Owner.Key, Field, item.Key));
 
           SystemBeforeAdd(item);
 
@@ -441,7 +443,7 @@ namespace Xtensive.Storage
 
           SystemAdd(item);
           SystemAddCompleted(item, null);
-          context.Complete();
+          scope.Complete();
           return true;
         }
       }
@@ -463,9 +465,10 @@ namespace Xtensive.Storage
         return false;
 
       try {
-        using (var context = OpenOperationContext()) {
-          if (context.IsLoggingEnabled)
-            context.LogOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, item.Key));
+        var operations = Session.Operations;
+        using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+          if (operations.CanRegisterOperation)
+            operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, item.Key));
 
           SystemBeforeRemove(item);
 
@@ -498,7 +501,7 @@ namespace Xtensive.Storage
 
           SystemRemove(item);
           SystemRemoveCompleted(item, null);
-          context.Complete();
+          scope.Complete();
           return true;
         }
       }

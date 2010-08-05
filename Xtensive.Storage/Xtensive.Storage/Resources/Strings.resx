@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ExCouldNotLoadTypesFromAssembly" xml:space="preserve">
     <value>Could not load types from assembly '{0}'.</value>
@@ -1444,52 +1444,67 @@ Schema difference:
   <data name="LogSessionXDisconnectedStateAttach" xml:space="preserve">
     <value>Session '{0}'. DisconnectedState.Attach</value>
   </data>
-  <data name="LogSessionXDisconnectedStateConnect">
+  <data name="LogSessionXDisconnectedStateConnect" xml:space="preserve">
     <value>Session '{0}'. DisconnectedState.Connect()</value>
   </data>
-  <data name="LogSessionXDisconnectedStateDisconnect">
+  <data name="LogSessionXDisconnectedStateDisconnect" xml:space="preserve">
     <value>Session '{0}'. DisconnectedState is disconnected</value>
   </data>
-  <data name="LogSessionXDisconnectedStateApplyChanges">
+  <data name="LogSessionXDisconnectedStateApplyChanges" xml:space="preserve">
     <value>Session '{0}'. DisconnectedState.ApplyChanges</value>
   </data>
-  <data name="Operations">
-    <value xml:space="preserve">Operations</value>
+  <data name="Operations" xml:space="preserve">
+    <value>Operations</value>
   </data>
-  <data name="KeyMapping">
-    <value xml:space="preserve">Key mapping</value>
+  <data name="KeyMapping" xml:space="preserve">
+    <value>Key mapping</value>
   </data>
-  <data name="LogDisconnectedStateCancelChanges">
-    <value xml:space="preserve">DisconnectedState.CancelChanges</value>
+  <data name="LogDisconnectedStateCancelChanges" xml:space="preserve">
+    <value>DisconnectedState.CancelChanges</value>
   </data>
-  <data name="LogChangesAreSuccessfullyApplied">
-    <value xml:space="preserve">Changes are successfully applied.</value>
+  <data name="LogChangesAreSuccessfullyApplied" xml:space="preserve">
+    <value>Changes are successfully applied.</value>
   </data>
-  <data name="ExKeyMustHaveExactType">
-    <value xml:space="preserve">Key must have exact type here.</value>
+  <data name="ExKeyMustHaveExactType" xml:space="preserve">
+    <value>Key must have exact type here.</value>
   </data>
-  <data name="LogSyncContextMustHaveNoPendingActions">
-    <value xml:space="preserve">SyncContext must have no pending actions at this point.</value>
+  <data name="LogSyncContextMustHaveNoPendingActions" xml:space="preserve">
+    <value>SyncContext must have no pending actions at this point.</value>
   </data>
-  <data name="LogSessionXRemappingEntityKeys">
-    <value><![CDATA[Session '{0}'. Remapping entity keys.]]></value>
+  <data name="LogSessionXRemappingEntityKeys" xml:space="preserve">
+    <value>Session '{0}'. Remapping entity keys.</value>
   </data>
-  <data name="ExEntityIsAlreadyDetachedFromSession">
-    <value xml:space="preserve">Entity is already detached from Session. Likely, this is result of creation of new Entity with the same Key.</value>
+  <data name="ExEntityIsAlreadyDetachedFromSession" xml:space="preserve">
+    <value>Entity is already detached from Session. Likely, this is result of creation of new Entity with the same Key.</value>
   </data>
-  <data name="ExUnableToCastItemOfTypeXToY">
-    <value><![CDATA[Unable to cast item of type '{0}' to '{1}' in queries.]]></value>
+  <data name="ExUnableToCastItemOfTypeXToY" xml:space="preserve">
+    <value>Unable to cast item of type '{0}' to '{1}' in queries.</value>
   </data>
-  <data name="ExOriginIsNull">
-    <value xml:space="preserve">Origin is null.</value>
+  <data name="ExOriginIsNull" xml:space="preserve">
+    <value>Origin is null.</value>
   </data>
-  <data name="ExOriginIsNotNull">
-    <value xml:space="preserve">Origin is not null.</value>
+  <data name="ExOriginIsNotNull" xml:space="preserve">
+    <value>Origin is not null.</value>
   </data>
-  <data name="ExOnlyOnePrimaryOperationCanBeLogged">
-    <value xml:space="preserve">Only one primary operation can be logged by each OperationContext instance.</value>
+  <data name="ExOnlyOnePrimaryOperationCanBeLogged" xml:space="preserve">
+    <value>Only one primary operation can be logged by each OperationContext instance.</value>
   </data>
-  <data name="LogSessionXEntityWithKeyYIdentifiedAsZ">
+  <data name="LogSessionXEntityWithKeyYIdentifiedAsZ" xml:space="preserve">
     <value>Session '{0}'. Identifying entity: Key = '{1}', identified as '{2}'.</value>
+  </data>
+  <data name="ExInvalidScopeDisposalOrder" xml:space="preserve">
+    <value>Invalid scope disposal order.</value>
+  </data>
+  <data name="ExNoOperationRegistrationScope" xml:space="preserve">
+    <value>No operation registration scope. Use OperationRegistry.BeginRegistration method to open it.</value>
+  </data>
+  <data name="ExOnlyOneOperationCanBeRegisteredInEachScope" xml:space="preserve">
+    <value>Only one operation can be registered in each scope.</value>
+  </data>
+  <data name="ExRunningOperationRegistrationMustBeFinished" xml:space="preserve">
+    <value>Running operation registration must be finished before invocation of this method.</value>
+  </data>
+  <data name="ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty" xml:space="preserve">
+    <value>You must either apply or cancel cached changes before changing this property.</value>
   </data>
 </root>

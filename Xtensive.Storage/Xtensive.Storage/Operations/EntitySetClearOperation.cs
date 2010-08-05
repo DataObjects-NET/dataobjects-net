@@ -22,12 +22,20 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public override void Execute(OperationExecutionContext context)
+    protected override void ExecuteSelf(OperationExecutionContext context)
     {
       GetEntitySet(context).Clear();
     }
 
-    
+    /// <inheritdoc/>
+    protected override Operation CloneSelf(Operation clone)
+    {
+      if (clone==null)
+        clone = new EntitySetClearOperation(Key, Field);
+      return clone;
+    }
+
+
     // Constructors
 
     /// <inheritdoc/>

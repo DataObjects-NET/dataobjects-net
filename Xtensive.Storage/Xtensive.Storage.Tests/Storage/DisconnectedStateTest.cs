@@ -143,17 +143,24 @@ namespace Xtensive.Storage.DisconnectedTests.Model
         }
       }
 
-      public override void Prepare(OperationExecutionContext context)
+      protected override void PrepareSelf(OperationExecutionContext context)
       {
         context.RegisterKey(product, false);
         context.RegisterKey(order, false);
       }
 
-      public override void Execute(OperationExecutionContext context)
+      protected override void ExecuteSelf(OperationExecutionContext context)
       {
         var p = Query.Single<Product>(context.TryRemapKey(product));
         var o = Query.Single<Order>(context.TryRemapKey(order));
         var orderItem = new OrderDetail { Product = p, Order = o, Count = count };
+      }
+
+      protected override Operation CloneSelf(Operation clone)
+      {
+        if (clone!=null)
+          clone = new CreateOrderItemOperation(product, order, count);
+        return clone;
       }
 
       public CreateOrderItemOperation(Product product, Order order, int count)
@@ -166,10 +173,11 @@ namespace Xtensive.Storage.DisconnectedTests.Model
 
     public void LogCreateOrderItemOperation(Product product, int count)
     {
-      using (var context = OpenOperationContext()) {
-        if (context.IsLoggingEnabled)
-          context.LogOperation(new CreateOrderItemOperation(product, this, count));
-        context.Complete();
+      var operations = Session.Operations;
+      using (var scope = operations.BeginRegistration(OperationType.Custom)) {
+        if (operations.CanRegisterOperation)
+          operations.RegisterOperation(new CreateOrderItemOperation(product, this, count));
+        scope.Complete();
       }
     }
   }
@@ -1308,7 +1316,7 @@ namespace Xtensive.Storage.Tests.Storage
       Key order1Key;
       Key newCustomerKey;
 
-      var log = new OperationLog();
+      var log = new OperationLog(OperationLogType.OutermostOperationLog);
       // Modify data
       using (var session = Session.Open(Domain)) {
         using (OperationCapturer.Attach(session, log))

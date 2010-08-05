@@ -33,9 +33,9 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public override void Prepare(OperationExecutionContext context)
+    protected override void PrepareSelf(OperationExecutionContext context)
     {
-      base.Prepare(context);
+      base.PrepareSelf(context);
       context.RegisterKey(context.TryRemapKey(ItemKey), false);
     }
 

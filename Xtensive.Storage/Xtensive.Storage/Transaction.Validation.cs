@@ -24,16 +24,17 @@ namespace Xtensive.Storage
 
     private void CompleteValidation()
     {
-      if (inconsistentRegion==null && !ValidationContext.IsConsistent)
+      var region = inconsistentRegion;
+      if (region==null && !ValidationContext.IsConsistent)
         throw new InvalidOperationException(Strings.ExCanNotCommitATransactionValidationContextIsInInconsistentState);
 
       try {
         Validation.Enforce(Session);
 
-        if (inconsistentRegion!=null) {
-          inconsistentRegion.Complete();
-          inconsistentRegion.Dispose();
+        if (region!=null) {
           inconsistentRegion = null;
+          region.Complete();
+          region.Dispose();
         }
       }
       catch (AggregateException exception) {
