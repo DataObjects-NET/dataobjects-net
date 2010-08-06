@@ -12,6 +12,7 @@ using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Building.FixupActions;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building
@@ -283,7 +284,7 @@ namespace Xtensive.Storage.Building
     private static void InspectField(TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
     {
       var context = BuildingContext.Demand();
-      if (fieldDef.IsVersion)
+      if ((fieldDef.Attributes & (FieldAttributes.ManualVersion | FieldAttributes.AutoVersion)) > 0)
         Validator.ValidateVersionField(fieldDef, isKeyField);
 
       Validator.ValidateFieldType(typeDef, fieldDef.ValueType, isKeyField);

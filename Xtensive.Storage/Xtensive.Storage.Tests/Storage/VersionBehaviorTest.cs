@@ -214,6 +214,10 @@ namespace Xtensive.Storage.Tests.Storage
       config.Types.Register(typeof (ManualInheritor));
       config.Types.Register(typeof (AnotherManualInheritor));
       var domain = Domain.Build(config);
+      var manualTypeInfo = domain.Model.Types[typeof(Manual)];
+      var anotherManualTypeInfo = domain.Model.Types[typeof(AnotherManual)];
+      var manualInheritorTypeInfo = domain.Model.Types[typeof(ManualInheritor)];
+      var anotherManualInheritorTypeInfo = domain.Model.Types[typeof(AnotherManualInheritor)];
       using (var session = Session.Open(domain)) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();

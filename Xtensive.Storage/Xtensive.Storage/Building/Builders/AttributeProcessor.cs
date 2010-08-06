@@ -119,13 +119,13 @@ namespace Xtensive.Storage.Building.Builders
       FieldAttributes value;
       switch(attribute.Mode) {
         case VersionMode.Manual:
-          value = FieldAttributes.VersionManual;
+          value = FieldAttributes.ManualVersion;
           break;
         case VersionMode.Skip:
-          value = FieldAttributes.VersionSkip;
+          value = FieldAttributes.SkipVersion;
           break;
         case VersionMode.Auto:
-          value = FieldAttributes.VersionAuto;
+          value = FieldAttributes.AutoVersion;
           break;
         default:
           throw new ArgumentOutOfRangeException();

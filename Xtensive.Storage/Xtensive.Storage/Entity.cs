@@ -136,11 +136,11 @@ namespace Xtensive.Storage
         var tuple = State.Tuple;
         var versionColumns = TypeInfo.GetVersionColumns();
         List<PrefetchFieldDescriptor> columnsToPrefetch = null;
-        foreach (var pair in versionColumns) {
-          if (!tuple.GetFieldState(pair.Second).IsAvailable()) {
+        foreach (var columnInfo in versionColumns) {
+          if (!tuple.GetFieldState(columnInfo.Field.MappingInfo.Offset).IsAvailable()) {
             if (columnsToPrefetch==null)
               columnsToPrefetch = new List<PrefetchFieldDescriptor>();
-            columnsToPrefetch.Add(new PrefetchFieldDescriptor(pair.First.Field));
+            columnsToPrefetch.Add(new PrefetchFieldDescriptor(columnInfo.Field));
           }
         }
         if (columnsToPrefetch!=null) {
@@ -389,7 +389,7 @@ namespace Xtensive.Storage
     /// </returns>
     protected virtual bool HandleUpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
     {
-      foreach (var field in TypeInfo.GetVersionFields().Where(f => (f.Attributes & FieldAttributes.VersionAuto) == FieldAttributes.VersionAuto))
+      foreach (var field in TypeInfo.GetVersionFields().Where(f => (f.Attributes & FieldAttributes.AutoVersion) == FieldAttributes.AutoVersion))
         SetFieldValue(field, VersionGenerator.Next(GetFieldValue(field)));
       return true;
     }
