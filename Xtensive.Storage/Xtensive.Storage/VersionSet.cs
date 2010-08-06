@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
@@ -252,6 +253,17 @@ namespace Xtensive.Storage
     }
 
     #endregion
+
+    /// <summary>
+    /// Merges the current <see cref="VersionSet"/> with provided one.
+    /// </summary>
+    /// <param name="other">The other <see cref="VersionSet"/>.</param>
+    /// <param name="session"></param>
+    public void MergeWith(VersionSet other, Session session)
+    {
+      foreach (var pair in other.versions.Where(p => session.EntityStateCache.ContainsKey(p.Key.Key)))
+        versions[pair.Key] = pair.Value;
+    }
 
     #region IEnumerable<...> methods
 
