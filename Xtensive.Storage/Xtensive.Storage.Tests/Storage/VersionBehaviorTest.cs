@@ -36,6 +36,12 @@ namespace Xtensive.Storage.Tests.Storage
       public int Version { get; set; }
     }
 
+    public class DefaultInheritor : Default
+    {
+      [Field]
+      public int SubVersion { get; set; }
+    }
+
     [HierarchyRoot]
     public class Manual : Base
     {
@@ -57,6 +63,7 @@ namespace Xtensive.Storage.Tests.Storage
       [Version(VersionMode.Manual)]
       public int Version { get; set; }
 
+      [Field]
       [Version(VersionMode.Manual)]
       public long SubVersion { get; set; }
     }
@@ -149,7 +156,12 @@ namespace Xtensive.Storage.Tests.Storage
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof (Base));
       config.Types.Register(typeof (Default));
+      config.Types.Register(typeof (DefaultInheritor));
       var domain = Domain.Build(config);
+      var defaultTypeInfo = domain.Model.Types[typeof(Default)];
+      var defaultInheritorTypeInfo = domain.Model.Types[typeof(DefaultInheritor)];
+      Assert.AreEqual(3, defaultTypeInfo.GetVersionColumns().Count);
+      Assert.AreEqual(4, defaultInheritorTypeInfo.GetVersionColumns().Count);
       using (var session = Session.Open(domain)) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
@@ -218,6 +230,10 @@ namespace Xtensive.Storage.Tests.Storage
       var anotherManualTypeInfo = domain.Model.Types[typeof(AnotherManual)];
       var manualInheritorTypeInfo = domain.Model.Types[typeof(ManualInheritor)];
       var anotherManualInheritorTypeInfo = domain.Model.Types[typeof(AnotherManualInheritor)];
+      Assert.AreEqual(1, manualTypeInfo.GetVersionColumns().Count);
+      Assert.AreEqual(2, anotherManualTypeInfo.GetVersionColumns().Count);
+      Assert.AreEqual(1, manualInheritorTypeInfo.GetVersionColumns().Count);
+      Assert.AreEqual(2, anotherManualInheritorTypeInfo.GetVersionColumns().Count);
       using (var session = Session.Open(domain)) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
