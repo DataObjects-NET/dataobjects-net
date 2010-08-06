@@ -713,7 +713,7 @@ namespace Xtensive.Storage
     private static VersionInfo GetVersion(TypeInfo type, Tuple tuple)
     {
       if (type.VersionExtractor==null)
-        return new VersionInfo();
+        return VersionInfo.Void;
       var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, tuple);
       return new VersionInfo(versionTuple);
     }

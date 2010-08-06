@@ -175,9 +175,9 @@ namespace Xtensive.Storage.Building
 
     internal static void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
-      if (typeDef.Fields.Any(field => field.IsVersion) && hierarchyDef.Root!=typeDef)
-        throw new DomainBuilderException(string.Format(
-          Strings.ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot, typeDef.Name));
+//      if (typeDef.Fields.Any(field => field.IsVersion) && hierarchyDef.Root!=typeDef)
+//        throw new DomainBuilderException(string.Format(
+//          Strings.ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot, typeDef.Name));
     }
 
     public static void EnsureUnderlyingTypeIsAspected(TypeDef type)

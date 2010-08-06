@@ -29,9 +29,12 @@ namespace Xtensive.Storage.Model
     Enum = 0x4000,
     TypeId = 0x8000,
     Version = 0x10000,
-    TypeDiscriminator = 0x20000,
-    Computed = 0x40000,
-    Indexed = 0x80000,
-    Nested = 0x100000
+    VersionSkip = 0x20000 + Version,
+    VersionManual = 0x40000 + Version,
+    VersionAuto = 0x80000 + Version,
+    TypeDiscriminator = 0x100000,
+    Computed = 0x200000,
+    Indexed = 0x400000,
+    Nested = 0x800000
   }
 }

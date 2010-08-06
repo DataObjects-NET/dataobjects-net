@@ -507,8 +507,24 @@ namespace Xtensive.Storage.Model
     {
       if (IsLocked)
         return versionFields;
-
-      return Fields.Where(field => field.IsVersion).ToList();
+      
+      var fields = Fields
+        .Where(field => field.IsPrimitive && (
+          (field.Attributes & FieldAttributes.VersionAuto) == FieldAttributes.VersionAuto ||
+          (field.Attributes & FieldAttributes.VersionManual) == FieldAttributes.VersionManual))
+        .ToList();
+      if (fields.Count == 0) {
+        var skipSet = Fields.Where(field => (field.Attributes & FieldAttributes.VersionSkip) == FieldAttributes.VersionSkip).ToHashSet();
+        fields.AddRange(Fields.Where(f => f.IsPrimitive 
+          && !f.IsSystem
+          && !f.IsPrimaryKey
+          && !f.IsLazyLoad
+          && !f.IsTypeId
+          && !f.IsTypeDiscriminator
+          && !f.ValueType.IsArray
+          && !skipSet.Contains(f)));
+      }
+      return fields;
     }
 
     /// <summary>
@@ -520,24 +536,10 @@ namespace Xtensive.Storage.Model
       if (IsLocked)
         return versionColumns;
 
-      var versionFields = GetVersionFields();
-      if (versionFields.Count==0)
-        versionFields = (
-          from field in Fields
-          where field.IsPrimitive &&
-            !field.IsPrimaryKey && !field.IsSystem && !field.IsLazyLoad && !field.ValueType.IsArray &&
-            !((field.IsTypeId || field.IsTypeDiscriminator) && field.Parent==null)
-          select field
-          ).ToList();
-
-      return (
-        from field in versionFields
-        from column in field.Columns
-        select new Pair<ColumnInfo, int>(column, Columns.IndexOf(column))
-        into pair
-          orderby pair.Second
-          select pair
-        ).ToList();
+      return GetVersionFields()
+        .SelectMany(f => f.Columns, (f, c) => new Pair<ColumnInfo, int>(c, c.Field.MappingInfo.Offset))
+        .OrderBy(pair => pair.Second)
+        .ToList();
     }
 
     /// <inheritdoc/>

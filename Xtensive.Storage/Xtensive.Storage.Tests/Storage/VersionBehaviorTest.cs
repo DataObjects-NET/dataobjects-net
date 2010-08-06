@@ -18,6 +18,9 @@ namespace Xtensive.Storage.Tests.Storage
     {
       [Field]
       public string Tag { get; set; }
+
+      [Field(LazyLoad = true)]
+      public string Content { get; set; }
     }
 
     [HierarchyRoot]
@@ -193,14 +196,71 @@ namespace Xtensive.Storage.Tests.Storage
           @default.Name = "AnotherNameCorrect";
           t.Complete();
         }
+        
+        using (var t = Transaction.Open()) {
+          @default.Tag = "AnotherTag";
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void ManualTest()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof (Base));
+      config.Types.Register(typeof (Manual));
+      config.Types.Register(typeof (AnotherManual));
+      config.Types.Register(typeof (ManualInheritor));
+      config.Types.Register(typeof (AnotherManualInheritor));
+      var domain = Domain.Build(config);
+      using (var session = Session.Open(domain)) {
+        var versions = new VersionSet();
+        var updatedVersions = new VersionSet();
+        Manual manual;
+        ManualInheritor manualInheritor;
+        AnotherManual anotherManual;
+        AnotherManualInheritor anotherManualInheritor;
+        using (VersionCapturer.Attach(versions))
+        using (var t = Transaction.Open()) {
+          manual = new Manual() { Tag = "Tag", Content = "Content", Version = 1};
+          manualInheritor = new ManualInheritor() { Tag = "Tag", Content = "Content", Version = 1, Name = "Name"};
+          anotherManual = new AnotherManual() {Tag = "Tag", Content = "Content", Version = 1, SubVersion = 100};
+          anotherManualInheritor = new AnotherManualInheritor() {Tag = "Tag", Content = "Content", Version = 1, SubVersion = 100, Name = "Name"};
+          t.Complete();
+        }
+        using (VersionCapturer.Attach(updatedVersions))
+        using (VersionValidator.Attach(versions))
+        using (var t = Transaction.Open()) {
+          manual.Version = 2;
+          manual.Tag = "AnotherTag";
+          manual.Tag = "AnotherTagCorrect";
+          manualInheritor.Name = "AnotherName";
+          manualInheritor.Version = 2;
+          anotherManual.Tag = "AnotherTag";
+          anotherManual.SubVersion = 200;
+          anotherManualInheritor.Name = "AnotherName";
+          anotherManualInheritor.SubVersion = 200;
+          t.Complete();
+        }
         AssertEx.Throws<VersionConflictException>(() => {
+          using (VersionValidator.Attach(versions))
           using (var t = Transaction.Open()) {
-            @default.Tag = "AnotherTag";
+            manual.Tag = "YetAnotherTag";
+            anotherManual.Tag = "YetAnotherTag";
+            anotherManual.Version = 2;
+            manualInheritor.Name = "YetAnotherName";
+            anotherManualInheritor.Name = "YetAnotherName";
             t.Complete();
           }});
 
+        using (VersionValidator.Attach(updatedVersions))
         using (var t = Transaction.Open()) {
-          @default.Tag = "AnotherTag";
+          manual.Tag = "YetAnotherTag";
+          anotherManual.Tag = "YetAnotherTag";
+          anotherManual.Version = 2;
+          manualInheritor.Name = "YetAnotherName";
+          anotherManualInheritor.Name = "YetAnotherName";
           t.Complete();
         }
       }
