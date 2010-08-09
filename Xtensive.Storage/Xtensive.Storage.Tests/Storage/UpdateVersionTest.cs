@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
     [Field]
     public string Field { get; set;}
 
-    protected override bool HandleUpdateVersionInfo(Entity changedEntity, M.FieldInfo changedField)
+    protected override bool UpdateVersion(Entity changedEntity, M.FieldInfo changedField)
     {
       VersionId = new VersionStructure{Version = VersionId.Version + 1};
       return true;
@@ -158,13 +158,13 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
     [Key, Field]
     public int Id { get; private set; }
 
-    [Version, Field]
+    [Version(VersionMode.Manual), Field]
     public VersionEntity VersionId { get; private set;}
 
     [Field]
     public string Field { get; set;}
 
-    protected override bool HandleUpdateVersionInfo(Entity changedEntity, M.FieldInfo changedField)
+    protected override bool UpdateVersion(Entity changedEntity, M.FieldInfo changedField)
     {
       VersionId = new VersionEntity();
       return true;
@@ -184,7 +184,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
     [Field]
     public string Field { get; set; }
 
-    protected override bool HandleUpdateVersionInfo(Entity changedEntity, M.FieldInfo changedField)
+    protected override bool UpdateVersion(Entity changedEntity, M.FieldInfo changedField)
     {
       VersionId1 = DateTime.Now.Ticks;
       return true;
