@@ -387,7 +387,7 @@ namespace Xtensive.Storage
     /// <see langword="True"/>, if <see cref="VersionInfo"/> was changed;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    protected virtual bool HandleUpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
+    protected virtual bool UpdateVersion(Entity changedEntity, FieldInfo changedField)
     {
       foreach (var field in TypeInfo.GetVersionFields().Where(f => f.AutoVersion))
         SetFieldValue(field, VersionGenerator.Next(GetFieldValue(field)));
@@ -429,7 +429,7 @@ namespace Xtensive.Storage
         Session.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
 
       var changed = TypeInfo.HasVersionFields
-        ? HandleUpdateVersionInfo(changedEntity, changedField)
+        ? UpdateVersion(changedEntity, changedField)
         : false;
 
       if (!Session.IsSystemLogicOnly)
