@@ -12,6 +12,7 @@ using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Building.DependencyGraph;
 using Xtensive.Storage.Building.FixupActions;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building
@@ -270,11 +271,8 @@ namespace Xtensive.Storage.Building
        
         Validator.ValidateType(typeDef, hierarchyDef);
         // We should skip key fields inspection as they have been already inspected
-        foreach (var field in typeDef.Fields) {
-          var _field = field;
-          if (!hierarchyDef.KeyFields.Any(f => f.Name==_field.Name))
-            InspectField(typeDef, field, false);
-        }
+        foreach (var field in typeDef.Fields.Where(f => !hierarchyDef.KeyFields.Any(kf => kf.Name == f.Name)))
+          InspectField(typeDef, field, false);
       }
     }
 
@@ -283,7 +281,7 @@ namespace Xtensive.Storage.Building
     private static void InspectField(TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
     {
       var context = BuildingContext.Demand();
-      if (fieldDef.IsVersion)
+      if ((fieldDef.Attributes & (FieldAttributes.ManualVersion | FieldAttributes.AutoVersion)) > 0)
         Validator.ValidateVersionField(fieldDef, isKeyField);
 
       Validator.ValidateFieldType(typeDef, fieldDef.ValueType, isKeyField);

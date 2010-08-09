@@ -173,7 +173,9 @@ namespace Xtensive.Storage.Providers
             // we consider there is no dependency, since such insert sequence will pass
             // without any modifications
             if (targetKey.Equals(key))
-              if (hierarchy.InheritanceSchema!=InheritanceSchema.ClassTable || ownerField.ValueType==hierarchy.Root.UnderlyingType)                continue;            node.AddConnection(destination, association);
+              if (hierarchy.InheritanceSchema!=InheritanceSchema.ClassTable || ownerField.ValueType==hierarchy.Root.UnderlyingType)
+                continue;
+            node.AddConnection(destination, association);
           }
         }
       }

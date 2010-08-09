@@ -5,9 +5,12 @@
 // Created:    2010.03.01
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Tuples.Transform;
+using System.Linq;
 
 namespace Xtensive.Storage
 {
@@ -20,40 +23,59 @@ namespace Xtensive.Storage
   public sealed class VersionCapturer : SessionBound, 
     IDisposable
   {
+    private readonly VersionSet materializedVersions = new VersionSet();
+    private readonly VersionSet modifiedVersions = new VersionSet();
+    private readonly List<Key> removedKeys = new List<Key>();
+
     /// <summary>
     /// Gets the version set updated by this service.
     /// </summary>
     public VersionSet Versions { get; private set; }
 
-    /// <summary>
-    /// Gets or sets version capture options.
-    /// </summary>
-    public VersionCaptureOptions Options { get; set; }
-
     #region Session event handlers
 
     private void EntityMaterialized(object sender, EntityEventArgs e)
     {
-      if (0!=(Options & VersionCaptureOptions.OnMaterialize))
-        Versions.Add(e.Entity, 0!=(Options & VersionCaptureOptions.OverwriteExisting));
+      materializedVersions.Add(e.Entity, true);
     }
 
-    private void EntityChanging(object sender, EntityEventArgs e)
+    private void TransactionRollbacked(object sender, TransactionEventArgs transactionEventArgs)
     {
-      if (0!=(Options & VersionCaptureOptions.OnChange))
-        Versions.Add(e.Entity, 0!=(Options & VersionCaptureOptions.OverwriteExisting));
+      removedKeys.Clear();
+      modifiedVersions.Clear();
     }
 
-    private void EntityRemoving(object sender, EntityEventArgs e)
+    private void TransactionCommitted(object sender, TransactionEventArgs transactionEventArgs)
     {
-      if (0!=(Options & VersionCaptureOptions.OnRemove))
-      Versions.Add(e.Entity, 0!=(Options & VersionCaptureOptions.OverwriteExisting));
+      if (transactionEventArgs.Transaction.IsNested)
+        return;
+      Versions.MergeWith(materializedVersions, Session);
+      Versions.MergeWith(modifiedVersions, Session);
+      foreach (var key in removedKeys)
+        Versions.Remove(key);
+      materializedVersions.Clear();
+      modifiedVersions.Clear();
+      removedKeys.Clear();
     }
 
-    private void EntityCreated(object sender, EntityEventArgs e)
+    private void TransactionOpened(object sender, TransactionEventArgs transactionEventArgs)
     {
-      if (0!=(Options & VersionCaptureOptions.OnCreate))
-      Versions.Add(e.Entity, 0!=(Options & VersionCaptureOptions.OverwriteExisting));
+      if (transactionEventArgs.Transaction.IsNested)
+        return;
+      Versions.MergeWith(materializedVersions, Session);
+      materializedVersions.Clear();
+    }
+
+    private void Persisting(object sender, EventArgs eventArgs)
+    {
+      var registry = Session.EntityChangeRegistry;
+      var modifiedStates = registry.GetItems(PersistenceState.Modified)
+        .Concat(registry.GetItems(PersistenceState.New));
+      foreach (var state in modifiedStates) {
+        var versionTuple = state.Type.VersionExtractor.Apply(TupleTransformType.Tuple, state.Tuple);
+        modifiedVersions.Add(state.Key, new VersionInfo(versionTuple), true);
+      }
+      removedKeys.AddRange(registry.GetItems(PersistenceState.Removed).Select(s => s.Key));
     }
 
     #endregion
@@ -62,18 +84,20 @@ namespace Xtensive.Storage
 
     private void AttachEventHandlers()
     {
+      Session.TransactionOpened += TransactionOpened;
+      Session.TransactionCommitted +=TransactionCommitted;
+      Session.TransactionRollbacked += TransactionRollbacked;
       Session.EntityMaterialized += EntityMaterialized;
-      Session.EntityChanging += EntityChanging;
-      Session.EntityRemoving += EntityRemoving;
-      Session.EntityCreated += EntityCreated;
+      Session.Persisting += Persisting;
     }
 
     private void DetachEventHandlers()
     {
+      Session.TransactionOpened -= TransactionOpened;
+      Session.TransactionCommitted -= TransactionCommitted;
+      Session.TransactionRollbacked -= TransactionRollbacked;
       Session.EntityMaterialized -= EntityMaterialized;
-      Session.EntityChanging -= EntityChanging;
-      Session.EntityRemoving -= EntityRemoving;
-      Session.EntityCreated -= EntityCreated;
+      Session.Persisting -= Persisting;
     }
 
     #endregion
@@ -114,7 +138,6 @@ namespace Xtensive.Storage
       : base(session)
     {
       ArgumentValidator.EnsureArgumentNotNull(versions, "versions");
-      Options = VersionCaptureOptions.Default;
       Versions = versions;
       AttachEventHandlers();
     }

@@ -149,6 +149,8 @@ namespace Xtensive.Storage.Tests.Model
     }
 
     [Test]
+    [Ignore]
+    [Obsolete]
     public void RootOnlyVersionTest()
     {
       AssertEx.Throws<DomainBuilderException>(() => 
@@ -185,18 +187,18 @@ namespace Xtensive.Storage.Tests.Model
       Assert.IsFalse(childType.GetVersionFields().Any(field => field==childType.Fields["ChildNonVersionField"]));
       
       var simpleType = model.Types[typeof (Simple)];
-      Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["NonLazyField1"]));
-      Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["NonLazyField2"]));
-      Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["ReferenceField.Id"]));
-      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["Id"]));
-      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["TypeId"]));
-      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["LazyField"]));
-      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["CollectionField"]));
-      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["StructureField"]));
-      Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["StructureField.NonLazyField"]));
-      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["StructureField.LazyField"]));
-      Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["StructureField.ReferenceField.Id"]));
-      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.First.Field==simpleType.Fields["ByteArrayField"]));
+      Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["NonLazyField1"]));
+      Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["NonLazyField2"]));
+      Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["ReferenceField.Id"]));
+      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["Id"]));
+      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["TypeId"]));
+      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["LazyField"]));
+      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["CollectionField"]));
+      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["StructureField"]));
+      Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["StructureField.NonLazyField"]));
+      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["StructureField.LazyField"]));
+      Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["StructureField.ReferenceField.Id"]));
+      Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["ByteArrayField"]));
     }
     
     [Test]

@@ -154,16 +154,6 @@ namespace Xtensive.Storage.Building.Definitions
     }
 
     /// <summary>
-    /// Gets a value indicating whether this property contains information about version.
-    /// </summary>
-    public bool IsVersion
-    {
-      get { return (attributes & FieldAttributes.Version) != 0; }
-      internal set { attributes = value ? attributes | FieldAttributes.Version : attributes & ~FieldAttributes.Version; }
-    }
-
-
-    /// <summary>
     /// Gets a value indicating whether this property is indexed.
     /// </summary>
     public bool IsIndexed

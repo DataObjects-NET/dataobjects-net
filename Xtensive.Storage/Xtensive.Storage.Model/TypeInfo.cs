@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Model
     private ReadOnlyList<AssociationInfo>      ownerAssociations;
     private ReadOnlyList<AssociationInfo>      removalSequence;
     private ReadOnlyList<FieldInfo>            versionFields;
-    private ReadOnlyList<Pair<ColumnInfo, int>> versionColumns;
+    private IList<ColumnInfo> versionColumns;
     private Type                               underlyingType;
     private HierarchyInfo                      hierarchy;
     private int                                typeId = NoTypeId;
@@ -507,37 +507,37 @@ namespace Xtensive.Storage.Model
     {
       if (IsLocked)
         return versionFields;
-
-      return Fields.Where(field => field.IsVersion).ToList();
+      
+      var fields = Fields
+        .Where(field => field.IsPrimitive && (field.AutoVersion || field.ManualVersion))
+        .ToList();
+      if (fields.Count == 0) {
+        var skipSet = Fields.Where(f => f.SkipVersion).ToHashSet();
+        fields.AddRange(Fields.Where(f => f.IsPrimitive 
+          && !f.IsSystem
+          && !f.IsPrimaryKey
+          && !f.IsLazyLoad
+          && !f.IsTypeId
+          && !f.IsTypeDiscriminator
+          && !f.ValueType.IsArray
+          && !skipSet.Contains(f)));
+      }
+      return fields;
     }
 
     /// <summary>
     /// Gets the version columns.
     /// </summary>
     /// <returns>The version columns.</returns>
-    public IList<Pair<ColumnInfo, int>> GetVersionColumns()
+    public IList<ColumnInfo> GetVersionColumns()
     {
       if (IsLocked)
         return versionColumns;
 
-      var versionFields = GetVersionFields();
-      if (versionFields.Count==0)
-        versionFields = (
-          from field in Fields
-          where field.IsPrimitive &&
-            !field.IsPrimaryKey && !field.IsSystem && !field.IsLazyLoad && !field.ValueType.IsArray &&
-            !((field.IsTypeId || field.IsTypeDiscriminator) && field.Parent==null)
-          select field
-          ).ToList();
-
-      return (
-        from field in versionFields
-        from column in field.Columns
-        select new Pair<ColumnInfo, int>(column, Columns.IndexOf(column))
-        into pair
-          orderby pair.Second
-          select pair
-        ).ToList();
+      return GetVersionFields()
+        .SelectMany(f => f.Columns)
+        .OrderBy(c => c.Field.MappingInfo.Offset)
+        .ToList();
     }
 
     /// <inheritdoc/>
@@ -569,11 +569,11 @@ namespace Xtensive.Storage.Model
       if (IsEntity) {
         if (!HasVersionRoots) {
           versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
-          versionColumns = new ReadOnlyList<Pair<ColumnInfo, int>>(GetVersionColumns());
+          versionColumns = new ReadOnlyList<ColumnInfo>(GetVersionColumns());
         }
         else {
           versionFields = new ReadOnlyList<FieldInfo>(new List<FieldInfo>());
-          versionColumns = new ReadOnlyList<Pair<ColumnInfo, int>>(new List<Pair<ColumnInfo, int>>());
+          versionColumns = new ReadOnlyList<ColumnInfo>(new List<ColumnInfo>());
         }
         HasVersionFields = versionFields.Count > 0;
       }
@@ -587,21 +587,14 @@ namespace Xtensive.Storage.Model
       }
 
       var sequence = new List<AssociationInfo>(associations.Count);
+      sequence.AddRange(associations.Where(a => a.OnOwnerRemove  == OnRemoveAction.Deny    && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Deny    && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnOwnerRemove  == OnRemoveAction.Clear   && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Clear   && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnOwnerRemove  == OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
 
-      var items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Deny && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType));
-      if (items != null) sequence.AddRange(items);
-      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Deny && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType));
-      if (items != null) sequence.AddRange(items);
-      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Clear && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType));
-      if (items != null) sequence.AddRange(items);
-      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Clear && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType));
-      if (items != null) sequence.AddRange(items);
-      items = associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType));
-      if (items != null) sequence.AddRange(items);
-      items = associations.Where(a => a.OnTargetRemove == OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType));
-      if (items != null) sequence.AddRange(items);
-
-      removalSequence = new ReadOnlyList<AssociationInfo>(sequence.ToList());
+      removalSequence = new ReadOnlyList<AssociationInfo>(sequence);
     }
 
     /// <inheritdoc/>
@@ -710,9 +703,9 @@ namespace Xtensive.Storage.Model
         versionExtractor = null;
         return;
       }
-      var types = versionColumns.Select(pair => pair.First.ValueType);
-      var map = versionColumns.Select(pair => pair.Second).ToArray();
-      var versionTupleDescriptor = TupleDescriptor.Create(types.ToArray());
+      var types = versionColumns.Select(c => c.ValueType).ToArray();
+      var map = versionColumns.Select(c => c.Field.MappingInfo.Offset).ToArray();
+      var versionTupleDescriptor = TupleDescriptor.Create(types);
       versionExtractor = new MapTransform(true, versionTupleDescriptor, map);
     }
 

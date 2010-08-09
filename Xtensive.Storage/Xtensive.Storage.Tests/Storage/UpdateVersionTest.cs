@@ -120,6 +120,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
   public class VersionStructure : Structure
   {
     [Field]
+    [Version]
     public int Version { get; set; }
   }
 
@@ -137,7 +138,7 @@ namespace Xtensive.Storage.Tests.Storage.VersionModel
     [Key, Field]
     public int Id { get; private set; }
 
-    [Version, Field]
+    [Field]
     public VersionStructure VersionId { get; private set;}
 
     [Field]

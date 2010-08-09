@@ -5,6 +5,7 @@
 // Created:    2009.08.13
 
 using System;
+using Xtensive.Core.Internals.DocTemplates;
 
 namespace Xtensive.Storage
 {
@@ -15,5 +16,26 @@ namespace Xtensive.Storage
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   public sealed class VersionAttribute : StorageAttribute
   {
+    /// <summary>
+    /// Gets the version check mode for the persitent property.
+    /// </summary>
+    public VersionMode Mode { get; private set; }
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <remarks><see cref="Mode"/> is set to <see cref="VersionMode.Auto"/>.</remarks>
+    public VersionAttribute()
+      : this(VersionMode.Auto)
+    {}
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="mode">The versioning mode.</param>
+    public VersionAttribute(VersionMode mode)
+    {
+      Mode = mode;
+    }
   }
 }

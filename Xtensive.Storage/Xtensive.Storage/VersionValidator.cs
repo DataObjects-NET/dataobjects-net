@@ -165,7 +165,7 @@ namespace Xtensive.Storage
     private static VersionInfo ExtractVersion(TypeInfo type, Tuple state)
     {
       if (state==null)
-        return new VersionInfo();
+        return VersionInfo.Void;
       var versionTuple = type.VersionExtractor.Apply(TupleTransformType.Tuple, state);
       return new VersionInfo(versionTuple);
     }
