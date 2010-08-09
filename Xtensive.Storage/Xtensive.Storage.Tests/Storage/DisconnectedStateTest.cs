@@ -803,6 +803,10 @@ namespace Xtensive.Storage.Tests.Storage
 
       // Modify data
       using (var session = Session.Open(Domain)) {
+        var order1 = Query.All<Order>().First(order => order.Number==1);
+        order1Key = order1.Key;
+        Assert.AreEqual(2, order1.Details.Count);
+
         using (state.Attach(session)) {
           using (var transactionScope = Transaction.Open()) {
             List<Order> orders = null;
@@ -819,9 +823,7 @@ namespace Xtensive.Storage.Tests.Storage
             session.Persist();
             newCustomer.Remove();
             session.Persist();
-
-            var order1 = orders.First(order => order.Number==1);
-            order1Key = order1.Key;
+            
             Assert.AreEqual(2, order1.Details.Count);
             Product product3 = null;
             using (state.Connect()) {

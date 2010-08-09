@@ -70,8 +70,12 @@ namespace Xtensive.Storage.Operations
     /// <inheritdoc/>
     protected override Operation CloneSelf(Operation clone)
     {
-      if (clone==null)
-        clone = new EntityFieldSetOperation(Key, Field, Value);
+      if (clone == null) {
+        if (ValueKey==null)
+          clone = new EntityFieldSetOperation(Key, Field, Value);
+        else
+          clone = new EntityFieldSetOperation(Key, Field, ValueKey);
+      }
       return clone;
     }
 

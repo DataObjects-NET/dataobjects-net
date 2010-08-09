@@ -15,13 +15,14 @@ namespace Xtensive.Storage
   public enum OperationLogType
   {
     /// <summary>
+    /// Log stores system operations.
+    /// The default option.
+    /// </summary>
+    SystemOperationLog,
+    /// <summary>
     /// Log stores outermost operations.
     /// </summary>
     OutermostOperationLog,
-    /// <summary>
-    /// Log stores system operations.
-    /// </summary>
-    SystemOperationLog,
     /// <summary>
     /// Log stores undo operations.
     /// </summary>
