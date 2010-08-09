@@ -175,9 +175,9 @@ namespace Xtensive.Storage.Building
       if (field.IsTypeDiscriminator)
         throw new DomainBuilderException(string.Format(
           Strings.VersionFieldXCanTBeTypeIdField, field.Name));
-      if ((field.Attributes & FieldAttributes.AutoVersion) == FieldAttributes.AutoVersion && field.IsStructure)
+      if ((field.Attributes & (FieldAttributes.AutoVersion | FieldAttributes.ManualVersion )) > 0 && field.IsStructure)
         throw new DomainBuilderException(string.Format(
-          Strings.ExVersionFieldXCanTBeOfYType, field.Name, field.ValueType.GetShortName()));
+          Strings.ExUnableToApplyVersionOnFieldXOfTypeY, field.Name, field.ValueType.GetShortName()));
     }
 
     internal static void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)

@@ -389,7 +389,7 @@ namespace Xtensive.Storage
     /// </returns>
     protected virtual bool HandleUpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
     {
-      foreach (var field in TypeInfo.GetVersionFields().Where(f => (f.Attributes & FieldAttributes.AutoVersion) == FieldAttributes.AutoVersion))
+      foreach (var field in TypeInfo.GetVersionFields().Where(f => f.AutoVersion))
         SetFieldValue(field, VersionGenerator.Next(GetFieldValue(field)));
       return true;
     }

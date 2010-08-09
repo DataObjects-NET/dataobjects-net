@@ -271,11 +271,8 @@ namespace Xtensive.Storage.Building
        
         Validator.ValidateType(typeDef, hierarchyDef);
         // We should skip key fields inspection as they have been already inspected
-        foreach (var field in typeDef.Fields) {
-          var _field = field;
-          if (!hierarchyDef.KeyFields.Any(f => f.Name==_field.Name))
-            InspectField(typeDef, field, false);
-        }
+        foreach (var field in typeDef.Fields.Where(f => !hierarchyDef.KeyFields.Any(kf => kf.Name == f.Name)))
+          InspectField(typeDef, field, false);
       }
     }
 

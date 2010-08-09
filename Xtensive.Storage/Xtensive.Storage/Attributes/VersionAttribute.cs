@@ -24,8 +24,9 @@ namespace Xtensive.Storage
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
+    /// <remarks><see cref="Mode"/> is set to <see cref="VersionMode.Auto"/>.</remarks>
     public VersionAttribute()
-      : this(VersionMode.Manual)
+      : this(VersionMode.Auto)
     {}
 
     /// <summary>

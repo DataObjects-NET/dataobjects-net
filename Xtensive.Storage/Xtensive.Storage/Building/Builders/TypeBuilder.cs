@@ -260,8 +260,10 @@ namespace Xtensive.Storage.Building.Builders
     {
       var buffer = fields.ToList();
 
-      foreach (FieldInfo field in buffer) {
+      foreach (var field in buffer) {
         var clone = field.Clone();
+        if (target.SkipVersion)
+          clone.SkipVersion = true;
         clone.IsSystem = false;
         clone.IsLazyLoad = field.IsLazyLoad || target.IsLazyLoad;
         if (target.IsDeclared) {

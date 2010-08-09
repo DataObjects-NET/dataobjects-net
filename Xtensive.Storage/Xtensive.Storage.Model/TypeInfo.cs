@@ -509,12 +509,10 @@ namespace Xtensive.Storage.Model
         return versionFields;
       
       var fields = Fields
-        .Where(field => field.IsPrimitive && (
-          (field.Attributes & FieldAttributes.AutoVersion) == FieldAttributes.AutoVersion ||
-          (field.Attributes & FieldAttributes.ManualVersion) == FieldAttributes.ManualVersion))
+        .Where(field => field.IsPrimitive && (field.AutoVersion || field.ManualVersion))
         .ToList();
       if (fields.Count == 0) {
-        var skipSet = Fields.Where(field => (field.Attributes & FieldAttributes.SkipVersion) == FieldAttributes.SkipVersion).ToHashSet();
+        var skipSet = Fields.Where(f => f.SkipVersion).ToHashSet();
         fields.AddRange(Fields.Where(f => f.IsPrimitive 
           && !f.IsSystem
           && !f.IsPrimaryKey

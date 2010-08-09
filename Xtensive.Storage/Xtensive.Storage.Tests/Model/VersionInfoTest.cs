@@ -149,6 +149,8 @@ namespace Xtensive.Storage.Tests.Model
     }
 
     [Test]
+    [Ignore]
+    [Obsolete]
     public void RootOnlyVersionTest()
     {
       AssertEx.Throws<DomainBuilderException>(() => 
