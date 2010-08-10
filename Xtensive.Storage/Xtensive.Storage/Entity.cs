@@ -237,11 +237,11 @@ namespace Xtensive.Storage
     public override sealed event PropertyChangedEventHandler PropertyChanged
     {
       add {
-        Session.EntityEventBroker.AddSubscriber(
+        Session.EntityEvents.AddSubscriber(
           Key, EntityEventBroker.PropertyChangedEventKey, value);
       }
       remove {
-        Session.EntityEventBroker.RemoveSubscriber(Key, 
+        Session.EntityEvents.RemoveSubscriber(Key, 
           EntityEventBroker.PropertyChangedEventKey, value);
       }
     }
@@ -421,16 +421,17 @@ namespace Xtensive.Storage
 
     private bool SystemUpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
     {
-      if (!Session.IsSystemLogicOnly)
-        Session.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
+      Session.SystemEvents.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
+      Session.Events.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
 
       bool changed = TypeInfo.HasVersionFields 
         ? HandleUpdateVersionInfo(changedEntity, changedField) 
         : true; // No [Version] fields = VersionInfo is composed of other (incl. changed)
                 // fields, so let's consider it is changed.
 
-      if (!Session.IsSystemLogicOnly)
-        Session.NotifyEntityVersionInfoChanged(changedEntity, changedField, changed);
+      Session.SystemEvents.NotifyEntityVersionInfoChanged(changedEntity, changedField, changed);
+      Session.Events.NotifyEntityVersionInfoChanged(changedEntity, changedField, changed);
+
       return changed;
     }
 
@@ -439,10 +440,12 @@ namespace Xtensive.Storage
       if (Session.IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
 
+      Session.SystemEvents.NotifyEntityRemoving(this);
+      Session.Events.NotifyEntityRemoving(this);
+
       if (Session.IsSystemLogicOnly)
         return;
 
-      Session.NotifyEntityRemoving(this);
       var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntityEventKey);
       if (subscriptionInfo.Second != null)
         ((Action<Key>)subscriptionInfo.Second)
@@ -452,10 +455,12 @@ namespace Xtensive.Storage
 
     internal void SystemRemove()
     {
+      Session.SystemEvents.NotifyEntityRemove(this);
+      Session.Events.NotifyEntityRemove(this);
+
       if (Session.IsSystemLogicOnly)
         return;
 
-      Session.NotifyEntityRemove(this);
       var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntityEventKey);
       if (subscriptionInfo.Second != null)
         ((Action<Key>)subscriptionInfo.Second).Invoke(subscriptionInfo.First);
@@ -464,10 +469,8 @@ namespace Xtensive.Storage
 
     internal void SystemRemoveCompleted(Exception exception)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-
-      Session.NotifyEntityRemoveCompleted(this, exception);
+      Session.SystemEvents.NotifyEntityRemoveCompleted(this, exception);
+      Session.Events.NotifyEntityRemoveCompleted(this, exception);
     }
 
     internal override sealed void SystemBeforeInitialize(bool materialize)
@@ -481,9 +484,12 @@ namespace Xtensive.Storage
         return;
 
       bool hasKeyGenerator = Session.Domain.KeyGenerators[TypeInfo.Key]!=null;
-      if (hasKeyGenerator)
-        Session.NotifyKeyGenerated(Key);
-      Session.NotifyEntityCreated(this);
+      if (hasKeyGenerator) {
+        Session.SystemEvents.NotifyKeyGenerated(Key);
+        Session.Events.NotifyKeyGenerated(Key);
+      }
+      Session.SystemEvents.NotifyEntityCreated(this);
+      Session.Events.NotifyEntityCreated(this);
 
       var operations = Session.Operations;
       // Operation 1:
@@ -544,10 +550,12 @@ namespace Xtensive.Storage
         Log.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
       EnsureIsFetched(field);
 
+      Session.SystemEvents.NotifyFieldValueGetting(this, field);
+      Session.Events.NotifyFieldValueGetting(this, field);
+
       if (Session.IsSystemLogicOnly)
         return;
 
-      Session.NotifyFieldValueGetting(this, field);
       var subscriptionInfo = GetSubscription(EntityEventBroker.GettingFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo>) subscriptionInfo.Second)
@@ -557,10 +565,12 @@ namespace Xtensive.Storage
 
     internal override sealed void SystemGetValue(FieldInfo field, object value)
     {
+      Session.SystemEvents.NotifyFieldValueGet(this, field, value);
+      Session.Events.NotifyFieldValueGet(this, field, value);
+
       if (Session.IsSystemLogicOnly)
         return;
 
-      Session.NotifyFieldValueGet(this, field, value);
       var subscriptionInfo = GetSubscription(EntityEventBroker.GetFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object>) subscriptionInfo.Second)
@@ -570,9 +580,8 @@ namespace Xtensive.Storage
 
     internal override sealed void SystemGetValueCompleted(FieldInfo field, object value, Exception exception)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      Session.NotifyFieldValueGetCompleted(this, field, value, exception);
+      Session.SystemEvents.NotifyFieldValueGetCompleted(this, field, value, exception);
+      Session.Events.NotifyFieldValueGetCompleted(this, field, value, exception);
     }
 
     internal override sealed void SystemSetValueAttempt(FieldInfo field, object value)
@@ -585,10 +594,12 @@ namespace Xtensive.Storage
 
       UpdateVersionInfo(this, field);
 
+      Session.SystemEvents.NotifyFieldValueSettingAttempt(this, field, value);
+      Session.Events.NotifyFieldValueSettingAttempt(this, field, value);
+
       if (Session.IsSystemLogicOnly)
         return;
 
-      Session.NotifyFieldValueSettingAttempt(this, field, value);
       var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldAttemptEventKey);
       if (subscriptionInfo.Second != null)
         ((Action<Key, FieldInfo, object>)subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
@@ -599,10 +610,12 @@ namespace Xtensive.Storage
     {
       EnsureNotRemoved();
 
+      Session.SystemEvents.NotifyFieldValueSetting(this, field, value);
+      Session.Events.NotifyFieldValueSetting(this, field, value);
+
       if (Session.IsSystemLogicOnly)
         return;
 
-      Session.NotifyFieldValueSetting(this, field, value);
       var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
@@ -611,7 +624,9 @@ namespace Xtensive.Storage
 
     internal override sealed void SystemBeforeTupleChange()
     {
-      Session.NotifyEntityChanging(this);
+      Session.SystemEvents.NotifyEntityChanging(this);
+      Session.Events.NotifyEntityChanging(this);
+      
       if (PersistenceState != PersistenceState.New) {
         // Ensures there will be a DifferentialTuple, not the regular one
         var dTuple = State.DifferentialTuple;
@@ -626,12 +641,15 @@ namespace Xtensive.Storage
         State.PersistenceState = PersistenceState.Modified;
       }
       
+      Session.SystemEvents.NotifyFieldValueSet(this, field, oldValue, newValue);
+      Session.Events.NotifyFieldValueSet(this, field, oldValue, newValue);
+
       if (Session.IsSystemLogicOnly)
         return;
 
       if (Session.Domain.Configuration.AutoValidation)
         this.Validate();
-      Session.NotifyFieldValueSet(this, field, oldValue, newValue);
+      
       var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, object, object>) subscriptionInfo.Second)
@@ -642,9 +660,8 @@ namespace Xtensive.Storage
 
     internal override sealed void SystemSetValueCompleted(FieldInfo field, object oldValue, object newValue, Exception exception)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      Session.NotifyFieldValueSetCompleted(this, field, oldValue, newValue, exception);
+      Session.SystemEvents.NotifyFieldValueSetCompleted(this, field, oldValue, newValue, exception);
+      Session.Events.NotifyFieldValueSetCompleted(this, field, oldValue, newValue, exception);
     }
 
     /// <inheritdoc/>
@@ -654,7 +671,7 @@ namespace Xtensive.Storage
         return new Pair<Key, Delegate>();
       var entityKey = Key;
       return new Pair<Key, Delegate>(entityKey,
-        Session.EntityEventBroker.GetSubscriber(entityKey, eventKey));
+        Session.EntityEvents.GetSubscriber(entityKey, eventKey));
     }
 
     #endregion

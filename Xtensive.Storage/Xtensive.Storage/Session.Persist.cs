@@ -70,8 +70,9 @@ namespace Xtensive.Storage
         }
 
       IsPersisting = true;
-      NotifyPersisting();
-
+      
+      SystemEvents.NotifyPersisting();
+      Events.NotifyPersisting();
       try {
         using (this.OpenSystemLogicOnlyRegion()) {
           EnsureTransactionIsStarted();
@@ -108,7 +109,8 @@ namespace Xtensive.Storage
               Log.Debug(Strings.LogSessionXPersistCompleted, this);
           }
         }
-        NotifyPersisted();
+        SystemEvents.NotifyPersisted();
+        Events.NotifyPersisted();
       }
       finally {
         IsPersisting = false;

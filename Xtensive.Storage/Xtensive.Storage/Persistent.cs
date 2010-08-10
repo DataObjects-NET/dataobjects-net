@@ -569,7 +569,7 @@ namespace Xtensive.Storage
     /// <param name="field">The field, which value is changed.</param>
     protected internal void NotifyFieldChanged(FieldInfo field)
     {
-      if (!Session.EntityEventBroker.HasSubscribers)
+      if (!Session.EntityEvents.HasSubscribers)
         return;
 
       var rootField = field;

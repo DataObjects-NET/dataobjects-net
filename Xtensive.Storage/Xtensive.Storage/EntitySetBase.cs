@@ -185,9 +185,12 @@ namespace Xtensive.Storage
 
     private void SystemBeforeAdd(Entity item)
     {
+      Session.SystemEvents.NotifyEntitySetItemAdding(this, item);
+      Session.Events.NotifyEntitySetItemAdding(this, item);
+
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyEntitySetItemAdding(this, item);
+
       var subscriptionInfo = GetSubscription(EntityEventBroker.AddingEntitySetItemEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
@@ -197,9 +200,12 @@ namespace Xtensive.Storage
 
     private void SystemAdd(Entity item)
     {
+      Session.SystemEvents.NotifyEntitySetItemAdd(this, item);
+      Session.Events.NotifyEntitySetItemAdd(this, item);
+      
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyEntitySetItemAdd(this, item);
+
       var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
@@ -210,16 +216,18 @@ namespace Xtensive.Storage
 
     private void SystemAddCompleted(Entity item, Exception exception)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      Session.NotifyEntitySetItemAddCompleted(this, item, exception);
+      Session.SystemEvents.NotifyEntitySetItemAddCompleted(this, item, exception);
+      Session.Events.NotifyEntitySetItemAddCompleted(this, item, exception);
     }
 
     private void SystemBeforeRemove(Entity item)
     {
+      Session.SystemEvents.NotifyEntitySetItemRemoving(this, item);
+      Session.Events.NotifyEntitySetItemRemoving(this, item);
+      
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyEntitySetItemRemoving(this, item);
+      
       var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntitySetItemEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, Field, item);
@@ -228,9 +236,12 @@ namespace Xtensive.Storage
 
     private void SystemRemove(Entity item)
     {
+      Session.SystemEvents.NotifyEntitySetItemRemoved(Owner, this, item);
+      Session.Events.NotifyEntitySetItemRemoved(Owner, this, item);
+      
       if (Session.IsSystemLogicOnly)
         return;
-      Session.NotifyEntitySetItemRemoved(Owner, this, item);
+
       var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
       if (subscriptionInfo.Second!=null)
         ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
@@ -241,9 +252,8 @@ namespace Xtensive.Storage
 
     private void SystemRemoveCompleted(Entity item, Exception exception)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      Session.NotifyEntitySetItemRemoveCompleted(this, item, exception);
+      Session.SystemEvents.NotifyEntitySetItemRemoveCompleted(this, item, exception);
+      Session.Events.NotifyEntitySetItemRemoveCompleted(this, item, exception);
     }
 
     private void SystemBeforeClear()
@@ -277,11 +287,11 @@ namespace Xtensive.Storage
     [Infrastructure]
     public event PropertyChangedEventHandler PropertyChanged {
       add {
-        Session.EntityEventBroker.AddSubscriber(GetOwnerKey(Owner), Field,
+        Session.EntityEvents.AddSubscriber(GetOwnerKey(Owner), Field,
           EntityEventBroker.PropertyChangedEventKey, value);
       }
       remove {
-        Session.EntityEventBroker.RemoveSubscriber(GetOwnerKey(Owner), Field,
+        Session.EntityEvents.RemoveSubscriber(GetOwnerKey(Owner), Field,
           EntityEventBroker.PropertyChangedEventKey, value);
       }
     }
@@ -290,11 +300,11 @@ namespace Xtensive.Storage
     [Infrastructure]
     public event NotifyCollectionChangedEventHandler CollectionChanged {
       add {
-        Session.EntityEventBroker.AddSubscriber(GetOwnerKey(Owner), Field,
+        Session.EntityEvents.AddSubscriber(GetOwnerKey(Owner), Field,
           EntityEventBroker.CollectionChangedEventKey, value);
       }
       remove {
-        Session.EntityEventBroker.RemoveSubscriber(GetOwnerKey(Owner), Field,
+        Session.EntityEvents.RemoveSubscriber(GetOwnerKey(Owner), Field,
           EntityEventBroker.CollectionChangedEventKey, value);
       }
     }
@@ -306,7 +316,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected void NotifyPropertyChanged(string propertyName)
     {
-      if (!Session.EntityEventBroker.HasSubscribers)
+      if (!Session.EntityEvents.HasSubscribers)
         return;
       var subscriptionInfo = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
       if (subscriptionInfo.Second != null)
@@ -322,7 +332,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item)
     {
-      if (!Session.EntityEventBroker.HasSubscribers)
+      if (!Session.EntityEvents.HasSubscribers)
         return;
       var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
       if (subscriptionInfo.Second != null) {
@@ -346,7 +356,7 @@ namespace Xtensive.Storage
       var entityKey = GetOwnerKey(Owner);
       if (entityKey!=null)
         return new Pair<Key, Delegate>(entityKey,
-          Session.EntityEventBroker.GetSubscriber(entityKey, Field, eventKey));
+          Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
       return new Pair<Key, Delegate>(null, null);
     }
 

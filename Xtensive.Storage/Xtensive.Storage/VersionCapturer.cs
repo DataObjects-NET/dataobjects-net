@@ -62,18 +62,18 @@ namespace Xtensive.Storage
 
     private void AttachEventHandlers()
     {
-      Session.EntityMaterialized += EntityMaterialized;
-      Session.EntityChanging += EntityChanging;
-      Session.EntityRemoving += EntityRemoving;
-      Session.EntityCreated += EntityCreated;
+      Session.SystemEvents.EntityMaterialized += EntityMaterialized;
+      Session.SystemEvents.EntityChanging += EntityChanging;
+      Session.SystemEvents.EntityRemoving += EntityRemoving;
+      Session.SystemEvents.EntityCreated += EntityCreated;
     }
 
     private void DetachEventHandlers()
     {
-      Session.EntityMaterialized -= EntityMaterialized;
-      Session.EntityChanging -= EntityChanging;
-      Session.EntityRemoving -= EntityRemoving;
-      Session.EntityCreated -= EntityCreated;
+      Session.SystemEvents.EntityMaterialized -= EntityMaterialized;
+      Session.SystemEvents.EntityChanging -= EntityChanging;
+      Session.SystemEvents.EntityRemoving -= EntityRemoving;
+      Session.SystemEvents.EntityCreated -= EntityCreated;
     }
 
     #endregion

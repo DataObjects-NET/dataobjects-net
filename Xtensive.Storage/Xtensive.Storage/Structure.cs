@@ -130,11 +130,11 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override sealed event PropertyChangedEventHandler PropertyChanged {
       add {
-        Session.EntityEventBroker.AddSubscriber(GetOwnerEntityKey(Owner), Field,
+        Session.EntityEvents.AddSubscriber(GetOwnerEntityKey(Owner), Field,
           EntityEventBroker.PropertyChangedEventKey, value);
       }
       remove {
-        Session.EntityEventBroker.RemoveSubscriber(GetOwnerEntityKey(Owner), Field,
+        Session.EntityEvents.RemoveSubscriber(GetOwnerEntityKey(Owner), Field,
          EntityEventBroker.PropertyChangedEventKey, value);
       }
     }
@@ -284,7 +284,7 @@ namespace Xtensive.Storage
       var entityKey = GetOwnerEntityKey(Owner);
       if (entityKey!=null)
         return new Pair<Key, Delegate>(entityKey,
-          Session.EntityEventBroker.GetSubscriber(entityKey, Field, eventKey));
+          Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
       return new Pair<Key, Delegate>(null, null);
     }
 

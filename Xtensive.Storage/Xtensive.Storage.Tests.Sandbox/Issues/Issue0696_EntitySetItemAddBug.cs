@@ -130,7 +130,7 @@ namespace Xtensive.Storage.Tests.Issues
         var m = new Master();
 
         session.Persist();
-        session.EntitySetItemAdd += (sender, e) => {
+        session.Events.EntitySetItemAdd += (sender, e) => {
           if (e.EntitySet ==m.Details && e.Item is Detail) {
             // This call leads to EntitySet content refresh, and thus
             // discarding of just added item.
@@ -167,19 +167,19 @@ namespace Xtensive.Storage.Tests.Issues
           isNewChain = true;
           m2.Details.Add(d3);
         };
-        session.EntitySetItemRemove += h1;
+        session.Events.EntitySetItemRemove += h1;
         m2.Details.Add(d2);
       }
     }
 
     private void AttachSyncEventCheckers(Session session)
     {
-      session.EntityFieldValueSetting += CreateEntityFieldSettingHandler("Field value setting", Direction.Positive);
-      session.EntityFieldValueSet     += CreateEntityFieldSetHandler("Field value set", Direction.Negative);
-      session.EntitySetItemAdding     += CreateEntitySetItemHandler("Item adding", Direction.Positive);
-      session.EntitySetItemAdd        += CreateEntitySetItemHandler("Item added", Direction.Negative);
-      session.EntitySetItemRemoving   += CreateEntitySetItemHandler("Item removing", Direction.Positive);
-      session.EntitySetItemRemove     += CreateEntitySetItemHandler("Item removed", Direction.Negative);
+      session.Events.EntityFieldValueSetting += CreateEntityFieldSettingHandler("Field value setting", Direction.Positive);
+      session.Events.EntityFieldValueSet     += CreateEntityFieldSetHandler("Field value set", Direction.Negative);
+      session.Events.EntitySetItemAdding     += CreateEntitySetItemHandler("Item adding", Direction.Positive);
+      session.Events.EntitySetItemAdd        += CreateEntitySetItemHandler("Item added", Direction.Negative);
+      session.Events.EntitySetItemRemoving   += CreateEntitySetItemHandler("Item removing", Direction.Positive);
+      session.Events.EntitySetItemRemove     += CreateEntitySetItemHandler("Item removed", Direction.Negative);
     }
 
     private EventHandler<EntityFieldValueSetEventArgs> CreateEntityFieldSetHandler(string description, Direction direction)

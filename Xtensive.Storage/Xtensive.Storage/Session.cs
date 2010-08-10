@@ -7,19 +7,16 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.PairIntegrity;
@@ -361,9 +358,12 @@ namespace Xtensive.Storage
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry(this);
 
-      // Etc...
-      // AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
-      EntityEventBroker = new EntityEventBroker();
+      // Events
+      EntityEvents = new EntityEventBroker();
+      Events = new SessionEventAccessor(this, false);
+      SystemEvents = new SessionEventAccessor(this, true);
+
+      // Etc.
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       Pinner = new Pinner(this);
@@ -394,7 +394,10 @@ namespace Xtensive.Storage
       try {
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXDisposing, this);
-        NotifyDisposing();
+        
+        SystemEvents.NotifyDisposing();
+        Events.NotifyDisposing();
+        
         Services.DisposeSafely();
         Handler.DisposeSafely();
         sessionScope.DisposeSafely();

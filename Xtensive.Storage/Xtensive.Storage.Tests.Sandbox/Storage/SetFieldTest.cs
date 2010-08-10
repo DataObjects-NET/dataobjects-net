@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Tests.Storage.SetFieldTest
     {
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
-        session.EntityFieldValueSetting += (sender, e) => {
+        session.Events.EntityFieldValueSetting += (sender, e) => {
           fieldSetCallCount++;
         };
 
