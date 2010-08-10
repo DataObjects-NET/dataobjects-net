@@ -13,6 +13,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Operations;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
@@ -49,6 +50,14 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     public void Remove(IEnumerable<Entity> entities)
     {
+      ArgumentValidator.EnsureArgumentNotNull(entities, "entities");
+      bool isEmpty = true;
+      foreach (var entity in entities) {
+        isEmpty = false;
+        entity.EnsureNotRemoved();
+      }
+      if (isEmpty)
+        return;
       var processedEntities = new List<Entity>();
       try {
         using (var region = Validation.Disable()) {
@@ -56,12 +65,9 @@ namespace Xtensive.Storage.ReferentialIntegrity
           using (var scope = operations.BeginRegistration(OperationType.System)) 
           using (Context = new RemovalContext(this)) {
             Session.EnforceChangeRegistrySizeLimit();
-            foreach (var entity in entities) {
-              entity.EnsureNotRemoved();
-              if (operations.CanRegisterOperation)
-                operations.RegisterOperation(
-                  new EntityRemoveOperation(entity.Key));
-            }
+            if (operations.CanRegisterOperation)
+              operations.RegisterOperation(
+                new EntitiesRemoveOperation(entities.Select(e => e.Key)));
             Context.Enqueue(entities);
             while (!Context.QueueIsEmpty) {
               var entitiesForProcessing = Context.GatherEntitiesForProcessing();

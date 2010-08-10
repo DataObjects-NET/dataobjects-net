@@ -43,7 +43,7 @@ namespace Xtensive.Storage.ObjectMapping
         operation = CreateEntityCreateOperation(mappingOperation);
         break;
       case OperationType.RemoveObject:
-        operation = new EntityRemoveOperation(ExtractKey(mappingOperation.Object));
+        operation = new EntitiesRemoveOperation(ExtractKey(mappingOperation.Object));
         break;
       case OperationType.SetProperty:
         operation = CreateEntityFieldSetOperation(mappingOperation);

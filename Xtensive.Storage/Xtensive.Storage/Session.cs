@@ -327,6 +327,23 @@ namespace Xtensive.Storage
       return new Disposable(_ => { CommandTimeout = oldTimeout; });
     }
 
+    /// <summary>
+    /// Removes the specified set of entities.
+    /// </summary>
+    /// <typeparam name="T">Entity type.</typeparam>
+    /// <param name="entities">The entities.</param>
+    /// <exception cref="ReferentialIntegrityException">
+    /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.
+    /// </exception>
+    public void Remove<T>(IEnumerable<T> entities)
+      where T : IEntity
+    {
+      using (var tx = Transaction.Open()) {
+        RemovalProcessor.Remove(entities.Cast<Entity>().ToList());
+        tx.Complete();
+      }
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {
