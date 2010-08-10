@@ -124,7 +124,7 @@ namespace Xtensive.Storage
         if (IsRemoved)
           return VersionInfo.Void;
         if (TypeInfo.HasVersionRoots) {
-          var version = new VersionInfo();
+          var version = VersionInfo.Void;
           foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
             if (root is IHasVersionRoots)
               throw new InvalidOperationException(Strings.ExVersionRootObjectCantImplementIHasVersionRoots);
@@ -133,15 +133,15 @@ namespace Xtensive.Storage
           return version;
         }
         if (TypeInfo.VersionExtractor==null)
-          return new VersionInfo(); // returns empty VersionInfo
+          return VersionInfo.Void;
         var tuple = State.Tuple;
         var versionColumns = TypeInfo.GetVersionColumns();
         List<PrefetchFieldDescriptor> columnsToPrefetch = null;
-        foreach (var pair in versionColumns) {
-          if (!tuple.GetFieldState(pair.Second).IsAvailable()) {
+        foreach (var columnInfo in versionColumns) {
+          if (!tuple.GetFieldState(columnInfo.Field.MappingInfo.Offset).IsAvailable()) {
             if (columnsToPrefetch==null)
               columnsToPrefetch = new List<PrefetchFieldDescriptor>();
-            columnsToPrefetch.Add(new PrefetchFieldDescriptor(pair.First.Field));
+            columnsToPrefetch.Add(new PrefetchFieldDescriptor(columnInfo.Field));
           }
         }
         if (columnsToPrefetch!=null) {
@@ -353,7 +353,7 @@ namespace Xtensive.Storage
     /// <see cref="IHasVersionRoots"/>.</exception>
     protected internal bool UpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
     {
-      if (State.IsVersionInfoUpdated || IsRemoved || PersistenceState==PersistenceState.New)
+      if (State.IsVersionInfoUpdated || IsRemoved)
         return true;
       bool changed = false;
       try {
@@ -383,9 +383,9 @@ namespace Xtensive.Storage
     /// <see langword="True"/>, if <see cref="VersionInfo"/> was changed;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    protected virtual bool HandleUpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
+    protected virtual bool UpdateVersion(Entity changedEntity, FieldInfo changedField)
     {
-      foreach (var field in TypeInfo.GetVersionFields())
+      foreach (var field in TypeInfo.GetVersionFields().Where(f => f.AutoVersion))
         SetFieldValue(field, VersionGenerator.Next(GetFieldValue(field)));
       return true;
     }
@@ -424,10 +424,9 @@ namespace Xtensive.Storage
       Session.SystemEvents.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
       Session.Events.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
 
-      bool changed = TypeInfo.HasVersionFields 
-        ? HandleUpdateVersionInfo(changedEntity, changedField) 
-        : true; // No [Version] fields = VersionInfo is composed of other (incl. changed)
-                // fields, so let's consider it is changed.
+      bool changed = TypeInfo.HasVersionFields
+        ? UpdateVersion(changedEntity, changedField)
+        : false;
 
       Session.SystemEvents.NotifyEntityVersionInfoChanged(changedEntity, changedField, changed);
       Session.Events.NotifyEntityVersionInfoChanged(changedEntity, changedField, changed);

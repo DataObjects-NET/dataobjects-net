@@ -83,6 +83,41 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets a value indicating whether this property is not used within an entity version.
+    /// </summary>
+    public bool SkipVersion
+    {
+      [DebuggerStepThrough]
+      get { return (Attributes & FieldAttributes.SkipVersion) != 0; }
+      [DebuggerStepThrough]
+      set
+      {
+        this.EnsureNotLocked();
+        Attributes = value
+          ? (Attributes | FieldAttributes.SkipVersion)
+          : (Attributes & ~FieldAttributes.SkipVersion);
+      }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this property belongs to an entity version. Updated manually.
+    /// </summary>
+    public bool ManualVersion
+    {
+      [DebuggerStepThrough]
+      get { return (Attributes & FieldAttributes.ManualVersion) != 0; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether this property belongs to an entity version. Updated automatically.
+    /// </summary>
+    public bool AutoVersion
+    {
+      [DebuggerStepThrough]
+      get { return (Attributes & FieldAttributes.AutoVersion) != 0; }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this property contains type identifier.
     /// </summary>
     public bool IsTypeId {
@@ -251,20 +286,6 @@ namespace Xtensive.Storage.Model
       set {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.LazyLoad : Attributes & ~FieldAttributes.LazyLoad;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether property is part of version.
-    /// </summary>
-    public bool IsVersion
-    {
-      [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Version) != 0; }
-      [DebuggerStepThrough]
-      set {
-        this.EnsureNotLocked();
-        Attributes = value ? Attributes | FieldAttributes.Version : Attributes & ~FieldAttributes.Version;
       }
     }
 

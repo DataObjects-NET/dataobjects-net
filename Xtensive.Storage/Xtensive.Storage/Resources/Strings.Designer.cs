@@ -2787,6 +2787,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to apply VersionAttribute with VersionMode.Auto or Version.Mode.Manual mode set on field {0} of type {1}. Only VersionMode.Skip is allowed..
+        /// </summary>
+        internal static string ExUnableToApplyVersionOnFieldXOfTypeY {
+            get {
+                return ResourceManager.GetString("ExUnableToApplyVersionOnFieldXOfTypeY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to build full-text indexes for hierarchy &apos;{0}&apos; with InheritanceSchema.ClassTable..
         /// </summary>
         internal static string ExUnableToBuildFulltextIndexesForHierarchyWithInheritanceSchemaClassTable {

@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using Xtensive.Core.Reflection;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Resources;
+using FieldAttributes = Xtensive.Storage.Model.FieldAttributes;
 
 namespace Xtensive.Storage.Building
 {
@@ -171,13 +172,19 @@ namespace Xtensive.Storage.Building
       if (field.IsTypeId)
         throw new DomainBuilderException(string.Format(
           Strings.VersionFieldXCanTBeTypeIdField, field.Name));
+      if (field.IsTypeDiscriminator)
+        throw new DomainBuilderException(string.Format(
+          Strings.VersionFieldXCanTBeTypeIdField, field.Name));
+      if ((field.Attributes & (FieldAttributes.AutoVersion | FieldAttributes.ManualVersion )) > 0 && field.IsStructure)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExUnableToApplyVersionOnFieldXOfTypeY, field.Name, field.ValueType.GetShortName()));
     }
 
     internal static void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
-      if (typeDef.Fields.Any(field => field.IsVersion) && hierarchyDef.Root!=typeDef)
-        throw new DomainBuilderException(string.Format(
-          Strings.ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot, typeDef.Name));
+//      if (typeDef.Fields.Any(field => field.IsVersion) && hierarchyDef.Root!=typeDef)
+//        throw new DomainBuilderException(string.Format(
+//          Strings.ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot, typeDef.Name));
     }
 
     public static void EnsureUnderlyingTypeIsAspected(TypeDef type)

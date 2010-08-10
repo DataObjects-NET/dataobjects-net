@@ -116,7 +116,21 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(FieldDef fieldDef, VersionAttribute attribute)
     {
-      fieldDef.IsVersion = true;
+      FieldAttributes value;
+      switch(attribute.Mode) {
+        case VersionMode.Manual:
+          value = FieldAttributes.ManualVersion;
+          break;
+        case VersionMode.Skip:
+          value = FieldAttributes.SkipVersion;
+          break;
+        case VersionMode.Auto:
+          value = FieldAttributes.AutoVersion;
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+      fieldDef.Attributes |= value;
     }
 
     public static void Process(FieldDef fieldDef, TypeDiscriminatorAttribute attribute)

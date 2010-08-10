@@ -1492,6 +1492,9 @@ Schema difference:
   <data name="LogSessionXEntityWithKeyYIdentifiedAsZ" xml:space="preserve">
     <value>Session '{0}'. Identifying entity: Key = '{1}', identified as '{2}'.</value>
   </data>
+  <data name="ExUnableToApplyVersionOnFieldXOfTypeY">
+    <value xml:space="preserve">Unable to apply VersionAttribute with VersionMode.Auto or Version.Mode.Manual mode set on field {0} of type {1}. Only VersionMode.Skip is allowed.</value>
+  </data>
   <data name="ExInvalidScopeDisposalOrder" xml:space="preserve">
     <value>Invalid scope disposal order.</value>
   </data>
