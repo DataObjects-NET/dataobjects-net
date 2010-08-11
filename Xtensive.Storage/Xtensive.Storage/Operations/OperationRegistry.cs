@@ -167,29 +167,6 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <summary>
-    /// Temporarily disables operation logging.
-    /// </summary>
-    /// <returns>An <see cref="IDisposable"/> object enabling the logging back on its disposal.</returns>
-    public IDisposable DisableOperationRegistration()
-    {
-      if (!isOperationRegistrationEnabled)
-        return null;
-      var result = new Disposable<OperationRegistry, bool>(this, isOperationRegistrationEnabled,
-        (disposing, _this, previousState) => _this.isOperationRegistrationEnabled = previousState);
-      isOperationRegistrationEnabled = false;
-      return result;
-//      bool oldIsOperationRegistrationEnabled = isOperationRegistrationEnabled;
-//      bool oldIsUndoOperationRegistrationEnabled = isUndoOperationRegistrationEnabled;
-//      var result = new Disposable(disposing => {
-//          isOperationRegistrationEnabled = oldIsOperationRegistrationEnabled;
-//          isUndoOperationRegistrationEnabled = oldIsUndoOperationRegistrationEnabled;
-//        });
-//      isOperationRegistrationEnabled = false;
-//      isUndoOperationRegistrationEnabled = false;
-//      return result;
-    }
-
-    /// <summary>
     /// Temporarily disables undo operation logging.
     /// </summary>
     /// <returns>An <see cref="IDisposable"/> object enabling the logging back on its disposal.</returns>
