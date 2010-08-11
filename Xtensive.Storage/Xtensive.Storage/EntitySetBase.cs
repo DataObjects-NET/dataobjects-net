@@ -186,97 +186,115 @@ namespace Xtensive.Storage
     private void SystemBeforeAdd(Entity item)
     {
       Session.SystemEvents.NotifyEntitySetItemAdding(this, item);
-      Session.Events.NotifyEntitySetItemAdding(this, item);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemAdding(this, item);
 
-      if (Session.IsSystemLogicOnly)
-        return;
+        if (Session.IsSystemLogicOnly)
+          return;
 
-      var subscriptionInfo = GetSubscription(EntityEventBroker.AddingEntitySetItemEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field, item);
-      OnAdding(item);
+        var subscriptionInfo = GetSubscription(EntityEventBroker.AddingEntitySetItemEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field, item);
+        OnAdding(item);
+      }
     }
 
     private void SystemAdd(Entity item)
     {
       Session.SystemEvents.NotifyEntitySetItemAdd(this, item);
-      Session.Events.NotifyEntitySetItemAdd(this, item);
-      
-      if (Session.IsSystemLogicOnly)
-        return;
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemAdd(this, item);
 
-      var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field, item);
-      OnAdd(item);
-      NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item);
+        if (Session.IsSystemLogicOnly)
+          return;
+
+        var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field, item);
+        OnAdd(item);
+        NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item);
+      }
     }
 
     private void SystemAddCompleted(Entity item, Exception exception)
     {
       Session.SystemEvents.NotifyEntitySetItemAddCompleted(this, item, exception);
-      Session.Events.NotifyEntitySetItemAddCompleted(this, item, exception);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemAddCompleted(this, item, exception);
+      }
     }
 
     private void SystemBeforeRemove(Entity item)
     {
       Session.SystemEvents.NotifyEntitySetItemRemoving(this, item);
-      Session.Events.NotifyEntitySetItemRemoving(this, item);
-      
-      if (Session.IsSystemLogicOnly)
-        return;
-      
-      var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntitySetItemEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, Field, item);
-      OnRemoving(item);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemRemoving(this, item);
+
+        if (Session.IsSystemLogicOnly)
+          return;
+
+        var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntitySetItemEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, Field, item);
+        OnRemoving(item);
+      }
     }
 
     private void SystemRemove(Entity item)
     {
       Session.SystemEvents.NotifyEntitySetItemRemoved(Owner, this, item);
-      Session.Events.NotifyEntitySetItemRemoved(Owner, this, item);
-      
-      if (Session.IsSystemLogicOnly)
-        return;
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemRemoved(Owner, this, item);
 
-      var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field, item);
-      OnRemove(item);
-      NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item);
+        if (Session.IsSystemLogicOnly)
+          return;
+
+        var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field, item);
+        OnRemove(item);
+        NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item);
+      }
     }
 
     private void SystemRemoveCompleted(Entity item, Exception exception)
     {
       Session.SystemEvents.NotifyEntitySetItemRemoveCompleted(this, item, exception);
-      Session.Events.NotifyEntitySetItemRemoveCompleted(this, item, exception);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemRemoveCompleted(this, item, exception);
+      }
     }
 
     private void SystemBeforeClear()
     {
       if (Session.IsSystemLogicOnly)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventBroker.ClearingEntitySetEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field);
-      OnClearing();
+
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        var subscriptionInfo = GetSubscription(EntityEventBroker.ClearingEntitySetEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key, FieldInfo>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field);
+        OnClearing();
+      }
     }
 
     private void SystemClear()
     {
       if (Session.IsSystemLogicOnly)
         return;
-      var subscriptionInfo = GetSubscription(EntityEventBroker.ClearEntitySetEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field);
-      OnClear();
-      NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
+
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        var subscriptionInfo = GetSubscription(EntityEventBroker.ClearEntitySetEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key, FieldInfo>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field);
+        OnClear();
+        NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
+      }
     }
 
     #endregion

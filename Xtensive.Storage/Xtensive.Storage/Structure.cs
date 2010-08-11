@@ -254,15 +254,17 @@ namespace Xtensive.Storage
     internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
     {
       if (!Session.IsSystemLogicOnly) {
-        if (CanBeValidated && Session.Domain.Configuration.AutoValidation)
-          this.Validate();
-        var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
-        if (subscriptionInfo.Second != null)
-          ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, Field, field, oldValue, newValue);
+        using (Session.Operations.EnableSystemOperationRegistration()) {
+          if (CanBeValidated && Session.Domain.Configuration.AutoValidation)
+            this.Validate();
+          var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
+          if (subscriptionInfo.Second!=null)
+            ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
+              .Invoke(subscriptionInfo.First, Field, field, oldValue, newValue);
 
-        NotifyFieldChanged(field);
-        OnSetFieldValue(field, oldValue, newValue);
+          NotifyFieldChanged(field);
+          OnSetFieldValue(field, oldValue, newValue);
+        }
       }
       if (Owner == null)
         return;

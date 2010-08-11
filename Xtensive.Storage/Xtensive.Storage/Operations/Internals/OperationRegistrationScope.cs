@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Operations
     public Dictionary<string, Key> KeyByIdentifier;
     public Dictionary<Key, string> IdentifierByKey;
     public long CurrentIdentifier;
+    private bool oldIsSystemOperationRegistrationEnabled;
 
     /// <inheritdoc/>
     public void RegisterEntityIdentifier(Key key, string identifier)
@@ -68,7 +69,15 @@ namespace Xtensive.Storage.Operations
     {
       Owner = owner;
       OperationType = operationType;
-      Parent = (OperationRegistrationScope) owner.GetCurrentScope();
+      var currentScope = owner.GetCurrentScope();
+      Parent = (OperationRegistrationScope) currentScope;
+
+      oldIsSystemOperationRegistrationEnabled = owner.IsSystemOperationRegistrationEnabled;
+      if (currentScope==null && ((operationType & OperationType.System)==OperationType.System))
+        // We automatically disable system operation registration inside each of them;
+        // they must be explicitly enabled via Session.Operations.EnableSystemOperationsRegistration() call,
+        // that normally should wrap each invocation of event or overridable method.
+        owner.IsSystemOperationRegistrationEnabled = false;
     }
 
     // Disposal
@@ -79,6 +88,7 @@ namespace Xtensive.Storage.Operations
         return;
       isDisposed = true;
       Owner.CloseOperationRegistrationScope(this);
+      Owner.IsSystemOperationRegistrationEnabled = oldIsSystemOperationRegistrationEnabled;
     }
   }
 }

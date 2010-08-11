@@ -21,6 +21,7 @@ namespace Xtensive.Storage.Operations
     private CompletableScope blockingScope;
     private bool isOperationRegistrationEnabled = true;
     private bool isUndoOperationRegistrationEnabled = true;
+    private bool isSystemOperationRegistrationEnabled = true;
     private Deque<CompletableScope> scopes = new Deque<CompletableScope>();
 
     /// <summary>
@@ -37,6 +38,14 @@ namespace Xtensive.Storage.Operations
     /// </summary>
     public bool IsRegistrationEnabled {
       get { return isOperationRegistrationEnabled || isUndoOperationRegistrationEnabled; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether system operation registration is enabled.
+    /// </summary>
+    public bool IsSystemOperationRegistrationEnabled {
+      get { return isSystemOperationRegistrationEnabled; }
+      internal set { isSystemOperationRegistrationEnabled = value; }
     }
 
     /// <summary>
@@ -73,6 +82,15 @@ namespace Xtensive.Storage.Operations
         return 
           (NestedOperationStarting!=null || NestedOperationCompleted!=null)
           && IsRegistrationEnabled; 
+      }
+    }
+
+    internal bool IsOperationRegistrationEnabled {
+      get {
+        return (
+          OutermostOperationCompleted!=null || OutermostOperationStarting!=null || 
+          NestedOperationCompleted!=null || NestedOperationStarting!=null
+          ) && isOperationRegistrationEnabled;
       }
     }
 
@@ -154,15 +172,21 @@ namespace Xtensive.Storage.Operations
     /// <returns>An <see cref="IDisposable"/> object enabling the logging back on its disposal.</returns>
     public IDisposable DisableOperationRegistration()
     {
-      bool oldIsOperationRegistrationEnabled = isOperationRegistrationEnabled;
-      bool oldIsUndoOperationRegistrationEnabled = isUndoOperationRegistrationEnabled;
-      var result = new Disposable(disposing => {
-          isOperationRegistrationEnabled = oldIsOperationRegistrationEnabled;
-          isUndoOperationRegistrationEnabled = oldIsUndoOperationRegistrationEnabled;
-        });
+      if (!isOperationRegistrationEnabled)
+        return null;
+      var result = new Disposable<OperationRegistry, bool>(this, isOperationRegistrationEnabled,
+        (disposing, _this, previousState) => _this.isOperationRegistrationEnabled = previousState);
       isOperationRegistrationEnabled = false;
-      isUndoOperationRegistrationEnabled = false;
       return result;
+//      bool oldIsOperationRegistrationEnabled = isOperationRegistrationEnabled;
+//      bool oldIsUndoOperationRegistrationEnabled = isUndoOperationRegistrationEnabled;
+//      var result = new Disposable(disposing => {
+//          isOperationRegistrationEnabled = oldIsOperationRegistrationEnabled;
+//          isUndoOperationRegistrationEnabled = oldIsUndoOperationRegistrationEnabled;
+//        });
+//      isOperationRegistrationEnabled = false;
+//      isUndoOperationRegistrationEnabled = false;
+//      return result;
     }
 
     /// <summary>
@@ -171,9 +195,39 @@ namespace Xtensive.Storage.Operations
     /// <returns>An <see cref="IDisposable"/> object enabling the logging back on its disposal.</returns>
     public IDisposable DisableUndoOperationRegistration()
     {
-      var result = new Disposable<OperationRegistry, bool>(this, isOperationRegistrationEnabled,
-        (disposing, _this, previousState) => _this.isOperationRegistrationEnabled = previousState);
-      isOperationRegistrationEnabled = false;
+      if (!isUndoOperationRegistrationEnabled)
+        return null;
+      var result = new Disposable<OperationRegistry, bool>(this, isUndoOperationRegistrationEnabled,
+        (disposing, _this, previousState) => _this.isUndoOperationRegistrationEnabled = previousState);
+      isUndoOperationRegistrationEnabled = false;
+      return result;
+    }
+
+    /// <summary>
+    /// Temporarily disables system operation logging.
+    /// </summary>
+    /// <returns>An <see cref="IDisposable"/> object enabling the logging back on its disposal.</returns>
+    public IDisposable DisableSystemOperationRegistration()
+    {
+      if (!isSystemOperationRegistrationEnabled)
+        return null;
+      var result = new Disposable<OperationRegistry, bool>(this, isSystemOperationRegistrationEnabled,
+        (disposing, _this, previousState) => _this.isSystemOperationRegistrationEnabled = previousState);
+      isSystemOperationRegistrationEnabled = false;
+      return result;
+    }
+
+    /// <summary>
+    /// Temporarily enables system operation logging.
+    /// </summary>
+    /// <returns>An <see cref="IDisposable"/> object disabling the logging back on its disposal.</returns>
+    public IDisposable EnableSystemOperationRegistration()
+    {
+      if (isSystemOperationRegistrationEnabled)
+        return null;
+      var result = new Disposable<OperationRegistry, bool>(this, isSystemOperationRegistrationEnabled,
+        (disposing, _this, previousState) => _this.isSystemOperationRegistrationEnabled = previousState);
+      isSystemOperationRegistrationEnabled = true;
       return result;
     }
 
@@ -188,14 +242,22 @@ namespace Xtensive.Storage.Operations
       if (currentScope == null) {
         if (!IsOutermostOperationRegistrationEnabled)
           return SetCurrentScope(blockingScope);
-        else
-          return SetCurrentScope(new OperationRegistrationScope(this, operationType));
+        else {
+          if (((operationType & OperationType.System)==OperationType.System) && !IsSystemOperationRegistrationEnabled)
+            return SetCurrentScope(blockingScope);
+          else
+            return SetCurrentScope(new OperationRegistrationScope(this, operationType));
+        }
       }
       var currentOperationRegistrationScope = currentScope as OperationRegistrationScope;
       if (currentOperationRegistrationScope == null || !IsNestedOperationRegistrationEnabled)
         return SetCurrentScope(blockingScope);
-      else
-        return SetCurrentScope(new OperationRegistrationScope(this, operationType));
+      else {
+        if (((operationType & OperationType.System)==OperationType.System) && !IsSystemOperationRegistrationEnabled)
+          return SetCurrentScope(blockingScope);
+        else
+          return SetCurrentScope(new OperationRegistrationScope(this, operationType));
+      }
     }
 
     internal void CloseOperationRegistrationScope(OperationRegistrationScope scope)

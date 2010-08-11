@@ -27,6 +27,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     public int Id { get; private set; }
 
     [Field]
+    [Version(VersionMode.Manual)]
     public int Version { get; set; }
 
     [Field]
@@ -78,6 +79,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     public int Id { get; private set; }
 
     [Field]
+    [Version(VersionMode.Auto)]
     public int Version { get; set; }
 
     [Field]
@@ -153,6 +155,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     public void SequentialApplyChangesTest_DisconnectedStateAsVersionProvider()
     {
       var ds = new DisconnectedState();
+      ds.LogType = OperationLogType.OutermostOperationLog;
       ds.VersionsProviderType = VersionsProviderType.DisconnectedState;
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -162,7 +165,10 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
           book.Title += " Changed";
           ds.ApplyChanges();
           book.Title += " Changed";
-          AssertEx.Throws<VersionConflictException>(() => ds.ApplyChanges());
+          if (ds.LogType==OperationLogType.SystemOperationLog)
+            ds.ApplyChanges();
+          else
+            AssertEx.Throws<VersionConflictException>(() => ds.ApplyChanges());
         }
         // tx.Complete();
       }
