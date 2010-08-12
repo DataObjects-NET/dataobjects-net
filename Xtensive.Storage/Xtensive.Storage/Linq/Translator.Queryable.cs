@@ -1206,6 +1206,8 @@ namespace Xtensive.Storage.Linq
       ProjectionExpression inner;
       using (state.CreateScope()) {
         state.JoinLocalCollectionEntity = true;
+        state.CalculateExpressions = true;
+        state.SetOperationProjection = true;
         outer = VisitSequence(outerSource);
         inner = VisitSequence(innerSource);
       }
@@ -1214,10 +1216,10 @@ namespace Xtensive.Storage.Linq
       var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Default).ToList();
       var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Default).ToList();
       var outerColumns = outerColumnList.ToArray();
-      var outerRecordSet = outerItemProjector.DataSource.Header.Length!=outerColumnList.Count
+      var outerRecordSet = outerItemProjector.DataSource.Header.Length!=outerColumnList.Count || outerColumnList.Select((c,i) => new {c,i}).Any(x => x.c != x.i)
         ? outerItemProjector.DataSource.Select(outerColumns)
         : outerItemProjector.DataSource;
-      var innerRecordSet = innerItemProjector.DataSource.Header.Length!=innerColumnList.Count
+      var innerRecordSet = innerItemProjector.DataSource.Header.Length != innerColumnList.Count || innerColumnList.Select((c, i) => new { c, i }).Any(x => x.c != x.i)
         ? innerItemProjector.DataSource.Select(innerColumnList.ToArray())
         : innerItemProjector.DataSource;
 
