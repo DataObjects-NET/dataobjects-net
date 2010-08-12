@@ -166,19 +166,18 @@ namespace Xtensive.Storage.Linq
     private List<Expression> VisitNewExpressionArguments(NewExpression n)
     {
       var arguments = new List<Expression>();
-      for (int i = 0; i < n.Arguments.Count; i++) {
-        Expression argument = n.Arguments[i];
+      foreach (var argument in n.Arguments) {
         Expression body;
         using (state.CreateScope()) {
           state.CalculateExpressions = false;
           body = Visit(argument);
         }
         body = body.IsProjection()
-          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
-          : ProcessProjectionElement(body);
+                 ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
+                 : ProcessProjectionElement(body);
         arguments.Add(body);
       }
-      ParameterInfo[] constructorParameters = n.Constructor.GetParameters();
+      var constructorParameters = n.Constructor.GetParameters();
       for (int i = 0; i < arguments.Count; i++) {
         if (arguments[i].Type!=constructorParameters[i].ParameterType)
           arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);

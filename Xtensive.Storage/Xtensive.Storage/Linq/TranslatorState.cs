@@ -25,8 +25,9 @@ namespace Xtensive.Storage.Linq
       private LambdaExpression currentLambda;
       private bool joinLocalCollectionEntity;
       private IncludeAlgorithm includeAlgorithm = IncludeAlgorithm.Auto;
+    private bool setOperationProjection;
 
-      public IncludeAlgorithm IncludeAlgorithm
+    public IncludeAlgorithm IncludeAlgorithm
       {
         get { return includeAlgorithm; }
         set { includeAlgorithm = value; }
@@ -73,7 +74,13 @@ namespace Xtensive.Storage.Linq
         set { currentLambda = value; }
       }
 
-      public IDisposable CreateScope()
+      public bool SetOperationProjection
+      {
+        get { return setOperationProjection; }
+        set { setOperationProjection = value; }
+      }
+
+    public IDisposable CreateScope()
       {
         var currentState = translator.state;
         var newState = new TranslatorState(currentState);
@@ -116,6 +123,7 @@ namespace Xtensive.Storage.Linq
         currentLambda = currentState.currentLambda;
         joinLocalCollectionEntity = currentState.joinLocalCollectionEntity;
         includeAlgorithm = currentState.includeAlgorithm;
+        setOperationProjection = currentState.setOperationProjection;
       }
   }
 }

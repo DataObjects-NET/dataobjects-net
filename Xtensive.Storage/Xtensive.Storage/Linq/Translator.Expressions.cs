@@ -118,9 +118,9 @@ namespace Xtensive.Storage.Linq
         Expression body = Visit(le.Body);
         ParameterExpression parameter = le.Parameters[0];
         ProjectionExpression projection = context.Bindings[parameter];
-        if (body.NodeType!=ExpressionType.New
+        if (body.NodeType!=ExpressionType.New 
           && body.NodeType!=ExpressionType.MemberInit
-            && !(body.NodeType==ExpressionType.Constant && state.BuildingProjection))
+          && !(body.NodeType==ExpressionType.Constant && state.BuildingProjection))
           body = body.IsProjection()
             ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
             : ProcessProjectionElement(body);
@@ -140,6 +140,16 @@ namespace Xtensive.Storage.Linq
         }
         return new ItemProjectorExpression(body, projection.ItemProjector.DataSource, context);
       }
+    }
+
+    protected override MemberAssignment VisitMemberAssignment(MemberAssignment ma)
+    {
+      var expression = Visit(ma.Expression);
+      if (state.SetOperationProjection)
+        expression = ProcessProjectionElement(expression);
+      if (expression != ma.Expression)
+        return Expression.Bind(ma.Member, expression);
+      return ma;
     }
 
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
@@ -366,7 +376,7 @@ namespace Xtensive.Storage.Linq
               newExpression.Type==typeof (DateTime))
           return base.VisitNew(newExpression);
       }
-      List<Expression> arguments = VisitNewExpressionArguments(newExpression);
+      var arguments = VisitNewExpressionArguments(newExpression);
       if (newExpression.IsAnonymousConstructor()) {
         return newExpression.Members==null
           ? Expression.New(newExpression.Constructor, arguments)
@@ -654,11 +664,8 @@ namespace Xtensive.Storage.Linq
 
     private Expression ProcessProjectionElement(Expression body)
     {
-      Type originalBodyType = body.Type;
-      Expression reduceCastBody = body.StripCasts();
-//      var visitor = new ExtendedExpressionVisitor();
-//      visitor.
-      //      reduceCastBody.
+      var originalBodyType = body.Type;
+      var reduceCastBody = body.StripCasts();
       if (state.CalculateExpressions
         && reduceCastBody.GetMemberType()==MemberType.Unknown
         && reduceCastBody.NodeType!=ExpressionType.ArrayIndex
@@ -679,14 +686,14 @@ namespace Xtensive.Storage.Linq
 
         if (body.Type.IsEnum)
           body = Expression.Convert(body, Enum.GetUnderlyingType(body.Type));
-        UnaryExpression convertExpression = Expression.Convert(body, typeof (object));
+        var convertExpression = Expression.Convert(body, typeof (object));
 
-        LambdaExpression calculator = ExpressionMaterializer.MakeLambda(convertExpression, context);
+        var calculator = ExpressionMaterializer.MakeLambda(convertExpression, context);
         var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type,
           (Expression<Func<Tuple, object>>) calculator);
         state.CalculatedColumns.Add(ccd);
-        ParameterExpression parameter = state.Parameters[0];
-        int position = context.Bindings[parameter].ItemProjector.DataSource.Header.Length +
+        var parameter = state.Parameters[0];
+        var position = context.Bindings[parameter].ItemProjector.DataSource.Header.Length +
           state.CalculatedColumns.Count - 1;
         body = ColumnExpression.Create(originalBodyType, position);
       }
