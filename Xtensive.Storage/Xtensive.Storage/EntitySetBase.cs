@@ -111,24 +111,6 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// Clears this collection.
-    /// </summary>
-    public void Clear()
-    {
-      EnsureOwnerIsNotRemoved();
-      using (var context = OpenOperationContext()) {
-        if (context.IsLoggingEnabled)
-          context.LogOperation(
-            new EntitySetClearOperation(Owner.Key, Field));
-        SystemBeforeClear();
-        foreach (var entity in Entities.ToList())
-          Remove(entity);
-        SystemClear();
-        context.Complete();
-      }
-    }
-
-    /// <summary>
     /// Determines whether <see cref="EntitySetBase"/> contains the specified <see cref="Key"/>.
     /// </summary>
     /// <param name="key">The key.</param>
@@ -184,88 +166,134 @@ namespace Xtensive.Storage
 
     private void SystemBeforeAdd(Entity item)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      Session.NotifyEntitySetItemAdding(this, item);
-      var subscriptionInfo = GetSubscription(EntityEventBroker.AddingEntitySetItemEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field, item);
-      OnAdding(item);
+      Session.SystemEvents.NotifyEntitySetItemAdding(this, item);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemAdding(this, item);
+
+        if (Session.IsSystemLogicOnly)
+          return;
+
+        var subscriptionInfo = GetSubscription(EntityEventBroker.AddingEntitySetItemEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field, item);
+        OnAdding(item);
+      }
     }
 
     private void SystemAdd(Entity item)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      Session.NotifyEntitySetItemAdd(this, item);
-      var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field, item);
-      OnAdd(item);
-      NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item);
+      Session.SystemEvents.NotifyEntitySetItemAdd(this, item);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemAdd(this, item);
+
+        if (Session.IsSystemLogicOnly)
+          return;
+
+        var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field, item);
+        OnAdd(item);
+        NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item);
+      }
     }
 
     private void SystemAddCompleted(Entity item, Exception exception)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      Session.NotifyEntitySetItemAddCompleted(this, item, exception);
+      Session.SystemEvents.NotifyEntitySetItemAddCompleted(this, item, exception);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemAddCompleted(this, item, exception);
+      }
     }
 
     private void SystemBeforeRemove(Entity item)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      Session.NotifyEntitySetItemRemoving(this, item);
-      var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntitySetItemEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, Field, item);
-      OnRemoving(item);
+      Session.SystemEvents.NotifyEntitySetItemRemoving(this, item);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemRemoving(this, item);
+
+        if (Session.IsSystemLogicOnly)
+          return;
+
+        var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntitySetItemEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, Field, item);
+        OnRemoving(item);
+      }
     }
 
     private void SystemRemove(Entity item)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      Session.NotifyEntitySetItemRemoved(Owner, this, item);
-      var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field, item);
-      OnRemove(item);
-      NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item);
+      Session.SystemEvents.NotifyEntitySetItemRemoved(Owner, this, item);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemRemoved(Owner, this, item);
+
+        if (Session.IsSystemLogicOnly)
+          return;
+
+        var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
+        if (subscriptionInfo.Second!=null)
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
+            .Invoke(subscriptionInfo.First, Field, item);
+        OnRemove(item);
+        NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item);
+      }
     }
 
     private void SystemRemoveCompleted(Entity item, Exception exception)
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      Session.NotifyEntitySetItemRemoveCompleted(this, item, exception);
+      Session.SystemEvents.NotifyEntitySetItemRemoveCompleted(this, item, exception);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetItemRemoveCompleted(this, item, exception);
+      }
     }
 
     private void SystemBeforeClear()
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      var subscriptionInfo = GetSubscription(EntityEventBroker.ClearingEntitySetEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field);
-      OnClearing();
+      Session.SystemEvents.NotifyEntitySetClearing(this);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetClearing(this);
+
+        if (Session.IsSystemLogicOnly)
+          return;
+
+        using (Session.Operations.EnableSystemOperationRegistration()) {
+          var subscriptionInfo = GetSubscription(EntityEventBroker.ClearingEntitySetEventKey);
+          if (subscriptionInfo.Second!=null)
+            ((Action<Key, FieldInfo>) subscriptionInfo.Second)
+              .Invoke(subscriptionInfo.First, Field);
+          OnClearing();
+        }
+      }
     }
 
     private void SystemClear()
     {
-      if (Session.IsSystemLogicOnly)
-        return;
-      var subscriptionInfo = GetSubscription(EntityEventBroker.ClearEntitySetEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key, FieldInfo>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field);
-      OnClear();
-      NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
+      Session.SystemEvents.NotifyEntitySetClear(this);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetClear(this);
+
+        if (Session.IsSystemLogicOnly)
+          return;
+
+        using (Session.Operations.EnableSystemOperationRegistration()) {
+          var subscriptionInfo = GetSubscription(EntityEventBroker.ClearEntitySetEventKey);
+          if (subscriptionInfo.Second!=null)
+            ((Action<Key, FieldInfo>) subscriptionInfo.Second)
+              .Invoke(subscriptionInfo.First, Field);
+          OnClear();
+          NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null);
+        }
+      }
+    }
+
+    private void SystemClearCompleted(Exception exception)
+    {
+      Session.SystemEvents.NotifyEntitySetClearCompleted(this, exception);
+      using (Session.Operations.EnableSystemOperationRegistration()) {
+        Session.Events.NotifyEntitySetClearCompleted(this, exception);
+      }
     }
 
     #endregion
@@ -276,11 +304,11 @@ namespace Xtensive.Storage
     [Infrastructure]
     public event PropertyChangedEventHandler PropertyChanged {
       add {
-        Session.EntityEventBroker.AddSubscriber(GetOwnerKey(Owner), Field,
+        Session.EntityEvents.AddSubscriber(GetOwnerKey(Owner), Field,
           EntityEventBroker.PropertyChangedEventKey, value);
       }
       remove {
-        Session.EntityEventBroker.RemoveSubscriber(GetOwnerKey(Owner), Field,
+        Session.EntityEvents.RemoveSubscriber(GetOwnerKey(Owner), Field,
           EntityEventBroker.PropertyChangedEventKey, value);
       }
     }
@@ -289,11 +317,11 @@ namespace Xtensive.Storage
     [Infrastructure]
     public event NotifyCollectionChangedEventHandler CollectionChanged {
       add {
-        Session.EntityEventBroker.AddSubscriber(GetOwnerKey(Owner), Field,
+        Session.EntityEvents.AddSubscriber(GetOwnerKey(Owner), Field,
           EntityEventBroker.CollectionChangedEventKey, value);
       }
       remove {
-        Session.EntityEventBroker.RemoveSubscriber(GetOwnerKey(Owner), Field,
+        Session.EntityEvents.RemoveSubscriber(GetOwnerKey(Owner), Field,
           EntityEventBroker.CollectionChangedEventKey, value);
       }
     }
@@ -305,7 +333,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected void NotifyPropertyChanged(string propertyName)
     {
-      if (!Session.EntityEventBroker.HasSubscribers)
+      if (!Session.EntityEvents.HasSubscribers)
         return;
       var subscriptionInfo = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
       if (subscriptionInfo.Second != null)
@@ -321,7 +349,7 @@ namespace Xtensive.Storage
     [Infrastructure]
     protected void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item)
     {
-      if (!Session.EntityEventBroker.HasSubscribers)
+      if (!Session.EntityEvents.HasSubscribers)
         return;
       var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
       if (subscriptionInfo.Second != null) {
@@ -345,7 +373,7 @@ namespace Xtensive.Storage
       var entityKey = GetOwnerKey(Owner);
       if (entityKey!=null)
         return new Pair<Key, Delegate>(entityKey,
-          Session.EntityEventBroker.GetSubscriber(entityKey, Field, eventKey));
+          Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
       return new Pair<Key, Delegate>(null, null);
     }
 
@@ -383,7 +411,7 @@ namespace Xtensive.Storage
 
     #endregion
 
-    #region Add/Remove/Contains methods
+    #region Add/Remove/Contains/Clear methods
 
     [Transactional]
     internal bool Contains(Entity item)
@@ -406,9 +434,10 @@ namespace Xtensive.Storage
         return false;
 
       try {
-        using (var context = OpenOperationContext()) {
-          if (context.IsLoggingEnabled)
-            context.LogOperation(new EntitySetItemAddOperation(Owner.Key, Field, item.Key));
+        var operations = Session.Operations;
+        using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+          if (operations.CanRegisterOperation)
+            operations.RegisterOperation(new EntitySetItemAddOperation(Owner.Key, Field, item.Key));
 
           SystemBeforeAdd(item);
 
@@ -433,6 +462,7 @@ namespace Xtensive.Storage
             Owner.UpdateVersionInfo(Owner, Field);
           };
           
+          operations.OperationStarted();
           if (Field.Association.IsPaired)
             Session.PairSyncManager.ProcessRecursively(
               syncContext, OperationType.Add, Field.Association, Owner, item, finalizer);
@@ -441,7 +471,7 @@ namespace Xtensive.Storage
 
           SystemAdd(item);
           SystemAddCompleted(item, null);
-          context.Complete();
+          scope.Complete();
           return true;
         }
       }
@@ -463,9 +493,10 @@ namespace Xtensive.Storage
         return false;
 
       try {
-        using (var context = OpenOperationContext()) {
-          if (context.IsLoggingEnabled)
-            context.LogOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, item.Key));
+        var operations = Session.Operations;
+        using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+          if (operations.CanRegisterOperation)
+            operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, item.Key));
 
           SystemBeforeRemove(item);
 
@@ -490,6 +521,7 @@ namespace Xtensive.Storage
             Owner.UpdateVersionInfo(Owner, Field);
           };
 
+          operations.OperationStarted();
           if (Field.Association.IsPaired)
             Session.PairSyncManager.ProcessRecursively(
               syncContext, OperationType.Remove, Field.Association, Owner, item, finalizer);
@@ -498,7 +530,7 @@ namespace Xtensive.Storage
 
           SystemRemove(item);
           SystemRemoveCompleted(item, null);
-          context.Complete();
+          scope.Complete();
           return true;
         }
       }
@@ -508,6 +540,37 @@ namespace Xtensive.Storage
       }
     }
     
+    /// <summary>
+    /// Clears this collection.
+    /// </summary>
+    public void Clear()
+    {
+      EnsureOwnerIsNotRemoved();
+
+      try {
+        var operations = Session.Operations;
+        using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+          if (operations.CanRegisterOperation)
+            operations.RegisterOperation(
+              new EntitySetClearOperation(Owner.Key, Field));
+
+          SystemBeforeClear();
+          operations.OperationStarted();
+
+          foreach (var entity in Entities.ToList())
+            Remove(entity);
+
+          SystemClear();
+          SystemClearCompleted(null);
+          scope.Complete();
+        }
+      }
+      catch (Exception e) {
+        SystemClearCompleted(e);
+        throw;
+      }
+    }
+
     internal bool Add(IEntity item)
     {
       return Add((Entity) item);

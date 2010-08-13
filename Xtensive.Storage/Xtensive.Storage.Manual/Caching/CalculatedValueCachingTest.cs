@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Manual.Caching
             session.Extensions.Set(new TotalPriceServices()); 
             // Setting up the tag to ensure the event handles is attached 
             // just once for each Session
-            session.EntityFieldValueSetting += ((sender, e) => {
+            session.Events.EntityFieldValueSetting += ((sender, e) => {
               var order = e.Entity as Order;
               if (order!=null && (e.Field.Name=="Quantity" || e.Field.Name=="Product")) {
                 if (order.totalPriceCached!=null)

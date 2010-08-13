@@ -14,17 +14,13 @@ namespace Xtensive.Storage.Operations
   /// Arguments for <see cref="IOperation"/>-related events.
   /// </summary>
   [Serializable]
-  public sealed class OperationEventArgs : EventArgs
+  public class OperationEventArgs : EventArgs
   {
-    private readonly IOperation operation;
-
     /// <summary>
     /// Gets the operation.
     /// </summary>
-    public IOperation Operation
-    {
-      get { return operation; }
-    }
+    public IOperation Operation { get; private set; }
+
 
     // Constructors
 
@@ -34,7 +30,7 @@ namespace Xtensive.Storage.Operations
     /// <param name="operation">The <see cref="Operation"/> property value.</param>
     public OperationEventArgs(IOperation operation)
     {
-      this.operation = operation;
+      Operation = operation;
     }
   }
 }

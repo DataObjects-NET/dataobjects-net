@@ -13,6 +13,7 @@ using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Operations;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.ReferentialIntegrity
 {
@@ -49,35 +50,54 @@ namespace Xtensive.Storage.ReferentialIntegrity
 
     public void Remove(IEnumerable<Entity> entities)
     {
+      ArgumentValidator.EnsureArgumentNotNull(entities, "entities");
+      bool isEmpty = true;
+      foreach (var entity in entities) {
+        isEmpty = false;
+        entity.EnsureNotRemoved();
+      }
+      if (isEmpty)
+        return;
       var processedEntities = new List<Entity>();
       try {
-        using (var region = Validation.Disable())
-        using (var operationContext = OpenOperationContext()) 
-        using (Context = new RemovalContext(this)) {
-          Session.EnforceChangeRegistrySizeLimit();
-          foreach (var entity in entities) {
-            entity.EnsureNotRemoved();
-            if (operationContext.IsLoggingEnabled)
-              operationContext.LogOperation(
-                new EntityRemoveOperation(entity.Key));
+        using (var region = Validation.Disable()) {
+          var operations = Session.Operations;
+          using (var scope = operations.BeginRegistration(OperationType.System)) 
+          using (Context = new RemovalContext(this)) {
+            Session.EnforceChangeRegistrySizeLimit();
+            if (operations.CanRegisterOperation)
+              operations.RegisterOperation(
+                new EntitiesRemoveOperation(entities.Select(e => e.Key)));
+            
+            Context.Enqueue(entities);
+            
+            bool isOperationStarted = false;
+            while (!Context.QueueIsEmpty) {
+              var entitiesForProcessing = Context.GatherEntitiesForProcessing();
+              foreach (var entity in entitiesForProcessing)
+                entity.SystemBeforeRemove();
+              if (!isOperationStarted) {
+                isOperationStarted = true;
+                operations.OperationStarted();
+              }
+              ProcessItems(entitiesForProcessing);
+            }
+            if (!isOperationStarted)
+              operations.OperationStarted();
+
+            processedEntities = Context.GetProcessedEntities().ToList();
+            foreach (var entity in processedEntities) {
+              entity.SystemRemove();
+              entity.State.PersistenceState = PersistenceState.Removed;
+            }
+            Session.EnforceChangeRegistrySizeLimit();
+            scope.Complete();
+
+            foreach (var entity in processedEntities)
+              entity.SystemRemoveCompleted(null);
+
+            region.Complete();
           }
-          Context.Enqueue(entities);
-          while (!Context.QueueIsEmpty) {
-            var entitiesForProcessing = Context.GatherEntitiesForProcessing();
-            foreach (var entity in entitiesForProcessing)
-              entity.SystemBeforeRemove();
-            ProcessItems(entitiesForProcessing);
-          }
-          processedEntities = Context.GetProcessedEntities().ToList();
-          foreach (var entity in processedEntities) {
-            entity.SystemRemove();
-            entity.State.PersistenceState = PersistenceState.Removed;
-          }
-          Session.EnforceChangeRegistrySizeLimit();
-          operationContext.Complete();
-          foreach (var entity in processedEntities)
-            entity.SystemRemoveCompleted(null);
-          region.Complete();
         }
       }
       catch (Exception e) {

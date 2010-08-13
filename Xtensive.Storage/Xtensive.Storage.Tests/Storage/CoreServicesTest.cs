@@ -205,10 +205,10 @@ namespace Xtensive.Storage.Tests.Storage
       using (Session.Open(Domain)) {
         using (var t = Transaction.Open()) {
           var accessor = Session.Current.Services.Get<DirectPersistentAccessor>();
-          MyEntity myEntity = (MyEntity)accessor.CreateEntity(typeof (MyEntity));
+          var myEntity = (MyEntity) accessor.CreateEntity(typeof (MyEntity));
           myEntity.Session.Services.Get<DirectPersistentAccessor>().SetFieldValue(myEntity, myEntity.TypeInfo.Fields["Value"], "Value");
           Assert.AreEqual("Value", myEntity.Value);
-          MyStructure myStructure = (MyStructure) accessor.CreateStructure(typeof(MyStructure));
+          var myStructure = (MyStructure) accessor.CreateStructure(typeof (MyStructure));
           myStructure.Session.Services.Get<DirectPersistentAccessor>().SetFieldValue(myStructure, myStructure.TypeInfo.Fields["Value"], "Value");
           Assert.AreEqual("Value", myStructure.Value);
           t.Complete();

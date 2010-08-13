@@ -59,16 +59,24 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public override void Prepare(OperationExecutionContext context)
+    protected override void PrepareSelf(OperationExecutionContext context)
     {
       if (prepareAction!=null)
         prepareAction.Invoke(context, arguments);
     }
 
     /// <inheritdoc/>
-    public override void Execute(OperationExecutionContext context)
+    protected override void ExecuteSelf(OperationExecutionContext context)
     {
       executeAction.Invoke(context, arguments);
+    }
+
+    /// <inheritdoc/>
+    protected override Operation CloneSelf(Operation clone)
+    {
+      if (clone==null)
+        clone = new MethodCallOperation(prepareAction, executeAction, arguments);
+      return clone;
     }
 
 

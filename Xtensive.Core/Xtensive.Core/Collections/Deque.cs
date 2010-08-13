@@ -129,10 +129,8 @@ namespace Xtensive.Core.Collections
     #region Head, Tail, Add\Extract Head\Tail
 
     /// <inheritdoc/>
-    public T Head
-    {
-      get
-      {
+    public T Head {
+      get {
         if (count==0)
           throw Exceptions.CollectionIsEmpty(null);
         return items[(items.Length - headPos==1 ? 0 : headPos + 1)];
@@ -140,13 +138,25 @@ namespace Xtensive.Core.Collections
     }
 
     /// <inheritdoc/>
-    public T Tail
-    {
-      get
-      {
+    public T HeadOrDefault {
+      get {
+        return count==0 ? default(T) : items[(items.Length - headPos==1 ? 0 : headPos + 1)];
+      }
+    }
+
+    /// <inheritdoc/>
+    public T Tail {
+      get {
         if (count==0)
           throw Exceptions.CollectionIsEmpty(null);
         return items[(tailPos==0 ? items.Length : tailPos) - 1];
+      }
+    }
+
+    /// <inheritdoc/>
+    public T TailOrDefault {
+      get {
+        return count==0 ? default(T) : items[(tailPos==0 ? items.Length : tailPos) - 1];
       }
     }
 

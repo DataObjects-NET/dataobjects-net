@@ -38,20 +38,6 @@ namespace Xtensive.Storage
       Persist(PersistReason.Manual);
     }
 
-    /// <summary>
-    /// Removes the specified entities.
-    /// </summary>
-    /// <typeparam name="T">Entity type.</typeparam>
-    /// <param name="entities">The entities.</param>
-    /// <exception cref="ReferentialIntegrityException">
-    /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.
-    /// </exception>
-    public void Remove<T>(IEnumerable<T> entities)
-      where T : IEntity
-    {
-      RemovalProcessor.Remove(entities.Cast<Entity>());
-    }
-
     private void Persist(PersistReason reason)
     {
       EnsureNotDisposed();
@@ -70,8 +56,9 @@ namespace Xtensive.Storage
         }
 
       IsPersisting = true;
-      NotifyPersisting();
-
+      
+      SystemEvents.NotifyPersisting();
+      Events.NotifyPersisting();
       try {
         using (this.OpenSystemLogicOnlyRegion()) {
           EnsureTransactionIsStarted();
@@ -108,7 +95,8 @@ namespace Xtensive.Storage
               Log.Debug(Strings.LogSessionXPersistCompleted, this);
           }
         }
-        NotifyPersisted();
+        SystemEvents.NotifyPersisted();
+        Events.NotifyPersisted();
       }
       finally {
         IsPersisting = false;

@@ -49,19 +49,27 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public override void Prepare(OperationExecutionContext context)
+    protected override void PrepareSelf(OperationExecutionContext context)
     {
       context.RegisterKey(Key, false);
     }
 
     /// <inheritdoc/>
     /// <exception cref="VersionConflictException">Version check failed.</exception>
-    public override void Execute(OperationExecutionContext context)
+    protected override void ExecuteSelf(OperationExecutionContext context)
     {
       var entity = Query.Single(context.Session, Key);
       if (entity.VersionInfo != Version)
         throw new VersionConflictException(
           string.Format(Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, Key));
+    }
+
+    /// <inheritdoc/>
+    protected override Operation CloneSelf(Operation clone)
+    {
+      if (clone==null)
+        clone = new ValidateVersionOperation(Key, Version);
+      return clone;
     }
 
 

@@ -85,29 +85,29 @@ namespace Xtensive.Storage.Tests.Storage
     {
       using (var session = Session.Open(Domain)) {
 
-        session.TransactionOpening += (sender, e) => transactionOpenArgs = e;
+        session.Events.TransactionOpening += (sender, e) => transactionOpenArgs = e;
 
-        session.TransactionCommitting += (sender, e) => {
+        session.Events.TransactionCommitting += (sender, e) => {
           transactionCommitingArgs = e;
           if (throwExceptionOnCommit)
             throw new TestException();
         };
-        session.TransactionCommitted += (sender, e) => transactionCommitedArgs = e;
+        session.Events.TransactionCommitted += (sender, e) => transactionCommitedArgs = e;
 
-        session.TransactionRollbacking += (sender, e) => transactionRollbackingArgs = e;
-        session.TransactionRollbacked += (sender, e) => transactionRollbackedArgs = e;
+        session.Events.TransactionRollbacking += (sender, e) => transactionRollbackingArgs = e;
+        session.Events.TransactionRollbacked += (sender, e) => transactionRollbackedArgs = e;
 
-        session.Persisting += (sender, e) => persistingArgs = e;
-        session.Persisted += (sender, e) => persistedArgs = e;
+        session.Events.Persisting += (sender, e) => persistingArgs = e;
+        session.Events.Persisted += (sender, e) => persistedArgs = e;
 
-        session.EntityCreated += (sender, e) => entityCreatedArgs = e;
-        session.EntityRemoving += (sender, e) => entityRemoving = e;
-        session.EntityRemove += (sender, e) => entityRemoved = e;
+        session.Events.EntityCreated += (sender, e) => entityCreatedArgs = e;
+        session.Events.EntityRemoving += (sender, e) => entityRemoving = e;
+        session.Events.EntityRemove += (sender, e) => entityRemoved = e;
 
-        session.EntityFieldValueGetting += (sender, e) => entityEntityFieldGettingArgs = e;
-        session.EntityFieldValueGet += (sender, e) => entityEntityFieldArgs = e;
-        session.EntityFieldValueSetting += (sender, e) => entityEntityFieldSettingArgs = e;
-        session.EntityFieldValueSet += (sender, e) => entityEntityFieldSetArgs = e;
+        session.Events.EntityFieldValueGetting += (sender, e) => entityEntityFieldGettingArgs = e;
+        session.Events.EntityFieldValueGet += (sender, e) => entityEntityFieldArgs = e;
+        session.Events.EntityFieldValueSetting += (sender, e) => entityEntityFieldSettingArgs = e;
+        session.Events.EntityFieldValueSet += (sender, e) => entityEntityFieldSetArgs = e;
 
         CommitTransaction();
         RollbackTransaction();

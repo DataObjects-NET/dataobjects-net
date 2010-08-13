@@ -134,8 +134,14 @@ namespace Xtensive.Storage.Upgrade
       context.Hints.Clear();
       foreach (var modelHint in hints.ModelHints)
         context.Hints.Add(modelHint);
-      foreach (var schemaHint in hints.SchemaHints)
-        context.SchemaHints.Add(schemaHint);
+      foreach (var schemaHint in hints.SchemaHints) {
+        try {
+          context.SchemaHints.Add(schemaHint);
+        }
+        catch (Exception error) {
+          Log.Warning(Strings.LogFailedToAddSchemaHintXErrorY, schemaHint, error);
+        }
+      }
     }
 
     private static int ProvideTypeId(UpgradeContext context, Type type)

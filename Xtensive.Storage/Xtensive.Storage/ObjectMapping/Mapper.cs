@@ -16,6 +16,7 @@ using Xtensive.Core.ObjectMapping.Model;
 using Xtensive.Storage.Operations;
 using FieldInfo=Xtensive.Storage.Model.FieldInfo;
 using MappingOperation=Xtensive.Core.ObjectMapping.Operation;
+using OperationType=Xtensive.Core.ObjectMapping.OperationType;
 
 namespace Xtensive.Storage.ObjectMapping
 {
@@ -42,7 +43,7 @@ namespace Xtensive.Storage.ObjectMapping
         operation = CreateEntityCreateOperation(mappingOperation);
         break;
       case OperationType.RemoveObject:
-        operation = new EntityRemoveOperation(ExtractKey(mappingOperation.Object));
+        operation = new EntitiesRemoveOperation(ExtractKey(mappingOperation.Object));
         break;
       case OperationType.SetProperty:
         operation = CreateEntityFieldSetOperation(mappingOperation);
@@ -56,7 +57,7 @@ namespace Xtensive.Storage.ObjectMapping
     /// <inheritdoc/>
     protected override void InitializeComparison(object originalTarget, object modifiedTarget)
     {
-      comparisonResult = new OperationLog();
+      comparisonResult = new OperationLog(OperationLogType.SystemOperationLog);
       if (newObjectKeys!=null)
         newObjectKeys.Clear();
       if (existingObjectKeys!=null)

@@ -34,15 +34,6 @@ namespace Xtensive.Storage.Services
     }
 
     /// <summary>
-    /// Temporarily disables the operation logging.
-    /// </summary>
-    /// <returns>A disposable object defining the scope of this operation.</returns>
-    public IDisposable DisableOperationLogging()
-    {
-      return Session.DisableOperationLogging();
-    }
-
-    /// <summary>
     /// Changes the value of <see cref="Session.Handler"/>.
     /// </summary>
     /// <param name="newHandler">The new handler.</param>

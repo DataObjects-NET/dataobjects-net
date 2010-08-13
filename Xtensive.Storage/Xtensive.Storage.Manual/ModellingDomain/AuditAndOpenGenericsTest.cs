@@ -221,13 +221,13 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
     {
       Domain = domain;
       domain.SessionOpen += (source, args) => {
-        args.Session.TransactionOpened += TransactionOpened;
-        args.Session.TransactionCommitting += TransactionCommitting;
-        args.Session.EntityCreated  += (sender, e) => EntityEvent(sender, e, true);
-        args.Session.EntityRemoveCompleted  += (sender, e) => EntityEvent(sender, e, false);
-        args.Session.EntityFieldValueSetCompleted += (sender, e) => EntityEvent(sender, e, false); 
+        args.Session.Events.TransactionOpened += TransactionOpened;
+        args.Session.Events.TransactionCommitting += TransactionCommitting;
+        args.Session.Events.EntityCreated  += (sender, e) => EntityEvent(sender, e, true);
+        args.Session.Events.EntityRemoveCompleted  += (sender, e) => EntityEvent(sender, e, false);
+        args.Session.Events.EntityFieldValueSetCompleted += (sender, e) => EntityEvent(sender, e, false); 
         // To catches events from EntitySet<T> fields
-        args.Session.EntityVersionInfoChanged += (sender, e) => EntityEvent(sender, e, false);
+        args.Session.Events.EntityVersionInfoChanged += (sender, e) => EntityEvent(sender, e, false);
       };
     }
 

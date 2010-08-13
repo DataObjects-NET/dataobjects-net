@@ -84,20 +84,20 @@ namespace Xtensive.Storage
 
     private void AttachEventHandlers()
     {
-      Session.TransactionOpened += TransactionOpened;
-      Session.TransactionCommitted +=TransactionCommitted;
-      Session.TransactionRollbacked += TransactionRollbacked;
-      Session.EntityMaterialized += EntityMaterialized;
-      Session.Persisting += Persisting;
+      Session.SystemEvents.TransactionOpened += TransactionOpened;
+      Session.SystemEvents.TransactionCommitted +=TransactionCommitted;
+      Session.SystemEvents.TransactionRollbacked += TransactionRollbacked;
+      Session.SystemEvents.EntityMaterialized += EntityMaterialized;
+      Session.SystemEvents.Persisting += Persisting;
     }
 
     private void DetachEventHandlers()
     {
-      Session.TransactionOpened -= TransactionOpened;
-      Session.TransactionCommitted -= TransactionCommitted;
-      Session.TransactionRollbacked -= TransactionRollbacked;
-      Session.EntityMaterialized -= EntityMaterialized;
-      Session.Persisting -= Persisting;
+      Session.SystemEvents.TransactionOpened -= TransactionOpened;
+      Session.SystemEvents.TransactionCommitted -= TransactionCommitted;
+      Session.SystemEvents.TransactionRollbacked -= TransactionRollbacked;
+      Session.SystemEvents.EntityMaterialized -= EntityMaterialized;
+      Session.SystemEvents.Persisting -= Persisting;
     }
 
     #endregion
