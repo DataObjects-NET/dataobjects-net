@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Disposing;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Tuples;
 using Xtensive.Integrity.Validation;
@@ -50,7 +51,7 @@ namespace Xtensive.Storage
       // public int Id;
       public TransactionScope TransactionScope;
       public InconsistentRegion InconsistentRegion;
-      public IOperationContext OperationContext;
+      public CompletableScope OperationScope;
       public CtorTransactionInfo Previous;
 
       public CtorTransactionInfo()
@@ -369,11 +370,12 @@ namespace Xtensive.Storage
       var fieldAccessor = GetFieldAccessor(field);
       object oldValue = GetFieldValue(field);
       try {
-        using (var context = OpenOperationContext()) {
-          if (context.IsLoggingEnabled) {
+        var operations = Session.Operations;
+        using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
+          if (operations.CanRegisterOperation) {
             var entity = this as Entity;
             if (entity != null)
-              context.LogOperation(new EntityFieldSetOperation(entity.Key, field, value));
+              operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, field, value));
             else {
               var persistent = this;
               var entityField = field;
@@ -386,14 +388,16 @@ namespace Xtensive.Storage
               }
               entity = persistent as Entity;
               if (entity != null)
-                context.LogOperation(new EntityFieldSetOperation(entity.Key, entityField, value));
+                operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, entityField, value));
             }
           }
           if (fieldAccessor.AreSameValues(oldValue, value)) {
-            context.Complete();
+            operations.OperationStarted();
+            scope.Complete();
             return;
           }
           SystemBeforeSetValue(field, value);
+          operations.OperationStarted();
           var structure = value as Structure;
           var association = field.Association;
           if (association != null && association.IsPaired) {
@@ -418,7 +422,7 @@ namespace Xtensive.Storage
           }
           SystemSetValue(field, oldValue, value);
           SystemSetValueCompleted(field, oldValue, value, null);
-          context.Complete();
+          scope.Complete();
         }
       }
       catch (Exception e) {
@@ -567,7 +571,7 @@ namespace Xtensive.Storage
     /// <param name="field">The field, which value is changed.</param>
     protected internal void NotifyFieldChanged(FieldInfo field)
     {
-      if (!Session.EntityEventBroker.HasSubscribers)
+      if (!Session.EntityEvents.HasSubscribers)
         return;
 
       var rootField = field;
@@ -829,10 +833,10 @@ namespace Xtensive.Storage
       };
     }
 
-    internal void BindCtorTransactionScopeToOperationContext(IOperationContext context)
+    internal void BindCtorTransactionScopeToOperationScope(CompletableScope scope)
     {
       var ctorTransactionInfo = CtorTransactionInfo.Current;
-      ctorTransactionInfo.OperationContext = context;
+      ctorTransactionInfo.OperationScope = scope;
     }
 
     internal void LeaveCtorTransactionScope(bool successfully)
@@ -855,8 +859,8 @@ namespace Xtensive.Storage
             throw;
           }
         }
-        if (cti.OperationContext!=null)
-          cti.OperationContext.Complete();
+        if (cti.OperationScope!=null)
+          cti.OperationScope.Complete();
       }
       finally {
         try {
@@ -869,8 +873,8 @@ namespace Xtensive.Storage
         }
         finally {
           try {
-            if (cti.OperationContext != null)
-              cti.OperationContext.Dispose();
+            if (cti.OperationScope != null)
+              cti.OperationScope.Dispose();
           }
           catch {
             successfully = false;

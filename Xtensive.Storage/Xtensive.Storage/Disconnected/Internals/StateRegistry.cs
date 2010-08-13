@@ -21,6 +21,7 @@ namespace Xtensive.Storage.Disconnected
   /// </summary>
   internal sealed class StateRegistry
   {
+    private readonly DisconnectedState owner;
     private readonly StateRegistry origin;
     private readonly Dictionary<Key, DisconnectedEntityState> items;
     private readonly AssociationCache associationCache;
@@ -132,7 +133,7 @@ namespace Xtensive.Storage.Disconnected
       }
       finally {
         if (clearLoggedOperations)
-          Operations = new OperationLog();
+          Operations = new OperationLog(owner.LogType);
       }
     }
 
@@ -255,31 +256,26 @@ namespace Xtensive.Storage.Disconnected
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    
-    public StateRegistry(AssociationCache associationCache)
+    public StateRegistry(DisconnectedState owner, AssociationCache associationCache)
     {
+      ArgumentValidator.EnsureArgumentNotNull(owner, "owner");
       ArgumentValidator.EnsureArgumentNotNull(associationCache, "modelRequestCache");
 
+      this.owner = owner;
       items = new Dictionary<Key, DisconnectedEntityState>();
       this.associationCache = associationCache;
-      Operations = new OperationLog();
+      Operations = new OperationLog(owner.LogType);
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="origin">The origin registry.</param>
     public StateRegistry(StateRegistry origin)
     {
       ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
 
-      items = new Dictionary<Key, DisconnectedEntityState>();
+      owner = origin.owner;
       this.origin = origin;
+      items = new Dictionary<Key, DisconnectedEntityState>();
       associationCache = origin.associationCache;
-      Operations = new OperationLog();
+      Operations = new OperationLog(owner.LogType);
     }
   }
 }

@@ -381,7 +381,7 @@ namespace Xtensive.Storage.Tests.Storage.ObjectMapping
             typeof (Ref<Entity>), 
             typeof (EntityCreateOperation), 
             typeof (EntityFieldSetOperation),
-            typeof (EntityRemoveOperation),
+            typeof (EntitiesRemoveOperation),
             typeof (EntitySetClearOperation),
             typeof (EntitySetItemAddOperation),
             typeof (EntitySetItemRemoveOperation),

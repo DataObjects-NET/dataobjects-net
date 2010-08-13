@@ -1,51 +1,55 @@
-// Copyright (C) 2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
-// Created:    2010.02.25
+// Created:    2010.08.11
 
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Storage.Model;
 
 namespace Xtensive.Storage.Operations
 {
   /// <summary>
-  /// Describes <see cref="Entity"/> creation operation.
+  /// Describes <see cref="Entity"/> initialization operation.
+  /// Actually, does nothing - it is used to suppress nested
+  /// system operations.
   /// </summary>
   [Serializable]
-  public class EntitySetClearOperation : EntitySetOperation
+  public class EntityInitializeOperation : EntityOperation
   {
     /// <inheritdoc/>
     public override string Title {
-      get { return "Clear entity set"; }
+      get { return "Initialize entity"; }
     }
 
     /// <inheritdoc/>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
-      GetEntitySet(context).Clear();
+      // Does nothing.
     }
 
     /// <inheritdoc/>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone==null)
-        clone = new EntitySetClearOperation(Key, Field);
+        clone = new EntityInitializeOperation(Key);
       return clone;
     }
 
-
+    
     // Constructors
 
     /// <inheritdoc/>
-    public EntitySetClearOperation(Key key, FieldInfo field)
-      : base(key, field)
+    public EntityInitializeOperation(Key key)
+      : base(key)
     {
     }
 
+    // Serialization
+
     /// <inheritdoc/>
-    protected EntitySetClearOperation(SerializationInfo info, StreamingContext context)
+    protected EntityInitializeOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }

@@ -28,36 +28,6 @@ namespace Xtensive.Storage
     /// </summary>    
     public Transaction Transaction { get; private set; }
 
-    /// <summary>
-    /// Occurs when <see cref="Transaction"/> is about to be opened.
-    /// </summary>
-    public event EventHandler<TransactionEventArgs> TransactionOpening;
-
-    /// <summary>
-    /// Occurs when <see cref="Transaction"/> is opened.
-    /// </summary>
-    public event EventHandler<TransactionEventArgs> TransactionOpened;
-
-    /// <summary>
-    /// Occurs when <see cref="Transaction"/> is about to be committed.
-    /// </summary>
-    public event EventHandler<TransactionEventArgs> TransactionCommitting;
-
-    /// <summary>
-    /// Occurs when <see cref="Transaction"/> is committed.
-    /// </summary>
-    public event EventHandler<TransactionEventArgs> TransactionCommitted;
-
-    /// <summary>
-    /// Occurs when <see cref="Transaction"/> is about to be rolled back.
-    /// </summary>
-    public event EventHandler<TransactionEventArgs> TransactionRollbacking;
-
-    /// <summary>
-    /// Occurs when <see cref="Transaction"/> is rolled back.
-    /// </summary>
-    public event EventHandler<TransactionEventArgs> TransactionRollbacked;
-
     internal TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
       var transaction = Transaction;
@@ -123,7 +93,12 @@ namespace Xtensive.Storage
     {
       if (IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXCommittingTransaction, this);
-      NotifyTransactionCommitting(transaction);
+      
+      SystemEvents.NotifyTransactionPrecommitting(transaction);
+      Events.NotifyTransactionPrecommitting(transaction);
+      
+      SystemEvents.NotifyTransactionCommitting(transaction);
+      Events.NotifyTransactionCommitting(transaction);
 
       Persist(PersistReason.Commit);
 
@@ -140,7 +115,8 @@ namespace Xtensive.Storage
       try {
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXRollingBackTransaction, this);
-        NotifyTransactionRollbacking(transaction);
+        SystemEvents.NotifyTransactionRollbacking(transaction);
+        Events.NotifyTransactionRollbacking(transaction);
       }
       finally {
         if (transaction.IsActuallyStarted)
@@ -163,12 +139,14 @@ namespace Xtensive.Storage
       case TransactionState.Committed:
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXCommittedTransaction, this);
-        NotifyTransactionCommitted(transaction);
+        SystemEvents.NotifyTransactionCommitted(transaction);
+        Events.NotifyTransactionCommitted(transaction);
         break;
       case TransactionState.RolledBack:
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXRolledBackTransaction, this);
-        NotifyTransactionRollbacked(transaction);
+        SystemEvents.NotifyTransactionRollbacked(transaction);
+        Events.NotifyTransactionRollbacked(transaction);
         break;
       default:
         throw new ArgumentOutOfRangeException("transaction.State");
@@ -249,7 +227,9 @@ namespace Xtensive.Storage
     {
       if (IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXOpeningTransaction, this);
-      NotifyTransactionOpening(transaction);
+      
+      SystemEvents.NotifyTransactionOpening(transaction);
+      Events.NotifyTransactionOpening(transaction);
 
       transaction.Begin();
       Transaction = transaction;
@@ -257,7 +237,9 @@ namespace Xtensive.Storage
       IDisposable logIndentScope = null;
       if (IsDebugEventLoggingEnabled)
         logIndentScope = Log.DebugRegion(Strings.LogSessionXTransaction, this);
-      NotifyTransactionOpened(transaction);
+      
+      SystemEvents.NotifyTransactionOpened(transaction);
+      Events.NotifyTransactionOpened(transaction);
 
       return new TransactionScope(transaction, logIndentScope);
     }
@@ -266,45 +248,5 @@ namespace Xtensive.Storage
     {
       Transaction = transaction;
     }
-
-    #region NotifyXxx methods
-
-    private void NotifyTransactionOpening(Transaction transaction)
-    {
-      if (TransactionOpening!=null)
-        TransactionOpening(this, new TransactionEventArgs(transaction));
-    }
-
-    private void NotifyTransactionOpened(Transaction transaction)
-    {
-      if (TransactionOpened!=null)
-        TransactionOpened(this, new TransactionEventArgs(transaction));
-    }
-    
-    private void NotifyTransactionCommitting(Transaction transaction)
-    {
-      if (TransactionCommitting!=null)
-        TransactionCommitting(this, new TransactionEventArgs(transaction));
-    }
-
-    private void NotifyTransactionCommitted(Transaction transaction)
-    {
-      if (TransactionCommitted!=null)
-        TransactionCommitted(this, new TransactionEventArgs(transaction));
-    }
-
-    private void NotifyTransactionRollbacking(Transaction transaction)
-    {
-      if (TransactionRollbacking!=null)
-        TransactionRollbacking(this, new TransactionEventArgs(transaction));
-    }
-
-    private void NotifyTransactionRollbacked(Transaction transaction)
-    {
-      if (TransactionRollbacked!=null)
-        TransactionRollbacked(this, new TransactionEventArgs(transaction));
-    }
-    
-    #endregion
   }
 }

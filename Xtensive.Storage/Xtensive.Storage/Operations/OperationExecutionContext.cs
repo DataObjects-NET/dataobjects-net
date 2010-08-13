@@ -66,7 +66,8 @@ namespace Xtensive.Storage.Operations
 
     internal void AddKeyMapping(Key localKey, Key realKey)
     {
-      keyMapping.Add(localKey, realKey);
+      if (localKey!=realKey)
+        keyMapping.Add(localKey, realKey);
     }
 
 

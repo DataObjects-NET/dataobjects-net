@@ -1471,6 +1471,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid scope disposal order..
+        /// </summary>
+        internal static string ExInvalidScopeDisposalOrder {
+            get {
+                return ResourceManager.GetString("ExInvalidScopeDisposalOrder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The Session of specified ISessionBound object is invalid..
         /// </summary>
         internal static string ExInvalidSession {
@@ -1860,6 +1869,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No operation registration scope. Use OperationRegistry.BeginRegistration method to open it..
+        /// </summary>
+        internal static string ExNoOperationRegistrationScope {
+            get {
+                return ResourceManager.GetString("ExNoOperationRegistrationScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;NotNullable&apos; constraint violation on field &apos;{0}&apos;..
         /// </summary>
         internal static string ExNotNullableConstraintViolationOnFieldX {
@@ -1905,6 +1923,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only one operation can be registered in each scope..
+        /// </summary>
+        internal static string ExOnlyOneOperationCanBeRegisteredInEachScope {
+            get {
+                return ResourceManager.GetString("ExOnlyOneOperationCanBeRegisteredInEachScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Only one primary operation can be logged by each OperationContext instance..
         /// </summary>
         internal static string ExOnlyOnePrimaryOperationCanBeLogged {
@@ -1919,6 +1946,33 @@ namespace Xtensive.Storage.Resources {
         internal static string ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction {
             get {
                 return ResourceManager.GetString("ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operation isn&apos;t marked as started. See Sessopn.Operations.OperationStarted() method..
+        /// </summary>
+        internal static string ExOperationIsNotMarkedAsStarted {
+            get {
+                return ResourceManager.GetString("ExOperationIsNotMarkedAsStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Operation isn&apos;t registered yet. See Session.Oeprations.RegisterOperations()..
+        /// </summary>
+        internal static string ExOperationIsNotRegisteredYet {
+            get {
+                return ResourceManager.GetString("ExOperationIsNotRegisteredYet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OperatonStarted is alerady called for this operation..
+        /// </summary>
+        internal static string ExOperationStartedIsAlreadyCalledForThisOperation {
+            get {
+                return ResourceManager.GetString("ExOperationStartedIsAlreadyCalledForThisOperation", resourceCulture);
             }
         }
         
@@ -2162,6 +2216,15 @@ namespace Xtensive.Storage.Resources {
         internal static string ExResultTypeIncorrect {
             get {
                 return ResourceManager.GetString("ExResultTypeIncorrect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running operation registration must be finished before invocation of this method..
+        /// </summary>
+        internal static string ExRunningOperationRegistrationMustBeFinished {
+            get {
+                return ResourceManager.GetString("ExRunningOperationRegistrationMustBeFinished", resourceCulture);
             }
         }
         
@@ -3248,6 +3311,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You must either apply or cancel cached changes before changing this property..
+        /// </summary>
+        internal static string ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty {
+            get {
+                return ResourceManager.GetString("ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to full.
         /// </summary>
         internal static string Full {
@@ -3516,6 +3588,17 @@ namespace Xtensive.Storage.Resources {
         internal static string LogExtractedSchema {
             get {
                 return ResourceManager.GetString("LogExtractedSchema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to add schema hint &apos;{0}&apos; to schema hint collection. The hint will be ignored.
+        ///Likely, the schema object (table, column, etc.) it references does not exists, because it was manually removed from the database.
+        ///Error: {1}.
+        /// </summary>
+        internal static string LogFailedToAddSchemaHintXErrorY {
+            get {
+                return ResourceManager.GetString("LogFailedToAddSchemaHintXErrorY", resourceCulture);
             }
         }
         
@@ -3858,6 +3941,15 @@ namespace Xtensive.Storage.Resources {
         internal static string LogSessionXUpdatingCacheY {
             get {
                 return ResourceManager.GetString("LogSessionXUpdatingCacheY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Version validation failed: Key = &apos;{1}&apos;, Version = &apos;{2}&apos; (expected version = &apos;{3}&apos;)..
+        /// </summary>
+        internal static string LogSessionXVersionValidationFailedKeyYVersionZExpected3 {
+            get {
+                return ResourceManager.GetString("LogSessionXVersionValidationFailedKeyYVersionZExpected3", resourceCulture);
             }
         }
         

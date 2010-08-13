@@ -14,6 +14,11 @@ namespace Xtensive.Storage
   public interface IOperationLogger
   {
     /// <summary>
+    /// Gets operation log type.
+    /// </summary>
+    OperationLogType LogType { get; }
+    
+    /// <summary>
     /// Logs the specified operation.
     /// </summary>
     /// <param name="operation">The operation.</param>

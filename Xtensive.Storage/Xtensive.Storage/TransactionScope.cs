@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Core.Disposing;
 using Xtensive.Integrity.Transactions;
 
 namespace Xtensive.Storage
@@ -14,12 +15,11 @@ namespace Xtensive.Storage
   /// An implementation of <see cref="Integrity.Transactions.TransactionScope"/>
   /// suitable for storage.
   /// </summary>
-  public class TransactionScope : IDisposable
+  public class TransactionScope : CompletableScope
   {
     private static readonly TransactionScope VoidScope = new TransactionScope();
 
     private IDisposable disposable;
-    private bool isCompleted;
     private bool isDisposed;
 
     /// <summary>
@@ -39,17 +39,8 @@ namespace Xtensive.Storage
     /// </summary>
     public bool IsVoid { get { return this==VoidScopeInstance; } }
 
-    /// <summary>
-    /// Marks the scope as successfully completed 
-    /// (i.e. all operations within the scope are completed successfully).
-    /// </summary>
-    public void Complete()
-    {
-      isCompleted = true;
-    }
-
     /// <inheritdoc/>
-    public void Dispose()
+    public override void Dispose()
     {
       if (isDisposed)
         return;
@@ -57,7 +48,7 @@ namespace Xtensive.Storage
       try {
         if (Transaction==null || !Transaction.State.IsActive())
           return;
-        if (isCompleted)
+        if (IsCompleted)
           Transaction.Commit();
         else
           Transaction.Rollback();

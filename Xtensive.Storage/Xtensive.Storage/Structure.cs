@@ -130,11 +130,11 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public override sealed event PropertyChangedEventHandler PropertyChanged {
       add {
-        Session.EntityEventBroker.AddSubscriber(GetOwnerEntityKey(Owner), Field,
+        Session.EntityEvents.AddSubscriber(GetOwnerEntityKey(Owner), Field,
           EntityEventBroker.PropertyChangedEventKey, value);
       }
       remove {
-        Session.EntityEventBroker.RemoveSubscriber(GetOwnerEntityKey(Owner), Field,
+        Session.EntityEvents.RemoveSubscriber(GetOwnerEntityKey(Owner), Field,
          EntityEventBroker.PropertyChangedEventKey, value);
       }
     }
@@ -254,15 +254,17 @@ namespace Xtensive.Storage
     internal override sealed void SystemSetValue(FieldInfo field, object oldValue, object newValue)
     {
       if (!Session.IsSystemLogicOnly) {
-        if (CanBeValidated && Session.Domain.Configuration.AutoValidation)
-          this.Validate();
-        var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
-        if (subscriptionInfo.Second != null)
-          ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, Field, field, oldValue, newValue);
+        using (Session.Operations.EnableSystemOperationRegistration()) {
+          if (CanBeValidated && Session.Domain.Configuration.AutoValidation)
+            this.Validate();
+          var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
+          if (subscriptionInfo.Second!=null)
+            ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
+              .Invoke(subscriptionInfo.First, Field, field, oldValue, newValue);
 
-        NotifyFieldChanged(field);
-        OnSetFieldValue(field, oldValue, newValue);
+          NotifyFieldChanged(field);
+          OnSetFieldValue(field, oldValue, newValue);
+        }
       }
       if (Owner == null)
         return;
@@ -284,7 +286,7 @@ namespace Xtensive.Storage
       var entityKey = GetOwnerEntityKey(Owner);
       if (entityKey!=null)
         return new Pair<Key, Delegate>(entityKey,
-          Session.EntityEventBroker.GetSubscriber(entityKey, Field, eventKey));
+          Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
       return new Pair<Key, Delegate>(null, null);
     }
 

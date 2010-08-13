@@ -35,14 +35,14 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public override void Prepare(OperationExecutionContext context)
+    protected override void PrepareSelf(OperationExecutionContext context)
     {
       // There should be no base method call here!
       context.RegisterKey(context.TryRemapKey(Key), true);
     }
 
     /// <inheritdoc/>
-    public override void Execute(OperationExecutionContext context)
+    protected override void ExecuteSelf(OperationExecutionContext context)
     {
       var session = context.Session;
       var domain = session.Domain;
@@ -50,6 +50,14 @@ namespace Xtensive.Storage.Operations
       var type = domain.Model.Types[TypeName];
       key = Key.Create(domain, type, TypeReferenceAccuracy.ExactType, key.Value);
       session.CreateOrInitializeExistingEntity(type.UnderlyingType, key);
+    }
+
+    /// <inheritdoc/>
+    protected override Operation CloneSelf(Operation clone)
+    {
+      if (clone==null)
+        clone = new EntityCreateOperation(Key);
+      return clone;
     }
 
     

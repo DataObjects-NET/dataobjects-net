@@ -49,15 +49,15 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <inheritdoc/>
-    public override void Prepare(OperationExecutionContext context)
+    protected override void PrepareSelf(OperationExecutionContext context)
     {
-      base.Prepare(context);
+      base.PrepareSelf(context);
       // Next line works properly when ValueKey==null
       context.RegisterKey(context.TryRemapKey(ValueKey), false);
     }
 
     /// <inheritdoc/>
-    public override void Execute(OperationExecutionContext context)
+    protected override void ExecuteSelf(OperationExecutionContext context)
     {
       var session = context.Session;
       var key = context.TryRemapKey(Key);
@@ -65,6 +65,18 @@ namespace Xtensive.Storage.Operations
       var entity = Query.Single(session, key);
       var value = ValueKey != null ? Query.Single(session, valueKey) : Value;
       entity.SetFieldValue(Field, value);
+    }
+
+    /// <inheritdoc/>
+    protected override Operation CloneSelf(Operation clone)
+    {
+      if (clone == null) {
+        if (ValueKey==null)
+          clone = new EntityFieldSetOperation(Key, Field, Value);
+        else
+          clone = new EntityFieldSetOperation(Key, Field, ValueKey);
+      }
+      return clone;
     }
 
     

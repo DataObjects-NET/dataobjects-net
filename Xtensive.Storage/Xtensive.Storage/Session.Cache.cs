@@ -53,7 +53,7 @@ namespace Xtensive.Storage
             entityState.RemapKey(remappedKey);
           EntityStateCache.Add(entityState);
         }
-        EntityEventBroker.RemapKeys(keyMapping);
+        EntityEvents.RemapKeys(keyMapping);
       }
     }
 

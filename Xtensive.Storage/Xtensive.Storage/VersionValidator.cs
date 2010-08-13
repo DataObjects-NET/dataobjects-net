@@ -69,9 +69,13 @@ namespace Xtensive.Storage
     public bool ValidateVersion(Key key, VersionInfo version, bool throwOnFailure)
     {
       var result = ValidateVersion(key, version);
-      if (throwOnFailure && !result)
+      if (throwOnFailure && !result) {
+        if (Session.IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+            Session, key, version, expectedVersionProvider.Invoke(key));
         throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
+      }
       return result;
     }
 
@@ -263,14 +267,14 @@ namespace Xtensive.Storage
         throw new InvalidOperationException(Strings.ExTheServiceIsAlreadyAttachedToSession);
       isAttached = true;
       try {
-        Session.TransactionOpened += OnTransactionOpened;
-        Session.TransactionCommitting += OnTransactionCommitting;
-        Session.TransactionCommitted += OnTransactionClosed;
-        Session.TransactionRollbacked += OnTransactionClosed;
-        Session.EntityVersionInfoChanging += OnEntityVersionInfoChanging;
-        Session.EntityRemoving += OnEntityRemoving;
-        Session.Persisting += OnPersisting;
-        Session.Persisted += OnPersisted;
+        Session.SystemEvents.TransactionOpened += OnTransactionOpened;
+        Session.SystemEvents.TransactionCommitting += OnTransactionCommitting;
+        Session.SystemEvents.TransactionCommitted += OnTransactionClosed;
+        Session.SystemEvents.TransactionRollbacked += OnTransactionClosed;
+        Session.SystemEvents.EntityVersionInfoChanging += OnEntityVersionInfoChanging;
+        Session.SystemEvents.EntityRemoving += OnEntityRemoving;
+        Session.SystemEvents.Persisting += OnPersisting;
+        Session.SystemEvents.Persisted += OnPersisted;
       }
       catch {
         DetachEventHandlers();
@@ -282,14 +286,14 @@ namespace Xtensive.Storage
     {
       if (isAttached) {
         isAttached = false;
-        Session.TransactionOpened -= OnTransactionOpened;
-        Session.TransactionCommitting -= OnTransactionCommitting;
-        Session.TransactionCommitted -= OnTransactionClosed;
-        Session.TransactionRollbacked -= OnTransactionClosed;
-        Session.EntityVersionInfoChanging -= OnEntityVersionInfoChanging;
-        Session.EntityRemoving -= OnEntityRemoving;
-        Session.Persisting -= OnPersisting;
-        Session.Persisted -= OnPersisted;
+        Session.SystemEvents.TransactionOpened -= OnTransactionOpened;
+        Session.SystemEvents.TransactionCommitting -= OnTransactionCommitting;
+        Session.SystemEvents.TransactionCommitted -= OnTransactionClosed;
+        Session.SystemEvents.TransactionRollbacked -= OnTransactionClosed;
+        Session.SystemEvents.EntityVersionInfoChanging -= OnEntityVersionInfoChanging;
+        Session.SystemEvents.EntityRemoving -= OnEntityRemoving;
+        Session.SystemEvents.Persisting -= OnPersisting;
+        Session.SystemEvents.Persisted -= OnPersisted;
       }
     }
 

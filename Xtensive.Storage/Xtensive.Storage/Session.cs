@@ -7,19 +7,16 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Core.Caching;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.IoC;
 using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Disconnected;
 using Xtensive.Storage.Internals;
 using Xtensive.Storage.Operations;
 using Xtensive.Storage.PairIntegrity;
@@ -130,6 +127,11 @@ namespace Xtensive.Storage
     public DisconnectedState DisconnectedState { get; internal set; }
 
     /// <summary>
+    /// Gets the operations registry of this <see cref="Session"/>.
+    /// </summary>
+    public OperationRegistry Operations { get; private set; }
+
+    /// <summary>
     /// Gets or sets timeout for all <see cref="IDbCommand"/>s that
     /// are executed within this session.
     /// <seealso cref="IDbCommand.CommandTimeout"/>
@@ -180,10 +182,6 @@ namespace Xtensive.Storage
     internal Pinner Pinner { get; private set; }
 
     internal CompilationContext CompilationContext { get { return Handlers.DomainHandler.CompilationContext; } }
-
-    internal OperationContext CurrentOperationContext { get; set; }
-
-    internal BlockingOperationContext BlockingOperationContext { get; private set; }
 
     internal bool IsDelayedQueryRunning { get; private set; }
 
@@ -332,6 +330,23 @@ namespace Xtensive.Storage
       return new Disposable(_ => { CommandTimeout = oldTimeout; });
     }
 
+    /// <summary>
+    /// Removes the specified set of entities.
+    /// </summary>
+    /// <typeparam name="T">Entity type.</typeparam>
+    /// <param name="entities">The entities.</param>
+    /// <exception cref="ReferentialIntegrityException">
+    /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.
+    /// </exception>
+    public void Remove<T>(IEnumerable<T> entities)
+      where T : IEntity
+    {
+      using (var tx = Transaction.Open()) {
+        RemovalProcessor.Remove(entities.Cast<Entity>().ToList());
+        tx.Complete();
+      }
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -363,13 +378,16 @@ namespace Xtensive.Storage
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry(this);
 
-      // Etc...
-      // AtomicityContext = new AtomicityContext(this, AtomicityContextOptions.Undoable);
-      EntityEventBroker = new EntityEventBroker();
+      // Events
+      EntityEvents = new EntityEventBroker();
+      Events = new SessionEventAccessor(this, false);
+      SystemEvents = new SessionEventAccessor(this, true);
+
+      // Etc.
       PairSyncManager = new SyncManager(this);
       RemovalProcessor = new RemovalProcessor(this);
       Pinner = new Pinner(this);
-      BlockingOperationContext = new BlockingOperationContext(this);
+      Operations = new OperationRegistry(this);
 
       if (activate)
         sessionScope = new SessionScope(this);
@@ -396,7 +414,10 @@ namespace Xtensive.Storage
       try {
         if (IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXDisposing, this);
-        NotifyDisposing();
+        
+        SystemEvents.NotifyDisposing();
+        Events.NotifyDisposing();
+        
         Services.DisposeSafely();
         Handler.DisposeSafely();
         sessionScope.DisposeSafely();

@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Helpers;
 using Xtensive.Core.Internals.DocTemplates;
+using System.Linq;
 
 namespace Xtensive.Core.Collections
 {
@@ -123,11 +124,18 @@ namespace Xtensive.Core.Collections
     {
       if (isProcessingPendingActions)
         return;
+      if (IsLocked)
+        return;
       isProcessingPendingActions = true;
       try {
-        foreach (var action in actions)
-          processor.Process(this, action);
-        actions.Clear();
+        while (true) {
+          var oldActions = actions.ToList();
+          actions.Clear();
+          foreach (var action in oldActions)
+            processor.Process(this, action);
+          if (actions.Count==0)
+            break;
+        }
       }
       finally {
         isProcessingPendingActions = false;

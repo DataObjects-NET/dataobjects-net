@@ -173,18 +173,18 @@ namespace Xtensive.Storage.Tests.Storage
       using (Transaction.Open()) {
         var hexagon = new Hexagon {Kwanza = 1};
 
-        session.TransactionOpened +=
+        session.Events.TransactionOpened +=
           (sender, args) => Assert.AreEqual(Transaction.Current, args.Transaction);
-        session.TransactionCommitting +=
+        session.Events.TransactionCommitting +=
           (sender, args) => Assert.AreEqual(Transaction.Current, args.Transaction);
-        session.TransactionRollbacking +=
+        session.Events.TransactionRollbacking +=
           (sender, args) => Assert.AreEqual(Transaction.Current, args.Transaction);
 
-        session.TransactionOpening +=
+        session.Events.TransactionOpening +=
           (sender, args) => Assert.AreNotEqual(Transaction.Current, args.Transaction);
-        session.TransactionCommitted +=
+        session.Events.TransactionCommitted +=
           (sender, args) => Assert.AreNotEqual(Transaction.Current, args.Transaction);
-        session.TransactionRollbacked +=
+        session.Events.TransactionRollbacked +=
           (sender, args) => Assert.AreNotEqual(Transaction.Current, args.Transaction);
 
         using (var nestedScope = Transaction.Open(TransactionOpenMode.New)) {
