@@ -879,7 +879,7 @@ namespace Xtensive.Storage.Upgrade
     private bool EnsureTableExist(string tableName)
     {
       if (!extractedModel.Tables.Contains(tableName)) {
-        Log.Warning(Strings.ExTableXIsNotFound);
+        Log.Warning(Strings.ExTableXIsNotFound, tableName);
         return false;
       }
       return true;

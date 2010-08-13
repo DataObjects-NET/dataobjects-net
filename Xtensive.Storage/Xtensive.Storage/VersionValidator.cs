@@ -72,7 +72,7 @@ namespace Xtensive.Storage
       if (throwOnFailure && !result) {
         if (Session.IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
-            key, version, expectedVersionProvider.Invoke(key));
+            Session, key, version, expectedVersionProvider.Invoke(key));
         throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
       }
