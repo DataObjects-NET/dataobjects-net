@@ -392,10 +392,12 @@ namespace Xtensive.Storage
             }
           }
           if (fieldAccessor.AreSameValues(oldValue, value)) {
+            operations.OperationStarted();
             scope.Complete();
             return;
           }
           SystemBeforeSetValue(field, value);
+          operations.OperationStarted();
           var structure = value as Structure;
           var association = field.Association;
           if (association != null && association.IsPaired) {

@@ -127,6 +127,11 @@ namespace Xtensive.Storage
     public DisconnectedState DisconnectedState { get; internal set; }
 
     /// <summary>
+    /// Gets the operations registry of this <see cref="Session"/>.
+    /// </summary>
+    public OperationRegistry Operations { get; private set; }
+
+    /// <summary>
     /// Gets or sets timeout for all <see cref="IDbCommand"/>s that
     /// are executed within this session.
     /// <seealso cref="IDbCommand.CommandTimeout"/>
@@ -177,8 +182,6 @@ namespace Xtensive.Storage
     internal Pinner Pinner { get; private set; }
 
     internal CompilationContext CompilationContext { get { return Handlers.DomainHandler.CompilationContext; } }
-
-    internal OperationRegistry Operations { get; set; }
 
     internal bool IsDelayedQueryRunning { get; private set; }
 

@@ -114,25 +114,24 @@ namespace Xtensive.Storage.Operations
       operation.Type = scope.OperationType;
       operation.OuterOperation = scope.Parent==null ? null : scope.Parent.Operation;
       scope.Operation = operation;
-      // Notifying...
+    }
+
+    public void OperationStarted()
+    {
+      if (!CanRegisterOperation)
+        return;
+      var scope = GetCurrentOperationRegistrationScope();
+      if (scope==null)
+        return;
+      var operation = scope.Operation;
+      if (operation==null)
+        throw new InvalidOperationException(Strings.ExOperationIsNotRegisteredYet);
+      if (scope.IsOperationStarted)
+        throw new InvalidOperationException(Strings.ExOperationStartedIsAlreadyCalledForThisOperation);
       if (operation.IsOutermost)
         NotifyOutermostOperationStarting(operation);
       else
         NotifyNestedOperationStarting(operation);
-    }
-
-    /// <summary>
-    /// Registers the precondition.
-    /// </summary>
-    /// <param name="precondition">The precondition to register.</param>
-    public void RegisterPrecondition(IPrecondition precondition)
-    {
-      var scope = GetCurrentOperationRegistrationScope();
-      if (scope==null)
-        return;
-      if (scope.Preconditions==null)
-        scope.Preconditions = new List<IPrecondition>();
-      scope.Preconditions.Add(precondition);
     }
 
     /// <summary>
@@ -244,10 +243,10 @@ namespace Xtensive.Storage.Operations
         operation = (Operation) scope.Operation;
         if (operation == null)
           return;
-        if (scope.Preconditions!=null)
-          operation.Preconditions = new ReadOnlyList<IPrecondition>(scope.Preconditions);
-        if (scope.NestedOperations!=null)
-          operation.NestedOperations = new ReadOnlyList<IOperation>(scope.NestedOperations);
+        if (scope.PrecedingOperations!=null)
+          operation.PrecedingOperations = new ReadOnlyList<IOperation>(scope.PrecedingOperations);
+        if (scope.FollowingOperations!=null)
+          operation.FollowingOperations = new ReadOnlyList<IOperation>(scope.FollowingOperations);
         if (scope.UndoOperations!=null)
           operation.UndoOperations = new ReadOnlyList<IOperation>(scope.UndoOperations);
         if (scope.KeyByIdentifier!=null)
@@ -256,12 +255,19 @@ namespace Xtensive.Storage.Operations
       finally {
         RemoveCurrentScope(scope);
         if (operation != null) {
-          // Adding it to parent scope's NestedOperations collection
+          // Adding it to parent scope's nested operations collection
           var parentScope = (OperationRegistrationScope) GetCurrentScope();
           if (parentScope != null) {
-            if (parentScope.NestedOperations==null)
-              parentScope.NestedOperations = new List<IOperation>();
-            parentScope.NestedOperations.Add(operation);
+            if (!parentScope.IsOperationStarted) {
+              if (parentScope.PrecedingOperations==null)
+                parentScope.PrecedingOperations = new List<IOperation>();
+              parentScope.PrecedingOperations.Add(operation);
+            }
+            else {
+              if (parentScope.FollowingOperations==null)
+                parentScope.FollowingOperations = new List<IOperation>();
+              parentScope.FollowingOperations.Add(operation);
+            }
           }
           // Notifying...
           if (operation.IsOutermost)

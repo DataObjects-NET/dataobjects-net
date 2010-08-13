@@ -69,9 +69,13 @@ namespace Xtensive.Storage
     public bool ValidateVersion(Key key, VersionInfo version, bool throwOnFailure)
     {
       var result = ValidateVersion(key, version);
-      if (throwOnFailure && !result)
+      if (throwOnFailure && !result) {
+        if (Session.IsDebugEventLoggingEnabled)
+          Log.Debug(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+            key, version, expectedVersionProvider.Invoke(key));
         throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
+      }
       return result;
     }
 

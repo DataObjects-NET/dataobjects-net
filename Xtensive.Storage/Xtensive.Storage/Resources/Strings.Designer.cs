@@ -1950,6 +1950,24 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Operation isn&apos;t registered yet. See Session.Oeprations.RegisterOperations()..
+        /// </summary>
+        internal static string ExOperationIsNotRegisteredYet {
+            get {
+                return ResourceManager.GetString("ExOperationIsNotRegisteredYet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OperatonStarted is alerady called for this operation..
+        /// </summary>
+        internal static string ExOperationStartedIsAlreadyCalledForThisOperation {
+            get {
+                return ResourceManager.GetString("ExOperationStartedIsAlreadyCalledForThisOperation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Origin is not null..
         /// </summary>
         internal static string ExOriginIsNotNull {
@@ -3565,6 +3583,17 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to add schema hint &apos;{0}&apos; to schema hint collection. The hint will be ignored.
+        ///Likely, the schema object (table, column, etc.) it references does not exists, because it was manually removed from the database.
+        ///Error: {1}.
+        /// </summary>
+        internal static string LogFailedToAddSchemaHintXErrorY {
+            get {
+                return ResourceManager.GetString("LogFailedToAddSchemaHintXErrorY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to extract domain model from the storage..
         /// </summary>
         internal static string LogFailedToExtractDomainModelFromStorage {
@@ -3903,6 +3932,15 @@ namespace Xtensive.Storage.Resources {
         internal static string LogSessionXUpdatingCacheY {
             get {
                 return ResourceManager.GetString("LogSessionXUpdatingCacheY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Version validation failed: Key = &apos;{1}&apos;, Version = &apos;{2}&apos; (expected version = &apos;{3}&apos;)..
+        /// </summary>
+        internal static string LogSessionXVersionValidationFailedKeyYVersionZExpected3 {
+            get {
+                return ResourceManager.GetString("LogSessionXVersionValidationFailedKeyYVersionZExpected3", resourceCulture);
             }
         }
         

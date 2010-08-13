@@ -163,6 +163,21 @@ namespace Xtensive.Storage
     public event EventHandler<EntitySetItemActionCompletedEventArgs> EntitySetItemAddCompleted;
 
     /// <summary>
+    /// Occurs when <see cref="EntitySetBase"/> is about to be cleared.
+    /// </summary>
+    public event EventHandler<EntitySetEventArgs> EntitySetClearing;
+
+    /// <summary>
+    /// Occurs when <see cref="EntitySetBase"/> is cleared.
+    /// </summary>
+    public event EventHandler<EntitySetEventArgs> EntitySetClear;
+
+    /// <summary>
+    /// Occurs when <see cref="EntitySetBase"/> clearing is completed.
+    /// </summary>
+    public event EventHandler<EntitySetActionCompletedEventArgs> EntitySetClearCompleted;
+
+    /// <summary>
     /// Occurs when <see cref="Transaction"/> is about to be opened.
     /// </summary>
     public event EventHandler<TransactionEventArgs> TransactionOpening;
@@ -351,6 +366,24 @@ namespace Xtensive.Storage
     {
       if (EntitySetItemAddCompleted!=null && AreNotificationsEnabled())
         EntitySetItemAddCompleted(this, new EntitySetItemActionCompletedEventArgs(entitySet, item, exception));
+    }
+
+    internal void NotifyEntitySetClearing(EntitySetBase entitySet)
+    {
+      if (EntitySetClearing!=null && AreNotificationsEnabled())
+        EntitySetClearing(this, new EntitySetEventArgs(entitySet));
+    }
+
+    internal void NotifyEntitySetClear(EntitySetBase entitySet)
+    {
+      if (EntitySetClear!=null && AreNotificationsEnabled())
+        EntitySetClear(this, new EntitySetEventArgs(entitySet));
+    }
+
+    internal void NotifyEntitySetClearCompleted(EntitySetBase entitySet, Exception exception)
+    {
+      if (EntitySetClearCompleted!=null && AreNotificationsEnabled())
+        EntitySetClearCompleted(this, new EntitySetActionCompletedEventArgs(entitySet, exception));
     }
 
     internal void NotifyTransactionOpening(Transaction transaction)

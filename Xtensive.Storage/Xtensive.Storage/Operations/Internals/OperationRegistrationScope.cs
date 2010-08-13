@@ -20,8 +20,9 @@ namespace Xtensive.Storage.Operations
     public OperationRegistrationScope Parent;
     public OperationType OperationType;
     public IOperation Operation;
-    public List<IPrecondition> Preconditions;
-    public List<IOperation> NestedOperations;
+    public bool IsOperationStarted;
+    public List<IOperation> PrecedingOperations;
+    public List<IOperation> FollowingOperations;
     public List<IOperation> UndoOperations;
     public Dictionary<string, Key> KeyByIdentifier;
     public Dictionary<Key, string> IdentifierByKey;

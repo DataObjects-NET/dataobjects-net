@@ -508,14 +508,18 @@ namespace Xtensive.Storage
       var operations = Session.Operations;
       // Operation 1:
       using (var scope = operations.BeginRegistration(OperationType.System)) {
-        if (operations.CanRegisterOperation)
+        if (operations.CanRegisterOperation) {
           operations.RegisterOperation(new KeyGenerateOperation(Key));
+          operations.OperationStarted();
+        }
         scope.Complete();
       }
       // Operation 2:
       using (var scope = operations.BeginRegistration(OperationType.System)) {
-        if (operations.CanRegisterOperation)
+        if (operations.CanRegisterOperation) {
           operations.RegisterOperation(new EntityCreateOperation(Key));
+          operations.OperationStarted();
+        }
         IdentifyAs(EntityIdentifierType.Auto);
         scope.Complete();
       }
@@ -811,8 +815,10 @@ namespace Xtensive.Storage
         State = Session.CreateEntityState(key);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {
-          if (operations.CanRegisterOperation)
+          if (operations.CanRegisterOperation) {
             operations.RegisterOperation(new EntityInitializeOperation(key));
+            operations.OperationStarted();
+          }
           var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Association.IsPaired).ToList();
           if (references.Count > 0) {
             using (Session.Pin(this)) {

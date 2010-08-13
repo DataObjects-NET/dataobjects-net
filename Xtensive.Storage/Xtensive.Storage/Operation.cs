@@ -27,12 +27,10 @@ namespace Xtensive.Storage
       new ReadOnlyDictionary<string, Key>(new Dictionary<string, Key>());
     private static readonly ReadOnlyList<IOperation> EmptyOperations = 
       new ReadOnlyList<IOperation>(new List<IOperation>());
-    private static readonly ReadOnlyList<IPrecondition> EmptyPreconditions = 
-      new ReadOnlyList<IPrecondition>(new List<IPrecondition>());
 
     private ReadOnlyDictionary<string, Key> identifiedEntities = EmptyIdentifiedEntities;
-    private ReadOnlyList<IPrecondition> preconditions = EmptyPreconditions;
-    private ReadOnlyList<IOperation> nestedOperations = EmptyOperations;
+    private ReadOnlyList<IOperation> precedingOperations = EmptyOperations;
+    private ReadOnlyList<IOperation> followingOperations = EmptyOperations;
     private ReadOnlyList<IOperation> undoOperations = EmptyOperations;
 
     /// <inheritdoc/>
@@ -65,15 +63,15 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    public ReadOnlyList<IPrecondition> Preconditions {
-      get { return preconditions; }
-      internal set { preconditions = value; }
+    public ReadOnlyList<IOperation> PrecedingOperations {
+      get { return precedingOperations; }
+      internal set { precedingOperations = value; }
     }
 
     /// <inheritdoc/>
-    public ReadOnlyList<IOperation> NestedOperations {
-      get { return nestedOperations; }
-      internal set { nestedOperations = value; }
+    public ReadOnlyList<IOperation> FollowingOperations {
+      get { return followingOperations; }
+      internal set { followingOperations = value; }
     }
 
     /// <inheritdoc/>
@@ -91,20 +89,20 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public void Prepare(OperationExecutionContext context)
     {
-      foreach (var precondition in Preconditions)
-        precondition.Prepare(context);
+      foreach (var operation in PrecedingOperations)
+        operation.Prepare(context);
       PrepareSelf(context);
-      foreach (var operation in NestedOperations)
+      foreach (var operation in FollowingOperations)
         operation.Prepare(context);
     }
 
     /// <inheritdoc/>
     public void Execute(OperationExecutionContext context)
     {
-      foreach (var precondition in Preconditions)
-        precondition.Execute(context);
+      foreach (var operation in PrecedingOperations)
+        operation.Execute(context);
       ExecuteSelf(context);
-      foreach (var operation in NestedOperations)
+      foreach (var operation in FollowingOperations)
         operation.Execute(context);
     }
 
@@ -113,9 +111,15 @@ namespace Xtensive.Storage
     {
       var clone = CloneSelf(null);
       clone.Type = Type;
-      if (Preconditions.Count!=0)
-        clone.Preconditions = new ReadOnlyList<IPrecondition>(
-          Preconditions.Select(p => (IPrecondition) p.Clone(false)).ToList());
+      if (PrecedingOperations.Count != 0) {
+        var preconditions = (
+          from o in PrecedingOperations
+          where o is IPrecondition
+          select o.Clone(false)
+          ).ToList();
+        if (preconditions.Count != 0)
+          clone.PrecedingOperations = new ReadOnlyList<IOperation>(preconditions);
+      }
       if (IdentifiedEntities.Count!=0 && withIdentifiedEntities)
         clone.IdentifiedEntities = IdentifiedEntities;
       return clone;
@@ -144,8 +148,8 @@ namespace Xtensive.Storage
       // Shouldn't be moved to resources
       return Description
         + (IdentifiedEntities.Count==0 ? string.Empty : Environment.NewLine + FormatIdentifiedEntities())
-        + (Preconditions.Count==0 ? string.Empty : Environment.NewLine + FormatOperations("Preconditions:", Preconditions))
-        + (NestedOperations.Count==0 ? string.Empty : Environment.NewLine + FormatOperations("Nested operations:", NestedOperations))
+        + (PrecedingOperations.Count==0 ? string.Empty : Environment.NewLine + FormatOperations("Preceding nested operation:", PrecedingOperations))
+        + (FollowingOperations.Count==0 ? string.Empty : Environment.NewLine + FormatOperations("Following nested operations:", FollowingOperations))
         + (UndoOperations.Count==0 ? string.Empty : Environment.NewLine + FormatOperations("Undo operations:", UndoOperations));
     }
 

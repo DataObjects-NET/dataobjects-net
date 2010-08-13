@@ -75,6 +75,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
                 entity.SystemBeforeRemove();
               ProcessItems(entitiesForProcessing);
             }
+            operations.OperationStarted();
             processedEntities = Context.GetProcessedEntities().ToList();
             foreach (var entity in processedEntities) {
               entity.SystemRemove();

@@ -175,8 +175,10 @@ namespace Xtensive.Storage.DisconnectedTests.Model
     {
       var operations = Session.Operations;
       using (var scope = operations.BeginRegistration(OperationType.Custom)) {
-        if (operations.CanRegisterOperation)
+        if (operations.CanRegisterOperation) {
           operations.RegisterOperation(new CreateOrderItemOperation(product, this, count));
+          operations.OperationStarted();
+        }
         scope.Complete();
       }
     }

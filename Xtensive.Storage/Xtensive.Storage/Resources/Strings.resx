@@ -1510,4 +1510,18 @@ Schema difference:
   <data name="ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty" xml:space="preserve">
     <value>You must either apply or cancel cached changes before changing this property.</value>
   </data>
+	<data name="LogFailedToAddSchemaHintXErrorY">
+		<value><![CDATA[Failed to add schema hint '{0}' to schema hint collection. The hint will be ignored.
+Likely, the schema object (table, column, etc.) it references does not exists, because it was manually removed from the database.
+Error: {1}]]></value>
+	</data>
+	<data name="LogSessionXVersionValidationFailedKeyYVersionZExpected3">
+		<value><![CDATA[Session '{0}'. Version validation failed: Key = '{1}', Version = '{2}' (expected version = '{3}').]]></value>
+	</data>
+	<data name="ExOperationIsNotRegisteredYet">
+		<value><![CDATA[Operation isn't registered yet. See Session.Oeprations.RegisterOperations().]]></value>
+	</data>
+	<data name="ExOperationStartedIsAlreadyCalledForThisOperation">
+		<value xml:space="preserve">OperatonStarted is alerady called for this operation.</value>
+	</data>
 </root>

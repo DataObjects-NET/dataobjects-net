@@ -55,12 +55,12 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets the list of preconditions.
     /// </summary>
-    ReadOnlyList<IPrecondition> Preconditions { get; }
+    ReadOnlyList<IOperation> PrecedingOperations { get; }
 
     /// <summary>
     /// Gets the list of nested operations.
     /// </summary>
-    ReadOnlyList<IOperation> NestedOperations { get; }
+    ReadOnlyList<IOperation> FollowingOperations { get; }
 
     /// <summary>
     /// Gets the list of undo operations.
@@ -86,9 +86,9 @@ namespace Xtensive.Storage
     void Execute(OperationExecutionContext context);
 
     /// <summary>
-    /// Clones the operation and <see cref="Preconditions"/>,
+    /// Clones the operation and <see cref="PrecedingOperations"/>,
     /// but doesn't clone <see cref="OuterOperation"/>,
-    /// <see cref="NestedOperations"/> and <see cref="UndoOperations"/>.
+    /// <see cref="FollowingOperations"/> and <see cref="UndoOperations"/>.
     /// </summary>
     /// <param name="withIdentifiedEntities">if set to <see langword="true"/> <see cref="IdentifiedEntities"/>
     /// must be cloned as well.</param>
