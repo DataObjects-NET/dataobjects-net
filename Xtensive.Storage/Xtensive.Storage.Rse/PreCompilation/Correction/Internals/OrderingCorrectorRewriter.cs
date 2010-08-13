@@ -5,6 +5,7 @@
 // Created:    2009.04.24
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
@@ -13,6 +14,7 @@ using Tuple = Xtensive.Core.Tuples.Tuple;
 using Xtensive.Storage.Rse.Providers;
 using Xtensive.Storage.Rse.Providers.Compilable;
 using Xtensive.Storage.Rse.Resources;
+using System.Linq;
 
 namespace Xtensive.Storage.Rse.PreCompilation.Correction
 {
@@ -78,15 +80,26 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
       var source = VisitCompilable(provider.Source);
       if (source!=provider.Source)
         result = OnRecreateSelectProvider(provider, source);
-      if (SortOrder.Count > 0 && provider.ExpectedOrder.Count==0
-        && consumerDescriptor!=null && !consumerDescriptor.Value.BreaksOrder)
+      if (SortOrder.Count > 0 && provider.ExpectedOrder.Count==0 && consumerDescriptor!=null && !consumerDescriptor.Value.BreaksOrder)
         OnValidateRemovingOfOrderedColumns();
       CheckCorruptionOfOrder();
       OriginalExpectedOrder = provider.ExpectedOrder;
       SaveSortOrder(result);
       return result;
     }
-    
+
+    protected override Provider VisitAggregate(AggregateProvider provider)
+    {
+      var result = provider;
+      var source = VisitCompilable(provider.Source);
+      if (source != provider.Source)
+        result = OnRecreateAggregateProvider(provider, source);
+      CheckCorruptionOfOrder();
+      OriginalExpectedOrder = provider.ExpectedOrder;
+      SaveSortOrder(result);
+      return result;
+    }
+
     protected override sealed Provider VisitIndex(IndexProvider provider)
     {
       SortOrder = provider.ExpectedOrder;
@@ -188,10 +201,16 @@ namespace Xtensive.Storage.Rse.PreCompilation.Correction
         throw new InvalidOperationException(Strings.ExSelectProviderRemovesColumnsUsedForOrdering);
     }
 
-    protected SelectProvider OnRecreateSelectProvider(SelectProvider modifiedProvider,
-      CompilableProvider originalSource)
+    protected SelectProvider OnRecreateSelectProvider(SelectProvider modifiedProvider, CompilableProvider originalSource)
     {
       return new SelectProvider(originalSource, modifiedProvider.ColumnIndexes);
+    }
+
+    protected AggregateProvider OnRecreateAggregateProvider(AggregateProvider modifiedProvider, CompilableProvider originalSource)
+    {
+      var acd = new List<AggregateColumnDescriptor>(modifiedProvider.AggregateColumns.Length);
+      acd.AddRange(modifiedProvider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType)));
+      return new AggregateProvider(originalSource, modifiedProvider.GroupColumnIndexes, acd.ToArray());
     }
 
     protected virtual Provider OnRemoveSortProvider(SortProvider sortProvider)
