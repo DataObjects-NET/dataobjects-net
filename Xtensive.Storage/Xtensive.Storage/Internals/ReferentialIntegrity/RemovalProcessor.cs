@@ -68,14 +68,23 @@ namespace Xtensive.Storage.ReferentialIntegrity
             if (operations.CanRegisterOperation)
               operations.RegisterOperation(
                 new EntitiesRemoveOperation(entities.Select(e => e.Key)));
+            
             Context.Enqueue(entities);
+            
+            bool isOperationStarted = false;
             while (!Context.QueueIsEmpty) {
               var entitiesForProcessing = Context.GatherEntitiesForProcessing();
               foreach (var entity in entitiesForProcessing)
                 entity.SystemBeforeRemove();
+              if (!isOperationStarted) {
+                isOperationStarted = true;
+                operations.OperationStarted();
+              }
               ProcessItems(entitiesForProcessing);
             }
-            operations.OperationStarted();
+            if (!isOperationStarted)
+              operations.OperationStarted();
+
             processedEntities = Context.GetProcessedEntities().ToList();
             foreach (var entity in processedEntities) {
               entity.SystemRemove();
@@ -83,8 +92,10 @@ namespace Xtensive.Storage.ReferentialIntegrity
             }
             Session.EnforceChangeRegistrySizeLimit();
             scope.Complete();
+
             foreach (var entity in processedEntities)
               entity.SystemRemoveCompleted(null);
+
             region.Complete();
           }
         }

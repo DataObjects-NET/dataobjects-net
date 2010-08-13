@@ -458,11 +458,11 @@ namespace Xtensive.Storage
               Session.CreateOrInitializeExistingEntity(auxiliaryType.UnderlyingType, combinedKey);
             }
 
-            operations.OperationStarted();
             State.Add(item.Key);
             Owner.UpdateVersionInfo(Owner, Field);
           };
           
+          operations.OperationStarted();
           if (Field.Association.IsPaired)
             Session.PairSyncManager.ProcessRecursively(
               syncContext, OperationType.Add, Field.Association, Owner, item, finalizer);
@@ -517,11 +517,11 @@ namespace Xtensive.Storage
               Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey);
             }
 
-            operations.OperationStarted();
             State.Remove(item.Key);
             Owner.UpdateVersionInfo(Owner, Field);
           };
 
+          operations.OperationStarted();
           if (Field.Association.IsPaired)
             Session.PairSyncManager.ProcessRecursively(
               syncContext, OperationType.Remove, Field.Association, Owner, item, finalizer);
@@ -553,10 +553,13 @@ namespace Xtensive.Storage
           if (operations.CanRegisterOperation)
             operations.RegisterOperation(
               new EntitySetClearOperation(Owner.Key, Field));
+
           SystemBeforeClear();
           operations.OperationStarted();
+
           foreach (var entity in Entities.ToList())
             Remove(entity);
+
           SystemClear();
           SystemClearCompleted(null);
           scope.Complete();

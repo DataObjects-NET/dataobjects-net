@@ -106,6 +106,17 @@ namespace Xtensive.Storage.Operations
     /// <param name="operation">The operation to register.</param>
     public void RegisterOperation(Operation operation)
     {
+      RegisterOperation(operation, false);
+    }
+
+    /// <summary>
+    /// Registers the operation.
+    /// </summary>
+    /// <param name="operation">The operation to register.</param>
+    /// <param name="isStarted">If set to <see langword="true"/>, <see cref="OperationStarted"/> method
+    /// will be called on completion of operation registration.</param>
+    public void RegisterOperation(Operation operation, bool isStarted)
+    {
       var scope = GetCurrentOperationRegistrationScope();
       if (scope==null)
         return;
@@ -114,6 +125,13 @@ namespace Xtensive.Storage.Operations
       operation.Type = scope.OperationType;
       operation.OuterOperation = scope.Parent==null ? null : scope.Parent.Operation;
       scope.Operation = operation;
+      if (isStarted) {
+        scope.IsOperationStarted = true;
+        if (operation.IsOutermost)
+          NotifyOutermostOperationStarting(operation);
+        else
+          NotifyNestedOperationStarting(operation);
+      }
     }
 
     public void OperationStarted()
@@ -128,6 +146,7 @@ namespace Xtensive.Storage.Operations
         throw new InvalidOperationException(Strings.ExOperationIsNotRegisteredYet);
       if (scope.IsOperationStarted)
         throw new InvalidOperationException(Strings.ExOperationStartedIsAlreadyCalledForThisOperation);
+      scope.IsOperationStarted = true;
       if (operation.IsOutermost)
         NotifyOutermostOperationStarting(operation);
       else
@@ -240,6 +259,8 @@ namespace Xtensive.Storage.Operations
     {
       Operation operation = null;
       try {
+        if (!scope.IsOperationStarted)
+          throw new InvalidOperationException(Strings.ExOperationIsNotMarkedAsStarted);
         operation = (Operation) scope.Operation;
         if (operation == null)
           return;
@@ -254,27 +275,27 @@ namespace Xtensive.Storage.Operations
       }
       finally {
         RemoveCurrentScope(scope);
-        if (operation != null) {
-          // Adding it to parent scope's nested operations collection
-          var parentScope = (OperationRegistrationScope) GetCurrentScope();
-          if (parentScope != null) {
-            if (!parentScope.IsOperationStarted) {
-              if (parentScope.PrecedingOperations==null)
-                parentScope.PrecedingOperations = new List<IOperation>();
-              parentScope.PrecedingOperations.Add(operation);
-            }
-            else {
-              if (parentScope.FollowingOperations==null)
-                parentScope.FollowingOperations = new List<IOperation>();
-              parentScope.FollowingOperations.Add(operation);
-            }
+      }
+      if (operation != null) {
+        // Adding it to parent scope's nested operations collection
+        var parentScope = (OperationRegistrationScope) GetCurrentScope();
+        if (parentScope != null) {
+          if (!parentScope.IsOperationStarted) {
+            if (parentScope.PrecedingOperations==null)
+              parentScope.PrecedingOperations = new List<IOperation>();
+            parentScope.PrecedingOperations.Add(operation);
           }
-          // Notifying...
-          if (operation.IsOutermost)
-            NotifyOutermostOperationCompleted(operation, scope.IsCompleted);
-          else
-            NotifyNestedOperationCompleted(operation, scope.IsCompleted);
+          else {
+            if (parentScope.FollowingOperations==null)
+              parentScope.FollowingOperations = new List<IOperation>();
+            parentScope.FollowingOperations.Add(operation);
+          }
         }
+        // Notifying...
+        if (operation.IsOutermost)
+          NotifyOutermostOperationCompleted(operation, scope.IsCompleted);
+        else
+          NotifyNestedOperationCompleted(operation, scope.IsCompleted);
       }
     }
 

@@ -1950,6 +1950,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Operation isn&apos;t marked as started. See Sessopn.Operations.OperationStarted() method..
+        /// </summary>
+        internal static string ExOperationIsNotMarkedAsStarted {
+            get {
+                return ResourceManager.GetString("ExOperationIsNotMarkedAsStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Operation isn&apos;t registered yet. See Session.Oeprations.RegisterOperations()..
         /// </summary>
         internal static string ExOperationIsNotRegisteredYet {

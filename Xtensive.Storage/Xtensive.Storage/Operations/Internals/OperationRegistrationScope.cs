@@ -88,8 +88,12 @@ namespace Xtensive.Storage.Operations
       if (isDisposed)
         return;
       isDisposed = true;
-      Owner.CloseOperationRegistrationScope(this);
-      Owner.IsSystemOperationRegistrationEnabled = oldIsSystemOperationRegistrationEnabled;
+      try {
+        Owner.CloseOperationRegistrationScope(this);
+      }
+      finally {
+        Owner.IsSystemOperationRegistrationEnabled = oldIsSystemOperationRegistrationEnabled;
+      }
     }
   }
 }

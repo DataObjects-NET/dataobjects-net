@@ -1524,4 +1524,7 @@ Error: {1}]]></value>
 	<data name="ExOperationStartedIsAlreadyCalledForThisOperation">
 		<value xml:space="preserve">OperatonStarted is alerady called for this operation.</value>
 	</data>
+	<data name="ExOperationIsNotMarkedAsStarted">
+		<value><![CDATA[Operation isn't marked as started. See Sessopn.Operations.OperationStarted() method.]]></value>
+	</data>
 </root>
