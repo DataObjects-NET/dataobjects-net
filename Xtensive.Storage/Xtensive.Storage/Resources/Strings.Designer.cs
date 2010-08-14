@@ -1950,7 +1950,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Operation isn&apos;t marked as started. See Sessopn.Operations.OperationStarted() method..
+        ///   Looks up a localized string similar to Operation isn&apos;t marked as started. See Sessopn.Operations.NotifyOperationStarting() method..
         /// </summary>
         internal static string ExOperationIsNotMarkedAsStarted {
             get {

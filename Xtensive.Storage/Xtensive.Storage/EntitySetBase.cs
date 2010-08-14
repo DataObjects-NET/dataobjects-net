@@ -462,7 +462,7 @@ namespace Xtensive.Storage
             Owner.UpdateVersionInfo(Owner, Field);
           };
           
-          operations.OperationStarted();
+          operations.NotifyOperationStarting();
           if (Field.Association.IsPaired)
             Session.PairSyncManager.ProcessRecursively(
               syncContext, OperationType.Add, Field.Association, Owner, item, finalizer);
@@ -521,7 +521,7 @@ namespace Xtensive.Storage
             Owner.UpdateVersionInfo(Owner, Field);
           };
 
-          operations.OperationStarted();
+          operations.NotifyOperationStarting();
           if (Field.Association.IsPaired)
             Session.PairSyncManager.ProcessRecursively(
               syncContext, OperationType.Remove, Field.Association, Owner, item, finalizer);
@@ -555,7 +555,7 @@ namespace Xtensive.Storage
               new EntitySetClearOperation(Owner.Key, Field));
 
           SystemBeforeClear();
-          operations.OperationStarted();
+          operations.NotifyOperationStarting();
 
           foreach (var entity in Entities.ToList())
             Remove(entity);

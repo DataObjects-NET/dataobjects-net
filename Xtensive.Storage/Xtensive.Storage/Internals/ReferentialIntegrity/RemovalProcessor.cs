@@ -78,12 +78,12 @@ namespace Xtensive.Storage.ReferentialIntegrity
                 entity.SystemBeforeRemove();
               if (!isOperationStarted) {
                 isOperationStarted = true;
-                operations.OperationStarted();
+                operations.NotifyOperationStarting();
               }
               ProcessItems(entitiesForProcessing);
             }
             if (!isOperationStarted)
-              operations.OperationStarted();
+              operations.NotifyOperationStarting();
 
             processedEntities = Context.GetProcessedEntities().ToList();
             foreach (var entity in processedEntities) {
