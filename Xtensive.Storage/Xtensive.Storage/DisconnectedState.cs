@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Disposing;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
@@ -564,9 +565,14 @@ namespace Xtensive.Storage
         (VersionsUsageOptions & VersionsUsageOptions.Validate)!=0 
         && (!existingVersion.IsVoid)
         && existingVersion!=version;
-      if (versionConflict && mergeMode==MergeMode.Strict)
+      if (versionConflict && mergeMode == MergeMode.Strict) {
+        if (Log.IsLogged(LogEventTypes.Info))
+          Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+            Session!=null ? Session.ToString() : "None (DisconnectedState)", 
+            key, version, existingVersion);
         throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
+      }
 
       if (tuple==null)
         return;
