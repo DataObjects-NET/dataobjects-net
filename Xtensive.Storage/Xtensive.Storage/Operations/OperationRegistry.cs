@@ -33,8 +33,8 @@ namespace Xtensive.Storage.Operations
 
     /// <summary>
     /// Indicates whether operation logging is enabled.
-    /// <see cref="IsSystemLogicOnly"/> and <see cref="SessionBound."/> implicitely turn this option off;
-    /// <see cref="DisableOperationRegistration"/> does this explicitly.
+    /// <see cref="Storage.Session.OpenSystemLogicOnlyRegion"/> implicitly turns this option off;
+    /// <see cref="DisableUndoOperationRegistration"/> does this explicitly.
     /// </summary>
     public bool IsRegistrationEnabled {
       get { return isOperationRegistrationEnabled || isUndoOperationRegistrationEnabled; }
@@ -61,7 +61,7 @@ namespace Xtensive.Storage.Operations
 
     /// <summary>
     /// Gets a value indicating whether this instance is registering operation now,
-    /// i.e. <see cref="BeginRegistration"/> method was incoked, but the
+    /// i.e. <see cref="BeginRegistration"/> method was invoked, but the
     /// scope isn't closed yet.
     /// </summary>
     public bool IsRegisteringOperation {
@@ -113,7 +113,7 @@ namespace Xtensive.Storage.Operations
     /// Registers the operation.
     /// </summary>
     /// <param name="operation">The operation to register.</param>
-    /// <param name="isStarted">If set to <see langword="true"/>, <see cref="OperationStarted"/> method
+    /// <param name="isStarted">If set to <see langword="true"/>, <see cref="NotifyOperationStarting"/> method
     /// will be called on completion of operation registration.</param>
     public void RegisterOperation(Operation operation, bool isStarted)
     {
@@ -134,7 +134,11 @@ namespace Xtensive.Storage.Operations
       }
     }
 
-    public void OperationStarted()
+    /// <summary>
+    /// Indicates that operation, that is currently registering, is started.
+    /// Leads to <see cref="OutermostOperationStarting"/> or <see cref="NestedOperationStarting"/> notification.
+    /// </summary>
+    public void NotifyOperationStarting()
     {
       if (!CanRegisterOperation)
         return;
