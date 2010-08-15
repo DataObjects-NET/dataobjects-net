@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Resources;
 
@@ -58,10 +59,15 @@ namespace Xtensive.Storage.Operations
     /// <exception cref="VersionConflictException">Version check failed.</exception>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
-      var entity = Query.Single(context.Session, Key);
-      if (entity.VersionInfo != Version)
+      var session = context.Session;
+      var entity = Query.Single(session, Key);
+      if (entity.VersionInfo != Version) {
+        if (Log.IsLogged(LogEventTypes.Info))
+          Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+            session, Key, entity.VersionInfo, Version);
         throw new VersionConflictException(
           string.Format(Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, Key));
+      }
     }
 
     /// <inheritdoc/>

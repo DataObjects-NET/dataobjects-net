@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Core.Collections;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Storage.Resources;
 
@@ -157,9 +158,13 @@ namespace Xtensive.Storage
     public bool Validate(Key key, VersionInfo version, bool throwOnFailure)
     {
       var result = Validate(key, version);
-      if (throwOnFailure && !result)
+      if (throwOnFailure && !result) {
+        if (Log.IsLogged(LogEventTypes.Info))
+          Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+            "None (VersionSet)", key, version, Get(key));
         throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
+      }
       return result;
     }
 

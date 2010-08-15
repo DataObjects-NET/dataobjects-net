@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using System.Linq;
 using Xtensive.Core.Aspects;
+using Xtensive.Core.Diagnostics;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
@@ -70,8 +71,8 @@ namespace Xtensive.Storage
     {
       var result = ValidateVersion(key, version);
       if (throwOnFailure && !result) {
-        if (Session.IsDebugEventLoggingEnabled)
-          Log.Debug(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+        if (Log.IsLogged(LogEventTypes.Info))
+          Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
             Session, key, version, expectedVersionProvider.Invoke(key));
         throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
