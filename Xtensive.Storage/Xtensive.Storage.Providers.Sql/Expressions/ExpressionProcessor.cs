@@ -255,6 +255,12 @@ namespace Xtensive.Storage.Providers.Sql.Expressions
       var check = Visit(expression.Test);
       var ifTrue = Visit(expression.IfTrue);
       var ifFalse = Visit(expression.IfFalse);
+      var boolCheck = fixBooleanExpressions
+        ? booleanExpressionConverter.BooleanToInt(check)
+        : check;
+      var varCheck = boolCheck as SqlVariant;
+      if (!varCheck.IsNullReference())
+        return SqlDml.Variant(varCheck.Id, ifFalse, ifTrue);
       if (fixBooleanExpressions && IsBooleanExpression(expression)) {
         var c = SqlDml.Case();
         c[check] = booleanExpressionConverter.BooleanToInt(ifTrue);
