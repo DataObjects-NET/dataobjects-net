@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
+using Xtensive.Core.Reflection;
 using Xtensive.Storage.Rse;
 using ExpressionVisitor = Xtensive.Core.Linq.ExpressionVisitor;
 
@@ -93,6 +94,8 @@ namespace Xtensive.Storage.Linq
         var ma = (MemberExpression) expression;
         if (ma.Expression==null)
           return !typeof (IQueryable).IsAssignableFrom(ma.Type);
+        if (ma.Expression.Type.IsNullable() && ma.Member.Name == "Value")
+          return false;
         if (ma.Expression.NodeType==ExpressionType.Constant) {
           var rfi = ma.Member as FieldInfo;
           if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType)))
