@@ -24,6 +24,33 @@ namespace Xtensive.Storage.Tests.Issues
       [Field]
       public string State { get; set; }
     }
+
+    [HierarchyRoot, Serializable]
+    [TableMapping("States")]
+    [KeyGenerator(KeyGeneratorKind.None)]
+    public class State : Entity
+    {
+      [Key]
+      [Field]
+      public string ID { get; private set; }
+
+      [Field]
+      [Association(PairTo = "AbiturAd.State")]
+      public EntitySet<AbiturAd> AbiturAds { get; set; }
+    }
+
+    [HierarchyRoot, Serializable]
+    [TableMapping("AbiturAds")]
+    public class AbiturAd : Entity
+    {
+      [Key]
+      [Field]
+      public int ID { get; private set; }
+
+      [Field]
+      [FieldMapping("StateID")]
+      public State State { get; set; }
+    }
   }
 
   [Serializable]
