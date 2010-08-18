@@ -27,7 +27,6 @@ namespace Xtensive.Storage.Tests.Issues
       {
         DomainConfiguration domainConfig = DomainConfigurationFactory.Create();
         SessionConfiguration sessionConfig = new SessionConfiguration(WellKnown.Sessions.Default);
-        sessionConfig.Options |= SessionOptions.None;
         domainConfig.Sessions.Add(sessionConfig);
 
         domainConfig.NamingConvention.NamespacePolicy = NamespacePolicy.AsIs;

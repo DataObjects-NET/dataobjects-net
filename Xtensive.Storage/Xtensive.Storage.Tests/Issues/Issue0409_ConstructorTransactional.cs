@@ -37,9 +37,7 @@ namespace Xtensive.Storage.Tests.Issues
     [Test]
     public void DocumentCreatedInSeparateTransactionTest()
     {
-      var sessionConfiguration = new SessionConfiguration {
-        Options = SessionOptions.None
-      };
+      var sessionConfiguration = new SessionConfiguration();
       Key key;
       using (var s = Session.Open(Domain)) {
         using (var t = Transaction.Open()) {

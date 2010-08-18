@@ -100,9 +100,9 @@ namespace Xtensive.Core.Serialization
     #region Cloning-related methods
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
-      base.Clone(source);
+      base.CopyFrom(source);
       var other = (SerializerConfiguration) source;
       binder = other.binder;
       assemblyStyle = other.assemblyStyle;

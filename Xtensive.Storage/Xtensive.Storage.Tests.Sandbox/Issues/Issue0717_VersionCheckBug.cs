@@ -47,7 +47,6 @@ namespace Xtensive.Storage.Tests.Issues
         BatchSize = 25,
         DefaultIsolationLevel = System.Transactions.IsolationLevel.ReadCommitted,
         CacheSize = 1000,
-        Options = SessionOptions.AutoShortenTransactions
       }); 
       configuration.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       return configuration;

@@ -42,7 +42,6 @@ namespace Xtensive.Storage.Tests.Issues
 
       var sessionConfig = new SessionConfiguration("Default") {
         DefaultIsolationLevel = IsolationLevel.Serializable, 
-        Options = SessionOptions.AutoShortenTransactions
       };
       config.Sessions.Add(sessionConfig);
 

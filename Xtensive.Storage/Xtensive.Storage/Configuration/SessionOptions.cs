@@ -15,28 +15,26 @@ namespace Xtensive.Storage.Configuration
   public enum SessionOptions
   {
     /// <summary>
-    /// Default options is <see cref="None"/>.
-    /// </summary>
-    Default = None,
-
-    /// <summary>
     /// None of <see cref="SessionOptions"/>.
     /// Value is <see langword="0x0"/>.
     /// </summary>
     None = 0x0,
 
     /// <summary>
-    /// Session uses ambient transactions.
-    /// This mode must be normally used for UI sessions.
-    /// Value is <see langword="0x3" />.
+    /// Session will persist changes transparently before transaction commit and queries.
     /// </summary>
-    AmbientTransactions = 0x3,
+    AutoPersist = 0x2,
+
+    /// <summary>
+    /// Entity state will not cross transaction boundaries.
+    /// </summary>
+    Transactional = 0x4,
 
     /// <summary>
     /// Transactions will actually be opened just before execution of DB command. 
     /// This option is ignored for non-SQL providers.
-    /// Value is <see langword="0x4" />.
+    /// Value is <see langword="0x8" />.
     /// </summary>
-    AutoShortenTransactions = 0x4
+    AutoShortenTransactions = 0x8
   }
 }

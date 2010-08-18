@@ -48,7 +48,8 @@ namespace Xtensive.Storage.Configuration
     /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static readonly SessionConfiguration Default;
 
-    private SessionOptions options = SessionOptions.Default;
+    private SessionBehavior behavior = SessionBehavior.Server;
+    private SessionOptions options = SessionOptions.AutoShortenTransactions;
     private string userName = string.Empty;
     private string password = string.Empty;
     private int cacheSize = DefaultCacheSize;
@@ -87,6 +88,19 @@ namespace Xtensive.Storage.Configuration
       set {
         this.EnsureNotLocked();
         password = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the session behavior. Default is <see cref="SessionBehavior.Server"/>
+    /// </summary>
+    public SessionBehavior Behavior
+    {
+      get { return behavior; }
+      set
+      {
+        this.EnsureNotLocked();
+        behavior = value;
       }
     }
 
@@ -162,10 +176,6 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public SessionOptions Options {
       get { return options; }
-      set {
-        this.EnsureNotLocked();
-        options = value;
-      }
     }
 
     /// <summary>
@@ -193,17 +203,32 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <summary>
-    /// Gets a value indicating whether session uses ambient transactions.
+    /// Gets a value indicating whether session uses auto persist.
     /// </summary>
-    public bool UsesAmbientTransactions {
-      get { return (options & SessionOptions.AmbientTransactions)==SessionOptions.AmbientTransactions; }
+    public bool UseAutoPersist
+    {
+      get { return (options & SessionOptions.AutoPersist) == SessionOptions.AutoPersist; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether session uses transactional behavior.
+    /// </summary>
+    public bool UseTransactionalBehavior
+    {
+      get { return (options & SessionOptions.Transactional) == SessionOptions.Transactional; }
     }
 
     /// <summary>
     /// Gets a value indicating whether session uses autoshortened transactions.
     /// </summary>
-    public bool UsesAutoShortenedTransactions {
+    public bool UseAutoShortenedTransactions {
       get { return (options & SessionOptions.AutoShortenTransactions)==SessionOptions.AutoShortenTransactions; }
+      set {
+        this.EnsureNotLocked();
+        options = value
+          ? (options | SessionOptions.AutoShortenTransactions)
+          : (options & ~SessionOptions.AutoShortenTransactions);
+      }
     }
 
     /// <summary>
@@ -246,13 +271,14 @@ namespace Xtensive.Storage.Configuration
     }
 
     /// <inheritdoc/>
-    protected override void Clone(ConfigurationBase source)
+    protected override void CopyFrom(ConfigurationBase source)
     {
-      base.Clone(source);
+      base.CopyFrom(source);
       var configuration = (SessionConfiguration) source;
       UserName = configuration.UserName;
       Password = configuration.Password;
-      Options = configuration.Options;
+      behavior = configuration.behavior;
+      options = configuration.options;
       CacheType = configuration.CacheType;
       CacheSize = configuration.CacheSize;
       BatchSize = configuration.BatchSize;
@@ -290,7 +316,16 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     /// <param name="name">Value for <see cref="Name"/>.</param>
     public SessionConfiguration(string name) 
-      : this()
+      : this(name, SessionBehavior.Server)
+    {}
+
+    /// <summary>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="name">Value for <see cref="Name"/>.</param>
+    /// <param name="sessionBehavior"><see cref="Behavior"/> property value.</param>
+    public SessionConfiguration(string name, SessionBehavior sessionBehavior) 
+      : this(sessionBehavior)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
@@ -307,7 +342,7 @@ namespace Xtensive.Storage.Configuration
         Type = SessionType.KeyGenerator;
         break;
       default:
-        Type = SessionType.Default;
+        Type = SessionType.User;
         break;
       }
     }
@@ -316,7 +351,22 @@ namespace Xtensive.Storage.Configuration
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public SessionConfiguration()
+      : this (SessionBehavior.Server)
     {
+    }
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="sessionBehavior"><see cref="Behavior"/> property value.</param>
+    public SessionConfiguration(SessionBehavior sessionBehavior)
+    {
+      behavior = sessionBehavior;
+      options = sessionBehavior == SessionBehavior.Server
+        ? SessionOptions.AutoPersist
+          | SessionOptions.AutoShortenTransactions
+          | SessionOptions.Transactional
+        : SessionOptions.AutoShortenTransactions;
     }
 
     // Type initializer

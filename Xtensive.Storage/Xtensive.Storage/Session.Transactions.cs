@@ -40,52 +40,21 @@ namespace Xtensive.Storage
         }
         if (isolationLevel==IsolationLevel.Unspecified)
           isolationLevel = Configuration.DefaultIsolationLevel;
-        return Configuration.UsesAmbientTransactions
-          ? CreateAmbientTransaction(isolationLevel)
-          : CreateOutermostTransaction(isolationLevel);
+        return CreateOutermostTransaction(isolationLevel);
       case TransactionOpenMode.New:
         if (isolationLevel==IsolationLevel.Unspecified)
           isolationLevel = Configuration.DefaultIsolationLevel;
-        if (transaction!=null)
-          return CreateNestedTransaction(isolationLevel);
-        if (Configuration.UsesAmbientTransactions) {
-          CreateAmbientTransaction(isolationLevel);
-          return CreateNestedTransaction(isolationLevel);
-        }
-        return CreateOutermostTransaction(isolationLevel);
+        return transaction!=null 
+          ? CreateNestedTransaction(isolationLevel) 
+          : CreateOutermostTransaction(isolationLevel);
       default:
         throw new ArgumentOutOfRangeException("mode");
       }
     }
 
-    /// <summary>
-    /// Commits the ambient transaction.
-    /// </summary>
-    public void CommitAmbientTransaction()
-    {
-      var scope = ambientTransactionScope;
-      try {
-        scope.Complete();
-      }
-      finally {
-        ambientTransactionScope = null;
-        scope.DisposeSafely();
-      }
-    }
-
-    /// <summary>
-    /// Rolls back the ambient transaction.
-    /// </summary>
-    public void RollbackAmbientTransaction()
-    {
-      var scope = ambientTransactionScope;
-      ambientTransactionScope = null;
-      scope.DisposeSafely();
-    }
-
     internal void BeginTransaction(Transaction transaction)
     {
-      if (!Configuration.UsesAutoShortenedTransactions)
+      if (!Configuration.UseAutoShortenedTransactions)
         StartTransaction(transaction);
     }
 
