@@ -60,8 +60,8 @@ namespace Xtensive.Storage.Building.Builders
           BuildModel();
           CreateKeyGenerators();
 
-          using (Session.Open(context.Domain, SessionType.System)) {
-            context.SystemSessionHandler = Session.Demand().Handler;
+          using (var session = Session.Open(context.Domain, SessionType.System)) {
+            context.SystemSessionHandler = session.Handler;
             try {
               upgradeContext.TransactionScope = Transaction.Open();
               SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);

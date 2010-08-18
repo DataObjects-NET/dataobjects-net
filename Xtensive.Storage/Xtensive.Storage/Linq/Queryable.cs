@@ -41,7 +41,7 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     IQueryProvider IQueryable.Provider
     {
-      get { return Session.Demand().Handler.QueryProvider; }
+      get { return QueryProvider.Instance; }
     }
 
     /// <summary>
@@ -56,10 +56,7 @@ namespace Xtensive.Storage.Linq
         lock (_lock) {
           if (compiledRecordset!=null)
             return compiledRecordset;
-          compiledRecordset = Session
-            .Demand()
-            .Handler
-            .QueryProvider
+          compiledRecordset = QueryProvider.Instance
             .Translate<IEnumerable<T>>(expression)
             .DataSource;
           return compiledRecordset;
@@ -72,8 +69,7 @@ namespace Xtensive.Storage.Linq
     /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
-      var session = Session.Demand();
-      var result = session.Handler.QueryProvider.Execute<IEnumerable<T>>(expression);
+      var result = QueryProvider.Instance.Execute<IEnumerable<T>>(expression);
       return result.GetEnumerator();
     }
 

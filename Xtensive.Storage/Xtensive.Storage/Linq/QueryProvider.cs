@@ -46,7 +46,7 @@ namespace Xtensive.Storage.Linq
     }
 
     /// <inheritdoc/>
-    IQueryable<TElement> IQueryProvider.CreateQuery<TElement>(Expression expression)
+    public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
     {
       return new Queryable<TElement>(expression);
     }

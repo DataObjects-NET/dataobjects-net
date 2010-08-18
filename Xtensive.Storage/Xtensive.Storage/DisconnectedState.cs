@@ -767,7 +767,7 @@ namespace Xtensive.Storage
     /// </summary>
     public DisconnectedState()
     {
-      associationCache = new AssociationCache();
+      associationCache = new AssociationCache(this);
       originalState = new StateRegistry(this, associationCache);
       state = new StateRegistry(originalState);
       versions = new VersionSet();
@@ -799,10 +799,11 @@ namespace Xtensive.Storage
     [OnDeserialized]
     protected void OnDeserialized(StreamingContext context)
     {
-      var domain = Session.Demand().Domain;
+      session = Session.Demand();
+      var domain = session.Domain;
 
       versionsProvider = this;
-      associationCache = new AssociationCache();
+      associationCache = new AssociationCache(this);
 
       originalState = new StateRegistry(this, associationCache);
       foreach (var entityState in serializedGlobalRegistry)

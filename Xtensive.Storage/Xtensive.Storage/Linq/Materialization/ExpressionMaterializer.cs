@@ -292,7 +292,7 @@ namespace Xtensive.Storage.Linq.Materialization
         Expression.Constant(expression.Mapping));
       return Expression.Call(
         WellKnownMembers.Key.Create,
-        Expression.Constant(Domain.Demand()),
+        Expression.Constant(context.Domain),
         Expression.Constant(expression.EntityType),
         Expression.Constant(TypeReferenceAccuracy.BaseType),
         tupleExpression);

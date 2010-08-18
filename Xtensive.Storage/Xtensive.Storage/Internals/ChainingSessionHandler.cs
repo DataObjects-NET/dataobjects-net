@@ -27,9 +27,6 @@ namespace Xtensive.Storage.Internals
     /// </summary>
     protected readonly SessionHandler chainedHandler;
 
-    /// <inheritdoc/>
-    public override QueryProvider QueryProvider { get { return chainedHandler.QueryProvider; } }
-
     internal override int PrefetchTaskExecutionCount {
       get { return chainedHandler.PrefetchTaskExecutionCount; }
     }

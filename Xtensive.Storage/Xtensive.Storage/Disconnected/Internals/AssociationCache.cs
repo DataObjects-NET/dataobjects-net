@@ -17,14 +17,15 @@ namespace Xtensive.Storage.Disconnected
 {
   internal sealed class AssociationCache
   {
+    private readonly DisconnectedState disconnectedState;
     // Triplet<Association, MasterField, SlaveField>
-    private Dictionary<TypeInfo, Triplet<AssociationInfo, FieldInfo, FieldInfo>> auxTypeDescriptions = 
+    private readonly Dictionary<TypeInfo, Triplet<AssociationInfo, FieldInfo, FieldInfo>> auxTypeDescriptions = 
       new Dictionary<TypeInfo, Triplet<AssociationInfo, FieldInfo, FieldInfo>>();
-    private Dictionary<TypeInfo, List<Pair<FieldInfo>>> entitySets = 
+    private readonly Dictionary<TypeInfo, List<Pair<FieldInfo>>> entitySets = 
       new Dictionary<TypeInfo, List<Pair<FieldInfo>>>();
-    private Dictionary<TypeInfo, List<FieldInfo>> entitySetFields = 
+    private readonly Dictionary<TypeInfo, List<FieldInfo>> entitySetFields = 
       new Dictionary<TypeInfo, List<FieldInfo>>();
-    private Dictionary<TypeInfo, List<FieldInfo>> referencingFields = 
+    private readonly Dictionary<TypeInfo, List<FieldInfo>> referencingFields = 
       new Dictionary<TypeInfo, List<FieldInfo>>();
 
 
@@ -149,8 +150,7 @@ namespace Xtensive.Storage.Disconnected
     {
       if (!field.IsEntity)
         throw new InvalidOperationException();
-
-      var session = Session.Demand();
+      var session = disconnectedState.Session;
       var types = session.Domain.Model.Types;
       var type = types[field.ValueType];
       if (tuple.ContainsEmptyValues(field.MappingInfo))
@@ -183,5 +183,12 @@ namespace Xtensive.Storage.Disconnected
       return result;
     }
 
+
+    // Constructors
+
+    public AssociationCache(DisconnectedState disconnectedState)
+    {
+      this.disconnectedState = disconnectedState;
+    }
   }
 }

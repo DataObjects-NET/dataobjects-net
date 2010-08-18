@@ -43,11 +43,6 @@ namespace Xtensive.Storage.Providers
     public Session Session { get; internal set; }
 
     /// <summary>
-    /// Gets the query provider.
-    /// </summary>
-    public virtual QueryProvider QueryProvider {get { return QueryProvider.Instance; }}
-    
-    /// <summary>
     /// Acquires the connection lock.
     /// </summary>
     /// <returns>An implementation of <see cref="IDisposable"/> which should be disposed 

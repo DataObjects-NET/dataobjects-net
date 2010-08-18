@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Transactions;
 using Xtensive.Core;
 using Xtensive.Core.Disposing;
 using Xtensive.Storage.Internals;
@@ -41,65 +42,64 @@ namespace Xtensive.Storage
     private void Persist(PersistReason reason)
     {
       EnsureNotDisposed();
-      if (Transaction==null)
-        return;
       if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
 
-      bool performPinning = Pinner.RootCount > 0;
+      using(var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified)){
+        var performPinning = Pinner.RootCount > 0;
+        if (performPinning)
+          switch (reason) {
+          case PersistReason.NestedTransaction:
+          case PersistReason.Commit:
+            throw new InvalidOperationException(Strings.ExCanNotPersistThereArePinnedEntities);
+          }
 
-      if (performPinning)
-        switch (reason) {
-        case PersistReason.NestedTransaction:
-        case PersistReason.Commit:
-          throw new InvalidOperationException(Strings.ExCanNotPersistThereArePinnedEntities);
-        }
-
-      IsPersisting = true;
+        IsPersisting = true;
       
-      SystemEvents.NotifyPersisting();
-      Events.NotifyPersisting();
-      try {
-        using (this.OpenSystemLogicOnlyRegion()) {
-          EnsureTransactionIsStarted();
-          if (IsDebugEventLoggingEnabled)
-            Log.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
+        SystemEvents.NotifyPersisting();
+        Events.NotifyPersisting();
+        try {
+          using (this.OpenSystemLogicOnlyRegion()) {
+            EnsureTransactionIsStarted();
+            if (IsDebugEventLoggingEnabled)
+              Log.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
 
-          EntityChangeRegistry itemsToPersist;
-          if (performPinning) {
-            Pinner.Process(EntityChangeRegistry);
-            itemsToPersist = Pinner.PersistableItems;
-          }
-          else
-            itemsToPersist = EntityChangeRegistry;
-
-          try {
-            Handler.Persist(itemsToPersist, reason == PersistReason.Query);
-          }
-          finally {
-            foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
-              item.PersistenceState = PersistenceState.Synchronized;
-            foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
-              item.PersistenceState = PersistenceState.Synchronized;
-            foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
-              item.Update(null);
-
+            EntityChangeRegistry itemsToPersist;
             if (performPinning) {
-              EntityChangeRegistry = Pinner.PinnedItems;
-              Pinner.Reset();
+              Pinner.Process(EntityChangeRegistry);
+              itemsToPersist = Pinner.PersistableItems;
             }
             else
-              EntityChangeRegistry.Clear();
+              itemsToPersist = EntityChangeRegistry;
 
-            if (IsDebugEventLoggingEnabled)
-              Log.Debug(Strings.LogSessionXPersistCompleted, this);
+            try {
+              Handler.Persist(itemsToPersist, reason == PersistReason.Query);
+            }
+            finally {
+              foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
+                item.PersistenceState = PersistenceState.Synchronized;
+              foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
+                item.PersistenceState = PersistenceState.Synchronized;
+              foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
+                item.Update(null);
+
+              if (performPinning) {
+                EntityChangeRegistry = Pinner.PinnedItems;
+                Pinner.Reset();
+              }
+              else
+                EntityChangeRegistry.Clear();
+
+              if (IsDebugEventLoggingEnabled)
+                Log.Debug(Strings.LogSessionXPersistCompleted, this);
+            }
           }
+          SystemEvents.NotifyPersisted();
+          Events.NotifyPersisted();
         }
-        SystemEvents.NotifyPersisted();
-        Events.NotifyPersisted();
-      }
-      finally {
-        IsPersisting = false;
+        finally {
+          IsPersisting = false;
+        }
       }
     }
 

@@ -84,7 +84,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.FreeTextString.MakeGenericMethod(typeof (T));
       var expression = Expression.Call(method, Expression.Constant(searchCriteria));
-      return ((IQueryProvider) Session.Demand().Handler.QueryProvider).CreateQuery<FullTextMatch<T>>(expression);
+      return QueryProvider.Instance.CreateQuery<FullTextMatch<T>>(expression);
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ namespace Xtensive.Storage
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.FreeTextExpression.MakeGenericMethod(typeof (T));
       var expression = Expression.Call(null, method, new[] {searchCriteria});
-      return ((IQueryProvider) Session.Demand().Handler.QueryProvider).CreateQuery<FullTextMatch<T>>(expression);
+      return QueryProvider.Instance.CreateQuery<FullTextMatch<T>>(expression);
     }
 
 
@@ -482,7 +482,7 @@ namespace Xtensive.Storage
     private static ParameterizedQuery<IEnumerable<TElement>> GetParameterizedQuery<TElement>(object key,
       Func<IQueryable<TElement>> query, Session session)
     {
-      var domain = Domain.Demand();
+      var domain = session.Domain;
       var cache = domain.QueryCache;
       Pair<object, TranslatedQuery> item;
       ParameterizedQuery<IEnumerable<TElement>> parameterizedQuery = null;
@@ -494,7 +494,7 @@ namespace Xtensive.Storage
         var queryParameter = BuildQueryParameter(query.Target, out replacer);
         using (new QueryCachingScope(queryParameter, replacer)) {
           var result = query.Invoke();
-          var translatedQuery = session.Handler.QueryProvider.Translate<IEnumerable<TElement>>(result.Expression);
+          var translatedQuery = QueryProvider.Instance.Translate<IEnumerable<TElement>>(result.Expression);
           parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
           lock (cache)
             if (!cache.TryGetItem(key, false, out item))
