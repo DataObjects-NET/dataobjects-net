@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Nick Svetlov
-// Created:    2008.06.25
+// Created by: Alexis Kochetov
+// Created:    2010.08.19
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Security;
 using PostSharp.Aspects;
@@ -19,7 +20,6 @@ namespace Xtensive.Storage
 {
   /// <summary>
   /// Activates session on method boundary for <see cref="ISessionBound"/> implementors on public instance methods.
-  /// Opens the transaction for public methods.
   /// </summary>
   [Serializable]
   [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false,
@@ -30,31 +30,15 @@ namespace Xtensive.Storage
       MulticastAttributes.Managed |
       MulticastAttributes.NonAbstract)]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false, Inherited = true)]
-  [ProvideAspectRole(StandardRoles.TransactionHandling)]
+  [ProvideAspectRole(StandardRoles.Persistence)]
   [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof (ActivateSessionTypeAttribute))]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof (ReplaceAutoProperty))]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof(ActivateSessionAttribute))]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
 #if NET40
   [SecuritySafeCritical]
 #endif
-  public sealed class TransactionalTypeAttribute : Aspect, IAspectProvider
+  internal sealed class ActivateSessionTypeAttribute: Aspect, IAspectProvider
   {
-    /// <summary>
-    /// Gets or sets value describing transaction opening mode.
-    /// Default value is <see cref="TransactionOpenMode.Auto"/>.
-    /// </summary>
-    public TransactionOpenMode Mode { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether a session should be activated on the method boundaries.
-    /// </summary>
-    public bool ActivateSession { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether transaction should be opened.
-    /// </summary>
-    public bool OpenTransaction { get; set; }
-
     #region Hide base properties
 
     // ReSharper disable UnusedMember.Local
@@ -137,6 +121,9 @@ namespace Xtensive.Storage
     {
       var member = target as MemberInfo;
       if (member != null) {
+        var activateSessionAttribute = member.GetAttribute<ActivateSessionAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
+        if (activateSessionAttribute != null)
+          return false;
         var transactionalAttribute = member.GetAttribute<TransactionalAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
         if (transactionalAttribute != null)
           return false;
@@ -147,7 +134,7 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public IEnumerable<AspectInstance> ProvideAspects(object targetElement)
     {
-      yield return new AspectInstance(targetElement, new TransactionalAttribute(this));
+      yield return new AspectInstance(targetElement, new ActivateSessionAttribute(this));
     }
 
     #region Constructors
@@ -157,20 +144,8 @@ namespace Xtensive.Storage
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    public TransactionalTypeAttribute()
-      : this(TransactionOpenMode.Auto)
+    public ActivateSessionTypeAttribute()
     {
-    }
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="mode">The transaction opening mode.</param>
-    public TransactionalTypeAttribute(TransactionOpenMode mode)
-    {
-      Mode = mode;
-      ActivateSession = true;
-      OpenTransaction = true;
     }
 
     #endregion
