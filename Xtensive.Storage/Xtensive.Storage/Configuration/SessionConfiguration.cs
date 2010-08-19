@@ -367,6 +367,7 @@ namespace Xtensive.Storage.Configuration
           | SessionOptions.AutoShortenTransactions
           | SessionOptions.Transactional
         : SessionOptions.AutoShortenTransactions;
+      options = options & ~SessionOptions.AutoShortenTransactions;
     }
 
     // Type initializer
