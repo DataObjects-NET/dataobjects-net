@@ -870,7 +870,7 @@ namespace Xtensive.Storage
         successfully = true;
       }
       finally {
-        LeaveCtorTransactionScope(successfully);
+        LeaveCtorScope(successfully);
       }
     }
   }

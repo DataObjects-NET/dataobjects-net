@@ -317,7 +317,6 @@ namespace Xtensive.Storage
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
-    [Transactional]
     private bool InnerEquals(Structure other, bool thisIsBound, bool otherIsBound)
     {
       if (thisIsBound) {
@@ -429,7 +428,7 @@ namespace Xtensive.Storage
         successfully = true;
       }
       finally {
-        LeaveCtorTransactionScope(successfully);
+        LeaveCtorScope(successfully);
       }
     }
   }
