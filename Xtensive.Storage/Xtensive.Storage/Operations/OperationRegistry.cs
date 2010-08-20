@@ -278,6 +278,9 @@ namespace Xtensive.Storage.Operations
     {
       Operation operation = null;
       try {
+        operation = (Operation) scope.Operation;
+        if (operation == null)
+          return;
         if (!scope.IsOperationStarted) {
           if (scope.IsCompleted)
             throw new InvalidOperationException(Strings.ExOperationIsNotMarkedAsStarted);
@@ -285,9 +288,6 @@ namespace Xtensive.Storage.Operations
             // We can't throw an exception here, since it will suppress the thrown one.
             return;
         }
-        operation = (Operation) scope.Operation;
-        if (operation == null)
-          return;
 
         if (scope.PrecedingOperations!=null)
           operation.PrecedingOperations = new ReadOnlyList<IOperation>(scope.PrecedingOperations);
