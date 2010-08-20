@@ -63,6 +63,7 @@ namespace Xtensive.Storage.Tests.Issues
           person = new Person() {Name = "Name"};
           key = person.Key;
           version = person.VersionInfo;
+          tx.Complete();
         }
 
         // 1st update (ok)
