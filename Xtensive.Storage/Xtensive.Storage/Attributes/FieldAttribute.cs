@@ -72,7 +72,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <remarks>
     /// Note that this should be applied to reference fields only. For value-based fields
-    /// consider using Nullable&lt;T&gt; approach.
+    /// consider using <see cref="Nullable{T}"/> approach.
     /// </remarks>
     /// <value>
     /// <see langword="true"/> if field nullable; otherwise, <see langword="false"/>.

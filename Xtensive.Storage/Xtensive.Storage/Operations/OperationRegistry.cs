@@ -140,14 +140,29 @@ namespace Xtensive.Storage.Operations
     /// </summary>
     public void NotifyOperationStarting()
     {
+      NotifyOperationStarting(true);
+    }
+
+    /// <summary>
+    /// Indicates that operation, that is currently registering, is started.
+    /// Leads to <see cref="OutermostOperationStarting"/> or <see cref="NestedOperationStarting"/> notification.
+    /// </summary>
+    /// <param name="throwIfNotRegistered">Indicates whether <see cref="InvalidOperationException"/> 
+    /// must be thrown if operation isn't registered yet.</param>
+    public void NotifyOperationStarting(bool throwIfNotRegistered)
+    {
       if (!CanRegisterOperation)
         return;
       var scope = GetCurrentOperationRegistrationScope();
       if (scope==null)
         return;
       var operation = scope.Operation;
-      if (operation==null)
-        throw new InvalidOperationException(Strings.ExOperationIsNotRegisteredYet);
+      if (operation==null) {
+        if (throwIfNotRegistered)
+          throw new InvalidOperationException(Strings.ExOperationIsNotRegisteredYet);
+        else
+          return;
+      }
       if (scope.IsOperationStarted)
         throw new InvalidOperationException(Strings.ExOperationStartedIsAlreadyCalledForThisOperation);
       scope.IsOperationStarted = true;
@@ -263,11 +278,17 @@ namespace Xtensive.Storage.Operations
     {
       Operation operation = null;
       try {
-        if (!scope.IsOperationStarted)
-          throw new InvalidOperationException(Strings.ExOperationIsNotMarkedAsStarted);
         operation = (Operation) scope.Operation;
         if (operation == null)
           return;
+        if (!scope.IsOperationStarted) {
+          if (scope.IsCompleted)
+            throw new InvalidOperationException(Strings.ExOperationIsNotMarkedAsStarted);
+          else
+            // We can't throw an exception here, since it will suppress the thrown one.
+            return;
+        }
+
         if (scope.PrecedingOperations!=null)
           operation.PrecedingOperations = new ReadOnlyList<IOperation>(scope.PrecedingOperations);
         if (scope.FollowingOperations!=null)
@@ -280,27 +301,25 @@ namespace Xtensive.Storage.Operations
       finally {
         RemoveCurrentScope(scope);
       }
-      if (operation != null) {
-        // Adding it to parent scope's nested operations collection
-        var parentScope = (OperationRegistrationScope) GetCurrentScope();
-        if (parentScope != null) {
-          if (!parentScope.IsOperationStarted) {
-            if (parentScope.PrecedingOperations==null)
-              parentScope.PrecedingOperations = new List<IOperation>();
-            parentScope.PrecedingOperations.Add(operation);
-          }
-          else {
-            if (parentScope.FollowingOperations==null)
-              parentScope.FollowingOperations = new List<IOperation>();
-            parentScope.FollowingOperations.Add(operation);
-          }
+      // Adding it to parent scope's nested operations collection
+      var parentScope = (OperationRegistrationScope) GetCurrentScope();
+      if (parentScope != null) {
+        if (!parentScope.IsOperationStarted) {
+          if (parentScope.PrecedingOperations==null)
+            parentScope.PrecedingOperations = new List<IOperation>();
+          parentScope.PrecedingOperations.Add(operation);
         }
-        // Notifying...
-        if (operation.IsOutermost)
-          NotifyOutermostOperationCompleted(operation, scope.IsCompleted);
-        else
-          NotifyNestedOperationCompleted(operation, scope.IsCompleted);
+        else {
+          if (parentScope.FollowingOperations==null)
+            parentScope.FollowingOperations = new List<IOperation>();
+          parentScope.FollowingOperations.Add(operation);
+        }
       }
+      // Notifying...
+      if (operation.IsOutermost)
+        NotifyOutermostOperationCompleted(operation, scope.IsCompleted);
+      else
+        NotifyNestedOperationCompleted(operation, scope.IsCompleted);
     }
 
     #region Events and notification methods

@@ -65,7 +65,6 @@ namespace Xtensive.Storage.Building.Builders
       var typeDef = modelDef.Types.TryGetValue(type);
       if (typeDef != null)
         return typeDef;
-
       
       using (Log.InfoRegion(Strings.LogDefiningX, type.GetFullName())) {
         typeDef = DefineType(type);

@@ -26,6 +26,9 @@ namespace Xtensive.Storage.Tests.Storage.SetFieldTest
     public DateTime Date { get; set; }
 
     [Field]
+    public Direction? NullableDirection { get; set; }
+
+    [Field]
     public byte[] Image { get; set; }
 
     [Field]
@@ -68,6 +71,17 @@ namespace Xtensive.Storage.Tests.Storage.SetFieldTest
         AssertIsNotCalled(() => { book.Pair = book; });
         AssertIsCalled   (() => { book.Pair = null; });
         AssertIsNotCalled(() => { book.Pair = null; });
+      }
+    }
+
+    [Test]
+    public void NullableEnumSetTest()
+    {
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        var book = new Book();
+        book.NullableDirection = Direction.Positive;
+        book.NullableDirection = null;
       }
     }
 
