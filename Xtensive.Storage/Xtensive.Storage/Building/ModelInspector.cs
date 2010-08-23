@@ -224,6 +224,12 @@ namespace Xtensive.Storage.Building
       }
 
       if (typeDef.IsStructure) {
+
+        if (typeDef.UnderlyingType.IsGenericTypeDefinition) {
+          context.ModelInspectionResult.Register(new RemoveTypeAction(typeDef));
+          return;
+        }
+
         // Ancestor
         var parent = context.ModelDef.Types.FindAncestor(typeDef);
         if (parent!=null)

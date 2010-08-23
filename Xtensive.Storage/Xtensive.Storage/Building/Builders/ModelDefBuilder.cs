@@ -30,27 +30,31 @@ namespace Xtensive.Storage.Building.Builders
 
         using (Log.InfoRegion(Strings.LogDefiningX, Strings.Types)) {
           var typeFilter = GetTypeFilter();
-          var genericTypes = new List<Type>();
-          var genericTypeDefinitions = new List<Type>();
-          foreach (var type in context.Configuration.Types.Where(typeFilter)) {
-            if (type.IsGenericType)
+          var closedGenericTypes = new List<Type>();
+          var openGenericTypes = new List<Type>();
+
+          while (context.Types.Count != 0) {
+            var type = context.Types.Dequeue();
+            if (!typeFilter(type))
+              continue;
+            if (type.IsGenericType) {
               if (type.IsGenericTypeDefinition)
-                genericTypeDefinitions.Add(type);
+                openGenericTypes.Add(type);
               else
-                genericTypes.Add(type);
+                closedGenericTypes.Add(type);
+            }
             else
               ProcessType(type);
           }
-          var typesToSort = genericTypes
-            .Where(t => !t.FullName.IsNullOrEmpty()).ToList();
+          closedGenericTypes = closedGenericTypes.Where(t => !t.FullName.IsNullOrEmpty()).ToList();
           List<Node<Type, object>> loops;
-          var sortedTypes = TopologicalSorter.Sort(
-            typesToSort,
+          closedGenericTypes = TopologicalSorter.Sort(
+            closedGenericTypes,
             (first, second) => second.GetGenericArguments().Any(argument => argument.IsAssignableFrom(first)), 
             out loops);
-          foreach (var type in sortedTypes)
+          foreach (var type in closedGenericTypes)
             ProcessType(type);
-          foreach (var type in genericTypeDefinitions)
+          foreach (var type in openGenericTypes)
             ProcessType(type);
         }
       }
@@ -121,6 +125,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void ProcessProperties(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
+      var context = BuildingContext.Demand();
       var fieldFilter = GetFieldFilter();
       var properties = typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
@@ -141,15 +146,19 @@ namespace Xtensive.Storage.Building.Builders
           typeDef.Fields.Add(field);
           Log.Info(Strings.LogFieldX, field.Name);
           var ka = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritAll);
-          if (ka == null)
-            continue;
-          AttributeProcessor.Process(hierarchyDef, field, ka);
+          if (ka!=null)
+            AttributeProcessor.Process(hierarchyDef, field, ka);
         }
         // Only declared properies must be processed in other cases
         else if (propertyInfo.DeclaringType==propertyInfo.ReflectedType) {
           typeDef.Fields.Add(field);
           Log.Info(Strings.LogFieldX, field.Name);
         }
+
+        // Checking whether property type is registered in model
+        var propertyType = field.UnderlyingProperty.PropertyType;
+        if (propertyType.IsSubclassOf(typeof(Persistent)) && !context.ModelDef.Types.Contains(propertyType))
+          context.Types.Enqueue(propertyType);
       }
     }
 
