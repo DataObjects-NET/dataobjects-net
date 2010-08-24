@@ -226,6 +226,19 @@ namespace Xtensive.Storage.Tests.Storage.DbTypeSupportModel
     public EULong? FNEULong { get; set; }
 
   }
+
+  [HierarchyRoot]
+  public class DecimalContainer : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field(Precision = 34, Scale = 19)]
+    public decimal d34_19 { get; set; }
+
+    [Field(Precision = 25, Scale = 0)]
+    public decimal d25_0 { get; set; }
+  }
 }
 
 namespace Xtensive.Storage.Tests.Storage
@@ -331,17 +344,23 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void DecimalTest()
     {
-      const decimal magicNumber = 304861306900020.0000000000000000000m;
+      // TODO: Expand the test (precision: 1-38, scale: 0-28)
+      const decimal d34_19 = 304861306900020.0000000000000000000m;
+      const decimal d25_0 = 7200200000000000000000000m;
       using (Session.Open(Domain)) {
         Key key;
         using (var transactionScope = Transaction.Open()) {
-          var theX = new X {FDecimal = magicNumber};
-          key = theX.Key;
+          var container = new DecimalContainer() {
+            d34_19 = d34_19,
+            d25_0 = d25_0
+          };
+          key = container.Key;
           transactionScope.Complete();
         }
         using (var transactionScope = Transaction.Open()) {
-          var theX = Query.Single<X>(key);
-          Assert.AreEqual(magicNumber, theX.FDecimal);
+          var container = Query.Single<DecimalContainer>(key);
+          Assert.AreEqual(d34_19, container.d34_19);
+          Assert.AreEqual(d25_0, container.d25_0);
           transactionScope.Complete();
         }
       }
