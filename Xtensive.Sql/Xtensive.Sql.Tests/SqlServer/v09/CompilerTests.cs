@@ -3,16 +3,14 @@
 // For conditions of distribution and use, see license.
 
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using System;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.Tests.SqlServer
+namespace Xtensive.Sql.Tests.SqlServer.v09
 {
   public class CompilerTests: AdventureWorks
   {

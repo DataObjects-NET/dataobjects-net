@@ -14,7 +14,7 @@ using System.Data.Common;
 using System.Linq;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.SqlServer
+namespace Xtensive.Sql.Tests.SqlServer.v09
 {
   [TestFixture]
   public class MiscTests: AdventureWorks

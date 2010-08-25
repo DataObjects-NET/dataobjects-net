@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.SqlServer
+namespace Xtensive.Sql.Tests.SqlServer.v09
 {
   [Serializable]
   public class IndexTest2005 : IndexTest

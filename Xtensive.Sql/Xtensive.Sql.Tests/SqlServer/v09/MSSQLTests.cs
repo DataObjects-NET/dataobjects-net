@@ -12,7 +12,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.SqlServer
+namespace Xtensive.Sql.Tests.SqlServer.v09
 {
   [TestFixture]
   public class MSSQLTests : AdventureWorks
