@@ -8,7 +8,7 @@ using System.Data.Common;
 using NUnit.Framework;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.SqlServer
+namespace Xtensive.Sql.Tests.SqlServer.v09
 {
   public class AssertUtility
   {

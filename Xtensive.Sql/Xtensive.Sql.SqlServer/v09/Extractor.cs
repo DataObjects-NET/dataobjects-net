@@ -14,7 +14,6 @@ namespace Xtensive.Sql.SqlServer.v09
   internal class Extractor : Model.Extractor
   {
     protected int schemaId;
-    private int firstDomainId;
     private readonly Dictionary<int, Schema> schemaIndex = new Dictionary<int, Schema>();
     private readonly Dictionary<int, Domain> domainIndex = new Dictionary<int, Domain>();
     private readonly Dictionary<int, string> typeNameIndex = new Dictionary<int, string>();
@@ -90,12 +89,14 @@ namespace Xtensive.Sql.SqlServer.v09
           string name = reader.GetString(3);
           typeNameIndex[userTypeId] = name;
 
+          // Type is not user-defined
           if (!reader.GetBoolean(7))
             continue;
 
-          // user defined type
-          if (firstDomainId > userTypeId)
-            firstDomainId = userTypeId;
+          // Unknown system type
+          string systemName;
+          if (!typeNameIndex.TryGetValue(systemTypeId, out systemName))
+            continue;
 
           GetSchema(reader.GetInt32(0), ref currentSchemaId, ref currentSchema);
           var dataType = GetValueType(typeNameIndex[systemTypeId], reader.GetByte(4), reader.GetByte(5), reader.GetInt16(6));
@@ -156,11 +157,10 @@ namespace Xtensive.Sql.SqlServer.v09
             if (columnId != count) // <-db column index is not equal to column position in table.Columns. This is common after column removals or insertions.
               dataTable.RegisterColumnMapping(columnId, count - 1);
 
-            if (typeId >= firstDomainId) {
-              Domain domain;
-              if (domainIndex.TryGetValue(typeId, out domain))
-                column.Domain = domain;
-            }
+            // Domain
+            Domain domain;
+            if (domainIndex.TryGetValue(typeId, out domain))
+              column.Domain = domain;
 
             // Collation
             if (!reader.IsDBNull(8)) {
