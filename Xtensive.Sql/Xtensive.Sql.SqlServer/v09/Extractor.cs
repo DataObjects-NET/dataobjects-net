@@ -17,7 +17,7 @@ namespace Xtensive.Sql.SqlServer.v09
     private readonly Dictionary<int, Schema> schemaIndex = new Dictionary<int, Schema>();
     private readonly Dictionary<int, Domain> domainIndex = new Dictionary<int, Domain>();
     private readonly Dictionary<int, string> typeNameIndex = new Dictionary<int, string>();
-    private readonly Dictionary<int, DataTableProxy> dataTableIndex = new Dictionary<int, DataTableProxy>();
+    private readonly Dictionary<int, ColumnResolver> columnResolverIndex = new Dictionary<int, ColumnResolver>();
 
     protected Catalog catalog;
     protected Schema schema;
@@ -124,7 +124,7 @@ namespace Xtensive.Sql.SqlServer.v09
             dataTable = schema.CreateTable(reader.GetString(2));
           else
             dataTable = schema.CreateView(reader.GetString(2));
-          dataTableIndex[reader.GetInt32(1)] = new DataTableProxy(dataTable);
+          columnResolverIndex[reader.GetInt32(1)] = new ColumnResolver(dataTable);
         }
     }
 
@@ -137,7 +137,7 @@ namespace Xtensive.Sql.SqlServer.v09
       query += " order by t.schema_id, c.object_id, c.column_id";
 
       int currentTableId = 0;
-      DataTableProxy dataTable = null;
+      ColumnResolver columnResolver = null;
       int currentSchemaId = schemaId;
       Schema currentSchema = schema;
       using (var cmd = Connection.CreateCommand(query))
@@ -146,16 +146,17 @@ namespace Xtensive.Sql.SqlServer.v09
           
           int tableId = reader.GetInt32(1);
           int columnId = reader.GetInt32(2);
-          GetDataTable(tableId, ref currentTableId, ref dataTable);
-          var table = dataTable.Table as Table;
+          GetDataTable(tableId, ref currentTableId, ref columnResolver);
+          var table = columnResolver.Table as Table;
           // Table column
           if (table != null) {
             var typeId = reader.GetInt32(4);
             var sqlDataType = GetValueType(typeNameIndex[typeId], reader.GetByte(5), reader.GetByte(6), reader.GetInt16(7));
             var column = table.CreateColumn(reader.GetString(3), sqlDataType);
             int count = table.TableColumns.Count;
-            if (columnId != count) // <-db column index is not equal to column position in table.Columns. This is common after column removals or insertions.
-              dataTable.RegisterColumnMapping(columnId, count - 1);
+            
+            // <-db column index is not equal to column position in table.Columns. This is common after column removals or insertions.
+            columnResolver.RegisterColumnMapping(columnId, count - 1);
 
             // Domain
             Domain domain;
@@ -185,7 +186,7 @@ namespace Xtensive.Sql.SqlServer.v09
             }
           }
           else {
-            var view = (View) dataTable.Table;
+            var view = (View) columnResolver.Table;
             view.CreateColumn(reader.GetString(3));
           }
         }
@@ -200,7 +201,7 @@ namespace Xtensive.Sql.SqlServer.v09
         using (var reader = cmd.ExecuteReader())
           while (reader.Read()) {
 
-            var dataColumn = dataTableIndex[reader.GetInt32(1)].GetColumn(reader.GetInt32(2));
+            var dataColumn = columnResolverIndex[reader.GetInt32(1)].GetColumn(reader.GetInt32(2));
 
             var tableColumn = (TableColumn)dataColumn;
             tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn);
@@ -232,7 +233,7 @@ namespace Xtensive.Sql.SqlServer.v09
       string query = GetIndexQuery();
 
       int tableId = 0;
-      DataTableProxy table = null;
+      ColumnResolver table = null;
       Index index = null;
       PrimaryKey primaryKey = null;
       UniqueConstraint uniqueConstraint = null;
@@ -296,8 +297,8 @@ namespace Xtensive.Sql.SqlServer.v09
       query += " order by fk.schema_id, fkc.parent_object_id, fk.object_id, fkc.constraint_column_id";
 
       int tableId = 0, constraintId = 0;
-      DataTableProxy referencingTable = null;
-      DataTableProxy referencedTable = null;
+      ColumnResolver referencingTable = null;
+      ColumnResolver referencedTable = null;
       ForeignKey foreignKey = null;
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader()) {
@@ -306,7 +307,7 @@ namespace Xtensive.Sql.SqlServer.v09
           if (reader.GetInt32(5) == 1) {
             GetDataTable(reader.GetInt32(6), ref tableId, ref referencingTable);
             foreignKey = ((Table)referencingTable.Table).CreateForeignKey(reader.GetString(2));
-            referencedTable = dataTableIndex[reader.GetInt32(8)];
+            referencedTable = columnResolverIndex[reader.GetInt32(8)];
             foreignKey.ReferencedTable = (Table) referencedTable.Table;
             foreignKey.OnDelete = GetReferentialAction(reader.GetByte(3));
             foreignKey.OnUpdate = GetReferentialAction(reader.GetByte(4));
@@ -326,7 +327,7 @@ namespace Xtensive.Sql.SqlServer.v09
       query += " order by t.schema_id, object_id, column_id";
 
       int currentTableId = 0;
-      DataTableProxy table = null;
+      ColumnResolver table = null;
       FullTextIndex index = null;
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
@@ -428,12 +429,12 @@ namespace Xtensive.Sql.SqlServer.v09
       currentId = id;
     }
 
-    private void GetDataTable(int id, ref int currentId, ref DataTableProxy currentObj)
+    private void GetDataTable(int id, ref int currentId, ref ColumnResolver currentObj)
     {
       if (id == currentId)
         return;
 
-      currentObj = dataTableIndex[id];
+      currentObj = columnResolverIndex[id];
       currentId = id;
     }
 
