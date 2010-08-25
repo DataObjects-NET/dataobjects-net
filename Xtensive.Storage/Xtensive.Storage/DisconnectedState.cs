@@ -471,7 +471,7 @@ namespace Xtensive.Storage
     public IEnumerator<Entity> GetEnumerator()
     {
       EnsureIsAttached();
-      Session.Persist();
+//      Session.Persist();
       var all =
         from pair in AllPersistenceStates()
         where pair.Value!=PersistenceState.Removed
@@ -670,10 +670,10 @@ namespace Xtensive.Storage
         logIndentScope = Log.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session);
       else
         logIndentScope = null;
-      if (session.Transaction!=null) {
-        session.Persist();
-        session.Invalidate();
-      }
+//      if (session.Transaction!=null) {
+//        session.Persist(PersistReason.DisconnectedStateAttach);
+//        session.Invalidate();
+//      }
       var directSessionAccessor = session.Services.Demand<DirectSessionAccessor>();
       transactionReplacementScope = directSessionAccessor.NullifySessionTransaction();
       handler = new DisconnectedSessionHandler(session.Handler, this);

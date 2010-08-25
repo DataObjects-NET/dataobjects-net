@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Internals
       // Workaround for Issue 690
       if (item.PersistenceState==PersistenceState.New)
         if (removedSet.Contains(item.Key))
-          Session.Persist();
+          Session.Persist(PersistReason.RemoveInsertCorrection);
 
       var container = GetContainer(item.PersistenceState);
       container.Add(item);

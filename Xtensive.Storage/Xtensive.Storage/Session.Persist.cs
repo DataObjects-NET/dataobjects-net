@@ -39,7 +39,7 @@ namespace Xtensive.Storage
       Persist(PersistReason.Manual);
     }
 
-    private void Persist(PersistReason reason)
+    internal void Persist(PersistReason reason)
     {
       EnsureNotDisposed();
       if (IsPersisting || EntityChangeRegistry.Count==0)

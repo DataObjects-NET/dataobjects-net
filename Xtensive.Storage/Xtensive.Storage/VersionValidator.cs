@@ -196,7 +196,7 @@ namespace Xtensive.Storage
     {
       if (e.Transaction.IsNested)
         return;
-      Session.Persist();
+      //Session.Persist(); Session.Persist(reason.Commit) will be called anyway 
       try {
         FetchLeftVersions();
         ValidateFetchedVersions();
@@ -379,7 +379,7 @@ namespace Xtensive.Storage
     {
       try {
         if (Session.Transaction!=null) {
-          Session.Persist();
+//          Session.Persist(); Persist will be called before transaction commit
           FetchLeftVersions();
           ValidateFetchedVersions();
         }

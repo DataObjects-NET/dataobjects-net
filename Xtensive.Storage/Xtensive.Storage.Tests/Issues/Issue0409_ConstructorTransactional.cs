@@ -51,12 +51,12 @@ namespace Xtensive.Storage.Tests.Issues
       }
     }
 
-    [Test]
-    public void DocumentCreatedInAutoTransactionTest()
-    {
-      using (var s = Session.Open(Domain)) {
-        var document = new Document();
-      }
-    }
+//    [Test]
+//    public void DocumentCreatedInAutoTransactionTest()
+//    {
+//      using (var s = Session.Open(Domain)) {
+//        var document = new Document();
+//      }
+//    }
   }
 }
