@@ -70,13 +70,11 @@ namespace Xtensive.Storage.Tests.Issues
           Assert.IsTrue(ds.IsAttached);
           Assert.IsTrue(ds.IsConnected);
           Assert.AreEqual(0, ds.Operations.Count);
-
-          using (var tx = Transaction.Open()) {
-            var oldUnit = Query.All<Unit>().Where(u => u.Title == "Unit").Single();
-            int unitCount = Query.All<Unit>().Count();
-            Assert.AreEqual("Unit", oldUnit.Title);
-            Assert.AreEqual(2, unitCount);
-          }
+          
+          var oldUnit = Query.All<Unit>().Where(u => u.Title=="Unit").Single();
+          int unitCount = Query.All<Unit>().Count();
+          Assert.AreEqual("Unit", oldUnit.Title);
+          Assert.AreEqual(2, unitCount);
         }
         Assert.IsTrue(ds.IsAttached);
         Assert.IsFalse(ds.IsConnected);

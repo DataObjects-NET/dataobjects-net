@@ -42,18 +42,19 @@ namespace Xtensive.Storage
     IDataErrorInfo
   {
     // [DebuggerDisplay("Id = {Id}")]
-    private sealed class CtorInfo
+    private sealed class CtorTransactionInfo
     {
       [ThreadStatic]
-      public static CtorInfo Current;
+      public static CtorTransactionInfo Current;
       // public static int CurrentId;
 
       // public int Id;
+      public TransactionScope TransactionScope;
       public InconsistentRegion InconsistentRegion;
       public CompletableScope OperationScope;
-      public CtorInfo Previous;
+      public CtorTransactionInfo Previous;
 
-      public CtorInfo()
+      public CtorTransactionInfo()
       {
         // Id = Interlocked.Increment(ref CurrentId);
       }
@@ -211,6 +212,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
+    [Transactional]
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
@@ -235,6 +237,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
+    [Transactional]
     protected internal object GetFieldValue(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
@@ -338,6 +341,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
+    [Transactional]
     protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
       if (field.ReflectedType.IsInterface)
@@ -352,6 +356,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
+    [Transactional]
     protected internal void SetFieldValue(FieldInfo field, object value)
     {
       SetFieldValue(field, value, null);
@@ -620,6 +625,7 @@ namespace Xtensive.Storage
       InnerOnValidate();
     }
 
+    [Transactional]
     private void InnerOnValidate()
     {
       if (!CanBeValidated) // True for Structures which aren't bound to entities
@@ -642,6 +648,7 @@ namespace Xtensive.Storage
     #region IDataErrorInfo members
 
     /// <inheritdoc/>
+    [Transactional]
     string IDataErrorInfo.this[string columnName] {
       get {
         return GetErrorMessage(this.GetPropertyValidationError(columnName));
@@ -649,6 +656,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
+    [Transactional]
     string IDataErrorInfo.Error {
       get { 
         try {
@@ -746,7 +754,7 @@ namespace Xtensive.Storage
         successfully = true;
       }
       finally {
-        LeaveCtorScope(successfully);
+        LeaveCtorTransactionScope(successfully);
       }
     }
 
@@ -768,7 +776,7 @@ namespace Xtensive.Storage
         SystemInitializationError(error);
       }
       finally {
-        LeaveCtorScope(false);
+        LeaveCtorTransactionScope(false);
       }
     }
 
@@ -788,7 +796,7 @@ namespace Xtensive.Storage
         successfully = true;
       }
       finally {
-        LeaveCtorScope(successfully);
+        LeaveCtorTransactionScope(successfully);
       }
     }
 
@@ -806,35 +814,50 @@ namespace Xtensive.Storage
         SystemInitializationError(error);
       }
       finally {
-        LeaveCtorScope(false);
+        LeaveCtorTransactionScope(false);
       }
     }
 
     #endregion
 
-    #region Enter/LeaveCtorScope methods
+    #region Enter/LeaveCtorTransactionScope methods
 
-    internal void EnterCtorScope()
+    internal void EnterCtorTransactionScope()
     {
-      CtorInfo.Current = new CtorInfo() {
+      CtorTransactionInfo.Current = new CtorTransactionInfo() {
+        TransactionScope = Transaction.Current == null
+          ? Transaction.Open()
+          : null,
         InconsistentRegion = Validation.Disable(Session),
-        Previous = CtorInfo.Current,
+        Previous = CtorTransactionInfo.Current,
       };
     }
 
-    internal void LeaveCtorScope(bool successfully)
+    internal void BindCtorTransactionScopeToOperationScope(CompletableScope scope)
     {
-      var cti = CtorInfo.Current;
+      var ctorTransactionInfo = CtorTransactionInfo.Current;
+      ctorTransactionInfo.OperationScope = scope;
+    }
+
+    internal void LeaveCtorTransactionScope(bool successfully)
+    {
+      var cti = CtorTransactionInfo.Current;
       if (cti == null)
         return;
-      CtorInfo.Current = cti.Previous;
+      CtorTransactionInfo.Current = cti.Previous;
       bool inconsistentRegionDisposed = false;
       try {
         if (successfully) {
-          cti.InconsistentRegion.Complete();
-          inconsistentRegionDisposed = true;
-          cti.InconsistentRegion.Dispose();
-          cti.InconsistentRegion = null;
+          try {
+            cti.InconsistentRegion.Complete();
+            inconsistentRegionDisposed = true;
+            cti.InconsistentRegion.Dispose();
+            cti.InconsistentRegion = null;
+          } 
+          catch {
+            successfully = false;
+            throw;
+          }
         }
         if (cti.OperationScope!=null)
           cti.OperationScope.Complete();
@@ -844,9 +867,27 @@ namespace Xtensive.Storage
           if (!inconsistentRegionDisposed)
             cti.InconsistentRegion.Dispose();
         }
+        catch {
+          successfully = false;
+          throw;
+        }
         finally {
-          if (cti.OperationScope != null)
-            cti.OperationScope.Dispose();
+          try {
+            if (cti.OperationScope != null)
+              cti.OperationScope.Dispose();
+          }
+          catch {
+            successfully = false;
+            throw;
+          }
+          finally {
+            var transactionScope = cti.TransactionScope;
+            if (transactionScope!=null) {
+              if (successfully)
+                transactionScope.Complete();
+              transactionScope.Dispose();
+            }
+          }
         }
       }
     }
@@ -858,7 +899,7 @@ namespace Xtensive.Storage
 
     internal Persistent()
     {
-      EnterCtorScope();
+      EnterCtorTransactionScope();
     }
   }
 }

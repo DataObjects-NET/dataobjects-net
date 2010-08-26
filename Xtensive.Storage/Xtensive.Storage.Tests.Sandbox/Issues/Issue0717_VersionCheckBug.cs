@@ -56,14 +56,9 @@ namespace Xtensive.Storage.Tests.Issues
     public void Test()
     {
       using (var session = Session.Open(Domain)) {
-        Person person;
-        Key key;
-        VersionInfo version;
-        using (var tx = Transaction.Open()) {
-          person = new Person() {Name = "Name"};
-          key = person.Key;
-          version = person.VersionInfo;
-        }
+        var person  = new Person() { Name = "Name" };
+        var key     = person.Key;
+        var version = person.VersionInfo;
 
         // 1st update (ok)
         OptimisticUpdate<Person>(key, version, p => p.Name = "ANewName" );

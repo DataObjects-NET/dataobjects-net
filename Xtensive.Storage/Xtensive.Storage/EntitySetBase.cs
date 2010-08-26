@@ -413,6 +413,7 @@ namespace Xtensive.Storage
 
     #region Add/Remove/Contains/Clear methods
 
+    [Transactional]
     internal bool Contains(Entity item)
     {
       EnsureOwnerIsNotRemoved();
@@ -421,6 +422,7 @@ namespace Xtensive.Storage
       return Contains(item.Key, item);
     }
 
+    [Transactional]
     internal bool Add(Entity item)
     {
       return Add(item, null);
@@ -479,6 +481,7 @@ namespace Xtensive.Storage
       }
     }
 
+    [Transactional]
     internal bool Remove(Entity item)
     {
       return Remove(item, null);

@@ -119,59 +119,48 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
       var domain = GetDomain();
 
       using (Session.Open(domain)) {
-        Person alex;
-        VersionInfo alexVersion;
-        Person dmitri;
-        VersionInfo dmitriVersion;
-        Company xtensive;
-        VersionInfo xtensiveVersion;
-        using (var tx = Transaction.Open()) {
-          alex = new Person("Yakunin, Alex");
-          alexVersion = alex.VersionInfo;
-          Dump(alex);
-          dmitri = new Person("Maximov, Dmitri");
-          dmitriVersion = dmitri.VersionInfo;
-          Dump(dmitri);
+        // Auto transactions!
+        var alex = new Person("Yakunin, Alex");
+        var alexVersion = alex.VersionInfo;
+        Dump(alex);
+        var dmitri = new Person("Maximov, Dmitri");
+        var dmitriVersion = dmitri.VersionInfo;
+        Dump(dmitri);
 
-          alex.Friends.Add(dmitri);
-          // Automatically provided versions won't change because of change in EntitySet!
-          Assert.AreEqual(alexVersion, alex.VersionInfo);
-          Assert.AreEqual(dmitriVersion, dmitri.VersionInfo);
+        alex.Friends.Add(dmitri);
+        // Automatically provided versions won't change because of change in EntitySet!
+        Assert.AreEqual(alexVersion, alex.VersionInfo);
+        Assert.AreEqual(dmitriVersion, dmitri.VersionInfo);
 
-          xtensive = new Company("X-tensive.com");
-          xtensiveVersion = xtensive.VersionInfo;
-          Dump(xtensive);
-          tx.Complete();
-        }
+        var xtensive = new Company("X-tensive.com");
+        var xtensiveVersion = xtensive.VersionInfo;
+        Dump(xtensive);
+        
+        string newName = "Xtensive";
+        Console.WriteLine("Changing {0} name to {1}", xtensive.Name, newName);
+        xtensive.Name = newName;
+        Dump(xtensive);
+        Assert.AreNotEqual(xtensiveVersion, xtensive.VersionInfo);
+        xtensiveVersion = xtensive.VersionInfo;
+        
+        Console.WriteLine("Xtensive.Employees.Add(Alex)");
+        xtensive.Employees.Add(alex);
+        Dump(xtensive);
+        Assert.AreNotEqual(xtensiveVersion, xtensive.VersionInfo);
+        Assert.AreNotEqual(alexVersion, alex.VersionInfo);
+        xtensiveVersion = xtensive.VersionInfo;
+        alexVersion = alex.VersionInfo;
 
-        using (var tx = Transaction.Open()) {
-          string newName = "Xtensive";
-          Console.WriteLine("Changing {0} name to {1}", xtensive.Name, newName);
-          xtensive.Name = newName;
-          Dump(xtensive);
-          Assert.AreNotEqual(xtensiveVersion, xtensive.VersionInfo);
-          xtensiveVersion = xtensive.VersionInfo;
+        Console.WriteLine("Dmitri.Company = Xtensive");
+        dmitri.Company = xtensive;
+        Dump(xtensive);
+        Assert.AreNotEqual(xtensiveVersion, xtensive.VersionInfo);
+        Assert.AreNotEqual(dmitriVersion, dmitri.VersionInfo);
+        xtensiveVersion = xtensive.VersionInfo;
+        dmitriVersion = dmitri.VersionInfo;
 
-          Console.WriteLine("Xtensive.Employees.Add(Alex)");
-          xtensive.Employees.Add(alex);
-          Dump(xtensive);
-          Assert.AreNotEqual(xtensiveVersion, xtensive.VersionInfo);
-          Assert.AreNotEqual(alexVersion, alex.VersionInfo);
-          xtensiveVersion = xtensive.VersionInfo;
-          alexVersion = alex.VersionInfo;
-
-          Console.WriteLine("Dmitri.Company = Xtensive");
-          dmitri.Company = xtensive;
-          Dump(xtensive);
-          Assert.AreNotEqual(xtensiveVersion, xtensive.VersionInfo);
-          Assert.AreNotEqual(dmitriVersion, dmitri.VersionInfo);
-          xtensiveVersion = xtensive.VersionInfo;
-          dmitriVersion = dmitri.VersionInfo;
-
-          Console.WriteLine("Transaction rollback test, before:");
-          Dump(xtensive);
-          tx.Complete();
-        }
+        Console.WriteLine("Transaction rollback test, before:");
+        Dump(xtensive);
         var xtensiveVersionFieldValue = xtensive.Version;
         using (var tx = Transaction.Open()) {
 
@@ -197,16 +186,13 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
         }
 
         Console.WriteLine("Transaction rollback test, after:");
+        Dump(xtensive);
 
-        using (var tx = Transaction.Open()) {
-          Dump(xtensive);
-
-          // Let's check if everything is rolled back
-          Assert.AreEqual(xtensiveVersion, xtensive.VersionInfo);
-          Assert.AreEqual(xtensiveVersionFieldValue, xtensive.Version);
-          Assert.AreEqual(xtensiveVersion, xtensive.VersionInfo);
-          Assert.AreEqual(dmitriVersion, dmitri.VersionInfo);
-        }
+        // Let's check if everything is rolled back
+        Assert.AreEqual(xtensiveVersion, xtensive.VersionInfo);
+        Assert.AreEqual(xtensiveVersionFieldValue, xtensive.Version);
+        Assert.AreEqual(xtensiveVersion, xtensive.VersionInfo);
+        Assert.AreEqual(dmitriVersion, dmitri.VersionInfo);
       }
     }
 
@@ -251,8 +237,7 @@ namespace Xtensive.Storage.Manual.Concurrency.Versions
           } // Version check fails on Session.Persist() here
         });
 
-        using (var tx = Transaction.Open())
-          versions.Add(alex, true); // Overwriting versions
+        versions.Add(alex, true); // Overwriting versions
         Dump(versions);
 
         using (VersionValidator.Attach(versions))

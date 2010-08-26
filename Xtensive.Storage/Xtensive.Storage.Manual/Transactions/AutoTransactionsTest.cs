@@ -10,10 +10,10 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Core.Aspects;
-using Xtensive.Core.Testing;
+using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 
-namespace Xtensive.Storage.Manual.Transactions.Attribute
+namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
 {
   #region Model
 
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Manual.Transactions.Attribute
   #endregion
   
   [TestFixture]
-  public class TransactionalAttributeTest
+  public class AutoTransactionsTest
   {
     private Domain existingDomain;
     private Dictionary<string, Key> personKeys = new Dictionary<string, Key>();
@@ -114,11 +114,45 @@ namespace Xtensive.Storage.Manual.Transactions.Attribute
           alex.Name = "Not Alex";
           // no tx.Complete() => rollback
         }
+        Assert.AreEqual("Alex", alex.Name); // Auto state update
 
+        // Auto transactions on query enumeration
+        Console.WriteLine("All persons:");
+        var two = 2;
+        foreach (var item in 
+          from person in Query.All<Person>()
+          select new {person, twoFriends = person.Friends.Take(() => two), friendCount = person.Friends.Count()}) {
+          Assert.IsNull(Transaction.Current);
+          Console.WriteLine("  {0}, {1}, {2}", 
+            item.person,
+            item.twoFriends.ToCommaDelimitedString(), // Auto transaction for subquery 
+            item.friendCount);
+        }
+
+        // Auto transactions on EntitySet enumeration
+        Console.WriteLine("Fields of Alex (EntitySet enumeration):");
+        foreach (var person in alex.Friends) {
+          Assert.IsNull(Transaction.Current);
+          Console.WriteLine("  " + person);
+        }
+
+        // Auto transactions on scalar queries
+        var count         = Query.All<Person>().Count();
+        var compiledCount = Query.Execute(()  => Query.All<Person>().Count());
+        Assert.AreEqual(count, compiledCount);
         Assert.IsNull(Transaction.Current);
-        AssertEx.ThrowsInvalidOperationException(() => Assert.AreEqual("Alex", alex.Name));
-        AssertEx.ThrowsInvalidOperationException(() => Query.All<Person>().Count());
-        AssertEx.ThrowsInvalidOperationException(() => Query.Execute(()  => Query.All<Person>().Count()));
+
+        // Auto transactions on compiled query enumeration
+        Console.WriteLine("All persons (compiled query):");
+        foreach (var item in Query.Execute(() => 
+          from person in Query.All<Person>()
+          select new {person, twoFriends = person.Friends.Take(() => two), friendCount = person.Friends.Count()})) {
+          Assert.IsNull(Transaction.Current);
+          Console.WriteLine("  {0}, {1}, {2}", 
+            item.person,
+            item.twoFriends.ToCommaDelimitedString(), // Auto transaction for subquery 
+            item.friendCount);
+        }
       }
     }
 
