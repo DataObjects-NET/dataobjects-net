@@ -38,8 +38,9 @@ namespace Xtensive.Storage
     private VersionSet versions;
     private VersionsUsageOptions versionsUsageOptions = VersionsUsageOptions.Default;
     private VersionsProviderType versionsProviderType = VersionsProviderType.Default;
-    private OperationLogType logType;
-
+    private OperationLogType operationLogType;
+    private Func<OperationLog, IEnumerable<IOperation>> operationLogReplayFilter;
+    private Func<Key, bool> versionUpdateFilter;
 
     [NonSerialized]
     private Session session;
@@ -153,17 +154,39 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets or sets the type of the <see cref="OperationLog"/> to use.
     /// </summary>
-    public OperationLogType LogType {
-      get { return logType; }
+    public OperationLogType OperationLogType {
+      get { return operationLogType; }
       set {
         if (value==OperationLogType.UndoOperationLog)
           throw new ArgumentOutOfRangeException("value");
         EnsureNoTransaction();
         if (state.Operations.Count!=0)
           throw new InvalidOperationException(Strings.ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty);
-        logType = value;
-        state.Operations = new OperationLog(logType);
+        operationLogType = value;
+        state.Operations = new OperationLog(operationLogType);
       }
+    }
+
+    /// <summary>
+    /// Gets or sets the operation log filter used by <see cref="ApplyChanges()"/>.
+    /// Only operations returned by filter are applied; others are left in
+    /// <see cref="Operations"/>.
+    /// <see langword="null" /> value (default) indicates all the operations are applied.
+    /// </summary>
+    public Func<OperationLog, IEnumerable<IOperation>> OperationLogReplayFilter {
+      get { return operationLogReplayFilter; }
+      set { operationLogReplayFilter = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the version filter.
+    /// This predicate is used after <see cref="ApplyChanges()"/>
+    /// to determine which <see cref="Versions"/> must be refreshed.
+    /// <see langword="null" /> value (default) indicates all the versions are refreshed.
+    /// </summary>
+    public Func<Key, bool> VersionUpdateFilter {
+      get { return versionUpdateFilter; }
+      set { versionUpdateFilter = value; }
     }
 
     /// <summary>
@@ -287,18 +310,27 @@ namespace Xtensive.Storage
             : null;
           using (versionValidator)
           using (var tx = Transaction.Open()) {
-            keyMapping = state.Operations.Replay(targetSession);
+            var replayFilter = OperationLogReplayFilter ?? (log => log);
+            var operations = state.Operations;
+            var operationsToApply = new OperationLog(operationLogType, replayFilter.Invoke(operations));
+
+            keyMapping = operations.Replay(targetSession);
             // Updating internal state.
             // Note that if commit will fail, the state will be inconsistent with DB.
             state.Commit(true);
             originalState.Remap(keyMapping);
             state = new StateRegistry(originalState);
+            if (operationsToApply.Count != operations.Count) // Not everything is applied
+              state.Operations = new OperationLog(operationLogType, operations.Except(operationsToApply));
+
             // Updating (refetching / rebuilding) versions
             var currentVersionProvider = VersionsProviderType==VersionsProviderType.Session
               ? targetSession // not session, but targetSession
               : VersionsProvider;
-            if (currentVersionProvider!=null && (VersionsUsageOptions & VersionsUsageOptions.Update)!=0)
-              Versions = currentVersionProvider.CreateVersionSet(AllKeys());
+            if (currentVersionProvider!=null && (VersionsUsageOptions & VersionsUsageOptions.Update)!=0) {
+              var versionUpdateFilter = VersionUpdateFilter ?? (key => true);
+              Versions = currentVersionProvider.CreateVersionSet( AllKeys().Where(versionUpdateFilter) );
+            }
             tx.Complete();
           }
           if (targetSession.IsDebugEventLoggingEnabled) {
@@ -563,8 +595,8 @@ namespace Xtensive.Storage
       var existingVersion = Versions[key];
       var versionConflict = 
         (VersionsUsageOptions & VersionsUsageOptions.Validate)!=0 
-        && (!existingVersion.IsVoid)
-        && existingVersion!=version;
+          && (!existingVersion.IsVoid)
+            && existingVersion!=version;
       if (versionConflict && mergeMode == MergeMode.Strict) {
         if (Log.IsLogged(LogEventTypes.Info))
           Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,

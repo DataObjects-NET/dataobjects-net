@@ -172,5 +172,16 @@ namespace Xtensive.Storage
     {
       LogType = logType;
     }
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="logType">Type of the log.</param>
+    /// <param name="operations">The operations to add (using <see cref="Log"/> method).</param>
+    public OperationLog(OperationLogType logType, IEnumerable<IOperation> operations)
+      : this(logType)
+    {
+      Log(operations);
+    }
   }
 }
