@@ -35,9 +35,13 @@ namespace Xtensive.Storage.Internals
       // Remove-create sequences fix for Issue 690
       if (item.PersistenceState == PersistenceState.New && removed.Contains(item))
       {
-        item.SetPersistenceState(PersistenceState.Modified);
         removed.Remove(item);
         count--;
+        if (item.DifferentialTuple.Difference == null) {
+          item.SetPersistenceState(PersistenceState.Synchronized);
+          return;
+        }
+        item.SetPersistenceState(PersistenceState.Modified);
       }
       else if (item.PersistenceState == PersistenceState.Removed && @new.Contains(item))
       {
