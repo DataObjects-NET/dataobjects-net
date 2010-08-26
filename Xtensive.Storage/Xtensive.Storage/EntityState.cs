@@ -132,6 +132,11 @@ namespace Xtensive.Storage
       }
     }
 
+    internal void SetPersistenceState(PersistenceState newState)
+    {
+      persistenceState = newState;
+    }
+
     /// <summary>
     /// Gets a value indicating whether this entity is available (has a <see cref="Tuple"/>).
     /// Tuple does not exist, if there is no row corresponding to the <see cref="Entity"/>

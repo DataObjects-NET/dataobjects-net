@@ -119,10 +119,7 @@ namespace Xtensive.Storage
     {
       // Checking for deleted entity with the same key
       var result = EntityStateCache[key, false];
-      if (result != null && result.PersistenceState==PersistenceState.Removed)
-        Persist(PersistReason.RemoveInsertCorrection);
-      else
-        EnforceChangeRegistrySizeLimit(); // Must be done before new entity registration
+      EnforceChangeRegistrySizeLimit(); // Must be done before new entity registration
 
       // If type is unknown, we consider tuple is null, 
       // so its Entity is considered as non-existing
