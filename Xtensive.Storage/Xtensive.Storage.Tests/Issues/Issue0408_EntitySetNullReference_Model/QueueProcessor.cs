@@ -76,6 +76,7 @@ namespace Xtensive.Storage.Tests.Issues.Issue0408_EntitySetNullReference_Model
       throw new NotImplementedException();  
     }
 
+    [Transactional]
     public virtual IList<object> GetWork()
     {
       if (InputContainer == null)

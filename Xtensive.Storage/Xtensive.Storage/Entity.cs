@@ -353,7 +353,7 @@ namespace Xtensive.Storage
     /// <see cref="IHasVersionRoots"/>.</exception>
     protected internal bool UpdateVersionInfo(Entity changedEntity, FieldInfo changedField)
     {
-      if (State.IsVersionInfoUpdated || IsRemoved)
+      if (State.IsVersionInfoUpdated || IsRemoved || changedEntity.TypeInfo.IsSystem)
         return true;
       bool changed = false;
       try {
@@ -426,9 +426,9 @@ namespace Xtensive.Storage
         Session.Events.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
       }
 
-      bool changed = TypeInfo.HasVersionFields
+      var changed = TypeInfo.HasVersionFields
         ? UpdateVersion(changedEntity, changedField)
-        : false;
+        : !changedField.IsEntitySet;
 
       Session.SystemEvents.NotifyEntityVersionInfoChanged(changedEntity, changedField, changed);
       using (Session.Operations.EnableSystemOperationRegistration()) {

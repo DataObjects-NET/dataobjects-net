@@ -35,7 +35,6 @@ namespace Xtensive.Storage
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   [ProvideAspectRole(StandardRoles.TransactionHandling)]
   [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof(ActivateSessionAttribute))]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
 #if NET40
   [SecuritySafeCritical]
