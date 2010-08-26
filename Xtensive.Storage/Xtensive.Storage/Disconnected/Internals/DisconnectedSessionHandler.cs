@@ -222,7 +222,7 @@ namespace Xtensive.Storage.Disconnected
         case Multiplicity.ZeroToOne:
         case Multiplicity.ZeroToMany:
         case Multiplicity.ManyToMany:
-          Session.Persist();
+          Session.Persist(PersistReason.DisconnectedStateGetReference);
           var list = new List<ReferenceInfo>();
           var state = disconnectedState.GetEntityState(target.Key);
           foreach (var reference in state.GetReferences(association.OwnerField)) {

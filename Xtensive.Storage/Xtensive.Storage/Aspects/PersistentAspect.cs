@@ -34,7 +34,6 @@ namespace Xtensive.Storage
   {
     private const string HandlerMethodSuffix = "FieldValue";
     private static readonly ReplaceAutoProperty replacer;
-    private static readonly TransactionalAttribute transactional;
 
     #region IAspectProvider Members
 
@@ -78,12 +77,6 @@ namespace Xtensive.Storage
           result.Add(new AspectInstance(setter, notSupportedAspect));
         }
         result.Add(new AspectInstance(setter, replacer));
-
-        // If there are constraints, we must "wrap" setter into transaction
-        var constraints = 
-          propertyInfo.GetAttributes<PropertyConstraintAspect>(AttributeSearchOptions.InheritNone);
-        if (!(constraints == null || constraints.Length == 0))
-          result.Add(new AspectInstance(setter, transactional));
       }
       return result;
     }
@@ -93,7 +86,6 @@ namespace Xtensive.Storage
     static PersistentAspect()
     {
       replacer = new ReplaceAutoProperty(HandlerMethodSuffix);
-      transactional = new TransactionalAttribute();
     }
   }
 }

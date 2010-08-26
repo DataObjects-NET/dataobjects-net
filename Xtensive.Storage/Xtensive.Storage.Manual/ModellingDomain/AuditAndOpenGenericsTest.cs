@@ -349,9 +349,11 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
           tx.Complete();
         }
 
-        // Auto transactions
-        musya.Name = "Musya";
-        musya.Remove();
+        using (var tx = Transaction.Open()) {
+          musya.Name = "Musya";
+          musya.Remove();
+          tx.Complete();
+        }
 
         // Rollback test
         using (var tx = Transaction.Open()) {
@@ -368,10 +370,10 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
           }
         }
 
-        alex = Query.Single<Person>(alex.Key); // Materializing entity from enother Session here
-
-        // Auto transaction
-        tom.Owner = alex;
+        using (var tx = Transaction.Open()) {
+          alex = Query.Single<Person>(alex.Key); // Materializing entity from enother Session here
+          tom.Owner = alex;
+        }
 
         // And now - the magic!
         DumpAuditLog();
