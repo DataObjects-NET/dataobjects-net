@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Providers.Sql
         // Intentionally rolling back the transaction!
       }
 
-      var increment = generator.CacheSize;
+      var increment = generator.SequenceIncrement.Value;
       var current = 
         generator.Arithmetic.Subtract(hiValue, 
           generator.Arithmetic.Multiply(generator.Arithmetic.One, increment));

@@ -121,7 +121,7 @@ namespace Xtensive.Storage.Tests.Storage
 
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
-      Xtensive.Storage.Domain result = base.BuildDomain(configuration);
+      var result = base.BuildDomain(configuration);
 
       Xtensive.Storage.Model.FieldInfo field;
       field = result.Model.Types[typeof (Creature)].Fields["ID"];
@@ -1095,5 +1095,23 @@ namespace Xtensive.Storage.Tests.Storage
       }
     }
 
+    [Test]
+    public void LinqQueryTest()
+    {
+      using (Session.Open(Domain))
+      using (Transaction.Open()) {
+        var lizardsDirectly = (
+          from lizard in Query.All<Lizard>().AsEnumerable()
+          where lizard.Color.StartsWith("G") || lizard.Color.StartsWith("g")
+          select lizard
+          ).ToArray();
+        var lizards = (
+          from lizard in Query.All<Lizard>()
+          where lizard.Color.StartsWith("G") || lizard.Color.StartsWith("g")
+          select lizard
+          ).ToArray();
+        AssertEx.AreEqual(lizardsDirectly, lizards);
+      }
+    }
   }
 }

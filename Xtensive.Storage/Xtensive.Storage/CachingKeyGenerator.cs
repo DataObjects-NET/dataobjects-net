@@ -20,9 +20,9 @@ namespace Xtensive.Storage
   public class CachingKeyGenerator<TKeyType> : KeyGenerator<TKeyType>
   {
     /// <summary>
-    /// Gets the size of the cache.
+    /// Gets or sets the size of the cache.
     /// </summary>
-    public int CacheSize { get; private set; }
+    public int CacheSize { get; protected set; }
 
     /// <inheritdoc/>
     public override long? SequenceIncrement { 

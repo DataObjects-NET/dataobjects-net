@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Disconnected
       }
       finally {
         if (clearLoggedOperations)
-          Operations = new OperationLog(owner.LogType);
+          Operations = new OperationLog(owner.OperationLogType);
       }
     }
 
@@ -264,7 +264,7 @@ namespace Xtensive.Storage.Disconnected
       this.owner = owner;
       items = new Dictionary<Key, DisconnectedEntityState>();
       this.associationCache = associationCache;
-      Operations = new OperationLog(owner.LogType);
+      Operations = new OperationLog(owner.OperationLogType);
     }
 
     public StateRegistry(StateRegistry origin)
@@ -275,7 +275,7 @@ namespace Xtensive.Storage.Disconnected
       this.origin = origin;
       items = new Dictionary<Key, DisconnectedEntityState>();
       associationCache = origin.associationCache;
-      Operations = new OperationLog(owner.LogType);
+      Operations = new OperationLog(owner.OperationLogType);
     }
   }
 }

@@ -165,8 +165,6 @@ namespace Xtensive.Storage.Tests.Model.InheritanceSchemaTests
       SingleTableInheritanceBuilder.IsEnabled = false;
       base.TestFixtureTearDown();
     }
-
-    
   }
 
   public class ClassTableInheritanceTest : InheritanceSchemaTestBase
