@@ -838,9 +838,7 @@ namespace Xtensive.Storage
         originalState.AddState(DisconnectedEntityState.FromSerializable(entityState, originalState, domain));
       foreach (var entityState in serializedState)
         state.AddState(DisconnectedEntityState.FromSerializable(entityState, state, domain));
-      state = new StateRegistry(originalState) {
-        Operations = serializedOperations
-      };
+      state.Operations = serializedOperations;
 
       serializedOriginalState = null;
       serializedState = null;

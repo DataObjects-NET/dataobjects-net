@@ -10,7 +10,7 @@ using Xtensive.Core.Comparison;
 namespace Xtensive.Indexing
 {
   /// <summary>
-  /// Should be implemented by an object that contains <see cref="Range{T}"/>.
+  /// Should be implemented by an object that contains <see cref="Xtensive.Indexing.Range{T}"/>.
   /// </summary>
   /// <typeparam name="TObject">The type of object containing the range.</typeparam>
   /// <typeparam name="TPoint">The type of range point.</typeparam>
