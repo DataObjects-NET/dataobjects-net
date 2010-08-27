@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Internals.Prefetch
       if (entitySetTasks==null)
         entitySetTasks = new Dictionary<FieldInfo, EntitySetTask>();
       if (RootEntityContainer==null)
-        AddEntityColumns(Key.TypeRef.Type.Fields
+        AddEntityColumns(Key.TypeReference.Type.Fields
           .Where(field => field.IsPrimaryKey || field.IsSystem).SelectMany(field => field.Columns));
       EntitySetTask task;
       if (!entitySetTasks.TryGetValue(referencingFieldDescriptor.Field, out task))

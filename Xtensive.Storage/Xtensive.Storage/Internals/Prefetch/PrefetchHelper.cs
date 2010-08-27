@@ -39,18 +39,18 @@ namespace Xtensive.Storage.Internals.Prefetch
     public static bool? TryGetExactKeyType(Key key, PrefetchManager manager, out TypeInfo type)
     {
       type = null;
-      if (!key.TypeRef.Type.IsLeaf) {
+      if (!key.TypeReference.Type.IsLeaf) {
         var cachedKey = key;
         EntityState state;
         if (!manager.TryGetTupleOfNonRemovedEntity(ref cachedKey, out state))
           return null;
         if (cachedKey.HasExactType) {
-          type = cachedKey.TypeRef.Type;
+          type = cachedKey.TypeReference.Type;
           return true;
         }
         return false;
       }
-      type = key.TypeRef.Type;
+      type = key.TypeReference.Type;
       return true;
     }
 

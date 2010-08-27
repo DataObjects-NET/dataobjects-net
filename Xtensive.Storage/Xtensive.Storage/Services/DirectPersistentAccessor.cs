@@ -75,9 +75,9 @@ namespace Xtensive.Storage.Services
       using (Session.OpenSystemLogicOnlyRegion())
       {
         ArgumentValidator.EnsureArgumentNotNull(key, "key");
-        if (key.TypeRef.Accuracy != TypeReferenceAccuracy.ExactType)
+        if (key.TypeReference.Accuracy != TypeReferenceAccuracy.ExactType)
           throw new InvalidOperationException(string.Format(Strings.ExKeyXShouldHaveExactType, key));
-        var entityType = key.TypeRef.Type;
+        var entityType = key.TypeReference.Type;
         var domain = Session.Domain;
         return Session.CreateOrInitializeExistingEntity(entityType.UnderlyingType, key);
       }

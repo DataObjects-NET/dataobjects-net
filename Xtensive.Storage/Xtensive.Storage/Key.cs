@@ -36,8 +36,6 @@ namespace Xtensive.Storage
     private int? hashCode;
     private string cachedFormatResult;
 
-    internal TypeReference TypeRef { get; set; }
-
     /// <summary>
     /// Gets the key value.
     /// </summary>
@@ -50,13 +48,19 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    /// Gets the <see cref="TypeReference"/> object
+    /// describing the type this key belongs to.
+    /// </summary>
+    public TypeReference TypeReference { get; internal set; }
+
+    /// <summary>
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
     /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
     public TypeInfo Type {
       get {
-        if (TypeRef.Accuracy == TypeReferenceAccuracy.ExactType)
-          return TypeRef.Type;
+        if (TypeReference.Accuracy == TypeReferenceAccuracy.ExactType)
+          return TypeReference.Type;
 
         var session = Session.Current;
         if (session==null)
@@ -69,14 +73,14 @@ namespace Xtensive.Storage
         lock (keyCache)
           keyCache.TryGetItem(this, true, out cachedKey);
         if (cachedKey!=null) {
-          TypeRef = cachedKey.TypeRef;
-          return TypeRef.Type;
+          TypeReference = cachedKey.TypeReference;
+          return TypeReference.Type;
         }
 
-        var hierarchy = TypeRef.Type.Hierarchy;
+        var hierarchy = TypeReference.Type.Hierarchy;
         if (hierarchy != null && hierarchy.Types.Count==1) {
-          TypeRef = new TypeReference(hierarchy.Types[0], TypeReferenceAccuracy.ExactType);
-          return TypeRef.Type;
+          TypeReference = new TypeReference(hierarchy.Types[0], TypeReferenceAccuracy.ExactType);
+          return TypeReference.Type;
         }
         if (session.IsDebugEventLoggingEnabled)
           Log.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
@@ -84,8 +88,8 @@ namespace Xtensive.Storage
         var entityState = session.Handler.FetchEntityState(this);
         if (entityState==null)
           throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
-        TypeRef = new TypeReference(entityState.Type, TypeReferenceAccuracy.ExactType);
-        return TypeRef.Type;
+        TypeReference = new TypeReference(entityState.Type, TypeReferenceAccuracy.ExactType);
+        return TypeReference.Type;
 
       }
     }
@@ -106,7 +110,7 @@ namespace Xtensive.Storage
     /// <returns>Check result.</returns>
     public bool IsTemporary(Domain domain)
     {
-      var keyInfo = TypeRef.Type.Key;
+      var keyInfo = TypeReference.Type.Key;
       var keyGenerator = domain.KeyGenerators[keyInfo];
       return keyGenerator!=null && keyGenerator.IsTemporaryKey(Value);
     }
@@ -127,7 +131,7 @@ namespace Xtensive.Storage
     /// </summary>
     internal bool HasExactType
     {
-      get { return TypeRef.Accuracy == TypeReferenceAccuracy.ExactType ? true : false; }
+      get { return TypeReference.Accuracy == TypeReferenceAccuracy.ExactType ? true : false; }
     }
 
     #region Equals, GetHashCode, ==, != 
@@ -141,7 +145,7 @@ namespace Xtensive.Storage
         return true;
       if (GetHashCode()!=other.GetHashCode())
         return false;
-      if (TypeRef.Type.Key.EqualityIdentifier!=other.TypeRef.Type.Key.EqualityIdentifier)
+      if (TypeReference.Type.Key.EqualityIdentifier!=other.TypeReference.Type.Key.EqualityIdentifier)
         return false;
       if (other.GetType().IsGenericType)
         return other.ValueEquals(this);
@@ -213,7 +217,7 @@ namespace Xtensive.Storage
       if (cachedFormatResult==null) {
         return new[] {
           Value.Format(),
-          TypeRef.Type.Hierarchy.Root.UnderlyingType.FullName
+          TypeReference.Type.Hierarchy.Root.UnderlyingType.FullName
         }.RevertibleJoin(KeyFormatEscape, KeyFormatDelimiter);
       }
       return cachedFormatResult;
@@ -276,7 +280,7 @@ namespace Xtensive.Storage
           Value.ToRegular());
       else
         return string.Format(Strings.KeyFormatUnknownKeyType,
-          TypeRef.Type.UnderlyingType.GetShortName(),
+          TypeReference.Type.UnderlyingType.GetShortName(),
           Value.ToRegular());
     }
 
@@ -498,7 +502,7 @@ namespace Xtensive.Storage
     /// <param name="value">The value.</param>
     protected Key(TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
     {
-      TypeRef = new TypeReference(type, accuracy);
+      TypeReference = new TypeReference(type, accuracy);
       this.value = value;
     }
   }

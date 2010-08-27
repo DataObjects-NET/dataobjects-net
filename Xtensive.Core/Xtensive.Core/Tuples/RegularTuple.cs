@@ -13,6 +13,7 @@ namespace Xtensive.Core.Tuples
   /// <summary>
   /// Base class for any regular tuple.
   /// </summary>
+  [DataContract]
   [Serializable]
   public abstract class RegularTuple: Tuple
   {

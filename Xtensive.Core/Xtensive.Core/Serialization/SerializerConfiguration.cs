@@ -15,7 +15,7 @@ using Xtensive.Core.Serialization.Implementation;
 namespace Xtensive.Core.Serialization
 {
   /// <summary>
-  /// Configuration for <see cref="SerializerBase{TStream}"/>.
+  /// Configuration for <see cref="SerializerBase"/>.
   /// </summary>
   [Serializable]
   public class SerializerConfiguration : ConfigurationBase

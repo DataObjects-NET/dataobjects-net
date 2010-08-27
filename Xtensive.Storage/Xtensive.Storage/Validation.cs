@@ -30,7 +30,7 @@ namespace Xtensive.Storage
     /// <para>
     /// The end of the region is the place where returned <see cref="IDisposable"/> object is disposed.
     /// The validation of all queued to validate objects will be performed during disposal, if
-    /// <see cref="InconsistentRegionExtensions.Complete"/> method was called on
+    /// <see cref="InconsistentRegion.Complete"/> method was called on
     /// <see cref="InconsistentRegion"/> object before disposal.
     /// </para>
     /// </remarks>
@@ -55,7 +55,7 @@ namespace Xtensive.Storage
     /// <para>
     /// The end of the region is the place where returned <see cref="IDisposable"/> object is disposed.
     /// The validation of all queued to validate objects will be performed during disposal, if
-    /// <see cref="InconsistentRegionExtensions.Complete"/> method was called on
+    /// <see cref="InconsistentRegion.Complete"/> method was called on
     /// <see cref="InconsistentRegion"/> object before disposal.
     /// </para>
     /// </remarks>

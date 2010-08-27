@@ -33,8 +33,8 @@ namespace Xtensive.Storage
     IVersionSetProvider
   {
     private OperationLog serializedOperations;
-    private SerializableEntityState[] serializedRegistry;
-    private SerializableEntityState[] serializedGlobalRegistry;
+    private SerializableEntityState[] serializedState;
+    private SerializableEntityState[] serializedOriginalState;
     private VersionSet versions;
     private VersionsUsageOptions versionsUsageOptions = VersionsUsageOptions.Default;
     private VersionsProviderType versionsProviderType = VersionsProviderType.Default;
@@ -102,16 +102,12 @@ namespace Xtensive.Storage
         switch (versionsProviderType) {
         case VersionsProviderType.Session:
           return session;
-          break;
         case VersionsProviderType.DisconnectedState:
           return this;
-          break;
         case VersionsProviderType.Other:
           return versionsProvider;
-          break;
         default: // None
           return null;
-          break;
         }
       }
       set {
@@ -584,7 +580,7 @@ namespace Xtensive.Storage
     
     internal DisconnectedEntityState RegisterEntityState(Key key, Tuple tuple)
     {
-      RegisterEntityState(key, tuple, GetVersion(key.TypeRef.Type, tuple), MergeMode);
+      RegisterEntityState(key, tuple, GetVersion(key.TypeReference.Type, tuple), MergeMode);
       return GetEntityState(key);
     }
 
@@ -814,17 +810,17 @@ namespace Xtensive.Storage
     {
       EnsureNoTransaction();
       serializedOperations = state.Operations;
-      serializedRegistry = state.EntityStates
-        .Select(entityState => entityState.Serialize()).ToArray();
-      serializedGlobalRegistry = originalState.EntityStates
-        .Select(entityState => entityState.Serialize()).ToArray();
+      serializedOriginalState = originalState.EntityStates
+        .Select(entityState => entityState.ToSerializable()).ToArray();
+      serializedState = state.EntityStates
+        .Select(entityState => entityState.ToSerializable()).ToArray();
     }
 
     [OnSerialized]
     protected void OnSerialized(StreamingContext context)
     {
-      serializedRegistry = null;
-      serializedGlobalRegistry = null;
+      serializedState = null;
+      serializedOriginalState = null;
       serializedOperations = null;
     }
 
@@ -835,18 +831,19 @@ namespace Xtensive.Storage
 
       versionsProvider = this;
       associationCache = new AssociationCache();
-
       originalState = new StateRegistry(this, associationCache);
-      foreach (var entityState in serializedGlobalRegistry)
-        originalState.AddState(DisconnectedEntityState.Deserialize(entityState, originalState, domain));
-      serializedGlobalRegistry = null;
-
+      state = new StateRegistry(originalState);
+      
+      foreach (var entityState in serializedOriginalState)
+        originalState.AddState(DisconnectedEntityState.FromSerializable(entityState, originalState, domain));
+      foreach (var entityState in serializedState)
+        state.AddState(DisconnectedEntityState.FromSerializable(entityState, state, domain));
       state = new StateRegistry(originalState) {
         Operations = serializedOperations
       };
-      foreach (var entityState in serializedRegistry)
-        state.AddState(DisconnectedEntityState.Deserialize(entityState, state, domain));
-      serializedRegistry = null;
+
+      serializedOriginalState = null;
+      serializedState = null;
       serializedOperations = null;
     }
   }

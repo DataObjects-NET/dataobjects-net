@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Internals
 
     protected override int CalculateHashCode()
     {
-      return Tuple.HashCodeMultiplier ^ value1.GetHashCode() ^ TypeRef.Type.Key.EqualityIdentifier.GetHashCode();
+      return Tuple.HashCodeMultiplier ^ value1.GetHashCode() ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
     }
 
     public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)

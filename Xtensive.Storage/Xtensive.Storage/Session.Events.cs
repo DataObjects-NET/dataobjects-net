@@ -36,7 +36,6 @@ namespace Xtensive.Storage
     /// <see cref="INotifyCollectionChanged"/> subscribers stating that
     /// all entities and collections are changed.
     /// </summary>
-    /// <param name="options">The options.</param>
     public void NotifyChanged()
     {
       NotifyChanged(

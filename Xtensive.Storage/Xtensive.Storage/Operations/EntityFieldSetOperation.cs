@@ -123,12 +123,11 @@ namespace Xtensive.Storage.Operations
         var value = info.GetString("value");
         if (!value.IsNullOrEmpty()) {
           ValueKey = Key.Parse(session.Domain, value);
-          ValueKey.TypeRef = new TypeReference(ValueKey.TypeRef.Type, TypeReferenceAccuracy.ExactType);
+          ValueKey.TypeReference = new TypeReference(ValueKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
         }
       }
       else if (typeof (Structure).IsAssignableFrom(Field.ValueType)) {
-        var serializedTuple = (SerializableTuple) info.GetValue("value", typeof (SerializableTuple));
-        var tuple = serializedTuple.Value;
+        var tuple = (Tuple) info.GetValue("value", typeof (Tuple));
         Value = session.Services.Get<DirectPersistentAccessor>()
           .CreateStructure(Field.ValueType, tuple);
       }
@@ -150,8 +149,7 @@ namespace Xtensive.Storage.Operations
       }
       else if (structureValue != null) {
         // serializing structure value as tuple
-        var serializedTuple = new SerializableTuple(structureValue.Tuple.ToRegular());
-        info.AddValue("value", serializedTuple, typeof (SerializableTuple));
+        info.AddValue("value", structureValue.Tuple.ToRegular(), typeof (Tuple));
       }
       else
         info.AddValue("value", Value, Field.ValueType);

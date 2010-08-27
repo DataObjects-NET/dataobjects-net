@@ -17,7 +17,7 @@ namespace Xtensive.Storage.Disconnected
 
     public string Type { get; set; }
     
-    public SerializableTuple Tuple { get; set; }
+    public Tuple Tuple { get; set; }
     
     public bool IsRemoved { get; set; }
     

@@ -116,19 +116,19 @@ namespace Xtensive.Storage.Internals.Prefetch
         IEnumerable<PrefetchFieldDescriptor> selectedFields = descriptors;
         var currentType = type;
         StrongReferenceContainer hierarchyRootContainer = null;
-        var isKeyTypeExact = currentKey.HasExactType || currentKey.TypeRef.Type.IsLeaf
-          || currentKey.TypeRef.Type==type;
+        var isKeyTypeExact = currentKey.HasExactType || currentKey.TypeReference.Type.IsLeaf
+          || currentKey.TypeReference.Type==type;
         if (isKeyTypeExact) {
-          currentType = currentKey.TypeRef.Type;
+          currentType = currentKey.TypeReference.Type;
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
         }
         else {
           ArgumentValidator.EnsureArgumentNotNull(currentType, "type");
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
-          SetUpContainers(currentKey, currentKey.TypeRef.Type,
-            PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, currentKey.TypeRef.Type),
+          SetUpContainers(currentKey, currentKey.TypeReference.Type,
+            PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, currentKey.TypeReference.Type),
             true, ownerState, true);
-          var hierarchyRoot = currentKey.TypeRef.Type;
+          var hierarchyRoot = currentKey.TypeReference.Type;
           selectedFields = descriptors.Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot);
         }
         SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerState,
@@ -260,15 +260,15 @@ namespace Xtensive.Storage.Internals.Prefetch
 
     private static void EnsureKeyTypeCorrespondsToSpecifiedType(Key key, TypeInfo type)
     {
-      if (type == null || key.TypeRef.Type == type)
+      if (type == null || key.TypeReference.Type == type)
         return;
-      if (!key.TypeRef.Type.IsInterface && !type.IsInterface)
-        if (key.TypeRef.Type.Hierarchy == type.Hierarchy)
+      if (!key.TypeReference.Type.IsInterface && !type.IsInterface)
+        if (key.TypeReference.Type.Hierarchy == type.Hierarchy)
           return;
         else
           throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
-      if (type.GetInterfaces(true).Contains(key.TypeRef.Type)
-        || key.TypeRef.Type.GetInterfaces(true).Contains(type))
+      if (type.GetInterfaces(true).Contains(key.TypeReference.Type)
+        || key.TypeReference.Type.GetInterfaces(true).Contains(type))
         return;
       throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
     }

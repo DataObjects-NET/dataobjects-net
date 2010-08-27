@@ -100,7 +100,7 @@ namespace Xtensive.Core.Weaver
       public override void Implement(TransformationContext context)
       {
         var typeDef = (TypeDefDeclaration)context.TargetElement;
-        var genericType = GenericHelper.GetTypeCanonicalGenericInstance(typeDef);
+        var genericType = typeDef.GetCanonicalGenericInstance();
         var module = AspectWeaver.Module;
         var helper = new WeavingHelper(module);
 
