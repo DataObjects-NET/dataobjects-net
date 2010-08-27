@@ -26,9 +26,7 @@ namespace Xtensive.Storage
 
     [NonSerialized]
     private int cachedHashCode;
-    [NonSerialized]
     private Tuple value;
-    private object serializedValue;
 
     /// <summary>
     /// Gets the void <see cref="VersionInfo"/> object.
@@ -40,19 +38,14 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets a value indicating whether this instance is not contains version.
     /// </summary>
-    public bool IsVoid
-    {
+    public bool IsVoid {
       [DebuggerStepThrough]
       get { return Value==null; }
     }
 
-    internal Tuple Value
-    {
+    internal Tuple Value {
       [DebuggerStepThrough]
-      get
-      {
-        if (serializedValue!=null && value==null)
-          Deserialize();
+      get {
         return value;
       }
     }
@@ -185,38 +178,6 @@ namespace Xtensive.Storage
     {
       value = version;
       cachedHashCode = 0;
-      serializedValue = null;
-    }
-
-
-    // Serialization
-
-    [OnSerializing]
-    internal void OnSerializing(StreamingContext context)
-    {
-      if (Value==null)
-        return;
-      serializedValue = new SerializableTuple(Value);
-    }
-
-    [OnSerialized]
-    internal void OnSerialized(StreamingContext context)
-    {
-      serializedValue = null;
-    }
-
-    [OnDeserialized]
-    internal void OnDeserialized(StreamingContext context)
-    {
-      Deserialize();
-    }
-
-    private void Deserialize()
-    {
-      if (serializedValue==null)
-        return;
-      value = ((SerializableTuple) serializedValue).Value;
-      serializedValue = null;
     }
   }
 }

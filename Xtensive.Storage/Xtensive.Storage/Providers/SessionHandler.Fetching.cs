@@ -64,7 +64,7 @@ namespace Xtensive.Storage.Providers
     public virtual EntityState FetchEntityState(Key key)
     {
       EnsureTransactionIsOpened();
-      var type = key.TypeRef.Type;
+      var type = key.TypeReference.Type;
       prefetchManager.Prefetch(key, type,
         PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type));
       prefetchManager.ExecuteTasks(true);
@@ -80,7 +80,7 @@ namespace Xtensive.Storage.Providers
     public virtual void FetchField(Key key, FieldInfo field)
     {
       EnsureTransactionIsOpened();
-      var type = key.TypeRef.Type;
+      var type = key.TypeReference.Type;
       prefetchManager.Prefetch(key, type,
         new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, false, false)));
       prefetchManager.ExecuteTasks(true);
@@ -94,7 +94,7 @@ namespace Xtensive.Storage.Providers
     public virtual void FetchEntitySet(Key ownerKey, FieldInfo field, int? itemCountLimit)
     {
       EnsureTransactionIsOpened();
-      var ownerType = ownerKey.TypeRef.Type;
+      var ownerType = ownerKey.TypeReference.Type;
       Session.Handler.Prefetch(ownerKey, ownerType,
         new FieldDescriptorCollection(new PrefetchFieldDescriptor(field, itemCountLimit)));
       Session.Handler.ExecutePrefetchTasks();

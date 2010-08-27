@@ -22,7 +22,7 @@ namespace Xtensive.Storage.Operations
     private readonly object[] arguments;
 
     /// <summary>
-    /// Gets the <see cref="Prepare"/> method action.
+    /// Gets the <see cref="Operation.Prepare"/> method action.
     /// </summary>
     public Action<OperationExecutionContext, object[]> PrepareAction
     {
@@ -30,7 +30,7 @@ namespace Xtensive.Storage.Operations
     }
 
     /// <summary>
-    /// Gets the <see cref="Execute"/> method action.
+    /// Gets the <see cref="Operation.Execute"/> method action.
     /// </summary>
     public Action<OperationExecutionContext, object[]> ExecuteAction
     {
@@ -85,7 +85,7 @@ namespace Xtensive.Storage.Operations
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="executeAction">The <see cref="Execute"/> method action.</param>
+    /// <param name="executeAction">The <see cref="Operation.Execute"/> method action.</param>
     /// <param name="arguments">The action arguments.</param>
     public MethodCallOperation(
       Action<OperationExecutionContext, object[]> executeAction, 
@@ -97,8 +97,8 @@ namespace Xtensive.Storage.Operations
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="prepareAction">The <see cref="Prepare"/> method action.</param>
-    /// <param name="executeAction">The <see cref="Execute"/> method action.</param>
+    /// <param name="prepareAction">The <see cref="Operation.Prepare"/> method action.</param>
+    /// <param name="executeAction">The <see cref="Operation.Execute"/> method action.</param>
     /// <param name="arguments">The action arguments.</param>
     public MethodCallOperation(
       Action<OperationExecutionContext, object[]> prepareAction, 

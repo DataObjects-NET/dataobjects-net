@@ -96,9 +96,9 @@ namespace Xtensive.Storage.Internals.Prefetch
     {
       TypeInfo type;
       if (key.HasExactType)
-        type = key.TypeRef.Type;
+        type = key.TypeReference.Type;
       else if (modelType==null)
-        type = key.TypeRef.Type;
+        type = key.TypeReference.Type;
       else
         type = modelType;
       return type;
@@ -164,11 +164,11 @@ namespace Xtensive.Storage.Internals.Prefetch
       var keyWithType = key;
       if (!key.HasExactType)
           keyWithType = sessionHandler.Session.EntityStateCache[keyWithType, false].Key;
-      if (!keyWithType.HasExactType || keyWithType.TypeRef.Type == queriedType)
+      if (!keyWithType.HasExactType || keyWithType.TypeReference.Type == queriedType)
         return;
       var descriptorsArray = PrefetchHelper
-        .GetCachedDescriptorsForFieldsLoadedByDefault(sessionHandler.Session.Domain, keyWithType.TypeRef.Type);
-      strongReferenceContainer.JoinIfPossible(sessionHandler.Prefetch(keyWithType, keyWithType.TypeRef.Type,
+        .GetCachedDescriptorsForFieldsLoadedByDefault(sessionHandler.Session.Domain, keyWithType.TypeReference.Type);
+      strongReferenceContainer.JoinIfPossible(sessionHandler.Prefetch(keyWithType, keyWithType.TypeReference.Type,
         descriptorsArray));
     }
 

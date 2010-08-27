@@ -12,7 +12,7 @@ using Xtensive.Core.Collections;
 namespace Xtensive.Storage.Services
 {
   /// <summary>
-  /// Public API to cached state of <see cref="EntitySet{TItem}"/> 
+  /// Public API to cached state of <see cref="Xtensive.Storage.EntitySet{TItem}"/> 
   /// (see <see cref="DirectStateAccessor"/>).
   /// </summary>
   [DebuggerDisplay("Count = {Count}")]

@@ -213,19 +213,13 @@ namespace Xtensive.Storage.Disconnected
 
     #region Serializing members
 
-    public SerializableEntityState Serialize()
+    public SerializableEntityState ToSerializable()
     {
       if (!Key.HasExactType && tuple!=null)
         throw Exceptions.InternalError(Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType, Log.Instance);
 
       var key = Key.ToString(true);
-      var type = Key.TypeRef.Type.UnderlyingType.FullName;
-      var serializedTuple =
-        tuple==null
-          ? new SerializableTuple()
-          : tuple.Difference!=null
-            ? new SerializableTuple(tuple.Difference)
-            : new SerializableTuple(tuple.Origin);
+      var type = Key.TypeReference.Type.UnderlyingType.FullName;
       var refs = references.Select(pair => {
         var dictionary = pair.Value as DifferentialDictionary<Key, Key>;
         var difference = dictionary!=null ? dictionary.Difference : null;
@@ -263,14 +257,14 @@ namespace Xtensive.Storage.Disconnected
       return new SerializableEntityState() {
         Key = key,
         Type = type,
-        Tuple = serializedTuple,
+        Tuple = tuple,
         IsRemoved = IsRemoved,
         References = refs,
         EntitySets = entitySets
       };
     }
 
-    public static DisconnectedEntityState Deserialize(SerializableEntityState serialized, StateRegistry registry, Domain domain)
+    public static DisconnectedEntityState FromSerializable(SerializableEntityState serialized, StateRegistry registry, Domain domain)
     {
       var key = Key.Parse(domain, serialized.Key);
       var type = domain.Model.Types.Find(serialized.Type);
@@ -282,8 +276,8 @@ namespace Xtensive.Storage.Disconnected
         ? new DisconnectedEntityState(origin)
         : new DisconnectedEntityState(key);
       state.IsRemoved = serialized.IsRemoved;
-      if (serialized.Tuple.Value!=null)
-        state.Tuple = serialized.Tuple.Value;
+      if (serialized.Tuple!=null)
+        state.Tuple = serialized.Tuple;
       if (serialized.References!=null) {
         foreach (var reference in serialized.References) {
           var field = reference.Field.Resolve(domain.Model);
