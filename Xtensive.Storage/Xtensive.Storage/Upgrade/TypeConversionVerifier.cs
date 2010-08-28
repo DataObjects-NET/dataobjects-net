@@ -91,7 +91,7 @@ namespace Xtensive.Storage.Upgrade
 
     private static bool CanConvertToString(TypeInfo from, int length)
     {
-      switch (Type.GetTypeCode(from.Type)) {
+      switch (Type.GetTypeCode(from.Type.StripNullable())) {
       case TypeCode.Char:
       case TypeCode.String:
         return true;
