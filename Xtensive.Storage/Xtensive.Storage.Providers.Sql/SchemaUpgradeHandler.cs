@@ -89,7 +89,8 @@ namespace Xtensive.Storage.Providers.Sql
     protected override ModelTypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale)
     {
       var sqlValueType = DomainHandler.Driver.BuildValueType(type, length, precision, scale);
-      return new ModelTypeInfo(sqlValueType.Type.ToClrType(), sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision);
+      return new ModelTypeInfo(sqlValueType.Type.ToClrType(), 
+        sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
     }
 
     private void Execute(IEnumerable<string> batch)

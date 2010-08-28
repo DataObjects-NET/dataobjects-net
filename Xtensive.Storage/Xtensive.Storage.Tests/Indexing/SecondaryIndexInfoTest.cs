@@ -32,9 +32,9 @@ namespace Xtensive.Storage.Tests.Indexing
       table = new TableInfo(storage, "table");
       primary = new PrimaryIndexInfo(table, "primary1");
       secondary = new SecondaryIndexInfo(table, "secondary1");
-      primaryKey = new ColumnInfo(table, "key", new TypeInfo(typeof(int)));
-      primaryValue1 = new ColumnInfo(table, "value1", new TypeInfo(typeof(int)));
-      primaryValue2 = new ColumnInfo(table, "value2", new TypeInfo(typeof(int)));
+      primaryKey = new ColumnInfo(table, "key", new TypeInfo(typeof(int), null));
+      primaryValue1 = new ColumnInfo(table, "value1", new TypeInfo(typeof(int), null));
+      primaryValue2 = new ColumnInfo(table, "value2", new TypeInfo(typeof(int), null));
       new KeyColumnRef(primary, primaryKey, Direction.Positive);
       new ValueColumnRef(primary, primaryValue1);
       new ValueColumnRef(primary, primaryValue2);

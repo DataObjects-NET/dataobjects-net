@@ -34,17 +34,59 @@ namespace Xtensive.Storage.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(from, "from");
       ArgumentValidator.EnsureArgumentNotNull(to, "to");
 
+      // Truncation and precision loss is ALLOWED by this method
+
       if (from.IsTypeUndefined || to.IsTypeUndefined)
         return false;
-      if (from==to)
+
+      if (from.Type==to.Type) // Comparing just types & nullability
         return true;
-      if (to.Type==typeof(string))
-        return !to.Length.HasValue || CanConvertToString(from, to.Length.Value);
+
+      // Types are different
+
       if (from.IsNullable && !to.IsNullable)
-        return false;
+        return false; // Can't convert NULL
+
       var fromType = from.Type.StripNullable();
       var toType = to.Type.StripNullable();
+
+      if (toType==typeof(string))
+        // Checking target string length
+        return !to.Length.HasValue || CanConvertToString(from, to.Length.Value);
+
       return supportedConversions.ContainsKey(fromType) && supportedConversions[fromType].Contains(toType);
+    }
+
+    /// <summary>
+    /// Verifies whether the source type can be converted to the target 
+    /// type without loss of data.
+    /// </summary>
+    /// <param name="from">The source type.</param>
+    /// <param name="to">The target type.</param>
+    /// <returns>
+    /// <see langword="true"/> if the source type can be converted to the 
+    /// target type without loss of data; otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool CanConvertSafely(TypeInfo from, TypeInfo to)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(from, "from");
+      ArgumentValidator.EnsureArgumentNotNull(to, "to");
+
+      // Truncation and precision loss is NOT ALLOWED by this method
+
+      if (!CanConvert(from, to))
+        return false;
+
+      var toType = to.Type.StripNullable();
+      var fromType = from.Type.StripNullable();
+
+      if (toType==typeof(decimal) && fromType==typeof(decimal))
+        return CheckScaleAndPrecision(from, to);
+      else if (toType==typeof(string) && fromType==typeof(string))
+        return CheckLength(from, to);
+      else if (toType==typeof (byte[]) && fromType==typeof (byte[]))
+        return CheckLength(from, to);
+      return true;
     }
 
     private static bool CanConvertToString(TypeInfo from, int length)
@@ -76,36 +118,21 @@ namespace Xtensive.Storage.Upgrade
       }
     }
 
-    /// <summary>
-    /// Verifies whether the source type can be converted to the target 
-    /// type without loss of data.
-    /// </summary>
-    /// <param name="from">The source type.</param>
-    /// <param name="to">The target type.</param>
-    /// <returns>
-    /// <see langword="true"/> if the source type can be converted to the 
-    /// target type without loss of data; otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool CanConvertSafely(TypeInfo from, TypeInfo to)
+    private static bool CheckLength(TypeInfo from, TypeInfo to)
     {
-      ArgumentValidator.EnsureArgumentNotNull(from, "from");
-      ArgumentValidator.EnsureArgumentNotNull(to, "to");
+      if (!to.Length.HasValue)
+        return true; // Conversion to Var*(max) is always possible, or both types have no length
+      if (!from.Length.HasValue)
+        return false; // Conversion from Var*(max) is possible only to Var*(max)
+      // Otherwise it's possible to convert only when new type has higher length
+      return from.Length.Value <= to.Length.Value; 
+    }
 
-      if (to.IsTypeUndefined || from.IsTypeUndefined)
-        return false;
-      if (to.Type==typeof (string) && from.Type == typeof (string))
-        return !to.Length.HasValue || to.Length >= from.Length;
-
-      if (to.Type==typeof(string))
-        return !to.Length.HasValue || CanConvertToString(from, to.Length.Value);
-
-      if (to.Type==typeof(decimal) && from.Type==typeof(decimal))
-        return from.Scale <= to.Scale && to.Precision <= to.Precision;
-
-      if (!CanConvert(from, to))
-        return false;
-
-      return !to.Length.HasValue || to.Length >= from.Length;
+    private static bool CheckScaleAndPrecision(TypeInfo from, TypeInfo to)
+    {
+      return 
+        (from.Scale <= to.Scale) && 
+        (from.Precision <= to.Precision);
     }
 
     // Constructors

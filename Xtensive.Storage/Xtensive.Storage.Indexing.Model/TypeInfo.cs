@@ -51,17 +51,22 @@ namespace Xtensive.Storage.Indexing.Model
     /// <summary>
     /// Gets the culture.
     /// </summary>
-    public CultureInfo Culture { get;  private set; }
+    public CultureInfo Culture { get; private set; }
 
     /// <summary>
     /// Gets the scale.
     /// </summary>
-    public int? Scale { get;  private set; }
+    public int? Scale { get; private set; }
 
     /// <summary>
     /// Gets the precision.
     /// </summary>
-    public int? Precision { get;  private set; }
+    public int? Precision { get; private set; }
+
+    /// <summary>
+    /// Gets the native type.
+    /// </summary>
+    public object NativeType { get; private set;  }
 
     /// <inheritdoc/>
     public void Validate()
@@ -81,6 +86,7 @@ namespace Xtensive.Storage.Indexing.Model
       clone.Culture = Culture;
       clone.Scale = Scale;
       clone.Precision = Precision;
+      clone.NativeType = NativeType;
       return clone;
     }
 
@@ -103,9 +109,8 @@ namespace Xtensive.Storage.Indexing.Model
         other.Type==Type &&
         other.IsNullable==IsNullable &&
         other.Scale==Scale &&
-        other.Precision==Precision;
-      if (Length.HasValue && other.Length.HasValue)
-        isEqual &= other.Length==Length;
+        other.Precision==Precision &&
+        other.Length==Length;
 
       return isEqual;
     }
@@ -183,20 +188,23 @@ namespace Xtensive.Storage.Indexing.Model
         Strings.PropertyPairFormat, Strings.Length, Length.HasValue ? Length.Value.ToString() : "null"));
       if (Culture!=null)
         sb.Append(Strings.Comma).Append(string.Format(
-          Strings.PropertyPairFormat, Strings.Culture, Culture));
+          Strings.PropertyPairFormat, Strings._Culture, Culture));
       if (Scale > 0)
         sb.Append(Strings.Comma).Append(string.Format(
           Strings.PropertyPairFormat, Strings.Scale, Scale));
       if (Precision > 0)
         sb.Append(Strings.Comma).Append(string.Format(
           Strings.PropertyPairFormat, Strings.Precision, Precision));
+      if (NativeType!=null)
+        sb.Append(Strings.Comma).Append(string.Format(
+          Strings.PropertyPairFormat, Strings.NativeType, NativeType));
       return sb.ToString();
     }
 
 
     #region Constructors
 
-    protected TypeInfo()
+    private TypeInfo()
     {
     }
 
@@ -204,8 +212,9 @@ namespace Xtensive.Storage.Indexing.Model
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="type">Underlying data type.</param>
-    public TypeInfo(Type type)
-      : this(type, type.IsClass || type.IsNullable())
+    /// <param name="nativeType">The native type.</param>
+    public TypeInfo(Type type, object nativeType)
+      : this(type, type.IsClass || type.IsNullable(), nativeType)
     {
     }
 
@@ -214,8 +223,9 @@ namespace Xtensive.Storage.Indexing.Model
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
-    public TypeInfo(Type type, int? length)
-      : this(type, type.IsClass || type.IsNullable(), length)
+    /// <param name="nativeType">The native type.</param>
+    public TypeInfo(Type type, int? length, object nativeType)
+      : this(type, type.IsClass || type.IsNullable(), length, nativeType)
     {
     }
 
@@ -225,8 +235,9 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="type">Underlying data type.</param>
     /// <param name="length">The length.</param>
     /// <param name="culture">The culture.</param>
-    public TypeInfo(Type type, int? length, CultureInfo culture)
-      : this(type, type.IsClass || type.IsNullable(), length, culture)
+    /// <param name="nativeType">The native type.</param>
+    public TypeInfo(Type type, int? length, CultureInfo culture, object nativeType)
+      : this(type, type.IsClass || type.IsNullable(), length, culture, nativeType)
     {
     }
 
@@ -237,8 +248,9 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="length">The length.</param>
     /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
-    public TypeInfo(Type type, int? length, int? scale, int? precision)
-      : this(type, type.IsClass || type.IsNullable(), length, scale, precision)
+    /// <param name="nativeType">The native type.</param>
+    public TypeInfo(Type type, int? length, int? scale, int? precision, object nativeType)
+      : this(type, type.IsClass || type.IsNullable(), length, scale, precision, nativeType)
     {
     }
 
@@ -247,13 +259,15 @@ namespace Xtensive.Storage.Indexing.Model
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>
-    public TypeInfo(Type type, bool isNullable)
+    /// <param name="nativeType">The native type.</param>
+    public TypeInfo(Type type, bool isNullable, object nativeType)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (isNullable && type.IsValueType && !type.IsNullable())
         ArgumentValidator.EnsureArgumentIsInRange(true, false, false, "isNullable");
       Type = type;
       IsNullable = isNullable;
+      NativeType = nativeType;
     }
 
     /// <summary>
@@ -262,10 +276,10 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="type">Underlying data type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
-    public TypeInfo(Type type, bool isNullable, int? length)
-      : this(type, isNullable)
+    /// <param name="nativeType">The native type.</param>
+    public TypeInfo(Type type, bool isNullable, int? length, object nativeType)
+      : this(type, isNullable, nativeType)
     {
-      // ArgumentValidator.EnsureArgumentIsInRange(length, 0, int.MaxValue, "length");
       Length = length;
     }
 
@@ -276,23 +290,25 @@ namespace Xtensive.Storage.Indexing.Model
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
     /// <param name="culture">The culture.</param>
-    public TypeInfo(Type type, bool isNullable, int? length, CultureInfo culture)
-      : this(type, isNullable, length)
+    /// <param name="nativeType">The native type.</param>
+    public TypeInfo(Type type, bool isNullable, int? length, CultureInfo culture, object nativeType)
+      : this(type, isNullable, length, nativeType)
     {
       ArgumentValidator.EnsureArgumentNotNull(culture, "culture");
       Culture = culture;
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// 	<see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="type">Underlying data type.</param>
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     /// <param name="length">The length.</param>
     /// <param name="scale">The scale.</param>
     /// <param name="precision">The precision.</param>
-    public TypeInfo(Type type, bool isNullable, int? length, int? scale, int? precision)
-      : this(type, isNullable, length)
+    /// <param name="nativeType">The native type.</param>
+    public TypeInfo(Type type, bool isNullable, int? length, int? scale, int? precision, object nativeType)
+      : this(type, isNullable, length, nativeType)
     {
       Scale = scale;
       Precision = precision;

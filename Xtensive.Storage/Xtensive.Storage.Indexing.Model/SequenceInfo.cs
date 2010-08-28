@@ -64,11 +64,9 @@ namespace Xtensive.Storage.Indexing.Model
     /// Gets or sets the type.
     /// </summary>
     [Property(IgnoreInComparison = true)]
-    public TypeInfo Type
-    {
+    public TypeInfo Type {
       get { return type; }
-      set
-      {
+      set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("Type", value)) {
           type = value;
@@ -76,11 +74,6 @@ namespace Xtensive.Storage.Indexing.Model
         }
       }
     }
-
-    /// <summary>
-    /// Gets or sets the original type.
-    /// </summary>
-    public TypeInfo OriginalType{ get; set;}
 
     /// <summary>
     /// Gets or sets the current sequence value.

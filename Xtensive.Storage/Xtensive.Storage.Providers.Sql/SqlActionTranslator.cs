@@ -594,7 +594,7 @@ namespace Xtensive.Storage.Providers.Sql
         sequence.SequenceDescriptor = new SequenceDescriptor(sequence,
           sequenceInfo.Seed, sequenceInfo.Increment);
         sequence.SequenceDescriptor.MinValue = sequenceInfo.Seed;
-        sequence.DataType = GetSqlType(sequenceInfo.OriginalType);
+        sequence.DataType = (SqlValueType) sequenceInfo.Type.NativeType;
         RegisterCommand(SqlDdl.Create(sequence), NonTransactionalStage.None);
         createdSequences.Add(sequence);
       }
@@ -794,13 +794,15 @@ namespace Xtensive.Storage.Providers.Sql
 
       // Create new columns
       var newTypeInfo = action.Properties[ColumnTypePropertyName] as TypeInfo;
-      var type = GetSqlType(newTypeInfo);
-      var newColumn = table.CreateColumn(originalName, type);
+      var newSqlType = (SqlValueType) newTypeInfo.NativeType;
+      var newColumn = table.CreateColumn(originalName, newSqlType);
+      
       newColumn.IsNullable = newTypeInfo.IsNullable;
       if (!newColumn.IsNullable)
         newColumn.DefaultValue = GetDefaultValueExpression(targetColumn);
-      var addColumnWithNewType = SqlDdl.Alter(table, SqlDdl.AddColumn(newColumn));
-      RegisterCommand(addColumnWithNewType, UpgradeStage.Upgrade, NonTransactionalStage.None);
+
+      var addNewColumn = SqlDdl.Alter(table, SqlDdl.AddColumn(newColumn));
+      RegisterCommand(addNewColumn, UpgradeStage.Upgrade, NonTransactionalStage.None);
 
       // Copy values if possible to convert type
       if (Upgrade.TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)
@@ -808,11 +810,11 @@ namespace Xtensive.Storage.Providers.Sql
         var tableRef = SqlDml.TableRef(table);
         var copyValues = SqlDml.Update(tableRef);
         if (newTypeInfo.IsNullable)
-          copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], type);
+          copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], newSqlType);
         else {
           var getValue = SqlDml.Case();
           getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
-          getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], type));
+          getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
           copyValues.Values[tableRef[originalName]] = getValue;
         }
         RegisterCommand(copyValues, UpgradeStage.CopyData, NonTransactionalStage.None);
@@ -853,7 +855,7 @@ namespace Xtensive.Storage.Providers.Sql
 
     private TableColumn CreateColumn(ColumnInfo columnInfo, Table table)
     {
-      var type = GetSqlType(columnInfo.OriginalType);
+      var type = (SqlValueType) columnInfo.Type.NativeType;
       var column = table.CreateColumn(columnInfo.Name, type);
       var isPrimaryKeyColumn = columnInfo.Parent.PrimaryIndex!=null
         && columnInfo.Parent.PrimaryIndex.KeyColumns
@@ -915,7 +917,7 @@ namespace Xtensive.Storage.Providers.Sql
       var sequenceTable = schema.CreateTable(sequenceInfo.Name);
       createdTables.Add(sequenceTable);
       var idColumn = sequenceTable.CreateColumn(WellKnown.GeneratorColumnName,
-        GetSqlType(sequenceInfo.OriginalType));
+        (SqlValueType) sequenceInfo.Type.NativeType);
       idColumn.SequenceDescriptor =
         new SequenceDescriptor(
           idColumn,
@@ -980,16 +982,6 @@ namespace Xtensive.Storage.Providers.Sql
     {
       return FindTable(tableName).TableColumns.
         FirstOrDefault(c => c.Name==columnName);
-    }
-
-    private SqlValueType GetSqlType(TypeInfo typeInfo)
-    {
-      var type = typeInfo.Type.IsValueType
-        && typeInfo.Type.IsNullable()
-        ? typeInfo.Type.GetGenericArguments()[0]
-        : typeInfo.Type;
-
-      return driver.BuildValueType(type, typeInfo.Length, typeInfo.Precision, typeInfo.Scale);
     }
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)

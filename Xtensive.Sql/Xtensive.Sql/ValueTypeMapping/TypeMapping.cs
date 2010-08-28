@@ -14,7 +14,6 @@ namespace Xtensive.Sql.ValueTypeMapping
     private readonly Func<DbDataReader, int, object> valueReader;
     private readonly Action<DbParameter, object> parameterValueSetter;
     private readonly Func<int?, int?, int?, SqlValueType> sqlTypeBuilder;
-
     public Type Type { get; private set; }
     public bool LiteralCastRequired { get; private set; }
     public bool ParameterCastRequired { get; private set; }
@@ -48,6 +47,7 @@ namespace Xtensive.Sql.ValueTypeMapping
     {
       return sqlTypeBuilder.Invoke(length, precision, scale);
     }
+
 
     // Constructors
 

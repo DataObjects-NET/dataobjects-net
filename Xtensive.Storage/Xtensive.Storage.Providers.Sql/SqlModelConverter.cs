@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var tableInfo = StorageInfo.Tables[tableColumn.Table.Name];
       var typeInfo = ExtractType(tableColumn);
-      var columnInfo = new ColumnInfo(tableInfo, tableColumn.Name, typeInfo) {OriginalType = typeInfo};
+      var columnInfo = new ColumnInfo(tableInfo, tableColumn.Name, typeInfo);
       return columnInfo;
     }
 
@@ -262,7 +262,7 @@ namespace Xtensive.Storage.Providers.Sql
         && !type.IsNullable())
         type = type.ToNullable();
         
-      return new TypeInfo(type, column.IsNullable, sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision);
+      return new TypeInfo(type, column.IsNullable, sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
     }
 
     /// <summary>
