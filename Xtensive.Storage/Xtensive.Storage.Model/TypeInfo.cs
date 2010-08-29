@@ -672,8 +672,24 @@ namespace Xtensive.Storage.Model
       // Building TuplePrototype
       var tuple = Tuple.Create(TupleDescriptor);
       tuple.Initialize(nullabilityMap);
-      if (IsEntity) {
 
+      // Initializing defaults
+      i = 0;
+      foreach (var column in Columns) {
+        if (column.DefaultValue!=null) {
+          try {
+            tuple.SetValue(i, column.DefaultValue);
+          }
+          catch (Exception e) {
+            Log.Error(e, Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ, 
+              column.DefaultValue, column.Name, Name);
+          }
+        }
+        i++;
+      }
+      
+      // Aditional initialization for entities
+      if (IsEntity) {
         // Setting TypeId column
         var typeIdField = Fields.Where(f => f.IsTypeId).FirstOrDefault();
         if (typeIdField != null)

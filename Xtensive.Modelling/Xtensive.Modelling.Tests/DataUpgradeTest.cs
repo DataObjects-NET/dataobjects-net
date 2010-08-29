@@ -50,7 +50,18 @@ namespace Xtensive.Modelling.Tests
         hs.Add(updateDataHint1);
         hs.Add(updateDataHint2);
       },
-        (diff, actions) => { });
+      (diff, actions) => { });
+    }
+
+    [Test]
+    public void RemoveForeignKeyTest()
+    {
+      var storage = CreateSimpleStorageModel();
+      TestUpdate(storage, (s1, s2, hs) => {
+        var refCC = s2.Resolve("Tables/C/Columns/RefC") as ColumnInfo;
+        refCC.Type = new TypeInfo(typeof(int?), true);
+      },
+      (diff, actions) => { });
     }
 
     private static StorageInfo CreateSimpleStorageModel()
@@ -58,7 +69,7 @@ namespace Xtensive.Modelling.Tests
       var storage = new StorageInfo("Storage");
 
       // Model:
-      // class A:Entity {int Id}
+      // class A:Entity {int Id, int Data}
       // class B:A {int Id}
       // class C:B {int Id; A RefA; B RefB; C RefC}
 
@@ -69,9 +80,12 @@ namespace Xtensive.Modelling.Tests
       var idA = new ColumnInfo(tA, "Id", new TypeInfo(typeof (int)));
       var idB = new ColumnInfo(tB, "Id", new TypeInfo(typeof (int)));
       var idC = new ColumnInfo(tC, "Id", new TypeInfo(typeof (int)));
+
       var refCA = new ColumnInfo(tC, "RefA", new TypeInfo(typeof (int)));
       var refCB = new ColumnInfo(tC, "RefB", new TypeInfo(typeof (int)));
       var refCC = new ColumnInfo(tC, "RefC", new TypeInfo(typeof (int)));
+
+      var dataA = new ColumnInfo(tA, "Data", new TypeInfo(typeof (int)));
 
       var pkA = new PrimaryIndexInfo(tA, "PK_A");
       var pkB = new PrimaryIndexInfo(tB, "PK_B");
@@ -80,6 +94,8 @@ namespace Xtensive.Modelling.Tests
       new KeyColumnRef(pkB, idB);
       new KeyColumnRef(pkC, idC);
       pkC.PopulateValueColumns();
+      pkA.PopulateValueColumns();
+
       var ixRefCA = new SecondaryIndexInfo(tC, "FK_CRefA");
       new KeyColumnRef(ixRefCA, refCA);
       ixRefCA.PopulatePrimaryKeyColumns();

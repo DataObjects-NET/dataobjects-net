@@ -31,9 +31,9 @@ namespace Xtensive.Storage.Tests.Indexing
       table = new TableInfo(storage, "TABLE");
       primary = new PrimaryIndexInfo(table, "PK");
       secondary = new SecondaryIndexInfo(table, "IX");
-      primaryKey = new ColumnInfo(table, "ID", new TypeInfo(typeof(int)));
-      primaryValue1 = new ColumnInfo(table, "AGE", new TypeInfo(typeof(int)));
-      primaryValue2 = new ColumnInfo(table, "NAME", new TypeInfo(typeof(int)));
+      primaryKey = new ColumnInfo(table, "ID", new TypeInfo(typeof(int), null));
+      primaryValue1 = new ColumnInfo(table, "AGE", new TypeInfo(typeof(int), null));
+      primaryValue2 = new ColumnInfo(table, "NAME", new TypeInfo(typeof(int), null));
       new KeyColumnRef(primary, primaryKey, Direction.Positive);
       new ValueColumnRef(primary, primaryValue1);
       new ValueColumnRef(primary, primaryValue2);
@@ -50,7 +50,7 @@ namespace Xtensive.Storage.Tests.Indexing
       storage.Actions.Apply(newStorage);
       newStorage.Dump();
       storage.Actions = new ActionSequence();
-      primaryValue1.Type = new TypeInfo(typeof(string));
+      primaryValue1.Type = new TypeInfo(typeof(string), null);
       storage.Actions.Apply(newStorage);
       newStorage.Dump();
     }

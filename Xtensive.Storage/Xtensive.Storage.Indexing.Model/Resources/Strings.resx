@@ -150,7 +150,7 @@
   <data name="ExInvalidForeignKeyStructure" xml:space="preserve">
     <value>Invalid ForeignKey structure: its column sequence do not match PrimaryKey column sequence.</value>
   </data>
-  <data name="Culture" xml:space="preserve">
+  <data name="_Culture" xml:space="preserve">
     <value>Culture</value>
   </data>
   <data name="Length" xml:space="preserve">
@@ -198,4 +198,7 @@
   <data name="ExEmptyColumnsCollection" xml:space="preserve">
     <value>Columns collection is empty.</value>
   </data>
+	<data name="NativeType">
+		<value xml:space="preserve">Native type</value>
+	</data>
 </root>

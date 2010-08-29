@@ -61,6 +61,15 @@ namespace Xtensive.Storage.Indexing.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Culture.
+        /// </summary>
+        internal static string _Culture {
+            get {
+                return ResourceManager.GetString("_Culture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to , .
         /// </summary>
         internal static string Comma {
@@ -246,6 +255,15 @@ namespace Xtensive.Storage.Indexing.Model.Resources {
         internal static string Length {
             get {
                 return ResourceManager.GetString("Length", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Native type.
+        /// </summary>
+        internal static string NativeType {
+            get {
+                return ResourceManager.GetString("NativeType", resourceCulture);
             }
         }
         

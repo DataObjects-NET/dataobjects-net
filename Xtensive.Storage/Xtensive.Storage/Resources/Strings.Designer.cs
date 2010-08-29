@@ -1896,6 +1896,15 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Nullable and NullableOnUpgrade flags can&apos;t be used with &apos;{0}&apos; field. They can be used only with reference-typed fields (except Structure descendants)..
+        /// </summary>
+        internal static string ExNullableAndNullableOnUpgradeCannotBeUsedWithXField {
+            get {
+                return ResourceManager.GetString("ExNullableAndNullableOnUpgradeCannotBeUsedWithXField", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OfType supports casting only inside Entity hierarchy..
         /// </summary>
         internal static string ExOfTypeSupportsOnlyEntityConversion {
@@ -1950,7 +1959,7 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Operation isn&apos;t marked as started. See Sessopn.Operations.NotifyOperationStarting() method..
+        ///   Looks up a localized string similar to Operation isn&apos;t marked as started. See Sessopn.Operations.OperationStarted() method..
         /// </summary>
         internal static string ExOperationIsNotMarkedAsStarted {
             get {

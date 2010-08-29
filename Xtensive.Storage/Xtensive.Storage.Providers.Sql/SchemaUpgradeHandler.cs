@@ -89,18 +89,22 @@ namespace Xtensive.Storage.Providers.Sql
     protected override ModelTypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale)
     {
       var sqlValueType = DomainHandler.Driver.BuildValueType(type, length, precision, scale);
-      return new ModelTypeInfo(sqlValueType.Type.ToClrType(), sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision);
+      return new ModelTypeInfo(sqlValueType.Type.ToClrType(), 
+        sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
     }
 
     private void Execute(IEnumerable<string> batch)
     {
       if (DomainHandler.ProviderInfo.Supports(ProviderFeatures.DdlBatches)) {
-        var commandText = Driver.BuildBatch(batch.ToArray());
-        if (string.IsNullOrEmpty(commandText))
-          return;
-        var command = Connection.CreateCommand(commandText);
-        using (command) {
-          Driver.ExecuteNonQuery(null, command);
+        IEnumerable<IEnumerable<string>> subbatches = SplitToSubbatches(batch);
+        foreach (var subbatch in subbatches) {
+          var commandText = Driver.BuildBatch(subbatch.ToArray());
+          if (string.IsNullOrEmpty(commandText))
+            return;
+          var command = Connection.CreateCommand(commandText);
+          using (command) {
+            Driver.ExecuteNonQuery(null, command);
+          }
         }
       }
       else {
@@ -113,6 +117,24 @@ namespace Xtensive.Storage.Providers.Sql
           }
         }
       }
+    }
+
+    private static IEnumerable<IEnumerable<string>> SplitToSubbatches(IEnumerable<string> batch)
+    {
+      var subbatch = new List<string>();
+      foreach (string item in batch) {
+        if (item.IsNullOrEmpty()) {
+          if (subbatch.Count==0)
+            continue;
+          yield return subbatch;
+          subbatch = new List<string>();
+        }
+        else {
+          subbatch.Add(item);
+        }
+      }
+      if (subbatch.Count!=0)
+        yield return subbatch;
     }
 
     private Schema GetNativeExtractedSchema()

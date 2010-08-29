@@ -8,15 +8,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Storage.Building;
+using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
+using ColumnInfo = Xtensive.Storage.Model.ColumnInfo;
+using FullTextIndexInfo = Xtensive.Storage.Model.FullTextIndexInfo;
+using IndexInfo = Xtensive.Storage.Model.IndexInfo;
 using IndexingModel = Xtensive.Storage.Indexing.Model;
 using ReferentialAction = Xtensive.Storage.Indexing.Model.ReferentialAction;
+using SequenceInfo = Xtensive.Storage.Model.SequenceInfo;
+using TypeInfo = Xtensive.Storage.Model.TypeInfo;
 
 namespace Xtensive.Storage.Upgrade
 {
@@ -25,74 +32,6 @@ namespace Xtensive.Storage.Upgrade
   /// </summary>
   internal sealed class DomainModelConverter : ModelVisitor<IPathNode>
   {
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="providerInfo">The provider info.</param>
-    /// <param name="buildForeignKeys">If set to <see langword="true"/>, foreign keys
-    /// will be created for associations.</param>
-    /// <param name="foreignKeyNameGenerator">The foreign key name generator.</param>
-    /// <param name="buildHierarchyForeignKeys">If set to <see langword="true"/>, foreign keys
-    /// will be created for hierarchies.</param>
-    /// <param name="hierarchyForeignKeyNameGenerator">The hierarchy foreign key name generator.</param>
-    /// <param name="typeBuilder">The type builder.</param>
-    public DomainModelConverter(
-      ProviderInfo providerInfo, 
-      bool buildForeignKeys, 
-      Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator, 
-      bool buildHierarchyForeignKeys, 
-      Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator, 
-      Func<Type, int?, int?, int?, Indexing.Model.TypeInfo> typeBuilder)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
-      if (buildForeignKeys)
-        ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, 
-          "foreignKeyNameGenerator");
-      if (buildHierarchyForeignKeys) {
-        ArgumentValidator.EnsureArgumentNotNull(hierarchyForeignKeyNameGenerator,
-          "hierarchyForeignKeyNameGenerator");
-      }
-
-      BuildForeignKeys = buildForeignKeys;
-      ForeignKeyNameGenerator = foreignKeyNameGenerator;
-      BuildHierarchyForeignKeys = buildHierarchyForeignKeys;
-      HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
-      ProviderInfo = providerInfo;
-      TypeBuilder = typeBuilder;
-    }
-
-    #region Not supported
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitKeyField(KeyField keyField)
-    {
-      throw new NotSupportedException(String.Format(Strings.ExVisitKeyFieldIsNotSupportedByX, typeof (DomainModelConverter)));
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitFieldInfo(FieldInfo field)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitHierarchyInfo(HierarchyInfo hierarchy)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitTypeInfo(TypeInfo type)
-    {
-      throw new NotSupportedException();
-    }
-
-    #endregion
-
     /// <summary>
     /// Gets the persistent generator filter.
     /// </summary>
@@ -261,28 +200,28 @@ namespace Xtensive.Storage.Upgrade
     /// <inheritdoc/>
     protected override IPathNode VisitColumnInfo(ColumnInfo column)
     {
-      var originalType = column.ValueType;
-      var originalTypeInfo = new IndexingModel.TypeInfo(GetType(originalType, column.IsNullable),
-        column.IsNullable, column.Length, column.Scale, column.Precision);
-      var storageTypeInfo = TypeBuilder.Invoke(originalType, column.Length, column.Precision, column.Scale);
-      storageTypeInfo = new IndexingModel.TypeInfo(GetType(storageTypeInfo.Type, column.IsNullable),
-        column.IsNullable, storageTypeInfo.Length, storageTypeInfo.Scale, storageTypeInfo.Precision);
+      var nonNullableType = column.ValueType;
+      var nullableType    = ToNullable(nonNullableType, column.IsNullable);
 
-      var defaultValue = !column.IsNullable && originalType.IsValueType
-        ? Activator.CreateInstance(originalType)
-        : null;
+      var typeInfoPrototype = new IndexingModel.TypeInfo(nullableType, column.IsNullable, 
+        column.Length, column.Scale, column.Precision, null);
+      var nativeTypeInfo = TypeBuilder.Invoke(nonNullableType, column.Length, column.Precision, column.Scale);
 
+      // We need the same type as in SQL database here (i.e. the same as native)
+      var typeInfo = new IndexingModel.TypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), column.IsNullable, 
+        nativeTypeInfo.Length, nativeTypeInfo.Scale, nativeTypeInfo.Precision, nativeTypeInfo.NativeType);
+
+      var defaultValue = GetColumnDefaultValue(column, typeInfo);
       if (column.IsSystem && column.Field.IsTypeId) {
         var type = column.Field.ReflectedType;
         if (type.IsEntity && type==type.Hierarchy.Root) {
-          BuildingContext context = BuildingContext.Demand();
-          defaultValue = context.BuilderConfiguration.TypeIdProvider(type.UnderlyingType);
+          var buildingContext = BuildingContext.Demand();
+          defaultValue = buildingContext.BuilderConfiguration.TypeIdProvider(type.UnderlyingType);
         }
       }
 
-      return new IndexingModel.ColumnInfo(CurrentTable, column.Name, storageTypeInfo) {
-        DefaultValue = defaultValue,
-        OriginalType = originalTypeInfo
+      return new IndexingModel.ColumnInfo(CurrentTable, column.Name, typeInfo) {
+        DefaultValue = defaultValue
       };
     }
 
@@ -358,7 +297,6 @@ namespace Xtensive.Storage.Upgrade
         Seed = sequenceInfo.Seed,
         Increment = sequenceInfo.Increment,
         Type = TypeBuilder.Invoke(keyInfo.TupleDescriptor[0], null, null, null),
-        OriginalType = new IndexingModel.TypeInfo(GetType(keyInfo.TupleDescriptor[0], false))
       };
       return sequence;
     }
@@ -416,26 +354,54 @@ namespace Xtensive.Storage.Upgrade
       return primaryIndex;
     }
 
-    /// <summary>
-    /// Finds the specific index by key columns.
-    /// </summary>
-    /// <param name="table">The table.</param>
-    /// <param name="keyColumns">The key columns.</param>
-    /// <returns>The index.</returns>
-    private static IndexingModel.IndexInfo FindIndex(IndexingModel.TableInfo table, IEnumerable<string> keyColumns)
-    {
-      IEnumerable<string> primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
-      if (primaryKeyColumns.Except(keyColumns)
-        .Union(keyColumns.Except(primaryKeyColumns)).Count()==0)
-        return table.PrimaryIndex;
+    #region Not supported
 
-      foreach (IndexingModel.SecondaryIndexInfo index in table.SecondaryIndexes) {
-        IEnumerable<string> secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name);
-        if (secondaryKeyColumns.Except(keyColumns)
-          .Union(keyColumns.Except(secondaryKeyColumns)).Count()==0)
-          return index;
-      }
-      return null;
+    /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
+    protected override IPathNode VisitKeyField(KeyField keyField)
+    {
+      throw new NotSupportedException(String.Format(Strings.ExVisitKeyFieldIsNotSupportedByX, typeof (DomainModelConverter)));
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
+    protected override IPathNode VisitFieldInfo(FieldInfo field)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
+    protected override IPathNode VisitHierarchyInfo(HierarchyInfo hierarchy)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="NotSupportedException">Method is not supported.</exception>
+    protected override IPathNode VisitTypeInfo(TypeInfo type)
+    {
+      throw new NotSupportedException();
+    }
+
+    #endregion
+
+    #region Helper methods
+
+    private object GetColumnDefaultValue(ColumnInfo column, Indexing.Model.TypeInfo typeInfo)
+    {
+      if (column.DefaultValue!=null)
+        return column.DefaultValue;
+
+      if (column.IsNullable)
+        return null;
+      
+      var type = typeInfo.Type;
+      if (type==typeof(string))
+        return string.Empty;
+      if (type==typeof(byte[]))
+        return ArrayUtils<byte>.EmptyArray;
+      return Activator.CreateInstance(column.ValueType);
     }
 
     /// <summary>
@@ -447,15 +413,37 @@ namespace Xtensive.Storage.Upgrade
     private static ReferentialAction ConvertReferentialAction(OnRemoveAction toConvert)
     {
       switch (toConvert) {
-        case OnRemoveAction.Deny:
-          return ReferentialAction.Restrict;
-        case OnRemoveAction.Cascade:
-          return ReferentialAction.Cascade;
-        case OnRemoveAction.Clear:
-          return ReferentialAction.Clear;
-        default:
-          return ReferentialAction.Default;
+      case OnRemoveAction.Deny:
+        return ReferentialAction.Restrict;
+      case OnRemoveAction.Cascade:
+        return ReferentialAction.Cascade;
+      case OnRemoveAction.Clear:
+        return ReferentialAction.Clear;
+      default:
+        return ReferentialAction.Default;
       }
+    }
+
+    /// <summary>
+    /// Finds the specific index by key columns.
+    /// </summary>
+    /// <param name="table">The table.</param>
+    /// <param name="keyColumns">The key columns.</param>
+    /// <returns>The index.</returns>
+    private static Indexing.Model.IndexInfo FindIndex(TableInfo table, IEnumerable<string> keyColumns)
+    {
+      IEnumerable<string> primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
+      if (primaryKeyColumns.Except(keyColumns)
+        .Union(keyColumns.Except(primaryKeyColumns)).Count()==0)
+        return table.PrimaryIndex;
+
+      foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
+        IEnumerable<string> secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name);
+        if (secondaryKeyColumns.Except(keyColumns)
+          .Union(keyColumns.Except(secondaryKeyColumns)).Count()==0)
+          return index;
+      }
+      return null;
     }
 
     /// <summary>
@@ -496,6 +484,20 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <summary>
+    /// Gets the table.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>Table.</returns>
+    private TableInfo GetTable(TypeInfo type)
+    {
+      if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable)
+        return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.MappingName);
+      if (type.IsInterface)
+        return null;
+      return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.Hierarchy.Root.MappingName);
+    }
+
+    /// <summary>
     /// Gets the name of the primary index column.
     /// </summary>
     /// <param name="primaryIndex">Index of the primary.</param>
@@ -513,23 +515,9 @@ namespace Xtensive.Storage.Upgrade
       return primaryIndexColumnName;
     }
 
-    /// <summary>
-    /// Gets the table.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <returns>Table.</returns>
-    private IndexingModel.TableInfo GetTable(TypeInfo type)
+    private static void CreateForeignKey(TableInfo referencingTable, string foreignKeyName, TableInfo referencedTable, Indexing.Model.IndexInfo referencingIndex)
     {
-      if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable)
-        return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.MappingName);
-      if (type.IsInterface)
-        return null;
-      return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.Hierarchy.Root.MappingName);
-    }
-
-    private static void CreateForeignKey(IndexingModel.TableInfo referencingTable, string foreignKeyName, IndexingModel.TableInfo referencedTable, Indexing.Model.IndexInfo referencingIndex)
-    {
-      var foreignKey = new IndexingModel.ForeignKeyInfo(referencingTable, foreignKeyName) {
+      var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
         PrimaryKey = referencedTable.PrimaryIndex,
         OnRemoveAction = ReferentialAction.None,
         OnUpdateAction = ReferentialAction.None
@@ -538,13 +526,52 @@ namespace Xtensive.Storage.Upgrade
       return;
     }
 
-    private static Type GetType(Type type, bool isNullable)
+    private static Type ToNullable(Type type, bool isNullable)
     {
       return isNullable && type.IsValueType && !type.IsNullable()
         ? type.ToNullable()
         : type;
     }
 
+    #endregion
+
+
     // Constructors
+
+    /// <summary>
+    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="providerInfo">The provider info.</param>
+    /// <param name="buildForeignKeys">If set to <see langword="true"/>, foreign keys
+    /// will be created for associations.</param>
+    /// <param name="foreignKeyNameGenerator">The foreign key name generator.</param>
+    /// <param name="buildHierarchyForeignKeys">If set to <see langword="true"/>, foreign keys
+    /// will be created for hierarchies.</param>
+    /// <param name="hierarchyForeignKeyNameGenerator">The hierarchy foreign key name generator.</param>
+    /// <param name="typeBuilder">The type builder.</param>
+    public DomainModelConverter(
+      ProviderInfo providerInfo, 
+      bool buildForeignKeys, 
+      Func<AssociationInfo, FieldInfo, string> foreignKeyNameGenerator, 
+      bool buildHierarchyForeignKeys, 
+      Func<TypeInfo, TypeInfo, string> hierarchyForeignKeyNameGenerator, 
+      Func<Type, int?, int?, int?, Indexing.Model.TypeInfo> typeBuilder)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
+      if (buildForeignKeys)
+        ArgumentValidator.EnsureArgumentNotNull(foreignKeyNameGenerator, 
+          "foreignKeyNameGenerator");
+      if (buildHierarchyForeignKeys) {
+        ArgumentValidator.EnsureArgumentNotNull(hierarchyForeignKeyNameGenerator,
+          "hierarchyForeignKeyNameGenerator");
+      }
+
+      BuildForeignKeys = buildForeignKeys;
+      ForeignKeyNameGenerator = foreignKeyNameGenerator;
+      BuildHierarchyForeignKeys = buildHierarchyForeignKeys;
+      HierarchyForeignKeyNameGenerator = hierarchyForeignKeyNameGenerator;
+      ProviderInfo = providerInfo;
+      TypeBuilder = typeBuilder;
+    }
   }
 }

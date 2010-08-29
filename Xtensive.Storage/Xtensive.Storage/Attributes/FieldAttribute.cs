@@ -20,6 +20,7 @@ namespace Xtensive.Storage
     internal int? scale;
     internal int? precision;
     internal bool? nullable;
+    internal bool  nullableOnUpgrade;
     internal bool? indexed;
 
     /// <summary>
@@ -82,6 +83,21 @@ namespace Xtensive.Storage
       get { return nullable.HasValue ? nullable.Value : false; }
       set { nullable = value; }
     }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this field must be <see cref="Nullable"/> during upgrade.
+    /// </summary>
+    public bool NullableOnUpgrade
+    {
+      get { return nullableOnUpgrade; }
+      set { nullableOnUpgrade = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the default value for this property.
+    /// <see langword="null" /> indicates default value is provided automatically.
+    /// </summary>
+    public object DefaultValue { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether value of this field should be loaded on demand.

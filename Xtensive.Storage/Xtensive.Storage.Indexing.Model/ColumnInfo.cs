@@ -39,11 +39,6 @@ namespace Xtensive.Storage.Indexing.Model
     }
 
     /// <summary>
-    /// Gets or sets the original type.
-    /// </summary>
-    public TypeInfo OriginalType{ get; set;}
-
-    /// <summary>
     /// Gets or sets the default column value.
     /// </summary>
     [Property(IgnoreInComparison = true)]
@@ -98,11 +93,11 @@ namespace Xtensive.Storage.Indexing.Model
     /// </summary>
     /// <param name="table">The parent table.</param>
     /// <param name="name">The column name.</param>
-    /// <param name="columnType">Type of the column.</param>
-    public ColumnInfo(TableInfo table, string name, TypeInfo columnType)
+    /// <param name="type">Type of the column.</param>
+    public ColumnInfo(TableInfo table, string name, TypeInfo type)
       : this(table, name)
     {
-      Type = columnType;
+      Type = type;
     }
   }
 }

@@ -171,4 +171,7 @@
 	<data name="NodeCollectionFullNameFormat">
 		<value xml:space="preserve">{0}.{1}</value>
 	</data>
+	<data name="LogExErrorSettingDefaultValueXForColumnYInTypeZ">
+		<value><![CDATA[Error setting default value {0} for column '{1}' in type '{2}'. Most likely, its type is incorrect.]]></value>
+	</data>
 </root>
