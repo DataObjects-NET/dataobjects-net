@@ -77,7 +77,9 @@ namespace Xtensive.Storage.Tests.Upgrade
             if (supportedConversions[type].Contains(targetType)) {
               Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(nullableSource, null),
                 new TypeInfo(nullableTarget, null)));
-              Assert.IsFalse(TypeConversionVerifier.CanConvert(new TypeInfo(nullableSource, null),
+              Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(nullableSource, null),
+                new TypeInfo(targetType, null)));
+              Assert.IsFalse(TypeConversionVerifier.CanConvertSafely(new TypeInfo(nullableSource, null),
                 new TypeInfo(targetType, null)));
               Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type, null),
                 new TypeInfo(nullableTarget, null)));

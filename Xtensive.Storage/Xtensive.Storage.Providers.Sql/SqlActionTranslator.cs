@@ -39,6 +39,7 @@ namespace Xtensive.Storage.Providers.Sql
     private const string TemporaryNameFormat = "Temp{0}";
     private const string SubqueryTableAliasNameFormat = "a{0}";
     private const string ColumnTypePropertyName = "Type";
+    private const string ColumnDefaultPropertyName = "Default";
 
     private readonly ProviderInfo providerInfo;
     private readonly string typeIdColumnName;
@@ -443,8 +444,9 @@ namespace Xtensive.Storage.Providers.Sql
         return; // Properties already initilized
 
       if (!action.Properties.ContainsKey(ColumnTypePropertyName))
-        return;
-
+        if (!action.Properties.ContainsKey(ColumnDefaultPropertyName))
+          return;
+ 
       GenerateChangeColumnTypeCommands(action);
     }
 
@@ -793,7 +795,7 @@ namespace Xtensive.Storage.Providers.Sql
       RenameColumn(column, tempName);
 
       // Create new columns
-      var newTypeInfo = action.Properties[ColumnTypePropertyName] as TypeInfo;
+      var newTypeInfo = targetColumn.Type as TypeInfo;
       var newSqlType = (SqlValueType) newTypeInfo.NativeType;
       var newColumn = table.CreateColumn(originalName, newSqlType);
       
@@ -817,7 +819,7 @@ namespace Xtensive.Storage.Providers.Sql
           getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
           copyValues.Values[tableRef[originalName]] = getValue;
         }
-        RegisterCommand(copyValues, UpgradeStage.CopyData, NonTransactionalStage.None);
+        RegisterCommand(copyValues, UpgradeStage.Upgrade, NonTransactionalStage.None, true);
       }
 
       // Drop old column
@@ -1048,35 +1050,59 @@ namespace Xtensive.Storage.Providers.Sql
 
     private void RegisterCommand(ISqlCompileUnit command, NonTransactionalStage nonTransactionalStage)
     {
-      RegisterCommand(command, stage, nonTransactionalStage);
+      RegisterCommand(command, stage, nonTransactionalStage, false);
+    }
+
+    private void RegisterCommand(ISqlCompileUnit command, NonTransactionalStage nonTransactionalStage, bool inNewBatch)
+    {
+      RegisterCommand(command, stage, nonTransactionalStage, inNewBatch);
     }
 
     private void RegisterCommand(ISqlCompileUnit command, UpgradeStage stage, NonTransactionalStage nonTransactionalStage)
     {
-      var commandText = driver.Compile(command).GetCommandText();
+      RegisterCommand(command, stage, nonTransactionalStage, false);
+    }
+
+    private void RegisterCommand(ISqlCompileUnit command, UpgradeStage stage, NonTransactionalStage nonTransactionalStage, bool inNewBatch)
+    {
+      string commandText = driver.Compile(command).GetCommandText();
       switch(nonTransactionalStage) {
         case NonTransactionalStage.Prolog:
+          if (inNewBatch)
+            nonTransactionalPrologCommands.Add(string.Empty);
           nonTransactionalPrologCommands.Add(commandText);
           return;
         case NonTransactionalStage.Epilog:
+          if (inNewBatch)
+            nonTransactionalEpilogCommands.Add(string.Empty);
           nonTransactionalEpilogCommands.Add(commandText);
           return;
       }
       switch (stage) {
         case UpgradeStage.CleanupData:
+          if (inNewBatch)
+            cleanupDataCommands.Add(string.Empty);
           cleanupDataCommands.Add(commandText);
           break;
         case UpgradeStage.Prepare:
         case UpgradeStage.TemporaryRename:
+          if (inNewBatch)
+            preUpgradeCommands.Add(string.Empty);
           preUpgradeCommands.Add(commandText);
           break;
         case UpgradeStage.Upgrade:
+          if (inNewBatch)
+            upgradeCommands.Add(string.Empty);
           upgradeCommands.Add(commandText);
           break;
         case UpgradeStage.CopyData:
+          if (inNewBatch)
+            copyDataCommands.Add(string.Empty);
           copyDataCommands.Add(commandText);
           break;
         case UpgradeStage.Cleanup:
+          if (inNewBatch)
+            postUpgradeCommands.Add(string.Empty);
           postUpgradeCommands.Add(commandText);
           break;
       }

@@ -39,17 +39,13 @@ namespace Xtensive.Storage.Upgrade
       if (from.IsTypeUndefined || to.IsTypeUndefined)
         return false;
 
-      if (from.Type==to.Type) // Comparing just types & nullability
-        return true;
-
-      // Types are different
-
-      if (from.IsNullable && !to.IsNullable)
-        return false; // Can't convert NULL
-
       var fromType = from.Type.StripNullable();
       var toType = to.Type.StripNullable();
 
+      if (fromType==toType) // Comparing just types
+        return true;
+
+      // Types are different
       if (toType==typeof(string))
         // Checking target string length
         return !to.Length.HasValue || CanConvertToString(from, to.Length.Value);
@@ -76,6 +72,8 @@ namespace Xtensive.Storage.Upgrade
 
       if (!CanConvert(from, to))
         return false;
+      if (from.IsNullable && !to.IsNullable)
+        return false; // Can't convert NULL
 
       var toType = to.Type.StripNullable();
       var fromType = from.Type.StripNullable();

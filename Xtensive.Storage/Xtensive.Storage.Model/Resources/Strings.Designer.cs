@@ -169,6 +169,15 @@ namespace Xtensive.Storage.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error setting default value {0} for column &apos;{1}&apos; in type &apos;{2}&apos;. Most likely, its type is incorrect..
+        /// </summary>
+        internal static string LogExErrorSettingDefaultValueXForColumnYInTypeZ {
+            get {
+                return ResourceManager.GetString("LogExErrorSettingDefaultValueXForColumnYInTypeZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}.{1}.
         /// </summary>
         internal static string NodeCollectionFullNameFormat {

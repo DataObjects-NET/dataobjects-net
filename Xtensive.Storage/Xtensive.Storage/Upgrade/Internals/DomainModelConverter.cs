@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
 using Xtensive.Modelling;
@@ -210,9 +211,7 @@ namespace Xtensive.Storage.Upgrade
       var typeInfo = new IndexingModel.TypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), column.IsNullable, 
         nativeTypeInfo.Length, nativeTypeInfo.Scale, nativeTypeInfo.Precision, nativeTypeInfo.NativeType);
 
-      var defaultValue = !column.IsNullable && nonNullableType.IsValueType
-        ? Activator.CreateInstance(nonNullableType)
-        : null;
+      var defaultValue = GetColumnDefaultValue(column, typeInfo);
       if (column.IsSystem && column.Field.IsTypeId) {
         var type = column.Field.ReflectedType;
         if (type.IsEntity && type==type.Hierarchy.Root) {
@@ -389,26 +388,20 @@ namespace Xtensive.Storage.Upgrade
 
     #region Helper methods
 
-    /// <summary>
-    /// Finds the specific index by key columns.
-    /// </summary>
-    /// <param name="table">The table.</param>
-    /// <param name="keyColumns">The key columns.</param>
-    /// <returns>The index.</returns>
-    private static Indexing.Model.IndexInfo FindIndex(TableInfo table, IEnumerable<string> keyColumns)
+    private object GetColumnDefaultValue(ColumnInfo column, Indexing.Model.TypeInfo typeInfo)
     {
-      IEnumerable<string> primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
-      if (primaryKeyColumns.Except(keyColumns)
-        .Union(keyColumns.Except(primaryKeyColumns)).Count()==0)
-        return table.PrimaryIndex;
+      if (column.DefaultValue!=null)
+        return column.DefaultValue;
 
-      foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
-        IEnumerable<string> secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name);
-        if (secondaryKeyColumns.Except(keyColumns)
-          .Union(keyColumns.Except(secondaryKeyColumns)).Count()==0)
-          return index;
-      }
-      return null;
+      if (column.IsNullable)
+        return null;
+      
+      var type = typeInfo.Type;
+      if (type==typeof(string))
+        return string.Empty;
+      if (type==typeof(byte[]))
+        return ArrayUtils<byte>.EmptyArray;
+      return Activator.CreateInstance(column.ValueType);
     }
 
     /// <summary>
@@ -429,6 +422,28 @@ namespace Xtensive.Storage.Upgrade
       default:
         return ReferentialAction.Default;
       }
+    }
+
+    /// <summary>
+    /// Finds the specific index by key columns.
+    /// </summary>
+    /// <param name="table">The table.</param>
+    /// <param name="keyColumns">The key columns.</param>
+    /// <returns>The index.</returns>
+    private static Indexing.Model.IndexInfo FindIndex(TableInfo table, IEnumerable<string> keyColumns)
+    {
+      IEnumerable<string> primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name);
+      if (primaryKeyColumns.Except(keyColumns)
+        .Union(keyColumns.Except(primaryKeyColumns)).Count()==0)
+        return table.PrimaryIndex;
+
+      foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
+        IEnumerable<string> secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name);
+        if (secondaryKeyColumns.Except(keyColumns)
+          .Union(keyColumns.Except(secondaryKeyColumns)).Count()==0)
+          return index;
+      }
+      return null;
     }
 
     /// <summary>
@@ -469,6 +484,20 @@ namespace Xtensive.Storage.Upgrade
     }
 
     /// <summary>
+    /// Gets the table.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>Table.</returns>
+    private TableInfo GetTable(TypeInfo type)
+    {
+      if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable)
+        return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.MappingName);
+      if (type.IsInterface)
+        return null;
+      return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.Hierarchy.Root.MappingName);
+    }
+
+    /// <summary>
     /// Gets the name of the primary index column.
     /// </summary>
     /// <param name="primaryIndex">Index of the primary.</param>
@@ -484,20 +513,6 @@ namespace Xtensive.Storage.Upgrade
           break;
         }
       return primaryIndexColumnName;
-    }
-
-    /// <summary>
-    /// Gets the table.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <returns>Table.</returns>
-    private TableInfo GetTable(TypeInfo type)
-    {
-      if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable)
-        return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.MappingName);
-      if (type.IsInterface)
-        return null;
-      return StorageInfo.Tables.FirstOrDefault(table => table.Name==type.Hierarchy.Root.MappingName);
     }
 
     private static void CreateForeignKey(TableInfo referencingTable, string foreignKeyName, TableInfo referencedTable, Indexing.Model.IndexInfo referencingIndex)

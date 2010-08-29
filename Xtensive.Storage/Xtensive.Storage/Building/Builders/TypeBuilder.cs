@@ -212,7 +212,8 @@ namespace Xtensive.Storage.Building.Builders
         ItemType = fieldDef.ItemType,
         Length = fieldDef.Length,
         Scale = fieldDef.Scale,
-        Precision = fieldDef.Precision
+        Precision = fieldDef.Precision,
+        DefaultValue = fieldDef.DefaultValue
       };
 
       type.Fields.Add(fieldInfo);

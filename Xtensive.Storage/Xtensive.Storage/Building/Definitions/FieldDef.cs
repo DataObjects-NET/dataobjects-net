@@ -26,6 +26,7 @@ namespace Xtensive.Storage.Building.Definitions
     private int?                            length;
     private int?                            scale;
     private int?                            precision;
+    private object                          defaultValue;
 
     /// <summary>
     /// Gets or sets the maximal length of the field.
@@ -67,6 +68,16 @@ namespace Xtensive.Storage.Building.Definitions
           ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, 0, "Precision");
         precision = value;
       }
+    }
+
+    /// <summary>
+    /// Gets or sets the default value for this field.
+    /// <see langword="null" /> indicates default value is provided automatically.
+    /// </summary>
+    public object DefaultValue
+    {
+      get { return defaultValue; }
+      set { defaultValue = value; }
     }
 
     /// <summary>
