@@ -71,7 +71,7 @@ namespace Xtensive.Core.Linq
       if (sampleInterface == null)
         return false;
       var mapping = sample.DeclaringType.GetInterfaceMapFast(sampleInterface);
-      for (int i = 0; i < mapping.TargetMethods.Length; i++) {
+      for (int i = 0; i < mapping.TargetMethods.Count; i++) {
         if (mapping.TargetMethods[i] == sample)
           if (mapping.InterfaceType.IsGenericType)
             return mapping.InterfaceType.GetGenericTypeDefinition().GetMethods().Contains(Method);

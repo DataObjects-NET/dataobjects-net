@@ -627,7 +627,7 @@ namespace Xtensive.Core.Reflection
     public static InterfaceMapping GetInterfaceMapFast(this Type type, Type targetInterface)
     {
       return interfaceMaps.GetValue(new Pair<Type, Type>(type, targetInterface),
-        pair => pair.First.GetInterfaceMap(pair.Second));
+        pair => new InterfaceMapping(pair.First.GetInterfaceMap(pair.Second)));
     }
 
     /// <summary>
