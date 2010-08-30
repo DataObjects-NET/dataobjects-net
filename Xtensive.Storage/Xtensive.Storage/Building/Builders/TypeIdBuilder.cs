@@ -7,25 +7,46 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Storage.Internals;
 using Xtensive.Storage.Model;
+using Xtensive.Storage.Resources;
 
 namespace Xtensive.Storage.Building.Builders
 {  
   internal static class TypeIdBuilder
   {
-    public static void BuildTypeIds()
+    public static void BuildTypeIds(bool systemTypesOnly)
     {
       var context = BuildingContext.Demand();
+      var domain = context.Domain;
+      
       BuildSystemTypeIds(context);
-      BuildRegularTypeIds(context);
-      context.Model.Types.BuildTypeIdIndex();
+      if (!systemTypesOnly)
+        BuildRegularTypeIds(context);
+
+      // Updating TypeId index
+      context.Model.Types.RebuildTypeIdIndex();
+      // Updating Type-leve caches
+      var typeLevelCaches = domain.TypeLevelCaches;
+      foreach (var type in domain.Model.Types) {
+        int typeId = type.TypeId;
+        if (typeId!=TypeInfo.NoTypeId) {
+          TypeLevelCache cache;
+          if (!typeLevelCaches.TryGetValue(typeId, out cache))
+            typeLevelCaches.Add(typeId, new TypeLevelCache(type));
+        }
+      }
     }
 
     private static void BuildSystemTypeIds(BuildingContext context)
     {
       foreach (var type in context.SystemTypeIds.Keys) {
         var typeInfo = context.Model.Types[type];
-        typeInfo.TypeId = context.SystemTypeIds[type];
+        int systemTypeId = context.SystemTypeIds[type];
+// ReSharper disable RedundantCheckBeforeAssignment
+        if (typeInfo.TypeId!=systemTypeId)
+          typeInfo.TypeId = systemTypeId;
+// ReSharper restore RedundantCheckBeforeAssignment
       }
     }
 

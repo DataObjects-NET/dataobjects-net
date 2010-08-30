@@ -99,6 +99,10 @@ namespace Xtensive.Storage.Tests.Storage.UpgradeModesTest
       AssertEx.Throws<SchemaSynchronizationException>(() => {
         BuildFullDomain(DomainUpgradeMode.Validate);
       });
+
+      types = BuildBookPersonDomain(DomainUpgradeMode.Validate);
+      Assert.AreEqual(personTypeId, types[typeof (Person)]);
+      Assert.AreEqual(bookTypeId, types[typeof (Book)]);
     }
 
     [Test]
@@ -117,6 +121,10 @@ namespace Xtensive.Storage.Tests.Storage.UpgradeModesTest
       Assert.AreEqual(personTypeId, types[typeof (Person)]);
 
       types = BuildBookDomain(DomainUpgradeMode.Skip);
+      Assert.AreEqual(bookTypeId, types[typeof (Book)]);
+
+      types = BuildBookPersonDomain(DomainUpgradeMode.Skip);
+      Assert.AreEqual(personTypeId, types[typeof (Person)]);
       Assert.AreEqual(bookTypeId, types[typeof (Book)]);
 
       AssertEx.Throws<Exception>(() => {

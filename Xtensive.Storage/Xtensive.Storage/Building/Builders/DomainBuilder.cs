@@ -65,10 +65,12 @@ namespace Xtensive.Storage.Building.Builders
               upgradeContext.TransactionScope = Transaction.Open();
               SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
               context.Domain.Handler.BuildMapping();
-              TypeIdBuilder.BuildTypeIds();
-              BuildTypeLevelCaches();
               if (builderConfiguration.UpgradeHandler!=null)
+                // We don't build TypeIds here 
+                // leaving this job for SystemUpgradeHandler
                 builderConfiguration.UpgradeHandler.Invoke();
+              else
+                TypeIdBuilder.BuildTypeIds(false);
               upgradeContext.TransactionScope.Complete();
             }
             finally {
@@ -231,17 +233,6 @@ namespace Xtensive.Storage.Building.Builders
           // So non-exisitng (==null) generators are added as well!
           domain.KeyGenerators.Add(keyInfo, generator);
         }
-      }
-    }
-
-    private static void BuildTypeLevelCaches()
-    {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.CachedTypeInfo)) {
-        var context = BuildingContext.Demand();
-        var domain = context.Domain;
-        foreach (var typeInfo in domain.Model.Types)
-          if (typeInfo.TypeId!=Model.TypeInfo.NoTypeId)
-            domain.TypeLevelCaches.Add(typeInfo.TypeId, new TypeLevelCache(typeInfo));
       }
     }
 

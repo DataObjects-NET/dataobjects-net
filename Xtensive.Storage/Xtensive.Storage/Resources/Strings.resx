@@ -1401,10 +1401,7 @@ Schema difference:
   <data name="ExCannotGenerateNextVersionValueOfTypeX" xml:space="preserve">
     <value>Can't generate next version value of type '{0}'.</value>
   </data>
-  <data name="CachedTypeInfo" xml:space="preserve">
-    <value>Type-related information cache</value>
-  </data>
-  <data name="ExPropertyXDoesnTHavePublicGetter" xml:space="preserve">
+	<data name="ExPropertyXDoesnTHavePublicGetter" xml:space="preserve">
     <value>Property '{0}' doesn't have public getter.</value>
   </data>
   <data name="ExPropertyXDoesnTHavePublicSetter" xml:space="preserve">
