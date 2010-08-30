@@ -186,7 +186,7 @@ namespace Xtensive.Storage.Building.Builders
       if (attribute.nullable.HasValue) {
         if (canUseNullableFlag)
           fieldDef.IsNullable = attribute.nullable.Value;
-        else
+        else if (attribute.nullable.Value!=(fieldDef.ValueType.IsNullable()))
           throw new DomainBuilderException(
             string.Format(Strings.ExNullableAndNullableOnUpgradeCannotBeUsedWithXField, fieldDef.Name));
       }

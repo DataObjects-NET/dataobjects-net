@@ -25,6 +25,12 @@ namespace Xtensive.Storage.Tests.Storage.UpgradeModesTest
 
     [Field]
     public string Title { get; set; }
+
+    [Field(Nullable = true)]
+    public int? NullableInt { get; set; }
+
+    [Field(Nullable = false)]
+    public int NonNullableInt { get; set; }
   }
 
   [Serializable]
@@ -58,12 +64,12 @@ namespace Xtensive.Storage.Tests.Storage.UpgradeModesTest
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      if (registerBook)
-        configuration.Types.Register(typeof(Book));
       if (registerPerson)
         configuration.Types.Register(typeof(Person));
       if (registerAuthor)
         configuration.Types.Register(typeof(Author));
+      if (registerBook)
+        configuration.Types.Register(typeof(Book));
       return configuration;
     }
 
