@@ -17,6 +17,7 @@ using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Building.Builders;
 using Xtensive.Storage.Configuration;
+using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Model.Stored;
 using Xtensive.Storage.Resources;
 using Xtensive.Core.Reflection;
@@ -101,11 +102,6 @@ namespace Xtensive.Storage.Upgrade
     public Dictionary<string, int> ExtractedTypeMap { get; internal set; }
 
     /// <summary>
-    /// Gets the native storage schema.
-    /// </summary>
-    public object NativeExtractedSchema { get; internal set; }
-
-    /// <summary>
     /// Gets or sets the collection of services related to upgrade.
     /// </summary>
     public IServiceContainer Services { get; private set; }
@@ -129,6 +125,9 @@ namespace Xtensive.Storage.Upgrade
     /// Gets or sets current transaction scope.
     /// </summary>
     public TransactionScope TransactionScope { get; set; }
+
+    internal object      NativeExtractedSchemaCache { get; set; }
+    internal StorageInfo ExtractedSchemaCache { get; set; }
 
     #region IContext<...> methods
 

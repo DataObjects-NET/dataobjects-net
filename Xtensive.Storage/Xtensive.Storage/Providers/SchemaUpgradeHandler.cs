@@ -46,9 +46,61 @@ namespace Xtensive.Storage.Providers
 
     /// <summary>
     /// Gets the extracted schema.
+    /// This method caches the schema inside <see cref="UpgradeContext"/>.
     /// </summary>
     /// <returns>The extracted schema.</returns>
-    public abstract StorageInfo GetExtractedSchema();
+    public StorageInfo GetExtractedSchema()
+    {
+      var upgradeContext = UpgradeContext.Current;
+      if (upgradeContext!=null && upgradeContext.ExtractedSchemaCache!=null)
+        return upgradeContext.ExtractedSchemaCache;
+
+      var schema = ExtractSchema();
+      if (upgradeContext!=null)
+        upgradeContext.ExtractedSchemaCache = schema;
+      return schema;
+    }
+
+    /// <summary>
+    /// Gets the native extracted schema.
+    /// This method caches the schema inside <see cref="UpgradeContext"/>.
+    /// </summary>
+    /// <returns>The native extracted schema.</returns>
+    public object GetNativeExtractedSchema()
+    {
+      var upgradeContext = UpgradeContext.Current;
+      if (upgradeContext!=null && upgradeContext.NativeExtractedSchemaCache!=null)
+        return upgradeContext.NativeExtractedSchemaCache;
+
+      var schema = ExtractNativeSchema();
+      if (upgradeContext!=null)
+        upgradeContext.NativeExtractedSchemaCache = schema;
+      return schema;
+    }
+
+    /// <summary>
+    /// Clears the extracted schema cache.
+    /// </summary>
+    public void ClearExtractedSchemaCache()
+    {
+      var upgradeContext = UpgradeContext.Current;
+      if (upgradeContext==null)
+        return;
+      upgradeContext.ExtractedSchemaCache = null;
+      upgradeContext.NativeExtractedSchemaCache = null;
+    }
+
+    /// <summary>
+    /// Extracts the schema.
+    /// </summary>
+    /// <returns>The extracted schema.</returns>
+    protected abstract StorageInfo ExtractSchema();
+
+    /// <summary>
+    /// Extracts the native schema.
+    /// </summary>
+    /// <returns>The native extracted schema.</returns>
+    protected abstract object ExtractNativeSchema();
 
     /// <summary>
     /// Upgrades the storage.
@@ -66,16 +118,6 @@ namespace Xtensive.Storage.Providers
     /// <returns>Newly created <see cref="TypeInfo"/>.</returns>
     protected abstract TypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale);
 
-    /// <summary>
-    /// Saves the native extracted schema in context.
-    /// </summary>
-    /// <param name="schema">The schema.</param>
-    protected virtual void SaveNativeExtractedSchema(object schema)
-    {
-      var context = UpgradeContext.Demand();
-      context.NativeExtractedSchema = schema;
-    }
-    
 
     // Initialization
 

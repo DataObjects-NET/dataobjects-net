@@ -76,7 +76,7 @@ namespace Xtensive.Storage.Providers.Index
     }
 
     /// <inheritdoc/>
-    /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
+    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     public override void BuildMapping()
     {
       var model = BuildingContext.Demand().Model;

@@ -36,6 +36,11 @@ namespace Xtensive.Storage.Providers
     public DomainHandler DomainHandler { get; internal set; }
 
     /// <summary>
+    /// Gets the <see cref="SchemaUpgradeHandler"/> instance.
+    /// </summary>
+    public SchemaUpgradeHandler SchemaUpgradeHandler { get; internal set; }
+
+    /// <summary>
     /// Gets the handler of the current <see cref="Session"/>.
     /// </summary>
     public SessionHandler SessionHandler { get { return Session.Demand().Handler; } }

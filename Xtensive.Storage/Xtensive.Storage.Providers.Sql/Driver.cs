@@ -49,10 +49,21 @@ namespace Xtensive.Storage.Providers.Sql
 
     public Schema ExtractSchema(SqlConnection connection)
     {
-      string schema = domain.Configuration.DefaultSchema.IsNullOrEmpty()
+      string schemaName = domain.Configuration.DefaultSchema.IsNullOrEmpty()
         ? underlyingDriver.CoreServerInfo.DefaultSchemaName
         : domain.Configuration.DefaultSchema;
-      return underlyingDriver.ExtractSchema(connection, schema);
+
+      var schema = underlyingDriver.ExtractSchema(connection, schemaName);
+
+      if (underlyingDriver.CoreServerInfo.ServerLocation.Provider.ToLower().StartsWith("sqlserver")) {
+        // This code works for Microsoft SQL Server and Microsoft SQL Server CE
+        var tables = schema.Tables;
+        var sysdiagrams = tables["sysdiagrams"];
+        if (sysdiagrams!=null)
+          tables.Remove(sysdiagrams);
+      }
+
+      return schema;
     }
 
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
