@@ -43,7 +43,7 @@ namespace Xtensive.Storage
       var result = new List<AspectInstance>();
       var propertyInfo = (PropertyInfo) targetElement;
       var type = propertyInfo.DeclaringType;
-      var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritNone);
+      var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>();
       var allFieldAttributes = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritFromAllBase);
       const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
       if (allFieldAttributes != null && allFieldAttributes.Length > 0) {
@@ -66,7 +66,7 @@ namespace Xtensive.Storage
       if (fieldAttribute == null)
         return result;
 
-      var keyAttribute = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritNone);
+      var keyAttribute = propertyInfo.GetAttribute<KeyAttribute>();
       var getter = propertyInfo.GetGetMethod(true);
       var setter = propertyInfo.GetSetMethod(true);
       if (getter != null)
@@ -81,7 +81,7 @@ namespace Xtensive.Storage
 
         // If there are constraints, we must "wrap" setter into transaction
         var constraints = 
-          propertyInfo.GetAttributes<PropertyConstraintAspect>(AttributeSearchOptions.InheritNone);
+          propertyInfo.GetAttributes<PropertyConstraintAspect>();
         if (!(constraints == null || constraints.Length == 0))
           result.Add(new AspectInstance(setter, transactional));
       }

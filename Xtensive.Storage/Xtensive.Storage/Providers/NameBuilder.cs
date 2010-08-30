@@ -191,7 +191,7 @@ namespace Xtensive.Storage.Providers
       string result;
       if (fieldNameCache.TryGetValue(key, out result))
         return result;
-      var attribute = propertyInfo.GetAttribute<OverrideFieldNameAttribute>(AttributeSearchOptions.InheritNone);
+      var attribute = propertyInfo.GetAttribute<OverrideFieldNameAttribute>();
       if (attribute!=null) {
         result = attribute.Name;
         fieldNameCache.Add(key, result);

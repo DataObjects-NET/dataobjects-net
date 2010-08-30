@@ -13,7 +13,7 @@ namespace Xtensive.Storage
   /// and defines its persistence-related properties.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class FieldAttribute : StorageAttribute
   {
     internal int? length;

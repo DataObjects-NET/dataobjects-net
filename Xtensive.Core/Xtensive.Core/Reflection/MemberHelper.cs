@@ -81,19 +81,20 @@ namespace Xtensive.Core.Reflection
     /// <see langword="null" />, if it does not exist.</returns>
     public static MemberInfo GetBaseMember(this MemberInfo member)
     {
-      var ti = member as Type;
-      var mi = member as MethodInfo;
-      var ci = member as ConstructorInfo;
-      var fi = member as FieldInfo;
-      var pi = member as PropertyInfo;
-      var ei = member as EventInfo;
       try {
-        if (ti!=null)
-          return ti.BaseType;
-        if (ci!=null)
-          return null;
+        // Items are ordered by probability of their reflection
+        var pi = member as PropertyInfo;
+        if (pi!=null) {
+          var anyAccessor = (pi.GetGetMethod(true) ?? pi.GetSetMethod(true));
+          var anyInterfaceAccessor = (MethodInfo) anyAccessor.GetBaseMember();
+          if (anyInterfaceAccessor==null)
+            return null;
+          return anyInterfaceAccessor.GetProperty();
+        }
+        var fi = member as FieldInfo;
         if (fi!=null)
           return null;
+        var mi = member as MethodInfo;
         if (mi!=null) {
           if (mi.DeclaringType.IsInterface)
             return null;
@@ -107,13 +108,10 @@ namespace Xtensive.Core.Reflection
             .GetMethod(mi.Name, mi.GetBindingFlags() | BindingFlags.ExactBinding, null, mi.GetParameterTypes(), null);
           return bmi ?? mi.GetInterfaceMember();
         }
-        if (pi!=null) {
-          var anyAccessor = (pi.GetGetMethod(true) ?? pi.GetSetMethod(true));
-          var anyInterfaceAccessor = (MethodInfo) anyAccessor.GetBaseMember();
-          if (anyInterfaceAccessor==null)
-            return null;
-          return anyInterfaceAccessor.GetProperty();
-        }
+        var ci = member as ConstructorInfo;
+        if (ci!=null)
+          return null;
+        var ei = member as EventInfo;
         if (ei!=null) {
           var anyAccessor = (ei.GetAddMethod(true) ?? ei.GetRemoveMethod(true));
           var anyInterfaceAccessor = (MethodInfo) anyAccessor.GetBaseMember();
@@ -121,6 +119,9 @@ namespace Xtensive.Core.Reflection
             return null;
           return anyInterfaceAccessor.GetEvent();
         }
+        var ti = member as Type;
+        if (ti!=null)
+          return ti.BaseType;
       }
       catch {
       }

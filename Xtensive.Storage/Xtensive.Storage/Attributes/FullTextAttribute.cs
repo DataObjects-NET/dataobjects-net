@@ -13,7 +13,7 @@ namespace Xtensive.Storage
   /// Indicates that persistent property must be included into full-text index.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class FullTextAttribute : StorageAttribute
   {
     /// <summary>
