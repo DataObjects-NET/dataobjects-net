@@ -57,8 +57,59 @@ namespace Xtensive.Core.Reflection
 
     #endregion
 
-    private static ThreadSafeDictionary<string, Delegate> cachedDelegates = 
-      ThreadSafeDictionary<string, Delegate>.Create(new object());
+    #region Nested type: MethodCallDelegateKey 
+
+    private sealed class MethodCallDelegateKey
+    {
+      private object[] items;
+      private int hashCode;
+
+      public bool Equals(MethodCallDelegateKey other)
+      {
+        if (ReferenceEquals(null, other))
+          return false;
+        if (other.hashCode!=hashCode)
+          return false;
+        var otherItems = other.items;
+        if (otherItems.Length!=items.Length)
+          return false;
+        for (int i = 0; i < items.Length; i++)
+          if (!Equals(otherItems[i], items[i]))
+            return false;
+        return true;
+      }
+
+      public override bool Equals(object obj)
+      {
+        if (ReferenceEquals(null, obj))
+          return false;
+        if (obj.GetType()!=typeof (MethodCallDelegateKey))
+          return false;
+        return Equals((MethodCallDelegateKey) obj);
+      }
+
+      public override int GetHashCode()
+      {
+        return hashCode;
+      }
+
+      
+      // Constructors
+
+      public MethodCallDelegateKey(params object[] items)
+      {
+        this.items = items;
+        unchecked {
+          foreach (var item in items)
+            hashCode = hashCode * 397 + (item==null ? 0 : item.GetHashCode());
+        }
+      }
+    }
+
+    #endregion
+
+    private static ThreadSafeDictionary<object, Delegate> cachedDelegates = 
+      ThreadSafeDictionary<object, Delegate>.Create(new object());
 
     /// <summary>
     /// Creates get member delegate.
@@ -91,7 +142,7 @@ namespace Xtensive.Core.Reflection
     {
       Type type = typeof (TObject);
       Type tValue = typeof (TValue);
-      string methodKey = GetMethodCallDelegateKey((typeof (TDelegateType).FullName + " " + memberName), type, tValue);
+      var methodKey = new MethodCallDelegateKey(typeof (TDelegateType), memberName, type, tValue);
 
       TDelegateType result = GetCachedDelegate(methodKey) as TDelegateType;
       if (result==null)
@@ -99,7 +150,6 @@ namespace Xtensive.Core.Reflection
           result = GetCachedDelegate(methodKey) as TDelegateType;
           if (result!=null)
             return result;
-          methodKey = String.Intern(methodKey);
 
           PropertyInfo pi = type.GetProperty(memberName);
           FieldInfo fi = type.GetField(memberName);
@@ -158,7 +208,7 @@ namespace Xtensive.Core.Reflection
     {
       Type type = typeof (TObject);
       Type tValue = typeof (TValue);
-      string methodKey = GetMethodCallDelegateKey(memberName, type, tValue);
+      var methodKey = new MethodCallDelegateKey(memberName, type, tValue);
 
       Action<TObject, TValue> result = (Action<TObject, TValue>)GetCachedDelegate(methodKey);
       if (result==null)
@@ -166,7 +216,6 @@ namespace Xtensive.Core.Reflection
           result = (Action<TObject, TValue>)GetCachedDelegate(methodKey);
           if (result!=null)
             return result;
-          methodKey = String.Intern(methodKey);
 
           PropertyInfo pi = type.GetProperty(memberName);
           FieldInfo fi = type.GetField(memberName);
@@ -221,15 +270,14 @@ namespace Xtensive.Core.Reflection
       Type sourceType = typeof (TSource);
       Type targetType = typeof (TTarget);
       string methodName = string.Format("{0}_{1}_{2}", primitiveCastMethodName, sourceType, targetType);
-      string methodKey  = GetMethodCallDelegateKey(methodName);
+      var methodKey  = new MethodCallDelegateKey(methodName);
 
-      Converter<TSource, TTarget> result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
+      var result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
       if (result==null)
         lock (cachedDelegates.SyncRoot) {
           result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
           if (result!=null)
             return result;
-          methodKey = String.Intern(methodKey);
 
           Type actualSourceType = sourceType;
           if (sourceType.IsEnum)
@@ -405,7 +453,7 @@ namespace Xtensive.Core.Reflection
         throw new ArgumentException(string.Format(
           Strings.ExTypeXMustBeNonAbstractType, type.GetShortName()), "type");
       Type delegateType = typeof (TDelegate);
-      string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
+      var methodKey  = new MethodCallDelegateKey(ctorMethodName, type, delegateType);
       Delegate result = GetCachedDelegate(methodKey);
       if (result == null)
         lock (cachedDelegates.SyncRoot) {
@@ -448,14 +496,13 @@ namespace Xtensive.Core.Reflection
         throw new ArgumentException(string.Format(
           Strings.ExTypeXMustBeNonAbstractType, type.GetShortName()), "type");
       Type delegateType = typeof (TDelegate);
-      string methodKey  = GetMethodCallDelegateKey(ctorMethodName, type, delegateType);
+      var methodKey  = new MethodCallDelegateKey(ctorMethodName, type, delegateType);
       Delegate result = GetCachedDelegate(methodKey);
       if (result == null)
         lock (cachedDelegates.SyncRoot) {
           result = GetCachedDelegate(methodKey);
           if (result != null)
             return (TDelegate) (object) result;
-          methodKey = String.Intern(methodKey);
           result = (Delegate)(object)CreateDelegate<TDelegate>(null, type, AspectedFactoryMethodName, ArrayUtils<Type>.EmptyArray);
           AddCachedDelegate(methodKey, result);
         }
@@ -530,27 +577,16 @@ namespace Xtensive.Core.Reflection
 
     #region Private members
 
-    private static Delegate GetCachedDelegate(string delegateKey)
+    private static Delegate GetCachedDelegate(object delegateKey)
     {
       Delegate result;
       return 
         cachedDelegates.TryGetValue(delegateKey, out result) ? result : null;      
     }
 
-    private static void AddCachedDelegate(string delegateKey, Delegate value)
+    private static void AddCachedDelegate(object delegateKey, Delegate value)
     {
       cachedDelegates.SetValue(delegateKey, value);
-    }
-
-    private static string GetMethodCallDelegateKey(string methodName, params Type[] argumentTypes)
-    {
-      var sb = new StringBuilder(128);
-      sb.Append(methodName);
-      for (int i = 0; i < argumentTypes.Length; i++) {
-        sb.Append(", ");
-        sb.Append(argumentTypes[i]);
-      }
-      return sb.ToString();
     }
 
     #endregion

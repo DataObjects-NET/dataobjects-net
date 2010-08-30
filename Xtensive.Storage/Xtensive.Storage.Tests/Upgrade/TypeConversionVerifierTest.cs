@@ -70,7 +70,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       var typeList = CreateTypeList();
       foreach (var type in typeList.Where(t => t.IsValueType)) {
         Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type, null), new TypeInfo(type, null)));
-        if (supportedConversions.ContainsKey(type))
+        if (supportedConversions.ContainsKey(type)) {
           foreach (var targetType in typeList.Where(t => t!=type && t.IsValueType)) {
             var nullableSource = nullableDefinition.MakeGenericType(type);
             var nullableTarget = nullableDefinition.MakeGenericType(targetType);
@@ -89,6 +89,7 @@ namespace Xtensive.Storage.Tests.Upgrade
                 new TypeInfo(nullableDefinition.MakeGenericType(type), null),
                 new TypeInfo(nullableDefinition.MakeGenericType(targetType), null)));
           }
+        }
       }
     }
 

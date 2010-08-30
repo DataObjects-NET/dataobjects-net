@@ -41,6 +41,7 @@ namespace Xtensive.Storage.Upgrade
       configuration.Lock();
       var context = new UpgradeContext(configuration);
       using (context.Activate()) {
+        // 1st Domain
         try {
           BuildStageDomain(UpgradeStage.Initializing).DisposeSafely();
         }
@@ -52,8 +53,12 @@ namespace Xtensive.Storage.Upgrade
           }
           else
             throw;
-          }
+        }
+
+        // 2nd Domain
         BuildStageDomain(UpgradeStage.Upgrading).DisposeSafely();
+
+        // 3rd Domain
         var domain = BuildStageDomain(UpgradeStage.Final);
         foreach (var module in context.Modules)
           module.OnBuilt(domain);
@@ -214,7 +219,7 @@ namespace Xtensive.Storage.Upgrade
         case UpgradeStage.Initializing:
           return upgradeMode.RequiresInitialization()
             ? SchemaUpgradeMode.ValidateCompatible
-            : (SchemaUpgradeMode?)null;
+            : (SchemaUpgradeMode?) null;
         case UpgradeStage.Upgrading:
           return upgradeMode.RequiresUpgrade() 
             ? GetUpgradingStageUpgradeMode(upgradeMode)

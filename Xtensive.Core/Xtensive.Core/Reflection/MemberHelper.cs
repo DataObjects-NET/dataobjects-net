@@ -189,7 +189,7 @@ namespace Xtensive.Core.Reflection
       var ei = member as EventInfo;
       if (mi!=null) {
         var iType = mi.DeclaringType.UnderlyingSystemType;
-        var map = implementor.GetInterfaceMap(iType);
+        var map = implementor.GetInterfaceMapFast(iType);
         for (int i = 0; i < map.InterfaceMethods.Length; i++) {
           if (mi==map.InterfaceMethods[i])
             return map.TargetMethods[i];
@@ -233,7 +233,7 @@ namespace Xtensive.Core.Reflection
       if (mi!=null) {
         var type = mi.DeclaringType.UnderlyingSystemType;
         foreach (var iType in type.GetInterfaces()) {
-          var map = type.GetInterfaceMap(iType.UnderlyingSystemType);
+          var map = type.GetInterfaceMapFast(iType.UnderlyingSystemType);
           for (int i = 0; i < map.InterfaceMethods.Length; i++) {
             var tmi = map.TargetMethods[i];
             if (mi==tmi)

@@ -142,11 +142,11 @@ namespace Xtensive.Storage.Providers.Sql
     }
     
     /// <inheritdoc/>
-    /// <exception cref="DomainBuilderException">Somethig went wrong.</exception>
+    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     public override void BuildMapping()
     {
       var context = UpgradeContext.Demand();
-      Schema = context.NativeExtractedSchema as Schema; // storageModel.DefaultServer.DefaultCatalog.DefaultSchema;
+      Schema = (Schema) Handlers.SchemaUpgradeHandler.GetNativeExtractedSchema(); 
       var domainModel = Handlers.Domain.Model;
 
       foreach (var type in domainModel.Types) {

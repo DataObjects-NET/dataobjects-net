@@ -54,8 +54,7 @@ namespace Xtensive.Storage.Building.Builders
         using (new BuildingScope(context)) {
           CreateDomain();
           CreateHandlerFactory();
-          CreateDomainHandler();
-          CreateNameBuilder();
+          CreateHandlers();
           CreateServices();
           BuildModel();
           CreateKeyGenerators();
@@ -138,21 +137,20 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static void CreateDomainHandler()
+    private static void CreateHandlers()
     {
+      var handlers = BuildingContext.Demand().Domain.Handlers;
+      var factory = handlers.HandlerFactory;
       using (Log.InfoRegion(Strings.LogCreatingX, typeof (DomainHandler).GetShortName())) {
-        var handlerAccessor = BuildingContext.Demand().Domain.Handlers;
-        handlerAccessor.DomainHandler = handlerAccessor.HandlerFactory.CreateHandler<DomainHandler>();
-        handlerAccessor.DomainHandler.Initialize();
-      }
-    }
-
-    private static void CreateNameBuilder()
-    {
-      using (Log.InfoRegion(Strings.LogCreatingX, typeof (NameBuilder).GetShortName())) {
-        var handlerAccessor = BuildingContext.Demand().Domain.Handlers;
-        handlerAccessor.NameBuilder = handlerAccessor.HandlerFactory.CreateHandler<NameBuilder>();
-        handlerAccessor.NameBuilder.Initialize(handlerAccessor.Domain.Configuration.NamingConvention);
+        // DomainHandler
+        handlers.DomainHandler = factory.CreateHandler<DomainHandler>();
+        handlers.DomainHandler.Initialize();
+        // NameBuilder
+        handlers.NameBuilder = factory.CreateHandler<NameBuilder>();
+        handlers.NameBuilder.Initialize(handlers.Domain.Configuration.NamingConvention);
+        // SchemaUpgradeHandler
+        handlers.SchemaUpgradeHandler = factory.CreateHandler<SchemaUpgradeHandler>();
+        handlers.SchemaUpgradeHandler.Initialize();
       }
     }
 
@@ -254,12 +252,12 @@ namespace Xtensive.Storage.Building.Builders
     {
       var context = BuildingContext.Demand();
       var domain = context.Domain;
-      var upgradeHandler = context.HandlerFactory.CreateHandler<SchemaUpgradeHandler>();
+      var upgradeHandler = domain.Handlers.SchemaUpgradeHandler;
 
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
         // Cooking required schemas
-        var targetSchema = ProvideTargetSchema(domain, upgradeHandler);
-        var extractedSchema = ProvideExtractedSchema(domain, upgradeHandler);
+        var targetSchema = ProvideTargetSchema(domain, schemaUpgradeMode, upgradeHandler);
+        var extractedSchema = ProvideExtractedSchema(domain, schemaUpgradeMode, upgradeHandler);
 
         // Hints
         HintSet hints = null;
@@ -282,13 +280,14 @@ namespace Xtensive.Storage.Building.Builders
             if (Log.IsLogged(LogEventTypes.Info))
               Log.Info(Strings.LogClearingComparisonResultX, result);
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, emptySchema);
+            upgradeHandler.ClearExtractedSchemaCache();
             extractedSchema = upgradeHandler.GetExtractedSchema();
             hints = null; // Must re-bind them
           }
         }
 
         result = SchemaComparer.Compare(extractedSchema, targetSchema, hints, schemaUpgradeMode, context.Model);
-        if (!schemaUpgradeMode.In(SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate))
+        if (!schemaUpgradeMode.In(SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate))
           Upgrade.Log.Info(result.ToString());
         if (Log.IsLogged(LogEventTypes.Info))
           Log.Info(Strings.LogComparisonResultX, result);
@@ -310,12 +309,16 @@ namespace Xtensive.Storage.Building.Builders
         case SchemaUpgradeMode.Recreate:
         case SchemaUpgradeMode.Perform:
           upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
+          if (result.UpgradeActions.Any())
+            upgradeHandler.ClearExtractedSchemaCache();
           break;
         case SchemaUpgradeMode.PerformSafely:
           if (result.HasUnsafeActions)
             throw new SchemaSynchronizationException(
               Strings.ExCanNotUpgradeSchemaSafely_DetailsX.FormatWith(result));
-            upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
+          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
+          if (result.UpgradeActions.Any())
+            upgradeHandler.ClearExtractedSchemaCache();
           break;
         case SchemaUpgradeMode.ValidateLegacy:
           if (result.IsCompatibleInLegacyMode!=true)
@@ -328,7 +331,7 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static StorageInfo ProvideExtractedSchema(Domain domain, SchemaUpgradeHandler upgradeHandler)
+    private static StorageInfo ProvideExtractedSchema(Domain domain, SchemaUpgradeMode schemaUpgradeMode, SchemaUpgradeHandler upgradeHandler)
     {
       var extractedSchema = upgradeHandler.GetExtractedSchema();
       domain.ExtractedSchema = ((StorageInfo) extractedSchema.Clone(null, StorageInfo.DefaultName));
@@ -340,7 +343,7 @@ namespace Xtensive.Storage.Building.Builders
       return extractedSchema;
     }
 
-    private static StorageInfo ProvideTargetSchema(Domain domain, SchemaUpgradeHandler upgradeHandler)
+    private static StorageInfo ProvideTargetSchema(Domain domain, SchemaUpgradeMode schemaUpgradeMode, SchemaUpgradeHandler upgradeHandler)
     {
       var targetSchema = upgradeHandler.GetTargetSchema();
       domain.Schema = ((StorageInfo) targetSchema.Clone(null, StorageInfo.DefaultName));
@@ -350,29 +353,6 @@ namespace Xtensive.Storage.Building.Builders
         targetSchema.Dump();
       }
       return targetSchema;
-    }
-
-    private static string GetErrorMessage(NodeAction unsafeAction)
-    {
-      var path = unsafeAction.Path;
-      if (unsafeAction is PropertyChangeAction) {
-        return string.Format(Strings.CantChangeTypeOfColumnX, path);
-      }
-      if (unsafeAction is RemoveNodeAction) {
-        var source = ((NodeDifference) unsafeAction.Difference).Source;
-        if (source is TableInfo)
-          return string.Format(Strings.CantRemoveTableX, source.Path);
-        if (source is ColumnInfo)
-          return string.Format(Strings.CantRemoveColumnX, source.Path);
-      }
-      if (unsafeAction is CreateNodeAction) {
-        var target = ((NodeDifference) unsafeAction.Difference).Target;
-        if (target is TableInfo)
-          return string.Format("Can't find table {0}", target.Path);
-        if (target is ColumnInfo)
-          return string.Format("Can't find column {0}", target.Path);
-      }
-      return string.Empty;
     }
   }
 }

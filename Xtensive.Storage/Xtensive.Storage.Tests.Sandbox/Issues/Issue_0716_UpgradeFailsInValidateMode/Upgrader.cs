@@ -72,7 +72,11 @@ namespace Xtensive.Storage.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
     private static List<UpgradeHint> GetTypeRenameHints(string oldVersionSuffix, string newVersionSuffix)
     {
       var upgradeContext = UpgradeContext.Demand();
-      var oldTypes = upgradeContext.ExtractedDomainModel.Types;
+      var extractedDomainModel = upgradeContext.ExtractedDomainModel;
+      if (extractedDomainModel==null)
+        return new List<UpgradeHint>(); // Handler is invoked in Validate or Skip mode
+
+      var oldTypes = extractedDomainModel.Types;
       var hints = new List<UpgradeHint>();
       foreach (var type in oldTypes) {
         var fullName = type.UnderlyingType;
