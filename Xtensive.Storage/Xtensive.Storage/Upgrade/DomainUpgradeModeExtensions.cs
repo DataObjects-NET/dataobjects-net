@@ -15,7 +15,7 @@ namespace Xtensive.Storage.Upgrade
     /// Determines whether <paramref name="upgradeMode"/> requires <see cref="UpgradeStage.Upgrading"/> stage.
     /// </summary>
     /// <param name="upgradeMode">The upgrade mode.</param>
-    public static bool RequiresUpgrade(this DomainUpgradeMode upgradeMode)
+    public static bool RequiresUpgradingStage(this DomainUpgradeMode upgradeMode)
     {
       switch (upgradeMode) {
         case DomainUpgradeMode.Perform:
@@ -31,7 +31,7 @@ namespace Xtensive.Storage.Upgrade
     /// Determines whether <paramref name="upgradeMode"/> requires <see cref="UpgradeStage.Initializing"/> stage.
     /// </summary>
     /// <param name="upgradeMode">The upgrade mode.</param>
-    public static bool RequiresInitialization(this DomainUpgradeMode upgradeMode)
+    public static bool RequiresInitializingStage(this DomainUpgradeMode upgradeMode)
     {
       switch (upgradeMode) {
         case DomainUpgradeMode.Perform:
@@ -58,6 +58,27 @@ namespace Xtensive.Storage.Upgrade
         return true;
       default:
         return false;
+      }
+    }
+
+    /// <summary>
+    /// Determines whether the specified upgrade mode is legacy.
+    /// </summary>
+    /// <param name="upgradeMode">The upgrade mode.</param>
+    /// <returns>
+    /// <see langword="true"/> if the specified upgrade mode is legacy;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsUpgrading(this DomainUpgradeMode upgradeMode)
+    {
+      switch (upgradeMode) {
+      case DomainUpgradeMode.LegacySkip:
+      case DomainUpgradeMode.LegacyValidate:
+      case DomainUpgradeMode.Skip:
+      case DomainUpgradeMode.Validate:
+        return false;
+      default:
+        return true;
       }
     }
   }

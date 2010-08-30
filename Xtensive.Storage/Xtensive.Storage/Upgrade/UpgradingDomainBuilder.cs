@@ -217,11 +217,11 @@ namespace Xtensive.Storage.Upgrade
     {
       switch (stage) {
         case UpgradeStage.Initializing:
-          return upgradeMode.RequiresInitialization()
+          return upgradeMode.RequiresInitializingStage()
             ? SchemaUpgradeMode.ValidateCompatible
             : (SchemaUpgradeMode?) null;
         case UpgradeStage.Upgrading:
-          return upgradeMode.RequiresUpgrade() 
+          return upgradeMode.RequiresUpgradingStage() 
             ? GetUpgradingStageUpgradeMode(upgradeMode)
             : (SchemaUpgradeMode?) null;
         case UpgradeStage.Final:

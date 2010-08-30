@@ -417,14 +417,16 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Generates the type ids.
+    /// Generates index allowing to quickly find 
+    /// the type by its <see cref="TypeInfo.TypeId"/>.
     /// </summary>
-    public void BuildTypeIdIndex()
+    public void RebuildTypeIdIndex()
     {
-      typeIdIndex = new IntDictionary<TypeInfo>();
+      var index = new IntDictionary<TypeInfo>();
       foreach (var type in this)
         if (type.TypeId!=TypeInfo.NoTypeId)
-          typeIdIndex[type.TypeId] = type;
+          index[type.TypeId] = type;
+      typeIdIndex = index;
     }
 
     /// <summary>

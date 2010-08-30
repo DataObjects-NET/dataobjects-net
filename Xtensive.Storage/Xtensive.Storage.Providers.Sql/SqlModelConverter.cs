@@ -208,7 +208,7 @@ namespace Xtensive.Storage.Providers.Sql
       catch (ArgumentException) {
         type = null;
       }
-      var typeInfo = type!=null ? new TypeInfo(type, false) : TypeInfo.Undefined;
+      var typeInfo = type!=null ? new TypeInfo(type, null) : TypeInfo.Undefined;
 
       var sequenceInfo = new SequenceInfo(StorageInfo, sequence.Name) {
         Increment = sequence.SequenceDescriptor.Increment.Value,

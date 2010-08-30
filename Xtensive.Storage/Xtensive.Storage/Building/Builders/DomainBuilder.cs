@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using System.Threading;
 using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.IoC;
@@ -65,10 +66,12 @@ namespace Xtensive.Storage.Building.Builders
               upgradeContext.TransactionScope = Transaction.Open();
               SynchronizeSchema(builderConfiguration.SchemaUpgradeMode);
               context.Domain.Handler.BuildMapping();
-              TypeIdBuilder.BuildTypeIds();
-              BuildTypeLevelCaches();
               if (builderConfiguration.UpgradeHandler!=null)
+                // We don't build TypeIds here 
+                // leaving this job for SystemUpgradeHandler
                 builderConfiguration.UpgradeHandler.Invoke();
+              else
+                TypeIdBuilder.BuildTypeIds(false);
               upgradeContext.TransactionScope.Complete();
             }
             finally {
@@ -234,17 +237,6 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static void BuildTypeLevelCaches()
-    {
-      using (Log.InfoRegion(Strings.LogBuildingX, Strings.CachedTypeInfo)) {
-        var context = BuildingContext.Demand();
-        var domain = context.Domain;
-        foreach (var typeInfo in domain.Model.Types)
-          if (typeInfo.TypeId!=Model.TypeInfo.NoTypeId)
-            domain.TypeLevelCaches.Add(typeInfo.TypeId, new TypeLevelCache(typeInfo));
-      }
-    }
-
     /// <exception cref="SchemaSynchronizationException">Extracted schema is incompatible 
     /// with the target schema in specified <paramref name="schemaUpgradeMode"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><c>schemaUpgradeMode</c> is out of range.</exception>
@@ -255,9 +247,9 @@ namespace Xtensive.Storage.Building.Builders
       var upgradeHandler = domain.Handlers.SchemaUpgradeHandler;
 
       using (Log.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
-        // Cooking required schemas
-        var targetSchema = ProvideTargetSchema(domain, schemaUpgradeMode, upgradeHandler);
-        var extractedSchema = ProvideExtractedSchema(domain, schemaUpgradeMode, upgradeHandler);
+        var schemas = BuildSchemasAsync(domain, upgradeHandler);
+        var extractedSchema = schemas.First;
+        var targetSchema = schemas.Second;
 
         // Hints
         HintSet hints = null;
@@ -281,7 +273,7 @@ namespace Xtensive.Storage.Building.Builders
               Log.Info(Strings.LogClearingComparisonResultX, result);
             upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, emptySchema);
             upgradeHandler.ClearExtractedSchemaCache();
-            extractedSchema = upgradeHandler.GetExtractedSchema();
+            extractedSchema = upgradeHandler.GetExtractedSchemaProvider().Invoke();
             hints = null; // Must re-bind them
           }
         }
@@ -331,28 +323,38 @@ namespace Xtensive.Storage.Building.Builders
       }
     }
 
-    private static StorageInfo ProvideExtractedSchema(Domain domain, SchemaUpgradeMode schemaUpgradeMode, SchemaUpgradeHandler upgradeHandler)
+    private static Pair<StorageInfo, StorageInfo> BuildSchemasAsync(Domain domain, SchemaUpgradeHandler upgradeHandler)
     {
-      var extractedSchema = upgradeHandler.GetExtractedSchema();
-      domain.ExtractedSchema = ((StorageInfo) extractedSchema.Clone(null, StorageInfo.DefaultName));
-      domain.ExtractedSchema.Lock();
+      var extractedSchema = upgradeHandler.GetExtractedSchemaProvider().InvokeAsync();
+      var targetSchema = upgradeHandler.GetTargetSchemaProvider().InvokeAsync();
+
+      Func<Func<StorageInfo>, Pair<StorageInfo,StorageInfo>> cloner = schemaProvider => {
+        var origin = schemaProvider.Invoke();
+        origin.Lock();
+        var clone = (StorageInfo) origin.Clone(null, StorageInfo.DefaultName);
+        return new Pair<StorageInfo, StorageInfo>(origin, clone);
+      };
+
+      var extractedSchemaCloner = cloner.InvokeAsync(extractedSchema);
+      var targetSchemaCloner = cloner.InvokeAsync(targetSchema);
+      
+      var extractedSchemas = extractedSchemaCloner.Invoke();
+      var targetSchemas = targetSchemaCloner.Invoke();
+
+      domain.ExtractedSchema = extractedSchemas.First; // Assigning locked schema
       if (Log.IsLogged(LogEventTypes.Info)) {
         Log.Info(Strings.LogExtractedSchema);
-        extractedSchema.Dump();
+        domain.ExtractedSchema.Dump();
       }
-      return extractedSchema;
-    }
-
-    private static StorageInfo ProvideTargetSchema(Domain domain, SchemaUpgradeMode schemaUpgradeMode, SchemaUpgradeHandler upgradeHandler)
-    {
-      var targetSchema = upgradeHandler.GetTargetSchema();
-      domain.Schema = ((StorageInfo) targetSchema.Clone(null, StorageInfo.DefaultName));
-      domain.Schema.Lock();
+      domain.Schema = targetSchemas.First; // Assigning locked schema
       if (Log.IsLogged(LogEventTypes.Info)) {
         Log.Info(Strings.LogTargetSchema);
-        targetSchema.Dump();
+        domain.Schema.Dump();
       }
-      return targetSchema;
+      Thread.MemoryBarrier();
+
+      // Returning unlocked clones
+      return new Pair<StorageInfo, StorageInfo>(extractedSchemas.Second, targetSchemas.Second);
     }
   }
 }

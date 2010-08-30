@@ -88,15 +88,6 @@ namespace Xtensive.Storage.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type-related information cache.
-        /// </summary>
-        internal static string CachedTypeInfo {
-            get {
-                return ResourceManager.GetString("CachedTypeInfo", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t access member &apos;{0}&apos;.
         /// </summary>
         internal static string CantAccessMemberX {

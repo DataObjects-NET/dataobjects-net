@@ -81,12 +81,11 @@ namespace Xtensive.Storage.Indexing.Model
     {
       if (IsTypeUndefined)
         return Undefined;
-      var clone = new TypeInfo(Type, IsNullable);
+      var clone = new TypeInfo(Type, IsNullable, NativeType);
       clone.Length = Length;
       clone.Culture = Culture;
       clone.Scale = Scale;
       clone.Precision = Precision;
-      clone.NativeType = NativeType;
       return clone;
     }
 
