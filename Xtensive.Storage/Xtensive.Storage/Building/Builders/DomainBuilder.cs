@@ -109,7 +109,7 @@ namespace Xtensive.Storage.Building.Builders
         var handlerProviderType = providerAssembly.GetTypes()
           .Where(type => type.IsPublicNonAbstractInheritorOf(typeof (HandlerFactory)))
           .Where(type => type.IsDefined(typeof (ProviderAttribute), false))
-          .Where(type => type.GetAttributes<ProviderAttribute>(AttributeSearchOptions.InheritNone)
+          .Where(type => type.GetAttributes<ProviderAttribute>()
             .Any(attribute => attribute.Protocol==protocol))
           .FirstOrDefault();
         if (handlerProviderType==null)

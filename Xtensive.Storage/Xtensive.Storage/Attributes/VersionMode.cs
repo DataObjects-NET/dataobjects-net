@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Specifies version check mode for particular perstent property. Applied via <see cref="VersionAttribute"/>.
+  /// Specifies version check mode for particular persistent property. Applied via <see cref="VersionAttribute"/>.
   /// </summary>
   [Serializable]
   public enum VersionMode

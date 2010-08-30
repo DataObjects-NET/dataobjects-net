@@ -135,19 +135,19 @@ namespace Xtensive.Storage.Building.Builders
           continue;
 
         // FieldAttribute presence is required
-        var fas = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritAll);
-        if (fas==null || fas.Length == 0)
+        var fieldAttributes = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritAll);
+        if (fieldAttributes.Length == 0)
           continue;
 
-        var field = DefineField(propertyInfo);
+        var field = DefineField(propertyInfo, fieldAttributes);
 
         // Declared & inherited fields must be processed for hierarchy root
         if (hierarchyDef != null) {
           typeDef.Fields.Add(field);
           Log.Info(Strings.LogFieldX, field.Name);
-          var ka = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritAll);
-          if (ka!=null)
-            AttributeProcessor.Process(hierarchyDef, field, ka);
+          var keyAttributes = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritAll);
+          if (keyAttributes!=null)
+            AttributeProcessor.Process(hierarchyDef, field, keyAttributes);
         }
         // Only declared properies must be processed in other cases
         else if (propertyInfo.DeclaringType==propertyInfo.ReflectedType) {
@@ -244,6 +244,12 @@ namespace Xtensive.Storage.Building.Builders
 
     public static FieldDef DefineField(PropertyInfo propertyInfo)
     {
+      var fieldAttributes = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritAll);
+      return DefineField(propertyInfo, fieldAttributes);
+    }
+
+    public static FieldDef DefineField(PropertyInfo propertyInfo, FieldAttribute[] fieldAttributes)
+    {
       // Persistent indexers are not supported
       var indexParameters = propertyInfo.GetIndexParameters();
       if (indexParameters.Length > 0)
@@ -252,10 +258,8 @@ namespace Xtensive.Storage.Building.Builders
       var fieldDef = new FieldDef(propertyInfo);
       fieldDef.Name = BuildingContext.Demand().NameBuilder.BuildFieldName(fieldDef);
 
-      var fieldAttributes = propertyInfo.GetAttributes<FieldAttribute>(AttributeSearchOptions.InheritAll);
-      if (fieldAttributes!=null && fieldAttributes.Length > 0) {
-        var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritNone)
-          ?? fieldAttributes.First();
+      if (fieldAttributes.Length!=0) {
+        var fieldAttribute = propertyInfo.GetAttribute<FieldAttribute>() ?? fieldAttributes.First();
         AttributeProcessor.Process(fieldDef, fieldAttribute);
         var associationAttribute = propertyInfo.GetAttribute<AssociationAttribute>(AttributeSearchOptions.InheritAll);
         if (associationAttribute!=null)

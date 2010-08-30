@@ -126,11 +126,11 @@ namespace Xtensive.Storage.Upgrade
         throw new ArgumentOutOfRangeException("type");
       switch (upgradeStage) {
       case UpgradeStage.Initializing:
-        return type.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.InheritNone)!=null;
+        return type.GetAttribute<SystemTypeAttribute>()!=null;
       case UpgradeStage.Upgrading:
         return true;
       case UpgradeStage.Final:
-        return type.GetAttribute<RecycledAttribute>(AttributeSearchOptions.InheritNone)==null;
+        return type.GetAttribute<RecycledAttribute>()==null;
       default:
         throw new ArgumentOutOfRangeException("UpgradeContext.Stage");
       }
@@ -144,7 +144,7 @@ namespace Xtensive.Storage.Upgrade
       if (type.Assembly!=Assembly)
         throw new ArgumentOutOfRangeException("field");
       if (upgradeStage==UpgradeStage.Final)
-        return field.GetAttribute<RecycledAttribute>(AttributeSearchOptions.InheritNone)==null;
+        return field.GetAttribute<RecycledAttribute>()==null;
       return true;
     }
 
@@ -185,7 +185,7 @@ namespace Xtensive.Storage.Upgrade
       var t = GetType();
       var a = Assembly;
       var ai = 
-        t.GetAttributes<AssemblyInfoAttribute>(AttributeSearchOptions.InheritNone).SingleOrDefault() 
+        t.GetAttributes<AssemblyInfoAttribute>().SingleOrDefault() 
         ?? Attribute.GetCustomAttributes(a, typeof(AssemblyInfoAttribute), false).SingleOrDefault() as AssemblyInfoAttribute;
       return (ai==null || ai.Name.IsNullOrEmpty()) 
         ? a.GetName().Name 
@@ -201,7 +201,7 @@ namespace Xtensive.Storage.Upgrade
       var t = GetType();
       var a = Assembly;
       var ai = 
-        t.GetAttributes<AssemblyInfoAttribute>(AttributeSearchOptions.InheritNone).SingleOrDefault() 
+        t.GetAttributes<AssemblyInfoAttribute>().SingleOrDefault() 
         ?? Attribute.GetCustomAttributes(a, typeof(AssemblyInfoAttribute), false).SingleOrDefault() as AssemblyInfoAttribute;
       return (ai==null || ai.Version.IsNullOrEmpty()) 
         ? a.GetName().Version.ToString() 
@@ -224,7 +224,7 @@ namespace Xtensive.Storage.Upgrade
 
       var recycledTypes =
         from t in registeredTypes
-        let a = t.GetAttribute<RecycledAttribute>(AttributeSearchOptions.InheritNone)
+        let a = t.GetAttribute<RecycledAttribute>()
         where a!=null
         select new {Type = t, Attribute = a};
 
@@ -246,8 +246,8 @@ namespace Xtensive.Storage.Upgrade
           | BindingFlags.Instance
           | BindingFlags.Public
           | BindingFlags.NonPublic)
-        let pa = p.GetAttribute<FieldAttribute>(AttributeSearchOptions.InheritNone)
-        let ra = p.GetAttribute<RecycledAttribute>(AttributeSearchOptions.InheritNone)
+        let pa = p.GetAttribute<FieldAttribute>()
+        let ra = p.GetAttribute<RecycledAttribute>()
         where pa!=null && ra!=null
         select new {Property = p, Attribute = ra};
 

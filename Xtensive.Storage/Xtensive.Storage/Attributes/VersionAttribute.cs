@@ -13,11 +13,11 @@ namespace Xtensive.Storage
   /// Marks persistent property as a part of version.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class VersionAttribute : StorageAttribute
   {
     /// <summary>
-    /// Gets the version check mode for the persitent property.
+    /// Gets the version check mode for the persistent property.
     /// </summary>
     public VersionMode Mode { get; private set; }
 
@@ -32,7 +32,7 @@ namespace Xtensive.Storage
     /// <summary>
     ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="mode">The versioning mode.</param>
+    /// <param name="mode">The version check mode.</param>
     public VersionAttribute(VersionMode mode)
     {
       Mode = mode;
