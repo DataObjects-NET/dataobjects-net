@@ -25,13 +25,17 @@ namespace Xtensive.Core.Tuples.Transform
       get { return descriptor; }
       protected set {
         descriptor = value;
-        defaultResult = descriptor==null ? null : Tuple.Create(descriptor).ToReadOnly(TupleTransformType.Tuple);
+        defaultResult = null;
       }
     }
 
     /// <inheritdoc/>
     public Tuple DefaultResult {
-      get { return defaultResult; }
+      get {
+        if (defaultResult==null && descriptor!=null)
+          defaultResult = Tuple.Create(descriptor).ToReadOnly(TupleTransformType.Tuple);
+        return defaultResult;
+      }
     }
 
     /// <inheritdoc/>
