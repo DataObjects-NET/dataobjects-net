@@ -19,6 +19,7 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Internals;
+using Xtensive.Storage.Model;
 using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Activator = System.Activator;
@@ -212,8 +213,23 @@ namespace Xtensive.Storage.Building.Builders
         var context = BuildingContext.Demand();
         var domain = context.Domain;
         ModelBuilder.Run();
-        domain.Model = context.Model;
-        domain.Model.Lock(true);
+        var model = context.Model;
+        model.Lock(true);
+        domain.Model = model;
+
+        // Starting background process caching the Tuples related to model
+        Func<bool> backgroundCacher = () => {
+          var processedHierarchies = new HashSet<HierarchyInfo>();
+          foreach (var type in model.Types) {
+            var ignored1 = type.TuplePrototype;
+            var hierarchy = type.Hierarchy;
+            if (!processedHierarchies.Contains(hierarchy)) {
+              var ignored2 = Tuple.Create(hierarchy.Key.TupleDescriptor);
+            }
+          }
+          return true;
+        };
+        backgroundCacher.InvokeAsync();
       }
     }
 
@@ -222,6 +238,7 @@ namespace Xtensive.Storage.Building.Builders
       using (Log.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
         var context = BuildingContext.Demand();
         var domain = context.Domain;
+        var keyGenerators = domain.KeyGenerators;
         foreach (var keyInfo in domain.Model.Hierarchies.Select(h => h.Key)) {
           KeyGenerator generator = null;
           if (keyInfo.GeneratorType!=null) {
@@ -232,8 +249,16 @@ namespace Xtensive.Storage.Building.Builders
             }
           }
           // So non-exisitng (==null) generators are added as well!
-          domain.KeyGenerators.Add(keyInfo, generator);
+          keyGenerators.Add(keyInfo, generator);
         }
+
+        // Starting background process invoking KeyGenerator.Prepare methods
+        Func<bool> backgroundCacher = () => {
+          foreach (var pair in keyGenerators)
+            pair.Value.Prepare();
+          return true;
+        };
+        backgroundCacher.InvokeAsync();
       }
     }
 

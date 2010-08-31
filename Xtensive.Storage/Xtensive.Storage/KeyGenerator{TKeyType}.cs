@@ -59,7 +59,11 @@ namespace Xtensive.Storage
     /// Gets the tuple prototype for this key generator.
     /// </summary>
     protected Tuple TuplePrototype {
-      get { return tuplePrototype; }
+      get {
+        if (tuplePrototype==null)
+          tuplePrototype = Tuple.Create(KeyInfo.TupleDescriptor);
+        return tuplePrototype;
+      }
     }
 
     /// <summary>
@@ -121,7 +125,7 @@ namespace Xtensive.Storage
     /// <see langword="null" />, if required key can not be generated.</returns>
     protected Tuple DefaultNext(bool temporaryKey)
     {
-      var result = tuplePrototype.CreateNew();
+      var result = TuplePrototype.CreateNew();
       lock (syncRoot) {
         if (!temporaryKey) {
           last = GetNextValue(last);
@@ -178,12 +182,10 @@ namespace Xtensive.Storage
       }
     }
 
-
     /// <inheritdoc/>
     protected internal override void Initialize(HandlerAccessor handlers, KeyInfo keyInfo)
     {
       base.Initialize(handlers, keyInfo);
-      tuplePrototype = Tuple.Create(keyInfo.TupleDescriptor);
       arithmetic = Arithmetic<TKeyType>.Default;
       if (arithmetic!=null)
         arithmetic = arithmetic.ApplyRules(
@@ -198,6 +200,13 @@ namespace Xtensive.Storage
           lastTemporary = (TKeyType) (object) (TemporaryStringKeyPrefix + "0");
       }
       last = lastTemporary;
+    }
+
+    /// <inheritdoc/>
+    protected internal override void Prepare()
+    {
+      base.Prepare();
+      var ignored = TuplePrototype;
     }
   }
 }
