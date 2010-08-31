@@ -13,6 +13,7 @@ using Xtensive.Core;
 using Xtensive.Core.Diagnostics;
 using Xtensive.Core.IoC;
 using Xtensive.Core.Reflection;
+using Xtensive.Core.Tuples;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -24,6 +25,7 @@ using Xtensive.Storage.Providers;
 using Xtensive.Storage.Resources;
 using Activator = System.Activator;
 using UpgradeContext = Xtensive.Storage.Upgrade.UpgradeContext;
+using Tuple=Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Storage.Building.Builders
 {
