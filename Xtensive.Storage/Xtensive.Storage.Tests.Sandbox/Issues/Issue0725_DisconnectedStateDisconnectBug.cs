@@ -66,6 +66,7 @@ namespace Xtensive.Storage.Tests.Issues
             var unit = new Unit { Title = "Unit 2" };
             tx.Complete(); // Local transaction completed.
           }
+          Assert.Less(0, ds.Operations.Count);
           ds.ApplyChanges();
           Assert.IsTrue(ds.IsAttached);
           Assert.IsTrue(ds.IsConnected);
@@ -79,8 +80,8 @@ namespace Xtensive.Storage.Tests.Issues
         Assert.IsTrue(ds.IsAttached);
         Assert.IsFalse(ds.IsConnected);
       }
-        Assert.IsFalse(ds.IsAttached);
-        Assert.IsFalse(ds.IsConnected);
+      Assert.IsFalse(ds.IsAttached);
+      Assert.IsFalse(ds.IsConnected);
     }
   }
 }
