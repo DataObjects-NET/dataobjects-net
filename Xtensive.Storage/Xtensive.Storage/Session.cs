@@ -68,6 +68,7 @@ namespace Xtensive.Storage
     private SessionScope sessionScope;
     private ExtensionCollection extensions;
     private volatile bool isDisposed;
+    private bool allowSwitching;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -235,40 +236,43 @@ namespace Xtensive.Storage
     /// <inheritdoc/>
     public SessionScope Activate()
     {
-      return SessionScope.CurrentSession==this
-        ? null
-        : new SessionScope(this);
+      var currentSession = SessionScope.CurrentSession; // Not Session.Current -
+      // to avoid possible comparison with Session provided by Session.Resolver.
+      return currentSession==this ? null : new SessionScope(this);
     }
 
 
     /// <summary>
     /// Activates the session.
+    /// See <see cref="SessionOptions.AllowSwitching"/> for more detailed explanation
+    /// of purpose of this method.
     /// </summary>
-    /// <param name="throwIfAnotherSessionIsActive">If set to <see langword="true"/>, 
-    /// <see cref="InvalidOperationException"/> is thrown if another session is active
-    /// (performs session switching check).</param>
+    /// <param name="checkSwitching">If set to <see langword="true"/>, 
+    /// <see cref="InvalidOperationException"/> is thrown if another session is active, and
+    /// either this or active session does not have <see cref="SessionOptions.AllowSwitching"/> flag.</param>
     /// <returns>A disposable object reverting the action.</returns>
     /// <exception cref="InvalidOperationException">Session switching is detected.</exception>
-    public SessionScope Activate(bool throwIfAnotherSessionIsActive)
+    public SessionScope Activate(bool checkSwitching)
     {
-      if (!throwIfAnotherSessionIsActive)
+      if (!checkSwitching)
         return Activate();
       var currentSession = SessionScope.CurrentSession; // Not Session.Current -
       // to avoid possible comparison with Session provided by Session.Resolver.
       if (currentSession==null)
         return new SessionScope(this);
-      else {
-        if (currentSession!=this)
-          throw new InvalidOperationException(
-            Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked
-            .FormatWith(this, currentSession));
-        // No activation is necessary here
+      if (currentSession==this)
         return null;
-      }
+      if (allowSwitching && currentSession.allowSwitching)
+        return new SessionScope(this);
+      throw new InvalidOperationException(
+        Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked
+          .FormatWith(this, currentSession));
     }
 
     /// <summary>
     /// Deactivates <see cref="Current"/> session making it equal to <see langword="null" />.
+    /// See <see cref="SessionOptions.AllowSwitching"/> for more detailed explanation
+    /// of purpose of this method.
     /// </summary>
     /// <returns>A disposable object reverting the action.</returns>
     public static SessionScope Deactivate()
@@ -367,6 +371,7 @@ namespace Xtensive.Storage
       Name = configuration.Name;
       Identifier = Interlocked.Increment(ref lastUsedIdentifier);
       CommandTimeout = configuration.DefaultCommandTimeout;
+      allowSwitching = (configuration.Options & SessionOptions.AllowSwitching)==SessionOptions.AllowSwitching;
 
       // Handlers
       Handlers = domain.Handlers;
