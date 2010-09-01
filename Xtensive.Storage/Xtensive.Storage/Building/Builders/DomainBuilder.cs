@@ -223,10 +223,20 @@ namespace Xtensive.Storage.Building.Builders
         Func<bool> backgroundCacher = () => {
           var processedHierarchies = new HashSet<HierarchyInfo>();
           foreach (var type in model.Types) {
-            var ignored1 = type.TuplePrototype;
-            var hierarchy = type.Hierarchy;
-            if (!processedHierarchies.Contains(hierarchy)) {
-              var ignored2 = Tuple.Create(hierarchy.Key.TupleDescriptor);
+            try {
+              var ignored1 = type.TuplePrototype;
+              var hierarchy = type.Hierarchy;
+              if (hierarchy==null) // It's Structure
+                continue;
+              if (!processedHierarchies.Contains(hierarchy)) {
+                var key = hierarchy.Key;
+                if (key!=null && key.TupleDescriptor!=null) {
+                  var ignored2 = Tuple.Create(key.TupleDescriptor);
+                }
+              }
+            }
+            catch {
+              // We supress everything here.
             }
           }
           return true;
@@ -256,8 +266,16 @@ namespace Xtensive.Storage.Building.Builders
 
         // Starting background process invoking KeyGenerator.Prepare methods
         Func<bool> backgroundCacher = () => {
-          foreach (var pair in keyGenerators)
-            pair.Value.Prepare();
+          foreach (var pair in keyGenerators) {
+            try {
+              var keyGenerator = pair.Value;
+              if (keyGenerator!=null)
+                keyGenerator.Prepare();
+            }
+            catch {
+              // We supress everything here.
+            }
+          }
           return true;
         };
         backgroundCacher.InvokeAsync();

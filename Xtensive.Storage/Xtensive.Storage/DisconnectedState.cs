@@ -380,15 +380,23 @@ namespace Xtensive.Storage
     public void Merge(DisconnectedState source, MergeMode mergeMode)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      EnsureNoTransaction();
+      bool inTransaction = IsAttached && Session.Transaction!=null;
 
-      var sourceStates = source.originalState.EntityStates;
-      foreach (var entityState in sourceStates)
-        RegisterEntityState(
-          entityState.Key, 
-          entityState.Tuple, 
-          source.Versions[entityState.Key], 
-          mergeMode);
+      if (inTransaction)
+        Session.Persist();
+      try {
+        var sourceStates = source.originalState.EntityStates;
+        foreach (var entityState in sourceStates)
+          RegisterEntityState(
+            entityState.Key,
+            entityState.Tuple,
+            source.Versions[entityState.Key],
+            mergeMode);
+      }
+      finally {
+        if (inTransaction)
+          Session.Invalidate();
+      }
     }
 
     /// <summary>
