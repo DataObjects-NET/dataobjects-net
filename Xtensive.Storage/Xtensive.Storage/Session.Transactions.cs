@@ -21,7 +21,6 @@ namespace Xtensive.Storage
     private const string SavepointNameFormat = "s{0}";
 
     private int nextSavepoint;
-    private TransactionScope ambientTransactionScope;
     
     /// <summary>
     /// Gets the active transaction.
@@ -40,6 +39,8 @@ namespace Xtensive.Storage
         }
         if (isolationLevel==IsolationLevel.Unspecified)
           isolationLevel = Configuration.DefaultIsolationLevel;
+        if (IsDisconnected && DisconnectedState.AlreadyOpenedTransaction != null)
+          return TransactionScope.VoidScopeInstance;
         return CreateOutermostTransaction(isolationLevel);
       case TransactionOpenMode.New:
         if (isolationLevel==IsolationLevel.Unspecified)
@@ -124,10 +125,11 @@ namespace Xtensive.Storage
 
     private void EnsureTransactionIsStarted()
     {
-      if (Transaction==null)
+      var transaction = Transaction ?? (IsDisconnected ? DisconnectedState.AlreadyOpenedTransaction : null);
+      if (transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
-      if (!Transaction.IsActuallyStarted)
-        StartTransaction(Transaction);
+      if (!transaction.IsActuallyStarted)
+        StartTransaction(transaction);
     }
 
     /// <exception cref="InvalidOperationException">Can't create a transaction
@@ -173,17 +175,10 @@ namespace Xtensive.Storage
       EntityChangeRegistry.Clear();
     }
 
-    private TransactionScope CreateAmbientTransaction(IsolationLevel isolationLevel)
-    {
-      var newTransaction = new Transaction(this, isolationLevel);
-      ambientTransactionScope = OpenTransactionScope(newTransaction);
-      return TransactionScope.VoidScopeInstance;
-    }
-
     private TransactionScope CreateOutermostTransaction(IsolationLevel isolationLevel)
     {
-      var newTransaction = new Transaction(this, isolationLevel);
-      return OpenTransactionScope(newTransaction);
+      var transaction = new Transaction(this, isolationLevel);
+      return OpenTransactionScope(transaction);
     }
 
     private TransactionScope CreateNestedTransaction(IsolationLevel isolationLevel)

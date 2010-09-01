@@ -39,7 +39,8 @@ namespace Xtensive.Storage
     private VersionsUsageOptions versionsUsageOptions = VersionsUsageOptions.Default;
     private VersionsProviderType versionsProviderType = VersionsProviderType.Default;
     private OperationLogType logType;
-
+    [NonSerialized]
+    internal Transaction AlreadyOpenedTransaction;
 
     [NonSerialized]
     private Session session;
@@ -47,10 +48,10 @@ namespace Xtensive.Storage
     private IVersionSetProvider versionsProvider;
     [NonSerialized]
     private IDisposable sessionHandlerSubstitutionScope;
-    [NonSerialized]
-    internal IDisposable transactionReplacementScope;
-    [NonSerialized]
-    internal IDisposable logIndentScope;
+    [NonSerialized] 
+    private IDisposable transactionReplacementScope;
+    [NonSerialized] 
+    private IDisposable logIndentScope;
     [NonSerialized]
     private DisconnectedSessionHandler handler;
     [NonSerialized]
@@ -666,23 +667,24 @@ namespace Xtensive.Storage
 
     private void AttachInternal(Session session)
     {
-      if (session.IsDebugEventLoggingEnabled)
-        logIndentScope = Log.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session);
-      else
-        logIndentScope = null;
-//      if (session.Transaction!=null) {
-//        session.Persist(PersistReason.DisconnectedStateAttach);
-//        session.Invalidate();
-//      }
+      logIndentScope = session.IsDebugEventLoggingEnabled 
+        ? Log.DebugRegion(Strings.LogSessionXDisconnectedStateAttach, Session) 
+        : null;
+      session.DisconnectedState = this;
+      this.session = session;
+
       var directSessionAccessor = session.Services.Demand<DirectSessionAccessor>();
+      if (session.Transaction != null && !session.Transaction.IsActuallyStarted) {
+        AlreadyOpenedTransaction = session.Transaction;
+        session.BeginTransaction(session.Transaction);
+        OnTransactionOpened();
+      }
       transactionReplacementScope = directSessionAccessor.NullifySessionTransaction();
       handler = new DisconnectedSessionHandler(session.Handler, this);
       sessionHandlerSubstitutionScope = session.Services.Get<DirectSessionAccessor>()
         .ChangeSessionHandler(handler);
-      session.DisconnectedState = this;
       if (versionsProvider==this)
         versionsProvider = session;
-      this.session = session;
     }
 
     private void DetachInternal()
