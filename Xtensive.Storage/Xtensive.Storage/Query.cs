@@ -423,7 +423,7 @@ namespace Xtensive.Storage
             state = session.Handler.FetchEntityState(key);
         }
 
-        if (state==null || state.IsNotAvailableOrMarkedAsRemoved || !key.TypeRef.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType)) 
+        if (state==null || state.IsNotAvailableOrMarkedAsRemoved || !key.TypeReference.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType)) 
           // No state or Tuple = null or incorrect query type => no data in storage
           result = null;
         else

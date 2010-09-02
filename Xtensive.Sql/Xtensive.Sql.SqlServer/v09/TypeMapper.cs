@@ -107,10 +107,15 @@ namespace Xtensive.Sql.SqlServer.v09
     {
       var nativeReader = (SqlDataReader) reader;
       // TODO: quickfix -- rewrite
-      var value = SqlDecimal.ConvertToPrecScale(
-        nativeReader.GetSqlDecimal(index),
-        MaxDecimalPrecision.Value - 2, MaxDecimalPrecision.Value / 3);
-      return value.Value;
+      try {
+        var value = SqlDecimal.ConvertToPrecScale(
+          nativeReader.GetSqlDecimal(index),
+          MaxDecimalPrecision.Value - 2, MaxDecimalPrecision.Value / 3);
+        return value.Value;
+      }
+      catch (SqlTruncateException e) {
+        return nativeReader.GetSqlDecimal(index).Value;
+      }
     }
 
     public override object ReadTimeSpan(DbDataReader reader, int index)

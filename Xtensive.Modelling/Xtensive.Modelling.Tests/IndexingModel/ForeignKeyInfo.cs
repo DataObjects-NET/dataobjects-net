@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Tests.IndexingModel.Resources;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Modelling.Tests.IndexingModel
 {
@@ -88,7 +89,7 @@ namespace Xtensive.Modelling.Tests.IndexingModel
           });
         var pkTypes = PrimaryKey.KeyColumns.Select(c => c.Value.Type);
         var fkTypes = ForeignKeyColumns.Select(c => c.Value.Type);
-        if (pkTypes.Count()!=pkTypes.Zip(fkTypes).Where(p => p.First==p.Second).Count())
+        if (pkTypes.Count()!=pkTypes.Zip(fkTypes).Where(p => p.First.Type==p.Second.Type.StripNullable()).Count())
           ea.Execute(() => {
             throw new ValidationException(
               Strings.ExInvalidForeignKeyStructure, Path);

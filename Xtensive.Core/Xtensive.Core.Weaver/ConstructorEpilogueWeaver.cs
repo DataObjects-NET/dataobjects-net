@@ -152,7 +152,7 @@ namespace Xtensive.Core.Weaver
           if (baseTypeRef == null)
             return;
 
-          var genericType = GenericHelper.GetTypeCanonicalGenericInstance(baseTypeRef);
+          var genericType = baseTypeRef.GetCanonicalGenericInstance();
           var module = parent.AspectWeaver.Module;
 
           getTypeFromHandleMethod = module.FindMethod(
@@ -189,7 +189,7 @@ namespace Xtensive.Core.Weaver
           var sequence = methodBody.CreateInstructionSequence();
           block.AddInstructionSequence( sequence, NodePosition.Before, null );
 
-          var declaringType = GenericHelper.GetTypeCanonicalGenericInstance(targetMethodDef.DeclaringType)
+          var declaringType = targetMethodDef.DeclaringType.GetCanonicalGenericInstance()
             .TranslateType(module);
           writer.AttachInstructionSequence( sequence );
           writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);
@@ -214,7 +214,7 @@ namespace Xtensive.Core.Weaver
           var sequence = methodBody.CreateInstructionSequence();
           block.AddInstructionSequence( sequence, NodePosition.Before, null );
 
-          var declaringType = GenericHelper.GetTypeCanonicalGenericInstance(targetMethodDef.DeclaringType)
+          var declaringType = targetMethodDef.DeclaringType.GetCanonicalGenericInstance()
             .TranslateType(module);
           writer.AttachInstructionSequence( sequence );
           writer.EmitSymbolSequencePoint(SymbolSequencePoint.Hidden);

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core.Aspects;
 using Xtensive.Core.Collections;
 using Xtensive.Core.Internals.DocTemplates;
 
@@ -14,6 +15,7 @@ namespace Xtensive.Storage.Internals
   /// <summary>
   /// Registers <see cref="EntityState"/> changes.
   /// </summary>
+  [Infrastructure]
   public sealed class EntityChangeRegistry : SessionBound
   {
     private readonly HashSet<EntityState> @new = new HashSet<EntityState>();

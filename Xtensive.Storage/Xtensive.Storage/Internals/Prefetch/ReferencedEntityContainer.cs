@@ -49,7 +49,7 @@ namespace Xtensive.Storage.Internals.Prefetch
           String.Format(Strings.ExReferencingEntityWithKeyXIsNotFound, ownerKey));
       if (!ownerState.IsTupleLoaded)
         throw Exceptions.InternalError(Strings.ExReferencingEntityTupleIsNotLoaded, Log.Instance);
-      if (!isOwnerTypeKnown && !ownerState.Key.TypeRef.Type.Fields.Contains(ReferencingField))
+      if (!isOwnerTypeKnown && !ownerState.Key.TypeReference.Type.Fields.Contains(ReferencingField))
         return null;
       var foreignKeyTuple = ExtractForeignKeyTuple(ownerState);
       if (foreignKeyTuple == null)

@@ -13,13 +13,14 @@ namespace Xtensive.Storage
   /// and defines its persistence-related properties.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class FieldAttribute : StorageAttribute
   {
     internal int? length;
     internal int? scale;
     internal int? precision;
     internal bool? nullable;
+    internal bool  nullableOnUpgrade;
     internal bool? indexed;
 
     /// <summary>
@@ -72,7 +73,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <remarks>
     /// Note that this should be applied to reference fields only. For value-based fields
-    /// consider using Nullable&lt;T&gt; approach.
+    /// consider using <see cref="System.Nullable{T}"/> approach.
     /// </remarks>
     /// <value>
     /// <see langword="true"/> if field nullable; otherwise, <see langword="false"/>.
@@ -82,6 +83,21 @@ namespace Xtensive.Storage
       get { return nullable.HasValue ? nullable.Value : false; }
       set { nullable = value; }
     }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this field must be <see cref="Nullable"/> during upgrade.
+    /// </summary>
+    public bool NullableOnUpgrade
+    {
+      get { return nullableOnUpgrade; }
+      set { nullableOnUpgrade = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the default value for this property.
+    /// <see langword="null" /> indicates default value is provided automatically.
+    /// </summary>
+    public object DefaultValue { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether value of this field should be loaded on demand.

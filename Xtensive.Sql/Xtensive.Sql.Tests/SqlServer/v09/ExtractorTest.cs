@@ -10,7 +10,7 @@ using NUnit.Framework;
 using System.Linq;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Tests.SqlServer
+namespace Xtensive.Sql.Tests.SqlServer.v09
 {
   [TestFixture]
   public class ExtractorTest : SqlTest
@@ -60,6 +60,28 @@ namespace Xtensive.Sql.Tests.SqlServer
       var table = schema.Tables["table_with_default_constraint"];
       Assert.AreEqual(1, table.TableConstraints.Count);
       Assert.AreEqual("id", ((DefaultConstraint) table.TableConstraints[0]).Column.Name);
+    }
+
+    [Test]
+    public void ExtractComputedColumnTest()
+    {
+      string createTable = @"
+        CREATE TABLE Tmp ( [Value] [int] NOT NULL, [Sum]  AS ([Value]+(1)) PERSISTED ) ON [PRIMARY]
+        CREATE NONCLUSTERED INDEX [IX_Sum] ON Tmp ( [Sum] ASC ) ON [PRIMARY]";
+      string createView = @"
+        CREATE VIEW Tmp_View WITH SCHEMABINDING AS SELECT Value, Sum FROM dbo.Tmp";
+      string createIndex = @"
+        CREATE UNIQUE CLUSTERED INDEX [x] ON Tmp_View (	[Value] ASC )";
+      string drop = @"
+        if object_id('Tmp_View') is not null drop view Tmp_View
+        if object_id('Tmp') is not null drop table Tmp";
+
+      ExecuteNonQuery(drop);
+      ExecuteNonQuery(createTable);
+      ExecuteNonQuery(createView);
+
+      ExtractDefaultSchema();
+      ExecuteNonQuery(drop);
     }
 
     private void CreateDomain()

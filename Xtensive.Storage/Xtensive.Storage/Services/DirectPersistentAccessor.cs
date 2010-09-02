@@ -75,9 +75,9 @@ namespace Xtensive.Storage.Services
       using (Session.OpenSystemLogicOnlyRegion())
       {
         ArgumentValidator.EnsureArgumentNotNull(key, "key");
-        if (key.TypeRef.Accuracy != TypeReferenceAccuracy.ExactType)
+        if (key.TypeReference.Accuracy != TypeReferenceAccuracy.ExactType)
           throw new InvalidOperationException(string.Format(Strings.ExKeyXShouldHaveExactType, key));
-        var entityType = key.TypeRef.Type;
+        var entityType = key.TypeReference.Type;
         var domain = Session.Domain;
         return Session.CreateOrInitializeExistingEntity(entityType.UnderlyingType, key);
       }
@@ -119,7 +119,7 @@ namespace Xtensive.Storage.Services
     /// <summary>
     /// Gets the value of the specified persistent field of the target.
     /// </summary>
-    /// <param name="target">The target.</param>
+    /// <param name="target">The target entity or structure.</param>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
     public object GetFieldValue(Persistent target, FieldInfo field)
@@ -134,7 +134,7 @@ namespace Xtensive.Storage.Services
     /// Gets the value of the specified persistent field of the target.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    /// <param name="target">The target.</param>
+    /// <param name="target">The target entity or structure.</param>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
     public T GetFieldValue<T>(Persistent target, FieldInfo field)
@@ -143,6 +143,20 @@ namespace Xtensive.Storage.Services
         ValidateArguments(target, field);
         return target.GetFieldValue<T>(field);
       }
+    }
+
+    /// <summary>
+    /// Indicates whether specified field values are equal.
+    /// </summary>
+    /// <param name="target">The target entity or structure.</param>
+    /// <param name="field">The field.</param>
+    /// <param name="value1">The first value.</param>
+    /// <param name="value2">The second value.</param>
+    /// <returns>Comparison result.</returns>
+    public bool AreSameValues(Persistent target, FieldInfo field, object value1, object value2)
+    {
+      ValidateArguments(target, field);
+      return target.GetFieldAccessor(field).AreSameValues(value1, value2);
     }
 
     /// <summary>

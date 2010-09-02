@@ -695,6 +695,11 @@ namespace Xtensive.Storage.Upgrade
       StoredAssociationInfo association,
       bool inverse)
     {
+      if (association.ReferencingField.IsEntitySet && association.ConnectorType==null)
+        // There is nothing to cleanup in class containing EntitySet<T> property,
+        // when T is removed, and EntitySet<T> was paired to a property of T.
+        return;
+
       var identityFieldsOfRemovedType = removedType.AllFields.Where(f => f.IsPrimaryKey).ToList();
       var identityFieldsOfUpdatedType = association.ConnectorType!=null
         ? association.ConnectorType.Fields

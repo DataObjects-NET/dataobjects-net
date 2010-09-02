@@ -37,7 +37,7 @@ namespace Xtensive.Storage.Disconnected
     /// <returns><see cref="ReferenceDescriptor"/> instances.</returns>
     public IEnumerable<ReferenceDescriptor> GetReferencesFrom(Key key, Tuple tuple)
     {
-      var type = key.TypeRef.Type;
+      var type = key.TypeReference.Type;
       var baseType = type.UnderlyingType.BaseType;
       var isAuxEntity = baseType.IsGenericType && baseType.GetGenericTypeDefinition()==typeof (EntitySetItem<,>);
       if (isAuxEntity) {
@@ -66,7 +66,7 @@ namespace Xtensive.Storage.Disconnected
     /// <returns><see cref="EntitySetItemDesc"/> instances.</returns>
     public IEnumerable<EntitySetItemDesc> GetEntitySetItems(Key key, Tuple tuple)
     {
-      var type = key.TypeRef.Type;
+      var type = key.TypeReference.Type;
       var baseType = type.UnderlyingType.BaseType;
       var isAuxEntity = baseType.IsGenericType && baseType.GetGenericTypeDefinition()==typeof (EntitySetItem<,>);
       if (isAuxEntity) {

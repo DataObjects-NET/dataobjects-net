@@ -20,10 +20,11 @@ namespace Xtensive.Storage.Model
     ICloneable
   {
     private ColumnAttributes attributes;
-    private Type valueType;
-    private int? length;
-    private int? scale;
-    private int? precision;
+    private Type   valueType;
+    private int?   length;
+    private int?   scale;
+    private int?   precision;
+    private object defaultValue;
     private FieldInfo field;
     private NodeCollection<IndexInfo> indexes;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
@@ -129,6 +130,16 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Specifies the type that should be used to store the
+    /// value of the field (available for properties that can be mapped
+    /// to multiple data types).
+    /// </summary>
+    public Type ValueType {
+      [DebuggerStepThrough]
+      get { return valueType; }
+    }
+
+    /// <summary>
     /// Gets or sets the length of the column.
     /// </summary>
     public int? Length {
@@ -153,13 +164,12 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
-    /// Specifies the type that should be used to store the
-    /// value of the field (available for properties that can be mapped
-    /// to multiple data types).
+    /// Gets or sets the default value for this field.
+    /// <see langword="null" /> indicates default value is provided automatically.
     /// </summary>
-    public Type ValueType {
+    public object DefaultValue {
       [DebuggerStepThrough]
-      get { return valueType; }
+      get { return defaultValue; }
     }
 
     /// <summary>
@@ -256,6 +266,7 @@ namespace Xtensive.Storage.Model
       clone.length = length;
       clone.scale = scale;
       clone.precision = precision;
+      clone.defaultValue = defaultValue;
       clone.indexes = indexes;
       clone.cultureInfo = cultureInfo;
 
@@ -291,6 +302,7 @@ namespace Xtensive.Storage.Model
       length = field.Length;
       scale = field.Scale;
       precision = field.Precision;
+      defaultValue = field.DefaultValue;
     }
 
     /// <summary>
@@ -310,6 +322,7 @@ namespace Xtensive.Storage.Model
       length = field.Length;
       scale = field.Scale;
       precision = field.Precision;
+      defaultValue = field.DefaultValue;
     }
   }
 }

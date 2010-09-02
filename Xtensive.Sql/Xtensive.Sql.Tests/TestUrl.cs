@@ -9,7 +9,7 @@ namespace Xtensive.Sql.Tests
   public static class TestUrl
   {
     public const string SqlServer2005 = "sqlserver://localhost/DO40-Tests?Connection Timeout=5";
-    public const string SqlServer2005Aw = "sqlserver://localhost/AdventureWorks?Connection Timeout=5";
+    public const string SqlServer2005Aw = "sqlserver://appserver/AdventureWorks?Connection Timeout=5";
     public const string SqlServer2008 = @"sqlserver://localhost\Sql2008/DO40-Tests?Connection Timeout=5";
     public const string SqlServer2008Aw = @"sqlserver://localhost\Sql2008/AdventureWorks?Connection Timeout=5";
 

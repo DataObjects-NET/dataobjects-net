@@ -71,6 +71,7 @@ namespace Xtensive.Storage.Tests.Rse
       int lengthIdx = GetFieldIndex(rsHeader, LengthField);
       int nameIdx = GetFieldIndex(rsHeader, NameField);
 
+      #pragma warning disable 183, 184
       Expression<Func<Tuple, bool>> predicate0 =
         (t) => !(t.GetValue<string>(nameIdx).CompareTo("abc") < 0 || t.GetValue<int?>(lengthIdx) >= 3
           || !(true && t.GetValue<int?>(lengthIdx) >= 1))
@@ -79,6 +80,8 @@ namespace Xtensive.Storage.Tests.Rse
       Expression<Func<Tuple, bool>> predicate1 =
         (t) => t.GetValue<string>(nameIdx).CompareTo("abc") >= 0 && t.GetValue<int?>(lengthIdx) < 3 
           || !(lengthIdx is int && !(lengthIdx is string));
+      #pragma warning restore 183, 184
+
       var rsExtractor = new RangeSetExtractor(Domain.Model,
         new OptimizationInfoProviderResolver((DomainHandler)Domain.Handler));
       var result0 = rsExtractor.Extract(predicate0, new[] {indexInfo}, rsHeader);

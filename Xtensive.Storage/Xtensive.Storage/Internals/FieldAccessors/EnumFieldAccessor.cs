@@ -51,7 +51,7 @@ namespace Xtensive.Storage.Internals.FieldAccessors
     {
       var field = Field;
       // Biconverter<object, T> converter = GetConverter(field.ValueType);
-      obj.Tuple.SetValue(field.MappingInfo.Offset, Convert.ChangeType(value, field.Column.ValueType));
+      obj.Tuple.SetValue(field.MappingInfo.Offset, value==null ? null : Convert.ChangeType(value, field.Column.ValueType));
     }
 
     private Biconverter<object, T> GetConverter(Type type)

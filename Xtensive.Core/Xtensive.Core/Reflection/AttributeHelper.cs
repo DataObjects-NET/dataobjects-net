@@ -20,43 +20,71 @@ namespace Xtensive.Core.Reflection
   {
     /// <summary>
     /// A shortcut to <see cref="MemberInfo.GetCustomAttributes(Type,bool)"/> method.
+    /// This method does not inherit the attribute.
+    /// </summary>
+    /// <typeparam name="TAttribute">The type of attribute to get.</typeparam>
+    /// <param name="member">Member to get attributes of.</param>
+    /// <returns>An attribute of specified type, or <see langword="null" />, if none.</returns>
+    public static TAttribute GetAttribute<TAttribute>(this MemberInfo member)
+      where TAttribute: Attribute
+    {
+      var attributes = member.GetCustomAttributes(typeof (TAttribute), false);
+      if (attributes.Length==0)
+        return null;
+      if (attributes.Length>1)
+        throw new InvalidOperationException(string.Format(Strings.ExMultipleAttributesOfTypeXAreNotAllowedHere,
+          member.GetShortName(true),
+          typeof (TAttribute).GetShortName()));
+      return (TAttribute) attributes[0];
+    }
+
+    /// <summary>
+    /// A shortcut to <see cref="MemberInfo.GetCustomAttributes(Type,bool)"/> method.
+    /// This method does not inherit the attribute.
+    /// </summary>
+    /// <typeparam name="TAttribute">The type of attribute to get.</typeparam>
+    /// <param name="member">Member to get attributes of.</param>
+    /// <returns>An array of attributes of specified type.</returns>
+    public static TAttribute[] GetAttributes<TAttribute>(this MemberInfo member)
+    {
+      return member.GetCustomAttributes(typeof (TAttribute), false).Cast<object,TAttribute>();
+    }
+
+    /// <summary>
+    /// A shortcut to <see cref="MemberInfo.GetCustomAttributes(Type,bool)"/> method.
     /// </summary>
     /// <typeparam name="TAttribute">The type of attributes to get.</typeparam>
     /// <param name="member">Member to get attributes of.</param>
     /// <param name="options">Attribute search options.</param>
     /// <returns>An array of attributes of specified type.</returns>
     public static TAttribute[] GetAttributes<TAttribute>(this MemberInfo member, AttributeSearchOptions options)
+      where TAttribute: Attribute
     {
+      if (options==AttributeSearchOptions.InheritNone)
+        return member.GetAttributes<TAttribute>();
       var attributes = member.GetCustomAttributes(typeof (TAttribute), false).Cast<object, TAttribute>();
-      if (attributes==null || attributes.Length==0) {
+      if (attributes.Length==0) {
         if ((options & AttributeSearchOptions.InheritFromPropertyOrEvent)!=0) {
           var m = member as MethodInfo;
           if (m!=null) {
             var poe = (MemberInfo) m.GetProperty() ?? m.GetEvent();
             if (poe!=null)
-              attributes = poe.GetAttributes<TAttribute>(AttributeSearchOptions.Default);
+              attributes = poe.GetAttributes<TAttribute>();
           }
         }
         if ((options & AttributeSearchOptions.InheritFromBase)!=0 &&
-            (options & AttributeSearchOptions.InheritFromAllBase)==0) {
+          (options & AttributeSearchOptions.InheritFromAllBase)==0) {
           var bm = member.GetBaseMember();
           if (bm!=null)
-            attributes = bm.GetAttributes<TAttribute>(options);
+            attributes = attributes.Combine(bm.GetAttributes<TAttribute>(options));
         }
       }
 
       if ((options & AttributeSearchOptions.InheritFromAllBase)!=0
-          && member.DeclaringType!=typeof(object)) {
+        && member.DeclaringType!=typeof(object)) {
         var bm = member.GetBaseMember();
-        if (bm!=null) {
-          var list = new List<TAttribute>();
-          if (attributes!=null)
-            list.AddRange(attributes);
-          attributes = bm.GetAttributes<TAttribute>(options);
-          if (attributes!=null)
-            list.AddRange(attributes);
-          attributes = list.ToArray();
-        }
+        if (bm!=null)
+          attributes = attributes.Combine(bm.GetAttributes<TAttribute>(options));
       }
 
       return attributes;
@@ -77,15 +105,16 @@ namespace Xtensive.Core.Reflection
     public static TAttribute GetAttribute<TAttribute>(this MemberInfo member, AttributeSearchOptions options)
       where TAttribute: Attribute
     {
-      object[] attributes = member.GetAttributes<TAttribute>(options);
-      if (attributes==null || attributes.Length<1)
+      if (options==AttributeSearchOptions.InheritNone)
+        return member.GetAttribute<TAttribute>();
+      var attributes = member.GetAttributes<TAttribute>(options);
+      if (attributes.Length==0)
         return null;
       if (attributes.Length>1)
         throw new InvalidOperationException(string.Format(Strings.ExMultipleAttributesOfTypeXAreNotAllowedHere,
           member.GetShortName(true),
-          typeof(TAttribute).GetShortName()
-          ));
-      return (TAttribute) attributes[0];
+          typeof(TAttribute).GetShortName()));
+      return attributes[0];
     }
   }
 }

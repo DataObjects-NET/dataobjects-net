@@ -102,7 +102,7 @@ namespace Xtensive.Storage.Internals
         }
         var key = value as Key;
         if (key!=null) {
-          if (key.TypeRef.Type.Hierarchy==type.Hierarchy)
+          if (key.TypeReference.Type.Hierarchy==type.Hierarchy)
             typeIdIndex = -1; // Key must be fully copied in this case
           for (int keyIndex = 0; keyIndex < key.Value.Count; keyIndex++) {
             tuple.SetValue(tupleIndex++, key.Value.GetValueOrDefault(keyIndex));

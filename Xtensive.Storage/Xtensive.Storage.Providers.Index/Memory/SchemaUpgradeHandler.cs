@@ -29,9 +29,15 @@ namespace Xtensive.Storage.Providers.Index.Memory
     }
     
     /// <inheritdoc/>
-    public override StorageInfo GetExtractedSchema()
+    protected override StorageInfo ExtractSchema()
     {
-      return (StorageInfo) StorageView.Model.Clone(null, StorageInfo.DefaultName);
+      return (StorageInfo) GetNativeExtractedSchema();
+    }
+
+    /// <inheritdoc/>
+    protected override object ExtractNativeSchema()
+    {
+      return StorageView.Model.Clone(null, StorageInfo.DefaultName);
     }
 
     /// <inheritdoc/>

@@ -131,7 +131,7 @@ namespace Xtensive.Storage.Disconnected
      
       if (cachedEntityState!=null) {
         if (!cachedEntityState.Key.HasExactType)
-          cachedEntityState.Key.TypeRef = key.TypeRef;
+          cachedEntityState.Key.TypeReference = key.TypeReference;
       }
 
       if (cachedEntityState==null || cachedEntityState.IsRemoved || cachedEntityState.Tuple == null)
@@ -178,7 +178,7 @@ namespace Xtensive.Storage.Disconnected
       // If state isn't cached, let's try to to get it from storage
       if ((cachedState!=null && !cachedState.IsLoadedOrRemoved) || disconnectedState.IsConnected) {
         BeginChainedTransaction();
-        var type = key.TypeRef.Type;
+        var type = key.TypeReference.Type;
         Prefetch(key, type, PrefetchHelper.CreateDescriptorsForFieldsLoadedByDefault(type));
         ExecutePrefetchTasks(true);
         EntityState result;

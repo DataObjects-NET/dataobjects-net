@@ -71,7 +71,7 @@ namespace Xtensive.Storage.Disconnected
       OnStateChanged(key, null, tuple);
 
       if (!isLoaded)
-        foreach (var fieldInfo in associationCache.GetEntitySetFields(key.TypeRef.Type))
+        foreach (var fieldInfo in associationCache.GetEntitySetFields(key.TypeReference.Type))
           state.GetEntitySetState(fieldInfo).IsFullyLoaded = true;
     }
 
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Disconnected
       state.Update(difference);
       var newTuple = state.Tuple.ToRegular();
 
-      var type = state.Key.TypeRef.Type;
+      var type = state.Key.TypeReference.Type;
       var baseType = type.UnderlyingType.BaseType;
       var isAuxEntity = baseType.IsGenericType && baseType.GetGenericTypeDefinition()==typeof(EntitySetItem<,>);
       if (isAuxEntity)
@@ -133,7 +133,7 @@ namespace Xtensive.Storage.Disconnected
       }
       finally {
         if (clearLoggedOperations)
-          Operations = new OperationLog(owner.LogType);
+          Operations = new OperationLog(owner.OperationLogType);
       }
     }
 
@@ -264,7 +264,7 @@ namespace Xtensive.Storage.Disconnected
       this.owner = owner;
       items = new Dictionary<Key, DisconnectedEntityState>();
       this.associationCache = associationCache;
-      Operations = new OperationLog(owner.LogType);
+      Operations = new OperationLog(owner.OperationLogType);
     }
 
     public StateRegistry(StateRegistry origin)
@@ -275,7 +275,7 @@ namespace Xtensive.Storage.Disconnected
       this.origin = origin;
       items = new Dictionary<Key, DisconnectedEntityState>();
       associationCache = origin.associationCache;
-      Operations = new OperationLog(owner.LogType);
+      Operations = new OperationLog(owner.OperationLogType);
     }
   }
 }

@@ -78,8 +78,8 @@ namespace Xtensive.Storage.Tests.Indexing
     [Test]
     public void ValidateEmptyKeys()
     {
-      new ColumnInfo(table, "c1", new TypeInfo(typeof(string)));
-      new ColumnInfo(table, "c2", new TypeInfo(typeof(string)));
+      new ColumnInfo(table, "c1", new TypeInfo(typeof(string), null));
+      new ColumnInfo(table, "c2", new TypeInfo(typeof(string), null));
 
       AssertEx.Throws<AggregateException>(index.Validate);
     }
@@ -87,7 +87,7 @@ namespace Xtensive.Storage.Tests.Indexing
     [Test]
     public void ValidateNullableKeyColumns()
     {
-      var col = new ColumnInfo(table, "c2", new TypeInfo(typeof (string), true));
+      var col = new ColumnInfo(table, "c2", new TypeInfo(typeof (string), true, null));
       new KeyColumnRef(index, col, Direction.Positive);
 
       AssertEx.Throws<AggregateException>(index.Validate);

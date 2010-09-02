@@ -14,7 +14,7 @@ namespace Xtensive.Storage
   /// This attribute can be applied on persistent properties of <see cref="Entity"/> or <see cref="EntitySet{TItem}"/> type.
   /// </summary>
   [Serializable]
-  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+  [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class AssociationAttribute : StorageAttribute
   {
     internal OnRemoveAction? onTargetRemove;

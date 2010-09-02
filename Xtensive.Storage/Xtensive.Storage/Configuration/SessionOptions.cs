@@ -36,5 +36,26 @@ namespace Xtensive.Storage.Configuration
     /// Value is <see langword="0x8" />.
     /// </summary>
     AutoShortenTransactions = 0x8
+    
+
+    /// <summary>
+    /// Enables activation of this <see cref="Session"/> from another session having this option.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// By default, activation of one session from another leads to exception, 
+    /// since normally this indicates the same thread controls two sessions (and transactions),
+    /// which is dangerous (may lead to application-level deadlock).
+    /// </para>
+    /// <para>
+    /// Alternatively, this might indicate unintentional usage of data fetched by 
+    /// one session inside another.
+    /// </para>
+    /// <para>
+    /// So to activate one session from another, you must use either <see cref="Session.Deactivate"/>
+    /// method or this option.
+    /// </para>
+    /// </remarks>
+    AllowSwitching = 0x8,
   }
 }

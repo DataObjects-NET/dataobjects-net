@@ -11,6 +11,8 @@ using Xtensive.Core.Helpers;
 using Xtensive.Storage.Building.Definitions;
 using Xtensive.Storage.Model;
 using Xtensive.Storage.Resources;
+using Xtensive.Storage.Upgrade;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Storage.Building.Builders
 {
@@ -76,6 +78,7 @@ namespace Xtensive.Storage.Building.Builders
 
     public static void Process(FieldDef fieldDef, FieldAttribute attribute)
     {
+      ProcessDefault(fieldDef, attribute);
       ProcessNullable(fieldDef, attribute);
       ProcessLength(fieldDef, attribute);
       ProcessScale(fieldDef, attribute);
@@ -166,11 +169,43 @@ namespace Xtensive.Storage.Building.Builders
         indexDef.IsUnique = attribute.Unique;
     }
 
+    private static void ProcessDefault(FieldDef fieldDef, FieldAttribute attribute)
+    {
+      object defaultValue = attribute.DefaultValue;
+      if (defaultValue!=null) {
+        if (fieldDef.ValueType.IsAssignableFrom(defaultValue.GetType()))
+          fieldDef.DefaultValue = defaultValue;
+        else
+          fieldDef.DefaultValue = Convert.ChangeType(defaultValue, fieldDef.ValueType.StripNullable());
+      }
+    }
+
     private static void ProcessNullable(FieldDef fieldDef, FieldAttribute attribute)
     {
-      if (attribute.nullable.HasValue)
-        if (fieldDef.IsEntity || fieldDef.ValueType==typeof(string))
+      bool canUseNullableFlag = !fieldDef.ValueType.IsValueType && !fieldDef.IsStructure;
+      if (attribute.nullable.HasValue) {
+        if (canUseNullableFlag)
           fieldDef.IsNullable = attribute.nullable.Value;
+        else if (attribute.nullable.Value!=(fieldDef.ValueType.IsNullable()))
+          throw new DomainBuilderException(
+            string.Format(Strings.ExNullableAndNullableOnUpgradeCannotBeUsedWithXField, fieldDef.Name));
+      }
+
+      // NullableOnUpgrade support
+      if (!attribute.NullableOnUpgrade)
+        return;
+      if (!canUseNullableFlag)
+        throw new DomainBuilderException(
+          string.Format(Strings.ExNullableAndNullableOnUpgradeCannotBeUsedWithXField, fieldDef.Name));
+      if (fieldDef.IsNullable)
+        return;
+      var upgradeContext = UpgradeContext.Current;
+      if (upgradeContext==null)
+        return;
+      if (upgradeContext.Stage!=UpgradeStage.Upgrading)
+        return;
+      if (canUseNullableFlag)
+        fieldDef.IsNullable = true;
     }
 
     private static void ProcessLength(FieldDef fieldDef, FieldAttribute attribute)

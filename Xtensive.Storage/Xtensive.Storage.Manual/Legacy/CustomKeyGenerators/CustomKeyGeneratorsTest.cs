@@ -22,6 +22,7 @@ namespace Xtensive.Storage.Manual.Legacy.CustomKeyGenerators
     public CustomInt32KeyGenerator(DomainConfiguration configuration)
       : base(configuration)
     {
+      CacheSize = 8;
     }
   }
 

@@ -16,7 +16,7 @@ using Xtensive.Indexing.Resources;
 namespace Xtensive.Indexing.Providers
 {
   /// <summary>
-  /// Default base class for <see cref="Index{TKey,TItem}"/> page providers.
+  /// Default base class for <see cref="Xtensive.Indexing.Index{TKey,TItem}"/> page providers.
   /// </summary>
   /// <typeparam name="TKey">Key type.</typeparam>
   /// <typeparam name="TItem">Value type.</typeparam>

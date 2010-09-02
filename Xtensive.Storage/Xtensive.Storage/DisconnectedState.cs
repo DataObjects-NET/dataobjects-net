@@ -33,11 +33,16 @@ namespace Xtensive.Storage
     IVersionSetProvider
   {
     private OperationLog serializedOperations;
-    private SerializableEntityState[] serializedRegistry;
-    private SerializableEntityState[] serializedGlobalRegistry;
+    private SerializableEntityState[] serializedState;
+    private SerializableEntityState[] serializedOriginalState;
     private VersionSet versions;
     private VersionsUsageOptions versionsUsageOptions = VersionsUsageOptions.Default;
     private VersionsProviderType versionsProviderType = VersionsProviderType.Default;
+    private OperationLogType operationLogType;
+    private Func<OperationLog, IEnumerable<IOperation>> operationLogReplayFilter;
+    private Func<Key, bool> versionUpdateFilter;
+
+    [NonSerialized]
     private OperationLogType logType;
     [NonSerialized]
     internal Transaction AlreadyOpenedTransaction;
@@ -102,16 +107,12 @@ namespace Xtensive.Storage
         switch (versionsProviderType) {
         case VersionsProviderType.Session:
           return session;
-          break;
         case VersionsProviderType.DisconnectedState:
           return this;
-          break;
         case VersionsProviderType.Other:
           return versionsProvider;
-          break;
         default: // None
           return null;
-          break;
         }
       }
       set {
@@ -154,17 +155,39 @@ namespace Xtensive.Storage
     /// <summary>
     /// Gets or sets the type of the <see cref="OperationLog"/> to use.
     /// </summary>
-    public OperationLogType LogType {
-      get { return logType; }
+    public OperationLogType OperationLogType {
+      get { return operationLogType; }
       set {
         if (value==OperationLogType.UndoOperationLog)
           throw new ArgumentOutOfRangeException("value");
         EnsureNoTransaction();
         if (state.Operations.Count!=0)
           throw new InvalidOperationException(Strings.ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty);
-        logType = value;
-        state.Operations = new OperationLog(logType);
+        operationLogType = value;
+        state.Operations = new OperationLog(operationLogType);
       }
+    }
+
+    /// <summary>
+    /// Gets or sets the operation log filter used by <see cref="ApplyChanges()"/>.
+    /// Only operations returned by filter are applied; others are left in
+    /// <see cref="Operations"/>.
+    /// <see langword="null" /> value (default) indicates all the operations are applied.
+    /// </summary>
+    public Func<OperationLog, IEnumerable<IOperation>> OperationLogReplayFilter {
+      get { return operationLogReplayFilter; }
+      set { operationLogReplayFilter = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the version filter.
+    /// This predicate is used after <see cref="ApplyChanges()"/>
+    /// to determine which <see cref="Versions"/> must be refreshed.
+    /// <see langword="null" /> value (default) indicates all the versions are refreshed.
+    /// </summary>
+    public Func<Key, bool> VersionUpdateFilter {
+      get { return versionUpdateFilter; }
+      set { versionUpdateFilter = value; }
     }
 
     /// <summary>
@@ -288,18 +311,27 @@ namespace Xtensive.Storage
             : null;
           using (versionValidator)
           using (var tx = Transaction.Open()) {
-            keyMapping = state.Operations.Replay(targetSession);
+            var replayFilter = OperationLogReplayFilter ?? (log => log);
+            var operations = state.Operations;
+            var operationsToApply = new OperationLog(operationLogType, replayFilter.Invoke(operations));
+
+            keyMapping = operations.Replay(targetSession);
             // Updating internal state.
             // Note that if commit will fail, the state will be inconsistent with DB.
             state.Commit(true);
             originalState.Remap(keyMapping);
             state = new StateRegistry(originalState);
+            if (operationsToApply.Count != operations.Count) // Not everything is applied
+              state.Operations = new OperationLog(operationLogType, operations.Except(operationsToApply));
+
             // Updating (refetching / rebuilding) versions
             var currentVersionProvider = VersionsProviderType==VersionsProviderType.Session
               ? targetSession // not session, but targetSession
               : VersionsProvider;
-            if (currentVersionProvider!=null && (VersionsUsageOptions & VersionsUsageOptions.Update)!=0)
-              Versions = currentVersionProvider.CreateVersionSet(AllKeys());
+            if (currentVersionProvider!=null && (VersionsUsageOptions & VersionsUsageOptions.Update)!=0) {
+              var versionUpdateFilter = VersionUpdateFilter ?? (key => true);
+              Versions = currentVersionProvider.CreateVersionSet( AllKeys().Where(versionUpdateFilter) );
+            }
             tx.Complete();
           }
           if (targetSession.IsDebugEventLoggingEnabled) {
@@ -353,15 +385,23 @@ namespace Xtensive.Storage
     public void Merge(DisconnectedState source, MergeMode mergeMode)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      EnsureNoTransaction();
+      bool inTransaction = IsAttached && Session.Transaction!=null;
 
-      var sourceStates = source.originalState.EntityStates;
-      foreach (var entityState in sourceStates)
-        RegisterEntityState(
-          entityState.Key, 
-          entityState.Tuple, 
-          source.Versions[entityState.Key], 
-          mergeMode);
+      if (inTransaction)
+        Session.Persist();
+      try {
+        var sourceStates = source.originalState.EntityStates;
+        foreach (var entityState in sourceStates)
+          RegisterEntityState(
+            entityState.Key,
+            entityState.Tuple,
+            source.Versions[entityState.Key],
+            mergeMode);
+      }
+      finally {
+        if (inTransaction)
+          Session.Invalidate();
+      }
     }
 
     /// <summary>
@@ -553,7 +593,7 @@ namespace Xtensive.Storage
     
     internal DisconnectedEntityState RegisterEntityState(Key key, Tuple tuple)
     {
-      RegisterEntityState(key, tuple, GetVersion(key.TypeRef.Type, tuple), MergeMode);
+      RegisterEntityState(key, tuple, GetVersion(key.TypeReference.Type, tuple), MergeMode);
       return GetEntityState(key);
     }
 
@@ -564,8 +604,8 @@ namespace Xtensive.Storage
       var existingVersion = Versions[key];
       var versionConflict = 
         (VersionsUsageOptions & VersionsUsageOptions.Validate)!=0 
-        && (!existingVersion.IsVoid)
-        && existingVersion!=version;
+          && (!existingVersion.IsVoid)
+            && existingVersion!=version;
       if (versionConflict && mergeMode == MergeMode.Strict) {
         if (Log.IsLogged(LogEventTypes.Info))
           Log.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
@@ -783,17 +823,17 @@ namespace Xtensive.Storage
     {
       EnsureNoTransaction();
       serializedOperations = state.Operations;
-      serializedRegistry = state.EntityStates
-        .Select(entityState => entityState.Serialize()).ToArray();
-      serializedGlobalRegistry = originalState.EntityStates
-        .Select(entityState => entityState.Serialize()).ToArray();
+      serializedOriginalState = originalState.EntityStates
+        .Select(entityState => entityState.ToSerializable()).ToArray();
+      serializedState = state.EntityStates
+        .Select(entityState => entityState.ToSerializable()).ToArray();
     }
 
     [OnSerialized]
     protected void OnSerialized(StreamingContext context)
     {
-      serializedRegistry = null;
-      serializedGlobalRegistry = null;
+      serializedState = null;
+      serializedOriginalState = null;
       serializedOperations = null;
     }
 
@@ -805,18 +845,17 @@ namespace Xtensive.Storage
 
       versionsProvider = this;
       associationCache = new AssociationCache(this);
-
       originalState = new StateRegistry(this, associationCache);
-      foreach (var entityState in serializedGlobalRegistry)
-        originalState.AddState(DisconnectedEntityState.Deserialize(entityState, originalState, domain));
-      serializedGlobalRegistry = null;
+      state = new StateRegistry(originalState);
+      
+      foreach (var entityState in serializedOriginalState)
+        originalState.AddState(DisconnectedEntityState.FromSerializable(entityState, originalState, domain));
+      foreach (var entityState in serializedState)
+        state.AddState(DisconnectedEntityState.FromSerializable(entityState, state, domain));
+      state.Operations = serializedOperations;
 
-      state = new StateRegistry(originalState) {
-        Operations = serializedOperations
-      };
-      foreach (var entityState in serializedRegistry)
-        state.AddState(DisconnectedEntityState.Deserialize(entityState, state, domain));
-      serializedRegistry = null;
+      serializedOriginalState = null;
+      serializedState = null;
       serializedOperations = null;
     }
   }

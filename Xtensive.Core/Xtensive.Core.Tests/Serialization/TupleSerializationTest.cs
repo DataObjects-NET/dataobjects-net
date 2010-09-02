@@ -6,22 +6,22 @@
 
 using NUnit.Framework;
 using Xtensive.Core.Serialization.Binary;
+using Xtensive.Core.Testing;
 using Xtensive.Core.Tuples;
 using Tuple = Xtensive.Core.Tuples.Tuple;
 
 namespace Xtensive.Core.Tests.Serialization
 {
   [TestFixture]
-  public class SerializableTupleTest
+  public class TupleSerializationTest
   {
     [Test]
     public void BaseTest()
     {
       var tuple = Tuple.Create(1, false);
-      var serializedTuple = new SerializableTuple(tuple);
-      var clone = (SerializableTuple) LegacyBinarySerializer.Instance.Clone(serializedTuple);
-      Assert.IsFalse(clone.Value==null);
-      Assert.AreEqual(tuple, clone.Value);
+      var clone = LegacyBinarySerializer.Instance.Clone(tuple);
+      Assert.IsFalse(clone==null);
+      Assert.AreEqual(tuple, clone);
     }
 
     [Test]
@@ -45,9 +45,31 @@ namespace Xtensive.Core.Tests.Serialization
       Assert.AreEqual(t, CloneBySerialization(t));
     }
 
+    [Test]
+    public void DifferentialTupleSerializationTest()
+    {
+      var origin = Tuple.Create(1, 2);
+      var dt1 = new DifferentialTuple(origin);
+      dt1.SetValue(1,3);
+      var dt2 = new DifferentialTuple(origin);
+      dt1.SetValue(1,4);
+      var all = new[] {dt1, dt2};
+      
+      var clone = Cloner.Default.Clone(all);
+      AssertEx.AreEqual(all, clone);
+
+      var dt1Clone = clone[0];
+      var dt2Clone = clone[1];
+      var originClone = dt1Clone.Origin;
+      Assert.AreSame(originClone, dt2Clone.Origin);
+      originClone.SetValue(0,2);
+      Assert.AreEqual(2, dt1Clone.GetValue(0));
+      Assert.AreEqual(2, dt2Clone.GetValue(0));
+    }
+
     private static Tuple CloneBySerialization(Tuple source)
     {
-      return ((SerializableTuple) LegacyBinarySerializer.Instance.Clone(new SerializableTuple(source))).Value;
+      return (Tuple) LegacyBinarySerializer.Instance.Clone(source);
     }
   }
 }

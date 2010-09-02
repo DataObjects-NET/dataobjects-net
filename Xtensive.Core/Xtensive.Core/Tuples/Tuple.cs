@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Core.Comparison;
 using Xtensive.Core.Internals.DocTemplates;
@@ -17,6 +18,8 @@ namespace Xtensive.Core.Tuples
   /// <summary>
   /// A base class for auto generated tuples.
   /// </summary>
+  [DataContract]
+  [Serializable]
   public abstract class Tuple : ITuple,
     IEquatable<Tuple>,
     IComparable<Tuple>
@@ -27,9 +30,11 @@ namespace Xtensive.Core.Tuples
     public const int HashCodeMultiplier = 397;
 
     /// <inheritdoc />
+    [IgnoreDataMember]
     public abstract TupleDescriptor Descriptor { get; }
 
     /// <inheritdoc />
+    [IgnoreDataMember]
     public virtual int Count { 
       [DebuggerStepThrough]
       get { return Descriptor.Count; }

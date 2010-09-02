@@ -10,7 +10,7 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Describes <see cref="EntitySet{TItem}"/>-related events.
+  /// Describes <see cref="Xtensive.Storage.EntitySet{TItem}"/>-related events.
   /// </summary>
   public class EntitySetEventArgs : EntityFieldEventArgs
   {

@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Core.Reflection;
 
 namespace Xtensive.Core.Linq
 {
@@ -69,8 +70,8 @@ namespace Xtensive.Core.Linq
     {
       if (sampleInterface == null)
         return false;
-      var mapping = sample.DeclaringType.GetInterfaceMap(sampleInterface);
-      for (int i = 0; i < mapping.TargetMethods.Length; i++) {
+      var mapping = sample.DeclaringType.GetInterfaceMapFast(sampleInterface);
+      for (int i = 0; i < mapping.TargetMethods.Count; i++) {
         if (mapping.TargetMethods[i] == sample)
           if (mapping.InterfaceType.IsGenericType)
             return mapping.InterfaceType.GetGenericTypeDefinition().GetMethods().Contains(Method);

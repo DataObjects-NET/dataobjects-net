@@ -20,13 +20,13 @@ namespace Xtensive.Storage
   /// and have the same key structure. Hierarchy root entity should be marked by this attribute.
   /// </para>
   /// <para>
-  /// Persistent hierarchies can use diffirent inheritance schemas, e.g. all instances of hierarchy can be 
+  /// Persistent hierarchies can use different inheritance schemes, e.g. all instances of hierarchy can be 
   /// stored in a single table or different tables should be crated for each entity class. Inheritance schema
   /// can be specified in <see cref="InheritanceSchema"/> property.
   /// </para>
   /// </remarks>
   /// <example>In following example two persistent type hierarchies are declared.
-  /// Inheritance shema is specified for documents hierarchy.
+  /// Inheritance schema is specified for documents hierarchy.
   /// <code>
   /// [HerarchyRoot]
   /// public class Product : Entity  { ... }

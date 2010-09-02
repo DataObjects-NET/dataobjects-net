@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Tests.Upgrade
     [Test]
     public void ConversionToStringTest()
     {
-      var stringTypeInfo = new TypeInfo(typeof (String), 100);
+      var stringTypeInfo = new TypeInfo(typeof (String), 100, null);
       var typeList = new[] {
         typeof (String),
         typeof (Int16),
@@ -34,7 +34,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       };
       foreach (var type in typeList)
           Assert.IsTrue(TypeConversionVerifier
-            .CanConvert(new TypeInfo(type), stringTypeInfo));
+            .CanConvert(new TypeInfo(type, null), stringTypeInfo));
       typeList = new[] {
         typeof (Guid),
         typeof (DateTime),
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Tests.Upgrade
       };
       foreach (var type in typeList)
           Assert.IsFalse(TypeConversionVerifier
-            .CanConvert(new TypeInfo(type), stringTypeInfo));
+            .CanConvert(new TypeInfo(type, null), stringTypeInfo));
     }
 
     [Test]
@@ -52,13 +52,13 @@ namespace Xtensive.Storage.Tests.Upgrade
       var supportedConversions = CreateSupportedConversions();
       var typeList = CreateTypeList();
       foreach (var type in typeList) {
-        Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type), new TypeInfo(type)));
+        Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type, null), new TypeInfo(type, null)));
         if (supportedConversions.ContainsKey(type))
           foreach (var targetType in typeList.Where(t => t != type))
             if (supportedConversions[type].Contains(targetType))
-              Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type), new TypeInfo(targetType)));
+              Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type, null), new TypeInfo(targetType, null)));
             else
-              Assert.IsFalse(TypeConversionVerifier.CanConvert(new TypeInfo(type), new TypeInfo(targetType)));
+              Assert.IsFalse(TypeConversionVerifier.CanConvert(new TypeInfo(type, null), new TypeInfo(targetType, null)));
       }
     }
 
@@ -69,37 +69,40 @@ namespace Xtensive.Storage.Tests.Upgrade
       var supportedConversions = CreateSupportedConversions();
       var typeList = CreateTypeList();
       foreach (var type in typeList.Where(t => t.IsValueType)) {
-        Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type), new TypeInfo(type)));
-        if (supportedConversions.ContainsKey(type))
+        Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type, null), new TypeInfo(type, null)));
+        if (supportedConversions.ContainsKey(type)) {
           foreach (var targetType in typeList.Where(t => t!=type && t.IsValueType)) {
             var nullableSource = nullableDefinition.MakeGenericType(type);
             var nullableTarget = nullableDefinition.MakeGenericType(targetType);
             if (supportedConversions[type].Contains(targetType)) {
-              Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(nullableSource),
-                new TypeInfo(nullableTarget)));
-              Assert.IsFalse(TypeConversionVerifier.CanConvert(new TypeInfo(nullableSource),
-                new TypeInfo(targetType)));
-              Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type),
-                new TypeInfo(nullableTarget)));
+              Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(nullableSource, null),
+                new TypeInfo(nullableTarget, null)));
+              Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(nullableSource, null),
+                new TypeInfo(targetType, null)));
+              Assert.IsFalse(TypeConversionVerifier.CanConvertSafely(new TypeInfo(nullableSource, null),
+                new TypeInfo(targetType, null)));
+              Assert.IsTrue(TypeConversionVerifier.CanConvert(new TypeInfo(type, null),
+                new TypeInfo(nullableTarget, null)));
             }
             else
               Assert.IsFalse(TypeConversionVerifier.CanConvert(
-                new TypeInfo(nullableDefinition.MakeGenericType(type)),
-                new TypeInfo(nullableDefinition.MakeGenericType(targetType))));
+                new TypeInfo(nullableDefinition.MakeGenericType(type), null),
+                new TypeInfo(nullableDefinition.MakeGenericType(targetType), null)));
           }
+        }
       }
     }
 
     [Test]
     public void CanConvertSafelyTest()
     {
-      var sourceType = new TypeInfo(typeof (String), 10);
-      var targetType = new TypeInfo(typeof (String), 5);
+      var sourceType = new TypeInfo(typeof (String), 10, null);
+      var targetType = new TypeInfo(typeof (String), 5, null);
       Assert.IsTrue(TypeConversionVerifier.CanConvert(sourceType, targetType));
       Assert.IsFalse(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
-      targetType = new TypeInfo(typeof (String), 10);
+      targetType = new TypeInfo(typeof (String), 10, null);
       Assert.IsTrue(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
-      targetType = new TypeInfo(typeof (String), 11);
+      targetType = new TypeInfo(typeof (String), 11, null);
       Assert.IsTrue(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
     }
 

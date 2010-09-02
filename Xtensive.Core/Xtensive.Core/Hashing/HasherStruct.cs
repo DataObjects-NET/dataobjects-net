@@ -13,14 +13,16 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Hashing
 {
   /// <summary>
-  /// A struct providing faster access for key <see cref="Hasher{T}"/> delegates.
+  /// A struct providing faster access for key 
+  /// <see cref="Xtensive.Core.Hashing.Hasher{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IHasher{T}"/> generic argument.</typeparam>
   [Serializable]
   public struct HasherStruct<T> : ISerializable
   {
     /// <summary>
-    /// Gets <see cref="HasherStruct{T}"/> for <see cref="Hasher{T}.Default"/> hasher.
+    /// Gets <see cref="HasherStruct{T}"/> for 
+    /// <see cref="Xtensive.Core.Hashing.Hasher{T}.Default"/> hasher.
     /// </summary>
     public static readonly HasherStruct<T> Default = new HasherStruct<T>(Hasher<T>.Default);
 
@@ -41,7 +43,8 @@ namespace Xtensive.Core.Hashing
     public readonly Func<T, int, long[]> GetHashes;
 
     /// <summary>
-    /// Implicit conversion of <see cref="Hasher{T}"/> to <see cref="HasherStruct{T}"/>.
+    /// Implicit conversion of <see cref="Xtensive.Core.Hashing.Hasher{T}"/> 
+    /// to <see cref="HasherStruct{T}"/>.
     /// </summary>
     /// <param name="hasher">Hasher to provide the struct for.</param>
     public static implicit operator HasherStruct<T>(Hasher<T> hasher)

@@ -22,6 +22,9 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
     [Field]
     public string Title { get; set; }
 
+    [Field]
+    public BookRef BookRef { get; set; }
+
     public override string ToString()
     {
       return Title;
@@ -42,6 +45,13 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
     {
       return Title;
     }
+  }
+
+  [Serializable]
+  public class BookRef : Structure
+  {
+    [Field]
+    public Book Book { get; set; }
   }
 
   [TestFixture]
@@ -82,6 +92,33 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateTest2
           ds.ApplyChanges();
         }
         Assert.AreEqual(2, Query.All<Book>().Count());
+        // tx.Complete();
+      }
+    }
+
+    [Test]
+    public void StructureFieldSetTest()
+    {
+      var ds = new DisconnectedState();
+      Book book = null;
+      Book book2 = null;
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          book = Query.All<Book>().SingleOrDefault();
+          book2 = new Book() { Title = "Book2" };
+          book.BookRef.Book = book2;
+          Assert.AreEqual(book2, book.BookRef.Book);
+
+          var bookRef = new BookRef();
+          bookRef.Book = book;
+          book.BookRef = bookRef;
+          Assert.AreEqual(book, book.BookRef.Book);
+          ds.ApplyChanges();
+        }
+        Assert.AreEqual(2, Query.All<Book>().Count());
+        Assert.AreEqual(book, book.BookRef.Book);
         // tx.Complete();
       }
     }

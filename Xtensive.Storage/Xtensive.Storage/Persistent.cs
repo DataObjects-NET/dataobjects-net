@@ -378,50 +378,52 @@ namespace Xtensive.Storage
               operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, field, value));
             else {
               var persistent = this;
-              var entityField = field;
-              var structureInstance = persistent as Structure;
-              while (structureInstance != null && structureInstance.Owner != null) {
-                var pair = new Pair<FieldInfo>(structureInstance.Field, entityField);
-                entityField = structureInstance.Owner.TypeInfo.StructureFieldMapping[pair];
-                persistent = structureInstance.Owner;
-                structureInstance = persistent as Structure;
+              var currentField = field;
+              var structure = persistent as Structure;
+              while (structure != null && structure.Owner != null) {
+                var pair = new Pair<FieldInfo>(structure.Field, currentField);
+                currentField = structure.Owner.TypeInfo.StructureFieldMapping[pair];
+                persistent = structure.Owner;
+                structure = persistent as Structure;
               }
               entity = persistent as Entity;
               if (entity != null)
-                operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, entityField, value));
+                operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, currentField, value));
             }
           }
           if (fieldAccessor.AreSameValues(oldValue, value)) {
-            operations.NotifyOperationStarting();
+            operations.NotifyOperationStarting(false);
             scope.Complete();
             return;
           }
-          SystemBeforeSetValue(field, value);
-          operations.NotifyOperationStarting();
-          var structure = value as Structure;
-          var association = field.Association;
-          if (association != null && association.IsPaired) {
-            Key currentKey = GetReferenceKey(field);
-            Key newKey = null;
-            var newReference = (Entity) (object) value;
-            if (newReference != null)
-              newKey = newReference.Key;
-            if (currentKey != newKey) {
-              Session.PairSyncManager.ProcessRecursively(
-                syncContext, OperationType.Set, association, (Entity) this, newReference, () => {
-                  SystemBeforeTupleChange();
-                  fieldAccessor.SetUntypedValue(this, value);
-                });
+          {
+            SystemBeforeSetValue(field, value);
+            operations.NotifyOperationStarting(false);
+            var structure = value as Structure;
+            var association = field.Association;
+            if (association!=null && association.IsPaired) {
+              Key currentKey = GetReferenceKey(field);
+              Key newKey = null;
+              var newReference = (Entity) (object) value;
+              if (newReference!=null)
+                newKey = newReference.Key;
+              if (currentKey!=newKey) {
+                Session.PairSyncManager.ProcessRecursively(
+                  syncContext, OperationType.Set, association, (Entity) this, newReference, () => {
+                    SystemBeforeTupleChange();
+                    fieldAccessor.SetUntypedValue(this, value);
+                  });
+              }
             }
-          }
-          else {
-            if (!Equals(value, oldValue) || field.IsStructure) {
-              SystemBeforeTupleChange();
-              fieldAccessor.SetUntypedValue(this, value);
+            else {
+              if (!Equals(value, oldValue) || field.IsStructure) {
+                SystemBeforeTupleChange();
+                fieldAccessor.SetUntypedValue(this, value);
+              }
             }
+            SystemSetValue(field, oldValue, value);
+            SystemSetValueCompleted(field, oldValue, value, null);
           }
-          SystemSetValue(field, oldValue, value);
-          SystemSetValueCompleted(field, oldValue, value, null);
           scope.Complete();
         }
       }

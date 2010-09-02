@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Providers.Sql
         .ToList();
       var translator = new SqlActionTranslator(
         upgradeActions,
-        GetNativeExtractedSchema(),
+        (Schema) GetNativeExtractedSchema(),
         sourceSchema, targetSchema, DomainHandler.ProviderInfo, Driver,
         Handlers.NameBuilder.TypeIdColumnName,
         enforceChangedColumns,
@@ -78,29 +78,39 @@ namespace Xtensive.Storage.Providers.Sql
     }
 
     /// <inheritdoc/>
-    public override StorageInfo GetExtractedSchema()
+    protected override StorageInfo ExtractSchema()
     {
-      var schema = GetNativeExtractedSchema();
+      var schema = (Schema) GetNativeExtractedSchema(); // Must rely on this method to avoid multiple extractions
       var converter = new SqlModelConverter(schema, DomainHandler.ProviderInfo);
       return converter.GetConversionResult();
+    }
+
+    /// <inheritdoc/>
+    protected override object ExtractNativeSchema()
+    {
+      return DomainHandler.Driver.ExtractSchema(SessionHandler.Connection);
     }
 
     /// <inheritdoc/>
     protected override ModelTypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale)
     {
       var sqlValueType = DomainHandler.Driver.BuildValueType(type, length, precision, scale);
-      return new ModelTypeInfo(sqlValueType.Type.ToClrType(), sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision);
+      return new ModelTypeInfo(sqlValueType.Type.ToClrType(), 
+        sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
     }
 
     private void Execute(IEnumerable<string> batch)
     {
       if (DomainHandler.ProviderInfo.Supports(ProviderFeatures.DdlBatches)) {
-        var commandText = Driver.BuildBatch(batch.ToArray());
-        if (string.IsNullOrEmpty(commandText))
-          return;
-        var command = Connection.CreateCommand(commandText);
-        using (command) {
-          Driver.ExecuteNonQuery(null, command);
+        IEnumerable<IEnumerable<string>> subbatches = SplitToSubbatches(batch);
+        foreach (var subbatch in subbatches) {
+          var commandText = Driver.BuildBatch(subbatch.ToArray());
+          if (string.IsNullOrEmpty(commandText))
+            return;
+          var command = Connection.CreateCommand(commandText);
+          using (command) {
+            Driver.ExecuteNonQuery(null, command);
+          }
         }
       }
       else {
@@ -115,15 +125,22 @@ namespace Xtensive.Storage.Providers.Sql
       }
     }
 
-    private Schema GetNativeExtractedSchema()
+    private static IEnumerable<IEnumerable<string>> SplitToSubbatches(IEnumerable<string> batch)
     {
-      var context = UpgradeContext.Demand();
-      var schema = context.NativeExtractedSchema as Schema;
-      if (schema==null) {
-        schema = DomainHandler.Driver.ExtractSchema(SessionHandler.Connection);
-        SaveNativeExtractedSchema(schema);
+      var subbatch = new List<string>();
+      foreach (string item in batch) {
+        if (item.IsNullOrEmpty()) {
+          if (subbatch.Count==0)
+            continue;
+          yield return subbatch;
+          subbatch = new List<string>();
+        }
+        else {
+          subbatch.Add(item);
+        }
       }
-      return schema;
+      if (subbatch.Count!=0)
+        yield return subbatch;
     }
 
     private void LogTranslatedStatements(SqlActionTranslator translator)

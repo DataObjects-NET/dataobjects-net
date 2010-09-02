@@ -38,6 +38,8 @@ namespace Xtensive.Core.Reflection
       ThreadSafeDictionary<Type, Type[]>.Create(new object());
     private static ThreadSafeDictionary<Type, Type[]> orderedCompatibles = 
       ThreadSafeDictionary<Type, Type[]>.Create(new object());
+    private static ThreadSafeDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps = 
+      ThreadSafeDictionary<Pair<Type, Type>, InterfaceMapping>.Create(new object());
 
     /// <summary>
     /// Searches for associated class for <paramref name="forType"/>, creates its instance, if found.
@@ -616,6 +618,17 @@ namespace Xtensive.Core.Reflection
       return TopologicalSorter.Sort(types, (t1, t2) => t1.IsAssignableFrom(t2));
     }
 
+    /// <summary>
+    /// Fast analogue of <see cref="Type.GetInterfaceMap"/>.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="targetInterface">The target interface.</param>
+    /// <returns>Interface map for the specified interface.</returns>
+    public static InterfaceMapping GetInterfaceMapFast(this Type type, Type targetInterface)
+    {
+      return interfaceMaps.GetValue(new Pair<Type, Type>(type, targetInterface),
+        pair => new InterfaceMapping(pair.First.GetInterfaceMap(pair.Second)));
+    }
 
     /// <summary>
     /// Gets the interfaces of the specified type.

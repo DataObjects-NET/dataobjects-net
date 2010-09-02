@@ -18,7 +18,7 @@ namespace Xtensive.Storage.Providers.Index
     /// <inheritdoc/>
     protected override TypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale)
     {
-      return new TypeInfo(type, length, scale, precision);
+      return new TypeInfo(type, length, scale, precision, null);
     }
   }
 }

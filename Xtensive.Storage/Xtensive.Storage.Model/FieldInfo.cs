@@ -37,6 +37,7 @@ namespace Xtensive.Storage.Model
     private int?                          length;
     private int?                          scale;
     private int?                          precision;
+    private object                        defaultValue;
     private TypeInfo                      reflectedType;
     private TypeInfo                      declaringType;
     private FieldInfo                     parent;
@@ -377,6 +378,20 @@ namespace Xtensive.Storage.Model
     }
 
     /// <summary>
+    /// Gets or sets the default value for this field.
+    /// <see langword="null" /> indicates default value is provided automatically.
+    /// </summary>
+    public object DefaultValue {
+      [DebuggerStepThrough]
+      get { return defaultValue; }
+      [DebuggerStepThrough]
+      set {
+        this.EnsureNotLocked();
+        defaultValue = value;
+      }
+    }
+
+    /// <summary>
     /// Gets the attributes.
     /// </summary>
     public FieldAttributes Attributes { get; private set; }
@@ -661,6 +676,7 @@ namespace Xtensive.Storage.Model
           length = length, 
           scale = scale,
           precision = precision,
+          defaultValue = defaultValue,
           association = association,
           DeclaringField = DeclaringField
         };

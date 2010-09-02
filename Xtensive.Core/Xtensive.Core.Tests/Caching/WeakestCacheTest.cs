@@ -72,11 +72,15 @@ namespace Xtensive.Core.Tests.Caching
       Assert.AreEqual(0, cache.Count);
 
       cache.Add(item1);
+      TestHelper.CollectGarbage(true);
+      cache.CollectGarbage();
+      Assert.AreEqual(1, cache.Count);
+
       item1 = null;
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
+      Assert.AreEqual(0, cache.Count);
 
-      Assert.AreEqual(1, cache.Count);
       Assert.IsNull(cache[new Item("1"), true]);
     }
 

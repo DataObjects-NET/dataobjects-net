@@ -111,6 +111,17 @@ namespace Xtensive.Storage
       KeyInfo = keyInfo;
     }
 
+    /// <summary>
+    /// Called on background thread to fully prepare the key generator.
+    /// Since this method is called optionally, it can't do any essential
+    /// job. 
+    /// But it can e.g. invoke some properties that needs delayed 
+    /// evaluation, and so on.
+    /// </summary>
+    protected internal virtual void Prepare()
+    {
+    }
+
 
     // Constructors
 

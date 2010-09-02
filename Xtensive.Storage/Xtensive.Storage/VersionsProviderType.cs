@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Storage
 {
   /// <summary>
-  /// Enumerates possible <see cref="DisconnectedState.VersionsProvider"/> selection modes.
+  /// Enumerates possible <see cref="Xtensive.Storage.DisconnectedState.VersionsProvider"/> selection modes.
   /// </summary>
   public enum VersionsProviderType
   {
@@ -28,7 +28,7 @@ namespace Xtensive.Storage
     /// </summary>
     DisconnectedState = 0x1,
     /// <summary>
-    /// <see cref="DisconnectedState.VersionsProvider"/> is specified manually.
+    /// <see cref="Xtensive.Storage.DisconnectedState.VersionsProvider"/> is specified manually.
     /// </summary>
     Other = 0x100,
   }

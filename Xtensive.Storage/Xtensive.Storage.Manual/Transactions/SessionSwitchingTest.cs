@@ -32,45 +32,62 @@ namespace Xtensive.Storage.Manual.Transactions.SessionSwitching
     private Domain existingDomain;
 
     [Test]
-    public void MainTest()
+    public void DenySwitchingTest()
     {
       var domain = GetDomain();
 
-      using (var sessionA = Session.Open(domain)) {
-        using (var txA = Transaction.Open(sessionA)) {
-          // Getting Person instance bound to sessionA
-          var personA = Query.All<Person>().First();
-          using (var sessionB = Session.Open(domain)) {
-            using (var txB = Transaction.Open(sessionB)) {
-              // Getting Person instance bound to sessionB
-              // Note: Entity.Key getter requires no Session activation
-              var personB = Query.Single<Person>(personA.Key); 
-              try {
-                // Session switching will be detected here
-                bool isNamesakeWrong = personA.Name==personB.Name;
-                Assert.Fail("InvalidOperationException is expected.");
-              }
-              catch (InvalidOperationException) {
-                return;
-              }
-              catch (Exception) {
-                Assert.Fail("InvalidOperationException is expected.");
-              }
+      using (var sessionA = Session.Open(domain)) { // Open & activate
+        // sessionA is active here
 
-              // Manual activation, way 1:
-              using (Session.Deactivate()) // Manual deactivation
-                Assert.IsTrue(personA.Name==personB.Name); // Subsequent activation of sessionA & sessionB
+        // Getting Person instance bound to sessionA
+        var personA = Query.All<Person>().First();
+        using (var sessionB = Session.Open(domain)) { // Open & activate
+          // sessionB is active here
 
-              // Manual activation, way 2:
-              string personBName;
-              using (personB.Session.Activate()) // Manual activation
-                personBName = personB.Name;
-              bool isNamesakeRight = personA.Name==personBName;
-              Assert.IsTrue(isNamesakeRight);
-              txB.Complete();
-            }
+          // Getting Person instance bound to sessionB
+          // Note: Entity.Key getter requires no Session activation
+          var personB = Query.Single<Person>(personA.Key); 
+          try {
+            // Session switching will be detected here
+            bool ignored = personA.Name==personB.Name;
+            Assert.Fail("InvalidOperationException is expected.");
           }
-          txA.Complete();
+          catch (InvalidOperationException) {
+            // Must fall here
+          }
+          catch (Exception) {
+            Assert.Fail("InvalidOperationException is expected.");
+          }
+
+          // Manual activation, way 1:
+          using (Session.Deactivate()) // Manual deactivation
+            Assert.IsTrue(personA.Name==personB.Name); // Subsequent activation of sessionA & sessionB
+
+          // Manual activation, way 2:
+          string personAName;
+          using (personA.Session.Activate()) // Manual activation
+            personAName = personA.Name;
+          bool isNamesakeRight = personB.Name==personAName;
+          Assert.IsTrue(isNamesakeRight);
+        }
+      }
+    }
+
+    [Test]
+    public void AllowSwitchingTest()
+    {
+      var domain = GetDomain();
+
+      var sessionCfg = new SessionConfiguration();
+      sessionCfg.Options |= SessionOptions.AllowSwitching;
+      using (var sessionA = Session.Open(domain, sessionCfg)) { // Open & activate
+        // sessionA is active here
+        var personA = Query.All<Person>().First();
+        using (var sessionB = Session.Open(domain, sessionCfg)) { // Open & activate
+          // sessionB is active here
+          var personB = Query.Single<Person>(personA.Key); 
+          // Session switching (from sessionB to sessionA) will be detected here, but allowed
+          Assert.IsTrue(personA.Name==personB.Name);
         }
       }
     }

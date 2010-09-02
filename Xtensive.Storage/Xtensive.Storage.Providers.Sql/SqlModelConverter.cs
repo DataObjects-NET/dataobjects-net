@@ -116,7 +116,7 @@ namespace Xtensive.Storage.Providers.Sql
     {
       var tableInfo = StorageInfo.Tables[tableColumn.Table.Name];
       var typeInfo = ExtractType(tableColumn);
-      var columnInfo = new ColumnInfo(tableInfo, tableColumn.Name, typeInfo) {OriginalType = typeInfo};
+      var columnInfo = new ColumnInfo(tableInfo, tableColumn.Name, typeInfo);
       return columnInfo;
     }
 
@@ -208,7 +208,7 @@ namespace Xtensive.Storage.Providers.Sql
       catch (ArgumentException) {
         type = null;
       }
-      var typeInfo = type!=null ? new TypeInfo(type, false) : TypeInfo.Undefined;
+      var typeInfo = type!=null ? new TypeInfo(type, null) : TypeInfo.Undefined;
 
       var sequenceInfo = new SequenceInfo(StorageInfo, sequence.Name) {
         Increment = sequence.SequenceDescriptor.Increment.Value,
@@ -262,7 +262,7 @@ namespace Xtensive.Storage.Providers.Sql
         && !type.IsNullable())
         type = type.ToNullable();
         
-      return new TypeInfo(type, column.IsNullable, sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision);
+      return new TypeInfo(type, column.IsNullable, sqlValueType.Length, sqlValueType.Scale, sqlValueType.Precision, sqlValueType);
     }
 
     /// <summary>

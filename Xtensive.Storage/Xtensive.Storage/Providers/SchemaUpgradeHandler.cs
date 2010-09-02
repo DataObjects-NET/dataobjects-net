@@ -9,6 +9,7 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Storage.Building;
 using Xtensive.Storage.Indexing.Model;
 using Xtensive.Storage.Upgrade;
+using Xtensive.Core;
 
 namespace Xtensive.Storage.Providers
 {
@@ -22,7 +23,7 @@ namespace Xtensive.Storage.Providers
     /// Gets the target schema.
     /// </summary>
     /// <returns>The target schema.</returns>
-    public StorageInfo GetTargetSchema()
+    public Func<StorageInfo> GetTargetSchemaProvider()
     {
       var buildingContext = BuildingContext.Demand();
       var domainHandler = Handlers.DomainHandler;
@@ -41,14 +42,86 @@ namespace Xtensive.Storage.Providers
         buildHierarchyForeignKeys, buildingContext.NameBuilder.BuildForeignKeyName, 
         CreateTypeInfo);
 
-      return domainModelConverter.Convert(buildingContext.Model);
+      var upgradeContext = UpgradeContext.Current;
+      var session = Session.Current;
+      return () => {
+        using (upgradeContext==null ? null : upgradeContext.Activate())
+        using (new BuildingScope(buildingContext))
+        using (session==null ? null : session.Activate()) {
+          return domainModelConverter.Convert(buildingContext.Model);
+        }
+      };
     }
 
     /// <summary>
     /// Gets the extracted schema.
+    /// This method caches the schema inside <see cref="UpgradeContext"/>.
     /// </summary>
     /// <returns>The extracted schema.</returns>
-    public abstract StorageInfo GetExtractedSchema();
+    public Func<StorageInfo> GetExtractedSchemaProvider()
+    {
+      var upgradeContext = UpgradeContext.Current;
+      if (upgradeContext!=null && upgradeContext.ExtractedSchemaCache!=null)
+        return () => upgradeContext.ExtractedSchemaCache;
+
+      var buildingContext = BuildingContext.Current;
+      var session = Session.Current;
+      return () => {
+        StorageInfo schema;
+        using (upgradeContext==null ? null : upgradeContext.Activate())
+        using (buildingContext==null ? null : new BuildingScope(buildingContext))
+        using (session==null ? null : session.Activate()) {
+          schema = ExtractSchema();
+        }
+        if (upgradeContext!=null) {
+          lock (upgradeContext) {
+            upgradeContext.ExtractedSchemaCache = schema;
+          }
+        }
+        return schema;
+      };
+    }
+
+    /// <summary>
+    /// Gets the native extracted schema.
+    /// This method caches the schema inside <see cref="UpgradeContext"/>.
+    /// </summary>
+    /// <returns>The native extracted schema.</returns>
+    public object GetNativeExtractedSchema()
+    {
+      var upgradeContext = UpgradeContext.Current;
+      if (upgradeContext!=null && upgradeContext.NativeExtractedSchemaCache!=null)
+        return upgradeContext.NativeExtractedSchemaCache;
+
+      var schema = ExtractNativeSchema();
+      if (upgradeContext!=null)
+        upgradeContext.NativeExtractedSchemaCache = schema;
+      return schema;
+    }
+
+    /// <summary>
+    /// Clears the extracted schema cache.
+    /// </summary>
+    public void ClearExtractedSchemaCache()
+    {
+      var upgradeContext = UpgradeContext.Current;
+      if (upgradeContext==null)
+        return;
+      upgradeContext.ExtractedSchemaCache = null;
+      upgradeContext.NativeExtractedSchemaCache = null;
+    }
+
+    /// <summary>
+    /// Extracts the schema.
+    /// </summary>
+    /// <returns>The extracted schema.</returns>
+    protected abstract StorageInfo ExtractSchema();
+
+    /// <summary>
+    /// Extracts the native schema.
+    /// </summary>
+    /// <returns>The native extracted schema.</returns>
+    protected abstract object ExtractNativeSchema();
 
     /// <summary>
     /// Upgrades the storage.
@@ -66,16 +139,6 @@ namespace Xtensive.Storage.Providers
     /// <returns>Newly created <see cref="TypeInfo"/>.</returns>
     protected abstract TypeInfo CreateTypeInfo(Type type, int? length, int? precision, int? scale);
 
-    /// <summary>
-    /// Saves the native extracted schema in context.
-    /// </summary>
-    /// <param name="schema">The schema.</param>
-    protected virtual void SaveNativeExtractedSchema(object schema)
-    {
-      var context = UpgradeContext.Demand();
-      context.NativeExtractedSchema = schema;
-    }
-    
 
     // Initialization
 

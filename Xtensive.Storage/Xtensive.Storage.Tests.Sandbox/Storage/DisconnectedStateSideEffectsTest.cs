@@ -134,6 +134,37 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     }
 
     [Test]
+    public void FiltersTest()
+    {
+      var ds = new DisconnectedState();
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open()) {
+        Book book;
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          book = Query.All<Book>().First();
+          book.Title = "Change1";
+          book.Title = "Change2";
+          ds.OperationLogReplayFilter = log => log.Skip(1);
+          ds.ApplyChanges();
+        }
+
+        Assert.AreEqual("Change2", book.Title);
+
+        using (ds.Attach(session))
+        using (ds.Connect()) {
+          ds.OperationLogReplayFilter = log => log;
+          ds.VersionUpdateFilter = key => false;
+          ds.ApplyChanges();
+        }
+
+        Assert.AreEqual("Change1", book.Title);
+        Assert.AreEqual(0, ds.Versions.Count);
+        // tx.Complete();
+      }
+    }
+
+    [Test]
     public void SequentialApplyChangesTest()
     {
       var ds = new DisconnectedState();
@@ -155,7 +186,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
     public void SequentialApplyChangesTest_DisconnectedStateAsVersionProvider()
     {
       var ds = new DisconnectedState();
-      ds.LogType = OperationLogType.OutermostOperationLog;
+      ds.OperationLogType = OperationLogType.OutermostOperationLog;
       ds.VersionsProviderType = VersionsProviderType.DisconnectedState;
       using (var session = Session.Open(Domain))
       using (var tx = Transaction.Open()) {
@@ -165,7 +196,7 @@ namespace Xtensive.Storage.Tests.Storage.DisconnectedStateSideEffectsTest
           book.Title += " Changed";
           ds.ApplyChanges();
           book.Title += " Changed";
-          if (ds.LogType==OperationLogType.SystemOperationLog)
+          if (ds.OperationLogType==OperationLogType.SystemOperationLog)
             ds.ApplyChanges();
           else
             AssertEx.Throws<VersionConflictException>(() => ds.ApplyChanges());

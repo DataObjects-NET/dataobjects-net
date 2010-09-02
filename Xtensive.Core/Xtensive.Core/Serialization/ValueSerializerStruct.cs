@@ -14,14 +14,16 @@ using Xtensive.Core.Internals.DocTemplates;
 namespace Xtensive.Core.Serialization
 {
   /// <summary>
-  /// A struct providing faster access for key <see cref="ValueSerializer{T}"/> delegates.
+  /// A struct providing faster access for key 
+  /// <see cref="Xtensive.Core.Serialization.ValueSerializer{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IValueSerializer{T}"/> generic argument.</typeparam>
   [Serializable]
   public struct ValueSerializerStruct<T> : ISerializable
   {
     /// <summary>
-    /// Gets <see cref="ValueSerializerStruct{T}"/> for <see cref="ValueSerializer{T}.Default"/> hasher.
+    /// Gets <see cref="ValueSerializerStruct{T}"/> for 
+    /// <see cref="Xtensive.Core.Serialization.ValueSerializer{T}.Default"/> hasher.
     /// </summary>
     public static readonly ValueSerializerStruct<T> Default = 
       new ValueSerializerStruct<T>(ValueSerializer<T>.Default);
@@ -42,7 +44,9 @@ namespace Xtensive.Core.Serialization
     public readonly Action<Stream, T> Serialize;
 
     /// <summary>
-    /// Implicit conversion of <see cref="ValueSerializer{T}"/> to <see cref="ValueSerializerStruct{T}"/>.
+    /// Implicit conversion of 
+    /// <see cref="Xtensive.Core.Serialization.ValueSerializer{T}"/> 
+    /// to <see cref="ValueSerializerStruct{T}"/>.
     /// </summary>
     /// <param name="valueSerializer">Serializer to provide the struct for.</param>
     public static implicit operator ValueSerializerStruct<T>(ValueSerializer<T> valueSerializer) 
@@ -56,7 +60,8 @@ namespace Xtensive.Core.Serialization
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true" />
     /// </summary>
-    /// <param name="valueSerializer"><see cref="ValueSerializer{T}"/> to provide the delegates for.</param>
+    /// <param name="valueSerializer"><see cref="Xtensive.Core.Serialization.ValueSerializer{T}"/> 
+    /// to provide the delegates for.</param>
     public ValueSerializerStruct(ValueSerializer<T> valueSerializer) 
     {
       ValueSerializer = valueSerializer;

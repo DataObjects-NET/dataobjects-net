@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Operations
     {
       if (context.KeyMapping.ContainsKey(Key))
         return;
-      var keyInfo = Key.TypeRef.Type.Key;
+      var keyInfo = Key.TypeReference.Type.Key;
       if (!keyInfo.ContainsForeignKeys)
         MapNewKey(context);
       else
@@ -48,7 +48,7 @@ namespace Xtensive.Storage.Operations
     {
       // TODO: AY: Review this later
       var domain = context.Session.Domain;
-      var keyInfo = Key.TypeRef.Type.Key;
+      var keyInfo = Key.TypeReference.Type.Key;
       var hierarchy = keyInfo.Hierarchy;
       if (hierarchy.Key.Fields.Count==1 && !hierarchy.Key.Fields[0].IsEntity)
         return;
@@ -81,7 +81,7 @@ namespace Xtensive.Storage.Operations
         }
       }
       if (hasTemporaryComponentBeenFound) {
-        var result = Key.Create(domain, Key.TypeRef.Type.UnderlyingType, resultTuple);
+        var result = Key.Create(domain, Key.TypeReference.Type.UnderlyingType, resultTuple);
         context.AddKeyMapping(Key, result);
       }
     }

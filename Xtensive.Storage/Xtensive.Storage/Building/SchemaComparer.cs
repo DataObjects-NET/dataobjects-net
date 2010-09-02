@@ -40,6 +40,18 @@ namespace Xtensive.Storage.Building
     {
       if (hints == null)
         hints = new HintSet(sourceSchema, targetSchema);
+
+      // Nothing must be done in Skip mode
+      if (schemaUpgradeMode==SchemaUpgradeMode.Skip)
+        return new SchemaComparisonResult(
+          SchemaComparisonStatus.NotEqual, 
+          false, 
+          null, 
+          hints, 
+          null, 
+          new ActionSequence(), 
+          new List<NodeAction>());
+
       var comparer = new Comparer();
       var difference = comparer.Compare(sourceSchema, targetSchema, hints);
       var actions = new ActionSequence() {

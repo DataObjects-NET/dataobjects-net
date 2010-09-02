@@ -30,6 +30,7 @@ namespace Xtensive.Storage.Building
     internal HashSet<TypeDef> Interfaces { get; private set; }
     internal HashSet<IndexInfo> UntypedIndexes { get; private set; }
     internal Dictionary<KeyGenerator, KeyInfo> KeyGenerators { get; private set; }
+    internal Queue<Type> Types { get; private set; }
 
     #region Current property & Demand() method
 
@@ -123,6 +124,7 @@ namespace Xtensive.Storage.Building
       Interfaces = new HashSet<TypeDef>();
       UntypedIndexes = new HashSet<IndexInfo>();
       KeyGenerators = new Dictionary<KeyGenerator, KeyInfo>();
+      Types = new Queue<Type>(configuration.Types);
     }
   }
 }

@@ -147,7 +147,7 @@ namespace Xtensive.Storage.ReferentialIntegrity
         }
       }
 
-      if (Session.Handler.ExecutePrefetchTasks()==null);
+      if (Session.Handler.ExecutePrefetchTasks()==null)
         Session.ExecuteDelayedQueries(false);
 
       foreach (var container in referenceDescriptors) {

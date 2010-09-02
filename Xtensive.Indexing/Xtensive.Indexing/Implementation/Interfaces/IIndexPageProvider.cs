@@ -12,7 +12,7 @@ using Xtensive.Indexing.BloomFilter;
 namespace Xtensive.Indexing.Implementation
 {
   /// <summary>
-  /// <see cref="Index{TKey,TItem}"/> page provider - creates, stores and loads pages.
+  /// <see cref="Xtensive.Indexing.Index{TKey,TItem}"/> page provider - creates, stores and loads pages.
   /// </summary>
   /// <typeparam name="TKey">Key type.</typeparam>
   /// <typeparam name="TItem">Value type.</typeparam>
