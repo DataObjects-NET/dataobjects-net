@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
         return "Person('{0}')".FormatWith(FullName);
     }
 
-    [Transactional(TransactionOpenMode.New)]
+    [Transactional(TransactionalBehavior.New)]
     public void TransactionalMethodRequiringNewTransaction(Transaction outerTransaction)
     {
       Assert.AreSame(Session, Session.Current);

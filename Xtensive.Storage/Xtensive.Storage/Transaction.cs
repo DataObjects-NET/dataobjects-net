@@ -52,6 +52,22 @@ namespace Xtensive.Storage
       return currentTransaction;
     }
 
+    /// <summary>
+    /// Checks whether a transaction exists or not in the provided session.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <exception cref="InvalidOperationException"><see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.</exception>
+    public static void Require(Session session)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      if (session.Transaction != null)
+        return;
+      if (session.IsDisconnected && session.DisconnectedState.AlreadyOpenedTransaction != null)
+        return;
+      throw new InvalidOperationException(
+          Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
+    }
+
     #endregion
 
     private InconsistentRegion inconsistentRegion;

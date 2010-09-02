@@ -176,6 +176,10 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     public SessionOptions Options {
       get { return options; }
+      set {
+        this.EnsureNotLocked();
+        options = value;
+      }
     }
 
     /// <summary>

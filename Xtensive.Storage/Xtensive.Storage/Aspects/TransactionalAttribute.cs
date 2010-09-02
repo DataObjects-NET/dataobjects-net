@@ -17,6 +17,7 @@ using Xtensive.Core.Disposing;
 using Xtensive.Core;
 using Xtensive.Core.Internals.DocTemplates;
 using Xtensive.Core.Reflection;
+using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage
 {
@@ -45,17 +46,12 @@ namespace Xtensive.Storage
     /// Gets or sets value describing transaction opening mode.
     /// Default value is <see cref="TransactionOpenMode.Auto"/>.
     /// </summary>
-    public TransactionOpenMode Mode { get; set; }
+    public TransactionalBehavior Mode { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether a session should be activated on the method boundaries.
     /// </summary>
     public bool ActivateSession { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether transaction should be opened.
-    /// </summary>
-    public bool OpenTransaction { get; set; }
 
     #region Hide base properties
     // ReSharper disable UnusedMember.Local
@@ -135,10 +131,10 @@ namespace Xtensive.Storage
       ActivateSession &= typeof (ISessionBound).IsAssignableFrom(method.DeclaringType) && !method.IsStatic;
       if (ActivateSession && AspectHelper.ContextActivationIsSuppressed(method, typeof (Session)))
         ActivateSession = false;
-      if (OpenTransaction) {
+      if (Mode != TransactionalBehavior.Suppress) {
         var nonTransactionalAttribute = method.GetAttribute<NonTransactionalAttribute>(AttributeSearchOptions.InheritFromPropertyOrEvent);
         if (nonTransactionalAttribute != null)
-          OpenTransaction = false;
+          Mode = TransactionalBehavior.Suppress;
       }
     }
 
@@ -146,7 +142,7 @@ namespace Xtensive.Storage
     {
       if (AspectHelper.IsInfrastructureMethod(method))
         return false;
-      return ActivateSession || OpenTransaction;
+      return ActivateSession || Mode != TransactionalBehavior.Suppress;
     }
 
     /// <inheritdoc/>
@@ -161,22 +157,46 @@ namespace Xtensive.Storage
       IDisposable sessionScope = null;
       if (ActivateSession)
         sessionScope = session.Activate(true);
-      if (OpenTransaction) {
-        var transactionScope = Transaction.Open(session, Mode);
-        args.MethodExecutionTag = sessionScope == null
-          ? (IDisposable) transactionScope
-          : transactionScope.Join(sessionScope);
+      switch (Mode) {
+        case TransactionalBehavior.Auto:
+          if (session.IsDisconnected)
+            goto case TransactionalBehavior.Open;
+          if (session.Configuration.Behavior == SessionBehavior.Client)
+            goto case TransactionalBehavior.Suppress;
+          if (session.Configuration.Behavior == SessionBehavior.Server)
+            goto case TransactionalBehavior.Require;
+          break;
+        case TransactionalBehavior.Require: {
+            args.MethodExecutionTag = sessionScope; 
+            Transaction.Require(session);
+          }
+          break;
+        case TransactionalBehavior.Open: {
+            var transactionScope = Transaction.Open(session, TransactionOpenMode.Auto);
+            args.MethodExecutionTag = sessionScope == null
+                                        ? (IDisposable) transactionScope
+                                        : transactionScope.Join(sessionScope);
+          }
+          break;
+        case TransactionalBehavior.New: {
+            var transactionScope = Transaction.Open(session, TransactionOpenMode.New);
+            args.MethodExecutionTag = sessionScope == null
+                                        ? (IDisposable) transactionScope
+                                        : transactionScope.Join(sessionScope);
+          }
+          break;
+        case TransactionalBehavior.Suppress:
+          args.MethodExecutionTag = sessionScope;
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
       }
-      else
-        args.MethodExecutionTag = sessionScope;
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override void OnSuccess(MethodExecutionArgs args)
     {
-      if (!OpenTransaction)
-        return;
       if (args.MethodExecutionTag == null) // The most probable case : inner call, nothing was opened
         return;
       var transactionScope = args.MethodExecutionTag as TransactionScope;
@@ -206,18 +226,17 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public TransactionalAttribute()
-      : this (TransactionOpenMode.Auto)
+      : this (TransactionalBehavior.Auto)
     {}
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="mode">The transaction opening mode.</param>
-    public TransactionalAttribute(TransactionOpenMode mode)
+    public TransactionalAttribute(TransactionalBehavior mode)
     {
       Mode = mode;
       ActivateSession = true;
-      OpenTransaction = true;
       base.AttributeReplace = true;
       base.AttributePriority = 2;
     }
@@ -226,7 +245,6 @@ namespace Xtensive.Storage
     {
       Mode = transactionalTypeAttribute.Mode;
       ActivateSession = transactionalTypeAttribute.ActivateSession;
-      OpenTransaction = transactionalTypeAttribute.OpenTransaction;
       base.AttributePriority = 1;
     }
   }

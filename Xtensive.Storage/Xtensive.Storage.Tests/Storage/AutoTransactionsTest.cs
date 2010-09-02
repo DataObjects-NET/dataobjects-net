@@ -6,10 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using PostSharp.Extensibility;
 using Xtensive.Core.Aspects;
-using Xtensive.Integrity.Transactions;
-using Xtensive.Storage;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Tests.Storage.AutoTransactionsTestModel;
 
@@ -65,7 +62,7 @@ namespace Xtensive.Storage.Tests.Storage
   public class MySessionBound : SessionBound
   {
 
-    [Transactional(ActivateSession = false, OpenTransaction = false)]
+    [Transactional(Mode = TransactionalBehavior.Suppress, ActivateSession = false)]
     public void CheckSessionActivation()
     {
       CheckState(this, TransactionState.None, SessionState.NotActive);

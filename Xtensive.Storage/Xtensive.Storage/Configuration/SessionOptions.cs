@@ -35,8 +35,7 @@ namespace Xtensive.Storage.Configuration
     /// This option is ignored for non-SQL providers.
     /// Value is <see langword="0x8" />.
     /// </summary>
-    AutoShortenTransactions = 0x8
-    
+    AutoShortenTransactions = 0x8,
 
     /// <summary>
     /// Enables activation of this <see cref="Session"/> from another session having this option.
@@ -56,6 +55,6 @@ namespace Xtensive.Storage.Configuration
     /// method or this option.
     /// </para>
     /// </remarks>
-    AllowSwitching = 0x8,
+    AllowSwitching = 0x10,
   }
 }

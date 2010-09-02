@@ -40,19 +40,14 @@ namespace Xtensive.Storage
   {
     /// <summary>
     /// Gets or sets value describing transaction opening mode.
-    /// Default value is <see cref="TransactionOpenMode.Auto"/>.
+    /// Default value is <see cref="TransactionalBehavior.Auto"/>.
     /// </summary>
-    public TransactionOpenMode Mode { get; set; }
+    public TransactionalBehavior Mode { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether a session should be activated on the method boundaries.
     /// </summary>
     public bool ActivateSession { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether transaction should be opened.
-    /// </summary>
-    public bool OpenTransaction { get; set; }
 
     #region Hide base properties
 
@@ -157,19 +152,18 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public TransactionalTypeAttribute()
-      : this(TransactionOpenMode.Auto)
+      : this(TransactionalBehavior.Auto)
     {
     }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="mode">The transaction opening mode.</param>
-    public TransactionalTypeAttribute(TransactionOpenMode mode)
+    /// <param name="mode">The transactional behavior.</param>
+    public TransactionalTypeAttribute(TransactionalBehavior mode)
     {
       Mode = mode;
       ActivateSession = true;
-      OpenTransaction = true;
     }
 
     #endregion
