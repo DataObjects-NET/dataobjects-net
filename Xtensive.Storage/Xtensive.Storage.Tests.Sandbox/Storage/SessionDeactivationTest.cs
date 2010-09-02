@@ -7,7 +7,9 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Core.Testing;
 using Xtensive.Storage.Configuration;
+using System.Linq;
 
 namespace Xtensive.Storage.Tests.Storage.SessionDeactivationTest
 {
@@ -24,9 +26,26 @@ namespace Xtensive.Storage.Tests.Storage.SessionDeactivationTest
     [Test]
     public void StandardTest()
     {
-      var session = Session.Open(Domain, false);
-      using (session.Activate()) {
-        session.Dispose();
+      AssertEx.Throws<InvalidOperationException>(() => {
+        var session = Session.Open(Domain, false);
+        using (session.Activate()) {
+          using (var tx = Transaction.Open()) {
+            var types = Query.All<Metadata.Type>().ToList();
+            session.Dispose();
+            tx.Complete();
+          } // Error, since Dispose is allowed to throw an exception in this case
+        }
+      });
+
+      {
+        var session = Session.Open(Domain, false);
+        using (session.Activate()) {
+          using (var tx = Transaction.Open()) {
+            var types = Query.All<Metadata.Type>().ToList();
+            session.Dispose();
+            // tx.Complete();
+          } // No error, since Dispose must be silent in this case
+        }
       }
     }
   }
