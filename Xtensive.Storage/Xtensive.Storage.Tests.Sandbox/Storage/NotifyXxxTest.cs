@@ -13,7 +13,7 @@ using Xtensive.Core;
 using Xtensive.Storage.Configuration;
 using Xtensive.Storage.Services;
 
-namespace Xtensive.Storage.Tests.Storage.EntitySetEventsTest
+namespace Xtensive.Storage.Tests.Storage.NotifyXxxTests
 {
   [Serializable]
   [HierarchyRoot]
