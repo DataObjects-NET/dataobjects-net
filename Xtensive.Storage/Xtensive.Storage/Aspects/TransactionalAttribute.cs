@@ -157,40 +157,12 @@ namespace Xtensive.Storage
       IDisposable sessionScope = null;
       if (ActivateSession)
         sessionScope = session.Activate(true);
-      switch (Mode) {
-        case TransactionalBehavior.Auto:
-          if (session.IsDisconnected)
-            goto case TransactionalBehavior.Open;
-          if (session.Configuration.Behavior == SessionBehavior.Client)
-            goto case TransactionalBehavior.Suppress;
-          if (session.Configuration.Behavior == SessionBehavior.Server)
-            goto case TransactionalBehavior.Require;
-          break;
-        case TransactionalBehavior.Require: {
-            args.MethodExecutionTag = sessionScope; 
-            Transaction.Require(session);
-          }
-          break;
-        case TransactionalBehavior.Open: {
-            var transactionScope = Transaction.Open(session, TransactionOpenMode.Auto);
-            args.MethodExecutionTag = sessionScope == null
-                                        ? (IDisposable) transactionScope
-                                        : transactionScope.Join(sessionScope);
-          }
-          break;
-        case TransactionalBehavior.New: {
-            var transactionScope = Transaction.Open(session, TransactionOpenMode.New);
-            args.MethodExecutionTag = sessionScope == null
-                                        ? (IDisposable) transactionScope
-                                        : transactionScope.Join(sessionScope);
-          }
-          break;
-        case TransactionalBehavior.Suppress:
-          args.MethodExecutionTag = sessionScope;
-          break;
-        default:
-          throw new ArgumentOutOfRangeException();
-      }
+      var transactionScope = Transaction.HandleAutoTransaction(session, Mode);
+      args.MethodExecutionTag = transactionScope.IsVoid
+        ? sessionScope
+        : (sessionScope == null
+              ? (IDisposable) transactionScope
+              : transactionScope.Join(sessionScope));
     }
 
     /// <inheritdoc/>
@@ -226,7 +198,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public TransactionalAttribute()
-      : this (TransactionalBehavior.Auto)
+      : this (TransactionalBehavior.Open)
     {}
 
     /// <summary>

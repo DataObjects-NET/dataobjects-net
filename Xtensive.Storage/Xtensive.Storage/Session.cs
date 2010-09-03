@@ -309,7 +309,7 @@ namespace Xtensive.Storage
     public VersionSet CreateVersionSet(IEnumerable<Key> keys)
     {
       using (Activate())
-      using (var tx = Transaction.Open()) {
+      using (var tx = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto)) {
         var entities = keys.Prefetch();
         var result = new VersionSet();
         foreach (var entity in entities)
@@ -345,7 +345,7 @@ namespace Xtensive.Storage
     public void Remove<T>(IEnumerable<T> entities)
       where T : IEntity
     {
-      using (var tx = Transaction.Open()) {
+      using (var tx = Transaction.HandleAutoTransaction(this, TransactionalBehavior.Auto)) {
         RemovalProcessor.Remove(entities.Cast<Entity>().ToList());
         tx.Complete();
       }

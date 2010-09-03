@@ -152,7 +152,7 @@ namespace Xtensive.Storage
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public TransactionalTypeAttribute()
-      : this(TransactionalBehavior.Auto)
+      : this(TransactionalBehavior.Open)
     {
     }
 

@@ -412,7 +412,7 @@ namespace Xtensive.Storage
       if (key==null)
         return null;
       Entity result;
-      using (var transactionScope = Transaction.Open(session)) {
+      using (var transactionScope = Transaction.HandleAutoTransaction(session, TransactionalBehavior.Auto)) {
         var cache = session.EntityStateCache;
         var state = cache[key, true];
 

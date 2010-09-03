@@ -212,7 +212,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    [Transactional]
+    [Transactional(TransactionalBehavior.Auto)]
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
@@ -237,7 +237,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    [Transactional]
+    [Transactional(TransactionalBehavior.Auto)]
     protected internal object GetFieldValue(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
@@ -341,7 +341,7 @@ namespace Xtensive.Storage
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
-    [Transactional]
+    [Transactional(TransactionalBehavior.Auto)]
     protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
       if (field.ReflectedType.IsInterface)
@@ -356,7 +356,7 @@ namespace Xtensive.Storage
     /// </summary>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
-    [Transactional]
+    [Transactional(TransactionalBehavior.Auto)]
     protected internal void SetFieldValue(FieldInfo field, object value)
     {
       SetFieldValue(field, value, null);
@@ -627,7 +627,7 @@ namespace Xtensive.Storage
       InnerOnValidate();
     }
 
-    [Transactional]
+    [Transactional(TransactionalBehavior.Auto)]
     private void InnerOnValidate()
     {
       if (!CanBeValidated) // True for Structures which aren't bound to entities
@@ -650,7 +650,7 @@ namespace Xtensive.Storage
     #region IDataErrorInfo members
 
     /// <inheritdoc/>
-    [Transactional]
+    [Transactional(TransactionalBehavior.Auto)]
     string IDataErrorInfo.this[string columnName] {
       get {
         return GetErrorMessage(this.GetPropertyValidationError(columnName));
@@ -658,7 +658,7 @@ namespace Xtensive.Storage
     }
 
     /// <inheritdoc/>
-    [Transactional]
+    [Transactional(TransactionalBehavior.Auto)]
     string IDataErrorInfo.Error {
       get { 
         try {
@@ -828,7 +828,7 @@ namespace Xtensive.Storage
     {
       CtorTransactionInfo.Current = new CtorTransactionInfo() {
         TransactionScope = Session.Transaction == null
-          ? Transaction.Open(Session)
+          ? Transaction.HandleAutoTransaction(Session, TransactionalBehavior.Auto)
           : null,
         InconsistentRegion = Validation.Disable(Session),
         Previous = CtorTransactionInfo.Current,

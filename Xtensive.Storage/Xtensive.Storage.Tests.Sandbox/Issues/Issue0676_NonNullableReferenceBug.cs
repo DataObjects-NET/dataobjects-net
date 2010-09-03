@@ -148,27 +148,33 @@ namespace Xtensive.Storage.Tests.Issues
         Assert.AreEqual(OnRemoveAction.None, fMateDenyRemove.Association.OnOwnerRemove);
         Assert.AreEqual(OnRemoveAction.Deny, fMateDenyRemove.Association.OnTargetRemove);
 
-        var a = new Animal("A");
-        var b = new Animal("B") { Mate = a, MateDenyRemove = a };
-        var aKey = a.Key;
-        AssertEx.Throws<ReferentialIntegrityException>(() => 
-          a.Remove());
-        b.MateDenyRemove = b;
-        a.Remove();
-        
+        Animal a,b;
+        Key aKey;
+        using (var tx = Transaction.Open())
+        {
+          a = new Animal("A");
+          b = new Animal("B") {Mate = a, MateDenyRemove = a};
+          aKey = a.Key;
+          AssertEx.Throws<ReferentialIntegrityException>(a.Remove);
+          b.MateDenyRemove = b;
+          a.Remove();
+          tx.Complete();
+        }
+
         using (var tx = Transaction.Open()) {
           var dpa = session.Services.Demand<DirectPersistentAccessor>();
           Assert.AreEqual(aKey, dpa.GetReferenceKey(b, fMate));
           tx.Complete();
         }
-        b.Remove();
+        ((Action) (() => b.Remove())).InvokeTransactionally(session);
       }
     }
 
     [Test]
     public void HasNullEntityTest()
     {
-      using (var session = Session.Open(Domain)) {
+      using (var session = Session.Open(Domain))
+      using (var tx = Transaction.Open(session)) {
         var tPerson = session.Domain.Model.Types[typeof(Person)];
         var fMate = tPerson.Fields["Mate"];
         Assert.AreEqual(OnRemoveAction.None, fMate.Association.OnOwnerRemove);

@@ -7,6 +7,7 @@
 using System;
 using System.Transactions;
 using Xtensive.Core;
+using Xtensive.Storage.Configuration;
 
 namespace Xtensive.Storage
 {
@@ -136,5 +137,29 @@ namespace Xtensive.Storage
       return session.OpenTransaction(mode, isolationLevel);
     }
 
+    internal static TransactionScope HandleAutoTransaction(Session session, TransactionalBehavior behavior)
+    {
+      switch (behavior) {
+        case TransactionalBehavior.Auto:
+          if (session.IsDisconnected)
+            goto case TransactionalBehavior.Open;
+          if (session.Configuration.Behavior == SessionBehavior.Client)
+            goto case TransactionalBehavior.Suppress;
+          if (session.Configuration.Behavior == SessionBehavior.Server)
+            goto case TransactionalBehavior.Require;
+          goto default;
+        case TransactionalBehavior.Require:
+          Require(session);
+          return TransactionScope.VoidScopeInstance;
+        case TransactionalBehavior.Open:
+          return Open(session, TransactionOpenMode.Auto);
+        case TransactionalBehavior.New:
+          return Open(session, TransactionOpenMode.New);
+        case TransactionalBehavior.Suppress:
+          return TransactionScope.VoidScopeInstance;
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+    }
   }
 }

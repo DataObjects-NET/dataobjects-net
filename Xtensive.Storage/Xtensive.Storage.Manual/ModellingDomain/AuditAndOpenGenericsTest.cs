@@ -350,8 +350,11 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
         }
 
         // Auto transactions
-        musya.Name = "Musya";
-        musya.Remove();
+        using (var tx = Transaction.Open()) {
+          musya.Name = "Musya";
+          musya.Remove();
+          tx.Complete();
+        }
 
         // Rollback test
         using (var tx = Transaction.Open()) {
@@ -368,10 +371,16 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
           }
         }
 
-        alex = Query.Single<Person>(alex.Key); // Materializing entity from enother Session here
+        using (var tx = Transaction.Open())
+        {
+          alex = Query.Single<Person>(alex.Key); // Materializing entity from enother Session here
+        }
 
-        // Auto transaction
-        tom.Owner = alex;
+        using (var tx = Transaction.Open())
+        {
+          tom.Owner = alex;
+          tx.Complete();
+        }
 
         // And now - the magic!
         DumpAuditLog();
@@ -397,41 +406,39 @@ namespace Xtensive.Storage.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Assert.AreEqual(8, autoGenericInstances.Count);
     }
 
+    [Transactional(TransactionalBehavior.Open)]
     private void DumpAuditLog()
     {
       Console.WriteLine("Audit log:");
-      using (var tx = Transaction.Open()) {
-        var auditTable =
-          from record in Query.All<AuditRecord>()
-          let transaction = record.Transaction
-          orderby transaction.Id , record.EntityKey
-          select new {Record = record, Transaction = transaction};
+      var auditTable =
+        from record in Query.All<AuditRecord>()
+        let transaction = record.Transaction
+        orderby transaction.Id , record.EntityKey
+        select new {Record = record, Transaction = transaction};
 
-        // Prefetching AuditRecord<T> - so far we're sure there is only
-        // AuditRecord fields and Transaction, but we need descendant fields
-        // as well.
-        auditTable
-          .Select(e => e.Record.Key)
-          .Prefetch<Entity, Key>(key => key)
-          .Run();
-        // Prefetching AuditRecord.EntityKey
-        auditTable
-          .Select(e => e.Record.EntityKey)
-          .Prefetch<Entity, Key>(key => key)
-          .Run();
+      // Prefetching AuditRecord<T> - so far we're sure there is only
+      // AuditRecord fields and Transaction, but we need descendant fields
+      // as well.
+      auditTable
+        .Select(e => e.Record.Key)
+        .Prefetch<Entity, Key>(key => key)
+        .Run();
+      // Prefetching AuditRecord.EntityKey
+      auditTable
+        .Select(e => e.Record.EntityKey)
+        .Prefetch<Entity, Key>(key => key)
+        .Run();
 
-        TransactionInfo lastTransaction = null;
-        foreach (var entry in auditTable) {
-          var transaction = entry.Transaction;
-          if (lastTransaction!=transaction) {
-            // Client-side grouping ;) Actually, for nicer output.
-            Console.WriteLine();
-            Console.WriteLine(transaction.ToString());
-            lastTransaction = transaction;
-          }
-          Console.WriteLine(entry.Record.ToString().Indent(2));
+      TransactionInfo lastTransaction = null;
+      foreach (var entry in auditTable) {
+        var transaction = entry.Transaction;
+        if (lastTransaction!=transaction) {
+          // Client-side grouping ;) Actually, for nicer output.
+          Console.WriteLine();
+          Console.WriteLine(transaction.ToString());
+          lastTransaction = transaction;
         }
-        tx.Complete();
+        Console.WriteLine(entry.Record.ToString().Indent(2));
       }
     }
   }

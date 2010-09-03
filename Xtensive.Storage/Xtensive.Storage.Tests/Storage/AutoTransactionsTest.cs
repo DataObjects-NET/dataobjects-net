@@ -59,6 +59,7 @@ namespace Xtensive.Storage.Tests.Storage
     }
   }    
 
+  [TransactionalType(TransactionalBehavior.Open)]
   public class MySessionBound : SessionBound
   {
 

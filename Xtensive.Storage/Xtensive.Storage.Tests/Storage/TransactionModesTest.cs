@@ -91,27 +91,6 @@ namespace Xtensive.Storage.Tests.Storage
     }
     
     [Test]
-    public void AutoTransactionsTest()
-    {
-      var sessionConfiguration = new SessionConfiguration();
-      short reorderLevel;
-      Key productKey;
-      using (Session.Open(Domain, sessionConfiguration)) {
-        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
-        var product = Query.All<Product>().Where(p => p.Id > 0).First();
-        product.ReorderLevel++;
-        reorderLevel = product.ReorderLevel;
-        productKey = product.Key;
-      }
-
-      using (Session.Open(Domain, sessionConfiguration)) {
-        Assert.IsNull(StorageTestHelper.GetNativeTransaction());
-        var product = Query.Single<Product>(productKey);
-        Assert.AreEqual(reorderLevel, product.ReorderLevel);
-      }
-    }
-
-    [Test]
     public void NestedTransactionsWithAutoshortenedOptionTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
