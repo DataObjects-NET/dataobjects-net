@@ -44,8 +44,10 @@ namespace Xtensive.Storage.Configuration
     /// </summary>
     /// <remarks>
     /// <para>
-    /// By default, activation of one session from another leads to exception, 
-    /// since normally this indicates the same thread controls two sessions (and transactions),
+    /// By default, activation of a session inside another one with running transaction 
+    /// (i.e. when another session is active, and transaction is already running there)
+    /// leads to <see cref="InvalidOperationException"/>, 
+    /// since normally this indicates the same thread controls two sessions and transactions,
     /// which is dangerous (may lead to application-level deadlock).
     /// </para>
     /// <para>
@@ -55,6 +57,10 @@ namespace Xtensive.Storage.Configuration
     /// <para>
     /// So to activate one session from another, you must use either <see cref="Session.Deactivate"/>
     /// method or this option.
+    /// </para>
+    /// <para>
+    /// See <see href="http://support.x-tensive.com/question/2870/nested-sessions-and-transactions">description of 
+    /// this feature on Support@x-tensive.com</see> for further details and examples.
     /// </para>
     /// </remarks>
     AllowSwitching = 0x8,

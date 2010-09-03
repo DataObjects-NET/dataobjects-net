@@ -262,7 +262,7 @@ namespace Xtensive.Storage
         return new SessionScope(this);
       if (currentSession==this)
         return null;
-      if (allowSwitching && currentSession.allowSwitching)
+      if (currentSession.Transaction==null || (allowSwitching && currentSession.allowSwitching))
         return new SessionScope(this);
       throw new InvalidOperationException(
         Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked
