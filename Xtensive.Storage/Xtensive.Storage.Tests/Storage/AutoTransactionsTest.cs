@@ -57,9 +57,32 @@ namespace Xtensive.Storage.Tests.Storage
       }
       testObject.CheckSessionActivation();
     }
-  }    
 
-  [TransactionalType(TransactionalBehavior.Open)]
+    [Test]
+    public void NonTransactionalSessionBoundTest()
+    {
+      using (Session.Open(Domain))
+      {
+        var sb = new NotTransactionalSessionBound();
+        sb.Method1();
+      }
+    }
+  }
+
+  [TransactionalType(TransactionalBehavior.Suppress, ActivateSession = true, AttributeReplace = true)]
+  public class NotTransactionalSessionBound : SessionBound
+  {
+//    [Transactional(TransactionalBehavior.Suppress)]
+    public void Method1()
+    {
+      Console.Out.WriteLine("Blah...");
+      Assert.IsNull(Session.Transaction);
+    }
+
+    public string Name { get; private set; }
+  }
+
+  [TransactionalType(TransactionalBehavior.Open, AttributeReplace = true)]
   public class MySessionBound : SessionBound
   {
 

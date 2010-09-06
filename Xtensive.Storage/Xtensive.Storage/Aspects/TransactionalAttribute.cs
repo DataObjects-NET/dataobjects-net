@@ -26,7 +26,7 @@ namespace Xtensive.Storage
   /// Opens the transaction, if this is necessary.
   /// </summary>
   [Serializable]
-  [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.None, AllowMultiple = false, 
+  [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.None, AllowMultiple = false,
     TargetMemberAttributes = 
       MulticastAttributes.AnyGeneration |
       MulticastAttributes.AnyScope |
@@ -209,7 +209,6 @@ namespace Xtensive.Storage
     {
       Mode = mode;
       ActivateSession = true;
-      base.AttributeReplace = true;
       base.AttributePriority = 2;
     }
 

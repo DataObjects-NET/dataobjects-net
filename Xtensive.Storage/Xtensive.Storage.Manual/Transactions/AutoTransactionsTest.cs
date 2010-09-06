@@ -19,7 +19,7 @@ namespace Xtensive.Storage.Manual.Transactions.AutoTransactions
 
   [Serializable]
   [HierarchyRoot]
-  [TransactionalType]
+  [TransactionalType(AttributeReplace = true)]
   public class Person : Entity
   {
     [Key, Field]
