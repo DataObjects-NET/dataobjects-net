@@ -738,8 +738,8 @@ namespace Xtensive.Storage.Linq
         if (found)
           return body;
 
-        if (body.Type.IsEnum)
-          body = Expression.Convert(body, Enum.GetUnderlyingType(body.Type));
+        if (body.Type.IsEnum)     
+          body = new EnumRewriter().Visit(body);
         var convertExpression = Expression.Convert(body, typeof (object));
 
         var calculator = ExpressionMaterializer.MakeLambda(convertExpression, context);
