@@ -33,6 +33,7 @@ namespace Xtensive.Core.Diagnostics
       if (stream.CanWrite) {
         writer.WriteLine(text);
         writer.Flush();
+        stream.Flush();
       }
     }
 

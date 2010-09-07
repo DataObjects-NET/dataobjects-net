@@ -90,6 +90,7 @@ namespace Xtensive.Storage
             handler.Invoke(sender, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
           }
         }
+        transactionScope.Complete();
       }
     }
   }

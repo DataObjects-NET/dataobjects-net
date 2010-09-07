@@ -343,16 +343,13 @@ namespace Xtensive.Storage.Building.Builders
             throw new SchemaSynchronizationException(
               Strings.ExExtractedSchemaIsNotCompatibleWithTheTargetSchema_DetailsX.FormatWith(result));
           break;
-        case SchemaUpgradeMode.Recreate:
-        case SchemaUpgradeMode.Perform:
-          upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
-          if (result.UpgradeActions.Any())
-            upgradeHandler.ClearExtractedSchemaCache();
-          break;
         case SchemaUpgradeMode.PerformSafely:
           if (result.HasUnsafeActions)
             throw new SchemaSynchronizationException(
               Strings.ExCanNotUpgradeSchemaSafely_DetailsX.FormatWith(result));
+          goto case SchemaUpgradeMode.Perform;
+        case SchemaUpgradeMode.Recreate:
+        case SchemaUpgradeMode.Perform:
           upgradeHandler.UpgradeSchema(result.UpgradeActions, extractedSchema, targetSchema);
           if (result.UpgradeActions.Any())
             upgradeHandler.ClearExtractedSchemaCache();
