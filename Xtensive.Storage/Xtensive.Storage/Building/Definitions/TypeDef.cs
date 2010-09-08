@@ -42,6 +42,12 @@ namespace Xtensive.Storage.Building.Definitions
     public bool IsAbstract
     {
       get { return (attributes & TypeAttributes.Abstract) > 0; }
+      internal set {
+        this.EnsureNotLocked();
+        Attributes = value
+          ? (Attributes | TypeAttributes.Abstract)
+          : (Attributes & ~TypeAttributes.Abstract);
+      }
     }
 
     /// <summary>

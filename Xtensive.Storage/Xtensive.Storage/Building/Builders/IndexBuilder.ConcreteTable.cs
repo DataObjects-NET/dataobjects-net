@@ -32,7 +32,7 @@ namespace Xtensive.Storage.Building.Builders
           .Any(f => f.IsInherited);
         if (inherited)
           continue;
-        var declaredIndex = BuildIndex(type, indexDescriptor, type.UnderlyingType.IsAbstract); 
+        var declaredIndex = BuildIndex(type, indexDescriptor, type.IsAbstract); 
 
         type.Indexes.Add(declaredIndex);
         if (!declaredIndex.IsAbstract)
@@ -43,7 +43,7 @@ namespace Xtensive.Storage.Building.Builders
       var parent = type.GetAncestor();
       if (parent != null) {
         var parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
-        var inheritedIndex = BuildInheritedIndex(type, parentPrimaryIndex, type.UnderlyingType.IsAbstract);
+        var inheritedIndex = BuildInheritedIndex(type, parentPrimaryIndex, type.IsAbstract);
        
         // Registering built primary index
         type.Indexes.Add(inheritedIndex);
@@ -56,7 +56,7 @@ namespace Xtensive.Storage.Building.Builders
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           if (parentIndex.DeclaringIndex != parentIndex) 
             continue;
-          var index = BuildInheritedIndex(type, parentIndex, type.UnderlyingType.IsAbstract);
+          var index = BuildInheritedIndex(type, parentIndex, type.IsAbstract);
           if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
             continue;
           type.Indexes.Add(index);
@@ -96,7 +96,7 @@ namespace Xtensive.Storage.Building.Builders
       foreach (var ancestorIndex in ancestors.SelectMany(ancestor => ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None))) {
         if (ancestorIndex.DeclaringIndex != ancestorIndex) 
           continue;
-        var secondaryIndex = BuildInheritedIndex(type, ancestorIndex, type.UnderlyingType.IsAbstract);
+        var secondaryIndex = BuildInheritedIndex(type, ancestorIndex, type.IsAbstract);
         type.Indexes.Add(secondaryIndex);
         if (!secondaryIndex.IsAbstract)
           context.Model.RealIndexes.Add(secondaryIndex);
