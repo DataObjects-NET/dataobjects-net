@@ -42,7 +42,7 @@ namespace Xtensive.Storage.Tests.Issues
   {
 
     [Test]
-    [ExpectedException(typeof(DomainBuilderException))]
+//    [ExpectedException(typeof(DomainBuilderException))]
     public void AbstractClassPerHierarchyTest()
     {
       var config = DomainConfigurationFactory.Create();
@@ -55,7 +55,7 @@ namespace Xtensive.Storage.Tests.Issues
     }
 
     [Test]
-    [ExpectedException(typeof(DomainBuilderException))]
+//    [ExpectedException(typeof(DomainBuilderException))]
     public void AbstractHierarchyTest()
     {
       var config = DomainConfigurationFactory.Create();

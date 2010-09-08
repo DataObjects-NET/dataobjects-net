@@ -107,6 +107,12 @@ namespace Xtensive.Storage.Building
       context.ModelDef.Types.Remove(action.Type);
     }
 
+    public static void Process(MakeTypeNonAbstractAction action)
+    {
+      var context = BuildingContext.Demand();
+      action.Type.IsAbstract = false;
+    }
+
     public static void Process(BuildGenericTypeInstancesAction action)
     {
       var context = BuildingContext.Demand();
