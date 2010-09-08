@@ -22,7 +22,7 @@ namespace Xtensive.Storage
   /// Opens the transaction for public methods.
   /// </summary>
   [Serializable]
-  [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.Multicast, AllowMultiple = true,
+  [MulticastAttributeUsage(MulticastTargets.Method, Inheritance = MulticastInheritance.Multicast, AllowMultiple = false,
     TargetMemberAttributes =
       MulticastAttributes.Instance |
       MulticastAttributes.UserGenerated |
