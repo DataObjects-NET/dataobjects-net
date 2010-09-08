@@ -27,10 +27,11 @@ namespace Xtensive.Storage.Building
         InspectTypes();
         InspectInterfaces();
         InspectReferences();
+        InspectAbstractTypes();
       }
     }
 
-    public static void InspectAbstractTypes()
+    private static void InspectAbstractTypes()
     {
       var context = BuildingContext.Demand();
       foreach (var typeDef in context.ModelDef.Types.Where(td => td.IsAbstract)) {
@@ -38,7 +39,8 @@ namespace Xtensive.Storage.Building
         if (hierarchyDef != null) {
           var node = context.DependencyGraph.TryGetNode(typeDef);
           if (node == null || !node.IncomingEdges.Any(e => e.Kind == EdgeKind.Inheritance))
-            throw new DomainBuilderException(string.Format("Abstract class {0} does not have registered implementors.", typeDef.Name));
+            context.ModelInspectionResult.Register(new MakeTypeNonAbstractAction(typeDef));
+//            throw new DomainBuilderException(string.Format("Abstract class {0} does not have registered implementors.", typeDef.Name));
         }
       }
     }

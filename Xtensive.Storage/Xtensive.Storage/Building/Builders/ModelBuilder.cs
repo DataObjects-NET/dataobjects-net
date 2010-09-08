@@ -54,7 +54,6 @@ namespace Xtensive.Storage.Building.Builders
 
         InspectAndProcessGeneratedEntities(context);
       }
-      ModelInspector.InspectAbstractTypes();
       BuildModel();
       context.ModelDef.Hierarchies.Inserted -= OnHierarchyAdded;
       context.ModelDef.Types.Inserted -= OnTypeAdded;
