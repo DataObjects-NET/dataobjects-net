@@ -20,6 +20,16 @@ namespace Xtensive.Storage.Tests.Linq
   public class OrderByTest : NorthwindDOModelTest
   {
     [Test]
+    public void OrderByEnumTest()
+    {
+      var result = Query.All<Product>().OrderBy(product => product.ProductType).ThenBy(p=>p.Id);
+      var list = result.ToList();
+      var expected = Products.OrderBy(product => product.ProductType).ThenBy(p=>p.Id);
+      Assert.AreEqual(Products.Count(), list.Count);
+      Assert.IsTrue(expected.SequenceEqual(list));
+    }
+
+    [Test]
     public void OrderByTakeTest()
     {
       var result = Query.All<Order>().OrderBy(o => o.Id).Take(10);
