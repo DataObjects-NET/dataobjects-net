@@ -53,7 +53,7 @@ namespace Xtensive.Storage
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
   [DebuggerDisplay("FullName = {FullName}")]
-  public sealed partial class Session : DomainBound,
+  public partial class Session : DomainBound,
     IVersionSetProvider,
     IIdentified<long>,
     IContext<SessionScope>, 

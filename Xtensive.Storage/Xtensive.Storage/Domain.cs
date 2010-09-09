@@ -200,6 +200,19 @@ namespace Xtensive.Storage
       return session;
     }
 
+    internal UISession OpenSession(SessionConfiguration configuration)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      configuration.Lock(true);
+
+      if (IsDebugEventLoggingEnabled)
+        Log.Debug(Strings.LogOpeningSessionX, configuration);
+
+      var session = new UISession(this, configuration);
+      NotifySessionOpen(session);
+      return session;
+    }
+
     #endregion
 
     #region IHasExtensions members

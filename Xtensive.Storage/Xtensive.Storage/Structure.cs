@@ -373,7 +373,19 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="session">The session.</param>
+    protected Structure(Session session)
+      : base(session)
+    {
+      typeInfo = GetTypeInfo();
+      tuple = typeInfo.TuplePrototype.Clone();
+      SystemBeforeInitialize(false);
+    }
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     /// <param name="data">Underlying <see cref="Tuple"/> value.</param>
     protected Structure(Tuple data)
@@ -393,6 +405,28 @@ namespace Xtensive.Storage
     }
 
     /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="data">Underlying <see cref="Tuple"/> value.</param>
+    protected Structure(Session session, Tuple data)
+      : base(session)
+    {
+      try {
+        typeInfo = GetTypeInfo();
+        tuple = data;
+        SystemBeforeInitialize(false);
+      }
+      catch (Exception error) {
+        InitializationError(GetType(), error);
+        // GetType() call is correct here: no code will be executed further,
+        // if base constructor will fail, but since descendant's constructor is aspected,
+        // we must "simulate" its own call of InitializationError method.
+        throw;
+      }
+    }
+
+    /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// Used internally to initialize the structure on materialization.
     /// </summary>
@@ -400,6 +434,35 @@ namespace Xtensive.Storage
     /// <param name="field">The owner field that describes this instance.</param>
     [Infrastructure]
     protected Structure(Persistent owner, FieldInfo field)
+    {
+      try {
+        typeInfo = GetTypeInfo();
+        Owner = owner;
+        Field = field;
+        if (owner==null || field==null)
+          tuple = typeInfo.TuplePrototype.Clone();
+        else
+          tuple = field.ExtractValue(
+            new ReferencedTuple(() => Owner.Tuple));
+        SystemBeforeInitialize(true);
+        InitializeOnMaterialize();
+      }
+      catch (Exception error) {
+        InitializationErrorOnMaterialize(error);
+        throw;
+      }
+    }
+
+    /// <summary>
+    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Used internally to initialize the structure on materialization.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="owner">The owner of this instance.</param>
+    /// <param name="field">The owner field that describes this instance.</param>
+    [Infrastructure]
+    protected Structure(Session session, Persistent owner, FieldInfo field)
+      : base(session)
     {
       try {
         typeInfo = GetTypeInfo();
