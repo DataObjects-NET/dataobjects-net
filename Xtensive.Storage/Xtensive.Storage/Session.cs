@@ -380,6 +380,9 @@ namespace Xtensive.Storage
       Handler.Session = this;
       Handler.Initialize();
 
+      // Query endpoint
+      Query = new QueryEndpoint();
+
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry(this);

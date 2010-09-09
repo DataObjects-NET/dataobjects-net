@@ -53,9 +53,23 @@ namespace Xtensive.Storage
       return domain.OpenSession(configuration);
     }
 
+    public void SaveChanges()
+    {
+      DisconnectedState.ApplyChanges();
+    }
+
+    public void CancelChanges()
+    {
+      DisconnectedState.CancelChanges();
+    }
+
+    // Constructors
+
     internal UISession(Domain domain, SessionConfiguration configuration) 
       : base(domain, configuration, false)
     {
+      new DisconnectedState().Attach(this);
+      DisconnectedState.Connect();
     }
   }
 }
