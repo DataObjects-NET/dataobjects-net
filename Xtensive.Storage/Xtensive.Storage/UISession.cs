@@ -28,7 +28,7 @@ namespace Xtensive.Storage
     /// <seealso cref="Session"/>
     public new static UISession Open(Domain domain)
     {
-      return Open(domain, null);
+      return Open(domain, domain.Configuration.Sessions.Default);
     }
 
     /// <summary>
