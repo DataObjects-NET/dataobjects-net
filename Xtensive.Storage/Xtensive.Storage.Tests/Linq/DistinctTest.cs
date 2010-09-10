@@ -71,7 +71,8 @@ namespace Xtensive.Storage.Tests.Linq
       var result = Query.All<Customer>()
         .OrderBy(c => c.Id)
         .Select(c => c.Address.City)
-        .Distinct();
+        .Distinct()
+        .ToList();
       var expected = Query.All<Customer>()
         .ToList()
         .OrderBy(c => c.Id)

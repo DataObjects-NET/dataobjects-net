@@ -36,7 +36,7 @@ namespace Xtensive.Storage.Rse.Compilation
       bool isOrderBreaker = provider.Type==ProviderType.Except
         || provider.Type==ProviderType.Intersect || provider.Type==ProviderType.Union
         || provider.Type==ProviderType.Concat || provider.Type==ProviderType.Existence
-        || provider.Type==ProviderType.Distinct;
+        /*|| provider.Type==ProviderType.Distinct*/;
       bool isSorter = provider.Type==ProviderType.Sort || provider.Type==ProviderType.Reindex;
       return new ProviderOrderingDescriptor(isOrderSensitive, true, isOrderBreaker, isSorter);
     }
